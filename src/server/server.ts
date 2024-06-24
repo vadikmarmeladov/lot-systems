@@ -161,7 +161,7 @@ fastify.register(async (fastify: FastifyInstance) => {
     // Admin API
     fastify.register(async (fastify) => {
       fastify.addHook('onRequest', async (req, reply) => {
-        if (!req.user || !config.admins.includes(req.user.email)) {
+        if (!req.user || !req.user.isAdmin()) {
           reply.status(401)
           throw new Error('Access denied')
         }
@@ -192,7 +192,7 @@ fastify.register(async (fastify: FastifyInstance) => {
     // Admin app
     fastify.register(async (fastify) => {
       fastify.addHook('onRequest', async (req, reply) => {
-        if (!req.user || !config.admins.includes(req.user.email)) {
+        if (!req.user || !req.user.isAdmin()) {
           return reply.redirect('/')
         }
       })

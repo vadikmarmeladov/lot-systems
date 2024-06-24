@@ -1,9 +1,10 @@
 import { DataTypes, Model, CreationOptional, Op } from 'sequelize'
+import config from '#server/config'
 import dayjs from '#server/utils/dayjs'
 import { sequelize } from '#server/utils/db'
-import { User as UserModel, UserProfile } from '#shared/types'
+import { USER_ONLINE_TIMEOUT_MINUTES } from '#server/constants'
+import { User as UserModel, UserProfile, UserTag } from '#shared/types'
 import { fp } from '#shared/utils'
-import { USER_ONLINE_TIMEOUT_MINUTES } from '../constants'
 
 type UserCreateFields = Pick<UserModel, 'email'> & Partial<UserModel>
 
@@ -42,6 +43,12 @@ export class User
       'tags',
       'hideActivityLogs',
     ])(this.toJSON())
+  }
+
+  isAdmin(): boolean {
+    return (
+      config.admins.includes(this.email) || this.tags.includes(UserTag.Admin)
+    )
   }
 
   async ping() {

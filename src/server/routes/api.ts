@@ -92,7 +92,7 @@ export default async (fastify: FastifyInstance) => {
 
   fastify.get('/me', async (req: FastifyRequest, reply) => {
     const profile = req.user.useProfileView()
-    const isAdmin = config.admins.includes(req.user.email) || undefined
+    const isAdmin = req.user.isAdmin() || undefined
     req.user.deferredPing()
     return { ...profile, isAdmin }
   })
@@ -157,11 +157,7 @@ export default async (fastify: FastifyInstance) => {
   fastify.get('/chat-messages', async (req: FastifyRequest, reply) => {
     const messages = await fastify.models.ChatMessage.findAll({
       order: [['createdAt', 'DESC']],
-      limit:
-        config.admins.includes(req.user.email) ||
-        req.user.tags.includes(UserTag.Admin)
-          ? undefined
-          : SYNC_CHAT_MESSAGES_TO_SHOW,
+      limit: req.user.isAdmin() ? undefined : SYNC_CHAT_MESSAGES_TO_SHOW,
     })
     const userIds = messages.map((m) => m.authorUserId)
     const users = await fastify.models.User.findAll({
