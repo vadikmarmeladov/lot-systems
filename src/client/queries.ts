@@ -8,6 +8,7 @@ import {
 } from 'react-query'
 import {
   AdminUsersSort,
+  ChatMessageLikePayload,
   DefaultQuestion,
   Log,
   Paginated,
@@ -74,6 +75,11 @@ export const useChatMessages =
 export const useCreateChatMessage = createMutation<{ message: string }, void>(
   'post',
   '/api/chat-messages'
+)
+
+export const useLikeChatMessage = createMutation<ChatMessageLikePayload, void>(
+  'post',
+  '/api/chat-messages/like'
 )
 
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {

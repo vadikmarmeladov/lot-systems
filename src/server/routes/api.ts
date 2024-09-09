@@ -1,7 +1,13 @@
 import { Op } from 'sequelize'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import seedrandom from 'seedrandom'
-import { PublicChatMessage, UserSettings, UserTag } from '#shared/types'
+import {
+  ChatMessageLikeEventPayload,
+  ChatMessageLikePayload,
+  PublicChatMessage,
+  UserSettings,
+  UserTag,
+} from '#shared/types'
 import config from '#server/config'
 import { fp } from '#shared/utils'
 import {
@@ -51,7 +57,7 @@ export default async (fastify: FastifyInstance) => {
       }, 300)
     }, 300)
 
-    const { dispose } = sync.listen('*', (data, event) => {
+    const { dispose } = sync.listen('*', async (data, event) => {
       // if (config.admins.includes(req.user.email)) {
       //   console.log(`~~> SSE ${id}: "${event}"`, data)
       // }
@@ -66,6 +72,18 @@ export default async (fastify: FastifyInstance) => {
           // TODO: check if user is allowed to use chat
           write({ event, data })
           break
+        }
+        case 'chat_message_like': {
+          const payload = data as ChatMessageLikeEventPayload
+          const likes = await fastify.models.ChatMessageLike.findAll({
+            where: { messageId: payload.messageId },
+          })
+          const updatedPayload: ChatMessageLikeEventPayload = {
+            ...payload,
+            likes: likes.length,
+            isLiked: likes.some(fp.propEq('userId', req.user.id)),
+          }
+          write({ event, data: updatedPayload })
         }
       }
     })
@@ -159,17 +177,29 @@ export default async (fastify: FastifyInstance) => {
       order: [['createdAt', 'DESC']],
       limit: req.user.isAdmin() ? undefined : SYNC_CHAT_MESSAGES_TO_SHOW,
     })
+
     const userIds = messages.map((m) => m.authorUserId)
     const users = await fastify.models.User.findAll({
       where: { id: userIds },
     })
     const userById = users.reduce(fp.by('id'), {})
-    const result: PublicChatMessage[] = messages.map((x) => ({
-      id: x.id,
-      message: x.message,
-      author: userById[x.authorUserId].firstName || null,
-      createdAt: x.createdAt,
-    }))
+
+    const likes = await fastify.models.ChatMessageLike.findAll({
+      where: { messageId: messages.map(fp.prop('id')) },
+    })
+    const likesByMessageId = likes.reduce(fp.groupBy('messageId'), {})
+
+    const result: PublicChatMessage[] = messages.map((x) => {
+      const likes = likesByMessageId[x.id] || []
+      return {
+        id: x.id,
+        message: x.message,
+        author: userById[x.authorUserId].firstName || null,
+        createdAt: x.createdAt,
+        likes: likes.length,
+        isLiked: likes.some(fp.propEq('userId', req.user.id)),
+      }
+    })
     return result
   })
 
@@ -186,6 +216,8 @@ export default async (fastify: FastifyInstance) => {
         message: chatMessage.message,
         author: req.user.firstName,
         createdAt: chatMessage.createdAt,
+        likes: 0,
+        isLiked: false,
       })
       process.nextTick(async () => {
         const context = await getLogContext(req.user)
@@ -196,6 +228,50 @@ export default async (fastify: FastifyInstance) => {
           metadata: {
             chatMessageId: chatMessage.id,
             message: chatMessage.message,
+          },
+          context,
+        })
+      })
+      return reply.ok()
+    }
+  )
+
+  fastify.post(
+    '/chat-messages/like',
+    async (req: FastifyRequest<{ Body: ChatMessageLikePayload }>, reply) => {
+      const message = await fastify.models.ChatMessage.findByPk(
+        req.body.messageId
+      )
+      if (!message) return reply.throw.notFound()
+      let isLiked = false
+      let likeRecord = await fastify.models.ChatMessageLike.findOne({
+        where: { messageId: req.body.messageId, userId: req.user.id },
+      })
+      if (likeRecord) {
+        await likeRecord.destroy()
+      } else {
+        isLiked = true
+        likeRecord = await fastify.models.ChatMessageLike.create({
+          userId: req.user.id,
+          messageId: req.body.messageId,
+        })
+      }
+      sync.emit('chat_message_like', {
+        messageId: message.id,
+        likes: 0,
+        isLiked: false,
+      })
+      process.nextTick(async () => {
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          event: 'chat_message_like',
+          text: '',
+          metadata: {
+            chatMessageLikeId: likeRecord?.id || null,
+            chatMessageId: message.id,
+            message: message.message,
+            isLiked,
           },
           context,
         })

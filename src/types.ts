@@ -64,6 +64,13 @@ export interface ChatMessage {
   updatedAt: string
 }
 
+export interface ChatMessageLike {
+  id: string
+  userId: string
+  messageId: string
+  createdAt: string
+}
+
 export interface WeatherResponse {
   id: string
   country: string
@@ -72,7 +79,12 @@ export interface WeatherResponse {
   createdAt: Date
 }
 
-export type LogEvent = 'note' | 'settings_change' | 'chat_message' | 'answer'
+export type LogEvent =
+  | 'note'
+  | 'settings_change'
+  | 'chat_message'
+  | 'chat_message_like'
+  | 'answer'
 
 export interface Log {
   id: string
@@ -141,6 +153,7 @@ export type SyncEvents = {
   users_total: { value: number }
   users_online: { value: number }
   chat_message: PublicChatMessage
+  chat_message_like: ChatMessageLikeEventPayload
   live_message: { message: string }
 }
 
@@ -149,6 +162,18 @@ export type PublicChatMessage = {
   message: string
   author: string | null
   createdAt: string
+  likes: number
+  isLiked: boolean
+}
+
+export type ChatMessageLikePayload = {
+  messageId: string
+}
+
+export type ChatMessageLikeEventPayload = {
+  messageId: string
+  likes: number
+  isLiked: boolean
 }
 
 export type Weather = {

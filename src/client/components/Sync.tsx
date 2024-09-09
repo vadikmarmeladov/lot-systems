@@ -3,9 +3,19 @@ import dayjsRelativeTime from 'dayjs/plugin/relativeTime'
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
-import { Button, Clock, ResizibleGhostInput } from '#client/components/ui'
+import {
+  Button,
+  Clock,
+  GhostButton,
+  ResizibleGhostInput,
+  Tag,
+} from '#client/components/ui'
 import { cn } from '#client/utils'
-import { useCreateChatMessage, useChatMessages } from '#client/queries'
+import {
+  useCreateChatMessage,
+  useChatMessages,
+  useLikeChatMessage,
+} from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
 import {
@@ -27,6 +37,7 @@ export const Sync = () => {
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
+  const { mutate: likeChatMessage } = useLikeChatMessage()
 
   const onChangeMessage = React.useCallback((value: string) => {
     setMessage(
@@ -43,7 +54,7 @@ export const Sync = () => {
   }, [fetchedMessages])
 
   React.useEffect(() => {
-    const { dispose: disposeUsersTotal } = sync.listen(
+    const { dispose: disposeChatMessageListener } = sync.listen(
       'chat_message',
       (data) => {
         setMessages((prev) => {
@@ -55,8 +66,22 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeChatMessageLikeListener } = sync.listen(
+      'chat_message_like',
+      (data) => {
+        setMessages((prev) => {
+          return prev.map((x) => {
+            if (x.id === data.messageId) {
+              return { ...x, likes: data.likes, isLiked: data.isLiked }
+            }
+            return x
+          })
+        })
+      }
+    )
     return () => {
-      disposeUsersTotal()
+      disposeChatMessageListener()
+      disposeChatMessageLikeListener()
     }
   }, [])
 
@@ -66,6 +91,14 @@ export const Sync = () => {
       createChatMessage({ message })
     },
     [message]
+  )
+
+  const onToggleLike = React.useCallback(
+    (messageId: string) => (ev: React.MouseEvent) => {
+      ev?.preventDefault()
+      likeChatMessage({ messageId })
+    },
+    []
   )
 
   const onKeyDown = React.useCallback(
@@ -86,7 +119,7 @@ export const Sync = () => {
   }, [])
 
   return (
-    <div className="max-w-[500px] lg:max-w-[700px]">
+    <div className="max-w-[700px]">
       <div className="flex items-start mb-80">
         <span className="mr-16 whitespace-nowrap py-2 leading-normal border border-transparent">
           {me!.firstName}
@@ -129,7 +162,12 @@ export const Sync = () => {
               i >= SYNC_CHAT_MESSAGES_TO_SHOW && 'opacity-20'
             )}
           >
-            <div className="whitespace-nowrap">{x.author}</div>
+            <GhostButton
+              className="whitespace-nowrap"
+              onClick={onToggleLike(x.id)}
+            >
+              {x.author}
+            </GhostButton>
             <div
               className="whitespace-breakspaces"
               style={{
@@ -139,6 +177,21 @@ export const Sync = () => {
             >
               {x.message}
             </div>
+
+            {!!x.likes && (
+              <Tag
+                className={cn(
+                  'opacity-40 select-none',
+                  !x.isLiked && 'border-transparent'
+                )}
+                title="Press author's name to like the message"
+                key={`${x.id}_${x.isLiked}`}
+                fill={false}
+              >
+                {x.likes}
+              </Tag>
+            )}
+
             {!isTouchDevice && (
               <div className="opacity-0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:opacity-40">
                 <MessageTimeLabel dateString={x.createdAt} />

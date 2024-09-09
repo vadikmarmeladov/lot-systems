@@ -147,6 +147,8 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'chat_message_like') {
+          return null // FIXME:
         } else if (log.event === 'settings_change') {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
@@ -250,7 +252,7 @@ const NoteEditor = ({
           : !!log && dayjs(log.updatedAt).format(dateFormat)}
       </div>
 
-      <div className="max-w-[500px] lg:max-w-[700px]" ref={containerRef}>
+      <div className="max-w-[700px]" ref={containerRef}>
         <ResizibleGhostInput
           // tabIndex={-1}
           direction="v"
