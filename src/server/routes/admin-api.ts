@@ -1,9 +1,11 @@
 import { Op, Sequelize, Filterable } from 'sequelize'
 import { Literal } from 'sequelize/types/utils'
 import { FastifyInstance, FastifyRequest } from 'fastify'
-import { AdminUsersSort, Paginated, User } from '#shared/types'
+import { AdminUsersSort, LogEvent, Paginated, User } from '#shared/types'
 import { fp } from '#shared/utils'
+import { buildPrompt, completeAndExtractQuestion } from '#server/utils/memory'
 import { sync } from '../sync'
+import dayjs from '../utils/dayjs'
 
 export default async (fastify: FastifyInstance) => {
   fastify.get(
@@ -126,6 +128,46 @@ export default async (fastify: FastifyInstance) => {
       }
       await user.set(req.body).save()
       return user
+    }
+  )
+
+  fastify.get(
+    '/users/:userId/memory-prompt',
+    async (req: FastifyRequest<{ Params: { userId: string } }>, reply) => {
+      const user = await fastify.models.User.findByPk(req.params.userId)
+      if (!user) return reply.throw.notFound()
+
+      const logs = await fastify.models.Log.findAll({
+        where: {
+          userId: user.id,
+          // event: {
+          //   [Op.in]: [
+          //     'settings_change',
+          //     'chat_message',
+          //     'chat_message_like',
+          //     'answer',
+          //   ] as LogEvent[],
+          // },
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+      return { prompt: await buildPrompt(user, logs) }
+    }
+  )
+
+  fastify.post(
+    '/users/:userId/memory-prompt',
+    async (
+      req: FastifyRequest<{
+        Params: { userId: string }
+        Body: { prompt: string }
+      }>,
+      reply
+    ) => {
+      const user = await fastify.models.User.findByPk(req.params.userId)
+      if (!user) return reply.throw.notFound()
+      return await completeAndExtractQuestion(req.body.prompt)
     }
   )
 }

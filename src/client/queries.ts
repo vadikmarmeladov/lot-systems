@@ -1,4 +1,3 @@
-import dayjs from 'dayjs'
 import axios, { AxiosError } from 'axios'
 import {
   useQuery,
@@ -18,6 +17,7 @@ import {
   UserSettings,
   WeatherRecord,
 } from '#shared/types'
+import dayjs from '#client/utils/dayjs'
 import { DATE_TIME_FORMAT } from '#shared/constants'
 
 const api = axios.create({ baseURL: '/' })
@@ -139,3 +139,19 @@ export const useUpdateUser = createMutation<Partial<User>, void>(
   'put',
   (data) => `/admin-api/users/${data.id}`
 )
+
+export const useUserMemoryPrompt = (userId: string | null) =>
+  createQuery<{ prompt: string }>(`/admin-api/users/${userId}/memory-prompt`, {
+    enabled: !!userId,
+  })()
+
+// export const useCompleteMemoryPrompt = (userId: string, config?: ) =>
+//   createMutation<DefaultQuestion, void>(
+//     'post',
+//     `/admin-api/users/${userId}/memory-prompt`
+//   )(config)
+
+export const useCompleteMemoryPrompt = createMutation<
+  { userId: string; prompt: string },
+  DefaultQuestion
+>('post', (data) => `/admin-api/users/${data.userId}/memory-prompt`)

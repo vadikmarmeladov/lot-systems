@@ -1,7 +1,7 @@
 export { Button, GhostButton } from './Button'
 export { Link } from './Link'
 export { Tag, TagsContainer } from './Tag'
-export { Input, Select, ResizibleGhostInput } from './Input'
+export { Input, Select, ResizibleGhostInput, Textarea } from './Input'
 export { P, ErrorLine, Unknown } from './Text'
 export { Table } from './Table'
 export { Block } from './Block'

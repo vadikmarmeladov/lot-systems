@@ -209,3 +209,8 @@ export type DefaultQuestion = {
   question: string
   options: string[]
 }
+
+export type MemoryQuestion = {
+  question: string
+  options: string[]
+}

@@ -164,3 +164,32 @@ export const ResizibleGhostInput: React.FC<ResizibleGhostInputProps> = ({
     </div>
   )
 }
+
+export type TextareaProps = Omit<
+  React.TextareaHTMLAttributes<HTMLTextAreaElement>,
+  'onChange'
+> & {
+  onChange?: (value: string) => void
+}
+export const Textarea: React.FC<TextareaProps> = ({
+  onChange,
+  className = '',
+  rows = 4,
+  ...props
+}) => {
+  const onChangeHandler = React.useCallback(
+    (ev: React.ChangeEvent<HTMLTextAreaElement>) => {
+      if (!onChange) return
+      onChange(ev.target.value)
+    },
+    [onChange]
+  )
+  return (
+    <textarea
+      className={cn(CLASS_NAME, 'block', className)}
+      rows={rows}
+      onChange={onChangeHandler}
+      {...props}
+    />
+  )
+}

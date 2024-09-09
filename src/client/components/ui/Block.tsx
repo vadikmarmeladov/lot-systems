@@ -33,7 +33,7 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
       <div className="flex">
         <div
           className={cn(
-            'flex items-start',
+            'flex items-start w-full',
             !!props.onClick && 'group cursor-pointer'
           )}
           onClick={props.onClick}

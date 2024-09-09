@@ -12,11 +12,9 @@ import { cn, formatNumberWithCommas } from '#client/utils'
 import { useExternalScript } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import { USER_TAGS_BY_ID } from '#shared/constants'
+import { toCelisus, toFarhenheit } from '#shared/utils'
 import { TimeWidget } from './TimeWidget'
 import { MemoryWidget } from './MemoryWidget'
-
-const toCelisus = (kelvin: number) => kelvin - 273.15
-const toFarhenheit = (kelvin: number) => toCelisus(kelvin) * 1.8 + 32
 
 export const System = () => {
   const me = useStore(stores.me)

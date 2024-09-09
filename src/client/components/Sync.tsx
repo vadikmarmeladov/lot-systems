@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-import dayjsRelativeTime from 'dayjs/plugin/relativeTime'
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
@@ -10,6 +8,7 @@ import {
   ResizibleGhostInput,
   Tag,
 } from '#client/components/ui'
+import dayjs from '#client/utils/dayjs'
 import { cn } from '#client/utils'
 import {
   useCreateChatMessage,
@@ -22,8 +21,6 @@ import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
-
-dayjs.extend(dayjsRelativeTime)
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
