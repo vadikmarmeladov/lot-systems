@@ -243,6 +243,9 @@ export default async (fastify: FastifyInstance) => {
         req.body.messageId
       )
       if (!message) return reply.throw.notFound()
+      if (message.authorUserId === req.user.id) {
+        return reply.ok()
+      }
       let isLiked = false
       let likeRecord = await fastify.models.ChatMessageLike.findOne({
         where: { messageId: req.body.messageId, userId: req.user.id },
