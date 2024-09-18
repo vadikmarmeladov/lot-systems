@@ -265,19 +265,29 @@ export default async (fastify: FastifyInstance) => {
         isLiked: false,
       })
       process.nextTick(async () => {
-        const context = await getLogContext(req.user)
-        await fastify.models.Log.create({
-          userId: req.user.id,
-          event: 'chat_message_like',
-          text: '',
-          metadata: {
-            chatMessageLikeId: likeRecord?.id || null,
-            chatMessageId: message.id,
-            message: message.message,
-            isLiked,
-          },
-          context,
-        })
+        if (isLiked) {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'chat_message_like',
+            text: '',
+            metadata: {
+              chatMessageLikeId: likeRecord?.id || null,
+              chatMessageId: message.id,
+              message: message.message,
+              isLiked,
+            },
+            context,
+          })
+        } else {
+          await fastify.models.Log.destroy({
+            where: {
+              userId: req.user.id,
+              event: 'chat_message_like',
+              'metadata.chatMessageId': message.id,
+            },
+          })
+        }
       })
       return reply.ok()
     }
