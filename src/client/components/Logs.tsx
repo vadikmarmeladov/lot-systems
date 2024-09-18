@@ -148,7 +148,13 @@ export const Logs: React.FC = () => {
             </LogContainer>
           )
         } else if (log.event === 'chat_message_like') {
-          return null // FIXME:
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="Sync:" blockView>
+                Upvoted message:{'\n'}{log.metadata.message as string}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'settings_change') {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
