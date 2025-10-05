@@ -10,10 +10,10 @@ import { Layout } from '#client/components/ui'
 const App = () => {
   return (
     <Layout>
-      <div className="flex flex-col gap-4 md:gap-0 tablet:flex-row justify-between mb-24">
+      <div className="flex flex-col gap-4 md:gap-0 tablet:flex-row justify-between items-baseline mb-24">
         <p>{config.appDescription}</p>
         <Link
-          href="https://shop.lot-systems.com"
+          href="https://institute.lot-systems.com"
           rel="external"
           target="_blank"
           className="underline tablet:no-underline whitespace-nowrap"

@@ -1,6 +1,6 @@
 {
   "name": "lot-systems-web",
-  "author": "ba1uev",
+  "author": "Vadik",
   "version": "0.0.1",
   "license": "MIT",
   "scripts": {
@@ -20,9 +20,18 @@
     "build": "npm-run-all client:build server:build",
     "production:run": "npm-run-all client:css:build client:js:build server:build migrations:up server:start",
     "fix": "prettier --write ./src",
-    "heroku-postbuild": "npm-run-all client:css:build client:js:build server:build migrations:up",
-    "ts:check": "tsc --noEmit"
+    "start": "node ./dist/server/server/index.js",
+    "build": "npm-run-all client:css:build client:js:build server:build",
+    "client:js:build": "NODE_ENV=production esr ./scripts/client.build.ts -prod",
+    "client:css:build": "postcss ./src/client/index.css -o ./dist/client/css/index.css --no-map --env production",
+    "server:build": "etsc",
+    "heroku-postbuild": "npm run build"
   },
+   "engines": {
+    "node": "22.x",
+    "npm": "10.x"
+  }
+}
   "dependencies": {
     "@fastify/cookie": "^7.2.0",
     "@fastify/helmet": "^11.0.0",
@@ -55,7 +64,9 @@
     "umzug": "^3.8.0",
     "uuid": "^9.0.0",
     "values.js": "^2.1.1",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4"
   },
   "devDependencies": {
     "@luncheon/esbuild-plugin-gzip": "^0.1.0",

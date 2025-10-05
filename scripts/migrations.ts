@@ -1,18 +1,38 @@
-/*
-    node -r esbuild-runner/register scripts/migrations.ts [ARGUMENTS]
-    [ARGUMENTS]
-      -new <MIGRATION_NAME>       generate new empty migration file
-      -up                         upgrade the database state for all modules
-      -down [<STEPS>]             downgrade the database state for all modules
-*/
-
 import fs from 'fs'
 import path from 'path'
 import { Sequelize } from 'sequelize'
 import { Umzug, SequelizeStorage } from 'umzug'
 import dotenv from 'dotenv'
 
+// Load environment variables
+dotenv.config()
+
 const MIGRATIONS_PATH = path.join(__dirname, '../migrations')
+
+// Debug: Print available environment variables
+console.log('Environment variables available:', Object.keys(process.env));
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
+// Get and validate DATABASE_URL
+const databaseUrl = process.env.DATABASE_URL;
+console.log('Database URL exists:', !!databaseUrl);
+
+if (!databaseUrl) {
+  throw new Error('Missing DATABASE_URL environment variable');
+}
+
+// Initialize Sequelize with explicit configuration
+const sequelize = new Sequelize(databaseUrl, {
+  dialect: 'postgres',
+  dialectModule: require('pg'),
+  logging: false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false
+    }
+  }
+});
 
 const [command, ...args] = process.argv.slice(2)
 
@@ -30,51 +50,43 @@ if (command === '-new') {
   process.exit(0)
 }
 
-
 // Execute `up` or `down` migration
 if (['-up', '-down'].includes(command)) {
-  dotenv.config()
-  const databaseUri = process.env.DATABASE_URL
-  if (!databaseUri) {
-    throw new Error('Missed "DATABASE_URL" env variable')
-  }
-  const sequelize = new Sequelize(databaseUri, {
-    logging: false,
-    dialectOptions: process.env.NODE_ENV === 'production' ? {
-      ssl: { rejectUnauthorized: false }
-    } : undefined,
-  })
-
   console.log('\x1b[36m%s\x1b[0m', `\nExecuting migrations...`)
-    ; (async () => {
-      try {
-        const umzug = new Umzug({
-          migrations: { glob: MIGRATIONS_PATH + '/*.js' },
-          context: sequelize.getQueryInterface(),
-          storage: new SequelizeStorage({ sequelize }),
-          logger: console,
-        })
-        if (command === '-up') {
-          await umzug.up()
-        } else {
-          const stepsArg = parseInt(args[0] || '0', 10)
-          if (stepsArg) {
-            await umzug.down({ step: stepsArg })
-          } else {
-            await umzug.down({ to: 0 })
-          }
-        }
-      } catch (err) {
-        console.error(`Error while executing migrations:\n`, err)
-      }
+  ;(async () => {
+    try {
+      // Test database connection
+      await sequelize.authenticate()
+      console.log('Database connection established successfully')
 
-      sequelize.close()
-      process.exit(0)
-    })()
+      const umzug = new Umzug({
+        migrations: { glob: MIGRATIONS_PATH + '/*.js' },
+        context: sequelize.getQueryInterface(),
+        storage: new SequelizeStorage({ sequelize }),
+        logger: console,
+      })
+
+      if (command === '-up') {
+        await umzug.up()
+      } else {
+        const stepsArg = parseInt(args[0] || '0', 10)
+        if (stepsArg) {
+          await umzug.down({ step: stepsArg })
+        } else {
+          await umzug.down({ to: 0 })
+        }
+      }
+    } catch (err) {
+      console.error(`Error while executing migrations:`, err)
+      process.exit(1)
+    }
+
+    await sequelize.close()
+    process.exit(0)
+  })()
 }
 
-
-// Utils
+// Utils remain the same
 function generateMigration(filePath) {
   const content = `
 // @ts-check
@@ -95,6 +107,7 @@ module.exports = {
 }\n`.trim()
   fs.writeFileSync(filePath, content)
 }
+
 function getTimeToken(date) {
   return [
     date.getFullYear(),
@@ -105,6 +118,7 @@ function getTimeToken(date) {
     String(date.getSeconds()).padStart(2, '0'),
   ].join('')
 }
+
 function getMigrationFileName(timeToken, name) {
   return `${timeToken}_${name}.js`
 }

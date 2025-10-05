@@ -1,0 +1,26 @@
+name: lot-systems-dev
+region: nyc3
+services:
+  - name: web
+    git:
+      branch: master
+      repo_clone_url: https://github.com/vadikmarmeladov/lot-systems.git
+    build_command: npm install && npm run heroku-postbuild
+    run_command: npm run server:start
+    environment_slug: node-js
+    instance_size_slug: basic-xxs
+    instance_count: 1
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "8080"
+      - key: DATABASE_URL
+        value: "postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require"
+  # Additional vars you might need based on your app
+      - key: APP_NAME
+        value: "LOT Systems"
+      - key: APP_HOST
+        value: "${_self.PUBLIC_URL}"
+      - key: JWT_SECRET
+        value: "your-secret-key"
