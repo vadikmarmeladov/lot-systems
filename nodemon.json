@@ -6,7 +6,7 @@
     "*.tsx",
     "src/types/*"
   ],
-  "exec": "yarn server:build && yarn server:start",
+  "exec": "esr ./src/server/index.ts",
   "env": {
     "NODE_DEBUG": 9229
   }

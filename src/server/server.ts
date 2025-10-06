@@ -20,7 +20,7 @@ import config from '#server/config'
 const CWD = process.cwd()
 
 const fastify = Fastify({
-  logger: config.env === 'development' ? logger : false,
+  logger: false  // Temporarily disable logging for development
 })
 
 const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/sync', '/log']
