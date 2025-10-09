@@ -23,4 +23,10 @@ services:
       - key: APP_HOST
         value: "${_self.PUBLIC_URL}"
       - key: JWT_SECRET
-        value: "your-secret-key"
+        value: "13919320b2a8816ced947b7a6385811b"
+   - key: RESEND_API_KEY
+        value: "re_83s23f6W_LbDfdmmXpXJ4je4i2kt1HA7u"
+      - key: RESEND_FROM_EMAIL
+        value: "onboarding@resend.dev"
+      - key: RESEND_FROM_NAME
+        value: "LOT Systems"
