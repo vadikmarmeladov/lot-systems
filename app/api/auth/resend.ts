@@ -1,6 +1,5 @@
 import { Resend } from 'resend';
 import { NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -8,26 +7,13 @@ export async function POST(req: Request) {
   try {
     const { email } = await req.json();
     
-    // Generate verification code
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    
-    // Store code in cookie (temporary storage)
-    cookies().set('verification_code', code, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 300 // 5 minutes
-    });
-
+    // Remove any id field from the request
     const { data, error } = await resend.emails.send({
-      from: 'onboarding@resend.dev',
+      from: 'onboarding@resend.dev', // or your verified domain
       to: [email],
       subject: 'Your Verification Code',
-      html: `
-        <h2>Welcome to Our App!</h2>
-        <p>Your verification code is: <strong>${code}</strong></p>
-        <p>This code will expire in 5 minutes.</p>
-      `
+      html: `<p>Your verification code</p>`,
+      // Don't include any id field here
     });
 
     if (error) {
@@ -38,15 +24,11 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ 
-      success: true, 
-      message: 'Verification code sent' 
-    });
-
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('API Error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Failed to send email', details: error.message },
       { status: 500 }
     );
   }

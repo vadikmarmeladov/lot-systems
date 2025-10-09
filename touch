@@ -1,108 +1,26 @@
-use client';
+const { Resend } = require('resend');
 
-import { useState } from 'react';
+// Use your actual API key
+const resend = new Resend('re_your_actual_key_here');
 
-export default function AuthForm() {
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
-  const [step, setStep] = useState('email'); // 'email' or 'verify'
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+async function test() {
+  try {
+    console.log('Testing Resend connection...');
+    const { data, error } = await resend.emails.send({
+      from: 'onboarding@resend.dev',
+      to: 'your-email@example.com', // use your actual email
+      subject: 'Test Email',
+      html: '<p>This is a test email</p>'
+    });
 
-  async function handleEmailSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await fetch('/api/auth/resend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error);
-
-      setStep('verify');
-    } catch (err) {
-      setError(err.message || 'Failed to send verification code');
-    } finally {
-      setLoading(false);
+    if (error) {
+      console.error('Error:', error);
+    } else {
+      console.log('Success:', data);
     }
+  } catch (error) {
+    console.error('Caught error:', error);
   }
-
-  async function handleVerifySubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await fetch('/api/auth/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code })
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error);
-
-      // Redirect or update UI on successful verification
-      window.location.href = '/dashboard'; // or wherever you want to redirect
-    } catch (err) {
-      setError(err.message || 'Verification failed');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  return (
-    <div className="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-      {error && (
-        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-          {error}
-        </div>
-      )}
-
-      {step === 'email' ? (
-        <form onSubmit={handleEmailSubmit}>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            required
-            className="w-full p-2 border rounded mb-4"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-500 text-white p-2 rounded"
-          >
-            {loading ? 'Sending...' : 'Send Code'}
-          </button>
-        </form>
-      ) : (
-        <form onSubmit={handleVerifySubmit}>
-          <input
-            type="text"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            placeholder="Enter verification code"
-            required
-            className="w-full p-2 border rounded mb-4"
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-500 text-white p-2 rounded"
-          >
-            {loading ? 'Verifying...' : 'Verify Code'}
-          </button>
-        </form>
-      )}
-    </div>
-  );
 }
+
+test();

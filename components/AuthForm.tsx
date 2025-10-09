@@ -5,34 +5,27 @@ import { useState } from 'react';
 export default function AuthForm() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
-
+    
     try {
+      console.log('Submitting form...');
       const response = await fetch('/api/auth', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'User-Agent': 'NextJS/Latest'
         },
         body: JSON.stringify({ email })
       });
 
+      console.log('Response:', response);
       const data = await response.json();
+      console.log('Data:', data);
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to send email');
-      }
-
-      // Handle success
-      console.log('Email sent successfully');
-    } catch (err) {
-      setError(err.message);
-      console.error('Auth error:', err);
+    } catch (error) {
+      console.error('Error:', error);
     } finally {
       setLoading(false);
     }
@@ -40,7 +33,6 @@ export default function AuthForm() {
 
   return (
     <form onSubmit={handleSubmit}>
-      {error && <div className="error">{error}</div>}
       <input
         type="email"
         value={email}
@@ -49,7 +41,7 @@ export default function AuthForm() {
         required
       />
       <button type="submit" disabled={loading}>
-        {loading ? 'Sending...' : 'Send Verification Code'}
+        {loading ? 'Sending...' : 'Send Code'}
       </button>
     </form>
   );
