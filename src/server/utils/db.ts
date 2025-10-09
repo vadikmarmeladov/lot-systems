@@ -1,40 +1,52 @@
 import { Sequelize } from 'sequelize'
-import config from '../config'
+import config from '../config'  // Changed from '#server/config' to relative path
 
-const getDatabaseConfig = () => ({
+// Add debug logging to see what's being imported
+console.log('Imported config:', config)
+
+if (!config || !config.db) {
+  throw new Error(`Database configuration is missing! Config received: ${JSON.stringify(config, null, 2)}`)
+}
+
+console.log('Initializing database connection with:', {
+  host: config.db.host,
+  port: config.db.port,
+  database: config.db.database,
+  username: config.db.username
+})
+
+const sequelize = new Sequelize({
   dialect: 'postgres',
-  logging: config.debug ? console.log : false,
+  host: config.db.host,
+  port: config.db.port,
+  database: config.db.database,
+  username: config.db.username,
+  password: config.db.password,
   dialectOptions: {
     ssl: {
       require: true,
       rejectUnauthorized: false
     }
   },
-  define: {
-    timestamps: true
-  },
   pool: {
-    max: 20,
+    max: 5,
     min: 0,
-    idle: 10000,
     acquire: 30000,
-    evict: 1000
+    idle: 10000
   },
-  retry: {
-    max: 3,
-    timeout: 30000
-  }
+  logging: config.env === 'development' ? console.log : false,
+  protocol: 'postgres'
 })
 
-export const sequelize = new Sequelize(config.databaseUri, getDatabaseConfig())
-
-export const checkDatabaseConnection = async () => {
+async function initializeDatabase() {
   try {
     await sequelize.authenticate()
-    console.log('✅ Database connection successful')
-    return true
+    console.log('✅ Database connection established successfully.')
   } catch (error) {
-    console.error('❌ Database connection error:', error)
-    return false
+    console.error('❌ Unable to connect to the database:', error)
   }
 }
+
+initializeDatabase()
+
+export { sequelize }

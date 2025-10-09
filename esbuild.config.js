@@ -1,7 +1,8 @@
+const path = require('path');
 const { build } = require('esbuild');
 const { nodeExternalsPlugin } = require('esbuild-node-externals');
 
-require('esbuild').build({
+build({
   entryPoints: ['./src/server/server.ts'],
   bundle: true,
   platform: 'node',
@@ -14,7 +15,10 @@ require('esbuild').build({
   },
   external: ['./node_modules/*'],
   alias: {
-    '#server': './src/server',
-    '#shared': './src/shared'
-  }
+    '#server': path.resolve(__dirname, './src/server'),
+    '#shared': path.resolve(__dirname, './src'),
+    '#client': path.resolve(__dirname, './src/client')
+  },
+  resolveExtensions: ['.ts', '.js', '.json'],
+  sourcemap: true
 }).catch(() => process.exit(1));

@@ -1,85 +1,50 @@
 import dotenv from 'dotenv'
-
 dotenv.config()
 
-type Config = {
-  debug: boolean
-  port: number
-  appHost: string
-  appName: string
-  appDescription: string
-  proxyHost: string
-  env: string
-  databaseUri: string
-  googleOAuth2: {
-    clientId: string
-    clientSecret: string
-  }
-  jwt: {
-    secret: string
-    cookieKey: string
-  }
-  mailchimp: {
-    fromEmail: string
-    fromName: string
-    mandrillApiKey: string
-  }
-  // shopify: {
-  //   shopId: string
-  //   apiToken: string
-  // }
-  // openai: {
-  //   apiKey: string
-  // }
-  openWeatherApiKey: string
-  geonamesUsername: string
-  admins: string[]
-}
-
-const config: Config = {
-  debug: process.env.DEBUG === 'true',
-  port: tryParseNumber(process.env.PORT || '0') || 3000,
-  appHost: process.env.APP_HOST || '',
-  appName: process.env.APP_NAME || '',
-  appDescription: process.env.APP_DESCRIPTION || '',
-  proxyHost: process.env.PROXY_HOST || '',
+const config = {
   env: process.env.NODE_ENV || 'development',
-  databaseUri: process.env.DATABASE_URL || '',
-  googleOAuth2: {
-    clientId: process.env.GOOGLE_OAUTH2_CLIENT_ID || '',
-    clientSecret: process.env.GOOGLE_OAUTH2_CLIENT_SECRET || '',
+  port: parseInt(process.env.PORT || '4400', 10),
+  appName: process.env.APP_NAME || 'Your App',
+  appHost: process.env.APP_HOST || 'http://localhost:4400',
+  appDescription: process.env.APP_DESCRIPTION || 'Your App Description',
+  
+  email: {
+    resendApiKey: process.env.RESEND_API_KEY,
+    fromEmail: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+    fromName: process.env.RESEND_FROM_NAME || 'Your App',
   },
-  jwt: {
-    secret: process.env.JWT_SECRET || '',
-    cookieKey: process.env.JWT_COOKIE_KEY || '',
-  },
-  mailchimp: {
-    fromEmail: process.env.MAILCHIMP_FROM_EMAIL || '',
-    fromName: process.env.MAILCHIMP_FROM_NAME || '',
-    mandrillApiKey: process.env.MAILCHIMP_MANDRILL_API_KEY || '',
-  },
-  // shopify: {
-  //   shopId: process.env.SHOPIFY_SHOP_ID || '',
-  //   apiToken: process.env.SHOPIFY_API_TOKEN || '',
-  // },
-  // openai: {
-  //   apiKey: process.env.OPENAI_API_KEY || '',
-  // },
-  openWeatherApiKey: process.env.OPEN_WEATHER_API_KEY || '',
-  geonamesUsername: process.env.GEONAMES_USERNAME || '',
-  admins: tryParseJSON(process.env.ADMINS || '[]'),
-}
 
-function tryParseJSON(json: string, defaultValue = {}) {
-  try {
-    return JSON.parse(json)
-  } catch (e) {
-    return defaultValue
+  db: {
+    host: process.env.DB_HOST || 'db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com',
+    port: parseInt(process.env.DB_PORT || '25060', 10),
+    database: process.env.DB_NAME || 'defaultdb',
+    username: process.env.DB_USER || 'doadmin',
+    password: process.env.DB_PASSWORD || 'AVNS_8V6Hqzuxwj0JkMxgNvR',
+  },
+
+  jwt: {
+    secret: process.env.JWT_SECRET || 'your-jwt-secret',
+    cookieKey: 'auth_token',
+    expiresIn: '30d',
   }
 }
-function tryParseNumber(value: string, fallback = undefined) {
-  const parsed = value && !isNaN(Number(value)) && Number(value)
-  return parsed || fallback
+
+validateConfig()
+
+function validateConfig() {
+  const required = [
+    'DB_HOST',
+    'DB_PORT',
+    'DB_NAME',
+    'DB_USER',
+    'DB_PASSWORD',
+  ]
+
+  const missing = required.filter(key => !process.env[key])
+  if (missing.length > 0) {
+    console.error('Missing required environment variables:', missing)
+    process.exit(1)
+  }
 }
 
 export default config
