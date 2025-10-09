@@ -1,5 +1,8 @@
-.env.local
-
-/src/generated/prisma
-*.sql
+node_modules/
+dist/
 .env
+*.log
+.DS_Store
+coverage/
+.vscode/
+.idea/
