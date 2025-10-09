@@ -1,3 +1,4 @@
 .env.local
 
 /src/generated/prisma
+*.sql

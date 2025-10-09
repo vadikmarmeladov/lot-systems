@@ -4966,6 +4966,11 @@ require-from-string@^2.0.2:
   resolved "https://registry.npmjs.org/require-from-string/-/require-from-string-2.0.2.tgz"
   integrity sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==
 
+resend@^6.1.2:
+  version "6.1.2"
+  resolved "https://registry.yarnpkg.com/resend/-/resend-6.1.2.tgz#4e4718901621bf7032d4fcc428fcf8223f983794"
+  integrity sha512-C9Q+YkRe57P8MQlkHG3yatSR/B6sqBGA06Ri2DveJfkz9Vm16182FC/iHB0K6IAfmqZ4yRrFebFw1EPuktLtSg==
+
 resolve@^1.1.7, resolve@^1.10.0, resolve@^1.22.1, resolve@^1.22.8, resolve@~1.22.1:
   version "1.22.10"
   resolved "https://registry.npmjs.org/resolve/-/resolve-1.22.10.tgz"
