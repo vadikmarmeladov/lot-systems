@@ -70,7 +70,7 @@
     "@types/sequelize": "^4.28.20",
     "autoprefixer": "^10.4.19",
     "cssnano": "^6.1.2",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.25.10",
     "esbuild-node-tsc": "^2.0.2",
     "esbuild-runner": "^2.2.1",
     "node-notifier": "^10.0.1",
