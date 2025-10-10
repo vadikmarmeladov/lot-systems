@@ -6,10 +6,35 @@ services:
       branch: master
       repo_clone_url: https://github.com/vadikmarmeladov/lot-systems.git
     build_command: |
-      yarn install --legacy-peer-deps
-      yarn global add postcss-cli esbuild-runner typescript-esbuild
-      yarn run build
-      DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require" yarn run migrations:up
+      echo "Starting build process..."
+      
+      # Install dependencies
+      echo "Installing dependencies..."
+      yarn install --legacy-peer-deps || exit 1
+      
+      # Install global packages
+      echo "Installing global packages..."
+      yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
+      
+      # Build client CSS
+      echo "Building client CSS..."
+      yarn run client:css:build || exit 1
+      
+      # Build client JS
+      echo "Building client JS..."
+      yarn run client:js:build || exit 1
+      
+      # Build server
+      echo "Building server..."
+      yarn run server:build || exit 1
+      
+      # Run migrations
+      echo "Running migrations..."
+      export DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
+      echo "Database URL constructed (masked for security)"
+      NODE_ENV=production yarn run migrations:up || exit 1
+      
+      echo "Build process completed successfully"
     run_command: yarn run server:start
     environment_slug: node-js
     instance_size_slug: basic-xxs
@@ -27,6 +52,9 @@ services:
       - key: DB_HOST
         scope: RUN_AND_BUILD_TIME
         value: "db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com"
+      - key: DB_PORT
+        scope: RUN_AND_BUILD_TIME
+        value: "25060"
       - key: DB_NAME
         scope: RUN_AND_BUILD_TIME
         value: "defaultdb"
