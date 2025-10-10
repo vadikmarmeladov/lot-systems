@@ -8,10 +8,8 @@ services:
     build_command: |
       yarn install --legacy-peer-deps
       yarn global add postcss-cli esbuild-runner typescript-esbuild
-      yarn run client:css:build
-      yarn run client:js:build
-      yarn run server:build
-      NODE_ENV=production yarn run migrations:up
+      yarn run build
+      DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require" yarn run migrations:up
     run_command: yarn run server:start
     environment_slug: node-js
     instance_size_slug: basic-xxs
@@ -20,6 +18,21 @@ services:
       - key: NODE_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
+      - key: DB_USER
+        scope: RUN_AND_BUILD_TIME
+        value: "doadmin"
+      - key: DB_PASSWORD
+        scope: RUN_AND_BUILD_TIME
+        value: "AVNS_8V6Hqzuxwj0JkMxgNvR"
+      - key: DB_HOST
+        scope: RUN_AND_BUILD_TIME
+        value: "db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com"
+      - key: DB_NAME
+        scope: RUN_AND_BUILD_TIME
+        value: "defaultdb"
+      - key: DB_SSL
+        scope: RUN_AND_BUILD_TIME
+        value: "true"
       - key: PORT
         scope: RUN_TIME
         value: "8080"
