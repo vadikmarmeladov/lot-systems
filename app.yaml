@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 name: lot-systems-dev
-=======
-ame: lot-systems-dev
->>>>>>> 86b4ba3a (fix: update migrations script and DO configuration)
 region: nyc3
 services:
   - name: web
@@ -12,19 +8,23 @@ services:
     build_command: |
       echo "Starting build process..."
       
-<<<<<<< HEAD
+      # Debug initial state
+      echo "Initial directory structure:"
+      pwd
+      ls -la
+      
       # Install core dependencies first
       echo "Installing core dependencies..."
       yarn add -D tailwindcss@latest postcss@latest postcss-nesting@latest
       yarn add -D @tailwindcss/nesting
       yarn add -D esbuild@latest
       yarn add -D vite@latest
+      yarn add -D typescript@latest
       
       # Install additional build dependencies
       echo "Installing additional build dependencies..."
       yarn add -D postcss-import@latest
       yarn add -D autoprefixer@latest
-      yarn add -D typescript@latest
       yarn add -D typescript-esbuild@latest
       
       # Install all project dependencies
@@ -87,7 +87,8 @@ services:
       ls -la dist/client/css/
       ls -la dist/server/server/
       
-      if [ ! -f "dist/server/server/index.js" ]; then
+      # Check for both .js and .mjs files
+      if [ ! -f "dist/server/server/index.js" ] && [ ! -f "dist/server/server/index.mjs" ]; then
         echo "Error: Server build output missing"
         exit 1
       fi
@@ -101,22 +102,14 @@ services:
       echo "Running migrations..."
       NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
       
-      echo "Build process completed successfully"
-    run_command: node dist/server/server/index.js
-=======
-      # Install dependencies
-      yarn install --legacy-peer-deps || exit 1
-      yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
-      
-      # Build application
-      yarn run build || exit 1
-      
-      # Run migrations with explicit connection string
-      NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
+      # Create a symbolic link from .mjs to .js if needed
+      if [ -f "dist/server/server/index.mjs" ] && [ ! -f "dist/server/server/index.js" ]; then
+        echo "Creating symbolic link from .mjs to .js..."
+        ln -s dist/server/server/index.mjs dist/server/server/index.js
+      fi
       
       echo "Build process completed successfully"
-    run_command: yarn run server:start
->>>>>>> 86b4ba3a (fix: update migrations script and DO configuration)
+    run_command: node --experimental-modules dist/server/server/index.mjs
     environment_slug: node-js
     instance_size_slug: basic-xxs
     instance_count: 1
