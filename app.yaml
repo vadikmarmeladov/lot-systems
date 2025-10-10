@@ -9,6 +9,9 @@ services:
     build_command: |
       echo "Starting build process..."
       
+      # Create necessary directories
+      mkdir -p dist/client/css dist/server
+      
       # Install all required dependencies
       echo "Installing dependencies..."
       yarn add -D postcss-import
@@ -17,24 +20,38 @@ services:
       yarn add -D @tailwindcss/nesting
       yarn add -D esbuild
       yarn add -D vite
-      yarn install --legacy-peer-deps || exit 1
+      yarn install --frozen-lockfile --production=false || exit 1
       
       # Install global packages
       echo "Installing global packages..."
       yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
       
-      # Debug PostCSS configuration
+      # Debug configurations and structure
+      echo "Current directory structure:"
+      ls -la
+      
       echo "PostCSS configuration:"
       cat postcss.config.js
       
       echo "Tailwind configuration:"
       cat tailwind.config.js
       
-      # Build application
-      echo "Running build..."
-      NODE_ENV=production yarn run build || exit 1
+      # Build steps
+      echo "Building client CSS..."
+      NODE_ENV=production yarn run client:css:build || exit 1
       
-      # Run migrations with explicit connection string
+      echo "Building client JS..."
+      NODE_ENV=production yarn run client:js:build || exit 1
+      
+      echo "Building server..."
+      NODE_ENV=production yarn run server:build || exit 1
+      
+      # Verify build outputs
+      echo "Verifying build outputs..."
+      ls -la dist/client/css/
+      ls -la dist/server/
+      
+      # Run migrations
       echo "Running migrations..."
       NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
       
@@ -71,3 +88,4 @@ services:
       - key: RESEND_FROM_NAME
         scope: RUN_TIME
         value: "LOT Systems"
+EOF
