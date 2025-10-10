@@ -9,30 +9,14 @@ services:
       echo "Starting build process..."
       
       # Install dependencies
-      echo "Installing dependencies..."
       yarn install --legacy-peer-deps || exit 1
-      
-      # Install global packages
-      echo "Installing global packages..."
       yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
       
-      # Build client CSS
-      echo "Building client CSS..."
-      yarn run client:css:build || exit 1
+      # Build application
+      yarn run build || exit 1
       
-      # Build client JS
-      echo "Building client JS..."
-      yarn run client:js:build || exit 1
-      
-      # Build server
-      echo "Building server..."
-      yarn run server:build || exit 1
-      
-      # Run migrations
-      echo "Running migrations..."
-      export DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?sslmode=require"
-      echo "Database URL constructed (masked for security)"
-      NODE_ENV=production yarn run migrations:up || exit 1
+      # Run migrations with explicit connection string
+      NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
       
       echo "Build process completed successfully"
     run_command: yarn run server:start
@@ -43,30 +27,12 @@ services:
       - key: NODE_ENV
         scope: RUN_AND_BUILD_TIME
         value: production
-      - key: DB_USER
-        scope: RUN_AND_BUILD_TIME
-        value: "doadmin"
-      - key: DB_PASSWORD
-        scope: RUN_AND_BUILD_TIME
-        value: "AVNS_8V6Hqzuxwj0JkMxgNvR"
-      - key: DB_HOST
-        scope: RUN_AND_BUILD_TIME
-        value: "db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com"
-      - key: DB_PORT
-        scope: RUN_AND_BUILD_TIME
-        value: "25060"
-      - key: DB_NAME
-        scope: RUN_AND_BUILD_TIME
-        value: "defaultdb"
-      - key: DB_SSL
-        scope: RUN_AND_BUILD_TIME
-        value: "true"
-      - key: PORT
-        scope: RUN_TIME
-        value: "8080"
       - key: DATABASE_URL
         scope: RUN_AND_BUILD_TIME
         value: "postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require"
+      - key: PORT
+        scope: RUN_TIME
+        value: "8080"
       - key: APP_NAME
         scope: RUN_TIME
         value: "LOT Systems"
