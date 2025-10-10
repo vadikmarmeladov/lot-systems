@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 name: lot-systems-dev
+=======
+ame: lot-systems-dev
+>>>>>>> 86b4ba3a (fix: update migrations script and DO configuration)
 region: nyc3
 services:
   - name: web
@@ -8,6 +12,7 @@ services:
     build_command: |
       echo "Starting build process..."
       
+<<<<<<< HEAD
       # Install core dependencies first
       echo "Installing core dependencies..."
       yarn add -D tailwindcss@latest postcss@latest postcss-nesting@latest
@@ -98,6 +103,20 @@ services:
       
       echo "Build process completed successfully"
     run_command: node dist/server/server/index.js
+=======
+      # Install dependencies
+      yarn install --legacy-peer-deps || exit 1
+      yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
+      
+      # Build application
+      yarn run build || exit 1
+      
+      # Run migrations with explicit connection string
+      NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
+      
+      echo "Build process completed successfully"
+    run_command: yarn run server:start
+>>>>>>> 86b4ba3a (fix: update migrations script and DO configuration)
     environment_slug: node-js
     instance_size_slug: basic-xxs
     instance_count: 1
