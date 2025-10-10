@@ -1,5 +1,17 @@
-<%- include('header'); -%>
-
-<script src="/js/<%= scriptName %>.js"></script>
-
-<%- include('footer'); -%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= appName %></title>
+    <meta name="description" content="<%= appDescription %>">
+    <link rel="stylesheet" href="/css/index.css">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon/icon-512.png">
+</head>
+<body>
+    <div id="root"></div>
+    <script nonce="<%= scriptNonce %>" src="/js/<%= scriptName %>.js"></script>
+</body>
+</html>
