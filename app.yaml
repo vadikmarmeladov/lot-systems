@@ -7,56 +7,71 @@ services:
       branch: master
       repo_clone_url: https://github.com/vadikmarmeladov/lot-systems.git
     build_command: |
-      echo "Starting build process..."
-      
-      # Create necessary directories
-      mkdir -p dist/client/css dist/server
-      
-      # Install all required dependencies
-      echo "Installing dependencies..."
-      yarn add -D postcss-import
-      yarn add -D tailwindcss@latest postcss@latest autoprefixer@latest
-      yarn add -D postcss-nesting
-      yarn add -D @tailwindcss/nesting
-      yarn add -D esbuild
-      yarn add -D vite
-      yarn install --frozen-lockfile --production=false || exit 1
-      
-      # Install global packages
-      echo "Installing global packages..."
-      yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
-      
-      # Debug configurations and structure
-      echo "Current directory structure:"
-      ls -la
-      
-      echo "PostCSS configuration:"
-      cat postcss.config.js
-      
-      echo "Tailwind configuration:"
-      cat tailwind.config.js
-      
-      # Build steps
-      echo "Building client CSS..."
-      NODE_ENV=production yarn run client:css:build || exit 1
-      
-      echo "Building client JS..."
-      NODE_ENV=production yarn run client:js:build || exit 1
-      
-      echo "Building server..."
-      NODE_ENV=production yarn run server:build || exit 1
-      
-      # Verify build outputs
-      echo "Verifying build outputs..."
-      ls -la dist/client/css/
-      ls -la dist/server/
-      
-      # Run migrations
-      echo "Running migrations..."
-      NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
-      
-      echo "Build process completed successfully"
-    run_command: yarn run server:start
+        echo "Starting build process..."
+  
+  # Debug initial state
+  echo "Initial directory structure:"
+  pwd
+  ls -la
+  
+  # Install all required dependencies first
+  echo "Installing dependencies..."
+  yarn add -D postcss-import tailwindcss@latest postcss@latest autoprefixer@latest
+  yarn add -D postcss-nesting @tailwindcss/nesting esbuild vite
+  yarn install --frozen-lockfile --production=false || exit 1
+  
+  # Install global packages
+  echo "Installing global packages..."
+  yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
+  
+  # Create all necessary directories
+  echo "Creating build directories..."
+  mkdir -p dist/client/css dist/server/server
+  
+  # Build steps with explicit error checking and path aliases
+  echo "Building client CSS..."
+  NODE_ENV=production yarn run client:css:build
+  if [ $? -ne 0 ]; then
+    echo "Client CSS build failed"
+    exit 1
+  fi
+  
+  echo "Building client JS..."
+  NODE_ENV=production yarn run client:js:build
+  if [ $? -ne 0 ]; then
+    echo "Client JS build failed"
+    exit 1
+  fi
+  
+  echo "Building server..."
+  NODE_ENV=production yarn run server:build
+  if [ $? -ne 0 ]; then
+    echo "Server build failed"
+    exit 1
+  fi
+  
+  # Verify build outputs with new path structure
+  echo "Verifying build outputs..."
+  ls -la dist/
+  ls -la dist/client/css/
+  ls -la dist/server/server/
+  
+  if [ ! -f "dist/server/server/server/index.js" ]; then
+    echo "Error: Server build output missing"
+    exit 1
+  fi
+  
+  if [ ! -f "dist/client/css/index.css" ]; then
+    echo "Error: CSS build output missing"
+    exit 1
+  fi
+  
+  # Run migrations
+  echo "Running migrations..."
+  NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
+  
+  echo "Build process completed successfully"
+    run_command: node dist/server/server/index.js
     environment_slug: node-js
     instance_size_slug: basic-xxs
     instance_count: 1
