@@ -27,6 +27,6 @@ services:
    - key: RESEND_API_KEY
         value: "re_83s23f6W_LbDfdmmXpXJ4je4i2kt1HA7u"
       - key: RESEND_FROM_EMAIL
-        value: "onboarding@resend.dev"
+        value: "support@lot-systems.com"
       - key: RESEND_FROM_NAME
         value: "LOT Systems"
