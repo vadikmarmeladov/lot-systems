@@ -1,4 +1,3 @@
-cat << 'EOF' > app.yaml
 name: lot-systems-dev
 region: nyc3
 services:
@@ -7,70 +6,97 @@ services:
       branch: master
       repo_clone_url: https://github.com/vadikmarmeladov/lot-systems.git
     build_command: |
-        echo "Starting build process..."
-  
-  # Debug initial state
-  echo "Initial directory structure:"
-  pwd
-  ls -la
-  
-  # Install all required dependencies first
-  echo "Installing dependencies..."
-  yarn add -D postcss-import tailwindcss@latest postcss@latest autoprefixer@latest
-  yarn add -D postcss-nesting @tailwindcss/nesting esbuild vite
-  yarn install --frozen-lockfile --production=false || exit 1
-  
-  # Install global packages
-  echo "Installing global packages..."
-  yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
-  
-  # Create all necessary directories
-  echo "Creating build directories..."
-  mkdir -p dist/client/css dist/server/server
-  
-  # Build steps with explicit error checking and path aliases
-  echo "Building client CSS..."
-  NODE_ENV=production yarn run client:css:build
-  if [ $? -ne 0 ]; then
-    echo "Client CSS build failed"
-    exit 1
-  fi
-  
-  echo "Building client JS..."
-  NODE_ENV=production yarn run client:js:build
-  if [ $? -ne 0 ]; then
-    echo "Client JS build failed"
-    exit 1
-  fi
-  
-  echo "Building server..."
-  NODE_ENV=production yarn run server:build
-  if [ $? -ne 0 ]; then
-    echo "Server build failed"
-    exit 1
-  fi
-  
-  # Verify build outputs with new path structure
-  echo "Verifying build outputs..."
-  ls -la dist/
-  ls -la dist/client/css/
-  ls -la dist/server/server/
-  
-  if [ ! -f "dist/server/server/server/index.js" ]; then
-    echo "Error: Server build output missing"
-    exit 1
-  fi
-  
-  if [ ! -f "dist/client/css/index.css" ]; then
-    echo "Error: CSS build output missing"
-    exit 1
-  fi
-  
-  # Run migrations
-  echo "Running migrations..."
-  NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
-  
-  echo "Build process completed successfully"
+      echo "Starting build process..."
+      
+      # Install core dependencies first
+      echo "Installing core dependencies..."
+      yarn add -D tailwindcss@latest postcss@latest postcss-nesting@latest
+      yarn add -D @tailwindcss/nesting
+      yarn add -D esbuild@latest
+      yarn add -D vite@latest
+      
+      # Install additional build dependencies
+      echo "Installing additional build dependencies..."
+      yarn add -D postcss-import@latest
+      yarn add -D autoprefixer@latest
+      yarn add -D typescript@latest
+      yarn add -D typescript-esbuild@latest
+      
+      # Install all project dependencies
+      echo "Installing project dependencies..."
+      yarn install --frozen-lockfile --production=false || exit 1
+      
+      # Install global packages
+      echo "Installing global packages..."
+      yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
+      
+      # Verify critical dependencies
+      echo "Verifying dependencies..."
+      yarn list tailwindcss
+      yarn list postcss-nesting
+      yarn list esbuild
+      yarn list vite
+      
+      # Create build directories
+      echo "Creating build directories..."
+      mkdir -p dist/client/css dist/server/server
+      
+      # Update PostCSS config
+      echo "Updating PostCSS config..."
+      cat > postcss.config.js << 'END'
+      module.exports = {
+        plugins: {
+          'postcss-import': {},
+          'tailwindcss/nesting': 'postcss-nesting',
+          tailwindcss: {},
+          autoprefixer: {},
+        }
+      }
+      END
+      
+      # Build steps with verbose output
+      echo "Building client CSS..."
+      NODE_ENV=production DEBUG=* yarn run client:css:build
+      if [ $? -ne 0 ]; then
+        echo "Client CSS build failed"
+        exit 1
+      fi
+      
+      echo "Building client JS..."
+      NODE_ENV=production yarn run client:js:build
+      if [ $? -ne 0 ]; then
+        echo "Client JS build failed"
+        exit 1
+      fi
+      
+      echo "Building server..."
+      NODE_ENV=production yarn run server:build
+      if [ $? -ne 0 ]; then
+        echo "Server build failed"
+        exit 1
+      fi
+      
+      # Verify build outputs
+      echo "Verifying build outputs..."
+      ls -la dist/
+      ls -la dist/client/css/
+      ls -la dist/server/server/
+      
+      if [ ! -f "dist/server/server/index.js" ]; then
+        echo "Error: Server build output missing"
+        exit 1
+      fi
+      
+      if [ ! -f "dist/client/css/index.css" ]; then
+        echo "Error: CSS build output missing"
+        exit 1
+      fi
+      
+      # Run migrations
+      echo "Running migrations..."
+      NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
+      
+      echo "Build process completed successfully"
     run_command: node dist/server/server/index.js
     environment_slug: node-js
     instance_size_slug: basic-xxs
@@ -103,4 +129,3 @@ services:
       - key: RESEND_FROM_NAME
         scope: RUN_TIME
         value: "LOT Systems"
-EOF
