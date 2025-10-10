@@ -6,95 +6,64 @@ services:
       branch: master
       repo_clone_url: https://github.com/vadikmarmeladov/lot-systems.git
     build_command: |
-      echo "Starting build process..."
+      echo "Build started at $(date)"
+      echo "Checking git commit..."
+      git rev-parse HEAD
+      git log -1 --pretty=format:"%h - %an, %ar : %s"
       
-      # Debug initial state
-      echo "Initial directory structure:"
-      pwd
-      ls -la
-      
-      # Install core dependencies first
-      echo "Installing core dependencies..."
-      yarn add -D tailwindcss@latest postcss@latest postcss-nesting@latest
-      yarn add -D @tailwindcss/nesting
-      yarn add -D esbuild@latest
-      yarn add -D vite@latest
-      yarn add -D typescript@latest
-      
-      # Install additional build dependencies
-      echo "Installing additional build dependencies..."
-      yarn add -D postcss-import@latest
-      yarn add -D autoprefixer@latest
-      yarn add -D typescript-esbuild@latest
-      
-      # Install all project dependencies
-      echo "Installing project dependencies..."
+      # Install dependencies
+      echo "Installing dependencies..."
       yarn install --frozen-lockfile --production=false || exit 1
-      
-      # Install global packages
-      echo "Installing global packages..."
       yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
       
-      # Verify critical dependencies
-      echo "Verifying dependencies..."
-      yarn list tailwindcss
-      yarn list postcss-nesting
-      yarn list esbuild
-      yarn list vite
+      # Debug TypeScript configuration
+      echo "TypeScript configuration:"
+      cat tsconfig.json
       
       # Create build directories
       echo "Creating build directories..."
       mkdir -p dist/client/css dist/server/server
       
-      # Update PostCSS config
-      echo "Updating PostCSS config..."
-      cat > postcss.config.js << 'END'
-      module.exports = {
-        plugins: {
-          'postcss-import': {},
-          'tailwindcss/nesting': 'postcss-nesting',
-          tailwindcss: {},
-          autoprefixer: {},
-        }
-      }
-      END
-      
-      # Build steps with verbose output
-      echo "Building client CSS..."
-      NODE_ENV=production DEBUG=* yarn run client:css:build
-      if [ $? -ne 0 ]; then
-        echo "Client CSS build failed"
-        exit 1
-      fi
-      
-      echo "Building client JS..."
-      NODE_ENV=production yarn run client:js:build
-      if [ $? -ne 0 ]; then
-        echo "Client JS build failed"
-        exit 1
-      fi
-      
+      # Build server with explicit output checking
       echo "Building server..."
       NODE_ENV=production yarn run server:build
-      if [ $? -ne 0 ]; then
-        echo "Server build failed"
-        exit 1
-      fi
       
-      # Verify build outputs
-      echo "Verifying build outputs..."
+      # Debug server build output
+      echo "Server build output directory contents:"
       ls -la dist/
-      ls -la dist/client/css/
+      ls -la dist/server/
       ls -la dist/server/server/
       
-      # Check for both .js and .mjs files
-      if [ ! -f "dist/server/server/index.js" ] && [ ! -f "dist/server/server/index.mjs" ]; then
-        echo "Error: Server build output missing"
-        exit 1
+      # If index.js doesn't exist, try to find the actual output
+      if [ ! -f "dist/server/server/index.js" ]; then
+        echo "index.js not found, checking for other files..."
+        find dist -name "index.*"
+        
+        # If we find an index.mjs, create a symbolic link
+        if [ -f "dist/server/server/index.mjs" ]; then
+          echo "Found index.mjs, creating symbolic link..."
+          ln -s index.mjs dist/server/server/index.js
+        # If we find index.js in a different location, move it
+        elif [ -f "dist/server/index.js" ]; then
+          echo "Found index.js in different location, moving..."
+          mv dist/server/index.js dist/server/server/index.js
+        else
+          echo "No server build output found!"
+          exit 1
+        fi
       fi
       
-      if [ ! -f "dist/client/css/index.css" ]; then
-        echo "Error: CSS build output missing"
+      # Build client
+      echo "Building client..."
+      yarn run client:css:build || exit 1
+      yarn run client:js:build || exit 1
+      
+      # Final verification
+      echo "Final build output verification:"
+      ls -la dist/server/server/
+      
+      if [ ! -f "dist/server/server/index.js" ]; then
+        echo "Server build output still missing after all attempts"
         exit 1
       fi
       
@@ -102,14 +71,8 @@ services:
       echo "Running migrations..."
       NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
       
-      # Create a symbolic link from .mjs to .js if needed
-      if [ -f "dist/server/server/index.mjs" ] && [ ! -f "dist/server/server/index.js" ]; then
-        echo "Creating symbolic link from .mjs to .js..."
-        ln -s dist/server/server/index.mjs dist/server/server/index.js
-      fi
-      
       echo "Build process completed successfully"
-    run_command: node --experimental-modules dist/server/server/index.mjs
+    run_command: node dist/server/server/index.js
     environment_slug: node-js
     instance_size_slug: basic-xxs
     instance_count: 1
@@ -141,3 +104,6 @@ services:
       - key: RESEND_FROM_NAME
         scope: RUN_TIME
         value: "LOT Systems"
+      - key: BUILD_TIME
+        scope: BUILD_TIME
+        value: "${COMMIT_SHA}-${TIMESTAMP}"
