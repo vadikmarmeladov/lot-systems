@@ -7,7 +7,6 @@
     "build": "yarn run client:build && yarn run server:build",
     "client:build": "yarn run-p client:css:build client:js:build",
     "server:build": "vite build --outDir dist/server --ssr server/index.js",
-    "dev": "vite",
     "dev:local": "esr ./src/server/server.ts",
     "server:watch": "nodemon",
     "client:js:build": "NODE_ENV=production esr ./scripts/build/client.build.ts -prod",
@@ -20,7 +19,7 @@
     "migrations:new": "esr ./scripts/migrations.ts -new",
     "production:run": "yarn run-p build migrations:up start",
     "fix": "prettier --write ./src",
-    "start": "node ./dist/server/server/index.js"
+    "start": "node ./dist/server/index.mjs"
   },
   "engines": {
     "node": ">=22.x",

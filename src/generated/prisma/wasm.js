@@ -107,7 +107,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/user/Documents/GitHub/lot-systems-dev/src/generated/prisma",
+      "value": "/Users/user/Documents/LOT_site/Production/lot-systems/src/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -121,7 +121,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/user/Documents/GitHub/lot-systems-dev/prisma/schema.prisma",
+    "sourceFilePath": "/Users/user/Documents/LOT_site/Production/lot-systems/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {

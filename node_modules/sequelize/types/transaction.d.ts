@@ -29,14 +29,14 @@ export class Transaction {
   /**
    * Returns possible options for row locking
    */
-  static get LOCK(): LOCK;
+  static get LOCK(): typeof LOCK;
 
   /**
    * Same as its static version, but can also be called on instances of
    * transactions to get possible options for row locking directly from the
    * instance.
    */
-  get LOCK(): LOCK;
+  get LOCK(): typeof LOCK;
 }
 
 // tslint:disable-next-line no-namespace
@@ -131,13 +131,6 @@ export enum LOCK {
   NO_KEY_UPDATE = 'NO KEY UPDATE',
 }
 
-interface LOCK {
-  UPDATE: LOCK.UPDATE;
-  SHARE: LOCK.SHARE;
-  KEY_SHARE: LOCK.KEY_SHARE;
-  NO_KEY_UPDATE: LOCK.NO_KEY_UPDATE;
-}
-
 /**
  * Options provided when the transaction is created
  */
@@ -146,6 +139,7 @@ export interface TransactionOptions extends Logging {
   isolationLevel?: Transaction.ISOLATION_LEVELS;
   type?: Transaction.TYPES;
   deferrable?: string | Deferrable;
+  readOnly?: boolean;
   /**
    * Parent transaction.
    */

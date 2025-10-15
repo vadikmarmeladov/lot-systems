@@ -21,6 +21,9 @@ class ModelManager {
     });
     return this.models.find((model) => model[options.attribute] === against);
   }
+  findModel(callback) {
+    return this.models.find(callback);
+  }
   get all() {
     return this.models;
   }
