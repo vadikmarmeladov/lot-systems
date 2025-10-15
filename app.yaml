@@ -6,72 +6,60 @@ services:
       branch: master
       repo_clone_url: https://github.com/vadikmarmeladov/lot-systems.git
     build_command: |
-      echo "Build started at $(date)"
-      echo "Checking git commit..."
-      git rev-parse HEAD
-      git log -1 --pretty=format:"%h - %an, %ar : %s"
+      echo "🚀 Build started at $(date)"
       
       # Install dependencies
-      echo "Installing dependencies..."
-      yarn install --frozen-lockfile --production=false || exit 1
-      yarn global add postcss-cli esbuild-runner typescript-esbuild || exit 1
-      
-      # Debug TypeScript configuration
-      echo "TypeScript configuration:"
-      cat tsconfig.json
+      echo "📦 Installing dependencies..."
+      yarn install --frozen-lockfile --production=false || {
+        echo "❌ Dependency installation failed"
+        exit 1
+      }
       
       # Create build directories
-      echo "Creating build directories..."
-      mkdir -p dist/client/css dist/server/server
+      echo "📁 Creating build directories..."
+      mkdir -p dist/client/{css,js} dist/server/server
       
-      # Build server with explicit output checking
-      echo "Building server..."
-      NODE_ENV=production yarn run server:build
+      # Build process
+      echo "🛠 Starting build process..."
       
-      # Debug server build output
-      echo "Server build output directory contents:"
-      ls -la dist/
-      ls -la dist/server/
-      ls -la dist/server/server/
+      # Build server
+      echo "🔧 Building server..."
+      NODE_ENV=production yarn run server:build || {
+        echo "❌ Server build failed"
+        exit 1
+      }
       
-      # If index.js doesn't exist, try to find the actual output
-      if [ ! -f "dist/server/server/index.js" ]; then
-        echo "index.js not found, checking for other files..."
-        find dist -name "index.*"
-        
-        # If we find an index.mjs, create a symbolic link
-        if [ -f "dist/server/server/index.mjs" ]; then
-          echo "Found index.mjs, creating symbolic link..."
-          ln -s index.mjs dist/server/server/index.js
-        # If we find index.js in a different location, move it
-        elif [ -f "dist/server/index.js" ]; then
-          echo "Found index.js in different location, moving..."
-          mv dist/server/index.js dist/server/server/index.js
-        else
-          echo "No server build output found!"
-          exit 1
-        fi
+      # Verify server build output and handle different file extensions
+      if [ -f "dist/server/server/index.mjs" ]; then
+        echo "📝 Converting MJS to JS..."
+        mv dist/server/server/index.mjs dist/server/server/index.js
       fi
       
       # Build client
-      echo "Building client..."
-      yarn run client:css:build || exit 1
-      yarn run client:js:build || exit 1
+      echo "🔧 Building client..."
+      NODE_ENV=production yarn run client:css:build || {
+        echo "❌ CSS build failed"
+        exit 1
+      }
+      NODE_ENV=production yarn run client:js:build || {
+        echo "❌ JS build failed"
+        exit 1
+      }
       
       # Final verification
-      echo "Final build output verification:"
-      ls -la dist/server/server/
-      
       if [ ! -f "dist/server/server/index.js" ]; then
-        echo "Server build output still missing after all attempts"
+        echo "❌ Server build output missing"
         exit 1
       fi
       
       # Run migrations
-      echo "Running migrations..."
-      NODE_ENV=production DATABASE_URL="postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require" yarn run migrations:up || exit 1
+      echo "🔄 Running migrations..."
+      NODE_ENV=production yarn run migrations:up || {
+        echo "❌ Migrations failed"
+        exit 1
+      }
       
-      echo "Build process completed successfully"
+      echo "✅ Build completed successfully at $(date)"
     run_command: node dist/server/server/index.js
     environment_slug: node-js
     instance_size_slug: basic-xxs
@@ -94,9 +82,11 @@ services:
         value: "${_self.PUBLIC_URL}"
       - key: JWT_SECRET
         scope: RUN_AND_BUILD_TIME
+        type: SECRET # Added type for security
         value: "13919320b2a8816ced947b7a6385811b"
       - key: RESEND_API_KEY
         scope: RUN_TIME
+        type: SECRET # Added type for security
         value: "re_83s23f6W_LbDfdmmXpXJ4je4i2kt1HA7u"
       - key: RESEND_FROM_EMAIL
         scope: RUN_TIME
