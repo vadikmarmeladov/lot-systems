@@ -64,6 +64,7 @@ export type LogEvent =
   | 'user_logout'
   | 'settings_change'
   | 'weather_update'
+  | 'note'
   | 'other';
 
 export type Log = {
@@ -75,6 +76,14 @@ export type Log = {
   context: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type LogContext = {
+  temperature?: number | null;
+  humidity?: number | null;
+  country?: string | null;
+  city?: string | null;
+  [key: string]: any;
 };
 
 export type LogSettingsChangeMetadata = {
@@ -139,6 +148,8 @@ export type Weather = {
   windSpeed: number | null;
   pressure: number | null;
   tempKelvin: number | null;
+  sunrise?: number | null;
+  sunset?: number | null;
 };
 
 export type WeatherRecord = Weather & {
@@ -163,5 +174,47 @@ export type DefaultQuestion = {
 
 export type MemoryQuestion = {
   question: string;
-  answer: string;
+  answer?: string;
+  options?: string[];
+};
+
+// Admin and Pagination Types
+export type AdminUsersSort = 'createdAt' | 'email' | 'lastSeenAt' | 'newest' | 'last_seen';
+
+export type Paginated<T> = {
+  items: T[];
+  data?: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  skip?: number;
+  limit?: number;
+};
+
+// Chat Message Extended Types
+export type PublicChatMessage = ChatMessage & {
+  author: Pick<User, 'id' | 'firstName' | 'lastName'> | string | null;
+  authorUserId?: string;
+  likesCount: number;
+  likes?: number;
+  isLiked: boolean;
+  updatedAt?: Date;
+};
+
+export type ChatMessageLikePayload = {
+  messageId: string;
+  isLiked: boolean;
+};
+
+export type ChatMessageLikeEventPayload = {
+  messageId: string;
+  likesCount: number;
+  likes?: number;
+  isLiked?: boolean;
+};
+
+// Sync Events
+export type SyncEvents = {
+  chatMessage: PublicChatMessage;
+  chatMessageLike: ChatMessageLikeEventPayload;
 };

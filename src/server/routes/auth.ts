@@ -5,7 +5,7 @@ import { sendEmail } from '../utils/email';
 
 const EMAIL_CODE_VALID_MINUTES = 10;
 
-module.exports = function (fastify: FastifyInstance, opts: any, done: () => void) {
+export default function (fastify: FastifyInstance, opts: any, done: () => void) {
   // Add request logging
   fastify.addHook('onRequest', async (request) => {
     console.log('Auth route request:', {
@@ -29,13 +29,13 @@ module.exports = function (fastify: FastifyInstance, opts: any, done: () => void
 
   fastify.post('/send-code', async (request, reply) => {
     const { email } = request.body as { email: string };
-
+    
     try {
       console.log('Generating verification code for:', email);
       const code = crypto.randomInt(1e5, 1e6 - 1).toString()
       const token = crypto.randomBytes(16).toString('hex')
       const magicLinkToken = crypto.randomBytes(32).toString('hex')
-
+      
       console.log('Creating email code record');
       const emailCode = await fastify.models.EmailCode.create({
         code,
@@ -46,10 +46,10 @@ module.exports = function (fastify: FastifyInstance, opts: any, done: () => void
           .add(EMAIL_CODE_VALID_MINUTES, 'minutes')
           .toDate(),
       })
-
+      
       console.log('Email code record created:', emailCode.id);
-
       console.log('Sending verification email');
+      
       const emailResult = await sendEmail({
         to: email,
         html: `
@@ -61,18 +61,18 @@ module.exports = function (fastify: FastifyInstance, opts: any, done: () => void
         `,
         subject: `Your Lot Systems Verification Code`,
       });
-
+      
       if (!emailResult.success) {
         console.error('Email send failed:', emailResult);
         throw new Error('Failed to send email');
       }
-
+      
       console.log('Email sent successfully to:', email);
       return { token }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Email sending error:', {
-        error: err.message,
-        stack: err.stack,
+        error: err?.message || 'Unknown error',
+        stack: err?.stack || 'No stack trace',
         email,
         timestamp: new Date().toISOString()
       });
@@ -83,4 +83,4 @@ module.exports = function (fastify: FastifyInstance, opts: any, done: () => void
   });
 
   done();
-};
+}

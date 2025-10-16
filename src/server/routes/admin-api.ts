@@ -47,7 +47,8 @@ export default async (fastify: FastifyInstance) => {
         where.tags = { [Op.overlap]: tags }
       }
       if (query) {
-        where[Op.or] = [
+        // FIX: Use type assertion for symbol-keyed property
+        (where as any)[Op.or] = [
           {
             email: {
               [Op.iLike]: `%${query}%`,
@@ -78,8 +79,11 @@ export default async (fastify: FastifyInstance) => {
         limit,
       })
       const result: Paginated<User> = {
+        items: rows,
         data: rows,
         total: count,
+        page: Math.floor(skip / limit),
+        pageSize: limit,
         skip: parseInt(req.query.skip) || 0,
         limit,
       }

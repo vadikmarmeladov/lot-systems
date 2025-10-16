@@ -37,10 +37,10 @@ export async function sendEmail({ to, html, subject }: EmailParams) {
     try {
       result = await resend.emails.send(emailData);
       console.log('Raw Resend response:', result);
-    } catch (resendError) {
+    } catch (resendError: any) {
       console.error('Resend API error:', {
         error: resendError,
-        stack: resendError.stack
+        stack: resendError?.stack
       });
       throw resendError;
     }
@@ -51,7 +51,7 @@ export async function sendEmail({ to, html, subject }: EmailParams) {
       console.error('Resend returned error:', {
         error,
         errorDetails: error.message,
-        errorCode: error.statusCode
+        errorCode: (error as any).statusCode
       });
       throw error;
     }
@@ -63,16 +63,16 @@ export async function sendEmail({ to, html, subject }: EmailParams) {
     });
 
     return { success: true, messageId: data?.id };
-  } catch (error) {
+  } catch (error: any) {
     console.error('Email sending failed:', {
-      error: error.message,
-      stack: error.stack,
+      error: error?.message,
+      stack: error?.stack,
       to,
       timestamp: new Date().toISOString()
     });
     return { 
       success: false, 
-      error: error.message || 'Unknown error occurred'
+      error: error?.message || 'Unknown error occurred'
     };
   }
 }

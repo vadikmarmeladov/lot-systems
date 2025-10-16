@@ -33,7 +33,11 @@ export async function getWeather(
   )
   const data = response.data
   return {
+    temperature: data?.main?.temp ?? null,
     humidity: data?.main?.humidity ?? null,
+    description: data?.weather?.[0]?.description ?? null,
+    windSpeed: data?.wind?.speed ?? null,
+    pressure: data?.main?.pressure ?? null,
     tempKelvin: data?.main?.temp ?? null,
     sunrise: data?.sys?.sunrise ?? null,
     sunset: data?.sys?.sunset ?? null,

@@ -178,7 +178,7 @@ function formatLog(log: Log): string {
   return [
     `---`,
     [
-      `[${MODULE_BY_LOG_EVENT[log.event]}] ${date}`,
+      `[${MODULE_BY_LOG_EVENT[log.event as LogEvent] ?? log.event}] ${date}`,
       city,
       country,
       temperature,
@@ -192,9 +192,10 @@ function formatLog(log: Log): string {
 }
 
 const MODULE_BY_LOG_EVENT: Record<LogEvent, string> = {
-  note: 'Note',
-  answer: 'Memory',
+  user_login: 'Login',
+  user_logout: 'Logout',
   settings_change: 'Settings',
-  chat_message: 'Sync',
-  chat_message_like: `Sync (upvoted someone's message)`,
+  weather_update: 'Weather',
+  note: 'Note',
+  other: 'Other',
 }

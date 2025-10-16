@@ -78,7 +78,7 @@ export const jwt = {
     expiresIn: number | string = '20d'
   ): Promise<SafeResponse<string>> {
     return new Promise((resolve) => {
-      jwtLib.sign(payload, config.jwt.secret, { expiresIn }, (error, token) => {
+      jwtLib.sign(payload, config.jwt.secret, { expiresIn: expiresIn as any }, (error, token) => {
         if (error) {
           resolve({ success: false, error })
         }

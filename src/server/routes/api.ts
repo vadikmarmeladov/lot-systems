@@ -57,7 +57,7 @@ export default async (fastify: FastifyInstance) => {
       }, 300)
     }, 300)
 
-    const { dispose } = sync.listen('*', async (data, event) => {
+    const { dispose } = sync.listen('*', async (data: any, event: any) => {
       // if (config.admins.includes(req.user.email)) {
       //   console.log(`~~> SSE ${id}: "${event}"`, data)
       // }
@@ -81,6 +81,7 @@ export default async (fastify: FastifyInstance) => {
           const updatedPayload: ChatMessageLikeEventPayload = {
             ...payload,
             likes: likes.length,
+            likesCount: likes.length,
             isLiked: likes.some(fp.propEq('userId', req.user.id)),
           }
           write({ event, data: updatedPayload })
@@ -193,10 +194,13 @@ export default async (fastify: FastifyInstance) => {
       const likes = likesByMessageId[x.id] || []
       return {
         id: x.id,
+        authorUserId: x.authorUserId,
         message: x.message,
         author: userById[x.authorUserId].firstName || null,
         createdAt: x.createdAt,
+        updatedAt: x.updatedAt,
         likes: likes.length,
+        likesCount: likes.length,
         isLiked: likes.some(fp.propEq('userId', req.user.id)),
       }
     })
@@ -262,6 +266,7 @@ export default async (fastify: FastifyInstance) => {
       sync.emit('chat_message_like', {
         messageId: message.id,
         likes: 0,
+        likesCount: 0,
         isLiked: false,
       })
       process.nextTick(async () => {
@@ -339,7 +344,7 @@ export default async (fastify: FastifyInstance) => {
       },
       order: [['createdAt', 'DESC']],
     }).then((xs) =>
-      xs.filter((x, i) => x.event !== 'note' || x.text.length || i === 0)
+      xs.filter((x, i) => x.event !== 'note' || (x.text && x.text.length) || i === 0)
     )
 
     const recentLog = logs[0]

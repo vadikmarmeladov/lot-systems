@@ -8,6 +8,8 @@ const config = {
   appHost: process.env.APP_HOST || 'http://localhost:4400',
   appDescription: process.env.APP_DESCRIPTION || 'Your App Description',
   
+  admins: process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || [],
+  
   email: {
     resendApiKey: process.env.RESEND_API_KEY,
     fromEmail: process.env.RESEND_FROM_EMAIL || 'support@lot-systems.com',

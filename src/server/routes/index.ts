@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
-import { adminApiRoutes } from './admin-api';
-import { apiRoutes } from './api';
-import { authRoutes } from './auth';
+import adminApiRoutes from './admin-api';
+import apiRoutes from './api';
+import authRoutes from './auth';
 
 export async function registerRoutes(fastify: FastifyInstance) {
   // Register all route groups
