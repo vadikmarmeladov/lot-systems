@@ -17,7 +17,7 @@ services:
       
       # Create build directories
       echo "📁 Creating build directories..."
-      mkdir -p dist/client/{css,js} dist/server/server
+      mkdir -p dist/client/{css,js} dist/server
       
       # Build process
       echo "🛠 Starting build process..."
@@ -30,9 +30,9 @@ services:
       }
       
       # Verify server build output and handle different file extensions
-      if [ -f "dist/server/server/index.mjs" ]; then
+      if [ -f "dist/server/index.mjs" ]; then
         echo "📝 Converting MJS to JS..."
-        mv dist/server/server/index.mjs dist/server/server/index.js
+        mv dist/server/index.mjs dist/server/index.js
       fi
       
       # Build client
@@ -47,7 +47,7 @@ services:
       }
       
       # Final verification
-      if [ ! -f "dist/server/server/index.js" ]; then
+      if [ ! -f "dist/server/index.js" ]; then
         echo "❌ Server build output missing"
         exit 1
       fi
@@ -60,7 +60,7 @@ services:
       }
       
       echo "✅ Build completed successfully at $(date)"
-    run_command: node dist/server/server/index.js
+    run_command: node dist/server/index.mjs
     environment_slug: node-js
     instance_size_slug: basic-xxs
     instance_count: 1

@@ -7,7 +7,7 @@
     "build": "yarn run client:build && yarn run server:build",
     "client:build": "yarn run-p client:css:build client:js:build",
     "server:build": "vite build --outDir dist/server --ssr server/index.js",
-    "dev:local": "esr ./src/server/server.ts",
+    "dev:local": "esr ./src/server/.ts",
     "server:watch": "nodemon",
     "client:js:build": "NODE_ENV=production esr ./scripts/build/client.build.ts -prod",
     "client:js:build:metafile": "esr ./scripts/build/client.build.ts -prod -metafile",
