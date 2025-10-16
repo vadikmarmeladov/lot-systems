@@ -26,14 +26,14 @@
       "#client/*": ["client/*"],
       "#server": ["server"],
       "#server/*": ["server/*"],
-      "#shared": ["."],
-      "#shared/*": ["./*"],
+      "#shared": ["shared"],
+      "#shared/*": ["shared/*"]
     }
   },
   "include": [
     "src"
   ],
   "exclude": [
-    "node_modules",
+    "node_modules"
   ]
 }
