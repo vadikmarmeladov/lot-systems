@@ -1,4 +1,4 @@
-name: lot-systems-dev
+name: web
 region: nyc3
 services:
   - name: web
@@ -49,14 +49,8 @@ services:
       
       echo "✅ Build completed successfully at $(date)"
     run_command: |
-      # Run migrations on startup
-      echo "🔄 Running migrations..."
-      NODE_ENV=production node -r esbuild-register ./scripts/migrations.ts up || {
-        echo "⚠️ Migrations failed but continuing startup..."
-      }
-      
-      # Start the server
-      node dist/server/index.mjs
+      # Start the server with ES modules support
+      NODE_OPTIONS='--experimental-specifier-resolution=node' node dist/server/index.mjs
     environment_slug: node-js
     instance_size_slug: basic-xxs
     instance_count: 1

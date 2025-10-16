@@ -1,38 +1,44 @@
-import fastify from 'fastify'
+import Fastify from 'fastify'
 import fastifyStatic from '@fastify/static'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
-// Fix for ESM __dirname
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-const server = fastify()
+const server = Fastify({
+  logger: true
+})
 
-// Serve static files
 server.register(fastifyStatic, {
   root: join(__dirname, '../../dist/client'),
-  prefix: '/'
+  prefix: '/',
+  decorateReply: false
 })
 
-// Handle all routes (for SPA)
+server.get('/health', async (request, reply) => {
+  return { status: 'ok' }
+})
+
 server.setNotFoundHandler((request, reply) => {
-  reply.sendFile('index.html')
+  return reply.sendFile('index.html')
 })
 
-// Add a root route handler
 server.get('/', async (request, reply) => {
   return reply.sendFile('index.html')
 })
 
 const start = async () => {
   try {
-    await server.listen({ port: 3000, host: '0.0.0.0' })
-    console.log('Server listening on port 3000')
+    const port = process.env.PORT ? parseInt(process.env.PORT) : 3000
+    await server.listen({ port, host: '0.0.0.0' })
+    server.log.info(`Server listening on port ${port}`)
   } catch (err) {
-    console.error(err)
+    server.log.error(err)
     process.exit(1)
   }
 }
 
 start()
+
+export default server

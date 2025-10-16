@@ -8,12 +8,13 @@ async function buildServer() {
       ...commonConfig,
       entryPoints: ['./src/server/index.ts'],
       platform: 'node',
-      outfile: './dist/server/server/index.js',
-      format: 'cjs',
+      outfile: './dist/server/index.mjs',
+      format: 'esm',
       external: [
-        'express',
-        'pg',
-        'dotenv'
+        'fastify',
+        '@fastify/static',
+        'path',
+        'url'
       ],
       loader: {
         '.ts': 'ts',
