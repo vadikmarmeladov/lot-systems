@@ -8,7 +8,7 @@ async function buildServer() {
       ...commonConfig,
       entryPoints: ['./src/server/index.ts'],
       platform: 'node',
-      outfile: './dist/server/index.mjs',
+      outfile: './dist/server/index.js',
       format: 'esm',
       external: [
         'fastify',
