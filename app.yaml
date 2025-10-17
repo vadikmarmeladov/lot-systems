@@ -41,16 +41,16 @@ services:
       }
       
       # Final verification
-      if [ ! -f "dist/server/index.js" ]; then
+      if [ ! -f "dist/server/server/index.js" ]; then
         echo "❌ Server build output missing"
-        ls -la dist/server/
+        ls -la dist/server/server/
         exit 1
       fi
 
       echo "✅ Build completed successfully at $(date)"
     run_command: |
       # Start the server with ES modules support
-      NODE_OPTIONS='--experimental-specifier-resolution=node' node dist/server/index.js
+      NODE_OPTIONS='--experimental-specifier-resolution=node' node dist/server/server/index.js
     environment_slug: node-js
     instance_size_slug: basic-xxs
     instance_count: 1
