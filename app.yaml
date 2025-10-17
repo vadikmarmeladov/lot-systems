@@ -46,7 +46,7 @@ services:
         ls -la dist/server/
         exit 1
       fi
-      
+
       echo "✅ Build completed successfully at $(date)"
     run_command: |
       # Start the server with ES modules support
