@@ -1,44 +1,36 @@
-import Fastify from 'fastify'
-import fastifyStatic from '@fastify/static'
-import { fileURLToPath } from 'url'
-import { dirname, join } from 'path'
+import Fastify from 'fastify';
+import fastifyStatic from '@fastify/static';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+// ESM __dirname workaround
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-const server = Fastify({
-  logger: true
-})
+const server = Fastify();
 
+// Serve static files from dist/client
 server.register(fastifyStatic, {
-  root: join(__dirname, '../../dist/client'),
-  prefix: '/',
-  decorateReply: false
-})
+  root: path.join(__dirname, '../client'),
+  prefix: '/', // Serve static files at root
+});
 
+// Health check endpoint for DigitalOcean
 server.get('/health', async (request, reply) => {
-  return { status: 'ok' }
-})
+  return { status: 'ok' };
+});
 
-server.setNotFoundHandler((request, reply) => {
-  return reply.sendFile('index.html')
-})
+// SPA fallback: serve index.html for any unmatched route
+server.get('/*', (request, reply) => {
+  reply.sendFile('index.html');
+});
 
-server.get('/', async (request, reply) => {
-  return reply.sendFile('index.html')
-})
-
-const start = async () => {
-  try {
-    const port = process.env.PORT ? parseInt(process.env.PORT) : 3000
-    await server.listen({ port, host: '0.0.0.0' })
-    server.log.info(`Server listening on port ${port}`)
-  } catch (err) {
-    server.log.error(err)
-    process.exit(1)
+// Listen on correct port and host for DigitalOcean
+const port = process.env.PORT ? parseInt(process.env.PORT) : 8080;
+server.listen({ port, host: '0.0.0.0' }, (err, address) => {
+  if (err) {
+    server.log.error(err);
+    process.exit(1);
   }
-}
-
-start()
-
-export default server
+  console.log(`Server listening on ${address}`);
+});
