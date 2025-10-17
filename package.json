@@ -3,6 +3,12 @@
   "type": "module",
   "version": "0.0.2",
   "license": "MIT",
+  "imports": {
+    "#server/*": "./dist/server/server/*",
+    "#server": "./dist/server/server/index.js",
+    "#shared/*": "./dist/server/shared/*",
+    "#shared": "./dist/server/shared/index.js"
+  },
   "scripts": {
     "server:build": "tsc --project tsconfig.server.json",
     "server:start": "node dist/server/server/index.js",
