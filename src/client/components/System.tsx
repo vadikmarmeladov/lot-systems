@@ -47,6 +47,7 @@ import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
 import { UserMetricsWidget } from './UserMetricsWidget'
 import { AIFeedbackWidget } from './AIFeedbackWidget'
+
 import { CollectiveConsciousness, WellnessPulse, MemoryEngineStats, IntentionPatterns, BadgeUnlockFeed, GrowthMilestones } from './stats'
 
 export const System = () => {
