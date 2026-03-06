@@ -24,11 +24,42 @@ export function MemoryWidget() {
   // Session-local ref to prevent re-showing the same question during this mount
   const shownQuestionId = React.useRef<string | null>(null)
 
+  // Track answered questions in sessionStorage to survive remounts
+  const isQuestionAnswered = React.useCallback((questionId: string): boolean => {
+    try {
+      const answered = sessionStorage.getItem('answeredMemoryQuestions')
+      if (!answered) return false
+      const ids: string[] = JSON.parse(answered)
+      return ids.includes(questionId)
+    } catch { return false }
+  }, [])
+
+  const markQuestionAnswered = React.useCallback((questionId: string) => {
+    try {
+      const answered = sessionStorage.getItem('answeredMemoryQuestions')
+      const ids: string[] = answered ? JSON.parse(answered) : []
+      if (!ids.includes(questionId)) {
+        ids.push(questionId)
+        // Keep only last 20 to avoid unbounded growth
+        sessionStorage.setItem('answeredMemoryQuestions', JSON.stringify(ids.slice(-20)))
+      }
+    } catch { /* non-critical */ }
+  }, [])
+
   const queryClient = useQueryClient()
   const { data: loadedQuestion = null, error, isLoading, refetch } = useMemory()
 
   const { mutate: createMemory } = useCreateMemory({
     onSuccess: ({ response, insight }) => {
+      // Mark question as answered before hiding it
+      if (question?.id) {
+        markQuestionAnswered(question.id)
+      }
+
+      // Invalidate the memory query cache so answered question won't reappear
+      const date = btoa(dayjs().format('YYYY-MM-DD'))
+      queryClient.removeQueries(['/api/memory', date])
+
       setIsQuestionShown(false)
       setTimeout(() => {
         setQuestion(null)
@@ -104,6 +135,9 @@ export function MemoryWidget() {
     if (!loadedQuestion || !loadedQuestion.question) return
     if (shownQuestionId.current === loadedQuestion.id) return
 
+    // Skip questions that were already answered in this session
+    if (isQuestionAnswered(loadedQuestion.id)) return
+
     shownQuestionId.current = loadedQuestion.id
 
     // Track shown question in localStorage for server-side duplicate detection
@@ -171,7 +205,7 @@ export function MemoryWidget() {
         setIsResponseShown(false)
       }, 100)
     }, fp.randomElement([1200, 2100, 1650, 2800]))
-  }, [loadedQuestion])
+  }, [loadedQuestion, isQuestionAnswered])
 
   React.useEffect(() => {
     if (response) {

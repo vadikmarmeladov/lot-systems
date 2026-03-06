@@ -1787,7 +1787,8 @@ export default async (fastify: FastifyInstance) => {
         })
 
         if (!shouldShowPrompt) {
-          console.log(`Pacing note: quota reached (${promptsShownToday}/${promptQuotaToday}), continuing anyway`)
+          console.log(`Pacing: quota reached (${promptsShownToday}/${promptQuotaToday}), no question for now`)
+          return null
         }
 
         // Check if user has Usership tag for AI-generated questions
