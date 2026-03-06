@@ -49,6 +49,7 @@ import { UserMetricsWidget } from './UserMetricsWidget'
 import { AIFeedbackWidget } from './AIFeedbackWidget'
 
 import { CollectiveConsciousness, WellnessPulse, MemoryEngineStats, IntentionPatterns, BadgeUnlockFeed, GrowthMilestones } from './stats'
+import { getDailyStoicAnchor, getConvergenceSignal, getAmbientIntensity } from '#client/utils/communityPulse'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -270,6 +271,11 @@ export const System = () => {
     return options[index]
   }, [weather])
 
+  // Community pulse — atmosphere layer
+  const stoicAnchor = React.useMemo(() => getDailyStoicAnchor(), [])
+  const convergence = React.useMemo(() => getConvergenceSignal(), [])
+  const ambientIntensity = React.useMemo(() => getAmbientIntensity(), [])
+
   // Check for recipe and planner suggestions when component mounts
   React.useEffect(() => {
     checkRecipeWidget()
@@ -298,6 +304,16 @@ export const System = () => {
         <div>
           <Clock format="[Week] w, dddd, MMMM D" interval={1e3 * 60} />
           {!!me?.city && `, ${me.city}`}
+        </div>
+      </div>
+
+      {/* Community Convergence Pulse — atmosphere layer */}
+      <div className={cn('convergence-pulse', `convergence-${convergence.phase}`)}>
+        <div className="stoic-anchor" style={{ opacity: 0.5 + ambientIntensity * 0.5 }}>
+          {stoicAnchor}
+        </div>
+        <div style={{ opacity: 0.35 + ambientIntensity * 0.4 }} className="mt-4">
+          {convergence.narrative}
         </div>
       </div>
 
