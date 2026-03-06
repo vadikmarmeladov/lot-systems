@@ -151,6 +151,13 @@ export const EvolutionWidget: React.FC = () => {
           {currentLevel} {stage}
         </div>
 
+        {/* Reflection on progress */}
+        {currentLevel > 1 && (
+          <div className="mb-24 opacity-30">
+            Consistent routine accelerates Bioethics Index compilation.
+          </div>
+        )}
+
         {/* Metrics */}
         <div className="flex flex-col gap-4 mb-24">
           <div className="flex justify-between items-baseline">
@@ -190,12 +197,6 @@ export const EvolutionWidget: React.FC = () => {
           </div>
         </div>
 
-        {/* Reflection on progress */}
-        {currentLevel > 1 && (
-          <div className="mt-24 opacity-30">
-            Consistent routine accelerates Bioethics Index compilation.
-          </div>
-        )}
       </div>}
     </Block>
   )
