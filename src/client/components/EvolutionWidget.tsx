@@ -6,6 +6,7 @@ import { useNarrative, useLogs } from '#client/queries'
 import dayjs from '#client/utils/dayjs'
 import { ProgressBars, getStoicProgressLabel } from '#client/utils/progressBars'
 import { useLogContext } from '#client/hooks/useLogContext'
+import { getDailyStoicAnchor } from '#client/utils/communityPulse'
 
 /**
  * Citizen Index Widget - CQGS Growth Indicators
@@ -86,6 +87,7 @@ export const EvolutionWidget: React.FC = () => {
   }
 
   const stage = getEvolutionStage(currentLevel)
+  const stoicAnchor = React.useMemo(() => getDailyStoicAnchor(), [])
 
   // Activity breakdown labels (CQGS module mapping)
   const activityLabels: Record<string, string> = {
@@ -151,12 +153,10 @@ export const EvolutionWidget: React.FC = () => {
           {currentLevel} {stage}
         </div>
 
-        {/* Reflection on progress */}
-        {currentLevel > 1 && (
-          <div className="mb-24 opacity-30">
-            Consistent routine accelerates Bioethics Index compilation.
-          </div>
-        )}
+        {/* Daily stoic anchor */}
+        <div className="mb-24 opacity-30">
+          {stoicAnchor}
+        </div>
 
         {/* Metrics */}
         <div className="flex flex-col gap-4 mb-24">
