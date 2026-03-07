@@ -552,15 +552,11 @@ export const System = () => {
         </div>
       )}
 
-      <div>
-        <RecipeWidget />
-      </div>
+      <RecipeWidget />
 
       {/* Biofield Check-In - Show every 3 hours max, context-based on time of day */}
       {/* Widget controls its own visibility internally to allow farewell animations */}
-      <div>
-        <EmotionalCheckIn />
-      </div>
+      <EmotionalCheckIn />
 
       {/* Cleanness Module - Show during rest/refresh times OR when intention engine detects need */}
       {(() => {
