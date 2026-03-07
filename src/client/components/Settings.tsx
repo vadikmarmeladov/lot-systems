@@ -268,18 +268,23 @@ export const Settings = () => {
     [state]
   )
 
-  // Get version from store (set by app.tsx from /api/public/status)
-  const appVersion = useStore(stores.appVersion)
-
-  // Fetch status data for the status link (REMOVED - too slow)
-  // Using version from store instead
+  // Fetch live status data from the API
   React.useEffect(() => {
-    // Use version from store, fallback to package.json version if not loaded yet
-    setStatusData({
-      version: appVersion || '1.2.0',
-      overall: 'ok'
-    })
-  }, [appVersion])
+    fetch('/api/public/status')
+      .then(res => res.json())
+      .then(data => {
+        setStatusData({
+          version: data.version || '1.2.0',
+          overall: data.overall || 'ok',
+        })
+      })
+      .catch(() => {
+        setStatusData({
+          version: '1.2.0',
+          overall: 'error',
+        })
+      })
+  }, [])
 
   const statusText = statusData
     ? statusData.overall === 'ok'
