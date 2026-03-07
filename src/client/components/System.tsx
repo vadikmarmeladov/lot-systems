@@ -552,11 +552,15 @@ export const System = () => {
         </div>
       )}
 
-      <RecipeWidget />
+      <div>
+        <RecipeWidget />
+      </div>
 
       {/* Biofield Check-In - Show every 3 hours max, context-based on time of day */}
       {/* Widget controls its own visibility internally to allow farewell animations */}
-      <EmotionalCheckIn />
+      <div>
+        <EmotionalCheckIn />
+      </div>
 
       {/* Cleanness Module - Show during rest/refresh times OR when intention engine detects need */}
       {(() => {
@@ -605,7 +609,7 @@ export const System = () => {
           localStorage.removeItem('selfcare-quantum-reason')
         }
 
-        return <SelfCareMoments />
+        return <div><SelfCareMoments /></div>
       })()}
 
       {/* Intentions - Show if user has intention OR when intention engine detects seeking-direction pattern */}
@@ -642,7 +646,7 @@ export const System = () => {
             localStorage.removeItem('intentions-quantum-reason')
           }
 
-          return <IntentionsWidget />
+          return <div><IntentionsWidget /></div>
         }
 
         return null
@@ -670,7 +674,7 @@ export const System = () => {
 
         // Random 20% chance to show when all conditions met
         const shouldShow = Math.random() < 0.2
-        return shouldShow && <SubscribeWidget />
+        return shouldShow && <div><SubscribeWidget /></div>
       })()}
 
       {/* Community stack */}
