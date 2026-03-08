@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Block, Button, GhostButton, Tag, TagsContainer } from '#client/components/ui'
-import { PublicProfile as PublicProfileType } from '#shared/types'
+import { PublicProfile as PublicProfileType, WeatherStation, Wallet } from '#shared/types'
 import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
@@ -466,6 +466,101 @@ export const PublicProfile = () => {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Legacy Level: Weather Station */}
+        {profile.weatherStation && (
+          <div>
+            <Block label="Weather Station:" blockView>
+              <div className="mb-8 opacity-50">{profile.weatherStation.location}</div>
+              <div className="flex flex-col gap-4 mb-16">
+                <div className="flex justify-between">
+                  <span>Temperature</span>
+                  <span>{Math.round(profile.weatherStation.readings.temperature)}℃</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Humidity</span>
+                  <span>{profile.weatherStation.readings.humidity}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Pressure</span>
+                  <span>{profile.weatherStation.readings.pressure} hPa</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Wind</span>
+                  <span>{profile.weatherStation.readings.windSpeed} m/s {profile.weatherStation.readings.windDirection}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>UV Index</span>
+                  <span>{profile.weatherStation.readings.uvIndex}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Visibility</span>
+                  <span>{profile.weatherStation.readings.visibility} km</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Dew Point</span>
+                  <span>{profile.weatherStation.readings.dewPoint}℃</span>
+                </div>
+              </div>
+              {profile.weatherStation.forecast.length > 0 && (
+                <div>
+                  <div className="mb-8 opacity-50">Forecast</div>
+                  <div className="flex flex-col gap-4">
+                    {profile.weatherStation.forecast.map((day, idx) => (
+                      <div key={idx} className="flex justify-between">
+                        <span className="w-[48px]">{day.day}</span>
+                        <span className="flex-1">{day.condition}</span>
+                        <span>{day.low}–{day.high}℃</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+
+        {/* Legacy Level: Wallet */}
+        {profile.wallet && (
+          <div>
+            <Block label="Wallet:" blockView>
+              <div className="flex justify-between mb-4">
+                <span className="opacity-50">{profile.wallet.address}</span>
+              </div>
+              <div className="flex justify-between mb-16">
+                <span>Balance</span>
+                <span>{formatNumberWithCommas(profile.wallet.balance)} {profile.wallet.currency}</span>
+              </div>
+              <div className="flex justify-between mb-16">
+                <span>Loyalty Points</span>
+                <span>{formatNumberWithCommas(profile.wallet.loyaltyPoints)}</span>
+              </div>
+              {profile.wallet.transactions.length > 0 && (
+                <div>
+                  <div className="mb-8 opacity-50">Recent transactions</div>
+                  <div className="flex flex-col gap-4">
+                    {profile.wallet.transactions.map((tx) => (
+                      <div key={tx.id} className="flex justify-between gap-8">
+                        <span className="w-[80px] opacity-50">{tx.date.slice(5)}</span>
+                        <span className="flex-1">{tx.description}</span>
+                        <span className={tx.type === 'credit' ? '' : 'opacity-50'}>
+                          {tx.type === 'credit' ? '+' : '−'}{tx.amount.toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+
+        {/* Demo badge */}
+        {profile.isDemo && (
+          <div className="opacity-30">
+            This is a demo account. Legacy level features shown as preview.
           </div>
         )}
 

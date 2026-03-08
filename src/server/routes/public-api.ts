@@ -597,6 +597,124 @@ export default async (fastify: FastifyInstance) => {
     const { userIdOrUsername } = req.params
     console.log('[PUBLIC-PROFILE-API] Fetching profile for:', userIdOrUsername)
 
+    // Demo account: Niccolò Machiavelli — autonomous hardcoded LOT account
+    // Legacy level unlock showcase with weather station and wallet demos
+    if (userIdOrUsername === 'machiavelli') {
+      console.log('[PUBLIC-PROFILE-API] Serving demo account: Machiavelli')
+
+      // Simulate Florence weather with slight seasonal variation
+      const now = new Date()
+      const month = now.getMonth()
+      const hour = now.getHours()
+      // Florence seasonal temperature ranges (°C)
+      const seasonalBase = [5, 7, 10, 14, 18, 23, 26, 25, 21, 16, 10, 6][month]
+      const diurnalShift = Math.sin((hour - 6) * Math.PI / 12) * 4
+      const demoTemp = Math.round((seasonalBase + diurnalShift) * 10) / 10
+      const demoHumidity = Math.round(55 + Math.sin(month * Math.PI / 6) * 15)
+      const demoPressure = Math.round(1013 + Math.sin(hour * Math.PI / 12) * 5)
+
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu']
+      const conditions = ['Clear sky', 'Few clouds', 'Scattered clouds', 'Light rain', 'Sunny']
+
+      return {
+        firstName: 'Niccolò',
+        lastName: 'Machiavelli',
+        city: 'Florence',
+        country: 'ITA',
+        isDemo: true,
+        privacySettings: {
+          isPublicProfile: true,
+          showWeather: true,
+          showLocalTime: true,
+          showCity: true,
+          showSound: true,
+          showMemoryStory: true,
+        },
+        tags: ['Legacy'],
+        profileVisits: 1469 + Math.floor((Date.now() / 86400000) % 100),
+        localTime: now.toLocaleString('en-US', {
+          timeZone: 'Europe/Rome',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        }),
+        weather: {
+          temperature: demoTemp,
+          humidity: demoHumidity,
+          description: conditions[now.getDay() % conditions.length],
+          windSpeed: Math.round((3 + Math.sin(hour) * 2) * 10) / 10,
+          pressure: demoPressure,
+          sunrise: Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 30).getTime() / 1000),
+          sunset: Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 45).getTime() / 1000),
+        },
+        soundDescription: 'Renaissance courtyard — distant church bells, fountain water, quill on parchment',
+        memoryStory: 'The art of governance is the art of understanding human nature. Every morning in the Palazzo Vecchio, I observe the citizens below — their patterns of movement, their exchanges, their quiet rebellions. The weather shapes their temperament: rain brings introspection, sun brings ambition. A prince must read both the skies and the souls beneath them.',
+        theme: {
+          theme: 'dark',
+          baseColor: null,
+          accentColor: null,
+          customThemeEnabled: false,
+        },
+        psychologicalProfile: {
+          hasUsership: true,
+          version: '531',
+          archetype: 'The Strategist',
+          archetypeDescription: 'Sees through surface appearances to underlying power dynamics. Combines pragmatic observation with philosophical depth.',
+          coreValues: ['virtù', 'prudence', 'adaptability', 'fortune', 'statecraft'],
+          emotionalPatterns: ['calculated restraint', 'strategic patience', 'controlled intensity'],
+          selfAwarenessLevel: 87,
+          streak: 1469,
+          behavioralCohort: 'Renaissance Polymaths',
+          behavioralTraits: ['analytical observation', 'historical pattern recognition', 'diplomatic flexibility'],
+          patternStrengthIndex: 2847,
+          patternStrength: [
+            { trait: 'Strategic thinking', count: 842 },
+            { trait: 'Historical analysis', count: 631 },
+            { trait: 'Human observation', count: 574 },
+            { trait: 'Political philosophy', count: 489 },
+            { trait: 'Practical wisdom', count: 311 },
+          ],
+          answerCount: 2847,
+          noteCount: 1469,
+        },
+        // Legacy level unlock: Weather Station
+        weatherStation: {
+          location: 'Florence, Tuscany — Palazzo Vecchio Observatory',
+          readings: {
+            temperature: demoTemp,
+            humidity: demoHumidity,
+            pressure: demoPressure,
+            windSpeed: Math.round((3 + Math.sin(hour) * 2) * 10) / 10,
+            windDirection: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.floor(hour / 3) % 8],
+            uvIndex: Math.max(0, Math.round(Math.sin((hour - 6) * Math.PI / 12) * 8)),
+            visibility: Math.round(10 + Math.random() * 5),
+            dewPoint: Math.round(demoTemp - (100 - demoHumidity) / 5),
+          },
+          forecast: dayNames.map((day, i) => ({
+            day,
+            high: Math.round(seasonalBase + 3 + Math.sin(i) * 2),
+            low: Math.round(seasonalBase - 4 + Math.cos(i) * 2),
+            condition: conditions[i % conditions.length],
+          })),
+          lastUpdated: now.toISOString(),
+        },
+        // Legacy level unlock: Wallet
+        wallet: {
+          address: 'LOT-MACH-1469-FLOR',
+          balance: 14690.27,
+          currency: 'LOT',
+          transactions: [
+            { id: 'tx-001', type: 'credit' as const, amount: 500.00, description: 'Usership stipend — March', date: '2026-03-01' },
+            { id: 'tx-002', type: 'debit' as const, amount: 99.00, description: 'Usership subscription', date: '2026-03-01' },
+            { id: 'tx-003', type: 'credit' as const, amount: 150.00, description: 'Pattern recognition bonus', date: '2026-02-28' },
+            { id: 'tx-004', type: 'credit' as const, amount: 75.00, description: 'Community contribution reward', date: '2026-02-15' },
+            { id: 'tx-005', type: 'debit' as const, amount: 25.00, description: 'Weather station uplink fee', date: '2026-02-01' },
+          ],
+          loyaltyPoints: 28470,
+        },
+      }
+    }
+
     try {
       // Prioritize custom URL over ID to avoid conflicts
       // First, try to find user by custom URL in metadata

@@ -8,6 +8,7 @@ export enum UserTag {
   Usership = 'Usership',
   Pro = 'Pro',
   Suspended = 'Suspended',
+  Legacy = 'Legacy',
 }
 
 // User Types
@@ -308,6 +309,49 @@ export type PublicProfile = {
     clearanceLevel: string; // e.g. "Full"
     totalEntries: number;
   };
+  // Demo account flag
+  isDemo?: boolean;
+  // Legacy level unlock widgets
+  weatherStation?: WeatherStation;
+  wallet?: Wallet;
+  userId?: string;
+};
+
+// Weather Station — Legacy level demo widget
+export type WeatherStation = {
+  location: string;
+  readings: {
+    temperature: number;
+    humidity: number;
+    pressure: number;
+    windSpeed: number;
+    windDirection: string;
+    uvIndex: number;
+    visibility: number;
+    dewPoint: number;
+  };
+  forecast: Array<{
+    day: string;
+    high: number;
+    low: number;
+    condition: string;
+  }>;
+  lastUpdated: string;
+};
+
+// Wallet — Legacy level demo widget
+export type Wallet = {
+  address: string;
+  balance: number;
+  currency: string;
+  transactions: Array<{
+    id: string;
+    type: 'credit' | 'debit';
+    amount: number;
+    description: string;
+    date: string;
+  }>;
+  loyaltyPoints: number;
 };
 
 // Other Types

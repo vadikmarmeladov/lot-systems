@@ -19,6 +19,7 @@ export const USER_TAGS_BY_ID: Record<UserTag, { name: string; color?: Color }> =
   [UserTag.Usership]: { name: 'Usership' },
   [UserTag.Pro]: { name: 'Pro' },
   [UserTag.Suspended]: { name: 'Suspended', color: 'red' },
+  [UserTag.Legacy]: { name: 'Legacy' },
 }
 
 // Helper function for case-insensitive tag lookup
