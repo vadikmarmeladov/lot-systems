@@ -613,7 +613,7 @@ export default async (fastify: FastifyInstance) => {
       const demoHumidity = Math.round(55 + Math.sin(month * Math.PI / 6) * 15)
       const demoPressure = Math.round(1013 + Math.sin(hour * Math.PI / 12) * 5)
 
-      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu']
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']
       const conditions = ['Clear sky', 'Few clouds', 'Scattered clouds', 'Light rain', 'Sunny']
 
       return {
@@ -630,7 +630,7 @@ export default async (fastify: FastifyInstance) => {
           showSound: true,
           showMemoryStory: true,
         },
-        tags: ['Legacy'],
+        tags: ['RND', 'Usership', 'Legacy'],
         profileVisits: 1469 + Math.floor((Date.now() / 86400000) % 100),
         localTime: now.toLocaleString('en-US', {
           timeZone: 'Europe/Rome',

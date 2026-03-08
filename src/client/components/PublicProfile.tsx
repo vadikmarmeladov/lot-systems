@@ -510,8 +510,7 @@ export const PublicProfile = () => {
                   <div className="flex flex-col gap-4">
                     {profile.weatherStation.forecast.map((day, idx) => (
                       <div key={idx} className="flex justify-between">
-                        <span className="w-[48px]">{day.day}</span>
-                        <span className="flex-1">{day.condition}</span>
+                        <span className="flex-1">{day.day}, {day.condition}</span>
                         <span>{day.low}–{day.high}℃</span>
                       </div>
                     ))}
