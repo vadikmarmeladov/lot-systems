@@ -301,7 +301,7 @@ export const System = () => {
       <div>
         <GhostButton href="/log">{userName || 'You'}</GhostButton>
         <div>
-          <Clock format="[Week] w; MMMM D, dddd" interval={1e3 * 60} />
+          <Clock format="[Week] W; MMMM D, dddd" interval={1e3 * 60} />
           {!!me?.city && `, ${me.city}`}
         </div>
       </div>
