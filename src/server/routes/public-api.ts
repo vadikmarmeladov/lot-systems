@@ -17,6 +17,9 @@ const packageJson = JSON.parse(
 )
 const VERSION = packageJson.version || '0.0.2'
 
+// Demo account: real profile visit counter (persists in memory, resets on server restart)
+let machiavelliProfileVisits = 1469
+
 // Cache status checks for 2 minutes to be cost-effective
 let statusCache: any = null
 let lastCheck = 0
@@ -631,7 +634,7 @@ export default async (fastify: FastifyInstance) => {
           showMemoryStory: true,
         },
         tags: ['RND', 'Usership', 'Legacy'],
-        profileVisits: 1469 + Math.floor((Date.now() / 86400000) % 100),
+        profileVisits: ++machiavelliProfileVisits,
         localTime: now.toLocaleString('en-US', {
           timeZone: 'Europe/Rome',
           hour: 'numeric',
