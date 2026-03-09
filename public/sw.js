@@ -36,19 +36,14 @@ self.addEventListener('activate', (event) => {
     caches.keys()
       .then((cacheNames) => {
         return Promise.all(
-          cacheNames.map((cacheName) => {
-            // Delete ALL caches, even current one, to force fresh fetch
-            console.log('[SW] Deleting cache:', cacheName);
-            return caches.delete(cacheName);
-          })
+          cacheNames
+            .filter((cacheName) => cacheName !== CACHE_NAME)
+            .map((cacheName) => {
+              // Only delete old version caches, keep current
+              console.log('[SW] Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            })
         );
-      })
-      .then(() => {
-        // Recreate cache with static assets only
-        return caches.open(CACHE_NAME).then((cache) => {
-          console.log('[SW] Creating fresh cache with static assets');
-          return cache.addAll(STATIC_CACHE);
-        });
       })
       .then(() => {
         // Take control of all pages immediately

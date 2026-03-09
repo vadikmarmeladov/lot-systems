@@ -21,8 +21,11 @@
             .then(registration => {
               console.log('[PWA] Service worker registered:', registration.scope);
 
-              // Check for updates immediately
-              registration.update();
+              // Only check for updates if we already have a controlling SW
+              // (skip on first install to avoid immediate reload)
+              if (navigator.serviceWorker.controller) {
+                registration.update();
+              }
 
               // Auto-update service worker when new version available
               registration.addEventListener('updatefound', () => {
@@ -30,16 +33,18 @@
                 newWorker.addEventListener('statechange', () => {
                   if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
                     console.log('[PWA] New version available, activating immediately');
-                    // Automatically skip waiting to activate new SW
                     newWorker.postMessage({ type: 'SKIP_WAITING' });
                   }
                 });
               });
 
               // Reload page when new service worker takes control
+              // Only reload if the page has been interactive (not during initial load)
               let refreshing = false;
+              let pageReady = false;
+              setTimeout(() => { pageReady = true; }, 5000);
               navigator.serviceWorker.addEventListener('controllerchange', () => {
-                if (!refreshing) {
+                if (!refreshing && pageReady) {
                   refreshing = true;
                   console.log('[PWA] Service worker updated, reloading page');
                   window.location.reload();

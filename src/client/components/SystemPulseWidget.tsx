@@ -23,7 +23,7 @@ export function SystemPulseWidget() {
   const [isLive, setIsLive] = React.useState(true)
   const [view, setView] = React.useState<PulseView>('metrics')
   const intervalRef = React.useRef<NodeJS.Timeout>()
-  const lastFetchRef = React.useRef<number>(0)
+  const lastFetchRef = React.useRef<number>(Date.now())
   const logCtx = useLogContext()
 
   const cycleView = () => {
@@ -80,14 +80,18 @@ export function SystemPulseWidget() {
     return () => clearInterval(checkStale)
   }, [])
 
-  if (!pulse) {
-    return null
-  }
-
   const label =
     view === 'metrics' ? 'System Pulse:' :
     view === 'activity' ? 'System Load:' :
     'User Telemetry:'
+
+  if (!pulse) {
+    return (
+      <Block label={label} blockView onLabelClick={cycleView}>
+        <div className="opacity-30">Connecting.</div>
+      </Block>
+    )
+  }
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>
