@@ -605,6 +605,19 @@ export default async (fastify: FastifyInstance) => {
     if (userIdOrUsername === 'machiavelli') {
       console.log('[PUBLIC-PROFILE-API] Serving demo account: Machiavelli')
 
+      // Compute real user counts so the demo board profile stays accurate
+      let totalUsers = 1
+      let usershipCount = 1
+      try {
+        const allUsers = await models.User.findAll()
+        totalUsers = allUsers.length + 1 // +1 for demo account
+        usershipCount = allUsers.filter(u => u.tags?.some(t => t.toLowerCase() === 'usership')).length + 1 // +1 for demo
+      } catch (e) {
+        console.error('[PUBLIC-PROFILE-API] Demo user count query failed:', e)
+      }
+      const freeCitizens = Math.max(0, totalUsers - usershipCount)
+      const poweringCitizens = usershipCount > 0 ? Math.round(freeCitizens / usershipCount) : 0
+
       // Simulate Florence weather with slight seasonal variation
       const now = new Date()
       const month = now.getMonth()
@@ -714,6 +727,27 @@ export default async (fastify: FastifyInstance) => {
             { id: 'tx-005', type: 'debit' as const, amount: 25.00, description: 'Weather station uplink fee', date: '2026-02-01' },
           ],
           loyaltyPoints: 28470,
+        },
+        // Board profile for Citizen Index display
+        boardProfile: {
+          boardMemberNumber: 0, // Demo account — honorary member
+          citizenSince: 'June 1469',
+          poweringCitizens,
+          boardTenureMonths: Math.round((now.getTime() - new Date('1469-06-03').getTime()) / (1000 * 60 * 60 * 24 * 30)),
+          totalInvested: 14690,
+          biofieldState: {
+            energy: 'high',
+            clarity: 'focused',
+            alignment: 'purposeful',
+          },
+          activity: {
+            memoriesCompiled: 2847,
+            journalEntries: 1469,
+            activeDays: 842,
+          },
+          memoryEngine: 'AI-Powered (Renaissance Edition)',
+          clearanceLevel: 'Full',
+          totalEntries: 4316,
         },
       }
     }
