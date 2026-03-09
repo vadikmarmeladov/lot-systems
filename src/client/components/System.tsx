@@ -302,7 +302,8 @@ export const System = () => {
       <div>
         <GhostButton href="/log">{userName || 'You'}</GhostButton>
         <div>
-          <Clock format="[Week] W; MMMM D, dddd" interval={1e3 * 60} />
+          Week {Math.ceil(dayjs().dayOfYear() / 7)};{' '}
+          <Clock format="MMMM D, dddd" interval={1e3 * 60} />
           {!!me?.city && `, ${me.city}`}
         </div>
       </div>
