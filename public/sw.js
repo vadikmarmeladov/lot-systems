@@ -21,10 +21,9 @@ self.addEventListener('install', (event) => {
         console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_CACHE);
       })
-      .then(() => {
-        // Force the waiting service worker to become the active service worker
-        return self.skipWaiting();
-      })
+      // Don't call skipWaiting() here — let the page decide when to activate
+      // via the SKIP_WAITING message. Calling it unconditionally causes
+      // controllerchange reloads on every install, even first-time visits.
   );
 });
 
