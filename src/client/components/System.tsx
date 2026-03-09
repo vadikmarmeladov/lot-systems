@@ -8,6 +8,7 @@ import {
   Tag,
   TagsContainer,
   Table,
+  WidgetErrorBoundary,
 } from '#client/components/ui'
 import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
@@ -307,11 +308,13 @@ export const System = () => {
       </div>
 
       {/* Community Convergence Pulse — atmosphere layer */}
-      <div className={cn('convergence-pulse', `convergence-${convergence.phase}`)}>
-        <div style={{ opacity: 0.35 + ambientIntensity * 0.4 }}>
-          {convergence.narrative}
+      <WidgetErrorBoundary name="Pulse">
+        <div className={cn('convergence-pulse', `convergence-${convergence.phase}`)}>
+          <div style={{ opacity: 0.35 + ambientIntensity * 0.4 }}>
+            {convergence.narrative}
+          </div>
         </div>
-      </div>
+      </WidgetErrorBoundary>
 
       {!!userTags.length && (
         <div>
@@ -460,34 +463,38 @@ export const System = () => {
       </div>
 
       {/* Context stack */}
-      <div>
-        {/* Contextual Prompts - Show pattern-based suggestions based on current context */}
-        <ContextualPromptsWidget />
+      <WidgetErrorBoundary name="Context">
+        <div>
+          {/* Contextual Prompts - Show pattern-based suggestions based on current context */}
+          <ContextualPromptsWidget />
 
-        {/* Chat Catalyst - Prompts to connect with cohort members when online */}
-        <ChatCatalystWidget />
+          {/* Chat Catalyst - Prompts to connect with cohort members when online */}
+          <ChatCatalystWidget />
 
-        {/* Interventions - Compassionate care based on semantic struggle detection */}
-        <InterventionsWidget />
-      </div>
+          {/* Interventions - Compassionate care based on semantic struggle detection */}
+          <InterventionsWidget />
+        </div>
+      </WidgetErrorBoundary>
 
       {/* CQGS Bioethics stack */}
-      <div>
-        {/* Biofield Capacitor - Track ATP energy depletion/replenishment */}
-        <EnergyCapacitor />
+      <WidgetErrorBoundary name="Bioethics">
+        <div>
+          {/* Biofield Capacitor - Track ATP energy depletion/replenishment */}
+          <EnergyCapacitor />
 
-        {/* Narrative - Story progression and achievements */}
-        <NarrativeWidget />
+          {/* Narrative - Story progression and achievements */}
+          <NarrativeWidget />
 
-        {/* Citizen Index - CQGS growth indicators */}
-        <EvolutionWidget />
+          {/* Citizen Index - CQGS growth indicators */}
+          <EvolutionWidget />
 
-        {/* Interface Evolution - Progression & feature unlocks */}
-        <InterfaceEvolutionWidget />
+          {/* Interface Evolution - Progression & feature unlocks */}
+          <InterfaceEvolutionWidget />
 
-        {/* Evolution Milestone Toast - Subtle notifications for progression milestones */}
-        <EvolutionMilestoneToast />
-      </div>
+          {/* Evolution Milestone Toast - Subtle notifications for progression milestones */}
+          <EvolutionMilestoneToast />
+        </div>
+      </WidgetErrorBoundary>
 
       <div>
         <Block
@@ -552,176 +559,196 @@ export const System = () => {
         </div>
       )}
 
-      <RecipeWidget />
+      <WidgetErrorBoundary name="Recipe">
+        <RecipeWidget />
+      </WidgetErrorBoundary>
 
       {/* Biofield Check-In - Show every 3 hours max, context-based on time of day */}
       {/* Widget controls its own visibility internally to allow farewell animations */}
-      <EmotionalCheckIn />
+      <WidgetErrorBoundary name="Check-in">
+        <EmotionalCheckIn />
+      </WidgetErrorBoundary>
 
       {/* Cleanness Module - Show during rest/refresh times OR when intention engine detects need */}
-      {(() => {
-        const hour = new Date().getHours()
-        const isMidMorning = hour >= 10 && hour < 12 // Pre-lunch break
-        const isAfternoon = hour >= 14 && hour < 17 // Post-lunch slump
-        const isEvening = hour >= 19 && hour < 22 // Evening wind-down
+      <WidgetErrorBoundary name="Self-care">
+        {(() => {
+          const hour = new Date().getHours()
+          const isMidMorning = hour >= 10 && hour < 12 // Pre-lunch break
+          const isAfternoon = hour >= 14 && hour < 17 // Post-lunch slump
+          const isEvening = hour >= 19 && hour < 22 // Evening wind-down
 
-        // Check cooldown (3 hours since last interaction)
-        const lastInteraction = localStorage.getItem('self-care-last-interaction')
-        const threeHoursMs = 3 * 60 * 60 * 1000
-        const cooldownPassed = !lastInteraction ||
-          (Date.now() - parseInt(lastInteraction)) >= threeHoursMs
+          // Check cooldown (3 hours since last interaction)
+          const lastInteraction = localStorage.getItem('self-care-last-interaction')
+          const threeHoursMs = 3 * 60 * 60 * 1000
+          const cooldownPassed = !lastInteraction ||
+            (Date.now() - parseInt(lastInteraction)) >= threeHoursMs
 
-        // Don't show if cooldown hasn't passed
-        if (!cooldownPassed) return null
+          // Don't show if cooldown hasn't passed
+          if (!cooldownPassed) return null
 
-        // Check if completed self-care today
-        const today = new Date().toDateString()
-        const stored = localStorage.getItem('self-care-completed')
-        let completedToday = 0
-        if (stored) {
-          try {
-            const parsed = JSON.parse(stored)
-            if (parsed.date === today) {
-              completedToday = parsed.count
-            }
-          } catch (e) {}
-        }
-
-        // Check if intention engine recognizes self-care need
-        const optimal = getOptimalWidget()
-        const intentionSuggestsSelfCare = optimal?.widget === 'selfcare'
-
-        // Show if:
-        // 1. Intention engine detects anxiety/overwhelm patterns, OR
-        // 2. During key times, especially if haven't done self-care yet
-        const shouldShow = intentionSuggestsSelfCare || isMidMorning || isAfternoon || isEvening || completedToday === 0
-
-        if (!shouldShow) return null
-
-        // Store quantum reasoning for widget to display
-        if (intentionSuggestsSelfCare && optimal?.reason) {
-          localStorage.setItem('selfcare-quantum-reason', optimal.reason)
-        } else {
-          localStorage.removeItem('selfcare-quantum-reason')
-        }
-
-        return <div><SelfCareMoments /></div>
-      })()}
-
-      {/* Intentions - Show if user has intention OR when intention engine detects seeking-direction pattern */}
-      {(() => {
-        const hasIntention = !!localStorage.getItem('current-intention')
-
-        // Check cooldown (2-3 days since last shown)
-        const lastShown = localStorage.getItem('intentions-last-shown')
-        const twoDaysMs = 2 * 24 * 60 * 60 * 1000
-        const threeDaysMs = 3 * 24 * 60 * 60 * 1000
-
-        // Random cooldown between 2-3 days
-        const cooldownPeriod = twoDaysMs + Math.random() * (threeDaysMs - twoDaysMs)
-        const cooldownPassed = !lastShown || (Date.now() - parseInt(lastShown)) >= cooldownPeriod
-
-        // Check if intention engine recognizes need for direction
-        const optimal = getOptimalWidget()
-        const intentionSuggestsIntentions = optimal?.widget === 'intentions'
-
-        // Show if:
-        // 1. User has an existing intention to display, OR
-        // 2. Intention engine detects seeking-direction or morning-clarity patterns, OR
-        // 3. Cooldown passed (fallback for periodic prompting)
-        if (hasIntention || intentionSuggestsIntentions || cooldownPassed) {
-          // Update last shown time
-          if (!lastShown || cooldownPassed || intentionSuggestsIntentions) {
-            localStorage.setItem('intentions-last-shown', Date.now().toString())
+          // Check if completed self-care today
+          const today = new Date().toDateString()
+          const stored = localStorage.getItem('self-care-completed')
+          let completedToday = 0
+          if (stored) {
+            try {
+              const parsed = JSON.parse(stored)
+              if (parsed.date === today) {
+                completedToday = parsed.count
+              }
+            } catch (e) {}
           }
+
+          // Check if intention engine recognizes self-care need
+          const optimal = getOptimalWidget()
+          const intentionSuggestsSelfCare = optimal?.widget === 'selfcare'
+
+          // Show if:
+          // 1. Intention engine detects anxiety/overwhelm patterns, OR
+          // 2. During key times, especially if haven't done self-care yet
+          const shouldShow = intentionSuggestsSelfCare || isMidMorning || isAfternoon || isEvening || completedToday === 0
+
+          if (!shouldShow) return null
 
           // Store quantum reasoning for widget to display
-          if (intentionSuggestsIntentions && optimal?.reason) {
-            localStorage.setItem('intentions-quantum-reason', optimal.reason)
+          if (intentionSuggestsSelfCare && optimal?.reason) {
+            localStorage.setItem('selfcare-quantum-reason', optimal.reason)
           } else {
-            localStorage.removeItem('intentions-quantum-reason')
+            localStorage.removeItem('selfcare-quantum-reason')
           }
 
-          return <div><IntentionsWidget /></div>
-        }
+          return <div><SelfCareMoments /></div>
+        })()}
+      </WidgetErrorBoundary>
 
-        return null
-      })()}
+      {/* Intentions - Show if user has intention OR when intention engine detects seeking-direction pattern */}
+      <WidgetErrorBoundary name="Intentions">
+        {(() => {
+          const hasIntention = !!localStorage.getItem('current-intention')
+
+          // Check cooldown (2-3 days since last shown)
+          const lastShown = localStorage.getItem('intentions-last-shown')
+          const twoDaysMs = 2 * 24 * 60 * 60 * 1000
+          const threeDaysMs = 3 * 24 * 60 * 60 * 1000
+
+          // Random cooldown between 2-3 days
+          const cooldownPeriod = twoDaysMs + Math.random() * (threeDaysMs - twoDaysMs)
+          const cooldownPassed = !lastShown || (Date.now() - parseInt(lastShown)) >= cooldownPeriod
+
+          // Check if intention engine recognizes need for direction
+          const optimal = getOptimalWidget()
+          const intentionSuggestsIntentions = optimal?.widget === 'intentions'
+
+          // Show if:
+          // 1. User has an existing intention to display, OR
+          // 2. Intention engine detects seeking-direction or morning-clarity patterns, OR
+          // 3. Cooldown passed (fallback for periodic prompting)
+          if (hasIntention || intentionSuggestsIntentions || cooldownPassed) {
+            // Update last shown time
+            if (!lastShown || cooldownPassed || intentionSuggestsIntentions) {
+              localStorage.setItem('intentions-last-shown', Date.now().toString())
+            }
+
+            // Store quantum reasoning for widget to display
+            if (intentionSuggestsIntentions && optimal?.reason) {
+              localStorage.setItem('intentions-quantum-reason', optimal.reason)
+            } else {
+              localStorage.removeItem('intentions-quantum-reason')
+            }
+
+            return <div><IntentionsWidget /></div>
+          }
+
+          return null
+        })()}
+      </WidgetErrorBoundary>
 
       {/* Subscribe - Show occasionally to engaged users without subscription */}
-      {(() => {
-        // Don't show if user already has R&D or Usership tags
-        const hasSubscription = me?.tags.some((tag) =>
-          tag.toLowerCase() === UserTag.Usership.toLowerCase() ||
-          tag.toLowerCase() === UserTag.RND.toLowerCase()
-        )
-        if (hasSubscription) return null
+      <WidgetErrorBoundary name="Subscribe">
+        {(() => {
+          // Don't show if user already has R&D or Usership tags
+          const hasSubscription = me?.tags.some((tag) =>
+            tag.toLowerCase() === UserTag.Usership.toLowerCase() ||
+            tag.toLowerCase() === UserTag.RND.toLowerCase()
+          )
+          if (hasSubscription) return null
 
-        // Only show to engaged users (10+ Memory answers)
-        const answerCount = logs.filter(log => log.event === 'answer').length
-        if (answerCount < 10) return null
+          // Only show to engaged users (10+ Memory answers)
+          const answerCount = logs.filter(log => log.event === 'answer').length
+          if (answerCount < 10) return null
 
-        // Check if clicked recently (10 days cooldown)
-        const lastClicked = localStorage.getItem('subscribe-clicked')
-        const tenDaysMs = 10 * 24 * 60 * 60 * 1000
-        if (lastClicked && (Date.now() - parseInt(lastClicked)) < tenDaysMs) {
-          return null
-        }
+          // Check if clicked recently (10 days cooldown)
+          const lastClicked = localStorage.getItem('subscribe-clicked')
+          const tenDaysMs = 10 * 24 * 60 * 60 * 1000
+          if (lastClicked && (Date.now() - parseInt(lastClicked)) < tenDaysMs) {
+            return null
+          }
 
-        // Random 20% chance to show when all conditions met
-        const shouldShow = Math.random() < 0.2
-        return shouldShow && <div><SubscribeWidget /></div>
-      })()}
+          // Random 20% chance to show when all conditions met
+          const shouldShow = Math.random() < 0.2
+          return shouldShow && <div><SubscribeWidget /></div>
+        })()}
+      </WidgetErrorBoundary>
 
       {/* Community stack */}
-      <div>
-        {/* Pattern Insights - Show user's discovered patterns and cohort matches */}
-        <PatternInsightsWidget />
+      <WidgetErrorBoundary name="Community">
+        <div>
+          {/* Pattern Insights - Show user's discovered patterns and cohort matches */}
+          <PatternInsightsWidget />
 
-        {/* Cohort Connect - Browse and connect with cohort members */}
-        <CohortConnectWidget />
-      </div>
+          {/* Cohort Connect - Browse and connect with cohort members */}
+          <CohortConnectWidget />
+        </div>
+      </WidgetErrorBoundary>
 
       {/* Planning stack */}
-      <div>
-        {/* Planner - Show occasionally for daily/weekly planning */}
-        <PlannerWidget />
+      <WidgetErrorBoundary name="Planning">
+        <div>
+          {/* Planner - Show occasionally for daily/weekly planning */}
+          <PlannerWidget />
 
-        <MemoryWidget />
+          <MemoryWidget />
 
-        {/* Micro Calculator - appears at magical number times */}
-        <MicroCalculatorWidget />
-      </div>
+          {/* Micro Calculator - appears at magical number times */}
+          <MicroCalculatorWidget />
+        </div>
+      </WidgetErrorBoundary>
 
       {/* CQGS Biofield Engine Widgets */}
-      <div>
-        <QuantumStateWidget />
-        <PatternRecognitionWidget />
-        <AIFeedbackWidget />
-        <SignalStreamWidget />
-      </div>
+      <WidgetErrorBoundary name="Biofield Engine">
+        <div>
+          <QuantumStateWidget />
+          <PatternRecognitionWidget />
+          <AIFeedbackWidget />
+          <SignalStreamWidget />
+        </div>
+      </WidgetErrorBoundary>
 
       {/* CQGS Dashboard stack */}
-      <div>
-        {/* CQGS Dashboard - Bioethics health, performance, version */}
-        <UserMetricsWidget />
+      <WidgetErrorBoundary name="Dashboard">
+        <div>
+          {/* CQGS Dashboard - Bioethics health, performance, version */}
+          <UserMetricsWidget />
 
-        {/* System Progress - Deployment info with feedback */}
-        <SystemProgressWidget />
+          {/* System Progress - Deployment info with feedback */}
+          <SystemProgressWidget />
 
-        {/* System Pulse - Real-time system metrics */}
-        <SystemPulseWidget />
-      </div>
+          {/* System Pulse - Real-time system metrics */}
+          <SystemPulseWidget />
+        </div>
+      </WidgetErrorBoundary>
 
       {/* Stats stack */}
-      <div>
-        <IntentionPatterns />
-        <CollectiveConsciousness />
-        <WellnessPulse />
-        <MemoryEngineStats />
-        <GrowthMilestones />
-        <BadgeUnlockFeed />
-      </div>
+      <WidgetErrorBoundary name="Stats">
+        <div>
+          <IntentionPatterns />
+          <CollectiveConsciousness />
+          <WellnessPulse />
+          <MemoryEngineStats />
+          <GrowthMilestones />
+          <BadgeUnlockFeed />
+        </div>
+      </WidgetErrorBoundary>
     </div>
   )
 }

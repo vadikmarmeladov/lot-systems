@@ -24,11 +24,11 @@ import { initRecipeWidget } from '#client/stores/recipeWidget'
 // Error boundary to prevent blank page when a widget crashes
 class AppErrorBoundary extends React.Component<
   { children: React.ReactNode },
-  { hasError: boolean; error: Error | null }
+  { hasError: boolean; error: Error | null; errorInfo: string | null }
 > {
   constructor(props: { children: React.ReactNode }) {
     super(props)
-    this.state = { hasError: false, error: null }
+    this.state = { hasError: false, error: null, errorInfo: null }
   }
 
   static getDerivedStateFromError(error: Error) {
@@ -37,20 +37,46 @@ class AppErrorBoundary extends React.Component<
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     console.error('[App] Render error caught by boundary:', error, info.componentStack)
+    this.setState({ errorInfo: info.componentStack || null })
   }
 
   render() {
     if (this.state.hasError) {
+      const errorMessage = this.state.error?.message || 'Unknown error'
       return (
         <Layout>
           <div style={{ padding: '24px' }}>
-            <p>Something went wrong. Try reloading.</p>
-            <button
-              onClick={() => window.location.reload()}
-              style={{ marginTop: '12px', textDecoration: 'underline', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit', font: 'inherit' }}
-            >
-              Reload
-            </button>
+            <p>Something went wrong.</p>
+            <p style={{ opacity: 0.3, marginTop: '8px', fontSize: '0.85em', wordBreak: 'break-word' }}>
+              {errorMessage}
+            </p>
+            <div style={{ marginTop: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => this.setState({ hasError: false, error: null, errorInfo: null })}
+                style={{ textDecoration: 'underline', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit', font: 'inherit', padding: 0 }}
+              >
+                Retry
+              </button>
+              <button
+                onClick={() => {
+                  // Clear SW cache and reload
+                  if ('caches' in window) {
+                    caches.keys().then(names => {
+                      names.forEach(name => caches.delete(name))
+                    })
+                  }
+                  if (navigator.serviceWorker) {
+                    navigator.serviceWorker.getRegistrations().then(regs => {
+                      regs.forEach(r => r.unregister())
+                    })
+                  }
+                  setTimeout(() => window.location.reload(), 300)
+                }}
+                style={{ textDecoration: 'underline', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit', font: 'inherit', padding: 0 }}
+              >
+                Clear cache &amp; reload
+              </button>
+            </div>
           </div>
         </Layout>
       )
