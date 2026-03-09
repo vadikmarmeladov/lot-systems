@@ -745,7 +745,7 @@ export default async (fastify: FastifyInstance) => {
             journalEntries: 1469,
             activeDays: 842,
           },
-          memoryEngine: 'AI-Powered (Renaissance Edition)',
+          memoryEngine: 'AI-Powered',
           clearanceLevel: 'Full',
           totalEntries: 4316,
         },
@@ -1086,8 +1086,8 @@ export default async (fastify: FastifyInstance) => {
           // Memory engine name
           let memoryEngineName = 'Standard'
           try {
-            const engine = aiEngineManager.getEngine(AI_ENGINE_PREFERENCE)
-            memoryEngineName = `AI-Powered (${engine.name})`
+            aiEngineManager.getEngine(AI_ENGINE_PREFERENCE)
+            memoryEngineName = 'AI-Powered'
           } catch {
             memoryEngineName = 'AI-Powered'
           }
