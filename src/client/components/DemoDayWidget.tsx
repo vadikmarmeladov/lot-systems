@@ -22,9 +22,9 @@ export function DemoDayWidget() {
   }
 
   const label =
-    view === 'announcement' ? 'Demo Day:' :
-    view === 'venue' ? 'Venue:' :
-    'Agenda:'
+    view === 'announcement' ? '[Demo] Demo Day:' :
+    view === 'venue' ? '[Demo] Venue:' :
+    '[Demo] Agenda:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>

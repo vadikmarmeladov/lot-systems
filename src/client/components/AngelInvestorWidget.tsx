@@ -23,9 +23,9 @@ export function AngelInvestorWidget() {
   }
 
   const label =
-    view === 'pitch' ? 'Angel Briefing:' :
-    view === 'thesis' ? 'Investment Thesis:' :
-    'Terms:'
+    view === 'pitch' ? '[Demo] Angel Briefing:' :
+    view === 'thesis' ? '[Demo] Investment Thesis:' :
+    '[Demo] Terms:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>

@@ -93,9 +93,9 @@ export function QuantumSignWidget() {
   }
 
   const label =
-    view === 'sign' ? 'Quantum Sign:' :
-    view === 'actions' ? 'Your Actions:' :
-    'New Patches:'
+    view === 'sign' ? '[Beta] Quantum Sign:' :
+    view === 'actions' ? '[Beta] Your Actions:' :
+    '[Beta] New Patches:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>

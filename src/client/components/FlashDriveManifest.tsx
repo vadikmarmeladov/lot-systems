@@ -51,9 +51,9 @@ export function FlashDriveManifest() {
   }
 
   const label =
-    view === 'manifest' ? 'Flash Drive Manifest:' :
-    view === 'contents' ? 'Drive Contents:' :
-    'Carrier Spec:'
+    view === 'manifest' ? '[Beta] Flash Drive Manifest:' :
+    view === 'contents' ? '[Beta] Drive Contents:' :
+    '[Beta] Carrier Spec:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>

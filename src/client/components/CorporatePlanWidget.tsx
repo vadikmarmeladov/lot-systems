@@ -22,9 +22,9 @@ export function CorporatePlanWidget() {
   }
 
   const label =
-    view === 'overview' ? 'Corporate Plan:' :
-    view === 'features' ? 'Plan Features:' :
-    'Plan Pricing:'
+    view === 'overview' ? '[TBD] Corporate Plan:' :
+    view === 'features' ? '[TBD] Plan Features:' :
+    '[TBD] Plan Pricing:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>

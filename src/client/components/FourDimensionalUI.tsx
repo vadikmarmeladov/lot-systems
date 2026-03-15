@@ -19,10 +19,10 @@ export function FourDimensionalUI() {
   }
 
   const dimensionLabels = {
-    1: '1D — Write:',
-    2: '2D — Draw:',
-    3: '3D — Compute:',
-    4: '4D — Laugh:',
+    1: '[TBD] 1D — Write:',
+    2: '[TBD] 2D — Draw:',
+    3: '[TBD] 3D — Compute:',
+    4: '[TBD] 4D — Laugh:',
   }
 
   return (
