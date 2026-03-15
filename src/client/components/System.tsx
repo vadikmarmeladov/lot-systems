@@ -51,6 +51,12 @@ import { AIFeedbackWidget } from './AIFeedbackWidget'
 
 import { CollectiveConsciousness, WellnessPulse, MemoryEngineStats, IntentionPatterns, BadgeUnlockFeed, GrowthMilestones } from './stats'
 import { getConvergenceSignal, getAmbientIntensity } from '#client/utils/communityPulse'
+import { FlashDriveManifest } from './FlashDriveManifest'
+import { AngelInvestorWidget } from './AngelInvestorWidget'
+import { CorporatePlanWidget } from './CorporatePlanWidget'
+import { DemoDayWidget } from './DemoDayWidget'
+import { FourDimensionalUI } from './FourDimensionalUI'
+import { QuantumSignWidget } from './QuantumSignWidget'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -712,6 +718,26 @@ export const System = () => {
 
           {/* Micro Calculator - appears at magical number times */}
           <MicroCalculatorWidget />
+        </div>
+      </WidgetErrorBoundary>
+
+      {/* Quantum Sign — For subscribers, especially those who need a catalyst */}
+      <WidgetErrorBoundary name="Quantum Sign">
+        <QuantumSignWidget />
+      </WidgetErrorBoundary>
+
+      {/* Flash Drive Manifest — Offline mode / investor view */}
+      <WidgetErrorBoundary name="Flash Drive">
+        <FlashDriveManifest />
+      </WidgetErrorBoundary>
+
+      {/* Investor stack — Visible when Investment switch is On in Settings */}
+      <WidgetErrorBoundary name="Investor">
+        <div>
+          <AngelInvestorWidget />
+          <CorporatePlanWidget />
+          <DemoDayWidget />
+          <FourDimensionalUI />
         </div>
       </WidgetErrorBoundary>
 

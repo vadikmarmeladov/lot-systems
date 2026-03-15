@@ -12,6 +12,7 @@ import {
 import { cn } from '#client/utils'
 import { WorldCanvas } from './WorldCanvas'
 import { GrowthMilestones, BadgeUnlockFeed } from './stats'
+import { InvestmentSwitch } from './InvestmentSwitch'
 
 interface StatusData {
   version: string
@@ -518,6 +519,9 @@ export const Settings = () => {
             )}
           </Block>
         </div>
+
+        {/* Investment Switch */}
+        <InvestmentSwitch />
 
         <div>
           <Block label="Memory Engine:">
