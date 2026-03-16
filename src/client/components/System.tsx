@@ -57,6 +57,7 @@ import { CorporatePlanWidget } from './CorporatePlanWidget'
 import { DemoDayWidget } from './DemoDayWidget'
 import { FourDimensionalUI } from './FourDimensionalUI'
 import { QuantumSignWidget } from './QuantumSignWidget'
+import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -719,6 +720,11 @@ export const System = () => {
           {/* Micro Calculator - appears at magical number times */}
           <MicroCalculatorWidget />
         </div>
+      </WidgetErrorBoundary>
+
+      {/* Cosmic Update — Together AI image generation token */}
+      <WidgetErrorBoundary name="Cosmic Update">
+        <CosmicUpdateWidget />
       </WidgetErrorBoundary>
 
       {/* Quantum Sign — For subscribers, especially those who need a catalyst */}

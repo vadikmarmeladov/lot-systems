@@ -4501,4 +4501,51 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       return reply.status(500).send({ error: 'Failed to fetch pulse' })
     }
   })
+
+  // ============================================================================
+  // Cosmic Update — Together AI image generation
+  // ============================================================================
+  fastify.post(
+    '/cosmic-update',
+    async (req: FastifyRequest<{ Body: { prompt?: string } }>, reply) => {
+      try {
+        const { TogetherAIEngine } = await import('#server/utils/ai-engines')
+        const engine = new TogetherAIEngine()
+
+        if (!engine.isAvailable() || !engine.generateImage) {
+          return reply.status(503).send({ error: 'Image generation engine not available' })
+        }
+
+        // Use the user-provided prompt or a default cosmic prompt
+        const basePrompt = req.body?.prompt ||
+          'Void black deep space, a single 15mm ceramic cube suspended in zero gravity, glowing acid yellow bioelectric field lines emanating outward, Orthodox cross faintly encoded in the geometry, Detroit techno grid overlay, minimal, sacred, cinematic'
+
+        const imageUrl = await engine.generateImage(basePrompt, {
+          width: 1024,
+          height: 1024,
+          steps: 20,
+          model: 'black-forest-labs/FLUX.1-schnell-Free',
+        })
+
+        // Log the cosmic update generation
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          event: 'other',
+          text: 'Cosmic Update generated',
+          metadata: {
+            type: 'cosmic_update',
+            prompt: basePrompt.substring(0, 500),
+            imageUrl,
+          },
+          context,
+        })
+
+        return { imageUrl, prompt: basePrompt }
+      } catch (error: any) {
+        console.error('Cosmic Update generation failed:', error)
+        return reply.status(500).send({ error: 'Cosmic Update generation failed' })
+      }
+    }
+  )
 }

@@ -740,3 +740,11 @@ export const useOSDiagnostics = () =>
     refetchOnWindowFocus: false,
     staleTime: 10 * 60 * 1000,
   })()
+
+// ============================================================================
+// COSMIC UPDATE
+// ============================================================================
+export const useCosmicUpdate = createMutation<
+  { prompt?: string },
+  { imageUrl: string; prompt: string }
+>('post', '/api/cosmic-update')
