@@ -37,10 +37,12 @@ export function SignalStreamWidget() {
 
   const formatTimestamp = (ts: number): string => {
     const date = new Date(ts)
-    const hours = date.getHours().toString().padStart(2, '0')
+    const h = date.getHours()
+    const period = h >= 12 ? 'PM' : 'AM'
+    const hours = (h % 12 || 12).toString()
     const minutes = date.getMinutes().toString().padStart(2, '0')
     const seconds = date.getSeconds().toString().padStart(2, '0')
-    return `${hours}:${minutes}:${seconds}`
+    return `${hours}:${minutes}:${seconds} ${period}`
   }
 
   // Calculate signal rate (signals per hour over last 24h)
