@@ -98,13 +98,14 @@ const BACKUP_SELFCARE_QUESTIONS: Array<{ question: string; options: string[] }> 
 
 /**
  * Get a backup question when all AI engines fail
- * Cycles through questions based on day of year to ensure variety
+ * Cycles through questions based on day of year + prompt count to avoid repeats
  */
-function getBackupQuestion(dayOfYear: number): MemoryQuestion {
-  const index = dayOfYear % BACKUP_SELFCARE_QUESTIONS.length
+function getBackupQuestion(dayOfYear: number, promptsShownToday: number = 0): MemoryQuestion {
+  // Combine day + prompt count so each request within the same day gets a different question
+  const index = (dayOfYear + promptsShownToday) % BACKUP_SELFCARE_QUESTIONS.length
   const backup = BACKUP_SELFCARE_QUESTIONS[index]
 
-  console.log(`Using backup question #${index + 1}/${BACKUP_SELFCARE_QUESTIONS.length}`)
+  console.log(`Using backup question #${index + 1}/${BACKUP_SELFCARE_QUESTIONS.length} (day=${dayOfYear}, shown=${promptsShownToday})`)
 
   return {
     id: randomUUID(),
@@ -131,7 +132,8 @@ export function getMemoryEngine(user: User): 'ai' | 'standard' {
 
 export async function completeAndExtractQuestion(
   prompt: string,
-  user: User
+  user: User,
+  promptsShownToday: number = 0
 ): Promise<MemoryQuestion> {
   // ============================================================================
   // AI ENGINE ABSTRACTION IN ACTION
@@ -208,7 +210,7 @@ Make sure the question is personalized, relevant to self-care habits, and the op
       const dayOfYear = dayjs().dayOfYear()
 
       console.log(`🆘 EMERGENCY FALLBACK: Using backup question bank (day ${dayOfYear})`)
-      return getBackupQuestion(dayOfYear)
+      return getBackupQuestion(dayOfYear, promptsShownToday)
     }
   }
 }

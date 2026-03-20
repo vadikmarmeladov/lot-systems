@@ -1941,7 +1941,7 @@ export default async (fastify: FastifyInstance) => {
           const prompt = await buildPrompt(req.user, logs, isWeekend, quantumState)
 
           // Generate question - AI already has instructions to avoid duplicates from buildPrompt
-          const question = await completeAndExtractQuestion(prompt, req.user)
+          const question = await completeAndExtractQuestion(prompt, req.user, promptsShownToday)
 
           console.log(`Generated question for user ${req.user.id}:`, {
             questionId: question.id,

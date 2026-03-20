@@ -291,12 +291,14 @@ export function analyzeIntentions(): IntentionPattern[] {
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
-  // Update state
+  // Update state (preserve lastSyncedTimestamp from current state)
+  const currentState = intentionEngine.get()
   intentionEngine.set({
     signals,
     userState,
     recognizedPatterns: patterns,
-    lastAnalysis: now
+    lastAnalysis: now,
+    lastSyncedTimestamp: currentState.lastSyncedTimestamp
   })
 
   return patterns
@@ -334,7 +336,7 @@ function calculateUserState(signals: IntentionSignal[], now: number): UserState 
   const clarity =
     planningSignals.length >= 2 && hasIntention ? 'focused' :
     planningSignals.length >= 1 || hasIntention ? 'clear' :
-    intentionSignals.length >= 1 ? 'searching' :
+    intentionSignals.length >= 1 ? 'uncertain' :
     planningSignals.length === 0 && !hasIntention ? 'confused' : 'uncertain'
 
   // Analyze alignment from all signals
