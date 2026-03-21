@@ -472,7 +472,7 @@ export const System = () => {
 
       {/* Context stack */}
       <WidgetErrorBoundary name="Context">
-        <div>
+        <div className="flex flex-col gap-y-24">
           {/* Contextual Prompts - Show pattern-based suggestions based on current context */}
           <ContextualPromptsWidget />
 
@@ -749,7 +749,7 @@ export const System = () => {
 
       {/* CQGS Biofield Engine Widgets */}
       <WidgetErrorBoundary name="Biofield Engine">
-        <div>
+        <div className="flex flex-col gap-y-24">
           <QuantumStateWidget />
           <PatternRecognitionWidget />
           <AIFeedbackWidget />
