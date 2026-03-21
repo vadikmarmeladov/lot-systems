@@ -773,7 +773,7 @@ export const System = () => {
 
       {/* Stats stack */}
       <WidgetErrorBoundary name="Stats">
-        <div>
+        <div className="flex flex-col gap-y-24">
           <IntentionPatterns />
           <CollectiveConsciousness />
           <WellnessPulse />
