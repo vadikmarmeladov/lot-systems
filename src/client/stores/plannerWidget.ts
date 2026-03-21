@@ -60,6 +60,8 @@ const TODAY_OPTIONS = [
   'Make progress on the project',
   'Read or learn something new',
   'Rest and restore energy',
+  'Reset one room or surface',
+  'Do laundry or dishes mindfully',
 ]
 
 // How - Your approach to the time ahead
@@ -74,6 +76,8 @@ const HOW_OPTIONS = [
   'Protecting my focus time',
   'Letting go of perfection',
   'Trusting the process',
+  'Tending to order as I go',
+  'Leaving each space cleaner than I found it',
 ]
 
 // Feeling - The state you're aiming for
@@ -107,8 +111,8 @@ function generateContextualPlan(): PlannerWidgetState['values'] {
   // Early morning (6-9am): Start fresh
   if (hour >= 6 && hour < 9) {
     intent = 'Create space for focus'
-    today = 'Plan my next 3 hours'
-    how = 'One thing at a time'
+    today = Math.random() > 0.3 ? 'Plan my next 3 hours' : 'Clear my physical space'
+    how = Math.random() > 0.5 ? 'One thing at a time' : 'Leaving each space cleaner than I found it'
     feeling = 'Centered and clear'
   }
 
@@ -136,11 +140,11 @@ function generateContextualPlan(): PlannerWidgetState['values'] {
     feeling = 'Patient with myself'
   }
 
-  // Evening (6-9pm): Reflection
+  // Evening (6-9pm): Reflection and reset
   if (hour >= 18 && hour < 21) {
     intent = 'Honor my natural pace'
-    today = 'Review and organize my thoughts'
-    how = 'Staying with what resonates'
+    today = Math.random() > 0.4 ? 'Review and organize my thoughts' : 'Reset one room or surface'
+    how = Math.random() > 0.5 ? 'Staying with what resonates' : 'Tending to order as I go'
     feeling = 'Present with what is'
   }
 

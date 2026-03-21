@@ -288,6 +288,67 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 8: Cleanness neglect — no selfcare signals for extended period
+  const selfCareRecent = recentSignals.filter(s => s.source === 'selfcare')
+  const threeDaysAgo = now - 3 * 24 * 60 * 60 * 1000
+  const selfCareLongTerm = signals.filter(s =>
+    s.source === 'selfcare' && s.timestamp > threeDaysAgo
+  )
+
+  if (selfCareLongTerm.length === 0 && signals.length >= 5) {
+    patterns.push({
+      pattern: 'cleanness-neglect',
+      confidence: 0.7,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'soon',
+      reason: 'No cleanness or self-care activity in recent days — gentle re-engagement recommended'
+    })
+  }
+
+  // Pattern 9: Morning without cleanness → morning cleanness protocol
+  const morningCleanness = recentSignals.filter(s =>
+    s.source === 'selfcare' &&
+    s.metadata?.action && (
+      s.metadata.action.toLowerCase().includes('clean') ||
+      s.metadata.action.toLowerCase().includes('wash') ||
+      s.metadata.action.toLowerCase().includes('tidy') ||
+      s.metadata.action.toLowerCase().includes('surface')
+    )
+  )
+
+  if (isMorning && morningCleanness.length === 0 && selfCareRecent.length === 0) {
+    patterns.push({
+      pattern: 'morning-cleanness-gap',
+      confidence: 0.65,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'soon',
+      reason: 'Morning without cleanness activity — the first pillar anchors the day'
+    })
+  }
+
+  // Pattern 10: Post-overwhelm cleanness opportunity
+  // When overwhelm is subsiding, cleanness can be therapeutic
+  const recentOverwhelm = recentSignals.filter(s =>
+    s.source === 'mood' && s.signal === 'overwhelmed' &&
+    (now - s.timestamp) > 1 * 60 * 60 * 1000 && // More than 1 hour ago
+    (now - s.timestamp) < 4 * 60 * 60 * 1000    // Less than 4 hours ago
+  )
+  const currentCalm = recentSignals.filter(s =>
+    s.source === 'mood' &&
+    (s.signal === 'calm' || s.signal === 'content' || s.signal === 'peaceful') &&
+    (now - s.timestamp) < 1 * 60 * 60 * 1000
+  )
+
+  if (recentOverwhelm.length > 0 && currentCalm.length > 0) {
+    patterns.push({
+      pattern: 'post-overwhelm-cleanness',
+      confidence: 0.8,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'immediate',
+      reason: 'Overwhelm subsiding — cleanness activity can anchor the recovery and rebuild order'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
