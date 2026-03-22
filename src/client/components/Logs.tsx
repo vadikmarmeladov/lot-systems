@@ -36,10 +36,21 @@ export const Logs: React.FC = () => {
   const { data: loadedLogs = [], refetch: refetchLogs } = useLogs()
 
   const { mutate: updateLog } = useUpdateLog({
-    onSuccess: (log) => {
+    onSuccess: (log: any) => {
+      // Skip if server deleted the log (user backspaced all content)
+      if (log.deleted) {
+        // Remove from store — read fresh store to avoid stale closure
+        const current = localStore.logById.get()
+        const { [log.id]: _, ...rest } = current
+        localStore.logById.set(rest as Record<string, Log>)
+        localStore.logIds.set(localStore.logIds.get().filter((id: string) => id !== log.id))
+        return
+      }
+      // Read fresh store value to avoid stale closure overwriting recent data
+      const current = localStore.logById.get()
       localStore.logById.set({
-        ...logById,
-        [log.id]: log,
+        ...current,
+        [log.id]: log as Log,
       })
       // Only refetch (push down) if this is the primary/most recent log
       // Past logs don't need to trigger push-down
@@ -277,6 +288,17 @@ export const Logs: React.FC = () => {
                 {log.metadata?.theme?.theme && (
                   <div>Theme: {log.metadata.theme.theme}</div>
                 )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event !== 'note') {
+          // Non-note events without explicit handlers (quantum_intent_signal,
+          // system_feedback, direct_message_sent, etc.) — render as read-only
+          if (!log.text) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="Log:" blockView>
+                {log.text}
               </Block>
             </LogContainer>
           )

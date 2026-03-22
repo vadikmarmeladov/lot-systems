@@ -90,7 +90,7 @@ export function useLogContext() {
     const hasPlanner = logs.some(l => l.event === 'plan_set')
     const hasSelfCare = logs.some(l => l.event === 'self_care_complete')
     const hasIntention = logs.some(l => l.event === 'intention')
-    const hasJournal = logs.some(l => l.event === 'journal' || l.event === 'chat')
+    const hasJournal = logs.some(l => l.event === 'note' && l.text && l.text.trim().length > 0)
 
     // Active days (unique dates)
     const uniqueDays = new Set(
@@ -164,7 +164,7 @@ export function useLogContext() {
     const todaySelfCareCount = todayActivity.filter(l => l.event === 'self_care_complete').length
     const todayPlannerCount = todayActivity.filter(l => l.event === 'plan_set').length
     const todayIntentionCount = todayActivity.filter(l => l.event === 'intention').length
-    const todayJournalCount = todayActivity.filter(l => l.event === 'journal' || l.event === 'chat').length
+    const todayJournalCount = todayActivity.filter(l => l.event === 'note' && l.text && l.text.trim().length > 0).length
 
     // Time since last activity
     const lastLog = logs[0] // Logs are DESC ordered
@@ -218,8 +218,7 @@ export function useLogContext() {
       'plan_set': 'planner',
       'self_care_complete': 'selfcare',
       'intention': 'intentions',
-      'journal': 'journal',
-      'chat': 'journal',
+      'note': 'journal',
     }
     const moduleCounts: Record<string, number> = {}
     logs.forEach(l => {

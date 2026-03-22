@@ -937,10 +937,18 @@ export default async (fastify: FastifyInstance) => {
   })
 
   fastify.get('/logs', async (req: FastifyRequest, reply) => {
+    // Only return user-facing log events (exclude internal signal/system events)
+    const displayableEvents = [
+      'note', 'answer', 'chat_message', 'chat_message_like',
+      'emotional_checkin', 'settings_change', 'system_snapshot',
+      'weekly_summary_response',
+    ]
     const logs = await fastify.models.Log.findAll({
       where: {
         userId: req.user.id,
-        ...(req.user.hideActivityLogs ? { event: 'note' } : {}),
+        ...(req.user.hideActivityLogs
+          ? { event: 'note' }
+          : { event: { [Op.in]: displayableEvents } }),
       },
       order: [['createdAt', 'DESC']],
     }).then((xs) =>
