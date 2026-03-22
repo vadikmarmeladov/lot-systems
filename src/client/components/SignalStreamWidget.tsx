@@ -45,6 +45,28 @@ export function SignalStreamWidget() {
     return `${hours}:${minutes}:${seconds} ${period}`
   }
 
+  // Format raw signal names into human-readable labels
+  const formatSignal = (signal: string): string => {
+    const signalLabels: Record<string, string> = {
+      'prompt_accepted': 'Prompt accepted',
+      'prompt_skipped': 'Prompt skipped',
+      'energy_low': 'Energy: low',
+      'energy_depleted': 'Energy: depleted',
+      'energy_moderate': 'Energy: moderate',
+      'energy_high': 'Energy: high',
+      'energy_unknown': 'Energy: scanning',
+      'awareness_explored': 'Awareness explored',
+      'mood_logged': 'Mood logged',
+      'plan_created': 'Plan created',
+      'intention_set': 'Intention set',
+      'selfcare_complete': 'Self-care complete',
+      'journal_entry': 'Journal entry',
+    }
+    if (signalLabels[signal]) return signalLabels[signal]
+    // Fallback: replace underscores with spaces and capitalize
+    return signal.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase())
+  }
+
   // Calculate signal rate (signals per hour over last 24h)
   const signalRate = React.useMemo(() => {
     const dayAgo = Date.now() - 24 * 60 * 60 * 1000
@@ -91,7 +113,7 @@ export function SignalStreamWidget() {
                 {signal.source}
               </span>
               <span>
-                {signal.signal}
+                {formatSignal(signal.signal)}
               </span>
             </div>
           ))}

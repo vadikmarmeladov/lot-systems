@@ -112,6 +112,22 @@ export function QuantumStateWidget() {
     return `${Math.floor(hours / 24)}d`
   }
 
+  // Format raw signal names into human-readable labels
+  const formatSignal = (signal: string): string => {
+    const signalLabels: Record<string, string> = {
+      'prompt_accepted': 'Prompt accepted',
+      'prompt_skipped': 'Prompt skipped',
+      'energy_low': 'Energy: low',
+      'energy_depleted': 'Energy: depleted',
+      'energy_moderate': 'Energy: moderate',
+      'energy_high': 'Energy: high',
+      'energy_unknown': 'Energy: scanning',
+      'awareness_explored': 'Awareness explored',
+    }
+    if (signalLabels[signal]) return signalLabels[signal]
+    return signal.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase())
+  }
+
   return (
     <Block
       label={label}
@@ -197,7 +213,7 @@ export function QuantumStateWidget() {
                 <div key={idx} className="flex items-center gap-8">
                   <span className="w-[32px] opacity-30">{formatTimeAgo(signal.timestamp)}</span>
                   <span className="w-[64px] capitalize opacity-30">{signal.source}</span>
-                  <span>{signal.signal}</span>
+                  <span>{formatSignal(signal.signal)}</span>
                 </div>
               ))}
             </div>
