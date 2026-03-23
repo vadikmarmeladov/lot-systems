@@ -106,13 +106,13 @@ export function SignalStreamWidget() {
                 idx === 0 && highlightedIndex === 0 ? 'opacity-100' : 'opacity-30'
               )}
             >
-              <span className="opacity-30 tabular-nums w-[64px]">
+              <span className="shrink-0 whitespace-nowrap opacity-30 tabular-nums w-[88px]">
                 {formatTimestamp(signal.timestamp)}
               </span>
-              <span className="w-[56px] capitalize opacity-30">
+              <span className="shrink-0 whitespace-nowrap w-[64px] capitalize opacity-30">
                 {signal.source}
               </span>
-              <span>
+              <span className="min-w-0">
                 {formatSignal(signal.signal)}
               </span>
             </div>
