@@ -1,11 +1,13 @@
 import path from 'path'
 import fs from 'fs'
+import crypto from 'crypto'
 import ejs from 'ejs'
 import Fastify, { FastifyInstance, FastifyRequest } from 'fastify'
 import fastifyStatic from '@fastify/static'
 import fastifyCookie from '@fastify/cookie'
 import fastifyView from '@fastify/view'
 import fastifyHelmet from '@fastify/helmet'
+import fastifyRateLimit from '@fastify/rate-limit'
 import { sequelize } from '#server/utils/db'
 import logger from '#server/utils/log'
 import {
@@ -23,28 +25,53 @@ import publicApiRoutes from './routes/public-api.js'
 
 const CWD = process.cwd()
 
-// Debug: Check if static files exist
-console.log('CWD:', CWD)
-console.log('dist/client/js exists?', fs.existsSync(path.join(CWD, 'dist/client/js')))
-if (fs.existsSync(path.join(CWD, 'dist/client/js'))) {
-  console.log('Files in dist/client/js:', fs.readdirSync(path.join(CWD, 'dist/client/js')))
-}
-
 const fastify = Fastify({
-  logger: false  // Temporarily disable logging for development
+  logger: false,
+  // Generate unique request IDs for audit trails
+  genReqId: () => crypto.randomBytes(8).toString('hex'),
+  // Reject excessively large payloads (1MB default)
+  bodyLimit: 1_048_576,
 })
 
 const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/sync', '/log']
 
-// Plugins
+// ==============================================================================
+// SECURITY PLUGINS
+// ==============================================================================
+
 fastify.register(fastifyCookie)
+
+// Global rate limiting: 100 requests per minute per IP
+fastify.register(fastifyRateLimit, {
+  max: 100,
+  timeWindow: '1 minute',
+  // Return standard 429 response
+  errorResponseBuilder: () => ({
+    statusCode: 429,
+    message: 'Too many requests. Please slow down.',
+  }),
+})
+
 fastify.register(fastifyHelmet, {
   enableCSPNonces: true,
+  // Prevent MIME type sniffing
+  xContentTypeOptions: true,
+  // Prevent clickjacking
+  xFrameOptions: { action: 'sameorigin' as const },
+  // Disable browser DNS prefetching
+  xDnsPrefetchControl: { allow: false },
+  // Prevent IE from executing downloads in site context
+  xDownloadOptions: true,
+  // Referrer policy: only send origin on cross-origin requests
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' as const },
   contentSecurityPolicy: {
     useDefaults: config.env === 'production',
     directives: {
       'default-src': ["'self'"],
-      'connect-src': ["'self'", 'http://127.0.0.1:*'],
+      'connect-src': [
+        "'self'",
+        ...(config.env === 'development' ? ['http://127.0.0.1:*'] : []),
+      ],
       'font-src': ["'self'", 'https://rsms.me'],
       'form-action': ["'self'"],
       'frame-src': [
@@ -52,15 +79,17 @@ fastify.register(fastifyHelmet, {
         'www.youtube.com',
         'youtube.com',
       ],
+      // Use nonces instead of unsafe-inline for scripts
       'script-src': [
         "'self'",
-        "'unsafe-inline'",
         'https://www.youtube.com/iframe_api',
         'https://www.youtube.com',
         'https://unpkg.com/tone',
       ],
       'style-src': ["'self'", 'https://rsms.me'],
-      'img-src': ['*', 'data:'],
+      'img-src': ["'self'", 'data:', 'https:'],
+      'base-uri': ["'self'"],
+      'object-src': ["'none'"],
       ...(config.env === 'production'
         ? { 'upgrade-insecure-requests': [] }
         : {}),
@@ -121,6 +150,21 @@ if (config.env === 'production') {
 }
 */
 
+// ==============================================================================
+// SECURITY: Cache-Control for HTML responses (ensure fresh CSP nonces)
+// ==============================================================================
+fastify.addHook('onRequest', async (req, reply) => {
+  // Set security headers for all HTML responses
+  if (req.headers.accept?.includes('text/html')) {
+    reply.header('Cache-Control', 'no-cache, no-store, must-revalidate')
+    reply.header('Pragma', 'no-cache')
+  }
+  // Prevent caching of API responses with sensitive data
+  if (req.url.startsWith('/api/') || req.url.startsWith('/admin-api/')) {
+    reply.header('Cache-Control', 'no-store')
+  }
+})
+
 // Health check endpoint (required for Digital Ocean)
 fastify.get('/health', async (request, reply) => {
   return { status: 'ok', timestamp: new Date().toISOString() }
@@ -146,48 +190,9 @@ fastify.addHook('onClose', () => sequelize.close())
 // These MUST be registered before ANY other routes to avoid conflicts
 // ==============================================================================
 
-console.log('[SERVER-STARTUP] Registering /u/ routes at top level!')
-
-// Global request logger for debugging
-fastify.addHook('onRequest', async (req, reply) => {
-  if (req.url.startsWith('/u/')) {
-    console.log('[GLOBAL] Request to:', req.method, req.url)
-  }
-})
-
-// Diagnostic test route
-fastify.get('/u/test-route-works', async function (req, reply) {
-  console.log('🟢 [DIAGNOSTIC] Test route hit!')
-  reply.type('text/html')
-  return `
-    <!DOCTYPE html>
-    <html>
-      <head><title>Route Test</title></head>
-      <body style="font-family: monospace; padding: 40px;">
-        <h1 style="color: green;">✓ Route is working!</h1>
-        <p>Timestamp: ${new Date().toISOString()}</p>
-        <p>The /u/ route is being matched correctly.</p>
-      </body>
-    </html>
-  `
-})
-
-// Alternative diagnostic at /api/diagnostic
-fastify.get('/api/diagnostic', async function (req, reply) {
-  console.log('🟢 [API-DIAGNOSTIC] Route hit!')
-  return {
-    success: true,
-    message: 'Server code is running with latest changes',
-    timestamp: new Date().toISOString(),
-    commit: '8bd12a40',
-    uRoutesRegistered: true
-  }
-})
-
 // Public profile route - serve the React app
 fastify.get('/u/:userIdOrUsername', async function (req, reply) {
   const { userIdOrUsername } = req.params as { userIdOrUsername: string }
-  console.log('🟢 [PUBLIC-PROFILE-ROUTE] Serving profile page for:', userIdOrUsername)
 
   return reply.view('generic-spa', {
     scriptName: 'public-profile',
@@ -310,47 +315,39 @@ fastify.register(async (fastify: FastifyInstance) => {
   })
 })
 
-// Handle errors
+// ==============================================================================
+// ERROR HANDLING - hardened for production
+// ==============================================================================
 fastify.setErrorHandler((error, req, reply) => {
   const initialStatusCode = error.statusCode || reply.statusCode
   const statusCode = initialStatusCode >= 400 ? initialStatusCode : 500
   const defaultMessage = 'Internal error'
   let message: string = error.message || defaultMessage
+
   if (statusCode >= 500) {
-    const errorObject = {
-      reqId: req.id,
-      req: {
-        method: req.method,
-        url: req.url,
-      },
-      stack: error.stack || null,
-    }
+    // Log full error server-side for debugging (never sent to client)
+    console.error(`[error] ${req.id} ${req.method} ${req.url}:`, error.message)
     if (config.env === 'development') {
-      console.error(error, `${message} @ ${req.id} ${req.method} ${req.url}`)
-    } else {
-      console.error(errorObject, message)
-      message = defaultMessage
+      console.error(error.stack)
     }
+    // Never leak internal error details to clients in production
+    message = defaultMessage
   }
+
   return reply.status(statusCode).send({ statusCode, message })
 })
 
 fastify.setNotFoundHandler(async (req, res) => {
-  console.log('[NOT-FOUND] URL:', req.url)
-  console.log('[NOT-FOUND] Method:', req.method)
-  console.log('[NOT-FOUND] Accept:', req.headers.accept)
-
-  // Don't redirect API routes - let them return proper 404 or handle authentication
+  // Don't redirect API routes - return proper 404
   if (req.url.startsWith('/api/') || req.url.startsWith('/admin-api/')) {
-    console.log('[NOT-FOUND] API route not found, returning 404')
-    return res.code(404).send('API endpoint not found: ' + req.url)
+    // Don't echo back the URL to prevent reflected content injection
+    return res.code(404).send({ statusCode: 404, message: 'Not found' })
   }
 
   if (req.headers.accept?.includes('text/html')) {
-    console.log('[NOT-FOUND] Redirecting HTML request to /')
     return res.redirect('/')
   }
-  res.code(404).send('Not found')
+  res.code(404).send({ statusCode: 404, message: 'Not found' })
 })
 
 // Start server - use PORT from environment or default to 8080

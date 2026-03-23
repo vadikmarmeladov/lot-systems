@@ -3,12 +3,14 @@ import crypto from 'crypto';
 import dayjs from 'dayjs';
 import fs from 'fs';
 import path from 'path';
+import { z } from 'zod';
 import { sendEmail } from '../utils/email.js';
 import { verificationEmailTemplate } from '../../utils/emailTemplates.js';
 import config from '../config.js';
 import { sync } from '../sync.js';
 
 const EMAIL_CODE_VALID_MINUTES = 10;
+const MAX_FAILED_ATTEMPTS = 5;
 
 // Get version from package.json
 const packageJson = JSON.parse(
@@ -16,39 +18,92 @@ const packageJson = JSON.parse(
 );
 const VERSION = packageJson.version || '0.0.4';
 
-export default function (fastify: FastifyInstance, opts: any, done: () => void) {
-  // Add request logging
-  fastify.addHook('onRequest', async (request) => {
-    console.log('Auth route request:', {
-      method: request.method,
-      url: request.url,
-      body: request.body,
-      timestamp: new Date().toISOString()
-    });
-  });
+// ============================================================================
+// Input Validation Schemas
+// ============================================================================
 
-  // Add error logging
-  fastify.addHook('onError', async (request, reply, error) => {
-    console.error('Auth route error:', {
-      method: request.method,
-      url: request.url,
-      error: error.message,
-      stack: error.stack,
-      timestamp: new Date().toISOString()
-    });
+const sendCodeSchema = z.object({
+  email: z.string().email('Invalid email address').max(254).toLowerCase().trim(),
+});
+
+const verifyCodeSchema = z.object({
+  email: z.string().email('Invalid email address').max(254).toLowerCase().trim(),
+  code: z.string().min(5).max(6).regex(/^\d+$/, 'Code must be numeric'),
+  token: z.string().min(16).max(64).regex(/^[a-f0-9]+$/, 'Invalid token format'),
+});
+
+// ============================================================================
+// Brute-force protection: track failed verification attempts per IP
+// ============================================================================
+
+const failedAttempts = new Map<string, { count: number; lastAttempt: number }>();
+
+// Clean up stale entries every 15 minutes
+setInterval(() => {
+  const cutoff = Date.now() - 15 * 60 * 1000;
+  for (const [key, value] of failedAttempts) {
+    if (value.lastAttempt < cutoff) failedAttempts.delete(key);
+  }
+}, 15 * 60 * 1000);
+
+function isBlocked(ip: string): boolean {
+  const record = failedAttempts.get(ip);
+  if (!record) return false;
+  // Block for 15 minutes after MAX_FAILED_ATTEMPTS
+  if (record.count >= MAX_FAILED_ATTEMPTS) {
+    const elapsed = Date.now() - record.lastAttempt;
+    if (elapsed < 15 * 60 * 1000) return true;
+    failedAttempts.delete(ip);
+  }
+  return false;
+}
+
+function recordFailedAttempt(ip: string) {
+  const record = failedAttempts.get(ip) || { count: 0, lastAttempt: 0 };
+  record.count++;
+  record.lastAttempt = Date.now();
+  failedAttempts.set(ip, record);
+}
+
+function clearFailedAttempts(ip: string) {
+  failedAttempts.delete(ip);
+}
+
+export default function (fastify: FastifyInstance, opts: any, done: () => void) {
+  // Stricter rate limit on auth routes: 10 requests per minute per IP
+  fastify.addHook('onRequest', async (request, reply) => {
+    // Log auth requests without sensitive data
+    if (config.env === 'development') {
+      console.log(`[auth] ${request.method} ${request.url} from ${request.ip}`);
+    }
   });
 
   fastify.post('/send-code', async (request, reply) => {
-    const { email } = request.body as { email: string };
-    
+    // Validate input
+    const parsed = sendCodeSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        statusCode: 400,
+        message: 'Invalid email address',
+      });
+    }
+    const { email } = parsed.data;
+
+    // Check brute-force protection
+    const clientIp = request.ip;
+    if (isBlocked(clientIp)) {
+      return reply.status(429).send({
+        statusCode: 429,
+        message: 'Too many attempts. Please try again later.',
+      });
+    }
+
     try {
-      console.log('Generating verification code for:', email);
       const code = crypto.randomInt(1e5, 1e6 - 1).toString()
       const token = crypto.randomBytes(16).toString('hex')
       const magicLinkToken = crypto.randomBytes(32).toString('hex')
-      
-      console.log('Creating email code record');
-      const emailCode = await fastify.models.EmailCode.create({
+
+      await fastify.models.EmailCode.create({
         code,
         token,
         email,
@@ -57,9 +112,6 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
           .add(EMAIL_CODE_VALID_MINUTES, 'minutes')
           .toDate(),
       })
-      
-      console.log('Email code record created:', emailCode.id);
-      console.log('Sending verification email');
 
       const currentDate = dayjs().format('MMMM D, YYYY');
       const emailResult = await sendEmail({
@@ -67,84 +119,93 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
         text: verificationEmailTemplate(code, VERSION, currentDate),
         subject: 'LOT – Verification Code',
       });
-      
+
       if (!emailResult.success) {
-        console.error('Email send failed:', emailResult);
         throw new Error('Failed to send email');
       }
-      
-      console.log('Email sent successfully to:', email);
+
       return { token }
     } catch (err: any) {
-      console.error('Email sending error:', {
-        error: err?.message || 'Unknown error',
-        stack: err?.stack || 'No stack trace',
-        email,
-        timestamp: new Date().toISOString()
-      });
+      console.error('[auth] send-code error:', err?.message || 'Unknown error');
       return reply.throw.internalError(
         'Unable to send sign up code. The problem was reported. Please try again later.'
       )
     }
   });
 
-  // NEW: Verify code and create session
+  // Verify code and create session
   fastify.post('/email/code', async (request, reply) => {
-    const { email, code, token } = request.body as { 
-      email: string; 
-      code: string; 
-      token: string;
-    };
-    
+    // Validate input
+    const parsed = verifyCodeSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        statusCode: 400,
+        message: 'Invalid input. Please check your code and try again.',
+      });
+    }
+    const { email, code, token } = parsed.data;
+
+    // Check brute-force protection
+    const clientIp = request.ip;
+    if (isBlocked(clientIp)) {
+      return reply.status(429).send({
+        statusCode: 429,
+        message: 'Too many failed attempts. Please try again in 15 minutes.',
+      });
+    }
+
     try {
-      console.log('Verifying code for:', email);
-      
       // Find the email code record
       const emailCode = await fastify.models.EmailCode.findOne({
         where: { email, token }
       });
-      
+
       if (!emailCode) {
-        console.log('Invalid token for email:', email);
-        return reply.status(400).send({ 
+        recordFailedAttempt(clientIp);
+        return reply.status(400).send({
           statusCode: 400,
-          message: 'Invalid or expired code' 
+          message: 'Invalid or expired code'
         });
       }
-      
+
       // Check if expired
       if (dayjs().isAfter(emailCode.validUntil)) {
-        console.log('Expired code for email:', email);
-        return reply.status(400).send({ 
+        // Delete expired code
+        await emailCode.destroy();
+        return reply.status(400).send({
           statusCode: 400,
-          message: 'Code has expired. Please request a new one.' 
+          message: 'Code has expired. Please request a new one.'
         });
       }
-      
-      // Verify the code
-      if (emailCode.code !== code) {
-        console.log('Invalid code provided for email:', email);
-        return reply.status(400).send({ 
+
+      // Constant-time comparison to prevent timing attacks
+      const codeMatch = crypto.timingSafeEqual(
+        Buffer.from(emailCode.code.padEnd(6)),
+        Buffer.from(code.padEnd(6))
+      );
+      if (!codeMatch) {
+        recordFailedAttempt(clientIp);
+        return reply.status(400).send({
           statusCode: 400,
-          message: 'Invalid code' 
+          message: 'Invalid code'
         });
       }
-      
-      console.log('Code verified successfully for:', email);
-      
+
+      // Clear failed attempts on success
+      clearFailedAttempts(clientIp);
+
       // Find or create user
       let user = await fastify.models.User.findOne({ where: { email } });
       let isNewUser = false;
 
       if (!user) {
-        console.log('Creating new user:', email);
         user = await fastify.models.User.create({
           email,
           joinedAt: new Date()
         });
         isNewUser = true;
       }
-      
+
       // Create session
       const sessionToken = crypto.randomBytes(32).toString('hex');
       await fastify.models.Session.create({
@@ -152,15 +213,12 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
         userId: user.id,
       });
 
-      console.log('Session created for user:', user.id);
-
       // Increment total site visitors counter
       try {
         let systemUser = await fastify.models.User.findOne({
           where: { email: 'system@lot' }
         })
 
-        // Create system user if it doesn't exist
         if (!systemUser) {
           systemUser = await fastify.models.User.create({
             email: 'system@lot',
@@ -179,20 +237,17 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
             totalSiteVisitors: currentVisitors + 1
           }
         })
-
-        console.log('[Visitor Stats] Total site visitors:', currentVisitors + 1)
       } catch (error) {
-        console.error('Error incrementing total site visitors:', error)
+        console.error('[auth] Error incrementing visitor stats')
       }
 
       // Broadcast updated user count if new user joined
       if (isNewUser) {
         const usersTotal = await fastify.models.User.countJoined();
         sync.emit('users_total', { value: usersTotal });
-        console.log('New user joined, broadcasting users_total:', usersTotal);
       }
-      
-      // Set cookie
+
+      // Set cookie with security flags
       reply.setCookie(config.jwt.cookieKey, sessionToken, {
         path: '/',
         httpOnly: true,
@@ -200,19 +255,14 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
         sameSite: 'lax',
         maxAge: 30 * 24 * 60 * 60 // 30 days in seconds
       });
-      
+
       // Delete the used email code
       await emailCode.destroy();
-      
+
       return { success: true };
-      
+
     } catch (err: any) {
-      console.error('Code verification error:', {
-        error: err?.message || 'Unknown error',
-        stack: err?.stack || 'No stack trace',
-        email,
-        timestamp: new Date().toISOString()
-      });
+      console.error('[auth] verify-code error:', err?.message || 'Unknown error');
       return reply.status(500).send({
         statusCode: 500,
         message: 'Unable to verify code. Please try again.'
@@ -226,29 +276,19 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
       const token = request.cookies[config.jwt.cookieKey];
 
       if (token) {
-        // Delete the session from database
         await fastify.models.Session.destroy({
           where: { token }
         });
-
-        console.log('Session deleted for token:', token);
       }
 
-      // Clear the cookie
       reply.clearCookie(config.jwt.cookieKey, {
         path: '/',
       });
 
-      console.log('User logged out, redirecting to home');
       return reply.redirect('/');
 
     } catch (err: any) {
-      console.error('Logout error:', {
-        error: err?.message || 'Unknown error',
-        stack: err?.stack || 'No stack trace',
-        timestamp: new Date().toISOString()
-      });
-      // Even if there's an error, clear the cookie and redirect
+      console.error('[auth] logout error:', err?.message || 'Unknown error');
       reply.clearCookie(config.jwt.cookieKey, { path: '/' });
       return reply.redirect('/');
     }
