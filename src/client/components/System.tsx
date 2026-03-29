@@ -20,6 +20,7 @@ import { useVisitorStats, useProfile, useLogs, useCommunityEmotion } from '#clie
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
 import { UserTag } from '#shared/types'
 import { TimeWidget } from './TimeWidget'
+import { QuantumRandomWidget } from './QuantumRandomWidget'
 import { MemoryWidget } from './MemoryWidget'
 import { RecipeWidget } from './RecipeWidget'
 import { EmotionalCheckIn } from './EmotionalCheckIn'
@@ -376,6 +377,7 @@ export const System = () => {
 
       <div>
         <TimeWidget />
+        <QuantumRandomWidget />
         {!!weather && (
           <>
             <Block label="Sky:">{weather?.description || 'Unknown'}</Block>
