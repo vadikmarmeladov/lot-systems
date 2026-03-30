@@ -58,6 +58,7 @@ import { CorporatePlanWidget } from './CorporatePlanWidget'
 import { DemoDayWidget } from './DemoDayWidget'
 import { FourDimensionalUI } from './FourDimensionalUI'
 import { QuantumSignWidget } from './QuantumSignWidget'
+import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 
 export const System = () => {
@@ -721,6 +722,9 @@ export const System = () => {
 
           {/* Micro Calculator - appears at magical number times */}
           <MicroCalculatorWidget />
+
+          {/* Micro Game - 2×2cm monochromatic pixel game screen */}
+          <MicroGameWidget />
         </div>
       </WidgetErrorBoundary>
 
