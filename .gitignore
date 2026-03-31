@@ -57,8 +57,7 @@ lot-systems_master_*
 # Production backups (stored separately, not in git)
 backups/production-*
 
-# Lock files (project uses yarn.lock)
-package-lock.json
+# Suspicious files
 yarn 2.lock
 
 # Random/unnecessary files
