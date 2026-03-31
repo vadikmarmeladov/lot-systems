@@ -765,7 +765,7 @@ export const System = () => {
 
       {/* CQGS Dashboard stack */}
       <WidgetErrorBoundary name="Dashboard">
-        <div>
+        <div className="flex flex-col gap-y-24">
           {/* CQGS Dashboard - Bioethics health, performance, version */}
           <UserMetricsWidget />
 
