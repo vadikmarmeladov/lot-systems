@@ -120,6 +120,7 @@ Make sure the question is personalized, relevant to self-care habits, and the op
 
     try {
       // FALLBACK 1: Use legacy OpenAI with Instructor if new system fails
+      if (!oaiClient) throw new Error('OpenAI client not initialized')
       const extractedQuestion = await oaiClient.chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
         model: 'gpt-4o-mini',
