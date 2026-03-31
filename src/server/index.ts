@@ -358,11 +358,8 @@ fastify.setNotFoundHandler(async (req, res) => {
 
 // Start server - use PORT from environment or default to 8080
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080
-fastify.listen({ port, host: '0.0.0.0' }, async function (err, address) {
-  if (err) {
-    console.error(err)
-    process.exit(1)
-  }
+try {
+  const address = await fastify.listen({ port, host: '0.0.0.0' })
   console.log(`Server is running at ${address}`)
 
   // Initialize scheduled jobs (monthly emails, etc.)
@@ -373,4 +370,7 @@ fastify.listen({ port, host: '0.0.0.0' }, async function (err, address) {
     console.error('Failed to initialize scheduled jobs:', error)
   }
   console.log(`App launched: ${config.appHost}`)
-})
+} catch (err) {
+  console.error(err)
+  process.exit(1)
+}

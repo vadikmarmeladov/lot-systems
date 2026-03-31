@@ -340,16 +340,11 @@ fastify.setNotFoundHandler(async (req, res) => {
 })
 
 // Start server
-fastify.ready().then(async () => {
-  // REMOVED: Startup cleanup was deleting Memory answer events
-  // Memory answers have event='answer' with text='' (data is in metadata field)
-  // The cleanup was incorrectly deleting these important logs
-
-  fastify.listen({ port: config.port, host: '0.0.0.0' }, function (err, address) {
-    if (err) {
-      console.error(err)
-      process.exit(1)
-    }
-    console.log(`App launched: ${config.appHost}`)
-  })
-})
+try {
+  await fastify.ready()
+  const address = await fastify.listen({ port: config.port, host: '0.0.0.0' })
+  console.log(`App launched: ${config.appHost}`)
+} catch (err) {
+  console.error(err)
+  process.exit(1)
+}
