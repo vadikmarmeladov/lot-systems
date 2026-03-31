@@ -1,8 +1,17 @@
 import { Resend } from 'resend';
-if (!process.env.RESEND_API_KEY) {
-    console.error('RESEND_API_KEY is not set in environment variables');
+
+let resend = null;
+
+function getResendClient() {
+    if (resend)
+        return resend;
+    if (!process.env.RESEND_API_KEY) {
+        throw new Error('RESEND_API_KEY is not set. Email sending is unavailable.');
+    }
+    resend = new Resend(process.env.RESEND_API_KEY);
+    return resend;
 }
-const resend = new Resend(process.env.RESEND_API_KEY);
+
 export async function sendEmail({ to, html, subject }) {
     try {
         console.log('Starting email send process...', {
@@ -23,7 +32,8 @@ export async function sendEmail({ to, html, subject }) {
         });
         let result;
         try {
-            result = await resend.emails.send(emailData);
+            const client = getResendClient();
+            result = await client.emails.send(emailData);
             console.log('Raw Resend response:', result);
         }
         catch (resendError) {

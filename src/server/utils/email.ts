@@ -1,14 +1,16 @@
 import { Resend } from 'resend';
 
-if (!process.env.RESEND_API_KEY) {
-  console.error('RESEND_API_KEY is not set in environment variables');
-}
-
 let resend: Resend | null = null;
-try {
+
+function getResendClient(): Resend {
+  if (resend) return resend;
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error(
+      'RESEND_API_KEY is not set. Email sending is unavailable.'
+    );
+  }
   resend = new Resend(process.env.RESEND_API_KEY);
-} catch (err) {
-  console.error('[email] Failed to initialize Resend client:', (err as Error).message);
+  return resend;
 }
 
 interface EmailParams {
@@ -43,8 +45,8 @@ export async function sendEmail({ to, html, text, subject }: EmailParams) {
 
     let result;
     try {
-      if (!resend) throw new Error('Email client not initialized');
-      result = await resend.emails.send(emailData);
+      const client = getResendClient();
+      result = await client.emails.send(emailData);
       console.log('Raw Resend response:', result);
     } catch (resendError: any) {
       console.error('Resend API error:', {
