@@ -28,8 +28,8 @@ const sendCodeSchema = z.object({
 
 const verifyCodeSchema = z.object({
   email: z.string().email('Invalid email address').max(254).toLowerCase().trim(),
-  code: z.string().min(5).max(6).regex(/^\d+$/, 'Code must be numeric'),
-  token: z.string().min(16).max(64).regex(/^[a-f0-9]+$/, 'Invalid token format'),
+  code: z.string().trim().min(5).max(6).regex(/^\d+$/, 'Code must be numeric'),
+  token: z.string().trim().min(16).max(64).regex(/^[a-f0-9]+$/, 'Invalid token format'),
 });
 
 // ============================================================================

@@ -45,11 +45,11 @@ fastify.register(fastifyCookie)
 fastify.register(fastifyRateLimit, {
   max: 100,
   timeWindow: '1 minute',
-  // Return standard 429 response (rate-limit v10 expects an Error object)
   errorResponseBuilder: (_req: FastifyRequest, context: { after: string; statusCode: number }) => {
-    const err = new Error('Too many requests. Please slow down.') as Error & { statusCode: number }
-    err.statusCode = context.statusCode
-    return err
+    return {
+      statusCode: context.statusCode,
+      message: 'Too many requests. Please slow down.',
+    }
   },
 })
 

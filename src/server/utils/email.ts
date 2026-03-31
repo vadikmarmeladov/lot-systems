@@ -1,5 +1,6 @@
 import { Resend } from 'resend';
 import https from 'https';
+import config from '../config.js';
 
 let resend: Resend | null = null;
 
@@ -74,8 +75,12 @@ export async function sendEmail({ to, html, text, subject }: EmailParams) {
       timestamp: new Date().toISOString()
     });
 
+    const from = config.email.fromName
+      ? `${config.email.fromName} <${config.email.fromEmail}>`
+      : config.email.fromEmail;
+
     const emailData: any = {
-      from: 'auth@lot-systems.com',
+      from,
       to: [to],
       subject,
       ...(html && { html }),
