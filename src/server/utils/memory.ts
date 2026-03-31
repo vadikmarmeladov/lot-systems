@@ -27,19 +27,28 @@ import { aiEngineManager, type EnginePreference } from './ai-engines.js'
 import { extractGoals, type ExtractedGoal } from './goal-understanding.js'
 
 // OpenAI client (for non-Usership users - LEGACY fallback)
-const oai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+let oai: OpenAI | null = null
+let oaiClient: ReturnType<typeof Instructor> | null = null
+let anthropic: Anthropic | null = null
 
-const oaiClient = Instructor({
-  client: oai,
-  mode: 'TOOLS',
-})
+try {
+  const openaiKey = process.env.OPENAI_API_KEY
+  if (openaiKey) {
+    oai = new OpenAI({ apiKey: openaiKey })
+    oaiClient = Instructor({ client: oai, mode: 'TOOLS' })
+  }
+} catch (err) {
+  console.error('[memory] Failed to initialize OpenAI client:', (err as Error).message)
+}
 
 // Anthropic client (LEGACY - kept for backwards compatibility)
-const anthropic = new Anthropic({
-  apiKey: config.anthropic.apiKey,
-})
+try {
+  if (config.anthropic.apiKey) {
+    anthropic = new Anthropic({ apiKey: config.anthropic.apiKey })
+  }
+} catch (err) {
+  console.error('[memory] Failed to initialize Anthropic client:', (err as Error).message)
+}
 
 // ============================================================================
 // AI ENGINE CONFIGURATION
@@ -186,6 +195,7 @@ Make sure the question is personalized, relevant to self-care habits, and the op
 
     try {
       // FALLBACK 1: Use legacy OpenAI with Instructor if new system fails
+      if (!oaiClient) throw new Error('OpenAI client not available')
       const extractedQuestion = await oaiClient.chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
         model: 'gpt-4o-mini',
@@ -1036,6 +1046,7 @@ ${answerCount === 0 ? '\nNote: This user has not yet answered any Memory prompts
 Provide a warm, insightful summary that helps admins understand this user's self-care journey and engagement with LOT Systems.`
 
   // Use Claude API instead of OpenAI
+  if (!anthropic) throw new Error('Anthropic client not configured')
   const response = await anthropic.messages.create({
     model: 'claude-3-5-sonnet-20241022',
     max_tokens: 2000,

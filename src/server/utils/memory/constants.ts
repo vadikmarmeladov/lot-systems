@@ -28,19 +28,29 @@ export const userSummarySchema = z.object({
 // AI CLIENT INSTANCES
 // ============================================================================
 // OpenAI client (for non-Usership users - LEGACY fallback)
-const oai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+let oaiClient: ReturnType<typeof Instructor> | null = null
+let anthropic: Anthropic | null = null
 
-export const oaiClient = Instructor({
-  client: oai,
-  mode: 'TOOLS',
-})
+try {
+  const openaiKey = process.env.OPENAI_API_KEY
+  if (openaiKey) {
+    const oai = new OpenAI({ apiKey: openaiKey })
+    oaiClient = Instructor({ client: oai, mode: 'TOOLS' })
+  }
+} catch (err) {
+  console.error('[memory/constants] Failed to initialize OpenAI client:', (err as Error).message)
+}
 
 // Anthropic client (LEGACY - kept for backwards compatibility)
-export const anthropic = new Anthropic({
-  apiKey: config.anthropic.apiKey,
-})
+try {
+  if (config.anthropic.apiKey) {
+    anthropic = new Anthropic({ apiKey: config.anthropic.apiKey })
+  }
+} catch (err) {
+  console.error('[memory/constants] Failed to initialize Anthropic client:', (err as Error).message)
+}
+
+export { oaiClient, anthropic }
 
 // ============================================================================
 // BACKUP SELF-CARE QUESTIONS
