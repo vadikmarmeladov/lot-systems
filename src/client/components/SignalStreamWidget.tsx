@@ -102,17 +102,17 @@ export function SignalStreamWidget() {
             <div
               key={`${signal.timestamp}-${idx}`}
               className={cn(
-                'flex flex-wrap items-baseline gap-x-8 gap-y-2 transition-opacity duration-[1400ms]',
+                'flex items-baseline gap-8 transition-opacity duration-[1400ms]',
                 idx === 0 && highlightedIndex === 0 ? 'opacity-100' : 'opacity-30'
               )}
             >
-              <span className="shrink-0 whitespace-nowrap opacity-30 tabular-nums">
+              <span className="shrink-0 whitespace-nowrap opacity-30 tabular-nums w-[88px]">
                 {formatTimestamp(signal.timestamp)}
               </span>
-              <span className="shrink-0 whitespace-nowrap capitalize opacity-30">
+              <span className="shrink-0 whitespace-nowrap w-[64px] capitalize opacity-30">
                 {signal.source}
               </span>
-              <span className="min-w-0 break-words">
+              <span className="min-w-0">
                 {formatSignal(signal.signal)}
               </span>
             </div>
