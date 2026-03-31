@@ -253,7 +253,6 @@ ${answerCount === 0 ? '\nNote: This user has not yet answered any Memory prompts
 Provide a warm, insightful summary that helps admins understand this user's self-care journey and engagement with LOT Systems.`
 
   // Use Claude API instead of OpenAI
-  if (!anthropic) throw new Error('Anthropic client not configured')
   const response = await anthropic.messages.create({
     model: 'claude-3-5-sonnet-20241022',
     max_tokens: 2000,

@@ -4,12 +4,7 @@ if (!process.env.RESEND_API_KEY) {
   console.error('RESEND_API_KEY is not set in environment variables');
 }
 
-let resend: Resend | null = null;
-try {
-  resend = new Resend(process.env.RESEND_API_KEY);
-} catch (err) {
-  console.error('[email] Failed to initialize Resend client:', (err as Error).message);
-}
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 interface EmailParams {
   to: string;
@@ -43,7 +38,6 @@ export async function sendEmail({ to, html, text, subject }: EmailParams) {
 
     let result;
     try {
-      if (!resend) throw new Error('Email client not initialized');
       result = await resend.emails.send(emailData);
       console.log('Raw Resend response:', result);
     } catch (resendError: any) {

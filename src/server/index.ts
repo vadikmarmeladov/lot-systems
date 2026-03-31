@@ -45,12 +45,11 @@ fastify.register(fastifyCookie)
 fastify.register(fastifyRateLimit, {
   max: 100,
   timeWindow: '1 minute',
-  // Return standard 429 response (rate-limit v10 throws the returned value)
-  errorResponseBuilder: (_req: FastifyRequest, context: { after: string; statusCode: number }) => {
-    const err = new Error('Too many requests. Please slow down.') as Error & { statusCode: number }
-    err.statusCode = context.statusCode
-    return err
-  },
+  // Return standard 429 response
+  errorResponseBuilder: () => ({
+    statusCode: 429,
+    message: 'Too many requests. Please slow down.',
+  }),
 })
 
 fastify.register(fastifyHelmet, {
@@ -218,23 +217,18 @@ fastify.register(async (fastify: FastifyInstance) => {
     fastify.addHook('onRequest', async (req: FastifyRequest, reply) => {
       const token = req.cookies[config.jwt.cookieKey]
       if (token) {
-        try {
-          const session: SessionWithUser | null =
-            await fastify.models.Session.findOne({
-              where: { token },
-              include: [
-                {
-                  model: fastify.models.User,
-                  as: "user",
-                },
-              ],
-            })
-          if (session && session.user) {
-            req.user = session.user
-          }
-        } catch (err) {
-          // Log but don't crash - allow page to render as logged-out
-          console.error('[auth] Session lookup failed:', (err as Error).message)
+        const session: SessionWithUser | null =
+          await fastify.models.Session.findOne({
+            where: { token },
+            include: [
+              {
+                model: fastify.models.User,
+                as: "user",
+              },
+            ],
+          })
+        if (session && session.user) {
+          req.user = session.user
         }
       }
     })
@@ -333,11 +327,11 @@ fastify.setErrorHandler((error, req, reply) => {
   if (statusCode >= 500) {
     // Log full error server-side for debugging (never sent to client)
     console.error(`[error] ${req.id} ${req.method} ${req.url}:`, error.message)
-    console.error(error.stack)
-    // Never leak internal error details to clients in production
-    if (config.env === 'production') {
-      message = defaultMessage
+    if (config.env === 'development') {
+      console.error(error.stack)
     }
+    // Never leak internal error details to clients in production
+    message = defaultMessage
   }
 
   return reply.status(statusCode).send({ statusCode, message })
