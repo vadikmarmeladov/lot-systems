@@ -121,7 +121,7 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
       });
 
       if (!emailResult.success) {
-        throw new Error('Failed to send email');
+        throw new Error(`Failed to send email: ${emailResult.error || 'unknown reason'}`);
       }
 
       return { token }
