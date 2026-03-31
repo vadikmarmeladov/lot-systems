@@ -126,10 +126,13 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
 
       return { token }
     } catch (err: any) {
-      console.error('[auth] send-code error:', err?.message || 'Unknown error');
-      return reply.throw.internalError(
-        'Unable to send sign up code. The problem was reported. Please try again later.'
-      )
+      const debugInfo = err?.message || 'Unknown error';
+      console.error('[auth] send-code error:', debugInfo);
+      return reply.status(500).send({
+        statusCode: 500,
+        message: 'Unable to send sign up code. The problem was reported. Please try again later.',
+        debug: debugInfo,
+      });
     }
   });
 
