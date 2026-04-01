@@ -76,6 +76,9 @@ export const System = () => {
   const { data: logs = [] } = useLogs()
   const { data: communityEmotion } = useCommunityEmotion()
 
+  const appVersion = useStore(stores.appVersion)
+  const lastUpdate = useStore(stores.lastUpdate)
+
   const isTempFahrenheit = useStore(stores.isTempFahrenheit)
   const isTimeFormat12h = useStore(stores.isTimeFormat12h)
   const isMirrorOn = useStore(stores.isMirrorOn)
@@ -788,6 +791,14 @@ export const System = () => {
           <BadgeUnlockFeed />
         </div>
       </WidgetErrorBoundary>
+
+      {/* Beta version and last update */}
+      <div className="text-center" style={{ opacity: 0.3, fontSize: '0.8em' }}>
+        <div>Beta {appVersion || '1.2.0'}</div>
+        {lastUpdate && (
+          <div>Last updated: {dayjs(lastUpdate).format('MMMM D, YYYY [at] h:mm A')}</div>
+        )}
+      </div>
     </div>
   )
 }

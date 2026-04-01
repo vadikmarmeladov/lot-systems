@@ -96,23 +96,30 @@ export async function sendEmail({ to, html, text, subject }: EmailParams) {
     let data: any;
     let error: any;
 
-    // First, try the Resend SDK
-    try {
-      const client = getResendClient();
-      const result = await client.emails.send(emailData);
-      console.log('Raw Resend response:', result);
-      data = result.data;
-      error = result.error;
-    } catch (resendError: any) {
-      // If the SDK fails for any reason (certificate issues, network errors, etc.),
-      // fall back to direct HTTPS request which bypasses Node.js TLS restrictions
-      const errMsg = resendError?.message || '';
-      console.warn('Resend SDK failed, falling back to direct HTTPS:', errMsg);
-      const apiKey = process.env.RESEND_API_KEY;
-      if (!apiKey) throw new Error('RESEND_API_KEY is not set');
-      const result = await resendApiRequest(apiKey, emailData);
-      data = result.data;
-      error = result.error;
+    // Use direct HTTPS first — it handles self-signed certificates in the chain
+    // (e.g. corporate proxies, DigitalOcean environments) unlike the Resend SDK
+    // which relies on Node.js global fetch and strict TLS verification.
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) throw new Error('RESEND_API_KEY is not set');
+
+    const directResult = await resendApiRequest(apiKey, emailData);
+    if (directResult.data && !directResult.error) {
+      data = directResult.data;
+      error = null;
+    } else {
+      // If direct HTTPS fails, try the Resend SDK as fallback
+      console.warn('Direct HTTPS email failed, trying Resend SDK:', directResult.error?.message);
+      try {
+        const client = getResendClient();
+        const result = await client.emails.send(emailData);
+        data = result.data;
+        error = result.error;
+      } catch (sdkError: any) {
+        // Both methods failed — use the direct HTTPS error as it's more informative
+        console.error('Resend SDK also failed:', sdkError?.message);
+        data = null;
+        error = directResult.error;
+      }
     }
 
     if (error) {

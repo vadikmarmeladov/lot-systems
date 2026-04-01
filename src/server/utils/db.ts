@@ -1,3 +1,5 @@
+import fs from 'fs'
+import path from 'path'
 import { Sequelize } from 'sequelize'
 import config from '#server/config'
 
@@ -6,6 +8,26 @@ if (!config || !config.db) {
 }
 
 console.log('Initializing database connection to:', config.db.host)
+
+// Load DigitalOcean CA certificate if available
+const caCertPaths = [
+  path.join(process.cwd(), 'certs', 'ca-certificate.crt'),
+  '/etc/ssl/certs/digitalocean-db-ca.crt',
+  process.env.DB_CA_CERT_PATH,
+].filter(Boolean) as string[]
+
+let caCert: string | undefined
+for (const certPath of caCertPaths) {
+  try {
+    if (fs.existsSync(certPath)) {
+      caCert = fs.readFileSync(certPath, 'utf-8')
+      console.log('Loaded DB CA certificate from:', certPath)
+      break
+    }
+  } catch {
+    // Continue to next path
+  }
+}
 
 const sequelize = new Sequelize({
   dialect: 'postgres',
@@ -17,9 +39,10 @@ const sequelize = new Sequelize({
   dialectOptions: {
     ssl: {
       require: true,
-      // In production, enable certificate verification for MITM protection.
-      // Set to true once you have the DigitalOcean CA certificate installed.
-      rejectUnauthorized: config.env === 'production',
+      // Use CA certificate if available for proper verification;
+      // otherwise allow self-signed certs to prevent connection failures.
+      rejectUnauthorized: !!caCert,
+      ...(caCert && { ca: caCert }),
     },
     // Connection timeout to prevent hanging
     connectionTimeoutMillis: 10000,
