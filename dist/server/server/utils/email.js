@@ -89,21 +89,16 @@ export async function sendEmail({ to, html, text, subject }) {
             error = result.error;
         }
         catch (resendError) {
+            // If the SDK fails for any reason (certificate issues, network errors, etc.),
+            // fall back to direct HTTPS request which bypasses Node.js TLS restrictions
             const errMsg = resendError?.message || '';
-            // If the SDK fails due to certificate issues, fall back to direct HTTPS request
-            if (errMsg.includes('self-signed certificate') || errMsg.includes('certificate')) {
-                console.warn('Resend SDK failed with certificate error, falling back to direct HTTPS:', errMsg);
-                const apiKey = process.env.RESEND_API_KEY;
-                if (!apiKey)
-                    throw new Error('RESEND_API_KEY is not set');
-                const result = await resendApiRequest(apiKey, emailData);
-                data = result.data;
-                error = result.error;
-            }
-            else {
-                console.error('Resend API error:', { error: resendError, stack: resendError?.stack });
-                throw resendError;
-            }
+            console.warn('Resend SDK failed, falling back to direct HTTPS:', errMsg);
+            const apiKey = process.env.RESEND_API_KEY;
+            if (!apiKey)
+                throw new Error('RESEND_API_KEY is not set');
+            const result = await resendApiRequest(apiKey, emailData);
+            data = result.data;
+            error = result.error;
         }
         if (error) {
             console.error('Resend returned error:', {
