@@ -20,8 +20,8 @@ const sendCodeSchema = z.object({
 });
 const verifyCodeSchema = z.object({
     email: z.string().email('Invalid email address').max(254).toLowerCase().trim(),
-    code: z.string().min(5).max(6).regex(/^\d+$/, 'Code must be numeric'),
-    token: z.string().min(16).max(64).regex(/^[a-f0-9]+$/, 'Invalid token format'),
+    code: z.string().trim().min(5).max(6).regex(/^\d+$/, 'Code must be numeric'),
+    token: z.string().trim().min(16).max(64).regex(/^[a-f0-9]+$/, 'Invalid token format'),
 });
 // ============================================================================
 // Brute-force protection: track failed verification attempts per IP
@@ -108,8 +108,13 @@ export default function (fastify, opts, done) {
             return { token };
         }
         catch (err) {
-            console.error('[auth] send-code error:', err?.message || 'Unknown error');
-            return reply.throw.internalError('Unable to send sign up code. The problem was reported. Please try again later.');
+            const debugInfo = err?.message || 'Unknown error';
+            console.error('[auth] send-code error:', debugInfo);
+            return reply.status(500).send({
+                statusCode: 500,
+                message: 'Unable to send sign up code. The problem was reported. Please try again later.',
+                debug: debugInfo,
+            });
         }
     });
     // Verify code and create session
