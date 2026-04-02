@@ -590,8 +590,8 @@ export function MicroGameWidget() {
         {/* Micro-screen */}
         <div
           className={cn(
-            'border border-acc/30 inline-flex items-center justify-center',
-            'bg-base/50'
+            'border border-acc/60 inline-flex items-center justify-center',
+            'bg-bac/50'
           )}
           style={{ width: CSS_SIZE, height: CSS_SIZE, imageRendering: 'pixelated' }}
           onTouchStart={onTouchStart}
@@ -628,11 +628,11 @@ export function MicroGameWidget() {
 
           {/* Action buttons */}
           <div className="flex flex-col items-center gap-4">
-            <Button onClick={() => setPaused(p => !p)}>
-              {paused ? '\u25B6' : '\u23F8'}
-            </Button>
             <Button onClick={switchGame}>
               \u21C4
+            </Button>
+            <Button onClick={() => setPaused(p => !p)}>
+              {paused ? '>' : '||'}
             </Button>
           </div>
         </div>
