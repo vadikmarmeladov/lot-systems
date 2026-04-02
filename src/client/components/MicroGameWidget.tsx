@@ -1,5 +1,5 @@
 import React from 'react'
-import { Block } from '#client/components/ui'
+import { Block, Button } from '#client/components/ui'
 import { cn } from '#client/utils'
 import { recordSignal } from '#client/stores/intentionEngine'
 
@@ -12,7 +12,7 @@ import { recordSignal } from '#client/stores/intentionEngine'
  *   Afternoon(12–18) → Pixel Invaders (focus, action)
  *   Evening  (18–06) → Dot Snake      (flow, calm)
  *
- * The canvas renders at 2× device pixel ratio for crisp pixels.
+ * 64×64 pixel grid with nature background patterns.
  * All graphics are monochromatic (foreground vs background).
  */
 
@@ -20,12 +20,12 @@ import { recordSignal } from '#client/stores/intentionEngine'
 // Constants
 // ---------------------------------------------------------------------------
 
-/** Logical pixel grid: 32×32 cells rendered into ~76×76 CSS pixels (≈2cm @96dpi) */
-const GRID = 32
-const CELL = 2 // each logical cell = 2×2 canvas pixels
+/** Logical pixel grid: 64×64 cells rendered into ~76×76 CSS pixels (≈2cm @96dpi) */
+const GRID = 64
+const CELL = 1 // each logical cell = 1×1 canvas pixel (high density)
 const SIZE = GRID * CELL // 64 canvas pixels
 const CSS_SIZE = 76 // ≈ 2cm at 96 dpi
-const TICK_MS = 180 // game tick speed
+const TICK_MS = 150 // game tick speed
 
 // ---------------------------------------------------------------------------
 // Shared helpers
@@ -47,6 +47,81 @@ function clearGrid(ctx: CanvasRenderingContext2D, _bg: string, w: number, h: num
 function drawCell(ctx: CanvasRenderingContext2D, x: number, y: number, fg: string) {
   ctx.fillStyle = fg
   ctx.fillRect(x * CELL, y * CELL, CELL, CELL)
+}
+
+// ---------------------------------------------------------------------------
+// Nature background patterns (subtle, drawn at low opacity)
+// ---------------------------------------------------------------------------
+
+function drawNatureBg(ctx: CanvasRenderingContext2D, gameId: GameId, fg: string) {
+  ctx.globalAlpha = 0.08
+
+  if (gameId === 'tetris') {
+    // Morning: small trees / hills along bottom
+    // Rolling hills
+    for (let x = 0; x < GRID; x++) {
+      const hillH = Math.floor(3 + 2 * Math.sin(x * 0.15) + Math.sin(x * 0.3))
+      for (let y = GRID - hillH; y < GRID; y++) {
+        drawCell(ctx, x, y, fg)
+      }
+    }
+    // Small trees
+    const trees = [8, 22, 38, 52]
+    for (const tx of trees) {
+      const base = GRID - Math.floor(3 + 2 * Math.sin(tx * 0.15) + Math.sin(tx * 0.3))
+      // Trunk
+      drawCell(ctx, tx, base - 1, fg)
+      drawCell(ctx, tx, base - 2, fg)
+      // Canopy
+      drawCell(ctx, tx - 1, base - 3, fg)
+      drawCell(ctx, tx, base - 3, fg)
+      drawCell(ctx, tx + 1, base - 3, fg)
+      drawCell(ctx, tx, base - 4, fg)
+    }
+  } else if (gameId === 'invaders') {
+    // Afternoon: clouds and sun rays
+    // Small clouds
+    const clouds = [{ x: 5, y: 4 }, { x: 30, y: 7 }, { x: 50, y: 3 }]
+    for (const c of clouds) {
+      drawCell(ctx, c.x, c.y, fg)
+      drawCell(ctx, c.x + 1, c.y, fg)
+      drawCell(ctx, c.x + 2, c.y, fg)
+      drawCell(ctx, c.x - 1, c.y, fg)
+      drawCell(ctx, c.x, c.y - 1, fg)
+      drawCell(ctx, c.x + 1, c.y - 1, fg)
+    }
+    // Sun in corner
+    drawCell(ctx, 58, 4, fg)
+    drawCell(ctx, 59, 4, fg)
+    drawCell(ctx, 58, 5, fg)
+    drawCell(ctx, 59, 5, fg)
+    drawCell(ctx, 57, 4, fg)
+    drawCell(ctx, 60, 5, fg)
+    drawCell(ctx, 58, 3, fg)
+    drawCell(ctx, 59, 6, fg)
+  } else {
+    // Evening: stars and moon
+    // Scattered stars (seeded pattern)
+    const stars = [
+      3, 5, 10, 2, 18, 8, 25, 3, 33, 12, 40, 6, 47, 9,
+      55, 4, 7, 15, 20, 18, 35, 7, 45, 14, 58, 11, 12, 22,
+      50, 20, 28, 16, 42, 2, 60, 8, 15, 10, 38, 18
+    ]
+    for (let i = 0; i < stars.length - 1; i += 2) {
+      drawCell(ctx, stars[i], stars[i + 1], fg)
+    }
+    // Crescent moon
+    drawCell(ctx, 54, 6, fg)
+    drawCell(ctx, 55, 5, fg)
+    drawCell(ctx, 56, 5, fg)
+    drawCell(ctx, 57, 6, fg)
+    drawCell(ctx, 57, 7, fg)
+    drawCell(ctx, 56, 8, fg)
+    drawCell(ctx, 55, 8, fg)
+    drawCell(ctx, 54, 7, fg)
+  }
+
+  ctx.globalAlpha = 1.0
 }
 
 // ---------------------------------------------------------------------------
@@ -180,9 +255,9 @@ type InvadersState = {
 
 function initInvaders(): InvadersState {
   const invaders: Invader[] = []
-  for (let row = 0; row < 3; row++)
-    for (let col = 0; col < 7; col++)
-      invaders.push({ x: 3 + col * 4, y: 2 + row * 4, alive: true })
+  for (let row = 0; row < 4; row++)
+    for (let col = 0; col < 8; col++)
+      invaders.push({ x: 6 + col * 7, y: 4 + row * 6, alive: true })
   return { player: Math.floor(GRID / 2), invaders, bullets: [], enemyBullets: [], dir: 1, score: 0, over: false, tick: 0 }
 }
 
@@ -198,13 +273,13 @@ function tickInvaders(s: InvadersState): InvadersState {
 
   // Bullet-invader collision
   bullets = bullets.filter(b => {
-    const hit = invaders.find(i => i.alive && Math.abs(i.x - b.x) < 2 && Math.abs(i.y - b.y) < 2)
+    const hit = invaders.find(i => i.alive && Math.abs(i.x - b.x) < 3 && Math.abs(i.y - b.y) < 3)
     if (hit) { hit.alive = false; score++; return false }
     return true
   })
 
   // Enemy bullet-player collision
-  const playerHit = enemyBullets.some(b => Math.abs(b.x - player) < 2 && b.y >= GRID - 2)
+  const playerHit = enemyBullets.some(b => Math.abs(b.x - player) < 3 && b.y >= GRID - 3)
   if (playerHit) return { ...s, over: true }
 
   // Move invaders every 3 ticks
@@ -229,7 +304,7 @@ function tickInvaders(s: InvadersState): InvadersState {
   }
 
   // Invaders reached bottom?
-  if (alive.some(i => i.y >= GRID - 3)) return { ...s, over: true }
+  if (alive.some(i => i.y >= GRID - 5)) return { ...s, over: true }
 
   // All dead → reset with score kept
   if (alive.length === 0) {
@@ -242,29 +317,38 @@ function tickInvaders(s: InvadersState): InvadersState {
 
 function moveInvaders(s: InvadersState, dir: 'left' | 'right' | 'shoot'): InvadersState {
   if (s.over) return s
-  if (dir === 'left') return { ...s, player: Math.max(1, s.player - 2) }
-  if (dir === 'right') return { ...s, player: Math.min(GRID - 2, s.player + 2) }
-  if (dir === 'shoot') return { ...s, bullets: [...s.bullets, { x: s.player, y: GRID - 3 }] }
+  if (dir === 'left') return { ...s, player: Math.max(2, s.player - 3) }
+  if (dir === 'right') return { ...s, player: Math.min(GRID - 3, s.player + 3) }
+  if (dir === 'shoot') return { ...s, bullets: [...s.bullets, { x: s.player, y: GRID - 5 }] }
   return s
 }
 
 function drawInvaders(ctx: CanvasRenderingContext2D, s: InvadersState, fg: string) {
-  // Player
-  drawCell(ctx, s.player, GRID - 1, fg)
-  drawCell(ctx, s.player - 1, GRID - 1, fg)
-  drawCell(ctx, s.player + 1, GRID - 1, fg)
-  drawCell(ctx, s.player, GRID - 2, fg)
-  // Invaders
+  // Player — wider ship
+  for (let dx = -2; dx <= 2; dx++) drawCell(ctx, s.player + dx, GRID - 2, fg)
+  drawCell(ctx, s.player, GRID - 3, fg)
+  drawCell(ctx, s.player - 1, GRID - 3, fg)
+  drawCell(ctx, s.player + 1, GRID - 3, fg)
+  drawCell(ctx, s.player, GRID - 4, fg)
+  // Invaders — 3×2 sprites
   for (const i of s.invaders)
     if (i.alive) {
-      drawCell(ctx, i.x, i.y, fg)
       drawCell(ctx, i.x - 1, i.y, fg)
+      drawCell(ctx, i.x, i.y, fg)
       drawCell(ctx, i.x + 1, i.y, fg)
+      drawCell(ctx, i.x - 1, i.y + 1, fg)
+      drawCell(ctx, i.x + 1, i.y + 1, fg)
     }
   // Bullets
-  for (const b of s.bullets) drawCell(ctx, b.x, b.y, fg)
+  for (const b of s.bullets) {
+    drawCell(ctx, b.x, b.y, fg)
+    drawCell(ctx, b.x, b.y + 1, fg)
+  }
   // Enemy bullets
-  for (const b of s.enemyBullets) drawCell(ctx, b.x, b.y, fg)
+  for (const b of s.enemyBullets) {
+    drawCell(ctx, b.x, b.y, fg)
+    drawCell(ctx, b.x, b.y - 1, fg)
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -383,6 +467,9 @@ export function MicroGameWidget() {
       const { fg, bg } = getMonoColors(canvas)
       clearGrid(ctx, bg, SIZE, SIZE)
 
+      // Nature background layer
+      drawNatureBg(ctx, gameId, fg)
+
       if (gameId === 'tetris') {
         tetrisRef.current = tickTetris(tetrisRef.current)
         drawTetris(ctx, tetrisRef.current, fg)
@@ -464,8 +551,30 @@ export function MicroGameWidget() {
     }
   }
 
+  // Controller action handlers
+  const handleLeft = () => {
+    if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, 'left')
+    else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'left')
+    else snakeRef.current = moveSnake(snakeRef.current, 'left')
+  }
+  const handleRight = () => {
+    if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, 'right')
+    else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'right')
+    else snakeRef.current = moveSnake(snakeRef.current, 'right')
+  }
+  const handleUp = () => {
+    if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, 'rotate')
+    else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'shoot')
+    else snakeRef.current = moveSnake(snakeRef.current, 'up')
+  }
+  const handleDown = () => {
+    if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, 'drop')
+    else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'shoot')
+    else snakeRef.current = moveSnake(snakeRef.current, 'down')
+  }
+
   return (
-    <Block label="Micro Game:" blockView>
+    <Block label="Micro Game:" blockView onLabelClick={switchGame}>
       <div className="max-w-[200px]">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
@@ -501,18 +610,31 @@ export function MicroGameWidget() {
           />
         </div>
 
-        {/* Controls hint */}
-        <div className="mt-4 opacity-20 text-[10px] leading-tight">
-          {gameId === 'tetris' && '← → rotate:↑ drop:↓'}
-          {gameId === 'invaders' && '← → shoot:↑/space'}
-          {gameId === 'snake' && '← → ↑ ↓'}
-          {' · '}
-          <button
-            className="cursor-pointer underline"
-            onClick={() => setPaused(p => !p)}
-          >
-            {paused ? 'play' : 'pause'}
-          </button>
+        {/* Controller buttons */}
+        <div className="mt-8 flex items-start justify-between gap-8">
+          {/* D-pad */}
+          <div className="flex flex-col items-center gap-2">
+            <Button onClick={handleUp}>
+              {gameId === 'tetris' ? '\u21BB' : gameId === 'invaders' ? '\u2022' : '\u2191'}
+            </Button>
+            <div className="flex gap-4">
+              <Button onClick={handleLeft}>{'\u2190'}</Button>
+              <Button onClick={handleRight}>{'\u2192'}</Button>
+            </div>
+            <Button onClick={handleDown}>
+              {gameId === 'tetris' ? '\u2193' : gameId === 'invaders' ? '\u2022' : '\u2193'}
+            </Button>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-col items-center gap-4">
+            <Button onClick={() => setPaused(p => !p)}>
+              {paused ? '\u25B6' : '\u23F8'}
+            </Button>
+            <Button onClick={switchGame}>
+              \u21C4
+            </Button>
+          </div>
         </div>
       </div>
     </Block>
