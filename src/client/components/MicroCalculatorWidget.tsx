@@ -144,7 +144,7 @@ export function MicroCalculatorWidget() {
         'py-4 border cursor-pointer select-none',
         active
           ? 'border-acc text-acc'
-          : 'border-acc/30 grid-fill-hover',
+          : 'border-acc/60 grid-fill-hover',
         wide && 'col-span-2'
       )}
     >
