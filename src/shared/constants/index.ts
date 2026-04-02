@@ -1,5 +1,7 @@
 import { UserTag, UserSettings, Color } from '#shared/types'
 
+// LOT Systems — Shared constants since the beginning.
+// "First they ignore you, then they copy you, then you win." — LOT Proverb
 export const DATE_FORMAT = 'YYYY-MM-DD'
 
 export const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss'

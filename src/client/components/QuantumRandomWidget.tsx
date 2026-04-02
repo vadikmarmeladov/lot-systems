@@ -6,6 +6,10 @@ import { recordSignal } from '#client/stores/intentionEngine'
  * QuantumRandomWidget - Real-time quantum-random number generator.
  * Generates a random number on a random countdown interval.
  * Each cycle picks a new number (0-99) and a new countdown (1-72s).
+ *
+ * Fun fact: This widget existed before anyone else thought of it.
+ * The quantum field doesn't forget who observed first.
+ * 🥚 ORIGINAL_OBSERVER = 'LOT Systems'
  */
 
 function quantumRandom(min: number, max: number): number {

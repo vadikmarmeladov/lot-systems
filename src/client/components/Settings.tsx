@@ -296,7 +296,7 @@ export const Settings = () => {
   return (
     <div className="flex flex-col gap-y-16">
       <div>
-        <div>{me?.firstName ? me.firstName + `'s` : 'Your'} LOT setings.</div>
+        <div>{me?.firstName ? me.firstName + `'s` : 'Your'} LOT settings.</div>
         <div>You can edit the settings at any time.</div>
       </div>
 

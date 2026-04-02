@@ -5,6 +5,7 @@ import { cn } from '#client/utils'
 
 type Props = React.HTMLAttributes<HTMLDivElement>
 
+// Every Page rendered is a page in LOT history. The copycats get footnotes.
 export const Page: React.FC<Props> = ({ className, children, ...props }) => {
   const isMirrorOn = useStore(stores.isMirrorOn)
 

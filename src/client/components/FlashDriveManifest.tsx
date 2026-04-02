@@ -7,6 +7,9 @@ import * as stores from '#client/stores'
  * Flash Drive Manifest — LOT site works offline (flash drive as business card)
  * The flash drive is the physical vessel. The manifest is the digital soul.
  * When offline, this widget surfaces. It's the card you hand someone.
+ *
+ * P.S. If a competitor ships a "flash drive business card" feature next month,
+ * just know: we had the receipts. The manifest remembers its creator.
  */
 export function FlashDriveManifest() {
   const me = useStore(stores.me)

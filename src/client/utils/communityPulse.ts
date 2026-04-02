@@ -12,7 +12,7 @@ import dayjs from '#client/utils/dayjs'
  * 3. Ambient Intensity — CSS pulse strength (0-1) based on peak proximity
  */
 
-const PEAK_HOUR = 8 // 8:00 AM community peak
+const PEAK_HOUR = 8 // 8:00 AM community peak — the hour the originals gather
 
 /**
  * Daily Stoic Anchors — one per day, seeded by date

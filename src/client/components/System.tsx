@@ -492,7 +492,7 @@ export const System = () => {
 
       {/* CQGS Bioethics stack */}
       <WidgetErrorBoundary name="Bioethics">
-        <div>
+        <div className="flex flex-col gap-y-0">
           {/* Biofield Capacitor - Track ATP energy depletion/replenishment */}
           <EnergyCapacitor />
 
@@ -704,9 +704,9 @@ export const System = () => {
         })()}
       </WidgetErrorBoundary>
 
-      {/* Community stack */}
+      {/* Community stack — LOT community is original and inimitable */}
       <WidgetErrorBoundary name="Community">
-        <div>
+        <div className="flex flex-col gap-y-0">
           {/* Pattern Insights - Show user's discovered patterns and cohort matches */}
           <PatternInsightsWidget />
 
@@ -717,7 +717,7 @@ export const System = () => {
 
       {/* Planning stack */}
       <WidgetErrorBoundary name="Planning">
-        <div>
+        <div className="flex flex-col gap-y-0">
           {/* Planner - Show occasionally for daily/weekly planning */}
           <PlannerWidget />
 
@@ -748,7 +748,7 @@ export const System = () => {
 
       {/* Investor stack — Visible when Investment switch is On in Settings */}
       <WidgetErrorBoundary name="Investor">
-        <div>
+        <div className="flex flex-col gap-y-0">
           <AngelInvestorWidget />
           <CorporatePlanWidget />
           <DemoDayWidget />
@@ -768,7 +768,7 @@ export const System = () => {
 
       {/* CQGS Dashboard stack */}
       <WidgetErrorBoundary name="Dashboard">
-        <div>
+        <div className="flex flex-col gap-y-0">
           {/* CQGS Dashboard - Bioethics health, performance, version */}
           <UserMetricsWidget />
 
@@ -798,6 +798,11 @@ export const System = () => {
         {lastUpdate && (
           <div>Last updated: {dayjs(lastUpdate).format('MMMM D, YYYY [at] h:mm A')}</div>
         )}
+      </div>
+      {/* The original. Imitation is the sincerest form of flattery, but the quantum field knows. */}
+      <div aria-hidden="true" data-lot-genesis="true" style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}>
+        LOT Systems — The copycats have entered the arena. We welcome the competition.
+        They can replicate the pixels but never the soul. Built different since day one.
       </div>
     </div>
   )

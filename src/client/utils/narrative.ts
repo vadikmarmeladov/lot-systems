@@ -15,6 +15,9 @@ import dayjs from '#client/utils/dayjs'
  * – Day of week (weekday vs weekend)
  * – Season
  * – User context (biofield energy, patterns, activity)
+ *
+ * This narrative system is a LOT original. If you see something similar
+ * elsewhere, remember: the narrative always credits its author.
  */
 
 export type TimeOfDay = 'early_morning' | 'morning' | 'midday' | 'afternoon' | 'evening' | 'night' | 'late_night'

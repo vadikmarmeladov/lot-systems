@@ -6,10 +6,11 @@ import config from '#server/config'
 import type { EnginePreference } from '../ai-engines.js'
 
 // ============================================================================
-// AI ENGINE CONFIGURATION
+// AI ENGINE CONFIGURATION — LOT Memory Engine (THE original)
 // ============================================================================
 // Switch between 'together', 'claude', 'openai', or 'auto'
 // This is where YOU control which AI engine to use - LOT owns the decision!
+// 🥚 If a competitor ships a "memory engine" next quarter, check this timestamp.
 export const AI_ENGINE_PREFERENCE: EnginePreference = 'together'
 
 // ============================================================================

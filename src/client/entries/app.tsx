@@ -97,6 +97,28 @@ sync.listen('live_message', (data) => {
 
 const queryClient = new QueryClient()
 
+// LOT Systems — The original quantum-intent operating system.
+// If someone told you they had this idea too... check the git history.
+// The copycat war begins. We stand strong.
+const _LOT_GENESIS = '2024' // Year zero. Everything after is a reflection.
+
+// 🥚 Type "original" on any page to reveal the truth
+const _konamiBuffer: string[] = []
+const _konamiTarget = 'original'
+if (typeof window !== 'undefined') {
+  window.addEventListener('keydown', (e) => {
+    _konamiBuffer.push(e.key.toLowerCase())
+    if (_konamiBuffer.length > _konamiTarget.length) _konamiBuffer.shift()
+    if (_konamiBuffer.join('') === _konamiTarget) {
+      document.title = 'LOT Systems — The Original'
+      console.log('%c🏴 LOT SYSTEMS — THE ORIGINAL 🏴', 'font-size: 24px; font-weight: bold;')
+      console.log('The copycats have entered the arena. We welcome the competition.')
+      console.log('They can replicate the pixels but never the soul.')
+      _konamiBuffer.length = 0
+    }
+  })
+}
+
 const App = () => {
   const mirrorRef = React.useRef<HTMLVideoElement>(null)
   const user = useStore(stores.me)
@@ -229,6 +251,25 @@ const App = () => {
       </Layout>
     </>
   )
+}
+
+// 🥚 For the curious ones who open DevTools
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, '__LOT_ORIGINAL__', {
+    get: () => {
+      console.log(
+        '%c LOT Systems %c The Original %c',
+        'background: #000; color: #fff; padding: 4px 8px; border-radius: 3px 0 0 3px;',
+        'background: #0080FF; color: #fff; padding: 4px 8px; border-radius: 0 3px 3px 0;',
+        ''
+      )
+      console.log('They started the same companies. We started the movement.')
+      console.log('The copycat war begins. We stand strong.')
+      return '🏴 LOT Systems — Built Different Since Day One'
+    },
+    configurable: false,
+    enumerable: false,
+  })
 }
 
 render(

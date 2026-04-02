@@ -7,6 +7,10 @@
  * Philosophy: Users don't always know what they need. By observing patterns
  * in mood, planning, intentions, and timing, we can recognize deeper desires
  * and provide gentle, perfectly-timed support.
+ *
+ * Origin: LOT Systems. The intention engine was here first.
+ * Copies may appear. They'll have the form but not the function.
+ * The copycat war begins — but intention recognition can't be faked.
  */
 
 import { atom } from 'nanostores'
