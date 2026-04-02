@@ -27,13 +27,11 @@ export const PatternInsightsWidget = () => {
     // Show message if user has started but needs more data
     if (patternsData?.message || cohortsData?.message) {
       return (
-        <div>
-          <Block label="Pattern Compiler:" blockView>
-            <div className="mb-8">
-              {patternsData?.message || cohortsData?.message}
-            </div>
-          </Block>
-        </div>
+        <Block label="Pattern Compiler:" blockView>
+          <div className="mb-8">
+            {patternsData?.message || cohortsData?.message}
+          </div>
+        </Block>
       )
     }
     return null
@@ -108,25 +106,24 @@ export const PatternInsightsWidget = () => {
   }
 
   return (
-    <div>
-      <Block
-        label={getLabel()}
-        onLabelClick={canCycleViews ? handleLabelClick : undefined}
-        blockView
-      >
+    <Block
+      label={getLabel()}
+      onLabelClick={canCycleViews ? handleLabelClick : undefined}
+      blockView
+    >
         {view === 'patterns' && hasPatterns && (
-          <div className="flex flex-col gap-12">
+          <div className="flex flex-col">
             {insights.map((insight, idx) => (
-              <div key={idx} className="inline-block">
+              <div key={idx}>
                 <div
-                  className="mb-8 cursor-pointer"
+                  className="mb-4 cursor-pointer"
                   onClick={() => setSelectedInsight(selectedInsight === idx ? null : idx)}
                 >
                   {insight.title}
                 </div>
-                <div className="opacity-60">{insight.description}</div>
+                <div className="opacity-30">{insight.description}</div>
                 {insight.dataPoints && (
-                  <div className="mt-4 opacity-40">
+                  <div className="mt-4 opacity-30">
                     Compiled from {insight.dataPoints} data point{insight.dataPoints > 1 ? 's' : ''}.
                   </div>
                 )}
@@ -147,27 +144,27 @@ export const PatternInsightsWidget = () => {
         )}
 
         {view === 'cohorts' && hasCohorts && (
-          <div className="flex flex-col gap-12">
-            <div className="mb-8 opacity-60">
+          <div className="flex flex-col">
+            <div className="opacity-30">
               Users with correlated behavioral signatures:
             </div>
             {matches.map((match, idx) => (
-              <div key={idx} className="inline-block">
-                <div className="mb-8">
+              <div key={idx}>
+                <div className="mb-4">
                   <GhostButton href={`/@${match.user.id}`} rel="external">
                     {match.user.firstName} {match.user.lastName}
                   </GhostButton>
                   {match.user.archetype && (
-                    <span className="opacity-60"> . {match.user.archetype}</span>
+                    <span className="opacity-30"> • {match.user.archetype}</span>
                   )}
                 </div>
-                <div className="mb-4 opacity-60">
+                <div className="opacity-30">
                   {match.user.city}, {match.user.country}
                 </div>
                 {match.sharedPatterns.length > 0 && (
                   <div className="flex flex-col gap-2">
                     {match.sharedPatterns.map((pattern, pidx) => (
-                      <div key={pidx} className="opacity-60">{pattern}</div>
+                      <div key={pidx} className="opacity-30">{pattern}</div>
                     ))}
                   </div>
                 )}
@@ -177,23 +174,23 @@ export const PatternInsightsWidget = () => {
         )}
 
         {view === 'evolution' && hasEvolution && (
-          <div className="flex flex-col gap-12">
-            <div className="mb-8 opacity-60">
+          <div className="flex flex-col">
+            <div className="opacity-30">
               Pattern delta over observed windows:
             </div>
             {evolution.slice(0, 3).map((evo, idx) => (
-              <div key={idx} className="inline-block">
-                <div className="mb-8">
+              <div key={idx}>
+                <div className="mb-4">
                   {evo.patternTitle}
                 </div>
-                <div className="mb-4 opacity-60">
+                <div className="opacity-30">
                   {evo.trend === 'strengthening' && 'Signal strengthening. Pattern compiling.'}
                   {evo.trend === 'stable' && 'Stable oscillation. Pattern integrated.'}
                   {evo.trend === 'weakening' && 'Signal attenuating. Pattern deprecating.'}
                   {evo.trend === 'emerging' && 'New signal detected. Pattern initializing.'}
                 </div>
                 {evo.timeline.length > 0 && (
-                  <div className="opacity-40">
+                  <div className="opacity-30">
                     {evo.timeline.length} observation{evo.timeline.length > 1 ? 's' : ''} from{' '}
                     {dayjs(evo.lastSeen).subtract(7, 'day').format('MMM D')} to {dayjs(evo.lastSeen).format('MMM D')}
                   </div>
@@ -202,7 +199,6 @@ export const PatternInsightsWidget = () => {
             ))}
           </div>
         )}
-      </Block>
-    </div>
+    </Block>
   )
 }

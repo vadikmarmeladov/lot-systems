@@ -23,8 +23,10 @@ type EmotionalState =
   | 'uncertain'
 
 /**
- * Emotional Check-In Widget - Clickable cycling through check-in, history, patterns
- * Pattern: Check-In > History > Patterns
+ * Biofield Check-In Widget - Emotional state as biofield emission
+ * CQGS Bioethics: Laughter is the primary metric of a healthy human being.
+ * Genuine laughter can't be faked and is always a result of curiosity.
+ * Pattern: Check-In > History > Patterns > Graph
  */
 export function EmotionalCheckIn() {
   const [view, setView] = React.useState<CheckInView>('prompt')
@@ -139,7 +141,7 @@ export function EmotionalCheckIn() {
   if (!shouldRender || !isDisplayed) return null
 
   const label =
-    view === 'prompt' ? 'Mood:' :
+    view === 'prompt' ? 'Biofield:' :
     view === 'history' ? 'History:' :
     view === 'patterns' ? 'Patterns:' :
     'Graph:'
@@ -176,9 +178,9 @@ export function EmotionalCheckIn() {
                 'mb-16 transition-opacity duration-[1400ms]',
                 isPromptShown ? 'opacity-100' : 'opacity-0'
               )}>
-                {checkInLabel === 'Morning' && 'How is your morning?'}
-                {checkInLabel === 'Evening' && 'How is your evening?'}
-                {checkInLabel === 'Right Now' && 'How are you right now?'}
+                {checkInLabel === 'Morning' && 'Morning biofield reading. How is your state?'}
+                {checkInLabel === 'Evening' && 'Evening biofield reading. How is your state?'}
+                {checkInLabel === 'Right Now' && 'Current biofield emission. How are you?'}
               </div>
               <div className="flex flex-wrap gap-8">
                 <Button
@@ -275,7 +277,7 @@ export function EmotionalCheckIn() {
               {insight && insight.length > 0 && (
                 <div>
                   {insight.map((i, idx) => (
-                    <div key={idx}>• {i}</div>
+                    <div key={idx}>. {i}</div>
                   ))}
                 </div>
               )}
@@ -285,9 +287,9 @@ export function EmotionalCheckIn() {
       )}
 
       {view === 'history' && checkInsData && (
-        <div className="inline-block">
+        <div>
           {checkInsData.checkIns.length === 0 ? (
-            <div>No check-ins yet. Start tracking your mood.</div>
+            <div>No biofield readings yet. Start logging your state.</div>
           ) : (
             <div className="flex flex-col gap-4">
               {checkInsData.checkIns.slice(0, 5).map((checkIn: any) => {
@@ -310,17 +312,12 @@ export function EmotionalCheckIn() {
       )}
 
       {view === 'patterns' && checkInsData?.stats && (
-        <div className="inline-block">
+        <div>
           {checkInsData.stats.total === 0 ? (
-            <div>Check in more to see patterns.</div>
+            <div>Log more readings to see biofield patterns.</div>
           ) : (
             <>
-              <div className="mb-12">
-                <div className="flex items-center gap-8">
-                  <span className="text-xl">{checkInsData.stats.total}</span>
-                  <span>Check-ins</span>
-                </div>
-              </div>
+              <div className="mb-8">{checkInsData.stats.total} Biofield readings</div>
               {checkInsData.stats.dominantMood && (
                 <div>
                   Most common: <span className="capitalize">{checkInsData.stats.dominantMood}</span>
@@ -332,9 +329,9 @@ export function EmotionalCheckIn() {
       )}
 
       {view === 'graph' && checkInsData && (
-        <div className="inline-block">
+        <div>
           {checkInsData.checkIns.length === 0 ? (
-            <div>Check in more to see your mood timeline.</div>
+            <div>Log more biofield readings to see your timeline.</div>
           ) : (
             <div className="flex flex-col gap-4">
               {(() => {
@@ -374,7 +371,7 @@ export function EmotionalCheckIn() {
                     return (
                       <div key={date} className="flex items-center gap-8">
                         <span className="w-[60px]">{dayLabel}</span>
-                        <span className="opacity-60">−</span>
+                        <span className="opacity-30">−</span>
                       </div>
                     )
                   }

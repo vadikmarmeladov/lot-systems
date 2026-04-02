@@ -37,7 +37,7 @@ export type Models = {
   Answer: typeof Answer
 }
 
-User.hasOne(Session)
+User.hasMany(Session)
 
 Session.belongsTo(User, {
   targetKey: 'id',

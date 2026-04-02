@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Block, Button, GhostButton, Tag, TagsContainer } from '#client/components/ui'
-import { PublicProfile as PublicProfileType } from '#shared/types'
+import { PublicProfile as PublicProfileType, WeatherStation, Wallet } from '#shared/types'
 import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
@@ -173,7 +173,7 @@ export const PublicProfile = () => {
     .join(' ') || 'Anonymous'
 
   // Format current date
-  const currentDate = dayjs().format('dddd, D MMMM, YYYY')
+  const currentDate = `Week ${Math.ceil(dayjs().dayOfYear() / 7)}, ${dayjs().format('dddd, MMMM D')}`
 
   // Check if profile is private
   if (profile.isPrivate) {
@@ -276,6 +276,45 @@ export const PublicProfile = () => {
           </div>
         )}
 
+        {/* Usership Board Profile */}
+        {profile.boardProfile && (
+          <div>
+            <Block label="Total invested:">
+              ${formatNumberWithCommas(profile.boardProfile.totalInvested)}
+            </Block>
+            <Block label="Citizen Index:" blockView>
+              {[
+                `Board Member #${profile.boardProfile.boardMemberNumber}`,
+                `Citizen since ${profile.boardProfile.citizenSince}`,
+                `Powering ${formatNumberWithCommas(profile.boardProfile.poweringCitizens)} citizens`,
+                `Board tenure ${profile.boardProfile.boardTenureMonths} months`,
+              ].join(' • ')}
+            </Block>
+            {profile.boardProfile.biofieldState && (
+              <Block label="Biofield State:">
+                {[
+                  profile.boardProfile.biofieldState.clarity,
+                  profile.boardProfile.biofieldState.alignment,
+                  `${profile.boardProfile.biofieldState.energy} energy`,
+                ].map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' • ')}
+              </Block>
+            )}
+            <Block label="Activity:">
+              {[
+                `${formatNumberWithCommas(profile.boardProfile.activity.memoriesCompiled)} memories compiled`,
+                `${formatNumberWithCommas(profile.boardProfile.activity.journalEntries)} journal entries`,
+                `${formatNumberWithCommas(profile.boardProfile.activity.activeDays)} active days`,
+              ].join(' • ')}
+            </Block>
+            <Block label="Memory Engine:">
+              {profile.boardProfile.memoryEngine}
+            </Block>
+            <Block label="Clearance level:">
+              {profile.boardProfile.clearanceLevel} ({formatNumberWithCommas(profile.boardProfile.totalEntries)} entries)
+            </Block>
+          </div>
+        )}
+
         {/* Status items */}
         <div>
           {privacySettings.showLocalTime && profile.localTime && (
@@ -331,7 +370,7 @@ export const PublicProfile = () => {
                 {profile.psychologicalProfile.archetype && (
                   <div className="mb-24">
                     <div className="flex">
-                      <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Soul archetype:</span>
+                      <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Soul archetype:</span>
                       <span className="flex-1">
                         {profile.psychologicalProfile.archetype}
                         {profile.psychologicalProfile.archetypeDescription && (
@@ -347,7 +386,7 @@ export const PublicProfile = () => {
                 {/* Self-Awareness Level */}
                 {profile.psychologicalProfile.selfAwarenessLevel !== undefined && (
                   <div className="flex mb-24">
-                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Self-awareness:</span>
+                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Self-awareness:</span>
                     <span className="flex-1">{(profile.psychologicalProfile.selfAwarenessLevel / 10).toFixed(1)}%</span>
                   </div>
                 )}
@@ -355,7 +394,7 @@ export const PublicProfile = () => {
                 {/* Level (Aquatic Evolution Badge) */}
                 {profile.psychologicalProfile.streak !== undefined && profile.psychologicalProfile.streak >= 7 && (
                   <div className="flex mb-24">
-                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Level:</span>
+                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Level:</span>
                     <span className="flex-1">{getLevelSymbol(profile.psychologicalProfile.streak)}</span>
                   </div>
                 )}
@@ -363,7 +402,7 @@ export const PublicProfile = () => {
                 {/* Core Values */}
                 {profile.psychologicalProfile.coreValues && profile.psychologicalProfile.coreValues.length > 0 && (
                   <div className="flex">
-                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Core values:</span>
+                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Core values:</span>
                     <span className="flex-1">{joinWithDots(profile.psychologicalProfile.coreValues)}</span>
                   </div>
                 )}
@@ -371,7 +410,7 @@ export const PublicProfile = () => {
                 {/* Emotional Patterns */}
                 {profile.psychologicalProfile.emotionalPatterns && profile.psychologicalProfile.emotionalPatterns.length > 0 && (
                   <div className="flex">
-                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Emotional patterns:</span>
+                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Emotional patterns:</span>
                     <span className="flex-1">{joinWithDots(profile.psychologicalProfile.emotionalPatterns)}</span>
                   </div>
                 )}
@@ -379,7 +418,7 @@ export const PublicProfile = () => {
                 {/* Behavioral Cohort */}
                 {profile.psychologicalProfile.behavioralCohort && (
                   <div className="flex">
-                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Behavioral cohort:</span>
+                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Behavioral cohort:</span>
                     <span className="flex-1">{profile.psychologicalProfile.behavioralCohort}</span>
                   </div>
                 )}
@@ -387,7 +426,7 @@ export const PublicProfile = () => {
                 {/* Behavioral Traits */}
                 {profile.psychologicalProfile.behavioralTraits && profile.psychologicalProfile.behavioralTraits.length > 0 && (
                   <div className="flex mb-24">
-                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Behavioral traits:</span>
+                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Behavioral traits:</span>
                     <span className="flex-1">{joinWithDots(profile.psychologicalProfile.behavioralTraits)}</span>
                   </div>
                 )}
@@ -396,12 +435,12 @@ export const PublicProfile = () => {
                 {profile.psychologicalProfile.patternStrength && profile.psychologicalProfile.patternStrength.length > 0 && (
                   <div>
                     <div className="flex mb-24">
-                      <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Pattern strength:</span>
+                      <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Pattern strength:</span>
                       <span className="flex-1">{profile.psychologicalProfile.patternStrengthIndex || profile.psychologicalProfile.patternStrength.reduce((sum: number, item: { count: number }) => sum + item.count, 0)}</span>
                     </div>
                     {profile.psychologicalProfile.patternStrength.map((item: { trait: string; count: number }, idx: number) => (
                       <div key={idx} className="flex">
-                        <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">{item.trait}:</span>
+                        <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">{item.trait}:</span>
                         <span className="flex-1">{item.count}</span>
                       </div>
                     ))}
@@ -413,13 +452,13 @@ export const PublicProfile = () => {
                   <div>
                     {profile.psychologicalProfile.answerCount !== undefined && (
                       <div className="flex">
-                        <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Answers:</span>
+                        <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Answers:</span>
                         <span className="flex-1">{profile.psychologicalProfile.answerCount}</span>
                       </div>
                     )}
                     {profile.psychologicalProfile.noteCount !== undefined && (
                       <div className="flex">
-                        <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4">Notes:</span>
+                        <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Notes:</span>
                         <span className="flex-1">{profile.psychologicalProfile.noteCount}</span>
                       </div>
                     )}
@@ -427,6 +466,100 @@ export const PublicProfile = () => {
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Legacy Level: Weather Station */}
+        {profile.weatherStation && (
+          <div>
+            <Block label="Weather Station:" blockView>
+              <div className="mb-8 opacity-50">{profile.weatherStation.location}</div>
+              <div className="flex flex-col gap-4 mb-16">
+                <div className="flex justify-between">
+                  <span>Temperature</span>
+                  <span>{Math.round(profile.weatherStation.readings.temperature)}℃</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Humidity</span>
+                  <span>{profile.weatherStation.readings.humidity}%</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Pressure</span>
+                  <span>{profile.weatherStation.readings.pressure} hPa</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Wind</span>
+                  <span>{profile.weatherStation.readings.windSpeed} m/s {profile.weatherStation.readings.windDirection}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>UV Index</span>
+                  <span>{profile.weatherStation.readings.uvIndex}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Visibility</span>
+                  <span>{profile.weatherStation.readings.visibility} km</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Dew Point</span>
+                  <span>{profile.weatherStation.readings.dewPoint}℃</span>
+                </div>
+              </div>
+              {profile.weatherStation.forecast.length > 0 && (
+                <div>
+                  <div className="mb-8 opacity-50">Forecast</div>
+                  <div className="flex flex-col gap-4">
+                    {profile.weatherStation.forecast.map((day, idx) => (
+                      <div key={idx} className="flex justify-between">
+                        <span className="flex-1">{day.day}, {day.condition}</span>
+                        <span>{day.low}–{day.high}℃</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+
+        {/* Legacy Level: Wallet */}
+        {profile.wallet && (
+          <div>
+            <Block label="Wallet:" blockView>
+              <div className="flex justify-between mb-4">
+                <span className="opacity-50">{profile.wallet.address}</span>
+              </div>
+              <div className="flex justify-between mb-16">
+                <span>Balance</span>
+                <span>{formatNumberWithCommas(profile.wallet.balance)} {profile.wallet.currency}</span>
+              </div>
+              <div className="flex justify-between mb-16">
+                <span>Loyalty Points</span>
+                <span>{formatNumberWithCommas(profile.wallet.loyaltyPoints)}</span>
+              </div>
+              {profile.wallet.transactions.length > 0 && (
+                <div>
+                  <div className="mb-8 opacity-50">Recent transactions</div>
+                  <div className="flex flex-col gap-4">
+                    {profile.wallet.transactions.map((tx) => (
+                      <div key={tx.id} className="flex justify-between gap-8">
+                        <span className="w-[80px] opacity-50">{tx.date.slice(5)}</span>
+                        <span className="flex-1">{tx.description}</span>
+                        <span className={tx.type === 'credit' ? '' : 'opacity-50'}>
+                          {tx.type === 'credit' ? '+' : '−'}{tx.amount.toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+
+        {/* Demo badge */}
+        {profile.isDemo && (
+          <div className="opacity-30">
+            This is a demo account. Legacy level features shown as preview.
           </div>
         )}
 

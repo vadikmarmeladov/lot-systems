@@ -173,6 +173,62 @@ export function generateContextualPrompts(
         })
       }
     }
+
+    // Cleanness-aware prompts — experimental CQGS first pillar integration
+    if (pattern.type === 'streak') {
+      const streakState = pattern.metadata?.state
+      const streakLength = pattern.metadata?.length
+
+      // When streak breaks, encourage cleanness as re-entry point
+      if (streakState === 'broken' || (streakLength && streakLength === 0)) {
+        prompts.push({
+          type: 'suggestion',
+          title: 'Cleanness reset',
+          message: 'Start small. One clean surface, one fresh beginning. Cleanness is the gentlest way back into routine.',
+          action: {
+            label: 'Begin',
+            target: 'log'
+          },
+          priority: 6,
+          triggeredBy: 'cleanness-reentry'
+        })
+      }
+    }
+
+    // Time-based cleanness prompts
+    if (pattern.type === 'temporal') {
+      const peakHour = pattern.metadata?.peakHour
+
+      // Morning cleanness nudge during high-energy mornings
+      if (peakHour && peakHour >= 6 && peakHour <= 10 && currentContext.hour >= 6 && currentContext.hour <= 10) {
+        prompts.push({
+          type: 'suggestion',
+          title: 'Morning cleanness',
+          message: 'Your mornings carry high energy. Channel a few minutes into cleanness — it compounds all day.',
+          action: {
+            label: 'Note it',
+            target: 'log'
+          },
+          priority: 5,
+          triggeredBy: 'cleanness-morning-energy'
+        })
+      }
+
+      // Evening cleanness prompt
+      if (currentContext.hour >= 19 && currentContext.hour <= 22) {
+        prompts.push({
+          type: 'suggestion',
+          title: 'Evening reset',
+          message: 'Before rest, reset one space. The biofield compiles overnight on clean surfaces.',
+          action: {
+            label: 'Log it',
+            target: 'log'
+          },
+          priority: 4,
+          triggeredBy: 'cleanness-evening-reset'
+        })
+      }
+    }
   }
 
   // Sort by priority and limit to top 3

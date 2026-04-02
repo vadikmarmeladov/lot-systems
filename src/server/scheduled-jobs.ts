@@ -68,18 +68,25 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
   try {
     // Dynamic import to avoid circular dependencies
     const { sendEmail } = await import('#server/utils/email.js')
-    const { generateMonthlySummary, generateMonthlyEmailBody, shouldShowMonthlySummary } = await import('#server/utils/monthly-summary.js')
+    const { generateMonthlySummary, generateMonthlyEmailBody, generateMonthlyEmailHtml, shouldShowMonthlySummary } = await import('#server/utils/monthly-summary.js')
     const { User } = await import('#server/models/user.js')
     const { Log } = await import('#server/models/log.js')
     const { Op } = await import('sequelize')
 
-    // Find all active users with Usership
-    const sixtyDaysAgo = dayjs().subtract(60, 'day').toDate()
+    // Find active users: 3+ months old, recently active (seen in last 7 days)
+    // These are dedicated users with near-daily engagement
+    const threeMonthsAgo = dayjs().subtract(3, 'month').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
 
     const activeUsers = await User.findAll({
       where: {
+        // Must have joined 3+ months ago
+        joinedAt: {
+          [Op.lte]: threeMonthsAgo
+        },
+        // Must be recently active (within last 7 days — proxy for near-daily)
         lastSeenAt: {
-          [Op.gte]: sixtyDaysAgo
+          [Op.gte]: sevenDaysAgo
         },
         // Only send to users with Usership tag
         tags: {
@@ -89,7 +96,7 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
       order: [['lastSeenAt', 'DESC']]
     })
 
-    console.log(`👥 Found ${activeUsers.length} active Usership users`)
+    console.log(`👥 Found ${activeUsers.length} active users (3+ months, near-daily)`)
     console.log('')
 
     const results = {
@@ -98,6 +105,16 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
       skipped: 0,
       failed: 0,
       details: [] as any[]
+    }
+
+    // Theme defaults matching the profile page
+    const THEMES: Record<string, { base: string; acc: string }> = {
+      light: { base: '#ffffff', acc: '#000000' },
+      dark: { base: '#000000', acc: '#ffffff' },
+      sunrise: { base: '#ffd266', acc: '#ffffff' },
+      sunset: { base: '#FF8758', acc: '#ffffff' },
+      fill_blue: { base: '#82CBF8', acc: '#ffffff' },
+      light_red: { base: '#FFF9F9', acc: '#E86575' },
     }
 
     // Process each user
@@ -128,6 +145,29 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
           limit: 1000
         })
 
+        // Verify near-daily engagement over last 3 months
+        const threeMonthLogs = logs.filter((l: any) =>
+          dayjs(l.createdAt).isAfter(dayjs().subtract(3, 'month'))
+        )
+        const uniqueActiveDays = new Set(
+          threeMonthLogs.map((l: any) => dayjs(l.createdAt).format('YYYY-MM-DD'))
+        ).size
+        const totalDaysInPeriod = 90
+        const dailyRatio = uniqueActiveDays / totalDaysInPeriod
+
+        // Require ~everyday login: at least 60% of days active over 3 months
+        if (dailyRatio < 0.6) {
+          results.skipped++
+          results.details.push({
+            userId: user.id,
+            email: user.email,
+            status: 'skipped',
+            reason: `Insufficient daily engagement (${Math.round(dailyRatio * 100)}% of days)`
+          })
+          console.log(`⏭️  ${user.email}: Skipped (${Math.round(dailyRatio * 100)}% daily engagement, need 60%+)`)
+          continue
+        }
+
         // Need at least some activity to generate summary
         if (logs.length < 5) {
           results.skipped++
@@ -143,17 +183,52 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
 
         // Generate monthly summary
         console.log(`Generating summary for ${user.email}...`)
-        const summary = await generateMonthlySummary(userPublic, logs.map(l => l.toJSON()))
+        const summary = await generateMonthlySummary(userPublic, logs.map((l: any) => l.toJSON()))
 
-        // Generate email body
-        const emailBody = generateMonthlyEmailBody(summary, user.firstName || '')
+        // Resolve user theme for email styling
+        const userThemeName = metadata.theme || 'light'
+        const isCustom = userThemeName === 'custom' && metadata.baseColor && metadata.accentColor
+        const themeColors = isCustom
+          ? { base: metadata.baseColor, acc: metadata.accentColor }
+          : (THEMES[userThemeName] || THEMES.light)
 
-        // Send email
+        const emailTheme = {
+          baseColor: themeColors.base,
+          accentColor: themeColors.acc,
+          themeName: userThemeName,
+        }
+
+        // Generate HTML email body in User OS style
+        const htmlBody = generateMonthlyEmailHtml({
+          firstName: user.firstName || '',
+          period: summary.period,
+          osVersion: summary.osVersion,
+          osState: summary.osState,
+          presence: summary.presence,
+          energy: summary.energy,
+          patterns: {
+            dominantThemes: summary.patterns.dominantThemes,
+            emotionalEvolution: summary.patterns.emotionalEvolution,
+            strugglingPeriods: summary.patterns.strugglingPeriods,
+            breakthroughMoments: summary.patterns.breakthroughMoments,
+            insights: summary.patterns.insights,
+          },
+          growth: summary.growth,
+          memoryStory: summary.memoryStory,
+          forwardLook: summary.forwardLook,
+          theme: emailTheme,
+        })
+
+        // Also generate plain text fallback
+        const textBody = generateMonthlyEmailBody(summary, user.firstName || '')
+
+        // Send email with HTML + text fallback
         console.log(`📧 Sending email to ${user.email}...`)
         const result = await sendEmail({
           to: user.email,
           subject: `${summary.period.month} ${summary.period.year} — Your LOT Review`,
-          text: emailBody
+          html: htmlBody,
+          text: textBody,
         })
 
         if (result.success) {

@@ -72,15 +72,15 @@ export function PatternRecognitionWidget() {
     return labels[timing] || timing
   }
 
-  // Module names
+  // CQGS module names
   const getWidgetLabel = (widget: string): string => {
     const labels: Record<string, string> = {
-      'selfcare': 'Self-care module',
-      'planner': 'Planner module',
+      'selfcare': 'Cleanness module',
+      'planner': 'Routine module',
       'intentions': 'Intention engine',
       'memory': 'Memory engine',
       'journal': 'Journal module',
-      'mood': 'Mood interface'
+      'mood': 'Biofield interface'
     }
     return labels[widget] || widget
   }
@@ -92,11 +92,11 @@ export function PatternRecognitionWidget() {
       onLabelClick={cycleView}
     >
       {view === 'active' && (
-        <div className="inline-block">
+        <div>
           {patterns.length === 0 ? (
             <div>No behavioral patterns compiled yet.</div>
           ) : (
-            <div className="flex flex-col gap-12">
+            <div className="flex flex-col gap-8">
               {patterns
                 .filter(p => p.confidence >= 0.5) // Only show patterns above threshold
                 .sort((a, b) => b.confidence - a.confidence)
@@ -105,10 +105,10 @@ export function PatternRecognitionWidget() {
                     <div className="mb-4">{getPatternName(pattern.pattern)}</div>
                     <div className="flex items-center gap-8 mb-4">
                       <ProgressBars percentage={pattern.confidence * 100} barCount={10} />
-                      <span className="opacity-60">{Math.round(pattern.confidence * 100)}%</span>
+                      <span className="opacity-30">{Math.round(pattern.confidence * 100)}%</span>
                     </div>
                     {/* Confidence-based messaging: >0.8 specific, 0.5-0.8 general */}
-                    <div className="opacity-60">
+                    <div className="opacity-30">
                       {pattern.confidence >= 0.8
                         ? `${getWidgetLabel(pattern.suggestedWidget)}. ${getTimingLabel(pattern.suggestedTiming)}.`
                         : 'Pattern initializing. Continue for convergence.'
@@ -118,7 +118,7 @@ export function PatternRecognitionWidget() {
                 ))
               }
               {patterns.filter(p => p.confidence < 0.5).length > 0 && (
-                <div className="opacity-40">
+                <div className="opacity-30">
                   {patterns.filter(p => p.confidence < 0.5).length} weak signal{patterns.filter(p => p.confidence < 0.5).length === 1 ? '' : 's'} below threshold.
                 </div>
               )}
@@ -128,10 +128,10 @@ export function PatternRecognitionWidget() {
       )}
 
       {view === 'recommendation' && (
-        <div className="inline-block">
+        <div>
           {optimal ? (
             <>
-              <div className="mb-12">
+              <div className="mb-8">
                 {optimal.reason}
               </div>
               <div className="mb-8">
@@ -139,7 +139,7 @@ export function PatternRecognitionWidget() {
               </div>
               {/* Show confidence context enriched with log data */}
               {patterns.length > 0 && (
-                <div className="opacity-40">
+                <div className="opacity-30">
                   Derived from {patterns.filter(p => p.confidence >= 0.5).length} pattern{patterns.filter(p => p.confidence >= 0.5).length === 1 ? '' : 's'}
                   {!logCtx.isEmpty ? ` and ${logCtx.totalEntries} log entries.` : ' above threshold.'}
                 </div>
@@ -157,7 +157,7 @@ export function PatternRecognitionWidget() {
       )}
 
       {view === 'confidence' && (
-        <div className="inline-block">
+        <div>
           {patterns.length === 0 ? (
             <div>Insufficient telemetry for confidence mapping.</div>
           ) : (
@@ -178,7 +178,7 @@ export function PatternRecognitionWidget() {
               }
 
               {/* Summary enriched with log context */}
-              <div className="mt-8 opacity-60">
+              <div className="mt-8 opacity-30">
                 {patterns.length} pattern{patterns.length === 1 ? '' : 's'} indexed.
                 {!logCtx.isEmpty ? ` ${logCtx.activeModules.length}/6 modules reporting.` : ''}
               </div>

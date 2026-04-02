@@ -57,14 +57,14 @@ export function GoalJourneyWidget() {
       onLabelClick={cycleView}
     >
       {view === 'journey' && (
-        <div className="inline-block">
+        <div>
           {/* Primary goal */}
           {overallJourney.primaryGoal ? (
             <>
               <div className="mb-8">
                 {overallJourney.primaryGoal.title}
               </div>
-              <div className="mb-12">
+              <div className="mb-8">
                 {overallJourney.primaryGoal.narrative}
               </div>
               {overallJourney.recentBreakthroughs.length > 0 && (
@@ -82,7 +82,7 @@ export function GoalJourneyWidget() {
       )}
 
       {view === 'goals' && (
-        <div className="inline-block">
+        <div>
           {goals.filter(g => g.state === 'active' || g.state === 'progressing').length === 0 ? (
             <div>
               No active goals detected yet. Your journey reveals them.
@@ -97,7 +97,7 @@ export function GoalJourneyWidget() {
                     <div className="mb-4">
                       {goal.title}
                     </div>
-                    <div className="opacity-60">
+                    <div className="opacity-30">
                       {goal.journeyStage === 'beginning' && 'Beginning'}
                       {goal.journeyStage === 'struggle' && 'In progress'}
                       {goal.journeyStage === 'breakthrough' && 'Breakthrough'}
@@ -113,14 +113,14 @@ export function GoalJourneyWidget() {
       )}
 
       {view === 'narrative' && (
-        <div className="inline-block">
+        <div>
           {/* Chapter title */}
           <div className="mb-8">
             {narrative.currentChapter}
           </div>
 
           {/* Story arc */}
-          <div className="mb-12">
+          <div className="mb-8">
             {narrative.storyArc}
           </div>
 

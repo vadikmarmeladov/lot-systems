@@ -101,7 +101,7 @@ export function recordMovement(): void {
 /**
  * Self-Care Routine Types
  */
-export type SelfCareRoutineType = 'breathing' | 'movement' | 'rest' | 'hydration' | 'posture'
+export type SelfCareRoutineType = 'breathing' | 'movement' | 'rest' | 'hydration' | 'posture' | 'environment' | 'grooming'
 
 export interface SelfCareRoutine {
   type: SelfCareRoutineType
@@ -184,6 +184,34 @@ export const SELF_CARE_ROUTINES: Record<SelfCareRoutineType, SelfCareRoutine> = 
     ],
     benefits: 'Reduces back pain, improves breathing, boosts confidence',
   },
+  environment: {
+    type: 'environment',
+    title: 'Surface Reset',
+    description: 'Clear one surface in your space',
+    duration: 300,
+    instructions: [
+      'Choose the nearest cluttered surface',
+      'Remove everything from it',
+      'Wipe it clean',
+      'Return only what belongs',
+      'Notice the clarity it creates',
+    ],
+    benefits: 'Reduces mental load, creates order, anchors the biofield',
+  },
+  grooming: {
+    type: 'grooming',
+    title: 'Cleanness Check',
+    description: 'Tend to your body with care',
+    duration: 180,
+    instructions: [
+      'Wash your hands and face with warm water',
+      'Check your appearance with intention',
+      'Brush hair or tidy clothing',
+      'Apply care to skin if needed',
+      'Notice how attending to the body shifts the mind',
+    ],
+    benefits: 'Boosts self-respect, grounds the biofield, builds daily rhythm',
+  },
 }
 
 /**
@@ -194,6 +222,8 @@ export function getRecommendedRoutine(context: {
   stress?: 'low' | 'moderate' | 'high'
   lastBreak?: number // minutes ago
   posture?: 'good' | 'poor'
+  lastCleanness?: number // minutes since last cleanness activity
+  timeOfDay?: string
 }): SelfCareRoutineType {
   // High stress -> breathing
   if (context.stress === 'high') {
@@ -213,6 +243,25 @@ export function getRecommendedRoutine(context: {
   // Poor posture -> posture reset
   if (context.posture === 'poor') {
     return 'posture'
+  }
+
+  // Morning without cleanness -> grooming
+  if (context.timeOfDay === 'morning' || context.timeOfDay === 'early_morning') {
+    if (context.lastCleanness === undefined || context.lastCleanness > 120) {
+      return 'grooming'
+    }
+  }
+
+  // Extended time without cleanness activity -> environment
+  if (context.lastCleanness && context.lastCleanness > 240) {
+    return 'environment'
+  }
+
+  // Evening -> suggest environment reset
+  if (context.timeOfDay === 'evening' || context.timeOfDay === 'night') {
+    if (Math.random() > 0.5) {
+      return 'environment'
+    }
   }
 
   // Default: breathing (most universally beneficial)
@@ -264,8 +313,8 @@ export const SelfCarePrompt: React.FC<SelfCarePromptProps> = ({
   return (
     <div className={`p-4 grid-fill-light rounded-lg border border-acc/20 ${className}`}>
       <div className="mb-3 italic">{prompt}</div>
-      <div className="mb-2 font-medium">{routine.title}</div>
-      <div className="mb-3 text-sm opacity-70">{routine.description}</div>
+      <div className="mb-2">{routine.title}</div>
+      <div className="mb-3 opacity-30">{routine.description}</div>
       <div className="flex gap-2">
         <button
           onClick={() => onStart?.(recommendedRoutine)}

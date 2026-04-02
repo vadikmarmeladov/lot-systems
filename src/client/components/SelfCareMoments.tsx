@@ -19,9 +19,11 @@ type CareSuggestion = {
 }
 
 /**
- * Self-care Moments Widget – Context-aware recommendations
- * Pattern: Suggestion > Why This > Practice
- * Adapts based on: emotional state, weather, archetype, time
+ * Cleanness Widget – CQGS Bioethics self-care module
+ * Pattern: Cleanness > Why This > Practice
+ * Adapts based on: biofield state, weather, archetype, time
+ * CQGS Bioethics: Cleanness is the first pillar — care of the self,
+ * hygiene, environment, and the daily routine that sustains the biofield.
  */
 export function SelfCareMoments() {
   const [view, setView] = React.useState<CareView>('suggestion')
@@ -237,8 +239,8 @@ export function SelfCareMoments() {
 
   if (!currentSuggestion) {
     return (
-      <Block label="Self-care:" blockView>
-        <div className="opacity-60">Loading suggestion...</div>
+      <Block label="Cleanness:" blockView>
+        <div className="opacity-30">Loading suggestion...</div>
       </Block>
     )
   }
@@ -246,7 +248,7 @@ export function SelfCareMoments() {
   if (!isVisible) return null
 
   const label =
-    view === 'suggestion' ? 'Self-care:' :
+    view === 'suggestion' ? 'Cleanness:' :
     view === 'why' ? 'Why This:' :
     'Practice:'
 
@@ -277,28 +279,28 @@ export function SelfCareMoments() {
       ) : (
         <>
       {view === 'suggestion' && (
-        <div className="inline-block w-full">
+        <div className="w-full">
           {(() => {
             const quantumReason = localStorage.getItem('selfcare-quantum-reason')
             // Log-context-grounded reason when quantum reason is absent
             const contextReason = !quantumReason && !logCtx.isEmpty
-              ? (logCtx.moodTrend === 'declining' ? 'Mood trajectory declining. Restoration recommended.'
+              ? (logCtx.moodTrend === 'declining' ? 'Biofield trajectory declining. Cleanness protocol recommended.'
                 : logCtx.hoursSinceLastActivity !== null && logCtx.hoursSinceLastActivity > 6 ? 'Extended gap since last signal. Re-engage gently.'
-                : logCtx.todaySelfCareCount > 0 ? `${logCtx.todaySelfCareCount} self-care session${logCtx.todaySelfCareCount === 1 ? '' : 's'} logged today.`
-                : logCtx.timePhase === 'evening' ? 'Evening phase. Restoration supports overnight compilation.'
+                : logCtx.todaySelfCareCount > 0 ? `${logCtx.todaySelfCareCount} cleanness session${logCtx.todaySelfCareCount === 1 ? '' : 's'} logged today.`
+                : logCtx.timePhase === 'evening' ? 'Evening phase. Restoration supports overnight biofield compilation.'
                 : null)
               : null
             return (quantumReason || contextReason) ? (
-              <div className="opacity-60 mb-8">
+              <div className="opacity-30 mb-8">
                 {quantumReason || contextReason}
               </div>
             ) : null
           })()}
-          <div className={cn("opacity-90", (completedToday > 0 || currentStreak > 0) ? "mb-12" : "mb-16")}>
+          <div className={cn("", (completedToday > 0 || currentStreak > 0) ? "mb-8" : "mb-16")}>
             {currentSuggestion.action} ({currentSuggestion.duration})
           </div>
           {(completedToday > 0 || currentStreak > 0) && (
-            <div className="opacity-90 mb-16">
+            <div className="mb-16">
               {completedToday > 0 && <div>{completedToday} done today</div>}
               {currentStreak > 1 && (
                 <div className="flex items-center gap-8">
@@ -326,19 +328,19 @@ export function SelfCareMoments() {
       )}
 
       {view === 'why' && (
-        <div className="inline-block">
-          <div className="opacity-80">{currentSuggestion.why}</div>
+        <div>
+          <div className="opacity-30">{currentSuggestion.why}</div>
         </div>
       )}
 
       {view === 'practice' && (
-        <div className="inline-block w-full">
+        <div className="w-full">
           {isTimerRunning && (
-            <div className="mb-12">
+            <div className="mb-8">
               {formatTime(timeRemaining)}
             </div>
           )}
-          <div className="opacity-90 mb-16">{currentSuggestion.practice.replace(/\n+/g, ' ')}</div>
+          <div className="mb-16">{currentSuggestion.practice.replace(/\n+/g, ' ')}</div>
           {isTimerRunning ? (
             <div className="flex gap-8">
               <Button onClick={stopTimer}>
@@ -363,8 +365,9 @@ export function SelfCareMoments() {
 }
 
 /**
- * Generate contextual care suggestion based on multiple factors
+ * Generate contextual cleanness suggestion based on CQGS Bioethics framework
  * Language adapts based on user's practice level (streak)
+ * Pillars: Cleanness, Routine, Nutrition, Laughter
  */
 function generateContextualSuggestion(
   weatherDesc?: string,
@@ -570,6 +573,18 @@ function generateContextualSuggestion(
   if (hour >= 6 && hour < 9) {
     suggestions.push(
       {
+        action: useTechLanguage || preferTechLanguage ? 'Initialize morning cleanness protocol' : 'Morning cleanness: make your bed and clear one surface',
+        why: 'Cleanness is the first pillar of Bioethics. Making your bed is the first act of order that anchors the entire day.',
+        practice: 'Make your bed.\nStraighten the sheets.\nFluff your pillow.\nClear the nearest surface.\nNotice the order you created.',
+        duration: '5 mins'
+      },
+      {
+        action: 'Morning body care ritual',
+        why: 'The body is the first environment. Tending to it with attention sets the biofield for the day.',
+        practice: 'Wash your face with warm water.\nBrush your teeth slowly.\nLook at yourself in the mirror.\nSay: "I take care of myself."\nDress with intention.',
+        duration: '5 mins'
+      },
+      {
         action: 'Set one intention for how you want to feel today',
         why: 'Morning is powerful for intention-setting.',
         practice: 'Close your eyes.\nAsk: "How do I want to feel today?"\nChoose one word.\nSay it out loud 3 times.',
@@ -582,8 +597,8 @@ function generateContextualSuggestion(
         duration: '2 mins'
       },
       {
-        action: useTechLanguage || preferTechLanguage ? 'Clear cache: clean one surface' : 'Morning space clearing: clean one surface',
-        why: 'Clean space creates mental clarity. One clear surface changes the energy.',
+        action: useTechLanguage || preferTechLanguage ? 'Cleanness protocol: clear one surface' : 'Morning space clearing: clean one surface',
+        why: 'Cleanness is the first pillar of Bioethics. One clear surface changes the biofield.',
         practice: 'Choose one surface (desk, counter, nightstand).\nClear everything off.\nWipe it clean.\nPlace back only what serves you.\nNotice the clarity.',
         duration: '5 mins'
       },
@@ -595,7 +610,7 @@ function generateContextualSuggestion(
       },
       {
         action: 'Korean facial cleansing ritual',
-        why: 'Cleansing is both physical and symbolic. It releases what you carried from yesterday.',
+        why: 'Cleanness begins with the body. Cleansing releases what you carried from yesterday.',
         practice: 'Wash face with warm water.\nGentle circular motions.\nSplash with cool water.\nPat dry softly.\nSay: "I begin fresh."',
         duration: '3 mins'
       }
@@ -621,6 +636,27 @@ function generateContextualSuggestion(
         duration: '5 mins'
       }
     )
+  } else if (hour >= 14 && hour < 19) {
+    suggestions.push(
+      {
+        action: useTechLanguage || preferTechLanguage ? 'Execute micro-cleanness sweep' : 'Afternoon micro-clean: 5-minute reset',
+        why: 'Afternoon clutter accumulates silently. A quick reset prevents evening overwhelm and keeps the biofield ordered.',
+        practice: 'Look around your space.\nPick up 5 items that are out of place.\nPut each one where it belongs.\nWipe one surface.\nNotice the difference.',
+        duration: '5 mins'
+      },
+      {
+        action: 'Clean as you go: tackle what\'s near you',
+        why: 'Small acts of cleanness done throughout the day compound. This is the Bioethics principle: cleanness is continuous, not an event.',
+        practice: 'Without leaving your area:\nStraighten what\'s near you.\nDiscard one thing you no longer need.\nAlign objects with intention.\nCreate order from within reach.',
+        duration: '3 mins'
+      },
+      {
+        action: 'Desk or workspace reset',
+        why: 'Your workspace reflects your mental state. A clean desk invites focus.',
+        practice: 'Remove everything from your desk.\nWipe the surface.\nReturn only what you need right now.\nStore the rest.\nBreathe into the clarity.',
+        duration: '5 mins'
+      }
+    )
   } else if (hour >= 19 && hour < 22) {
     suggestions.push(
       {
@@ -642,8 +678,8 @@ function generateContextualSuggestion(
         duration: '5 mins'
       },
       {
-        action: useTechLanguage || preferTechLanguage ? 'Clear daily cache: reset your environment' : 'Evening space reset: clear what accumulated today',
-        why: 'Physical clutter mirrors mental clutter. Evening clearing creates morning ease.',
+        action: useTechLanguage || preferTechLanguage ? 'Cleanness flush: reset your environment' : 'Evening space reset: clear what accumulated today',
+        why: 'Cleanness of the household is a Bioethics parameter. Evening clearing creates morning ease.',
         practice: 'Spend 5 minutes resetting your space.\nPut items back where they belong.\nClear one surface.\nPrepare for tomorrow.\nNotice the calm.',
         duration: '5 mins'
       },
@@ -692,7 +728,7 @@ function generateContextualSuggestion(
       },
       {
         action: 'Drink a glass of water mindfully',
-        why: 'Hydration affects everything. Mindfulness deepens the care.',
+        why: 'The quality of water is a biofield parameter. Hydration affects everything.',
         practice: 'Get water.\nHold the glass.\nTake slow sips.\nFeel the water nourishing you.\nSay thank you to your body.',
         duration: '2 mins'
       },
@@ -722,7 +758,7 @@ function generateContextualSuggestion(
       },
       {
         action: 'Mindful cleaning: wash one dish slowly',
-        why: 'Cleaning is meditation when done with full attention. Clarity comes through care.',
+        why: 'Cleanness is meditation when done with full attention. A handmade meal starts with a clean surface.',
         practice: 'Choose one dish.\nFeel the warm water.\nNotice the soap, the movements.\nMake it a meditation.\nFinish with gratitude.',
         duration: '3 mins'
       },
@@ -776,13 +812,13 @@ function generateContextualSuggestion(
       },
       {
         action: 'Golden milk moment (Indian tradition)',
-        why: 'Turmeric, warm milk, and spices calm inflammation and signal comfort to your body.',
+        why: 'Nutrition is a biofield parameter. Turmeric calms inflammation and signals comfort to the body.',
         practice: 'Make warm milk with turmeric and honey.\nStir slowly.\nCup in both hands.\nSip with full attention.\nFeel the warmth spread.',
         duration: '5 mins'
       },
       {
         action: 'Clear one surface as sacred space',
-        why: 'Every cleared space is a sanctuary. Creating it is a practice of devotion.',
+        why: 'Household Cleanness is a Bioethics Index parameter. Every cleared space is a sanctuary.',
         practice: 'Choose one surface.\nRemove everything.\nWipe clean.\nPlace only one meaningful object.\nSit nearby and breathe.',
         duration: '5 mins'
       },
@@ -790,6 +826,30 @@ function generateContextualSuggestion(
         action: 'Window cleaning meditation',
         why: 'Clean windows change how light enters. Clarity outside creates clarity within.',
         practice: 'Clean one window pane.\nSlow circles.\nNotice the transformation.\nWatch light differently.\nAppreciate the view.',
+        duration: '5 mins'
+      },
+      {
+        action: useTechLanguage || preferTechLanguage ? 'Biofield container audit: scan and reset' : 'Scan your space and fix one thing',
+        why: 'Cleanness is not perfection. It is noticing what needs care and attending to it. One fix shifts the whole field.',
+        practice: 'Stand in the center of your room.\nSlowly scan 360 degrees.\nNotice what calls for attention.\nFix one thing.\nThat is enough.',
+        duration: '3 mins'
+      },
+      {
+        action: 'Wash one thing by hand with full attention',
+        why: 'Handwashing is ancient cleanness. Water, attention, and care transform both the object and the one cleaning.',
+        practice: 'Choose one item: a cup, a plate, a surface.\nUse warm water.\nMove slowly.\nFeel the transformation.\nDry it with care.',
+        duration: '3 mins'
+      },
+      {
+        action: 'Digital cleanness: close unused tabs and apps',
+        why: 'Digital clutter drains attention like physical clutter drains energy. Clean screens clear the mind.',
+        practice: 'Close every tab you don\'t need.\nQuit apps running in the background.\nClear your desktop.\nOrganize one folder.\nNotice the lightness.',
+        duration: '5 mins'
+      },
+      {
+        action: 'Trash audit: empty one bin mindfully',
+        why: 'Letting go of waste is cleanness. What you discard creates space for what matters.',
+        practice: 'Find the nearest bin or pile.\nSort what can be recycled.\nDiscard what is done.\nWipe the container.\nNotice the space created.',
         duration: '5 mins'
       }
     )

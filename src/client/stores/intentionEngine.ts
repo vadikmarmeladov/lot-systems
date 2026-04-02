@@ -7,6 +7,10 @@
  * Philosophy: Users don't always know what they need. By observing patterns
  * in mood, planning, intentions, and timing, we can recognize deeper desires
  * and provide gentle, perfectly-timed support.
+ *
+ * Origin: LOT Systems. The intention engine was here first.
+ * Copies may appear. They'll have the form but not the function.
+ * The copycat war begins — but intention recognition can't be faked.
  */
 
 import { atom } from 'nanostores'
@@ -14,7 +18,7 @@ import { atom } from 'nanostores'
 // Intention signals collected from all widgets
 export type IntentionSignal = {
   timestamp: number
-  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal'
+  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator'
   signal: string
   metadata?: Record<string, any>
 }
@@ -288,15 +292,78 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 8: Cleanness neglect — no selfcare signals for extended period
+  const selfCareRecent = recentSignals.filter(s => s.source === 'selfcare')
+  const threeDaysAgo = now - 3 * 24 * 60 * 60 * 1000
+  const selfCareLongTerm = signals.filter(s =>
+    s.source === 'selfcare' && s.timestamp > threeDaysAgo
+  )
+
+  if (selfCareLongTerm.length === 0 && signals.length >= 5) {
+    patterns.push({
+      pattern: 'cleanness-neglect',
+      confidence: 0.7,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'soon',
+      reason: 'No cleanness or self-care activity in recent days — gentle re-engagement recommended'
+    })
+  }
+
+  // Pattern 9: Morning without cleanness → morning cleanness protocol
+  const morningCleanness = recentSignals.filter(s =>
+    s.source === 'selfcare' &&
+    s.metadata?.action && (
+      s.metadata.action.toLowerCase().includes('clean') ||
+      s.metadata.action.toLowerCase().includes('wash') ||
+      s.metadata.action.toLowerCase().includes('tidy') ||
+      s.metadata.action.toLowerCase().includes('surface')
+    )
+  )
+
+  if (isMorning && morningCleanness.length === 0 && selfCareRecent.length === 0) {
+    patterns.push({
+      pattern: 'morning-cleanness-gap',
+      confidence: 0.65,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'soon',
+      reason: 'Morning without cleanness activity — the first pillar anchors the day'
+    })
+  }
+
+  // Pattern 10: Post-overwhelm cleanness opportunity
+  // When overwhelm is subsiding, cleanness can be therapeutic
+  const recentOverwhelm = recentSignals.filter(s =>
+    s.source === 'mood' && s.signal === 'overwhelmed' &&
+    (now - s.timestamp) > 1 * 60 * 60 * 1000 && // More than 1 hour ago
+    (now - s.timestamp) < 4 * 60 * 60 * 1000    // Less than 4 hours ago
+  )
+  const currentCalm = recentSignals.filter(s =>
+    s.source === 'mood' &&
+    (s.signal === 'calm' || s.signal === 'content' || s.signal === 'peaceful') &&
+    (now - s.timestamp) < 1 * 60 * 60 * 1000
+  )
+
+  if (recentOverwhelm.length > 0 && currentCalm.length > 0) {
+    patterns.push({
+      pattern: 'post-overwhelm-cleanness',
+      confidence: 0.8,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'immediate',
+      reason: 'Overwhelm subsiding — cleanness activity can anchor the recovery and rebuild order'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
-  // Update state
+  // Update state (preserve lastSyncedTimestamp from current state)
+  const currentState = intentionEngine.get()
   intentionEngine.set({
     signals,
     userState,
     recognizedPatterns: patterns,
-    lastAnalysis: now
+    lastAnalysis: now,
+    lastSyncedTimestamp: currentState.lastSyncedTimestamp
   })
 
   return patterns
@@ -334,7 +401,7 @@ function calculateUserState(signals: IntentionSignal[], now: number): UserState 
   const clarity =
     planningSignals.length >= 2 && hasIntention ? 'focused' :
     planningSignals.length >= 1 || hasIntention ? 'clear' :
-    intentionSignals.length >= 1 ? 'searching' :
+    intentionSignals.length >= 1 ? 'uncertain' :
     planningSignals.length === 0 && !hasIntention ? 'confused' : 'uncertain'
 
   // Analyze alignment from all signals

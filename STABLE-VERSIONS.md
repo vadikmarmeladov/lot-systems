@@ -52,6 +52,33 @@ git reset --hard stable-v1.0.0-2025-12-10
 
 ---
 
+## Stable Version: v1.1.0
+**Date**: 9 March 2026, PST
+**Tag**: `stable-v1.1.0-2026-03-09`
+**Commit**: `0d8e091`
+**Branch**: `claude/quantum-engine-widgets-RgFfC`
+
+### Features Included
+- ✅ Fixed week number calculation (ceil(dayOfYear/7) instead of ISO week)
+- ✅ Site loads without blank page issue
+- ✅ All previous v1.0.0 features intact
+
+### Rollback Instructions
+```bash
+git tag -l "stable-v1.1.0-2026-03-09" -n50
+git checkout stable-v1.1.0-2026-03-09
+```
+
+### Testing Status
+- ✅ Week number displays correctly as Week 10
+- ✅ Site loads without blank/reload issues
+
+### Production Status
+**Status**: Ready for production deployment
+**Verified**: ✅ Stable
+
+---
+
 ## How to Add New Stable Versions
 
 When marking a new stable version, follow this pattern:
@@ -76,4 +103,4 @@ Brief description of what's included and why it's stable.
 
 ---
 
-**Last Updated**: 10 December 2025, 11:26 PM PST
+**Last Updated**: 9 March 2026

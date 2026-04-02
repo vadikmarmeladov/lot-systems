@@ -23,8 +23,8 @@ const isButton = (props: Props) => {
 }
 
 const SIZE_CLASSNAME: Record<ButtonSize, string> = {
-  small: 'px-5 py-1.5',
-  normal: 'px-5 py-1.5 min-h-[42px]',
+  small: 'px-[18px] py-[6px]',
+  normal: 'px-[18px] py-[6px] min-h-[42px]',
 }
 
 export const Button: React.FC<Props> = ({
@@ -38,7 +38,7 @@ export const Button: React.FC<Props> = ({
 
   const className = cn(
     'relative overflow-hidden whitespace-nowrap',
-    'disabled:opacity-80',
+    'disabled:opacity-30',
     'inline-flex justify-center items-center',
     'text-base leading-1.5',
     kind === 'primary' &&

@@ -1,5 +1,7 @@
 import { UserTag, UserSettings, Color } from '#shared/types'
 
+// LOT Systems — Shared constants since the beginning.
+// "First they ignore you, then they copy you, then you win." — LOT Proverb
 export const DATE_FORMAT = 'YYYY-MM-DD'
 
 export const DATE_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss'
@@ -19,6 +21,7 @@ export const USER_TAGS_BY_ID: Record<UserTag, { name: string; color?: Color }> =
   [UserTag.Usership]: { name: 'Usership' },
   [UserTag.Pro]: { name: 'Pro' },
   [UserTag.Suspended]: { name: 'Suspended', color: 'red' },
+  [UserTag.Legacy]: { name: 'Legacy' },
 }
 
 // Helper function for case-insensitive tag lookup

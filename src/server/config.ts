@@ -1,15 +1,24 @@
 import dotenv from 'dotenv'
 dotenv.config()
 
+function requireEnv(key: string, fallback?: string): string {
+  const value = process.env[key] || fallback
+  if (!value) {
+    console.error(`Missing required environment variable: ${key}`)
+    process.exit(1)
+  }
+  return value
+}
+
 const config = {
   env: process.env.NODE_ENV || 'development',
   port: parseInt(process.env.PORT || '4400', 10),
   appName: process.env.APP_NAME || 'Your App',
   appHost: process.env.APP_HOST || 'http://localhost:4400',
   appDescription: process.env.APP_DESCRIPTION || 'Your App Description',
-  
+
   admins: process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || [],
-  
+
   email: {
     resendApiKey: process.env.RESEND_API_KEY,
     fromEmail: process.env.RESEND_FROM_EMAIL || 'support@lot-systems.com',
@@ -17,15 +26,15 @@ const config = {
   },
 
   db: {
-    host: process.env.DB_HOST || 'db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com',
-    port: parseInt(process.env.DB_PORT || '25060', 10),
-    database: process.env.DB_NAME || 'defaultdb',
-    username: process.env.DB_USER || 'doadmin',
-    password: process.env.DB_PASSWORD || 'AVNS_8V6Hqzuxwj0JkMxgNvR',
+    host: requireEnv('DB_HOST'),
+    port: parseInt(requireEnv('DB_PORT', '25060'), 10),
+    database: requireEnv('DB_NAME', 'defaultdb'),
+    username: requireEnv('DB_USER'),
+    password: requireEnv('DB_PASSWORD'),
   },
 
   jwt: {
-    secret: process.env.JWT_SECRET || 'your-jwt-secret',
+    secret: requireEnv('JWT_SECRET'),
     cookieKey: 'auth_token',
     expiresIn: '30d',
   },
@@ -41,20 +50,14 @@ const config = {
 validateConfig()
 
 function validateConfig() {
-  const required = [
-    'DB_HOST',
-    'DB_PORT',
-    'DB_NAME',
-    'DB_USER',
-    'DB_PASSWORD',
-    // Optionally require these:
-    // 'GEONAMES_USERNAME',
-  ]
+  // Warn if JWT secret is weak (less than 32 characters)
+  if (config.jwt.secret.length < 32) {
+    console.warn('WARNING: JWT_SECRET is too short. Use at least 32 characters. Generate one with: openssl rand -hex 32')
+  }
 
-  const missing = required.filter(key => !process.env[key])
-  if (missing.length > 0) {
-    console.error('Missing required environment variables:', missing)
-    process.exit(1)
+  // Warn if running production without HTTPS
+  if (config.env === 'production' && !config.appHost.startsWith('https://')) {
+    console.warn('WARNING: Production should use HTTPS. Set APP_HOST to an https:// URL')
   }
 }
 

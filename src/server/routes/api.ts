@@ -937,10 +937,18 @@ export default async (fastify: FastifyInstance) => {
   })
 
   fastify.get('/logs', async (req: FastifyRequest, reply) => {
+    // Only return user-facing log events (exclude internal signal/system events)
+    const displayableEvents = [
+      'note', 'answer', 'chat_message', 'chat_message_like',
+      'emotional_checkin', 'settings_change', 'system_snapshot',
+      'weekly_summary_response',
+    ]
     const logs = await fastify.models.Log.findAll({
       where: {
         userId: req.user.id,
-        ...(req.user.hideActivityLogs ? { event: 'note' } : {}),
+        ...(req.user.hideActivityLogs
+          ? { event: 'note' }
+          : { event: { [Op.in]: displayableEvents } }),
       },
       order: [['createdAt', 'DESC']],
     }).then((xs) =>
@@ -1787,12 +1795,7 @@ export default async (fastify: FastifyInstance) => {
         })
 
         if (!shouldShowPrompt) {
-          console.log(`⏸️ Skipping prompt: quota reached or bad timing`, {
-            promptsShownToday,
-            promptQuotaToday,
-            returning: 'null'
-          })
-          console.log(` Returning null from Memory endpoint (quota/timing)`)
+          console.log(`Pacing: quota reached (${promptsShownToday}/${promptQuotaToday}), no question for now`)
           return null
         }
 
@@ -1834,17 +1837,23 @@ export default async (fastify: FastifyInstance) => {
         // Continue without weekly summary check
       }
 
-      const { shouldShowWeeklySummary, generateWeeklySummary } = await import('#server/utils/weekly-summary')
+      let showWeeklySummary = false
+      let generateWeeklySummary: any = null
+      try {
+        const weeklySummaryModule = await import('#server/utils/weekly-summary')
 
-      // Validate weekly summary object structure
-      const validLastWeeklySummary = lastWeeklySummary &&
-                                     typeof lastWeeklySummary === 'object' &&
-                                     lastWeeklySummary.createdAt instanceof Date
+        const validLastWeeklySummary = lastWeeklySummary &&
+                                       typeof lastWeeklySummary === 'object' &&
+                                       lastWeeklySummary.createdAt instanceof Date
 
-      const showWeeklySummary = validLastWeeklySummary && lastWeeklySummary && shouldShowWeeklySummary(
-        req.user,
-        lastWeeklySummary.createdAt
-      )
+        showWeeklySummary = !!(validLastWeeklySummary && lastWeeklySummary && weeklySummaryModule.shouldShowWeeklySummary(
+          req.user,
+          lastWeeklySummary.createdAt
+        ))
+        generateWeeklySummary = weeklySummaryModule.generateWeeklySummary
+      } catch (weeklyImportError: any) {
+        console.warn('Weekly summary module unavailable:', weeklyImportError.message)
+      }
 
       if (showWeeklySummary) {
         console.log(`Generating weekly summary for user ${req.user.id}`)
@@ -1940,7 +1949,7 @@ export default async (fastify: FastifyInstance) => {
           const prompt = await buildPrompt(req.user, logs, isWeekend, quantumState)
 
           // Generate question - AI already has instructions to avoid duplicates from buildPrompt
-          const question = await completeAndExtractQuestion(prompt, req.user)
+          const question = await completeAndExtractQuestion(prompt, req.user, promptsShownToday)
 
           console.log(`Generated question for user ${req.user.id}:`, {
             questionId: question.id,
@@ -2020,7 +2029,7 @@ export default async (fastify: FastifyInstance) => {
           const rng = seedrandom(
             `${req.user.id} ${localDate.format(DATE_FORMAT)} ${
               isNightPeriod ? 'N' : 'D'
-            }`
+            } ${promptsShownToday}`
           )
           const question =
             untouchedQuestions[Math.floor(rng() * untouchedQuestions.length)]
@@ -4003,7 +4012,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       })
 
       // Find actual peak and quietest hours from recent log distribution
-      const weekAgo = now.subtract(7, 'day').toDate()
+      const weekAgo = dayjs().subtract(7, 'day').toDate()
       const weekLogs = await fastify.models.Log.findAll({
         where: { createdAt: { [Op.gte]: weekAgo } },
         attributes: ['createdAt'],
@@ -4500,4 +4509,51 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       return reply.status(500).send({ error: 'Failed to fetch pulse' })
     }
   })
+
+  // ============================================================================
+  // Cosmic Update — Together AI image generation
+  // ============================================================================
+  fastify.post(
+    '/cosmic-update',
+    async (req: FastifyRequest<{ Body: { prompt?: string } }>, reply) => {
+      try {
+        const { TogetherAIEngine } = await import('#server/utils/ai-engines')
+        const engine = new TogetherAIEngine()
+
+        if (!engine.isAvailable() || !engine.generateImage) {
+          return reply.status(503).send({ error: 'Image generation engine not available' })
+        }
+
+        // Use the user-provided prompt or a default cosmic prompt
+        const basePrompt = req.body?.prompt ||
+          'Void black deep space, a single 15mm ceramic cube suspended in zero gravity, glowing acid yellow bioelectric field lines emanating outward, Orthodox cross faintly encoded in the geometry, Detroit techno grid overlay, minimal, sacred, cinematic'
+
+        const imageUrl = await engine.generateImage(basePrompt, {
+          width: 1024,
+          height: 1024,
+          steps: 20,
+          model: 'black-forest-labs/FLUX.1-schnell-Free',
+        })
+
+        // Log the cosmic update generation
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          event: 'other',
+          text: 'Cosmic Update generated',
+          metadata: {
+            type: 'cosmic_update',
+            prompt: basePrompt.substring(0, 500),
+            imageUrl,
+          },
+          context,
+        })
+
+        return { imageUrl, prompt: basePrompt }
+      } catch (error: any) {
+        console.error('Cosmic Update generation failed:', error)
+        return reply.status(500).send({ error: 'Cosmic Update generation failed' })
+      }
+    }
+  )
 }

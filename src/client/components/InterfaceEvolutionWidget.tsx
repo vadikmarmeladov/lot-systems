@@ -1,9 +1,9 @@
 /**
- * Interface Evolution Widget
+ * Bioethics Evolution Widget
  *
- * Displays current interface evolution state, feature unlocks,
- * and progression through spiritual/psychological dimensions.
- * Enriched with user log context for grounded evolution metrics.
+ * Displays current CQGS evolution state, feature unlocks,
+ * and progression through Bioethics dimensions.
+ * Enriched with user log context for grounded biofeedback metrics.
  */
 
 import React from 'react';
@@ -90,20 +90,13 @@ export function InterfaceEvolutionWidget() {
       onLabelClick={cycleView}
     >
       {view === 'dimensions' && (
-        <div className="inline-block">
+        <div>
           {/* Overall maturity */}
-          <div className="mb-12 flex items-center gap-12">
-            <span className="text-xl">
-              {Math.round(evolutionState.overallMaturity * 100)}%
-            </span>
-            <span>Overall Maturity</span>
-          </div>
+          <div className="mb-8">{Math.round(evolutionState.overallMaturity * 100)}% Overall Maturity</div>
 
           {/* Badge tier */}
           {evolutionState.badgeTier > 0 && (
-            <div className="mb-12">
-              Tier {evolutionState.badgeTier} ({evolutionState.badgeTheme})
-            </div>
+            <div className="mb-8">Tier {evolutionState.badgeTier} ({evolutionState.badgeTheme})</div>
           )}
 
           {/* Dimensions */}
@@ -121,27 +114,27 @@ export function InterfaceEvolutionWidget() {
 
           {/* Log-context-grounded evolution insight */}
           {!logCtx.isEmpty && (
-            <div className="mt-12 opacity-40">
-              {logCtx.engagementLevel} phase . {logCtx.activeDays} active day{logCtx.activeDays === 1 ? '' : 's'}
-              {logCtx.streak > 1 ? ` . ${logCtx.streak}d streak` : ''}
+            <div className="mt-12 opacity-30">
+              <span className="capitalize">{logCtx.engagementLevel}</span> phase • {logCtx.activeDays} active day{logCtx.activeDays === 1 ? '' : 's'}
+              {logCtx.streak > 1 ? ` • ${logCtx.streak}d streak` : ''}
             </div>
           )}
         </div>
       )}
 
       {view === 'features' && (
-        <div className="inline-block">
+        <div>
           {featureCategories.map(cat => (
-            <div key={cat.category} className="mb-12 last:mb-0">
+            <div key={cat.category} className="mb-8 last:mb-0">
               <div className="mb-4">{cat.category}</div>
               <div className="flex flex-col gap-2">
                 {cat.features.map(feature => (
                   <div key={feature.name} className="flex items-center gap-8">
-                    <span className={feature.unlocked ? 'opacity-90' : 'opacity-30'}>
+                    <span className={feature.unlocked ? '' : 'opacity-30'}>
                       {feature.name}
                     </span>
                     {feature.unlocked && (
-                      <span className="opacity-60">unlocked.</span>
+                      <span className="opacity-30">unlocked.</span>
                     )}
                   </div>
                 ))}
@@ -152,8 +145,8 @@ export function InterfaceEvolutionWidget() {
       )}
 
       {view === 'effects' && (
-        <div className="inline-block">
-          <div className="flex flex-col gap-6">
+        <div>
+          <div className="flex flex-col gap-8">
             <div className="flex justify-between gap-16">
               <span>Visual Refinement</span>
               <span>{Math.round(evolutionState.visualRefinement * 100)}%</span>

@@ -37,10 +37,34 @@ export function SignalStreamWidget() {
 
   const formatTimestamp = (ts: number): string => {
     const date = new Date(ts)
-    const hours = date.getHours().toString().padStart(2, '0')
+    const h = date.getHours()
+    const period = h >= 12 ? 'PM' : 'AM'
+    const hours = (h % 12 || 12).toString()
     const minutes = date.getMinutes().toString().padStart(2, '0')
     const seconds = date.getSeconds().toString().padStart(2, '0')
-    return `${hours}:${minutes}:${seconds}`
+    return `${hours}:${minutes}:${seconds} ${period}`
+  }
+
+  // Format raw signal names into human-readable labels
+  const formatSignal = (signal: string): string => {
+    const signalLabels: Record<string, string> = {
+      'prompt_accepted': 'Prompt accepted',
+      'prompt_skipped': 'Prompt skipped',
+      'energy_low': 'Energy: low',
+      'energy_depleted': 'Energy: depleted',
+      'energy_moderate': 'Energy: moderate',
+      'energy_high': 'Energy: high',
+      'energy_unknown': 'Energy: scanning',
+      'awareness_explored': 'Awareness explored',
+      'mood_logged': 'Mood logged',
+      'plan_created': 'Plan created',
+      'intention_set': 'Intention set',
+      'selfcare_complete': 'Self-care complete',
+      'journal_entry': 'Journal entry',
+    }
+    if (signalLabels[signal]) return signalLabels[signal]
+    // Fallback: replace underscores with spaces and capitalize
+    return signal.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase())
   }
 
   // Calculate signal rate (signals per hour over last 24h)
@@ -58,15 +82,15 @@ export function SignalStreamWidget() {
 
   return (
     <Block label="Signal Bus:" blockView>
-      <div className="inline-block">
+      <div>
         {/* Stream header with log-context enrichment */}
-        <div className="flex justify-between mb-12">
-          <span className="opacity-60">
+        <div className="flex justify-between mb-8">
+          <span className="opacity-30">
             {engine.signals.length} total
-            {!logCtx.isEmpty ? ` . ${logCtx.totalEntries} logs` : ''}
+            {!logCtx.isEmpty ? ` • ${logCtx.totalEntries} logs` : ''}
           </span>
           {signalRate && (
-            <span className="opacity-60">
+            <span className="opacity-30">
               {signalRate}/hr
             </span>
           )}
@@ -79,29 +103,29 @@ export function SignalStreamWidget() {
               key={`${signal.timestamp}-${idx}`}
               className={cn(
                 'flex items-baseline gap-8 transition-opacity duration-[1400ms]',
-                idx === 0 && highlightedIndex === 0 ? 'opacity-100' : 'opacity-80'
+                idx === 0 && highlightedIndex === 0 ? 'opacity-100' : 'opacity-30'
               )}
             >
-              <span className="opacity-40 tabular-nums w-[64px]">
+              <span className="shrink-0 whitespace-nowrap opacity-30 tabular-nums w-[88px]">
                 {formatTimestamp(signal.timestamp)}
               </span>
-              <span className="w-[56px] capitalize opacity-60">
+              <span className="shrink-0 whitespace-nowrap w-[64px] capitalize opacity-30">
                 {signal.source}
               </span>
-              <span>
-                {signal.signal}
+              <span className="min-w-0">
+                {formatSignal(signal.signal)}
               </span>
             </div>
           ))}
         </div>
 
         {/* Sync status enriched with log context */}
-        <div className="mt-12 opacity-40">
+        <div className="mt-16 opacity-30">
           {engine.lastSyncedTimestamp > 0
             ? `Last upstream sync: ${formatTimestamp(engine.lastSyncedTimestamp)}`
             : 'Awaiting upstream sync.'
           }
-          {!logCtx.isEmpty && logCtx.lastActivityAgo ? ` . Last log: ${logCtx.lastActivityAgo}.` : ''}
+          {!logCtx.isEmpty && logCtx.lastActivityAgo ? ` • Last log: ${logCtx.lastActivityAgo}.` : ''}
         </div>
       </div>
     </Block>

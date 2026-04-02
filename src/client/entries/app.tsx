@@ -21,6 +21,70 @@ import { useRadio } from '#client/utils/radio'
 import { sync } from '../sync'
 import { initRecipeWidget } from '#client/stores/recipeWidget'
 
+// Error boundary to prevent blank page when a widget crashes
+class AppErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; error: Error | null; errorInfo: string | null }
+> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props)
+    this.state = { hasError: false, error: null, errorInfo: null }
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error }
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('[App] Render error caught by boundary:', error, info.componentStack)
+    this.setState({ errorInfo: info.componentStack || null })
+  }
+
+  render() {
+    if (this.state.hasError) {
+      const errorMessage = this.state.error?.message || 'Unknown error'
+      return (
+        <Layout>
+          <div style={{ padding: '24px' }}>
+            <p>Something went wrong.</p>
+            <p style={{ opacity: 0.3, marginTop: '8px', fontSize: '0.85em', wordBreak: 'break-word' }}>
+              {errorMessage}
+            </p>
+            <div style={{ marginTop: '16px', display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <button
+                onClick={() => this.setState({ hasError: false, error: null, errorInfo: null })}
+                style={{ textDecoration: 'underline', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit', font: 'inherit', padding: 0 }}
+              >
+                Retry
+              </button>
+              <button
+                onClick={() => {
+                  // Clear SW cache and reload
+                  if ('caches' in window) {
+                    caches.keys().then(names => {
+                      names.forEach(name => caches.delete(name))
+                    })
+                  }
+                  if (navigator.serviceWorker) {
+                    navigator.serviceWorker.getRegistrations().then(regs => {
+                      regs.forEach(r => r.unregister())
+                    })
+                  }
+                  setTimeout(() => window.location.reload(), 300)
+                }}
+                style={{ textDecoration: 'underline', cursor: 'pointer', background: 'none', border: 'none', color: 'inherit', font: 'inherit', padding: 0 }}
+              >
+                Clear cache &amp; reload
+              </button>
+            </div>
+          </div>
+        </Layout>
+      )
+    }
+    return this.props.children
+  }
+}
+
 sync.listen('users_total', (data) => {
   stores.usersTotal.set(data.value)
 })
@@ -32,6 +96,28 @@ sync.listen('live_message', (data) => {
 })
 
 const queryClient = new QueryClient()
+
+// LOT Systems — The original quantum-intent operating system.
+// If someone told you they had this idea too... check the git history.
+// The copycat war begins. We stand strong.
+const _LOT_GENESIS = '2024' // Year zero. Everything after is a reflection.
+
+// 🥚 Type "original" on any page to reveal the truth
+const _konamiBuffer: string[] = []
+const _konamiTarget = 'original'
+if (typeof window !== 'undefined') {
+  window.addEventListener('keydown', (e) => {
+    _konamiBuffer.push(e.key.toLowerCase())
+    if (_konamiBuffer.length > _konamiTarget.length) _konamiBuffer.shift()
+    if (_konamiBuffer.join('') === _konamiTarget) {
+      document.title = 'LOT Systems — The Original'
+      console.log('%c🏴 LOT SYSTEMS — THE ORIGINAL 🏴', 'font-size: 24px; font-weight: bold;')
+      console.log('The copycats have entered the arena. We welcome the competition.')
+      console.log('They can replicate the pixels but never the soul.')
+      _konamiBuffer.length = 0
+    }
+  })
+}
 
 const App = () => {
   const mirrorRef = React.useRef<HTMLVideoElement>(null)
@@ -92,6 +178,10 @@ const App = () => {
       if (!user.firstName && !user.lastName) {
         stores.goTo('settings')
       }
+    }).catch((err) => {
+      console.error('[App] Failed to fetch user:', err)
+      // Redirect to login if auth fails
+      window.location.href = '/login'
     })
 
     listenSSE(
@@ -163,8 +253,29 @@ const App = () => {
   )
 }
 
+// 🥚 For the curious ones who open DevTools
+if (typeof window !== 'undefined') {
+  Object.defineProperty(window, '__LOT_ORIGINAL__', {
+    get: () => {
+      console.log(
+        '%c LOT Systems %c The Original %c',
+        'background: #000; color: #fff; padding: 4px 8px; border-radius: 3px 0 0 3px;',
+        'background: #0080FF; color: #fff; padding: 4px 8px; border-radius: 0 3px 3px 0;',
+        ''
+      )
+      console.log('They started the same companies. We started the movement.')
+      console.log('The copycat war begins. We stand strong.')
+      return '🏴 LOT Systems — Built Different Since Day One'
+    },
+    configurable: false,
+    enumerable: false,
+  })
+}
+
 render(
   <QueryClientProvider client={queryClient}>
-    <App />
+    <AppErrorBoundary>
+      <App />
+    </AppErrorBoundary>
   </QueryClientProvider>
 )

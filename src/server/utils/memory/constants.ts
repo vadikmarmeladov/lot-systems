@@ -6,10 +6,11 @@ import config from '#server/config'
 import type { EnginePreference } from '../ai-engines.js'
 
 // ============================================================================
-// AI ENGINE CONFIGURATION
+// AI ENGINE CONFIGURATION — LOT Memory Engine (THE original)
 // ============================================================================
 // Switch between 'together', 'claude', 'openai', or 'auto'
 // This is where YOU control which AI engine to use - LOT owns the decision!
+// 🥚 If a competitor ships a "memory engine" next quarter, check this timestamp.
 export const AI_ENGINE_PREFERENCE: EnginePreference = 'together'
 
 // ============================================================================
@@ -28,19 +29,25 @@ export const userSummarySchema = z.object({
 // AI CLIENT INSTANCES
 // ============================================================================
 // OpenAI client (for non-Usership users - LEGACY fallback)
-const oai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+let oai: OpenAI | null = null
+let oaiClientInstance: ReturnType<typeof Instructor> | null = null
+let anthropicInstance: Anthropic | null = null
 
-export const oaiClient = Instructor({
-  client: oai,
-  mode: 'TOOLS',
-})
+try {
+  oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  oaiClientInstance = Instructor({ client: oai, mode: 'TOOLS' })
+} catch (err) {
+  console.error('[memory/constants] Failed to initialize OpenAI client:', (err as Error).message)
+}
 
-// Anthropic client (LEGACY - kept for backwards compatibility)
-export const anthropic = new Anthropic({
-  apiKey: config.anthropic.apiKey,
-})
+try {
+  anthropicInstance = new Anthropic({ apiKey: config.anthropic.apiKey })
+} catch (err) {
+  console.error('[memory/constants] Failed to initialize Anthropic client:', (err as Error).message)
+}
+
+export const oaiClient = oaiClientInstance
+export const anthropic = anthropicInstance
 
 // ============================================================================
 // BACKUP SELF-CARE QUESTIONS

@@ -4,6 +4,9 @@
  * Manages interface evolution state reactively using nanostores.
  * Syncs with achievements, badges, and user progression to
  * subtly evolve the interface over time.
+ *
+ * Evolution is not something you can fork from a repo.
+ * It's earned through presence. LOT Systems — the original evolution.
  */
 
 import { atom, computed } from 'nanostores';

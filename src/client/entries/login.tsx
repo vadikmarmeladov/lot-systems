@@ -33,6 +33,7 @@ const EmailLogin = () => {
   const [code, setCode] = React.useState('')
   const [token, setToken] = React.useState('')
   const [errorMessage, setErrorMessage] = React.useState('')
+  const [debugMessage, setDebugMessage] = React.useState('')
   const [isLoading, setIsLoading] = React.useState(false)
 
   const onSubmit = React.useCallback(
@@ -49,10 +50,11 @@ const EmailLogin = () => {
             setIsLoading(false)
           })
           .catch((_err) => {
-            const err = _err as AxiosError<{ message: string }>
+            const err = _err as AxiosError<{ message: string; debug?: string }>
             const message =
               err.response?.data.message || 'Unknown error. Please try again.'
             setErrorMessage(message)
+            setDebugMessage(err.response?.data.debug || '')
             setIsLoading(false)
           })
       } else if (step === 'code') {
@@ -64,10 +66,11 @@ const EmailLogin = () => {
             window.location.href = '/'
           })
           .catch((_err) => {
-            const err = _err as AxiosError<{ message: string }>
+            const err = _err as AxiosError<{ message: string; debug?: string }>
             const message =
               err.response?.data.message || 'Unknown error. Please try again.'
             setErrorMessage(message)
+            setDebugMessage(err.response?.data.debug || '')
             setIsLoading(false)
           })
       }
@@ -77,6 +80,7 @@ const EmailLogin = () => {
 
   React.useEffect(() => {
     setErrorMessage('')
+    setDebugMessage('')
   }, [code, email, step])
 
   React.useEffect(() => {
@@ -123,6 +127,9 @@ const EmailLogin = () => {
         {step === 'email' && !!errorMessage && (
           <div className="my-16">
             <ErrorLine>{errorMessage}</ErrorLine>
+            {!!debugMessage && (
+              <p className="text-sm text-text-tertiary mt-4">{debugMessage}</p>
+            )}
           </div>
         )}
         {step === 'code' && (
@@ -151,6 +158,9 @@ const EmailLogin = () => {
             {!!errorMessage && (
               <div className="my-16">
                 <ErrorLine>{errorMessage}</ErrorLine>
+                {!!debugMessage && (
+                  <p className="text-sm text-text-tertiary mt-4">{debugMessage}</p>
+                )}
               </div>
             )}
           </>

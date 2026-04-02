@@ -61,7 +61,7 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
         >
           <div
             className={cn(
-              'w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4',
+              'w-[150px] phone:w-[170px] mr-12 phone:mr-24 -ml-4 flex-shrink-0',
               props.containsButton && 'translate-y-8',
               props.containsSmallButton && 'translate-y-4'
             )}

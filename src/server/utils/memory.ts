@@ -27,19 +27,25 @@ import { aiEngineManager, type EnginePreference } from './ai-engines.js'
 import { extractGoals, type ExtractedGoal } from './goal-understanding.js'
 
 // OpenAI client (for non-Usership users - LEGACY fallback)
-const oai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+let oai: OpenAI | null = null
+let oaiClient: ReturnType<typeof Instructor> | null = null
+let anthropicClient: Anthropic | null = null
 
-const oaiClient = Instructor({
-  client: oai,
-  mode: 'TOOLS',
-})
+try {
+  oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  oaiClient = Instructor({ client: oai, mode: 'TOOLS' })
+} catch (err) {
+  console.error('[memory] Failed to initialize OpenAI client:', (err as Error).message)
+}
 
-// Anthropic client (LEGACY - kept for backwards compatibility)
-const anthropic = new Anthropic({
-  apiKey: config.anthropic.apiKey,
-})
+try {
+  anthropicClient = new Anthropic({ apiKey: config.anthropic.apiKey })
+} catch (err) {
+  console.error('[memory] Failed to initialize Anthropic client:', (err as Error).message)
+}
+
+// Re-export with original names for compatibility
+const anthropic = anthropicClient
 
 // ============================================================================
 // AI ENGINE CONFIGURATION
@@ -98,13 +104,14 @@ const BACKUP_SELFCARE_QUESTIONS: Array<{ question: string; options: string[] }> 
 
 /**
  * Get a backup question when all AI engines fail
- * Cycles through questions based on day of year to ensure variety
+ * Cycles through questions based on day of year + prompt count to avoid repeats
  */
-function getBackupQuestion(dayOfYear: number): MemoryQuestion {
-  const index = dayOfYear % BACKUP_SELFCARE_QUESTIONS.length
+function getBackupQuestion(dayOfYear: number, promptsShownToday: number = 0): MemoryQuestion {
+  // Combine day + prompt count so each request within the same day gets a different question
+  const index = (dayOfYear + promptsShownToday) % BACKUP_SELFCARE_QUESTIONS.length
   const backup = BACKUP_SELFCARE_QUESTIONS[index]
 
-  console.log(`Using backup question #${index + 1}/${BACKUP_SELFCARE_QUESTIONS.length}`)
+  console.log(`Using backup question #${index + 1}/${BACKUP_SELFCARE_QUESTIONS.length} (day=${dayOfYear}, shown=${promptsShownToday})`)
 
   return {
     id: randomUUID(),
@@ -131,7 +138,8 @@ export function getMemoryEngine(user: User): 'ai' | 'standard' {
 
 export async function completeAndExtractQuestion(
   prompt: string,
-  user: User
+  user: User,
+  promptsShownToday: number = 0
 ): Promise<MemoryQuestion> {
   // ============================================================================
   // AI ENGINE ABSTRACTION IN ACTION
@@ -184,6 +192,7 @@ Make sure the question is personalized, relevant to self-care habits, and the op
 
     try {
       // FALLBACK 1: Use legacy OpenAI with Instructor if new system fails
+      if (!oaiClient) throw new Error('OpenAI client not initialized')
       const extractedQuestion = await oaiClient.chat.completions.create({
         messages: [{ role: 'user', content: prompt }],
         model: 'gpt-4o-mini',
@@ -208,7 +217,7 @@ Make sure the question is personalized, relevant to self-care habits, and the op
       const dayOfYear = dayjs().dayOfYear()
 
       console.log(`🆘 EMERGENCY FALLBACK: Using backup question bank (day ${dayOfYear})`)
-      return getBackupQuestion(dayOfYear)
+      return getBackupQuestion(dayOfYear, promptsShownToday)
     }
   }
 }
@@ -1034,6 +1043,7 @@ ${answerCount === 0 ? '\nNote: This user has not yet answered any Memory prompts
 Provide a warm, insightful summary that helps admins understand this user's self-care journey and engagement with LOT Systems.`
 
   // Use Claude API instead of OpenAI
+  if (!anthropic) throw new Error('Anthropic client not initialized')
   const response = await anthropic.messages.create({
     model: 'claude-3-5-sonnet-20241022',
     max_tokens: 2000,

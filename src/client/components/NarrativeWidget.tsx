@@ -3,6 +3,7 @@ import { Block } from '#client/components/ui'
 import { useNarrative } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { ProgressBars } from '#client/utils/progressBars'
+import { recordSignal } from '#client/stores/intentionEngine'
 
 type NarrativeView = 'story' | 'achievements' | 'quests' | 'context'
 
@@ -17,13 +18,12 @@ export function NarrativeWidget() {
 
   const cycleView = () => {
     setView(prev => {
-      switch (prev) {
-        case 'story': return 'achievements'
-        case 'achievements': return 'quests'
-        case 'quests': return 'context'
-        case 'context': return 'story'
-        default: return 'story'
-      }
+      const next = prev === 'story' ? 'achievements'
+        : prev === 'achievements' ? 'quests'
+        : prev === 'quests' ? 'context'
+        : 'story'
+      try { recordSignal('journal', 'narrative_explored', { view: next, hour: new Date().getHours() }) } catch (e) {}
+      return next
     })
   }
 
@@ -79,15 +79,12 @@ export function NarrativeWidget() {
       onLabelClick={cycleView}
     >
       {view === 'story' && (
-        <div className="inline-block">
+        <div>
           {/* Level and chapter */}
-          <div className="mb-12 flex items-center gap-12">
-            <span className="text-xl">Level {narrative.currentLevel}</span>
-            <span>Chapter {narrative.currentArc.chapter}: {narrative.currentArc.title}</span>
-          </div>
+          <div className="mb-8">Level {narrative.currentLevel} • Chapter {narrative.currentArc.chapter}: {narrative.currentArc.title}</div>
 
           {/* Current narrative */}
-          <div className="mb-12">
+          <div className="mb-8">
             {narrative.currentArc.narrative}
           </div>
 
@@ -100,16 +97,16 @@ export function NarrativeWidget() {
 
           {/* Log-derived progress context */}
           {!logCtx.isEmpty && (
-            <div className="opacity-40">
-              {logCtx.totalEntries} total entries . {logCtx.activeDays} active day{logCtx.activeDays === 1 ? '' : 's'}
-              {logCtx.streak > 1 ? ` . ${logCtx.streak}d streak` : ''}
+            <div className="opacity-30">
+              {logCtx.totalEntries} total entries • {logCtx.activeDays} active day{logCtx.activeDays === 1 ? '' : 's'}
+              {logCtx.streak > 1 ? ` • ${logCtx.streak}d streak` : ''}
             </div>
           )}
         </div>
       )}
 
       {view === 'achievements' && (
-        <div className="inline-block">
+        <div>
           {narrative.achievements.filter(a => a.unlocked).length === 0 ? (
             <div>
               No achievements unlocked yet. Continue input.
@@ -124,8 +121,8 @@ export function NarrativeWidget() {
                 })
                 .slice(0, 5)
                 .map((achievement) => (
-                  <div key={achievement.id}>
-                    {achievement.title}
+                  <div key={achievement.id} className="flex items-center gap-8">
+                    <span>{achievement.title}</span>
                   </div>
                 ))}
             </div>
@@ -134,7 +131,7 @@ export function NarrativeWidget() {
       )}
 
       {view === 'quests' && (
-        <div className="inline-block">
+        <div>
           {narrative.currentArc.activeQuests.length === 0 ? (
             <div>
               No active quests. Awaiting next directive.
@@ -143,13 +140,14 @@ export function NarrativeWidget() {
             <div className="flex flex-col gap-8">
               {narrative.currentArc.activeQuests.map((quest: any) => (
                 <div key={quest.id}>
-                  <div className="mb-4">
-                    {quest.title}{quest.complete ? '. Completed.' : ''}
+                  <div className="mb-4 flex items-center gap-8">
+                    <span>{quest.title}</span>
+                    {quest.complete && <span>completed.</span>}
                   </div>
                   {!quest.complete && quest.progress !== undefined && (
                     <div className="flex items-center gap-8">
                       <ProgressBars percentage={quest.progress} barCount={10} />
-                      <span className="opacity-60 tabular-nums">{quest.progress}%</span>
+                      <span className="opacity-30 tabular-nums">{quest.progress}%</span>
                     </div>
                   )}
                 </div>
@@ -160,42 +158,42 @@ export function NarrativeWidget() {
       )}
 
       {view === 'context' && (
-        <div className="inline-block">
+        <div>
           {logCtx.isEmpty ? (
-            <div className="opacity-60">No log data to compile narrative context.</div>
+            <div className="opacity-30">No log data to compile narrative context.</div>
           ) : (
             <>
               {/* Runtime narrative derived from logs */}
-              <div className="mb-12">
+              <div className="mb-8">
                 {getContextNarrative()}
               </div>
 
               {/* Module coverage for quest context */}
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Modules deployed</span>
+                <span className="opacity-30">Modules deployed</span>
                 <span className="tabular-nums">{logCtx.activeModules.length}/6</span>
               </div>
 
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Widget diversity</span>
+                <span className="opacity-30">Widget diversity</span>
                 <span className="tabular-nums">{logCtx.widgetDiversity}</span>
               </div>
 
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Session depth</span>
+                <span className="opacity-30">Session depth</span>
                 <span className="tabular-nums">{logCtx.sessionDepth}</span>
               </div>
 
               {logCtx.dominantMood && (
                 <div className="flex justify-between items-baseline mb-8">
-                  <span className="opacity-60">Dominant mood</span>
+                  <span className="opacity-30">Dominant mood</span>
                   <span>{logCtx.dominantMood}</span>
                 </div>
               )}
 
               {/* Dormant modules as potential quests */}
               {logCtx.dormantModules.length > 0 && (
-                <div className="mt-8 opacity-40">
+                <div className="mt-8 opacity-30">
                   Unexplored: {logCtx.dormantModules.join(', ')}.
                 </div>
               )}

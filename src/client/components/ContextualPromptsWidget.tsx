@@ -56,7 +56,7 @@ export const ContextualPromptsWidget = () => {
       prompts.push({
         type: 'insight' as const,
         title: 'Pattern shift detected',
-        message: 'Mood trajectory declining over recent check-ins. Consider deploying self-care or reflective journaling.',
+        message: 'Biofield trajectory declining over recent readings. Consider deploying Cleanness module or reflective journaling.',
         action: { label: 'Deploy', target: 'log' as const },
         priority: 8,
         triggeredBy: 'log-mood-declining'
@@ -66,8 +66,8 @@ export const ContextualPromptsWidget = () => {
     // Priority 4: Dormant module activation (log-derived)
     if (dormantModules.length > 0 && engagementLevel !== 'new') {
       const moduleLabelMap: Record<string, string> = {
-        'memory': 'Memory engine', 'mood': 'Mood interface', 'planner': 'Planner module',
-        'selfcare': 'Self-care module', 'intentions': 'Intention engine', 'journal': 'Journal module'
+        'memory': 'Memory engine', 'mood': 'Biofield interface', 'planner': 'Routine module',
+        'selfcare': 'Cleanness module', 'intentions': 'Intention engine', 'journal': 'Journal module'
       }
       const targetModule = dormantModules[0]
       const targetMap: Record<string, 'mood' | 'memory' | 'log' | 'sync'> = {
@@ -247,15 +247,15 @@ export const ContextualPromptsWidget = () => {
   return (
     <div>
       <Block label={getLabelVariations()} blockView>
-        <div className="mb-12">
+        <div className="mb-8">
           {topPrompt.message}
         </div>
         {/* Log context summary line */}
         {!logCtx.isEmpty && (
-          <div className="mb-12 opacity-40">
+          <div className="mb-8 opacity-30">
             {logCtx.todayActivity.length} signal{logCtx.todayActivity.length === 1 ? '' : 's'} today
-            {logCtx.streak > 1 ? ` . ${logCtx.streak}d streak` : ''}
-            {logCtx.sessionDepth > 0 ? ` . session depth ${logCtx.sessionDepth}` : ''}
+            {logCtx.streak > 1 ? ` • ${logCtx.streak}d streak` : ''}
+            {logCtx.sessionDepth > 0 ? ` • session depth ${logCtx.sessionDepth}` : ''}
           </div>
         )}
         <div className="flex gap-8">
@@ -269,7 +269,7 @@ export const ContextualPromptsWidget = () => {
           </Button>
         </div>
         {activePrompts.length > 1 && (
-          <div className="mt-8 opacity-60">
+          <div className="mt-8 opacity-30">
             +{activePrompts.length - 1} more directive{activePrompts.length - 1 > 1 ? 's' : ''}
           </div>
         )}

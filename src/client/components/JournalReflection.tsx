@@ -1,6 +1,7 @@
 import React from 'react'
 import { Block } from '#client/components/ui'
 import * as stores from '#client/stores'
+import { recordSignal } from '#client/stores/intentionEngine'
 
 /**
  * Journal Reflection Widget - Time-aware prompts for deeper journaling
@@ -9,6 +10,7 @@ import * as stores from '#client/stores'
  */
 export function JournalReflection() {
   const handleReflectClick = () => {
+    try { recordSignal('journal', 'reflect_initiated', { hour: new Date().getHours() }) } catch (e) {}
     stores.goTo('logs')
   }
 
@@ -58,11 +60,11 @@ export function JournalReflection() {
 
   return (
     <Block label="Reflect:" blockView onLabelClick={handleReflectClick}>
-      <div className="inline-block">
-        <div className="mb-12 ">{prompts.primary}</div>
-        <div className="flex flex-col gap-8  ">
-          <div>• {prompts.secondary}</div>
-          <div>• {prompts.tertiary}</div>
+      <div>
+        <div className="mb-8">{prompts.primary}</div>
+        <div className="flex flex-col gap-8">
+          <div>. {prompts.secondary}</div>
+          <div>. {prompts.tertiary}</div>
         </div>
       </div>
     </Block>

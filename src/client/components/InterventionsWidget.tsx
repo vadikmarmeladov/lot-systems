@@ -51,9 +51,9 @@ export function InterventionsWidget() {
       blockView
       onLabelClick={hasMultiple ? cycleIntervention : undefined}
     >
-      <div className="inline-block">
+      <div>
         {/* Narrative context */}
-        <div className="mb-12">
+        <div className="mb-8">
           {getInterventionNarrative(
             intervention.severity === 'critical' ? 'urgent' :
             intervention.severity === 'high' ? 'high' :
@@ -63,19 +63,16 @@ export function InterventionsWidget() {
         </div>
 
         {/* Severity indicator and title */}
-        <div className="mb-12 flex items-center gap-8">
-          <span>{getSeverityIndicator()}</span>
-          <span>{intervention.title}</span>
-        </div>
+        <div className="mb-8">{getSeverityIndicator()} {intervention.title}</div>
 
         {/* Main message */}
-        <div className="mb-12">
+        <div className="mb-8">
           {intervention.message}
         </div>
 
         {/* Suggestion if present */}
         {intervention.suggestion && (
-          <div className="opacity-80">
+          <div className="opacity-30">
             {intervention.suggestion}
           </div>
         )}

@@ -12,6 +12,7 @@ import {
 import { cn } from '#client/utils'
 import { WorldCanvas } from './WorldCanvas'
 import { GrowthMilestones, BadgeUnlockFeed } from './stats'
+import { InvestmentSwitch } from './InvestmentSwitch'
 
 interface StatusData {
   version: string
@@ -268,18 +269,23 @@ export const Settings = () => {
     [state]
   )
 
-  // Get version from store (set by app.tsx from /api/public/status)
-  const appVersion = useStore(stores.appVersion)
-
-  // Fetch status data for the status link (REMOVED - too slow)
-  // Using version from store instead
+  // Fetch live status data from the API
   React.useEffect(() => {
-    // Use version from store, fallback to package.json version if not loaded yet
-    setStatusData({
-      version: appVersion || '1.2.0',
-      overall: 'ok'
-    })
-  }, [appVersion])
+    fetch('/api/public/status')
+      .then(res => res.json())
+      .then(data => {
+        setStatusData({
+          version: data.version || '1.2.0',
+          overall: data.overall || 'ok',
+        })
+      })
+      .catch(() => {
+        setStatusData({
+          version: '1.2.0',
+          overall: 'error',
+        })
+      })
+  }, [])
 
   const statusText = statusData
     ? statusData.overall === 'ok'
@@ -290,7 +296,7 @@ export const Settings = () => {
   return (
     <div className="flex flex-col gap-y-16">
       <div>
-        <div>{me?.firstName ? me.firstName + `'s` : 'Your'} LOT setings.</div>
+        <div>{me?.firstName ? me.firstName + `'s` : 'Your'} LOT settings.</div>
         <div>You can edit the settings at any time.</div>
       </div>
 
@@ -420,21 +426,21 @@ export const Settings = () => {
         {/* Data Export Section */}
         <div>
           <Block label="Data Export:" blockView>
-            <div className="mb-12">
+            <div className="mb-8">
               Download your personal data as CSV files for analysis, backup, or sharing with healthcare providers.
             </div>
             <div className="flex flex-col gap-4">
               <a
                 href="/api/export/emotional-checkins"
                 download
-                className="opacity-75 hover:opacity-100 transition-opacity underline"
+                className="opacity-30 hover:opacity-100 transition-opacity underline"
               >
                 Export Mood Check-ins (CSV)
               </a>
               <a
                 href="/api/export/self-care"
                 download
-                className="opacity-75 hover:opacity-100 transition-opacity underline"
+                className="opacity-30 hover:opacity-100 transition-opacity underline"
               >
                 Export Self-care History (CSV)
               </a>
@@ -513,6 +519,9 @@ export const Settings = () => {
             )}
           </Block>
         </div>
+
+        {/* Investment Switch */}
+        <InvestmentSwitch />
 
         <div>
           <Block label="Memory Engine:">

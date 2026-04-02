@@ -1,10 +1,63 @@
 import { Resend } from 'resend';
+import https from 'https';
+import config from '../config.js';
 
-if (!process.env.RESEND_API_KEY) {
-  console.error('RESEND_API_KEY is not set in environment variables');
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (resend) return resend;
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is not set. Email sending is unavailable.');
+  }
+  resend = new Resend(process.env.RESEND_API_KEY);
+  return resend;
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+/**
+ * Send email using the Resend REST API directly via https.request.
+ * This bypasses Node.js global fetch which may fail with
+ * "self-signed certificate in certificate chain" in some environments.
+ */
+function resendApiRequest(apiKey: string, emailData: Record<string, any>): Promise<{ data: any; error: any }> {
+  return new Promise((resolve) => {
+    const body = JSON.stringify(emailData);
+    const req = https.request(
+      {
+        hostname: 'api.resend.com',
+        path: '/emails',
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(body),
+        },
+        // Allow self-signed certificates in the chain (e.g. corporate proxies, DigitalOcean)
+        rejectUnauthorized: false,
+      },
+      (res) => {
+        let responseBody = '';
+        res.on('data', (chunk) => { responseBody += chunk; });
+        res.on('end', () => {
+          try {
+            const parsed = JSON.parse(responseBody);
+            if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+              resolve({ data: parsed, error: null });
+            } else {
+              resolve({ data: null, error: parsed });
+            }
+          } catch {
+            resolve({ data: null, error: { message: `HTTP ${res.statusCode}: ${responseBody}` } });
+          }
+        });
+      }
+    );
+    req.on('error', (err) => {
+      resolve({ data: null, error: { message: err.message } });
+    });
+    req.write(body);
+    req.end();
+  });
+}
 
 interface EmailParams {
   to: string;
@@ -22,8 +75,12 @@ export async function sendEmail({ to, html, text, subject }: EmailParams) {
       timestamp: new Date().toISOString()
     });
 
+    const from = config.email.fromName
+      ? `${config.email.fromName} <${config.email.fromEmail}>`
+      : config.email.fromEmail;
+
     const emailData: any = {
-      from: 'auth@lot-systems.com',
+      from,
       to: [to],
       subject,
       ...(html && { html }),
@@ -36,19 +93,34 @@ export async function sendEmail({ to, html, text, subject }: EmailParams) {
       text: text ? 'Text content hidden for logging' : undefined
     });
 
-    let result;
-    try {
-      result = await resend.emails.send(emailData);
-      console.log('Raw Resend response:', result);
-    } catch (resendError: any) {
-      console.error('Resend API error:', {
-        error: resendError,
-        stack: resendError?.stack
-      });
-      throw resendError;
-    }
+    let data: any;
+    let error: any;
 
-    const { data, error } = result;
+    // Use direct HTTPS first — it handles self-signed certificates in the chain
+    // (e.g. corporate proxies, DigitalOcean environments) unlike the Resend SDK
+    // which relies on Node.js global fetch and strict TLS verification.
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) throw new Error('RESEND_API_KEY is not set');
+
+    const directResult = await resendApiRequest(apiKey, emailData);
+    if (directResult.data && !directResult.error) {
+      data = directResult.data;
+      error = null;
+    } else {
+      // If direct HTTPS fails, try the Resend SDK as fallback
+      console.warn('Direct HTTPS email failed, trying Resend SDK:', directResult.error?.message);
+      try {
+        const client = getResendClient();
+        const result = await client.emails.send(emailData);
+        data = result.data;
+        error = result.error;
+      } catch (sdkError: any) {
+        // Both methods failed — use the direct HTTPS error as it's more informative
+        console.error('Resend SDK also failed:', sdkError?.message);
+        data = null;
+        error = directResult.error;
+      }
+    }
 
     if (error) {
       console.error('Resend returned error:', {

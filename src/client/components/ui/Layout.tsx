@@ -46,17 +46,17 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
   }, [layoutView, me])
 
   return (
-    <div className="min-h-[100dvh] grid leading-[1.5rem]">
+    <div className="min-h-[100dvh] grid leading-[1.5rem]" data-lot-genesis="true">
       <Page>{children}</Page>
       {!hideNav && (
         <div
           id="nav"
           className="sticky bottom-0 left-0 right-0 self-end transition-opacity"
         >
-          <div className="desktop:px-64 tablet:px-48 phone:px-32 px-16 desktop:mb-64 tablet:mb-48 phone:mb-32 mb-16">
+          <div className="px-16 phone:px-32 tablet:px-48 desktop:px-64 mb-16 phone:mb-32 tablet:mb-48 desktop:mb-64">
             <nav
               className={cn(
-                'flex gap-16 phone:gap-12 tablet:gap-10 -mb-8',
+                'flex gap-8 phone:gap-6 -mb-4',
                 'flex-wrap-reverse tablet:flex-wrap',
                 'flex-row-reverse tablet:flex-row',
                 'justify-end tablet:justify-start'
@@ -75,7 +75,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
                     href={link.href ?? undefined}
                     kind="secondary-rounded"
                     className={cn(
-                      'mb-8 flex-shrink-0',
+                      'mb-4 flex-shrink-0',
                       isActive && (isMirrorOn
                         ? 'bg-white/20 hover:bg-white/30'
                         : 'bg-acc text-bac hover:bg-acc/90')

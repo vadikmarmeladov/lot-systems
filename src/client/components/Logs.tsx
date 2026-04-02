@@ -14,6 +14,7 @@ import {
   USER_SETTING_NAMES,
   USER_SETTING_NAME_BY_ID,
 } from '#shared/constants'
+import { toCelsius } from '#shared/utils'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -35,10 +36,21 @@ export const Logs: React.FC = () => {
   const { data: loadedLogs = [], refetch: refetchLogs } = useLogs()
 
   const { mutate: updateLog } = useUpdateLog({
-    onSuccess: (log) => {
+    onSuccess: (log: any) => {
+      // Skip if server deleted the log (user backspaced all content)
+      if (log.deleted) {
+        // Remove from store — read fresh store to avoid stale closure
+        const current = localStore.logById.get()
+        const { [log.id]: _, ...rest } = current
+        localStore.logById.set(rest as Record<string, Log>)
+        localStore.logIds.set(localStore.logIds.get().filter((id: string) => id !== log.id))
+        return
+      }
+      // Read fresh store value to avoid stale closure overwriting recent data
+      const current = localStore.logById.get()
       localStore.logById.set({
-        ...logById,
-        [log.id]: log,
+        ...current,
+        [log.id]: log as Log,
       })
       // Only refetch (push down) if this is the primary/most recent log
       // Past logs don't need to trigger push-down
@@ -218,7 +230,7 @@ export const Logs: React.FC = () => {
                 {insights && insights.length > 0 && (
                   <div>
                     {insights.map((insight, idx) => (
-                      <div key={idx}>• {insight}</div>
+                      <div key={idx}>. {insight}</div>
                     ))}
                   </div>
                 )}
@@ -265,7 +277,7 @@ export const Logs: React.FC = () => {
                   </div>
                 )}
                 {log.context?.temperature && (
-                  <div>Temperature: {Math.round(log.context.temperature - 273.15)}°C</div>
+                  <div>Temperature: {Math.round(toCelsius(log.context.temperature))}°C</div>
                 )}
                 {log.context?.humidity && (
                   <div>Humidity: {log.context.humidity}%</div>
@@ -276,6 +288,17 @@ export const Logs: React.FC = () => {
                 {log.metadata?.theme?.theme && (
                   <div>Theme: {log.metadata.theme.theme}</div>
                 )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event !== 'note') {
+          // Non-note events without explicit handlers (quantum_intent_signal,
+          // system_feedback, direct_message_sent, etc.) — render as read-only
+          if (!log.text) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="Log:" blockView>
+                {log.text}
               </Block>
             </LogContainer>
           )
@@ -442,7 +465,7 @@ const NoteEditor = ({
     if (!log?.context) return ''
     const weatherParts: string[] = []
     if (log.context?.temperature) {
-      const celsius = log.context.temperature - 273.15
+      const celsius = toCelsius(log.context.temperature)
       weatherParts.push(`${Math.round(celsius)}°C`)
     }
     if (log.context?.humidity) {
@@ -464,11 +487,11 @@ const NoteEditor = ({
           'transition-opacity',
           primary
             ? cn(
-                'hidden sm:block ___opacity-20 sm:opacity-100',
+                'hidden sm:block ___opacity-30 sm:opacity-100',
                 !isMouseActive && 'sm:opacity-0'
               )
             : cn(
-                'opacity-20',
+                'opacity-30',
                 isFocused && 'sm:opacity-100',
                 'sm:group-hover:opacity-100'
               )
@@ -517,8 +540,8 @@ const NoteEditor = ({
           className={cn(
             'max-w-[700px] focus:opacity-100 group-hover:opacity-100',
             'placeholder:opacity-100',
-            !primary && 'opacity-20',
-            primary && isSaved && 'opacity-20',
+            !primary && 'opacity-30',
+            primary && isSaved && 'opacity-30',
             primary && !isSaved && 'opacity-100'
           )}
           rows={primary ? 10 : 1}
@@ -536,7 +559,7 @@ const LogContainer: React.FC<{
   const contextText = React.useMemo(() => {
     const weatherParts: string[] = []
     if (log.context?.temperature) {
-      const celsius = log.context.temperature - 273.15
+      const celsius = toCelsius(log.context.temperature)
       weatherParts.push(`${Math.round(celsius)}°C`)
     }
     if (log.context?.humidity) {
@@ -556,7 +579,7 @@ const LogContainer: React.FC<{
           'relative mb-4 sm:mb-0',
           'sm:absolute sm:top-0 sm:right-0 text-end select-none',
           'transition-opacity',
-          'opacity-20',
+          'opacity-30',
           'group-hover:opacity-100'
         )}
       >
@@ -588,7 +611,7 @@ const LogContainer: React.FC<{
       <div
         className={cn(
           'max-w-[500px] lg:max-w-[700px] whitespace-breakspaces',
-          'opacity-20 transition-opacity',
+          'opacity-30 transition-opacity',
           'group-hover:opacity-100'
         )}
       >

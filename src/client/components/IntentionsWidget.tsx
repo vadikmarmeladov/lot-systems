@@ -122,28 +122,28 @@ export function IntentionsWidget() {
   return (
     <Block label={label} blockView onLabelClick={cycleView}>
       {view === 'set' && (
-        <div className="inline-block w-full">
+        <div className="w-full">
           {isSettingIntention ? (
             <>
               {(() => {
                 const quantumReason = localStorage.getItem('intentions-quantum-reason')
                 return quantumReason ? (
-                  <div className="opacity-60 mb-8">
+                  <div className="opacity-30 mb-8">
                     {quantumReason}
                   </div>
                 ) : null
               })()}
-              <div className="mb-12">What do you want to cultivate this month?</div>
+              <div className="mb-8">What do you want to cultivate this month?</div>
               <input
                 type="text"
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSetIntention()}
                 placeholder="One word or short phrase..."
-                className="w-full bg-transparent border-none outline-none mb-12"
+                className="w-full bg-transparent border-none outline-none mb-8"
                 autoFocus
               />
-              <div className="flex gap-8 mb-24">
+              <div className="flex gap-16 mb-24">
                 <Button onClick={handleSetIntention} disabled={!inputValue.trim()}>
                   Set Intention
                 </Button>
@@ -157,7 +157,7 @@ export function IntentionsWidget() {
               {(() => {
                 const quantumReason = localStorage.getItem('intentions-quantum-reason')
                 return quantumReason ? (
-                  <div className="opacity-60 mb-8">
+                  <div className="opacity-30 mb-8">
                     {quantumReason}
                   </div>
                 ) : null
@@ -165,16 +165,16 @@ export function IntentionsWidget() {
               <div className="mb-16">
                 {intention ? 'Set a new intention for this month.' : 'What aspect of yourself do you want to nurture this month?'} Examples:
               </div>
-              <div className="flex flex-col gap-6 mb-16">
-                <div>• Presence</div>
-                <div>• Self-compassion</div>
-                <div>• Creative flow</div>
-                <div>• Boundaries</div>
-                <div>• Rest</div>
-                <div>• Sport</div>
-                <div>• Exercise</div>
-                <div>• Relationships</div>
-                <div>• Humor</div>
+              <div className="flex flex-col gap-8 mb-24">
+                <div>. Presence</div>
+                <div>. Self-compassion</div>
+                <div>. Creative flow</div>
+                <div>. Boundaries</div>
+                <div>. Rest</div>
+                <div>. Sport</div>
+                <div>. Exercise</div>
+                <div>. Relationships</div>
+                <div>. Humor</div>
               </div>
               <div className="mb-24">
                 <Button onClick={() => setIsSettingIntention(true)}>
@@ -187,7 +187,7 @@ export function IntentionsWidget() {
       )}
 
       {view === 'current' && intention && (
-        <div className="inline-block">
+        <div>
           <div className="mb-8">
             <span className="capitalize">{intention.focus}</span>
           </div>
@@ -203,8 +203,8 @@ export function IntentionsWidget() {
       )}
 
       {view === 'current' && !intention && (
-        <div className="inline-block">
-          <div className="mb-12">No intention set yet.</div>
+        <div>
+          <div className="mb-8">No intention set yet.</div>
           <div className="mb-24">
             <Button onClick={() => setView('set')}>
               Set Your Intention
@@ -214,13 +214,13 @@ export function IntentionsWidget() {
       )}
 
       {view === 'alignment' && intention && (
-        <div className="inline-block">
+        <div>
           <div className="mb-8">
             Intention: <span className="capitalize">{intention.focus}</span>
           </div>
 
           {/* Activity since intention was set */}
-          <div className="mb-12 opacity-60">
+          <div className="mb-8 opacity-30">
             {logCtx.totalEntries > 0
               ? `${logCtx.todayActivity.length} action${logCtx.todayActivity.length === 1 ? '' : 's'} today. ${logCtx.streak} day streak.`
               : 'No activity recorded yet.'
@@ -228,25 +228,25 @@ export function IntentionsWidget() {
           </div>
 
           {/* Behavioral alignment */}
-          <div className="flex flex-col gap-4 mb-12">
+          <div className="flex flex-col gap-4 mb-8">
             <div className="flex justify-between items-baseline">
-              <span className="opacity-60">Widget diversity</span>
+              <span className="opacity-30">Widget diversity</span>
               <span>{logCtx.widgetDiversity} types</span>
             </div>
             <div className="flex justify-between items-baseline">
-              <span className="opacity-60">Weekly rate</span>
+              <span className="opacity-30">Weekly rate</span>
               <span>~{logCtx.weeklyRate} interactions</span>
             </div>
             {logCtx.dominantMood && (
               <div className="flex justify-between items-baseline">
-                <span className="opacity-60">Mood pattern</span>
+                <span className="opacity-30">Mood pattern</span>
                 <span className="capitalize">{logCtx.dominantMood}</span>
               </div>
             )}
           </div>
 
           {/* Alignment assessment */}
-          <div className="opacity-60">
+          <div className="opacity-30">
             {logCtx.streak >= 7
               ? 'Strong convergence. Intention integrated into daily runtime.'
               : logCtx.streak >= 3
@@ -260,14 +260,14 @@ export function IntentionsWidget() {
       )}
 
       {view === 'alignment' && !intention && (
-        <div className="inline-block">
+        <div>
           <div>Set an intention first to track alignment.</div>
         </div>
       )}
 
       {view === 'reflection' && intention && (
-        <div className="inline-block">
-          <div className="mb-12">{getReflectionPrompts()}</div>
+        <div>
+          <div className="mb-8">{getReflectionPrompts()}</div>
           <div>
             Reflecting on: <span className="capitalize">{intention.focus}</span>
           </div>
@@ -275,7 +275,7 @@ export function IntentionsWidget() {
       )}
 
       {view === 'reflection' && !intention && (
-        <div className="inline-block">
+        <div>
           <div>Set an intention first to begin reflection.</div>
         </div>
       )}

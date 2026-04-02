@@ -63,19 +63,19 @@ export function ChatCatalystWidget() {
       blockView
       onLabelClick={hasMultiple ? cycleCatalyst : undefined}
     >
-      <div className="inline-block">
+      <div>
         {/* Narrative context */}
-        <div className="mb-12">
+        <div className="mb-8">
           {getChatCatalystNarrative(catalyst.priority)}
         </div>
 
         {/* Catalyst title */}
-        <div className="mb-12">
+        <div className="mb-8">
           {catalyst.title}
         </div>
 
         {/* Main message */}
-        <div className="mb-12">
+        <div className="mb-8">
           {catalyst.message}
         </div>
 
@@ -88,17 +88,17 @@ export function ChatCatalystWidget() {
 
         {/* Conversation starters if available */}
         {catalyst.conversationStarters && catalyst.conversationStarters.length > 0 && (
-          <div className="mb-12">
+          <div className="mb-8">
             <div className="mb-4">Conversation ideas:</div>
             {catalyst.conversationStarters.map((starter, i) => (
-              <div key={i} className="mb-2 opacity-60">{starter}</div>
+              <div key={i} className="mb-2 opacity-30">{starter}</div>
             ))}
           </div>
         )}
 
         {/* Cohort member info if present */}
         {catalyst.action.cohortMember && (
-          <div className="text-xs">
+          <div>
             {catalyst.action.cohortMember.name}
           </div>
         )}

@@ -54,24 +54,24 @@ export function AIFeedbackWidget() {
     // Critical support needed — enriched with log context
     if (needsSupport === 'critical') {
       if (logCtx.moodTrend === 'declining') {
-        return 'System strain detected. Mood trajectory declining across recent check-ins. Prioritize restoration.'
+        return 'Biofield strain detected. Trajectory declining across recent readings. Prioritize restoration.'
       }
-      return 'System strain detected. Prioritize energy restoration before deploying further modules.'
+      return 'Biofield strain detected. Prioritize ATP restoration before deploying further modules.'
     }
 
     if (needsSupport === 'moderate') {
       if (logCtx.hoursSinceLastMood !== null && logCtx.hoursSinceLastMood > 6) {
-        return 'Moderate load detected. Mood data stale. Re-calibrate with a fresh check-in.'
+        return 'Moderate load detected. Biofield data stale. Re-calibrate with a fresh reading.'
       }
-      return 'Moderate load detected. Initialize self-care or mood calibration.'
+      return 'Moderate load detected. Initialize Cleanness module or biofield calibration.'
     }
 
     // Energy-based insights enriched with log data
     if (energy === 'depleted') {
       if (logCtx.todaySelfCareCount === 0) {
-        return 'Energy buffer depleted. No self-care logged today. Deploy restoration module.'
+        return 'ATP depleted. No Cleanness logged today. Deploy restoration module.'
       }
-      return 'Energy buffer depleted. Suspend deep processing. Focus on input restoration.'
+      return 'ATP depleted. Suspend deep processing. Focus on biofield restoration.'
     }
 
     if (energy === 'high' && clarity === 'focused') {
@@ -112,12 +112,12 @@ export function AIFeedbackWidget() {
     // Default — use log context for richer fallback
     if (energy === 'unknown') {
       if (logCtx.isEmpty) {
-        return 'No telemetry received. Begin with any module to initialize the system.'
+        return 'No biofeedback received. Begin with any CQGS module to initialize.'
       }
-      return 'Indexing signals. Additional telemetry will refine output.'
+      return 'Indexing signals. Additional biofeedback will refine output.'
     }
 
-    return 'System nominal. Continue current execution.'
+    return 'CQGS nominal. Continue current execution.'
   }
 
   // Generate guidance deeply grounded in log context
@@ -139,9 +139,9 @@ export function AIFeedbackWidget() {
 
     // State + log cross-reference
     if ((userState.energy === 'depleted' || userState.energy === 'low') && logCtx.todaySelfCareCount === 0) {
-      guidance.push('Energy low and no self-care today. Deploy self-care module to restore buffer.')
+      guidance.push('ATP low and no Cleanness today. Deploy Cleanness module to restore biofield.')
     } else if (userState.energy === 'depleted' || userState.energy === 'low') {
-      guidance.push('Prioritize energy restoration before further module deployment.')
+      guidance.push('Prioritize biofield restoration before further module deployment.')
     }
 
     if (userState.clarity === 'confused' && !logCtx.hasIntention) {
@@ -154,7 +154,7 @@ export function AIFeedbackWidget() {
 
     // Dormant module guidance
     if (logCtx.dormantModules.length >= 3) {
-      guidance.push(`${logCtx.dormantModules.length} modules dormant. Broaden input for richer pattern coverage.`)
+      guidance.push(`${logCtx.dormantModules.length} CQGS modules dormant. Broaden biofeedback for richer pattern coverage.`)
     }
 
     // Profile-based guidance
@@ -187,24 +187,24 @@ export function AIFeedbackWidget() {
       onLabelClick={cycleView}
     >
       {view === 'insight' && (
-        <div className="inline-block">
+        <div>
           {/* Primary quantum-state-aware insight */}
-          <div className="mb-12">
+          <div className="mb-8">
             {getStateInsight(userState)}
           </div>
 
           {/* Log-derived context line */}
           {!logCtx.isEmpty && (
-            <div className="mb-8 opacity-60">
-              {logCtx.engagementLevel} runtime
-              {logCtx.dominantMood ? ` . ${logCtx.dominantMood}` : ''}
-              {logCtx.streak > 1 ? ` . ${logCtx.streak}d streak` : ''}
-              {profile?.archetype ? ` . ${profile.archetype}` : ''}
+            <div className="mb-8 opacity-30">
+              <span className="capitalize">{logCtx.engagementLevel}</span> runtime
+              {logCtx.dominantMood ? ` • ${logCtx.dominantMood}` : ''}
+              {logCtx.streak > 1 ? ` • ${logCtx.streak}d streak` : ''}
+              {profile?.archetype ? ` • ${profile.archetype}` : ''}
             </div>
           )}
 
           {/* Signal summary */}
-          <div className="opacity-40">
+          <div className="opacity-30">
             Based on {engine.signals.length} signal{engine.signals.length === 1 ? '' : 's'}
             {logCtx.totalEntries > 0 ? `, ${logCtx.totalEntries} log entries` : ''}
             {engine.recognizedPatterns.length > 0
@@ -216,28 +216,28 @@ export function AIFeedbackWidget() {
       )}
 
       {view === 'diagnostics' && (
-        <div className="inline-block">
+        <div>
           {diagnostics ? (
             <>
               {/* System status */}
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Status</span>
+                <span className="opacity-30">Status</span>
                 <span className="capitalize">{diagnostics.status.replace('_', ' ')}</span>
               </div>
 
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Optimization</span>
+                <span className="opacity-30">Optimization</span>
                 <span className="tabular-nums">{diagnostics.optimizationScore}%</span>
               </div>
 
               {/* Log-derived diagnostics */}
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Module coverage</span>
+                <span className="opacity-30">Module coverage</span>
                 <span className="tabular-nums">{logCtx.activeModules.length}/6</span>
               </div>
 
-              <div className="flex justify-between items-baseline mb-12">
-                <span className="opacity-60">Session depth</span>
+              <div className="flex justify-between items-baseline mb-8">
+                <span className="opacity-30">Session depth</span>
                 <span className="tabular-nums">{logCtx.sessionDepth}</span>
               </div>
 
@@ -247,35 +247,35 @@ export function AIFeedbackWidget() {
                   {diagnostics.issues.slice(0, 3).map((issue, idx) => (
                     <div key={idx}>
                       <div className="mb-4">{issue.description}</div>
-                      <div className="opacity-60">{issue.suggestion}</div>
+                      <div className="opacity-30">{issue.suggestion}</div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="opacity-60">No issues detected. System optimal.</div>
+                <div className="opacity-30">No issues detected. System optimal.</div>
               )}
             </>
           ) : (
             // Fallback diagnostics from log context when OS diagnostics unavailable
-            <div className="inline-block">
+            <div>
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Engagement</span>
+                <span className="opacity-30">Engagement</span>
                 <span className="capitalize">{logCtx.engagementLevel}</span>
               </div>
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Active modules</span>
+                <span className="opacity-30">Active modules</span>
                 <span className="tabular-nums">{logCtx.activeModules.length}/6</span>
               </div>
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Today signals</span>
+                <span className="opacity-30">Today signals</span>
                 <span className="tabular-nums">{logCtx.todayActivity.length}</span>
               </div>
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-60">Mood trend</span>
+                <span className="opacity-30">Mood trend</span>
                 <span>{logCtx.moodTrend}</span>
               </div>
               {logCtx.dormantModules.length > 0 && (
-                <div className="mt-8 opacity-60">
+                <div className="mt-8 opacity-30">
                   Dormant: {logCtx.dormantModules.join(', ')}.
                 </div>
               )}
@@ -285,9 +285,9 @@ export function AIFeedbackWidget() {
       )}
 
       {view === 'guidance' && (
-        <div className="inline-block">
+        <div>
           {/* Log-grounded guidance */}
-          <div className="flex flex-col gap-8 mb-12">
+          <div className="flex flex-col gap-8 mb-8">
             {getGuidance().map((item, idx) => (
               <div key={idx}>
                 {item}
@@ -297,7 +297,7 @@ export function AIFeedbackWidget() {
 
           {/* Recommendations from diagnostics */}
           {diagnostics?.recommendations && diagnostics.recommendations.length > 0 && (
-            <div className="opacity-60">
+            <div className="opacity-30">
               {diagnostics.recommendations[0]}
             </div>
           )}

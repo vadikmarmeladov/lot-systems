@@ -9,7 +9,9 @@ import { useLogContext } from '#client/hooks/useLogContext'
 type EnergyView = 'overview' | 'romantic' | 'needs' | 'correlation'
 
 /**
- * Energy Capacitor Widget - Tracks energy depletion/replenishment
+ * Biofield Capacitor Widget - Tracks ATP energy depletion/replenishment
+ * CQGS Bioethics: The health of the ATP cells, body heat, water quality,
+ * and nutrition regimen become visible and transparent through the biofield.
  * Cycles: Overview > Correlation > Romantic Connection > Needs
  */
 export function EnergyCapacitor() {
@@ -54,26 +56,26 @@ export function EnergyCapacitor() {
     const level = energyState.currentLevel
 
     if (level < 30 && ['anxious', 'overwhelmed', 'tired'].includes(mood)) {
-      return `Low energy aligns with ${mood} mood. Rest is the priority.`
+      return `Low ATP aligns with ${mood} biofield. Rest is the priority.`
     }
     if (level < 30 && ['calm', 'peaceful'].includes(mood)) {
-      return `Low energy but calm mood. Gentle replenishment works best.`
+      return `Low ATP but calm biofield. Gentle replenishment works best.`
     }
     if (level > 70 && ['energized', 'excited', 'hopeful'].includes(mood)) {
-      return `High energy matches positive mood. Good conditions for deep work.`
+      return `High ATP matches positive biofield emission. Good conditions for deep work.`
     }
     if (level > 70 && ['anxious', 'restless'].includes(mood)) {
-      return `High energy but unsettled mood. Channel energy with intention.`
+      return `High ATP but unsettled biofield. Channel energy with intention.`
     }
     if (level >= 30 && level <= 70) {
-      return `Moderate energy. ${logCtx.moodTrend === 'improving' ? 'Mood is trending positive.' : logCtx.moodTrend === 'declining' ? 'Watch the mood trend.' : 'Steady state.'}`
+      return `Moderate ATP. ${logCtx.moodTrend === 'improving' ? 'Biofield trending positive.' : logCtx.moodTrend === 'declining' ? 'Watch the biofield trend.' : 'Steady state.'}`
     }
     return null
   }
 
   const label =
-    view === 'overview' ? 'Energy:' :
-    view === 'correlation' ? 'Energy + Mood:' :
+    view === 'overview' ? 'Biofield:' :
+    view === 'correlation' ? 'Biofield + Mood:' :
     view === 'romantic' ? 'Connection:' :
     'Needs:'
 
@@ -84,15 +86,15 @@ export function EnergyCapacitor() {
       onLabelClick={cycleView}
     >
       {view === 'overview' && (
-        <div className="inline-block">
+        <div>
           {/* Narrative status */}
-          <div className="mb-12">
+          <div className="mb-8">
             {getEnergyNarrative(energyState.currentLevel, energyState.trajectory)}
           </div>
 
           {/* Energy level */}
-          <div className="mb-12 flex items-center gap-12">
-            <span className="text-xl">
+          <div className="mb-8 flex items-center gap-8">
+            <span>
               {energyState.currentLevel}%
             </span>
             <span className="capitalize">{energyState.status}</span>
@@ -100,23 +102,23 @@ export function EnergyCapacitor() {
 
           {/* Trajectory indicator */}
           {energyState.trajectory !== 'stable' && (
-            <div className="mb-12 opacity-60">
+            <div className="mb-8 opacity-30">
               {energyState.trajectory === 'improving' && 'Improving.'}
               {energyState.trajectory === 'declining' && 'Declining.'}
               {energyState.trajectory === 'critical' && 'Critical.'}
             </div>
           )}
 
-          {/* Burnout warning */}
+          {/* Burnout warning - biofield depletion forecast */}
           {energyState.daysUntilBurnout !== null && energyState.daysUntilBurnout <= 7 && (
-            <div className="mb-12">
-              Estimated {energyState.daysUntilBurnout} day{energyState.daysUntilBurnout === 1 ? '' : 's'} until buffer overflow.
+            <div className="mb-8">
+              Estimated {energyState.daysUntilBurnout} day{energyState.daysUntilBurnout === 1 ? '' : 's'} until biofield depletion.
             </div>
           )}
 
           {/* Top suggestion */}
           {suggestions.length > 0 && (
-            <div className="opacity-80">
+            <div className="opacity-30">
               {suggestions[0]}
             </div>
           )}
@@ -124,15 +126,15 @@ export function EnergyCapacitor() {
       )}
 
       {view === 'correlation' && (
-        <div className="inline-block">
+        <div>
           {/* Mood-energy correlation */}
           {getMoodEnergyCorrelation() ? (
-            <div className="mb-12">
+            <div className="mb-8">
               {getMoodEnergyCorrelation()}
             </div>
           ) : (
-            <div className="mb-12 opacity-60">
-              Record mood check-ins to see energy-mood correlation.
+            <div className="mb-8 opacity-30">
+              Log biofield readings to see ATP-mood correlation.
             </div>
           )}
 
@@ -145,44 +147,44 @@ export function EnergyCapacitor() {
 
           {/* Suggestion based on combined state */}
           {energyState.currentLevel < 40 && logCtx.hasSelfCare && (
-            <div className="opacity-60">
-              Deploy self-care module to restore energy buffer.
+            <div className="opacity-30">
+              Deploy Cleanness module to restore biofield buffer.
             </div>
           )}
           {energyState.currentLevel < 40 && !logCtx.hasSelfCare && (
-            <div className="opacity-60">
-              Initialize self-care module to build energy awareness.
+            <div className="opacity-30">
+              Initialize Cleanness module to build biofield awareness.
             </div>
           )}
           {energyState.currentLevel >= 70 && !logCtx.hasMemory && (
-            <div className="opacity-60">
-              Energy buffer high. Optimal window for Memory Engine integration.
+            <div className="opacity-30">
+              Biofield high. Optimal window for Memory Engine integration.
             </div>
           )}
         </div>
       )}
 
       {view === 'romantic' && (
-        <div className="inline-block">
+        <div>
           {energyState.romanticConnection.lastIntimacyMoment ? (
             <>
               {/* Narrative status */}
-              <div className="mb-12">
+              <div className="mb-8">
                 {getRomanticNarrative(
                   energyState.romanticConnection.daysSinceConnection,
                   energyState.romanticConnection.connectionQuality
                 )}
               </div>
 
-              <div className="mb-12">
+              <div className="mb-8">
                 <span className="capitalize">{energyState.romanticConnection.connectionQuality}</span>
               </div>
-              <div className="mb-12">
+              <div className="mb-8">
                 {energyState.romanticConnection.daysSinceConnection} day{energyState.romanticConnection.daysSinceConnection === 1 ? '' : 's'} since connection
               </div>
               {energyState.romanticConnection.needsAttention && (
                 <div>
-                  Your heart needs tending.
+                  Partnership needs tending. Bioethics parameter.
                 </div>
               )}
             </>
@@ -195,7 +197,7 @@ export function EnergyCapacitor() {
       )}
 
       {view === 'needs' && (
-        <div className="inline-block">
+        <div>
           {energyState.needsReplenishment.length === 0 ? (
             <div>
               All needs balanced.

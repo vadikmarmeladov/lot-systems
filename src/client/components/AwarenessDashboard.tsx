@@ -1,6 +1,7 @@
 import React from 'react'
 import { Block, Tag, TagsContainer } from '#client/components/ui'
 import { useProfile } from '#client/queries'
+import { recordSignal } from '#client/stores/intentionEngine'
 
 type AwarenessView =
   | 'overview'
@@ -22,7 +23,7 @@ export function AwarenessDashboard() {
   if (!profile || typeof profile.selfAwarenessLevel === 'undefined') {
     return (
       <Block label="Awareness:" blockView>
-        <div className="">
+        <div>
           Answer more Memory questions to reveal your psychological profile.
         </div>
       </Block>
@@ -34,16 +35,15 @@ export function AwarenessDashboard() {
   // Cycle through views on label click
   const cycleView = () => {
     setAwarenessView(prev => {
-      switch (prev) {
-        case 'overview': return 'archetype'
-        case 'archetype': return 'values'
-        case 'values': return 'patterns'
-        case 'patterns': return 'needs'
-        case 'needs': return 'sentiment'
-        case 'sentiment': return 'reflection'
-        case 'reflection': return 'overview'
-        default: return 'overview'
-      }
+      const next = prev === 'overview' ? 'archetype'
+        : prev === 'archetype' ? 'values'
+        : prev === 'values' ? 'patterns'
+        : prev === 'patterns' ? 'needs'
+        : prev === 'needs' ? 'sentiment'
+        : prev === 'sentiment' ? 'reflection'
+        : 'overview'
+      try { recordSignal('mood', 'awareness_explored', { view: next, hour: new Date().getHours() }) } catch (e) {}
+      return next
     })
   }
 
@@ -60,11 +60,8 @@ export function AwarenessDashboard() {
   return (
     <Block label={label} blockView onLabelClick={cycleView}>
       {awarenessView === 'overview' && (
-        <div className="inline-block">
-          <div className="flex items-center gap-8">
-            <span className="">{awarenessPercentage}%</span>
-            <span className="">Self-Awareness</span>
-          </div>
+        <div>
+          <div>{awarenessPercentage}% Self-Awareness</div>
           {profile.growthTrajectory && (
             <div className="mt-4  capitalize">
               Journey: {profile.growthTrajectory}
@@ -74,17 +71,17 @@ export function AwarenessDashboard() {
       )}
 
       {awarenessView === 'archetype' && profile.archetype && (
-        <div className="inline-block">
+        <div>
           <div className="mb-8">
-            <span className="font-medium">{profile.archetype}</span>
+            <span>{profile.archetype}</span>
           </div>
           {profile.archetypeDescription && (
-            <div className="  mb-12">
+            <div className="mb-8">
               {profile.archetypeDescription}
             </div>
           )}
           {profile.behavioralCohort && (
-            <div className="">
+            <div>
               Cohort: {profile.behavioralCohort}
             </div>
           )}
@@ -92,7 +89,7 @@ export function AwarenessDashboard() {
       )}
 
       {awarenessView === 'values' && profile.values && profile.values.length > 0 && (
-        <div className="inline-block">
+        <div>
           <TagsContainer>
             {profile.values.map((value) => (
               <Tag key={value} color="#acc">
@@ -100,21 +97,21 @@ export function AwarenessDashboard() {
               </Tag>
             ))}
           </TagsContainer>
-          <div className="mt-8  ">
+          <div className="mt-8">
             Core values appearing in your choices
           </div>
         </div>
       )}
 
       {awarenessView === 'patterns' && profile.emotionalPatterns && profile.emotionalPatterns.length > 0 && (
-        <div className="inline-block">
+        <div>
           <div className="flex flex-col gap-4">
             {profile.emotionalPatterns.map((pattern) => (
-              <div key={pattern}>• {pattern}</div>
+              <div key={pattern}>. {pattern}</div>
             ))}
           </div>
           {profile.emotionalRange !== undefined && (
-            <div className="mt-12  ">
+            <div className="mt-12">
               Emotional range: {profile.emotionalRange}/10
             </div>
           )}
@@ -122,23 +119,23 @@ export function AwarenessDashboard() {
       )}
 
       {awarenessView === 'needs' && profile.dominantNeeds && profile.dominantNeeds.length > 0 && (
-        <div className="inline-block">
+        <div>
           <div className="flex flex-col gap-8">
             {profile.dominantNeeds.map((need, index) => (
               <div key={need} className="flex items-center gap-8">
-                <span className="">{index + 1}.</span>
+                <span>{index + 1}.</span>
                 <span>{need.charAt(0).toUpperCase() + need.slice(1)}</span>
               </div>
             ))}
           </div>
-          <div className="mt-12  ">
+          <div className="mt-12">
             Core psychological needs in your patterns
           </div>
         </div>
       )}
 
       {awarenessView === 'sentiment' && profile.journalSentiment && (
-        <div className="inline-block">
+        <div>
           <div className="flex flex-col gap-8">
             <div className="flex items-center justify-between gap-16">
               <span>Positive:</span>
@@ -153,20 +150,17 @@ export function AwarenessDashboard() {
               <span>{profile.journalSentiment.challenging}%</span>
             </div>
           </div>
-          <div className="mt-12  ">
+          <div className="mt-12">
             Emotional tone across journal entries
           </div>
         </div>
       )}
 
       {awarenessView === 'reflection' && profile.reflectionQuality !== undefined && (
-        <div className="inline-block">
-          <div className="flex items-center gap-8 mb-8">
-            <span className="">{profile.reflectionQuality}/10</span>
-            <span className="">Introspection depth</span>
-          </div>
+        <div>
+          <div className="mb-8">{profile.reflectionQuality}/10 Introspection depth</div>
           {profile.growthTrajectory && (
-            <div className="  capitalize">
+            <div className="capitalize">
               Quality of self-reflection in your writing
             </div>
           )}

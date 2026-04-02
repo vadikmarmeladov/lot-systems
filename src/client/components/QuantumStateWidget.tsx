@@ -9,9 +9,10 @@ import { useLogContext } from '#client/hooks/useLogContext'
 type QuantumView = 'state' | 'dimensions' | 'history'
 
 /**
- * Quantum State Widget - Real-time 4D user state from QIE cross-referenced with log context
- * Displays energy, clarity, alignment, and support needs as text-based meters
- * Cycles: State > Dimensions > History
+ * CQGS Quantum State Widget - Real-time 4D biofield state from QIE
+ * Displays ATP energy, clarity, alignment, and support needs as text-based meters.
+ * Cross-referenced with log context for biofeedback loop.
+ * Cycles: Biofield State > Signal Allocation > Signal Log
  */
 export function QuantumStateWidget() {
   const [view, setView] = React.useState<QuantumView>('state')
@@ -41,7 +42,7 @@ export function QuantumStateWidget() {
   if (engine.signals.length === 0) return null
 
   const label =
-    view === 'state' ? 'Quantum State:' :
+    view === 'state' ? 'Biofield State:' :
     view === 'dimensions' ? 'Signal Allocation:' :
     'Signal Log:'
 
@@ -111,6 +112,22 @@ export function QuantumStateWidget() {
     return `${Math.floor(hours / 24)}d`
   }
 
+  // Format raw signal names into human-readable labels
+  const formatSignal = (signal: string): string => {
+    const signalLabels: Record<string, string> = {
+      'prompt_accepted': 'Prompt accepted',
+      'prompt_skipped': 'Prompt skipped',
+      'energy_low': 'Energy: low',
+      'energy_depleted': 'Energy: depleted',
+      'energy_moderate': 'Energy: moderate',
+      'energy_high': 'Energy: high',
+      'energy_unknown': 'Energy: scanning',
+      'awareness_explored': 'Awareness explored',
+    }
+    if (signalLabels[signal]) return signalLabels[signal]
+    return signal.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase())
+  }
+
   return (
     <Block
       label={label}
@@ -118,11 +135,11 @@ export function QuantumStateWidget() {
       onLabelClick={cycleView}
     >
       {view === 'state' && (
-        <div className="inline-block">
-          {/* 4D State with progress bars */}
+        <div>
+          {/* 4D Biofield State with progress bars */}
           <div className="flex flex-col gap-8 mb-16">
             <div className="flex items-center gap-8">
-              <span className="w-[80px]">Energy</span>
+              <span className="w-[80px]">ATP</span>
               <ProgressBars percentage={getEnergyPercent(userState.energy)} barCount={10} />
               <span className="capitalize">{userState.energy}</span>
             </div>
@@ -143,21 +160,21 @@ export function QuantumStateWidget() {
             </div>
           </div>
 
-          {/* Signal count enriched with log context */}
-          <div className="opacity-60">
-            {engine.signals.length} signal{engine.signals.length === 1 ? '' : 's'} cached in local memory.
+          {/* Signal count enriched with log context — biofeedback loop */}
+          <div className="opacity-30">
+            {engine.signals.length} signal{engine.signals.length === 1 ? '' : 's'} in biofeedback loop.
           </div>
           {!logCtx.isEmpty && (
-            <div className="mt-4 opacity-40">
-              {logCtx.timePhase} phase . {logCtx.engagementLevel}
-              {logCtx.dominantMood ? ` . ${logCtx.dominantMood}` : ''}
+            <div className="mt-4 opacity-30">
+              <span className="capitalize">{logCtx.timePhase}</span> phase • <span className="capitalize">{logCtx.engagementLevel}</span>
+              {logCtx.dominantMood ? ` • ${logCtx.dominantMood}` : ''}
             </div>
           )}
         </div>
       )}
 
       {view === 'dimensions' && (
-        <div className="inline-block">
+        <div>
           {/* Signal sources breakdown */}
           <div className="flex flex-col gap-4 mb-16">
             {Object.entries(signalCounts)
@@ -171,32 +188,32 @@ export function QuantumStateWidget() {
             }
           </div>
 
-          {/* Analysis metadata enriched with log context */}
-          <div className="opacity-60">
+          {/* Analysis metadata — CQGS biofeedback loop */}
+          <div className="opacity-30">
             {engine.lastAnalysis > 0
-              ? `Last compiled: ${formatTimeAgo(engine.lastAnalysis)} ago.`
-              : 'Awaiting initial compilation.'
+              ? `Last biofield compilation: ${formatTimeAgo(engine.lastAnalysis)} ago.`
+              : 'Awaiting initial biofield compilation.'
             }
           </div>
           {!logCtx.isEmpty && (
-            <div className="mt-4 opacity-40">
-              {logCtx.activeModules.length}/6 modules reporting . {logCtx.todayActivity.length} today
+            <div className="mt-4 opacity-30">
+              {logCtx.activeModules.length}/6 modules reporting • {logCtx.todayActivity.length} today
             </div>
           )}
         </div>
       )}
 
       {view === 'history' && (
-        <div className="inline-block">
+        <div>
           {recentSignals.length === 0 ? (
             <div>No signals indexed yet.</div>
           ) : (
             <div className="flex flex-col gap-4">
               {recentSignals.map((signal, idx) => (
                 <div key={idx} className="flex items-center gap-8">
-                  <span className="w-[32px] opacity-60">{formatTimeAgo(signal.timestamp)}</span>
-                  <span className="w-[64px] capitalize opacity-60">{signal.source}</span>
-                  <span>{signal.signal}</span>
+                  <span className="w-[32px] opacity-30">{formatTimeAgo(signal.timestamp)}</span>
+                  <span className="w-[64px] capitalize opacity-30">{signal.source}</span>
+                  <span>{formatSignal(signal.signal)}</span>
                 </div>
               ))}
             </div>

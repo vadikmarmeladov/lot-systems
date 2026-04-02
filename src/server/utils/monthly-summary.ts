@@ -51,6 +51,8 @@ export interface MonthlySummary {
   narrative: string
   forwardLook: string
   memoryStory: string | null
+  osVersion: string
+  osState: string
 }
 
 /**
@@ -310,6 +312,21 @@ export async function generateMonthlySummary(
     memoryStory = null
   }
 
+  // Calculate OS version from answer count and days since start
+  const answerLogs = logs.filter(log => log.event === 'answer')
+  const answerCount = answerLogs.length
+  const firstLog = logs.length > 0
+    ? logs.reduce((earliest, log) =>
+        dayjs(log.createdAt).isBefore(dayjs(earliest.createdAt)) ? log : earliest
+      )
+    : null
+  const daysSinceStart = firstLog
+    ? dayjs().diff(dayjs(firstLog.createdAt), 'day')
+    : 0
+
+  const osVersion = calculateOSVersionFromMetrics(answerCount, daysSinceStart)
+  const osState = determineOSState(answerCount, activeDays, period.totalDays)
+
   return {
     period,
     presence: { activeDays, totalEntries, consistency, longestStreak },
@@ -338,7 +355,9 @@ export async function generateMonthlySummary(
     },
     narrative: narrativeText,
     forwardLook,
-    memoryStory
+    memoryStory,
+    osVersion: osVersion.number,
+    osState
   }
 }
 
@@ -404,7 +423,7 @@ function describeCohortEvolution(cohort: string, traits: any): string {
 /**
  * Generate clean narrative in plain LOT style
  */
-function generateMonthlyNarrative(summary: Omit<MonthlySummary, 'narrative' | 'forwardLook' | 'memoryStory'>): string {
+function generateMonthlyNarrative(summary: Omit<MonthlySummary, 'narrative' | 'forwardLook' | 'memoryStory' | 'osVersion' | 'osState'>): string {
   const lines: string[] = []
 
   // Header
@@ -531,6 +550,42 @@ function mostCommon<T>(arr: T[]): T | undefined {
 }
 
 /**
+ * Calculate OS version from user metrics (mirrors os-api.ts logic)
+ */
+function calculateOSVersionFromMetrics(answerCount: number, daysSinceStart: number): { number: string; name: string } {
+  const versions = [
+    { number: '0.1.0', name: 'Initializing', answers: 0, days: 0 },
+    { number: '0.5.0', name: 'Emerging', answers: 7, days: 7 },
+    { number: '1.0.0', name: 'Active', answers: 20, days: 14 },
+    { number: '1.5.0', name: 'Engaged', answers: 50, days: 30 },
+    { number: '2.0.0', name: 'Optimized', answers: 100, days: 60 },
+    { number: '3.0.0', name: 'Integrated', answers: 200, days: 120 },
+  ]
+
+  let current = versions[0]
+  for (const v of versions) {
+    if (answerCount >= v.answers && daysSinceStart >= v.days) {
+      current = v
+    } else {
+      break
+    }
+  }
+  return current
+}
+
+/**
+ * Determine OS state from engagement metrics
+ */
+function determineOSState(answerCount: number, activeDays: number, totalDays: number): string {
+  const ratio = activeDays / totalDays
+  if (answerCount === 0) return 'Initializing'
+  if (ratio >= 0.8) return 'Optimized'
+  if (ratio >= 0.4) return 'Engaged'
+  if (ratio >= 0.15) return 'Active'
+  return 'Dormant'
+}
+
+/**
  * Generate plain text email body
  */
 export function generateMonthlyEmailBody(summary: MonthlySummary, userFirstName: string): string {
@@ -571,4 +626,239 @@ export function generateMonthlyEmailBody(summary: MonthlySummary, userFirstName:
   sections.push('Patterns. Growth. Presence.')
 
   return sections.join('\n')
+}
+
+/**
+ * Monthly Review HTML Email Template — User OS Style
+ *
+ * Mirrors the public profile page aesthetic:
+ * - Clean, minimalist layout with label:value Block pattern
+ * - User's theme colors (base + accent)
+ * - OS version display, system metrics
+ */
+
+export interface MonthlyEmailTheme {
+  baseColor: string
+  accentColor: string
+  themeName: string
+}
+
+export interface MonthlyEmailData {
+  firstName: string
+  period: { month: string; year: number; totalDays: number }
+  osVersion: string
+  osState: string
+  presence: {
+    activeDays: number
+    totalEntries: number
+    consistency: string
+    longestStreak: number
+  }
+  energy: {
+    averageLevel: number
+    trajectory: string
+    rangeLow: number
+    rangeHigh: number
+    romanticConnectionDays: number
+  }
+  patterns: {
+    dominantThemes: Array<{ theme: string; count: number }>
+    emotionalEvolution: string
+    strugglingPeriods: number
+    breakthroughMoments: number
+    insights: Array<{ description: string; confidence: number }>
+  }
+  growth: {
+    currentLevel: number
+    levelsGained: number
+    newAchievements: number
+    totalAchievements: number
+    cohortEvolution: string
+    notableProgress: string[]
+  }
+  memoryStory: string | null
+  forwardLook: string
+  theme: MonthlyEmailTheme
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+function blockRow(label: string, value: string, accentColor: string): string {
+  return `
+    <tr>
+      <td style="width:170px;padding:4px 8px 4px 0;vertical-align:top;color:${accentColor};opacity:0.5;font-size:14px;">${escapeHtml(label)}</td>
+      <td style="padding:4px 0;vertical-align:top;color:${accentColor};font-size:14px;">${escapeHtml(value)}</td>
+    </tr>`
+}
+
+function htmlSectionHeader(title: string, accentColor: string): string {
+  return `
+    <tr>
+      <td colspan="2" style="padding:32px 0 8px 0;color:${accentColor};font-size:14px;letter-spacing:0.5px;">
+        ${escapeHtml(title)}
+      </td>
+    </tr>`
+}
+
+function htmlSeparator(accentColor: string): string {
+  return `
+    <tr>
+      <td colspan="2" style="padding:16px 0;">
+        <div style="border-top:1px solid ${accentColor};opacity:0.15;"></div>
+      </td>
+    </tr>`
+}
+
+export function generateMonthlyEmailHtml(data: MonthlyEmailData): string {
+  const { baseColor, accentColor } = data.theme
+  const greeting = data.firstName || 'there'
+
+  const consistencyLabels: Record<string, string> = {
+    exceptional: 'Exceptional',
+    strong: 'Strong rhythm',
+    steady: 'Steady practice',
+    intermittent: 'Intermittent',
+    minimal: 'Seeds remain',
+  }
+  const consistencyLabel = consistencyLabels[data.presence.consistency] || data.presence.consistency
+
+  const strongInsights = data.patterns.insights.filter(i => i.confidence >= 0.7)
+
+  const themes = data.patterns.dominantThemes
+    .slice(0, 3)
+    .map(t => t.theme)
+    .join(', ')
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>${escapeHtml(data.period.month)} ${data.period.year} — Your LOT Review</title>
+</head>
+<body style="margin:0;padding:0;background-color:${baseColor};font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:${baseColor};">
+    <tr>
+      <td align="center" style="padding:40px 20px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;width:100%;">
+
+          <!-- Header: Name + Date -->
+          <tr>
+            <td style="padding:0 0 40px 0;">
+              <div style="color:${accentColor};font-size:16px;margin-bottom:4px;">${escapeHtml(greeting)},</div>
+              <div style="color:${accentColor};font-size:14px;opacity:0.5;">Your ${escapeHtml(data.period.month)} ${data.period.year} review from LOT Systems.</div>
+            </td>
+          </tr>
+
+          <!-- OS Version Banner -->
+          <tr>
+            <td style="padding:0 0 32px 0;">
+              <div style="color:${accentColor};font-size:13px;letter-spacing:1px;opacity:0.4;margin-bottom:4px;">SYSTEM STATUS</div>
+              <div style="color:${accentColor};font-size:16px;">OS v.${escapeHtml(data.osVersion)} — ${escapeHtml(data.osState)}</div>
+            </td>
+          </tr>
+
+          <!-- Separator -->
+          <tr>
+            <td style="padding:0 0 8px 0;">
+              <div style="border-top:1px solid ${accentColor};opacity:0.15;"></div>
+            </td>
+          </tr>
+
+          <!-- Main Metrics Table -->
+          <tr>
+            <td>
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+
+                ${htmlSectionHeader('Presence', accentColor)}
+                ${blockRow('Days active:', `${data.presence.activeDays}/${data.period.totalDays}`, accentColor)}
+                ${blockRow('Consistency:', consistencyLabel, accentColor)}
+                ${data.presence.longestStreak >= 3 ? blockRow('Longest streak:', `${data.presence.longestStreak} days`, accentColor) : ''}
+                ${blockRow('Total entries:', `${data.presence.totalEntries}`, accentColor)}
+
+                ${htmlSeparator(accentColor)}
+
+                ${htmlSectionHeader('Energy', accentColor)}
+                ${blockRow('Average:', `${data.energy.averageLevel}%`, accentColor)}
+                ${blockRow('Range:', `${data.energy.rangeLow}–${data.energy.rangeHigh}%`, accentColor)}
+                ${blockRow('Trajectory:', data.energy.trajectory, accentColor)}
+                ${data.energy.romanticConnectionDays > 0 ? blockRow('Connection:', `${data.energy.romanticConnectionDays} days`, accentColor) : ''}
+
+                ${htmlSeparator(accentColor)}
+
+                ${htmlSectionHeader('Patterns', accentColor)}
+                ${themes ? blockRow('Themes:', themes, accentColor) : ''}
+                ${data.patterns.emotionalEvolution ? blockRow('Emotional:', data.patterns.emotionalEvolution, accentColor) : ''}
+                ${data.patterns.strugglingPeriods > 0 ? blockRow('Difficult days:', `${data.patterns.strugglingPeriods}`, accentColor) : ''}
+                ${data.patterns.breakthroughMoments > 0 ? blockRow('Clarity moments:', `${data.patterns.breakthroughMoments}`, accentColor) : ''}
+                ${strongInsights.length > 0 ? `
+                <tr>
+                  <td colspan="2" style="padding:8px 0 0 0;">
+                    <div style="color:${accentColor};font-size:13px;opacity:0.5;margin-bottom:4px;">Notable:</div>
+                    ${strongInsights.slice(0, 2).map(i => `<div style="color:${accentColor};font-size:14px;padding:2px 0 2px 12px;">&middot; ${escapeHtml(i.description)}</div>`).join('')}
+                  </td>
+                </tr>` : ''}
+
+                ${htmlSeparator(accentColor)}
+
+                ${htmlSectionHeader('Evolution', accentColor)}
+                ${blockRow('Level:', `${data.growth.currentLevel}${data.growth.levelsGained > 0 ? ` (+${data.growth.levelsGained})` : ''}`, accentColor)}
+                ${blockRow('Achievements:', `${data.growth.newAchievements} unlocked · ${data.growth.totalAchievements} total`, accentColor)}
+                ${blockRow('Cohort:', data.growth.cohortEvolution, accentColor)}
+                ${data.growth.notableProgress.length > 0 ? `
+                <tr>
+                  <td colspan="2" style="padding:8px 0 0 0;">
+                    ${data.growth.notableProgress.map(p => `<div style="color:${accentColor};font-size:14px;padding:2px 0 2px 12px;">&middot; ${escapeHtml(p)}</div>`).join('')}
+                  </td>
+                </tr>` : ''}
+
+              </table>
+            </td>
+          </tr>
+
+          ${data.memoryStory ? `
+          <!-- Memory Story -->
+          <tr>
+            <td style="padding:32px 0 0 0;">
+              <div style="border-top:1px solid ${accentColor};opacity:0.15;margin-bottom:24px;"></div>
+              <div style="color:${accentColor};font-size:13px;letter-spacing:0.5px;opacity:0.5;margin-bottom:12px;">Memory Story</div>
+              <div style="color:${accentColor};font-size:14px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(data.memoryStory)}</div>
+            </td>
+          </tr>` : ''}
+
+          <!-- Forward Look -->
+          <tr>
+            <td style="padding:32px 0 0 0;">
+              <div style="border-top:1px solid ${accentColor};opacity:0.15;margin-bottom:24px;"></div>
+              <div style="color:${accentColor};font-size:14px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(data.forwardLook.replace(/─+\n?\n?/g, '').trim())}</div>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding:48px 0 0 0;">
+              <div style="border-top:1px solid ${accentColor};opacity:0.15;margin-bottom:24px;"></div>
+              <div style="color:${accentColor};font-size:14px;">
+                <a href="https://lot-systems.com" style="color:${accentColor};text-decoration:underline;opacity:0.7;">Continue at lot-systems.com</a>
+              </div>
+              <div style="color:${accentColor};font-size:13px;opacity:0.35;margin-top:16px;">
+                —<br>
+                LOT Systems<br>
+                Patterns. Growth. Presence.
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`
 }

@@ -587,7 +587,7 @@ function calculateWeeklyMetrics(logs: Log[]): Array<{ week: string; count: numbe
   const weeklyData: Record<string, number> = {}
 
   for (const log of logs) {
-    const week = dayjs(log.createdAt).format('YYYY-[W]WW')
+    const week = dayjs(log.createdAt).format('GGGG-[W]WW')
     weeklyData[week] = (weeklyData[week] || 0) + 1
   }
 

@@ -8,6 +8,9 @@
  *
  * Call this hook once in the main System component to keep
  * evolution state reactive to user progression.
+ *
+ * The interface evolves with the user. That's not a feature — it's a philosophy.
+ * And philosophies can't be copied. Just poorly imitated.
  */
 
 import { useEffect, useState } from 'react';

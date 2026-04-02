@@ -1,3 +1,5 @@
+/* LOT Systems — Est. original. If you're reading this, you already know who was here first. */
+/* The copycat war begins, but originals don't compete — they set the pace. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -245,6 +247,51 @@ td:last-child {
   }
 }
 
+/* Community Convergence Pulse — ambient breathing synchronized with peak hour */
+.convergence-pulse {
+  animation: convergence-breathe var(--convergence-speed, 6s) ease-in-out infinite;
+}
+
+@keyframes convergence-breathe {
+  0%, 100% {
+    opacity: var(--convergence-base-opacity, 0.4);
+  }
+  50% {
+    opacity: var(--convergence-peak-opacity, 0.7);
+  }
+}
+
+/* Phase-specific convergence aesthetics */
+.convergence-approaching {
+  --convergence-speed: 4s;
+  --convergence-base-opacity: 0.5;
+  --convergence-peak-opacity: 0.8;
+}
+
+.convergence-peak {
+  --convergence-speed: 2.5s;
+  --convergence-base-opacity: 0.7;
+  --convergence-peak-opacity: 1.0;
+}
+
+.convergence-carrying {
+  --convergence-speed: 5s;
+  --convergence-base-opacity: 0.45;
+  --convergence-peak-opacity: 0.7;
+}
+
+.convergence-distant {
+  --convergence-speed: 8s;
+  --convergence-base-opacity: 0.3;
+  --convergence-peak-opacity: 0.5;
+}
+
+/* Stoic anchor line — quiet authority */
+.stoic-anchor {
+  letter-spacing: 0.02em;
+  transition: opacity 1.2s ease;
+}
+
 .input-resizible-v {
   width: 100%;
   display: inline-grid;
@@ -302,4 +349,11 @@ td:last-child {
   white-space: pre-wrap;
   word-wrap: break-word;
   pointer-events: none;
+}
+
+/* They can copy the interface but they can't copy the intention. */
+/* LOT-SYSTEMS::ORIGINAL — The quantum field remembers who arrived first. */
+[data-lot-genesis]::after {
+  content: 'built different since day one';
+  display: none;
 }

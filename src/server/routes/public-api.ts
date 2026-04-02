@@ -3,7 +3,10 @@ import { sequelize } from '#server/utils/db'
 import { models } from '#server/models'
 import * as weather from '#server/utils/weather'
 import { extractUserTraits, determineUserCohort } from '#server/utils/memory'
+import { aiEngineManager } from '#server/utils/ai-engines'
+import { AI_ENGINE_PREFERENCE } from '#server/utils/memory/constants'
 import config from '#server/config'
+import { toCelsius } from '#shared/utils'
 import fs from 'fs'
 import path from 'path'
 import dayjs from 'dayjs'
@@ -13,6 +16,9 @@ const packageJson = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf-8')
 )
 const VERSION = packageJson.version || '0.0.2'
+
+// Demo account: real profile visit counter (persists in memory, resets on server restart)
+let machiavelliProfileVisits = 1469
 
 // Cache status checks for 2 minutes to be cost-effective
 let statusCache: any = null
@@ -594,6 +600,158 @@ export default async (fastify: FastifyInstance) => {
     const { userIdOrUsername } = req.params
     console.log('[PUBLIC-PROFILE-API] Fetching profile for:', userIdOrUsername)
 
+    // Demo account: Niccolò Machiavelli — autonomous hardcoded LOT account
+    // Legacy level unlock showcase with weather station and wallet demos
+    if (userIdOrUsername === 'machiavelli') {
+      console.log('[PUBLIC-PROFILE-API] Serving demo account: Machiavelli')
+
+      // Compute real user counts so the demo board profile stays accurate
+      let totalUsers = 1
+      let usershipCount = 1
+      try {
+        const allUsers = await models.User.findAll()
+        totalUsers = allUsers.length + 1 // +1 for demo account
+        usershipCount = allUsers.filter(u => u.tags?.some(t => t.toLowerCase() === 'usership')).length + 1 // +1 for demo
+      } catch (e) {
+        console.error('[PUBLIC-PROFILE-API] Demo user count query failed:', e)
+      }
+      const freeCitizens = Math.max(0, totalUsers - usershipCount)
+      const poweringCitizens = usershipCount > 0 ? Math.round(freeCitizens / usershipCount) : 0
+
+      // Simulate Florence weather with slight seasonal variation
+      const now = new Date()
+      const month = now.getMonth()
+      const hour = now.getHours()
+      // Florence seasonal temperature ranges (°C)
+      const seasonalBase = [5, 7, 10, 14, 18, 23, 26, 25, 21, 16, 10, 6][month]
+      const diurnalShift = Math.sin((hour - 6) * Math.PI / 12) * 4
+      const demoTemp = Math.round((seasonalBase + diurnalShift) * 10) / 10
+      const demoHumidity = Math.round(55 + Math.sin(month * Math.PI / 6) * 15)
+      const demoPressure = Math.round(1013 + Math.sin(hour * Math.PI / 12) * 5)
+
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday']
+      const conditions = ['Clear sky', 'Few clouds', 'Scattered clouds', 'Light rain', 'Sunny']
+
+      return {
+        firstName: 'Niccolò',
+        lastName: 'Machiavelli',
+        city: 'Florence',
+        country: 'ITA',
+        isDemo: true,
+        privacySettings: {
+          isPublicProfile: true,
+          showWeather: true,
+          showLocalTime: true,
+          showCity: true,
+          showSound: true,
+          showMemoryStory: true,
+        },
+        tags: ['RND', 'Usership', 'Legacy'],
+        profileVisits: ++machiavelliProfileVisits,
+        localTime: now.toLocaleString('en-US', {
+          timeZone: 'Europe/Rome',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+        }),
+        weather: {
+          temperature: demoTemp,
+          humidity: demoHumidity,
+          description: conditions[now.getDay() % conditions.length],
+          windSpeed: Math.round((3 + Math.sin(hour) * 2) * 10) / 10,
+          pressure: demoPressure,
+          sunrise: Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 6, 30).getTime() / 1000),
+          sunset: Math.floor(new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 45).getTime() / 1000),
+        },
+        soundDescription: 'Renaissance courtyard — distant church bells, fountain water, quill on parchment',
+        memoryStory: 'The art of governance is the art of understanding human nature. Every morning in the Palazzo Vecchio, I observe the citizens below — their patterns of movement, their exchanges, their quiet rebellions. The weather shapes their temperament: rain brings introspection, sun brings ambition. A prince must read both the skies and the souls beneath them.',
+        theme: {
+          theme: 'dark',
+          baseColor: null,
+          accentColor: null,
+          customThemeEnabled: false,
+        },
+        psychologicalProfile: {
+          hasUsership: true,
+          version: '531',
+          archetype: 'The Strategist',
+          archetypeDescription: 'Sees through surface appearances to underlying power dynamics. Combines pragmatic observation with philosophical depth.',
+          coreValues: ['virtù', 'prudence', 'adaptability', 'fortune', 'statecraft'],
+          emotionalPatterns: ['calculated restraint', 'strategic patience', 'controlled intensity'],
+          selfAwarenessLevel: 87,
+          streak: 1469,
+          behavioralCohort: 'Renaissance Polymaths',
+          behavioralTraits: ['analytical observation', 'historical pattern recognition', 'diplomatic flexibility'],
+          patternStrengthIndex: 2847,
+          patternStrength: [
+            { trait: 'Strategic thinking', count: 842 },
+            { trait: 'Historical analysis', count: 631 },
+            { trait: 'Human observation', count: 574 },
+            { trait: 'Political philosophy', count: 489 },
+            { trait: 'Practical wisdom', count: 311 },
+          ],
+          answerCount: 2847,
+          noteCount: 1469,
+        },
+        // Legacy level unlock: Weather Station
+        weatherStation: {
+          location: 'Florence, Tuscany — Palazzo Vecchio Observatory',
+          readings: {
+            temperature: demoTemp,
+            humidity: demoHumidity,
+            pressure: demoPressure,
+            windSpeed: Math.round((3 + Math.sin(hour) * 2) * 10) / 10,
+            windDirection: ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.floor(hour / 3) % 8],
+            uvIndex: Math.max(0, Math.round(Math.sin((hour - 6) * Math.PI / 12) * 8)),
+            visibility: Math.round(10 + Math.random() * 5),
+            dewPoint: Math.round(demoTemp - (100 - demoHumidity) / 5),
+          },
+          forecast: dayNames.map((day, i) => ({
+            day,
+            high: Math.round(seasonalBase + 3 + Math.sin(i) * 2),
+            low: Math.round(seasonalBase - 4 + Math.cos(i) * 2),
+            condition: conditions[i % conditions.length],
+          })),
+          lastUpdated: now.toISOString(),
+        },
+        // Legacy level unlock: Wallet
+        wallet: {
+          address: 'LOT-MACH-1469-FLOR',
+          balance: 14690.27,
+          currency: 'LOT',
+          transactions: [
+            { id: 'tx-001', type: 'credit' as const, amount: 500.00, description: 'Usership stipend — March', date: '2026-03-01' },
+            { id: 'tx-002', type: 'debit' as const, amount: 99.00, description: 'Usership subscription', date: '2026-03-01' },
+            { id: 'tx-003', type: 'credit' as const, amount: 150.00, description: 'Pattern recognition bonus', date: '2026-02-28' },
+            { id: 'tx-004', type: 'credit' as const, amount: 75.00, description: 'Community contribution reward', date: '2026-02-15' },
+            { id: 'tx-005', type: 'debit' as const, amount: 25.00, description: 'Weather station uplink fee', date: '2026-02-01' },
+          ],
+          loyaltyPoints: 28470,
+        },
+        // Board profile for Citizen Index display
+        boardProfile: {
+          boardMemberNumber: 0, // Demo account — honorary member
+          citizenSince: 'June 1469',
+          poweringCitizens,
+          boardTenureMonths: Math.round((now.getTime() - new Date('1469-06-03').getTime()) / (1000 * 60 * 60 * 24 * 30)),
+          totalInvested: 14690,
+          biofieldState: {
+            energy: 'high',
+            clarity: 'focused',
+            alignment: 'purposeful',
+          },
+          activity: {
+            memoriesCompiled: 2847,
+            journalEntries: 1469,
+            activeDays: 842,
+          },
+          memoryEngine: 'AI-Powered',
+          clearanceLevel: 'Full',
+          totalEntries: 4316,
+        },
+      }
+    }
+
     try {
       // Prioritize custom URL over ID to avoid conflicts
       // First, try to find user by custom URL in metadata
@@ -730,7 +888,7 @@ export default async (fastify: FastifyInstance) => {
           if (weatherResponse && weatherResponse.weather) {
             const w = weatherResponse.weather as any
             profile.weather = {
-              temperature: w.tempKelvin ? w.tempKelvin - 273.15 : null,
+              temperature: w.tempKelvin ? toCelsius(w.tempKelvin) : null,
               humidity: w.humidity,
               description: w.description,
               windSpeed: w.windSpeed,
@@ -880,6 +1038,78 @@ export default async (fastify: FastifyInstance) => {
         profile.psychologicalProfile = {
           hasUsership: false,
           message: 'Subscribe to Usership to unlock profile analysis'
+        }
+      }
+
+      // Add board profile for Usership members
+      if (hasUsershipTag) {
+        try {
+          // Board member number: sequential ordering by joinedAt among Usership users
+          const allUsers = await models.User.findAll()
+          const usershipMembers = allUsers
+            .filter(u => u.tags?.some(t => t.toLowerCase() === 'usership'))
+            .sort((a, b) => {
+              const dateA = a.joinedAt || a.createdAt
+              const dateB = b.joinedAt || b.createdAt
+              return new Date(dateA).getTime() - new Date(dateB).getTime()
+            })
+          const boardMemberNumber = usershipMembers.findIndex(u => u.id === user.id) + 1
+          const totalUsers = allUsers.length
+          const usershipCount = usershipMembers.length
+          const freeCitizens = Math.max(0, totalUsers - usershipCount)
+          const poweringCitizens = usershipCount > 0 ? Math.round(freeCitizens / usershipCount) : 0
+
+          // Tenure and investment
+          const joinDate = user.joinedAt || user.createdAt
+          const boardTenureMonths = dayjs().diff(dayjs(joinDate), 'month')
+          const totalInvested = Math.max(1, boardTenureMonths) * 99
+
+          // Biofield state from quantum intent metadata
+          const meta = user.metadata as any
+          const quantumState = meta?.quantumIntentState
+          const biofieldState = quantumState?.energy && quantumState.energy !== 'unknown' ? {
+            energy: quantumState.energy,
+            clarity: quantumState.clarity || 'balanced',
+            alignment: quantumState.alignment || 'searching',
+          } : undefined
+
+          // Activity stats
+          const totalLogs = await models.Log.count({ where: { userId: user.id } })
+          const answerCount = await models.Log.count({ where: { userId: user.id, event: 'answer' } })
+          const noteCount = await models.Log.count({ where: { userId: user.id, event: 'note' } })
+          const allLogs = await models.Log.findAll({
+            where: { userId: user.id },
+            attributes: ['createdAt'],
+          })
+          const activeDays = new Set(allLogs.map(l => dayjs(l.createdAt).format('YYYY-MM-DD'))).size
+
+          // Memory engine name
+          let memoryEngineName = 'Standard'
+          try {
+            aiEngineManager.getEngine(AI_ENGINE_PREFERENCE)
+            memoryEngineName = 'AI-Powered'
+          } catch {
+            memoryEngineName = 'AI-Powered'
+          }
+
+          profile.boardProfile = {
+            boardMemberNumber,
+            citizenSince: dayjs(joinDate).format('MMMM YYYY'),
+            poweringCitizens,
+            boardTenureMonths,
+            totalInvested,
+            biofieldState,
+            activity: {
+              memoriesCompiled: answerCount,
+              journalEntries: noteCount,
+              activeDays,
+            },
+            memoryEngine: memoryEngineName,
+            clearanceLevel: 'Full',
+            totalEntries: totalLogs,
+          }
+        } catch (boardError: any) {
+          console.error('[PUBLIC-PROFILE-API] Board profile error:', boardError.message)
         }
       }
 

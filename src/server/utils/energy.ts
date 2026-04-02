@@ -115,11 +115,24 @@ function logToEnergyTransaction(log: Log): EnergyTransaction | null {
     activity = `Felt ${emotionalState}`
   }
 
-  // Chat activity (social energy)
+  // Chat activity (check for romantic/intimacy content first, then social energy)
   else if (log.event === 'chat_message') {
-    energyCost = ENERGY_COSTS.chat_message
-    category = 'social'
-    activity = 'Community chat'
+    const chatText = (log.metadata as Record<string, unknown>)?.message as string || log.text || ''
+    const romanticContent = detectRomanticContent(chatText)
+
+    if (romanticContent.isIntimacy) {
+      energyCost = romanticContent.energyGain
+      category = 'intimacy'
+      activity = 'Intimate moment'
+    } else if (romanticContent.isRomantic) {
+      energyCost = romanticContent.energyGain
+      category = 'romantic'
+      activity = 'Romantic connection'
+    } else {
+      energyCost = ENERGY_COSTS.chat_message
+      category = 'social'
+      activity = 'Community chat'
+    }
   }
 
   else if (log.event === 'chat_message_like') {
