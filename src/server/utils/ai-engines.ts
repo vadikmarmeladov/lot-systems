@@ -74,6 +74,7 @@ export class ClaudeEngine implements AIEngine {
       throw new Error('No text response from Claude')
     }
 
+    aiUsageTracker.trackCompletion('Claude', prompt.length, textContent.text.length)
     return textContent.text
   }
 }
@@ -123,6 +124,7 @@ export class OpenAIEngine implements AIEngine {
       throw new Error('No response from OpenAI')
     }
 
+    aiUsageTracker.trackCompletion('OpenAI', prompt.length, content.length)
     return content
   }
 }
@@ -197,6 +199,7 @@ export class TogetherAIEngine implements AIEngine {
         }
 
         console.log(`Together AI: Successfully used model ${model}`)
+        aiUsageTracker.trackCompletion('Together AI', prompt.length, content.length)
         return content
       } catch (error: any) {
         console.warn(`Together AI: Model ${model} failed: ${error.message}`)
@@ -251,6 +254,7 @@ export class TogetherAIEngine implements AIEngine {
       throw new Error('No image URL in response')
     }
 
+    aiUsageTracker.trackImageGeneration('Together AI')
     return imageUrl
   }
 }
@@ -298,6 +302,7 @@ export class GeminiEngine implements AIEngine {
       throw new Error('No response from Gemini')
     }
 
+    aiUsageTracker.trackCompletion('Gemini', prompt.length, text.length)
     return text
   }
 }
@@ -348,13 +353,16 @@ export class MistralEngine implements AIEngine {
 
     // Mistral can return string or ContentChunk[] - handle both
     if (typeof content === 'string') {
+      aiUsageTracker.trackCompletion('Mistral', prompt.length, content.length)
       return content
     } else if (Array.isArray(content)) {
       // Extract text from content chunks
-      return content
+      const text = content
         .filter((chunk: any) => chunk.type === 'text')
         .map((chunk: any) => chunk.text)
         .join('')
+      aiUsageTracker.trackCompletion('Mistral', prompt.length, text.length)
+      return text
     }
 
     throw new Error('Unexpected content type from Mistral')
@@ -366,6 +374,108 @@ export class MistralEngine implements AIEngine {
 // ============================================================================
 
 export type EnginePreference = 'together' | 'gemini' | 'mistral' | 'claude' | 'openai' | 'auto'
+
+// ============================================================================
+// AI Usage Tracker - Non-monetary usage metrics
+// ============================================================================
+
+interface EngineUsageEntry {
+  calls: number
+  estimatedTokens: number
+  imageGenerations: number
+}
+
+export interface AIUsageStats {
+  today: {
+    totalCalls: number
+    totalTokens: number
+    totalImageGenerations: number
+    byEngine: Record<string, EngineUsageEntry>
+    callsPerHour: number
+  }
+  session: {
+    totalCalls: number
+    totalTokens: number
+    totalImageGenerations: number
+    startedAt: number
+  }
+}
+
+class AIUsageTracker {
+  private dailyUsage: Map<string, EngineUsageEntry> = new Map()
+  private sessionCalls = 0
+  private sessionTokens = 0
+  private sessionImageGenerations = 0
+  private sessionStartedAt = Date.now()
+  private currentDay = new Date().toDateString()
+
+  private resetIfNewDay() {
+    const today = new Date().toDateString()
+    if (today !== this.currentDay) {
+      this.dailyUsage.clear()
+      this.currentDay = today
+    }
+  }
+
+  trackCompletion(engineName: string, promptLength: number, responseLength: number) {
+    this.resetIfNewDay()
+    // Rough token estimate: ~4 chars per token
+    const estimatedTokens = Math.ceil((promptLength + responseLength) / 4)
+
+    const entry = this.dailyUsage.get(engineName) || { calls: 0, estimatedTokens: 0, imageGenerations: 0 }
+    entry.calls++
+    entry.estimatedTokens += estimatedTokens
+    this.dailyUsage.set(engineName, entry)
+
+    this.sessionCalls++
+    this.sessionTokens += estimatedTokens
+  }
+
+  trackImageGeneration(engineName: string) {
+    this.resetIfNewDay()
+    const entry = this.dailyUsage.get(engineName) || { calls: 0, estimatedTokens: 0, imageGenerations: 0 }
+    entry.imageGenerations++
+    this.dailyUsage.set(engineName, entry)
+    this.sessionImageGenerations++
+  }
+
+  getStats(): AIUsageStats {
+    this.resetIfNewDay()
+
+    let totalCalls = 0
+    let totalTokens = 0
+    let totalImageGenerations = 0
+    const byEngine: Record<string, EngineUsageEntry> = {}
+
+    for (const [name, entry] of this.dailyUsage.entries()) {
+      totalCalls += entry.calls
+      totalTokens += entry.estimatedTokens
+      totalImageGenerations += entry.imageGenerations
+      byEngine[name] = { ...entry }
+    }
+
+    const hoursElapsed = Math.max(1, (Date.now() - this.sessionStartedAt) / (1000 * 60 * 60))
+    const callsPerHour = Math.round(this.sessionCalls / hoursElapsed)
+
+    return {
+      today: {
+        totalCalls,
+        totalTokens,
+        totalImageGenerations,
+        byEngine,
+        callsPerHour,
+      },
+      session: {
+        totalCalls: this.sessionCalls,
+        totalTokens: this.sessionTokens,
+        totalImageGenerations: this.sessionImageGenerations,
+        startedAt: this.sessionStartedAt,
+      },
+    }
+  }
+}
+
+export const aiUsageTracker = new AIUsageTracker()
 
 export class AIEngineManager {
   private engines: Map<string, AIEngine>

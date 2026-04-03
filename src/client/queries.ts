@@ -661,6 +661,26 @@ export const useMemoryEngineStats = () =>
     retry: false, // Don't retry if user doesn't have access
   })()
 
+export const useAIUsageStats = () =>
+  createQuery<{
+    today: {
+      totalCalls: number
+      totalTokens: number
+      totalImageGenerations: number
+      byEngine: Record<string, { calls: number; estimatedTokens: number; imageGenerations: number }>
+      callsPerHour: number
+    }
+    session: {
+      totalCalls: number
+      totalTokens: number
+      totalImageGenerations: number
+      startedAt: number
+    }
+  }>('/api/stats/ai-usage', {
+    refetchInterval: 30000, // Refetch every 30 seconds
+    retry: false,
+  })()
+
 // ============================================================================
 // OS API - User Operating System metrics
 // ============================================================================

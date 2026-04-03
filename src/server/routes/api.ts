@@ -4197,6 +4197,30 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   })
 
   /**
+   * GET /api/stats/ai-usage
+   * AI Engine Usage Stats - Non-monetary usage metrics
+   * Usership/Admin only
+   */
+  fastify.get('/stats/ai-usage', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    const hasAccess = req.user.tags.some(
+      tag => ['usership', 'admin'].includes(tag.toLowerCase())
+    )
+    if (!hasAccess) {
+      return reply.status(403).send({ error: 'Usership required' })
+    }
+
+    try {
+      const { aiUsageTracker } = await import('#server/utils/ai-engines')
+      return aiUsageTracker.getStats()
+    } catch (error) {
+      console.error('Error fetching AI usage stats:', error)
+      return reply.status(500).send({ error: 'Failed to fetch AI usage stats' })
+    }
+  })
+
+  /**
    * GET /api/system/deployment-status
    * System Progress - Latest deployment info with sci-fi terminology
    */
