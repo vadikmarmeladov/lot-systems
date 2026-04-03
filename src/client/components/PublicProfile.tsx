@@ -179,7 +179,7 @@ export const PublicProfile = () => {
   if (profile.isPrivate) {
     return (
       <div className="max-w-2xl min-h-screen">
-        <div className="flex flex-col gap-y-24">
+        <div className="flex flex-col gap-y-0">
           {/* Name */}
           <div>
             <div>{userName}</div>
@@ -225,7 +225,7 @@ export const PublicProfile = () => {
 
   return (
     <div className="max-w-2xl min-h-screen">
-      <div className="flex flex-col gap-y-24">
+      <div className="flex flex-col gap-y-0">
         {/* Name */}
         <div>
           <div>{userName}</div>
