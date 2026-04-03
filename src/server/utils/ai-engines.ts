@@ -235,6 +235,7 @@ export class TogetherAIEngine implements AIEngine {
         height,
         steps,
         n: 1,
+        response_format: 'url',
       }),
     })
 
