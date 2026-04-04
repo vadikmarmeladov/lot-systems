@@ -792,9 +792,9 @@ export const System = () => {
         </div>
       </WidgetErrorBoundary>
 
-      {/* Beta version and last update */}
+      {/* Version and last update */}
       <div className="text-center font-base" style={{ fontSize: '0.8em' }}>
-        <div><span className="beta-fade-in">(Beta)</span> {appVersion || '1.2.0'}</div>
+        <div>{appVersion || '1.2.0'}</div>
         {lastUpdate && (
           <div>Last updated: {dayjs(lastUpdate).format('MMMM D, YYYY [at] h:mm A')}</div>
         )}

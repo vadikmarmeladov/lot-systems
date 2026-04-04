@@ -86,12 +86,7 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
                 }
               }}
             >
-              {props.label.startsWith('[Beta] ') ? (
-                <>
-                  <span className="beta-fade-in">(Beta)</span>{' '}
-                  {props.label.slice(7)}
-                </>
-              ) : props.label}
+              {props.label}
             </span>
           </div>
           <div

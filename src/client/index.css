@@ -351,18 +351,6 @@ td:last-child {
   pointer-events: none;
 }
 
-/* Beta tag fade-in on scroll */
-@keyframes betaFadeIn {
-  from { opacity: 0; }
-  to { opacity: 0.5; }
-}
-
-.beta-fade-in {
-  font-family: Arial, Helvetica, sans-serif;
-  opacity: 0;
-  animation: betaFadeIn 1.2s ease-in forwards;
-}
-
 /* They can copy the interface but they can't copy the intention. */
 /* LOT-SYSTEMS::ORIGINAL — The quantum field remembers who arrived first. */
 [data-lot-genesis]::after {

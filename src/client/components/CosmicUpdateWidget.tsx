@@ -51,7 +51,7 @@ export function CosmicUpdateWidget() {
   }
 
   return (
-    <Block label="[Beta] Cosmic Update:" blockView>
+    <Block label="Cosmic Update:" blockView>
       <div>
         {!imageUrl && !loading && (
           <div>
