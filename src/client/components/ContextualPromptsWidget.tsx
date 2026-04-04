@@ -31,8 +31,8 @@ export const ContextualPromptsWidget = () => {
     if (hoursSinceLastActivity !== null && hoursSinceLastActivity > 12) {
       prompts.push({
         type: 'check-in' as const,
-        title: 'Re-synchronize',
-        message: `${Math.round(hoursSinceLastActivity)} hours since last signal. Run a state scan to re-calibrate.`,
+        title: 'Welcome back',
+        message: `${Math.round(hoursSinceLastActivity)} hours away. Check in — how are you right now?`,
         action: { label: 'Check in', target: 'mood' as const },
         priority: 9,
         triggeredBy: 'log-reengagement'
@@ -43,9 +43,9 @@ export const ContextualPromptsWidget = () => {
     if (hoursSinceLastMood !== null && hoursSinceLastMood > 8 && todayMoodCount === 0) {
       prompts.push({
         type: 'check-in' as const,
-        title: 'Mood telemetry stale',
-        message: 'Emotional state data expired. Fresh input sharpens all downstream modules.',
-        action: { label: 'Calibrate', target: 'mood' as const },
+        title: 'How are you?',
+        message: 'No check-in today. A moment of honesty sharpens everything.',
+        action: { label: 'Check in', target: 'mood' as const },
         priority: 8,
         triggeredBy: 'log-stale-mood'
       })
@@ -55,9 +55,9 @@ export const ContextualPromptsWidget = () => {
     if (moodTrend === 'declining') {
       prompts.push({
         type: 'insight' as const,
-        title: 'Pattern shift detected',
-        message: 'Biofield trajectory declining over recent readings. Consider deploying Cleanness module or reflective journaling.',
-        action: { label: 'Deploy', target: 'log' as const },
+        title: 'Pattern shift',
+        message: 'Mood trending down. Break the pattern — try cleanness or journaling.',
+        action: { label: 'Act', target: 'log' as const },
         priority: 8,
         triggeredBy: 'log-mood-declining'
       })
@@ -66,8 +66,8 @@ export const ContextualPromptsWidget = () => {
     // Priority 4: Dormant module activation (log-derived)
     if (dormantModules.length > 0 && engagementLevel !== 'new') {
       const moduleLabelMap: Record<string, string> = {
-        'memory': 'Memory engine', 'mood': 'Biofield interface', 'planner': 'Routine module',
-        'selfcare': 'Cleanness module', 'intentions': 'Intention engine', 'journal': 'Journal module'
+        'memory': 'Memory', 'mood': 'Mood', 'planner': 'Planner',
+        'selfcare': 'Cleanness', 'intentions': 'Intentions', 'journal': 'Journal'
       }
       const targetModule = dormantModules[0]
       const targetMap: Record<string, 'mood' | 'memory' | 'log' | 'sync'> = {
@@ -76,9 +76,9 @@ export const ContextualPromptsWidget = () => {
       }
       prompts.push({
         type: 'suggestion' as const,
-        title: 'Module activation',
-        message: `${moduleLabelMap[targetModule] || targetModule} has zero telemetry. Initialize to expand pattern coverage.`,
-        action: { label: 'Initialize', target: targetMap[targetModule] || ('log' as const) },
+        title: 'Untouched',
+        message: `${moduleLabelMap[targetModule] || targetModule} has no activity. Try it.`,
+        action: { label: 'Open', target: targetMap[targetModule] || ('log' as const) },
         priority: 7,
         triggeredBy: `log-dormant-${targetModule}`
       })
@@ -89,10 +89,10 @@ export const ContextualPromptsWidget = () => {
       if (todayActivity.length === 0) {
         prompts.push({
           type: 'suggestion' as const,
-          title: 'Morning initialization',
+          title: 'Morning',
           message: hasIntention
-            ? 'Set today\'s intention vector. Your history shows intention drives alignment.'
-            : 'Morning window open. A check-in now anchors the rest of the day\'s telemetry.',
+            ? 'Set today\'s intention. It drives alignment.'
+            : 'One check-in anchors the whole day.',
           action: { label: hasIntention ? 'Set intention' : 'Check in', target: hasIntention ? 'log' as const : 'mood' as const },
           priority: 6,
           triggeredBy: 'time-morning'
@@ -103,11 +103,11 @@ export const ContextualPromptsWidget = () => {
     if (timePhase === 'midday') {
       prompts.push({
         type: 'check-in' as const,
-        title: 'Midday checkpoint',
+        title: 'Midday',
         message: todayActivity.length > 0
-          ? `${todayActivity.length} signal${todayActivity.length === 1 ? '' : 's'} logged today. Pause to assess current state.`
-          : 'No signals logged today. A brief check-in recalibrates the system.',
-        action: { label: 'Scan', target: 'mood' as const },
+          ? `${todayActivity.length} signal${todayActivity.length === 1 ? '' : 's'} today. How are you now?`
+          : 'Nothing logged yet. A brief check-in changes that.',
+        action: { label: 'Check in', target: 'mood' as const },
         priority: 5,
         triggeredBy: 'time-midday'
       })
@@ -116,10 +116,10 @@ export const ContextualPromptsWidget = () => {
     if (timePhase === 'afternoon') {
       prompts.push({
         type: 'suggestion' as const,
-        title: 'Afternoon integration',
+        title: 'Afternoon',
         message: hasMemory
-          ? 'Deploy Memory Engine to compile today\'s observations into long-term storage.'
-          : 'The day is winding down. What moments are worth indexing in memory?',
+          ? 'Capture today\'s observations before they fade.'
+          : 'What moments from today are worth keeping?',
         action: { label: 'Reflect', target: 'memory' as const },
         priority: 7,
         triggeredBy: 'time-afternoon'
@@ -129,11 +129,11 @@ export const ContextualPromptsWidget = () => {
     if (timePhase === 'evening') {
       prompts.push({
         type: 'insight' as const,
-        title: 'Evening compilation',
+        title: 'Evening',
         message: streak > 1
-          ? `Day ${streak} of continuous input. Integrate today\'s data before the daily buffer flushes.`
-          : 'As this day closes, what pattern emerged? Log it before context expires.',
-        action: { label: 'Integrate', target: 'memory' as const },
+          ? `Day ${streak}. What emerged today? Capture it.`
+          : 'What pattern emerged today? Save it before it fades.',
+        action: { label: 'Capture', target: 'memory' as const },
         priority: 6,
         triggeredBy: 'time-evening'
       })
@@ -143,8 +143,8 @@ export const ContextualPromptsWidget = () => {
     if (engagementLevel === 'new') {
       prompts.push({
         type: 'suggestion' as const,
-        title: 'System bootstrap',
-        message: 'Pattern recognition requires input. Each interaction trains the system to serve you better.',
+        title: 'Start here',
+        message: 'Each interaction teaches the system. Begin with how you feel.',
         action: { label: 'Begin', target: 'mood' as const },
         priority: 4,
         triggeredBy: 'log-bootstrap'
@@ -152,8 +152,8 @@ export const ContextualPromptsWidget = () => {
     } else {
       prompts.push({
         type: 'suggestion' as const,
-        title: 'Memory integration',
-        message: 'Small signals compound into recognized patterns. What do you want to index?',
+        title: 'Memory',
+        message: 'Small signals compound. What do you want to remember?',
         action: { label: 'Remember', target: 'memory' as const },
         priority: 4,
         triggeredBy: 'memory-universal'

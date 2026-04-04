@@ -193,7 +193,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: Math.min(anxiousMoods.length / 3, 1),
       suggestedWidget: 'selfcare',
       suggestedTiming: 'immediate',
-      reason: 'Multiple anxious check-ins detected - grounding practice recommended'
+      reason: 'Anxiety repeating. Break the cycle — ground yourself now.'
     })
   }
 
@@ -206,7 +206,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.7,
       suggestedWidget: 'planner',
       suggestedTiming: 'soon',
-      reason: 'Low energy without planning - structure might help'
+      reason: 'Tired without a plan. Structure creates energy.'
     })
   }
 
@@ -223,7 +223,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.8,
       suggestedWidget: 'intentions',
       suggestedTiming: 'next-session',
-      reason: 'No guiding intention - may need direction or purpose'
+      reason: 'No guiding intention set. Choose a direction.'
     })
   }
 
@@ -239,7 +239,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.9,
       suggestedWidget: 'memory',
       suggestedTiming: 'passive',
-      reason: 'High energy + planning active - great time for meaningful questions'
+      reason: 'Energy high, plans active. Capture this momentum.'
     })
   }
 
@@ -257,7 +257,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.85,
       suggestedWidget: 'selfcare',
       suggestedTiming: 'immediate',
-      reason: 'Evening overwhelm detected - gentle release practice needed'
+      reason: 'Evening overwhelm. Release before rest.'
     })
   }
 
@@ -271,7 +271,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.6,
       suggestedWidget: 'journal',
       suggestedTiming: 'next-session',
-      reason: 'Tracking moods consistently - ready for deeper reflection'
+      reason: 'You track moods but don\'t write. Go deeper.'
     })
   }
 
@@ -288,7 +288,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.75,
       suggestedWidget: 'intentions',
       suggestedTiming: 'immediate',
-      reason: 'Calm morning state - perfect for setting intention'
+      reason: 'Calm morning. Set one intention before it fades.'
     })
   }
 
@@ -305,7 +305,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.7,
       suggestedWidget: 'selfcare',
       suggestedTiming: 'soon',
-      reason: 'No cleanness or self-care activity in recent days — gentle re-engagement recommended'
+      reason: 'No self-care in days. Start small. One act.'
     })
   }
 
@@ -326,7 +326,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.65,
       suggestedWidget: 'selfcare',
       suggestedTiming: 'soon',
-      reason: 'Morning without cleanness activity — the first pillar anchors the day'
+      reason: 'Morning without cleanness. The first act anchors the day.'
     })
   }
 
@@ -349,7 +349,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.8,
       suggestedWidget: 'selfcare',
       suggestedTiming: 'immediate',
-      reason: 'Overwhelm subsiding — cleanness activity can anchor the recovery and rebuild order'
+      reason: 'Overwhelm passing. Clean one thing. Rebuild order from here.'
     })
   }
 

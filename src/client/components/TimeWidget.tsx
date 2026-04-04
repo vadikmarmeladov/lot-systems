@@ -87,15 +87,15 @@ export const TimeWidget = () => {
       const now = dayjs()
       const currentHour = now.hour()
       const currentMinute = now.minute()
-      const currentSecond = now.second()
 
-      // Play chime at the top of each hour (within first 3 seconds to avoid missing)
-      if (currentMinute === 0 && currentSecond <= 2 && lastChimeHour.current !== currentHour) {
+      // Play chime within the first 30 seconds of each hour
+      // Wide window prevents misses from background tab throttling
+      if (currentMinute === 0 && lastChimeHour.current !== currentHour) {
         lastChimeHour.current = currentHour
         playSovietChime(currentHour)
       }
 
-      // Reset the last chime hour once past the chime window
+      // Reset once past the chime window so next hour can fire
       if (currentMinute >= 1) {
         lastChimeHour.current = -1
       }
@@ -105,7 +105,18 @@ export const TimeWidget = () => {
     const interval = setInterval(checkHour, 1000)
     checkHour() // Check immediately
 
-    return () => clearInterval(interval)
+    // Catch missed chimes when tab becomes visible again
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') {
+        checkHour()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
   }, [isTimeChimeEnabled])
 
   return (
