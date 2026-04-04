@@ -2,6 +2,11 @@ import React from 'react'
 import { Block, Button } from '#client/components/ui'
 import { cn } from '#client/utils'
 import { recordSignal } from '#client/stores/intentionEngine'
+import {
+  playMoveSound, playRotateSound, playScoreSound, playDropSound,
+  playShootSound, playEnemyHitSound, playGameOverSound, playSwitchSound,
+  playLineClearSound,
+} from '#client/utils/sovietGameSounds'
 
 /**
  * MicroGameWidget — A 2×2 cm high-density monochromatic micro-screen
@@ -452,6 +457,7 @@ export function MicroGameWidget() {
     snakeRef.current = initSnake()
     setGameId(next)
     setScore(0)
+    playSwitchSound()
     recordSignal('micro_game', 'switch', { game: next })
   }, [gameId])
 
@@ -471,17 +477,26 @@ export function MicroGameWidget() {
       drawNatureBg(ctx, gameId, fg)
 
       if (gameId === 'tetris') {
-        tetrisRef.current = tickTetris(tetrisRef.current)
+        const prev = tetrisRef.current
+        tetrisRef.current = tickTetris(prev)
         drawTetris(ctx, tetrisRef.current, fg)
         setScore(tetrisRef.current.score)
+        if (tetrisRef.current.score > prev.score) playLineClearSound()
+        if (tetrisRef.current.over && !prev.over) playGameOverSound()
       } else if (gameId === 'invaders') {
-        invadersRef.current = tickInvaders(invadersRef.current)
+        const prev = invadersRef.current
+        invadersRef.current = tickInvaders(prev)
         drawInvaders(ctx, invadersRef.current, fg)
         setScore(invadersRef.current.score)
+        if (invadersRef.current.score > prev.score) playEnemyHitSound()
+        if (invadersRef.current.over && !prev.over) playGameOverSound()
       } else {
-        snakeRef.current = tickSnake(snakeRef.current)
+        const prev = snakeRef.current
+        snakeRef.current = tickSnake(prev)
         drawSnake(ctx, snakeRef.current, fg)
         setScore(snakeRef.current.score)
+        if (snakeRef.current.score > prev.score) playScoreSound()
+        if (snakeRef.current.over && !prev.over) playGameOverSound()
       }
     }, TICK_MS)
 
@@ -495,19 +510,19 @@ export function MicroGameWidget() {
       if (e.metaKey || e.ctrlKey || e.altKey) return
 
       if (gameId === 'tetris') {
-        if (e.key === 'ArrowLeft') tetrisRef.current = moveTetris(tetrisRef.current, 'left')
-        else if (e.key === 'ArrowRight') tetrisRef.current = moveTetris(tetrisRef.current, 'right')
-        else if (e.key === 'ArrowUp') tetrisRef.current = moveTetris(tetrisRef.current, 'rotate')
-        else if (e.key === 'ArrowDown') tetrisRef.current = moveTetris(tetrisRef.current, 'drop')
+        if (e.key === 'ArrowLeft') { tetrisRef.current = moveTetris(tetrisRef.current, 'left'); playMoveSound() }
+        else if (e.key === 'ArrowRight') { tetrisRef.current = moveTetris(tetrisRef.current, 'right'); playMoveSound() }
+        else if (e.key === 'ArrowUp') { tetrisRef.current = moveTetris(tetrisRef.current, 'rotate'); playRotateSound() }
+        else if (e.key === 'ArrowDown') { tetrisRef.current = moveTetris(tetrisRef.current, 'drop'); playDropSound() }
       } else if (gameId === 'invaders') {
-        if (e.key === 'ArrowLeft') invadersRef.current = moveInvaders(invadersRef.current, 'left')
-        else if (e.key === 'ArrowRight') invadersRef.current = moveInvaders(invadersRef.current, 'right')
-        else if (e.key === ' ' || e.key === 'ArrowUp') invadersRef.current = moveInvaders(invadersRef.current, 'shoot')
+        if (e.key === 'ArrowLeft') { invadersRef.current = moveInvaders(invadersRef.current, 'left'); playMoveSound() }
+        else if (e.key === 'ArrowRight') { invadersRef.current = moveInvaders(invadersRef.current, 'right'); playMoveSound() }
+        else if (e.key === ' ' || e.key === 'ArrowUp') { invadersRef.current = moveInvaders(invadersRef.current, 'shoot'); playShootSound() }
       } else {
-        if (e.key === 'ArrowLeft') snakeRef.current = moveSnake(snakeRef.current, 'left')
-        else if (e.key === 'ArrowRight') snakeRef.current = moveSnake(snakeRef.current, 'right')
-        else if (e.key === 'ArrowUp') snakeRef.current = moveSnake(snakeRef.current, 'up')
-        else if (e.key === 'ArrowDown') snakeRef.current = moveSnake(snakeRef.current, 'down')
+        if (e.key === 'ArrowLeft') { snakeRef.current = moveSnake(snakeRef.current, 'left'); playMoveSound() }
+        else if (e.key === 'ArrowRight') { snakeRef.current = moveSnake(snakeRef.current, 'right'); playMoveSound() }
+        else if (e.key === 'ArrowUp') { snakeRef.current = moveSnake(snakeRef.current, 'up'); playMoveSound() }
+        else if (e.key === 'ArrowDown') { snakeRef.current = moveSnake(snakeRef.current, 'down'); playMoveSound() }
       }
     }
     window.addEventListener('keydown', handler)
@@ -533,8 +548,8 @@ export function MicroGameWidget() {
     const absDy = Math.abs(dy)
     if (absDx < 8 && absDy < 8) {
       // Tap → action (rotate / shoot)
-      if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, 'rotate')
-      else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'shoot')
+      if (gameId === 'tetris') { tetrisRef.current = moveTetris(tetrisRef.current, 'rotate'); playRotateSound() }
+      else if (gameId === 'invaders') { invadersRef.current = moveInvaders(invadersRef.current, 'shoot'); playShootSound() }
       return
     }
 
@@ -543,11 +558,12 @@ export function MicroGameWidget() {
       if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, dir)
       else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, dir)
       else snakeRef.current = moveSnake(snakeRef.current, dir)
+      playMoveSound()
     } else {
       const dir = dy > 0 ? 'down' : 'up'
-      if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, dir === 'down' ? 'drop' : 'rotate')
-      else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'shoot')
-      else snakeRef.current = moveSnake(snakeRef.current, dir)
+      if (gameId === 'tetris') { tetrisRef.current = moveTetris(tetrisRef.current, dir === 'down' ? 'drop' : 'rotate'); dir === 'down' ? playDropSound() : playRotateSound() }
+      else if (gameId === 'invaders') { invadersRef.current = moveInvaders(invadersRef.current, 'shoot'); playShootSound() }
+      else { snakeRef.current = moveSnake(snakeRef.current, dir); playMoveSound() }
     }
   }
 
@@ -556,21 +572,23 @@ export function MicroGameWidget() {
     if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, 'left')
     else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'left')
     else snakeRef.current = moveSnake(snakeRef.current, 'left')
+    playMoveSound()
   }
   const handleRight = () => {
     if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, 'right')
     else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'right')
     else snakeRef.current = moveSnake(snakeRef.current, 'right')
+    playMoveSound()
   }
   const handleUp = () => {
-    if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, 'rotate')
-    else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'shoot')
-    else snakeRef.current = moveSnake(snakeRef.current, 'up')
+    if (gameId === 'tetris') { tetrisRef.current = moveTetris(tetrisRef.current, 'rotate'); playRotateSound() }
+    else if (gameId === 'invaders') { invadersRef.current = moveInvaders(invadersRef.current, 'shoot'); playShootSound() }
+    else { snakeRef.current = moveSnake(snakeRef.current, 'up'); playMoveSound() }
   }
   const handleDown = () => {
-    if (gameId === 'tetris') tetrisRef.current = moveTetris(tetrisRef.current, 'drop')
-    else if (gameId === 'invaders') invadersRef.current = moveInvaders(invadersRef.current, 'shoot')
-    else snakeRef.current = moveSnake(snakeRef.current, 'down')
+    if (gameId === 'tetris') { tetrisRef.current = moveTetris(tetrisRef.current, 'drop'); playDropSound() }
+    else if (gameId === 'invaders') { invadersRef.current = moveInvaders(invadersRef.current, 'shoot'); playShootSound() }
+    else { snakeRef.current = moveSnake(snakeRef.current, 'down'); playMoveSound() }
   }
 
   return (
