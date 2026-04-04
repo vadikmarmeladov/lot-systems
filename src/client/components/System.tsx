@@ -76,7 +76,6 @@ export const System = () => {
   const { data: logs = [] } = useLogs()
   const { data: communityEmotion } = useCommunityEmotion()
 
-  const appVersion = useStore(stores.appVersion)
   const lastUpdate = useStore(stores.lastUpdate)
 
   const isTempFahrenheit = useStore(stores.isTempFahrenheit)
@@ -792,9 +791,8 @@ export const System = () => {
         </div>
       </WidgetErrorBoundary>
 
-      {/* Version and last update */}
+      {/* Last update */}
       <div className="text-center font-base" style={{ fontSize: '0.8em' }}>
-        <div>{appVersion || '1.2.0'}</div>
         {lastUpdate && (
           <div>Last updated: {dayjs(lastUpdate).format('MMMM D, YYYY [at] h:mm A')}</div>
         )}

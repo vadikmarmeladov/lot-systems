@@ -285,7 +285,7 @@ export function analyzeEnergyState(logs: Log[]): EnergyState {
     else if (daysSinceLastReplenishment > 3) urgency = 4
     else urgency = 1
 
-    if (urgency >= 4) {
+    if (urgency >= 4 && replenishments.length > 0) {
       needsReplenishment.push({
         category,
         urgency,

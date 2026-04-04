@@ -288,7 +288,7 @@ export const SelfCarePrompt: React.FC<SelfCarePromptProps> = ({
   // Calculate minutes since last break
   const minutesSinceBreak = state.lastBreak
     ? Math.floor((Date.now() - state.lastBreak) / 1000 / 60)
-    : 999
+    : 180
 
   // Get self-care prompt
   const prompt = getSelfCarePrompt({
@@ -344,7 +344,7 @@ export function useSelfCareCheck(intervalMinutes: number = 60): boolean {
       const state = getSelfCareState()
       const minutesSinceBreak = state.lastBreak
         ? Math.floor((Date.now() - state.lastBreak) / 1000 / 60)
-        : 999
+        : 180
 
       // Show if more than intervalMinutes since last break
       setShouldShow(minutesSinceBreak >= intervalMinutes)
