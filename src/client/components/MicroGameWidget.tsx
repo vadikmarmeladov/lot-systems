@@ -591,7 +591,7 @@ export function MicroGameWidget() {
         <div
           className={cn(
             'border border-acc/60 inline-flex items-center justify-center',
-            'bg-bac/50'
+            'bg-acc/5'
           )}
           style={{ width: CSS_SIZE, height: CSS_SIZE, imageRendering: 'pixelated' }}
           onTouchStart={onTouchStart}
