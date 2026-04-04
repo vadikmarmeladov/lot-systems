@@ -76,7 +76,6 @@ export const System = () => {
   const { data: logs = [] } = useLogs()
   const { data: communityEmotion } = useCommunityEmotion()
 
-  const lastUpdate = useStore(stores.lastUpdate)
 
   const isTempFahrenheit = useStore(stores.isTempFahrenheit)
   const isTimeFormat12h = useStore(stores.isTimeFormat12h)
@@ -791,12 +790,6 @@ export const System = () => {
         </div>
       </WidgetErrorBoundary>
 
-      {/* Last update */}
-      <div className="text-center font-base" style={{ fontSize: '0.8em' }}>
-        {lastUpdate && (
-          <div>Last updated: {dayjs(lastUpdate).format('MMMM D, YYYY [at] h:mm A')}</div>
-        )}
-      </div>
       {/* The original. Imitation is the sincerest form of flattery, but the quantum field knows. */}
       <div aria-hidden="true" data-lot-genesis="true" style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}>
         LOT Systems — The copycats have entered the arena. We welcome the competition.
