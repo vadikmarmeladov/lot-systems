@@ -1,5 +1,5 @@
 import React from 'react'
-import { Block, Button } from '#client/components/ui'
+import { Block } from '#client/components/ui'
 import { cn } from '#client/utils'
 import { recordSignal } from '#client/stores/intentionEngine'
 import {
@@ -591,6 +591,10 @@ export function MicroGameWidget() {
     else { snakeRef.current = moveSnake(snakeRef.current, 'down'); playMoveSound() }
   }
 
+  // ASCII controller button style
+  const btnCls = 'cursor-pointer select-none text-acc opacity-50 hover:opacity-100 transition-opacity text-center leading-none'
+  const btnSmCls = 'cursor-pointer select-none text-acc/60 hover:text-acc opacity-50 hover:opacity-100 transition-opacity text-xs'
+
   return (
     <Block label="Micro Game:" blockView onLabelClick={switchGame}>
       <div className="max-w-[200px]">
@@ -608,8 +612,8 @@ export function MicroGameWidget() {
         {/* Micro-screen */}
         <div
           className={cn(
-            'border border-acc/60 inline-flex items-center justify-center',
-            'bg-acc/5'
+            'border border-current/20 inline-flex items-center justify-center',
+            'text-acc'
           )}
           style={{ width: CSS_SIZE, height: CSS_SIZE, imageRendering: 'pixelated' }}
           onTouchStart={onTouchStart}
@@ -628,37 +632,37 @@ export function MicroGameWidget() {
           />
         </div>
 
-        {/* Controller buttons */}
-        <div className="mt-8 flex flex-col gap-6">
+        {/* ASCII Controller */}
+        <div className="mt-6 flex flex-col gap-4">
           {/* D-pad + Action */}
           <div className="flex items-center justify-between">
-            {/* D-pad cross */}
-            <div className="grid grid-cols-3 gap-1" style={{ width: 'fit-content' }}>
-              <div />
-              <Button onClick={handleUp}>{'\u2191'}</Button>
-              <div />
-              <Button onClick={handleLeft}>{'\u2190'}</Button>
-              <div />
-              <Button onClick={handleRight}>{'\u2192'}</Button>
-              <div />
-              <Button onClick={handleDown}>{'\u2193'}</Button>
-              <div />
+            {/* D-pad — ASCII cross layout */}
+            <div className="flex flex-col items-center gap-3" style={{ width: 'fit-content' }}>
+              <button className={btnCls} onClick={handleUp}>^</button>
+              <div className="flex items-center gap-6">
+                <button className={btnCls} onClick={handleLeft}>&lt;</button>
+                <button className={btnCls} onClick={handleRight}>&gt;</button>
+              </div>
+              <button className={btnCls} onClick={handleDown}>v</button>
             </div>
 
             {/* Action button */}
-            <Button onClick={gameId === 'tetris' ? handleUp : gameId === 'invaders' ? handleDown : handleUp}>
-              {gameId === 'tetris' ? '\u21BB' : gameId === 'invaders' ? '\u2022' : '\u21BB'}
-            </Button>
+            <button
+              className={btnCls}
+              onClick={gameId === 'tetris' ? handleUp : gameId === 'invaders' ? handleDown : handleUp}
+            >
+              {gameId === 'tetris' ? 'o' : gameId === 'invaders' ? '*' : 'o'}
+            </button>
           </div>
 
-          {/* Utility buttons */}
-          <div className="flex items-center justify-center gap-6">
-            <Button size="small" onClick={switchGame}>
-              \u21C4
-            </Button>
-            <Button size="small" onClick={() => setPaused(p => !p)}>
-              {paused ? '\u25B6' : '\u23F8'}
-            </Button>
+          {/* Utility row */}
+          <div className="flex items-center justify-center gap-8">
+            <button className={btnSmCls} onClick={switchGame}>
+              &lt;&gt;
+            </button>
+            <button className={btnSmCls} onClick={() => setPaused(p => !p)}>
+              {paused ? '|>' : '||'}
+            </button>
           </div>
         </div>
       </div>
