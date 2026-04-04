@@ -629,28 +629,35 @@ export function MicroGameWidget() {
         </div>
 
         {/* Controller buttons */}
-        <div className="mt-8 flex items-start justify-between gap-8">
-          {/* D-pad */}
-          <div className="flex flex-col items-center gap-2">
-            <Button onClick={handleUp}>
-              {gameId === 'tetris' ? '\u21BB' : gameId === 'invaders' ? '\u2022' : '\u2191'}
-            </Button>
-            <div className="flex gap-4">
+        <div className="mt-8 flex flex-col gap-6">
+          {/* D-pad + Action */}
+          <div className="flex items-center justify-between">
+            {/* D-pad cross */}
+            <div className="grid grid-cols-3 gap-1" style={{ width: 'fit-content' }}>
+              <div />
+              <Button onClick={handleUp}>{'\u2191'}</Button>
+              <div />
               <Button onClick={handleLeft}>{'\u2190'}</Button>
+              <div />
               <Button onClick={handleRight}>{'\u2192'}</Button>
+              <div />
+              <Button onClick={handleDown}>{'\u2193'}</Button>
+              <div />
             </div>
-            <Button onClick={handleDown}>
-              {gameId === 'tetris' ? '\u2193' : gameId === 'invaders' ? '\u2022' : '\u2193'}
+
+            {/* Action button */}
+            <Button onClick={gameId === 'tetris' ? handleUp : gameId === 'invaders' ? handleDown : handleUp}>
+              {gameId === 'tetris' ? '\u21BB' : gameId === 'invaders' ? '\u2022' : '\u21BB'}
             </Button>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex flex-col items-center gap-4">
-            <Button onClick={switchGame}>
+          {/* Utility buttons */}
+          <div className="flex items-center justify-center gap-6">
+            <Button size="small" onClick={switchGame}>
               \u21C4
             </Button>
-            <Button onClick={() => setPaused(p => !p)}>
-              {paused ? '>' : '||'}
+            <Button size="small" onClick={() => setPaused(p => !p)}>
+              {paused ? '\u25B6' : '\u23F8'}
             </Button>
           </div>
         </div>
