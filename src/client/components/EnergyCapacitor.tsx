@@ -166,7 +166,7 @@ export function EnergyCapacitor() {
 
       {view === 'romantic' && (
         <div>
-          {energyState.romanticConnection.lastIntimacyMoment ? (
+          {energyState.romanticConnection.lastIntimacyMoment && energyState.romanticConnection.daysSinceConnection < 999 ? (
             <>
               {/* Narrative status */}
               <div className="mb-8">
@@ -190,7 +190,7 @@ export function EnergyCapacitor() {
             </>
           ) : (
             <div>
-              No romantic moments tracked yet.
+              No biofield resonance detected. Awaiting intimate signal.
             </div>
           )}
         </div>
