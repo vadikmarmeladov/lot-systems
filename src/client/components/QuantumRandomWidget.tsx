@@ -51,11 +51,23 @@ function useQuantumNumber() {
 export function QuantumRandomWidget() {
   const a = useQuantumNumber()
   const b = useQuantumNumber()
+  const [showPair, setShowPair] = React.useState(() => Math.random() < 0.5)
+
+  React.useEffect(() => {
+    const iv = setInterval(() => {
+      setShowPair(Math.random() < 0.5)
+    }, 10000)
+    return () => clearInterval(iv)
+  }, [])
 
   return (
     <Block label="Number:">
-      {a.number} <span className="opacity-30">({a.remaining}s)</span>{' '}
-      {b.number} <span className="opacity-30">({b.remaining}s)</span>
+      {a.number} <span className="opacity-30">({a.remaining}s)</span>
+      {showPair && (
+        <>
+          {' '}{b.number} <span className="opacity-30">({b.remaining}s)</span>
+        </>
+      )}
     </Block>
   )
 }
