@@ -22,7 +22,7 @@ function pickCountdown(): number {
   return COUNTDOWN_OPTIONS[quantumRandom(0, COUNTDOWN_OPTIONS.length - 1)]
 }
 
-export function QuantumRandomWidget() {
+function useQuantumNumber() {
   const [number, setNumber] = React.useState(() => quantumRandom(0, 99))
   const [countdown, setCountdown] = React.useState(() => pickCountdown())
   const [remaining, setRemaining] = React.useState(countdown)
@@ -45,9 +45,17 @@ export function QuantumRandomWidget() {
     return () => clearInterval(iv)
   }, [])
 
+  return { number, remaining }
+}
+
+export function QuantumRandomWidget() {
+  const a = useQuantumNumber()
+  const b = useQuantumNumber()
+
   return (
     <Block label="Number:">
-      {number} <span className="opacity-30">({remaining}s)</span>
+      {a.number} <span className="opacity-30">({a.remaining}s)</span>{' '}
+      {b.number} <span className="opacity-30">({b.remaining}s)</span>
     </Block>
   )
 }
