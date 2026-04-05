@@ -43,7 +43,7 @@ import { EvolutionMilestoneToast } from './EvolutionMilestoneToast'
 import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, analyzeIntentions } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
@@ -188,6 +188,11 @@ export const System = () => {
     analyzeIntentions() // Trigger fresh analysis
     return getUserState()
   }, [logs]) // Recompute when logs change (new signals recorded)
+
+  // Accumulative User Index - holistic score from all widget signals
+  const userIndex = React.useMemo(() => {
+    return getUserIndex()
+  }, [logs])
 
   // Calculate streak for evolution system
   const evolutionStreak = React.useMemo(() => {
@@ -446,13 +451,19 @@ export const System = () => {
             <div>
               <div>Day {journeyData.daysSinceStart} • {journeyData.answerCount} memories • Awareness {awarenessIndex}%</div>
               <div>{profile?.behavioralCohort || 'Growing'} • {profile?.emotionalPatterns?.[0] || 'Exploring patterns'}</div>
+              {userIndex.overall > 0 && (
+                <div className="mt-4">
+                  Index {userIndex.overall}% {userIndex.trend === 'rising' ? '↑' : userIndex.trend === 'declining' ? '↓' : '—'}
+                </div>
+              )}
             </div>
           ) : (
             <Table
               data={[
                 { metric: 'ATP', value: quantumState.energy },
                 { metric: 'Clarity', value: quantumState.clarity },
-                { metric: 'Alignment', value: quantumState.alignment }
+                { metric: 'Alignment', value: quantumState.alignment },
+                { metric: 'Index', value: `${userIndex.overall}%` }
               ]}
               columns={[
                 {

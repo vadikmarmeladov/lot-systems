@@ -41,9 +41,25 @@ export type IntentionPattern = {
   reason: string
 }
 
+// Accumulative User Index — aggregated from all widget signals
+export type UserIndex = {
+  overall: number          // 0-100, the single accumulative score
+  dimensions: {
+    engagement: number     // 0-100, frequency and breadth of widget interactions
+    emotional: number      // 0-100, emotional health from mood signals
+    intentional: number    // 0-100, planning + intention + direction
+    social: number         // 0-100, community connections and cohort
+    selfCare: number       // 0-100, cleanness + rest + care practices
+    cognitive: number      // 0-100, memory + journal + reflection depth
+  }
+  trend: 'rising' | 'stable' | 'declining'
+  lastComputed: number
+}
+
 type IntentionEngineState = {
   signals: IntentionSignal[]
   userState: UserState
+  userIndex: UserIndex
   recognizedPatterns: IntentionPattern[]
   lastAnalysis: number
   lastSyncedTimestamp: number
@@ -55,6 +71,20 @@ const ANALYSIS_COOLDOWN = 5 * 60 * 1000 // 5 minutes
 const SYNC_INTERVAL = 10 // Sync every 10 signals
 const SYNC_COOLDOWN = 5 * 60 * 1000 // Don't sync more than once per 5 minutes
 
+const DEFAULT_USER_INDEX: UserIndex = {
+  overall: 0,
+  dimensions: {
+    engagement: 0,
+    emotional: 0,
+    intentional: 0,
+    social: 0,
+    selfCare: 0,
+    cognitive: 0,
+  },
+  trend: 'stable',
+  lastComputed: 0
+}
+
 export const intentionEngine = atom<IntentionEngineState>({
   signals: [],
   userState: {
@@ -64,14 +94,26 @@ export const intentionEngine = atom<IntentionEngineState>({
     needsSupport: 'none',
     lastUpdated: 0
   },
+  userIndex: DEFAULT_USER_INDEX,
   recognizedPatterns: [],
   lastAnalysis: 0,
   lastSyncedTimestamp: 0
 })
 
-// Load signals from localStorage on init
+// Load signals and user index from localStorage on init
 if (typeof window !== 'undefined') {
   const stored = localStorage.getItem('intention-signals')
+  const storedIndex = localStorage.getItem('user-index')
+  let loadedIndex = DEFAULT_USER_INDEX
+
+  if (storedIndex) {
+    try {
+      loadedIndex = JSON.parse(storedIndex)
+    } catch (e) {
+      console.error('Failed to load user index:', e)
+    }
+  }
+
   if (stored) {
     try {
       const parsed = JSON.parse(stored)
@@ -82,12 +124,18 @@ if (typeof window !== 'undefined') {
       if (recentSignals.length > 0) {
         intentionEngine.set({
           ...intentionEngine.get(),
-          signals: recentSignals
+          signals: recentSignals,
+          userIndex: loadedIndex
         })
       }
     } catch (e) {
       console.error('Failed to load intention signals:', e)
     }
+  } else if (storedIndex) {
+    intentionEngine.set({
+      ...intentionEngine.get(),
+      userIndex: loadedIndex
+    })
   }
 }
 
@@ -356,11 +404,22 @@ export function analyzeIntentions(): IntentionPattern[] {
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
+  // Compute accumulative user index from all widget signals
+  const userIndex = computeUserIndex(signals)
+
+  // Persist user index to localStorage
+  try {
+    localStorage.setItem('user-index', JSON.stringify(userIndex))
+  } catch (e) {
+    console.warn('Failed to persist user index:', e)
+  }
+
   // Update state (preserve lastSyncedTimestamp from current state)
   const currentState = intentionEngine.get()
   intentionEngine.set({
     signals,
     userState,
+    userIndex,
     recognizedPatterns: patterns,
     lastAnalysis: now,
     lastSyncedTimestamp: currentState.lastSyncedTimestamp
@@ -432,6 +491,135 @@ function calculateUserState(signals: IntentionSignal[], now: number): UserState 
     needsSupport,
     lastUpdated: now
   }
+}
+
+/**
+ * Compute accumulative User Index from all widget signals
+ *
+ * Each dimension scores 0-100 based on signal frequency, diversity, and recency.
+ * The overall index is a weighted average of all dimensions.
+ * This gives a single number representing holistic user engagement and wellbeing.
+ */
+export function computeUserIndex(signals: IntentionSignal[]): UserIndex {
+  const now = Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+  const weekMs = 7 * dayMs
+
+  // Signals from last 7 days and last 24 hours
+  const weekSignals = signals.filter(s => now - s.timestamp < weekMs)
+  const daySignals = signals.filter(s => now - s.timestamp < dayMs)
+
+  // Helper: compute a dimension score from relevant signals with recency weighting
+  function dimensionScore(relevant: IntentionSignal[], maxDaily: number): number {
+    if (relevant.length === 0) return 0
+
+    // Count unique active days in the week
+    const activeDays = new Set(
+      relevant.map(s => new Date(s.timestamp).toDateString())
+    ).size
+
+    // Recency bonus: more recent signals count more
+    const recencyScore = relevant.reduce((sum, s) => {
+      const age = (now - s.timestamp) / dayMs
+      return sum + Math.max(0, 1 - age / 7) // 1.0 for today, 0 for 7 days ago
+    }, 0)
+
+    // Daily frequency normalized (cap at maxDaily per day)
+    const todayCount = daySignals.filter(s => relevant.includes(s)).length
+    const frequencyScore = Math.min(todayCount / maxDaily, 1)
+
+    // Combine: consistency (days active) + recency + frequency
+    const consistencyScore = activeDays / 7 // 0-1
+    const normalizedRecency = Math.min(recencyScore / (relevant.length || 1), 1)
+
+    return Math.round(
+      Math.min(100, (consistencyScore * 40 + normalizedRecency * 30 + frequencyScore * 30))
+    )
+  }
+
+  // --- Engagement: breadth of widget sources used ---
+  const uniqueSources = new Set(weekSignals.map(s => s.source))
+  const sourceCount = uniqueSources.size
+  const totalSourceTypes = 7 // mood, memory, planner, intentions, selfcare, journal, calculator
+  const engagement = Math.round(
+    Math.min(100,
+      (sourceCount / totalSourceTypes) * 50 +
+      Math.min(weekSignals.length / 30, 1) * 30 +
+      Math.min(daySignals.length / 5, 1) * 20
+    )
+  )
+
+  // --- Emotional: mood tracking quality ---
+  const moodSignals = weekSignals.filter(s => s.source === 'mood')
+  const positiveMoods = moodSignals.filter(s =>
+    ['calm', 'peaceful', 'energized', 'hopeful', 'grateful', 'content', 'excited', 'fulfilled'].includes(s.signal)
+  )
+  const moodBase = dimensionScore(moodSignals, 3)
+  const positiveRatio = moodSignals.length > 0 ? positiveMoods.length / moodSignals.length : 0.5
+  const emotional = Math.round(moodBase * 0.6 + positiveRatio * 100 * 0.4)
+
+  // --- Intentional: planning + intentions + direction ---
+  const planSignals = weekSignals.filter(s => s.source === 'planner')
+  const intentionSignals = weekSignals.filter(s => s.source === 'intentions')
+  const intentionalSignals = [...planSignals, ...intentionSignals]
+  const hasActiveIntention = hasCurrentIntention()
+  const intentionalBase = dimensionScore(intentionalSignals, 2)
+  const intentional = Math.round(
+    Math.min(100, intentionalBase + (hasActiveIntention ? 20 : 0))
+  )
+
+  // --- Social: community interactions (cohort views, chat, messages) ---
+  const socialSignals = weekSignals.filter(s =>
+    s.signal.includes('cohort') ||
+    s.signal.includes('chat') ||
+    s.signal.includes('message') ||
+    s.signal.includes('connection') ||
+    s.signal.includes('community')
+  )
+  const social = dimensionScore(socialSignals, 3)
+
+  // --- Self-care: cleanness + rest + care practices ---
+  const selfCareSignals = weekSignals.filter(s => s.source === 'selfcare')
+  const selfCare = dimensionScore(selfCareSignals, 3)
+
+  // --- Cognitive: memory + journal + reflection depth ---
+  const memorySignals = weekSignals.filter(s => s.source === 'memory')
+  const journalSignals = weekSignals.filter(s => s.source === 'journal')
+  const cognitiveSignals = [...memorySignals, ...journalSignals]
+  const cognitive = dimensionScore(cognitiveSignals, 3)
+
+  // --- Overall: weighted average of all dimensions ---
+  const overall = Math.round(
+    engagement * 0.15 +
+    emotional * 0.25 +
+    intentional * 0.20 +
+    social * 0.10 +
+    selfCare * 0.15 +
+    cognitive * 0.15
+  )
+
+  // --- Trend: compare current week to previous stored index ---
+  const previousIndex = intentionEngine.get().userIndex
+  let trend: UserIndex['trend'] = 'stable'
+  if (previousIndex.lastComputed > 0) {
+    const delta = overall - previousIndex.overall
+    if (delta >= 5) trend = 'rising'
+    else if (delta <= -5) trend = 'declining'
+  }
+
+  return {
+    overall,
+    dimensions: { engagement, emotional, intentional, social, selfCare, cognitive },
+    trend,
+    lastComputed: now
+  }
+}
+
+/**
+ * Get the current User Index
+ */
+export function getUserIndex(): UserIndex {
+  return intentionEngine.get().userIndex
 }
 
 /**
@@ -515,6 +703,7 @@ export async function syncToServer(): Promise<boolean> {
       body: JSON.stringify({
         signals: unsyncedSignals,
         userState: state.userState,
+        userIndex: state.userIndex,
         recognizedPatterns: state.recognizedPatterns
       })
     })

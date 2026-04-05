@@ -2,21 +2,33 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button } from '#client/components/ui'
-import { useCohorts } from '#client/queries'
+import { useCohorts, useEnergy } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
-import { recordSignal } from '#client/stores/intentionEngine'
+import { recordSignal, getUserState } from '#client/stores/intentionEngine'
 
 /**
  * Cohort Connect Widget - Find and connect with cohort members
  *
  * Shows users in the same cohort with shared patterns and behaviors
  * Enriched with user log context for personalized cohort presentation
+ * Connection-state aware: factors in user's energy and alignment
  */
 export const CohortConnectWidget: React.FC = () => {
   const me = useStore(stores.me)
   const { data: cohortData, isLoading } = useCohorts()
+  const { data: energyData } = useEnergy()
   const [expandedMemberId, setExpandedMemberId] = React.useState<string | null>(null)
   const logCtx = useLogContext()
+  const hasRecordedRef = React.useRef(false)
+
+  // Record cohort widget view signal once
+  if (!hasRecordedRef.current && cohortData?.matches?.length) {
+    recordSignal('mood', 'cohort_widget_viewed', {
+      matchCount: cohortData.matches.length,
+      hour: new Date().getHours()
+    })
+    hasRecordedRef.current = true
+  }
 
   if (isLoading || !cohortData?.matches || cohortData.matches.length === 0) {
     return null
@@ -29,19 +41,63 @@ export const CohortConnectWidget: React.FC = () => {
     ? yourPatterns[0].type.replace('-', ' ')
     : 'explorer'
 
+  // Get connection state context for richer matching insight
+  const userState = getUserState()
+  const connectionQuality = energyData?.energyState?.romanticConnection?.connectionQuality
+  const energyStatus = energyData?.energyState?.status
+
+  // Connection readiness - combine energy + alignment for cohort context
+  const connectionReadiness =
+    userState.alignment === 'flowing' || userState.alignment === 'aligned'
+      ? 'open'
+      : userState.needsSupport === 'critical' || userState.needsSupport === 'moderate'
+        ? 'needs-support'
+        : userState.energy === 'depleted' || userState.energy === 'low'
+          ? 'low-energy'
+          : 'neutral'
+
   // Show only top 5 matches by similarity
   const topMatches = matches
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, 5)
 
-  const handleViewProfile = (userId: string) => {
-    recordSignal('mood', 'cohort_profile_viewed', { userId, hour: new Date().getHours() })
+  const handleViewProfile = (userId: string, similarity: number) => {
+    recordSignal('mood', 'cohort_profile_viewed', {
+      userId,
+      similarity,
+      connectionReadiness,
+      hour: new Date().getHours()
+    })
     window.location.href = `/users/${userId}`
   }
 
+  const handleSendMessage = (userId: string, similarity: number) => {
+    recordSignal('mood', 'cohort_message_initiated', {
+      userId,
+      similarity,
+      connectionReadiness,
+      hour: new Date().getHours()
+    })
+    window.location.href = '/sync'
+  }
+
   const handleToggleExpand = (userId: string) => {
+    const willExpand = expandedMemberId !== userId
+    if (willExpand) {
+      recordSignal('mood', 'cohort_member_expanded', { userId, hour: new Date().getHours() })
+    }
     setExpandedMemberId(expandedMemberId === userId ? null : userId)
   }
+
+  // Connection context message based on user state
+  const connectionContext =
+    connectionReadiness === 'needs-support'
+      ? 'Reaching out can help. These members share your patterns.'
+      : connectionReadiness === 'low-energy'
+        ? 'Low energy. Gentle connections only.'
+        : connectionReadiness === 'open'
+          ? 'Good energy for connection.'
+          : null
 
   return (
     <Block label="Cohort:" blockView>
@@ -51,6 +107,13 @@ export const CohortConnectWidget: React.FC = () => {
           <div className="mb-4">Your cohort</div>
           <div className="capitalize">{cohort}</div>
         </div>
+
+        {/* Connection context from user state */}
+        {connectionContext && (
+          <div className="mb-16 opacity-30">
+            {connectionContext}
+          </div>
+        )}
 
         {/* Total members */}
         <div className="mb-16">
@@ -106,18 +169,18 @@ export const CohortConnectWidget: React.FC = () => {
                     <div className="flex gap-4">
                       <Button
                         size="small"
-                        onClick={(e) => {
+                        onClick={(e: React.MouseEvent) => {
                           e.stopPropagation()
-                          handleViewProfile(match.user.id)
+                          handleViewProfile(match.user.id, match.similarity)
                         }}
                       >
                         View profile
                       </Button>
                       <Button
                         size="small"
-                        onClick={(e) => {
+                        onClick={(e: React.MouseEvent) => {
                           e.stopPropagation()
-                          window.location.href = '/sync'
+                          handleSendMessage(match.user.id, match.similarity)
                         }}
                       >
                         Send message

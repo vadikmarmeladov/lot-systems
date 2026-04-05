@@ -78,25 +78,32 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
     const threeMonthsAgo = dayjs().subtract(3, 'month').toDate()
     const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
 
-    const activeUsers = await User.findAll({
-      where: {
-        // Must have joined 3+ months ago
-        joinedAt: {
-          [Op.lte]: threeMonthsAgo
+    let activeUsers: any[]
+    try {
+      activeUsers = await User.findAll({
+        where: {
+          // Must have joined 3+ months ago
+          joinedAt: {
+            [Op.lte]: threeMonthsAgo
+          },
+          // Must be recently active (within last 7 days — proxy for near-daily)
+          lastSeenAt: {
+            [Op.gte]: sevenDaysAgo
+          },
+          // Only send to users with Usership tag
+          tags: {
+            [Op.contains]: ['usership']
+          }
         },
-        // Must be recently active (within last 7 days — proxy for near-daily)
-        lastSeenAt: {
-          [Op.gte]: sevenDaysAgo
-        },
-        // Only send to users with Usership tag
-        tags: {
-          [Op.contains]: ['usership']
-        }
-      },
-      order: [['lastSeenAt', 'DESC']]
-    })
+        order: [['lastSeenAt', 'DESC']]
+      })
+    } catch (dbError: any) {
+      console.error('Failed to query active users:', dbError.message)
+      isMonthlyEmailJobRunning = false
+      return { jobName, executedAt, success: false, error: `User query failed: ${dbError.message}` }
+    }
 
-    console.log(`👥 Found ${activeUsers.length} active users (3+ months, near-daily)`)
+    console.log(`Found ${activeUsers.length} active users (3+ months, near-daily)`)
     console.log('')
 
     const results = {
@@ -139,21 +146,35 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
         }
 
         // Fetch user's logs
-        const logs = await Log.findAll({
-          where: { userId: user.id },
-          order: [['createdAt', 'DESC']],
-          limit: 1000
-        })
+        let logs: any[]
+        try {
+          logs = await Log.findAll({
+            where: { userId: user.id },
+            order: [['createdAt', 'DESC']],
+            limit: 1000
+          })
+        } catch (logError: any) {
+          results.failed++
+          results.details.push({
+            userId: user.id,
+            email: user.email,
+            status: 'failed',
+            error: `Log query failed: ${logError.message}`
+          })
+          console.log(`${user.email}: Failed to fetch logs - ${logError.message}`)
+          continue
+        }
 
         // Verify near-daily engagement over last 3 months
+        const threeMonthsAgoDate = dayjs().subtract(3, 'month')
         const threeMonthLogs = logs.filter((l: any) =>
-          dayjs(l.createdAt).isAfter(dayjs().subtract(3, 'month'))
+          dayjs(l.createdAt).isAfter(threeMonthsAgoDate)
         )
         const uniqueActiveDays = new Set(
           threeMonthLogs.map((l: any) => dayjs(l.createdAt).format('YYYY-MM-DD'))
         ).size
-        const totalDaysInPeriod = 90
-        const dailyRatio = uniqueActiveDays / totalDaysInPeriod
+        const totalDaysInPeriod = dayjs().diff(threeMonthsAgoDate, 'day')
+        const dailyRatio = totalDaysInPeriod > 0 ? uniqueActiveDays / totalDaysInPeriod : 0
 
         // Require ~everyday login: at least 60% of days active over 3 months
         if (dailyRatio < 0.6) {
@@ -282,6 +303,28 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
     console.log(`   Total: ${results.total}`)
     console.log('━'.repeat(60))
     console.log('')
+
+    // Persist job result to database for audit trail
+    try {
+      // Find an admin user to associate the log entry with
+      const adminUser = await User.findOne({
+        where: { tags: { [Op.contains]: ['admin'] } }
+      })
+      if (adminUser) {
+        await Log.create({
+          userId: adminUser.id,
+          event: 'scheduled_job' as any,
+          text: `Monthly email job: ${results.sent} sent, ${results.skipped} skipped, ${results.failed} failed out of ${results.total}`,
+          metadata: {
+            jobName,
+            executedAt,
+            ...results
+          }
+        })
+      }
+    } catch (persistError: any) {
+      console.warn('Failed to persist job result to database:', persistError.message)
+    }
 
     lastMonthlyEmailRun = new Date()
     isMonthlyEmailJobRunning = false

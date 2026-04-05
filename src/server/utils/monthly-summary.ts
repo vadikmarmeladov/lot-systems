@@ -93,10 +93,11 @@ export async function generateMonthlySummary(
   const startOfMonth = lastMonth.startOf('month')
   const endOfMonth = lastMonth.endOf('month')
 
-  // Filter logs from last complete month
+  // Filter logs from last complete month (inclusive of both boundaries)
   const monthLogs = logs.filter(log => {
     const logDate = dayjs(log.createdAt)
-    return logDate.isAfter(startOfMonth) && logDate.isBefore(endOfMonth)
+    return (logDate.isAfter(startOfMonth) || logDate.isSame(startOfMonth)) &&
+           (logDate.isBefore(endOfMonth) || logDate.isSame(endOfMonth))
   })
 
   // Calculate period

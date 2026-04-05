@@ -18,12 +18,12 @@ export interface EnergyState {
   needsReplenishment: {
     category: 'social' | 'creative' | 'rest' | 'joy' | 'physical' | 'romantic' | 'intimacy'
     urgency: number // 0-10
-    daysSinceLastReplenishment: number
+    daysSinceLastReplenishment: number | null
   }[]
   trajectory: 'improving' | 'stable' | 'declining' | 'critical'
   romanticConnection: {
     lastIntimacyMoment: string | null
-    daysSinceConnection: number
+    daysSinceConnection: number | null
     connectionQuality: 'disconnected' | 'distant' | 'present' | 'deep'
     needsAttention: boolean
   }
@@ -272,15 +272,17 @@ export function analyzeEnergyState(logs: Log[]): EnergyState {
     // Find positive transactions (replenishment)
     const replenishments = categoryTxns.filter(t => t.energyCost > 0)
 
-    let daysSinceLastReplenishment = 999
+    let daysSinceLastReplenishment: number | null = null
     if (replenishments.length > 0) {
       const mostRecent = replenishments[0]
       daysSinceLastReplenishment = dayjs().diff(dayjs(mostRecent.timestamp), 'day')
     }
 
-    // Calculate urgency
+    // Calculate urgency (null = no data, not urgent unless category has history)
     let urgency = 0
-    if (daysSinceLastReplenishment > 7) urgency = 10
+    if (daysSinceLastReplenishment === null) {
+      urgency = 0 // No data — don't flag as urgent
+    } else if (daysSinceLastReplenishment > 7) urgency = 10
     else if (daysSinceLastReplenishment > 5) urgency = 7
     else if (daysSinceLastReplenishment > 3) urgency = 4
     else urgency = 1
@@ -306,7 +308,7 @@ export function analyzeEnergyState(logs: Log[]): EnergyState {
 
   let romanticConnection: EnergyState['romanticConnection'] = {
     lastIntimacyMoment: null,
-    daysSinceConnection: 999,
+    daysSinceConnection: null,
     connectionQuality: 'disconnected',
     needsAttention: false
   }
@@ -365,7 +367,7 @@ export function generateEnergySuggestions(energyState: EnergyState): string[] {
   }
 
   // Romantic connection needs (highest priority)
-  if (energyState.romanticConnection.needsAttention) {
+  if (energyState.romanticConnection.needsAttention && energyState.romanticConnection.daysSinceConnection !== null) {
     const days = energyState.romanticConnection.daysSinceConnection
 
     if (energyState.romanticConnection.connectionQuality === 'disconnected') {
