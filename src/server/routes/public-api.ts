@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { sequelize } from '#server/utils/db'
 import { models } from '#server/models'
 import * as weather from '#server/utils/weather'
-import { extractUserTraits, determineUserCohort } from '#server/utils/memory'
+import { extractUserTraits, determineUserCohort, calculateCorrelatedIndexes } from '#server/utils/memory'
 import { aiEngineManager } from '#server/utils/ai-engines'
 import { AI_ENGINE_PREFERENCE } from '#server/utils/memory/constants'
 import config from '#server/config'
@@ -693,6 +693,16 @@ export default async (fastify: FastifyInstance) => {
           answerCount: 2847,
           noteCount: 1469,
         },
+        correlatedIndexes: {
+          selfAwareness: 87,
+          userScore: 94.2,
+          personScore: 91.7,
+          longevityScore: 96.8,
+          composite: 92.4,
+          timeline: [],
+          trend: 'ascending' as const,
+          correlationStrength: 0.89,
+        },
         // Legacy level unlock: Weather Station
         weatherStation: {
           location: 'Florence, Tuscany — Palazzo Vecchio Observatory',
@@ -1024,6 +1034,32 @@ export default async (fastify: FastifyInstance) => {
               answerCount: logs.length,
               noteCount: noteCount
             }
+
+            // Correlated indexes — four-dimensional long-term tracking
+            const daysSinceJoinedForIndexes = dayjs().diff(dayjs(user.createdAt), 'day')
+            profile.correlatedIndexes = {
+              ...calculateCorrelatedIndexes(logs, {
+                daysSinceStart: daysSinceJoinedForIndexes,
+                streak,
+                answerCount: logs.length,
+                logCount: logs.length + noteCount,
+              }),
+              timeline: [],
+              trend: 'stable' as const,
+              correlationStrength: 0,
+            }
+
+            // Calculate correlation strength for public display
+            const idxScores = [
+              profile.correlatedIndexes.selfAwareness,
+              profile.correlatedIndexes.userScore,
+              profile.correlatedIndexes.personScore,
+              profile.correlatedIndexes.longevityScore,
+            ]
+            const idxMean = idxScores.reduce((s, v) => s + v, 0) / 4
+            const idxVariance = idxScores.reduce((s, v) => s + Math.pow(v - idxMean, 2), 0) / 4
+            const idxCv = idxMean > 0 ? Math.sqrt(idxVariance) / idxMean : 1
+            profile.correlatedIndexes.correlationStrength = Number(Math.max(0, Math.min(1, 1 - idxCv)).toFixed(2))
           }
         } catch (error) {
           console.error('[PUBLIC-PROFILE-API] Error generating psychological profile:', error)

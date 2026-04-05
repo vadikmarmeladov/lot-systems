@@ -761,6 +761,28 @@ export const useOSDiagnostics = () =>
     staleTime: 10 * 60 * 1000,
   })()
 
+export const useOSIndexes = () =>
+  createQuery<{
+    selfAwareness: number
+    userScore: number
+    personScore: number
+    longevityScore: number
+    composite: number
+    timeline: Array<{
+      week: string
+      selfAwareness: number
+      userScore: number
+      personScore: number
+      longevityScore: number
+      composite: number
+    }>
+    trend: 'ascending' | 'stable' | 'descending'
+    correlationStrength: number
+  }>('/api/os/indexes', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
+  })()
+
 // ============================================================================
 // COSMIC UPDATE
 // ============================================================================

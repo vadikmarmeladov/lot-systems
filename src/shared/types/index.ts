@@ -309,12 +309,33 @@ export type PublicProfile = {
     clearanceLevel: string; // e.g. "Full"
     totalEntries: number;
   };
+  // Correlated indexes (four-dimensional long-term tracking)
+  correlatedIndexes?: CorrelatedIndexes;
   // Demo account flag
   isDemo?: boolean;
   // Legacy level unlock widgets
   weatherStation?: WeatherStation;
   wallet?: Wallet;
   userId?: string;
+};
+
+// Correlated Indexes — Four-dimensional long-term tracking system
+export type CorrelatedIndexes = {
+  selfAwareness: number;   // 0-100: Journal reflection depth (existing)
+  userScore: number;       // 0-100: Platform engagement & system usage
+  personScore: number;     // 0-100: Psychological richness & human depth
+  longevityScore: number;  // 0-100: Sustained commitment over time
+  composite: number;       // 0-100: Weighted average of all four
+  timeline: Array<{
+    week: string;          // ISO week (e.g., "2026-W14")
+    selfAwareness: number;
+    userScore: number;
+    personScore: number;
+    longevityScore: number;
+    composite: number;
+  }>;
+  trend: 'ascending' | 'stable' | 'descending';
+  correlationStrength: number; // 0-1: How tightly the four indexes move together
 };
 
 // Weather Station — Legacy level demo widget

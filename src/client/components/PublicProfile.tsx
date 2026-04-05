@@ -469,6 +469,42 @@ export const PublicProfile = () => {
           </div>
         )}
 
+        {/* Correlated Indexes */}
+        {profile.correlatedIndexes && profile.correlatedIndexes.composite > 0 && (
+          <div>
+            <Block label="Indexes:" blockView>
+              <div className="flex flex-col gap-8">
+                <div className="flex">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Self-awareness:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.selfAwareness.toFixed(1)}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">User score:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.userScore.toFixed(1)}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Person score:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.personScore.toFixed(1)}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Longevity score:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.longevityScore.toFixed(1)}</span>
+                </div>
+                <div className="flex mt-8">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Composite:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.composite.toFixed(1)}</span>
+                </div>
+                {profile.correlatedIndexes.correlationStrength > 0 && (
+                  <div className="flex">
+                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Correlation:</span>
+                    <span className="flex-1">{(profile.correlatedIndexes.correlationStrength * 100).toFixed(0)}%</span>
+                  </div>
+                )}
+              </div>
+            </Block>
+          </div>
+        )}
+
         {/* Legacy Level: Weather Station */}
         {profile.weatherStation && (
           <div>
