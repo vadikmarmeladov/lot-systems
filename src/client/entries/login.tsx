@@ -7,16 +7,41 @@ import config from '#client/config'
 import '#client/stores/theme'
 import { Layout } from '#client/components/ui'
 
+const LOT_ONELINERS = [
+  'LOT is the subscription for basic essentials.',
+  'The coolest sub around.',
+  'Everything you need. Nothing you don\'t.',
+  'A system for people who care about systems.',
+  'Your life, organized.',
+  'Less noise. More signal.',
+  'Built for the ones who build.',
+  'Subscribe to clarity.',
+  'The essentials, delivered.',
+  'A quiet engine for daily life.',
+  'Software for real life.',
+  'LOT runs so you don\'t have to.',
+  'One subscription. Whole life.',
+  'Designed for living, not scrolling.',
+  'The operating system for your household.',
+]
+
+function LotOneliner() {
+  const [line] = React.useState(
+    () => LOT_ONELINERS[Math.floor(Math.random() * LOT_ONELINERS.length)]
+  )
+  return <p className="opacity-60">{line}</p>
+}
+
 const App = () => {
   return (
     <Layout>
-      <div className="flex flex-col gap-4 md:gap-0 tablet:flex-row justify-between items-baseline mb-24">
-        <p>{config.appDescription}</p>
+      <div className="mb-24">
+        <LotOneliner />
         <Link
           href="https://institute.lot-systems.com"
           rel="external"
           target="_blank"
-          className="underline tablet:no-underline whitespace-nowrap pr-8"
+          className="underline opacity-40 hover:opacity-100 transition-opacity"
         >
           Institute<span className="hidden tablet:inline"> ↗</span>
         </Link>
