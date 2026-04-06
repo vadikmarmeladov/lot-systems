@@ -60,6 +60,7 @@ import { FourDimensionalUI } from './FourDimensionalUI'
 import { QuantumSignWidget } from './QuantumSignWidget'
 import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
+import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -762,6 +763,13 @@ export const System = () => {
           <CorporatePlanWidget />
           <DemoDayWidget />
           <FourDimensionalUI />
+        </div>
+      </WidgetErrorBoundary>
+
+      {/* Quantum Engine Connect Widgets */}
+      <WidgetErrorBoundary name="Quantum Engine Connect">
+        <div>
+          <QuantumEngineWidgets />
         </div>
       </WidgetErrorBoundary>
 
