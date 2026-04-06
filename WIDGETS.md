@@ -353,6 +353,33 @@ An offline mode manifest displayed when the device is offline or in investor mod
 
 ---
 
+## Quantum Engine Connect Widgets
+
+Toggle-based connection widgets for the LOT ecosystem of smart devices. Each widget records connect/disconnect signals to the Quantum Intention Engine for pattern analysis.
+
+### Car Connect
+
+Connect your car to the LOT quantum engine. Toggle on/off to record vehicle connection state.
+
+- **Data Source:** Local component state
+- **Connection:** Records `car_connected` / `car_disconnected` signals to the Quantum Intention Engine
+
+### Home Connect
+
+Connect your home to the LOT quantum engine. Toggle on/off to record home connection state.
+
+- **Data Source:** Local component state
+- **Connection:** Records `home_connected` / `home_disconnected` signals to the Quantum Intention Engine
+
+### Computer Connect
+
+Connect your DIY PC to the LOT quantum engine. Toggle on/off to record computer connection state. Part of the upcoming DIY PC revolution — your self-built machine becomes a node in the LOT network.
+
+- **Data Source:** Local component state
+- **Connection:** Records `computer_connected` / `computer_disconnected` signals to the Quantum Intention Engine
+
+---
+
 ## Architecture Overview
 
 ### Dashboard Orchestration
@@ -369,7 +396,8 @@ All widgets are orchestrated by `System.tsx`, the master dashboard component. Wi
 8. **Lifestyle Stack** — Recipes, emotional check-in, self-care
 9. **Intentions & Planning** — Intentions, planner, memory, micro tools
 10. **Subscriber Stack** — Cosmic update, quantum sign
-11. **QIE Stack** — Quantum state, pattern recognition, feedback, signal stream
+11. **Quantum Engine Connect** — Car, home, computer connection toggles
+12. **QIE Stack** — Quantum state, pattern recognition, feedback, signal stream
 12. **Dashboard Stack** — User metrics, system progress, system pulse
 13. **Stats Stack** — Patterns, consciousness, wellness, memory stats, growth, badges
 

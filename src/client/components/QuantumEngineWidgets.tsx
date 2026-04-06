@@ -5,6 +5,7 @@ import { recordSignal } from '#client/stores/intentionEngine'
 export const QuantumEngineWidgets: React.FC = () => {
   const [carConnected, setCarConnected] = React.useState(false)
   const [homeConnected, setHomeConnected] = React.useState(false)
+  const [computerConnected, setComputerConnected] = React.useState(false)
 
   const handleCarConnect = () => {
     setCarConnected((prev) => {
@@ -26,6 +27,16 @@ export const QuantumEngineWidgets: React.FC = () => {
     })
   }
 
+  const handleComputerConnect = () => {
+    setComputerConnected((prev) => {
+      const next = !prev
+      recordSignal('intentions', next ? 'computer_connected' : 'computer_disconnected', {
+        timestamp: Date.now(),
+      })
+      return next
+    })
+  }
+
   return (
     <>
       <Block label="Car:" containsSmallButton>
@@ -36,6 +47,11 @@ export const QuantumEngineWidgets: React.FC = () => {
       <Block label="Home:" containsSmallButton>
         <Button size="small" onClick={handleHomeConnect}>
           {homeConnected ? 'disconnect' : 'connect'}
+        </Button>
+      </Block>
+      <Block label="Computer:" containsSmallButton>
+        <Button size="small" onClick={handleComputerConnect}>
+          {computerConnected ? 'disconnect' : 'connect'}
         </Button>
       </Block>
     </>
