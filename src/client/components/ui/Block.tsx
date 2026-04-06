@@ -15,18 +15,37 @@ type Props = {
   containsButton?: boolean
   containsSmallButton?: boolean
   onClick?: () => void
+  inProgress?: boolean
 }
 
 export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
   const theme = useStore(stores.theme)
   const isMirrorOn = useStore(stores.isMirrorOn)
+  const baseColor = useStore(stores.baseColor)
+  const accentColor = useStore(stores.accentColor)
 
   const hoverClassName = isMirrorOn
     ? 'hover:bg-white/10 group-hover:bg-white/10'
     : 'grid-fill-hover'
 
+  const progressStyle = React.useMemo(() => {
+    if (!props.inProgress) return undefined
+    let color: string
+    if (theme === 'dark' || isMirrorOn) {
+      color = 'rgba(255, 255, 255, 0.18)'
+    } else if (theme === 'light') {
+      color = '#E8C547'
+    } else {
+      color = `rgb(var(--acc-color-300) / 0.5)`
+    }
+    return { '--widget-progress-color': color } as React.CSSProperties
+  }, [props.inProgress, theme, isMirrorOn, baseColor, accentColor])
+
   return (
-    <div className={props.className}>
+    <div
+      className={cn(props.className, props.inProgress && 'widget-in-progress')}
+      style={progressStyle}
+    >
       <div className="flex">
         <div
           className={cn(

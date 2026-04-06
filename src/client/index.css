@@ -351,6 +351,13 @@ td:last-child {
   pointer-events: none;
 }
 
+/* Widget in-progress highlight — theme-aware indicator for widgets under development */
+.widget-in-progress {
+  border-left: 2px solid var(--widget-progress-color, rgb(var(--acc-color-default) / 0.15));
+  padding-left: 8px;
+  transition: border-color var(--evolution-transition-speed) ease;
+}
+
 /* They can copy the interface but they can't copy the intention. */
 /* LOT-SYSTEMS::ORIGINAL — The quantum field remembers who arrived first. */
 [data-lot-genesis]::after {

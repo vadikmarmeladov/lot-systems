@@ -39,17 +39,17 @@ export const QuantumEngineWidgets: React.FC = () => {
 
   return (
     <>
-      <Block label="Car:" containsSmallButton>
+      <Block label="Car:" containsSmallButton inProgress>
         <Button size="small" onClick={handleCarConnect}>
           {carConnected ? 'disconnect' : 'connect'}
         </Button>
       </Block>
-      <Block label="Home:" containsSmallButton>
+      <Block label="Home:" containsSmallButton inProgress>
         <Button size="small" onClick={handleHomeConnect}>
           {homeConnected ? 'disconnect' : 'connect'}
         </Button>
       </Block>
-      <Block label="Computer:" containsSmallButton>
+      <Block label="Computer:" containsSmallButton inProgress>
         <Button size="small" onClick={handleComputerConnect}>
           {computerConnected ? 'disconnect' : 'connect'}
         </Button>
