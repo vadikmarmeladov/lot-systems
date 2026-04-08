@@ -78,12 +78,12 @@ export const EvolutionWidget: React.FC = () => {
 
   // Determine citizen stage based on level (CQGS progression)
   const getEvolutionStage = (level: number): string => {
-    if (level >= 50) return 'Transparent'
-    if (level >= 40) return 'Optimized'
-    if (level >= 30) return 'Compiled'
-    if (level >= 20) return 'Integrated'
-    if (level >= 10) return 'Initializing'
-    return 'Bootstrapping'
+    if (level >= 50) return '◉ Transparent'
+    if (level >= 40) return '◯ Optimized'
+    if (level >= 30) return '○ Compiled'
+    if (level >= 20) return '∘ Integrated'
+    if (level >= 10) return '· Initializing'
+    return '· Bootstrapping'
   }
 
   const stage = getEvolutionStage(currentLevel)
@@ -150,7 +150,7 @@ export const EvolutionWidget: React.FC = () => {
       {view === 'metrics' && <div>
         {/* Main level display */}
         <div className="mb-24">
-          {currentLevel} {stage}
+          {currentLevel} → {stage}
         </div>
 
         {/* Daily stoic anchor */}
@@ -188,7 +188,7 @@ export const EvolutionWidget: React.FC = () => {
         {/* Activity Progress - bar symbols */}
         <div>
           <div className="flex justify-between items-center mb-8">
-            <div>Total XP</div>
+            <div>↳ Total XP</div>
             <div>{totalXP}</div>
           </div>
           <div className="flex items-center gap-8">

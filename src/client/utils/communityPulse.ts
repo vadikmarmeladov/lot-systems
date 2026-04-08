@@ -81,7 +81,7 @@ export function getConvergenceSignal(): {
   // Peak window: 7:45 - 8:15
   if (currentMinutes >= peakMinutes - 15 && currentMinutes <= peakMinutes + 15) {
     return {
-      narrative: 'Peak hour. The collective is here.',
+      narrative: '◉ Peak hour. The collective is here.',
       phase: 'peak',
     }
   }
@@ -91,18 +91,18 @@ export function getConvergenceSignal(): {
     const minutesUntilPeak = peakMinutes - currentMinutes
     if (minutesUntilPeak <= 30) {
       return {
-        narrative: `The community gathers in ${minutesUntilPeak}m`,
+        narrative: `→ The community gathers in ${minutesUntilPeak}m`,
         phase: 'approaching',
       }
     }
     if (minutesUntilPeak <= 60) {
       return {
-        narrative: 'The community is waking. Convergence soon.',
+        narrative: '⇢ The community is waking. Convergence soon.',
         phase: 'approaching',
       }
     }
     return {
-      narrative: 'Early hours. Building toward convergence.',
+      narrative: '↗ Early hours. Building toward convergence.',
       phase: 'approaching',
     }
   }
@@ -112,12 +112,12 @@ export function getConvergenceSignal(): {
     const minutesSincePeak = currentMinutes - peakMinutes
     if (minutesSincePeak <= 45) {
       return {
-        narrative: 'Momentum carries. The collective disperses with purpose.',
+        narrative: '↗ Momentum carries. The collective disperses with purpose.',
         phase: 'carrying',
       }
     }
     return {
-      narrative: 'Post-convergence. Carry the energy forward.',
+      narrative: '→ Post-convergence. Carry the energy forward.',
       phase: 'carrying',
     }
   }
@@ -125,20 +125,20 @@ export function getConvergenceSignal(): {
   // Distant: rest of the day
   if (hour >= 20 || hour < 4) {
     return {
-      narrative: 'Rest. The collective reconvenes at dawn.',
+      narrative: '↓ Rest. The collective reconvenes at dawn.',
       phase: 'distant',
     }
   }
 
   if (hour >= 16) {
     return {
-      narrative: 'The day winds. Tomorrow the collective gathers again.',
+      narrative: '↘ The day winds. Tomorrow the collective gathers again.',
       phase: 'distant',
     }
   }
 
   return {
-    narrative: 'Between convergences. Individual work carries weight.',
+    narrative: '· Between convergences. Individual work carries weight.',
     phase: 'distant',
   }
 }

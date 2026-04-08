@@ -174,7 +174,7 @@ export function MemoryWidget() {
       setTimeout(() => {
         setIsDisplayed(true)
         setTimeout(() => {
-          const badgeDisplay = `${badgeUnlock.symbol} ${badgeUnlock.name}\n\n${badgeUnlock.unlockMessage.replace('[badge]', badgeUnlock.symbol)}`
+          const badgeDisplay = `${badgeUnlock.symbol} → ${badgeUnlock.name}\n\n${badgeUnlock.unlockMessage.replace('[badge]', badgeUnlock.symbol)}`
           setResponse(badgeDisplay)
           setIsShown(true)
           setIsResponseShown(true)

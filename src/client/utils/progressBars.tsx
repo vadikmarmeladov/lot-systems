@@ -80,15 +80,15 @@ export function getProgressBarsString(
  * Provides meaningful narrative context for different progress levels
  */
 export function getStoicProgressLabel(percentage: number): string {
-  if (percentage === 0) return 'Beginning the path'
-  if (percentage < 10) return 'First steps taken'
-  if (percentage < 25) return 'Building momentum'
-  if (percentage < 40) return 'Steadily advancing'
-  if (percentage < 60) return 'Halfway through'
-  if (percentage < 75) return 'Approaching mastery'
-  if (percentage < 90) return 'Nearly complete'
-  if (percentage < 100) return 'Final refinements'
-  return 'Journey complete'
+  if (percentage === 0) return '· Beginning the path'
+  if (percentage < 10) return '↗ First steps taken'
+  if (percentage < 25) return '↗ Building momentum'
+  if (percentage < 40) return '→ Steadily advancing'
+  if (percentage < 60) return '→ Halfway through'
+  if (percentage < 75) return '↗ Approaching mastery'
+  if (percentage < 90) return '⇢ Nearly complete'
+  if (percentage < 100) return '⇢ Final refinements'
+  return '◉ Journey complete'
 }
 
 /**

@@ -31,14 +31,14 @@ export function BadgeUnlockFeed() {
             className="flex justify-between items-center hover:opacity-100 transition-opacity"
           >
             <span>
-              {unlock.userName} unlocked {unlock.badge}
+              ↳ {unlock.userName} unlocked {unlock.badge}
             </span>
             <span className="opacity-30 tabular-nums">{formatTimeAgo(unlock.timeAgo)}</span>
           </div>
         ))}
 
         <div className="pt-4 mt-4 border-t border-acc/20">
-          <div className="opacity-30">{stats.totalToday} badges unlocked today</div>
+          <div className="opacity-30">↑ {stats.totalToday} badges unlocked today</div>
         </div>
       </div>
     </Block>

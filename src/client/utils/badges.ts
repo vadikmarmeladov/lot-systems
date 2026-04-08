@@ -1,25 +1,27 @@
 /**
- * Badge System for LOT - Dual Theme Support
+ * Badge System for LOT — Dual Theme Support
  *
  * Two parallel systems representing spiritual growth:
  *
- * 1. WATER (Aquatic Evolution): ∘ → ≈ → ≋
- *    Growth through natural cycles, like water flowing
+ * 1. WATER (Aquatic Evolution): ∘ ⟶ ≈ ⟶ ≋
+ *    ↳ Growth through natural cycles, like water flowing
  *
- * 2. ARCHITECTURE (Box Drawing): ├─ → ╞═╡ → ║·║
- *    Structural building and growth, construction of self
+ * 2. ARCHITECTURE (Box Drawing): ├─ ⟶ ╞═╡ ⟶ ║·║
+ *    ↳ Structural building and growth, construction of self
  *
  * Users can choose their preferred metaphor for growth.
  * Displayed in dedicated "Level:" field in Public Profile.
+ *
+ * Progression: ▸ milestone_7 → milestone_30 → milestone_100
  */
 
 export type BadgeTheme = 'water' | 'architecture'
 
 export type BadgeType =
-  // Water milestones
-  | 'milestone_7'     // ∘ Droplet / ├─ Foundation
-  | 'milestone_30'    // ≈ Wave / ╞═╡ Structure
-  | 'milestone_100'   // ≋ Current / ║·║ Architecture
+  // Water milestones      ↳ Architecture milestones
+  | 'milestone_7'     // ∘ Droplet       → ├─ Foundation
+  | 'milestone_30'    // ≈ Wave          → ╞═╡ Structure
+  | 'milestone_100'   // ≋ Current       → ║·║ Architecture
 
 export interface Badge {
   id: BadgeType
@@ -40,8 +42,8 @@ export const BADGES: Record<BadgeType, Badge> = {
     waterName: 'Droplet',
     architectureName: 'Foundation',
     description: 'Seven days of consistent practice',
-    waterUnlockMessage: 'First drops form [badge]',
-    architectureUnlockMessage: 'Foundation laid [badge]',
+    waterUnlockMessage: '↳ First drops form [badge]',
+    architectureUnlockMessage: '↳ Foundation laid [badge]',
   },
   milestone_30: {
     id: 'milestone_30',
@@ -50,8 +52,8 @@ export const BADGES: Record<BadgeType, Badge> = {
     waterName: 'Wave',
     architectureName: 'Structure',
     description: 'A full month of engagement',
-    waterUnlockMessage: 'Waves begin to flow [badge]',
-    architectureUnlockMessage: 'Structure rises [badge]',
+    waterUnlockMessage: '↳ Waves begin to flow [badge]',
+    architectureUnlockMessage: '↳ Structure rises [badge]',
   },
   milestone_100: {
     id: 'milestone_100',
@@ -60,13 +62,19 @@ export const BADGES: Record<BadgeType, Badge> = {
     waterName: 'Current',
     architectureName: 'Architecture',
     description: 'A hundred days of practice',
-    waterUnlockMessage: 'Deep currents established [badge]',
-    architectureUnlockMessage: 'Architecture complete [badge]',
+    waterUnlockMessage: '↳ Deep currents established [badge]',
+    architectureUnlockMessage: '↳ Architecture complete [badge]',
   },
 }
 
 // Default separator when no badges earned yet
 export const DEFAULT_SEPARATOR = '•'
+
+// Progression arrow used across the badge UI
+export const PROGRESSION_ARROW = '→'
+
+// Sub-item indicator for hierarchical display
+export const SUB_INDICATOR = '↳'
 
 /**
  * Get user's preferred badge theme
@@ -234,7 +242,7 @@ export function getLevelSymbol(streak: number, theme?: BadgeTheme): string {
   if (streak >= 7) {
     return badgeTheme === 'water' ? BADGES.milestone_7.waterSymbol : BADGES.milestone_7.architectureSymbol
   }
-  return '' // No level yet
+  return '' // No level yet → awaiting first milestone
 }
 
 /**
@@ -271,6 +279,19 @@ export function joinWithDots(items: string[]): string {
 }
 
 /**
+ * Format badge progression display with arrows
+ * e.g. "∘ → ≈ → ≋" or "├─ → ╞═╡ → ║·║"
+ */
+export function getBadgeProgressionDisplay(theme?: BadgeTheme): string {
+  const badgeTheme = theme || getBadgeTheme()
+  const milestones = ['milestone_7', 'milestone_30', 'milestone_100'] as const
+
+  return milestones
+    .map(id => badgeTheme === 'water' ? BADGES[id].waterSymbol : BADGES[id].architectureSymbol)
+    .join(' → ')
+}
+
+/**
  * Calculate which milestone badges should be awarded based on streak
  * This is called periodically or after significant events
  */
@@ -297,7 +318,7 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
       return newBadges
     }
 
-    // Check milestone badges only (Aquatic Evolution: ∘ ≈ ≋)
+    // Check milestone badges: ∘ → ≈ → ≋ (water) │ ├─ → ╞═╡ → ║·║ (arch)
     if (stats.streak >= 7 && !hasBadge('milestone_7')) {
       if (awardBadge('milestone_7')) newBadges.push('milestone_7')
     }

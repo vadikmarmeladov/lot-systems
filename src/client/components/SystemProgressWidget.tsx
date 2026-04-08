@@ -32,10 +32,10 @@ interface FeedbackAnalytics {
 }
 
 const FEEDBACK_OPTIONS = [
-  { id: 'operational', label: 'Operational', symbol: '|' },
-  { id: 'resonating', label: 'Resonating', symbol: '~' },
-  { id: 'needs-calibration', label: 'Needs Calibration', symbol: '*' },
-  { id: 'evolving', label: 'Evolving', symbol: '^' }
+  { id: 'operational', label: 'Operational', symbol: '↑' },
+  { id: 'resonating', label: 'Resonating', symbol: '↔' },
+  { id: 'needs-calibration', label: 'Needs Calibration', symbol: '↻' },
+  { id: 'evolving', label: 'Evolving', symbol: '⇡' }
 ] as const
 
 /**
@@ -116,10 +116,10 @@ export function SystemProgressWidget() {
 
   const getStatusText = () => {
     switch (deployment.status) {
-      case 'activated': return 'Program activated.'
-      case 'integrating': return 'Neural pathways integrating.'
-      case 'synchronized': return 'Quantum core synchronized.'
-      default: return 'Status unknown.'
+      case 'activated': return '→ Program activated.'
+      case 'integrating': return '↻ Neural pathways integrating.'
+      case 'synchronized': return '↔ Quantum core synchronized.'
+      default: return '· Status unknown.'
     }
   }
 
@@ -149,7 +149,7 @@ export function SystemProgressWidget() {
             <div className="opacity-30 mb-8">Active enhancements:</div>
             <div className="flex flex-col gap-y-4">
               {deployment.features.map((feature, idx) => (
-                <div key={idx}>. {feature}</div>
+                <div key={idx}>→ {feature}</div>
               ))}
             </div>
           </div>
@@ -197,7 +197,7 @@ export function SystemProgressWidget() {
               className="w-full flex justify-between items-center opacity-30 hover:opacity-100 transition-opacity mb-8"
             >
               <span>Community feedback:</span>
-              <span>{showAnalytics ? '-' : '+'}</span>
+              <span>{showAnalytics ? '▾' : '▸'}</span>
             </button>
 
             {showAnalytics && (
@@ -231,7 +231,7 @@ export function SystemProgressWidget() {
                     <div className="flex flex-col gap-y-4">
                       {analytics.insights.map((insight, idx) => (
                         <div key={idx}>
-                          {insight}
+                          ↳ {insight}
                         </div>
                       ))}
                     </div>
