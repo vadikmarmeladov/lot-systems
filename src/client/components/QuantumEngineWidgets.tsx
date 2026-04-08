@@ -2,10 +2,24 @@ import * as React from 'react'
 import { Block, Button } from '#client/components/ui'
 import { recordSignal } from '#client/stores/intentionEngine'
 
+function usePersistedState(key: string): [boolean, React.Dispatch<React.SetStateAction<boolean>>] {
+  const [value, setValue] = React.useState(() => {
+    try { return localStorage.getItem(key) === 'true' } catch { return false }
+  })
+  const setPersistedValue: React.Dispatch<React.SetStateAction<boolean>> = React.useCallback((action) => {
+    setValue(prev => {
+      const next = typeof action === 'function' ? action(prev) : action
+      try { localStorage.setItem(key, String(next)) } catch {}
+      return next
+    })
+  }, [key])
+  return [value, setPersistedValue]
+}
+
 export const QuantumEngineWidgets: React.FC = () => {
-  const [carConnected, setCarConnected] = React.useState(false)
-  const [homeConnected, setHomeConnected] = React.useState(false)
-  const [computerConnected, setComputerConnected] = React.useState(false)
+  const [carConnected, setCarConnected] = usePersistedState('qe-car-connected')
+  const [homeConnected, setHomeConnected] = usePersistedState('qe-home-connected')
+  const [computerConnected, setComputerConnected] = usePersistedState('qe-computer-connected')
 
   const handleCarConnect = () => {
     setCarConnected((prev) => {

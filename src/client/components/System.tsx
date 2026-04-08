@@ -49,6 +49,7 @@ import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
 import { UserMetricsWidget } from './UserMetricsWidget'
 import { AIFeedbackWidget } from './AIFeedbackWidget'
+import { CorrelatedIndexesWidget } from './CorrelatedIndexesWidget'
 
 import { CollectiveConsciousness, WellnessPulse, MemoryEngineStats, IntentionPatterns, BadgeUnlockFeed, GrowthMilestones } from './stats'
 import { getConvergenceSignal, getAmbientIntensity } from '#client/utils/communityPulse'
@@ -318,7 +319,7 @@ export const System = () => {
       <div>
         <GhostButton href="/log">{userName || 'You'}</GhostButton>
         <div>
-          Week {Math.ceil(dayjs().dayOfYear() / 7)};{' '}
+          Week {dayjs().isoWeek()};{' '}
           <Clock format="MMMM D, dddd" interval={1e3 * 60} />
           {!!me?.city && `, ${me.city}`}
         </div>
@@ -788,6 +789,9 @@ export const System = () => {
         <div className="flex flex-col gap-y-0">
           {/* CQGS Dashboard - Bioethics health, performance, version */}
           <UserMetricsWidget />
+
+          {/* Correlated Indexes - Four-dimensional weekly tracking */}
+          <CorrelatedIndexesWidget />
 
           {/* System Progress - Deployment info with feedback */}
           <SystemProgressWidget />
