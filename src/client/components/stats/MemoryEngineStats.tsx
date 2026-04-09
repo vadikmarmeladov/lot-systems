@@ -50,11 +50,9 @@ export function MemoryEngineStats() {
     )
   }
 
-  // Format large numbers with K/M suffix
+  // Format large numbers with commas
   const formatNumber = (n: number): string => {
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
-    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`
-    return n.toString()
+    return n.toLocaleString()
   }
 
   const label = view === 'performance' ? 'Memory Engine:' : 'AI Transmissions:'
@@ -113,7 +111,7 @@ export function MemoryEngineStats() {
             <>
               <div className="flex justify-between items-baseline">
                 <span className="opacity-30">Completions today</span>
-                <span className="tabular-nums">{usage.today.totalCalls}</span>
+                <span className="tabular-nums">{usage.today.totalCalls.toLocaleString()}</span>
               </div>
 
               <div className="flex justify-between items-baseline">
@@ -123,12 +121,12 @@ export function MemoryEngineStats() {
 
               <div className="flex justify-between items-baseline">
                 <span className="opacity-30">Image generations</span>
-                <span className="tabular-nums">{usage.today.totalImageGenerations}</span>
+                <span className="tabular-nums">{usage.today.totalImageGenerations.toLocaleString()}</span>
               </div>
 
               <div className="flex justify-between items-baseline">
                 <span className="opacity-30">Rate</span>
-                <span className="tabular-nums">{usage.today.callsPerHour}/hr</span>
+                <span className="tabular-nums">{usage.today.callsPerHour.toLocaleString()}/hr</span>
               </div>
 
               {/* Engine breakdown */}
@@ -139,7 +137,7 @@ export function MemoryEngineStats() {
                     <div key={engine} className="flex justify-between items-baseline">
                       <span className="opacity-30">{engine}</span>
                       <span className="tabular-nums">
-                        {data.calls} calls / {formatNumber(data.estimatedTokens)} tkn
+                        {data.calls.toLocaleString()} calls / {formatNumber(data.estimatedTokens)} tkn
                       </span>
                     </div>
                   ))}
@@ -147,7 +145,7 @@ export function MemoryEngineStats() {
               )}
 
               <div className="opacity-30 mt-8">
-                Session: {usage.session.totalCalls} calls / {formatNumber(usage.session.totalTokens)} tokens
+                Session: {usage.session.totalCalls.toLocaleString()} calls / {formatNumber(usage.session.totalTokens)} tokens
               </div>
             </>
           )}

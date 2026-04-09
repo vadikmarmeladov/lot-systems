@@ -12,7 +12,7 @@ type Props = React.HTMLAttributes<HTMLSpanElement> & {
 }
 
 export const Tag: React.FC<Props> = ({
-  color = 'gray',
+  color = 'blue',
   fill = false,
   href = null,
   className,

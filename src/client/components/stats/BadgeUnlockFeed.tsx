@@ -38,7 +38,7 @@ export function BadgeUnlockFeed() {
         ))}
 
         <div className="pt-4 mt-4 border-t border-acc/20">
-          <div className="opacity-30">↑ {stats.totalToday} badges unlocked today</div>
+          <div className="opacity-30">↑ {stats.totalToday.toLocaleString()} badges unlocked today</div>
         </div>
       </div>
     </Block>

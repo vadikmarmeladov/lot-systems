@@ -37,17 +37,17 @@ export function CollectiveConsciousness() {
         {/* Active users in flow */}
         <div className="flex justify-between items-baseline mb-8">
           <span className="opacity-30">Users in flow</span>
-          <span className="tabular-nums">{stats.soulsInFlow}</span>
+          <span className="tabular-nums">{stats.soulsInFlow.toLocaleString()}</span>
         </div>
 
         {/* Today's activity */}
         <div className="flex justify-between items-baseline mb-8">
           <span className="opacity-30">Active intentions</span>
-          <span className="tabular-nums">{stats.activeIntentions}</span>
+          <span className="tabular-nums">{stats.activeIntentions.toLocaleString()}</span>
         </div>
         <div className="flex justify-between items-baseline">
           <span className="opacity-30">Care moments</span>
-          <span className="tabular-nums">{stats.careMoments}</span>
+          <span className="tabular-nums">{stats.careMoments.toLocaleString()}</span>
         </div>
       </div>
     </Block>

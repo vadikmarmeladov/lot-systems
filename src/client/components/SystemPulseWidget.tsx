@@ -106,7 +106,7 @@ export function SystemPulseWidget() {
           {/* Events per minute */}
           <div className="flex justify-between items-baseline mb-8">
             <span className="opacity-30">Events/min</span>
-            <span className="tabular-nums">{Math.round(pulse.eventsPerMinute)}</span>
+            <span className="tabular-nums">{Math.round(pulse.eventsPerMinute).toLocaleString()}</span>
           </div>
 
           {/* Quantum Flux */}
@@ -118,7 +118,7 @@ export function SystemPulseWidget() {
           {/* Neural Activity */}
           <div className="flex justify-between items-baseline mb-8">
             <span className="opacity-30">Neural activity</span>
-            <span className="tabular-nums">{Math.round(pulse.neuralActivity)}</span>
+            <span className="tabular-nums">{Math.round(pulse.neuralActivity).toLocaleString()}</span>
           </div>
 
           {/* Resonance */}
@@ -164,12 +164,12 @@ export function SystemPulseWidget() {
               {/* Today's user activity metrics */}
               <div className="flex justify-between items-baseline mb-8">
                 <span className="opacity-30">Today signals</span>
-                <span className="tabular-nums">{logCtx.todayActivity.length}</span>
+                <span className="tabular-nums">{logCtx.todayActivity.length.toLocaleString()}</span>
               </div>
 
               <div className="flex justify-between items-baseline mb-8">
                 <span className="opacity-30">Weekly rate</span>
-                <span className="tabular-nums">{logCtx.weeklyRate}/wk</span>
+                <span className="tabular-nums">{logCtx.weeklyRate.toLocaleString()}/wk</span>
               </div>
 
               <div className="flex justify-between items-baseline mb-8">

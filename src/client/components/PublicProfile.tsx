@@ -436,12 +436,12 @@ export const PublicProfile = () => {
                   <div>
                     <div className="flex mb-24">
                       <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Pattern strength:</span>
-                      <span className="flex-1">{profile.psychologicalProfile.patternStrengthIndex || profile.psychologicalProfile.patternStrength.reduce((sum: number, item: { count: number }) => sum + item.count, 0)}</span>
+                      <span className="flex-1">{(profile.psychologicalProfile.patternStrengthIndex || profile.psychologicalProfile.patternStrength.reduce((sum: number, item: { count: number }) => sum + item.count, 0)).toLocaleString()}</span>
                     </div>
                     {profile.psychologicalProfile.patternStrength.map((item: { trait: string; count: number }, idx: number) => (
                       <div key={idx} className="flex">
                         <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">↳ {item.trait}:</span>
-                        <span className="flex-1">{item.count}</span>
+                        <span className="flex-1">{item.count.toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
@@ -453,13 +453,13 @@ export const PublicProfile = () => {
                     {profile.psychologicalProfile.answerCount !== undefined && (
                       <div className="flex">
                         <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Answers:</span>
-                        <span className="flex-1">{profile.psychologicalProfile.answerCount}</span>
+                        <span className="flex-1">{profile.psychologicalProfile.answerCount.toLocaleString()}</span>
                       </div>
                     )}
                     {profile.psychologicalProfile.noteCount !== undefined && (
                       <div className="flex">
                         <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Notes:</span>
-                        <span className="flex-1">{profile.psychologicalProfile.noteCount}</span>
+                        <span className="flex-1">{profile.psychologicalProfile.noteCount.toLocaleString()}</span>
                       </div>
                     )}
                   </div>

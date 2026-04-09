@@ -45,28 +45,28 @@ export function GrowthMilestones() {
             <div className="flex justify-between items-baseline">
               <span className="opacity-30">Days</span>
               <span>
-                {personal.journeyDays}
+                {personal.journeyDays.toLocaleString()}
                 {hasGrown('journeyDays', personal.journeyDays) && <GrowthIndicator />}
               </span>
             </div>
             <div className="flex justify-between items-baseline">
               <span className="opacity-30">Questions Answered</span>
               <span>
-                {personal.questionsAnswered}
+                {personal.questionsAnswered.toLocaleString()}
                 {hasGrown('questionsAnswered', personal.questionsAnswered) && <GrowthIndicator />}
               </span>
             </div>
             <div className="flex justify-between items-baseline">
               <span className="opacity-30">Insights Gained</span>
               <span>
-                {personal.insightsGained}
+                {personal.insightsGained.toLocaleString()}
                 {hasGrown('insightsGained', personal.insightsGained) && <GrowthIndicator />}
               </span>
             </div>
             <div className="flex justify-between items-baseline pt-2 border-t border-acc/20">
               <span className="opacity-30">Badge Level</span>
               <span>
-                {personal.badgeLevel} ({personal.badgeCount})
+                {personal.badgeLevel} ({personal.badgeCount.toLocaleString()})
                 {hasGrown('badgeCount', personal.badgeCount) && <GrowthIndicator />}
               </span>
             </div>
@@ -87,7 +87,7 @@ export function GrowthMilestones() {
             <div className="flex justify-between items-baseline">
               <span className="opacity-30">Days of Operation</span>
               <span>
-                {community.daysOfOperation}
+                {community.daysOfOperation.toLocaleString()}
                 {hasGrown('daysOfOperation', community.daysOfOperation) && <GrowthIndicator />}
               </span>
             </div>

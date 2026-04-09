@@ -159,7 +159,7 @@ export const AdminUser = () => {
                     ? Object.values(UserTag).map((tagId) => {
                         const tag = USER_TAGS_BY_ID[tagId] || {
                           name: tagId,
-                          color: 'gray',
+                          color: 'blue',
                         }
                         return (
                           <Tag

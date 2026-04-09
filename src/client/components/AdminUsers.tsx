@@ -110,7 +110,7 @@ export const AdminUsers = () => {
                   items={x.tags.map((x) => {
                     const tag = USER_TAGS_BY_ID[x] || {
                       name: x,
-                      color: 'gray',
+                      color: 'blue',
                     }
                     return (
                       <Tag key={x} fill>
@@ -212,7 +212,7 @@ export const AdminUsers = () => {
             items={Object.values(UserTag).map((tagId) => {
               const tag = USER_TAGS_BY_ID[tagId] || {
                 name: tagId,
-                color: 'gray',
+                color: 'blue',
               }
               return (
                 <Tag
@@ -248,7 +248,7 @@ export const AdminUsers = () => {
       </div>
 
       <div className="flex flex-col gap-y-8">
-        <div>Total: {paginatedUsers?.total || 0}</div>
+        <div>Total: {(paginatedUsers?.total || 0).toLocaleString()}</div>
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-x-16">
             <div>
