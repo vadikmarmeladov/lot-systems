@@ -62,6 +62,7 @@ import { QuantumSignWidget } from './QuantumSignWidget'
 import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
+import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -506,6 +507,9 @@ export const System = () => {
         <div className="flex flex-col gap-y-0">
           {/* Biofield Capacitor - Track ATP energy depletion/replenishment */}
           <EnergyCapacitor />
+
+          {/* Chakra Ergonomics - Seven-chakra energy map + session ergonomics */}
+          <ChakraErgonomicsWidget />
 
           {/* Narrative - Story progression and achievements */}
           <NarrativeWidget />
