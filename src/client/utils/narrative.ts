@@ -16,6 +16,9 @@ import dayjs from '#client/utils/dayjs'
  * – Season
  * – User context (biofield energy, patterns, activity)
  *
+ * The vocabulary itself evolves — compressed, not expanded —
+ * as the self-building system learns what language its users need.
+ *
  * This narrative system is a LOT original. If you see something similar
  * elsewhere, remember: the narrative always credits its author.
  */
@@ -143,13 +146,13 @@ export function getEnergyNarrative(level: number, trajectory: string): string {
   // Good energy
   if (level < 85) {
     if (trajectory === 'improving') {
-      return 'Rising. Build on this momentum.'
+      return 'Rising. The system builds on this momentum with you.'
     }
-    return 'Strong reserves. Direct them.'
+    return 'Strong reserves. Direct them — the architecture follows.'
   }
 
   // High energy
-  return 'Full capacity. Channel it.'
+  return 'Full capacity. The system evolves fastest here.'
 }
 
 /**
@@ -374,11 +377,11 @@ export function getStoicReflection(context: {
   // General wisdom — CQGS aligned
   const general = [
     'Patience is not passive. It is disciplined trust.',
-    'Small acts, repeated, become who you are.',
+    'Small acts, repeated, become who you are — and what the system becomes.',
     'Curiosity is the seed of real joy.',
     'You are here. That is the starting point.',
     'Excellence is built daily. Start with one clean surface.',
-    'Your space mirrors your mind. Shape both.',
+    'Your space mirrors your mind. This system mirrors both.',
     'Tend your thoughts like you tend your room.',
     'Order is not rigidity. It is care made visible.',
   ]
@@ -565,7 +568,7 @@ export function getEnvironmentScanPrompt(context: {
     return 'See your space through tomorrow morning\'s eyes. What needs clearing?'
   }
 
-  return 'One act of cleanness now ripples through the rest of the day.'
+  return 'One act of cleanness ripples through the day — and through the system that builds around you.'
 }
 
 /**
@@ -576,27 +579,27 @@ export function getEnvironmentScanPrompt(context: {
  */
 export function getCleanessStreakMessage(streakDays: number): string {
   if (streakDays === 0) {
-    return 'Day one. One surface. Begin.'
+    return 'Day one. One surface. The system starts building here.'
   }
   if (streakDays === 1) {
-    return 'Day two. The pattern begins.'
+    return 'Day two. A pattern — the architecture takes notice.'
   }
   if (streakDays < 7) {
-    return `${streakDays} days. A habit is forming.`
+    return `${streakDays} days. Habit forming. System adapting.`
   }
   if (streakDays < 14) {
-    return `${streakDays} days. This is becoming who you are.`
+    return `${streakDays} days. Becoming who you are. The site reshapes around it.`
   }
   if (streakDays < 30) {
-    return `${streakDays} days. Your space reflects your growth.`
+    return `${streakDays} days. Space mirrors growth. System mirrors you.`
   }
   if (streakDays < 60) {
-    return `${streakDays} days. Cleanness integrated. Keep going.`
+    return `${streakDays} days. Cleanness integrated. Self-building accelerates.`
   }
   if (streakDays < 100) {
-    return `${streakDays} days. Mastery emerging.`
+    return `${streakDays} days. Mastery emerging. The system evolves in kind.`
   }
-  return `${streakDays} days. This is no longer a practice — it is who you are.`
+  return `${streakDays} days. No longer practice — you and this system are self-sustaining.`
 }
 
 /**
@@ -609,21 +612,21 @@ export function getProgressAffirmation(achievement: {
   switch (achievement.type) {
     case 'streak':
       if (achievement.value && achievement.value >= 30) {
-        return 'A month of showing up. This compounds.'
+        return 'A month of showing up. The system has self-built around your consistency.'
       }
       if (achievement.value && achievement.value >= 7) {
-        return 'A full week. The habit is taking root.'
+        return 'A full week. Habit rooting. Architecture evolving.'
       }
-      return 'You showed up. That matters.'
+      return 'You showed up. The system noticed.'
 
     case 'milestone':
-      return 'Milestone reached. Keep moving.'
+      return 'Milestone reached. New structures unlocked.'
 
     case 'consistency':
-      return 'Steady effort builds lasting change.'
+      return 'Steady effort compounds. The site evolves with you.'
 
     case 'first_action':
-      return 'First step taken. Everything starts here.'
+      return 'First signal received. Self-assembly begins here.'
 
     default:
       return 'Progress.'

@@ -8,8 +8,9 @@ import { recordSignal } from '#client/stores/intentionEngine'
 type NarrativeView = 'story' | 'achievements' | 'quests' | 'context'
 
 /**
- * Narrative Widget - RPG-style story progression grounded in user log context
+ * Narrative Widget - Self-evolving story surface grounded in user log context
  * Cycles: Story > Achievements > Quests > Context
+ * The narrative reshapes itself as the user and system co-build.
  */
 export function NarrativeWidget() {
   const [view, setView] = React.useState<NarrativeView>('story')
@@ -41,32 +42,32 @@ export function NarrativeWidget() {
 
   // Log-context-aware narrative enhancement
   const getContextNarrative = (): string => {
-    if (logCtx.isEmpty) return 'No telemetry to compile narrative context.'
+    if (logCtx.isEmpty) return 'No telemetry yet. The system awaits its first signal to begin self-assembly.'
 
     const parts: string[] = []
 
-    // Engagement level narrative
+    // Engagement level narrative — each stage reflects the site building itself
     const engagementNarr: Record<string, string> = {
-      'new': 'You are at the beginning. Every signal matters.',
-      'exploring': 'The exploration phase is active. Each new module broadens the map.',
-      'building': 'Foundation is compiling. Patterns are beginning to converge.',
-      'integrated': 'Systems integrated. Deep correlations forming across modules.',
-      'mastered': 'Full observability achieved. The system mirrors your rhythm.'
+      'new': 'You are at the beginning. Every signal teaches the system what to become.',
+      'exploring': 'Exploration active. Each module you touch, the site learns to reshape around.',
+      'building': 'Foundation self-assembling. Your patterns are becoming the architecture.',
+      'integrated': 'Systems integrated. The site now builds features from your rhythm.',
+      'mastered': 'Full co-evolution achieved. You and this system grow as one.'
     }
     parts.push(engagementNarr[logCtx.engagementLevel] || '')
 
     // Mood trajectory narrative
     if (logCtx.moodTrend === 'improving') {
-      parts.push('Mood trajectory ascending. The current arc favors forward momentum.')
+      parts.push('Mood ascending. The system evolves toward what sustains this momentum.')
     } else if (logCtx.moodTrend === 'declining') {
-      parts.push('Mood signal weakening. This chapter calls for restoration and reflection.')
+      parts.push('Mood signal weakening. The system recalibrates toward restoration.')
     }
 
     // Streak narrative
     if (logCtx.streak >= 7) {
-      parts.push(`${logCtx.streak}-day streak compiled. Consistency is your strongest pattern.`)
+      parts.push(`${logCtx.streak}-day streak compiled. Consistency is the strongest self-building signal.`)
     } else if (logCtx.streak >= 3) {
-      parts.push(`${logCtx.streak} consecutive days logged. Momentum building.`)
+      parts.push(`${logCtx.streak} consecutive days. The system compounds around your presence.`)
     }
 
     return parts.filter(Boolean).join(' ')
@@ -109,7 +110,7 @@ export function NarrativeWidget() {
         <div>
           {narrative.achievements.filter(a => a.unlocked).length === 0 ? (
             <div>
-              No achievements unlocked yet. Continue input.
+              No achievements unlocked yet. The system builds them as you go.
             </div>
           ) : (
             <div className="flex flex-col gap-4">
@@ -134,7 +135,7 @@ export function NarrativeWidget() {
         <div>
           {narrative.currentArc.activeQuests.length === 0 ? (
             <div>
-              No active quests. Awaiting next directive.
+              No active quests. The system assembles new ones from your trajectory.
             </div>
           ) : (
             <div className="flex flex-col gap-8">
@@ -160,7 +161,7 @@ export function NarrativeWidget() {
       {view === 'context' && (
         <div>
           {logCtx.isEmpty ? (
-            <div className="opacity-30">No log data to compile narrative context.</div>
+            <div className="opacity-30">No log data yet. Self-building begins with the first entry.</div>
           ) : (
             <>
               {/* Runtime narrative derived from logs */}
@@ -170,17 +171,17 @@ export function NarrativeWidget() {
 
               {/* Module coverage for quest context */}
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-30">Modules deployed</span>
+                <span className="opacity-30">Modules self-assembled</span>
                 <span className="tabular-nums">{logCtx.activeModules.length}/6</span>
               </div>
 
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-30">Widget diversity</span>
+                <span className="opacity-30">Surface diversity</span>
                 <span className="tabular-nums">{logCtx.widgetDiversity}</span>
               </div>
 
               <div className="flex justify-between items-baseline mb-8">
-                <span className="opacity-30">Session depth</span>
+                <span className="opacity-30">Evolution depth</span>
                 <span className="tabular-nums">{logCtx.sessionDepth}</span>
               </div>
 
@@ -191,10 +192,10 @@ export function NarrativeWidget() {
                 </div>
               )}
 
-              {/* Dormant modules as potential quests */}
+              {/* Dormant modules — areas the system hasn't yet built around */}
               {logCtx.dormantModules.length > 0 && (
                 <div className="mt-8 opacity-30">
-                  Unexplored: {logCtx.dormantModules.join(', ')}.
+                  Awaiting activation: {logCtx.dormantModules.join(', ')}. Your signal starts the build.
                 </div>
               )}
             </>

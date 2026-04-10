@@ -35,12 +35,12 @@ const FEEDBACK_OPTIONS = [
   { id: 'operational', label: 'Operational', symbol: '↑' },
   { id: 'resonating', label: 'Resonating', symbol: '↔' },
   { id: 'needs-calibration', label: 'Needs Calibration', symbol: '↻' },
-  { id: 'evolving', label: 'Evolving', symbol: '⇡' }
+  { id: 'evolving', label: 'Self-Evolving', symbol: '⇡' }
 ] as const
 
 /**
- * SystemProgressWidget - Shows latest deployments with sci-fi terminology
- * Collects user feedback through word-buttons
+ * SystemProgressWidget - Self-building system surface
+ * Tracks how this site assembles and evolves itself from user signals
  */
 export function SystemProgressWidget() {
   const me = useStore(stores.me)
@@ -116,9 +116,9 @@ export function SystemProgressWidget() {
 
   const getStatusText = () => {
     switch (deployment.status) {
-      case 'activated': return '→ Program activated.'
-      case 'integrating': return '↻ Neural pathways integrating.'
-      case 'synchronized': return '↔ Quantum core synchronized.'
+      case 'activated': return '→ Self-assembly activated. Site is building.'
+      case 'integrating': return '↻ Pathways integrating. Structure evolving from use.'
+      case 'synchronized': return '↔ Core synchronized. System shaped by its users.'
       default: return '· Status unknown.'
     }
   }
@@ -146,7 +146,7 @@ export function SystemProgressWidget() {
         {/* Features */}
         {deployment.features.length > 0 && (
           <div className="border-t border-acc-400/30 pt-16">
-            <div className="opacity-30 mb-8">Active enhancements:</div>
+            <div className="opacity-30 mb-8">Self-assembled enhancements:</div>
             <div className="flex flex-col gap-y-4">
               {deployment.features.map((feature, idx) => (
                 <div key={idx}>→ {feature}</div>
@@ -157,7 +157,7 @@ export function SystemProgressWidget() {
 
         {/* Feedback Section */}
         <div className="border-t border-acc-400/30 pt-16">
-          <div className="opacity-30 mb-8">System status assessment:</div>
+          <div className="opacity-30 mb-8">How does the self-evolving system feel?</div>
 
           <div className="grid grid-cols-2 gap-8">
             {FEEDBACK_OPTIONS.map(option => (
@@ -184,19 +184,19 @@ export function SystemProgressWidget() {
 
           {feedback && (
             <div className="mt-16 opacity-30">
-              Status logged. Calibration updated.
+              Signal received. The system rebuilds around your feedback.
             </div>
           )}
         </div>
 
-        {/* Community Feedback Analytics - Self-Evolution Insights */}
+        {/* Community Feedback — collective signals that shape the next build */}
         {analytics && analytics.totalResponses > 0 && (
           <div className="border-t border-acc-400/30 pt-16">
             <button
               onClick={() => setShowAnalytics(!showAnalytics)}
               className="w-full flex justify-between items-center opacity-30 hover:opacity-100 transition-opacity mb-8"
             >
-              <span>Community feedback:</span>
+              <span>Collective evolution signals:</span>
               <span>{showAnalytics ? '▾' : '▸'}</span>
             </button>
 
@@ -204,7 +204,7 @@ export function SystemProgressWidget() {
               <div className="flex flex-col gap-y-16">
                 {/* System Health Status */}
                 <div className="p-16 rounded border border-acc-400/30">
-                  <div className="opacity-30 mb-4">System health:</div>
+                  <div className="opacity-30 mb-4">Self-build health:</div>
                   <div>{analytics.systemHealth.message}</div>
                 </div>
 
@@ -239,7 +239,7 @@ export function SystemProgressWidget() {
                 )}
 
                 <div className="opacity-30 pt-8">
-                  Based on {analytics.period} of feedback.
+                  Derived from {analytics.period} of collective self-building.
                 </div>
               </div>
             )}

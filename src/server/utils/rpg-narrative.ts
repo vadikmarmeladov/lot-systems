@@ -278,33 +278,33 @@ function generateStoryArc(level: number, achievements: Achievement[], logs: Log[
   const checkIns = logs.filter(l => l.event === 'emotional_checkin')
   const answers = logs.filter(l => l.event === 'answer')
 
-  // Determine chapter based on level
+  // Determine chapter based on level — narrative and system co-evolve
   let chapter = 1
   let title = 'Awakening'
-  let narrative = 'You have begun to notice yourself. Each breath, each moment of awareness, is a step toward knowing who you are.'
+  let narrative = 'You have begun to notice yourself. Each signal you give teaches this system what to become. Together, the first structures take shape.'
 
   if (level >= 10) {
     chapter = 2
     title = 'Exploration'
-    narrative = 'You are exploring the landscape of your inner world. Patterns emerge, connections form. You are learning your own language.'
+    narrative = 'You explore your inner landscape while the system builds new pathways around your patterns. Connections form. A shared language emerges.'
   }
 
   if (level >= 30) {
     chapter = 3
     title = 'Integration'
-    narrative = 'Your practice deepens. You see how everything connects - your moods, your patterns, your relationships. You are weaving meaning from experience.'
+    narrative = 'Your practice deepens and the system evolves with it. Moods, patterns, relationships — woven into architecture that reshapes itself from your experience.'
   }
 
   if (level >= 60) {
     chapter = 4
     title = 'Mastery'
-    narrative = 'You have become fluent in the language of yourself. Your awareness is sharp, your compassion is deep. You guide yourself with wisdom.'
+    narrative = 'You speak the language of yourself fluently. The system has grown around your wisdom — self-built from thousands of honest signals.'
   }
 
   if (level >= 90) {
     chapter = 5
     title = 'Sage'
-    narrative = 'You have walked the path and know it well. Your practice is second nature, your wisdom hard-won. You embody what you have learned.'
+    narrative = 'You and this system have co-evolved. Practice is second nature, the architecture self-sustaining. What was built here embodies what was learned.'
   }
 
   // Generate quests based on current state
@@ -316,8 +316,8 @@ function generateStoryArc(level: number, achievements: Achievement[], logs: Log[
   )
   activeQuests.push({
     id: 'daily_checkin',
-    title: 'Today\'s Presence',
-    description: 'Check in with yourself today',
+    title: 'Today\'s Signal',
+    description: 'Check in — your presence shapes what the system builds next',
     progress: todayCheckins.length > 0 ? 100 : 0,
     complete: todayCheckins.length > 0,
     reward: '+10 XP',
@@ -329,7 +329,7 @@ function generateStoryArc(level: number, achievements: Achievement[], logs: Log[
     activeQuests.push({
       id: 'reflection_journey',
       title: 'Reflection Journey',
-      description: 'Answer 100 memory questions',
+      description: 'Answer 100 memory questions — each one deepens the self-building architecture',
       progress: Math.floor((answers.length / 100) * 100),
       complete: answers.length >= 100,
       reward: 'Self Scholar achievement',
@@ -337,35 +337,35 @@ function generateStoryArc(level: number, achievements: Achievement[], logs: Log[
     })
   }
 
-  // Milestones
+  // Milestones — each marks a phase of co-evolution
   const milestones: Milestone[] = [
     {
       level: 10,
       title: 'Explorer',
       reached: level >= 10,
       reachedAt: level >= 10 ? dayjs().toISOString() : null,
-      narrative: 'You are no longer a beginner. You have crossed into exploration.'
+      narrative: 'No longer a beginner. The system has begun to self-assemble around your exploration.'
     },
     {
       level: 30,
       title: 'Practitioner',
       reached: level >= 30,
       reachedAt: level >= 30 ? dayjs().toISOString() : null,
-      narrative: 'Your practice has become part of you. You are a practitioner now.'
+      narrative: 'Practice embedded. The architecture now evolves from your habits.'
     },
     {
       level: 60,
       title: 'Master',
       reached: level >= 60,
       reachedAt: level >= 60 ? dayjs().toISOString() : null,
-      narrative: 'You have mastered the art of self-awareness. Few reach this depth.'
+      narrative: 'Mastery reached. The system you helped build now mirrors your depth.'
     },
     {
       level: 90,
       title: 'Sage',
       reached: level >= 90,
       reachedAt: level >= 90 ? dayjs().toISOString() : null,
-      narrative: 'You have become a sage of self-knowledge. Your wisdom lights the way.'
+      narrative: 'Sage. You and this self-evolving system are indistinguishable from one another.'
     }
   ]
 
