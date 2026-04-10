@@ -93,6 +93,10 @@ export type Session = {
   token: string;
   userId: string;
   createdAt: Date;
+  expiresAt?: Date | null;
+  createdFromIp?: string | null;
+  fingerprint?: string | null;
+  lastUsedAt?: Date | null;
 };
 
 // Log Types

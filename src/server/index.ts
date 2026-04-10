@@ -18,6 +18,13 @@ import {
 } from '#server/utils'
 import { models, SessionWithUser } from '#server/models'
 import config from '#server/config'
+import {
+  auditFromRequest,
+  AuditEvent,
+  isVulnerabilityScan,
+  trackRapidRequests,
+  ADDITIONAL_SECURITY_HEADERS,
+} from '#server/utils/security'
 import authRoutes from './routes/auth.js'
 import apiRoutes from './routes/api.js'
 import adminApiRoutes from './routes/admin-api.js'
@@ -152,9 +159,16 @@ if (config.env === 'production') {
 */
 
 // ==============================================================================
-// SECURITY: Cache-Control for HTML responses (ensure fresh CSP nonces)
+// SECURITY: Additional headers, vulnerability scan detection, session pruning
 // ==============================================================================
+
+// Apply additional security headers to all responses
 fastify.addHook('onRequest', async (req, reply) => {
+  // Permissions-Policy and Cross-Origin headers for all responses
+  for (const [header, value] of Object.entries(ADDITIONAL_SECURITY_HEADERS)) {
+    reply.header(header, value)
+  }
+
   // Set security headers for all HTML responses
   if (req.headers.accept?.includes('text/html')) {
     reply.header('Cache-Control', 'no-cache, no-store, must-revalidate')
@@ -165,6 +179,32 @@ fastify.addHook('onRequest', async (req, reply) => {
     reply.header('Cache-Control', 'no-store')
   }
 })
+
+// Detect and short-circuit vulnerability scans (saves resources)
+fastify.addHook('onRequest', async (req, reply) => {
+  if (isVulnerabilityScan(req.url)) {
+    auditFromRequest(req, AuditEvent.SUSPICIOUS_ACTIVITY, {
+      reason: 'vulnerability_scan',
+      path: req.url,
+    })
+    return reply.code(404).send({ statusCode: 404, message: 'Not found' })
+  }
+
+  // Detect rapid-fire request patterns (potential DDoS/scraping)
+  if (trackRapidRequests(req.ip)) {
+    auditFromRequest(req, AuditEvent.RATE_LIMITED, {
+      reason: 'rapid_requests',
+    })
+  }
+})
+
+// Prune expired sessions periodically (every hour)
+const SESSION_PRUNE_INTERVAL = 60 * 60 * 1000
+setInterval(() => {
+  models.Session.pruneExpired().catch((err) => {
+    console.error('[security] Session pruning failed:', err.message)
+  })
+}, SESSION_PRUNE_INTERVAL)
 
 // Health check endpoint (required for Digital Ocean)
 fastify.get('/health', async (request, reply) => {
@@ -230,6 +270,19 @@ fastify.register(async (fastify: FastifyInstance) => {
               ],
             })
           if (session && session.user) {
+            // Enforce session expiry
+            if (session.isExpired()) {
+              auditFromRequest(req, AuditEvent.SESSION_EXPIRED, {
+                userId: session.userId,
+              })
+              await session.destroy()
+              reply.clearCookie(config.jwt.cookieKey, { path: '/' })
+              return
+            }
+
+            // Update last-used timestamp (fire and forget)
+            session.touch()
+
             req.user = session.user
           }
         } catch (err) {
@@ -257,9 +310,19 @@ fastify.register(async (fastify: FastifyInstance) => {
     fastify.register(async (fastify) => {
       fastify.addHook('onRequest', async (req, reply) => {
         if (!req.user || !req.user.canAccessUsSection()) {
+          auditFromRequest(req, AuditEvent.ADMIN_ACCESS, {
+            granted: false,
+            path: req.url,
+          })
           reply.status(401)
           throw new Error('Access denied: Usership access required')
         }
+        // Log successful admin access
+        auditFromRequest(req, AuditEvent.ADMIN_ACCESS, {
+          granted: true,
+          path: req.url,
+          userId: req.user.id,
+        })
       })
       fastify.register(adminApiRoutes, { prefix: '/admin-api' })
     })

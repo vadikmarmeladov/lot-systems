@@ -8,6 +8,13 @@ import { sendEmail } from '../utils/email.js';
 import { verificationEmailTemplate } from '../../utils/emailTemplates.js';
 import config from '../config.js';
 import { sync } from '../sync.js';
+import {
+  auditFromRequest,
+  AuditEvent,
+  trackMultiEmailAttempt,
+  generateRequestFingerprint,
+  SESSION_MAX_AGE_MS,
+} from '../utils/security.js';
 
 const EMAIL_CODE_VALID_MINUTES = 10;
 const MAX_FAILED_ATTEMPTS = 5;
@@ -92,6 +99,7 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
     // Check brute-force protection
     const clientIp = request.ip;
     if (isBlocked(clientIp)) {
+      auditFromRequest(request, AuditEvent.LOGIN_BLOCKED, { email });
       return reply.status(429).send({
         statusCode: 429,
         message: 'Too many attempts. Please try again later.',
@@ -131,7 +139,8 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
       return reply.status(500).send({
         statusCode: 500,
         message: 'Unable to send sign up code. The problem was reported. Please try again later.',
-        debug: debugInfo,
+        // Only expose debug info in development (never in production)
+        ...(config.env === 'development' ? { debug: debugInfo } : {}),
       });
     }
   });
@@ -165,6 +174,17 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
 
       if (!emailCode) {
         recordFailedAttempt(clientIp);
+        auditFromRequest(request, AuditEvent.LOGIN_FAILED, {
+          email,
+          reason: 'invalid_token',
+        });
+        // Detect credential stuffing (many different emails from same IP)
+        if (trackMultiEmailAttempt(clientIp, email)) {
+          auditFromRequest(request, AuditEvent.SUSPICIOUS_ACTIVITY, {
+            reason: 'credential_stuffing',
+            email,
+          });
+        }
         return reply.status(400).send({
           statusCode: 400,
           message: 'Invalid or expired code'
@@ -188,6 +208,10 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
       );
       if (!codeMatch) {
         recordFailedAttempt(clientIp);
+        auditFromRequest(request, AuditEvent.LOGIN_FAILED, {
+          email,
+          reason: 'invalid_code',
+        });
         return reply.status(400).send({
           statusCode: 400,
           message: 'Invalid code'
@@ -209,10 +233,21 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
         isNewUser = true;
       }
 
-      // Create session
+      // Create session with security metadata
       const sessionToken = crypto.randomBytes(32).toString('hex');
+      const fingerprint = generateRequestFingerprint(request);
       await fastify.models.Session.create({
         token: sessionToken,
+        userId: user.id,
+        expiresAt: new Date(Date.now() + SESSION_MAX_AGE_MS),
+        createdFromIp: clientIp,
+        fingerprint,
+      } as any);
+
+      // Audit log: successful login
+      auditFromRequest(request, AuditEvent.LOGIN_SUCCESS, {
+        email,
+        isNewUser,
         userId: user.id,
       });
 
@@ -279,6 +314,7 @@ export default function (fastify: FastifyInstance, opts: any, done: () => void) 
       const token = request.cookies[config.jwt.cookieKey];
 
       if (token) {
+        auditFromRequest(request, AuditEvent.LOGOUT, {});
         await fastify.models.Session.destroy({
           where: { token }
         });

@@ -56,6 +56,12 @@ lot-systems_master_*
 
 # Production backups (stored separately, not in git)
 backups/production-*
+backups/encrypted/
+backups/full-backup-*
+backups/*.tar.gz
+backups/*.sql
+backups/*.sql.gz
+backups/*.enc
 
 # Suspicious files
 yarn 2.lock
@@ -65,6 +71,20 @@ yarn 2.lock
 touch
 middleware.ts
 server.ts
+
+# Security: Certificate files
+*.crt
+*.cer
+certs/
+
+# Security: Token/credential files
+*.token
+*.credentials
+.secrets/
+
+# Audit logs (may contain sensitive data)
+audit-logs/
+*.audit.log
 
 # OS files
 .DS_Store
