@@ -218,10 +218,12 @@ Personal operating system metrics dashboard. Cycles through Status, Performance,
 
 ### System Progress Widget
 
-Displays deployment information, active feature count, and collects user feedback on system status (Operational / Resonating / Needs Calibration / Evolving). Includes a community feedback analytics view showing sentiment distribution.
+Displays deployment information, self-assembly map, and collects user feedback on system status. Cycles through three views: Deployment (build version, features, assembly summary), Self-Assembly (module-by-module assembly map with density progress bars), and Feedback (Operational / Resonating / Needs Calibration / Evolving with community analytics).
 
-- **Data Source:** `/api/system/deployment-status`, `/api/system/my-feedback`, and `/api/system/feedback-analytics` endpoints
-- **Connection:** Submits to `/api/system/submit-feedback`; aggregates community sentiment data
+The Self-Assembly view tracks 9 modules — Biofield Engine, Memory Architecture, Routine Compiler, Intention Core, Cleanness Protocol, Reflection Layer, Community Mesh, Ecosystem Bridge, Quantum Substrate — each progressing through phases: Dormant, Awakening, Forming, Assembled, Integrated. Assembly derives entirely from real Quantum Intention Engine signals.
+
+- **Data Source:** `/api/system/deployment-status`, `/api/system/my-feedback`, `/api/system/feedback-analytics` endpoints; `selfAssembly` nanostore (derived from Quantum Intention Engine signals)
+- **Connection:** Submits to `/api/system/submit-feedback`; aggregates community sentiment; reads self-assembly state computed by `selfAssembly.ts` store
 
 ### System Pulse Widget
 
@@ -357,26 +359,33 @@ An offline mode manifest displayed when the device is offline or in investor mod
 
 Toggle-based connection widgets for the LOT ecosystem of smart devices. Each widget records connect/disconnect signals to the Quantum Intention Engine for pattern analysis.
 
+### Ecosystem Status
+
+Displays when at least one device is connected. Shows connected node count and ecosystem narrative describing the coherence level of the device mesh. When all three devices are connected, records an `ecosystem_full_coherence` composite signal.
+
+- **Data Source:** Derived from Car/Home/Computer connection states
+- **Connection:** Ecosystem narrative from `narrative.ts`; composite signal to Quantum Intention Engine
+
 ### Car Connect
 
 Connect your car to the LOT quantum engine. Toggle on/off to record vehicle connection state.
 
-- **Data Source:** Local component state
-- **Connection:** Records `car_connected` / `car_disconnected` signals to the Quantum Intention Engine
+- **Data Source:** Local component state persisted via `localStorage`
+- **Connection:** Records `car_connected` / `car_disconnected` signals to the Quantum Intention Engine; feeds Ecosystem Bridge assembly module
 
 ### Home Connect
 
 Connect your home to the LOT quantum engine. Toggle on/off to record home connection state.
 
-- **Data Source:** Local component state
-- **Connection:** Records `home_connected` / `home_disconnected` signals to the Quantum Intention Engine
+- **Data Source:** Local component state persisted via `localStorage`
+- **Connection:** Records `home_connected` / `home_disconnected` signals to the Quantum Intention Engine; feeds Ecosystem Bridge assembly module
 
 ### Computer Connect
 
 Connect your DIY PC to the LOT quantum engine. Toggle on/off to record computer connection state. Part of the upcoming DIY PC revolution — your self-built machine becomes a node in the LOT network.
 
-- **Data Source:** Local component state
-- **Connection:** Records `computer_connected` / `computer_disconnected` signals to the Quantum Intention Engine
+- **Data Source:** Local component state persisted via `localStorage`
+- **Connection:** Records `computer_connected` / `computer_disconnected` signals to the Quantum Intention Engine; feeds Ecosystem Bridge assembly module
 
 ---
 
@@ -406,11 +415,13 @@ All widgets are orchestrated by `System.tsx`, the master dashboard component. Wi
 | System | Role | Key Endpoints |
 |--------|------|---------------|
 | **Quantum Intention Engine (QIE)** | Central intelligence — analyzes signals, detects patterns, recommends actions | Nanostore-based; client-side signal processing |
+| **Self-Assembly Engine** | Tracks module-level assembly state from QIE signals — the system literally builds itself from use | `selfAssembly` nanostore; derives from QIE signals |
 | **Log Context** | Foundation data layer — aggregates all interactions | `/api/logs` |
 | **Evolution System** | Progression tracking across 7 dimensions | `/api/narrative`, nanostores |
 | **Badge System** | Milestone gamification | `/api/badge-stats`, `localStorage` |
-| **Narrative System** | RPG-style story grounded in engagement | `/api/narrative` |
+| **Narrative System** | RPG-style story grounded in engagement; includes self-assembly and ecosystem narrative layers | `/api/narrative` |
 | **Profile System** | Psychological profiling and awareness | `/api/profile` |
+| **Chakra Ergonomics** | Maps session activity to 7-chakra model for holistic wellness | `chakraErgonomics` nanostore |
 
 ### State Management
 

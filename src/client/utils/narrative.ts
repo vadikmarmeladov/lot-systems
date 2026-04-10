@@ -632,3 +632,133 @@ export function getProgressAffirmation(achievement: {
       return 'Progress.'
   }
 }
+
+// ─── Self-Assembly Narrative ─────────────────────────────────
+
+export type AssemblyPhase = 'dormant' | 'awakening' | 'forming' | 'assembled' | 'integrated'
+
+/**
+ * Self-Assembly Module Narrative
+ *
+ * Returns time-aware language for a specific module's assembly state.
+ * The system describes its own construction through the user's lens.
+ */
+export function getModuleAssemblyNarrative(
+  moduleLabel: string,
+  phase: AssemblyPhase,
+  density: number
+): string {
+  const timeOfDay = getTimeOfDay()
+
+  switch (phase) {
+    case 'dormant':
+      if (timeOfDay === 'morning' || timeOfDay === 'early_morning') {
+        return `${moduleLabel} awaits. One signal this morning begins it.`
+      }
+      return `${moduleLabel} dormant. Awaiting its first signal.`
+
+    case 'awakening':
+      return `${moduleLabel} stirring. The architecture senses a pattern forming.`
+
+    case 'forming':
+      if (density >= 50) {
+        return `${moduleLabel} taking shape. Structure crystallizing from your rhythm.`
+      }
+      return `${moduleLabel} forming. Patterns becoming scaffold.`
+
+    case 'assembled':
+      return `${moduleLabel} self-assembled. Built from your signals alone.`
+
+    case 'integrated':
+      return `${moduleLabel} integrated. Wired deep into the system fabric.`
+  }
+}
+
+/**
+ * Ecosystem Assembly Narrative
+ *
+ * Language for the Quantum Engine ecosystem (Car + Home + Computer)
+ * based on how many devices are connected.
+ */
+export function getEcosystemNarrative(connectedCount: number, totalDevices: number): string {
+  if (connectedCount === 0) {
+    return 'Ecosystem offline. Connect a device to extend the biofield.'
+  }
+
+  if (connectedCount === 1) {
+    return 'Single node active. The ecosystem begins with one connection.'
+  }
+
+  if (connectedCount === 2) {
+    return 'Two nodes linked. Ecosystem coherence forming.'
+  }
+
+  if (connectedCount >= totalDevices) {
+    return 'Full ecosystem connected. Car, home, and computer unified. The biofield extends beyond the screen.'
+  }
+
+  return `${connectedCount}/${totalDevices} nodes active. Ecosystem assembling.`
+}
+
+/**
+ * Assembly Milestone Narrative
+ *
+ * Special language when a module transitions to a new phase.
+ */
+export function getAssemblyMilestoneNarrative(
+  moduleLabel: string,
+  newPhase: AssemblyPhase
+): string | null {
+  switch (newPhase) {
+    case 'awakening':
+      return `${moduleLabel} detected its first signal. Assembly initiated.`
+    case 'forming':
+      return `${moduleLabel} recognizes a pattern. Structure forming from use.`
+    case 'assembled':
+      return `${moduleLabel} self-assembled. Built entirely from your activity.`
+    case 'integrated':
+      return `${moduleLabel} fully integrated. It is now part of the system's core.`
+    default:
+      return null
+  }
+}
+
+/**
+ * Overall Assembly Progress Narrative
+ *
+ * Describes the system's total self-assembly state.
+ * Used by SystemProgressWidget and System.tsx.
+ */
+export function getAssemblyProgressNarrative(
+  assembledCount: number,
+  totalModules: number,
+  overallAssembly: number
+): string {
+  const timeOfDay = getTimeOfDay()
+  const ratio = assembledCount / totalModules
+
+  if (overallAssembly === 0) {
+    if (timeOfDay === 'morning' || timeOfDay === 'early_morning') {
+      return 'The system awaits. Your first signal this morning begins the self-assembly.'
+    }
+    return 'No signals yet. The system awaits its first interaction to begin self-assembly.'
+  }
+
+  if (ratio >= 1) {
+    return 'Every module self-assembled. The system is fully self-built. Co-evolution achieved.'
+  }
+
+  if (ratio >= 0.7) {
+    return `${assembledCount}/${totalModules} modules assembled. The system nears completion. It builds fastest in these final stages.`
+  }
+
+  if (ratio >= 0.4) {
+    return `${assembledCount}/${totalModules} modules assembled. Foundation solidifying. Each interaction compounds.`
+  }
+
+  if (overallAssembly >= 20) {
+    return `Assembly at ${overallAssembly}%. Patterns emerging. The architecture shapes around your use.`
+  }
+
+  return `Assembly at ${overallAssembly}%. Early signals. The system learns what to become.`
+}

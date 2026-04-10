@@ -63,6 +63,7 @@ import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
+import { recomputeAssembly } from '#client/stores/selfAssembly'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -189,6 +190,7 @@ export const System = () => {
   // Quantum state - analyze intentions and get current user state
   const quantumState = React.useMemo(() => {
     analyzeIntentions() // Trigger fresh analysis
+    recomputeAssembly() // Recompute self-assembly state from signals
     return getUserState()
   }, [logs]) // Recompute when logs change (new signals recorded)
 

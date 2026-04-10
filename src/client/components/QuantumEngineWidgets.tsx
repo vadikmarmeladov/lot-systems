@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { Block, Button } from '#client/components/ui'
 import { recordSignal } from '#client/stores/intentionEngine'
+import { getEcosystemNarrative } from '#client/utils/narrative'
 
 function usePersistedState(key: string): [boolean, React.Dispatch<React.SetStateAction<boolean>>] {
   const [value, setValue] = React.useState(() => {
@@ -16,10 +17,18 @@ function usePersistedState(key: string): [boolean, React.Dispatch<React.SetState
   return [value, setPersistedValue]
 }
 
+const TOTAL_DEVICES = 3
+
 export const QuantumEngineWidgets: React.FC = () => {
   const [carConnected, setCarConnected] = usePersistedState('qe-car-connected')
   const [homeConnected, setHomeConnected] = usePersistedState('qe-home-connected')
   const [computerConnected, setComputerConnected] = usePersistedState('qe-computer-connected')
+
+  const connectedCount = [carConnected, homeConnected, computerConnected].filter(Boolean).length
+  const ecosystemNarrative = React.useMemo(
+    () => getEcosystemNarrative(connectedCount, TOTAL_DEVICES),
+    [connectedCount]
+  )
 
   const handleCarConnect = () => {
     setCarConnected((prev) => {
@@ -51,8 +60,30 @@ export const QuantumEngineWidgets: React.FC = () => {
     })
   }
 
+  // Record ecosystem coherence when all devices connected
+  React.useEffect(() => {
+    if (connectedCount === TOTAL_DEVICES) {
+      recordSignal('intentions', 'ecosystem_full_coherence', {
+        timestamp: Date.now(),
+        devices: { car: carConnected, home: homeConnected, computer: computerConnected },
+      })
+    }
+  }, [connectedCount])
+
   return (
     <>
+      {/* Ecosystem status — visible when at least one device connected */}
+      {connectedCount > 0 && (
+        <Block label="Ecosystem:" blockView>
+          <div className="flex flex-col gap-y-8">
+            <div className="flex justify-between items-baseline">
+              <span className="opacity-30">Nodes</span>
+              <span className="tabular-nums">{connectedCount}/{TOTAL_DEVICES}</span>
+            </div>
+            <div className="opacity-30">{ecosystemNarrative}</div>
+          </div>
+        </Block>
+      )}
       <Block label="Car:" containsSmallButton inProgress>
         <Button size="small" onClick={handleCarConnect}>
           {carConnected ? 'disconnect' : 'connect'}
