@@ -103,12 +103,8 @@ setInterval(() => {
   for (const [key, value] of tracker.rapidRequests) {
     if (value.windowStart < cutoff) tracker.rapidRequests.delete(key)
   }
-  for (const [key] of tracker.multiEmailAttempts) {
-    // Reset multi-email tracking every 30 minutes
-    if (Date.now() - cutoff > 20 * 60 * 1000) {
-      tracker.multiEmailAttempts.delete(key)
-    }
-  }
+  // Clear multi-email tracking (no per-entry timestamps, so reset the whole map)
+  tracker.multiEmailAttempts.clear()
   tracker.scanPatterns.clear()
 }, 10 * 60 * 1000)
 
@@ -269,10 +265,6 @@ export function generateRequestFingerprint(req: FastifyRequest): string {
  * Additional security headers beyond what Helmet provides
  */
 export const ADDITIONAL_SECURITY_HEADERS = {
-  // Prevent browsers from caching sensitive pages
-  'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
-  Pragma: 'no-cache',
-  Expires: '0',
   // Permissions Policy - restrict browser features
   'Permissions-Policy':
     'camera=(), microphone=(), geolocation=(self), payment=(), usb=()',
