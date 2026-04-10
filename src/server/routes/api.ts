@@ -3751,89 +3751,88 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   // STATS API - Real-time metrics and community insights
   // ============================================================================
 
+  // In-memory cache for hot endpoints (shared across all users)
+  const statsCache = new Map<string, { data: any; expiresAt: number }>()
+  function getCached(key: string, ttlMs: number, compute: () => Promise<any>): Promise<any> {
+    const entry = statsCache.get(key)
+    if (entry && Date.now() < entry.expiresAt) {
+      return Promise.resolve(entry.data)
+    }
+    return compute().then(data => {
+      statsCache.set(key, { data, expiresAt: Date.now() + ttlMs })
+      return data
+    })
+  }
+
   /**
    * GET /api/stats/collective
    * Collective Consciousness Dashboard - Aggregate quantum states
+   * Cached for 30s — community-wide data identical for all users
    */
   fastify.get('/stats/collective', async (req, reply) => {
     if (!req.user) return reply.throw.authException()
 
     try {
-      // Get active users (logged in within last 15 minutes)
-      const fifteenMinutesAgo = dayjs().subtract(15, 'minutes').toDate()
+      return await getCached('stats:collective', 30_000, async () => {
+        // Get active users (logged in within last 15 minutes)
+        const fifteenMinutesAgo = dayjs().subtract(15, 'minutes').toDate()
 
-      // Get recent logs to determine active users
-      const recentLogs = await fastify.models.Log.findAll({
-        where: {
-          createdAt: {
-            [Op.gte]: fifteenMinutesAgo
-          }
-        },
-        attributes: ['userId', 'metadata'],
-        group: ['userId'],
-        raw: true
-      })
+        // Get recent logs to determine active users
+        const recentLogs = await fastify.models.Log.findAll({
+          where: {
+            createdAt: {
+              [Op.gte]: fifteenMinutesAgo
+            }
+          },
+          attributes: ['userId'],
+          group: ['userId'],
+          raw: true
+        })
 
-      // Extract quantum states from recent activity
-      // Note: This is a simulation - in production you'd track actual quantum states
-      const activeUsers = new Set(recentLogs.map((log: any) => log.userId))
-      const activeCount = activeUsers.size
+        const activeCount = recentLogs.length
 
-      // Get intentions set today
-      const todayStart = dayjs().startOf('day').toDate()
-      const intentionsToday = await fastify.models.Log.count({
-        where: {
-          event: 'intention',
-          createdAt: {
-            [Op.gte]: todayStart
-          }
+        // Get intentions set today
+        const todayStart = dayjs().startOf('day').toDate()
+        const [intentionsToday, careMomentsToday, todayLogs, todayMoodLogs, totalUsersCount] = await Promise.all([
+          fastify.models.Log.count({
+            where: { event: 'intention', createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { event: 'self_care', createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { event: 'emotional_checkin', createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.User.count()
+        ])
+
+        // Energy: ratio of today's activity to expected baseline (5 logs/user/day)
+        const expectedDailyLogs = Math.max(1, totalUsersCount * 5)
+        const energyLevel = Math.min(100, Math.round((todayLogs / expectedDailyLogs) * 100))
+
+        // Clarity: mood check-in coverage across active users
+        const clarityIndex = activeCount > 0
+          ? Math.min(100, Math.round((todayMoodLogs / Math.max(1, activeCount)) * 100))
+          : 0
+
+        // Alignment: intention-to-activity ratio (users with intentions vs active users)
+        const alignmentScore = activeCount > 0
+          ? Math.min(100, Math.round((intentionsToday / Math.max(1, activeCount)) * 100))
+          : 0
+
+        return {
+          energyLevel,
+          clarityIndex,
+          alignmentScore,
+          soulsInFlow: activeCount,
+          activeIntentions: intentionsToday,
+          careMoments: careMomentsToday,
+          lastUpdated: Date.now()
         }
       })
-
-      // Get care moments today
-      const careMomentsToday = await fastify.models.Log.count({
-        where: {
-          event: 'self_care',
-          createdAt: {
-            [Op.gte]: todayStart
-          }
-        }
-      })
-
-      // Derive quantum states from actual collective activity
-      const todayLogs = await fastify.models.Log.count({
-        where: { createdAt: { [Op.gte]: todayStart } }
-      })
-      const todayMoodLogs = await fastify.models.Log.count({
-        where: { event: 'emotional_checkin', createdAt: { [Op.gte]: todayStart } }
-      })
-      const totalUsersCount = await fastify.models.User.count()
-
-      // Energy: ratio of today's activity to expected baseline (5 logs/user/day)
-      const expectedDailyLogs = Math.max(1, totalUsersCount * 5)
-      const energyLevel = Math.min(100, Math.round((todayLogs / expectedDailyLogs) * 100))
-
-      // Clarity: mood check-in coverage across active users
-      const clarityIndex = activeCount > 0
-        ? Math.min(100, Math.round((todayMoodLogs / Math.max(1, activeCount)) * 100))
-        : 0
-
-      // Alignment: intention-to-activity ratio (users with intentions vs active users)
-      const alignmentScore = activeCount > 0
-        ? Math.min(100, Math.round((intentionsToday / Math.max(1, activeCount)) * 100))
-        : 0
-
-      const stats = {
-        energyLevel,
-        clarityIndex,
-        alignmentScore,
-        soulsInFlow: activeCount,
-        activeIntentions: intentionsToday,
-        careMoments: careMomentsToday,
-        lastUpdated: Date.now()
-      }
-
-      return stats
     } catch (error) {
       console.error('Error fetching collective stats:', error)
       return reply.status(500).send({ error: 'Failed to fetch stats' })
@@ -3923,48 +3922,44 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     if (!req.user) return reply.throw.authException()
 
     try {
-      // Get intentions from last 6 hours
-      const sixHoursAgo = dayjs().subtract(6, 'hours').toDate()
+      return await getCached('stats:patterns', 30_000, async () => {
+        const sixHoursAgo = dayjs().subtract(6, 'hours').toDate()
 
-      const recentIntentions = await fastify.models.Log.findAll({
-        where: {
-          event: 'intention',
-          createdAt: {
-            [Op.gte]: sixHoursAgo
+        const recentIntentions = await fastify.models.Log.findAll({
+          where: {
+            event: 'intention',
+            createdAt: { [Op.gte]: sixHoursAgo }
+          },
+          attributes: ['metadata'],
+          raw: true
+        })
+
+        const patternCounts: { [key: string]: number } = {
+          'Flow State': 0,
+          'Precision Focus': 0,
+          'Exploration Mode': 0,
+          'Energy Surge': 0,
+          'Rest & Renewal': 0,
+          'Creative Expression': 0,
+          'Connection Seeking': 0
+        }
+
+        recentIntentions.forEach((log: any) => {
+          const pattern = log.metadata?.pattern || 'Exploration Mode'
+          if (patternCounts[pattern] !== undefined) {
+            patternCounts[pattern]++
           }
-        },
-        attributes: ['metadata']
-      })
+        })
 
-      // Categorize by pattern type
-      const patternCounts: { [key: string]: number } = {
-        'Flow State': 0,
-        'Precision Focus': 0,
-        'Exploration Mode': 0,
-        'Energy Surge': 0,
-        'Rest & Renewal': 0,
-        'Creative Expression': 0,
-        'Connection Seeking': 0
-      }
+        const mostActive = Object.entries(patternCounts)
+          .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Exploration Mode'
 
-      recentIntentions.forEach((log: any) => {
-        const pattern = log.metadata?.pattern || 'Exploration Mode'
-        if (patternCounts[pattern] !== undefined) {
-          patternCounts[pattern]++
+        return {
+          patterns: patternCounts,
+          mostActive,
+          lastUpdated: Date.now()
         }
       })
-
-      // Find most active pattern
-      const mostActive = Object.entries(patternCounts)
-        .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Exploration Mode'
-
-      const stats = {
-        patterns: patternCounts,
-        mostActive,
-        lastUpdated: Date.now()
-      }
-
-      return stats
     } catch (error) {
       console.error('Error fetching pattern stats:', error)
       return reply.status(500).send({ error: 'Failed to fetch stats' })
@@ -3974,79 +3969,71 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   /**
    * GET /api/stats/wellness
    * Community Wellness Pulse - Aggregated activity metrics
+   * Cached for 30s — community-wide data identical for all users
    */
   fastify.get('/stats/wellness', async (req, reply) => {
     if (!req.user) return reply.throw.authException()
 
     try {
-      // Active users (last 15 minutes)
-      const fifteenMinutesAgo = dayjs().subtract(15, 'minutes').toDate()
-      const recentLogs = await fastify.models.Log.findAll({
-        where: {
-          createdAt: { [Op.gte]: fifteenMinutesAgo }
-        },
-        attributes: ['userId'],
-        group: ['userId'],
-        raw: true
-      })
-      const activeNow = new Set(recentLogs.map((log: any) => log.userId)).size
+      return await getCached('stats:wellness', 30_000, async () => {
+        const fifteenMinutesAgo = dayjs().subtract(15, 'minutes').toDate()
+        const todayStart = dayjs().startOf('day').toDate()
 
-      // Today's activity
-      const todayStart = dayjs().startOf('day').toDate()
-      const questionsToday = await fastify.models.Answer.count({
-        where: { createdAt: { [Op.gte]: todayStart } }
-      })
+        // Parallelize independent queries
+        const [recentLogs, questionsToday, reflectionsToday, careMomentsToday, weekLogs] = await Promise.all([
+          fastify.models.Log.findAll({
+            where: { createdAt: { [Op.gte]: fifteenMinutesAgo } },
+            attributes: ['userId'],
+            group: ['userId'],
+            raw: true
+          }),
+          fastify.models.Answer.count({
+            where: { createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { event: 'note', createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { event: 'self_care', createdAt: { [Op.gte]: todayStart } }
+          }),
+          // Only fetch createdAt, cap at 5000 rows to prevent unbounded reads
+          fastify.models.Log.findAll({
+            where: { createdAt: { [Op.gte]: dayjs().subtract(7, 'day').toDate() } },
+            attributes: ['createdAt'],
+            raw: true,
+            limit: 5000
+          })
+        ])
 
-      const reflectionsToday = await fastify.models.Log.count({
-        where: {
-          event: 'note',
-          createdAt: { [Op.gte]: todayStart }
+        const activeNow = recentLogs.length
+
+        const hourCounts: Record<number, number> = {}
+        for (let h = 0; h < 24; h++) hourCounts[h] = 0
+        weekLogs.forEach((log: any) => {
+          const h = dayjs(log.createdAt).hour()
+          hourCounts[h] = (hourCounts[h] || 0) + 1
+        })
+
+        const sortedHours = Object.entries(hourCounts).sort(([, a], [, b]) => (b as number) - (a as number))
+        const peakH = Number(sortedHours[0]?.[0] ?? 9)
+        const quietH = Number(sortedHours[sortedHours.length - 1]?.[0] ?? 3)
+
+        const formatHour = (h: number) => {
+          const suffix = h >= 12 ? 'PM' : 'AM'
+          const display = h === 0 ? 12 : h > 12 ? h - 12 : h
+          return `${display}:00 ${suffix}`
+        }
+
+        return {
+          activeNow,
+          questionsToday,
+          reflectionsToday,
+          careMomentsToday,
+          peakEnergyHour: formatHour(peakH),
+          quietestHour: formatHour(quietH),
+          lastUpdated: Date.now()
         }
       })
-
-      const careMomentsToday = await fastify.models.Log.count({
-        where: {
-          event: 'self_care',
-          createdAt: { [Op.gte]: todayStart }
-        }
-      })
-
-      // Find actual peak and quietest hours from recent log distribution
-      const weekAgo = dayjs().subtract(7, 'day').toDate()
-      const weekLogs = await fastify.models.Log.findAll({
-        where: { createdAt: { [Op.gte]: weekAgo } },
-        attributes: ['createdAt'],
-        raw: true
-      })
-
-      const hourCounts: Record<number, number> = {}
-      for (let h = 0; h < 24; h++) hourCounts[h] = 0
-      weekLogs.forEach((log: any) => {
-        const h = dayjs(log.createdAt).hour()
-        hourCounts[h] = (hourCounts[h] || 0) + 1
-      })
-
-      const sortedHours = Object.entries(hourCounts).sort(([, a], [, b]) => (b as number) - (a as number))
-      const peakH = Number(sortedHours[0]?.[0] ?? 9)
-      const quietH = Number(sortedHours[sortedHours.length - 1]?.[0] ?? 3)
-
-      const formatHour = (h: number) => {
-        const suffix = h >= 12 ? 'PM' : 'AM'
-        const display = h === 0 ? 12 : h > 12 ? h - 12 : h
-        return `${display}:00 ${suffix}`
-      }
-
-      const stats = {
-        activeNow,
-        questionsToday,
-        reflectionsToday,
-        careMomentsToday,
-        peakEnergyHour: formatHour(peakH),
-        quietestHour: formatHour(quietH),
-        lastUpdated: Date.now()
-      }
-
-      return stats
     } catch (error) {
       console.error('Error fetching wellness stats:', error)
       return reply.status(500).send({ error: 'Failed to fetch stats' })
@@ -4061,46 +4048,42 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     if (!req.user) return reply.throw.authException()
 
     try {
-      // Get recent badge unlocks (last 24 hours)
-      const twentyFourHoursAgo = dayjs().subtract(24, 'hours').toDate()
+      return await getCached('stats:badges', 30_000, async () => {
+        const twentyFourHoursAgo = dayjs().subtract(24, 'hours').toDate()
 
-      const recentUnlocks = await fastify.models.Log.findAll({
-        where: {
-          event: 'badge_unlock',
-          createdAt: {
-            [Op.gte]: twentyFourHoursAgo
-          }
-        },
-        include: [{
-          model: fastify.models.User,
-          attributes: ['firstName']
-        }],
-        order: [['createdAt', 'DESC']],
-        limit: 10
-      })
+        const [recentUnlocks, badgesUnlockedToday] = await Promise.all([
+          fastify.models.Log.findAll({
+            where: {
+              event: 'badge_unlock',
+              createdAt: { [Op.gte]: twentyFourHoursAgo }
+            },
+            include: [{
+              model: fastify.models.User,
+              attributes: ['firstName']
+            }],
+            order: [['createdAt', 'DESC']],
+            limit: 10
+          }),
+          fastify.models.Log.count({
+            where: {
+              event: 'badge_unlock',
+              createdAt: { [Op.gte]: dayjs().startOf('day').toDate() }
+            }
+          })
+        ])
 
-      const unlocks = recentUnlocks.map((log: any) => ({
-        badge: log.metadata?.badge || '∘',
-        userName: log.User?.firstName || 'Someone',
-        timeAgo: dayjs().diff(dayjs(log.createdAt), 'minutes')
-      }))
+        const unlocks = recentUnlocks.map((log: any) => ({
+          badge: log.metadata?.badge || '∘',
+          userName: log.User?.firstName || 'Someone',
+          timeAgo: dayjs().diff(dayjs(log.createdAt), 'minutes')
+        }))
 
-      const badgesUnlockedToday = await fastify.models.Log.count({
-        where: {
-          event: 'badge_unlock',
-          createdAt: {
-            [Op.gte]: dayjs().startOf('day').toDate()
-          }
+        return {
+          recentUnlocks: unlocks,
+          totalToday: badgesUnlockedToday,
+          lastUpdated: Date.now()
         }
       })
-
-      const stats = {
-        recentUnlocks: unlocks,
-        totalToday: badgesUnlockedToday,
-        lastUpdated: Date.now()
-      }
-
-      return stats
     } catch (error) {
       console.error('Error fetching badge stats:', error)
       return reply.status(500).send({ error: 'Failed to fetch stats' })
@@ -4474,60 +4457,49 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     if (!req.user) return reply.throw.authException()
 
     try {
-      const now = dayjs()
-      const oneMinuteAgo = now.subtract(1, 'minute').toDate()
-      const fiveMinutesAgo = now.subtract(5, 'minutes').toDate()
+      // Cached for 5s — global metric, identical for all users, client polls every 10s
+      return await getCached('system:pulse', 5_000, async () => {
+        const now = dayjs()
+        const oneMinuteAgo = now.subtract(1, 'minute').toDate()
+        const fiveMinutesAgo = now.subtract(5, 'minutes').toDate()
 
-      // Events in last minute (rapid change)
-      const recentEvents = await fastify.models.Log.count({
-        where: {
-          createdAt: { [Op.gte]: oneMinuteAgo }
+        // Parallelize all DB queries
+        const [recentEvents, recentEventsSmoothed, activeUsers] = await Promise.all([
+          fastify.models.Log.count({
+            where: { createdAt: { [Op.gte]: oneMinuteAgo } }
+          }),
+          fastify.models.Log.count({
+            where: { createdAt: { [Op.gte]: fiveMinutesAgo } }
+          }),
+          fastify.models.Log.findAll({
+            where: { createdAt: { [Op.gte]: oneMinuteAgo } },
+            attributes: ['userId'],
+            group: ['userId'],
+            raw: true
+          })
+        ])
+
+        const eventsPerMinute = recentEvents + Math.floor(recentEventsSmoothed / 5)
+        const neuralActivity = activeUsers.length
+
+        const fiveMinRate = recentEventsSmoothed / 5
+        const activityDelta = Math.abs(recentEvents - fiveMinRate)
+        const quantumFlux = Math.min(100, Math.round(
+          (eventsPerMinute * 2) + (activityDelta * 10) + (neuralActivity * 5)
+        ))
+
+        const baseResonance = 432.0
+        const engagementDepth = neuralActivity > 0 ? (eventsPerMinute / neuralActivity) : 0
+        const resonanceHz = baseResonance + (neuralActivity * 2) + (engagementDepth * 0.5)
+
+        return {
+          eventsPerMinute,
+          quantumFlux,
+          neuralActivity,
+          resonanceHz,
+          lastUpdate: Date.now()
         }
       })
-
-      // Events in last 5 minutes for smoothing
-      const recentEventsSmoothed = await fastify.models.Log.count({
-        where: {
-          createdAt: { [Op.gte]: fiveMinutesAgo }
-        }
-      })
-
-      // Calculate events per minute (with some smoothing)
-      const eventsPerMinute = recentEvents + Math.floor(recentEventsSmoothed / 5)
-
-      // Neural activity - total unique users active in last minute
-      const activeUsers = await fastify.models.Log.findAll({
-        where: {
-          createdAt: { [Op.gte]: oneMinuteAgo }
-        },
-        attributes: ['userId'],
-        group: ['userId']
-      })
-      const neuralActivity = activeUsers.length
-
-      // Quantum flux - derived from activity ratio and user engagement
-      // Higher flux = more system activity variance
-      const fiveMinRate = recentEventsSmoothed / 5
-      const activityDelta = Math.abs(recentEvents - fiveMinRate)
-      const quantumFlux = Math.min(100, Math.round(
-        (eventsPerMinute * 2) + (activityDelta * 10) + (neuralActivity * 5)
-      ))
-
-      // Resonance frequency - deterministic from system harmony
-      // Base 432 Hz, modulated by active user engagement depth
-      const baseResonance = 432.0
-      const engagementDepth = neuralActivity > 0 ? (eventsPerMinute / neuralActivity) : 0
-      const resonanceHz = baseResonance + (neuralActivity * 2) + (engagementDepth * 0.5)
-
-      const pulse = {
-        eventsPerMinute,
-        quantumFlux,
-        neuralActivity,
-        resonanceHz,
-        lastUpdate: Date.now()
-      }
-
-      return pulse
     } catch (error) {
       console.error('Error fetching system pulse:', error)
       return reply.status(500).send({ error: 'Failed to fetch pulse' })

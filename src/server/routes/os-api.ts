@@ -486,10 +486,12 @@ export function registerOSRoutes(fastify: FastifyInstance) {
 // ============================================================================
 
 async function calculateStreak(userId: string, fastify: FastifyInstance): Promise<number> {
+  // Limit to last 365 days — a streak longer than a year is sufficient
   const answers = await fastify.models.Answer.findAll({
     where: { userId },
     order: [['createdAt', 'DESC']],
     attributes: ['createdAt'],
+    limit: 365,
   })
 
   if (answers.length === 0) return 0

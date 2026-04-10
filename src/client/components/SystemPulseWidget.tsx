@@ -53,13 +53,13 @@ export function SystemPulseWidget() {
     }
   }, [])
 
-  // Auto-fetch every 1 second
+  // Auto-fetch every 10 seconds (was 1s — reduced to prevent DB overload under traffic)
   React.useEffect(() => {
     fetchPulse()
 
     intervalRef.current = setInterval(() => {
       fetchPulse()
-    }, 1000)
+    }, 10_000)
 
     return () => {
       if (intervalRef.current) {
@@ -67,18 +67,6 @@ export function SystemPulseWidget() {
       }
     }
   }, [fetchPulse])
-
-  // Check if data is stale (no update in 5 seconds)
-  React.useEffect(() => {
-    const checkStale = setInterval(() => {
-      const timeSinceUpdate = Date.now() - lastFetchRef.current
-      if (timeSinceUpdate > 5000) {
-        setIsLive(false)
-      }
-    }, 1000)
-
-    return () => clearInterval(checkStale)
-  }, [])
 
   const label =
     view === 'metrics' ? 'System Pulse:' :

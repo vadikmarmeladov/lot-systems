@@ -304,8 +304,7 @@ export const useProfile = () =>
     noteCount?: number
     message?: string
   }>('/api/user-profile', {
-    staleTime: 0, // Always fetch fresh data to ensure awareness index is current
-    cacheTime: 0, // Don't cache to prevent stale data issues in PWA
+    staleTime: 2 * 60 * 1000, // 2 minutes — awareness index doesn't change faster than this
     refetchOnWindowFocus: false,
   })()
 
