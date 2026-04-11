@@ -3456,7 +3456,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       // Get social energy needs
       const energyState = analyzeEnergyState(userLogs)
       const socialNeedRaw = energyState.needsReplenishment.find(n => n.category === 'social')
-      const socialNeed = socialNeedRaw ? {
+      const socialNeed = socialNeedRaw && socialNeedRaw.daysSinceLastReplenishment != null ? {
         urgency: socialNeedRaw.urgency,
         daysSinceConnection: socialNeedRaw.daysSinceLastReplenishment
       } : undefined
@@ -3533,7 +3533,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         energyState,
         recentLogs: logs.slice(0, 20),
         romanticConnectionState: {
-          daysDisconnected: energyState.romanticConnection.daysSinceConnection,
+          daysDisconnected: energyState.romanticConnection.daysSinceConnection ?? 0,
           qualityLevel: energyState.romanticConnection.connectionQuality
         }
       }

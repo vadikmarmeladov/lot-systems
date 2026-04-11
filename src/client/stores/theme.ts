@@ -207,6 +207,10 @@ state.isMirrorOn.subscribe((value) => {
       return
     }
     const now = dayjs()
+    if (weather.sunrise == null || weather.sunset == null) {
+      theme.set('light')
+      return
+    }
     const sunrise = dayjs.utc(weather.sunrise * 1000).local()
     const sunset = dayjs.utc(weather.sunset * 1000).local()
     const isDark = now.isAfter(sunset) || now.isBefore(sunrise)

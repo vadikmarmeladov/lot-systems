@@ -102,7 +102,7 @@ export const System = () => {
   // Show sunset during daytime (between sunrise and sunset)
   // Show sunrise during nighttime (before sunrise or after sunset)
   const defaultShowSunset = React.useMemo(() => {
-    if (!weather) return false
+    if (!weather || weather.sunrise == null || weather.sunset == null) return false
     const now = dayjs()
     const sunrise = dayjs.utc(weather.sunrise * 1000).local()
     const sunset = dayjs.utc(weather.sunset * 1000).local()
@@ -139,7 +139,7 @@ export const System = () => {
   }, [weather, isTempFahrenheit])
 
   const { sunset, sunrise } = React.useMemo(() => {
-    if (!weather) return { sunset: null, sunrise: null }
+    if (!weather || weather.sunrise == null || weather.sunset == null) return { sunset: null, sunrise: null }
     const sunrise = dayjs
       .utc(weather.sunrise * 1000)
       .local()
