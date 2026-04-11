@@ -59,7 +59,7 @@ function drawCell(ctx: CanvasRenderingContext2D, x: number, y: number, fg: strin
 // ---------------------------------------------------------------------------
 
 function drawNatureBg(ctx: CanvasRenderingContext2D, gameId: GameId, fg: string) {
-  ctx.globalAlpha = 0.08
+  ctx.globalAlpha = 0.15
 
   if (gameId === 'tetris') {
     // Morning: small trees / hills along bottom
@@ -608,8 +608,8 @@ export function MicroGameWidget() {
         {/* Micro-screen */}
         <div
           className={cn(
-            'border border-acc/60 inline-flex items-center justify-center',
-            'bg-bac'
+            'border border-acc inline-flex items-center justify-center',
+            'rounded bg-transparent'
           )}
           style={{ width: CSS_SIZE, height: CSS_SIZE, imageRendering: 'pixelated' }}
           onTouchStart={onTouchStart}
@@ -647,17 +647,17 @@ export function MicroGameWidget() {
 
             {/* Action button */}
             <Button onClick={gameId === 'tetris' ? handleUp : gameId === 'invaders' ? handleDown : handleUp}>
-              {gameId === 'tetris' ? '\u21BB' : gameId === 'invaders' ? '\u2022' : '\u21BB'}
+              {gameId === 'tetris' ? '(*)' : gameId === 'invaders' ? '(o)' : '(*)'}
             </Button>
           </div>
 
           {/* Utility buttons */}
-          <div className="flex items-center justify-center gap-10 ml-8">
+          <div className="flex items-center justify-end gap-2">
             <Button size="small" onClick={switchGame}>
-              {'\u21C4'}
+              {'<->'}
             </Button>
             <Button size="small" onClick={() => setPaused(p => !p)}>
-              {paused ? '\u25B6' : '\u23F8'}
+              {paused ? '|>' : '||'}
             </Button>
           </div>
         </div>
