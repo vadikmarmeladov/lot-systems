@@ -609,7 +609,7 @@ export function MicroGameWidget() {
         <div
           className={cn(
             'border border-acc/60 inline-flex items-center justify-center',
-            'bg-acc/5'
+            'bg-bac'
           )}
           style={{ width: CSS_SIZE, height: CSS_SIZE, imageRendering: 'pixelated' }}
           onTouchStart={onTouchStart}
@@ -652,7 +652,7 @@ export function MicroGameWidget() {
           </div>
 
           {/* Utility buttons */}
-          <div className="flex items-center justify-center gap-6">
+          <div className="flex items-center justify-center gap-10 ml-8">
             <Button size="small" onClick={switchGame}>
               {'\u21C4'}
             </Button>
