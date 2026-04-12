@@ -14,14 +14,17 @@ import type {
   EvolutionState,
   VisualEvolutionEffects,
   FeatureUnlocks,
-  Achievement
+  Achievement,
+  LayoutDensity
 } from '../utils/interfaceEvolution';
 import {
   calculateEvolutionState,
   getVisualEffects,
   getFeatureUnlocks,
   getEvolutionMilestone,
-  getEvolutionCSSProperties
+  getEvolutionCSSProperties,
+  getLayoutDensity,
+  DEFAULT_LAYOUT_DENSITY
 } from '../utils/interfaceEvolution';
 import {
   getThemeEvolutionEffects,
@@ -44,6 +47,11 @@ export const $featureUnlocks = computed($evolutionState, (state) =>
 
 export const $evolutionCSS = computed($evolutionState, (state) =>
   state ? getEvolutionCSSProperties(state) : {}
+);
+
+// Layout density — progressive condensation from breathable to instrument
+export const $layoutDensity = computed($evolutionState, (state): LayoutDensity =>
+  state ? getLayoutDensity(state) : DEFAULT_LAYOUT_DENSITY
 );
 
 // Track previous state for milestone detection
@@ -173,6 +181,7 @@ if (typeof window !== 'undefined') {
     getState: () => $evolutionState.get(),
     getEffects: () => $visualEffects.get(),
     getUnlocks: () => $featureUnlocks.get(),
+    getDensity: () => $layoutDensity.get(),
     getSummary: getEvolutionSummary
   };
 }

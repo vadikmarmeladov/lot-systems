@@ -64,6 +64,7 @@ import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
+import { $layoutDensity } from '#client/stores/evolution'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -88,6 +89,9 @@ export const System = () => {
   const soundDescription = useStore(stores.soundDescription)
   const isRadioOn = useStore(stores.isRadioOn)
   const radioTrackName = useStore(stores.radioTrackName)
+
+  // Layout density — progressive condensation from breathable to instrument
+  const density = useStore($layoutDensity)
 
   const [isBreatheOn, setIsBreatheOn] = React.useState(false)
   const breatheState = useBreathe(isBreatheOn)
@@ -453,9 +457,9 @@ export const System = () => {
     )
   }
 
-  // Full pro layout for R&D and Usership — condensed, all widgets
+  // Full pro layout for R&D and Usership — density evolves with mastery
   return (
-    <div className="flex flex-col gap-y-24">
+    <div className={cn('flex flex-col', density.sectionGap)}>
       <div>
         <GhostButton href="/log">{userName || 'You'}</GhostButton>
         <div>
@@ -629,7 +633,7 @@ export const System = () => {
 
       {/* Context stack */}
       <WidgetErrorBoundary name="Context">
-        <div className="flex flex-col gap-y-24">
+        <div className={cn('flex flex-col', density.sectionGap)}>
           {/* Contextual Prompts - Show pattern-based suggestions based on current context */}
           <ContextualPromptsWidget />
 
@@ -643,7 +647,7 @@ export const System = () => {
 
       {/* CQGS Bioethics stack */}
       <WidgetErrorBoundary name="Bioethics">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           {/* Biofield Capacitor - Track ATP energy depletion/replenishment */}
           <EnergyCapacitor />
 
@@ -860,7 +864,7 @@ export const System = () => {
 
       {/* Community stack — LOT community is original and inimitable */}
       <WidgetErrorBoundary name="Community">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           {/* Pattern Insights - Show user's discovered patterns and cohort matches */}
           <PatternInsightsWidget />
 
@@ -871,7 +875,7 @@ export const System = () => {
 
       {/* Planning stack */}
       <WidgetErrorBoundary name="Planning">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           {/* Planner - Show occasionally for daily/weekly planning */}
           <PlannerWidget />
 
@@ -902,7 +906,7 @@ export const System = () => {
 
       {/* Investor stack — Visible when Investment switch is On in Settings */}
       <WidgetErrorBoundary name="Investor">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           <AngelInvestorWidget />
           <CorporatePlanWidget />
           <DemoDayWidget />
@@ -919,7 +923,7 @@ export const System = () => {
 
       {/* CQGS Biofield Engine Widgets */}
       <WidgetErrorBoundary name="Biofield Engine">
-        <div className="flex flex-col gap-y-24">
+        <div className={cn('flex flex-col', density.sectionGap)}>
           <QuantumStateWidget />
           <PatternRecognitionWidget />
           <AIFeedbackWidget />
@@ -929,7 +933,7 @@ export const System = () => {
 
       {/* CQGS Dashboard stack */}
       <WidgetErrorBoundary name="Dashboard">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           {/* CQGS Dashboard - Bioethics health, performance, version */}
           <UserMetricsWidget />
 
@@ -946,7 +950,7 @@ export const System = () => {
 
       {/* Stats stack */}
       <WidgetErrorBoundary name="Stats">
-        <div className="flex flex-col gap-y-24">
+        <div className={cn('flex flex-col', density.sectionGap)}>
           <IntentionPatterns />
           <CollectiveConsciousness />
           <WellnessPulse />
