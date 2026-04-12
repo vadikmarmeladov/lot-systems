@@ -55,77 +55,376 @@ function drawCell(ctx: CanvasRenderingContext2D, x: number, y: number, fg: strin
 }
 
 // ---------------------------------------------------------------------------
-// Nature background patterns (subtle, drawn at low opacity)
+// Random themed backgrounds — complex floral & ornamental patterns
 // ---------------------------------------------------------------------------
+//
+// Each theme is a generator that returns a list of pixel cells. Generation is
+// done once per game switch (seeded) and cached, so the pattern is stable
+// across ticks but different every time the game restarts.
 
-function drawNatureBg(ctx: CanvasRenderingContext2D, gameId: GameId, fg: string) {
-  ctx.globalAlpha = 0.15
+type Cell = [number, number]
 
-  if (gameId === 'tetris') {
-    // Morning: small trees / hills along bottom
-    // Rolling hills
-    for (let x = 0; x < GRID; x++) {
-      const hillH = Math.floor(3 + 2 * Math.sin(x * 0.15) + Math.sin(x * 0.3))
-      for (let y = GRID - hillH; y < GRID; y++) {
-        drawCell(ctx, x, y, fg)
+type BgTheme =
+  | 'floral-garden'
+  | 'cherry-blossom'
+  | 'rose-mandala'
+  | 'vine-lattice'
+  | 'daisy-field'
+  | 'lotus-pond'
+  | 'art-nouveau'
+  | 'starry-floral'
+  | 'tulip-rows'
+  | 'baroque-swirls'
+
+const ALL_THEMES: BgTheme[] = [
+  'floral-garden',
+  'cherry-blossom',
+  'rose-mandala',
+  'vine-lattice',
+  'daisy-field',
+  'lotus-pond',
+  'art-nouveau',
+  'starry-floral',
+  'tulip-rows',
+  'baroque-swirls',
+]
+
+function makeRng(seed: number): () => number {
+  let s = seed || 1
+  return () => {
+    s = (s * 9301 + 49297) % 233280
+    return s / 233280
+  }
+}
+
+function push(cells: Cell[], x: number, y: number) {
+  if (x >= 0 && x < GRID && y >= 0 && y < GRID) cells.push([Math.round(x), Math.round(y)])
+}
+
+// --- Primitive motifs -------------------------------------------------------
+
+function stampFlower(cells: Cell[], cx: number, cy: number, size: number) {
+  // Center
+  push(cells, cx, cy)
+  // 4 cardinal petals
+  push(cells, cx - 1, cy); push(cells, cx + 1, cy)
+  push(cells, cx, cy - 1); push(cells, cx, cy + 1)
+  if (size >= 2) {
+    push(cells, cx - 2, cy); push(cells, cx + 2, cy)
+    push(cells, cx, cy - 2); push(cells, cx, cy + 2)
+    push(cells, cx - 1, cy - 1); push(cells, cx + 1, cy - 1)
+    push(cells, cx - 1, cy + 1); push(cells, cx + 1, cy + 1)
+  }
+  if (size >= 3) {
+    push(cells, cx - 3, cy); push(cells, cx + 3, cy)
+    push(cells, cx, cy - 3); push(cells, cx, cy + 3)
+    push(cells, cx - 2, cy - 1); push(cells, cx + 2, cy - 1)
+    push(cells, cx - 2, cy + 1); push(cells, cx + 2, cy + 1)
+    push(cells, cx - 1, cy - 2); push(cells, cx + 1, cy - 2)
+    push(cells, cx - 1, cy + 2); push(cells, cx + 1, cy + 2)
+  }
+}
+
+function stampLeaf(cells: Cell[], cx: number, cy: number, dir: 1 | -1) {
+  push(cells, cx, cy)
+  push(cells, cx + dir, cy)
+  push(cells, cx + dir, cy - 1)
+  push(cells, cx + dir * 2, cy)
+  push(cells, cx + dir * 2, cy + 1)
+  push(cells, cx + dir * 3, cy)
+}
+
+function stampTulip(cells: Cell[], cx: number, cy: number) {
+  push(cells, cx - 1, cy); push(cells, cx, cy); push(cells, cx + 1, cy)
+  push(cells, cx - 1, cy + 1); push(cells, cx + 1, cy + 1)
+  push(cells, cx, cy - 1)
+  push(cells, cx - 2, cy); push(cells, cx + 2, cy)
+}
+
+function stampLine(cells: Cell[], x1: number, y1: number, x2: number, y2: number) {
+  const dx = Math.abs(x2 - x1), dy = Math.abs(y2 - y1)
+  const sx = x1 < x2 ? 1 : -1, sy = y1 < y2 ? 1 : -1
+  let err = dx - dy, x = x1, y = y1
+  for (let i = 0; i < 200; i++) {
+    push(cells, x, y)
+    if (x === x2 && y === y2) break
+    const e2 = 2 * err
+    if (e2 > -dy) { err -= dy; x += sx }
+    if (e2 < dx) { err += dx; y += sy }
+  }
+}
+
+// --- Theme generators -------------------------------------------------------
+
+function genFloralGarden(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  // Rolling soil line
+  for (let x = 0; x < GRID; x++) {
+    const h = 2 + Math.floor(2 * Math.sin(x * 0.2) + Math.sin(x * 0.5 + rng()))
+    for (let y = GRID - h; y < GRID; y++) push(cells, x, y)
+  }
+  const n = 5 + Math.floor(rng() * 4)
+  for (let i = 0; i < n; i++) {
+    const x = 4 + Math.floor(rng() * 56)
+    const stemH = 10 + Math.floor(rng() * 18)
+    for (let h = 0; h < stemH; h++) push(cells, x, GRID - 3 - h)
+    const fy = GRID - 3 - stemH
+    stampFlower(cells, x, fy, 1 + Math.floor(rng() * 3))
+    if (rng() > 0.3) stampLeaf(cells, x, GRID - 3 - Math.floor(stemH * 0.5), rng() > 0.5 ? 1 : -1)
+    if (rng() > 0.6) stampLeaf(cells, x, GRID - 3 - Math.floor(stemH * 0.7), rng() > 0.5 ? 1 : -1)
+  }
+  return cells
+}
+
+function genCherryBlossom(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  const branches = 2 + Math.floor(rng() * 2)
+  for (let b = 0; b < branches; b++) {
+    const x0 = Math.floor(rng() * GRID)
+    const y0 = Math.floor(rng() * 20)
+    const len = 30 + Math.floor(rng() * 25)
+    const dx = (rng() - 0.3) * 1.2
+    const dy = 0.4 + rng() * 0.5
+    for (let t = 0; t < len; t++) {
+      const x = x0 + t * dx
+      const y = y0 + t * dy + Math.sin(t * 0.3) * 1.5
+      push(cells, x, y)
+      if (t % 7 === 3) {
+        const bx = x + (rng() > 0.5 ? 3 : -3)
+        const by = y + 2
+        stampLine(cells, Math.round(x), Math.round(y), Math.round(bx), Math.round(by))
       }
     }
-    // Small trees
-    const trees = [8, 22, 38, 52]
-    for (const tx of trees) {
-      const base = GRID - Math.floor(3 + 2 * Math.sin(tx * 0.15) + Math.sin(tx * 0.3))
-      // Trunk
-      drawCell(ctx, tx, base - 1, fg)
-      drawCell(ctx, tx, base - 2, fg)
-      // Canopy
-      drawCell(ctx, tx - 1, base - 3, fg)
-      drawCell(ctx, tx, base - 3, fg)
-      drawCell(ctx, tx + 1, base - 3, fg)
-      drawCell(ctx, tx, base - 4, fg)
+    const step = 4 + Math.floor(rng() * 3)
+    for (let t = step; t < len; t += step) {
+      const x = x0 + t * dx
+      const y = y0 + t * dy + Math.sin(t * 0.3) * 1.5
+      stampFlower(cells, Math.round(x), Math.round(y), 1 + Math.floor(rng() * 2))
     }
-  } else if (gameId === 'invaders') {
-    // Afternoon: clouds and sun rays
-    // Small clouds
-    const clouds = [{ x: 5, y: 4 }, { x: 30, y: 7 }, { x: 50, y: 3 }]
-    for (const c of clouds) {
-      drawCell(ctx, c.x, c.y, fg)
-      drawCell(ctx, c.x + 1, c.y, fg)
-      drawCell(ctx, c.x + 2, c.y, fg)
-      drawCell(ctx, c.x - 1, c.y, fg)
-      drawCell(ctx, c.x, c.y - 1, fg)
-      drawCell(ctx, c.x + 1, c.y - 1, fg)
-    }
-    // Sun in corner
-    drawCell(ctx, 58, 4, fg)
-    drawCell(ctx, 59, 4, fg)
-    drawCell(ctx, 58, 5, fg)
-    drawCell(ctx, 59, 5, fg)
-    drawCell(ctx, 57, 4, fg)
-    drawCell(ctx, 60, 5, fg)
-    drawCell(ctx, 58, 3, fg)
-    drawCell(ctx, 59, 6, fg)
-  } else {
-    // Evening: stars and moon
-    // Scattered stars (seeded pattern)
-    const stars = [
-      3, 5, 10, 2, 18, 8, 25, 3, 33, 12, 40, 6, 47, 9,
-      55, 4, 7, 15, 20, 18, 35, 7, 45, 14, 58, 11, 12, 22,
-      50, 20, 28, 16, 42, 2, 60, 8, 15, 10, 38, 18
-    ]
-    for (let i = 0; i < stars.length - 1; i += 2) {
-      drawCell(ctx, stars[i], stars[i + 1], fg)
-    }
-    // Crescent moon
-    drawCell(ctx, 54, 6, fg)
-    drawCell(ctx, 55, 5, fg)
-    drawCell(ctx, 56, 5, fg)
-    drawCell(ctx, 57, 6, fg)
-    drawCell(ctx, 57, 7, fg)
-    drawCell(ctx, 56, 8, fg)
-    drawCell(ctx, 55, 8, fg)
-    drawCell(ctx, 54, 7, fg)
   }
+  return cells
+}
 
+function genRoseMandala(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  const cx = 32, cy = 32
+  const rings = [
+    { r: 5, count: 6 },
+    { r: 11, count: 8 },
+    { r: 18, count: 12 },
+    { r: 25, count: 14 },
+  ]
+  for (const ring of rings) {
+    const phase = rng() * Math.PI * 2
+    for (let i = 0; i < ring.count; i++) {
+      const a = (i / ring.count) * Math.PI * 2 + phase
+      const x = cx + Math.cos(a) * ring.r
+      const y = cy + Math.sin(a) * ring.r
+      stampFlower(cells, Math.round(x), Math.round(y), ring.r < 12 ? 2 : 1)
+    }
+  }
+  // Connect rings with faint lines
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2
+    stampLine(cells, cx, cy, Math.round(cx + Math.cos(a) * 28), Math.round(cy + Math.sin(a) * 28))
+  }
+  stampFlower(cells, cx, cy, 3)
+  return cells
+}
+
+function genVineLattice(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  const spacing = 10 + Math.floor(rng() * 4)
+  const wobble = rng() * 0.4 + 0.2
+  for (let k = -GRID; k < GRID * 2; k += spacing) {
+    for (let t = 0; t < GRID * 2; t++) {
+      const w = Math.sin(t * wobble) * 2
+      push(cells, t, k + t + w)
+      push(cells, t, k - t + w)
+    }
+  }
+  const flowerCount = 10 + Math.floor(rng() * 8)
+  for (let i = 0; i < flowerCount; i++) {
+    const x = Math.floor(rng() * GRID)
+    const y = Math.floor(rng() * GRID)
+    stampFlower(cells, x, y, 1 + Math.floor(rng() * 2))
+  }
+  return cells
+}
+
+function genDaisyField(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  // Grass hints
+  for (let x = 0; x < GRID; x += 2) {
+    push(cells, x, GRID - 1)
+    if (rng() > 0.5) push(cells, x, GRID - 2)
+  }
+  const rows = 3 + Math.floor(rng() * 2)
+  for (let r = 0; r < rows; r++) {
+    const y = 14 + r * 13 + Math.floor(rng() * 3)
+    const count = 3 + Math.floor(rng() * 3)
+    for (let i = 0; i < count; i++) {
+      const x = 6 + Math.floor((i + rng() * 0.5) * (52 / count))
+      stampFlower(cells, x, y, 2)
+      if (rng() > 0.5) stampLeaf(cells, x, y + 2, rng() > 0.5 ? 1 : -1)
+    }
+  }
+  return cells
+}
+
+function genLotusPond(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  // Elliptical ripples
+  const ripples = 3 + Math.floor(rng() * 2)
+  for (let i = 0; i < ripples; i++) {
+    const cx = Math.floor(rng() * GRID)
+    const cy = 30 + Math.floor(rng() * 30)
+    for (let r = 4; r <= 14; r += 3) {
+      for (let a = 0; a < Math.PI * 2; a += 0.25) {
+        push(cells, cx + Math.cos(a) * r, cy + Math.sin(a) * r * 0.4)
+      }
+    }
+  }
+  // Lotus flowers
+  for (let i = 0; i < 5; i++) {
+    const x = 6 + Math.floor(rng() * 52)
+    const y = 14 + Math.floor(rng() * 40)
+    stampFlower(cells, x, y, 2 + Math.floor(rng() * 2))
+    // Lotus pads
+    if (rng() > 0.4) {
+      for (let a = 0; a < Math.PI * 2; a += 0.3) {
+        push(cells, x + Math.cos(a) * 5, y + Math.sin(a) * 2)
+      }
+    }
+  }
+  return cells
+}
+
+function genArtNouveau(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  const curves = 2 + Math.floor(rng() * 2)
+  for (let c = 0; c < curves; c++) {
+    const base = 12 + c * 18 + Math.floor(rng() * 6)
+    const amp = 6 + rng() * 8
+    const freq = 0.08 + rng() * 0.1
+    const phase = rng() * Math.PI * 2
+    for (let x = 0; x < GRID; x++) {
+      const y = base + Math.sin(x * freq + phase) * amp
+      push(cells, x, y)
+      push(cells, x, y + 1)
+    }
+    // Flowers at apex points
+    for (let x = 4; x < GRID; x += 10) {
+      const y = base + Math.sin(x * freq + phase) * amp
+      if (rng() > 0.4) stampFlower(cells, x, Math.round(y), 2)
+    }
+  }
+  // Flourish spirals in corners
+  const corners: Array<[number, number]> = [[8, 8], [56, 8], [8, 56], [56, 56]]
+  for (const [cx, cy] of corners) {
+    if (rng() > 0.5) continue
+    for (let t = 0; t < 6; t += 0.2) {
+      const r = t * 0.8
+      push(cells, cx + Math.cos(t) * r, cy + Math.sin(t) * r)
+    }
+  }
+  return cells
+}
+
+function genStarryFloral(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  // Stars
+  const stars = 25 + Math.floor(rng() * 15)
+  for (let i = 0; i < stars; i++) {
+    const x = Math.floor(rng() * GRID)
+    const y = Math.floor(rng() * 35)
+    push(cells, x, y)
+    if (rng() > 0.7) {
+      push(cells, x - 1, y); push(cells, x + 1, y)
+      push(cells, x, y - 1); push(cells, x, y + 1)
+    }
+  }
+  // Crescent moon
+  const mx = 48 + Math.floor(rng() * 8), my = 6 + Math.floor(rng() * 6)
+  for (let a = -1; a <= 1; a += 0.3) {
+    push(cells, mx + Math.cos(a) * 3, my + Math.sin(a) * 3)
+    push(cells, mx + Math.cos(a) * 4, my + Math.sin(a) * 4)
+  }
+  // Night-blooming flowers at bottom
+  for (let i = 0; i < 4; i++) {
+    const x = 6 + Math.floor(rng() * 52)
+    const y = 42 + Math.floor(rng() * 18)
+    stampFlower(cells, x, y, 2 + Math.floor(rng() * 2))
+  }
+  return cells
+}
+
+function genTulipRows(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  const rows = 2 + Math.floor(rng() * 2)
+  for (let r = 0; r < rows; r++) {
+    const y = 20 + r * 18 + Math.floor(rng() * 4)
+    const n = 5 + Math.floor(rng() * 3)
+    for (let i = 0; i < n; i++) {
+      const x = 6 + Math.floor(i * (52 / n)) + Math.floor(rng() * 3)
+      // Stem
+      for (let h = 0; h < 6; h++) push(cells, x, y + h)
+      stampTulip(cells, x, y - 1)
+      if (rng() > 0.5) stampLeaf(cells, x, y + 3, rng() > 0.5 ? 1 : -1)
+    }
+  }
+  return cells
+}
+
+function genBaroqueSwirls(rng: () => number): Cell[] {
+  const cells: Cell[] = []
+  const swirlCount = 3 + Math.floor(rng() * 3)
+  for (let i = 0; i < swirlCount; i++) {
+    const cx = 8 + Math.floor(rng() * 48)
+    const cy = 8 + Math.floor(rng() * 48)
+    const dir = rng() > 0.5 ? 1 : -1
+    const phase = rng() * Math.PI * 2
+    for (let t = 0; t < 8; t += 0.15) {
+      const r = t * 1.1
+      const a = t * dir + phase
+      push(cells, cx + Math.cos(a) * r, cy + Math.sin(a) * r)
+    }
+    // Flower at center
+    stampFlower(cells, cx, cy, 1)
+  }
+  // Ornamental border dots
+  for (let x = 0; x < GRID; x += 4) {
+    push(cells, x, 0); push(cells, x, GRID - 1)
+  }
+  for (let y = 0; y < GRID; y += 4) {
+    push(cells, 0, y); push(cells, GRID - 1, y)
+  }
+  return cells
+}
+
+const THEME_GEN: Record<BgTheme, (rng: () => number) => Cell[]> = {
+  'floral-garden': genFloralGarden,
+  'cherry-blossom': genCherryBlossom,
+  'rose-mandala': genRoseMandala,
+  'vine-lattice': genVineLattice,
+  'daisy-field': genDaisyField,
+  'lotus-pond': genLotusPond,
+  'art-nouveau': genArtNouveau,
+  'starry-floral': genStarryFloral,
+  'tulip-rows': genTulipRows,
+  'baroque-swirls': genBaroqueSwirls,
+}
+
+function generateRandomBg(): { theme: BgTheme; cells: Cell[] } {
+  const theme = ALL_THEMES[Math.floor(Math.random() * ALL_THEMES.length)]
+  const seed = Math.floor(Math.random() * 1_000_000) + 1
+  const cells = THEME_GEN[theme](makeRng(seed))
+  return { theme, cells }
+}
+
+function drawBgCells(ctx: CanvasRenderingContext2D, cells: Cell[], fg: string) {
+  ctx.globalAlpha = 0.15
+  for (const [x, y] of cells) drawCell(ctx, x, y, fg)
   ctx.globalAlpha = 1.0
 }
 
@@ -447,6 +746,9 @@ export function MicroGameWidget() {
   const pausedRef = React.useRef(false)
   pausedRef.current = paused
 
+  // Random themed floral background — regenerated on each game switch
+  const bgRef = React.useRef<{ theme: BgTheme; cells: Cell[] }>(generateRandomBg())
+
   // Reset on game switch
   const switchGame = React.useCallback(() => {
     const games: GameId[] = ['tetris', 'invaders', 'snake']
@@ -455,10 +757,11 @@ export function MicroGameWidget() {
     tetrisRef.current = initTetris()
     invadersRef.current = initInvaders()
     snakeRef.current = initSnake()
+    bgRef.current = generateRandomBg()
     setGameId(next)
     setScore(0)
     playSwitchSound()
-    recordSignal('micro_game', 'switch', { game: next })
+    recordSignal('micro_game', 'switch', { game: next, bgTheme: bgRef.current.theme })
   }, [gameId])
 
   // Main game loop
@@ -473,8 +776,8 @@ export function MicroGameWidget() {
       const { fg, bg } = getMonoColors(canvas)
       clearGrid(ctx, bg, SIZE, SIZE)
 
-      // Nature background layer
-      drawNatureBg(ctx, gameId, fg)
+      // Random themed floral background layer
+      drawBgCells(ctx, bgRef.current.cells, fg)
 
       if (gameId === 'tetris') {
         const prev = tetrisRef.current
