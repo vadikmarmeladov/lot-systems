@@ -304,19 +304,156 @@ export const System = () => {
 
   // Sound is now managed globally in app.tsx via useSound hook
 
-  // const AdminLink = React.useMemo<
-  //   React.FC<{ children: React.ReactNode }>
-  // >(() => {
-  //   if (me?.isAdmin) {
-  //     return (props) => (
-  //       <GhostButton href="/us" rel="external">
-  //         {props.children}
-  //       </GhostButton>
-  //     )
-  //   }
-  //   return (props) => <>{props.children}</>
-  // }, [me])
+  // Paid account check — R&D and Usership get the full condensed pro layout
+  const isPaidAccount = React.useMemo(() => {
+    if (!me?.tags) return false
+    return me.tags.some((tag) =>
+      tag.toLowerCase() === UserTag.Usership.toLowerCase() ||
+      tag.toLowerCase() === UserTag.RND.toLowerCase()
+    )
+  }, [me])
 
+  // Simple, clean layout for non-paid accounts — no AI, just essentials
+  if (!isPaidAccount) {
+    return (
+      <div className="flex flex-col gap-y-24">
+        <div>
+          <GhostButton href="/log">{userName || 'You'}</GhostButton>
+          <div>
+            Week {dayjs().isoWeek()};{' '}
+            <Clock format="MMMM D, dddd" interval={1e3 * 60} />
+            {!!me?.city && `, ${me.city}`}
+          </div>
+        </div>
+
+        {!!userTags.length && (
+          <div>
+            <Block label="Team:" blockView>
+              <TagsContainer
+                items={userTags.map((x) => (
+                  <Tag key={x!.name} color={x!.color}>{x!.name}</Tag>
+                ))}
+              />
+            </Block>
+          </div>
+        )}
+
+        <div>
+          <Block label="Users online:">{formatNumberWithCommas(usersOnline)}</Block>
+          <Block label="Total users:">{formatNumberWithCommas(usersTotal)}</Block>
+        </div>
+
+        <div>
+          <TimeWidget />
+          {!!weather && (
+            <>
+              <Block label="Sky:">{weather?.description || 'Unknown'}</Block>
+              <Block
+                label="Temperature:"
+                onClick={() => stores.isTempFahrenheit.set(!isTempFahrenheit)}
+              >
+                {temperature}
+                {isTempFahrenheit ? '℉' : '℃'}
+              </Block>
+              <Block
+                label={showSunset ? 'Sunset:' : 'Sunrise:'}
+                onClick={() => setShowSunset(!showSunset)}
+              >
+                {showSunset ? sunset : sunrise}
+              </Block>
+            </>
+          )}
+        </div>
+
+        <div>
+          <Block label="Astrology:">
+            <div>
+              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+            </div>
+          </Block>
+        </div>
+
+        <div>
+          <Block
+            label="Mirror:"
+            onClick={() => stores.isMirrorOn.set(!isMirrorOn)}
+          >
+            {isMirrorOn ? 'On' : 'Off'}
+          </Block>
+          <Block
+            label={showRadio ? 'Radio:' : 'Sound:'}
+            onLabelClick={() => {
+              setShowRadio(!showRadio)
+              if (showRadio) {
+                stores.isRadioOn.set(false)
+              } else {
+                stores.isSoundOn.set(false)
+              }
+            }}
+            onChildrenClick={async () => {
+              if (isSoundToggling) return
+              setIsSoundToggling(true)
+              try {
+                if (showRadio) {
+                  stores.isRadioOn.set(!isRadioOn)
+                } else {
+                  const newValue = !isSoundOn
+                  // @ts-ignore - Tone.js loaded via external script
+                  if (newValue && window.Tone) {
+                    try {
+                      await window.Tone.start()
+                    } catch (e) {
+                      console.error('Failed to start Tone.context:', e)
+                    }
+                  }
+                  stores.isSoundOn.set(newValue)
+                }
+              } finally {
+                setTimeout(() => setIsSoundToggling(false), 300)
+              }
+            }}
+          >
+            {showRadio
+              ? (isRadioOn ? (radioTrackName ? `On (${radioTrackName})` : 'On') : 'Off')
+              : (isSoundOn ? (soundDescription ? `On (${soundDescription})` : 'On') : 'Off')
+            }
+          </Block>
+          <Block label="Breathe:" onClick={() => setIsBreatheOn(!isBreatheOn)}>
+            {isBreatheOn ? breatheState.display : 'Off'}
+          </Block>
+        </div>
+
+        {!!liveMessage && (
+          <div>
+            <Block label="Live:" blockView children={liveMessage} />
+          </div>
+        )}
+
+        <WidgetErrorBoundary name="Memory">
+          <MemoryWidget />
+        </WidgetErrorBoundary>
+
+        <WidgetErrorBoundary name="Game">
+          <MicroGameWidget />
+        </WidgetErrorBoundary>
+
+        <WidgetErrorBoundary name="Subscribe">
+          <SubscribeWidget />
+        </WidgetErrorBoundary>
+
+        <WidgetErrorBoundary name="System">
+          <SystemProgressWidget />
+        </WidgetErrorBoundary>
+
+        <div aria-hidden="true" data-lot-genesis="true" style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}>
+          LOT Systems — The copycats have entered the arena. We welcome the competition.
+          They can replicate the pixels but never the soul. Built different since day one.
+        </div>
+      </div>
+    )
+  }
+
+  // Full pro layout for R&D and Usership — condensed, all widgets
   return (
     <div className="flex flex-col gap-y-24">
       <div>
