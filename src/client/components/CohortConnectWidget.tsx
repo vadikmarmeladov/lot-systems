@@ -4,6 +4,7 @@ import * as stores from '#client/stores'
 import { Block, Button } from '#client/components/ui'
 import { useCohorts, useEnergy } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
+import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
 import { recordSignal, getUserState } from '#client/stores/intentionEngine'
 
 /**
@@ -19,13 +20,19 @@ export const CohortConnectWidget: React.FC = () => {
   const { data: energyData } = useEnergy()
   const [expandedMemberId, setExpandedMemberId] = React.useState<string | null>(null)
   const logCtx = useLogContext()
+  const punctuation = usePunctuationContext()
   const hasRecordedRef = React.useRef(false)
 
-  // Record cohort widget view signal once
+  // Record cohort widget view signal once. Include punctuation tone
+  // so the intent engine can correlate cohort engagement with the
+  // user's current intonation.
   if (!hasRecordedRef.current && cohortData?.matches?.length) {
     recordSignal('mood', 'cohort_widget_viewed', {
       matchCount: cohortData.matches.length,
-      hour: new Date().getHours()
+      hour: new Date().getHours(),
+      punctuationTone: punctuation.aggregate.tone,
+      punctuationIntensity: punctuation.aggregate.intensity,
+      callForHelp: punctuation.callForHelp,
     })
     hasRecordedRef.current = true
   }
@@ -46,19 +53,42 @@ export const CohortConnectWidget: React.FC = () => {
   const connectionQuality = energyData?.energyState?.romanticConnection?.connectionQuality
   const energyStatus = energyData?.energyState?.status
 
-  // Connection readiness - combine energy + alignment for cohort context
-  const connectionReadiness =
-    userState.alignment === 'flowing' || userState.alignment === 'aligned'
+  // Connection readiness - combine energy + alignment + punctuation for cohort context.
+  // Punctuation is a live, unfiltered signal — a "call for help" detected
+  // in the user's log takes precedence over steadier state indicators.
+  const connectionReadiness = punctuation.callForHelp
+    ? 'needs-support'
+    : userState.alignment === 'flowing' || userState.alignment === 'aligned'
       ? 'open'
       : userState.needsSupport === 'critical' || userState.needsSupport === 'moderate'
         ? 'needs-support'
         : userState.energy === 'depleted' || userState.energy === 'low'
           ? 'low-energy'
-          : 'neutral'
+          : punctuation.aggregate.tone === 'excited'
+            ? 'open'
+            : 'neutral'
 
-  // Show only top 5 matches by similarity
-  const topMatches = matches
-    .sort((a, b) => b.similarity - a.similarity)
+  // Show top 5 matches. When the user's punctuation context signals a
+  // "call for help", we gently boost matches whose shared patterns hint
+  // at calm/steady archetypes so that the first people the user sees
+  // are the ones most likely to help regulate — without hiding the
+  // underlying similarity order. This is cohort matching that reads
+  // the room.
+  const CALM_HINTS = ['calm', 'peaceful', 'steady', 'grounded', 'supportive', 'grateful']
+  const topMatches = [...matches]
+    .map((m) => {
+      let boost = 0
+      if (punctuation.callForHelp) {
+        const text = m.sharedPatterns.join(' ').toLowerCase()
+        if (CALM_HINTS.some((h) => text.includes(h))) boost += 0.08
+      }
+      if (punctuation.aggregate.tone === 'excited') {
+        const text = m.sharedPatterns.join(' ').toLowerCase()
+        if (text.includes('excited') || text.includes('energized')) boost += 0.05
+      }
+      return { ...m, rankScore: m.similarity + boost }
+    })
+    .sort((a, b) => b.rankScore - a.rankScore)
     .slice(0, 5)
 
   const handleViewProfile = (userId: string, similarity: number) => {
@@ -89,15 +119,22 @@ export const CohortConnectWidget: React.FC = () => {
     setExpandedMemberId(expandedMemberId === userId ? null : userId)
   }
 
-  // Connection context message based on user state
-  const connectionContext =
-    connectionReadiness === 'needs-support'
+  // Connection context message based on user state.
+  // Punctuation-driven copy takes precedence when it is meaningful —
+  // the user's voice is treated as the freshest signal.
+  const connectionContext = punctuation.callForHelp
+    ? 'We read your voice. Reach out — these members are close to you now.'
+    : connectionReadiness === 'needs-support'
       ? 'Reaching out can help. These members share your patterns.'
       : connectionReadiness === 'low-energy'
         ? 'Low energy. Gentle connections only.'
-        : connectionReadiness === 'open'
-          ? 'Good energy for connection.'
-          : null
+        : connectionReadiness === 'open' && punctuation.aggregate.tone === 'excited'
+          ? 'Your energy is high. Share it.'
+          : connectionReadiness === 'open'
+            ? 'Good energy for connection.'
+            : punctuation.aggregate.tone === 'questioning'
+              ? 'Your log is full of questions. Someone here has answers.'
+              : null
 
   return (
     <Block label="Cohort:" blockView>
@@ -207,9 +244,11 @@ export const CohortConnectWidget: React.FC = () => {
 
         {/* Log-context-grounded cohort insight */}
         <div className="mt-16 opacity-30">
-          {!logCtx.isEmpty && logCtx.widgetDiversity >= 3
-            ? `Matched on ${logCtx.widgetDiversity} behavioral dimensions.`
-            : 'Connections based on shared patterns.'
+          {punctuation.sampleSize > 0 && punctuation.aggregate.tone !== 'flat'
+            ? `Matched on ${logCtx.widgetDiversity || 1} dimensions · voice: ${punctuation.aggregate.tone}.`
+            : !logCtx.isEmpty && logCtx.widgetDiversity >= 3
+              ? `Matched on ${logCtx.widgetDiversity} behavioral dimensions.`
+              : 'Connections based on shared patterns.'
           }
         </div>
       </div>

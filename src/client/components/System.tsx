@@ -41,6 +41,7 @@ import { CohortConnectWidget } from './CohortConnectWidget'
 import { InterfaceEvolutionWidget } from './InterfaceEvolutionWidget'
 import { EvolutionMilestoneToast } from './EvolutionMilestoneToast'
 import { MicroCalculatorWidget } from './MicroCalculatorWidget'
+import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
 import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions } from '#client/stores/intentionEngine'
@@ -886,6 +887,9 @@ export const System = () => {
 
           {/* Micro Game - 2×2cm monochromatic pixel game screen */}
           <MicroGameWidget />
+
+          {/* Micro Image - 2×2cm procedural pixel image, responds to user's punctuation */}
+          <MicroImageWidget />
         </div>
       </WidgetErrorBoundary>
 
