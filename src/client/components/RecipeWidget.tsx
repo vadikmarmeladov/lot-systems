@@ -22,6 +22,20 @@ const FAREWELL_PHRASES = [
   'Delicious!',
 ]
 
+/**
+ * Farewell phrases used when the user acknowledges a fasting
+ * suggestion. Keeping them reverent and brief to match the tone
+ * of a light fast.
+ */
+const FASTING_FAREWELLS = [
+  'Amen.',
+  'Peace.',
+  'Blessed fast.',
+  'Godspeed.',
+  'Go gently.',
+  'Held.',
+]
+
 export const RecipeWidget: React.FC = () => {
   const state = useStore(recipeWidget)
   const router = useStore(stores.router)
@@ -98,10 +112,17 @@ export const RecipeWidget: React.FC = () => {
   }, [state.isVisible])
 
   const handleDismiss = () => {
-    try { recordSignal('selfcare', 'recipe_acknowledged', { mealTime: state.mealTime, hour: new Date().getHours() }) } catch (e) {}
+    try {
+      recordSignal('selfcare', state.isFasting ? 'fasting_acknowledged' : 'recipe_acknowledged', {
+        mealTime: state.mealTime,
+        hour: new Date().getHours(),
+        fastingMode: state.fastingMode,
+      })
+    } catch (e) {}
 
-    // Pick a random farewell phrase
-    const randomPhrase = FAREWELL_PHRASES[Math.floor(Math.random() * FAREWELL_PHRASES.length)]
+    // Pick a random farewell phrase — reverent for fasts, cheerful for meals
+    const pool = state.isFasting ? FASTING_FAREWELLS : FAREWELL_PHRASES
+    const randomPhrase = pool[Math.floor(Math.random() * pool.length)]
     setFarewellPhrase(randomPhrase)
 
     // Greeting stays visible for 3 seconds, then fades with label at memory speed (1400ms)
@@ -119,6 +140,19 @@ export const RecipeWidget: React.FC = () => {
   if (!state.isVisible) return null
 
   const getMealLabel = () => {
+    // During a Christian fast, we relabel the widget so the user
+    // immediately reads the suggestion as fasting guidance, not a
+    // recipe. The label shifts with the fasting mode to match the
+    // gradual algorithm: light snack → dry food → water → rest.
+    if (state.isFasting) {
+      switch (state.fastingMode) {
+        case 'light-snack': return 'Light snack:'
+        case 'dry-food':    return 'Fast:'
+        case 'water-only':  return 'Water:'
+        case 'prayer-rest': return 'Rest:'
+        default:            return 'Fast:'
+      }
+    }
     switch (state.mealTime) {
       case 'breakfast': return 'Breakfast idea:'
       case 'lunch': return 'Lunch idea:'
@@ -156,7 +190,10 @@ export const RecipeWidget: React.FC = () => {
                 isShown && 'opacity-100'
               )}
             >
-              {state.recipe}
+              {state.isFasting && state.fastingHeadline && (
+                <div className="opacity-30 mb-4">{state.fastingHeadline}</div>
+              )}
+              <div>{state.recipe}</div>
             </div>
           )}
         </div>

@@ -470,6 +470,15 @@ export const System = () => {
         </div>
       </div>
 
+      {/* Recipe / Fasting guidance — promoted to the top section so it
+          reads as the first thing the user sees at mealtime. On
+          Christian fasting days the widget gradually degrades from a
+          light plant-based snack to water-only rest (see
+          #client/utils/fasting.ts). */}
+      <WidgetErrorBoundary name="Recipe">
+        <RecipeWidget />
+      </WidgetErrorBoundary>
+
       {/* Community Convergence Pulse — atmosphere layer */}
       <WidgetErrorBoundary name="Pulse">
         <div className={cn('convergence-pulse', `convergence-${convergence.phase}`)}>
@@ -731,10 +740,6 @@ export const System = () => {
           <Block label="Live:" blockView children={liveMessage} />
         </div>
       )}
-
-      <WidgetErrorBoundary name="Recipe">
-        <RecipeWidget />
-      </WidgetErrorBoundary>
 
       {/* Biofield Check-In - Show every 3 hours max, context-based on time of day */}
       {/* Widget controls its own visibility internally to allow farewell animations */}
