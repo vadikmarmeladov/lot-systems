@@ -25,6 +25,7 @@ export const Settings = () => {
   const accentColor = useStore(stores.accentColor)
   const isCustomThemeEnabled = useStore(stores.isCustomThemeEnabled)
   const isTimeChimeEnabled = useStore(stores.isTimeChimeEnabled)
+  const isKeyboardSoundOn = useStore(stores.isKeyboardSoundOn)
   const { data: storyData } = useMyMemoryStory()
 
   const { mutate: updateSettings } = useUpdateSettings({
@@ -420,6 +421,12 @@ export const Settings = () => {
           </Block>
           <Block label="Hourly chime:" onChildrenClick={onToggleTimeChime}>
             {state.timeChime ? 'On' : 'Off'}
+          </Block>
+          <Block
+            label="Keyboard synth:"
+            onChildrenClick={() => stores.isKeyboardSoundOn.set(!isKeyboardSoundOn)}
+          >
+            {isKeyboardSoundOn ? 'On' : 'Off'}
           </Block>
         </div>
 

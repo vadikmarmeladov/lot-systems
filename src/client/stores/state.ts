@@ -50,6 +50,21 @@ export const isTimeChimeEnabled = persistentAtom<boolean>(
   }
 )
 
+/**
+ * Soviet synth keyboard click on every keystroke in the Log. Off by
+ * default so the System stays quiet unless the user asks for it.
+ * Can be toggled from Settings, from the 🎹 emoji inside any log, or
+ * via the `/synth` slash command.
+ */
+export const isKeyboardSoundOn = persistentAtom<boolean>(
+  'isKeyboardSoundOn',
+  false,
+  {
+    encode: (value) => value.toString(),
+    decode: (value) => value === 'true',
+  }
+)
+
 // Track last answered Memory question to prevent re-showing after tab switches
 export const lastAnsweredMemoryQuestionId = persistentAtom<string | null>(
   'lastAnsweredMemoryQuestionId',

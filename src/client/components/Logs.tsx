@@ -15,6 +15,12 @@ import {
   USER_SETTING_NAME_BY_ID,
 } from '#shared/constants'
 import { toCelsius } from '#shared/utils'
+import {
+  playKeyClick,
+  playSynthActivationChime,
+  playSynthDeactivationChime,
+} from '#client/utils/sovietKeyboard'
+import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -443,9 +449,23 @@ const NoteEditor = ({
   }, [])
 
   // Handle Enter key - allow newlines, Cmd/Ctrl+Enter to save
+  // Also plays the Soviet synth keyboard click on every keystroke
+  // when enabled via Settings or the 🎹 / /synth triggers.
   // Using refs to avoid recreating callback
   const onKeyDown = React.useCallback(
     (ev: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // Fire the keyboard click for printable keys, space, Enter, Backspace.
+      // We skip modifier-only presses and navigation keys so the sound
+      // never feels like a machine gun (Arrow keys during scrolling).
+      if (stores.isKeyboardSoundOn.get()) {
+        const k = ev.key
+        const isPrintable =
+          k.length === 1 || k === 'Enter' || k === 'Backspace' || k === 'Tab' || k === ' '
+        if (isPrintable && !ev.metaKey && !ev.ctrlKey) {
+          try { playKeyClick(k) } catch {}
+        }
+      }
+
       if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) {
         ev.preventDefault()
         if (valueRef.current !== logTextRef.current) {
@@ -460,6 +480,33 @@ const NoteEditor = ({
     },
     [primary]
   )
+
+  // --------------------------------------------------------------------
+  // Inline trigger detection: 🎹 emoji or /synth keyword toggles the
+  // Soviet keyboard sound; other triggers (listed in logTriggers.ts)
+  // are detected here so future modes can hook in without touching
+  // the editor. We compare against the previous value via ref so
+  // editing around an existing trigger doesn't re-fire it.
+  // --------------------------------------------------------------------
+  const lastTriggerScanRef = React.useRef('')
+  React.useEffect(() => {
+    const fresh = detectNewTriggers(value, lastTriggerScanRef.current)
+    lastTriggerScanRef.current = value
+    if (fresh.length === 0) return
+
+    for (const trigger of fresh as LogTrigger[]) {
+      if (trigger === 'toggle-synth') {
+        const next = !stores.isKeyboardSoundOn.get()
+        stores.isKeyboardSoundOn.set(next)
+        try {
+          if (next) playSynthActivationChime()
+          else playSynthDeactivationChime()
+        } catch {}
+      }
+      // Other triggers are detected but intentionally a no-op here —
+      // the brainstorm list above will wire them in as dedicated PRs.
+    }
+  }, [value])
 
   const contextText = React.useMemo(() => {
     if (!log?.context) return ''
