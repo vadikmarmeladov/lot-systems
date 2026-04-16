@@ -6,7 +6,7 @@ build({
   entryPoints: ['./src/server/server.ts'],
   bundle: true,
   platform: 'node',
-  target: 'node14',
+  target: 'node20',
   format: 'cjs',
   outfile: 'dist/server.js',
   plugins: [nodeExternalsPlugin()],

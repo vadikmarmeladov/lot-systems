@@ -94,10 +94,10 @@ export const Select: React.FC<SelectProps> = ({
           CLASS_NAME,
           'appearance-none',
           props.className,
-          !value && 'text-text-disabled'
+          !value && 'text-acc/40'
         )}
       >
-        <option value={'defaultValue'} disabled className="text-text-disabled">
+        <option value={'defaultValue'} disabled className="text-acc/40">
           {placeholderValue}
         </option>
         {options.map((x) => (
@@ -135,7 +135,7 @@ export const ResizibleGhostInput: React.FC<ResizibleGhostInputProps> = ({
         containerRef.current.dataset.value = ev.target.value
       }
     },
-    []
+    [onChange]
   )
   React.useEffect(() => {
     if (containerRef.current) {

@@ -28,7 +28,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        base: ['Arial', 'Helvetica', 'sans-serif'],
+        base: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Arial', 'sans-serif'],
       },
       lineHeight: {
         1: '1',

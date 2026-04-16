@@ -49,6 +49,12 @@ input:-webkit-autofill {
 }
 
 @layer base {
+  /* Inter variable font feature settings for maximum quality */
+  :root {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-variation-settings: normal;
+  }
+
   body {
     @apply font-base;
     background-color: var(--base-color);
@@ -71,8 +77,16 @@ input:-webkit-autofill {
     @apply font-base;
   }
 
+  /* Remove default browser outline for mouse/touch users */
   *:focus {
     @apply outline-none;
+  }
+
+  /* Restore accessible focus ring for keyboard navigation (WCAG 2.1) */
+  *:focus-visible {
+    outline: 2px solid rgb(var(--acc-color-default) / 0.35);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 }
 
