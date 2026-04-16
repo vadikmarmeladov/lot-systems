@@ -15,10 +15,10 @@
 
 import { atom } from 'nanostores'
 
-// Intention signals collected from all widgets
+// Intention signals collected from all widgets and background monitors
 export type IntentionSignal = {
   timestamp: number
-  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator'
+  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort'
   signal: string
   metadata?: Record<string, any>
 }
@@ -540,7 +540,7 @@ export function computeUserIndex(signals: IntentionSignal[]): UserIndex {
   // --- Engagement: breadth of widget sources used ---
   const uniqueSources = new Set(weekSignals.map(s => s.source))
   const sourceCount = uniqueSources.size
-  const totalSourceTypes = 7 // mood, memory, planner, intentions, selfcare, journal, calculator
+  const totalSourceTypes = 10 // mood, memory, planner, intentions, selfcare, journal, calculator, log, energy, cohort
   const engagement = Math.round(
     Math.min(100,
       (sourceCount / totalSourceTypes) * 50 +
@@ -739,4 +739,123 @@ export function forceSyncToServer(): Promise<boolean> {
     lastSyncedTimestamp: 0
   })
   return syncToServer()
+}
+
+// ─── Physiological Cohort Reporting ────────────────────────────────────────
+
+export type PhysiologicalReport = {
+  sessionDate: string
+  widgetDependencies: { widget: string; signalCount: number; lastSeen: string | null }[]
+  logDependencies: { source: string; signalCount: number }[]
+  biofieldStatus: {
+    energyLevel: string
+    clarity: string
+    alignment: string
+    supportNeeded: string
+  }
+  activePatterns: { pattern: string; confidence: number; action: string }[]
+  cohortSignals: { archetype: string | null; behavioralCohort: string | null }
+  systemHealth: 'nominal' | 'degraded' | 'critical'
+  generatedAt: number
+}
+
+/**
+ * Generate a physiological cohort report from current engine state.
+ * Surfaces widget dependency map, log-based signal audit, biofield status,
+ * and active pattern detections. Used by SystemProgressWidget self-assembly report.
+ */
+export function getPhysiologicalReport(): PhysiologicalReport {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+  const signals = state.signals
+  const weekSignals = signals.filter(s => now - s.timestamp < 7 * dayMs)
+
+  // Widget dependency map
+  const WIDGET_SOURCES: IntentionSignal['source'][] = [
+    'mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'calculator', 'energy', 'cohort'
+  ]
+  const widgetDependencies = WIDGET_SOURCES.map(source => {
+    const relevant = weekSignals.filter(s => s.source === source)
+    const last = relevant.length > 0
+      ? new Date(Math.max(...relevant.map(s => s.timestamp))).toISOString().slice(0, 10)
+      : null
+    return { widget: source, signalCount: relevant.length, lastSeen: last }
+  }).filter(w => w.signalCount > 0)
+
+  // Log-based signal dependency audit (non-widget sources)
+  const LOG_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort']
+  const logDependencies = LOG_SOURCES.map(source => ({
+    source,
+    signalCount: weekSignals.filter(s => s.source === source).length
+  })).filter(l => l.signalCount > 0)
+
+  // Biofield status from userState
+  const { energy, clarity, alignment, needsSupport } = state.userState
+  const biofieldStatus = {
+    energyLevel: energy,
+    clarity,
+    alignment,
+    supportNeeded: needsSupport
+  }
+
+  // Active patterns (top 5 by confidence)
+  const activePatterns = state.recognizedPatterns
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, 5)
+    .map(p => ({
+      pattern: p.pattern,
+      confidence: Math.round(p.confidence * 100),
+      action: p.suggestedWidget
+    }))
+
+  // Cohort signals from stored cohort metadata
+  const cohortSignals = weekSignals.filter(s => s.source === 'cohort')
+  const lastCohort = cohortSignals[cohortSignals.length - 1]
+  const cohortData = {
+    archetype: lastCohort?.metadata?.archetype ?? null,
+    behavioralCohort: lastCohort?.metadata?.behavioralCohort ?? null
+  }
+
+  // System health determination
+  const systemHealth: PhysiologicalReport['systemHealth'] =
+    needsSupport === 'critical' || energy === 'depleted' ? 'critical' :
+    needsSupport === 'moderate' || energy === 'low' ? 'degraded' :
+    'nominal'
+
+  return {
+    sessionDate: new Date().toISOString().slice(0, 10),
+    widgetDependencies,
+    logDependencies,
+    biofieldStatus,
+    activePatterns,
+    cohortSignals: cohortData,
+    systemHealth,
+    generatedAt: now
+  }
+}
+
+/**
+ * Record a cohort signal when archetype/behavioral cohort is determined
+ */
+export function recordCohortSignal(archetype: string, behavioralCohort: string) {
+  recordSignal('cohort', 'cohort_determined', { archetype, behavioralCohort })
+}
+
+/**
+ * Record an energy signal from the biofield capacitor
+ */
+export function recordEnergySignal(
+  status: string,
+  level: number,
+  trajectory: string
+) {
+  recordSignal('energy', `energy_${status}`, { level, trajectory, hour: new Date().getHours() })
+}
+
+/**
+ * Record a log-based signal for direct field entry activity
+ */
+export function recordLogSignal(wordCount: number, hasContext: boolean) {
+  recordSignal('log', 'field_entry', { wordCount, hasContext, hour: new Date().getHours() })
 }

@@ -4,6 +4,8 @@ import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { ProgressBars } from '#client/utils/progressBars'
 import { selfAssembly, phaseSymbol, phaseLabel, recomputeAssembly, type AssembledModule } from '#client/stores/selfAssembly'
+import { useEnergy } from '#client/queries'
+import { getPhysiologicalReport, analyzeIntentions, type PhysiologicalReport } from '#client/stores/intentionEngine'
 
 type FeedbackStatus = 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
 
@@ -33,7 +35,7 @@ interface FeedbackAnalytics {
   insights: string[]
 }
 
-type ProgressView = 'deployment' | 'assembly' | 'feedback'
+type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report'
 
 const FEEDBACK_OPTIONS = [
   { id: 'operational', label: 'Operational', symbol: '\u2191' },
@@ -57,6 +59,9 @@ export function SystemProgressWidget() {
   const [view, setView] = React.useState<ProgressView>('deployment')
 
   const assembly = useStore(selfAssembly)
+  const { data: energyData } = useEnergy()
+  const [cohortData, setCohortData] = React.useState<{ archetype?: string; behavioralCohort?: string } | null>(null)
+  const [report, setReport] = React.useState<PhysiologicalReport | null>(null)
 
   // Recompute assembly on mount and periodically
   React.useEffect(() => {
@@ -65,16 +70,34 @@ export function SystemProgressWidget() {
     return () => clearInterval(interval)
   }, [])
 
+  // Load physiological cohort classification
+  React.useEffect(() => {
+    fetch('/api/cohorts')
+      .then(res => res.json())
+      .then(data => {
+        if (data.archetype || data.behavioralCohort) {
+          setCohortData({ archetype: data.archetype, behavioralCohort: data.behavioralCohort })
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   const cycleView = () => {
     setView(prev => {
       switch (prev) {
         case 'deployment': return 'assembly'
         case 'assembly': return 'feedback'
-        case 'feedback': return 'deployment'
+        case 'feedback': return 'report'
+        case 'report': return 'deployment'
         default: return 'deployment'
       }
     })
   }
+
+  const handleGenerateReport = React.useCallback(() => {
+    analyzeIntentions()
+    setReport(getPhysiologicalReport())
+  }, [])
 
   // Load latest deployment info
   React.useEffect(() => {
@@ -162,7 +185,8 @@ export function SystemProgressWidget() {
   const label =
     view === 'deployment' ? 'System Progress:' :
     view === 'assembly' ? 'Self-Assembly:' :
-    'System Feedback:'
+    view === 'feedback' ? 'System Feedback:' :
+    'System Report:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>
@@ -254,6 +278,44 @@ export function SystemProgressWidget() {
                 ))}
               </div>
             </div>
+
+            {/* Physiological cohort in assembly view */}
+            {(cohortData || energyData?.energyState) && (
+              <div className="border-t border-acc-400/30 pt-16">
+                <div className="opacity-30 mb-8">Physiological cohort:</div>
+                <div className="flex flex-col gap-y-4">
+                  {cohortData?.archetype && (
+                    <div className="flex justify-between">
+                      <span className="opacity-30">Archetype</span>
+                      <span>{cohortData.archetype}</span>
+                    </div>
+                  )}
+                  {cohortData?.behavioralCohort && (
+                    <div className="flex justify-between">
+                      <span className="opacity-30">Cohort</span>
+                      <span>{cohortData.behavioralCohort}</span>
+                    </div>
+                  )}
+                  {energyData?.energyState && (
+                    <div className="flex justify-between">
+                      <span className="opacity-30">Biofield ATP</span>
+                      <span className="tabular-nums">
+                        {energyData.energyState.currentLevel}%
+                        {' '}<span className="opacity-30 capitalize">{energyData.energyState.trajectory}</span>
+                      </span>
+                    </div>
+                  )}
+                  {energyData?.energyState?.needsReplenishment?.[0] && (
+                    <div className="flex justify-between">
+                      <span className="opacity-30">Priority need</span>
+                      <span className="capitalize">
+                        {energyData.energyState.needsReplenishment[0].category}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Assembly narrative */}
             <div className="opacity-30 pt-8">
@@ -355,6 +417,156 @@ export function SystemProgressWidget() {
                 )}
               </div>
             )}
+          </>
+        )}
+
+        {/* ─── Self-Assembly Report View ─── */}
+        {view === 'report' && (
+          <>
+            <div>
+              <div className="opacity-30 mb-8">Self-assembly session report.</div>
+              {!report ? (
+                <button
+                  onClick={handleGenerateReport}
+                  className="opacity-30 hover:opacity-100 transition-opacity"
+                >
+                  Generate report →
+                </button>
+              ) : (
+                <div className="flex flex-col gap-y-16 font-mono text-xs">
+
+                  {/* Header */}
+                  <div className="flex flex-col gap-y-4">
+                    <div className="flex justify-between">
+                      <span className="opacity-30 uppercase tracking-widest">Date</span>
+                      <span className="tabular-nums">{report.sessionDate}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-30 uppercase tracking-widest">Sys health</span>
+                      <span className="uppercase tracking-widest">{report.systemHealth}</span>
+                    </div>
+                  </div>
+
+                  {/* Widget dependency audit */}
+                  {report.widgetDependencies.length > 0 && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">Widget signals · 7d</div>
+                      <div className="flex flex-col gap-y-2">
+                        {report.widgetDependencies.map(dep => (
+                          <div key={dep.widget} className="flex justify-between">
+                            <span className="opacity-50 uppercase">{dep.widget}</span>
+                            <span className="tabular-nums">
+                              {dep.signalCount}
+                              {dep.lastSeen && (
+                                <span className="opacity-30 ml-8">{dep.lastSeen}</span>
+                              )}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Log dependency audit */}
+                  {report.logDependencies.length > 0 && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">Log signals · 7d</div>
+                      <div className="flex flex-col gap-y-2">
+                        {report.logDependencies.map(dep => (
+                          <div key={dep.source} className="flex justify-between">
+                            <span className="opacity-50 uppercase">{dep.source}</span>
+                            <span className="tabular-nums">{dep.signalCount}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Biofield status */}
+                  <div className="border-t border-acc-400/30 pt-12">
+                    <div className="opacity-30 mb-8 uppercase tracking-widest">Biofield state</div>
+                    <div className="flex flex-col gap-y-2">
+                      <div className="flex justify-between">
+                        <span className="opacity-50 uppercase">Energy</span>
+                        <span className="capitalize">{report.biofieldStatus.energyLevel}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-50 uppercase">Clarity</span>
+                        <span className="capitalize">{report.biofieldStatus.clarity}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-50 uppercase">Alignment</span>
+                        <span className="capitalize">{report.biofieldStatus.alignment}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-50 uppercase">Support</span>
+                        <span className="capitalize">{report.biofieldStatus.supportNeeded}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Active patterns */}
+                  {report.activePatterns.length > 0 && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">Active patterns</div>
+                      <div className="flex flex-col gap-y-2">
+                        {report.activePatterns.map((p, idx) => (
+                          <div key={idx} className="flex justify-between">
+                            <span className="opacity-50 uppercase">{p.pattern.replace(/-/g, ' ')}</span>
+                            <span className="tabular-nums opacity-30">{p.confidence}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Cohort classification */}
+                  {(report.cohortSignals.archetype || report.cohortSignals.behavioralCohort || cohortData) && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">Physiological cohort</div>
+                      {(report.cohortSignals.archetype ?? cohortData?.archetype) && (
+                        <div className="flex justify-between mb-2">
+                          <span className="opacity-50 uppercase">Archetype</span>
+                          <span>{report.cohortSignals.archetype ?? cohortData?.archetype}</span>
+                        </div>
+                      )}
+                      {(report.cohortSignals.behavioralCohort ?? cohortData?.behavioralCohort) && (
+                        <div className="flex justify-between">
+                          <span className="opacity-50 uppercase">Cohort</span>
+                          <span>{report.cohortSignals.behavioralCohort ?? cohortData?.behavioralCohort}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Assembly state */}
+                  <div className="border-t border-acc-400/30 pt-12">
+                    <div className="opacity-30 mb-8 uppercase tracking-widest">Assembly state</div>
+                    <div className="flex flex-col gap-y-2">
+                      <div className="flex justify-between">
+                        <span className="opacity-50 uppercase">Modules</span>
+                        <span className="tabular-nums">{assembly.assembledCount}/{assembly.totalModules}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-50 uppercase">Progress</span>
+                        <span className="tabular-nums">{assembly.overallAssembly}%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="opacity-30 pt-4 uppercase tracking-widest border-t border-acc-400/20 pt-12">
+                    Generated {new Date(report.generatedAt).toISOString().replace('T', ' ').slice(0, 19)}Z
+                  </div>
+
+                  <button
+                    onClick={handleGenerateReport}
+                    className="opacity-30 hover:opacity-100 transition-opacity text-left"
+                  >
+                    Refresh report →
+                  </button>
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>

@@ -92,6 +92,9 @@ const SOURCE_MAP: Record<string, ModuleId[]> = {
   'selfcare':    ['selfcare'],
   'journal':     ['journal'],
   'calculator':  ['quantum'],
+  'log':         ['journal', 'quantum'],
+  'energy':      ['biofield', 'quantum'],
+  'cohort':      ['community', 'quantum'],
 }
 
 // Specific signal patterns that map to modules beyond their source
