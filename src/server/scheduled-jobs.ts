@@ -354,6 +354,136 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly Physiological Cohort Digest ──────────────────────────────────────
+
+let isWeeklyCohortJobRunning = false
+let lastWeeklyCohortRun: Date | null = null
+
+/**
+ * Runs on Mondays at 6 AM UTC.
+ * Analyzes energy state and cohort signals for active users
+ * and persists physiological classification to user metadata.
+ */
+function shouldRunWeeklyCohortJob(): boolean {
+  const now = dayjs()
+  const dayOfWeek = now.day() // 0 = Sunday, 1 = Monday
+
+  if (dayOfWeek !== 1) return false
+  if (isWeeklyCohortJobRunning) return false
+
+  if (lastWeeklyCohortRun) {
+    const lastRun = dayjs(lastWeeklyCohortRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+
+  return true
+}
+
+async function executeWeeklyCohortJob(): Promise<JobResult> {
+  const jobName = 'weekly-physiological-cohort-digest'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Physiological Cohort Digest')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyCohortJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { analyzeEnergyState } = await import('#server/utils/energy.js')
+    const { determineUserCohort } = await import('#server/utils/memory/cohort-determination.js')
+    const { extractTraits } = await import('#server/utils/memory/trait-extraction.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const thirtyDaysAgo = dayjs().subtract(30, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: {
+        lastSeenAt: { [Op.gte]: sevenDaysAgo },
+      },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`Processing ${activeUsers.length} active users...`)
+
+    const results = { total: activeUsers.length, processed: 0, skipped: 0, failed: 0 }
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: user.id,
+            createdAt: { [Op.gte]: thirtyDaysAgo },
+          },
+          order: [['createdAt', 'DESC']],
+          limit: 200,
+        })
+
+        if (logs.length < 3) {
+          results.skipped++
+          continue
+        }
+
+        const logData = logs.map((l: any) => l.toJSON())
+        const energyState = analyzeEnergyState(logData)
+
+        // Extract traits and determine cohort
+        const traitResult = await extractTraits(logData)
+        const cohort = determineUserCohort(
+          traitResult.traits,
+          traitResult.patterns,
+          traitResult.psychologicalDepth
+        )
+
+        // Persist to user metadata
+        const metadata = (user as any).metadata as any || {}
+        await (user as any).set({
+          metadata: {
+            ...metadata,
+            physiologicalCohort: {
+              archetype: cohort.archetype,
+              behavioralCohort: cohort.behavioralCohort,
+              description: cohort.description,
+              energyStatus: energyState.status,
+              energyTrajectory: energyState.trajectory,
+              computedAt: new Date().toISOString(),
+            },
+          }
+        }).save()
+
+        results.processed++
+        console.log(`  ${user.email}: ${cohort.archetype} / ${cohort.behavioralCohort} / ATP ${energyState.currentLevel}%`)
+      } catch (err: any) {
+        results.failed++
+        console.warn(`  ${(user as any).email}: failed — ${err.message}`)
+      }
+    }
+
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('COHORT JOB COMPLETE')
+    console.log(`   Processed: ${results.processed} / Skipped: ${results.skipped} / Failed: ${results.failed}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyCohortRun = new Date()
+    isWeeklyCohortJobRunning = false
+
+    return { jobName, executedAt, success: true, result: results }
+  } catch (error: any) {
+    console.error('Weekly cohort job failed:', error.message)
+    isWeeklyCohortJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -362,6 +492,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check monthly email job
   if (shouldRunMonthlyEmailJob()) {
     await executeMonthlyEmailJob()
+  }
+
+  // Check weekly cohort digest
+  if (shouldRunWeeklyCohortJob()) {
+    await executeWeeklyCohortJob()
   }
 }
 
@@ -381,6 +516,7 @@ export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
 export function initializeScheduledJobs(): void {
   console.log('⏰ Initializing scheduled job system...')
   console.log('   - Monthly emails: 9 AM UTC on 1st of each month')
+  console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -390,8 +526,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Only run at 9 AM UTC
-    if (hour === 9) {
+    // Monthly emails: 9 AM UTC; cohort digest: 6 AM UTC (Monday)
+    if (hour === 9 || hour === 6) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

@@ -37,6 +37,23 @@ interface FeedbackAnalytics {
 
 type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report'
 
+// Self-assembly session record — appended after each upgrade session
+const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] = [
+  {
+    date: '2026-04-17',
+    session: 'Quantum Engine Upgrade — v2',
+    assembled: [
+      'Widget dependency map (WIDGET_DEPENDENCY_MAP)',
+      'Log-based signal pipeline: energy / cohort / log sources',
+      'Physiological patterns 11–13 (depletion / recovery / ungrounded)',
+      'Military log interface: CARE / PLAN / INTENT / MOOD / SYS',
+      'PhysiologicalReport generation with biofield audit',
+      'Background cohort digest job (weekly)',
+      'Self-assembly session reporting initialized',
+    ],
+  },
+]
+
 const FEEDBACK_OPTIONS = [
   { id: 'operational', label: 'Operational', symbol: '\u2191' },
   { id: 'resonating', label: 'Resonating', symbol: '\u2194' },
@@ -237,6 +254,26 @@ export function SystemProgressWidget() {
             {/* Self-assembly narrative */}
             <div className="opacity-30">
               {assembly.narrative}
+            </div>
+
+            {/* Session reports — logged after each upgrade session */}
+            <div className="border-t border-acc-400/30 pt-16">
+              <div className="opacity-30 mb-8">Session logs:</div>
+              <div className="flex flex-col gap-y-16">
+                {SESSION_REPORTS.map((report) => (
+                  <div key={report.date} className="flex flex-col gap-y-4 font-mono text-xs">
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-50 uppercase tracking-widest">{report.session}</span>
+                      <span className="tabular-nums opacity-40">{report.date}</span>
+                    </div>
+                    <div className="flex flex-col gap-y-2 pl-4">
+                      {report.assembled.map((item, i) => (
+                        <div key={i} className="opacity-40">&gt; {item}</div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}

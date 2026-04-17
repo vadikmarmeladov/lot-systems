@@ -401,6 +401,55 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 11: Physiological depletion — multiple depleting moods + no self-care
+  const depletingMoods = recentSignals.filter(s =>
+    s.source === 'mood' && ['tired', 'exhausted', 'overwhelmed', 'anxious'].includes(s.signal)
+  )
+  const recentSelfCare = recentSignals.filter(s => s.source === 'selfcare')
+  if (depletingMoods.length >= 3 && recentSelfCare.length === 0) {
+    patterns.push({
+      pattern: 'physiological-depletion',
+      confidence: Math.min(depletingMoods.length / 4, 1),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'immediate',
+      reason: 'Physiological depletion detected. No recovery actions registered. Intervene.'
+    })
+  }
+
+  // Pattern 12: Recovery window — self-care completed + positive mood shift
+  const recentCare = recentSignals.filter(s =>
+    s.source === 'selfcare' && (now - s.timestamp) < 2 * 60 * 60 * 1000
+  )
+  const postCarePositive = recentSignals.filter(s =>
+    s.source === 'mood' &&
+    ['calm', 'peaceful', 'content', 'hopeful'].includes(s.signal) &&
+    (now - s.timestamp) < 1 * 60 * 60 * 1000
+  )
+  if (recentCare.length > 0 && postCarePositive.length > 0) {
+    patterns.push({
+      pattern: 'recovery-window',
+      confidence: 0.75,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: 'Recovery window open. High-fidelity reflection conditions met.'
+    })
+  }
+
+  // Pattern 13: Log activity without emotional grounding
+  const logSignals = recentSignals.filter(s => s.source === 'log')
+  const todayMoods = recentSignals.filter(s =>
+    s.source === 'mood' && (now - s.timestamp) < 12 * 60 * 60 * 1000
+  )
+  if (logSignals.length >= 3 && todayMoods.length === 0) {
+    patterns.push({
+      pattern: 'ungrounded-activity',
+      confidence: 0.6,
+      suggestedWidget: 'mood',
+      suggestedTiming: 'soon',
+      reason: 'Active log input. No biofield reading. Check in — what state are you operating from?'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -739,6 +788,37 @@ export function forceSyncToServer(): Promise<boolean> {
     lastSyncedTimestamp: 0
   })
   return syncToServer()
+}
+
+// ─── Widget Dependency Map ─────────────────────────────────────────────────
+
+/**
+ * Upstream signal sources each widget consumes.
+ * Enables cross-widget cascade invalidation and dependency tracing.
+ */
+export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
+  mood: [],
+  memory: ['mood', 'journal'],
+  planner: ['mood', 'intentions'],
+  intentions: ['mood', 'memory'],
+  selfcare: ['mood'],
+  journal: ['mood', 'planner'],
+  energy: ['mood', 'selfcare', 'journal'],
+  system: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+  calculator: [],
+  cohort: ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
+}
+
+/** Returns which signal sources a given widget depends on. */
+export function getWidgetDependencies(widget: string): string[] {
+  return WIDGET_DEPENDENCY_MAP[widget] ?? []
+}
+
+export type PhysiologicalCohort = {
+  label: string
+  energyBand: 'depleted' | 'low' | 'moderate' | 'high'
+  dominant: string
+  directive: string
 }
 
 // ─── Physiological Cohort Reporting ────────────────────────────────────────

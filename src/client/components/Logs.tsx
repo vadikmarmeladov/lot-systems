@@ -243,6 +243,38 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'self_care_complete' || log.event === 'self_care_completed') {
+          const action = log.metadata?.action as string | undefined
+          const practice = log.metadata?.practice as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CARE:" blockView>
+                <div className="uppercase tracking-widest">{action || practice || '— protocol executed'}</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'plan_set') {
+          const intent = log.metadata?.intent as string | undefined
+          const today = log.metadata?.today as string | undefined
+          const how = log.metadata?.how as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PLAN:" blockView>
+                {intent && <div>&gt; {intent}</div>}
+                {today && <div className="opacity-60">{today}</div>}
+                {how && <div className="opacity-40">{how}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'intention') {
+          const intention = log.metadata?.intention as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTENT:" blockView>
+                <div className="uppercase tracking-widest">{intention || log.text || '—'}</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'settings_change') {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
