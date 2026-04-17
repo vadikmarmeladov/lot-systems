@@ -81,14 +81,14 @@ export const Select: React.FC<SelectProps> = ({
       if (!onChange) return
       onChange(ev.target.value)
     },
-    [onChange, value]
+    [onChange]
   )
   let placeholderValue = placeholder ?? 'Select a value'
   return (
     <div className={cn(containerClassName)}>
       <select
         {...props}
-        value={value || 'defaultValue'}
+        value={value ?? 'defaultValue'}
         onChange={onChangeHandler}
         className={cn(
           CLASS_NAME,
@@ -135,7 +135,7 @@ export const ResizibleGhostInput: React.FC<ResizibleGhostInputProps> = ({
         containerRef.current.dataset.value = ev.target.value
       }
     },
-    []
+    [onChange]
   )
   React.useEffect(() => {
     if (containerRef.current) {

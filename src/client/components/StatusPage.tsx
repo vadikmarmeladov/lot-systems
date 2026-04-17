@@ -78,8 +78,8 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       }
 
       setLastUpdate(new Date())
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch status')
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch status')
       console.error('Status fetch error:', err)
     } finally {
       setLoading(false)

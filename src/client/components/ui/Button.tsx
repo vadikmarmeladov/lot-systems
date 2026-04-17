@@ -87,7 +87,7 @@ export const Button: React.FC<Props> = ({
       {...aProps}
       className={className}
       rel={
-        aProps.rel || (aProps.target === '_blank' ? 'noreferrer' : undefined)
+        aProps.rel || (aProps.target === '_blank' ? 'noopener noreferrer' : undefined)
       }
     />
   )
