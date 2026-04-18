@@ -328,6 +328,28 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'quantum_intent_signal') {
+          const pattern = log.metadata?.pattern as string | undefined
+          const source = log.metadata?.source as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          if (!pattern && !log.text) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QIE:" blockView>
+                {pattern && (
+                  <div className="uppercase tracking-widest mb-4">
+                    {pattern.replace(/-/g, ' ')}
+                  </div>
+                )}
+                {source && <div className="opacity-60">SRC: {source}</div>}
+                {confidence !== undefined && (
+                  <div className="opacity-40">
+                    CONF: {Math.round(confidence * 100)}%
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

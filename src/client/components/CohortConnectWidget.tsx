@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button } from '#client/components/ui'
-import { useCohorts, useEnergy } from '#client/queries'
+import { useCohorts, useEnergy, useProfile } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
 import { recordSignal, getUserState } from '#client/stores/intentionEngine'
@@ -18,10 +18,17 @@ export const CohortConnectWidget: React.FC = () => {
   const me = useStore(stores.me)
   const { data: cohortData, isLoading } = useCohorts()
   const { data: energyData } = useEnergy()
+  const { data: profileData } = useProfile()
   const [expandedMemberId, setExpandedMemberId] = React.useState<string | null>(null)
   const logCtx = useLogContext()
   const punctuation = usePunctuationContext()
   const hasRecordedRef = React.useRef(false)
+
+  // Resolved physiological classification from profile (server-derived archetype)
+  const physiologicalArchetype = profileData?.archetype
+  const physiologicalCohort = profileData?.behavioralCohort
+  const energyLevel = energyData?.energyState?.currentLevel
+  const energyTrajectory = energyData?.energyState?.trajectory
 
   // Record cohort widget view signal once. Include punctuation tone
   // so the intent engine can correlate cohort engagement with the
@@ -139,9 +146,41 @@ export const CohortConnectWidget: React.FC = () => {
   return (
     <Block label="Cohort:" blockView>
       <div>
+        {/* Physiological classification */}
+        {(physiologicalArchetype || physiologicalCohort) && (
+          <div className="mb-16">
+            <div className="opacity-30 mb-4 uppercase tracking-widest text-xs">Physiological profile</div>
+            <div className="flex flex-col gap-y-4">
+              {physiologicalArchetype && (
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">Archetype</span>
+                  <span>{physiologicalArchetype}</span>
+                </div>
+              )}
+              {physiologicalCohort && (
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">Cohort</span>
+                  <span>{physiologicalCohort}</span>
+                </div>
+              )}
+              {energyLevel !== undefined && (
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">ATP</span>
+                  <span className="tabular-nums">
+                    {energyLevel}%
+                    {energyTrajectory && (
+                      <span className="opacity-30 ml-8 capitalize">{energyTrajectory}</span>
+                    )}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Cohort name */}
         <div className="mb-16">
-          <div className="mb-4">Your cohort</div>
+          <div className="opacity-30 mb-4">Behavioral cohort</div>
           <div className="capitalize">{cohort}</div>
         </div>
 

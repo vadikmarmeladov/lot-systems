@@ -354,6 +354,124 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
   }
 }
 
+// ─── Daily QIE Pattern Analytics ─────────────────────────────────────────────
+
+let isDailyQIEJobRunning = false
+let lastDailyQIERun: Date | null = null
+
+/**
+ * Runs daily at 03:00 UTC.
+ * Compiles aggregate Quantum Intent Engine pattern statistics across
+ * active users whose signals were synced to the server.
+ * Results are logged for system monitoring — no user data is persisted.
+ */
+function shouldRunDailyQIEJob(): boolean {
+  const now = dayjs()
+  if (isDailyQIEJobRunning) return false
+  if (lastDailyQIERun) {
+    const lastRun = dayjs(lastDailyQIERun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyQIEJob(): Promise<JobResult> {
+  const jobName = 'daily-qie-pattern-analytics'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily QIE Pattern Analytics')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyQIEJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    // Users active in the last 24 hours
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 1000,
+    })
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+
+    // Aggregate quantum intent signals from synced logs
+    const qieLogs = await Log.findAll({
+      where: {
+        event: 'quantum_intent_signal' as any,
+        createdAt: { [Op.gte]: sevenDaysAgo },
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 10000,
+    })
+
+    // Tally pattern frequencies
+    const patternCounts: Record<string, number> = {}
+    const sourceCounts: Record<string, number> = {}
+    let totalSignals = 0
+
+    for (const log of qieLogs) {
+      const meta = (log as any).metadata || {}
+      const pattern = meta.pattern as string | undefined
+      const source = meta.source as string | undefined
+      if (pattern) patternCounts[pattern] = (patternCounts[pattern] || 0) + 1
+      if (source) sourceCounts[source] = (sourceCounts[source] || 0) + 1
+      totalSignals++
+    }
+
+    // Top 5 patterns by frequency
+    const topPatterns = Object.entries(patternCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+
+    console.log(`  Total QIE signals (7d): ${totalSignals}`)
+    console.log(`  Unique patterns detected: ${Object.keys(patternCounts).length}`)
+    console.log('')
+    console.log('  Top patterns:')
+    topPatterns.forEach(([pattern, count]) => {
+      console.log(`    ${pattern}: ${count}`)
+    })
+    console.log('')
+    console.log('  Source distribution:')
+    Object.entries(sourceCounts)
+      .sort(([, a], [, b]) => b - a)
+      .forEach(([source, count]) => {
+        console.log(`    ${source}: ${count}`)
+      })
+
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('QIE ANALYTICS JOB COMPLETE')
+    console.log(`   Signals: ${totalSignals} / Patterns: ${Object.keys(patternCounts).length} / Users: ${activeUsers.length}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyQIERun = new Date()
+    isDailyQIEJobRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { totalSignals, patternCount: Object.keys(patternCounts).length, activeUsers: activeUsers.length, topPatterns }
+    }
+  } catch (error: any) {
+    console.error('Daily QIE analytics job failed:', error.message)
+    isDailyQIEJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 // ─── Weekly Physiological Cohort Digest ──────────────────────────────────────
 
 let isWeeklyCohortJobRunning = false
@@ -498,6 +616,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyCohortJob()) {
     await executeWeeklyCohortJob()
   }
+
+  // Check daily QIE analytics
+  if (shouldRunDailyQIEJob()) {
+    await executeDailyQIEJob()
+  }
 }
 
 /**
@@ -517,6 +640,7 @@ export function initializeScheduledJobs(): void {
   console.log('⏰ Initializing scheduled job system...')
   console.log('   - Monthly emails: 9 AM UTC on 1st of each month')
   console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
+  console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -526,8 +650,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM UTC; cohort digest: 6 AM UTC (Monday)
-    if (hour === 9 || hour === 6) {
+    // Monthly emails: 9 AM UTC; cohort digest: 6 AM UTC (Monday); QIE analytics: 3 AM UTC
+    if (hour === 9 || hour === 6 || hour === 3) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
