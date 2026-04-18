@@ -78,25 +78,32 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
     const threeMonthsAgo = dayjs().subtract(3, 'month').toDate()
     const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
 
-    const activeUsers = await User.findAll({
-      where: {
-        // Must have joined 3+ months ago
-        joinedAt: {
-          [Op.lte]: threeMonthsAgo
+    let activeUsers: any[]
+    try {
+      activeUsers = await User.findAll({
+        where: {
+          // Must have joined 3+ months ago
+          joinedAt: {
+            [Op.lte]: threeMonthsAgo
+          },
+          // Must be recently active (within last 7 days — proxy for near-daily)
+          lastSeenAt: {
+            [Op.gte]: sevenDaysAgo
+          },
+          // Only send to users with Usership tag
+          tags: {
+            [Op.contains]: ['usership']
+          }
         },
-        // Must be recently active (within last 7 days — proxy for near-daily)
-        lastSeenAt: {
-          [Op.gte]: sevenDaysAgo
-        },
-        // Only send to users with Usership tag
-        tags: {
-          [Op.contains]: ['usership']
-        }
-      },
-      order: [['lastSeenAt', 'DESC']]
-    })
+        order: [['lastSeenAt', 'DESC']]
+      })
+    } catch (dbError: any) {
+      console.error('Failed to query active users:', dbError.message)
+      isMonthlyEmailJobRunning = false
+      return { jobName, executedAt, success: false, error: `User query failed: ${dbError.message}` }
+    }
 
-    console.log(`👥 Found ${activeUsers.length} active users (3+ months, near-daily)`)
+    console.log(`Found ${activeUsers.length} active users (3+ months, near-daily)`)
     console.log('')
 
     const results = {
@@ -139,21 +146,35 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
         }
 
         // Fetch user's logs
-        const logs = await Log.findAll({
-          where: { userId: user.id },
-          order: [['createdAt', 'DESC']],
-          limit: 1000
-        })
+        let logs: any[]
+        try {
+          logs = await Log.findAll({
+            where: { userId: user.id },
+            order: [['createdAt', 'DESC']],
+            limit: 1000
+          })
+        } catch (logError: any) {
+          results.failed++
+          results.details.push({
+            userId: user.id,
+            email: user.email,
+            status: 'failed',
+            error: `Log query failed: ${logError.message}`
+          })
+          console.log(`${user.email}: Failed to fetch logs - ${logError.message}`)
+          continue
+        }
 
         // Verify near-daily engagement over last 3 months
+        const threeMonthsAgoDate = dayjs().subtract(3, 'month')
         const threeMonthLogs = logs.filter((l: any) =>
-          dayjs(l.createdAt).isAfter(dayjs().subtract(3, 'month'))
+          dayjs(l.createdAt).isAfter(threeMonthsAgoDate)
         )
         const uniqueActiveDays = new Set(
           threeMonthLogs.map((l: any) => dayjs(l.createdAt).format('YYYY-MM-DD'))
         ).size
-        const totalDaysInPeriod = 90
-        const dailyRatio = uniqueActiveDays / totalDaysInPeriod
+        const totalDaysInPeriod = dayjs().diff(threeMonthsAgoDate, 'day')
+        const dailyRatio = totalDaysInPeriod > 0 ? uniqueActiveDays / totalDaysInPeriod : 0
 
         // Require ~everyday login: at least 60% of days active over 3 months
         if (dailyRatio < 0.6) {
@@ -283,6 +304,28 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
     console.log('━'.repeat(60))
     console.log('')
 
+    // Persist job result to database for audit trail
+    try {
+      // Find an admin user to associate the log entry with
+      const adminUser = await User.findOne({
+        where: { tags: { [Op.contains]: ['admin'] } }
+      })
+      if (adminUser) {
+        await Log.create({
+          userId: adminUser.id,
+          event: 'scheduled_job' as any,
+          text: `Monthly email job: ${results.sent} sent, ${results.skipped} skipped, ${results.failed} failed out of ${results.total}`,
+          metadata: {
+            jobName,
+            executedAt,
+            ...results
+          }
+        })
+      }
+    } catch (persistError: any) {
+      console.warn('Failed to persist job result to database:', persistError.message)
+    }
+
     lastMonthlyEmailRun = new Date()
     isMonthlyEmailJobRunning = false
 
@@ -311,6 +354,254 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
   }
 }
 
+// ─── Daily QIE Pattern Analytics ─────────────────────────────────────────────
+
+let isDailyQIEJobRunning = false
+let lastDailyQIERun: Date | null = null
+
+/**
+ * Runs daily at 03:00 UTC.
+ * Compiles aggregate Quantum Intent Engine pattern statistics across
+ * active users whose signals were synced to the server.
+ * Results are logged for system monitoring — no user data is persisted.
+ */
+function shouldRunDailyQIEJob(): boolean {
+  const now = dayjs()
+  if (isDailyQIEJobRunning) return false
+  if (lastDailyQIERun) {
+    const lastRun = dayjs(lastDailyQIERun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyQIEJob(): Promise<JobResult> {
+  const jobName = 'daily-qie-pattern-analytics'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily QIE Pattern Analytics')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyQIEJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    // Users active in the last 24 hours
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 1000,
+    })
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+
+    // Aggregate quantum intent signals from synced logs
+    const qieLogs = await Log.findAll({
+      where: {
+        event: 'quantum_intent_signal' as any,
+        createdAt: { [Op.gte]: sevenDaysAgo },
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 10000,
+    })
+
+    // Tally pattern frequencies
+    const patternCounts: Record<string, number> = {}
+    const sourceCounts: Record<string, number> = {}
+    let totalSignals = 0
+
+    for (const log of qieLogs) {
+      const meta = (log as any).metadata || {}
+      const pattern = meta.pattern as string | undefined
+      const source = meta.source as string | undefined
+      if (pattern) patternCounts[pattern] = (patternCounts[pattern] || 0) + 1
+      if (source) sourceCounts[source] = (sourceCounts[source] || 0) + 1
+      totalSignals++
+    }
+
+    // Top 5 patterns by frequency
+    const topPatterns = Object.entries(patternCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+
+    console.log(`  Total QIE signals (7d): ${totalSignals}`)
+    console.log(`  Unique patterns detected: ${Object.keys(patternCounts).length}`)
+    console.log('')
+    console.log('  Top patterns:')
+    topPatterns.forEach(([pattern, count]) => {
+      console.log(`    ${pattern}: ${count}`)
+    })
+    console.log('')
+    console.log('  Source distribution:')
+    Object.entries(sourceCounts)
+      .sort(([, a], [, b]) => b - a)
+      .forEach(([source, count]) => {
+        console.log(`    ${source}: ${count}`)
+      })
+
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('QIE ANALYTICS JOB COMPLETE')
+    console.log(`   Signals: ${totalSignals} / Patterns: ${Object.keys(patternCounts).length} / Users: ${activeUsers.length}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyQIERun = new Date()
+    isDailyQIEJobRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { totalSignals, patternCount: Object.keys(patternCounts).length, activeUsers: activeUsers.length, topPatterns }
+    }
+  } catch (error: any) {
+    console.error('Daily QIE analytics job failed:', error.message)
+    isDailyQIEJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Weekly Physiological Cohort Digest ──────────────────────────────────────
+
+let isWeeklyCohortJobRunning = false
+let lastWeeklyCohortRun: Date | null = null
+
+/**
+ * Runs on Mondays at 6 AM UTC.
+ * Analyzes energy state and cohort signals for active users
+ * and persists physiological classification to user metadata.
+ */
+function shouldRunWeeklyCohortJob(): boolean {
+  const now = dayjs()
+  const dayOfWeek = now.day() // 0 = Sunday, 1 = Monday
+
+  if (dayOfWeek !== 1) return false
+  if (isWeeklyCohortJobRunning) return false
+
+  if (lastWeeklyCohortRun) {
+    const lastRun = dayjs(lastWeeklyCohortRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+
+  return true
+}
+
+async function executeWeeklyCohortJob(): Promise<JobResult> {
+  const jobName = 'weekly-physiological-cohort-digest'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Physiological Cohort Digest')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyCohortJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { analyzeEnergyState } = await import('#server/utils/energy.js')
+    const { determineUserCohort } = await import('#server/utils/memory/cohort-determination.js')
+    const { extractTraits } = await import('#server/utils/memory/trait-extraction.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const thirtyDaysAgo = dayjs().subtract(30, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: {
+        lastSeenAt: { [Op.gte]: sevenDaysAgo },
+      },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`Processing ${activeUsers.length} active users...`)
+
+    const results = { total: activeUsers.length, processed: 0, skipped: 0, failed: 0 }
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: user.id,
+            createdAt: { [Op.gte]: thirtyDaysAgo },
+          },
+          order: [['createdAt', 'DESC']],
+          limit: 200,
+        })
+
+        if (logs.length < 3) {
+          results.skipped++
+          continue
+        }
+
+        const logData = logs.map((l: any) => l.toJSON())
+        const energyState = analyzeEnergyState(logData)
+
+        // Extract traits and determine cohort
+        const traitResult = await extractTraits(logData)
+        const cohort = determineUserCohort(
+          traitResult.traits,
+          traitResult.patterns,
+          traitResult.psychologicalDepth
+        )
+
+        // Persist to user metadata
+        const metadata = (user as any).metadata as any || {}
+        await (user as any).set({
+          metadata: {
+            ...metadata,
+            physiologicalCohort: {
+              archetype: cohort.archetype,
+              behavioralCohort: cohort.behavioralCohort,
+              description: cohort.description,
+              energyStatus: energyState.status,
+              energyTrajectory: energyState.trajectory,
+              computedAt: new Date().toISOString(),
+            },
+          }
+        }).save()
+
+        results.processed++
+        console.log(`  ${user.email}: ${cohort.archetype} / ${cohort.behavioralCohort} / ATP ${energyState.currentLevel}%`)
+      } catch (err: any) {
+        results.failed++
+        console.warn(`  ${(user as any).email}: failed — ${err.message}`)
+      }
+    }
+
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('COHORT JOB COMPLETE')
+    console.log(`   Processed: ${results.processed} / Skipped: ${results.skipped} / Failed: ${results.failed}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyCohortRun = new Date()
+    isWeeklyCohortJobRunning = false
+
+    return { jobName, executedAt, success: true, result: results }
+  } catch (error: any) {
+    console.error('Weekly cohort job failed:', error.message)
+    isWeeklyCohortJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -319,6 +610,16 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check monthly email job
   if (shouldRunMonthlyEmailJob()) {
     await executeMonthlyEmailJob()
+  }
+
+  // Check weekly cohort digest
+  if (shouldRunWeeklyCohortJob()) {
+    await executeWeeklyCohortJob()
+  }
+
+  // Check daily QIE analytics
+  if (shouldRunDailyQIEJob()) {
+    await executeDailyQIEJob()
   }
 }
 
@@ -338,6 +639,8 @@ export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
 export function initializeScheduledJobs(): void {
   console.log('⏰ Initializing scheduled job system...')
   console.log('   - Monthly emails: 9 AM UTC on 1st of each month')
+  console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
+  console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -347,8 +650,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Only run at 9 AM UTC
-    if (hour === 9) {
+    // Monthly emails: 9 AM UTC; cohort digest: 6 AM UTC (Monday); QIE analytics: 3 AM UTC
+    if (hour === 9 || hour === 6 || hour === 3) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

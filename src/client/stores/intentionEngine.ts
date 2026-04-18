@@ -15,10 +15,10 @@
 
 import { atom } from 'nanostores'
 
-// Intention signals collected from all widgets
+// Intention signals collected from all widgets and background monitors
 export type IntentionSignal = {
   timestamp: number
-  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator'
+  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort'
   signal: string
   metadata?: Record<string, any>
 }
@@ -41,9 +41,25 @@ export type IntentionPattern = {
   reason: string
 }
 
+// Accumulative User Index — aggregated from all widget signals
+export type UserIndex = {
+  overall: number          // 0-100, the single accumulative score
+  dimensions: {
+    engagement: number     // 0-100, frequency and breadth of widget interactions
+    emotional: number      // 0-100, emotional health from mood signals
+    intentional: number    // 0-100, planning + intention + direction
+    social: number         // 0-100, community connections and cohort
+    selfCare: number       // 0-100, cleanness + rest + care practices
+    cognitive: number      // 0-100, memory + journal + reflection depth
+  }
+  trend: 'rising' | 'stable' | 'declining'
+  lastComputed: number
+}
+
 type IntentionEngineState = {
   signals: IntentionSignal[]
   userState: UserState
+  userIndex: UserIndex
   recognizedPatterns: IntentionPattern[]
   lastAnalysis: number
   lastSyncedTimestamp: number
@@ -55,6 +71,20 @@ const ANALYSIS_COOLDOWN = 5 * 60 * 1000 // 5 minutes
 const SYNC_INTERVAL = 10 // Sync every 10 signals
 const SYNC_COOLDOWN = 5 * 60 * 1000 // Don't sync more than once per 5 minutes
 
+const DEFAULT_USER_INDEX: UserIndex = {
+  overall: 0,
+  dimensions: {
+    engagement: 0,
+    emotional: 0,
+    intentional: 0,
+    social: 0,
+    selfCare: 0,
+    cognitive: 0,
+  },
+  trend: 'stable',
+  lastComputed: 0
+}
+
 export const intentionEngine = atom<IntentionEngineState>({
   signals: [],
   userState: {
@@ -64,14 +94,26 @@ export const intentionEngine = atom<IntentionEngineState>({
     needsSupport: 'none',
     lastUpdated: 0
   },
+  userIndex: DEFAULT_USER_INDEX,
   recognizedPatterns: [],
   lastAnalysis: 0,
   lastSyncedTimestamp: 0
 })
 
-// Load signals from localStorage on init
+// Load signals and user index from localStorage on init
 if (typeof window !== 'undefined') {
   const stored = localStorage.getItem('intention-signals')
+  const storedIndex = localStorage.getItem('user-index')
+  let loadedIndex = DEFAULT_USER_INDEX
+
+  if (storedIndex) {
+    try {
+      loadedIndex = JSON.parse(storedIndex)
+    } catch (e) {
+      console.error('Failed to load user index:', e)
+    }
+  }
+
   if (stored) {
     try {
       const parsed = JSON.parse(stored)
@@ -82,12 +124,18 @@ if (typeof window !== 'undefined') {
       if (recentSignals.length > 0) {
         intentionEngine.set({
           ...intentionEngine.get(),
-          signals: recentSignals
+          signals: recentSignals,
+          userIndex: loadedIndex
         })
       }
     } catch (e) {
       console.error('Failed to load intention signals:', e)
     }
+  } else if (storedIndex) {
+    intentionEngine.set({
+      ...intentionEngine.get(),
+      userIndex: loadedIndex
+    })
   }
 }
 
@@ -193,7 +241,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: Math.min(anxiousMoods.length / 3, 1),
       suggestedWidget: 'selfcare',
       suggestedTiming: 'immediate',
-      reason: 'Multiple anxious check-ins detected - grounding practice recommended'
+      reason: 'Anxiety repeating. Break the cycle — ground yourself now.'
     })
   }
 
@@ -206,7 +254,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.7,
       suggestedWidget: 'planner',
       suggestedTiming: 'soon',
-      reason: 'Low energy without planning - structure might help'
+      reason: 'Tired without a plan. Structure creates energy.'
     })
   }
 
@@ -223,7 +271,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.8,
       suggestedWidget: 'intentions',
       suggestedTiming: 'next-session',
-      reason: 'No guiding intention - may need direction or purpose'
+      reason: 'No guiding intention set. Choose a direction.'
     })
   }
 
@@ -239,7 +287,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.9,
       suggestedWidget: 'memory',
       suggestedTiming: 'passive',
-      reason: 'High energy + planning active - great time for meaningful questions'
+      reason: 'Energy high, plans active. Capture this momentum.'
     })
   }
 
@@ -257,7 +305,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.85,
       suggestedWidget: 'selfcare',
       suggestedTiming: 'immediate',
-      reason: 'Evening overwhelm detected - gentle release practice needed'
+      reason: 'Evening overwhelm. Release before rest.'
     })
   }
 
@@ -271,7 +319,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.6,
       suggestedWidget: 'journal',
       suggestedTiming: 'next-session',
-      reason: 'Tracking moods consistently - ready for deeper reflection'
+      reason: 'You track moods but don\'t write. Go deeper.'
     })
   }
 
@@ -288,7 +336,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.75,
       suggestedWidget: 'intentions',
       suggestedTiming: 'immediate',
-      reason: 'Calm morning state - perfect for setting intention'
+      reason: 'Calm morning. Set one intention before it fades.'
     })
   }
 
@@ -305,7 +353,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.7,
       suggestedWidget: 'selfcare',
       suggestedTiming: 'soon',
-      reason: 'No cleanness or self-care activity in recent days — gentle re-engagement recommended'
+      reason: 'No self-care in days. Start small. One act.'
     })
   }
 
@@ -326,7 +374,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.65,
       suggestedWidget: 'selfcare',
       suggestedTiming: 'soon',
-      reason: 'Morning without cleanness activity — the first pillar anchors the day'
+      reason: 'Morning without cleanness. The first act anchors the day.'
     })
   }
 
@@ -349,18 +397,78 @@ export function analyzeIntentions(): IntentionPattern[] {
       confidence: 0.8,
       suggestedWidget: 'selfcare',
       suggestedTiming: 'immediate',
-      reason: 'Overwhelm subsiding — cleanness activity can anchor the recovery and rebuild order'
+      reason: 'Overwhelm passing. Clean one thing. Rebuild order from here.'
+    })
+  }
+
+  // Pattern 11: Physiological depletion — multiple depleting moods + no self-care
+  const depletingMoods = recentSignals.filter(s =>
+    s.source === 'mood' && ['tired', 'exhausted', 'overwhelmed', 'anxious'].includes(s.signal)
+  )
+  const recentSelfCare = recentSignals.filter(s => s.source === 'selfcare')
+  if (depletingMoods.length >= 3 && recentSelfCare.length === 0) {
+    patterns.push({
+      pattern: 'physiological-depletion',
+      confidence: Math.min(depletingMoods.length / 4, 1),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'immediate',
+      reason: 'Physiological depletion detected. No recovery actions registered. Intervene.'
+    })
+  }
+
+  // Pattern 12: Recovery window — self-care completed + positive mood shift
+  const recentCare = recentSignals.filter(s =>
+    s.source === 'selfcare' && (now - s.timestamp) < 2 * 60 * 60 * 1000
+  )
+  const postCarePositive = recentSignals.filter(s =>
+    s.source === 'mood' &&
+    ['calm', 'peaceful', 'content', 'hopeful'].includes(s.signal) &&
+    (now - s.timestamp) < 1 * 60 * 60 * 1000
+  )
+  if (recentCare.length > 0 && postCarePositive.length > 0) {
+    patterns.push({
+      pattern: 'recovery-window',
+      confidence: 0.75,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: 'Recovery window open. High-fidelity reflection conditions met.'
+    })
+  }
+
+  // Pattern 13: Log activity without emotional grounding
+  const logSignals = recentSignals.filter(s => s.source === 'log')
+  const todayMoods = recentSignals.filter(s =>
+    s.source === 'mood' && (now - s.timestamp) < 12 * 60 * 60 * 1000
+  )
+  if (logSignals.length >= 3 && todayMoods.length === 0) {
+    patterns.push({
+      pattern: 'ungrounded-activity',
+      confidence: 0.6,
+      suggestedWidget: 'mood',
+      suggestedTiming: 'soon',
+      reason: 'Active log input. No biofield reading. Check in — what state are you operating from?'
     })
   }
 
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
+  // Compute accumulative user index from all widget signals
+  const userIndex = computeUserIndex(signals)
+
+  // Persist user index to localStorage
+  try {
+    localStorage.setItem('user-index', JSON.stringify(userIndex))
+  } catch (e) {
+    console.warn('Failed to persist user index:', e)
+  }
+
   // Update state (preserve lastSyncedTimestamp from current state)
   const currentState = intentionEngine.get()
   intentionEngine.set({
     signals,
     userState,
+    userIndex,
     recognizedPatterns: patterns,
     lastAnalysis: now,
     lastSyncedTimestamp: currentState.lastSyncedTimestamp
@@ -432,6 +540,135 @@ function calculateUserState(signals: IntentionSignal[], now: number): UserState 
     needsSupport,
     lastUpdated: now
   }
+}
+
+/**
+ * Compute accumulative User Index from all widget signals
+ *
+ * Each dimension scores 0-100 based on signal frequency, diversity, and recency.
+ * The overall index is a weighted average of all dimensions.
+ * This gives a single number representing holistic user engagement and wellbeing.
+ */
+export function computeUserIndex(signals: IntentionSignal[]): UserIndex {
+  const now = Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+  const weekMs = 7 * dayMs
+
+  // Signals from last 7 days and last 24 hours
+  const weekSignals = signals.filter(s => now - s.timestamp < weekMs)
+  const daySignals = signals.filter(s => now - s.timestamp < dayMs)
+
+  // Helper: compute a dimension score from relevant signals with recency weighting
+  function dimensionScore(relevant: IntentionSignal[], maxDaily: number): number {
+    if (relevant.length === 0) return 0
+
+    // Count unique active days in the week
+    const activeDays = new Set(
+      relevant.map(s => new Date(s.timestamp).toDateString())
+    ).size
+
+    // Recency bonus: more recent signals count more
+    const recencyScore = relevant.reduce((sum, s) => {
+      const age = (now - s.timestamp) / dayMs
+      return sum + Math.max(0, 1 - age / 7) // 1.0 for today, 0 for 7 days ago
+    }, 0)
+
+    // Daily frequency normalized (cap at maxDaily per day)
+    const todayCount = daySignals.filter(s => relevant.includes(s)).length
+    const frequencyScore = Math.min(todayCount / maxDaily, 1)
+
+    // Combine: consistency (days active) + recency + frequency
+    const consistencyScore = activeDays / 7 // 0-1
+    const normalizedRecency = Math.min(recencyScore / (relevant.length || 1), 1)
+
+    return Math.round(
+      Math.min(100, (consistencyScore * 40 + normalizedRecency * 30 + frequencyScore * 30))
+    )
+  }
+
+  // --- Engagement: breadth of widget sources used ---
+  const uniqueSources = new Set(weekSignals.map(s => s.source))
+  const sourceCount = uniqueSources.size
+  const totalSourceTypes = 10 // mood, memory, planner, intentions, selfcare, journal, calculator, log, energy, cohort
+  const engagement = Math.round(
+    Math.min(100,
+      (sourceCount / totalSourceTypes) * 50 +
+      Math.min(weekSignals.length / 30, 1) * 30 +
+      Math.min(daySignals.length / 5, 1) * 20
+    )
+  )
+
+  // --- Emotional: mood tracking quality ---
+  const moodSignals = weekSignals.filter(s => s.source === 'mood')
+  const positiveMoods = moodSignals.filter(s =>
+    ['calm', 'peaceful', 'energized', 'hopeful', 'grateful', 'content', 'excited', 'fulfilled'].includes(s.signal)
+  )
+  const moodBase = dimensionScore(moodSignals, 3)
+  const positiveRatio = moodSignals.length > 0 ? positiveMoods.length / moodSignals.length : 0.5
+  const emotional = Math.round(moodBase * 0.6 + positiveRatio * 100 * 0.4)
+
+  // --- Intentional: planning + intentions + direction ---
+  const planSignals = weekSignals.filter(s => s.source === 'planner')
+  const intentionSignals = weekSignals.filter(s => s.source === 'intentions')
+  const intentionalSignals = [...planSignals, ...intentionSignals]
+  const hasActiveIntention = hasCurrentIntention()
+  const intentionalBase = dimensionScore(intentionalSignals, 2)
+  const intentional = Math.round(
+    Math.min(100, intentionalBase + (hasActiveIntention ? 20 : 0))
+  )
+
+  // --- Social: community interactions (cohort views, chat, messages) ---
+  const socialSignals = weekSignals.filter(s =>
+    s.signal.includes('cohort') ||
+    s.signal.includes('chat') ||
+    s.signal.includes('message') ||
+    s.signal.includes('connection') ||
+    s.signal.includes('community')
+  )
+  const social = dimensionScore(socialSignals, 3)
+
+  // --- Self-care: cleanness + rest + care practices ---
+  const selfCareSignals = weekSignals.filter(s => s.source === 'selfcare')
+  const selfCare = dimensionScore(selfCareSignals, 3)
+
+  // --- Cognitive: memory + journal + reflection depth ---
+  const memorySignals = weekSignals.filter(s => s.source === 'memory')
+  const journalSignals = weekSignals.filter(s => s.source === 'journal')
+  const cognitiveSignals = [...memorySignals, ...journalSignals]
+  const cognitive = dimensionScore(cognitiveSignals, 3)
+
+  // --- Overall: weighted average of all dimensions ---
+  const overall = Math.round(
+    engagement * 0.15 +
+    emotional * 0.25 +
+    intentional * 0.20 +
+    social * 0.10 +
+    selfCare * 0.15 +
+    cognitive * 0.15
+  )
+
+  // --- Trend: compare current week to previous stored index ---
+  const previousIndex = intentionEngine.get().userIndex
+  let trend: UserIndex['trend'] = 'stable'
+  if (previousIndex.lastComputed > 0) {
+    const delta = overall - previousIndex.overall
+    if (delta >= 5) trend = 'rising'
+    else if (delta <= -5) trend = 'declining'
+  }
+
+  return {
+    overall,
+    dimensions: { engagement, emotional, intentional, social, selfCare, cognitive },
+    trend,
+    lastComputed: now
+  }
+}
+
+/**
+ * Get the current User Index
+ */
+export function getUserIndex(): UserIndex {
+  return intentionEngine.get().userIndex
 }
 
 /**
@@ -515,6 +752,7 @@ export async function syncToServer(): Promise<boolean> {
       body: JSON.stringify({
         signals: unsyncedSignals,
         userState: state.userState,
+        userIndex: state.userIndex,
         recognizedPatterns: state.recognizedPatterns
       })
     })
@@ -550,4 +788,154 @@ export function forceSyncToServer(): Promise<boolean> {
     lastSyncedTimestamp: 0
   })
   return syncToServer()
+}
+
+// ─── Widget Dependency Map ─────────────────────────────────────────────────
+
+/**
+ * Upstream signal sources each widget consumes.
+ * Enables cross-widget cascade invalidation and dependency tracing.
+ */
+export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
+  mood: [],
+  memory: ['mood', 'journal'],
+  planner: ['mood', 'intentions'],
+  intentions: ['mood', 'memory'],
+  selfcare: ['mood'],
+  journal: ['mood', 'planner'],
+  energy: ['mood', 'selfcare', 'journal'],
+  system: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+  calculator: [],
+  cohort: ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
+}
+
+/** Returns which signal sources a given widget depends on. */
+export function getWidgetDependencies(widget: string): string[] {
+  return WIDGET_DEPENDENCY_MAP[widget] ?? []
+}
+
+export type PhysiologicalCohort = {
+  label: string
+  energyBand: 'depleted' | 'low' | 'moderate' | 'high'
+  dominant: string
+  directive: string
+}
+
+// ─── Physiological Cohort Reporting ────────────────────────────────────────
+
+export type PhysiologicalReport = {
+  sessionDate: string
+  widgetDependencies: { widget: string; signalCount: number; lastSeen: string | null }[]
+  logDependencies: { source: string; signalCount: number }[]
+  biofieldStatus: {
+    energyLevel: string
+    clarity: string
+    alignment: string
+    supportNeeded: string
+  }
+  activePatterns: { pattern: string; confidence: number; action: string }[]
+  cohortSignals: { archetype: string | null; behavioralCohort: string | null }
+  systemHealth: 'nominal' | 'degraded' | 'critical'
+  generatedAt: number
+}
+
+/**
+ * Generate a physiological cohort report from current engine state.
+ * Surfaces widget dependency map, log-based signal audit, biofield status,
+ * and active pattern detections. Used by SystemProgressWidget self-assembly report.
+ */
+export function getPhysiologicalReport(): PhysiologicalReport {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const dayMs = 24 * 60 * 60 * 1000
+  const signals = state.signals
+  const weekSignals = signals.filter(s => now - s.timestamp < 7 * dayMs)
+
+  // Widget dependency map
+  const WIDGET_SOURCES: IntentionSignal['source'][] = [
+    'mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'calculator', 'energy', 'cohort'
+  ]
+  const widgetDependencies = WIDGET_SOURCES.map(source => {
+    const relevant = weekSignals.filter(s => s.source === source)
+    const last = relevant.length > 0
+      ? new Date(Math.max(...relevant.map(s => s.timestamp))).toISOString().slice(0, 10)
+      : null
+    return { widget: source, signalCount: relevant.length, lastSeen: last }
+  }).filter(w => w.signalCount > 0)
+
+  // Log-based signal dependency audit (non-widget sources)
+  const LOG_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort']
+  const logDependencies = LOG_SOURCES.map(source => ({
+    source,
+    signalCount: weekSignals.filter(s => s.source === source).length
+  })).filter(l => l.signalCount > 0)
+
+  // Biofield status from userState
+  const { energy, clarity, alignment, needsSupport } = state.userState
+  const biofieldStatus = {
+    energyLevel: energy,
+    clarity,
+    alignment,
+    supportNeeded: needsSupport
+  }
+
+  // Active patterns (top 5 by confidence)
+  const activePatterns = state.recognizedPatterns
+    .sort((a, b) => b.confidence - a.confidence)
+    .slice(0, 5)
+    .map(p => ({
+      pattern: p.pattern,
+      confidence: Math.round(p.confidence * 100),
+      action: p.suggestedWidget
+    }))
+
+  // Cohort signals from stored cohort metadata
+  const cohortSignals = weekSignals.filter(s => s.source === 'cohort')
+  const lastCohort = cohortSignals[cohortSignals.length - 1]
+  const cohortData = {
+    archetype: lastCohort?.metadata?.archetype ?? null,
+    behavioralCohort: lastCohort?.metadata?.behavioralCohort ?? null
+  }
+
+  // System health determination
+  const systemHealth: PhysiologicalReport['systemHealth'] =
+    needsSupport === 'critical' || energy === 'depleted' ? 'critical' :
+    needsSupport === 'moderate' || energy === 'low' ? 'degraded' :
+    'nominal'
+
+  return {
+    sessionDate: new Date().toISOString().slice(0, 10),
+    widgetDependencies,
+    logDependencies,
+    biofieldStatus,
+    activePatterns,
+    cohortSignals: cohortData,
+    systemHealth,
+    generatedAt: now
+  }
+}
+
+/**
+ * Record a cohort signal when archetype/behavioral cohort is determined
+ */
+export function recordCohortSignal(archetype: string, behavioralCohort: string) {
+  recordSignal('cohort', 'cohort_determined', { archetype, behavioralCohort })
+}
+
+/**
+ * Record an energy signal from the biofield capacitor
+ */
+export function recordEnergySignal(
+  status: string,
+  level: number,
+  trajectory: string
+) {
+  recordSignal('energy', `energy_${status}`, { level, trajectory, hour: new Date().getHours() })
+}
+
+/**
+ * Record a log-based signal for direct field entry activity
+ */
+export function recordLogSignal(wordCount: number, hasContext: boolean) {
+  recordSignal('log', 'field_entry', { wordCount, hasContext, hour: new Date().getHours() })
 }

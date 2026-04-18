@@ -20,7 +20,8 @@ export {
 
 // Trait extraction
 export {
-  extractUserTraits
+  extractUserTraits,
+  calculateCorrelatedIndexes
 } from './trait-extraction.js'
 
 // Cohort determination
@@ -52,6 +53,7 @@ export {
 export type {
   TraitExtractionResult,
   PsychologicalDepth,
+  CorrelatedIndexSnapshot,
   CohortClassification,
   PacingResult,
   QuantumState

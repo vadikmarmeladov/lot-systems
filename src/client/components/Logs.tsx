@@ -15,6 +15,12 @@ import {
   USER_SETTING_NAME_BY_ID,
 } from '#shared/constants'
 import { toCelsius } from '#shared/utils'
+import {
+  playKeyClick,
+  playSynthActivationChime,
+  playSynthDeactivationChime,
+} from '#client/utils/sovietKeyboard'
+import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -105,7 +111,7 @@ export const Logs: React.FC = () => {
   }, [logIds])
 
   const dateFormat = React.useMemo(() => {
-    return isTimeFormat12h ? 'h:mm:ss A (M/D/YY)' : 'H:mm:ss (D/M/YY)'
+    return isTimeFormat12h ? 'h:mm:ss A (M/D/YY)' : 'HH:mm:ss[Z] DD/MM/YY'
   }, [isTimeFormat12h])
 
   // Memoize onChange for primary log to prevent excessive re-renders
@@ -187,10 +193,10 @@ export const Logs: React.FC = () => {
         if (log.event === 'answer') {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="Memory:" blockView>
+              <Block label="MEM:" blockView>
                 {log.metadata.question as string}
               </Block>
-              <Block label="Me:" blockView>
+              <Block label="OUT:" blockView>
                 {log.metadata.answer as string}
               </Block>
             </LogContainer>
@@ -198,7 +204,7 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'chat_message') {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="Sync:" blockView>
+              <Block label="COMM:" blockView>
                 {log.metadata.message as string}
               </Block>
             </LogContainer>
@@ -206,8 +212,8 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'chat_message_like') {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="Sync:" blockView>
-                Upvoted message:{'\n'}{log.metadata.message as string}
+              <Block label="COMM:" blockView>
+                ACK{'\n'}{log.metadata.message as string}
               </Block>
             </LogContainer>
           )
@@ -217,31 +223,62 @@ export const Logs: React.FC = () => {
           const note = log.metadata?.note as string
           const insights = log.metadata?.insights as string[] | undefined
 
-          const timeLabel =
-            checkInType === 'morning' ? 'Morning' :
-            checkInType === 'evening' ? 'Evening' :
-            'Moment'
+          const sector =
+            checkInType === 'morning' ? '0600' :
+            checkInType === 'evening' ? '1800' :
+            'SPOT'
 
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="Mood:" blockView>
-                <div className="mb-8 capitalize">{emotionalState}</div>
+              <Block label={`BIO [${sector}]:`} blockView>
+                <div className="mb-8 uppercase tracking-widest">{emotionalState}</div>
                 {note && <div className="mb-8">{note}</div>}
                 {insights && insights.length > 0 && (
                   <div>
                     {insights.map((insight, idx) => (
-                      <div key={idx}>. {insight}</div>
+                      <div key={idx}>· {insight}</div>
                     ))}
                   </div>
                 )}
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'self_care_complete' || log.event === 'self_care_completed') {
+          const action = log.metadata?.action as string | undefined
+          const practice = log.metadata?.practice as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CARE:" blockView>
+                <div className="uppercase tracking-widest">{action || practice || '— protocol executed'}</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'plan_set') {
+          const intent = log.metadata?.intent as string | undefined
+          const today = log.metadata?.today as string | undefined
+          const how = log.metadata?.how as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PLAN:" blockView>
+                {intent && <div>&gt; {intent}</div>}
+                {today && <div className="opacity-60">{today}</div>}
+                {how && <div className="opacity-40">{how}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'intention') {
+          const intention = log.metadata?.intention as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTENT:" blockView>
+                <div className="uppercase tracking-widest">{intention || log.text || '—'}</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'settings_change') {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="Settings:" blockView>
-                {/* TODO: refactor */}
+              <Block label="CFG:" blockView>
                 {USER_SETTING_NAMES.map((x) => {
                   const change = (log.metadata as LogSettingsChangeMetadata)
                     .changes[x]
@@ -258,8 +295,8 @@ export const Logs: React.FC = () => {
                   return (
                     <div key={x}>
                       {USER_SETTING_NAME_BY_ID[x]}:{' '}
-                      {from || <Unknown>None</Unknown>} →{' '}
-                      {to || <Unknown>None</Unknown>}
+                      {from || <Unknown>—</Unknown>} →{' '}
+                      {to || <Unknown>—</Unknown>}
                     </div>
                   )
                 })}
@@ -269,35 +306,55 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'system_snapshot') {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="System:" blockView>
+              <Block label="SYS:" blockView>
                 {log.context?.city && (
                   <div>
-                    Location: {log.context.city}
+                    POS: {log.context.city}
                     {log.context.country && `, ${log.context.country}`}
                   </div>
                 )}
                 {log.context?.temperature && (
-                  <div>Temperature: {Math.round(toCelsius(log.context.temperature))}°C</div>
+                  <div>TMP: {Math.round(toCelsius(log.context.temperature))}°C</div>
                 )}
                 {log.context?.humidity && (
-                  <div>Humidity: {log.context.humidity}%</div>
+                  <div>HUM: {log.context.humidity}%</div>
                 )}
                 {log.metadata?.sound && (
-                  <div>Sound: {log.metadata.sound}</div>
+                  <div>SND: {log.metadata.sound}</div>
                 )}
                 {log.metadata?.theme?.theme && (
-                  <div>Theme: {log.metadata.theme.theme}</div>
+                  <div>THM: {log.metadata.theme.theme}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_intent_signal') {
+          const pattern = log.metadata?.pattern as string | undefined
+          const source = log.metadata?.source as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          if (!pattern && !log.text) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QIE:" blockView>
+                {pattern && (
+                  <div className="uppercase tracking-widest mb-4">
+                    {pattern.replace(/-/g, ' ')}
+                  </div>
+                )}
+                {source && <div className="opacity-60">SRC: {source}</div>}
+                {confidence !== undefined && (
+                  <div className="opacity-40">
+                    CONF: {Math.round(confidence * 100)}%
+                  </div>
                 )}
               </Block>
             </LogContainer>
           )
         } else if (log.event !== 'note') {
-          // Non-note events without explicit handlers (quantum_intent_signal,
-          // system_feedback, direct_message_sent, etc.) — render as read-only
           if (!log.text) return null
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="Log:" blockView>
+              <Block label="LOG:" blockView>
                 {log.text}
               </Block>
             </LogContainer>
@@ -443,9 +500,23 @@ const NoteEditor = ({
   }, [])
 
   // Handle Enter key - allow newlines, Cmd/Ctrl+Enter to save
+  // Also plays the Soviet synth keyboard click on every keystroke
+  // when enabled via Settings or the 🎹 / /synth triggers.
   // Using refs to avoid recreating callback
   const onKeyDown = React.useCallback(
     (ev: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      // Fire the keyboard click for printable keys, space, Enter, Backspace.
+      // We skip modifier-only presses and navigation keys so the sound
+      // never feels like a machine gun (Arrow keys during scrolling).
+      if (stores.isKeyboardSoundOn.get()) {
+        const k = ev.key
+        const isPrintable =
+          k.length === 1 || k === 'Enter' || k === 'Backspace' || k === 'Tab' || k === ' '
+        if (isPrintable && !ev.metaKey && !ev.ctrlKey) {
+          try { playKeyClick(k) } catch {}
+        }
+      }
+
       if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) {
         ev.preventDefault()
         if (valueRef.current !== logTextRef.current) {
@@ -460,6 +531,33 @@ const NoteEditor = ({
     },
     [primary]
   )
+
+  // --------------------------------------------------------------------
+  // Inline trigger detection: 🎹 emoji or /synth keyword toggles the
+  // Soviet keyboard sound; other triggers (listed in logTriggers.ts)
+  // are detected here so future modes can hook in without touching
+  // the editor. We compare against the previous value via ref so
+  // editing around an existing trigger doesn't re-fire it.
+  // --------------------------------------------------------------------
+  const lastTriggerScanRef = React.useRef('')
+  React.useEffect(() => {
+    const fresh = detectNewTriggers(value, lastTriggerScanRef.current)
+    lastTriggerScanRef.current = value
+    if (fresh.length === 0) return
+
+    for (const trigger of fresh as LogTrigger[]) {
+      if (trigger === 'toggle-synth') {
+        const next = !stores.isKeyboardSoundOn.get()
+        stores.isKeyboardSoundOn.set(next)
+        try {
+          if (next) playSynthActivationChime()
+          else playSynthDeactivationChime()
+        } catch {}
+      }
+      // Other triggers are detected but intentionally a no-op here —
+      // the brainstorm list above will wire them in as dedicated PRs.
+    }
+  }, [value])
 
   const contextText = React.useMemo(() => {
     if (!log?.context) return ''
@@ -535,7 +633,7 @@ const NoteEditor = ({
           onChange={setValue}
           onKeyDown={onKeyDown}
           placeholder={
-            !primary ? 'The log record will be deleted' : 'Type here...'
+            !primary ? '[ record cleared on empty ]' : '[ FIELD ENTRY ]'
           }
           className={cn(
             'max-w-[700px] focus:opacity-100 group-hover:opacity-100',

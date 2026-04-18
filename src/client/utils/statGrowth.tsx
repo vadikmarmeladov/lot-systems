@@ -71,15 +71,15 @@ export function updateStatSnapshot(stats: Record<string, number>): void {
 }
 
 /**
- * Get growth indicator component (arrow up)
+ * Get growth indicator component (↗ upward trend arrow)
  */
 export function GrowthIndicator() {
   return (
     <span
       className="ml-2 opacity-30"
-      title="Growing since last session"
+      title="↑ Growing since last session"
     >
-      ↑
+      ↗
     </span>
   )
 }

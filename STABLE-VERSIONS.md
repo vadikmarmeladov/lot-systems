@@ -79,6 +79,47 @@ git checkout stable-v1.1.0-2026-03-09
 
 ---
 
+## Stable Version: v1.2.0
+**Date**: 3 April 2026, PST
+**Tag**: `stable-v1.2.0-2026-04-03`
+**Commit**: `102dfc7`
+**Branch**: `claude/quantum-engine-widgets-RgFfC`
+
+### Features Included
+- ✅ Quantum Intention Engine with 10 recognized patterns and 7 signal sources
+- ✅ 44 widgets fully wired with WidgetErrorBoundary crash isolation
+- ✅ MicroGameWidget: 64×64 pixel monochromatic game screen (Tetris/Invaders/Snake)
+- ✅ MicroCalculatorWidget: ASCII calculator at magical times
+- ✅ CosmicUpdateWidget: Together AI image generation
+- ✅ Evolution system with 7D state tracking and CSS variable injection
+- ✅ Community Pulse atmosphere layer with convergence signals
+- ✅ Pattern Recognition, Cohort Connect, and Chat Catalyst widgets
+- ✅ Self-care cleanness module with QIE-driven visibility gating
+- ✅ Signal persistence to localStorage + periodic server sync
+- ✅ Responsive layout detection (Mobile/Tablet/Desktop)
+- ✅ New layout with proper stack organization and spacing
+- ✅ All previous v1.1.0 features intact
+
+### Rollback Instructions
+```bash
+git tag -l "stable-v1.2.0-2026-04-03" -n50
+git checkout stable-v1.2.0-2026-04-03
+```
+
+### Testing Status
+- ✅ All 44 widgets wired and rendering correctly
+- ✅ Quantum Intention Engine signal flow verified
+- ✅ WidgetErrorBoundary isolation on all stacks
+- ✅ Layout stacks properly organized (15 sections)
+- ✅ Evolution sync and streak calculation working
+- ✅ Recipe/Planner visibility gating verified
+
+### Production Status
+**Status**: Ready for production deployment
+**Verified**: ✅ Stable
+
+---
+
 ## How to Add New Stable Versions
 
 When marking a new stable version, follow this pattern:
@@ -103,4 +144,4 @@ Brief description of what's included and why it's stable.
 
 ---
 
-**Last Updated**: 9 March 2026
+**Last Updated**: 3 April 2026

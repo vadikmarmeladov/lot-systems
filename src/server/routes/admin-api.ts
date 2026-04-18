@@ -9,6 +9,7 @@ import dayjs from '../utils/dayjs.js'
 import { Umzug, SequelizeStorage } from 'umzug'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { escapeHtml } from '../utils/security.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -68,8 +69,8 @@ export default async (fastify: FastifyInstance) => {
       <body>
         <div class="info">
           <h1 style="color: green; margin: 0 0 20px 0;">Admin API Routes Working!</h1>
-          <p>User: ${req.user.email}</p>
-          <p>Tags: ${req.user.tags.join(', ')}</p>
+          <p>User: ${escapeHtml(req.user.email)}</p>
+          <p>Tags: ${escapeHtml(req.user.tags.join(', '))}</p>
           <p>Timestamp: ${new Date().toISOString()}</p>
 
           <div class="note">

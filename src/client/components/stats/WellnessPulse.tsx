@@ -31,7 +31,7 @@ export function WellnessPulse() {
         <div className="mb-16">
           <div className="opacity-30 mb-4">Active now</div>
           <div className="flex items-baseline gap-4">
-            <span className="tabular-nums">{stats.activeNow} users</span>
+            <span className="tabular-nums">{stats.activeNow.toLocaleString()} users</span>
             {hasGrown('activeNow', stats.activeNow) && <GrowthIndicator />}
           </div>
         </div>
@@ -41,21 +41,21 @@ export function WellnessPulse() {
           <div className="flex justify-between items-baseline">
             <span className="opacity-30">Questions</span>
             <span className="flex items-center gap-4">
-              <span className="tabular-nums">{stats.questionsToday}</span>
+              <span className="tabular-nums">{stats.questionsToday.toLocaleString()}</span>
               {hasGrown('questionsToday', stats.questionsToday) && <GrowthIndicator />}
             </span>
           </div>
           <div className="flex justify-between items-baseline">
             <span className="opacity-30">Reflections</span>
             <span className="flex items-center gap-4">
-              <span className="tabular-nums">{stats.reflectionsToday}</span>
+              <span className="tabular-nums">{stats.reflectionsToday.toLocaleString()}</span>
               {hasGrown('reflectionsToday', stats.reflectionsToday) && <GrowthIndicator />}
             </span>
           </div>
           <div className="flex justify-between items-baseline">
             <span className="opacity-30">Care moments</span>
             <span className="flex items-center gap-4">
-              <span className="tabular-nums">{stats.careMomentsToday}</span>
+              <span className="tabular-nums">{stats.careMomentsToday.toLocaleString()}</span>
               {hasGrown('careMomentsToday', stats.careMomentsToday) && <GrowthIndicator />}
             </span>
           </div>

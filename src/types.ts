@@ -205,7 +205,6 @@ export type Color =
   | 'yellow'
   | 'red'
   | 'blue'
-  | 'gray'
   | 'purple'
   | 'transparent'
 

@@ -66,25 +66,25 @@ export function UserMetricsWidget() {
           {/* Uptime */}
           <div className="flex justify-between items-baseline mb-8">
             <span className="opacity-30">Uptime</span>
-            <span className="tabular-nums">{status.uptime} day{status.uptime === 1 ? '' : 's'}</span>
+            <span className="tabular-nums">{status.uptime.toLocaleString()} day{status.uptime === 1 ? '' : 's'}</span>
           </div>
 
           {/* Streak - cross-reference with log-derived streak */}
           <div className="flex justify-between items-baseline mb-8">
             <span className="opacity-30">Streak</span>
-            <span className="tabular-nums">{status.streak} day{status.streak === 1 ? '' : 's'}</span>
+            <span className="tabular-nums">{status.streak.toLocaleString()} day{status.streak === 1 ? '' : 's'}</span>
           </div>
 
           {/* Interactions */}
           <div className="flex justify-between items-baseline mb-8">
             <span className="opacity-30">Interactions</span>
-            <span className="tabular-nums">{status.metrics.totalInteractions}</span>
+            <span className="tabular-nums">{status.metrics.totalInteractions.toLocaleString()}</span>
           </div>
 
           {/* Biofeedback loop context */}
           {!logCtx.isEmpty && (
             <div className="opacity-30 mt-8">
-              {logCtx.todayActivity.length} signal{logCtx.todayActivity.length === 1 ? '' : 's'} today • {logCtx.activeModules.length}/6 CQGS modules active
+              {logCtx.todayActivity.length.toLocaleString()} signal{logCtx.todayActivity.length === 1 ? '' : 's'} today • {logCtx.activeModules.length}/6 CQGS modules active
             </div>
           )}
         </div>
@@ -132,7 +132,7 @@ export function UserMetricsWidget() {
         <div>
           <div className="opacity-30">
             Insufficient biofeedback for performance benchmarks.
-            {!logCtx.isEmpty && logCtx.totalEntries < 10 ? ` ${logCtx.totalEntries} entries logged. Continue input.` : ''}
+            {!logCtx.isEmpty && logCtx.totalEntries < 10 ? ` ${logCtx.totalEntries.toLocaleString()} entries logged. Continue input.` : ''}
           </div>
         </div>
       )}
@@ -169,7 +169,7 @@ export function UserMetricsWidget() {
           {!logCtx.isEmpty && (
             <div className="opacity-30 mt-8">
               Engagement: <span className="capitalize">{logCtx.engagementLevel}</span>
-              {logCtx.widgetDiversity > 0 ? ` • ${logCtx.widgetDiversity} event types` : ''}
+              {logCtx.widgetDiversity > 0 ? ` • ${logCtx.widgetDiversity.toLocaleString()} event types` : ''}
             </div>
           )}
         </div>

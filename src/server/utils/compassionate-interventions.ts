@@ -164,9 +164,9 @@ export function generateCompassionateInterventions(userState: UserState): Interv
     interventions.push({
       type: 'urgent_care',
       severity: 'critical',
-      title: 'Please pause',
-      message: `I see you're carrying something heavy. ${struggleAnalysis.struggleThemes.join(', ')}. You don't have to carry this alone.`,
-      suggestion: 'Consider reaching out to someone you trust, or simply allow yourself to rest completely.',
+      title: 'Pause.',
+      message: `You are carrying something heavy. ${struggleAnalysis.struggleThemes.join(', ')}. You do not have to carry this alone.`,
+      suggestion: 'Reach out to someone you trust. Or rest completely. Either counts.',
       action: {
         label: 'I need support',
         target: 'connect'
@@ -181,9 +181,9 @@ export function generateCompassionateInterventions(userState: UserState): Interv
     interventions.push({
       type: 'gentle_warning',
       severity: 'high',
-      title: 'Pattern noticed',
-      message: `You've felt ${userState.emotionalPattern.dominantMood} for ${userState.emotionalPattern.daysInPattern} days. Your system is signaling something.`,
-      suggestion: 'What would help shift this? Sometimes the smallest change creates space.',
+      title: 'Pattern noticed.',
+      message: `${userState.emotionalPattern.daysInPattern} days of ${userState.emotionalPattern.dominantMood}. Something is signaling.`,
+      suggestion: 'What would shift this? The smallest change creates space.',
       action: {
         label: 'Reflect on this',
         target: 'reflect'
@@ -198,9 +198,9 @@ export function generateCompassionateInterventions(userState: UserState): Interv
     interventions.push({
       type: 'gentle_warning',
       severity: 'high',
-      title: 'Burnout approaching',
-      message: `At this pace, you'll reach burnout in ${userState.energyState.daysUntilBurnout} days. This is not sustainable.`,
-      suggestion: 'What can you release? What can wait? Your well-being cannot.',
+      title: 'Burnout approaching.',
+      message: `At this pace, burnout in ${userState.energyState.daysUntilBurnout} days. This is not sustainable.`,
+      suggestion: 'What can you release? What can wait? You cannot.',
       action: {
         label: 'What can I release?',
         target: 'release'
@@ -215,9 +215,9 @@ export function generateCompassionateInterventions(userState: UserState): Interv
     interventions.push({
       type: 'pattern_awareness',
       severity: 'medium',
-      title: 'Connection distance',
-      message: `${userState.romanticConnectionState.daysDisconnected} days since intimate connection. Distance affects you in ways you might not notice immediately.`,
-      suggestion: 'Even a small moment of presence together can shift the pattern.',
+      title: 'Distance growing.',
+      message: `${userState.romanticConnectionState.daysDisconnected} days since closeness. Distance affects you in ways you may not notice yet.`,
+      suggestion: 'One moment of presence together shifts everything.',
       action: {
         label: 'Tend to connection',
         target: 'connect'
@@ -230,9 +230,9 @@ export function generateCompassionateInterventions(userState: UserState): Interv
     interventions.push({
       type: 'gentle_warning',
       severity: 'medium',
-      title: 'Isolation noticed',
-      message: 'You\'ve been alone with this. Isolation can amplify everything you\'re feeling.',
-      suggestion: 'You don\'t need to share everything. Just being with someone can help.',
+      title: 'Isolation noticed.',
+      message: 'You have been alone with this. Isolation amplifies everything.',
+      suggestion: 'You don\'t need to share everything. Just be with someone.',
       action: {
         label: 'Reach out',
         target: 'connect'
@@ -247,9 +247,9 @@ export function generateCompassionateInterventions(userState: UserState): Interv
     interventions.push({
       type: 'permission',
       severity: 'medium',
-      title: 'Permission to rest',
-      message: 'Rest is not earned. It\'s required. You don\'t need to justify taking care of yourself.',
-      suggestion: 'What would complete rest look like today?',
+      title: 'Permission granted.',
+      message: 'Rest is not earned. It is required. No justification needed.',
+      suggestion: 'What would complete rest look like right now?',
       action: {
         label: 'Allow rest',
         target: 'rest'
@@ -262,9 +262,9 @@ export function generateCompassionateInterventions(userState: UserState): Interv
     interventions.push({
       type: 'celebration',
       severity: 'low',
-      title: 'Energy rising',
-      message: 'Your energy is improving. You\'re taking care of yourself and it shows.',
-      suggestion: 'Notice what helped. Remember this for next time.'
+      title: 'Energy rising.',
+      message: 'Your energy is improving. It shows.',
+      suggestion: 'Notice what helped. Remember it.'
     })
   }
 
@@ -281,9 +281,9 @@ export function generateCompassionateInterventions(userState: UserState): Interv
     interventions.push({
       type: 'validation',
       severity: 'low',
-      title: 'Sustained well-being',
-      message: `${userState.emotionalPattern.daysInPattern} days of ${userState.emotionalPattern.dominantMood}. You\'ve created this. You know how.`,
-      suggestion: 'What supports this state? Keep doing it.'
+      title: 'Sustained well-being.',
+      message: `${userState.emotionalPattern.daysInPattern} days of ${userState.emotionalPattern.dominantMood}. You created this.`,
+      suggestion: 'What supports this? Keep doing it.'
     })
   }
 

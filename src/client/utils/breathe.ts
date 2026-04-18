@@ -16,9 +16,9 @@ const PHASE_DURATIONS = {
 }
 
 const PHASE_LABELS = {
-  inhale: 'Inhale',
-  hold: 'Hold',
-  exhale: 'Exhale',
+  inhale: '↑ Inhale',
+  hold: '· Hold',
+  exhale: '↓ Exhale',
 }
 
 // ASCII animations for each phase (based on elapsed time in phase)

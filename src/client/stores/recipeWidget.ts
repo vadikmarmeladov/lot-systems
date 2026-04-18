@@ -1,6 +1,13 @@
 import { atom } from 'nanostores'
 import { getMealTimeForHour, type MealTime } from '#shared/constants/recipes'
 import axios from 'axios'
+import {
+  getFastingState,
+  pickFastingSuggestion,
+  formatFastingHeadline,
+  type FastingTradition,
+  type FastingMode,
+} from '#client/utils/fasting'
 
 type RecipeWidgetState = {
   isVisible: boolean
@@ -8,6 +15,10 @@ type RecipeWidgetState = {
   mealTime: MealTime | null
   showUntil: number // timestamp
   lastShownDate: string // YYYY-MM-DD to track daily shows
+  /** When true, this suggestion is a fasting override, not a recipe. */
+  isFasting: boolean
+  fastingMode: FastingMode
+  fastingHeadline: string // e.g., "Great Lent · day 12 of 48 · water"
 }
 
 const WIDGET_DURATION = 30 * 60 * 1000 // 30 minutes
@@ -21,7 +32,34 @@ export const recipeWidget = atom<RecipeWidgetState>({
   mealTime: null,
   showUntil: 0,
   lastShownDate: '',
+  isFasting: false,
+  fastingMode: 'normal',
+  fastingHeadline: '',
 })
+
+/**
+ * Read the user's fasting tradition preference from localStorage.
+ * Defaults to 'orthodox' since it provides the richest gradual
+ * calendar. Users can set 'catholic' for Roman Catholic rules, or
+ * 'off' to disable fasting awareness entirely.
+ */
+function getFastingTradition(): FastingTradition {
+  if (typeof window === 'undefined') return 'orthodox'
+  try {
+    const raw = localStorage.getItem('fasting-tradition')
+    if (raw === 'orthodox' || raw === 'catholic' || raw === 'off') return raw
+  } catch {}
+  return 'orthodox'
+}
+
+export function setFastingTradition(tradition: FastingTradition) {
+  try {
+    localStorage.setItem('fasting-tradition', tradition)
+  } catch {}
+}
+
+/** Re-exported so components can render fasting state directly. */
+export { getFastingState, pickFastingSuggestion, formatFastingHeadline }
 
 // Check if widget should show (called on System tab mount and periodically)
 export async function checkRecipeWidget() {
@@ -61,12 +99,41 @@ export async function checkRecipeWidget() {
   // Check localStorage for persistence across page refreshes
   const lastShownFromStorage = localStorage.getItem('lastRecipeShown')
 
-  // Only show once per meal time per day (with 30% random chance)
+  // Only show once per meal time per day
   if (state.lastShownDate === todayMealKey || lastShownFromStorage === todayMealKey) {
     return
   }
 
-  // Random chance to show (60% probability)
+  // --------------------------------------------------------------------
+  // Fasting gate: check the Christian fasting calendar before calling
+  // the server recipe generator. If today is a fasting day, we skip
+  // the network request entirely and render a deterministic light
+  // suggestion that matches the current strictness level. Fasting
+  // guidance is always shown (not gated behind the 60% random check)
+  // because the guidance is the whole point of the feature.
+  // --------------------------------------------------------------------
+  const tradition = getFastingTradition()
+  const fasting = getFastingState(new Date(), tradition)
+
+  if (fasting.isFastingDay && fasting.mode !== 'normal') {
+    const suggestion = pickFastingSuggestion(fasting, mealTime)
+    if (suggestion) {
+      localStorage.setItem('lastRecipeShown', `${today}-${mealTime}`)
+      recipeWidget.set({
+        isVisible: true,
+        recipe: suggestion,
+        mealTime,
+        showUntil: now + WIDGET_DURATION,
+        lastShownDate: `${today}-${mealTime}`,
+        isFasting: true,
+        fastingMode: fasting.mode,
+        fastingHeadline: formatFastingHeadline(fasting),
+      })
+      return
+    }
+  }
+
+  // Random chance to show (60% probability) on non-fasting days
   if (Math.random() > 0.6) return
 
   // Fetch contextual recipe from server
@@ -88,6 +155,9 @@ export async function checkRecipeWidget() {
       mealTime,
       showUntil: now + WIDGET_DURATION,
       lastShownDate: `${today}-${mealTime}`,
+      isFasting: false,
+      fastingMode: 'normal',
+      fastingHeadline: '',
     })
   } catch (error) {
     console.error('Failed to fetch recipe suggestion:', error)

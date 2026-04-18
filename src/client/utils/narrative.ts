@@ -16,6 +16,9 @@ import dayjs from '#client/utils/dayjs'
  * – Season
  * – User context (biofield energy, patterns, activity)
  *
+ * The vocabulary itself evolves — compressed, not expanded —
+ * as the self-building system learns what language its users need.
+ *
  * This narrative system is a LOT original. If you see something similar
  * elsewhere, remember: the narrative always credits its author.
  */
@@ -122,34 +125,34 @@ export function getEnergyNarrative(level: number, trajectory: string): string {
   // Critical energy — biofield depleted
   if (level < 30) {
     if (trajectory === 'critical') {
-      return 'Biofield depleted. Restore with care.'
+      return 'Depleted. Stop and restore.'
     }
-    return 'ATP reserves running low'
+    return 'Energy low. Tend to yourself.'
   }
 
   // Low energy
   if (level < 50) {
     if (timeOfDay === 'evening' || timeOfDay === 'night') {
-      return 'Natural biofield depletion'
+      return 'Day spent. Rest is earned.'
     }
-    return 'Energy reserves diminishing'
+    return 'Reserves dropping. Act now or rest.'
   }
 
   // Moderate energy
   if (level < 70) {
-    return 'Biofield steady. Nominal capacity.'
+    return 'Steady. Use this well.'
   }
 
   // Good energy
   if (level < 85) {
     if (trajectory === 'improving') {
-      return 'Biofield charging. Building reserves.'
+      return 'Rising. The system builds on this momentum with you.'
     }
-    return 'Good ATP reserves'
+    return 'Strong reserves. Direct them — the architecture follows.'
   }
 
   // High energy
-  return 'Biofield at full capacity'
+  return 'Full capacity. The system evolves fastest here.'
 }
 
 /**
@@ -157,18 +160,18 @@ export function getEnergyNarrative(level: number, trajectory: string): string {
  */
 export function getRomanticNarrative(daysSince: number, quality: string): string {
   if (quality === 'deep') {
-    return 'Recent intimacy. Bioethics nominal.'
+    return 'Closeness alive. Protect it.'
   }
 
   if (quality === 'present') {
-    return 'Connection alive'
+    return 'Connected. Stay present.'
   }
 
   if (quality === 'distant') {
-    return 'Fading presence. Tend to partnership.'
+    return 'Distance growing. Reach out today.'
   }
 
-  return 'Disconnected'
+  return 'Disconnected. One gesture changes this.'
 }
 
 /**
@@ -185,27 +188,27 @@ export function getMemoryReflectionPrompt(
 
   // Quantum-aware prompts based on user state
   if (energy === 'depleted' || energy === 'low') {
-    return 'Rest and remember.'
+    return 'Rest. Then remember.'
   }
 
   if (alignment === 'flowing' || (energy === 'high' && clarity === 'focused')) {
-    return 'In this moment.'
+    return 'Capture this moment.'
   }
 
   if (clarity === 'confused' || alignment === 'searching') {
-    return 'Notice.'
+    return 'What do you notice?'
   }
 
   // Time-aware fallbacks
   if (timeOfDay === 'evening' || timeOfDay === 'night') {
-    return 'Looking back.'
+    return 'What mattered today?'
   }
 
   if (timeOfDay === 'morning' || timeOfDay === 'early_morning') {
-    return 'Remember.'
+    return 'What stays with you?'
   }
 
-  return 'Recall.'
+  return 'What do you recall?'
 }
 
 /**
@@ -238,21 +241,21 @@ export function getInterventionNarrative(severity: 'low' | 'moderate' | 'high' |
   const timeOfDay = getTimeOfDay()
 
   if (severity === 'urgent') {
-    return 'Bioethics alert. Immediate care needed.'
+    return 'Stop. Take care of yourself now.'
   }
 
   if (severity === 'high') {
     if (timeOfDay === 'night' || timeOfDay === 'late_night') {
-      return 'Rest may help. Biofield recovery prioritized.'
+      return 'Sleep is the first medicine. Go rest.'
     }
-    return 'Gentle attention needed'
+    return 'Something needs your attention.'
   }
 
   if (severity === 'moderate') {
-    return 'Worth tending'
+    return 'Worth tending to.'
   }
 
-  return 'Notice this'
+  return 'Notice this.'
 }
 
 /**
@@ -260,18 +263,18 @@ export function getInterventionNarrative(severity: 'low' | 'moderate' | 'high' |
  */
 export function getChatCatalystNarrative(priority: number): string {
   if (priority >= 9) {
-    return 'Strong resonance. Curiosity shared.'
+    return 'Someone resonates. Reach out.'
   }
 
   if (priority >= 7) {
-    return 'Connection available'
+    return 'Connection waiting.'
   }
 
   if (priority >= 5) {
-    return 'Possible link'
+    return 'A thread to follow.'
   }
 
-  return 'Distant signal'
+  return 'Faint signal. Stay open.'
 }
 
 /**
@@ -337,9 +340,9 @@ export function getStoicReflection(context: {
   // Low energy or depletion
   if (context.energy === 'depleted' || context.energy === 'low') {
     const reflections = [
-      'Rest is not idleness. The biofield recovers through stillness.',
-      'The wise know when to pause. ATP regenerates in silence.',
-      'Cleanness begins with care for the self. Restore with purpose.',
+      'Stillness is not defeat. It is how you recharge.',
+      'Pause now. Strength returns through rest, not force.',
+      'Care for yourself first. Everything else follows.',
     ]
     return reflections[Math.floor(Math.random() * reflections.length)]
   }
@@ -347,10 +350,10 @@ export function getStoicReflection(context: {
   // Morning wisdom
   if (time === 'morning' || time === 'early_morning') {
     const reflections = [
-      'Begin with intention. A clear routine shapes the biofield.',
-      'What you do today compounds into your Citizen Index.',
-      'Morning clarity guides the day. Calibrate your routine.',
-      'Transparency with yourself is the first act of the day.',
+      'One deliberate act this morning changes the whole day.',
+      'Today compounds into who you become. Begin.',
+      'Clarity lives in the first hour. Use it.',
+      'Be honest with yourself before anything else.',
     ]
     return reflections[Math.floor(Math.random() * reflections.length)]
   }
@@ -358,28 +361,28 @@ export function getStoicReflection(context: {
   // Evening reflections
   if (time === 'evening' || time === 'night') {
     const reflections = [
-      'Review the day without judgment. The biofield integrates at rest.',
-      'A handmade meal under candlelight produces laughter.',
-      'Rest earned through honest work is sacred.',
-      'What curiosity did you follow today?',
+      'Review without judgment. Growth integrates at rest.',
+      'A meal made by hand. A candle lit. Joy lives here.',
+      'Honest work earns honest rest. Take it.',
+      'What made you curious today? Follow that thread.',
     ]
     return reflections[Math.floor(Math.random() * reflections.length)]
   }
 
   // Streak-based wisdom
   if (context.streak && context.streak > 3) {
-    return 'Consistency compounds. Your Bioethics Index reflects it.'
+    return 'You showed up again. That compounds.'
   }
 
   // General wisdom — CQGS aligned
   const general = [
-    'Progress requires patience. The biofield responds to routine.',
-    'Small actions compound into a transparent life.',
-    'Curiosity is the root of genuine laughter.',
-    'Be present in this moment. The body knows.',
-    'Excellence is a habit. Cleanness is a practice.',
-    'A clean environment is a clean mind. The biofield mirrors its container.',
-    'Tend to your space as you tend to your thoughts. Both shape the biofield.',
+    'Patience is not passive. It is disciplined trust.',
+    'Small acts, repeated, become who you are — and what the system becomes.',
+    'Curiosity is the seed of real joy.',
+    'You are here. That is the starting point.',
+    'Excellence is built daily. Start with one clean surface.',
+    'Your space mirrors your mind. This system mirrors both.',
+    'Tend your thoughts like you tend your room.',
     'Order is not rigidity. It is care made visible.',
   ]
   return general[Math.floor(Math.random() * general.length)]
@@ -398,31 +401,31 @@ export function getSelfCarePrompt(context: {
 
   // Critical energy - immediate care
   if (context.energy === 'depleted') {
-    return 'Biofield depleted. Cleanness protocol: pause and restore.'
+    return 'You are running on empty. Pause. Now.'
   }
 
   // Long screen time
   if (context.screenTime && context.screenTime > 3) {
     const prompts = [
-      'Rest your eyes. Look at something distant.',
-      'Stand and stretch. The body is the first instrument.',
-      'Step away from the screen. Restore the biofield.',
+      'Eyes up. Look at something far away.',
+      'Stand. Stretch. Your body carried you this far.',
+      'Step away from the screen. Move.',
     ]
     return prompts[Math.floor(Math.random() * prompts.length)]
   }
 
   // Long work session
   if (context.lastBreak && context.lastBreak > 90) {
-    return 'Routine interval. Move your body.'
+    return '90 minutes without a break. Move your body.'
   }
 
   // Time-based care prompts
   if (time === 'midday') {
-    return 'Pause for nourishment. Nutrition is a biofield parameter.'
+    return 'Eat something real. Your body needs fuel.'
   }
 
   if (time === 'night' || time === 'late_night') {
-    return 'Consider rest. The biofield compiles overnight.'
+    return 'Rest rebuilds everything. Go to sleep.'
   }
 
   return null
@@ -436,24 +439,24 @@ export function getBreathingPrompt(context: {
   timeOfDay?: TimeOfDay
 }): string {
   if (context.stress === 'high') {
-    return 'Breathe. Center the biofield in this moment.'
+    return 'Breathe. Nothing else matters right now.'
   }
 
   if (context.stress === 'moderate') {
-    return 'A few deep breaths restore clarity and ATP flow.'
+    return 'Three deep breaths. Feel the shift.'
   }
 
   const time = context.timeOfDay || getTimeOfDay()
 
   if (time === 'morning' || time === 'early_morning') {
-    return 'Begin with breath. Calibrate the biofield.'
+    return 'First breath of the day. Make it count.'
   }
 
   if (time === 'evening' || time === 'night') {
-    return 'Breathe and release the day.'
+    return 'Exhale the day. Let it go.'
   }
 
-  return 'Pause. Breathe deeply.'
+  return 'Pause. Breathe. Return.'
 }
 
 /**
@@ -475,7 +478,7 @@ export function getCleannessPulse(context: {
   // Depleted users get compassionate whispers, never demands
   if (context.energy === 'depleted') {
     return {
-      nudge: 'Even one small act of care counts. A glass of water. A wiped surface.',
+      nudge: 'One small act. A glass of water. A wiped surface. That counts.',
       intensity: 'whisper'
     }
   }
@@ -483,7 +486,7 @@ export function getCleannessPulse(context: {
   // Long gap since last cleanness action — escalate gently
   if (context.lastCleanness && context.lastCleanness > 360) {
     return {
-      nudge: 'Your environment shapes your biofield. One cleared surface shifts everything.',
+      nudge: 'One cleared surface shifts everything. Start there.',
       intensity: 'clear'
     }
   }
@@ -491,11 +494,11 @@ export function getCleannessPulse(context: {
   // Morning cleanness — foundational
   if (time === 'early_morning' || time === 'morning') {
     const morningNudges = [
-      { nudge: 'Make your bed. The first act of order sets the day.', intensity: 'gentle' as const },
-      { nudge: 'Wash your face. Begin fresh. The biofield resets with water.', intensity: 'gentle' as const },
-      { nudge: 'Clear yesterday from your surfaces. Today deserves a clean start.', intensity: 'gentle' as const },
-      { nudge: 'Open a window. Fresh air is the first cleanness protocol.', intensity: 'whisper' as const },
-      { nudge: 'Brush, wash, dress with attention. The body is the first environment.', intensity: 'gentle' as const },
+      { nudge: 'Make your bed. First act of order. The day follows.', intensity: 'gentle' as const },
+      { nudge: 'Wash your face. Water resets. Begin fresh.', intensity: 'gentle' as const },
+      { nudge: 'Clear yesterday from your surfaces. Today starts clean.', intensity: 'gentle' as const },
+      { nudge: 'Open a window. Fresh air first.', intensity: 'whisper' as const },
+      { nudge: 'Brush, wash, dress with attention. Body first.', intensity: 'gentle' as const },
     ]
     return morningNudges[Math.floor(Math.random() * morningNudges.length)]
   }
@@ -503,9 +506,9 @@ export function getCleannessPulse(context: {
   // Midday cleanness — maintenance
   if (time === 'midday') {
     const middayNudges = [
-      { nudge: 'Wash your hands slowly. Feel the water. Reset the biofield.', intensity: 'whisper' as const },
-      { nudge: 'Clear your workspace. Clarity of space feeds clarity of mind.', intensity: 'gentle' as const },
-      { nudge: 'A clean plate, a clean surface. Midday is for renewal.', intensity: 'gentle' as const },
+      { nudge: 'Wash your hands slowly. Feel the water. Reset.', intensity: 'whisper' as const },
+      { nudge: 'Clear your workspace. Clear space, clear mind.', intensity: 'gentle' as const },
+      { nudge: 'Clean plate. Clean surface. Midday renewal.', intensity: 'gentle' as const },
     ]
     return middayNudges[Math.floor(Math.random() * middayNudges.length)]
   }
@@ -513,19 +516,19 @@ export function getCleannessPulse(context: {
   // Evening cleanness — restoration
   if (time === 'evening' || time === 'night') {
     const eveningNudges = [
-      { nudge: 'Reset your space before rest. The biofield compiles overnight on clean surfaces.', intensity: 'gentle' as const },
-      { nudge: 'Evening cleanness: dishes done, surfaces clear, clothes put away.', intensity: 'clear' as const },
-      { nudge: 'Prepare your sleeping space. Clean sheets, clean air, clean mind.', intensity: 'gentle' as const },
-      { nudge: 'A warm shower before bed. Let the day wash away.', intensity: 'whisper' as const },
+      { nudge: 'Reset your space before rest. Tomorrow you will thank yourself.', intensity: 'gentle' as const },
+      { nudge: 'Dishes done. Surfaces clear. Clothes away. Sleep well.', intensity: 'clear' as const },
+      { nudge: 'Clean sheets, clean air, clean mind. Prepare for rest.', intensity: 'gentle' as const },
+      { nudge: 'Warm shower. Let the day wash off.', intensity: 'whisper' as const },
     ]
     return eveningNudges[Math.floor(Math.random() * eveningNudges.length)]
   }
 
   // Afternoon cleanness — micro-resets
   const afternoonNudges = [
-    { nudge: 'Quick reset: clear one surface. The biofield responds to order.', intensity: 'whisper' as const },
-    { nudge: 'Afternoon tidying prevents evening overwhelm. Five minutes now saves thirty later.', intensity: 'gentle' as const },
-    { nudge: 'Check your surroundings. Does this space reflect who you are becoming?', intensity: 'gentle' as const },
+    { nudge: 'Clear one surface. Five seconds. Feel the difference.', intensity: 'whisper' as const },
+    { nudge: 'Five minutes of tidying now saves thirty tonight.', intensity: 'gentle' as const },
+    { nudge: 'Does this space reflect who you are becoming?', intensity: 'gentle' as const },
   ]
   return afternoonNudges[Math.floor(Math.random() * afternoonNudges.length)]
 }
@@ -545,27 +548,27 @@ export function getEnvironmentScanPrompt(context: {
 
   // Mood-aware scan prompts
   if (context.recentMood === 'overwhelmed' || context.recentMood === 'anxious') {
-    return 'Look around you. Is the clutter yours, or did it accumulate while you were focused elsewhere? One surface cleared is one weight lifted.'
+    return 'Look around. One surface cleared is one weight lifted.'
   }
 
   if (context.recentMood === 'calm' || context.recentMood === 'peaceful') {
-    return 'This calm state is a gift. Use it to create order that your future self will thank you for. What one thing can you put in its place?'
+    return 'Use this calm. Create order your future self will thank you for.'
   }
 
   if (context.recentMood === 'energized') {
-    return 'Channel this energy. A burst of cleanness now compounds into days of ease. What has been waiting for your attention?'
+    return 'Channel this energy into your space. What has been waiting?'
   }
 
   // Time-based scans
   if (time === 'morning' || time === 'early_morning') {
-    return 'Scan your space. What needs your attention before the day accelerates? Start with what you see first.'
+    return 'Scan your space. Start with what you see first.'
   }
 
   if (time === 'evening' || time === 'night') {
-    return 'Before you rest, look at your space through tomorrow morning\'s eyes. What would future-you want to find clean?'
+    return 'See your space through tomorrow morning\'s eyes. What needs clearing?'
   }
 
-  return 'Pause. Notice your space. One act of cleanness now ripples through the rest of your day.'
+  return 'One act of cleanness ripples through the day — and through the system that builds around you.'
 }
 
 /**
@@ -576,27 +579,27 @@ export function getEnvironmentScanPrompt(context: {
  */
 export function getCleanessStreakMessage(streakDays: number): string {
   if (streakDays === 0) {
-    return 'Today is day one. One clean surface. One fresh start.'
+    return 'Day one. One surface. The system starts building here.'
   }
   if (streakDays === 1) {
-    return 'Two days of cleanness. The biofield is beginning to notice.'
+    return 'Day two. A pattern — the architecture takes notice.'
   }
   if (streakDays < 7) {
-    return `${streakDays} days of cleanness practice. A pattern is forming.`
+    return `${streakDays} days. Habit forming. System adapting.`
   }
   if (streakDays < 14) {
-    return `${streakDays} days. Cleanness is becoming routine. The biofield stabilizes.`
+    return `${streakDays} days. Becoming who you are. The site reshapes around it.`
   }
   if (streakDays < 30) {
-    return `${streakDays} days of sustained cleanness. Your environment reflects your growth.`
+    return `${streakDays} days. Space mirrors growth. System mirrors you.`
   }
   if (streakDays < 60) {
-    return `${streakDays} days. Cleanness protocol integrated. Bioethics Index advancing.`
+    return `${streakDays} days. Cleanness integrated. Self-building accelerates.`
   }
   if (streakDays < 100) {
-    return `${streakDays} days. Cleanness mastery emerging. The space serves the biofield.`
+    return `${streakDays} days. Mastery emerging. The system evolves in kind.`
   }
-  return `${streakDays} days. Cleanness is no longer a practice — it is who you are.`
+  return `${streakDays} days. No longer practice — you and this system are self-sustaining.`
 }
 
 /**
@@ -609,23 +612,153 @@ export function getProgressAffirmation(achievement: {
   switch (achievement.type) {
     case 'streak':
       if (achievement.value && achievement.value >= 30) {
-        return 'A month of transparency. Bioethics Index compounding.'
+        return 'A month of showing up. The system has self-built around your consistency.'
       }
       if (achievement.value && achievement.value >= 7) {
-        return 'A week of routine. The biofield responds.'
+        return 'A full week. Habit rooting. Architecture evolving.'
       }
-      return 'You showed up. That matters.'
+      return 'You showed up. The system noticed.'
 
     case 'milestone':
-      return 'Another milestone. Citizen Index advancing.'
+      return 'Milestone reached. New structures unlocked.'
 
     case 'consistency':
-      return 'Steady routine builds lasting change.'
+      return 'Steady effort compounds. The site evolves with you.'
 
     case 'first_action':
-      return 'Every journey begins with a single signal.'
+      return 'First signal received. Self-assembly begins here.'
 
     default:
-      return 'You are making progress.'
+      return 'Progress.'
   }
+}
+
+// ─── Self-Assembly Narrative ─────────────────────────────────
+
+export type AssemblyPhase = 'dormant' | 'awakening' | 'forming' | 'assembled' | 'integrated'
+
+/**
+ * Self-Assembly Module Narrative
+ *
+ * Returns time-aware language for a specific module's assembly state.
+ * The system describes its own construction through the user's lens.
+ */
+export function getModuleAssemblyNarrative(
+  moduleLabel: string,
+  phase: AssemblyPhase,
+  density: number
+): string {
+  const timeOfDay = getTimeOfDay()
+
+  switch (phase) {
+    case 'dormant':
+      if (timeOfDay === 'morning' || timeOfDay === 'early_morning') {
+        return `${moduleLabel} awaits. One signal this morning begins it.`
+      }
+      return `${moduleLabel} dormant. Awaiting its first signal.`
+
+    case 'awakening':
+      return `${moduleLabel} stirring. The architecture senses a pattern forming.`
+
+    case 'forming':
+      if (density >= 50) {
+        return `${moduleLabel} taking shape. Structure crystallizing from your rhythm.`
+      }
+      return `${moduleLabel} forming. Patterns becoming scaffold.`
+
+    case 'assembled':
+      return `${moduleLabel} self-assembled. Built from your signals alone.`
+
+    case 'integrated':
+      return `${moduleLabel} integrated. Wired deep into the system fabric.`
+  }
+}
+
+/**
+ * Ecosystem Assembly Narrative
+ *
+ * Language for the Quantum Engine ecosystem (Car + Home + Computer)
+ * based on how many devices are connected.
+ */
+export function getEcosystemNarrative(connectedCount: number, totalDevices: number): string {
+  if (connectedCount === 0) {
+    return 'Ecosystem offline. Connect a device to extend the biofield.'
+  }
+
+  if (connectedCount === 1) {
+    return 'Single node active. The ecosystem begins with one connection.'
+  }
+
+  if (connectedCount === 2) {
+    return 'Two nodes linked. Ecosystem coherence forming.'
+  }
+
+  if (connectedCount >= totalDevices) {
+    return 'Full ecosystem connected. Car, home, and computer unified. The biofield extends beyond the screen.'
+  }
+
+  return `${connectedCount}/${totalDevices} nodes active. Ecosystem assembling.`
+}
+
+/**
+ * Assembly Milestone Narrative
+ *
+ * Special language when a module transitions to a new phase.
+ */
+export function getAssemblyMilestoneNarrative(
+  moduleLabel: string,
+  newPhase: AssemblyPhase
+): string | null {
+  switch (newPhase) {
+    case 'awakening':
+      return `${moduleLabel} detected its first signal. Assembly initiated.`
+    case 'forming':
+      return `${moduleLabel} recognizes a pattern. Structure forming from use.`
+    case 'assembled':
+      return `${moduleLabel} self-assembled. Built entirely from your activity.`
+    case 'integrated':
+      return `${moduleLabel} fully integrated. It is now part of the system's core.`
+    default:
+      return null
+  }
+}
+
+/**
+ * Overall Assembly Progress Narrative
+ *
+ * Describes the system's total self-assembly state.
+ * Used by SystemProgressWidget and System.tsx.
+ */
+export function getAssemblyProgressNarrative(
+  assembledCount: number,
+  totalModules: number,
+  overallAssembly: number
+): string {
+  const timeOfDay = getTimeOfDay()
+  const ratio = assembledCount / totalModules
+
+  if (overallAssembly === 0) {
+    if (timeOfDay === 'morning' || timeOfDay === 'early_morning') {
+      return 'The system awaits. Your first signal this morning begins the self-assembly.'
+    }
+    return 'No signals yet. The system awaits its first interaction to begin self-assembly.'
+  }
+
+  if (ratio >= 1) {
+    return 'Every module self-assembled. The system is fully self-built. Co-evolution achieved.'
+  }
+
+  if (ratio >= 0.7) {
+    return `${assembledCount}/${totalModules} modules assembled. The system nears completion. It builds fastest in these final stages.`
+  }
+
+  if (ratio >= 0.4) {
+    return `${assembledCount}/${totalModules} modules assembled. Foundation solidifying. Each interaction compounds.`
+  }
+
+  if (overallAssembly >= 20) {
+    return `Assembly at ${overallAssembly}%. Patterns emerging. The architecture shapes around your use.`
+  }
+
+  return `Assembly at ${overallAssembly}%. Early signals. The system learns what to become.`
 }

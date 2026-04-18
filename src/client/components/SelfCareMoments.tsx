@@ -284,10 +284,10 @@ export function SelfCareMoments() {
             const quantumReason = localStorage.getItem('selfcare-quantum-reason')
             // Log-context-grounded reason when quantum reason is absent
             const contextReason = !quantumReason && !logCtx.isEmpty
-              ? (logCtx.moodTrend === 'declining' ? 'Biofield trajectory declining. Cleanness protocol recommended.'
-                : logCtx.hoursSinceLastActivity !== null && logCtx.hoursSinceLastActivity > 6 ? 'Extended gap since last signal. Re-engage gently.'
-                : logCtx.todaySelfCareCount > 0 ? `${logCtx.todaySelfCareCount} cleanness session${logCtx.todaySelfCareCount === 1 ? '' : 's'} logged today.`
-                : logCtx.timePhase === 'evening' ? 'Evening phase. Restoration supports overnight biofield compilation.'
+              ? (logCtx.moodTrend === 'declining' ? 'Mood declining. Break the pattern.'
+                : logCtx.hoursSinceLastActivity !== null && logCtx.hoursSinceLastActivity > 6 ? 'Been a while. Start with something small.'
+                : logCtx.todaySelfCareCount > 0 ? `${logCtx.todaySelfCareCount} session${logCtx.todaySelfCareCount === 1 ? '' : 's'} today. Keep going.`
+                : logCtx.timePhase === 'evening' ? 'Evening. Restore before rest.'
                 : null)
               : null
             return (quantumReason || contextReason) ? (
@@ -393,16 +393,16 @@ function generateContextualSuggestion(
     const weatherLower = weatherDesc.toLowerCase()
     if (weatherLower.includes('rain') || weatherLower.includes('storm')) {
       suggestions.push({
-        action: 'Create a cozy moment with warm tea and gentle music',
-        why: 'Rainy weather invites us inward. Coziness is self-care.',
+        action: 'Warm drink. Gentle music. Be present.',
+        why: 'Rain invites you inward. Use it.',
         practice: 'Make your favorite warm drink.\nFind a comfortable spot.\nPut on music that soothes you.\nJust be present for 10 minutes.',
         duration: '10 mins'
       })
     } else if ((weatherLower.includes('sun') || weatherLower.includes('clear')) && hour >= 6 && hour < 19) {
       // Only suggest sunlight during daylight hours (6 AM – 7 PM)
       suggestions.push({
-        action: 'Step outside and get sunlight',
-        why: 'Sunlight regulates your circadian rhythm and boosts mood.',
+        action: 'Step outside. Get sunlight.',
+        why: 'Sunlight resets your rhythm and lifts mood.',
         practice: 'Go outside.\nFace the sun (eyes closed).\nTake 5 deep breaths.\nNotice the warmth on your skin.',
         duration: '5 mins'
       })
@@ -414,74 +414,74 @@ function generateContextualSuggestion(
     if (['anxious', 'overwhelmed', 'restless'].includes(dominantMood)) {
       suggestions.push(
         {
-          action: useTechLanguage || preferTechLanguage ? 'Run breathing protocol to reset nervous system' : 'Practice 4–7–8 breathing to calm your nervous system',
-          why: 'You\'ve been experiencing tension. This activates your parasympathetic nervous system.',
+          action: useTechLanguage || preferTechLanguage ? 'Run 4-7-8 breathing protocol' : '4-7-8 breathing',
+          why: 'Tension detected. This resets your nervous system.',
           practice: 'Breathe in for 4 counts.\nHold for 7 counts.\nExhale slowly for 8 counts.\nRepeat 4 times.',
           duration: '2 mins'
         },
         {
-          action: 'Use Breathe module to guide your breathing',
-          why: 'Visual breathing guidance helps maintain rhythm when anxiety makes focus hard.',
+          action: 'Use Breathe for guided breathing',
+          why: 'Visual pacing steadies you when focus is hard.',
           practice: 'Go to top of System.\nClick Breathe.\nFollow the expanding circle.\nLet it pace you.\nStay for 5 cycles.',
           duration: '3 mins'
         },
         {
-          action: 'Name and release your worries',
-          why: 'Anxiety lives in the unnamed. Speaking worries aloud diminishes their power.',
+          action: 'Name one worry out loud. Then release it.',
+          why: 'Anxiety lives in the unnamed. Name it. Shrink it.',
           practice: 'Close your eyes.\nName one worry out loud.\nSay: "I see you, but you don\'t control me."\nTake a deep breath and let it go.',
           duration: '3 mins'
         },
         {
-          action: useTechLanguage || preferTechLanguage ? 'Run grounding sequence: 5–4–3–2–1 sensory scan' : 'Ground yourself with the 5–4–3–2–1 technique',
-          why: 'Overwhelm pulls you from the present. Grounding brings you back.',
+          action: useTechLanguage || preferTechLanguage ? 'Grounding sequence: 5-4-3-2-1 sensory scan' : '5-4-3-2-1 grounding',
+          why: 'Overwhelm pulls you away. This brings you back.',
           practice: 'Name 5 things you see.\n4 things you can touch.\n3 things you hear.\n2 things you smell.\n1 thing you taste.',
           duration: '3 mins'
         },
         {
-          action: 'Turn on Sound for calming ambient tones',
-          why: 'Sound masks anxious thoughts and creates a soothing container.',
-          practice: 'Go to top of System.\nClick Sound.\nChoose calming tones.\nClose your eyes.\nLet the sound hold you.',
+          action: 'Turn on Sound. Close your eyes.',
+          why: 'Sound displaces anxious thoughts. Let it hold you.',
+          practice: 'Go to top of System.\nClick Sound.\nClose your eyes.\nLet the sound hold you.',
           duration: '5 mins'
         }
       )
     } else if (['tired', 'exhausted'].includes(dominantMood)) {
       suggestions.push(
         {
-          action: useTechLanguage || preferTechLanguage ? 'Initialize power rest cycle (not nap)' : 'Take a power rest (not nap)',
-          why: 'Your body is asking for restoration. Short rest can restore energy.',
+          action: useTechLanguage || preferTechLanguage ? 'Power rest cycle. 10 minutes.' : 'Power rest. Not a nap. Just stop.',
+          why: 'Your body is asking. Listen.',
           practice: 'Lie down comfortably.\nClose your eyes.\nDon\'t try to sleep.\nJust let your body rest.\nSet a timer for 10 minutes.',
           duration: '10 mins'
         },
         {
-          action: 'Practice radical permission to rest',
-          why: 'Tiredness is not weakness. Your body deserves rest without guilt.',
+          action: 'Permission to be tired. Take it.',
+          why: 'Tiredness is not weakness. Rest is not earned.',
           practice: 'Say out loud: "I give myself permission to be tired."\nPlace hand on heart.\nBreathe slowly.\nRest for 5 minutes without doing anything.',
           duration: '5 mins'
         },
         {
-          action: 'Rest with ambient Sound to support restoration',
-          why: 'Gentle sound creates a safe container for deep rest without full sleep.',
-          practice: 'Turn on Sound.\nChoose soft flowing tones.\nLie down or sit back.\nClose eyes.\nLet sound carry you.',
+          action: 'Turn on Sound. Lie down. Let go.',
+          why: 'Sound holds the space. You just rest.',
+          practice: 'Turn on Sound.\nLie down or sit back.\nClose eyes.\nLet sound carry you.',
           duration: '10 mins'
         }
       )
     } else if (['grateful', 'content', 'peaceful'].includes(dominantMood)) {
       suggestions.push(
         {
-          action: 'Write down 3 specific moments from today',
-          why: 'You\'re in a positive state. Anchoring it deepens the experience.',
+          action: 'Write 3 moments from today. Anchor this state.',
+          why: 'Capture peace while it is here. Future you needs this.',
           practice: 'Get your journal.\nWrite 3 specific moments.\nWhat made each one special?\nHow did you feel?',
           duration: '5 mins'
         },
         {
-          action: 'Journal this peaceful state in your Log',
-          why: 'Recording peace helps you remember what created it. Future you will thank you.',
+          action: 'Log what created this peace.',
+          why: 'Record it so you can recreate it.',
           practice: 'Open your Log.\nWrite what contributed to this peace.\nName the feeling.\nNote the conditions.\nSave it.',
           duration: '5 mins'
         },
         {
-          action: 'Savor this peaceful moment',
-          why: 'Peace is rare and precious. Conscious savoring makes it last longer.',
+          action: 'Savor this. Stay in it.',
+          why: 'Peace is rare. Savoring extends it.',
           practice: 'Close your eyes.\nNotice the peace in your body.\nWhere do you feel it?\nBreathe into that feeling.\nSay: "I am here."',
           duration: '3 mins'
         }
@@ -489,14 +489,14 @@ function generateContextualSuggestion(
     } else if (['energized', 'excited', 'hopeful'].includes(dominantMood)) {
       suggestions.push(
         {
-          action: 'Channel your energy into creative movement',
-          why: 'High energy is a gift. Movement helps you embody and direct it.',
+          action: 'Move. Put on music. Express this energy.',
+          why: 'High energy is a gift. Move it through your body.',
           practice: 'Put on music that matches your energy.\nMove freely for 3 minutes.\nNo rules, just expression.\nNotice how the energy flows.',
           duration: '3 mins'
         },
         {
-          action: 'Put on Radio and move to the music',
-          why: 'Music amplifies energy and gives it direction. Let your body express what you feel.',
+          action: 'Radio on. Stand up. Move.',
+          why: 'Music amplifies energy. Let your body lead.',
           practice: 'Turn on Radio.\nFind a track that matches your vibe.\nStand up.\nMove however feels right.\nEmbody the aliveness.',
           duration: '5 mins'
         }
@@ -504,14 +504,14 @@ function generateContextualSuggestion(
     } else if (['lonely', 'disconnected', 'isolated'].includes(dominantMood)) {
       suggestions.push(
         {
-          action: 'Connect with your cohort in Sync',
-          why: 'Loneliness dissolves through shared presence. Your cohort is there.',
+          action: 'Open Sync. Your cohort is there.',
+          why: 'Loneliness dissolves through presence. You are not alone.',
           practice: 'Open Sync tab.\nRead messages from others.\nShare something honest.\nRemember: you\'re not alone.',
           duration: '10 mins'
         },
         {
-          action: 'Write about the disconnection in your Log',
-          why: 'Naming isolation begins the path back to connection. Your words matter.',
+          action: 'Write about this disconnection.',
+          why: 'Name it. That starts the path back.',
           practice: 'Open your Log.\nWrite: "I feel disconnected."\nExplore why.\nBe honest.\nNo one has to see this but you.',
           duration: '5 mins'
         }
@@ -524,14 +524,14 @@ function generateContextualSuggestion(
     if (archetype === 'The Seeker') {
       suggestions.push(
         {
-          action: 'Reflective inquiry practice',
-          why: 'Your Seeker nature thrives on self-discovery.',
+          action: 'Ask: "What am I discovering right now?"',
+          why: 'Your nature thrives on inquiry. Feed it.',
           practice: 'Ask yourself: "What am I discovering about myself right now?"\n\nSit with the question.\nDon\'t force answers.\nNotice what arises.',
           duration: '5 mins'
         },
         {
-          action: 'Journal your seeking in your Log',
-          why: 'Seekers discover themselves through writing. Your Log holds your journey.',
+          action: 'Journal what you are seeking.',
+          why: 'Writing reveals what thinking cannot.',
           practice: 'Open your Log.\nWrite what you\'re seeking right now.\nWhat questions live in you?\nLet the writing reveal answers.',
           duration: '10 mins'
         }
@@ -539,14 +539,14 @@ function generateContextualSuggestion(
     } else if (archetype === 'The Nurturer') {
       suggestions.push(
         {
-          action: 'Practice nurturing yourself as you would a loved one',
-          why: 'Nurturers often forget to care for themselves.',
+          action: 'Nurture yourself the way you nurture others.',
+          why: 'You give to everyone. Include yourself.',
           practice: 'Place hand on heart.\nSay: "I deserve care too."\nDo one small kind thing for yourself.\nNotice how it feels.',
           duration: '3 mins'
         },
         {
-          action: 'Share care with your cohort in Sync',
-          why: 'Nurturers thrive in community. Giving and receiving care creates balance.',
+          action: 'Share care in Sync. Give and receive.',
+          why: 'Balance flows both ways. Let it.',
           practice: 'Open Sync.\nOffer encouragement to someone.\nReceive messages sent to you.\nLet care flow both ways.',
           duration: '10 mins'
         }
@@ -554,14 +554,14 @@ function generateContextualSuggestion(
     } else if (archetype === 'The Creator') {
       suggestions.push(
         {
-          action: 'Free expression: creating without purpose',
-          why: 'Your Creator soul needs expression without judgment.',
+          action: 'Create something. No purpose needed.',
+          why: 'Expression without judgment. That is the practice.',
           practice: 'Grab any creative medium.\nSet timer for 5 minutes.\nCreate without planning.\nNo goal, just expression.',
           duration: '5 mins'
         },
         {
-          action: 'Write stream-of-consciousness in your Log',
-          why: 'Creators need raw expression. Your Log is canvas for unfiltered creation.',
+          action: 'Write in your Log. Unfiltered.',
+          why: 'Raw expression is creation. Let it flow.',
           practice: 'Open your Log.\nWrite without stopping.\nDon\'t edit, censor, or plan.\nLet words flow.\nThis is creation.',
           duration: '10 mins'
         }
@@ -573,44 +573,44 @@ function generateContextualSuggestion(
   if (hour >= 6 && hour < 9) {
     suggestions.push(
       {
-        action: useTechLanguage || preferTechLanguage ? 'Initialize morning cleanness protocol' : 'Morning cleanness: make your bed and clear one surface',
-        why: 'Cleanness is the first pillar of Bioethics. Making your bed is the first act of order that anchors the entire day.',
+        action: useTechLanguage || preferTechLanguage ? 'Morning cleanness protocol' : 'Make your bed. Clear one surface.',
+        why: 'First act of order anchors the day.',
         practice: 'Make your bed.\nStraighten the sheets.\nFluff your pillow.\nClear the nearest surface.\nNotice the order you created.',
         duration: '5 mins'
       },
       {
-        action: 'Morning body care ritual',
-        why: 'The body is the first environment. Tending to it with attention sets the biofield for the day.',
+        action: 'Morning body care. Slow and deliberate.',
+        why: 'The body is the first environment. Tend to it.',
         practice: 'Wash your face with warm water.\nBrush your teeth slowly.\nLook at yourself in the mirror.\nSay: "I take care of myself."\nDress with intention.',
         duration: '5 mins'
       },
       {
-        action: 'Set one intention for how you want to feel today',
-        why: 'Morning is powerful for intention-setting.',
+        action: 'Choose one word for today.',
+        why: 'Morning is the most powerful time to set direction.',
         practice: 'Close your eyes.\nAsk: "How do I want to feel today?"\nChoose one word.\nSay it out loud 3 times.',
         duration: '2 mins'
       },
       {
-        action: 'Welcome the day with gentle presence',
-        why: 'How you begin shapes the entire day. Gentleness is a choice.',
+        action: 'Hands on heart. Welcome the day.',
+        why: 'How you begin shapes everything that follows.',
         practice: 'Before checking your phone.\nPlace both hands on your heart.\nSay: "I welcome this day."\nTake 3 slow breaths.',
         duration: '2 mins'
       },
       {
-        action: useTechLanguage || preferTechLanguage ? 'Cleanness protocol: clear one surface' : 'Morning space clearing: clean one surface',
-        why: 'Cleanness is the first pillar of Bioethics. One clear surface changes the biofield.',
+        action: useTechLanguage || preferTechLanguage ? 'Cleanness protocol: one surface' : 'Clear one surface completely.',
+        why: 'One clean surface changes the room.',
         practice: 'Choose one surface (desk, counter, nightstand).\nClear everything off.\nWipe it clean.\nPlace back only what serves you.\nNotice the clarity.',
         duration: '5 mins'
       },
       {
-        action: 'Shinrin-yoku (Japanese forest bathing)',
-        why: 'Nature connection lowers stress hormones and restores vitality.',
+        action: 'Step outside. Move slowly. Use all senses.',
+        why: 'Nature lowers stress and restores vitality.',
         practice: 'Step outside, even to a small green space.\nMove slowly.\nEngage all 5 senses.\nNotice trees, plants, earth.\nBreathe deeply.',
         duration: '10 mins'
       },
       {
-        action: 'Korean facial cleansing ritual',
-        why: 'Cleanness begins with the body. Cleansing releases what you carried from yesterday.',
+        action: 'Wash your face slowly. Begin fresh.',
+        why: 'Cleansing releases yesterday.',
         practice: 'Wash face with warm water.\nGentle circular motions.\nSplash with cool water.\nPat dry softly.\nSay: "I begin fresh."',
         duration: '3 mins'
       }
@@ -618,20 +618,20 @@ function generateContextualSuggestion(
   } else if (hour >= 12 && hour < 14) {
     suggestions.push(
       {
-        action: useTechLanguage || preferTechLanguage ? 'Execute midday reset: pause and recalibrate systems' : 'Midday reset: pause and recalibrate',
-        why: 'Midday is when we lose ourselves in doing. Pausing restores awareness.',
+        action: useTechLanguage || preferTechLanguage ? 'Midday reset: pause and recalibrate' : 'Stop. Ask: "What do I need right now?"',
+        why: 'Midday is when you lose yourself in doing. Pause.',
         practice: 'Stop what you\'re doing.\nClose your eyes.\nAsk: "What do I need right now?"\nListen for the answer.\nGive yourself that one thing.',
         duration: '3 mins'
       },
       {
-        action: 'Fika (Swedish coffee break ritual)',
-        why: 'Fika is sacred pause, not productivity break. Pleasure is restorative.',
+        action: 'Warm drink. No devices. Just be.',
+        why: 'Sacred pause. Not a productivity break.',
         practice: 'Make your favorite warm drink.\nSit without devices.\nSip slowly.\nNotice the taste, warmth, moment.\nDo absolutely nothing else.',
         duration: '10 mins'
       },
       {
-        action: 'Sobremesa (Latin American after-meal lingering)',
-        why: 'Rushing from meal to task denies digestion and connection. Lingering is nourishing.',
+        action: 'After eating, stay seated. Don\'t rush.',
+        why: 'Lingering after a meal is nourishing. Let the body digest.',
         practice: 'After eating, stay seated.\nDon\'t rush to the next thing.\nBreathe.\nLet your body digest.\nSavor the transition.',
         duration: '5 mins'
       }
@@ -639,20 +639,20 @@ function generateContextualSuggestion(
   } else if (hour >= 14 && hour < 19) {
     suggestions.push(
       {
-        action: useTechLanguage || preferTechLanguage ? 'Execute micro-cleanness sweep' : 'Afternoon micro-clean: 5-minute reset',
-        why: 'Afternoon clutter accumulates silently. A quick reset prevents evening overwhelm and keeps the biofield ordered.',
+        action: useTechLanguage || preferTechLanguage ? 'Micro-cleanness sweep' : '5-minute reset. Put 5 things back.',
+        why: 'Afternoon clutter compounds. Stop it now.',
         practice: 'Look around your space.\nPick up 5 items that are out of place.\nPut each one where it belongs.\nWipe one surface.\nNotice the difference.',
         duration: '5 mins'
       },
       {
-        action: 'Clean as you go: tackle what\'s near you',
-        why: 'Small acts of cleanness done throughout the day compound. This is the Bioethics principle: cleanness is continuous, not an event.',
+        action: 'Without moving, tidy what is near you.',
+        why: 'Cleanness is continuous, not an event.',
         practice: 'Without leaving your area:\nStraighten what\'s near you.\nDiscard one thing you no longer need.\nAlign objects with intention.\nCreate order from within reach.',
         duration: '3 mins'
       },
       {
-        action: 'Desk or workspace reset',
-        why: 'Your workspace reflects your mental state. A clean desk invites focus.',
+        action: 'Clear your desk. Only essentials remain.',
+        why: 'Clean desk, clear mind.',
         practice: 'Remove everything from your desk.\nWipe the surface.\nReturn only what you need right now.\nStore the rest.\nBreathe into the clarity.',
         duration: '5 mins'
       }
@@ -660,46 +660,46 @@ function generateContextualSuggestion(
   } else if (hour >= 19 && hour < 22) {
     suggestions.push(
       {
-        action: 'Release the day with a simple closing ritual',
-        why: 'Evenings need closure to prepare for rest.',
+        action: 'Release the day. Three breaths. Let go.',
+        why: 'Evenings need closure before rest.',
         practice: 'Take 3 deep breaths.\nSay: "I release what no longer serves me."\nName one thing you\'re letting go.\nExhale it fully.',
         duration: '3 mins'
       },
       {
-        action: 'Evening gratitude: name what held you today',
-        why: 'Gratitude before sleep rewires your brain toward positivity.',
+        action: 'Name one thing that held you today.',
+        why: 'Gratitude before sleep rewires your brain.',
         practice: 'Reflect on your day.\nName one thing that held you.\nIt can be small: a smile, sunlight, a moment of ease.\nSay thank you.',
         duration: '2 mins'
       },
       {
-        action: useTechLanguage || preferTechLanguage ? 'Run body scan: head to toes diagnostic' : 'Body scan to transition from day to night',
-        why: 'Your body holds the day\'s stress. Releasing it prepares you for rest.',
+        action: useTechLanguage || preferTechLanguage ? 'Body scan: head to toes' : 'Scan your body. Where is the tension?',
+        why: 'Your body holds the day. Release it before sleep.',
         practice: 'Lie down or sit comfortably.\nClose your eyes.\nScan from head to toes.\nWhere is tension?\nBreathe into those places.',
         duration: '5 mins'
       },
       {
-        action: useTechLanguage || preferTechLanguage ? 'Cleanness flush: reset your environment' : 'Evening space reset: clear what accumulated today',
-        why: 'Cleanness of the household is a Bioethics parameter. Evening clearing creates morning ease.',
+        action: useTechLanguage || preferTechLanguage ? 'Cleanness flush: reset environment' : 'Reset your space. Prepare for tomorrow.',
+        why: 'Evening clearing creates morning ease.',
         practice: 'Spend 5 minutes resetting your space.\nPut items back where they belong.\nClear one surface.\nPrepare for tomorrow.\nNotice the calm.',
         duration: '5 mins'
       },
       {
-        action: 'Abhyanga (Ayurvedic self-massage)',
-        why: 'Warm oil massage calms the nervous system and honors the body.',
+        action: 'Warm oil. Massage hands, feet, or scalp.',
+        why: 'Self-massage calms the nervous system.',
         practice: 'Warm a small amount of oil.\nMassage feet, hands, or scalp with gentle circles.\nTake your time.\nAppreciate your body.\nBreathe slowly.',
         duration: '10 mins'
       },
       {
-        action: 'Hot towel face rest (Korean jjimjilbang-inspired)',
-        why: 'Heat releases tension held in facial muscles. It signals safety to your nervous system.',
+        action: 'Hot towel on face. Melt the tension.',
+        why: 'Heat signals safety to your nervous system.',
         practice: 'Heat a damp towel (warm, not burning).\nPlace over face and breathe.\nLie down if possible.\nStay for 5 minutes.\nFeel tension melt.',
         duration: '5 mins'
       }
     )
   } else if (hour >= 22 || hour < 6) {
     suggestions.push({
-      action: 'Nighttime self-compassion practice',
-      why: 'Late hours can bring harsh thoughts. You deserve kindness, especially now.',
+      action: 'Hand on heart. "I did my best today."',
+      why: 'Late hours bring harsh thoughts. Counter them with truth.',
       practice: 'Place hand on your heart.\nSay: "I did my best today."\nBreathe.\nSay: "I am enough."\nLet yourself rest.',
       duration: '2 mins'
     })
@@ -709,146 +709,146 @@ function generateContextualSuggestion(
   if (suggestions.length === 0) {
     suggestions.push(
       {
-        action: 'Take 3 conscious breaths right now',
-        why: 'Breath is always available. It anchors you to the present.',
+        action: 'Three conscious breaths. Right now.',
+        why: 'Breath is always available. Use it.',
         practice: 'Breathe in slowly.\nPause at the top.\nBreathe out slowly.\nRepeat 3 times.\nNotice how you feel.',
         duration: '1 min'
       },
       {
-        action: 'Use Breathe for visual breath guidance',
-        why: 'The Breathe module offers gentle visual pacing for your breath.',
+        action: 'Open Breathe. Follow the circle.',
+        why: 'Visual pacing steadies the breath.',
         practice: 'Click Breathe at top of System.\nWatch the circle expand and contract.\nSync your breath to its rhythm.\nStay present.',
         duration: '3 mins'
       },
       {
-        action: 'Stretch your body',
-        why: 'Your body holds tension. Movement releases it.',
+        action: 'Stand up. Stretch. Move.',
+        why: 'Your body holds tension. Release it.',
         practice: 'Stand up.\nReach arms overhead.\nSide bend both ways.\nRoll shoulders.\nNotice what feels tight.',
         duration: '2 mins'
       },
       {
-        action: 'Drink a glass of water mindfully',
-        why: 'The quality of water is a biofield parameter. Hydration affects everything.',
+        action: 'Drink water. Slowly.',
+        why: 'Hydration affects everything.',
         practice: 'Get water.\nHold the glass.\nTake slow sips.\nFeel the water nourishing you.\nSay thank you to your body.',
         duration: '2 mins'
       },
       {
-        action: 'Write one sentence in your Log',
-        why: 'Even one sentence captures the moment. Your Log preserves what matters.',
+        action: 'One sentence in your Log. That is enough.',
+        why: 'One true sentence captures more than you think.',
         practice: 'Open your Log.\nWrite one true sentence about right now.\nThat\'s it.\nOne sentence is enough.',
         duration: '1 min'
       },
       {
-        action: 'Notice what you\'re holding and set it down',
-        why: 'We carry invisible burdens. Sometimes we just need permission to put them down.',
+        action: 'What are you carrying? Set it down.',
+        why: 'You have permission to put it down.',
         practice: 'Close your eyes.\nAsk: "What am I holding that isn\'t mine to carry?"\nImagine setting it down.\nFeel the lightness.',
         duration: '3 mins'
       },
       {
-        action: 'Appreciate something in your immediate space',
-        why: 'Beauty is always present. Noticing it shifts your state.',
+        action: 'Find one beautiful thing near you. Look at it.',
+        why: 'Noticing beauty shifts your state instantly.',
         practice: 'Look around.\nFind one thing that brings you ease.\nReally look at it for 1 minute.\nNotice its details.\nSay: "Thank you for being here."',
         duration: '2 mins'
       },
       {
-        action: 'Place your hand on your heart and just breathe',
-        why: 'Touch is healing, even when it\'s your own. Your heart deserves acknowledgment.',
+        action: 'Hand on heart. Five breaths.',
+        why: 'Your own touch heals.',
         practice: 'Place your hand on your chest.\nFeel your heartbeat.\nBreathe slowly.\nSay: "I am here with you."\nStay for 5 breaths.',
         duration: '2 mins'
       },
       {
-        action: 'Mindful cleaning: wash one dish slowly',
-        why: 'Cleanness is meditation when done with full attention. A handmade meal starts with a clean surface.',
+        action: 'Wash one dish with full attention.',
+        why: 'Cleanness with attention is meditation.',
         practice: 'Choose one dish.\nFeel the warm water.\nNotice the soap, the movements.\nMake it a meditation.\nFinish with gratitude.',
         duration: '3 mins'
       },
       {
-        action: 'Wabi-sabi moment: find beauty in imperfection',
-        why: 'Japanese wabi-sabi teaches us perfection is not the goal. Beauty lives in the worn, the weathered, the real.',
+        action: 'Find beauty in something imperfect.',
+        why: 'Perfection is not the goal. The real is beautiful.',
         practice: 'Look for something imperfect nearby.\nA crack, a stain, asymmetry.\nSee its unique beauty.\nSay: "This too is perfect as it is."',
         duration: '2 mins'
       },
       {
-        action: 'Ubuntu practice: recognize your connection',
-        why: 'African Ubuntu philosophy: "I am because we are." Connection is fundamental.',
+        action: 'Think of someone. Say: "I am because you are."',
+        why: 'Connection is fundamental. You are not alone.',
         practice: 'Think of someone in your life.\nSay: "I am because you are."\nFeel the truth of interdependence.\nBreathe with gratitude.',
         duration: '2 mins'
       },
       {
-        action: 'Connect with others in Sync',
-        why: 'Community dissolves isolation. Your cohort understands.',
+        action: 'Open Sync. Read. Share. Belong.',
+        why: 'Community dissolves isolation.',
         practice: 'Open Sync tab.\nRead what others shared.\nOffer a kind word.\nReceive support.\nYou belong.',
         duration: '10 mins'
       },
       {
-        action: 'Mediterranean olive oil hand ritual',
-        why: 'The hands carry the day\'s work. Honoring them honors your effort.',
+        action: 'Oil on palms. Massage each finger slowly.',
+        why: 'Your hands carry the day. Honor them.',
         practice: 'Warm a few drops of oil in palms.\nMassage each finger slowly.\nPress thumbs into palm.\nNotice the texture, warmth.\nThank your hands.',
         duration: '3 mins'
       },
       {
-        action: 'Turn on Sound and just listen',
-        why: 'Sound creates spaciousness. Listening is meditation.',
-        practice: 'Click Sound at top.\nChoose any tone.\nClose your eyes.\nDon\'t do anything else.\nJust listen.',
+        action: 'Sound on. Eyes closed. Just listen.',
+        why: 'Listening is meditation.',
+        practice: 'Click Sound at top.\nClose your eyes.\nDon\'t do anything else.\nJust listen.',
         duration: '5 mins'
       },
       {
-        action: 'Explore Radio for musical medicine',
-        why: 'Music shifts state instantly. Let sound move through you.',
+        action: 'Radio on. Let music move through you.',
+        why: 'Music shifts state instantly.',
         practice: 'Turn on Radio.\nListen to a few tracks.\nNotice how each one affects you.\nStay with what resonates.',
         duration: '10 mins'
       },
       {
-        action: 'Organize one small drawer or space',
-        why: 'Order in small spaces creates mental spaciousness. Start small.',
+        action: 'One drawer. Empty. Wipe. Rebuild.',
+        why: 'Order in small spaces creates mental spaciousness.',
         practice: 'Choose one drawer or shelf.\nEmpty it completely.\nWipe clean.\nReturn only what belongs.\nArrange with care.',
         duration: '10 mins'
       },
       {
-        action: 'Cold water face splash (Scandinavian tradition)',
-        why: 'Cold water activates your vagus nerve, reducing stress and increasing alertness.',
+        action: 'Cold water on face. Three splashes.',
+        why: 'Activates your vagus nerve. Instant clarity.',
         practice: 'Splash face with cold water 3 times.\nPat dry.\nNotice the clarity.\nFeel the aliveness.\nTake a full breath.',
         duration: '1 min'
       },
       {
-        action: 'Golden milk moment (Indian tradition)',
-        why: 'Nutrition is a biofield parameter. Turmeric calms inflammation and signals comfort to the body.',
+        action: 'Golden milk. Both hands. Sip slowly.',
+        why: 'Turmeric calms inflammation. Warmth signals comfort.',
         practice: 'Make warm milk with turmeric and honey.\nStir slowly.\nCup in both hands.\nSip with full attention.\nFeel the warmth spread.',
         duration: '5 mins'
       },
       {
-        action: 'Clear one surface as sacred space',
-        why: 'Household Cleanness is a Bioethics Index parameter. Every cleared space is a sanctuary.',
+        action: 'Clear one surface. Make it sacred.',
+        why: 'Every cleared space is a sanctuary.',
         practice: 'Choose one surface.\nRemove everything.\nWipe clean.\nPlace only one meaningful object.\nSit nearby and breathe.',
         duration: '5 mins'
       },
       {
-        action: 'Window cleaning meditation',
-        why: 'Clean windows change how light enters. Clarity outside creates clarity within.',
+        action: 'Clean one window. Watch the light change.',
+        why: 'Clarity outside creates clarity within.',
         practice: 'Clean one window pane.\nSlow circles.\nNotice the transformation.\nWatch light differently.\nAppreciate the view.',
         duration: '5 mins'
       },
       {
-        action: useTechLanguage || preferTechLanguage ? 'Biofield container audit: scan and reset' : 'Scan your space and fix one thing',
-        why: 'Cleanness is not perfection. It is noticing what needs care and attending to it. One fix shifts the whole field.',
+        action: useTechLanguage || preferTechLanguage ? 'Space audit: scan and fix one thing' : 'Scan your space. Fix one thing.',
+        why: 'Cleanness is not perfection. It is noticing and acting.',
         practice: 'Stand in the center of your room.\nSlowly scan 360 degrees.\nNotice what calls for attention.\nFix one thing.\nThat is enough.',
         duration: '3 mins'
       },
       {
-        action: 'Wash one thing by hand with full attention',
-        why: 'Handwashing is ancient cleanness. Water, attention, and care transform both the object and the one cleaning.',
+        action: 'Wash one thing by hand. Slowly.',
+        why: 'Water, attention, and care transform both object and person.',
         practice: 'Choose one item: a cup, a plate, a surface.\nUse warm water.\nMove slowly.\nFeel the transformation.\nDry it with care.',
         duration: '3 mins'
       },
       {
-        action: 'Digital cleanness: close unused tabs and apps',
-        why: 'Digital clutter drains attention like physical clutter drains energy. Clean screens clear the mind.',
+        action: 'Close every tab you don\'t need.',
+        why: 'Digital clutter drains attention. Clear it.',
         practice: 'Close every tab you don\'t need.\nQuit apps running in the background.\nClear your desktop.\nOrganize one folder.\nNotice the lightness.',
         duration: '5 mins'
       },
       {
-        action: 'Trash audit: empty one bin mindfully',
-        why: 'Letting go of waste is cleanness. What you discard creates space for what matters.',
+        action: 'Empty one bin. Let go of what is done.',
+        why: 'What you discard creates space for what matters.',
         practice: 'Find the nearest bin or pile.\nSort what can be recycled.\nDiscard what is done.\nWipe the container.\nNotice the space created.',
         duration: '5 mins'
       }

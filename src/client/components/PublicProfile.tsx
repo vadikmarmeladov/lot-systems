@@ -4,7 +4,7 @@ import { PublicProfile as PublicProfileType, WeatherStation, Wallet } from '#sha
 import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
-import { joinWithDots, getLevelSymbol } from '#client/utils/badges'
+import { joinWithDots, getLevelSymbol, getBadgeProgressionDisplay } from '#client/utils/badges'
 
 export const PublicProfile = () => {
   const [profile, setProfile] = React.useState<PublicProfileType | null>(null)
@@ -142,9 +142,9 @@ export const PublicProfile = () => {
             <div className="mt-4">
               Possible issues:
               <ul className="list-disc list-inside mt-2 text-left">
-                <li>Profile not enabled in Settings</li>
-                <li>Wrong user ID or custom URL</li>
-                <li>Check Settings → Public Profile for your correct link</li>
+                <li>↳ Profile not enabled in Settings</li>
+                <li>↳ Wrong user ID or custom URL</li>
+                <li>↳ Check Settings → Public Profile for your correct link</li>
               </ul>
             </div>
           )}
@@ -179,7 +179,7 @@ export const PublicProfile = () => {
   if (profile.isPrivate) {
     return (
       <div className="max-w-2xl min-h-screen">
-        <div className="flex flex-col gap-y-24">
+        <div className="flex flex-col gap-y-0">
           {/* Name */}
           <div>
             <div>{userName}</div>
@@ -225,7 +225,7 @@ export const PublicProfile = () => {
 
   return (
     <div className="max-w-2xl min-h-screen">
-      <div className="flex flex-col gap-y-24">
+      <div className="flex flex-col gap-y-0">
         {/* Name */}
         <div>
           <div>{userName}</div>
@@ -288,7 +288,7 @@ export const PublicProfile = () => {
                 `Citizen since ${profile.boardProfile.citizenSince}`,
                 `Powering ${formatNumberWithCommas(profile.boardProfile.poweringCitizens)} citizens`,
                 `Board tenure ${profile.boardProfile.boardTenureMonths} months`,
-              ].join(' • ')}
+              ].join(' · ')}
             </Block>
             {profile.boardProfile.biofieldState && (
               <Block label="Biofield State:">
@@ -296,7 +296,7 @@ export const PublicProfile = () => {
                   profile.boardProfile.biofieldState.clarity,
                   profile.boardProfile.biofieldState.alignment,
                   `${profile.boardProfile.biofieldState.energy} energy`,
-                ].map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' • ')}
+                ].map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' · ')}
               </Block>
             )}
             <Block label="Activity:">
@@ -304,13 +304,13 @@ export const PublicProfile = () => {
                 `${formatNumberWithCommas(profile.boardProfile.activity.memoriesCompiled)} memories compiled`,
                 `${formatNumberWithCommas(profile.boardProfile.activity.journalEntries)} journal entries`,
                 `${formatNumberWithCommas(profile.boardProfile.activity.activeDays)} active days`,
-              ].join(' • ')}
+              ].join(' · ')}
             </Block>
             <Block label="Memory Engine:">
-              {profile.boardProfile.memoryEngine}
+              → {profile.boardProfile.memoryEngine}
             </Block>
             <Block label="Clearance level:">
-              {profile.boardProfile.clearanceLevel} ({formatNumberWithCommas(profile.boardProfile.totalEntries)} entries)
+              → {profile.boardProfile.clearanceLevel} ({formatNumberWithCommas(profile.boardProfile.totalEntries)} entries)
             </Block>
           </div>
         )}
@@ -436,12 +436,12 @@ export const PublicProfile = () => {
                   <div>
                     <div className="flex mb-24">
                       <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Pattern strength:</span>
-                      <span className="flex-1">{profile.psychologicalProfile.patternStrengthIndex || profile.psychologicalProfile.patternStrength.reduce((sum: number, item: { count: number }) => sum + item.count, 0)}</span>
+                      <span className="flex-1">{(profile.psychologicalProfile.patternStrengthIndex || profile.psychologicalProfile.patternStrength.reduce((sum: number, item: { count: number }) => sum + item.count, 0)).toLocaleString()}</span>
                     </div>
                     {profile.psychologicalProfile.patternStrength.map((item: { trait: string; count: number }, idx: number) => (
                       <div key={idx} className="flex">
-                        <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">{item.trait}:</span>
-                        <span className="flex-1">{item.count}</span>
+                        <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">↳ {item.trait}:</span>
+                        <span className="flex-1">{item.count.toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
@@ -453,19 +453,55 @@ export const PublicProfile = () => {
                     {profile.psychologicalProfile.answerCount !== undefined && (
                       <div className="flex">
                         <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Answers:</span>
-                        <span className="flex-1">{profile.psychologicalProfile.answerCount}</span>
+                        <span className="flex-1">{profile.psychologicalProfile.answerCount.toLocaleString()}</span>
                       </div>
                     )}
                     {profile.psychologicalProfile.noteCount !== undefined && (
                       <div className="flex">
                         <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Notes:</span>
-                        <span className="flex-1">{profile.psychologicalProfile.noteCount}</span>
+                        <span className="flex-1">{profile.psychologicalProfile.noteCount.toLocaleString()}</span>
                       </div>
                     )}
                   </div>
                 )}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Correlated Indexes */}
+        {profile.correlatedIndexes && profile.correlatedIndexes.composite > 0 && (
+          <div>
+            <Block label="Indexes:" blockView>
+              <div className="flex flex-col gap-8">
+                <div className="flex">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Self-awareness:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.selfAwareness.toFixed(1)}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">User score:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.userScore.toFixed(1)}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Person score:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.personScore.toFixed(1)}</span>
+                </div>
+                <div className="flex">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Longevity score:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.longevityScore.toFixed(1)}</span>
+                </div>
+                <div className="flex mt-8">
+                  <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Composite:</span>
+                  <span className="flex-1">{profile.correlatedIndexes.composite.toFixed(1)}</span>
+                </div>
+                {profile.correlatedIndexes.correlationStrength > 0 && (
+                  <div className="flex">
+                    <span className="w-[170px] sm:w-[150px] mr-24 sm:mr-12 -ml-4 px-4">Correlation:</span>
+                    <span className="flex-1">{(profile.correlatedIndexes.correlationStrength * 100).toFixed(0)}%</span>
+                  </div>
+                )}
+              </div>
+            </Block>
           </div>
         )}
 
@@ -545,7 +581,7 @@ export const PublicProfile = () => {
                         <span className="w-[80px] opacity-50">{tx.date.slice(5)}</span>
                         <span className="flex-1">{tx.description}</span>
                         <span className={tx.type === 'credit' ? '' : 'opacity-50'}>
-                          {tx.type === 'credit' ? '+' : '−'}{tx.amount.toFixed(2)}
+                          {tx.type === 'credit' ? '↑' : '↓'}{tx.amount.toFixed(2)}
                         </span>
                       </div>
                     ))}

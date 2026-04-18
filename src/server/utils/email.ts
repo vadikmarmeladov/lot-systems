@@ -33,6 +33,7 @@ function resendApiRequest(apiKey: string, emailData: Record<string, any>): Promi
         },
         // Allow self-signed certificates in the chain (e.g. corporate proxies, DigitalOcean)
         rejectUnauthorized: false,
+        timeout: 30000, // 30 second timeout to prevent indefinite hangs
       },
       (res) => {
         let responseBody = '';
@@ -51,6 +52,10 @@ function resendApiRequest(apiKey: string, emailData: Record<string, any>): Promi
         });
       }
     );
+    req.on('timeout', () => {
+      req.destroy();
+      resolve({ data: null, error: { message: 'Request timed out after 30 seconds' } });
+    });
     req.on('error', (err) => {
       resolve({ data: null, error: { message: err.message } });
     });

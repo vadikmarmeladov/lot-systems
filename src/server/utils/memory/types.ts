@@ -23,6 +23,14 @@ export interface PsychologicalDepth {
   }
 }
 
+export interface CorrelatedIndexSnapshot {
+  selfAwareness: number
+  userScore: number
+  personScore: number
+  longevityScore: number
+  composite: number
+}
+
 export interface CohortClassification {
   archetype: string
   behavioralCohort: string

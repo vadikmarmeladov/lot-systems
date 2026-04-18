@@ -26,7 +26,7 @@ export function IntentionPatterns() {
         {sortedPatterns.map(([pattern, count]) => (
           <div key={pattern} className="flex justify-between items-center">
             <span className="opacity-30">{pattern}</span>
-            <span className="tabular-nums">{count}</span>
+            <span className="tabular-nums">{count.toLocaleString()}</span>
           </div>
         ))}
 

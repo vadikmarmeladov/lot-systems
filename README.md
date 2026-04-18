@@ -7,6 +7,11 @@
 
 ---
 
+> **NOTICE TO ALL PARTIES:**
+> This is open-source code powering a live production build. Any intentional harm, sabotage, tampering, or damage to this codebase, its infrastructure, or its services will be treated as a criminal offense under applicable computer crime and cybersecurity laws, including but not limited to the Computer Fraud and Abuse Act (CFAA), the UK Computer Misuse Act, and equivalent legislation in all applicable jurisdictions. All repository activity is logged and monitored. Violations will be investigated and reported to the appropriate law enforcement authorities. By accessing or contributing to this repository, you acknowledge this notice and agree to act in good faith.
+
+---
+
 ## 🌟 What is LOT?
 
 LOT is a subscription service that distributes digital and physical necessities, basic wardrobes, organic self-care products, home and kids essentials.
@@ -405,7 +410,9 @@ Contact: support@lot-systems.com
 
 ## 📄 License
 
-© 2025 LOT Systems. All rights reserved.
+© 2025-2026 LOT Systems. All rights reserved.
+
+**Legal Notice:** This codebase and all associated services are protected under applicable intellectual property and computer crime laws. Unauthorized access, modification, sabotage, or any form of intentional damage constitutes a criminal offense and will be prosecuted to the fullest extent of the law.
 
 ---
 

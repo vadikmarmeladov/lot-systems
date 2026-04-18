@@ -166,7 +166,7 @@ export function EnergyCapacitor() {
 
       {view === 'romantic' && (
         <div>
-          {energyState.romanticConnection.lastIntimacyMoment ? (
+          {energyState.romanticConnection.lastIntimacyMoment && energyState.romanticConnection.daysSinceConnection !== null ? (
             <>
               {/* Narrative status */}
               <div className="mb-8">
@@ -190,7 +190,7 @@ export function EnergyCapacitor() {
             </>
           ) : (
             <div>
-              No romantic moments tracked yet.
+              No biofield resonance detected. Awaiting intimate signal.
             </div>
           )}
         </div>
@@ -206,7 +206,7 @@ export function EnergyCapacitor() {
             <div className="flex flex-col gap-4">
               {energyState.needsReplenishment.slice(0, 3).map((need, idx) => (
                 <div key={idx}>
-                  <span className="capitalize">{need.category}</span>: {need.daysSinceLastReplenishment} days
+                  <span className="capitalize">{need.category}</span>: {need.daysSinceLastReplenishment !== null ? `${need.daysSinceLastReplenishment} days` : 'No data'}
                 </div>
               ))}
             </div>

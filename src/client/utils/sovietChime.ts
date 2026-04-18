@@ -19,8 +19,28 @@ const hourProfiles = [
   { name: 'Noon', wave: 'sawtooth' as OscillatorType, freq1: 850, freq2: 650, rhythm: 0.55, volume: 0.16 },   // 12 PM - Bright, prominent
 ]
 
-export function playSovietChime(hour: number) {
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+// Shared AudioContext — reused across chimes to avoid browser autoplay suspension
+let sharedAudioContext: AudioContext | null = null
+
+function getAudioContext(): AudioContext {
+  if (!sharedAudioContext || sharedAudioContext.state === 'closed') {
+    sharedAudioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+  }
+  return sharedAudioContext
+}
+
+export async function playSovietChime(hour: number) {
+  const audioContext = getAudioContext()
+
+  // Resume suspended context (browser autoplay policy)
+  if (audioContext.state === 'suspended') {
+    try {
+      await audioContext.resume()
+    } catch (e) {
+      console.warn('🔔 Chime: AudioContext resume failed', e)
+      return
+    }
+  }
 
   // How many chimes based on 12-hour format
   const chimeCount = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour

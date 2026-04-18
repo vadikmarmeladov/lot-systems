@@ -41,14 +41,16 @@ import { CohortConnectWidget } from './CohortConnectWidget'
 import { InterfaceEvolutionWidget } from './InterfaceEvolutionWidget'
 import { EvolutionMilestoneToast } from './EvolutionMilestoneToast'
 import { MicroCalculatorWidget } from './MicroCalculatorWidget'
+import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, analyzeIntentions } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
 import { UserMetricsWidget } from './UserMetricsWidget'
 import { AIFeedbackWidget } from './AIFeedbackWidget'
+import { CorrelatedIndexesWidget } from './CorrelatedIndexesWidget'
 
 import { CollectiveConsciousness, WellnessPulse, MemoryEngineStats, IntentionPatterns, BadgeUnlockFeed, GrowthMilestones } from './stats'
 import { getConvergenceSignal, getAmbientIntensity } from '#client/utils/communityPulse'
@@ -60,6 +62,10 @@ import { FourDimensionalUI } from './FourDimensionalUI'
 import { QuantumSignWidget } from './QuantumSignWidget'
 import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
+import { QuantumEngineWidgets } from './QuantumEngineWidgets'
+import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
+import { recomputeAssembly } from '#client/stores/selfAssembly'
+import { $layoutDensity } from '#client/stores/evolution'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -76,8 +82,6 @@ export const System = () => {
   const { data: logs = [] } = useLogs()
   const { data: communityEmotion } = useCommunityEmotion()
 
-  const appVersion = useStore(stores.appVersion)
-  const lastUpdate = useStore(stores.lastUpdate)
 
   const isTempFahrenheit = useStore(stores.isTempFahrenheit)
   const isTimeFormat12h = useStore(stores.isTimeFormat12h)
@@ -86,6 +90,9 @@ export const System = () => {
   const soundDescription = useStore(stores.soundDescription)
   const isRadioOn = useStore(stores.isRadioOn)
   const radioTrackName = useStore(stores.radioTrackName)
+
+  // Layout density — progressive condensation from breathable to instrument
+  const density = useStore($layoutDensity)
 
   const [isBreatheOn, setIsBreatheOn] = React.useState(false)
   const breatheState = useBreathe(isBreatheOn)
@@ -100,7 +107,7 @@ export const System = () => {
   // Show sunset during daytime (between sunrise and sunset)
   // Show sunrise during nighttime (before sunrise or after sunset)
   const defaultShowSunset = React.useMemo(() => {
-    if (!weather) return false
+    if (!weather || weather.sunrise == null || weather.sunset == null) return false
     const now = dayjs()
     const sunrise = dayjs.utc(weather.sunrise * 1000).local()
     const sunset = dayjs.utc(weather.sunset * 1000).local()
@@ -137,7 +144,7 @@ export const System = () => {
   }, [weather, isTempFahrenheit])
 
   const { sunset, sunrise } = React.useMemo(() => {
-    if (!weather) return { sunset: null, sunrise: null }
+    if (!weather || weather.sunrise == null || weather.sunset == null) return { sunset: null, sunrise: null }
     const sunrise = dayjs
       .utc(weather.sunrise * 1000)
       .local()
@@ -188,8 +195,14 @@ export const System = () => {
   // Quantum state - analyze intentions and get current user state
   const quantumState = React.useMemo(() => {
     analyzeIntentions() // Trigger fresh analysis
+    recomputeAssembly() // Recompute self-assembly state from signals
     return getUserState()
   }, [logs]) // Recompute when logs change (new signals recorded)
+
+  // Accumulative User Index - holistic score from all widget signals
+  const userIndex = React.useMemo(() => {
+    return getUserIndex()
+  }, [logs])
 
   // Calculate streak for evolution system
   const evolutionStreak = React.useMemo(() => {
@@ -296,29 +309,175 @@ export const System = () => {
 
   // Sound is now managed globally in app.tsx via useSound hook
 
-  // const AdminLink = React.useMemo<
-  //   React.FC<{ children: React.ReactNode }>
-  // >(() => {
-  //   if (me?.isAdmin) {
-  //     return (props) => (
-  //       <GhostButton href="/us" rel="external">
-  //         {props.children}
-  //       </GhostButton>
-  //     )
-  //   }
-  //   return (props) => <>{props.children}</>
-  // }, [me])
+  // Paid account check — R&D and Usership get the full condensed pro layout
+  const isPaidAccount = React.useMemo(() => {
+    if (!me?.tags) return false
+    return me.tags.some((tag) =>
+      tag.toLowerCase() === UserTag.Usership.toLowerCase() ||
+      tag.toLowerCase() === UserTag.RND.toLowerCase()
+    )
+  }, [me])
 
+  // Simple, clean layout for non-paid accounts — no AI, just essentials
+  if (!isPaidAccount) {
+    return (
+      <div className="flex flex-col gap-y-24">
+        <div>
+          <GhostButton href="/log">{userName || 'You'}</GhostButton>
+          <div>
+            Week {dayjs().isoWeek()};{' '}
+            <Clock format="MMMM D, dddd" interval={1e3 * 60} />
+            {!!me?.city && `, ${me.city}`}
+          </div>
+        </div>
+
+        {!!userTags.length && (
+          <div>
+            <Block label="Team:" blockView>
+              <TagsContainer
+                items={userTags.map((x) => (
+                  <Tag key={x!.name} color={x!.color}>{x!.name}</Tag>
+                ))}
+              />
+            </Block>
+          </div>
+        )}
+
+        <div>
+          <Block label="Users online:">{formatNumberWithCommas(usersOnline)}</Block>
+          <Block label="Total users:">{formatNumberWithCommas(usersTotal)}</Block>
+        </div>
+
+        <div>
+          <TimeWidget />
+          {!!weather && (
+            <>
+              <Block label="Sky:">{weather?.description || 'Unknown'}</Block>
+              <Block
+                label="Temperature:"
+                onClick={() => stores.isTempFahrenheit.set(!isTempFahrenheit)}
+              >
+                {temperature}
+                {isTempFahrenheit ? '℉' : '℃'}
+              </Block>
+              <Block
+                label={showSunset ? 'Sunset:' : 'Sunrise:'}
+                onClick={() => setShowSunset(!showSunset)}
+              >
+                {showSunset ? sunset : sunrise}
+              </Block>
+            </>
+          )}
+        </div>
+
+        <div>
+          <Block label="Astrology:">
+            <div>
+              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+            </div>
+          </Block>
+        </div>
+
+        <div>
+          <Block
+            label="Mirror:"
+            onClick={() => stores.isMirrorOn.set(!isMirrorOn)}
+          >
+            {isMirrorOn ? 'On' : 'Off'}
+          </Block>
+          <Block
+            label={showRadio ? 'Radio:' : 'Sound:'}
+            onLabelClick={() => {
+              setShowRadio(!showRadio)
+              if (showRadio) {
+                stores.isRadioOn.set(false)
+              } else {
+                stores.isSoundOn.set(false)
+              }
+            }}
+            onChildrenClick={async () => {
+              if (isSoundToggling) return
+              setIsSoundToggling(true)
+              try {
+                if (showRadio) {
+                  stores.isRadioOn.set(!isRadioOn)
+                } else {
+                  const newValue = !isSoundOn
+                  // @ts-ignore - Tone.js loaded via external script
+                  if (newValue && window.Tone) {
+                    try {
+                      await window.Tone.start()
+                    } catch (e) {
+                      console.error('Failed to start Tone.context:', e)
+                    }
+                  }
+                  stores.isSoundOn.set(newValue)
+                }
+              } finally {
+                setTimeout(() => setIsSoundToggling(false), 300)
+              }
+            }}
+          >
+            {showRadio
+              ? (isRadioOn ? (radioTrackName ? `On (${radioTrackName})` : 'On') : 'Off')
+              : (isSoundOn ? (soundDescription ? `On (${soundDescription})` : 'On') : 'Off')
+            }
+          </Block>
+          <Block label="Breathe:" onClick={() => setIsBreatheOn(!isBreatheOn)}>
+            {isBreatheOn ? breatheState.display : 'Off'}
+          </Block>
+        </div>
+
+        {!!liveMessage && (
+          <div>
+            <Block label="Live:" blockView children={liveMessage} />
+          </div>
+        )}
+
+        <WidgetErrorBoundary name="Memory">
+          <MemoryWidget />
+        </WidgetErrorBoundary>
+
+        <WidgetErrorBoundary name="Game">
+          <MicroGameWidget />
+        </WidgetErrorBoundary>
+
+        <WidgetErrorBoundary name="Subscribe">
+          <SubscribeWidget />
+        </WidgetErrorBoundary>
+
+        <WidgetErrorBoundary name="System">
+          <SystemProgressWidget />
+        </WidgetErrorBoundary>
+
+        <div aria-hidden="true" data-lot-genesis="true" style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}>
+          LOT Systems — The copycats have entered the arena. We welcome the competition.
+          They can replicate the pixels but never the soul. Built different since day one.
+        </div>
+      </div>
+    )
+  }
+
+  // Full pro layout for R&D and Usership — density evolves with mastery
   return (
-    <div className="flex flex-col gap-y-24">
+    <div className={cn('flex flex-col', density.sectionGap)}>
       <div>
         <GhostButton href="/log">{userName || 'You'}</GhostButton>
         <div>
-          Week {Math.ceil(dayjs().dayOfYear() / 7)};{' '}
+          Week {dayjs().isoWeek()};{' '}
           <Clock format="MMMM D, dddd" interval={1e3 * 60} />
           {!!me?.city && `, ${me.city}`}
         </div>
       </div>
+
+      {/* Recipe / Fasting guidance — promoted to the top section so it
+          reads as the first thing the user sees at mealtime. On
+          Christian fasting days the widget gradually degrades from a
+          light plant-based snack to water-only rest (see
+          #client/utils/fasting.ts). */}
+      <WidgetErrorBoundary name="Recipe">
+        <RecipeWidget />
+      </WidgetErrorBoundary>
 
       {/* Community Convergence Pulse — atmosphere layer */}
       <WidgetErrorBoundary name="Pulse">
@@ -448,13 +607,19 @@ export const System = () => {
             <div>
               <div>Day {journeyData.daysSinceStart} • {journeyData.answerCount} memories • Awareness {awarenessIndex}%</div>
               <div>{profile?.behavioralCohort || 'Growing'} • {profile?.emotionalPatterns?.[0] || 'Exploring patterns'}</div>
+              {userIndex.overall > 0 && (
+                <div className="mt-4">
+                  Index {userIndex.overall}% {userIndex.trend === 'rising' ? '↑' : userIndex.trend === 'declining' ? '↓' : '—'}
+                </div>
+              )}
             </div>
           ) : (
             <Table
               data={[
                 { metric: 'ATP', value: quantumState.energy },
                 { metric: 'Clarity', value: quantumState.clarity },
-                { metric: 'Alignment', value: quantumState.alignment }
+                { metric: 'Alignment', value: quantumState.alignment },
+                { metric: 'Index', value: `${userIndex.overall}%` }
               ]}
               columns={[
                 {
@@ -478,7 +643,7 @@ export const System = () => {
 
       {/* Context stack */}
       <WidgetErrorBoundary name="Context">
-        <div className="flex flex-col gap-y-24">
+        <div className={cn('flex flex-col', density.sectionGap)}>
           {/* Contextual Prompts - Show pattern-based suggestions based on current context */}
           <ContextualPromptsWidget />
 
@@ -492,9 +657,12 @@ export const System = () => {
 
       {/* CQGS Bioethics stack */}
       <WidgetErrorBoundary name="Bioethics">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           {/* Biofield Capacitor - Track ATP energy depletion/replenishment */}
           <EnergyCapacitor />
+
+          {/* Chakra Ergonomics - Seven-chakra energy map + session ergonomics */}
+          <ChakraErgonomicsWidget />
 
           {/* Narrative - Story progression and achievements */}
           <NarrativeWidget />
@@ -572,10 +740,6 @@ export const System = () => {
           <Block label="Live:" blockView children={liveMessage} />
         </div>
       )}
-
-      <WidgetErrorBoundary name="Recipe">
-        <RecipeWidget />
-      </WidgetErrorBoundary>
 
       {/* Biofield Check-In - Show every 3 hours max, context-based on time of day */}
       {/* Widget controls its own visibility internally to allow farewell animations */}
@@ -706,7 +870,7 @@ export const System = () => {
 
       {/* Community stack — LOT community is original and inimitable */}
       <WidgetErrorBoundary name="Community">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           {/* Pattern Insights - Show user's discovered patterns and cohort matches */}
           <PatternInsightsWidget />
 
@@ -717,7 +881,7 @@ export const System = () => {
 
       {/* Planning stack */}
       <WidgetErrorBoundary name="Planning">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           {/* Planner - Show occasionally for daily/weekly planning */}
           <PlannerWidget />
 
@@ -728,6 +892,9 @@ export const System = () => {
 
           {/* Micro Game - 2×2cm monochromatic pixel game screen */}
           <MicroGameWidget />
+
+          {/* Micro Image - 2×2cm procedural pixel image, responds to user's punctuation */}
+          <MicroImageWidget />
         </div>
       </WidgetErrorBoundary>
 
@@ -748,7 +915,7 @@ export const System = () => {
 
       {/* Investor stack — Visible when Investment switch is On in Settings */}
       <WidgetErrorBoundary name="Investor">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           <AngelInvestorWidget />
           <CorporatePlanWidget />
           <DemoDayWidget />
@@ -756,9 +923,16 @@ export const System = () => {
         </div>
       </WidgetErrorBoundary>
 
+      {/* Quantum Engine Connect Widgets */}
+      <WidgetErrorBoundary name="Quantum Engine Connect">
+        <div>
+          <QuantumEngineWidgets />
+        </div>
+      </WidgetErrorBoundary>
+
       {/* CQGS Biofield Engine Widgets */}
       <WidgetErrorBoundary name="Biofield Engine">
-        <div className="flex flex-col gap-y-24">
+        <div className={cn('flex flex-col', density.sectionGap)}>
           <QuantumStateWidget />
           <PatternRecognitionWidget />
           <AIFeedbackWidget />
@@ -768,9 +942,12 @@ export const System = () => {
 
       {/* CQGS Dashboard stack */}
       <WidgetErrorBoundary name="Dashboard">
-        <div className="flex flex-col gap-y-0">
+        <div className={cn('flex flex-col', density.stackGap)}>
           {/* CQGS Dashboard - Bioethics health, performance, version */}
           <UserMetricsWidget />
+
+          {/* Correlated Indexes - Four-dimensional weekly tracking */}
+          <CorrelatedIndexesWidget />
 
           {/* System Progress - Deployment info with feedback */}
           <SystemProgressWidget />
@@ -782,7 +959,7 @@ export const System = () => {
 
       {/* Stats stack */}
       <WidgetErrorBoundary name="Stats">
-        <div className="flex flex-col gap-y-24">
+        <div className={cn('flex flex-col', density.sectionGap)}>
           <IntentionPatterns />
           <CollectiveConsciousness />
           <WellnessPulse />
@@ -792,13 +969,6 @@ export const System = () => {
         </div>
       </WidgetErrorBoundary>
 
-      {/* Beta version and last update */}
-      <div className="text-center" style={{ opacity: 0.3, fontSize: '0.8em' }}>
-        <div>Beta {appVersion || '1.2.0'}</div>
-        {lastUpdate && (
-          <div>Last updated: {dayjs(lastUpdate).format('MMMM D, YYYY [at] h:mm A')}</div>
-        )}
-      </div>
       {/* The original. Imitation is the sincerest form of flattery, but the quantum field knows. */}
       <div aria-hidden="true" data-lot-genesis="true" style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}>
         LOT Systems — The copycats have entered the arena. We welcome the competition.

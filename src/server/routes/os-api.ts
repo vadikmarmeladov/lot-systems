@@ -13,7 +13,7 @@
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import { Op } from 'sequelize'
 import dayjs from '#server/utils/dayjs'
-import { extractUserTraits, determineUserCohort } from '#server/utils/memory'
+import { extractUserTraits, determineUserCohort, calculateCorrelatedIndexes } from '#server/utils/memory'
 import { analyzeUserPatterns } from '#server/utils/patterns'
 import type { Log, User } from '#shared/types'
 
@@ -369,6 +369,116 @@ export function registerOSRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({ error: 'Failed to retrieve config' })
     }
   })
+
+  /**
+   * GET /api/os/indexes
+   * Correlated indexes — four-dimensional long-term tracking
+   * Returns: selfAwareness, userScore, personScore, longevityScore
+   * with weekly timeline and correlation strength
+   */
+  fastify.get('/os/indexes', async (req: FastifyRequest, reply) => {
+    try {
+      const userId = req.user.id
+
+      const [logs, answerCount, logCount, streak] = await Promise.all([
+        fastify.models.Log.findAll({
+          where: { userId },
+          order: [['createdAt', 'DESC']],
+          limit: 500,
+        }),
+        fastify.models.Answer.count({ where: { userId } }),
+        fastify.models.Log.count({ where: { userId } }),
+        calculateStreak(userId, fastify),
+      ])
+
+      const daysSinceStart = await getDaysSinceFirstActivity(userId, fastify)
+
+      if (logs.length < 5) {
+        return {
+          selfAwareness: 0,
+          userScore: 0,
+          personScore: 0,
+          longevityScore: 0,
+          composite: 0,
+          timeline: [],
+          trend: 'stable',
+          correlationStrength: 0,
+        }
+      }
+
+      // Current snapshot
+      const current = calculateCorrelatedIndexes(logs, {
+        daysSinceStart,
+        streak,
+        answerCount,
+        logCount,
+      })
+
+      // Build weekly timeline (up to 12 weeks back)
+      const timeline: Array<{
+        week: string
+        selfAwareness: number
+        userScore: number
+        personScore: number
+        longevityScore: number
+        composite: number
+      }> = []
+
+      for (let weeksAgo = 11; weeksAgo >= 0; weeksAgo--) {
+        const weekEnd = dayjs().subtract(weeksAgo, 'week').endOf('isoWeek')
+        const weekLabel = weekEnd.format('GGGG-[W]WW')
+
+        // Filter logs up to that week's end
+        const logsUpToWeek = logs.filter(l => dayjs(l.createdAt).isBefore(weekEnd) || dayjs(l.createdAt).isSame(weekEnd))
+
+        if (logsUpToWeek.length < 3) continue
+
+        const answersUpToWeek = logsUpToWeek.filter(l => l.event === 'answer').length
+        const logsCountUpToWeek = logsUpToWeek.length
+        const daysAtThatPoint = Math.max(1, dayjs(weekEnd).diff(dayjs(logsUpToWeek[logsUpToWeek.length - 1].createdAt), 'day'))
+
+        const snapshot = calculateCorrelatedIndexes(logsUpToWeek, {
+          daysSinceStart: daysAtThatPoint,
+          streak: Math.min(streak, daysAtThatPoint), // approximate
+          answerCount: answersUpToWeek,
+          logCount: logsCountUpToWeek,
+        })
+
+        timeline.push({ week: weekLabel, ...snapshot })
+      }
+
+      // Determine trend from timeline
+      let trend: 'ascending' | 'stable' | 'descending' = 'stable'
+      if (timeline.length >= 3) {
+        const recent = timeline.slice(-3)
+        const older = timeline.slice(0, Math.min(3, timeline.length - 3))
+        if (older.length > 0) {
+          const recentAvg = recent.reduce((s, t) => s + t.composite, 0) / recent.length
+          const olderAvg = older.reduce((s, t) => s + t.composite, 0) / older.length
+          if (recentAvg > olderAvg * 1.15) trend = 'ascending'
+          else if (recentAvg < olderAvg * 0.85) trend = 'descending'
+        }
+      }
+
+      // Correlation strength: how tightly the four indexes move together (0-1)
+      // Uses coefficient of variation — lower spread = higher correlation
+      const scores = [current.selfAwareness, current.userScore, current.personScore, current.longevityScore]
+      const mean = scores.reduce((s, v) => s + v, 0) / 4
+      const variance = scores.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / 4
+      const cv = mean > 0 ? Math.sqrt(variance) / mean : 1
+      const correlationStrength = Number(Math.max(0, Math.min(1, 1 - cv)).toFixed(2))
+
+      return {
+        ...current,
+        timeline,
+        trend,
+        correlationStrength,
+      }
+    } catch (error: any) {
+      console.error('OS Indexes error:', error)
+      return reply.status(500).send({ error: 'Failed to calculate indexes' })
+    }
+  })
 }
 
 // ============================================================================
@@ -376,10 +486,12 @@ export function registerOSRoutes(fastify: FastifyInstance) {
 // ============================================================================
 
 async function calculateStreak(userId: string, fastify: FastifyInstance): Promise<number> {
+  // Limit to last 365 days — a streak longer than a year is sufficient
   const answers = await fastify.models.Answer.findAll({
     where: { userId },
     order: [['createdAt', 'DESC']],
     attributes: ['createdAt'],
+    limit: 365,
   })
 
   if (answers.length === 0) return 0

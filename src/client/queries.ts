@@ -304,8 +304,7 @@ export const useProfile = () =>
     noteCount?: number
     message?: string
   }>('/api/user-profile', {
-    staleTime: 0, // Always fetch fresh data to ensure awareness index is current
-    cacheTime: 0, // Don't cache to prevent stale data issues in PWA
+    staleTime: 2 * 60 * 1000, // 2 minutes — awareness index doesn't change faster than this
     refetchOnWindowFocus: false,
   })()
 
@@ -661,6 +660,26 @@ export const useMemoryEngineStats = () =>
     retry: false, // Don't retry if user doesn't have access
   })()
 
+export const useAIUsageStats = () =>
+  createQuery<{
+    today: {
+      totalCalls: number
+      totalTokens: number
+      totalImageGenerations: number
+      byEngine: Record<string, { calls: number; estimatedTokens: number; imageGenerations: number }>
+      callsPerHour: number
+    }
+    session: {
+      totalCalls: number
+      totalTokens: number
+      totalImageGenerations: number
+      startedAt: number
+    }
+  }>('/api/stats/ai-usage', {
+    refetchInterval: 30000, // Refetch every 30 seconds
+    retry: false,
+  })()
+
 // ============================================================================
 // OS API - User Operating System metrics
 // ============================================================================
@@ -737,6 +756,28 @@ export const useOSDiagnostics = () =>
     }
     recommendations: string[]
   }>('/api/os/diagnostics', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
+  })()
+
+export const useOSIndexes = () =>
+  createQuery<{
+    selfAwareness: number
+    userScore: number
+    personScore: number
+    longevityScore: number
+    composite: number
+    timeline: Array<{
+      week: string
+      selfAwareness: number
+      userScore: number
+      personScore: number
+      longevityScore: number
+      composite: number
+    }>
+    trend: 'ascending' | 'stable' | 'descending'
+    correlationStrength: number
+  }>('/api/os/indexes', {
     refetchOnWindowFocus: false,
     staleTime: 10 * 60 * 1000,
   })()

@@ -1,5 +1,5 @@
 import type { Log } from '#shared/types'
-import type { TraitExtractionResult, PsychologicalDepth } from './types.js'
+import type { TraitExtractionResult, PsychologicalDepth, CorrelatedIndexSnapshot } from './types.js'
 
 /**
  * Extract user traits from their answer logs for cohort analysis
@@ -319,4 +319,100 @@ export function extractUserTraits(logs: Log[]): TraitExtractionResult {
       journalSentiment
     }
   }
+}
+
+/**
+ * Calculate correlated indexes from logs and engagement data.
+ *
+ * Four dimensions measured on the same 0-100 scale:
+ * - selfAwareness: Already calculated in extractUserTraits (journal reflection depth)
+ * - userScore: Platform engagement & system usage breadth
+ * - personScore: Psychological richness & human depth
+ * - longevityScore: Sustained commitment over time
+ */
+export function calculateCorrelatedIndexes(
+  logs: Log[],
+  meta: {
+    daysSinceStart: number
+    streak: number
+    answerCount: number
+    logCount: number
+  }
+): CorrelatedIndexSnapshot {
+  const analysis = extractUserTraits(logs)
+  const { psychologicalDepth, patterns } = analysis
+
+  // Self-awareness: use existing calculation directly
+  const selfAwareness = psychologicalDepth.selfAwareness
+
+  // ─── User Score (0-100) ──────────────────────────────────────────────
+  // Measures how actively and broadly the user engages with the platform
+  //
+  // Components:
+  //   Activity volume (0-30): Total interactions (answers + logs)
+  //   Widget diversity (0-25): How many different event types are used
+  //   Engagement rate (0-25): Interactions per day
+  //   Data richness (0-20): Notes with meaningful content
+  const totalInteractions = meta.answerCount + meta.logCount
+  const activityVolume = Math.min(30, Math.sqrt(totalInteractions) * 3)
+
+  const eventTypes = new Set(logs.map(l => l.event))
+  const widgetDiversity = Math.min(25, (eventTypes.size / 6) * 25)
+
+  const engagementRate = meta.daysSinceStart > 0
+    ? Math.min(25, (totalInteractions / meta.daysSinceStart) * 25)
+    : 0
+
+  const meaningfulNotes = logs.filter(l => l.event === 'note' && l.text && l.text.length > 50).length
+  const dataRichness = Math.min(20, Math.sqrt(meaningfulNotes) * 5)
+
+  const userScore = Math.min(100, Number((activityVolume + widgetDiversity + engagementRate + dataRichness).toFixed(1)))
+
+  // ─── Person Score (0-100) ────────────────────────────────────────────
+  // Measures psychological richness — how much of the person has been revealed
+  //
+  // Components:
+  //   Emotional range (0-25): Diversity of emotions expressed (from 0-10 scale)
+  //   Reflection quality (0-25): Depth of introspection (from 0-10 scale)
+  //   Value expression (0-25): How many distinct values surfaced
+  //   Pattern depth (0-25): Total strength of behavioral patterns
+  const emotionalRangeScore = (psychologicalDepth.emotionalRange / 10) * 25
+  const reflectionScore = (psychologicalDepth.reflectionQuality / 10) * 25
+
+  const valueCount = psychologicalDepth.values.length + psychologicalDepth.dominantNeeds.length
+  const valueExpression = Math.min(25, (valueCount / 6) * 25)
+
+  const totalPatternHits = Object.values(patterns).reduce((sum, count) => sum + count, 0)
+  const patternDepth = Math.min(25, Math.sqrt(totalPatternHits) * 4)
+
+  const personScore = Math.min(100, Number((emotionalRangeScore + reflectionScore + valueExpression + patternDepth).toFixed(1)))
+
+  // ─── Longevity Score (0-100) ─────────────────────────────────────────
+  // Measures sustained commitment over time — not just showing up, but staying
+  //
+  // Components:
+  //   Tenure (0-30): Days since first activity (logarithmic — early days count more)
+  //   Streak strength (0-30): Current consecutive day streak
+  //   Consistency (0-20): Ratio of active days to total days
+  //   Maturity (0-20): Growth trajectory stage bonus
+  const tenure = Math.min(30, Math.log2(Math.max(1, meta.daysSinceStart)) * 5)
+  const streakStrength = Math.min(30, Math.sqrt(meta.streak) * 6)
+
+  const activeDayEstimate = Math.min(meta.daysSinceStart, totalInteractions)
+  const consistencyRatio = meta.daysSinceStart > 0
+    ? Math.min(20, (activeDayEstimate / meta.daysSinceStart) * 20)
+    : 0
+
+  const maturityBonus =
+    psychologicalDepth.growthTrajectory === 'integrated' ? 20 :
+    psychologicalDepth.growthTrajectory === 'deepening' ? 14 :
+    psychologicalDepth.growthTrajectory === 'developing' ? 8 : 3
+
+  const longevityScore = Math.min(100, Number((tenure + streakStrength + consistencyRatio + maturityBonus).toFixed(1)))
+
+  // ─── Composite (weighted average) ────────────────────────────────────
+  // Equal weight: each dimension matters equally
+  const composite = Number(((selfAwareness + userScore + personScore + longevityScore) / 4).toFixed(1))
+
+  return { selfAwareness, userScore, personScore, longevityScore, composite }
 }

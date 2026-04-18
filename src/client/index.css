@@ -13,10 +13,10 @@
   --acc-color-700: 0 0 0;
   --acc-color-600: 0 0 0;
   --acc-color-500: 0 0 0;
-  --acc-color-400: 51 51 51;
-  --acc-color-300: 102 102 102;
-  --acc-color-200: 153 153 153;
-  --acc-color-100: 204 204 204;
+  --acc-color-400: 0 0 0;
+  --acc-color-300: 0 0 0;
+  --acc-color-200: 0 0 0;
+  --acc-color-100: 0 0 0;
 
   /* Evolution system variables - dynamically updated based on user progression */
   --evolution-base-opacity: 1.0;
@@ -349,6 +349,13 @@ td:last-child {
   white-space: pre-wrap;
   word-wrap: break-word;
   pointer-events: none;
+}
+
+/* Widget in-progress highlight — theme-aware indicator for widgets under development */
+.widget-in-progress {
+  border-left: 2px solid var(--widget-progress-color, rgb(var(--acc-color-default) / 0.15));
+  padding-left: 8px;
+  transition: border-color var(--evolution-transition-speed) ease;
 }
 
 /* They can copy the interface but they can't copy the intention. */

@@ -45,6 +45,27 @@ export interface EvolutionState {
   animationIntensity: number; // 0-1, motion sophistication
 }
 
+/**
+ * Layout Density Progression — 5 levels from breathable to instrument
+ *
+ * As the user earns mastery (visualRefinement increases), the layout
+ * progressively condenses. New users get generous spacing; power users
+ * get a Bloomberg-terminal-grade niche pro tool.
+ *
+ * breathable   → Open, airy, nothing overwhelming. Wellness journal feel.
+ * comfortable  → Semantic stacks begin forming. Slightly denser.
+ * compact      → Dashboard clarity. Sections distinct, stacks tight.
+ * dense        → Information-dense cockpit. Minimal whitespace.
+ * instrument   → Maximum density. Every pixel justified. Niche pro tool.
+ */
+export type LayoutDensityLevel = 'breathable' | 'comfortable' | 'compact' | 'dense' | 'instrument'
+
+export interface LayoutDensity {
+  level: LayoutDensityLevel
+  sectionGap: string   // Between major sections and within loose widget groups
+  stackGap: string     // Within tight semantic widget stacks
+}
+
 export interface VisualEvolutionEffects {
   // Opacity and clarity
   baseOpacity: number;      // 0.85-1.0
@@ -351,6 +372,20 @@ export function getEvolutionMilestone(
     return chapterMessages[currentState.chapter];
   }
 
+  // Layout density progression milestones
+  const prevDensity = getLayoutDensity(previousState)
+  const currDensity = getLayoutDensity(currentState)
+  if (prevDensity.level !== currDensity.level) {
+    const densityMessages: Record<LayoutDensityLevel, string> = {
+      breathable: "Space opens. Room to breathe.",
+      comfortable: "Layout settling in. Widgets find their rhythm.",
+      compact: "Interface sharpening. Dashboard clarity achieved.",
+      dense: "Density unlocked. Your cockpit takes shape.",
+      instrument: "Instrument grade. The interface is yours."
+    }
+    return densityMessages[currDensity.level]
+  }
+
   // Major maturity milestones
   const maturityThresholds = [0.25, 0.50, 0.75, 0.95];
   for (const threshold of maturityThresholds) {
@@ -385,4 +420,49 @@ export function getEvolutionCSSProperties(state: EvolutionState): Record<string,
     '--evolution-color-saturation': effects.colorSaturation.toString(),
     '--evolution-max-columns': effects.maxColumns.toString(),
   };
+}
+
+/**
+ * Derive layout density from evolution state
+ *
+ * Driven by visualRefinement (consistency × 0.4 + depth × 0.3 + level × 0.3).
+ * This means density is earned through sustained engagement, not just time.
+ *
+ * Thresholds are deliberately spaced so early progression feels rewarding
+ * while the final "instrument" tier requires genuine mastery.
+ */
+export function getLayoutDensity(state: EvolutionState): LayoutDensity {
+  const r = state.visualRefinement
+
+  // Instrument — niche pro tool. Maximum density. Bloomberg-grade.
+  if (r >= 0.75) {
+    return { level: 'instrument', sectionGap: 'gap-y-4', stackGap: 'gap-y-0' }
+  }
+
+  // Dense — information-dense cockpit. Minimal whitespace.
+  if (r >= 0.55) {
+    return { level: 'dense', sectionGap: 'gap-y-8', stackGap: 'gap-y-0' }
+  }
+
+  // Compact — dashboard clarity. Sections distinct, stacks tight.
+  if (r >= 0.35) {
+    return { level: 'compact', sectionGap: 'gap-y-16', stackGap: 'gap-y-4' }
+  }
+
+  // Comfortable — semantic stacks form. Slightly denser.
+  if (r >= 0.15) {
+    return { level: 'comfortable', sectionGap: 'gap-y-24', stackGap: 'gap-y-8' }
+  }
+
+  // Breathable — open, airy, generous spacing. Wellness journal feel.
+  return { level: 'breathable', sectionGap: 'gap-y-24', stackGap: 'gap-y-16' }
+}
+
+/**
+ * Default layout density before evolution state loads
+ */
+export const DEFAULT_LAYOUT_DENSITY: LayoutDensity = {
+  level: 'breathable',
+  sectionGap: 'gap-y-24',
+  stackGap: 'gap-y-16',
 }
