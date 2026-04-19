@@ -515,7 +515,7 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
     const { Log } = await import('#server/models/log.js')
     const { analyzeEnergyState } = await import('#server/utils/energy.js')
     const { determineUserCohort } = await import('#server/utils/memory/cohort-determination.js')
-    const { extractTraits } = await import('#server/utils/memory/trait-extraction.js')
+    const { extractUserTraits } = await import('#server/utils/memory/trait-extraction.js')
     const { Op } = await import('sequelize')
 
     const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
@@ -553,7 +553,7 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
         const energyState = analyzeEnergyState(logData)
 
         // Extract traits and determine cohort
-        const traitResult = await extractTraits(logData)
+        const traitResult = extractUserTraits(logData)
         const cohort = determineUserCohort(
           traitResult.traits,
           traitResult.patterns,
