@@ -78,8 +78,8 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       }
 
       setLastUpdate(new Date())
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch status')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch status')
       console.error('Status fetch error:', err)
     } finally {
       setLoading(false)
@@ -182,18 +182,19 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
           <div className="mb-16">
             <div className="mb-16">System components:</div>
-            {status.checks.map((check, index) => (
+            {status.checks.map((check) => (
               <Block
-                key={index}
+                key={check.name}
                 label={check.name + ':'}
                 labelClassName="!pl-0"
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
+                  <span aria-label={check.status}>{getStatusIcon(check.status)}</span>
                   <span className={cn(
                     check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
+                    check.status === 'error' && 'text-acc/60',
+                    check.status === 'unknown' && 'text-acc/40'
                   )}>
                     {check.status === 'ok' ? 'Ok' :
                      check.status === 'error' ? 'Error' :
