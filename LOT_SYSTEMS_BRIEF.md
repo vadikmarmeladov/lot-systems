@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 1.0
-**Last Updated:** January 15, 2026
-**Status:** Production Active
+**Document Version:** 2.0
+**Last Updated:** April 19, 2026
+**Status:** Production Active — Self-Assembly Phase v4
 
 ---
 
@@ -15,10 +15,14 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ - Predictive pattern recognition across all user interactions
-- Context-aware AI question generation using Claude (Anthropic)
-- Real-time psychological profiling with 8 distinct archetypes
-- Zero-configuration intelligence - system learns passively from natural usage
+- Quantum Intent Engine™ v4 — 16-pattern behavioral recognition across all user interactions
+- Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
+- Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
+- Zero-configuration intelligence — system learns passively from natural usage
+- Self-Assembly Engine — 9 modules build themselves from real engagement signals
+- Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
+- Daily OS Vitals Snapshot — server-side persisted vitals for cross-device OS continuity
+- Military-style Log Interface — structured telemetry across 18 event types
 
 ---
 
@@ -37,7 +41,7 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - **vs. Notion/Obsidian:** LOT has intelligent curation vs. manual organization
 
 **Market Validation:**
-- 814 days of continuous operation (Day 814 as of January 15, 2026)
+- 908 days of continuous operation (Day 908 as of April 19, 2026)
 - Active user base with measurable engagement metrics
 - Proven retention through badge/streak mechanics
 
@@ -112,14 +116,23 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (7 Types):**
-1. **Anxiety Pattern** - Multiple anxious moods → Suggest self-care (confidence: 0.66-1.0)
-2. **Lack of Structure** - Tired + no planning → Suggest planner (confidence: 0.7)
-3. **Seeking Direction** - No intention for weeks → Suggest intentions (confidence: 0.8)
-4. **Flow Potential** - Energized + planning → Passive memory prompts (confidence: 0.9)
-5. **Evening Overwhelm** - Evening + overwhelmed → Immediate self-care (confidence: 0.85)
-6. **Surface Awareness** - Consistent moods + no journaling → Suggest deeper reflection (confidence: 0.6)
-7. **Morning Clarity** - Calm morning state → Set intention (confidence: 0.75)
+**Pattern Recognition (16 Types — v4):**
+1. **Anxiety Pattern** — Multiple anxious moods → Self-care (confidence: 0.66–1.0)
+2. **Lack of Structure** — Tired + no planning → Planner (confidence: 0.7)
+3. **Seeking Direction** — No intention for weeks → Intentions (confidence: 0.8)
+4. **Flow Potential** — Energized + planning → Memory capture (confidence: 0.9)
+5. **Evening Overwhelm** — Evening + overwhelmed → Immediate self-care (confidence: 0.85)
+6. **Surface Awareness** — Consistent moods + no journaling → Deeper reflection (confidence: 0.6)
+7. **Morning Clarity** — Calm morning + no intention → Set intention (confidence: 0.75)
+8. **Cleanness Neglect** — No self-care in 3 days → First act (confidence: 0.7)
+9. **Morning Cleanness Gap** — Morning + no cleanness signals → Anchor protocol (confidence: 0.65)
+10. **Post-Overwhelm Cleanness** — Overwhelm subsiding + calm → Therapeutic cleanness (confidence: 0.8)
+11. **Physiological Depletion** — 3+ depleting moods + no self-care → Intervene (confidence: variable)
+12. **Recovery Window** — Self-care + positive mood shift → High-fidelity reflection (confidence: 0.75)
+13. **Ungrounded Activity** — Active log + no biofield reading → Mood check-in (confidence: 0.6)
+14. **OS Stagnation** — Signal diversity collapsed for 3+ days → Engagement expansion (confidence: 0.65)
+15. **Circadian Drift** — Late-night signal cluster + no recovery → Immediate intervention (confidence: 0.7)
+16. **Momentum Wave** — Multi-source engagement rising + active intention → Amplification (confidence: 0.8)
 
 **Technical Specs:**
 - Signal retention: 7 days
@@ -437,6 +450,21 @@ Insight Generation (Claude) → 7-second display → Widget dismiss
 
 ---
 
+## Background Intelligence (Scheduled Jobs)
+
+Four server-side cron jobs run automatically, requiring zero user interaction:
+
+| Job | Schedule | Purpose |
+|-----|----------|---------|
+| `monthly-email-sender` | 9 AM UTC, 1st of month | Sends personalized monthly OS review email to active Usership subscribers |
+| `weekly-physiological-cohort-digest` | 6 AM UTC, Monday | Classifies each active user's archetype + behavioral cohort from 30-day log history, persists to user metadata |
+| `daily-qie-pattern-analytics` | 3 AM UTC, daily | Aggregates QIE signal pattern frequencies across all active users for system monitoring |
+| `daily-os-vitals-snapshot` | 2 AM UTC, daily | Computes streak score, activity density, and cohort state per active user; persists `os_vitals_snapshot` log for cross-device OS continuity |
+
+All jobs are idempotent (run-once per period), include failure logging, and operate without user-visible side effects.
+
+---
+
 ## Performance Metrics
 
 ### System Reliability
@@ -446,7 +474,7 @@ Insight Generation (Claude) → 7-second display → Widget dismiss
 - **Database Query Optimization:** Indexed foreign keys, composite indexes
 
 ### User Engagement
-- **Day Counter:** Currently Day 814 (continuous operation since ~2023)
+- **Day Counter:** Currently Day 908 (continuous operation since ~2023)
 - **Daily Active Users:** Tracked via online presence
 - **Streak Mechanics:** Proven retention driver (7/30/100 day milestones)
 
@@ -517,21 +545,37 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 
 ## Roadmap & Vision
 
-### Immediate (Q1 2026)
+### Completed — Q1 2026
 - [x] Memory Engine bulletproofing (comprehensive error handling)
 - [x] Aquatic Evolution badge system
 - [x] Planner frame styling fixes
 - [x] Mirror mode System button fix
-- [ ] Mobile app (React Native)
-- [ ] Enhanced weekly summaries
-- [ ] Community features (cohort matching)
+- [x] Quantum Intent Engine v2 — widget deps + physiological cohorts + military log UI
+- [x] Self-Assembly Engine — 9 modules, 5 phases, real engagement-driven assembly
+- [x] PhysiologicalReport — biofield audit, widget dependency map, cohort signals
+- [x] Layout density progression system (breathable → instrument)
+- [x] Soviet synth keyboard with log triggers
+- [x] Recipe widget: gradual light-fasting algorithm
+
+### Completed — Q2 2026 (April)
+- [x] QIE v3 — daily QIE analytics background job (03:00 UTC), UserIndex 6D composite
+- [x] Physiological cohorts: 10 archetypes surfaced in Assembly Map + CohortConnect widget
+- [x] Public /about wiki page — comprehensive reference manual
+- [x] Feedback recording bugfix (submit-feedback route restored)
+- [x] QIE v4 — patterns 14–16 (OS stagnation / circadian drift / momentum wave)
+- [x] WIDGET_DEPENDENCY_MAP v2 — 18 nodes, Tier 0/1/2/3, reverse resolver
+- [x] Physiological Readiness Score (0-100 composite, surfaced in session report)
+- [x] Military Log: 8 new event types — GOAL / EVO / NARR / QRNG / ASSESS / INT / OS / IDX
+- [x] Daily OS Vitals Snapshot job (02:00 UTC, cross-device OS continuity)
 
 ### Near-Term (Q2-Q3 2026)
-- [ ] Voice interface for logging
-- [ ] Integration with wearables (sleep, activity)
+- [ ] Mobile app (React Native)
+- [ ] Voice interface for field logging
+- [ ] Integration with wearables (sleep, HRV, activity)
 - [ ] Collaborative intentions (shared goals)
-- [ ] Advanced pattern insights widget
+- [ ] Advanced pattern insights widget (QIE signal timeline)
 - [ ] Custom widget creation (power users)
+- [ ] Enhanced weekly summaries with physiological cohort section
 
 ### Long-Term Vision
 Transform LOT from personal OS to **distributed psychological network**:

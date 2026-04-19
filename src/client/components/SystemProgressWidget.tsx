@@ -78,6 +78,21 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'All modules online. Feedback recording restored.',
     ],
   },
+  {
+    date: '2026-04-19',
+    session: 'Quantum Engine Upgrade — v4 / Self-Assembly Deep Pass',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP expanded: 18 nodes mapped across Tier 0/1/2/3 — log, quantumState, narrative, evolution, cohortConnect, systemProgress, userMetrics, signalStream, patternRecognition, contextualPrompts, interventions',
+      'getWidgetsDependingOn(): reverse dependency resolver added — enables cascade invalidation from any signal source',
+      'QIE Patterns 14–16: os-stagnation (signal diversity collapse), circadian-drift (late-night cluster without recovery), momentum-wave (multi-source engagement rise + active intention)',
+      'PhysiologicalReport: physiologicalReadiness score (0-100, energy 40pt + self-care 30pt + pattern severity 30pt) + readinessDirective terse field',
+      'Logs.tsx: 8 new military log event handlers — GOAL / EVO / NARR / QRNG / ASSESS / INT / OS / IDX',
+      'Background jobs: daily-os-vitals-snapshot at 02:00 UTC — writes os_vitals_snapshot log per active user (streak score, activity density, cohort state)',
+      'scheduled-jobs: hour check expanded to include 02:00 UTC; init log updated',
+      'LOT_SYSTEMS_BRIEF.md: updated to April 2026 state — 16 QIE patterns, physiological cohorts, OS vitals, self-assembly engine, roadmap Q2/Q3 2026 status',
+      'Session report appended. Self-assembly continues.',
+    ],
+  },
 ]
 
 const FEEDBACK_OPTIONS = [
@@ -544,6 +559,18 @@ export function SystemProgressWidget() {
                       </div>
                     </div>
                   )}
+
+                  {/* Physiological readiness */}
+                  <div className="border-t border-acc-400/30 pt-12">
+                    <div className="opacity-30 mb-8 uppercase tracking-widest">Physiological Readiness</div>
+                    <div className="flex flex-col gap-y-4">
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-50 uppercase">Score</span>
+                        <span className="tabular-nums">{report.physiologicalReadiness}/100</span>
+                      </div>
+                      <div className="opacity-40 text-xs">{report.readinessDirective}</div>
+                    </div>
+                  </div>
 
                   {/* Biofield status */}
                   <div className="border-t border-acc-400/30 pt-12">

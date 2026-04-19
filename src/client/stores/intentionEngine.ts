@@ -450,6 +450,59 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 14: OS stagnation — no new signal sources in 3+ days
+  const threeDaysAgoTs = now - 3 * 24 * 60 * 60 * 1000
+  const recentSources = new Set(
+    signals.filter(s => s.timestamp > threeDaysAgoTs).map(s => s.source)
+  )
+  const totalSources = new Set(signals.map(s => s.source)).size
+  if (totalSources >= 3 && recentSources.size <= 1 && signals.length >= 10) {
+    patterns.push({
+      pattern: 'os-stagnation',
+      confidence: 0.65,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'soon',
+      reason: 'Signal diversity collapsed. OS entering maintenance mode. Expand engagement breadth.'
+    })
+  }
+
+  // Pattern 15: Circadian drift — heavy late-night signal clusters without recovery signals
+  const lateNightSignals = recentSignals.filter(s => {
+    const h = new Date(s.timestamp).getHours()
+    return h >= 23 || h < 4
+  })
+  const recentRecovery = recentSignals.filter(s =>
+    s.source === 'selfcare' && (now - s.timestamp) < 24 * 60 * 60 * 1000
+  )
+  if (lateNightSignals.length >= 4 && recentRecovery.length === 0) {
+    patterns.push({
+      pattern: 'circadian-drift',
+      confidence: 0.7,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'immediate',
+      reason: 'Late-night signal cluster. No recovery detected. Circadian integrity requires intervention.'
+    })
+  }
+
+  // Pattern 16: Momentum wave — rising engagement across multiple sources + active intentions
+  const twoDaysAgoTs = now - 2 * 24 * 60 * 60 * 1000
+  const veryRecentSignals = signals.filter(s => s.timestamp > twoDaysAgoTs)
+  const priorPeriodSignals = signals.filter(s =>
+    s.timestamp > threeDaysAgoTs * 1.5 && s.timestamp <= twoDaysAgoTs
+  )
+  const recentDiversity = new Set(veryRecentSignals.map(s => s.source)).size
+  const priorDiversity = new Set(priorPeriodSignals.map(s => s.source)).size
+  const hasIntentionNow = hasCurrentIntention()
+  if (recentDiversity >= 4 && recentDiversity > priorDiversity + 1 && hasIntentionNow) {
+    patterns.push({
+      pattern: 'momentum-wave',
+      confidence: 0.8,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: 'Momentum wave detected. Multi-source engagement rising with active intention. Amplify now.'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -795,23 +848,57 @@ export function forceSyncToServer(): Promise<boolean> {
 /**
  * Upstream signal sources each widget consumes.
  * Enables cross-widget cascade invalidation and dependency tracing.
+ *
+ * Tier 0 — no dependencies (raw input widgets)
+ * Tier 1 — depend on Tier 0 sources
+ * Tier 2 — depend on Tier 0 + Tier 1 sources
+ * Tier 3 — aggregate/meta widgets (consume everything)
  */
 export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
-  mood: [],
-  memory: ['mood', 'journal'],
-  planner: ['mood', 'intentions'],
-  intentions: ['mood', 'memory'],
-  selfcare: ['mood'],
-  journal: ['mood', 'planner'],
-  energy: ['mood', 'selfcare', 'journal'],
-  system: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
-  calculator: [],
-  cohort: ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
+  // ── Tier 0: raw input (no upstream dependencies)
+  mood:              [],
+  calculator:        [],
+  log:               [],
+
+  // ── Tier 1: single-source consumers
+  selfcare:          ['mood'],
+  planner:           ['mood', 'intentions'],
+  energy:            ['mood', 'selfcare', 'journal'],
+
+  // ── Tier 2: cross-source consumers
+  memory:            ['mood', 'journal'],
+  intentions:        ['mood', 'memory'],
+  journal:           ['mood', 'planner'],
+  cohort:            ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
+  narrative:         ['mood', 'memory', 'journal', 'intentions'],
+  evolution:         ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+  assessment:        ['mood', 'memory', 'journal', 'energy'],
+
+  // ── Tier 3: meta / aggregate consumers
+  quantumState:      ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
+  patternRecognition:['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'log'],
+  signalStream:      ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'calculator', 'energy', 'cohort', 'log'],
+  cohortConnect:     ['cohort', 'mood', 'memory', 'journal', 'selfcare', 'intentions'],
+  contextualPrompts: ['mood', 'planner', 'intentions', 'log', 'energy'],
+  interventions:     ['mood', 'selfcare', 'journal', 'energy'],
+  userMetrics:       ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort'],
+  systemProgress:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log', 'calculator'],
+  system:            ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
 }
 
 /** Returns which signal sources a given widget depends on. */
 export function getWidgetDependencies(widget: string): string[] {
   return WIDGET_DEPENDENCY_MAP[widget] ?? []
+}
+
+/**
+ * Returns all widgets that directly or transitively depend on the given source.
+ * Used for cascade invalidation when a source signal changes.
+ */
+export function getWidgetsDependingOn(source: string): string[] {
+  return Object.entries(WIDGET_DEPENDENCY_MAP)
+    .filter(([, deps]) => deps.includes(source))
+    .map(([widget]) => widget)
 }
 
 export type PhysiologicalCohort = {
@@ -836,6 +923,10 @@ export type PhysiologicalReport = {
   activePatterns: { pattern: string; confidence: number; action: string }[]
   cohortSignals: { archetype: string | null; behavioralCohort: string | null }
   systemHealth: 'nominal' | 'degraded' | 'critical'
+  /** 0-100 composite physiological readiness score derived from energy, self-care density, and pattern severity. */
+  physiologicalReadiness: number
+  /** Terse directive for the current readiness band. */
+  readinessDirective: string
   generatedAt: number
 }
 
@@ -903,6 +994,36 @@ export function getPhysiologicalReport(): PhysiologicalReport {
     needsSupport === 'moderate' || energy === 'low' ? 'degraded' :
     'nominal'
 
+  // Physiological readiness — composite 0-100 score
+  // Energy component (40 pts)
+  const energyScore =
+    state.userState.energy === 'high'     ? 40 :
+    state.userState.energy === 'moderate' ? 28 :
+    state.userState.energy === 'low'      ? 14 :
+    state.userState.energy === 'depleted' ? 4  : 20  // unknown → neutral
+
+  // Self-care density component (30 pts): self-care signals in last 3 days
+  const threeDaySelfCare = weekSignals.filter(s =>
+    s.source === 'selfcare' && now - s.timestamp < 3 * dayMs
+  ).length
+  const selfCareScore = Math.min(30, threeDaySelfCare * 8)
+
+  // Pattern severity component (30 pts): subtract for critical/depleting patterns
+  const severePatternsActive = activePatterns.filter(p =>
+    ['physiological-depletion', 'circadian-drift', 'anxiety-pattern', 'evening-overwhelm'].includes(p.pattern)
+  ).length
+  const patternPenalty = Math.min(30, severePatternsActive * 10)
+  const patternScore = 30 - patternPenalty
+
+  const physiologicalReadiness = Math.max(0, Math.min(100, energyScore + selfCareScore + patternScore))
+
+  const readinessDirective =
+    physiologicalReadiness >= 80 ? 'High readiness. Optimal conditions for deep work.' :
+    physiologicalReadiness >= 60 ? 'Functional. Maintain cadence. Monitor energy.' :
+    physiologicalReadiness >= 40 ? 'Reduced capacity. Prioritize recovery before output.' :
+    physiologicalReadiness >= 20 ? 'Degraded state. Rest is the primary protocol.' :
+    'Critical depletion. Immediate recovery required.'
+
   return {
     sessionDate: new Date().toISOString().slice(0, 10),
     widgetDependencies,
@@ -911,6 +1032,8 @@ export function getPhysiologicalReport(): PhysiologicalReport {
     activePatterns,
     cohortSignals: cohortData,
     systemHealth,
+    physiologicalReadiness,
+    readinessDirective,
     generatedAt: now
   }
 }
