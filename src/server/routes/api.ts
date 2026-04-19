@@ -4239,14 +4239,17 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         return 'activated'
       }
 
-      // Features in current version
+      // Features assembled and live in current version
       const features = [
-        'API Data Export Protocol',
-        'Hourly Time Chime Resonance',
-        'Quantum Intent Interactive Matrix',
-        'Community Wellness Pulse Monitor',
-        'Memory Engine Neural Analytics',
-        'Growth Milestone Tracking System'
+        'Quantum Intention Engine v3 — 13 physiological patterns',
+        'Self-Assembly Engine — 9 modules, signal-derived progression',
+        'Physiological Cohort Classification — 9 archetypes, weekly digest',
+        'Military Log Interface — CARE / PLAN / INTENT / BIO / MEM / SYS',
+        'Soviet Synth Keyboard — keystroke click, activation chime',
+        'Christian Fasting Calendar — Orthodox + Catholic, gradual strictness',
+        'Layout Density Progression — breathable → instrument (5 levels)',
+        'Punctuation Context Engine — tone/intent from typing patterns',
+        'Daily QIE Analytics Job — 03:00 UTC pattern compilation',
       ]
 
       const deployment = {
@@ -4309,7 +4312,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       version: string
       feedback: 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
     }
-  }>('/api/system/submit-feedback', async (req, reply) => {
+  }>('/system/submit-feedback', async (req, reply) => {
     if (!req.user) return reply.throw.authException()
 
     const { version, feedback } = req.body

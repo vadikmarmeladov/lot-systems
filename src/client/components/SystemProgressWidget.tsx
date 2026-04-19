@@ -66,6 +66,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report logged and appended. All modules online.',
     ],
   },
+  {
+    date: '2026-04-19',
+    session: 'Self-Assembly Audit — feedback fix / deploy features',
+    assembled: [
+      'BUG FIX: /system/submit-feedback route path corrected (double /api/ prefix silently broke all feedback recording)',
+      'Deployment features list updated: now reflects real assembled capabilities, not generic placeholders',
+      'Public /about wiki page: comprehensive reference manual, monospace sci-fi aesthetic, scrollspy nav',
+      'scheduled-jobs: extractTraits → extractUserTraits import corrected (prevented weekly cohort digest)',
+      'Assembly log .MD created: 2026-04-19_LOT-assembly_feedback-fix-deploy-features.md',
+      'All modules online. Feedback recording restored.',
+    ],
+  },
 ]
 
 const FEEDBACK_OPTIONS = [
