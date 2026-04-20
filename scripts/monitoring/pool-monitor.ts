@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-async function monitorPool() {
+export async function monitorPool() {
   const sequelize = new Sequelize(process.env.DATABASE_URL!, {
     dialect: 'postgres',
     logging: false,
@@ -24,9 +24,8 @@ async function monitorPool() {
   try {
     const queries = [
       'SELECT count(*) as connections FROM pg_stat_activity',
-      'SELECT pid, state, query, age(clock_timestamp(), query_start) as query_time FROM pg_stat_activity 
-WHERE state != \'idle\'',
-      'SELECT datname, numbackends, xact_commit, xact_rollback FROM pg_stat_database'
+      `SELECT pid, state, query, age(clock_timestamp(), query_start) as query_time FROM pg_stat_activity WHERE state != 'idle'`,
+      'SELECT datname, numbackends, xact_commit, xact_rollback FROM pg_stat_database',
     ]
 
     console.clear()

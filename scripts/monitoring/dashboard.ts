@@ -1,31 +1,28 @@
 import { checkHealth } from './health-check'
 import { monitorPool } from './pool-monitor'
 import blessed from 'blessed'
-import { create as createScreen } from 'blessed-contrib'
+import * as contrib from 'blessed-contrib'
 
-const screen = blessed.screen()
-const grid = createScreen({
-  rows: 12,
-  cols: 12,
-  screen: screen
-})
+const screen = blessed.screen({ smartCSR: true })
+const grid = new contrib.grid({ rows: 12, cols: 12, screen })
 
-// Create dashboard widgets
 const healthBox = grid.set(0, 0, 6, 6, blessed.box, {
   label: 'Health Status',
   content: 'Loading...',
-  border: { type: 'line' }
+  border: { type: 'line' },
+  scrollable: true,
 })
 
 const poolBox = grid.set(0, 6, 6, 6, blessed.box, {
   label: 'Connection Pool',
   content: 'Loading...',
-  border: { type: 'line' }
+  border: { type: 'line' },
+  scrollable: true,
 })
 
-const logBox = grid.set(6, 0, 6, 12, blessed.log, {
+const logBox = grid.set(6, 0, 6, 12, contrib.log, {
   label: 'Log',
-  border: { type: 'line' }
+  border: { type: 'line' },
 })
 
 screen.key(['escape', 'q', 'C-c'], () => process.exit(0))
@@ -42,9 +39,9 @@ async function updateDashboard() {
     screen.render()
   } catch (error) {
     logBox.log(`Error: ${error}`)
+    screen.render()
   }
 }
 
-// Update every 5 seconds
 setInterval(updateDashboard, 5000)
-updateDashboard() // Initial update
+updateDashboard()

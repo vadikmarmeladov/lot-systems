@@ -103,11 +103,11 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
   const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
     switch (checkStatus) {
       case 'ok':
-        return '✓'
+        return <span aria-hidden="true">✓</span>
       case 'error':
-        return '✕'
+        return <span aria-hidden="true">✕</span>
       case 'unknown':
-        return '?'
+        return <span aria-hidden="true">?</span>
     }
   }
 
@@ -234,7 +234,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
               </Block>
               <Block label="Next prompt:" labelClassName="!pl-0">
                 <div className="flex items-center gap-x-8">
-                  <span>{memoryStatus.nextPromptAvailable ? '✓' : '✕'}</span>
+                  <span aria-hidden="true">{memoryStatus.nextPromptAvailable ? '✓' : '✕'}</span>
                   <span className={cn(
                     memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/60'
                   )}>
