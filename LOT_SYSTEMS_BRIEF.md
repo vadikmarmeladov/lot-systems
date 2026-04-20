@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.0
-**Last Updated:** April 19, 2026
-**Status:** Production Active — Self-Assembly Phase v4
+**Document Version:** 2.1
+**Last Updated:** April 20, 2026
+**Status:** Production Active — Self-Assembly Phase v5
 
 ---
 
@@ -15,14 +15,16 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v4 — 16-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v5 — 18-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
-- Self-Assembly Engine — 9 modules build themselves from real engagement signals
+- Self-Assembly Engine — 12 modules build themselves from real engagement signals
 - Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
 - Daily OS Vitals Snapshot — server-side persisted vitals for cross-device OS continuity
-- Military-style Log Interface — structured telemetry across 18 event types
+- Weekly Signal Diversity Audit — detects mono-source loops, computes signal diversity per user
+- Military-style Log Interface — structured telemetry across 25 event types
+- OS Journal View — persisted vitals timeline surfaced in System Progress widget
 
 ---
 
@@ -41,7 +43,7 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - **vs. Notion/Obsidian:** LOT has intelligent curation vs. manual organization
 
 **Market Validation:**
-- 908 days of continuous operation (Day 908 as of April 19, 2026)
+- 909 days of continuous operation (Day 909 as of April 20, 2026)
 - Active user base with measurable engagement metrics
 - Proven retention through badge/streak mechanics
 
@@ -567,6 +569,13 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Physiological Readiness Score (0-100 composite, surfaced in session report)
 - [x] Military Log: 8 new event types — GOAL / EVO / NARR / QRNG / ASSESS / INT / OS / IDX
 - [x] Daily OS Vitals Snapshot job (02:00 UTC, cross-device OS continuity)
+- [x] QIE v5 — patterns 17–18: flow-state (4h cross-source alignment), social-void (5-day cohort gap)
+- [x] WIDGET_DEPENDENCY_MAP v3 — 22 nodes: recipe, chakra, goals, time, badges added
+- [x] Self-Assembly Engine v2 — 12 modules: Nutrition Protocol, Goal Architecture, Archetype Classifier
+- [x] Military Log v2: 7 new handlers — REC / BADGE / COHORT / VITALS / SYNC / SIG-RPT / generic event label
+- [x] Weekly OS Signal Diversity Audit job (05:00 UTC Sunday) — sourceCount, topSource, diversity%, mono-loop flag
+- [x] OS Journal view in SystemProgressWidget — persisted vitals timeline, cohort summary, module count
+- [x] QIE source union expanded: recipe + goals signal sources added
 
 ### Near-Term (Q2-Q3 2026)
 - [ ] Mobile app (React Native)

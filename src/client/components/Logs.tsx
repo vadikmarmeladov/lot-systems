@@ -478,11 +478,137 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
-        } else if (log.event !== 'note') {
-          if (!log.text) return null
+        } else if (log.event === 'recipe_viewed' || log.event === 'recipe_suggestion') {
+          const meal = log.metadata?.meal as string | undefined
+          const mealTime = log.metadata?.mealTime as string | undefined
+          const recipe = log.metadata?.recipe as string | undefined
+          const sector =
+            mealTime === 'breakfast' ? '0700' :
+            mealTime === 'lunch' ? '1200' :
+            mealTime === 'dinner' ? '1800' :
+            mealTime === 'snack' ? '1500' : 'FIELD'
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="LOG:" blockView>
+              <Block label={`REC [${sector}]:`} blockView>
+                {meal && <div className="uppercase tracking-widest mb-4">{meal}</div>}
+                {recipe && <div className="opacity-60">{recipe}</div>}
+                {!meal && log.text && <div>{log.text}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'badge_unlock' || log.event === 'badge_awarded') {
+          const badge = log.metadata?.badge as string | undefined
+          const tier = log.metadata?.tier as string | undefined
+          const category = log.metadata?.category as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BADGE:" blockView>
+                {badge && <div className="uppercase tracking-widest mb-4">{badge}</div>}
+                {tier && <div className="opacity-60">TIER: {tier}</div>}
+                {category && <div className="opacity-40">{category}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cohort_determined' || log.event === 'cohort_match') {
+          const archetype = log.metadata?.archetype as string | undefined
+          const behavioralCohort = log.metadata?.behavioralCohort as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COHORT:" blockView>
+                {archetype && <div className="uppercase tracking-widest mb-4">{archetype}</div>}
+                {behavioralCohort && <div className="opacity-60">GRP: {behavioralCohort}</div>}
+                {confidence !== undefined && (
+                  <div className="opacity-40">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'os_vitals_snapshot') {
+          const streak = log.metadata?.streak as number | undefined
+          const activityDensity = log.metadata?.activityDensity as number | undefined
+          const cohortState = log.metadata?.cohortState as string | undefined
+          const health = log.metadata?.health as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="VITALS:" blockView>
+                {streak !== undefined && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-40">STREAK</span>
+                    <span className="tabular-nums">{streak}d</span>
+                  </div>
+                )}
+                {activityDensity !== undefined && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-40">DENSITY</span>
+                    <span className="tabular-nums">{activityDensity}</span>
+                  </div>
+                )}
+                {health !== undefined && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-40">SYS HEALTH</span>
+                    <span className="tabular-nums">{health}%</span>
+                  </div>
+                )}
+                {cohortState && <div className="opacity-40 uppercase">{cohortState}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_sync' || log.event === 'intention_sync') {
+          const synced = log.metadata?.synced as number | undefined
+          const sources = log.metadata?.sources as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SYNC:" blockView>
+                {synced !== undefined && (
+                  <div className="tabular-nums mb-4">{synced} signals</div>
+                )}
+                {sources && sources.length > 0 && (
+                  <div className="opacity-40 uppercase tracking-widest">
+                    {sources.join(' · ')}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'os_signal_report') {
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const topSource = log.metadata?.topSource as string | undefined
+          const diversityScore = log.metadata?.diversityScore as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIG-RPT:" blockView>
+                {sourceCount !== undefined && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-40">SOURCES</span>
+                    <span className="tabular-nums">{sourceCount}</span>
+                  </div>
+                )}
+                {topSource && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-40">DOMINANT</span>
+                    <span className="uppercase">{topSource}</span>
+                  </div>
+                )}
+                {diversityScore !== undefined && (
+                  <div className="flex justify-between">
+                    <span className="opacity-40">DIVERSITY</span>
+                    <span className="tabular-nums">{diversityScore}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event !== 'note') {
+          if (!log.text) return null
+          // Derive a terse military label from the event name prefix
+          const evtLabel = log.event
+            .toUpperCase()
+            .replace(/_/g, '-')
+            .slice(0, 8)
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={`${evtLabel}:`} blockView>
                 {log.text}
               </Block>
             </LogContainer>

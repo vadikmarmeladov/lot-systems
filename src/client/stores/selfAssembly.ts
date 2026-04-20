@@ -29,15 +29,18 @@ export type AssemblyPhase =
   | 'integrated'    // Cross-module signals flowing — deep wiring complete
 
 export type ModuleId =
-  | 'biofield'      // Mood + energy signals
-  | 'memory'        // Memory engine signals
-  | 'planner'       // Planning signals
-  | 'intentions'    // Intention + direction signals
-  | 'selfcare'      // Cleanness + self-care signals
-  | 'journal'       // Journaling + reflection signals
-  | 'community'     // Social + cohort signals
-  | 'ecosystem'     // Car + home + computer connect signals
-  | 'quantum'       // QIE meta-signals (calculator, cross-module)
+  | 'biofield'         // Mood + energy signals
+  | 'memory'           // Memory engine signals
+  | 'planner'          // Planning signals
+  | 'intentions'       // Intention + direction signals
+  | 'selfcare'         // Cleanness + self-care signals
+  | 'journal'          // Journaling + reflection signals
+  | 'community'        // Social + cohort signals
+  | 'ecosystem'        // Car + home + computer connect signals
+  | 'quantum'          // QIE meta-signals (calculator, cross-module)
+  | 'recipe'           // Meal / nutrition signals
+  | 'goals'            // Goal journey and achievement signals
+  | 'cohort-classify'  // Physiological archetype + cohort determination
 
 export type AssembledModule = {
   id: ModuleId
@@ -72,15 +75,18 @@ const ASSEMBLED_THRESHOLD = 15
 const INTEGRATED_THRESHOLD = 30
 
 const MODULE_DEFINITIONS: Pick<AssembledModule, 'id' | 'label'>[] = [
-  { id: 'biofield',    label: 'Biofield Engine' },
-  { id: 'memory',      label: 'Memory Architecture' },
-  { id: 'planner',     label: 'Routine Compiler' },
-  { id: 'intentions',  label: 'Intention Core' },
-  { id: 'selfcare',    label: 'Cleanness Protocol' },
-  { id: 'journal',     label: 'Reflection Layer' },
-  { id: 'community',   label: 'Community Mesh' },
-  { id: 'ecosystem',   label: 'Ecosystem Bridge' },
-  { id: 'quantum',     label: 'Quantum Substrate' },
+  { id: 'biofield',        label: 'Biofield Engine' },
+  { id: 'memory',          label: 'Memory Architecture' },
+  { id: 'planner',         label: 'Routine Compiler' },
+  { id: 'intentions',      label: 'Intention Core' },
+  { id: 'selfcare',        label: 'Cleanness Protocol' },
+  { id: 'journal',         label: 'Reflection Layer' },
+  { id: 'community',       label: 'Community Mesh' },
+  { id: 'ecosystem',       label: 'Ecosystem Bridge' },
+  { id: 'quantum',         label: 'Quantum Substrate' },
+  { id: 'recipe',          label: 'Nutrition Protocol' },
+  { id: 'goals',           label: 'Goal Architecture' },
+  { id: 'cohort-classify', label: 'Archetype Classifier' },
 ]
 
 // Signal source mapping: which QIE sources feed which assembly modules
@@ -94,22 +100,31 @@ const SOURCE_MAP: Record<string, ModuleId[]> = {
   'calculator':  ['quantum'],
   'log':         ['journal', 'quantum'],
   'energy':      ['biofield', 'quantum'],
-  'cohort':      ['community', 'quantum'],
+  'cohort':      ['community', 'cohort-classify', 'quantum'],
+  'recipe':      ['recipe'],
+  'goals':       ['goals', 'intentions'],
 }
 
 // Specific signal patterns that map to modules beyond their source
 const SIGNAL_MAP: Record<string, ModuleId> = {
-  'car_connected':       'ecosystem',
-  'car_disconnected':    'ecosystem',
-  'home_connected':      'ecosystem',
-  'home_disconnected':   'ecosystem',
-  'computer_connected':  'ecosystem',
+  'car_connected':         'ecosystem',
+  'car_disconnected':      'ecosystem',
+  'home_connected':        'ecosystem',
+  'home_disconnected':     'ecosystem',
+  'computer_connected':    'ecosystem',
   'computer_disconnected': 'ecosystem',
-  'cohort':              'community',
-  'chat':                'community',
-  'message':             'community',
-  'connection':          'community',
-  'community':           'community',
+  'cohort':                'community',
+  'chat':                  'community',
+  'message':               'community',
+  'connection':            'community',
+  'community':             'community',
+  'cohort_determined':     'cohort-classify',
+  'archetype':             'cohort-classify',
+  'recipe_viewed':         'recipe',
+  'meal':                  'recipe',
+  'goal_set':              'goals',
+  'goal_journey':          'goals',
+  'goal_complete':         'goals',
 }
 
 // ─── Store ───────────────────────────────────────────────────
@@ -144,7 +159,7 @@ function loadState(): AssemblyState {
     const raw = localStorage.getItem(STATE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as AssemblyState
-      // Validate structure
+      // Validate structure — rebuild if module count changed (new modules added)
       if (parsed.modules && parsed.modules.length === MODULE_DEFINITIONS.length) {
         return parsed
       }
@@ -346,6 +361,9 @@ export function recomputeAssembly(): AssemblyState {
     community: [],
     ecosystem: [],
     quantum: [],
+    recipe: [],
+    goals: [],
+    'cohort-classify': [],
   }
 
   signals.forEach(signal => {

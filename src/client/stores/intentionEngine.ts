@@ -18,7 +18,7 @@ import { atom } from 'nanostores'
 // Intention signals collected from all widgets and background monitors
 export type IntentionSignal = {
   timestamp: number
-  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort'
+  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals'
   signal: string
   metadata?: Record<string, any>
 }
@@ -503,6 +503,41 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 17: Flow state — memory + planner + intentions all active within 4-hour window
+  const fourHoursAgoTs = now - 4 * 60 * 60 * 1000
+  const flowWindow = signals.filter(s => s.timestamp > fourHoursAgoTs)
+  const flowSources = new Set(flowWindow.map(s => s.source))
+  if (
+    flowSources.has('memory') &&
+    flowSources.has('planner') &&
+    flowSources.has('intentions') &&
+    flowWindow.length >= 6
+  ) {
+    patterns.push({
+      pattern: 'flow-state',
+      confidence: 0.85,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: 'Memory, planning, and intention sources all active within 4h. Flow state engaged. Capture insights now.'
+    })
+  }
+
+  // Pattern 18: Social void — cohort signals absent for 5+ days despite high personal engagement
+  const fiveDaysAgoTs = now - 5 * 24 * 60 * 60 * 1000
+  const recentCohortSignals = signals.filter(s => s.source === 'cohort' && s.timestamp > fiveDaysAgoTs)
+  const recentPersonalSignals = signals.filter(s =>
+    s.timestamp > fiveDaysAgoTs && ['mood', 'memory', 'journal', 'planner'].includes(s.source)
+  )
+  if (recentCohortSignals.length === 0 && recentPersonalSignals.length >= 8) {
+    patterns.push({
+      pattern: 'social-void',
+      confidence: 0.6,
+      suggestedWidget: 'cohortConnect',
+      suggestedTiming: 'soon',
+      reason: 'High personal engagement. Zero cohort contact in 5 days. Isolation pattern emerging. Connect.'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -859,16 +894,21 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   mood:              [],
   calculator:        [],
   log:               [],
+  time:              [],
 
   // ── Tier 1: single-source consumers
   selfcare:          ['mood'],
+  recipe:            ['mood', 'energy', 'time'],
   planner:           ['mood', 'intentions'],
   energy:            ['mood', 'selfcare', 'journal'],
+  badges:            ['memory', 'intentions', 'selfcare', 'journal', 'planner', 'mood'],
 
   // ── Tier 2: cross-source consumers
   memory:            ['mood', 'journal'],
   intentions:        ['mood', 'memory'],
   journal:           ['mood', 'planner'],
+  goals:             ['planner', 'intentions', 'memory', 'journal'],
+  chakra:            ['mood', 'energy', 'selfcare', 'journal'],
   cohort:            ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
   narrative:         ['mood', 'memory', 'journal', 'intentions'],
   evolution:         ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
