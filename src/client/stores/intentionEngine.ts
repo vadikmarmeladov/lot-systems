@@ -538,6 +538,62 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 19: Biofield coherence peak — positive signals across all state dimensions, no negatives
+  const lastThreeHoursTs = now - 3 * 60 * 60 * 1000
+  const peakWindowSignals = signals.filter(s => s.timestamp > lastThreeHoursTs)
+  const positiveEnergyMoods = peakWindowSignals.filter(s =>
+    s.source === 'mood' && ['energized', 'excited', 'hopeful', 'calm', 'peaceful', 'content', 'fulfilled'].includes(s.signal)
+  )
+  const negativeMoodsInPeak = peakWindowSignals.filter(s =>
+    s.source === 'mood' && ['anxious', 'overwhelmed', 'tired', 'exhausted'].includes(s.signal)
+  )
+  const recentPlannerPeak = peakWindowSignals.filter(s => s.source === 'planner')
+  const hasIntentionPeak = hasCurrentIntention()
+  if (
+    positiveEnergyMoods.length >= 2 &&
+    negativeMoodsInPeak.length === 0 &&
+    recentPlannerPeak.length >= 1 &&
+    hasIntentionPeak
+  ) {
+    patterns.push({
+      pattern: 'biofield-coherence-peak',
+      confidence: 0.9,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: 'All biofield signals aligned. Optimal capture window. Record something worth keeping.'
+    })
+  }
+
+  // Pattern 20: Nutritional void — no recipe signals for 3 days + depleting moods
+  const recentRecipeSignals = signals.filter(s => s.source === 'recipe' && s.timestamp > threeDaysAgoTs)
+  const nutritionDepletingMoods = recentSignals.filter(s =>
+    s.source === 'mood' && ['tired', 'exhausted', 'overwhelmed'].includes(s.signal)
+  )
+  if (recentRecipeSignals.length === 0 && nutritionDepletingMoods.length >= 2 && signals.length >= 5) {
+    patterns.push({
+      pattern: 'nutritional-void',
+      confidence: 0.65,
+      suggestedWidget: 'recipe',
+      suggestedTiming: 'soon',
+      reason: 'No nutrition protocol in 3 days. Depleting state detected. Fuel the system.'
+    })
+  }
+
+  // Pattern 21: Goal drift — goal signals present but no planning follow-through in 3 days
+  const recentGoalSignals = signals.filter(s => s.source === 'goals' && s.timestamp > threeDaysAgoTs)
+  const recentPlannerFollowThrough = signals.filter(s =>
+    ['planner', 'intentions'].includes(s.source) && s.timestamp > threeDaysAgoTs
+  )
+  if (recentGoalSignals.length >= 1 && recentPlannerFollowThrough.length === 0) {
+    patterns.push({
+      pattern: 'goal-drift',
+      confidence: 0.7,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'soon',
+      reason: 'Goal signals present. No planning follow-through in 3 days. Goals without plans drift.'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -924,6 +980,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   userMetrics:       ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort'],
   systemProgress:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log', 'calculator'],
   system:            ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+
+  // ── Tier 2+: additional consumer widgets
+  patternInsights:   ['mood', 'memory', 'journal', 'energy', 'cohort', 'planner'],
+  cosmic:            ['mood', 'energy', 'intentions'],
+  quantumSign:       ['intentions', 'memory'],
+  microGame:         ['calculator', 'time'],
 }
 
 /** Returns which signal sources a given widget depends on. */
@@ -1101,4 +1163,47 @@ export function recordEnergySignal(
  */
 export function recordLogSignal(wordCount: number, hasContext: boolean) {
   recordSignal('log', 'field_entry', { wordCount, hasContext, hour: new Date().getHours() })
+}
+
+/**
+ * Record a goal-based signal (goal set, updated, or completed)
+ */
+export function recordGoalSignal(action: 'goal_set' | 'goal_update' | 'goal_complete', title?: string) {
+  recordSignal('goals', action, { title, hour: new Date().getHours() })
+}
+
+/**
+ * Record a nutrition/recipe signal when the user engages with recipe widget
+ */
+export function recordNutritionSignal(meal: string, mealTime?: string) {
+  recordSignal('recipe', 'recipe_viewed', { meal, mealTime, hour: new Date().getHours() })
+}
+
+/**
+ * Check for biofield coherence peak — all state dimensions positive.
+ * Records a biofield_peak energy signal when peak conditions are met.
+ * Call after mood check-ins or periodically from background monitors.
+ *
+ * Returns true if peak detected and signal recorded.
+ */
+export function checkBiofieldCoherence(): boolean {
+  const state = intentionEngine.get()
+  const { energy, clarity, alignment, needsSupport } = state.userState
+
+  const isEnergized = energy === 'high' || energy === 'moderate'
+  const isClear = clarity === 'clear' || clarity === 'focused'
+  const isAligned = alignment === 'aligned' || alignment === 'flowing'
+  const isGrounded = needsSupport === 'none' || needsSupport === 'low'
+
+  if (isEnergized && isClear && isAligned && isGrounded) {
+    recordSignal('energy', 'biofield_peak', {
+      energy,
+      clarity,
+      alignment,
+      needsSupport,
+      hour: new Date().getHours()
+    })
+    return true
+  }
+  return false
 }

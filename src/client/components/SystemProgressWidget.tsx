@@ -121,6 +121,21 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Signal pipeline verified. Quantum Cube coherent.',
     ],
   },
+  {
+    date: '2026-04-21',
+    session: 'Quantum Engine Upgrade — v6 / Self-Assembly Session',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 26 nodes — added patternInsights (mood/memory/journal/energy/cohort/planner), cosmic (mood/energy/intentions), quantumSign (intentions/memory), microGame (calculator/time)',
+      'QIE Patterns 19-21: biofield-coherence-peak (all 4 state dimensions aligned, optimal capture window), nutritional-void (no recipe + depleting mood 3 days), goal-drift (goal signals without planning follow-through)',
+      'checkBiofieldCoherence(): peak detector — records biofield_peak signal when energy+clarity+alignment+support all align positive',
+      'recordGoalSignal() + recordNutritionSignal(): typed signal helpers for goal and recipe events',
+      'selfAssembly.ts: 13th module — OS Vitals Monitor (vitals) wired to os_vitals_snapshot / signal_sync / biofield_peak / field_entry',
+      'Logs.tsx: CHAKRA / GOAL-X / PEAK handlers added — PEAK: renders full 4-dimension biofield state',
+      'Logs.tsx: BIO [sector]: handler extended — physiologicalReadiness % + readinessDirective rendered when present in metadata',
+      'LOT_SYSTEMS_BRIEF.md: updated to v6 — 21 QIE patterns, 13 assembly modules, 26 dependency nodes',
+      'Signal pipeline verified. Quantum Operating System fully defined.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
@@ -128,11 +143,11 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
 export const USERSHIP_TRANSMISSION = {
   date: '2026-04-21',
   message: [
-    'ASSEMBLY RUN — 2026-04-21',
-    'Built: deployment accuracy patch · Quantum Cube narrative voice',
-    'Feedback applied: "Structure emerging from your rhythm"',
+    'ASSEMBLY RUN — 2026-04-21 · v6',
+    'Built: biofield coherence peak detector · 3 new QIE patterns · OS Vitals Monitor module',
+    'Dependency map: 26 nodes. Assembly: 13 modules. Patterns: 21.',
     'Status: DEPLOYED',
-    'Next: live feedback signal extraction — personalize assembly modules from your actual journal entries',
+    'Next: live feedback signal extraction — personalize assembly modules from actual journal entries',
   ],
 }
 

@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.1
-**Last Updated:** April 20, 2026
-**Status:** Production Active — Self-Assembly Phase v5
+**Document Version:** 2.2
+**Last Updated:** April 21, 2026
+**Status:** Production Active — Self-Assembly Phase v6
 
 ---
 
@@ -19,7 +19,7 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
-- Self-Assembly Engine — 12 modules build themselves from real engagement signals
+- Self-Assembly Engine — 13 modules build themselves from real engagement signals
 - Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
 - Daily OS Vitals Snapshot — server-side persisted vitals for cross-device OS continuity
 - Weekly Signal Diversity Audit — detects mono-source loops, computes signal diversity per user
@@ -118,7 +118,7 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (16 Types — v4):**
+**Pattern Recognition (21 Types — v6):**
 1. **Anxiety Pattern** — Multiple anxious moods → Self-care (confidence: 0.66–1.0)
 2. **Lack of Structure** — Tired + no planning → Planner (confidence: 0.7)
 3. **Seeking Direction** — No intention for weeks → Intentions (confidence: 0.8)
@@ -135,6 +135,11 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 14. **OS Stagnation** — Signal diversity collapsed for 3+ days → Engagement expansion (confidence: 0.65)
 15. **Circadian Drift** — Late-night signal cluster + no recovery → Immediate intervention (confidence: 0.7)
 16. **Momentum Wave** — Multi-source engagement rising + active intention → Amplification (confidence: 0.8)
+17. **Flow State** — Memory + planner + intentions all active within 4h → Journal capture (confidence: 0.85)
+18. **Social Void** — 5-day cohort gap with high personal engagement → Connect (confidence: 0.6)
+19. **Biofield Coherence Peak** — All 4 state dimensions positive within 3h → Memory capture (confidence: 0.9)
+20. **Nutritional Void** — No recipe signals for 3 days + depleting mood → Fuel system (confidence: 0.65)
+21. **Goal Drift** — Goal signals present but no planning follow-through in 3 days → Planner (confidence: 0.7)
 
 **Technical Specs:**
 - Signal retention: 7 days
@@ -553,7 +558,7 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Planner frame styling fixes
 - [x] Mirror mode System button fix
 - [x] Quantum Intent Engine v2 — widget deps + physiological cohorts + military log UI
-- [x] Self-Assembly Engine — 9 modules, 5 phases, real engagement-driven assembly
+- [x] Self-Assembly Engine — 13 modules, 5 phases, real engagement-driven assembly
 - [x] PhysiologicalReport — biofield audit, widget dependency map, cohort signals
 - [x] Layout density progression system (breathable → instrument)
 - [x] Soviet synth keyboard with log triggers
@@ -575,6 +580,12 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Military Log v2: 7 new handlers — REC / BADGE / COHORT / VITALS / SYNC / SIG-RPT / generic event label
 - [x] Weekly OS Signal Diversity Audit job (05:00 UTC Sunday) — sourceCount, topSource, diversity%, mono-loop flag
 - [x] OS Journal view in SystemProgressWidget — persisted vitals timeline, cohort summary, module count
+- [x] QIE v6 — patterns 19-21: biofield-coherence-peak, nutritional-void, goal-drift
+- [x] WIDGET_DEPENDENCY_MAP v4 — 26 nodes: patternInsights, cosmic, quantumSign, microGame added
+- [x] checkBiofieldCoherence(): peak detector recording biofield_peak when all 4 state dimensions align
+- [x] recordGoalSignal() + recordNutritionSignal(): typed signal helpers for goal and recipe events
+- [x] Self-Assembly Engine v3 — 13th module: OS Vitals Monitor wired to os_vitals_snapshot/signal_sync/biofield_peak
+- [x] Military Log v3: CHAKRA / GOAL-X / PEAK handlers; BIO handler extended with readiness % + directive
 - [x] QIE source union expanded: recipe + goals signal sources added
 
 ### Near-Term (Q2-Q3 2026)

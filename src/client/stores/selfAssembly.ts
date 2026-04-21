@@ -41,6 +41,7 @@ export type ModuleId =
   | 'recipe'           // Meal / nutrition signals
   | 'goals'            // Goal journey and achievement signals
   | 'cohort-classify'  // Physiological archetype + cohort determination
+  | 'vitals'           // OS Vitals Monitor — snapshot, sync, and biofield peak signals
 
 export type AssembledModule = {
   id: ModuleId
@@ -87,6 +88,7 @@ const MODULE_DEFINITIONS: Pick<AssembledModule, 'id' | 'label'>[] = [
   { id: 'recipe',          label: 'Nutrition Protocol' },
   { id: 'goals',           label: 'Goal Architecture' },
   { id: 'cohort-classify', label: 'Archetype Classifier' },
+  { id: 'vitals',          label: 'OS Vitals Monitor' },
 ]
 
 // Signal source mapping: which QIE sources feed which assembly modules
@@ -98,8 +100,8 @@ const SOURCE_MAP: Record<string, ModuleId[]> = {
   'selfcare':    ['selfcare'],
   'journal':     ['journal'],
   'calculator':  ['quantum'],
-  'log':         ['journal', 'quantum'],
-  'energy':      ['biofield', 'quantum'],
+  'log':         ['journal', 'quantum', 'vitals'],
+  'energy':      ['biofield', 'quantum', 'vitals'],
   'cohort':      ['community', 'cohort-classify', 'quantum'],
   'recipe':      ['recipe'],
   'goals':       ['goals', 'intentions'],
@@ -125,6 +127,10 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'goal_set':              'goals',
   'goal_journey':          'goals',
   'goal_complete':         'goals',
+  'os_vitals_snapshot':    'vitals',
+  'signal_sync':           'vitals',
+  'biofield_peak':         'vitals',
+  'field_entry':           'vitals',
 }
 
 // ─── Store ───────────────────────────────────────────────────
@@ -364,6 +370,7 @@ export function recomputeAssembly(): AssemblyState {
     recipe: [],
     goals: [],
     'cohort-classify': [],
+    vitals: [],
   }
 
   signals.forEach(signal => {

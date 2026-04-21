@@ -222,6 +222,8 @@ export const Logs: React.FC = () => {
           const checkInType = log.metadata?.checkInType as string
           const note = log.metadata?.note as string
           const insights = log.metadata?.insights as string[] | undefined
+          const physiologicalReadiness = log.metadata?.physiologicalReadiness as number | undefined
+          const readinessDirective = log.metadata?.readinessDirective as string | undefined
 
           const sector =
             checkInType === 'morning' ? '0600' :
@@ -232,6 +234,15 @@ export const Logs: React.FC = () => {
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label={`BIO [${sector}]:`} blockView>
                 <div className="mb-8 uppercase tracking-widest">{emotionalState}</div>
+                {physiologicalReadiness !== undefined && (
+                  <div className="flex justify-between mb-8">
+                    <span className="opacity-40">READINESS</span>
+                    <span className="tabular-nums">{physiologicalReadiness}%</span>
+                  </div>
+                )}
+                {readinessDirective && (
+                  <div className="mb-8 opacity-40 uppercase tracking-widest text-xs">{readinessDirective}</div>
+                )}
                 {note && <div className="mb-8">{note}</div>}
                 {insights && insights.length > 0 && (
                   <div>
@@ -596,6 +607,87 @@ export const Logs: React.FC = () => {
                     <span className="tabular-nums">{diversityScore}%</span>
                   </div>
                 )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'chakra_update' || log.event === 'chakra_ergonomics') {
+          const chakra = log.metadata?.chakra as string | undefined
+          const score = log.metadata?.score as number | undefined
+          const status = log.metadata?.status as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CHAKRA:" blockView>
+                {chakra && (
+                  <div className="uppercase tracking-widest mb-4">{chakra}</div>
+                )}
+                {score !== undefined && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-40">SCORE</span>
+                    <span className="tabular-nums">{score}</span>
+                  </div>
+                )}
+                {status && (
+                  <div className="opacity-40 uppercase tracking-widest">{status}</div>
+                )}
+                {!chakra && log.text && <div>{log.text}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'goal_complete' || log.event === 'goal_achieved') {
+          const title = log.metadata?.title as string | undefined
+          const duration = log.metadata?.duration as string | undefined
+          const milestone = log.metadata?.milestone as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GOAL-X:" blockView>
+                {title && (
+                  <div className="uppercase tracking-widest mb-4">{title}</div>
+                )}
+                {duration && (
+                  <div className="opacity-60">DUR: {duration}</div>
+                )}
+                {milestone && (
+                  <div className="opacity-40 mt-4">→ {milestone}</div>
+                )}
+                {!title && log.text && <div>{log.text}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biofield_peak' || log.event === 'biofield_coherence') {
+          const energy = log.metadata?.energy as string | undefined
+          const clarity = log.metadata?.clarity as string | undefined
+          const alignment = log.metadata?.alignment as string | undefined
+          const readiness = log.metadata?.readiness as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PEAK:" blockView>
+                <div className="uppercase tracking-widest mb-8">Biofield coherence</div>
+                <div className="flex flex-col gap-y-2">
+                  {energy && (
+                    <div className="flex justify-between">
+                      <span className="opacity-40">ENERGY</span>
+                      <span className="uppercase">{energy}</span>
+                    </div>
+                  )}
+                  {clarity && (
+                    <div className="flex justify-between">
+                      <span className="opacity-40">CLARITY</span>
+                      <span className="uppercase">{clarity}</span>
+                    </div>
+                  )}
+                  {alignment && (
+                    <div className="flex justify-between">
+                      <span className="opacity-40">ALIGN</span>
+                      <span className="uppercase">{alignment}</span>
+                    </div>
+                  )}
+                  {readiness !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="opacity-40">READINESS</span>
+                      <span className="tabular-nums">{readiness}%</span>
+                    </div>
+                  )}
+                </div>
               </Block>
             </LogContainer>
           )
