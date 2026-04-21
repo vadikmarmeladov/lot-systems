@@ -148,7 +148,7 @@ function defaultState(): AssemblyState {
     assembledCount: 0,
     totalModules: MODULE_DEFINITIONS.length,
     phase: 'dormant',
-    narrative: 'System awaits its first signal to begin self-assembly.',
+    narrative: 'Quantum Cube dormant. Send the first signal — assembly begins with you.',
     lastComputed: 0,
   }
 }
@@ -295,23 +295,23 @@ function generateNarrative(modules: AssembledModule[], overallAssembly: number):
 
   // No signals at all
   if (overallAssembly === 0) {
-    return 'System awaits its first signal to begin self-assembly.'
+    return 'Quantum Cube dormant. Send the first signal — assembly begins with you.'
   }
 
   // Full integration
   if (integratedCount === total) {
-    return 'Full co-evolution achieved. Every module self-assembled and integrated. You and this system grow as one.'
+    return 'All modules online. Full co-evolution achieved. The Cube holds your complete signal pattern.'
   }
 
   // All assembled (some may be integrated)
   if (assembledCount === total) {
-    return 'All modules self-assembled. The architecture is complete. Integration deepening.'
+    return `All ${total} modules assembled. The Cube is coherent. Integration deepening from your rhythm.`
   }
 
   // Majority assembled
   if (assembledCount >= Math.ceil(total * 0.7)) {
     const remaining = total - assembledCount
-    return `${assembledCount} modules self-assembled. ${remaining} still forming. The system builds faster now.`
+    return `${assembledCount}/${total} modules online. ${remaining} still forming. Signal pipeline verified — the Cube accelerates.`
   }
 
   // Active assembly
@@ -319,26 +319,26 @@ function generateNarrative(modules: AssembledModule[], overallAssembly: number):
     const recentAssembled = modules
       .filter(m => m.phase === 'assembled' || m.phase === 'integrated')
       .sort((a, b) => (b.lastSignal || 0) - (a.lastSignal || 0))
-    return `${recentAssembled[0].label} leads. ${assembledCount}/${total} modules self-assembled. Structure emerging from your rhythm.`
+    return `${recentAssembled[0].label} active. ${assembledCount}/${total} modules assembled. Structure emerging from your signal flow.`
   }
 
   // First assembly
   if (assembledCount === 1) {
     const first = modules.find(m => m.phase === 'assembled' || m.phase === 'integrated')!
-    return `${first.label} self-assembled. First architecture complete. Others are forming.`
+    return `${first.label} online. First module assembled. The Cube is initializing.`
   }
 
   // Forming phase
   if (formingCount > 0) {
-    return `${formingCount} module${formingCount > 1 ? 's' : ''} forming. Patterns becoming architecture. Keep building.`
+    return `${formingCount} module${formingCount > 1 ? 's' : ''} forming. Biofield patterns resolving into architecture. The Cube is calibrating.`
   }
 
   // Early awakening
   if (awakeningCount > 0) {
-    return `${awakeningCount} module${awakeningCount > 1 ? 's' : ''} awakening. The system has begun to self-assemble around your exploration.`
+    return `${awakeningCount} module${awakeningCount > 1 ? 's' : ''} awakening. The Cube stirs. First signals detected — self-assembly initiated.`
   }
 
-  return 'Signals detected. Self-assembly initiated.'
+  return 'Signal detected. The Cube is reading your rhythm. Assembly sequence initiated.'
 }
 
 /**

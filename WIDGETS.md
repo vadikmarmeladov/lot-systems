@@ -218,12 +218,14 @@ Personal operating system metrics dashboard. Cycles through Status, Performance,
 
 ### System Progress Widget
 
-Displays deployment information, self-assembly map, and collects user feedback on system status. Cycles through three views: Deployment (build version, features, assembly summary), Self-Assembly (module-by-module assembly map with density progress bars), and Feedback (Operational / Resonating / Needs Calibration / Evolving with community analytics).
+Displays deployment information, self-assembly map, physiological report, OS journal, and collects user feedback on system status. Cycles through five views: Deployment (build version, live features, assembly summary, session logs, Usership transmission), Self-Assembly (12-module assembly map with density progress bars and physiological cohort), Feedback (Operational / Resonating / Needs Calibration / Evolving with community analytics), System Report (on-demand physiological readiness + biofield audit), and OS Journal (persisted vitals timeline from daily snapshot jobs).
 
-The Self-Assembly view tracks 9 modules — Biofield Engine, Memory Architecture, Routine Compiler, Intention Core, Cleanness Protocol, Reflection Layer, Community Mesh, Ecosystem Bridge, Quantum Substrate — each progressing through phases: Dormant, Awakening, Forming, Assembled, Integrated. Assembly derives entirely from real Quantum Intention Engine signals.
+The Self-Assembly view tracks 12 modules — Biofield Engine, Memory Architecture, Routine Compiler, Intention Core, Cleanness Protocol, Reflection Layer, Community Mesh, Ecosystem Bridge, Quantum Substrate, Nutrition Protocol, Goal Architecture, Archetype Classifier — each progressing through phases: Dormant, Awakening, Forming, Assembled, Integrated. Assembly derives entirely from real QIE v5 signals (18 patterns, 12 sources). The Quantum Cube is the system heartbeat: narrative strings reflect its assembly state in Vadik's vocabulary.
 
-- **Data Source:** `/api/system/deployment-status`, `/api/system/my-feedback`, `/api/system/feedback-analytics` endpoints; `selfAssembly` nanostore (derived from Quantum Intention Engine signals)
-- **Connection:** Submits to `/api/system/submit-feedback`; aggregates community sentiment; reads self-assembly state computed by `selfAssembly.ts` store
+Five background jobs feed this widget: Daily OS Vitals Snapshot (02:00 UTC), Daily QIE Analytics (03:00 UTC), Weekly Physiological Cohort Digest (06:00 UTC Monday), Weekly OS Signal Diversity Audit (05:00 UTC Sunday), Monthly Email Sender (09:00 UTC, 1st).
+
+- **Data Source:** `/api/system/deployment-status`, `/api/system/my-feedback`, `/api/system/feedback-analytics`, `/api/cohorts`, `/api/logs?events=os_vitals_snapshot,os_signal_report` endpoints; `selfAssembly` nanostore (derived from QIE v5 signals); `intentionEngine` store for physiological report
+- **Connection:** Submits to `/api/system/submit-feedback`; aggregates community sentiment; reads self-assembly state computed by `selfAssembly.ts`; surfaces Usership-gated transmission block after each assembly run
 
 ### System Pulse Widget
 

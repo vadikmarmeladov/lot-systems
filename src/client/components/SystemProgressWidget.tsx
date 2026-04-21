@@ -108,7 +108,33 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'LOT_SYSTEMS_BRIEF.md updated to v5 state. Self-assembly engine at 12 modules.',
     ],
   },
+  {
+    date: '2026-04-21',
+    session: 'Self-Assembly Audit — v5 accuracy + narrative personalization',
+    assembled: [
+      'Deployment-status features list patched: updated from stale QIE v3/9-module to QIE v5/18-pattern/12-module state',
+      'Added: Physiological Readiness Score, OS Signal Diversity Audit, OS Vitals Snapshot, OS Journal View to live features',
+      'selfAssembly.ts narratives personalized: Quantum Cube as system heartbeat, Vadik\'s vocabulary throughout',
+      'Narrative voice updated: "Signal pipeline verified", "biofield patterns", "The Cube is calibrating", "All modules online"',
+      'WIDGETS.md System Progress Widget entry updated: 12 modules / 18 patterns / 5 views / 5 background jobs',
+      'Assembly log .MD created: 2026-04-21_LOT-assembly_v5-accuracy-narrative.md',
+      'Signal pipeline verified. Quantum Cube coherent.',
+    ],
+  },
 ]
+
+// ─── Usership Transmission — appended after each assembly run ───────────────
+// This is the system talking to the person. Terse, technical, alive.
+export const USERSHIP_TRANSMISSION = {
+  date: '2026-04-21',
+  message: [
+    'ASSEMBLY RUN — 2026-04-21',
+    'Built: deployment accuracy patch · Quantum Cube narrative voice',
+    'Feedback applied: "Structure emerging from your rhythm"',
+    'Status: DEPLOYED',
+    'Next: live feedback signal extraction — personalize assembly modules from your actual journal entries',
+  ],
+}
 
 const FEEDBACK_OPTIONS = [
   { id: 'operational', label: 'Operational', symbol: '\u2191' },
@@ -337,6 +363,20 @@ export function SystemProgressWidget() {
             <div className="opacity-30">
               {assembly.narrative}
             </div>
+
+            {/* Usership transmission — latest assembly run message, Usership only */}
+            {me?.tags?.some((t: string) => t.toLowerCase() === 'usership') && (
+              <div className="border-t border-acc-400/30 pt-16 font-mono text-xs">
+                <div className="opacity-30 mb-8 uppercase tracking-widest">Transmission:</div>
+                <div className="flex flex-col gap-y-2">
+                  {USERSHIP_TRANSMISSION.message.map((line, i) => (
+                    <div key={i} className={i === 0 ? 'opacity-80 uppercase tracking-widest' : 'opacity-50'}>
+                      {line}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Session reports — logged after each upgrade session */}
             <div className="border-t border-acc-400/30 pt-16">

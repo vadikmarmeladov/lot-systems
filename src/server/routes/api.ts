@@ -4241,15 +4241,18 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
 
       // Features assembled and live in current version
       const features = [
-        'Quantum Intention Engine v3 — 13 physiological patterns',
-        'Self-Assembly Engine — 9 modules, signal-derived progression',
-        'Physiological Cohort Classification — 9 archetypes, weekly digest',
-        'Military Log Interface — CARE / PLAN / INTENT / BIO / MEM / SYS',
-        'Soviet Synth Keyboard — keystroke click, activation chime',
-        'Christian Fasting Calendar — Orthodox + Catholic, gradual strictness',
-        'Layout Density Progression — breathable → instrument (5 levels)',
-        'Punctuation Context Engine — tone/intent from typing patterns',
-        'Daily QIE Analytics Job — 03:00 UTC pattern compilation',
+        'Quantum Intention Engine v5 — 18 patterns, flow-state + social-void detection',
+        'Self-Assembly Engine v2 — 12 modules, signal-derived progression',
+        'Physiological Cohort Classification — 10 archetypes, weekly digest',
+        'Physiological Readiness Score — 0-100 composite, surfaced each session',
+        'Military Log Interface — 25 event types, full telemetry coverage',
+        'Weekly OS Signal Diversity Audit — 05:00 UTC Sunday, mono-loop detection',
+        'Daily OS Vitals Snapshot — 02:00 UTC, cross-device OS continuity',
+        'OS Journal View — persisted vitals timeline in System Progress widget',
+        'Soviet Synth Keyboard — keystroke click, /synth + secret emoji triggers',
+        'Christian Fasting Calendar — Orthodox + Catholic, gradual strictness algorithm',
+        'Layout Density Progression — breathable → instrument (5 levels, earned)',
+        'Punctuation Context Engine — tone/intent derived from typing patterns',
       ]
 
       const deployment = {
