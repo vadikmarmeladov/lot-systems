@@ -103,11 +103,25 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
   const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
     switch (checkStatus) {
       case 'ok':
-        return '✓'
+        return (
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        )
       case 'error':
-        return '✕'
+        return (
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M3 3L11 11M11 3L3 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        )
       case 'unknown':
-        return '?'
+        return (
+          <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M7 9V9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <path d="M7 5C7 5 8 5 8 6.5C8 7.5 7 7.5 7 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+          </svg>
+        )
     }
   }
 
@@ -152,9 +166,15 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
         <>
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+              <span className={cn(
+                status.overall === 'ok' && 'text-acc',
+                status.overall === 'degraded' && 'text-yellow-500',
+                status.overall === 'error' && 'text-red-500'
+              )}>
+                {status.overall === 'ok' ? 'All systems operational' :
+                 status.overall === 'degraded' ? 'Degraded — some services affected' :
+                 'Outage detected'}
+              </span>
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
@@ -190,12 +210,19 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
+                  <span aria-label={check.status} className={cn(
+                    check.status === 'ok' && 'text-acc',
+                    check.status === 'error' && 'text-red-500',
+                    check.status === 'unknown' && 'text-acc/40'
+                  )}>
+                    {getStatusIcon(check.status)}
+                  </span>
                   <span className={cn(
                     check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
+                    check.status === 'error' && 'text-red-500',
+                    check.status === 'unknown' && 'text-acc/40'
                   )}>
-                    {check.status === 'ok' ? 'Ok' :
+                    {check.status === 'ok' ? 'Operational' :
                      check.status === 'error' ? 'Error' :
                      'Unknown'}
                   </span>
@@ -204,7 +231,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                   )}
                 </div>
                 {check.message && (
-                  <div className="text-acc/60 mt-4">{check.message}</div>
+                  <div className="text-red-500/80 mt-4 text-sm">{check.message}</div>
                 )}
               </Block>
             ))}
@@ -234,7 +261,14 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
               </Block>
               <Block label="Next prompt:" labelClassName="!pl-0">
                 <div className="flex items-center gap-x-8">
-                  <span>{memoryStatus.nextPromptAvailable ? '✓' : '✕'}</span>
+                  <span className={cn(
+                    memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/40'
+                  )}>
+                    {memoryStatus.nextPromptAvailable
+                      ? <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2.5 7L5.5 10L11.5 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      : <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3L11 11M11 3L3 11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                    }
+                  </span>
                   <span className={cn(
                     memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/60'
                   )}>
@@ -242,7 +276,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                   </span>
                 </div>
                 {memoryStatus.blockReason && (
-                  <div className="text-acc/60 mt-4">Reason: {memoryStatus.blockReason}</div>
+                  <div className="text-acc/60 mt-4">{memoryStatus.blockReason}</div>
                 )}
               </Block>
             </div>
