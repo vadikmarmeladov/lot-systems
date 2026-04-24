@@ -346,8 +346,12 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Critical checks: Database and Auth — failure = full outage
+  // Non-critical checks: Sync, Settings, Admin, Engine stack, Memory Engine — failure = degraded
+  const criticalNames = new Set(['Database stack', 'Authentication engine'])
+  const hasCriticalError = checks.some((c) => c.status === 'error' && criticalNames.has(c.name))
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalError ? 'error' : hasAnyError ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -387,8 +391,19 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // Admin configuration diagnostic endpoint
+  const isDev = config.env !== 'production'
+
+  const devOnly = (reply: any) => {
+    if (!isDev) {
+      reply.code(404).send({ error: 'Not found' })
+      return false
+    }
+    return true
+  }
+
+  // Admin configuration diagnostic endpoint (dev/staging only)
   fastify.get('/verify-admin-config', async (req, reply) => {
+    if (!devOnly(reply)) return
     const adminEmailsEnv = process.env.ADMIN_EMAILS
     const adminsList = config.admins
 
@@ -411,8 +426,9 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // API key verification endpoint - shows masked API key for verification
+  // API key verification endpoint - shows masked API key for verification (dev/staging only)
   fastify.get('/verify-api-keys', async (req, reply) => {
+    if (!devOnly(reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
     const resendKey = process.env.RESEND_API_KEY
     const openaiKey = process.env.OPENAI_API_KEY
@@ -448,8 +464,9 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // Memory Engine diagnostic endpoint - shows why Claude might not be working
+  // Memory Engine diagnostic endpoint (dev/staging only)
   fastify.get('/debug-memory-engine', async (req, reply) => {
+    if (!devOnly(reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     // Test if we can initialize Anthropic client
@@ -494,8 +511,9 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // Test all AI engines to see which are available
+  // Test all AI engines to see which are available (dev/staging only)
   fastify.get('/test-ai-engines', async (req, reply) => {
+    if (!devOnly(reply)) return
     const { aiEngineManager } = await import('#server/utils/ai-engines.js')
 
     const status = aiEngineManager.getStatus()
@@ -543,8 +561,9 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // Test Anthropic API key with actual API call
+  // Test Anthropic API key with actual API call (dev/staging only)
   fastify.get('/test-anthropic-key', async (req, reply) => {
+    if (!devOnly(reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     if (!anthropicKey) {
@@ -561,7 +580,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {
