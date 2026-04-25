@@ -4239,14 +4239,20 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         return 'activated'
       }
 
-      // Features in current version
+      // Features assembled and live in current version
       const features = [
-        'API Data Export Protocol',
-        'Hourly Time Chime Resonance',
-        'Quantum Intent Interactive Matrix',
-        'Community Wellness Pulse Monitor',
-        'Memory Engine Neural Analytics',
-        'Growth Milestone Tracking System'
+        'Quantum Intention Engine v5 — 18 patterns, flow-state + social-void detection',
+        'Self-Assembly Engine v2 — 12 modules, signal-derived progression',
+        'Physiological Cohort Classification — 10 archetypes, weekly digest',
+        'Physiological Readiness Score — 0-100 composite, surfaced each session',
+        'Military Log Interface — 25 event types, full telemetry coverage',
+        'Weekly OS Signal Diversity Audit — 05:00 UTC Sunday, mono-loop detection',
+        'Daily OS Vitals Snapshot — 02:00 UTC, cross-device OS continuity',
+        'OS Journal View — persisted vitals timeline in System Progress widget',
+        'Soviet Synth Keyboard — keystroke click, /synth + secret emoji triggers',
+        'Christian Fasting Calendar — Orthodox + Catholic, gradual strictness algorithm',
+        'Layout Density Progression — breathable → instrument (5 levels, earned)',
+        'Punctuation Context Engine — tone/intent derived from typing patterns',
       ]
 
       const deployment = {
@@ -4309,7 +4315,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       version: string
       feedback: 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
     }
-  }>('/api/system/submit-feedback', async (req, reply) => {
+  }>('/system/submit-feedback', async (req, reply) => {
     if (!req.user) return reply.throw.authException()
 
     const { version, feedback } = req.body

@@ -246,6 +246,15 @@ fastify.get('/u/:userIdOrUsername', async function (req, reply) {
 // END PUBLIC PROFILE ROUTES
 // ==============================================================================
 
+// About page (public wiki)
+fastify.get('/about', async (req, reply) => {
+  return reply.view('generic-spa', {
+    scriptName: 'about',
+    scriptNonce: reply.cspNonce.script,
+    styleNonce: reply.cspNonce.style,
+  })
+})
+
 // Routes
 fastify.register(async (fastify: FastifyInstance) => {
   fastify.decorate('models', models)

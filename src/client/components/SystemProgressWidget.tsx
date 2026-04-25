@@ -35,7 +35,7 @@ interface FeedbackAnalytics {
   insights: string[]
 }
 
-type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report'
+type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report' | 'os-journal'
 
 // Self-assembly session record — appended after each upgrade session
 const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] = [
@@ -66,7 +66,90 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report logged and appended. All modules online.',
     ],
   },
+  {
+    date: '2026-04-19',
+    session: 'Self-Assembly Audit — feedback fix / deploy features',
+    assembled: [
+      'BUG FIX: /system/submit-feedback route path corrected (double /api/ prefix silently broke all feedback recording)',
+      'Deployment features list updated: now reflects real assembled capabilities, not generic placeholders',
+      'Public /about wiki page: comprehensive reference manual, monospace sci-fi aesthetic, scrollspy nav',
+      'scheduled-jobs: extractTraits → extractUserTraits import corrected (prevented weekly cohort digest)',
+      'Assembly log .MD created: 2026-04-19_LOT-assembly_feedback-fix-deploy-features.md',
+      'All modules online. Feedback recording restored.',
+    ],
+  },
+  {
+    date: '2026-04-19',
+    session: 'Quantum Engine Upgrade — v4 / Self-Assembly Deep Pass',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP expanded: 18 nodes mapped across Tier 0/1/2/3 — log, quantumState, narrative, evolution, cohortConnect, systemProgress, userMetrics, signalStream, patternRecognition, contextualPrompts, interventions',
+      'getWidgetsDependingOn(): reverse dependency resolver added — enables cascade invalidation from any signal source',
+      'QIE Patterns 14–16: os-stagnation (signal diversity collapse), circadian-drift (late-night cluster without recovery), momentum-wave (multi-source engagement rise + active intention)',
+      'PhysiologicalReport: physiologicalReadiness score (0-100, energy 40pt + self-care 30pt + pattern severity 30pt) + readinessDirective terse field',
+      'Logs.tsx: 8 new military log event handlers — GOAL / EVO / NARR / QRNG / ASSESS / INT / OS / IDX',
+      'Background jobs: daily-os-vitals-snapshot at 02:00 UTC — writes os_vitals_snapshot log per active user (streak score, activity density, cohort state)',
+      'scheduled-jobs: hour check expanded to include 02:00 UTC; init log updated',
+      'LOT_SYSTEMS_BRIEF.md: updated to April 2026 state — 16 QIE patterns, physiological cohorts, OS vitals, self-assembly engine, roadmap Q2/Q3 2026 status',
+      'Session report appended. Self-assembly continues.',
+    ],
+  },
+  {
+    date: '2026-04-20',
+    session: 'Quantum Engine Upgrade — v5 / Self-Assembly Session',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 22 nodes mapped — added recipe (time/mood/energy), chakra (mood/energy/selfcare/journal), goals (planner/intentions/memory/journal), time (Tier 0 base), badges (all achievement sources)',
+      'QIE source types expanded: recipe + goals added to IntentionSignal source union',
+      'QIE Patterns 17–18: flow-state (memory+planner+intentions active within 4h window), social-void (5-day cohort gap with high personal engagement)',
+      'Logs.tsx: 7 new military handlers — REC (recipe_viewed), BADGE (badge_unlock), COHORT (cohort_determined), VITALS (os_vitals_snapshot), SYNC (signal_sync), SIG-RPT (os_signal_report), generic event-name-derived label',
+      'selfAssembly.ts: 3 new modules — Nutrition Protocol (recipe), Goal Architecture (goals), Archetype Classifier (cohort-classify). Total: 12 modules',
+      'SOURCE_MAP + SIGNAL_MAP updated: recipe/goals sources wired; cohort_determined → cohort-classify; recipe_viewed + goal signals mapped',
+      'scheduled-jobs: weekly-os-signal-diversity-audit job at 05:00 UTC Sunday — sourceCount, topSource, diversityScore, mono-loop flag per user',
+      'SystemProgressWidget: OS Journal view added (cycles deployment → assembly → feedback → report → os-journal)',
+      'LOT_SYSTEMS_BRIEF.md updated to v5 state. Self-assembly engine at 12 modules.',
+    ],
+  },
+  {
+    date: '2026-04-21',
+    session: 'Self-Assembly Audit — v5 accuracy + narrative personalization',
+    assembled: [
+      'Deployment-status features list patched: updated from stale QIE v3/9-module to QIE v5/18-pattern/12-module state',
+      'Added: Physiological Readiness Score, OS Signal Diversity Audit, OS Vitals Snapshot, OS Journal View to live features',
+      'selfAssembly.ts narratives personalized: Quantum Cube as system heartbeat, Vadik\'s vocabulary throughout',
+      'Narrative voice updated: "Signal pipeline verified", "biofield patterns", "The Cube is calibrating", "All modules online"',
+      'WIDGETS.md System Progress Widget entry updated: 12 modules / 18 patterns / 5 views / 5 background jobs',
+      'Assembly log .MD created: 2026-04-21_LOT-assembly_v5-accuracy-narrative.md',
+      'Signal pipeline verified. Quantum Cube coherent.',
+    ],
+  },
+  {
+    date: '2026-04-21',
+    session: 'Quantum Engine Upgrade — v6 / Self-Assembly Session',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 26 nodes — added patternInsights (mood/memory/journal/energy/cohort/planner), cosmic (mood/energy/intentions), quantumSign (intentions/memory), microGame (calculator/time)',
+      'QIE Patterns 19-21: biofield-coherence-peak (all 4 state dimensions aligned, optimal capture window), nutritional-void (no recipe + depleting mood 3 days), goal-drift (goal signals without planning follow-through)',
+      'checkBiofieldCoherence(): peak detector — records biofield_peak signal when energy+clarity+alignment+support all align positive',
+      'recordGoalSignal() + recordNutritionSignal(): typed signal helpers for goal and recipe events',
+      'selfAssembly.ts: 13th module — OS Vitals Monitor (vitals) wired to os_vitals_snapshot / signal_sync / biofield_peak / field_entry',
+      'Logs.tsx: CHAKRA / GOAL-X / PEAK handlers added — PEAK: renders full 4-dimension biofield state',
+      'Logs.tsx: BIO [sector]: handler extended — physiologicalReadiness % + readinessDirective rendered when present in metadata',
+      'LOT_SYSTEMS_BRIEF.md: updated to v6 — 21 QIE patterns, 13 assembly modules, 26 dependency nodes',
+      'Signal pipeline verified. Quantum Operating System fully defined.',
+    ],
+  },
 ]
+
+// ─── Usership Transmission — appended after each assembly run ───────────────
+// This is the system talking to the person. Terse, technical, alive.
+export const USERSHIP_TRANSMISSION = {
+  date: '2026-04-21',
+  message: [
+    'ASSEMBLY RUN — 2026-04-21 · v6',
+    'Built: biofield coherence peak detector · 3 new QIE patterns · OS Vitals Monitor module',
+    'Dependency map: 26 nodes. Assembly: 13 modules. Patterns: 21.',
+    'Status: DEPLOYED',
+    'Next: live feedback signal extraction — personalize assembly modules from actual journal entries',
+  ],
+}
 
 const FEEDBACK_OPTIONS = [
   { id: 'operational', label: 'Operational', symbol: '\u2191' },
@@ -93,6 +176,9 @@ export function SystemProgressWidget() {
   const { data: energyData } = useEnergy()
   const [cohortData, setCohortData] = React.useState<{ archetype?: string; behavioralCohort?: string } | null>(null)
   const [report, setReport] = React.useState<PhysiologicalReport | null>(null)
+  const [osJournalLogs, setOsJournalLogs] = React.useState<
+    { date: string; streak?: number; density?: number; health?: number; archetype?: string; diversityScore?: number; topSource?: string }[]
+  >([])
 
   // Recompute assembly on mount and periodically
   React.useEffect(() => {
@@ -113,13 +199,35 @@ export function SystemProgressWidget() {
       .catch(() => {})
   }, [])
 
+  // Load OS journal (vitals snapshots + signal reports) when view is active
+  React.useEffect(() => {
+    if (view !== 'os-journal') return
+    fetch('/api/logs?events=os_vitals_snapshot,os_signal_report&limit=10')
+      .then(res => res.json())
+      .then((data: any[]) => {
+        if (!Array.isArray(data)) return
+        const entries = data.map((l: any) => ({
+          date: l.metadata?.date ?? new Date(l.createdAt).toISOString().slice(0, 10),
+          streak: l.metadata?.weeklyStreakScore ?? l.metadata?.streak,
+          density: l.metadata?.logCount7d ?? l.metadata?.activityDensity,
+          health: l.metadata?.health,
+          archetype: l.metadata?.archetype,
+          diversityScore: l.metadata?.diversityScore,
+          topSource: l.metadata?.topSource,
+        }))
+        setOsJournalLogs(entries)
+      })
+      .catch(() => {})
+  }, [view])
+
   const cycleView = () => {
     setView(prev => {
       switch (prev) {
         case 'deployment': return 'assembly'
         case 'assembly': return 'feedback'
         case 'feedback': return 'report'
-        case 'report': return 'deployment'
+        case 'report': return 'os-journal'
+        case 'os-journal': return 'deployment'
         default: return 'deployment'
       }
     })
@@ -217,7 +325,8 @@ export function SystemProgressWidget() {
     view === 'deployment' ? 'System Progress:' :
     view === 'assembly' ? 'Self-Assembly:' :
     view === 'feedback' ? 'System Feedback:' :
-    'System Report:'
+    view === 'report' ? 'System Report:' :
+    'OS Journal:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>
@@ -269,6 +378,20 @@ export function SystemProgressWidget() {
             <div className="opacity-30">
               {assembly.narrative}
             </div>
+
+            {/* Usership transmission — latest assembly run message, Usership only */}
+            {me?.tags?.some((t: string) => t.toLowerCase() === 'usership') && (
+              <div className="border-t border-acc-400/30 pt-16 font-mono text-xs">
+                <div className="opacity-30 mb-8 uppercase tracking-widest">Transmission:</div>
+                <div className="flex flex-col gap-y-2">
+                  {USERSHIP_TRANSMISSION.message.map((line, i) => (
+                    <div key={i} className={i === 0 ? 'opacity-80 uppercase tracking-widest' : 'opacity-50'}>
+                      {line}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Session reports — logged after each upgrade session */}
             <div className="border-t border-acc-400/30 pt-16">
@@ -533,6 +656,18 @@ export function SystemProgressWidget() {
                     </div>
                   )}
 
+                  {/* Physiological readiness */}
+                  <div className="border-t border-acc-400/30 pt-12">
+                    <div className="opacity-30 mb-8 uppercase tracking-widest">Physiological Readiness</div>
+                    <div className="flex flex-col gap-y-4">
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-50 uppercase">Score</span>
+                        <span className="tabular-nums">{report.physiologicalReadiness}/100</span>
+                      </div>
+                      <div className="opacity-40 text-xs">{report.readinessDirective}</div>
+                    </div>
+                  </div>
+
                   {/* Biofield status */}
                   <div className="border-t border-acc-400/30 pt-12">
                     <div className="opacity-30 mb-8 uppercase tracking-widest">Biofield state</div>
@@ -620,6 +755,85 @@ export function SystemProgressWidget() {
             </div>
           </>
         )}
+        {/* ─── OS Journal View ─── */}
+        {view === 'os-journal' && (
+          <>
+            <div>
+              <div className="opacity-30 mb-8">Persisted OS vitals and signal reports.</div>
+              {osJournalLogs.length === 0 ? (
+                <div className="opacity-30">No OS journal entries yet. Vitals log daily at 02:00 UTC.</div>
+              ) : (
+                <div className="flex flex-col gap-y-16 font-mono text-xs">
+                  {osJournalLogs.map((entry, idx) => (
+                    <div key={idx} className="flex flex-col gap-y-4 border-t border-acc-400/20 pt-12">
+                      <div className="opacity-40 uppercase tracking-widest mb-4">{entry.date}</div>
+                      {entry.streak !== undefined && (
+                        <div className="flex justify-between">
+                          <span className="opacity-30 uppercase">Streak score</span>
+                          <span className="tabular-nums">{entry.streak}</span>
+                        </div>
+                      )}
+                      {entry.density !== undefined && (
+                        <div className="flex justify-between">
+                          <span className="opacity-30 uppercase">Log density 7d</span>
+                          <span className="tabular-nums">{entry.density}</span>
+                        </div>
+                      )}
+                      {entry.diversityScore !== undefined && (
+                        <div className="flex justify-between">
+                          <span className="opacity-30 uppercase">Signal diversity</span>
+                          <span className="tabular-nums">{entry.diversityScore}%</span>
+                        </div>
+                      )}
+                      {entry.topSource && (
+                        <div className="flex justify-between">
+                          <span className="opacity-30 uppercase">Top source</span>
+                          <span className="uppercase">{entry.topSource}</span>
+                        </div>
+                      )}
+                      {entry.archetype && (
+                        <div className="flex justify-between">
+                          <span className="opacity-30 uppercase">Archetype</span>
+                          <span>{entry.archetype}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Physiological cohort summary */}
+            {cohortData && (
+              <div className="border-t border-acc-400/30 pt-16">
+                <div className="opacity-30 mb-8 uppercase tracking-widest">Current cohort</div>
+                <div className="flex flex-col gap-y-4 font-mono text-xs">
+                  {cohortData.archetype && (
+                    <div className="flex justify-between">
+                      <span className="opacity-30 uppercase">Archetype</span>
+                      <span>{cohortData.archetype}</span>
+                    </div>
+                  )}
+                  {cohortData.behavioralCohort && (
+                    <div className="flex justify-between">
+                      <span className="opacity-30 uppercase">Cohort</span>
+                      <span>{cohortData.behavioralCohort}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Assembly module count */}
+            <div className="border-t border-acc-400/30 pt-16">
+              <div className="flex justify-between font-mono text-xs">
+                <span className="opacity-30 uppercase">Modules online</span>
+                <span className="tabular-nums">{assembly.assembledCount}/{assembly.totalModules}</span>
+              </div>
+            </div>
+          </>
+        )}
+
       </div>
     </Block>
   )
