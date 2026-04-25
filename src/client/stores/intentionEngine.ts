@@ -594,6 +594,38 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 22: Ecosystem without biofield — nodes connected but no check-in today
+  const ecosystemSignals = recentSignals.filter(s =>
+    s.source === 'intentions' &&
+    (s.signal.includes('_connected') || s.signal === 'ecosystem_full_coherence')
+  )
+  const biofieldToday = recentSignals.filter(s =>
+    s.source === 'mood' && (now - s.timestamp) < 12 * 60 * 60 * 1000
+  )
+  if (ecosystemSignals.length >= 2 && biofieldToday.length === 0) {
+    patterns.push({
+      pattern: 'ecosystem-without-biofield',
+      confidence: 0.72,
+      suggestedWidget: 'mood',
+      suggestedTiming: 'soon',
+      reason: 'Ecosystem nodes connected. No biofield reading today. Anchor the signal with a check-in.'
+    })
+  }
+
+  // Pattern 23: Cognitive overload — journal + memory + planner all active, no self-care anchor
+  const cognitiveLoad = recentSignals.filter(s =>
+    ['journal', 'memory', 'planner'].includes(s.source)
+  )
+  if (cognitiveLoad.length >= 5 && recentSelfCare.length === 0) {
+    patterns.push({
+      pattern: 'cognitive-overload',
+      confidence: Math.min(cognitiveLoad.length / 8, 0.9),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'soon',
+      reason: 'High cognitive engagement. No rest registered. Ground before continuing.'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -986,6 +1018,14 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   cosmic:            ['mood', 'energy', 'intentions'],
   quantumSign:       ['intentions', 'memory'],
   microGame:         ['calculator', 'time'],
+
+  // ── QOS / Ecosystem layer (2026-04-25 audit)
+  ecosystem:         ['intentions'],
+  quantumEngine:     ['mood', 'energy', 'intentions', 'cohort'],
+  correlatedIndexes: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+  systemPulse:       ['energy', 'cohort', 'log'],
+  flashDrive:        ['memory', 'journal'],
+  chatCatalyst:      ['mood', 'cohort'],
 }
 
 /** Returns which signal sources a given widget depends on. */

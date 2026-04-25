@@ -691,6 +691,98 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'energy_update' || log.event === 'energy_snapshot') {
+          const level = log.metadata?.level as number | undefined
+          const trajectory = log.metadata?.trajectory as string | undefined
+          const status = log.metadata?.status as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ATP:" blockView>
+                {level !== undefined && (
+                  <div className="tabular-nums mb-4">
+                    {level}%
+                    {trajectory && (
+                      <span className="ml-8 opacity-60 uppercase tracking-widest">{trajectory}</span>
+                    )}
+                  </div>
+                )}
+                {status && (
+                  <div className="opacity-40 uppercase tracking-widest">{status}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cohort_signal') {
+          const archetype = log.metadata?.archetype as string | undefined
+          const behavioralCohort = log.metadata?.behavioralCohort as string | undefined
+          if (!archetype && !behavioralCohort) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PHY:" blockView>
+                {archetype && (
+                  <div className="uppercase tracking-widest mb-4">{archetype}</div>
+                )}
+                {behavioralCohort && (
+                  <div className="opacity-60">{behavioralCohort}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'pattern_detected') {
+          const pattern = log.metadata?.pattern as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const action = log.metadata?.action as string | undefined
+          if (!pattern) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PAT:" blockView>
+                <div className="uppercase tracking-widest mb-4">
+                  {pattern.replace(/-/g, ' ')}
+                </div>
+                {confidence !== undefined && (
+                  <div className="opacity-50 mb-4">
+                    CONF: {Math.round(confidence * 100)}%
+                  </div>
+                )}
+                {action && (
+                  <div className="opacity-40">ACT: {action}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'journal_entry') {
+          const wordCount = log.metadata?.wordCount as number | undefined
+          const depth = log.metadata?.depth as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="JRN:" blockView>
+                {log.text && <div className="mb-8">{log.text}</div>}
+                <div className="flex gap-x-16 opacity-40">
+                  {wordCount !== undefined && <span>WC: {wordCount}</span>}
+                  {depth && <span className="uppercase tracking-widest">DEPTH: {depth}</span>}
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'ecosystem_update') {
+          const nodes = log.metadata?.nodes as { car?: boolean; home?: boolean; computer?: boolean } | undefined
+          const coherence = log.metadata?.coherence as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ECO:" blockView>
+                {nodes && (
+                  <div className="flex gap-x-16 mb-4">
+                    <span className={nodes.car ? '' : 'opacity-20'}>CAR</span>
+                    <span className={nodes.home ? '' : 'opacity-20'}>HOME</span>
+                    <span className={nodes.computer ? '' : 'opacity-20'}>CPU</span>
+                  </div>
+                )}
+                {coherence && (
+                  <div className="opacity-40 uppercase tracking-widest">{coherence}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           // Derive a terse military label from the event name prefix

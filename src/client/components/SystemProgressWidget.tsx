@@ -136,18 +136,32 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Signal pipeline verified. Quantum Operating System fully defined.',
     ],
   },
+  {
+    date: '2026-04-25',
+    session: 'Quantum Engine Upgrade — v7 / QOS Self-Assembly',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 32 nodes — added ecosystem, quantumEngine, correlatedIndexes, systemPulse, flashDrive, chatCatalyst (QOS/ecosystem layer)',
+      'QIE Patterns 22–23: ecosystem-without-biofield (nodes live, no check-in today), cognitive-overload (journal+memory+planner load, no self-care)',
+      'Logs.tsx: ATP / PHY / PAT / JRN / ECO military event handlers added (energy_update, cohort_signal, pattern_detected, journal_entry, ecosystem_update)',
+      'QuantumEngineWidgets: promoted to full QOS surface — QOS: / Biofield: / Cohort: cycling label view',
+      'Biofield state (ATP/Clarity/Alignment/Support/Capacitor) surfaced inline in QOS widget',
+      'Physiological cohort (Archetype/Cohort/Priority) surfaced in QOS cohort view',
+      'SystemProgressWidget deployment panel: physiological cohort section added',
+      'Self-assembly report v7 appended. 23 patterns active. 32 dependency nodes mapped.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-21',
+  date: '2026-04-25',
   message: [
-    'ASSEMBLY RUN — 2026-04-21 · v6',
-    'Built: biofield coherence peak detector · 3 new QIE patterns · OS Vitals Monitor module',
-    'Dependency map: 26 nodes. Assembly: 13 modules. Patterns: 21.',
+    'ASSEMBLY RUN — 2026-04-25 · v7',
+    'Built: QOS surface (ecosystem/biofield/cohort cycling) · 2 new patterns · 6 new dependency nodes',
+    'Dependency map: 32 nodes. Assembly: 13 modules. Patterns: 23.',
     'Status: DEPLOYED',
-    'Next: live feedback signal extraction — personalize assembly modules from actual journal entries',
+    'Next: live physiological readiness surfaced per-session · OS Journal personalization from real entries',
   ],
 }
 
@@ -370,6 +384,36 @@ export function SystemProgressWidget() {
                   {deployment.features.map((feature, idx) => (
                     <div key={idx}>{'\u2192'} {feature}</div>
                   ))}
+                </div>
+              </div>
+            )}
+
+            {/* Physiological cohort — deployment view surface */}
+            {(cohortData?.archetype || cohortData?.behavioralCohort) && (
+              <div className="border-t border-acc-400/30 pt-16">
+                <div className="opacity-30 mb-8">Physiological cohort:</div>
+                <div className="flex flex-col gap-y-4">
+                  {cohortData?.archetype && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-50 uppercase tracking-widest text-xs">Archetype</span>
+                      <span>{cohortData.archetype}</span>
+                    </div>
+                  )}
+                  {cohortData?.behavioralCohort && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-50 uppercase tracking-widest text-xs">Cohort</span>
+                      <span>{cohortData.behavioralCohort}</span>
+                    </div>
+                  )}
+                  {energyData?.energyState && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-50 uppercase tracking-widest text-xs">Biofield ATP</span>
+                      <span className="tabular-nums">
+                        {energyData.energyState.currentLevel}%
+                        {' '}<span className="opacity-30 capitalize">{energyData.energyState.trajectory}</span>
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
