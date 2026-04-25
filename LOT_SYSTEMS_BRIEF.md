@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.2
-**Last Updated:** April 21, 2026
-**Status:** Production Active — Self-Assembly Phase v6
+**Document Version:** 2.3
+**Last Updated:** April 25, 2026
+**Status:** Production Active — Self-Assembly Phase v7
 
 ---
 
@@ -15,7 +15,7 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v5 — 18-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v6 — 22-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
@@ -43,7 +43,7 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - **vs. Notion/Obsidian:** LOT has intelligent curation vs. manual organization
 
 **Market Validation:**
-- 909 days of continuous operation (Day 909 as of April 20, 2026)
+- 913 days of continuous operation (Day 913 as of April 25, 2026)
 - Active user base with measurable engagement metrics
 - Proven retention through badge/streak mechanics
 
@@ -140,6 +140,7 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 19. **Biofield Coherence Peak** — All 4 state dimensions positive within 3h → Memory capture (confidence: 0.9)
 20. **Nutritional Void** — No recipe signals for 3 days + depleting mood → Fuel system (confidence: 0.65)
 21. **Goal Drift** — Goal signals present but no planning follow-through in 3 days → Planner (confidence: 0.7)
+22. **Engagement Resurgence** — 5+ day dormancy gap followed by active return session → Memory capture (confidence: 0.60–0.85, scaled by gap length)
 
 **Technical Specs:**
 - Signal retention: 7 days
@@ -481,7 +482,7 @@ All jobs are idempotent (run-once per period), include failure logging, and oper
 - **Database Query Optimization:** Indexed foreign keys, composite indexes
 
 ### User Engagement
-- **Day Counter:** Currently Day 908 (continuous operation since ~2023)
+- **Day Counter:** Currently Day 913 (continuous operation since ~2023)
 - **Daily Active Users:** Tracked via online presence
 - **Streak Mechanics:** Proven retention driver (7/30/100 day milestones)
 
@@ -581,6 +582,7 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Weekly OS Signal Diversity Audit job (05:00 UTC Sunday) — sourceCount, topSource, diversity%, mono-loop flag
 - [x] OS Journal view in SystemProgressWidget — persisted vitals timeline, cohort summary, module count
 - [x] QIE v6 — patterns 19-21: biofield-coherence-peak, nutritional-void, goal-drift
+- [x] QIE v7 — pattern 22: engagement-resurgence (dormancy gap detector → Memory capture)
 - [x] WIDGET_DEPENDENCY_MAP v4 — 26 nodes: patternInsights, cosmic, quantumSign, microGame added
 - [x] checkBiofieldCoherence(): peak detector recording biofield_peak when all 4 state dimensions align
 - [x] recordGoalSignal() + recordNutritionSignal(): typed signal helpers for goal and recipe events

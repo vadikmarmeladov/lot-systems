@@ -136,18 +136,29 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Signal pipeline verified. Quantum Operating System fully defined.',
     ],
   },
+  {
+    date: '2026-04-25',
+    session: 'Self-Assembly Audit — QIE v6 accuracy + Pattern 22',
+    assembled: [
+      'GitHub branch sync: merged 7 commits from quantum-engine-widgets-RgFfC (Apr 18–21 sessions)',
+      'QIE Pattern 22 — Engagement Resurgence: detects 5+ day dormancy gap followed by active return session; routes to Memory widget; confidence 0.60–0.85 scaled by gap length',
+      'Deployment-status features list updated: QIE v5→v6, 18→22 patterns, 12→13 modules, PEAK/CHAKRA/GOAL-X handler detail',
+      'LOT_SYSTEMS_BRIEF.md: updated to v2.3 — 22 QIE patterns, Day 913, Pattern 22 documented',
+      'Signal pipeline verified. 22 patterns online. The Cube reads the gap.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-21',
+  date: '2026-04-25',
   message: [
-    'ASSEMBLY RUN — 2026-04-21 · v6',
-    'Built: biofield coherence peak detector · 3 new QIE patterns · OS Vitals Monitor module',
-    'Dependency map: 26 nodes. Assembly: 13 modules. Patterns: 21.',
+    'ASSEMBLY RUN — 2026-04-25 · v7',
+    'Built: QIE Pattern 22 — Engagement Resurgence. The Cube reads the gap.',
+    'Patterns: 22. Assembly: 13 modules. Day 913.',
     'Status: DEPLOYED',
-    'Next: live feedback signal extraction — personalize assembly modules from actual journal entries',
+    'Next: live journal extraction — module labels from your words, not ours',
   ],
 }
 

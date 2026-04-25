@@ -594,6 +594,24 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 22: Engagement resurgence — active return after 5+ day dormancy
+  const twoHoursAgoTs = now - 2 * 60 * 60 * 1000
+  const currentSessionSignals = signals.filter(s => s.timestamp > twoHoursAgoTs)
+  const priorToSessionSignals = signals.filter(s => s.timestamp <= twoHoursAgoTs)
+  if (currentSessionSignals.length >= 2 && priorToSessionSignals.length > 0) {
+    const mostRecentPrior = Math.max(...priorToSessionSignals.map(s => s.timestamp))
+    const daysDormant = (now - mostRecentPrior) / (24 * 60 * 60 * 1000)
+    if (daysDormant >= 5) {
+      patterns.push({
+        pattern: 'engagement-resurgence',
+        confidence: Math.min(0.6 + (daysDormant - 5) * 0.05, 0.85),
+        suggestedWidget: 'memory',
+        suggestedTiming: 'immediate',
+        reason: `${Math.round(daysDormant)}-day gap broken. Return window open. Memory captures the resurgence.`
+      })
+    }
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 

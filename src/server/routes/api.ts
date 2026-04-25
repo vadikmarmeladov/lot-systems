@@ -4241,11 +4241,11 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
 
       // Features assembled and live in current version
       const features = [
-        'Quantum Intention Engine v5 — 18 patterns, flow-state + social-void detection',
-        'Self-Assembly Engine v2 — 12 modules, signal-derived progression',
+        'Quantum Intention Engine v6 — 22 patterns, engagement-resurgence + biofield-coherence-peak',
+        'Self-Assembly Engine v3 — 13 modules, OS Vitals Monitor, signal-derived progression',
         'Physiological Cohort Classification — 10 archetypes, weekly digest',
         'Physiological Readiness Score — 0-100 composite, surfaced each session',
-        'Military Log Interface — 25 event types, full telemetry coverage',
+        'Military Log Interface — 25 event types, PEAK / CHAKRA / GOAL-X handlers',
         'Weekly OS Signal Diversity Audit — 05:00 UTC Sunday, mono-loop detection',
         'Daily OS Vitals Snapshot — 02:00 UTC, cross-device OS continuity',
         'OS Journal View — persisted vitals timeline in System Progress widget',
