@@ -54,17 +54,6 @@ async function checkDatabase(): Promise<SystemCheck> {
 async function checkWeatherAPI(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check Weather API
-    const data = await weather.getWeather(40.7128, -74.0060)
-    if (!data) {
-      return {
-        name: 'Engine stack',
-        status: 'error',
-        message: 'Weather API returned no data',
-        duration: Date.now() - start,
-      }
-    }
-
     // Check React bundle exists
     const reactBundlePath = path.join(process.cwd(), 'dist/client/js/app.js')
     if (!fs.existsSync(reactBundlePath)) {
@@ -84,6 +73,16 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
         name: 'Engine stack',
         status: 'error',
         message: `Node.js version ${nodeVersion} is too old (requires 18+)`,
+        duration: Date.now() - start,
+      }
+    }
+
+    // Verify weather service module is available (config check only — no live API calls in health checks)
+    if (typeof weather.getWeather !== 'function') {
+      return {
+        name: 'Engine stack',
+        status: 'error',
+        message: 'Weather service module unavailable',
         duration: Date.now() - start,
       }
     }
@@ -346,8 +345,11 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Critical systems down = full error; non-critical systems down = degraded
+  const criticalSystems = new Set(['Database stack', 'Authentication engine'])
+  const hasCriticalError = checks.some((c) => criticalSystems.has(c.name) && c.status === 'error')
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall = hasCriticalError ? 'error' : hasAnyError ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -561,7 +563,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {

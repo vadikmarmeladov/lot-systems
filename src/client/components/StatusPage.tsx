@@ -42,6 +42,14 @@ interface MemoryStatus {
   blockReason: string | null
 }
 
+const LATENCY_THRESHOLDS = { fast: 50, normal: 200 } // ms
+
+function latencyLabel(ms: number): string {
+  if (ms < LATENCY_THRESHOLDS.fast) return 'fast'
+  if (ms < LATENCY_THRESHOLDS.normal) return 'normal'
+  return 'slow'
+}
+
 export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
   const [status, setStatus] = React.useState<StatusData | null>(null)
   const [memoryStatus, setMemoryStatus] = React.useState<MemoryStatus | null>(null)
@@ -56,7 +64,6 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       setLoading(true)
       setError(null)
 
-      // Fetch public system status
       const response = await fetch('/api/public/status')
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
@@ -64,57 +71,55 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       const data = await response.json()
       setStatus(data)
 
-      // Try to fetch memory status (authenticated)
+      // Try memory status (authenticated users only)
       try {
         const localTime = btoa(dayjs().format(DATE_TIME_FORMAT))
         const memResponse = await fetch(`/api/memory-status?d=${localTime}`)
         if (memResponse.ok) {
-          const memData = await memResponse.json()
-          setMemoryStatus(memData)
+          setMemoryStatus(await memResponse.json())
         }
       } catch {
-        // Not logged in or endpoint unavailable
         setMemoryStatus(null)
       }
 
       setLastUpdate(new Date())
-    } catch (err: any) {
-      setError(err.message || 'Failed to fetch status')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to fetch status'
+      setError(message)
       console.error('Status fetch error:', err)
     } finally {
       setLoading(false)
     }
   }, [])
 
-  // Fetch status on mount
   React.useEffect(() => {
     fetchStatus()
   }, [fetchStatus])
 
   // Auto-refresh every 2 minutes
   React.useEffect(() => {
-    const interval = setInterval(() => {
-      fetchStatus()
-    }, 2 * 60 * 1000) // 2 minutes
-
+    const interval = setInterval(fetchStatus, 2 * 60 * 1000)
     return () => clearInterval(interval)
   }, [fetchStatus])
 
-  const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
-    switch (checkStatus) {
-      case 'ok':
-        return '✓'
-      case 'error':
-        return '✕'
-      case 'unknown':
-        return '?'
-    }
-  }
+  const statusDot = (s: 'ok' | 'error' | 'unknown' | 'degraded') => (
+    <span
+      className={cn(
+        'text-[10px] leading-none select-none',
+        s === 'ok' && 'text-acc',
+        s === 'degraded' && 'text-acc/60',
+        s === 'error' && 'text-acc/40',
+        s === 'unknown' && 'text-acc/20',
+      )}
+      aria-hidden="true"
+    >
+      {s === 'unknown' ? '○' : '●'}
+    </span>
+  )
 
   const formatDate = (dateString: string) => {
     try {
-      const date = new Date(dateString)
-      return date.toLocaleString('en-US', {
+      return new Date(dateString).toLocaleString('en-US', {
         year: 'numeric',
         month: 'short',
         day: 'numeric',
@@ -128,6 +133,18 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
     }
   }
 
+  const overallLabel = (overall: 'ok' | 'degraded' | 'error') => {
+    if (overall === 'ok') return 'All systems operational'
+    if (overall === 'degraded') return 'Degraded performance'
+    return 'System issues detected'
+  }
+
+  const overallAriaLabel = (overall: 'ok' | 'degraded' | 'error') => {
+    if (overall === 'ok') return 'System status: all systems operational'
+    if (overall === 'degraded') return 'System status: degraded performance'
+    return 'System status: issues detected'
+  }
+
   const content = (
     <div className="flex flex-col gap-y-16">
       <div>
@@ -136,11 +153,11 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       </div>
 
       {loading && !status && (
-        <div className="text-acc/40">Loading...</div>
+        <div className="text-acc/40" role="status" aria-live="polite">Loading...</div>
       )}
 
       {error && !status && (
-        <div className="mb-32">
+        <div className="mb-32" role="alert">
           <div className="mb-16 text-acc/80">Error: {error}</div>
           <Button kind="secondary" size="small" onClick={fetchStatus}>
             Retry
@@ -149,12 +166,13 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       )}
 
       {status && (
-        <>
+        <div aria-live="polite" aria-label={overallAriaLabel(status.overall)}>
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+              <div className="flex items-center gap-x-8">
+                {statusDot(status.overall)}
+                <span>{overallLabel(status.overall)}</span>
+              </div>
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
@@ -173,6 +191,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                   size="small"
                   onClick={fetchStatus}
                   disabled={loading}
+                  aria-label="Refresh system status"
                 >
                   {loading ? 'Refreshing...' : 'Refresh'}
                 </Button>
@@ -190,17 +209,31 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
-                  <span className={cn(
-                    check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
-                  )}>
-                    {check.status === 'ok' ? 'Ok' :
-                     check.status === 'error' ? 'Error' :
-                     'Unknown'}
+                  {statusDot(check.status)}
+                  <span
+                    className={cn(
+                      check.status === 'ok' && 'text-acc',
+                      check.status === 'error' && 'text-acc/60',
+                      check.status === 'unknown' && 'text-acc/40',
+                    )}
+                  >
+                    {check.status === 'ok'
+                      ? 'Operational'
+                      : check.status === 'error'
+                      ? 'Error'
+                      : 'Unknown'}
                   </span>
                   {check.duration !== undefined && (
-                    <span className="text-acc/40">({check.duration}ms)</span>
+                    <span className="text-acc/30">
+                      {check.duration}ms
+                      <span className="ml-4 text-acc/20">
+                        {latencyLabel(check.duration) === 'fast'
+                          ? '·'
+                          : latencyLabel(check.duration) === 'normal'
+                          ? '··'
+                          : '···'}
+                      </span>
+                    </span>
                   )}
                 </div>
                 {check.message && (
@@ -234,7 +267,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
               </Block>
               <Block label="Next prompt:" labelClassName="!pl-0">
                 <div className="flex items-center gap-x-8">
-                  <span>{memoryStatus.nextPromptAvailable ? '✓' : '✕'}</span>
+                  {statusDot(memoryStatus.nextPromptAvailable ? 'ok' : 'error')}
                   <span className={cn(
                     memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/60'
                   )}>
@@ -250,11 +283,9 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
           <div className="text-acc/40 pt-32 border-t border-acc/20">
             <div>Build: {formatDate(status.buildDate)}</div>
-            <div className="mt-8">
-              Status checks cached for 2 minutes
-            </div>
+            <div className="mt-8">Status checks refresh every 2 minutes</div>
           </div>
-        </>
+        </div>
       )}
     </div>
   )
