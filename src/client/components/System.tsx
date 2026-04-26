@@ -64,6 +64,7 @@ import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
+import { CalendarWidget } from './CalendarWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
 
@@ -967,6 +968,11 @@ export const System = () => {
           <GrowthMilestones />
           <BadgeUnlockFeed />
         </div>
+      </WidgetErrorBoundary>
+
+      {/* Calendar — Personal date planner */}
+      <WidgetErrorBoundary name="Calendar">
+        <CalendarWidget />
       </WidgetErrorBoundary>
 
       {/* The original. Imitation is the sincerest form of flattery, but the quantum field knows. */}
