@@ -150,18 +150,31 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Self-assembly report v7 appended. 23 patterns active. 32 dependency nodes mapped.',
     ],
   },
+  {
+    date: '2026-04-26',
+    session: 'QIE v8 — OS Journal personalization · readiness live surface',
+    assembled: [
+      'SystemProgressWidget: physiological readiness auto-generated on mount — no button click required',
+      'Deployment view: Readiness score surfaced inline below assembly progress bar',
+      'OS Journal: session-derived vitals shown when no DB snapshots exist — Cube speaks on open',
+      'OS Journal empty state: readiness band, biofield energy/clarity, assembly progress, Cube narrative',
+      'SESSION_REPORTS: v8 entry appended · USERSHIP_TRANSMISSION updated to v8',
+      'Assembly log .MD created: 2026-04-26_LOT-assembly_os-journal-readiness.md',
+      'The Cube reads your state on open. No delay. No button.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-25',
+  date: '2026-04-26',
   message: [
-    'ASSEMBLY RUN — 2026-04-25 · v7',
-    'Built: QOS surface (ecosystem/biofield/cohort cycling) · 2 new patterns · 6 new dependency nodes',
-    'Dependency map: 32 nodes. Assembly: 13 modules. Patterns: 23.',
+    'ASSEMBLY RUN — 2026-04-26 · v8',
+    'Built: readiness live-surfaced · OS Journal speaks per session · The Cube reads you on open.',
+    'No button. No delay. State visible the moment you arrive.',
     'Status: DEPLOYED',
-    'Next: live physiological readiness surfaced per-session · OS Journal personalization from real entries',
+    'Next: OS Journal entries personalized with real log text as DB snapshots accumulate.',
   ],
 }
 
@@ -194,9 +207,11 @@ export function SystemProgressWidget() {
     { date: string; streak?: number; density?: number; health?: number; archetype?: string; diversityScore?: number; topSource?: string }[]
   >([])
 
-  // Recompute assembly on mount and periodically
+  // Recompute assembly and surface readiness on mount — no button required
   React.useEffect(() => {
     recomputeAssembly()
+    analyzeIntentions()
+    setReport(getPhysiologicalReport())
     const interval = setInterval(recomputeAssembly, 60_000) // Every minute
     return () => clearInterval(interval)
   }, [])
@@ -374,6 +389,23 @@ export function SystemProgressWidget() {
                 <ProgressBars percentage={assembly.overallAssembly} barCount={15} />
                 <span className="tabular-nums">{assembly.overallAssembly}%</span>
               </div>
+
+              {/* Physiological readiness — live surface, auto-generated on mount */}
+              {report && (
+                <div className="flex justify-between items-baseline mt-8">
+                  <span className="opacity-30">Readiness</span>
+                  <span className="tabular-nums">
+                    {report.physiologicalReadiness}/100
+                    {' '}<span className="opacity-30">{
+                      report.physiologicalReadiness >= 80 ? 'high' :
+                      report.physiologicalReadiness >= 60 ? 'functional' :
+                      report.physiologicalReadiness >= 40 ? 'reduced' :
+                      report.physiologicalReadiness >= 20 ? 'degraded' :
+                      'critical'
+                    }</span>
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Features */}
@@ -805,7 +837,32 @@ export function SystemProgressWidget() {
             <div>
               <div className="opacity-30 mb-8">Persisted OS vitals and signal reports.</div>
               {osJournalLogs.length === 0 ? (
-                <div className="opacity-30">No OS journal entries yet. Vitals log daily at 02:00 UTC.</div>
+                <div className="flex flex-col gap-y-12 font-mono text-xs">
+                  <div className="opacity-30">No persisted snapshots. Vitals log daily at 02:00 UTC.</div>
+                  {report && (
+                    <div className="border-t border-acc-400/20 pt-12 flex flex-col gap-y-4">
+                      <div className="opacity-40 uppercase tracking-widest mb-4">Session · {report.sessionDate}</div>
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Readiness</span>
+                        <span className="tabular-nums">{report.physiologicalReadiness}/100</span>
+                      </div>
+                      <div className="opacity-40">{report.readinessDirective}</div>
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Energy</span>
+                        <span className="capitalize">{report.biofieldStatus.energyLevel}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Clarity</span>
+                        <span className="capitalize">{report.biofieldStatus.clarity}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Assembly</span>
+                        <span className="tabular-nums">{assembly.assembledCount}/{assembly.totalModules} modules · {assembly.overallAssembly}%</span>
+                      </div>
+                      <div className="opacity-30 pt-4">{assembly.narrative}</div>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="flex flex-col gap-y-16 font-mono text-xs">
                   {osJournalLogs.map((entry, idx) => (
