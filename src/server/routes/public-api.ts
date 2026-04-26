@@ -109,23 +109,12 @@ async function checkAuth(): Promise<SystemCheck> {
     // Check if Session model is available
     await models.Session.findOne()
 
-    // Check Resend API is configured
+    // Check Resend API is configured (required for email-based login)
     if (!process.env.RESEND_API_KEY) {
       return {
         name: 'Authentication engine',
         status: 'error',
         message: 'Resend API key not configured',
-        duration: Date.now() - start,
-      }
-    }
-
-    // Check manifest.webmanifest exists
-    const manifestPath = path.join(process.cwd(), 'public/manifest.webmanifest')
-    if (!fs.existsSync(manifestPath)) {
-      return {
-        name: 'Authentication engine',
-        status: 'error',
-        message: 'Manifest file not found',
         duration: Date.now() - start,
       }
     }
@@ -180,16 +169,34 @@ async function checkUsers(): Promise<SystemCheck> {
 async function checkSettings(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check if User model is available (settings are part of User model)
-    await models.User.findOne()
-
-    // Check if settings page bundle exists
-    const settingsPagePath = path.join(process.cwd(), 'dist/client/js/app.js')
-    if (!fs.existsSync(settingsPagePath)) {
+    // Check PWA manifest exists (required for install + notifications)
+    const manifestPath = path.join(process.cwd(), 'public/manifest.webmanifest')
+    if (!fs.existsSync(manifestPath)) {
       return {
         name: 'Settings',
         status: 'error',
-        message: 'Settings page bundle not found',
+        message: 'PWA manifest not found',
+        duration: Date.now() - start,
+      }
+    }
+
+    // Check service worker exists (required for offline support)
+    const swPath = path.join(process.cwd(), 'public/sw.js')
+    if (!fs.existsSync(swPath)) {
+      return {
+        name: 'Settings',
+        status: 'error',
+        message: 'Service worker not found',
+        duration: Date.now() - start,
+      }
+    }
+
+    // Check email sender is configured (required for notification emails)
+    if (!config.email?.fromEmail) {
+      return {
+        name: 'Settings',
+        status: 'error',
+        message: 'Notification sender email not configured',
         duration: Date.now() - start,
       }
     }
@@ -333,6 +340,7 @@ async function performHealthChecks(): Promise<{
   environment: string
   checks: SystemCheck[]
   overall: 'ok' | 'degraded' | 'error'
+  criticalServices: string[]
 }> {
   const checks = await Promise.all([
     checkAuth(),
@@ -346,8 +354,15 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Critical services: database and authentication must be fully operational
+  const criticalNames = new Set(['Database stack', 'Authentication engine'])
+  const hasCriticalError = checks.some((c) => c.status === 'error' && criticalNames.has(c.name))
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalError
+    ? 'error'
+    : hasAnyError
+    ? 'degraded'
+    : 'ok'
 
   return {
     version: VERSION,
@@ -356,6 +371,7 @@ async function performHealthChecks(): Promise<{
     environment: config.env ? config.env.charAt(0).toUpperCase() + config.env.slice(1) : 'Unknown',
     checks,
     overall,
+    criticalServices: [...criticalNames],
   }
 }
 
@@ -384,212 +400,6 @@ export default async (fastify: FastifyInstance) => {
     return {
       ...status,
       cached: false,
-    }
-  })
-
-  // Admin configuration diagnostic endpoint
-  fastify.get('/verify-admin-config', async (req, reply) => {
-    const adminEmailsEnv = process.env.ADMIN_EMAILS
-    const adminsList = config.admins
-
-    return {
-      timestamp: new Date().toISOString(),
-      environment: config.env,
-      adminConfig: {
-        ADMIN_EMAILS_env_var: adminEmailsEnv || 'NOT_SET',
-        parsed_admin_emails: adminsList.length > 0 ? adminsList : ['NONE'],
-        admin_count: adminsList.length,
-        includes_vadikmarmeladov: adminsList.includes('vadikmarmeladov@gmail.com'),
-      },
-      instructions: {
-        step1: 'Ensure ADMIN_EMAILS is set in Digital Ocean environment variables',
-        step2: 'Value should be: vadikmarmeladov@gmail.com',
-        step3: 'Redeploy app after adding environment variable',
-        step4: 'Log out and log back in to refresh session',
-      },
-      note: 'This endpoint shows how ADMIN_EMAILS is configured. Admin access is granted if user email is in this list OR has Admin tag in database.',
-    }
-  })
-
-  // API key verification endpoint - shows masked API key for verification
-  fastify.get('/verify-api-keys', async (req, reply) => {
-    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
-    const resendKey = process.env.RESEND_API_KEY
-    const openaiKey = process.env.OPENAI_API_KEY
-
-    const maskKey = (key: string | undefined) => {
-      if (!key) return 'NOT_SET'
-      if (key.length < 20) return 'INVALID_LENGTH'
-      // Show first 8 and last 4 characters
-      return `${key.slice(0, 8)}...${key.slice(-4)}`
-    }
-
-    return {
-      timestamp: new Date().toISOString(),
-      environment: config.env,
-      keys: {
-        anthropic: {
-          configured: !!anthropicKey,
-          preview: maskKey(anthropicKey),
-          length: anthropicKey?.length || 0,
-        },
-        resend: {
-          configured: !!resendKey,
-          preview: maskKey(resendKey),
-          length: resendKey?.length || 0,
-        },
-        openai: {
-          configured: !!openaiKey,
-          preview: maskKey(openaiKey),
-          length: openaiKey?.length || 0,
-        },
-      },
-      note: 'Keys are masked for security. Only first 8 and last 4 characters shown.',
-    }
-  })
-
-  // Memory Engine diagnostic endpoint - shows why Claude might not be working
-  fastify.get('/debug-memory-engine', async (req, reply) => {
-    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
-
-    // Test if we can initialize Anthropic client
-    let anthropicClientTest = 'NOT_TESTED'
-    try {
-      const Anthropic = (await import('@anthropic-ai/sdk')).default
-      const testClient = new Anthropic({ apiKey: anthropicKey })
-      anthropicClientTest = 'INITIALIZED_OK'
-    } catch (err: any) {
-      anthropicClientTest = `FAILED: ${err.message}`
-    }
-
-    return {
-      timestamp: new Date().toISOString(),
-      environment: config.env,
-      diagnosis: {
-        anthropicApiKey: {
-          exists: !!anthropicKey,
-          fromEnv: !!process.env.ANTHROPIC_API_KEY,
-          fromConfig: !!config.anthropic?.apiKey,
-          preview: anthropicKey ? `${anthropicKey.slice(0, 8)}...${anthropicKey.slice(-4)}` : 'NOT_SET',
-          length: anthropicKey?.length || 0,
-        },
-        anthropicClient: {
-          status: anthropicClientTest,
-        },
-        userTagCheck: {
-          requiredTag: 'Usership',
-          note: 'Users need the "Usership" tag (case-insensitive) to use Claude engine',
-        },
-        memoryEngineLogic: {
-          condition: 'hasUsershipTag && config.anthropic.apiKey',
-          result: !!anthropicKey ? 'WILL_USE_CLAUDE_IF_USER_HAS_TAG' : 'WILL_USE_STANDARD_ONLY',
-        },
-      },
-      troubleshooting: {
-        step1: 'Check if ANTHROPIC_API_KEY environment variable is set in Digital Ocean',
-        step2: 'Verify your user has the "Usership" tag in the database',
-        step3: 'Check server logs for "Memory question generation failed" errors',
-        step4: 'Test Claude API key at https://console.anthropic.com/',
-      },
-    }
-  })
-
-  // Test all AI engines to see which are available
-  fastify.get('/test-ai-engines', async (req, reply) => {
-    const { aiEngineManager } = await import('#server/utils/ai-engines.js')
-
-    const status = aiEngineManager.getStatus()
-    const hasAnyEngine = aiEngineManager.hasAvailableEngine()
-
-    // Try to get the preferred engine
-    let preferredEngine = null
-    let preferredEngineError = null
-    try {
-      const engine = aiEngineManager.getEngine('auto')
-      preferredEngine = engine.name
-    } catch (error: any) {
-      preferredEngineError = error.message
-    }
-
-    return {
-      timestamp: new Date().toISOString(),
-      environment: config.env,
-      engines: status,
-      summary: {
-        hasAvailableEngine: hasAnyEngine,
-        preferredEngine: preferredEngine,
-        error: preferredEngineError,
-      },
-      apiKeys: {
-        TOGETHER_API_KEY: !!process.env.TOGETHER_API_KEY,
-        GOOGLE_API_KEY: !!process.env.GOOGLE_API_KEY,
-        MISTRAL_API_KEY: !!process.env.MISTRAL_API_KEY,
-        ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY,
-        OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
-      },
-      instructions: {
-        step1: 'At least ONE API key must be configured in environment variables',
-        step2: 'Get API keys from: Together AI, Google AI Studio, Mistral, Anthropic, or OpenAI',
-        step3: 'Add the key to Digital Ocean App settings (Environment Variables)',
-        step4: 'Redeploy the app to load the new environment variable',
-      },
-      links: {
-        togetherAI: 'https://api.together.xyz/',
-        googleGemini: 'https://aistudio.google.com/app/apikey',
-        mistralAI: 'https://console.mistral.ai/',
-        anthropic: 'https://console.anthropic.com/settings/keys',
-        openAI: 'https://platform.openai.com/api-keys',
-      }
-    }
-  })
-
-  // Test Anthropic API key with actual API call
-  fastify.get('/test-anthropic-key', async (req, reply) => {
-    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
-
-    if (!anthropicKey) {
-      return {
-        success: false,
-        error: 'ANTHROPIC_API_KEY not configured',
-        timestamp: new Date().toISOString(),
-      }
-    }
-
-    try {
-      const Anthropic = (await import('@anthropic-ai/sdk')).default
-      const client = new Anthropic({ apiKey: anthropicKey })
-
-      // Make a minimal API call to test the key
-      const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 10,
-        messages: [
-          {
-            role: 'user',
-            content: 'Respond with just "OK"',
-          },
-        ],
-      })
-
-      return {
-        success: true,
-        message: 'API key is valid and working',
-        response: message.content[0].type === 'text' ? message.content[0].text : 'OK',
-        usage: {
-          inputTokens: message.usage.input_tokens,
-          outputTokens: message.usage.output_tokens,
-        },
-        timestamp: new Date().toISOString(),
-        note: 'This test consumed a small number of tokens. Check Anthropic dashboard for usage update.',
-      }
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || 'Unknown error',
-        errorType: error.constructor.name,
-        status: error.status,
-        timestamp: new Date().toISOString(),
-      }
     }
   })
 
