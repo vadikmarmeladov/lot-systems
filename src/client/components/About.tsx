@@ -12,6 +12,7 @@ const SECTIONS = [
   { id: 'fasting-calendar', title: 'Christian Fasting Calendar' },
   { id: 'log-triggers', title: 'Log Triggers & Secret Codes' },
   { id: 'soviet-synth', title: 'Soviet Keyboard Synth' },
+  { id: 'calendar', title: 'Calendar' },
   { id: 'badge-system', title: 'Badge System' },
   { id: 'design-philosophy', title: 'Design Philosophy' },
   { id: 'privacy-security', title: 'Privacy & Security' },
@@ -342,6 +343,7 @@ export function About() {
             <Li>MicroGame</Li>
             <Li>MicroCalculator</Li>
             <Li>MicroImage — procedural pixel art tied to punctuation tone</Li>
+            <Li>Calendar — compact month view with date entries for notes, tasks, and calls</Li>
           </ul>
 
           {/* Christian Fasting Calendar */}
@@ -432,6 +434,77 @@ export function About() {
             sound identical.
           </P>
           <P>Toggle via Settings or the synth emoji in the Log editor.</P>
+
+          {/* Calendar */}
+          <SectionHeading id="calendar">Calendar</SectionHeading>
+          <P>
+            The Calendar widget is a personal date planner built into the System
+            tab. It follows the LOT principle of invisible complexity — a single
+            "Add date" button expands into a compact month view, and collapses
+            back when the user is done. No separate app, no navigation, no
+            context switch.
+          </P>
+
+          <SubHeading>Compact Day Grid</SubHeading>
+          <P>
+            Days render in a compressed format: the first letter of the weekday
+            followed by the date number. Monday the 9th becomes M9, Tuesday the
+            10th becomes T10, and so on. Each row is one week. Today is bold.
+            Dates with entries show at higher opacity. Months outside the current
+            view are dimmed to near-invisible.
+          </P>
+          <P>
+            This format was chosen to match the LOT information density
+            philosophy — maximum data in minimum space, with visual hierarchy
+            doing the work that labels and chrome do in conventional calendars.
+          </P>
+
+          <SubHeading>Month Navigation</SubHeading>
+          <P>
+            Arrow controls use the LOT text-glyph style: {"<—"} and {"—>"}
+            flanking the month and year. No icons, no SVGs. The interface
+            communicates through typography alone.
+          </P>
+
+          <SubHeading>Entry Types</SubHeading>
+          <P>
+            Three entry types — Note, Task, Call — cover the essential
+            categories without overcomplicating. Clicking a date reveals the type
+            selector on the right side of the grid, maintaining the two-column
+            date-and-content layout visible in the mockup.
+          </P>
+          <P>
+            Entries are persisted through the LOT log system as calendar_entry
+            events with metadata containing date, text, and entry type. This
+            means calendar data participates in the same infrastructure as every
+            other widget — it feeds into the Quantum Intent Engine, appears in
+            log context, and syncs across devices through the database.
+          </P>
+
+          <SubHeading>Upcoming Dates</SubHeading>
+          <P>
+            Below the calendar grid, upcoming entries are listed as a simple
+            two-column layout: full date on the left (Sunday, April 26, 2026),
+            entry text on the right (Call mom). This view is always visible,
+            even when the month picker is collapsed, so the user sees what is
+            ahead without opening anything.
+          </P>
+
+          <SubHeading>Design Decisions</SubHeading>
+          <ul className="list-none pl-4 mb-4">
+            <Li>No color coding — entries are distinguished by type text, not hue</Li>
+            <Li>No drag-and-drop — dates are set, not shuffled</Li>
+            <Li>No recurring events — each entry is intentional, not automatic</Li>
+            <Li>No time slots — the calendar tracks dates, not hours</Li>
+            <Li>Keyboard entry — press Enter to add, matching the Log editor flow</Li>
+          </ul>
+          <P>
+            The Calendar is deliberately not a full scheduling tool. It exists
+            to anchor intentions to dates — a bridge between the Planner
+            widget's daily dimensions and the longer arc of weeks and months.
+            It answers the question "what matters on this day" without becoming
+            a project manager.
+          </P>
 
           {/* Badge System */}
           <SectionHeading id="badge-system">
