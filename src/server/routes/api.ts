@@ -1292,7 +1292,7 @@ export default async (fastify: FastifyInstance) => {
     '/logs',
     async (
       req: FastifyRequest<{
-        Body: { text: string }
+        Body: { text: string; event?: string; metadata?: Record<string, any> }
       }>,
       reply
     ) => {
@@ -1305,7 +1305,8 @@ export default async (fastify: FastifyInstance) => {
       const log = await fastify.models.Log.create({
         userId: req.user.id,
         text,
-        event: 'note',
+        event: req.body.event || 'note',
+        metadata: req.body.metadata || {},
         context,
       })
 

@@ -107,7 +107,7 @@ export function CalendarWidget() {
         text: entryText.trim(),
         entryType,
       },
-    } as any)
+    })
 
     setEntryText('')
     setIsAddingEntry(false)
