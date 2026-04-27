@@ -4,7 +4,7 @@ import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { ProgressBars } from '#client/utils/progressBars'
 import { selfAssembly, phaseSymbol, phaseLabel, recomputeAssembly, type AssembledModule } from '#client/stores/selfAssembly'
-import { useEnergy } from '#client/queries'
+import { useEnergy, useLogs } from '#client/queries'
 import { getPhysiologicalReport, analyzeIntentions, type PhysiologicalReport } from '#client/stores/intentionEngine'
 
 type FeedbackStatus = 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
@@ -163,18 +163,31 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'The Cube reads your state on open. No delay. No button.',
     ],
   },
+  {
+    date: '2026-04-27',
+    session: 'QIE v9 — OS Journal field entries · real words surfaced',
+    assembled: [
+      'useLogs hook wired into SystemProgressWidget — pulls real note entries into OS Journal',
+      'OS Journal: last 3 field entries rendered above vitals — Cube reflects back user\'s own words',
+      'Field entries: date + text body up to 80 chars, opacity-60 — personal signal visible on open',
+      'Vitals and cohort sections preserved beneath field entries — building on top, not replacing',
+      'SESSION_REPORTS: v9 entry appended · USERSHIP_TRANSMISSION updated to v9',
+      'Assembly log .MD created: 2026-04-27_LOT-assembly_os-journal-field-entries.md',
+      'The Cube reads your words. Your language. Your signal.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-26',
+  date: '2026-04-27',
   message: [
-    'ASSEMBLY RUN — 2026-04-26 · v8',
-    'Built: readiness live-surfaced · OS Journal speaks per session · The Cube reads you on open.',
-    'No button. No delay. State visible the moment you arrive.',
+    'ASSEMBLY RUN — 2026-04-27 · v9',
+    'Built: OS Journal now surfaces your own words. The Cube reads back what you wrote.',
+    'Field entries live above vitals. Your language. Your signal.',
     'Status: DEPLOYED',
-    'Next: OS Journal entries personalized with real log text as DB snapshots accumulate.',
+    'Next: OS Journal entry count as assembly signal — journal depth feeds Reflection Layer module.',
   ],
 }
 
@@ -201,7 +214,15 @@ export function SystemProgressWidget() {
 
   const assembly = useStore(selfAssembly)
   const { data: energyData } = useEnergy()
+  const { data: logs = [] } = useLogs()
   const [cohortData, setCohortData] = React.useState<{ archetype?: string; behavioralCohort?: string } | null>(null)
+
+  // Last 3 non-empty user-written note entries for OS Journal field surface
+  const recentEntries = React.useMemo(() => {
+    return logs
+      .filter((l) => l.event === 'note' && l.text && l.text.trim().length > 3)
+      .slice(0, 3)
+  }, [logs])
   const [report, setReport] = React.useState<PhysiologicalReport | null>(null)
   const [osJournalLogs, setOsJournalLogs] = React.useState<
     { date: string; streak?: number; density?: number; health?: number; archetype?: string; diversityScore?: number; topSource?: string }[]
@@ -834,8 +855,29 @@ export function SystemProgressWidget() {
         {/* ─── OS Journal View ─── */}
         {view === 'os-journal' && (
           <>
+            {/* ─── Field entries — user's own words reflected back ─── */}
+            {recentEntries.length > 0 && (
+              <div>
+                <div className="opacity-30 mb-8 uppercase tracking-widest font-mono text-xs">Field entries:</div>
+                <div className="flex flex-col gap-y-12 font-mono text-xs">
+                  {recentEntries.map((entry) => (
+                    <div key={entry.id} className="flex flex-col gap-y-2">
+                      <div className="opacity-30 tabular-nums">
+                        {new Date(entry.createdAt).toISOString().slice(0, 10)}
+                      </div>
+                      <div className="opacity-60">
+                        {entry.text!.trim().length > 80
+                          ? entry.text!.trim().slice(0, 80) + '...'
+                          : entry.text!.trim()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div>
-              <div className="opacity-30 mb-8">Persisted OS vitals and signal reports.</div>
+              <div className="opacity-30 mb-8">OS vitals and signal reports.</div>
               {osJournalLogs.length === 0 ? (
                 <div className="flex flex-col gap-y-12 font-mono text-xs">
                   <div className="opacity-30">No persisted snapshots. Vitals log daily at 02:00 UTC.</div>
