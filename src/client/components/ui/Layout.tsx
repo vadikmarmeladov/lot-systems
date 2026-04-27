@@ -11,11 +11,12 @@ type Props = {
   hideNav?: boolean
 }
 
+const noop = () => {}
+
 export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
   const me = useStore(stores.me)
   const layoutView = useStore(stores.layoutView)
   const isMirrorOn = useStore(stores.isMirrorOn)
-  const none = React.useMemo(() => () => {}, [])
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
   const navLinks = React.useMemo<NavItem[]>(() => {
     const result: NavItem[] = me
@@ -80,7 +81,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
                         ? 'bg-white/20 hover:bg-white/30'
                         : 'bg-acc text-bac hover:bg-acc/90')
                     )}
-                    onClick={!link.href ? none : undefined}
+                    onClick={!link.href ? noop : undefined}
                     disabled={!link.href}
                   >
                     {link.label}

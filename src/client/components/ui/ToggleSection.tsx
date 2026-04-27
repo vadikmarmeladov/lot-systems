@@ -10,10 +10,6 @@ export type ToggleSectionProps = {
   onToggle?: (isOpen: boolean) => void
 }
 
-/**
- * Collapsible toggle section component
- * Usage: [Memory] > [Awareness] > [Pattern 1]
- */
 export function ToggleSection({
   label,
   children,
@@ -32,26 +28,20 @@ export function ToggleSection({
 
   return (
     <div className={cn('w-full', className)}>
-      {/* Header */}
       <button
         onClick={handleToggle}
-        className={cn(
-          'w-full text-left flex items-center gap-8 py-8 transition-opacity hover:opacity-30',
-          indent > 0 && 'pl-' + (indent * 16)
-        )}
+        className="w-full text-left flex items-center gap-8 py-8 transition-opacity hover:opacity-30"
         style={{ paddingLeft: indent > 0 ? `${indent * 16}px` : undefined }}
       >
-        <span className="transition-transform duration-200" style={{
-          transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-          display: 'inline-block',
-          width: '8px'
-        }}>
+        <span
+          className="transition-transform duration-200 inline-block w-8"
+          style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+        >
           ›
         </span>
         <span>{label}</span>
       </button>
 
-      {/* Content */}
       <div
         className={cn(
           'overflow-hidden transition-all duration-300',
@@ -66,9 +56,6 @@ export function ToggleSection({
   )
 }
 
-/**
- * Group of toggle sections for nested structures
- */
 export function ToggleGroup({
   children,
   className,
