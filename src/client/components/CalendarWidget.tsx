@@ -1,4 +1,5 @@
 import * as React from 'react'
+import { useQueryClient } from 'react-query'
 import { Block, Button } from '#client/components/ui'
 import { useCreateLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
@@ -39,6 +40,7 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
 }
 
 export function CalendarWidget() {
+  const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
 
@@ -107,6 +109,10 @@ export function CalendarWidget() {
         text: entryText.trim(),
         entryType,
       },
+    }, {
+      onSuccess: () => {
+        queryClient.invalidateQueries(['/api/logs'])
+      },
     })
 
     setEntryText('')
@@ -123,37 +129,33 @@ export function CalendarWidget() {
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
-        {/* Add date button */}
         <div className="mb-16">
           <Button onClick={handleToggleCalendar}>
             Add date
           </Button>
         </div>
 
-        {/* Calendar picker */}
         {isCalendarOpen && (
           <div className="mb-16">
-            {/* Month navigation */}
             <div className="flex items-center gap-8 mb-8">
               <button
-                className="text-acc/40 hover:text-acc font-mono text-sm transition-opacity"
+                className="text-acc/40 hover:text-acc text-sm transition-opacity"
                 onClick={() => setViewMonth(viewMonth.subtract(1, 'month'))}
               >
                 {'<—'}
               </button>
-              <span className="text-acc font-mono text-sm">
+              <span className="text-acc text-sm">
                 {viewMonth.format('MMMM, YYYY')}
               </span>
               <button
-                className="text-acc/40 hover:text-acc font-mono text-sm transition-opacity"
+                className="text-acc/40 hover:text-acc text-sm transition-opacity"
                 onClick={() => setViewMonth(viewMonth.add(1, 'month'))}
               >
                 {'—>'}
               </button>
             </div>
 
-            {/* Day grid */}
-            <div className="font-mono text-sm space-y-1">
+            <div className="text-sm space-y-1">
               {weeks.map((week, wi) => (
                 <div key={wi} className="flex gap-0">
                   {week.map((d, di) => {
@@ -168,7 +170,7 @@ export function CalendarWidget() {
                         key={key}
                         onClick={() => handleDateClick(d)}
                         className={cn(
-                          'font-mono text-sm py-0.5 px-0.5 transition-opacity whitespace-nowrap',
+                          'text-sm py-0.5 px-0.5 transition-opacity whitespace-nowrap',
                           'min-w-[2.5em] text-left',
                           isToday && 'font-bold',
                           isSelected && 'underline',
@@ -183,9 +185,8 @@ export function CalendarWidget() {
                     )
                   })}
 
-                  {/* Show type selector on the right side of the first row */}
                   {wi === 0 && (
-                    <div className="text-acc/30 font-mono text-sm flex items-center ml-4 whitespace-nowrap">
+                    <div className="text-acc/30 text-sm flex items-center ml-4 whitespace-nowrap">
                       {selectedDate && !isAddingEntry && (
                         <button
                           className="text-acc/30 hover:text-acc/60 transition-opacity"
@@ -200,7 +201,6 @@ export function CalendarWidget() {
               ))}
             </div>
 
-            {/* Add entry form */}
             {isAddingEntry && selectedDate && (
               <div className="mt-8">
                 <div className="flex gap-8 mb-8">
@@ -209,7 +209,7 @@ export function CalendarWidget() {
                       key={t}
                       onClick={() => setEntryType(t)}
                       className={cn(
-                        'font-mono text-xs transition-opacity capitalize',
+                        'text-xs transition-opacity capitalize',
                         entryType === t ? 'text-acc' : 'text-acc/40 hover:text-acc/60'
                       )}
                     >
@@ -224,7 +224,7 @@ export function CalendarWidget() {
                     onChange={e => setEntryText(e.target.value)}
                     onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
                     placeholder={`Add ${entryType}...`}
-                    className="bg-transparent border border-acc/20 text-acc font-mono text-sm px-4 py-2 flex-1 outline-none focus:border-acc/40"
+                    className="bg-transparent border border-acc/20 text-acc text-sm px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
                   <Button onClick={handleAddEntry}>Add</Button>
@@ -232,14 +232,13 @@ export function CalendarWidget() {
               </div>
             )}
 
-            {/* Entries on selected date */}
             {selectedDate && entriesOnDate.length > 0 && (
               <div className="mt-8">
-                <div className="text-acc/40 font-mono text-xs mb-4">
+                <div className="text-acc/40 text-xs mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
                 {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 font-mono text-sm mb-1">
+                  <div key={i} className="text-acc/80 text-sm mb-1">
                     {e.text}
                   </div>
                 ))}
@@ -248,11 +247,10 @@ export function CalendarWidget() {
           </div>
         )}
 
-        {/* Upcoming entries list */}
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
             {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between font-mono text-sm gap-16">
+              <div key={i} className="flex justify-between text-sm gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
                 </span>
@@ -265,7 +263,7 @@ export function CalendarWidget() {
         )}
 
         {upcomingEntries.length === 0 && !isCalendarOpen && (
-          <div className="text-acc/40 font-mono text-sm">No upcoming dates.</div>
+          <div className="text-acc/40 text-sm">No upcoming dates.</div>
         )}
       </div>
     </Block>

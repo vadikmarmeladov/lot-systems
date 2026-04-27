@@ -18,6 +18,7 @@ const SECTIONS = [
   { id: 'privacy-security', title: 'Privacy & Security' },
   { id: 'technical-stack', title: 'Technical Stack' },
   { id: 'credits', title: 'Credits' },
+  { id: 'terms', title: 'Terms' },
 ] as const
 
 function useActiveSection() {
@@ -590,19 +591,143 @@ export function About() {
             Day One.
           </P>
 
+          {/* Terms */}
+          <SectionHeading id="terms">Terms</SectionHeading>
+
+          <SubHeading>Terms of Service</SubHeading>
+          <P>
+            By accessing or using LOT Systems ("the Service"), you agree to be
+            bound by these terms. The Service is provided on an "as is" and "as
+            available" basis. LOT Systems reserves the right to modify, suspend,
+            or discontinue any part of the Service at any time without prior
+            notice.
+          </P>
+
+          <SubHeading>User Accounts</SubHeading>
+          <P>
+            You are responsible for maintaining the confidentiality of your
+            account credentials and for all activity that occurs under your
+            account. You must provide accurate information during registration
+            and keep it current. LOT Systems may terminate accounts that violate
+            these terms or remain inactive for extended periods.
+          </P>
+
+          <SubHeading>Acceptable Use</SubHeading>
+          <P>
+            You agree not to use the Service to: transmit harmful or malicious
+            content; attempt to gain unauthorized access to other accounts or
+            systems; interfere with the operation of the Service; violate any
+            applicable law or regulation; or use automated means to access the
+            Service without express permission.
+          </P>
+
+          <SubHeading>Intellectual Property</SubHeading>
+          <P>
+            All content, design, code, algorithms, and underlying technology of
+            LOT Systems — including the Quantum Intent Engine, Self-Assembly
+            Engine, Punctuation & Intonation Engine, and Soul Archetype system —
+            are the exclusive property of LOT Systems. No part of the Service
+            may be reproduced, distributed, or used to create derivative works
+            without written permission.
+          </P>
+          <P>
+            Content you create within the Service (logs, journal entries,
+            calendar entries) remains yours. By using the Service, you grant LOT
+            Systems a limited license to store and process your content solely
+            for the purpose of providing the Service to you.
+          </P>
+
+          <SubHeading>Privacy & Data</SubHeading>
+          <P>
+            The Quantum Intent Engine runs entirely client-side. Behavioral
+            pattern data never leaves your device. Server-side data (logs,
+            settings, profile) is stored in encrypted databases with per-user
+            isolation. LOT Systems does not sell, share, or monetize user data.
+            We do not use third-party analytics or tracking services.
+          </P>
+          <P>
+            You may request deletion of your account and all associated data at
+            any time by contacting LOT Systems directly.
+          </P>
+
+          <SubHeading>Disclaimer of Warranties</SubHeading>
+          <P>
+            LOT Systems is not a medical, psychological, or therapeutic service.
+            The behavioral pattern recognition, soul archetypes, and contextual
+            prompts are self-awareness tools, not clinical assessments. The
+            Service does not provide professional health advice. If you are
+            experiencing a mental health crisis, contact a qualified professional
+            or emergency services.
+          </P>
+          <P>
+            The Service is provided without warranty of any kind, express or
+            implied, including but not limited to warranties of merchantability,
+            fitness for a particular purpose, and non-infringement.
+          </P>
+
+          <SubHeading>Limitation of Liability</SubHeading>
+          <P>
+            To the maximum extent permitted by law, LOT Systems shall not be
+            liable for any indirect, incidental, special, consequential, or
+            punitive damages arising from your use of or inability to use the
+            Service, even if advised of the possibility of such damages.
+          </P>
+
+          <SubHeading>Governing Law</SubHeading>
+          <P>
+            These terms are governed by and construed in accordance with
+            applicable law. Any disputes arising from these terms or your use of
+            the Service shall be resolved through binding arbitration.
+          </P>
+          <P>
+            These terms are effective as of January 1, 2024 and were last
+            updated April 2026.
+          </P>
+
           {/* Footer */}
-          <footer className="mt-24 pt-16 border-t border-acc/10 pb-16">
-            <div className="text-acc/40 text-[14px] flex flex-col gap-8">
-              <div>LOT Systems &copy; 2024-2026. Quantum Intent Engine is a trademark of LOT Systems.</div>
-              <div>
-                <a
-                  href="https://lot-systems.com"
-                  className="text-acc/40 hover:text-acc/60 transition-opacity underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  lot-systems.com
-                </a>
+          <footer className="mt-24 pt-24 border-t border-acc/10 pb-24">
+            <div className="flex flex-col gap-16">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-16">
+                <div className="flex flex-col gap-4">
+                  <div className="text-acc/90 text-sm">LOT Systems</div>
+                  <div className="text-acc/40 text-[14px]">Layers of Time — Personal Operating System</div>
+                </div>
+                <div className="flex flex-col gap-4 sm:items-end">
+                  <a
+                    href="https://lot-systems.com"
+                    className="text-acc/40 hover:text-acc/60 transition-opacity text-[14px]"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    lot-systems.com
+                  </a>
+                  <a
+                    href="https://brand.lot-systems.com"
+                    className="text-acc/40 hover:text-acc/60 transition-opacity text-[14px]"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    brand.lot-systems.com
+                  </a>
+                  <a
+                    href="#terms"
+                    className="text-acc/40 hover:text-acc/60 transition-opacity text-[14px]"
+                  >
+                    Terms of Service
+                  </a>
+                </div>
+              </div>
+              <div className="border-t border-acc/10 pt-16 flex flex-col gap-4">
+                <div className="text-acc/40 text-[14px]">
+                  &copy; 2024–2026 LOT Systems. All rights reserved.
+                </div>
+                <div className="text-acc/40 text-[14px]">
+                  Quantum Intent Engine, Self-Assembly Engine, and Soul Archetypes
+                  are trademarks of LOT Systems.
+                </div>
+                <div className="text-acc/40 text-[14px]">
+                  Invented and built by Vadik Marmeladov.
+                </div>
               </div>
             </div>
           </footer>
