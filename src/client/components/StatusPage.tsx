@@ -100,17 +100,6 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
     return () => clearInterval(interval)
   }, [fetchStatus])
 
-  const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
-    switch (checkStatus) {
-      case 'ok':
-        return '✓'
-      case 'error':
-        return '✕'
-      case 'unknown':
-        return '?'
-    }
-  }
-
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString)
@@ -190,14 +179,14 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
                   <span className={cn(
                     check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
+                    check.status === 'error' && 'text-acc/50',
+                    check.status === 'unknown' && 'text-acc/40'
                   )}>
-                    {check.status === 'ok' ? 'Ok' :
-                     check.status === 'error' ? 'Error' :
-                     'Unknown'}
+                    {check.status === 'ok' ? 'Ok.' :
+                     check.status === 'error' ? 'Error.' :
+                     'Unknown.'}
                   </span>
                   {check.duration !== undefined && (
                     <span className="text-acc/40">({check.duration}ms)</span>
@@ -233,14 +222,11 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 )}
               </Block>
               <Block label="Next prompt:" labelClassName="!pl-0">
-                <div className="flex items-center gap-x-8">
-                  <span>{memoryStatus.nextPromptAvailable ? '✓' : '✕'}</span>
-                  <span className={cn(
-                    memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/60'
-                  )}>
-                    {memoryStatus.nextPromptAvailable ? 'Available now' : 'Not available'}
-                  </span>
-                </div>
+                <span className={cn(
+                  memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/50'
+                )}>
+                  {memoryStatus.nextPromptAvailable ? 'Available.' : 'Not available.'}
+                </span>
                 {memoryStatus.blockReason && (
                   <div className="text-acc/60 mt-4">Reason: {memoryStatus.blockReason}</div>
                 )}

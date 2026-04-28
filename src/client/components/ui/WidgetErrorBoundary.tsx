@@ -1,11 +1,6 @@
 import * as React from 'react'
 import { Block } from './Block'
 
-/**
- * WidgetErrorBoundary - Isolates widget crashes so they don't take down the whole app.
- * When a widget throws during render, this boundary catches it and shows a minimal
- * fallback instead of propagating the error up to the AppErrorBoundary.
- */
 export class WidgetErrorBoundary extends React.Component<
   { children: React.ReactNode; name?: string },
   { hasError: boolean; error: Error | null }

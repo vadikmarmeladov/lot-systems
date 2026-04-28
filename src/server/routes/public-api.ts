@@ -51,7 +51,7 @@ async function checkDatabase(): Promise<SystemCheck> {
   }
 }
 
-async function checkWeatherAPI(): Promise<SystemCheck> {
+async function checkEngineStack(): Promise<SystemCheck> {
   const start = Date.now()
   try {
     // Check Weather API
@@ -238,13 +238,12 @@ async function checkMemory(): Promise<SystemCheck> {
     // Check if Log model is available (logging system)
     await models.Log.findOne()
 
-    // Check if Anthropic API key is configured for Claude-powered Memory
-    const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY || !!config.anthropic?.apiKey
-    if (!hasAnthropicKey) {
+    // Check if any AI engine is configured (supports multi-engine fallback)
+    if (!aiEngineManager.hasAvailableEngine()) {
       return {
         name: 'Memory Engine',
         status: 'error',
-        message: 'Claude API key not configured',
+        message: 'No AI engine configured (set ANTHROPIC_API_KEY, TOGETHER_API_KEY, GOOGLE_API_KEY, MISTRAL_API_KEY, or OPENAI_API_KEY)',
         duration: Date.now() - start,
       }
     }
@@ -326,6 +325,36 @@ async function checkSystems(): Promise<SystemCheck> {
   }
 }
 
+async function checkAIEngines(): Promise<SystemCheck> {
+  const start = Date.now()
+  try {
+    const hasEngine = aiEngineManager.hasAvailableEngine()
+    if (!hasEngine) {
+      return {
+        name: 'AI Engines',
+        status: 'error',
+        message: 'No AI engine API key configured',
+        duration: Date.now() - start,
+      }
+    }
+    return {
+      name: 'AI Engines',
+      status: 'ok',
+      duration: Date.now() - start,
+    }
+  } catch (error: any) {
+    return {
+      name: 'AI Engines',
+      status: 'error',
+      message: error?.message || 'AI engine check failed',
+      duration: Date.now() - start,
+    }
+  }
+}
+
+// Critical checks — failure here means core functionality is broken
+const CRITICAL_CHECK_NAMES = new Set(['Database stack', 'Systems', 'Authentication engine'])
+
 async function performHealthChecks(): Promise<{
   version: string
   timestamp: string
@@ -340,14 +369,21 @@ async function performHealthChecks(): Promise<{
     checkSettings(),
     checkUsers(),
     checkSystems(),
-    checkWeatherAPI(),
+    checkEngineStack(),
     checkDatabase(),
     checkMemory(),
+    checkAIEngines(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  const hasCriticalErrors = checks.some(
+    (c) => c.status === 'error' && CRITICAL_CHECK_NAMES.has(c.name)
+  )
+  const hasAnyErrors = checks.some((c) => c.status === 'error')
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalErrors
+    ? 'error'
+    : hasAnyErrors
+    ? 'degraded'
+    : 'ok'
 
   return {
     version: VERSION,
@@ -561,7 +597,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 10,
         messages: [
           {

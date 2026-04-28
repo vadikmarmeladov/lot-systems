@@ -59,7 +59,7 @@ export class ClaudeEngine implements AIEngine {
     }
 
     const response = await this.client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-6',
       max_tokens: maxTokens,
       messages: [
         {
@@ -80,7 +80,7 @@ export class ClaudeEngine implements AIEngine {
 }
 
 // ============================================================================
-// OpenAI Engine (GPT-4)
+// OpenAI Engine
 // ============================================================================
 
 export class OpenAIEngine implements AIEngine {
@@ -109,7 +109,7 @@ export class OpenAIEngine implements AIEngine {
     }
 
     const response = await this.client.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: 'gpt-4o',
       max_tokens: maxTokens,
       messages: [
         {
@@ -288,7 +288,7 @@ export class GeminiEngine implements AIEngine {
     }
 
     const model = this.client.getGenerativeModel({
-      model: 'gemini-1.5-pro',
+      model: 'gemini-2.0-flash',
       generationConfig: {
         maxOutputTokens: maxTokens,
       },
@@ -491,11 +491,6 @@ export class AIEngineManager {
     this.engines.set('openai', new OpenAIEngine())
   }
 
-  /**
-   * Get preferred engine with automatic fallback
-   * @param preference Which engine to prefer ('together', 'gemini', 'mistral', 'claude', 'openai', or 'auto')
-   * @returns Available engine or throws if none available
-   */
   getEngine(preference: EnginePreference = 'auto'): AIEngine {
     // If preference specified and available, use it
     if (preference !== 'auto') {
@@ -521,9 +516,6 @@ export class AIEngineManager {
     throw new Error('No AI engines available')
   }
 
-  /**
-   * Get status of all engines
-   */
   getStatus() {
     const status: Record<string, { available: boolean; name: string }> = {}
 
@@ -537,9 +529,6 @@ export class AIEngineManager {
     return status
   }
 
-  /**
-   * Test if any engine is available
-   */
   hasAvailableEngine(): boolean {
     for (const engine of this.engines.values()) {
       if (engine.isAvailable()) {
