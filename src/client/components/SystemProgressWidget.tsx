@@ -176,16 +176,30 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'The Cube reads your words. Your language. Your signal.',
     ],
   },
+  {
+    date: '2026-04-28',
+    session: 'QIE v10 — Widget deps · Log handlers · QOS coherence · 14th module',
+    assembled: [
+      'QIE Patterns 24–25: log-depth-signal (deep entry without biofield anchor), full-stack-session (memory+planner+selfcare in 4h window)',
+      'WIDGET_DEPENDENCY_MAP: 34 nodes — calendarWidget + microImage added',
+      'selfAssembly: 14th module — Temporal Planner (calendar) wired to calendar_entry / calendar_update signals',
+      'Logs.tsx: QOS / CAL / STACK military handlers — qos_snapshot, calendar_entry, full_stack_session',
+      'scheduled-jobs: daily-qos-coherence-report at 01:00 UTC — cross-module engagement per user, qos_snapshot log written',
+      'QuantumEngineWidgets: readiness% added to cohort view · assembly% in ecosystem view · full-stack active badge in biofield view',
+      'recordQOSSnapshot() + recordFullStackSession() + checkFullStackSession() helpers added to intentionEngine',
+      'All 25 patterns active. 34 dependency nodes mapped. 14 modules online.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-27',
+  date: '2026-04-28',
   message: [
-    'ASSEMBLY RUN — 2026-04-27 · v9',
-    'Built: OS Journal now surfaces your own words. The Cube reads back what you wrote.',
-    'Field entries live above vitals. Your language. Your signal.',
+    'ASSEMBLY RUN — 2026-04-28 · v10',
+    'Built: 2 new QIE patterns. 14th module online. QOS coherence job running nightly.',
+    'Full-stack session detection live. Calendar module wired. Readiness surfaced in cohort view.',
     'Status: DEPLOYED',
     'Next: OS Journal entry count as assembly signal — journal depth feeds Reflection Layer module.',
   ],

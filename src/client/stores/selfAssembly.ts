@@ -42,6 +42,7 @@ export type ModuleId =
   | 'goals'            // Goal journey and achievement signals
   | 'cohort-classify'  // Physiological archetype + cohort determination
   | 'vitals'           // OS Vitals Monitor — snapshot, sync, and biofield peak signals
+  | 'calendar'         // Temporal planner — calendar entries and scheduled events
 
 export type AssembledModule = {
   id: ModuleId
@@ -89,6 +90,7 @@ const MODULE_DEFINITIONS: Pick<AssembledModule, 'id' | 'label'>[] = [
   { id: 'goals',           label: 'Goal Architecture' },
   { id: 'cohort-classify', label: 'Archetype Classifier' },
   { id: 'vitals',          label: 'OS Vitals Monitor' },
+  { id: 'calendar',        label: 'Temporal Planner' },
 ]
 
 // Signal source mapping: which QIE sources feed which assembly modules
@@ -105,6 +107,7 @@ const SOURCE_MAP: Record<string, ModuleId[]> = {
   'cohort':      ['community', 'cohort-classify', 'quantum'],
   'recipe':      ['recipe'],
   'goals':       ['goals', 'intentions'],
+  'calendar':    ['calendar', 'planner'],
 }
 
 // Specific signal patterns that map to modules beyond their source
@@ -131,6 +134,10 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'signal_sync':           'vitals',
   'biofield_peak':         'vitals',
   'field_entry':           'vitals',
+  'qos_snapshot':          'vitals',
+  'full_stack_session':    'vitals',
+  'calendar_entry':        'calendar',
+  'calendar_update':       'calendar',
 }
 
 // ─── Store ───────────────────────────────────────────────────
@@ -371,6 +378,7 @@ export function recomputeAssembly(): AssemblyState {
     goals: [],
     'cohort-classify': [],
     vitals: [],
+    calendar: [],
   }
 
   signals.forEach(signal => {

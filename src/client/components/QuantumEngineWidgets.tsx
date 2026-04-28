@@ -1,9 +1,10 @@
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import { Block, Button } from '#client/components/ui'
-import { recordSignal, intentionEngine } from '#client/stores/intentionEngine'
+import { recordSignal, intentionEngine, getPhysiologicalReport } from '#client/stores/intentionEngine'
 import { getEcosystemNarrative } from '#client/utils/narrative'
 import { useEnergy } from '#client/queries'
+import { selfAssembly } from '#client/stores/selfAssembly'
 
 function usePersistedState(key: string): [boolean, React.Dispatch<React.SetStateAction<boolean>>] {
   const [value, setValue] = React.useState(() => {
@@ -30,8 +31,10 @@ export const QuantumEngineWidgets: React.FC = () => {
   const [view, setView] = React.useState<QOSView>('ecosystem')
 
   const engineState = useStore(intentionEngine)
+  const assemblyState = useStore(selfAssembly)
   const { data: energyData } = useEnergy()
   const [cohortData, setCohortData] = React.useState<{ archetype?: string; behavioralCohort?: string } | null>(null)
+  const [readiness, setReadiness] = React.useState<number | null>(null)
 
   const connectedCount = [carConnected, homeConnected, computerConnected].filter(Boolean).length
   const ecosystemNarrative = React.useMemo(
@@ -49,6 +52,13 @@ export const QuantumEngineWidgets: React.FC = () => {
       })
       .catch(() => {})
   }, [])
+
+  // Compute readiness from physiological report
+  React.useEffect(() => {
+    if (engineState.signals.length === 0) return
+    const report = getPhysiologicalReport()
+    setReadiness(report.physiologicalReadiness)
+  }, [engineState.signals.length])
 
   const handleCarConnect = () => {
     setCarConnected((prev) => {
@@ -116,6 +126,12 @@ export const QuantumEngineWidgets: React.FC = () => {
                 <span className={homeConnected ? '' : 'opacity-20'}>HOME</span>
                 <span className={computerConnected ? '' : 'opacity-20'}>CPU</span>
               </div>
+              {assemblyState.overallAssembly > 0 && (
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">Assembly</span>
+                  <span className="tabular-nums">{assemblyState.overallAssembly}%</span>
+                </div>
+              )}
               {connectedCount > 0 && (
                 <div className="opacity-30 text-xs">{ecosystemNarrative}</div>
               )}
@@ -150,6 +166,15 @@ export const QuantumEngineWidgets: React.FC = () => {
                       <span className="tabular-nums">{energyData.energyState.currentLevel}%</span>
                     </div>
                   )}
+                  {engineState.signals.filter(s =>
+                    s.signal === 'full_stack_session' &&
+                    Date.now() - s.timestamp < 4 * 60 * 60 * 1000
+                  ).length > 0 && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-30 uppercase tracking-widest">Session</span>
+                      <span className="opacity-60">Full-stack active</span>
+                    </div>
+                  )}
                 </>
               ) : (
                 <div className="opacity-30">No biofield reading. Check in to anchor the signal.</div>
@@ -169,6 +194,17 @@ export const QuantumEngineWidgets: React.FC = () => {
                     <div className="flex justify-between items-baseline">
                       <span className="opacity-30 uppercase tracking-widest">Cohort</span>
                       <span>{cohortData.behavioralCohort}</span>
+                    </div>
+                  )}
+                  {readiness !== null && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-30 uppercase tracking-widest">Readiness</span>
+                      <span className="tabular-nums">
+                        {readiness}%{' '}
+                        <span className="opacity-30">
+                          {readiness >= 70 ? '▲' : readiness >= 40 ? '—' : '▼'}
+                        </span>
+                      </span>
                     </div>
                   )}
                   {energyData?.energyState?.needsReplenishment?.[0] && (

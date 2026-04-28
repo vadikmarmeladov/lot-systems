@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.2
-**Last Updated:** April 21, 2026
-**Status:** Production Active — Self-Assembly Phase v6
+**Document Version:** 2.3
+**Last Updated:** April 28, 2026
+**Status:** Production Active — Self-Assembly Phase v10
 
 ---
 
@@ -15,16 +15,18 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v5 — 18-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v10 — 25-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
-- Self-Assembly Engine — 13 modules build themselves from real engagement signals
+- Self-Assembly Engine — 14 modules build themselves from real engagement signals
 - Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
-- Daily OS Vitals Snapshot — server-side persisted vitals for cross-device OS continuity
+- Daily OS Vitals Snapshot + QOS Coherence Report — server-side persisted vitals for cross-device OS continuity
 - Weekly Signal Diversity Audit — detects mono-source loops, computes signal diversity per user
-- Military-style Log Interface — structured telemetry across 25 event types
+- Military-style Log Interface — structured telemetry across 33+ event types
 - OS Journal View — persisted vitals timeline surfaced in System Progress widget
+- Full-Stack Session Detection — fires when memory + planner + selfcare all engage in 4h window
+- Temporal Planner module — 14th self-assembly module wired to calendar signal pipeline
 
 ---
 
@@ -118,7 +120,7 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (21 Types — v6):**
+**Pattern Recognition (25 Types — v10):**
 1. **Anxiety Pattern** — Multiple anxious moods → Self-care (confidence: 0.66–1.0)
 2. **Lack of Structure** — Tired + no planning → Planner (confidence: 0.7)
 3. **Seeking Direction** — No intention for weeks → Intentions (confidence: 0.8)
@@ -587,6 +589,14 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Self-Assembly Engine v3 — 13th module: OS Vitals Monitor wired to os_vitals_snapshot/signal_sync/biofield_peak
 - [x] Military Log v3: CHAKRA / GOAL-X / PEAK handlers; BIO handler extended with readiness % + directive
 - [x] QIE source union expanded: recipe + goals signal sources added
+- [x] QIE v7-9 — QOS widget surface, OS Journal field entries, physiological readiness on mount
+- [x] QuantumEngineWidgets promoted to QOS surface: ecosystem/biofield/cohort cycling views
+- [x] QIE v10 — patterns 22–25: ecosystem-without-biofield, cognitive-overload, log-depth-signal, full-stack-session
+- [x] WIDGET_DEPENDENCY_MAP v5 — 34 nodes: calendarWidget + microImage added
+- [x] Self-Assembly Engine v4 — 14th module: Temporal Planner (calendar) wired to calendar signals
+- [x] Military Log v4: QOS / CAL / STACK handlers added
+- [x] Daily QOS coherence report (01:00 UTC) — cross-module engagement, full-stack detection, qos_snapshot log
+- [x] recordQOSSnapshot() + recordFullStackSession() + checkFullStackSession() helpers
 
 ### Near-Term (Q2-Q3 2026)
 - [ ] Mobile app (React Native)

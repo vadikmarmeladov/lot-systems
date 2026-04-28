@@ -783,6 +783,68 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'qos_snapshot') {
+          const archetype = log.metadata?.archetype as string | undefined
+          const readiness = log.metadata?.readiness as number | undefined
+          const assemblyProgress = log.metadata?.assemblyProgress as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QOS:" blockView>
+                {archetype && (
+                  <div className="uppercase tracking-widest mb-4">{archetype}</div>
+                )}
+                {readiness !== undefined && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-40">READINESS</span>
+                    <span className="tabular-nums">{readiness}%</span>
+                  </div>
+                )}
+                {assemblyProgress !== undefined && (
+                  <div className="flex justify-between">
+                    <span className="opacity-40">ASSEMBLY</span>
+                    <span className="tabular-nums">{assemblyProgress}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_entry' || log.event === 'calendar_update') {
+          const title = log.metadata?.title as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const description = log.metadata?.description as string | undefined
+          const isUpdate = log.event === 'calendar_update'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL:" blockView>
+                {date && (
+                  <div className="tabular-nums mb-4 opacity-60">{date}</div>
+                )}
+                {title && (
+                  <div className={isUpdate ? 'opacity-60' : ''}>
+                    {isUpdate ? '↻ ' : ''}{title}
+                  </div>
+                )}
+                {description && (
+                  <div className="opacity-40 mt-4">{description}</div>
+                )}
+                {!title && log.text && <div>{log.text}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'full_stack_session') {
+          const modulesActive = log.metadata?.modulesActive as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="STACK:" blockView>
+                <div className="uppercase tracking-widest mb-4">Full-stack session</div>
+                {modulesActive && modulesActive.length > 0 && (
+                  <div className="opacity-40 uppercase tracking-widest text-xs">
+                    {modulesActive.join(' · ')}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           // Derive a terse military label from the event name prefix

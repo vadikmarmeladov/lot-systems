@@ -626,6 +626,42 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 24: Log depth signal — long field entries (>100 words) but no mood check-in today
+  const deepLogSignals = recentSignals.filter(s =>
+    s.source === 'log' &&
+    s.metadata?.wordCount && (s.metadata.wordCount as number) > 100
+  )
+  const biofieldToday24h = recentSignals.filter(s =>
+    s.source === 'mood' && (now - s.timestamp) < 12 * 60 * 60 * 1000
+  )
+  if (deepLogSignals.length >= 1 && biofieldToday24h.length === 0) {
+    patterns.push({
+      pattern: 'log-depth-signal',
+      confidence: 0.68,
+      suggestedWidget: 'mood',
+      suggestedTiming: 'soon',
+      reason: 'Deep field entry recorded. No biofield reading today. Anchor the internal state — what are you operating from?'
+    })
+  }
+
+  // Pattern 25: Full-stack session — memory + planner + selfcare all active within 4h
+  const fullStackWindow = signals.filter(s => s.timestamp > fourHoursAgoTs)
+  const fullStackSources = new Set(fullStackWindow.map(s => s.source))
+  if (
+    fullStackSources.has('memory') &&
+    fullStackSources.has('planner') &&
+    fullStackSources.has('selfcare') &&
+    fullStackWindow.length >= 5
+  ) {
+    patterns.push({
+      pattern: 'full-stack-session',
+      confidence: 0.88,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: 'Memory, planning, and self-care all fired in the same window. Full-stack session. The system is running at capacity — document this.'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -1026,6 +1062,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   systemPulse:       ['energy', 'cohort', 'log'],
   flashDrive:        ['memory', 'journal'],
   chatCatalyst:      ['mood', 'cohort'],
+
+  // ── Tier 2: calendar + media widgets (2026-04-28 audit)
+  calendarWidget:    ['planner', 'intentions', 'energy'],
+  microImage:        ['log', 'mood'],
 }
 
 /** Returns which signal sources a given widget depends on. */
@@ -1244,6 +1284,61 @@ export function checkBiofieldCoherence(): boolean {
       hour: new Date().getHours()
     })
     return true
+  }
+  return false
+}
+
+/**
+ * Record a QOS snapshot signal — archetype + readiness + assembly progress.
+ * Called when a full physiological report is generated.
+ */
+export function recordQOSSnapshot(
+  archetype: string,
+  readiness: number,
+  assemblyProgress: number
+) {
+  recordSignal('energy', 'qos_snapshot', {
+    archetype,
+    readiness,
+    assemblyProgress,
+    hour: new Date().getHours()
+  })
+}
+
+/**
+ * Record a full-stack session signal — fires when memory + planner + selfcare
+ * all contribute signals in the same engagement window.
+ */
+export function recordFullStackSession(modulesActive: string[]) {
+  recordSignal('energy', 'full_stack_session', {
+    modulesActive,
+    windowMs: 4 * 60 * 60 * 1000,
+    hour: new Date().getHours()
+  })
+}
+
+/**
+ * Detect and record a full-stack session if conditions are met.
+ * Call after each signal recording for background detection.
+ * Returns true if a full-stack session was detected.
+ */
+export function checkFullStackSession(): boolean {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const fourHoursAgoTs = now - 4 * 60 * 60 * 1000
+
+  const windowSignals = state.signals.filter(s => s.timestamp > fourHoursAgoTs)
+  const sources = new Set(windowSignals.map(s => s.source))
+
+  if (sources.has('memory') && sources.has('planner') && sources.has('selfcare') && windowSignals.length >= 5) {
+    const alreadyRecorded = state.signals.filter(s =>
+      s.signal === 'full_stack_session' && s.timestamp > fourHoursAgoTs
+    ).length > 0
+
+    if (!alreadyRecorded) {
+      recordFullStackSession(Array.from(sources))
+      return true
+    }
   }
   return false
 }

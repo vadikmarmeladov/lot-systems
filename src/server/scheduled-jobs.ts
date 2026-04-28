@@ -846,6 +846,137 @@ async function executeWeeklySignalAudit(): Promise<JobResult> {
   }
 }
 
+// ─── Daily QOS Coherence Report ──────────────────────────────────────────────
+
+let isDailyQOSCoherenceRunning = false
+let lastDailyQOSCoherenceRun: Date | null = null
+
+/**
+ * Runs daily at 01:00 UTC.
+ * Computes cross-module engagement coherence for active users over the past 24h:
+ * how many distinct signal sources fired, which sources were silent, and
+ * whether a full-stack session (memory + planner + selfcare) occurred.
+ * Writes a qos_snapshot log entry per qualifying user.
+ */
+function shouldRunDailyQOSCoherenceJob(): boolean {
+  if (isDailyQOSCoherenceRunning) return false
+  if (lastDailyQOSCoherenceRun) {
+    const lastRun = dayjs(lastDailyQOSCoherenceRun)
+    if (lastRun.isSame(dayjs(), 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyQOSCoherenceJob(): Promise<JobResult> {
+  const jobName = 'daily-qos-coherence-report'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily QOS Coherence Report')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+
+  isDailyQOSCoherenceRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+
+    // Map event types → signal source categories
+    const EVENT_SOURCE_MAP: Record<string, string> = {
+      emotional_checkin: 'mood',
+      answer: 'memory',
+      plan_set: 'planner',
+      self_care_complete: 'selfcare',
+      self_care_completed: 'selfcare',
+      note: 'journal',
+      intention: 'intentions',
+      recipe_viewed: 'recipe',
+      recipe_suggestion: 'recipe',
+      goal_journey: 'goals',
+      goal_complete: 'goals',
+    }
+
+    let processed = 0
+    let skipped = 0
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: Object.keys(EVENT_SOURCE_MAP) },
+          },
+          attributes: ['event'],
+          limit: 100,
+        })
+
+        if (logs.length < 2) { skipped++; continue }
+
+        const activeSources = new Set(
+          logs.map((l: any) => EVENT_SOURCE_MAP[(l as any).event]).filter(Boolean)
+        )
+        const sourceCount = activeSources.size
+
+        const hasFullStack =
+          activeSources.has('memory') &&
+          activeSources.has('planner') &&
+          activeSources.has('selfcare')
+
+        const coherenceScore = Math.round((sourceCount / 7) * 100)
+
+        const metadata = (user as any).metadata as any || {}
+        const cohort = metadata.physiologicalCohort
+
+        await Log.create({
+          userId: (user as any).id,
+          event: 'qos_snapshot' as any,
+          text: '',
+          metadata: {
+            date: dayjs().format('YYYY-MM-DD'),
+            archetype: cohort?.archetype ?? null,
+            readiness: coherenceScore,
+            assemblyProgress: null,
+            activeSourceCount: sourceCount,
+            activeSources: Array.from(activeSources),
+            hasFullStack,
+          },
+        })
+
+        processed++
+      } catch { skipped++ }
+    }
+
+    console.log(`  Processed: ${processed} / Skipped: ${skipped}`)
+    console.log('─'.repeat(60))
+    console.log('QOS COHERENCE JOB COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyQOSCoherenceRun = new Date()
+    isDailyQOSCoherenceRunning = false
+
+    return { jobName, executedAt, success: true, result: { processed, skipped } }
+  } catch (error: any) {
+    console.error('Daily QOS coherence job failed:', error.message)
+    isDailyQOSCoherenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -875,6 +1006,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyOSVitalsJob()) {
     await executeDailyOSVitalsJob()
   }
+
+  // Check daily QOS coherence report
+  if (shouldRunDailyQOSCoherenceJob()) {
+    await executeDailyQOSCoherenceJob()
+  }
 }
 
 /**
@@ -897,6 +1033,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly OS signal diversity audit: 5 AM UTC every Sunday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('   - Daily OS vitals snapshot: 2 AM UTC every day')
+  console.log('   - Daily QOS coherence report: 1 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -906,8 +1043,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly: 9AM; cohort digest: 6AM Mon; signal audit: 5AM Sun; QIE analytics: 3AM; OS vitals: 2AM
-    if (hour === 9 || hour === 6 || hour === 5 || hour === 3 || hour === 2) {
+    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; QIE: 3AM; OS vitals: 2AM; QOS coherence: 1AM
+    if (hour === 9 || hour === 6 || hour === 5 || hour === 3 || hour === 2 || hour === 1) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
