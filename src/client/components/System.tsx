@@ -66,6 +66,8 @@ import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
+import { JournalReflection } from './JournalReflection'
+import { GoalJourneyWidget } from './GoalJourneyWidget'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -667,6 +669,9 @@ export const System = () => {
           {/* Narrative - Story progression and achievements */}
           <NarrativeWidget />
 
+          {/* Goal Journey - Detected goals and journey stages */}
+          <GoalJourneyWidget />
+
           {/* Citizen Index - CQGS growth indicators */}
           <EvolutionWidget />
 
@@ -882,6 +887,9 @@ export const System = () => {
       {/* Planning stack */}
       <WidgetErrorBoundary name="Planning">
         <div className={cn('flex flex-col', density.stackGap)}>
+          {/* Journal Reflection - QIE-aware prompts + live activity stats */}
+          <JournalReflection />
+
           {/* Planner - Show occasionally for daily/weekly planning */}
           <PlannerWidget />
 

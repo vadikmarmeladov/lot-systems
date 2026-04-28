@@ -66,6 +66,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report logged and appended. All modules online.',
     ],
   },
+  {
+    date: '2026-04-28',
+    session: 'Personalization Layer — JournalReflection + GoalJourney',
+    assembled: [
+      'JournalReflection: upgraded from static prompts to QIE-aware + live activity data',
+      'JournalReflection view 1 (Reflect): time-based prompts + top pattern injection + Write action',
+      'JournalReflection view 2 (Journal): entries today / last written / total count from log data',
+      'JournalReflection wired into planning stack (was orphaned — now live)',
+      'GoalJourneyWidget wired into bioethics stack after NarrativeWidget (was orphaned — now live)',
+      'Two orphaned personalization widgets resurrected and connected to real data.',
+    ],
+  },
 ]
 
 const FEEDBACK_OPTIONS = [
