@@ -18,7 +18,7 @@ import { atom } from 'nanostores'
 // Intention signals collected from all widgets and background monitors
 export type IntentionSignal = {
   timestamp: number
-  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort'
+  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals'
   signal: string
   metadata?: Record<string, any>
 }
@@ -450,6 +450,218 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 14: OS stagnation — no new signal sources in 3+ days
+  const threeDaysAgoTs = now - 3 * 24 * 60 * 60 * 1000
+  const recentSources = new Set(
+    signals.filter(s => s.timestamp > threeDaysAgoTs).map(s => s.source)
+  )
+  const totalSources = new Set(signals.map(s => s.source)).size
+  if (totalSources >= 3 && recentSources.size <= 1 && signals.length >= 10) {
+    patterns.push({
+      pattern: 'os-stagnation',
+      confidence: 0.65,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'soon',
+      reason: 'Signal diversity collapsed. OS entering maintenance mode. Expand engagement breadth.'
+    })
+  }
+
+  // Pattern 15: Circadian drift — heavy late-night signal clusters without recovery signals
+  const lateNightSignals = recentSignals.filter(s => {
+    const h = new Date(s.timestamp).getHours()
+    return h >= 23 || h < 4
+  })
+  const recentRecovery = recentSignals.filter(s =>
+    s.source === 'selfcare' && (now - s.timestamp) < 24 * 60 * 60 * 1000
+  )
+  if (lateNightSignals.length >= 4 && recentRecovery.length === 0) {
+    patterns.push({
+      pattern: 'circadian-drift',
+      confidence: 0.7,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'immediate',
+      reason: 'Late-night signal cluster. No recovery detected. Circadian integrity requires intervention.'
+    })
+  }
+
+  // Pattern 16: Momentum wave — rising engagement across multiple sources + active intentions
+  const twoDaysAgoTs = now - 2 * 24 * 60 * 60 * 1000
+  const veryRecentSignals = signals.filter(s => s.timestamp > twoDaysAgoTs)
+  const priorPeriodSignals = signals.filter(s =>
+    s.timestamp > threeDaysAgoTs * 1.5 && s.timestamp <= twoDaysAgoTs
+  )
+  const recentDiversity = new Set(veryRecentSignals.map(s => s.source)).size
+  const priorDiversity = new Set(priorPeriodSignals.map(s => s.source)).size
+  const hasIntentionNow = hasCurrentIntention()
+  if (recentDiversity >= 4 && recentDiversity > priorDiversity + 1 && hasIntentionNow) {
+    patterns.push({
+      pattern: 'momentum-wave',
+      confidence: 0.8,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: 'Momentum wave detected. Multi-source engagement rising with active intention. Amplify now.'
+    })
+  }
+
+  // Pattern 17: Flow state — memory + planner + intentions all active within 4-hour window
+  const fourHoursAgoTs = now - 4 * 60 * 60 * 1000
+  const flowWindow = signals.filter(s => s.timestamp > fourHoursAgoTs)
+  const flowSources = new Set(flowWindow.map(s => s.source))
+  if (
+    flowSources.has('memory') &&
+    flowSources.has('planner') &&
+    flowSources.has('intentions') &&
+    flowWindow.length >= 6
+  ) {
+    patterns.push({
+      pattern: 'flow-state',
+      confidence: 0.85,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: 'Memory, planning, and intention sources all active within 4h. Flow state engaged. Capture insights now.'
+    })
+  }
+
+  // Pattern 18: Social void — cohort signals absent for 5+ days despite high personal engagement
+  const fiveDaysAgoTs = now - 5 * 24 * 60 * 60 * 1000
+  const recentCohortSignals = signals.filter(s => s.source === 'cohort' && s.timestamp > fiveDaysAgoTs)
+  const recentPersonalSignals = signals.filter(s =>
+    s.timestamp > fiveDaysAgoTs && ['mood', 'memory', 'journal', 'planner'].includes(s.source)
+  )
+  if (recentCohortSignals.length === 0 && recentPersonalSignals.length >= 8) {
+    patterns.push({
+      pattern: 'social-void',
+      confidence: 0.6,
+      suggestedWidget: 'cohortConnect',
+      suggestedTiming: 'soon',
+      reason: 'High personal engagement. Zero cohort contact in 5 days. Isolation pattern emerging. Connect.'
+    })
+  }
+
+  // Pattern 19: Biofield coherence peak — positive signals across all state dimensions, no negatives
+  const lastThreeHoursTs = now - 3 * 60 * 60 * 1000
+  const peakWindowSignals = signals.filter(s => s.timestamp > lastThreeHoursTs)
+  const positiveEnergyMoods = peakWindowSignals.filter(s =>
+    s.source === 'mood' && ['energized', 'excited', 'hopeful', 'calm', 'peaceful', 'content', 'fulfilled'].includes(s.signal)
+  )
+  const negativeMoodsInPeak = peakWindowSignals.filter(s =>
+    s.source === 'mood' && ['anxious', 'overwhelmed', 'tired', 'exhausted'].includes(s.signal)
+  )
+  const recentPlannerPeak = peakWindowSignals.filter(s => s.source === 'planner')
+  const hasIntentionPeak = hasCurrentIntention()
+  if (
+    positiveEnergyMoods.length >= 2 &&
+    negativeMoodsInPeak.length === 0 &&
+    recentPlannerPeak.length >= 1 &&
+    hasIntentionPeak
+  ) {
+    patterns.push({
+      pattern: 'biofield-coherence-peak',
+      confidence: 0.9,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: 'All biofield signals aligned. Optimal capture window. Record something worth keeping.'
+    })
+  }
+
+  // Pattern 20: Nutritional void — no recipe signals for 3 days + depleting moods
+  const recentRecipeSignals = signals.filter(s => s.source === 'recipe' && s.timestamp > threeDaysAgoTs)
+  const nutritionDepletingMoods = recentSignals.filter(s =>
+    s.source === 'mood' && ['tired', 'exhausted', 'overwhelmed'].includes(s.signal)
+  )
+  if (recentRecipeSignals.length === 0 && nutritionDepletingMoods.length >= 2 && signals.length >= 5) {
+    patterns.push({
+      pattern: 'nutritional-void',
+      confidence: 0.65,
+      suggestedWidget: 'recipe',
+      suggestedTiming: 'soon',
+      reason: 'No nutrition protocol in 3 days. Depleting state detected. Fuel the system.'
+    })
+  }
+
+  // Pattern 21: Goal drift — goal signals present but no planning follow-through in 3 days
+  const recentGoalSignals = signals.filter(s => s.source === 'goals' && s.timestamp > threeDaysAgoTs)
+  const recentPlannerFollowThrough = signals.filter(s =>
+    ['planner', 'intentions'].includes(s.source) && s.timestamp > threeDaysAgoTs
+  )
+  if (recentGoalSignals.length >= 1 && recentPlannerFollowThrough.length === 0) {
+    patterns.push({
+      pattern: 'goal-drift',
+      confidence: 0.7,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'soon',
+      reason: 'Goal signals present. No planning follow-through in 3 days. Goals without plans drift.'
+    })
+  }
+
+  // Pattern 22: Ecosystem without biofield — nodes connected but no check-in today
+  const ecosystemSignals = recentSignals.filter(s =>
+    s.source === 'intentions' &&
+    (s.signal.includes('_connected') || s.signal === 'ecosystem_full_coherence')
+  )
+  const biofieldToday = recentSignals.filter(s =>
+    s.source === 'mood' && (now - s.timestamp) < 12 * 60 * 60 * 1000
+  )
+  if (ecosystemSignals.length >= 2 && biofieldToday.length === 0) {
+    patterns.push({
+      pattern: 'ecosystem-without-biofield',
+      confidence: 0.72,
+      suggestedWidget: 'mood',
+      suggestedTiming: 'soon',
+      reason: 'Ecosystem nodes connected. No biofield reading today. Anchor the signal with a check-in.'
+    })
+  }
+
+  // Pattern 23: Cognitive overload — journal + memory + planner all active, no self-care anchor
+  const cognitiveLoad = recentSignals.filter(s =>
+    ['journal', 'memory', 'planner'].includes(s.source)
+  )
+  if (cognitiveLoad.length >= 5 && recentSelfCare.length === 0) {
+    patterns.push({
+      pattern: 'cognitive-overload',
+      confidence: Math.min(cognitiveLoad.length / 8, 0.9),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'soon',
+      reason: 'High cognitive engagement. No rest registered. Ground before continuing.'
+    })
+  }
+
+  // Pattern 24: Log depth signal — long field entries (>100 words) but no mood check-in today
+  const deepLogSignals = recentSignals.filter(s =>
+    s.source === 'log' &&
+    s.metadata?.wordCount && (s.metadata.wordCount as number) > 100
+  )
+  const biofieldToday24h = recentSignals.filter(s =>
+    s.source === 'mood' && (now - s.timestamp) < 12 * 60 * 60 * 1000
+  )
+  if (deepLogSignals.length >= 1 && biofieldToday24h.length === 0) {
+    patterns.push({
+      pattern: 'log-depth-signal',
+      confidence: 0.68,
+      suggestedWidget: 'mood',
+      suggestedTiming: 'soon',
+      reason: 'Deep field entry recorded. No biofield reading today. Anchor the internal state — what are you operating from?'
+    })
+  }
+
+  // Pattern 25: Full-stack session — memory + planner + selfcare all active within 4h
+  const fullStackWindow = signals.filter(s => s.timestamp > fourHoursAgoTs)
+  const fullStackSources = new Set(fullStackWindow.map(s => s.source))
+  if (
+    fullStackSources.has('memory') &&
+    fullStackSources.has('planner') &&
+    fullStackSources.has('selfcare') &&
+    fullStackWindow.length >= 5
+  ) {
+    patterns.push({
+      pattern: 'full-stack-session',
+      confidence: 0.88,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: 'Memory, planning, and self-care all fired in the same window. Full-stack session. The system is running at capacity — document this.'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -795,23 +1007,80 @@ export function forceSyncToServer(): Promise<boolean> {
 /**
  * Upstream signal sources each widget consumes.
  * Enables cross-widget cascade invalidation and dependency tracing.
+ *
+ * Tier 0 — no dependencies (raw input widgets)
+ * Tier 1 — depend on Tier 0 sources
+ * Tier 2 — depend on Tier 0 + Tier 1 sources
+ * Tier 3 — aggregate/meta widgets (consume everything)
  */
 export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
-  mood: [],
-  memory: ['mood', 'journal'],
-  planner: ['mood', 'intentions'],
-  intentions: ['mood', 'memory'],
-  selfcare: ['mood'],
-  journal: ['mood', 'planner'],
-  energy: ['mood', 'selfcare', 'journal'],
-  system: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
-  calculator: [],
-  cohort: ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
+  // ── Tier 0: raw input (no upstream dependencies)
+  mood:              [],
+  calculator:        [],
+  log:               [],
+  time:              [],
+
+  // ── Tier 1: single-source consumers
+  selfcare:          ['mood'],
+  recipe:            ['mood', 'energy', 'time'],
+  planner:           ['mood', 'intentions'],
+  energy:            ['mood', 'selfcare', 'journal'],
+  badges:            ['memory', 'intentions', 'selfcare', 'journal', 'planner', 'mood'],
+
+  // ── Tier 2: cross-source consumers
+  memory:            ['mood', 'journal'],
+  intentions:        ['mood', 'memory'],
+  journal:           ['mood', 'planner'],
+  goals:             ['planner', 'intentions', 'memory', 'journal'],
+  chakra:            ['mood', 'energy', 'selfcare', 'journal'],
+  cohort:            ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
+  narrative:         ['mood', 'memory', 'journal', 'intentions'],
+  evolution:         ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+  assessment:        ['mood', 'memory', 'journal', 'energy'],
+
+  // ── Tier 3: meta / aggregate consumers
+  quantumState:      ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
+  patternRecognition:['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'log'],
+  signalStream:      ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'calculator', 'energy', 'cohort', 'log'],
+  cohortConnect:     ['cohort', 'mood', 'memory', 'journal', 'selfcare', 'intentions'],
+  contextualPrompts: ['mood', 'planner', 'intentions', 'log', 'energy'],
+  interventions:     ['mood', 'selfcare', 'journal', 'energy'],
+  userMetrics:       ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort'],
+  systemProgress:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log', 'calculator'],
+  system:            ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+
+  // ── Tier 2+: additional consumer widgets
+  patternInsights:   ['mood', 'memory', 'journal', 'energy', 'cohort', 'planner'],
+  cosmic:            ['mood', 'energy', 'intentions'],
+  quantumSign:       ['intentions', 'memory'],
+  microGame:         ['calculator', 'time'],
+
+  // ── QOS / Ecosystem layer (2026-04-25 audit)
+  ecosystem:         ['intentions'],
+  quantumEngine:     ['mood', 'energy', 'intentions', 'cohort'],
+  correlatedIndexes: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+  systemPulse:       ['energy', 'cohort', 'log'],
+  flashDrive:        ['memory', 'journal'],
+  chatCatalyst:      ['mood', 'cohort'],
+
+  // ── Tier 2: calendar + media widgets (2026-04-28 audit)
+  calendarWidget:    ['planner', 'intentions', 'energy'],
+  microImage:        ['log', 'mood'],
 }
 
 /** Returns which signal sources a given widget depends on. */
 export function getWidgetDependencies(widget: string): string[] {
   return WIDGET_DEPENDENCY_MAP[widget] ?? []
+}
+
+/**
+ * Returns all widgets that directly or transitively depend on the given source.
+ * Used for cascade invalidation when a source signal changes.
+ */
+export function getWidgetsDependingOn(source: string): string[] {
+  return Object.entries(WIDGET_DEPENDENCY_MAP)
+    .filter(([, deps]) => deps.includes(source))
+    .map(([widget]) => widget)
 }
 
 export type PhysiologicalCohort = {
@@ -836,6 +1105,10 @@ export type PhysiologicalReport = {
   activePatterns: { pattern: string; confidence: number; action: string }[]
   cohortSignals: { archetype: string | null; behavioralCohort: string | null }
   systemHealth: 'nominal' | 'degraded' | 'critical'
+  /** 0-100 composite physiological readiness score derived from energy, self-care density, and pattern severity. */
+  physiologicalReadiness: number
+  /** Terse directive for the current readiness band. */
+  readinessDirective: string
   generatedAt: number
 }
 
@@ -903,6 +1176,36 @@ export function getPhysiologicalReport(): PhysiologicalReport {
     needsSupport === 'moderate' || energy === 'low' ? 'degraded' :
     'nominal'
 
+  // Physiological readiness — composite 0-100 score
+  // Energy component (40 pts)
+  const energyScore =
+    state.userState.energy === 'high'     ? 40 :
+    state.userState.energy === 'moderate' ? 28 :
+    state.userState.energy === 'low'      ? 14 :
+    state.userState.energy === 'depleted' ? 4  : 20  // unknown → neutral
+
+  // Self-care density component (30 pts): self-care signals in last 3 days
+  const threeDaySelfCare = weekSignals.filter(s =>
+    s.source === 'selfcare' && now - s.timestamp < 3 * dayMs
+  ).length
+  const selfCareScore = Math.min(30, threeDaySelfCare * 8)
+
+  // Pattern severity component (30 pts): subtract for critical/depleting patterns
+  const severePatternsActive = activePatterns.filter(p =>
+    ['physiological-depletion', 'circadian-drift', 'anxiety-pattern', 'evening-overwhelm'].includes(p.pattern)
+  ).length
+  const patternPenalty = Math.min(30, severePatternsActive * 10)
+  const patternScore = 30 - patternPenalty
+
+  const physiologicalReadiness = Math.max(0, Math.min(100, energyScore + selfCareScore + patternScore))
+
+  const readinessDirective =
+    physiologicalReadiness >= 80 ? 'High readiness. Optimal conditions for deep work.' :
+    physiologicalReadiness >= 60 ? 'Functional. Maintain cadence. Monitor energy.' :
+    physiologicalReadiness >= 40 ? 'Reduced capacity. Prioritize recovery before output.' :
+    physiologicalReadiness >= 20 ? 'Degraded state. Rest is the primary protocol.' :
+    'Critical depletion. Immediate recovery required.'
+
   return {
     sessionDate: new Date().toISOString().slice(0, 10),
     widgetDependencies,
@@ -911,6 +1214,8 @@ export function getPhysiologicalReport(): PhysiologicalReport {
     activePatterns,
     cohortSignals: cohortData,
     systemHealth,
+    physiologicalReadiness,
+    readinessDirective,
     generatedAt: now
   }
 }
@@ -938,4 +1243,102 @@ export function recordEnergySignal(
  */
 export function recordLogSignal(wordCount: number, hasContext: boolean) {
   recordSignal('log', 'field_entry', { wordCount, hasContext, hour: new Date().getHours() })
+}
+
+/**
+ * Record a goal-based signal (goal set, updated, or completed)
+ */
+export function recordGoalSignal(action: 'goal_set' | 'goal_update' | 'goal_complete', title?: string) {
+  recordSignal('goals', action, { title, hour: new Date().getHours() })
+}
+
+/**
+ * Record a nutrition/recipe signal when the user engages with recipe widget
+ */
+export function recordNutritionSignal(meal: string, mealTime?: string) {
+  recordSignal('recipe', 'recipe_viewed', { meal, mealTime, hour: new Date().getHours() })
+}
+
+/**
+ * Check for biofield coherence peak — all state dimensions positive.
+ * Records a biofield_peak energy signal when peak conditions are met.
+ * Call after mood check-ins or periodically from background monitors.
+ *
+ * Returns true if peak detected and signal recorded.
+ */
+export function checkBiofieldCoherence(): boolean {
+  const state = intentionEngine.get()
+  const { energy, clarity, alignment, needsSupport } = state.userState
+
+  const isEnergized = energy === 'high' || energy === 'moderate'
+  const isClear = clarity === 'clear' || clarity === 'focused'
+  const isAligned = alignment === 'aligned' || alignment === 'flowing'
+  const isGrounded = needsSupport === 'none' || needsSupport === 'low'
+
+  if (isEnergized && isClear && isAligned && isGrounded) {
+    recordSignal('energy', 'biofield_peak', {
+      energy,
+      clarity,
+      alignment,
+      needsSupport,
+      hour: new Date().getHours()
+    })
+    return true
+  }
+  return false
+}
+
+/**
+ * Record a QOS snapshot signal — archetype + readiness + assembly progress.
+ * Called when a full physiological report is generated.
+ */
+export function recordQOSSnapshot(
+  archetype: string,
+  readiness: number,
+  assemblyProgress: number
+) {
+  recordSignal('energy', 'qos_snapshot', {
+    archetype,
+    readiness,
+    assemblyProgress,
+    hour: new Date().getHours()
+  })
+}
+
+/**
+ * Record a full-stack session signal — fires when memory + planner + selfcare
+ * all contribute signals in the same engagement window.
+ */
+export function recordFullStackSession(modulesActive: string[]) {
+  recordSignal('energy', 'full_stack_session', {
+    modulesActive,
+    windowMs: 4 * 60 * 60 * 1000,
+    hour: new Date().getHours()
+  })
+}
+
+/**
+ * Detect and record a full-stack session if conditions are met.
+ * Call after each signal recording for background detection.
+ * Returns true if a full-stack session was detected.
+ */
+export function checkFullStackSession(): boolean {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const fourHoursAgoTs = now - 4 * 60 * 60 * 1000
+
+  const windowSignals = state.signals.filter(s => s.timestamp > fourHoursAgoTs)
+  const sources = new Set(windowSignals.map(s => s.source))
+
+  if (sources.has('memory') && sources.has('planner') && sources.has('selfcare') && windowSignals.length >= 5) {
+    const alreadyRecorded = state.signals.filter(s =>
+      s.signal === 'full_stack_session' && s.timestamp > fourHoursAgoTs
+    ).length > 0
+
+    if (!alreadyRecorded) {
+      recordFullStackSession(Array.from(sources))
+      return true
+    }
+  }
+  return false
 }
