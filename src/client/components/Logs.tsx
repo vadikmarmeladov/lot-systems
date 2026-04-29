@@ -846,6 +846,98 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'physiological_cohort' || log.event === 'cohort_classification') {
+          const archetype = log.metadata?.archetype as string | undefined
+          const energyBand = log.metadata?.energyBand as string | undefined
+          const dominantModule = log.metadata?.dominantModule as string | undefined
+          const directive = log.metadata?.directive as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PHY:" blockView>
+                {archetype && (
+                  <div className="uppercase tracking-widest mb-4">{archetype}</div>
+                )}
+                {energyBand && (
+                  <div className="flex justify-between mb-2">
+                    <span className="opacity-40 uppercase">Energy</span>
+                    <span className="uppercase">{energyBand}</span>
+                  </div>
+                )}
+                {dominantModule && (
+                  <div className="flex justify-between mb-2">
+                    <span className="opacity-40 uppercase">Module</span>
+                    <span className="uppercase">{dominantModule}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-40 uppercase">Conf</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {directive && (
+                  <div className="opacity-30 text-xs">{directive}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'qos_coherence') {
+          const coherenceScore = log.metadata?.coherenceScore as number | undefined
+          const diversityScore = log.metadata?.diversityScore as number | undefined
+          const spreadScore = log.metadata?.spreadScore as number | undefined
+          const uniqueSources = log.metadata?.uniqueSources as number | undefined
+          const activeHours = log.metadata?.activeHours as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COHR:" blockView>
+                {coherenceScore !== undefined && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-40 uppercase">Coherence</span>
+                    <span className="tabular-nums">{coherenceScore}%</span>
+                  </div>
+                )}
+                <div className="flex gap-x-16 opacity-40 uppercase tracking-widest text-xs">
+                  {diversityScore !== undefined && <span>DIV {diversityScore}</span>}
+                  {spreadScore !== undefined && <span>SPRD {spreadScore}</span>}
+                  {uniqueSources !== undefined && <span>SRC {uniqueSources}</span>}
+                  {activeHours !== undefined && <span>HRS {activeHours}</span>}
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'intention_velocity') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const windowHours = log.metadata?.windowHours as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="IVEL:" blockView>
+                <div className="uppercase tracking-widest mb-4">Intention velocity</div>
+                <div className="flex gap-x-16 opacity-40 uppercase tracking-widest text-xs">
+                  {intentionCount !== undefined && <span>COUNT {intentionCount}</span>}
+                  {windowHours !== undefined && <span>WIN {windowHours}H</span>}
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_coherence_peak') {
+          const modules = log.metadata?.modules as string[] | undefined
+          const windowHours = log.metadata?.windowHours as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CPEAK:" blockView>
+                <div className="uppercase tracking-widest mb-4">Signal coherence peak</div>
+                {modules && modules.length > 0 && (
+                  <div className="opacity-40 uppercase tracking-widest text-xs mb-2">
+                    {modules.join(' · ')}
+                  </div>
+                )}
+                {windowHours !== undefined && (
+                  <div className="opacity-30 uppercase tracking-widest text-xs">WIN {windowHours}H</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           // Derive a terse military label from the event name prefix

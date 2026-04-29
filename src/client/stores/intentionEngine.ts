@@ -680,6 +680,90 @@ export function analyzeIntentions(): IntentionPattern[] {
   }
 
   // Calculate overall user state
+  // Pattern 27: Journal depth without memory capture — deep processing, no extraction
+  const deepJournalSignals = recentSignals.filter(s =>
+    s.source === 'log' &&
+    s.signal === 'field_entry' &&
+    (s.metadata?.wordCount ?? 0) >= 100
+  )
+  const postJournalMemory = deepJournalSignals.filter(entry => {
+    const nextHour = entry.timestamp + 60 * 60 * 1000
+    return recentSignals.some(s => s.source === 'memory' && s.timestamp >= entry.timestamp && s.timestamp <= nextHour)
+  })
+  if (deepJournalSignals.length >= 1 && postJournalMemory.length === 0) {
+    patterns.push({
+      pattern: 'journal-depth-gap',
+      confidence: 0.70,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: 'Deep journal entry detected. No memory capture followed. Extract the insight — open Memory now.'
+    })
+  }
+
+  // Pattern 28: Sleep debt signal — late-night depletion followed by morning fatigue
+  const lateNightHours = [22, 23, 0, 1, 2]
+  const morningHours = [6, 7, 8, 9, 10]
+  const lateNightFatigue = signals.filter(s => {
+    const h = new Date(s.timestamp).getHours()
+    return s.source === 'mood' &&
+      ['tired', 'exhausted'].includes(s.signal) &&
+      lateNightHours.includes(h) &&
+      (now - s.timestamp) < 3 * 24 * 60 * 60 * 1000
+  })
+  const morningFatigue = signals.filter(s => {
+    const h = new Date(s.timestamp).getHours()
+    return s.source === 'mood' &&
+      ['tired', 'exhausted'].includes(s.signal) &&
+      morningHours.includes(h) &&
+      (now - s.timestamp) < 2 * 24 * 60 * 60 * 1000
+  })
+  if (lateNightFatigue.length >= 2 && morningFatigue.length >= 1) {
+    patterns.push({
+      pattern: 'sleep-debt-accumulation',
+      confidence: Math.min(0.85, 0.5 + lateNightFatigue.length * 0.1),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'immediate',
+      reason: 'Late-night depletion recurring. Morning fatigue persisting. Sleep debt accumulating. Rest protocol required.'
+    })
+  }
+
+  // Pattern 29: Signal coherence window — all 4 primary modules active, positive state
+  const sixHoursAgo = now - 6 * 60 * 60 * 1000
+  const sixHourSignals = signals.filter(s => s.timestamp > sixHoursAgo)
+  const sixHourSources = new Set(sixHourSignals.map(s => s.source))
+  const primaryModulesActive = ['journal', 'memory', 'planner', 'selfcare'].every(src => sixHourSources.has(src))
+  const positiveStateNow = recentSignals.filter(s =>
+    s.source === 'mood' &&
+    ['calm', 'energized', 'hopeful', 'grateful', 'peaceful', 'fulfilled'].includes(s.signal)
+  ).length >= 1
+  const coherenceAlreadyRecorded = signals.filter(s =>
+    s.signal === 'signal_coherence_peak' && s.timestamp > sixHoursAgo
+  ).length > 0
+  if (primaryModulesActive && positiveStateNow && !coherenceAlreadyRecorded) {
+    patterns.push({
+      pattern: 'signal-coherence-window',
+      confidence: 0.88,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: 'All primary modules firing in one window with positive state. System coherence peak. Capture everything.'
+    })
+  }
+
+  // Pattern 30: Intention velocity — 3+ intention signals in 48-hour window
+  const fortyEightHoursAgo = now - 48 * 60 * 60 * 1000
+  const recentIntentionSignals = signals.filter(s =>
+    s.source === 'intentions' && s.timestamp > fortyEightHoursAgo
+  )
+  if (recentIntentionSignals.length >= 3) {
+    patterns.push({
+      pattern: 'intention-velocity',
+      confidence: Math.min(0.90, 0.65 + recentIntentionSignals.length * 0.05),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'soon',
+      reason: `Intention velocity detected. ${recentIntentionSignals.length} intentions in 48h. Translate into structure — open Planner.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -702,6 +786,19 @@ export function analyzeIntentions(): IntentionPattern[] {
     lastAnalysis: now,
     lastSyncedTimestamp: currentState.lastSyncedTimestamp
   })
+
+  // Background checks — fire after state is committed so helpers read fresh data
+  // Run async-style via setTimeout(0) to avoid blocking the analysis call
+  if (typeof window !== 'undefined') {
+    setTimeout(() => {
+      try { checkIntentionVelocity() } catch {}
+      try { checkSignalCoherencePeak() } catch {}
+      // Record QOS coherence every 20th analysis (sampled, not every time)
+      if (signals.length % 20 === 0) {
+        try { recordQOSCoherence() } catch {}
+      }
+    }, 0)
+  }
 
   return patterns
 }
@@ -1107,6 +1204,150 @@ export type PhysiologicalCohort = {
   directive: string
 }
 
+export type PhysiologicalCohortClassification = {
+  archetype: string       // Named physiological state (e.g., "Peak Catalyst")
+  energyBand: 'depleted' | 'low' | 'moderate' | 'high' | 'unknown'
+  dominantModule: string  // Most active signal source in last 24h
+  directive: string       // Terse action directive
+  confidence: number      // 0-100
+}
+
+// 9 physiological cohort archetypes — energy × behavior × temporal context
+const PHYSIOLOGICAL_ARCHETYPES: Array<{
+  archetype: string
+  energyBands: Array<'depleted' | 'low' | 'moderate' | 'high' | 'unknown'>
+  dominantSources: string[]
+  patternConditions: string[]
+  hourRange?: [number, number]
+  directive: string
+}> = [
+  {
+    archetype: 'Peak Catalyst',
+    energyBands: ['high'],
+    dominantSources: ['planner', 'intentions'],
+    patternConditions: ['flow-state', 'momentum-wave', 'biofield-coherence-peak'],
+    directive: 'Execute. Capture momentum now.',
+  },
+  {
+    archetype: 'Flowing Creator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['journal', 'memory'],
+    patternConditions: ['flow-state', 'signal-coherence-window', 'recovery-window'],
+    directive: 'Creative peak active. Enter deep work.',
+  },
+  {
+    archetype: 'Morning Visionary',
+    energyBands: ['moderate', 'high', 'unknown'],
+    dominantSources: ['intentions', 'planner'],
+    patternConditions: ['morning-clarity', 'morning-cleanness-gap'],
+    hourRange: [5, 10],
+    directive: 'Morning clarity window. Set the intention now.',
+  },
+  {
+    archetype: 'Rising Builder',
+    energyBands: ['moderate'],
+    dominantSources: ['planner', 'goals'],
+    patternConditions: ['lack-of-structure', 'momentum-wave'],
+    directive: 'Structure is forming. Keep building.',
+  },
+  {
+    archetype: 'Seeking Sage',
+    energyBands: ['low', 'moderate', 'unknown'],
+    dominantSources: ['journal', 'memory'],
+    patternConditions: ['surface-awareness', 'journal-depth-gap'],
+    directive: 'Reflection layer active. Depth inquiry available.',
+  },
+  {
+    archetype: 'Evening Sage',
+    energyBands: ['low', 'moderate'],
+    dominantSources: ['journal', 'memory'],
+    patternConditions: ['evening-overwhelm', 'surface-awareness'],
+    hourRange: [18, 24],
+    directive: 'Evening reflection window. Document before rest.',
+  },
+  {
+    archetype: 'Grounded Healer',
+    energyBands: ['low', 'moderate', 'depleted'],
+    dominantSources: ['selfcare'],
+    patternConditions: ['recovery-window', 'post-overwhelm-cleanness', 'physiological-depletion'],
+    directive: 'Recovery protocol active. Protect the process.',
+  },
+  {
+    archetype: 'Anxious Explorer',
+    energyBands: ['high', 'moderate', 'unknown'],
+    dominantSources: ['mood'],
+    patternConditions: ['anxiety-pattern', 'ungrounded-activity', 'circadian-drift'],
+    directive: 'Energy unstable. Ground before expanding.',
+  },
+  {
+    archetype: 'Depleted Guardian',
+    energyBands: ['depleted', 'low'],
+    dominantSources: ['mood'],
+    patternConditions: ['physiological-depletion', 'sleep-debt-accumulation', 'evening-overwhelm'],
+    directive: 'Critical depletion. Rest protocol required.',
+  },
+]
+
+/**
+ * Classify the user's current physiological cohort archetype from signals + userState.
+ * Returns the best-matching archetype with confidence score.
+ */
+export function classifyPhysiologicalCohort(
+  signals: IntentionSignal[],
+  userState: UserState,
+  recognizedPatterns: IntentionPattern[]
+): PhysiologicalCohortClassification {
+  const now = Date.now()
+  const dayAgo = now - 24 * 60 * 60 * 1000
+  const recentSignals = signals.filter(s => s.timestamp > dayAgo)
+  const currentHour = new Date().getHours()
+  const activePatternNames = new Set(recognizedPatterns.map(p => p.pattern))
+
+  // Determine dominant module (most active source in last 24h)
+  const sourceCounts: Record<string, number> = {}
+  recentSignals.forEach(s => {
+    sourceCounts[s.source] = (sourceCounts[s.source] ?? 0) + 1
+  })
+  const dominantModule = Object.entries(sourceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'mood'
+
+  // Score each archetype
+  const scores = PHYSIOLOGICAL_ARCHETYPES.map(def => {
+    let score = 0
+
+    // Energy band match (0-40 pts)
+    if (def.energyBands.includes(userState.energy)) score += 40
+
+    // Dominant source match (0-30 pts)
+    if (def.dominantSources.includes(dominantModule)) score += 30
+
+    // Pattern condition match (0-20 pts, up to 2 patterns)
+    const patternMatches = def.patternConditions.filter(p => activePatternNames.has(p)).length
+    score += Math.min(20, patternMatches * 10)
+
+    // Hour range match (0-10 pts bonus)
+    if (def.hourRange) {
+      const [start, end] = def.hourRange
+      const inRange = end > 24
+        ? currentHour >= start
+        : currentHour >= start && currentHour < end
+      if (inRange) score += 10
+    }
+
+    return { ...def, score }
+  })
+
+  const best = scores.sort((a, b) => b.score - a.score)[0]
+  const confidence = Math.min(100, Math.round(best.score))
+
+  return {
+    archetype: best.archetype,
+    energyBand: userState.energy,
+    dominantModule,
+    directive: best.directive,
+    confidence,
+  }
+}
+
 // ─── Physiological Cohort Reporting ────────────────────────────────────────
 
 export type PhysiologicalReport = {
@@ -1121,6 +1362,8 @@ export type PhysiologicalReport = {
   }
   activePatterns: { pattern: string; confidence: number; action: string }[]
   cohortSignals: { archetype: string | null; behavioralCohort: string | null }
+  /** Real-time physiological cohort classification from QIE signals */
+  cohortClassification: PhysiologicalCohortClassification | null
   systemHealth: 'nominal' | 'degraded' | 'critical'
   /** 0-100 composite physiological readiness score derived from energy, self-care density, and pattern severity. */
   physiologicalReadiness: number
@@ -1223,6 +1466,11 @@ export function getPhysiologicalReport(): PhysiologicalReport {
     physiologicalReadiness >= 20 ? 'Degraded state. Rest is the primary protocol.' :
     'Critical depletion. Immediate recovery required.'
 
+  // Physiological cohort classification — real-time from QIE signals
+  const cohortClassification = signals.length >= 3
+    ? classifyPhysiologicalCohort(signals, state.userState, state.recognizedPatterns)
+    : null
+
   return {
     sessionDate: new Date().toISOString().slice(0, 10),
     widgetDependencies,
@@ -1230,6 +1478,7 @@ export function getPhysiologicalReport(): PhysiologicalReport {
     biofieldStatus,
     activePatterns,
     cohortSignals: cohortData,
+    cohortClassification,
     systemHealth,
     physiologicalReadiness,
     readinessDirective,
@@ -1375,4 +1624,123 @@ export function recordCalendarSignal(entryType: string, date: string) {
  */
 export function recordJournalSignal(wordCount: number) {
   recordSignal('log', 'field_entry', { wordCount, hasContext: wordCount > 20, hour: new Date().getHours() })
+}
+
+/**
+ * Record a QOS coherence signal — measures cross-module signal diversity and temporal spread.
+ * High coherence = signals spread evenly across modules and time.
+ * Fires after signal analysis when coherence can be computed.
+ */
+export function recordQOSCoherence() {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const dayAgo = now - 24 * 60 * 60 * 1000
+  const daySignals = state.signals.filter(s => s.timestamp > dayAgo)
+
+  if (daySignals.length < 3) return
+
+  const uniqueSources = new Set(daySignals.map(s => s.source)).size
+  const totalSources = 12
+  const diversityScore = Math.round((uniqueSources / totalSources) * 100)
+
+  // Temporal spread: are signals distributed across the day or clustered?
+  const hourBuckets = new Array(24).fill(0)
+  daySignals.forEach(s => {
+    const h = new Date(s.timestamp).getHours()
+    hourBuckets[h]++
+  })
+  const activeHours = hourBuckets.filter(c => c > 0).length
+  const spreadScore = Math.round((activeHours / 16) * 100) // 16 waking hours as max
+
+  const coherenceScore = Math.round((diversityScore * 0.6 + spreadScore * 0.4))
+
+  recordSignal('energy', 'qos_coherence', {
+    diversityScore,
+    spreadScore,
+    coherenceScore,
+    uniqueSources,
+    activeHours,
+    hour: new Date().getHours()
+  })
+}
+
+/**
+ * Record an intention velocity signal — fires when 3+ intention signals
+ * appear within a 48-hour window. Feeds Pattern 30 detection.
+ */
+export function recordIntentionVelocity(intentionCount: number) {
+  recordSignal('intentions', 'intention_velocity', {
+    intentionCount,
+    windowHours: 48,
+    hour: new Date().getHours()
+  })
+}
+
+/**
+ * Check for intention velocity and record if threshold met.
+ * Returns true if velocity signal was recorded.
+ */
+export function checkIntentionVelocity(): boolean {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const fortyEightHoursAgo = now - 48 * 60 * 60 * 1000
+
+  const recentIntentions = state.signals.filter(s =>
+    s.source === 'intentions' && s.timestamp > fortyEightHoursAgo
+  )
+
+  if (recentIntentions.length >= 3) {
+    const alreadyRecorded = state.signals.some(s =>
+      s.signal === 'intention_velocity' && s.timestamp > fortyEightHoursAgo
+    )
+    if (!alreadyRecorded) {
+      recordIntentionVelocity(recentIntentions.length)
+      return true
+    }
+  }
+  return false
+}
+
+/**
+ * Record a signal coherence peak — fires when all 4 primary modules
+ * (journal, memory, planner, selfcare) are active in a 6h window with positive state.
+ * Feeds Pattern 29 (signal-coherence-window) detection.
+ */
+export function recordSignalCoherencePeak(modules: string[]) {
+  recordSignal('energy', 'signal_coherence_peak', {
+    modules,
+    windowHours: 6,
+    hour: new Date().getHours()
+  })
+}
+
+/**
+ * Check for signal coherence peak and record if conditions are met.
+ */
+export function checkSignalCoherencePeak(): boolean {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const sixHoursAgo = now - 6 * 60 * 60 * 1000
+  const dayAgo = now - 24 * 60 * 60 * 1000
+
+  const windowSignals = state.signals.filter(s => s.timestamp > sixHoursAgo)
+  const windowSources = new Set(windowSignals.map(s => s.source))
+
+  const allPrimaryActive = ['journal', 'memory', 'planner', 'selfcare'].every(src => windowSources.has(src))
+
+  const recentPositiveMood = state.signals.filter(s =>
+    s.source === 'mood' &&
+    s.timestamp > dayAgo &&
+    ['calm', 'energized', 'hopeful', 'grateful', 'peaceful', 'fulfilled'].includes(s.signal)
+  ).length >= 1
+
+  const alreadyRecorded = state.signals.some(s =>
+    s.signal === 'signal_coherence_peak' && s.timestamp > sixHoursAgo
+  )
+
+  if (allPrimaryActive && recentPositiveMood && !alreadyRecorded) {
+    recordSignalCoherencePeak(Array.from(windowSources))
+    return true
+  }
+  return false
 }

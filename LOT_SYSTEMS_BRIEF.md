@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.4
+**Document Version:** 2.5
 **Last Updated:** April 29, 2026
-**Status:** Production Active — Self-Assembly Phase v11
+**Status:** Production Active — Self-Assembly Phase v12
 
 ---
 
@@ -15,19 +15,21 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v11 — 26-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v12 — 30-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
 - Self-Assembly Engine — 14 modules build themselves from real engagement signals
+- Physiological Cohort Classifier — 9-archetype real-time QIE-native classifier (no server required): Peak Catalyst / Flowing Creator / Morning Visionary / Rising Builder / Seeking Sage / Evening Sage / Grounded Healer / Anxious Explorer / Depleted Guardian
 - Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
 - Daily OS Vitals Snapshot + QOS Coherence Report — server-side persisted vitals for cross-device OS continuity
 - Weekly Signal Diversity Audit — detects mono-source loops, computes signal diversity per user
-- Military-style Log Interface — structured telemetry across 33+ event types
+- Military-style Log Interface — structured telemetry across 37+ event types (PHY / COHR / IVEL / CPEAK added)
 - OS Journal View — persisted vitals timeline surfaced in System Progress widget
 - Full-Stack Session Detection — fires when memory + planner + selfcare all engage in 4h window; visible in Biofield State widget
-- Temporal Planner module — 14th self-assembly module, calendar signals now fully wired to QIE
+- Temporal Planner module — 14th self-assembly module, calendar signals fully wired to QIE
 - Journal depth → Reflection Layer — every note written advances the Reflection Layer assembly density
+- Background coherence monitors — intention velocity, signal coherence peak, and QOS diversity auto-check after every analysis cycle
 
 ---
 
@@ -121,7 +123,7 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (26 Types — v11):**
+**Pattern Recognition (30 Types — v12):**
 1. **Anxiety Pattern** — Multiple anxious moods → Self-care (confidence: 0.66–1.0)
 2. **Lack of Structure** — Tired + no planning → Planner (confidence: 0.7)
 3. **Seeking Direction** — No intention for weeks → Intentions (confidence: 0.8)
@@ -148,6 +150,10 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 24. **Log Depth Signal** — Deep entry (>100 words) without biofield check-in → Mood anchor (confidence: 0.68)
 25. **Full-Stack Session** — Memory + planner + selfcare in 4h window → Journal capture (confidence: 0.88)
 26. **Calendar Gap** — Planner active, no scheduled entries in 7 days → Anchor time (confidence: 0.65)
+27. **Journal Depth Gap** — Deep journal entry (≥100 words) with no memory capture within 1h → Extract insight (confidence: 0.70)
+28. **Sleep Debt Accumulation** — Late-night fatigue (22:00–02:00) repeating + morning fatigue → Rest protocol (confidence: 0.50–0.85)
+29. **Signal Coherence Window** — All 4 primary modules active in 6h window + positive state → Capture everything (confidence: 0.88)
+30. **Intention Velocity** — 3+ intention signals in 48h window → Structure now in Planner (confidence: 0.65–0.90)
 
 **Technical Specs:**
 - Signal retention: 7 days
@@ -609,6 +615,12 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Military Log v4: QOS / CAL / STACK handlers added
 - [x] Daily QOS coherence report (01:00 UTC) — cross-module engagement, full-stack detection, qos_snapshot log
 - [x] recordQOSSnapshot() + recordFullStackSession() + checkFullStackSession() helpers
+- [x] QIE v12 — patterns 27–30: journal-depth-gap, sleep-debt-accumulation, signal-coherence-window, intention-velocity
+- [x] classifyPhysiologicalCohort() — 9-archetype real-time classifier, no server required
+- [x] PhysiologicalReport.cohortClassification: live QIE-derived archetype in System Progress Report
+- [x] Background checks: checkIntentionVelocity() + checkSignalCoherencePeak() + recordQOSCoherence() wired into analysis
+- [x] Military Log v5: PHY / COHR / IVEL / CPEAK handlers added (37+ event types total)
+- [x] SystemProgressWidget USERSHIP_TRANSMISSION updated to v12
 
 ### Near-Term (Q2-Q3 2026)
 - [ ] Mobile app (React Native)

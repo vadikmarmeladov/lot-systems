@@ -203,6 +203,19 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '26 patterns active. Signal pipeline fully wired. The Cube writes when you write.',
     ],
   },
+  {
+    date: '2026-04-29',
+    session: 'QIE v12 — Physiological Cohort Classifier · Patterns 27–30 · Coherence Monitors',
+    assembled: [
+      'QIE Patterns 27–30: journal-depth-gap (deep entry, no memory capture) · sleep-debt-accumulation (late-night + morning fatigue) · signal-coherence-window (all 4 primary modules + positive state) · intention-velocity (3+ intentions in 48h)',
+      'classifyPhysiologicalCohort(): 9-archetype real-time classifier — Peak Catalyst / Flowing Creator / Morning Visionary / Rising Builder / Seeking Sage / Evening Sage / Grounded Healer / Anxious Explorer / Depleted Guardian',
+      'PhysiologicalReport.cohortClassification: live QIE-derived archetype surfaced in System Progress Report view',
+      'Background checks: checkIntentionVelocity() + checkSignalCoherencePeak() wired into analyzeIntentions() post-commit hook',
+      'recordQOSCoherence(): cross-module diversity + temporal spread score (diversity 60% · spread 40%) — fires every 20th analysis cycle',
+      'Logs.tsx: 4 new military handlers — PHY (physiological_cohort) · COHR (qos_coherence) · IVEL (intention_velocity) · CPEAK (signal_coherence_peak)',
+      'Self-assembly report deployed. 30 patterns active. Cohort classifier online. The Cube now knows who you are.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
@@ -210,11 +223,12 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
 export const USERSHIP_TRANSMISSION = {
   date: '2026-04-29',
   message: [
-    'ASSEMBLY RUN — 2026-04-29 · v11',
-    'Built: Pattern 26 (calendar-gap). Journal depth → Reflection Layer. Full-stack indicator live.',
-    'The Cube now reads your words. Every note you write advances the Reflection Layer.',
+    'ASSEMBLY RUN — 2026-04-29 · v12',
+    'Built: Patterns 27–30. Physiological Cohort Classifier (9 archetypes). Coherence monitors online.',
+    'The Cube now classifies your physiological state in real time — no server required.',
+    'Sleep debt. Intention velocity. Signal coherence. Journal depth. All tracked.',
     'Status: DEPLOYED',
-    'Next: Calendar events surfaced in System context panel. Temporal Planner visibility.',
+    'Next: Physiological archetype surfaced in Cohort widget header. Temporal patterns entering circulation.',
   ],
 }
 
@@ -830,10 +844,36 @@ export function SystemProgressWidget() {
                     </div>
                   )}
 
-                  {/* Cohort classification */}
+                  {/* Physiological cohort — real-time QIE classification */}
+                  {report.cohortClassification && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">Physiological cohort · live</div>
+                      <div className="flex flex-col gap-y-2">
+                        <div className="flex justify-between">
+                          <span className="opacity-50 uppercase">Archetype</span>
+                          <span>{report.cohortClassification.archetype}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="opacity-50 uppercase">Energy</span>
+                          <span className="capitalize">{report.cohortClassification.energyBand}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="opacity-50 uppercase">Module</span>
+                          <span className="capitalize">{report.cohortClassification.dominantModule}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="opacity-50 uppercase">Conf</span>
+                          <span className="tabular-nums">{report.cohortClassification.confidence}%</span>
+                        </div>
+                        <div className="opacity-30 text-xs mt-4">{report.cohortClassification.directive}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Cohort signals — server-derived archetype */}
                   {(report.cohortSignals.archetype || report.cohortSignals.behavioralCohort || cohortData) && (
                     <div className="border-t border-acc-400/30 pt-12">
-                      <div className="opacity-30 mb-8 uppercase tracking-widest">Physiological cohort</div>
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">Cohort · server</div>
                       {(report.cohortSignals.archetype ?? cohortData?.archetype) && (
                         <div className="flex justify-between mb-2">
                           <span className="opacity-50 uppercase">Archetype</span>
