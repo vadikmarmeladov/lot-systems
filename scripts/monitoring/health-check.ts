@@ -4,7 +4,7 @@ import path from 'path'
 
 dotenv.config({ path: path.join(process.cwd(), '.env') })
 
-interface HealthStatus {
+export interface HealthStatus {
   timestamp: string;
   database: {
     connected: boolean;
@@ -19,18 +19,33 @@ interface HealthStatus {
   };
 }
 
-async function checkHealth(): Promise<HealthStatus> {
-  const startTime = Date.now()
-  const sequelize = new Sequelize(process.env.DATABASE_URL!, {
-    dialect: 'postgres',
-    logging: false,
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false
+// Reuse a single connection across polls instead of opening/closing each time
+let sequelize: Sequelize | null = null
+
+function getSequelize(): Sequelize {
+  if (!sequelize) {
+    sequelize = new Sequelize(process.env.DATABASE_URL!, {
+      dialect: 'postgres',
+      logging: false,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false
+        }
       }
-    }
-  })
+    })
+  }
+  return sequelize
+}
+
+process.on('SIGINT', async () => {
+  if (sequelize) await sequelize.close()
+  process.exit(0)
+})
+
+export async function checkHealth(): Promise<HealthStatus> {
+  const startTime = Date.now()
+  const db = getSequelize()
 
   const status: HealthStatus = {
     timestamp: new Date().toISOString(),
@@ -46,19 +61,16 @@ async function checkHealth(): Promise<HealthStatus> {
   }
 
   try {
-    await sequelize.authenticate()
+    await db.authenticate()
     status.database.connected = true
     status.database.latency = Date.now() - startTime
 
-    // Check active connections
-    const [result] = await sequelize.query('SELECT count(*) as count FROM pg_stat_activity')
+    const [result] = await db.query('SELECT count(*) as count FROM pg_stat_activity')
     status.database.activeConnections = (result as any)[0].count
 
   } catch (error) {
     status.database.connected = false
     status.database.error = (error as Error).message
-  } finally {
-    await sequelize.close()
   }
 
   return status
@@ -67,7 +79,6 @@ async function checkHealth(): Promise<HealthStatus> {
 async function monitor() {
   try {
     const status = await checkHealth()
-    console.clear() // Clear console for better readability
     console.log('\n=== Database Health Monitor ===')
     console.log('Timestamp:', status.timestamp)
     console.log('\nDatabase:')

@@ -1,10 +1,10 @@
 import { checkHealth } from './health-check'
 import { monitorPool } from './pool-monitor'
 import blessed from 'blessed'
-import { create as createScreen } from 'blessed-contrib'
+import contrib from 'blessed-contrib'
 
 const screen = blessed.screen()
-const grid = createScreen({
+const grid = new contrib.grid({
   rows: 12,
   cols: 12,
   screen: screen

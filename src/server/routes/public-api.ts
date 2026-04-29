@@ -79,11 +79,11 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     // Check Node.js version is compatible
     const nodeVersion = process.version
     const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
-    if (majorVersion < 18) {
+    if (majorVersion < 20) {
       return {
         name: 'Engine stack',
         status: 'error',
-        message: `Node.js version ${nodeVersion} is too old (requires 18+)`,
+        message: `Node.js version ${nodeVersion} is too old (requires 20+)`,
         duration: Date.now() - start,
       }
     }
@@ -561,7 +561,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {
