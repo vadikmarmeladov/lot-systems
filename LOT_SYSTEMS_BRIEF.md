@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.3
-**Last Updated:** April 28, 2026
-**Status:** Production Active — Self-Assembly Phase v10
+**Document Version:** 2.4
+**Last Updated:** April 29, 2026
+**Status:** Production Active — Self-Assembly Phase v11
 
 ---
 
@@ -15,7 +15,7 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v10 — 25-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v11 — 26-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
@@ -25,8 +25,9 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - Weekly Signal Diversity Audit — detects mono-source loops, computes signal diversity per user
 - Military-style Log Interface — structured telemetry across 33+ event types
 - OS Journal View — persisted vitals timeline surfaced in System Progress widget
-- Full-Stack Session Detection — fires when memory + planner + selfcare all engage in 4h window
-- Temporal Planner module — 14th self-assembly module wired to calendar signal pipeline
+- Full-Stack Session Detection — fires when memory + planner + selfcare all engage in 4h window; visible in Biofield State widget
+- Temporal Planner module — 14th self-assembly module, calendar signals now fully wired to QIE
+- Journal depth → Reflection Layer — every note written advances the Reflection Layer assembly density
 
 ---
 
@@ -120,7 +121,7 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (25 Types — v10):**
+**Pattern Recognition (26 Types — v11):**
 1. **Anxiety Pattern** — Multiple anxious moods → Self-care (confidence: 0.66–1.0)
 2. **Lack of Structure** — Tired + no planning → Planner (confidence: 0.7)
 3. **Seeking Direction** — No intention for weeks → Intentions (confidence: 0.8)
@@ -142,6 +143,11 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 19. **Biofield Coherence Peak** — All 4 state dimensions positive within 3h → Memory capture (confidence: 0.9)
 20. **Nutritional Void** — No recipe signals for 3 days + depleting mood → Fuel system (confidence: 0.65)
 21. **Goal Drift** — Goal signals present but no planning follow-through in 3 days → Planner (confidence: 0.7)
+22. **Ecosystem Without Biofield** — Connected nodes, no check-in today → Mood widget (confidence: 0.72)
+23. **Cognitive Overload** — Journal + memory + planner load, no self-care → Rest (confidence: variable)
+24. **Log Depth Signal** — Deep entry (>100 words) without biofield check-in → Mood anchor (confidence: 0.68)
+25. **Full-Stack Session** — Memory + planner + selfcare in 4h window → Journal capture (confidence: 0.88)
+26. **Calendar Gap** — Planner active, no scheduled entries in 7 days → Anchor time (confidence: 0.65)
 
 **Technical Specs:**
 - Signal retention: 7 days
@@ -592,6 +598,12 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] QIE v7-9 — QOS widget surface, OS Journal field entries, physiological readiness on mount
 - [x] QuantumEngineWidgets promoted to QOS surface: ecosystem/biofield/cohort cycling views
 - [x] QIE v10 — patterns 22–25: ecosystem-without-biofield, cognitive-overload, log-depth-signal, full-stack-session
+- [x] QIE v11 — pattern 26: calendar-gap (planner active, no calendar entries in 7 days)
+- [x] CalendarWidget: QIE signal wired on entry creation — Temporal Planner module feeds from real activity
+- [x] QuantumStateWidget: full-stack session indicator in biofield state view
+- [x] Logs.tsx NoteEditor: journal depth signal on autosave — word count feeds Reflection Layer
+- [x] selfAssembly.ts: Reflection Layer depth bonus — deep entries (>100 words) count double for module density
+- [x] recordCalendarSignal() + recordJournalSignal() helpers added
 - [x] WIDGET_DEPENDENCY_MAP v5 — 34 nodes: calendarWidget + microImage added
 - [x] Self-Assembly Engine v4 — 14th module: Temporal Planner (calendar) wired to calendar signals
 - [x] Military Log v4: QOS / CAL / STACK handlers added

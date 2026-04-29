@@ -388,6 +388,12 @@ export function recomputeAssembly(): AssemblyState {
     })
   })
 
+  // Reflection Layer depth bonus: deep field entries (>100 words) count twice
+  // Journal word count directly feeds Reflection Layer assembly density
+  signals
+    .filter(s => s.source === 'log' && s.signal === 'field_entry' && (s.metadata?.wordCount ?? 0) > 100)
+    .forEach(s => moduleSignals['journal'].push(s))
+
   // Compute each module's assembly state
   const modules: AssembledModule[] = MODULE_DEFINITIONS.map(def => {
     const modSignals = moduleSignals[def.id]

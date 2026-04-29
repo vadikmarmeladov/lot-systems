@@ -21,6 +21,7 @@ import {
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { recordJournalSignal } from '#client/stores/intentionEngine'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -938,6 +939,12 @@ const NoteEditor = ({
     // This prevents race condition where user types more while save is in progress
     if (valueRef.current === debouncedValue) {
       setIsSaved(true)
+    }
+
+    // Record journal depth signal — feeds Reflection Layer assembly
+    const wc = debouncedValue.trim().split(/\s+/).filter(Boolean).length
+    if (wc >= 5) {
+      try { recordJournalSignal(wc) } catch (_) {}
     }
   }, [debouncedValue, onChange, log.text, primary])
 

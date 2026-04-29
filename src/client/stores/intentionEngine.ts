@@ -662,6 +662,23 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 26: Calendar gap — planner active but no scheduled entries in 7 days
+  const calendarEntrySignals = signals.filter(s =>
+    s.signal === 'calendar_entry' && s.timestamp > weekAgo
+  )
+  const sevenDayPlannerSignals = signals.filter(s =>
+    s.source === 'planner' && s.timestamp > weekAgo
+  )
+  if (calendarEntrySignals.length === 0 && sevenDayPlannerSignals.length >= 3 && signals.length >= 10) {
+    patterns.push({
+      pattern: 'calendar-gap',
+      confidence: 0.65,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'soon',
+      reason: 'Planner active. No scheduled events in 7 days. Plans exist but time is not anchored. Open the calendar.'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -1341,4 +1358,21 @@ export function checkFullStackSession(): boolean {
     }
   }
   return false
+}
+
+/**
+ * Record a calendar entry signal when a date entry is created.
+ * Wires the Temporal Planner module and feeds Pattern 26 (calendar-gap) detection.
+ */
+export function recordCalendarSignal(entryType: string, date: string) {
+  recordSignal('log', 'calendar_entry', { entryType, date, hour: new Date().getHours() })
+}
+
+/**
+ * Record a journal depth signal when a field entry is saved with word count.
+ * Feeds Reflection Layer (journal module) density in self-assembly.
+ * Deep entries (>100 words) awaken and advance the Reflection Layer faster.
+ */
+export function recordJournalSignal(wordCount: number) {
+  recordSignal('log', 'field_entry', { wordCount, hasContext: wordCount > 20, hour: new Date().getHours() })
 }

@@ -5,6 +5,7 @@ import { useCreateLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
+import { recordCalendarSignal } from '#client/stores/intentionEngine'
 
 type EntryType = 'note' | 'task' | 'call'
 
@@ -112,6 +113,7 @@ export function CalendarWidget() {
     }, {
       onSuccess: () => {
         queryClient.invalidateQueries(['/api/logs'])
+        try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
       },
     })
 

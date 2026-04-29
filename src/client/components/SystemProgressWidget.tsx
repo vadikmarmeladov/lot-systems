@@ -190,18 +190,31 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'All 25 patterns active. 34 dependency nodes mapped. 14 modules online.',
     ],
   },
+  {
+    date: '2026-04-29',
+    session: 'QIE v11 — Journal depth · Calendar signal · Full-stack indicator · Pattern 26',
+    assembled: [
+      'QIE Pattern 26: calendar-gap — planner active but no calendar entries in 7 days → surfaces time without anchor',
+      'CalendarWidget: QIE signal now recorded on entry creation — Temporal Planner module feeds from real calendar activity',
+      'QuantumStateWidget: full-stack session indicator in biofield state view — visible when memory+planner+selfcare fire in 4h window',
+      'Logs.tsx NoteEditor: journal depth signal recorded on autosave — word count feeds Reflection Layer assembly density',
+      'selfAssembly.ts: Reflection Layer depth bonus — deep entries (>100 words) count twice for module density',
+      'recordCalendarSignal() + recordJournalSignal() helpers added to intentionEngine',
+      '26 patterns active. Signal pipeline fully wired. The Cube writes when you write.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-28',
+  date: '2026-04-29',
   message: [
-    'ASSEMBLY RUN — 2026-04-28 · v10',
-    'Built: 2 new QIE patterns. 14th module online. QOS coherence job running nightly.',
-    'Full-stack session detection live. Calendar module wired. Readiness surfaced in cohort view.',
+    'ASSEMBLY RUN — 2026-04-29 · v11',
+    'Built: Pattern 26 (calendar-gap). Journal depth → Reflection Layer. Full-stack indicator live.',
+    'The Cube now reads your words. Every note you write advances the Reflection Layer.',
     'Status: DEPLOYED',
-    'Next: OS Journal entry count as assembly signal — journal depth feeds Reflection Layer module.',
+    'Next: Calendar events surfaced in System context panel. Temporal Planner visibility.',
   ],
 }
 
