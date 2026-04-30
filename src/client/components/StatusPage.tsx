@@ -102,12 +102,25 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
   const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
     switch (checkStatus) {
-      case 'ok':
-        return '✓'
-      case 'error':
-        return '✕'
-      case 'unknown':
-        return '?'
+      case 'ok':    return '●'
+      case 'error': return '●'
+      case 'unknown': return '●'
+    }
+  }
+
+  const getStatusColorClass = (checkStatus: 'ok' | 'error' | 'unknown') => {
+    switch (checkStatus) {
+      case 'ok':      return 'text-acc'
+      case 'error':   return 'text-acc/30'
+      case 'unknown': return 'text-acc/20'
+    }
+  }
+
+  const getOverallBadge = (overall: 'ok' | 'degraded' | 'error') => {
+    switch (overall) {
+      case 'ok':       return { label: 'All systems operational', dot: 'text-acc' }
+      case 'degraded': return { label: 'Degraded performance',   dot: 'text-acc/50' }
+      case 'error':    return { label: 'System issues detected', dot: 'text-acc/20' }
     }
   }
 
@@ -152,9 +165,15 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
         <>
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+              {(() => {
+                const badge = getOverallBadge(status.overall)
+                return (
+                  <span className="inline-flex items-center gap-x-8">
+                    <span className={badge.dot}>●</span>
+                    <span>{badge.label}</span>
+                  </span>
+                )
+              })()}
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
@@ -190,17 +209,16 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
-                  <span className={cn(
-                    check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
-                  )}>
-                    {check.status === 'ok' ? 'Ok' :
-                     check.status === 'error' ? 'Error' :
+                  <span className={getStatusColorClass(check.status)}>
+                    {getStatusIcon(check.status)}
+                  </span>
+                  <span className={getStatusColorClass(check.status)}>
+                    {check.status === 'ok' ? 'Operational' :
+                     check.status === 'error' ? 'Degraded' :
                      'Unknown'}
                   </span>
                   {check.duration !== undefined && (
-                    <span className="text-acc/40">({check.duration}ms)</span>
+                    <span className="text-acc/30">{check.duration}ms</span>
                   )}
                 </div>
                 {check.message && (

@@ -264,6 +264,47 @@ async function checkMemory(): Promise<SystemCheck> {
   }
 }
 
+async function checkAIStack(): Promise<SystemCheck> {
+  const start = Date.now()
+  try {
+    const status = aiEngineManager.getStatus()
+    const availableEngines = Object.values(status).filter((e) => e.available)
+    const totalEngines = Object.values(status).length
+
+    if (availableEngines.length === 0) {
+      return {
+        name: 'AI Stack',
+        status: 'error',
+        message: 'No AI engines available — check API keys',
+        duration: Date.now() - start,
+      }
+    }
+
+    if (availableEngines.length < totalEngines) {
+      return {
+        name: 'AI Stack',
+        status: 'ok',
+        message: `${availableEngines.length}/${totalEngines} engines active (${availableEngines.map((e) => e.name).join(', ')})`,
+        duration: Date.now() - start,
+      }
+    }
+
+    return {
+      name: 'AI Stack',
+      status: 'ok',
+      message: `All ${totalEngines} engines active`,
+      duration: Date.now() - start,
+    }
+  } catch (error: any) {
+    return {
+      name: 'AI Stack',
+      status: 'error',
+      message: error?.message || 'AI stack check failed',
+      duration: Date.now() - start,
+    }
+  }
+}
+
 async function checkSystems(): Promise<SystemCheck> {
   const start = Date.now()
   try {
@@ -343,11 +384,14 @@ async function performHealthChecks(): Promise<{
     checkWeatherAPI(),
     checkDatabase(),
     checkMemory(),
+    checkAIStack(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Determine overall status: error if critical checks fail, degraded if non-critical
+  const criticalChecks = ['Database stack', 'Authentication engine', 'Systems']
+  const hasErrors = checks.some((c) => c.status === 'error' && criticalChecks.includes(c.name))
+  const hasDegraded = !hasErrors && checks.some((c) => c.status === 'error')
+  const overall: 'ok' | 'degraded' | 'error' = hasErrors ? 'error' : hasDegraded ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -561,7 +605,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {
