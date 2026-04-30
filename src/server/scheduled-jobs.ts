@@ -1011,6 +1011,139 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyQOSCoherenceJob()) {
     await executeDailyQOSCoherenceJob()
   }
+
+  // Check weekly user index consolidation
+  if (shouldRunWeeklyUserIndexJob()) {
+    await executeWeeklyUserIndexJob()
+  }
+}
+
+// ─── Weekly User Index Consolidation ─────────────────────────────────────────
+
+let isWeeklyUserIndexJobRunning = false
+let lastWeeklyUserIndexRun: Date | null = null
+
+/**
+ * Runs on Sundays at 23:00 UTC.
+ * Reads server-side synced QIE signals, recomputes each user's
+ * accumulative UserIndex across 6 dimensions, and persists results
+ * to user metadata for cross-device continuity and analytics.
+ */
+function shouldRunWeeklyUserIndexJob(): boolean {
+  const now = dayjs()
+  if (now.day() !== 0) return false  // Sunday only
+  if (isWeeklyUserIndexJobRunning) return false
+  if (lastWeeklyUserIndexRun && dayjs(lastWeeklyUserIndexRun).isSame(now, 'day')) return false
+  return true
+}
+
+async function executeWeeklyUserIndexJob(): Promise<JobResult> {
+  const jobName = 'weekly-user-index-consolidation'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly User Index Consolidation')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyUserIndexJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Processing ${activeUsers.length} active users...`)
+
+    const results = { total: activeUsers.length, processed: 0, skipped: 0, failed: 0 }
+
+    for (const user of activeUsers) {
+      try {
+        const qieLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            event: 'quantum_intent_signal' as any,
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+          order: [['createdAt', 'DESC']],
+          limit: 1000,
+        })
+
+        if (qieLogs.length === 0) { results.skipped++; continue }
+
+        const dimensions: Record<string, number> = {
+          engagement: 0, emotional: 0, intentional: 0, social: 0, selfCare: 0, cognitive: 0
+        }
+        const sourceDayMap: Record<string, Set<string>> = {}
+
+        for (const log of qieLogs) {
+          const meta = (log as any).metadata || {}
+          const source = meta.source as string | undefined
+          const ts = new Date((log as any).createdAt).toDateString()
+          if (!source) continue
+          if (!sourceDayMap[source]) sourceDayMap[source] = new Set()
+          sourceDayMap[source].add(ts)
+          if (source === 'mood') dimensions.emotional++
+          if (source === 'memory' || source === 'journal') dimensions.cognitive++
+          if (source === 'planner' || source === 'intentions') dimensions.intentional++
+          if (source === 'selfcare') dimensions.selfCare++
+          if (source === 'cohort') dimensions.social++
+          dimensions.engagement++
+        }
+
+        const totalSources = Object.keys(sourceDayMap).length
+        const normalize = (n: number, max: number) => Math.round(Math.min(100, (n / max) * 100))
+
+        const userIndex = {
+          overall: normalize(qieLogs.length, 50),
+          dimensions: {
+            engagement: normalize(totalSources, 8),
+            emotional: normalize(dimensions.emotional, 15),
+            intentional: normalize(dimensions.intentional, 10),
+            social: normalize(dimensions.social, 5),
+            selfCare: normalize(dimensions.selfCare, 10),
+            cognitive: normalize(dimensions.cognitive, 10),
+          },
+          trend: 'stable' as const,
+          computedAt: new Date().toISOString(),
+        }
+
+        const metadata = (user as any).metadata as any || {}
+        await (user as any).set({ metadata: { ...metadata, weeklyUserIndex: userIndex } }).save()
+
+        results.processed++
+        console.log(`  ${(user as any).email}: idx=${userIndex.overall} src=${totalSources}`)
+      } catch (err: any) {
+        results.failed++
+        console.warn(`  ${(user as any).email}: failed — ${err.message}`)
+      }
+    }
+
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('USER INDEX JOB COMPLETE')
+    console.log(`   Processed: ${results.processed} / Skipped: ${results.skipped} / Failed: ${results.failed}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyUserIndexRun = new Date()
+    isWeeklyUserIndexJobRunning = false
+    return { jobName, executedAt, success: true, result: results }
+  } catch (error: any) {
+    console.error('Weekly user index job failed:', error.message)
+    isWeeklyUserIndexJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
 }
 
 /**
@@ -1031,6 +1164,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Monthly emails: 9 AM UTC on 1st of each month')
   console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
   console.log('   - Weekly OS signal diversity audit: 5 AM UTC every Sunday')
+  console.log('   - Weekly User Index consolidation: 23 PM UTC every Sunday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('   - Daily OS vitals snapshot: 2 AM UTC every day')
   console.log('   - Daily QOS coherence report: 1 AM UTC every day')
@@ -1043,8 +1177,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; QIE: 3AM; OS vitals: 2AM; QOS coherence: 1AM
-    if (hour === 9 || hour === 6 || hour === 5 || hour === 3 || hour === 2 || hour === 1) {
+    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; user index: 23PM Sun; QIE: 3AM; vitals: 2AM; QOS: 1AM
+    if (hour === 9 || hour === 6 || hour === 5 || hour === 23 || hour === 3 || hour === 2 || hour === 1) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

@@ -1197,6 +1197,22 @@ export function getWidgetsDependingOn(source: string): string[] {
     .map(([widget]) => widget)
 }
 
+/**
+ * Returns the dependency tier (depth from raw inputs) for a widget.
+ * Tier 0 = no function in map. Tier 1 = raw inputs (no deps). Each hop = +1.
+ * Enables cascade ordering: flush Tier 1 before Tier 2, etc.
+ */
+const _tierCache: Record<string, number> = {}
+export function getWidgetTier(widget: string): number {
+  if (_tierCache[widget] !== undefined) return _tierCache[widget]
+  const deps = WIDGET_DEPENDENCY_MAP[widget]
+  if (!deps) { _tierCache[widget] = 0; return 0 }
+  if (deps.length === 0) { _tierCache[widget] = 1; return 1 }
+  const tier = 1 + Math.max(...deps.map(d => getWidgetTier(d)))
+  _tierCache[widget] = tier
+  return tier
+}
+
 export type PhysiologicalCohort = {
   label: string
   energyBand: 'depleted' | 'low' | 'moderate' | 'high'

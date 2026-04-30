@@ -218,6 +218,20 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'mood_checkin') {
+          const mood = log.metadata?.mood as string | undefined
+          const checkInType = log.metadata?.checkInType as string | undefined
+          const sector =
+            checkInType === 'morning' ? '0600' :
+            checkInType === 'evening' ? '1800' :
+            'SPOT'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={`BIO [${sector}]:`} blockView>
+                <div className="uppercase tracking-widest">{mood || '—'}</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'emotional_checkin') {
           const emotionalState = log.metadata?.emotionalState as string
           const checkInType = log.metadata?.checkInType as string
@@ -935,6 +949,30 @@ export const Logs: React.FC = () => {
                 {windowHours !== undefined && (
                   <div className="opacity-30 uppercase tracking-widest text-xs">WIN {windowHours}H</div>
                 )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'scheduled_job') {
+          const jobName = log.metadata?.jobName as string | undefined
+          const success = log.metadata?.success as boolean | undefined
+          const totalSignals = log.metadata?.result?.totalSignals as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="JOB:" blockView>
+                <div className="flex flex-col gap-y-2">
+                  {jobName && (
+                    <div className="uppercase tracking-widest opacity-60 text-xs">
+                      {jobName.replace(/-/g, ' ')}
+                    </div>
+                  )}
+                  <div className="uppercase tracking-widest">
+                    {success === true ? 'OK' : success === false ? 'ERR' : '—'}
+                  </div>
+                  {totalSignals !== undefined && (
+                    <div className="opacity-30 text-xs uppercase tracking-widest">SIG {totalSignals}</div>
+                  )}
+                  {log.text && <div className="opacity-40 text-xs">{log.text}</div>}
+                </div>
               </Block>
             </LogContainer>
           )

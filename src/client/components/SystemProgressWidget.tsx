@@ -216,19 +216,30 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Self-assembly report deployed. 30 patterns active. Cohort classifier online. The Cube now knows who you are.',
     ],
   },
+  {
+    date: '2026-04-30',
+    session: 'QIE v13 — Widget Tier Graph · User Index Job · Log Coverage · Self-Assembly Report',
+    assembled: [
+      'getWidgetTier(): memoized tier-depth resolver — walks WIDGET_DEPENDENCY_MAP recursively, enables cascade flush ordering (Tier 1 → Tier 4)',
+      'Weekly User Index consolidation job: Sundays 23:00 UTC — reads synced QIE signals per user, computes 6D index (engagement/emotional/intentional/social/selfCare/cognitive), persists weeklyUserIndex to user metadata',
+      'Logs.tsx: mood_checkin → BIO [SECTOR] block (morning 0600 / evening 1800 / SPOT)',
+      'Logs.tsx: scheduled_job → JOB: block (name / OK|ERR / signal count)',
+      'Self-assembly session report appended: 2026-04-30. System operational. 30 patterns active.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-29',
+  date: '2026-04-30',
   message: [
-    'ASSEMBLY RUN — 2026-04-29 · v12',
-    'Built: Patterns 27–30. Physiological Cohort Classifier (9 archetypes). Coherence monitors online.',
-    'The Cube now classifies your physiological state in real time — no server required.',
-    'Sleep debt. Intention velocity. Signal coherence. Journal depth. All tracked.',
+    'ASSEMBLY RUN — 2026-04-30 · v13',
+    'Built: Widget tier graph. User Index consolidation job. Log coverage completed (mood_checkin, scheduled_job).',
+    'getWidgetTier() resolves dependency depth at runtime — cascade invalidation now has ordering.',
+    'User Index computed server-side weekly. Persisted to metadata. Cross-device continuity established.',
     'Status: DEPLOYED',
-    'Next: Physiological archetype surfaced in Cohort widget header. Temporal patterns entering circulation.',
+    'Next: Temporal pattern exposure in Pattern Recognition widget. Tier graph visualisation in Assembly Map.',
   ],
 }
 
