@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.5
-**Last Updated:** April 29, 2026
-**Status:** Production Active — Self-Assembly Phase v12
+**Document Version:** 2.6
+**Last Updated:** April 30, 2026
+**Status:** Production Active — Self-Assembly Phase v13
 
 ---
 
@@ -15,12 +15,12 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v12 — 30-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v13 — 30-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
 - Self-Assembly Engine — 14 modules build themselves from real engagement signals
-- Physiological Cohort Classifier — 9-archetype real-time QIE-native classifier (no server required): Peak Catalyst / Flowing Creator / Morning Visionary / Rising Builder / Seeking Sage / Evening Sage / Grounded Healer / Anxious Explorer / Depleted Guardian
+- Physiological Cohort Classifier — 9-archetype real-time QIE-native classifier surfaced in Cohort widget header (no server required): Peak Catalyst / Flowing Creator / Morning Visionary / Rising Builder / Seeking Sage / Evening Sage / Grounded Healer / Anxious Explorer / Depleted Guardian
 - Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
 - Daily OS Vitals Snapshot + QOS Coherence Report — server-side persisted vitals for cross-device OS continuity
 - Weekly Signal Diversity Audit — detects mono-source loops, computes signal diversity per user
@@ -621,6 +621,10 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Background checks: checkIntentionVelocity() + checkSignalCoherencePeak() + recordQOSCoherence() wired into analysis
 - [x] Military Log v5: PHY / COHR / IVEL / CPEAK handlers added (37+ event types total)
 - [x] SystemProgressWidget USERSHIP_TRANSMISSION updated to v12
+- [x] QIE v13 — CohortConnectWidget: live physiological archetype surfaced as widget header via classifyPhysiologicalCohort()
+- [x] CohortConnectWidget: view cycling added — Cohort: (member list + archetype lead) ↔ Archetype: (full live classification)
+- [x] Archetype view: energy band, dominant module, confidence, directive from QIE-native classifier; server profile shown below for comparison
+- [x] SystemProgressWidget USERSHIP_TRANSMISSION updated to v13
 
 ### Near-Term (Q2-Q3 2026)
 - [ ] Mobile app (React Native)

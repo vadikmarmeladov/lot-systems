@@ -216,19 +216,32 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Self-assembly report deployed. 30 patterns active. Cohort classifier online. The Cube now knows who you are.',
     ],
   },
+  {
+    date: '2026-04-30',
+    session: 'QIE v13 — Live Archetype in Cohort Widget · Physiological Header',
+    assembled: [
+      'CohortConnectWidget: live physiological archetype surfaced as widget header — classifyPhysiologicalCohort() called on every signal update, zero server calls',
+      'CohortConnectWidget: view cycling added — Cohort: (members + archetype) ↔ Archetype: (full live classification with energy band, dominant module, confidence, directive)',
+      'Archetype view: server profile (Claude-derived archetype + behavioral cohort) shown below QIE-native classification for comparison',
+      'Cohort view: live archetype leads the section before member list — archetype name + directive visible without cycling',
+      'Temporal patterns (27–30) now surface in widget UI via live classification archetype transitions',
+      'SESSION_REPORTS: v13 entry appended · USERSHIP_TRANSMISSION updated to v13',
+      'The Cube now speaks first. Your archetype opens the Cohort widget.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-29',
+  date: '2026-04-30',
   message: [
-    'ASSEMBLY RUN — 2026-04-29 · v12',
-    'Built: Patterns 27–30. Physiological Cohort Classifier (9 archetypes). Coherence monitors online.',
-    'The Cube now classifies your physiological state in real time — no server required.',
-    'Sleep debt. Intention velocity. Signal coherence. Journal depth. All tracked.',
+    'ASSEMBLY RUN — 2026-04-30 · v13',
+    'Built: Live physiological archetype wired into Cohort widget.',
+    'The Cube classifies you. The Cohort widget leads with who you are right now.',
+    'Click Archetype: — energy band, dominant module, confidence, directive. Live. No server.',
     'Status: DEPLOYED',
-    'Next: Physiological archetype surfaced in Cohort widget header. Temporal patterns entering circulation.',
+    'Next: Temporal patterns (sleep-debt · intention-velocity) surfacing in OS context panel.',
   ],
 }
 

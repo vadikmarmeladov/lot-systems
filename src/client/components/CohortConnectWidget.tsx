@@ -5,7 +5,7 @@ import { Block, Button } from '#client/components/ui'
 import { useCohorts, useEnergy, useProfile } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
-import { recordSignal, getUserState } from '#client/stores/intentionEngine'
+import { recordSignal, getUserState, intentionEngine, classifyPhysiologicalCohort, type PhysiologicalCohortClassification } from '#client/stores/intentionEngine'
 
 /**
  * Cohort Connect Widget - Find and connect with cohort members
@@ -20,9 +20,22 @@ export const CohortConnectWidget: React.FC = () => {
   const { data: energyData } = useEnergy()
   const { data: profileData } = useProfile()
   const [expandedMemberId, setExpandedMemberId] = React.useState<string | null>(null)
+  const [view, setView] = React.useState<'cohort' | 'archetype'>('cohort')
   const logCtx = useLogContext()
   const punctuation = usePunctuationContext()
   const hasRecordedRef = React.useRef(false)
+
+  // Live QIE-native physiological cohort classification — no server required
+  const engine = useStore(intentionEngine)
+  const liveArchetype = React.useMemo<PhysiologicalCohortClassification | null>(() => {
+    try {
+      return classifyPhysiologicalCohort(engine.signals, engine.userState, engine.recognizedPatterns)
+    } catch (_) {
+      return null
+    }
+  }, [engine.signals, engine.userState, engine.recognizedPatterns])
+
+  const cycleView = () => setView(prev => prev === 'cohort' ? 'archetype' : 'cohort')
 
   // Resolved physiological classification from profile (server-derived archetype)
   const physiologicalArchetype = profileData?.archetype
@@ -144,152 +157,209 @@ export const CohortConnectWidget: React.FC = () => {
               : null
 
   return (
-    <Block label="Cohort:" blockView>
+    <Block label={view === 'cohort' ? 'Cohort:' : 'Archetype:'} blockView onLabelClick={cycleView}>
       <div>
-        {/* Physiological classification */}
-        {(physiologicalArchetype || physiologicalCohort) && (
-          <div className="mb-16">
-            <div className="opacity-30 mb-4 uppercase tracking-widest text-xs">Physiological profile</div>
-            <div className="flex flex-col gap-y-4">
-              {physiologicalArchetype && (
-                <div className="flex justify-between items-baseline">
-                  <span className="opacity-30">Archetype</span>
-                  <span>{physiologicalArchetype}</span>
+
+        {/* ─── Archetype view — live QIE physiological classification ─── */}
+        {view === 'archetype' && (
+          <div className="flex flex-col gap-y-16">
+            {liveArchetype ? (
+              <>
+                <div>
+                  <div className="opacity-30 mb-4 uppercase tracking-widest text-xs">Live classification</div>
+                  <div className="mb-8">{liveArchetype.archetype}</div>
+                  <div className="opacity-40">{liveArchetype.directive}</div>
                 </div>
-              )}
-              {physiologicalCohort && (
-                <div className="flex justify-between items-baseline">
-                  <span className="opacity-30">Cohort</span>
-                  <span>{physiologicalCohort}</span>
+
+                <div className="border-t border-acc-400/30 pt-16 flex flex-col gap-y-4">
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">Energy band</span>
+                    <span className="capitalize">{liveArchetype.energyBand}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">Dominant module</span>
+                    <span className="capitalize">{liveArchetype.dominantModule}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">Confidence</span>
+                    <span className="tabular-nums">{liveArchetype.confidence}%</span>
+                  </div>
                 </div>
-              )}
-              {energyLevel !== undefined && (
-                <div className="flex justify-between items-baseline">
-                  <span className="opacity-30">ATP</span>
-                  <span className="tabular-nums">
-                    {energyLevel}%
-                    {energyTrajectory && (
-                      <span className="opacity-30 ml-8 capitalize">{energyTrajectory}</span>
+
+                {(physiologicalArchetype || physiologicalCohort) && (
+                  <div className="border-t border-acc-400/30 pt-16 flex flex-col gap-y-4">
+                    <div className="opacity-30 mb-4 uppercase tracking-widest text-xs">Server profile</div>
+                    {physiologicalArchetype && (
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-30">Archetype</span>
+                        <span>{physiologicalArchetype}</span>
+                      </div>
                     )}
-                  </span>
+                    {physiologicalCohort && (
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-30">Cohort</span>
+                        <span>{physiologicalCohort}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="opacity-30">Classifying physiological state from signals.</div>
+            )}
+          </div>
+        )}
+
+        {/* ─── Cohort view — member list with live archetype header ─── */}
+        {view === 'cohort' && (
+          <>
+            {/* Live QIE archetype — surfaces real-time classification at top */}
+            {liveArchetype && (
+              <div className="mb-16">
+                <div className="opacity-30 mb-4 uppercase tracking-widest text-xs">Live archetype</div>
+                <div className="mb-4">{liveArchetype.archetype}</div>
+                <div className="opacity-30">{liveArchetype.directive}</div>
+              </div>
+            )}
+
+            {/* Server physiological classification — secondary */}
+            {(physiologicalArchetype || physiologicalCohort) && (
+              <div className="mb-16">
+                <div className="flex flex-col gap-y-4">
+                  {physiologicalArchetype && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-30">Archetype</span>
+                      <span>{physiologicalArchetype}</span>
+                    </div>
+                  )}
+                  {physiologicalCohort && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-30">Cohort</span>
+                      <span>{physiologicalCohort}</span>
+                    </div>
+                  )}
+                  {energyLevel !== undefined && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-30">ATP</span>
+                      <span className="tabular-nums">
+                        {energyLevel}%
+                        {energyTrajectory && (
+                          <span className="opacity-30 ml-8 capitalize">{energyTrajectory}</span>
+                        )}
+                      </span>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
+            )}
+
+            {/* Behavioral cohort name */}
+            <div className="mb-16">
+              <div className="opacity-30 mb-4">Behavioral cohort</div>
+              <div className="capitalize">{cohort}</div>
             </div>
-          </div>
-        )}
 
-        {/* Cohort name */}
-        <div className="mb-16">
-          <div className="opacity-30 mb-4">Behavioral cohort</div>
-          <div className="capitalize">{cohort}</div>
-        </div>
+            {/* Connection context from user state */}
+            {connectionContext && (
+              <div className="mb-16 opacity-30">
+                {connectionContext}
+              </div>
+            )}
 
-        {/* Connection context from user state */}
-        {connectionContext && (
-          <div className="mb-16 opacity-30">
-            {connectionContext}
-          </div>
-        )}
+            {/* Total members */}
+            <div className="mb-16">
+              {matches.length} {matches.length === 1 ? 'member' : 'members'} with shared patterns
+            </div>
 
-        {/* Total members */}
-        <div className="mb-16">
-          {matches.length} {matches.length === 1 ? 'member' : 'members'} with shared patterns
-        </div>
+            {/* Member list */}
+            <div className="space-y-4">
+              {topMatches.map((match) => {
+                const isExpanded = expandedMemberId === match.user.id
+                const similarity = Math.round(match.similarity * 100)
 
-        {/* Member list - minimal */}
-        <div className="space-y-4">
-          {topMatches.map((match) => {
-            const isExpanded = expandedMemberId === match.user.id
-            const similarity = Math.round(match.similarity * 100)
-
-            return (
-              <div
-                key={match.user.id}
-                className="border-t border-acc/10 pt-8 first:border-t-0 first:pt-0"
-              >
-                {/* Member header - clickable */}
-                <div
-                  className="flex items-start justify-between cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
-                  onClick={() => handleToggleExpand(match.user.id)}
-                >
-                  <div className="flex-1">
-                    <div className="mb-4">
-                      {match.user.firstName} {match.user.lastName?.charAt(0)}.
-                    </div>
-                    <div>
-                      {match.user.city || 'Location unknown'} • {similarity}% match
-                    </div>
-                  </div>
-
-                  <div>
-                    {isExpanded ? '−' : '+'}
-                  </div>
-                </div>
-
-                {/* Expanded details */}
-                {isExpanded && (
-                  <div className="mt-8 ml-4 space-y-8">
-                    {/* Shared patterns */}
-                    {match.sharedPatterns.length > 0 && (
+                return (
+                  <div
+                    key={match.user.id}
+                    className="border-t border-acc/10 pt-8 first:border-t-0 first:pt-0"
+                  >
+                    <div
+                      className="flex items-start justify-between cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
+                      onClick={() => handleToggleExpand(match.user.id)}
+                    >
+                      <div className="flex-1">
+                        <div className="mb-4">
+                          {match.user.firstName} {match.user.lastName?.charAt(0)}.
+                        </div>
+                        <div>
+                          {match.user.city || 'Location unknown'} • {similarity}% match
+                        </div>
+                      </div>
                       <div>
-                        <div className="mb-4">Shared patterns</div>
-                        <div className="space-y-2">
-                          {match.sharedPatterns.slice(0, 3).map((pattern, i) => (
-                            <div key={i}>. {pattern}</div>
-                          ))}
+                        {isExpanded ? '−' : '+'}
+                      </div>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="mt-8 ml-4 space-y-8">
+                        {match.sharedPatterns.length > 0 && (
+                          <div>
+                            <div className="mb-4">Shared patterns</div>
+                            <div className="space-y-2">
+                              {match.sharedPatterns.slice(0, 3).map((pattern, i) => (
+                                <div key={i}>. {pattern}</div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        <div className="flex gap-4">
+                          <Button
+                            size="small"
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation()
+                              handleViewProfile(match.user.id, match.similarity)
+                            }}
+                          >
+                            View profile
+                          </Button>
+                          <Button
+                            size="small"
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation()
+                              handleSendMessage(match.user.id, match.similarity)
+                            }}
+                          >
+                            Send message
+                          </Button>
                         </div>
                       </div>
                     )}
-
-                    {/* Actions */}
-                    <div className="flex gap-4">
-                      <Button
-                        size="small"
-                        onClick={(e: React.MouseEvent) => {
-                          e.stopPropagation()
-                          handleViewProfile(match.user.id, match.similarity)
-                        }}
-                      >
-                        View profile
-                      </Button>
-                      <Button
-                        size="small"
-                        onClick={(e: React.MouseEvent) => {
-                          e.stopPropagation()
-                          handleSendMessage(match.user.id, match.similarity)
-                        }}
-                      >
-                        Send message
-                      </Button>
-                    </div>
                   </div>
-                )}
-              </div>
-            )
-          })}
-        </div>
+                )
+              })}
+            </div>
 
-        {/* View all link */}
-        {matches.length > 5 && (
-          <div className="mt-16">
-            <button
-              onClick={() => window.location.href = '/community'}
-              className="hover:opacity-100 transition-opacity"
-            >
-              View all {matches.length} members
-            </button>
-          </div>
+            {matches.length > 5 && (
+              <div className="mt-16">
+                <button
+                  onClick={() => window.location.href = '/community'}
+                  className="hover:opacity-100 transition-opacity"
+                >
+                  View all {matches.length} members
+                </button>
+              </div>
+            )}
+
+            <div className="mt-16 opacity-30">
+              {punctuation.sampleSize > 0 && punctuation.aggregate.tone !== 'flat'
+                ? `Matched on ${logCtx.widgetDiversity || 1} dimensions · voice: ${punctuation.aggregate.tone}.`
+                : !logCtx.isEmpty && logCtx.widgetDiversity >= 3
+                  ? `Matched on ${logCtx.widgetDiversity} behavioral dimensions.`
+                  : 'Connections based on shared patterns.'
+              }
+            </div>
+          </>
         )}
 
-        {/* Log-context-grounded cohort insight */}
-        <div className="mt-16 opacity-30">
-          {punctuation.sampleSize > 0 && punctuation.aggregate.tone !== 'flat'
-            ? `Matched on ${logCtx.widgetDiversity || 1} dimensions · voice: ${punctuation.aggregate.tone}.`
-            : !logCtx.isEmpty && logCtx.widgetDiversity >= 3
-              ? `Matched on ${logCtx.widgetDiversity} behavioral dimensions.`
-              : 'Connections based on shared patterns.'
-          }
-        </div>
       </div>
     </Block>
   )
