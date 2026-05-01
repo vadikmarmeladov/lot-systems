@@ -61,6 +61,17 @@ export function PatternRecognitionWidget() {
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
 
+  // How long a pattern has been continuously active this session
+  const formatPatternAge = (detectedAt: number): string => {
+    const ms = Date.now() - detectedAt
+    if (ms < 60_000) return 'Active · <1m'
+    const minutes = Math.floor(ms / 60_000)
+    if (minutes < 60) return `Active · ${minutes}m`
+    const hours = Math.floor(minutes / 60)
+    const remainingMin = minutes % 60
+    return remainingMin > 0 ? `Active · ${hours}h ${remainingMin}m` : `Active · ${hours}h`
+  }
+
   // Timing labels
   const getTimingLabel = (timing: string): string => {
     const labels: Record<string, string> = {
@@ -102,7 +113,14 @@ export function PatternRecognitionWidget() {
                 .sort((a, b) => b.confidence - a.confidence)
                 .map((pattern, idx) => (
                   <div key={idx}>
-                    <div className="mb-4">{getPatternName(pattern.pattern)}</div>
+                    <div className="flex justify-between items-baseline mb-4">
+                      <span>{getPatternName(pattern.pattern)}</span>
+                      {pattern.detectedAt && (
+                        <span className="opacity-30 text-xs tabular-nums">
+                          {formatPatternAge(pattern.detectedAt)}
+                        </span>
+                      )}
+                    </div>
                     <div className="flex items-center gap-8 mb-4">
                       <ProgressBars percentage={pattern.confidence * 100} barCount={10} />
                       <span className="opacity-30">{Math.round(pattern.confidence * 100)}%</span>

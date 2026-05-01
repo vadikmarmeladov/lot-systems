@@ -5,7 +5,7 @@ import * as stores from '#client/stores'
 import { ProgressBars } from '#client/utils/progressBars'
 import { selfAssembly, phaseSymbol, phaseLabel, recomputeAssembly, type AssembledModule } from '#client/stores/selfAssembly'
 import { useEnergy, useLogs } from '#client/queries'
-import { getPhysiologicalReport, analyzeIntentions, type PhysiologicalReport } from '#client/stores/intentionEngine'
+import { getPhysiologicalReport, analyzeIntentions, type PhysiologicalReport, WIDGET_DEPENDENCY_MAP, getWidgetTier } from '#client/stores/intentionEngine'
 
 type FeedbackStatus = 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
 
@@ -227,19 +227,32 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Self-assembly session report appended: 2026-04-30. System operational. 30 patterns active.',
     ],
   },
+  {
+    date: '2026-05-01',
+    session: 'QIE v14 — Temporal Pattern Exposure · Widget Tier Graph · Pattern Clock',
+    assembled: [
+      'IntentionPattern.detectedAt: Unix ms timestamp added — first detection preserved across re-analysis cycles via post-processing map',
+      'analyzeIntentions(): Omit<IntentionPattern, "detectedAt">[] accumulator → patternsWithTimestamps stamp on state commit — single injection point',
+      'PatternRecognitionWidget: "Active · Xm / Xh Ym" displayed per pattern in active view — user sees how long each behavioral signal has been live',
+      'SystemProgressWidget Assembly view: Widget Dependency Tier Graph — tier rows with node count + progress bars from live WIDGET_DEPENDENCY_MAP + getWidgetTier()',
+      '34 nodes · tier distribution surfaced · cascade flush order visible to user for first time',
+      'Pattern clock online. The Cube now shows when it sees you.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-30',
+  date: '2026-05-01',
   message: [
-    'ASSEMBLY RUN — 2026-04-30 · v13',
-    'Built: Widget tier graph. User Index consolidation job. Log coverage completed (mood_checkin, scheduled_job).',
-    'getWidgetTier() resolves dependency depth at runtime — cascade invalidation now has ordering.',
-    'User Index computed server-side weekly. Persisted to metadata. Cross-device continuity established.',
+    'ASSEMBLY RUN — 2026-05-01 · v14',
+    'Built: Pattern clock. Tier graph. Temporal exposure.',
+    'detectedAt: every pattern now carries the moment the Cube first saw it. Continuous across re-analysis.',
+    'Active · 34m. Active · 2h 11m. The Cube shows its work.',
+    'Assembly view: 34 nodes stratified by dependency depth. You can see the architecture from inside it.',
     'Status: DEPLOYED',
-    'Next: Temporal pattern exposure in Pattern Recognition widget. Tier graph visualisation in Assembly Map.',
+    'Next: UserIndex 6D surface. Pattern timeline in Log view.',
   ],
 }
 
@@ -279,6 +292,22 @@ export function SystemProgressWidget() {
   const [osJournalLogs, setOsJournalLogs] = React.useState<
     { date: string; streak?: number; density?: number; health?: number; archetype?: string; diversityScore?: number; topSource?: string }[]
   >([])
+
+  // Compute widget tier distribution from dependency map — static, computed once
+  const tierGraph = React.useMemo(() => {
+    const tierMap = new Map<number, number>()
+    for (const widget of Object.keys(WIDGET_DEPENDENCY_MAP)) {
+      const t = getWidgetTier(widget)
+      tierMap.set(t, (tierMap.get(t) ?? 0) + 1)
+    }
+    const total = Object.keys(WIDGET_DEPENDENCY_MAP).length
+    return {
+      rows: Array.from(tierMap.entries())
+        .sort(([a], [b]) => a - b)
+        .map(([tier, nodeCount]) => ({ tier, nodeCount, pct: Math.round((nodeCount / total) * 100) })),
+      total,
+    }
+  }, [])
 
   // Recompute assembly and surface readiness on mount — no button required
   React.useEffect(() => {
@@ -599,6 +628,27 @@ export function SystemProgressWidget() {
                     )}
                   </div>
                 ))}
+              </div>
+            </div>
+
+            {/* Widget Dependency Tier Graph */}
+            <div className="border-t border-acc-400/30 pt-16">
+              <div className="opacity-30 mb-8">Widget dependency tiers:</div>
+              <div className="flex flex-col gap-y-6">
+                {tierGraph.rows.map(({ tier, nodeCount, pct }) => (
+                  <div key={tier}>
+                    <div className="flex justify-between items-baseline mb-2">
+                      <span className="opacity-50 uppercase tracking-widest" style={{ fontSize: '11px' }}>
+                        Tier {tier}
+                      </span>
+                      <span className="tabular-nums opacity-30">{nodeCount} nodes</span>
+                    </div>
+                    <ProgressBars percentage={pct} barCount={10} />
+                  </div>
+                ))}
+              </div>
+              <div className="opacity-30 mt-8" style={{ fontSize: '11px' }}>
+                {tierGraph.total} nodes mapped · depth drives cascade flush order
               </div>
             </div>
 

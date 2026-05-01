@@ -39,6 +39,7 @@ export type IntentionPattern = {
   suggestedWidget: string
   suggestedTiming: 'immediate' | 'soon' | 'next-session' | 'passive'
   reason: string
+  detectedAt: number  // Unix ms — first detection this session; preserved across re-analyses
 }
 
 // Accumulative User Index — aggregated from all widget signals
@@ -224,7 +225,7 @@ export function analyzeIntentions(): IntentionPattern[] {
     return state.recognizedPatterns
   }
 
-  const patterns: IntentionPattern[] = []
+  const patterns: Omit<IntentionPattern, 'detectedAt'>[] = []
   const signals = state.signals
 
   // Get recent signals (last 24 hours for immediate patterns)
@@ -778,11 +779,19 @@ export function analyzeIntentions(): IntentionPattern[] {
 
   // Update state (preserve lastSyncedTimestamp from current state)
   const currentState = intentionEngine.get()
+
+  // Stamp each pattern with its first-detection time — preserved across re-analysis cycles
+  const prevPatterns = currentState.recognizedPatterns
+  const patternsWithTimestamps: IntentionPattern[] = patterns.map(p => ({
+    ...p,
+    detectedAt: prevPatterns.find(prev => prev.pattern === p.pattern)?.detectedAt ?? now
+  }))
+
   intentionEngine.set({
     signals,
     userState,
     userIndex,
-    recognizedPatterns: patterns,
+    recognizedPatterns: patternsWithTimestamps,
     lastAnalysis: now,
     lastSyncedTimestamp: currentState.lastSyncedTimestamp
   })
@@ -800,7 +809,7 @@ export function analyzeIntentions(): IntentionPattern[] {
     }, 0)
   }
 
-  return patterns
+  return patternsWithTimestamps
 }
 
 /**

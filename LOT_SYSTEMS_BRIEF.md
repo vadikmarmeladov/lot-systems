@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.5
-**Last Updated:** April 29, 2026
-**Status:** Production Active — Self-Assembly Phase v12
+**Document Version:** 2.6
+**Last Updated:** May 1, 2026
+**Status:** Production Active — Self-Assembly Phase v14
 
 ---
 
@@ -15,7 +15,7 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v12 — 30-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v14 — 30-pattern behavioral recognition + temporal pattern tracking (detectedAt per pattern)
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
@@ -621,13 +621,20 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Background checks: checkIntentionVelocity() + checkSignalCoherencePeak() + recordQOSCoherence() wired into analysis
 - [x] Military Log v5: PHY / COHR / IVEL / CPEAK handlers added (37+ event types total)
 - [x] SystemProgressWidget USERSHIP_TRANSMISSION updated to v12
+- [x] QIE v13 — getWidgetTier() memoized resolver; weekly UserIndex consolidation job (Sundays 23:00 UTC); Logs.tsx: BIO [SECTOR] + JOB: block handlers
+- [x] Weekly UserIndex: 6D score (engagement/emotional/intentional/social/selfCare/cognitive) persisted to user metadata; cross-device continuity established
+- [x] Wiki v2 — full badge field guide / cohort archetypes / vocabulary / Quantum Realm reference; military-clean style throughout
+- [x] QIE v14 — IntentionPattern.detectedAt: Unix ms timestamp, preserved across re-analysis cycles via post-processing map in analyzeIntentions()
+- [x] PatternRecognitionWidget: temporal exposure — "Active · Xm / Xh Ym" per pattern in active view; pattern clock now live
+- [x] SystemProgressWidget Assembly view: Widget Dependency Tier Graph — tier rows showing node count + density bar from live WIDGET_DEPENDENCY_MAP (34 nodes, tier 1–N depth)
 
 ### Near-Term (Q2-Q3 2026)
+- [ ] UserIndex 6D surface in SystemProgressWidget (computed weekly, show to user)
+- [ ] Pattern timeline view in Log tab — visual arc of detected patterns over time
 - [ ] Mobile app (React Native)
 - [ ] Voice interface for field logging
 - [ ] Integration with wearables (sleep, HRV, activity)
 - [ ] Collaborative intentions (shared goals)
-- [ ] Advanced pattern insights widget (QIE signal timeline)
 - [ ] Custom widget creation (power users)
 - [ ] Enhanced weekly summaries with physiological cohort section
 
