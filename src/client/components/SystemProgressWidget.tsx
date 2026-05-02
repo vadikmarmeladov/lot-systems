@@ -227,19 +227,29 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Self-assembly session report appended: 2026-04-30. System operational. 30 patterns active.',
     ],
   },
+  {
+    date: '2026-05-02',
+    session: 'QIE v14 — Temporal Planner surface · calendar entry in System header',
+    assembled: [
+      'System.tsx: upcomingCalendar memo — filters calendar_entry logs from today forward, sorts by date, returns nearest entry + total count',
+      'System.tsx: Next: Block added above context stack — first visible surface of the Temporal Planner (module 14)',
+      'Calendar module was wired to QIE since v11 (Pattern 26). v14 makes it visible. Signal becomes interface.',
+      'Assembly log: 2026-05-02_LOT-assembly_v14-temporal-planner-surface.md',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-04-30',
+  date: '2026-05-02',
   message: [
-    'ASSEMBLY RUN — 2026-04-30 · v13',
-    'Built: Widget tier graph. User Index consolidation job. Log coverage completed (mood_checkin, scheduled_job).',
-    'getWidgetTier() resolves dependency depth at runtime — cascade invalidation now has ordering.',
-    'User Index computed server-side weekly. Persisted to metadata. Cross-device continuity established.',
+    'ASSEMBLY RUN — 2026-05-02 · v14',
+    'Built: Temporal Planner surface. Next calendar entry visible in System header.',
+    'The Planner was wired to the Cube since v11. v14 makes it visible.',
+    'Next scheduled event now surfaces above the context stack. Signal became interface.',
     'Status: DEPLOYED',
-    'Next: Temporal pattern exposure in Pattern Recognition widget. Tier graph visualisation in Assembly Map.',
+    'Next: Temporal pattern exposure in Pattern Recognition widget.',
   ],
 }
 

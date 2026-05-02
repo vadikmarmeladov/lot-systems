@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.5
-**Last Updated:** April 29, 2026
-**Status:** Production Active — Self-Assembly Phase v12
+**Document Version:** 2.6
+**Last Updated:** May 2, 2026
+**Status:** Production Active — Self-Assembly Phase v14
 
 ---
 
@@ -621,6 +621,11 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Background checks: checkIntentionVelocity() + checkSignalCoherencePeak() + recordQOSCoherence() wired into analysis
 - [x] Military Log v5: PHY / COHR / IVEL / CPEAK handlers added (37+ event types total)
 - [x] SystemProgressWidget USERSHIP_TRANSMISSION updated to v12
+- [x] QIE v13 — getWidgetTier(): memoized recursive tier resolver for cascade flush ordering (Tier 1 → Tier 4)
+- [x] Weekly User Index consolidation job: Sundays 23:00 UTC — 6D index (engagement/emotional/intentional/social/selfCare/cognitive) persisted to user metadata
+- [x] Logs.tsx: mood_checkin → BIO [SECTOR] block; scheduled_job → JOB: block
+- [x] QIE v14 — Temporal Planner surface: upcomingCalendar memo + Next: Block in System header
+- [x] System.tsx: next calendar entry visible above context stack — Temporal Planner (module 14) now has a face
 
 ### Near-Term (Q2-Q3 2026)
 - [ ] Mobile app (React Native)

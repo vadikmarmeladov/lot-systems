@@ -302,6 +302,19 @@ export const System = () => {
   const convergence = React.useMemo(() => getConvergenceSignal(), [])
   const ambientIntensity = React.useMemo(() => getAmbientIntensity(), [])
 
+  // Temporal Planner — next scheduled calendar entry, from QIE signal pipeline
+  const upcomingCalendar = React.useMemo(() => {
+    const today = dayjs().format('YYYY-MM-DD')
+    const entries = logs
+      .filter(log => log.event === 'calendar_entry' && log.metadata?.date && (log.metadata.date as string) >= today)
+      .map(log => ({
+        date: log.metadata!.date as string,
+        text: (log.metadata!.text as string) || log.text || '',
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+    return { next: entries[0] ?? null, count: entries.length }
+  }, [logs])
+
   // Check for recipe and planner suggestions when component mounts
   React.useEffect(() => {
     checkRecipeWidget()
@@ -641,6 +654,18 @@ export const System = () => {
           )}
         </Block>
       </div>
+
+      {/* Temporal Planner — next scheduled entry surfaced from QIE calendar module */}
+      {upcomingCalendar.next && (
+        <div>
+          <Block label="Next:">
+            {dayjs(upcomingCalendar.next.date).format('ddd, MMMM D')}
+            {' — '}
+            {upcomingCalendar.next.text}
+            {upcomingCalendar.count > 1 && ` (+${upcomingCalendar.count - 1} more)`}
+          </Block>
+        </div>
+      )}
 
       {/* Context stack */}
       <WidgetErrorBoundary name="Context">
