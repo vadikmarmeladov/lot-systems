@@ -96,24 +96,26 @@ export const Button: React.FC<Props> = ({
 type GhostButtonProps = AProps | ButtonProps | SpanProps
 export const GhostButton: React.FC<GhostButtonProps> = ({ ...props }) => {
   if (isButton(props)) {
+    const bProps = props as ButtonProps
     return (
       <button
-        {...(props as ButtonProps)}
+        {...bProps}
         className={cn(
-          !!(props as ButtonProps).onClick &&
-            '-ml-4 px-4 rounded cursor-pointer grid-fill-hover'
+          !!bProps.onClick && '-ml-4 px-4 rounded cursor-pointer grid-fill-hover',
+          bProps.className
         )}
       />
     )
   }
 
   if ((props as AProps).href !== undefined) {
+    const aProps = props as AProps
     return (
       <a
-        {...(props as AProps)}
+        {...aProps}
         className={cn(
-          !!(props as AProps).href &&
-            '-ml-4 px-4 rounded cursor-pointer grid-fill-hover'
+          !!aProps.href && '-ml-4 px-4 rounded cursor-pointer grid-fill-hover',
+          aProps.className
         )}
       />
     )

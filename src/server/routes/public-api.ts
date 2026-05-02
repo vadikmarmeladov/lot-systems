@@ -346,8 +346,10 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
+  // degraded = no hard errors but something is slow (>500ms on any check)
   const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  const hasSlow = checks.some((c) => c.status === 'ok' && (c.duration ?? 0) > 500)
+  const overall = hasErrors ? 'error' : hasSlow ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -561,7 +563,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {
