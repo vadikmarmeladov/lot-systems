@@ -17,6 +17,7 @@ const SECTIONS = [
   { id: 'fasting-calendar', title: 'Fasting Calendar' },
   { id: 'soviet-synth', title: 'Soviet Synth' },
   { id: 'calendar', title: 'Calendar' },
+  { id: 'temporal-planner', title: 'Temporal Planner' },
   { id: 'ai-architecture', title: 'AI Architecture' },
   { id: 'design-philosophy', title: 'Design Philosophy' },
   { id: 'usership-tiers', title: 'Usership Tiers' },
@@ -205,7 +206,11 @@ export function About() {
             </div>
             <P>
               The original quantum-intent OS. Self-care through proactive
-              context-aware AI. Built different since Day One.
+              context-aware AI. Continuous operation since Day One.
+            </P>
+            <P>
+              This is the reference manual. Not marketing copy.
+              Definitions are operational. Terminology is precise.
             </P>
           </header>
 
@@ -240,16 +245,19 @@ export function About() {
             increments each UTC midnight. It measures the cumulative weight of
             the operating record — not a streak, not a score. A clock.
           </P>
-          <Row label="Day counter:" value="Day 814+ (as of Jan 15, 2026)" />
+          <Row label="Day counter:" value="Day 920+ (as of May 2026)" />
+          <Row label="Self-Assembly phase:" value="v14 — Temporal Planner surface" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
           <Row label="Question generation:" value="2–5 seconds" />
           <Row label="Pattern analysis:" value="&lt; 5ms (client-side)" />
           <Row label="Signal retention:" value="7 days, max 1,000 signals" />
+          <Row label="QIE pattern library:" value="30+ patterns, growing" />
           <P>
             The day counter is visible in the System tab. Each day logged is a
             data point in the operating record. The system treats time as
-            infrastructure.
+            infrastructure. Self-Assembly phase tracks the iteration of the
+            system's own evolution — a log of how the OS builds itself.
           </P>
 
           {/* ── CORE ENGINES ────────────────────────────────────────── */}
@@ -300,7 +308,12 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             <Li>journal — free-form reflection entries</Li>
             <Li>time — temporal context (morning, evening, night)</Li>
           </ul>
-          <P>Seven behavioral patterns detected with confidence scoring:</P>
+          <P>
+            The pattern library began with 7 core patterns. It grows with each
+            Self-Assembly phase. Pattern detection fires every 5 signals.
+            Minimum threshold for surfacing an intervention: 0.50 confidence.
+          </P>
+          <SubHeading>Core Patterns (v1–v7)</SubHeading>
           <div className="mb-16">
             <Row label="Anxiety Pattern" value="0.66–1.0 confidence · immediate self-care" />
             <Row label="Lack of Structure" value="0.70 confidence · suggest planner" />
@@ -309,6 +322,21 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             <Row label="Evening Overwhelm" value="0.85 confidence · immediate self-care" />
             <Row label="Surface Awareness" value="0.60 confidence · suggest journal" />
             <Row label="Morning Clarity" value="0.75 confidence · set intention" />
+          </div>
+          <SubHeading>Extended Patterns (v8–v30+)</SubHeading>
+          <P>
+            Added through Self-Assembly phases v8–v14. Pattern expansion
+            follows observed gaps in detection coverage.
+          </P>
+          <div className="mb-16">
+            <Row label="Calendar Gap" value="no calendar entries in 7 days · suggest planning" />
+            <Row label="Journal Depth Deficit" value="entries short or absent · suggest deeper reflection" />
+            <Row label="Intention Dropout" value="intentions created but not completed · suggest review" />
+            <Row label="Mood Volatility" value="rapidly alternating emotional states · suggest self-care" />
+            <Row label="Engagement Plateau" value="activity flatline across multiple modules · system prompt" />
+            <Row label="Physiological Signal" value="biofield + self-care combination · wellness intervention" />
+            <Row label="Coherence Drop" value="self-assembly score falls &gt;15 points · prompt broad engagement" />
+            <Row label="Reflection Velocity" value="journal word count rate change over 7 days · tracked, not yet surfaced" dim />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -426,21 +454,32 @@ Neural Activity: unique users active in last 60 seconds`}</CodeBlock>
 
           <SubHeading>The Ten Archetypes</SubHeading>
           <div className="mb-16">
-            <Row label="The Seeker" value="growth-oriented · reflective · self-awareness 6+" />
-            <Row label="The Nurturer" value="connection-seeking · emotionally aware · peace-seeking" />
-            <Row label="The Achiever" value="achievement-oriented · grounded · values progress" />
-            <Row label="The Philosopher" value="meaning-seeking · highly reflective · self-awareness 7+" />
-            <Row label="The Harmonizer" value="balance-seeking · peace-oriented · emotionally aware" />
-            <Row label="The Creator" value="expression-focused · values freedom · creative pattern dominant" />
-            <Row label="The Protector" value="stability-oriented · grounded · autonomy-driven" />
-            <Row label="The Authentic" value="truth-seeking · freedom-seeking · self-awareness 6+" />
-            <Row label="The Explorer" value="curiosity-driven · growth-oriented · values vitality" />
-            <Row label="The Wanderer" value="default state · transition · patterns still forming" />
+            <Row label="The Seeker" value="growth-oriented · reflective · self-awareness 6+ · core values: growth, transformation" />
+            <Row label="The Nurturer" value="connection-seeking · emotionally aware · peace-seeking · core values: love, care" />
+            <Row label="The Achiever" value="achievement-oriented · grounded · values progress · core values: excellence, results" />
+            <Row label="The Philosopher" value="meaning-seeking · highly reflective · self-awareness 7+ · core values: meaning, wisdom" />
+            <Row label="The Harmonizer" value="balance-seeking · peace-oriented · emotionally aware · core values: harmony, equilibrium" />
+            <Row label="The Creator" value="expression-focused · values freedom · creative dominant · core values: expression, innovation" />
+            <Row label="The Protector" value="stability-oriented · grounded · autonomy-driven · core values: security, stability" />
+            <Row label="The Authentic" value="truth-seeking · freedom-seeking · self-awareness 6+ · core values: authenticity, honesty" />
+            <Row label="The Explorer" value="curiosity-driven · growth-oriented · vitality-seeking · core values: discovery, vitality" />
+            <Row label="The Wanderer" value="default state · transition · patterns still forming · all paths open" />
           </div>
           <P>
-            The Wanderer is not a failure state. It is the beginning state.
-            All users start as Wanderers. The system waits. Patterns emerge.
-            Classification follows.
+            Classification fires on three-layer convergence: behavioral keyword
+            frequency (surface), psychological processing pattern (depth),
+            and value indicator dominance (soul level). All three layers must
+            align for a primary archetype to be assigned.
+          </P>
+          <P>
+            The Wanderer is not a failure state. It is the initialization state.
+            All users begin as Wanderers. The system observes. Patterns
+            accumulate. Classification follows evidence — not assumption.
+          </P>
+          <P>
+            Archetype stability: 94% over 14 days. Self-identification agreement: 83%.
+            Archetype updates on significant behavioral shift. Update frequency
+            is bounded — the system does not reclassify on noise.
           </P>
 
           {/* ── BEHAVIORAL COHORTS ──────────────────────────────────── */}
@@ -473,12 +512,27 @@ Neural Activity: unique users active in last 60 seconds`}</CodeBlock>
             immediate cohort matching independent of scheduled cadence.
           </P>
 
+          <SubHeading>Physiological Cohorts</SubHeading>
+          <P>
+            Introduced in Self-Assembly v12. Classifies users by physiological
+            signal patterns — biofield strength, self-care frequency, and
+            energy state consistency. Distinct from behavioral cohorts.
+            Physiological cohorts operate on bodily rhythm, not temporal habit.
+          </P>
+          <div className="mb-16">
+            <Row label="High Biofield" value="consistent energy signals · regular self-care · low anxiety baseline" />
+            <Row label="Recovery Mode" value="frequent depletion signals · self-care completion rising · rebuilding" />
+            <Row label="Stress Carrier" value="persistent anxiety pattern · self-care engagement needed" />
+            <Row label="Balanced State" value="energy and clarity scores in equilibrium · minimal intervention needed" />
+            <Row label="Flux State" value="high variability across all physiological signals · monitoring active" />
+          </div>
+
           <SubHeading>Quantum Pattern Cohorts</SubHeading>
           <P>
-            Future classification will assign cohorts based on Quantum Intent
-            patterns over time. A user who consistently exhibits Morning Clarity
-            pattern becomes a Morning Clarity Seeker — a behavioral cohort
-            defined by temporal rhythm rather than topic preference.
+            Classification based on Quantum Intent patterns over time.
+            A user who consistently exhibits Morning Clarity pattern becomes a
+            Morning Clarity Seeker — a behavioral cohort defined by temporal
+            rhythm rather than topic preference.
           </P>
           <div className="mb-16">
             <Row label="Morning Clarity Seekers" value="consistent morning clarity pattern · pre-9am intention setting" />
@@ -682,8 +736,16 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
               value="Research & Development tier. Early access. Beta features. Direct roadmap influence."
             />
             <Row
+              label="Admin"
+              value="System administrator. Tag-assignment authority. Full backend access."
+            />
+            <Row
               label="Day Counter"
               value="Continuous operation count since launch. Not a streak. Not a score. A clock."
+            />
+            <Row
+              label="Self-Assembly Phase"
+              value="Numbered iteration of the system building itself. v14 = 14th development session."
             />
             <Row
               label="Memory Engine"
@@ -696,6 +758,14 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             <Row
               label="Self-Assembly Engine"
               value="Module coherence tracker. Measures how the system assembles around user activity."
+            />
+            <Row
+              label="Punctuation & Intonation Engine"
+              value="Voice-tone classifier. Reads emotional register from text punctuation patterns."
+            />
+            <Row
+              label="Temporal Planner"
+              value="System header surface. Nearest upcoming calendar entry. Zero additional API calls."
             />
           </div>
 
@@ -725,6 +795,26 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
               label="Resonance Frequency"
               value="System coherence metric. Base: 432 Hz. Scales with active-user count and engagement density."
             />
+            <Row
+              label="Calendar Gap"
+              value="QIE pattern. No calendar entries in 7 days. Triggers planning intervention."
+            />
+            <Row
+              label="Reflection Velocity"
+              value="Rate of change in journal word count over 7 days. Pattern candidate — tracked, not yet surfaced."
+            />
+            <Row
+              label="Module Density"
+              value="Proportion of system modules with active signals. Feeds self-assembly coherence score."
+            />
+            <Row
+              label="Coherence Score"
+              value="Composite self-assembly metric. Signal diversity + module density + depth. Range: 0–100."
+            />
+            <Row
+              label="Intervention"
+              value="A proactive widget surface triggered by pattern detection. System initiates. User accepts or dismisses."
+            />
           </div>
 
           <SubHeading>Profile Terms</SubHeading>
@@ -736,6 +826,10 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             <Row
               label="Behavioral Cohort"
               value="Usage pattern grouping. When and how a user engages. Distinct from archetype."
+            />
+            <Row
+              label="Physiological Cohort"
+              value="Bodily rhythm classification. Energy state, biofield signal, and self-care frequency patterns."
             />
             <Row
               label="Self-Awareness Index"
@@ -752,6 +846,10 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             <Row
               label="Growth Trajectory"
               value="Dynamic description of the user's current direction of change. Updated with profile."
+            />
+            <Row
+              label="Awareness Index"
+              value="Shorthand for Self-Awareness Index. Displayed on public profile. Growth is measured in months."
             />
           </div>
 
@@ -790,10 +888,6 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
               value="Minimum time between widget surfacings. Mood: 3 hours. Subscribe: 10 days."
             />
             <Row
-              label="Intervention"
-              value="A proactive widget surface triggered by pattern detection. System initiates."
-            />
-            <Row
               label="Log"
               value="A recorded event in the system. Text + event type + metadata + timestamp."
             />
@@ -809,57 +903,47 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
               label="Public Profile"
               value="Opt-in shareable profile at /os/{username}. Archetype, Level, Cohort, Awareness Index."
             />
+            <Row
+              label="Next: Block"
+              value="System header element. Shows nearest upcoming calendar entry. Auto-hides when empty."
+            />
+            <Row
+              label="Weekly Summary"
+              value="AI-generated pattern digest from last 200 logs. Generated on demand or scheduled."
+            />
+            <Row
+              label="Insight"
+              value="AI-generated reflection delivered after a Memory Engine answer. Single paragraph."
+            />
+            <Row
+              label="Tag"
+              value="User classification label. Values: Usership, R&D, Admin, Suspended. Admin-assigned."
+            />
           </div>
 
           {/* ── LOG TRIGGERS ────────────────────────────────────────── */}
           <SectionHeading id="log-triggers">Log Triggers</SectionHeading>
           <P>
-            The Log editor accepts secret commands. Type the code and submit.
-            The system responds.
+            The Log editor accepts operator commands. Enter the code and submit.
+            The system executes. No UI required.
           </P>
           <div className="text-sm mb-16 pl-16 flex flex-col gap-4">
-            <div className="flex">
-              <span className="text-acc/40 w-[150px] shrink-0">🎹 /synth</span>
-              <span className="text-acc/90">toggle Soviet keyboard sound</span>
-            </div>
-            <div className="flex">
-              <span className="text-acc/40 w-[150px] shrink-0">🎧 /radio</span>
-              <span className="text-acc/90">toggle ambient radio</span>
-            </div>
-            <div className="flex">
-              <span className="text-acc/40 w-[150px] shrink-0">🌙 /night</span>
-              <span className="text-acc/90">activate night mode</span>
-            </div>
-            <div className="flex">
-              <span className="text-acc/40 w-[150px] shrink-0">🕯️ /prayer</span>
-              <span className="text-acc/90">activate prayer mode</span>
-            </div>
-            <div className="flex">
-              <span className="text-acc/40 w-[150px] shrink-0">🧊 /freeze</span>
-              <span className="text-acc/90">freeze all widget updates</span>
-            </div>
-            <div className="flex">
-              <span className="text-acc/40 w-[150px] shrink-0">/scan</span>
-              <span className="text-acc/90">AI journal scan — extract patterns from recent entries</span>
-            </div>
-            <div className="flex">
-              <span className="text-acc/40 w-[150px] shrink-0">/silent</span>
-              <span className="text-acc/90">suppress all widget surfaces for current session</span>
-            </div>
-            <div className="flex">
-              <span className="text-acc/40 w-[150px] shrink-0">/breathe</span>
-              <span className="text-acc/90">trigger breathing exercise overlay</span>
-            </div>
-            <div className="flex">
-              <span className="text-acc/40 w-[150px] shrink-0">❗ (text)</span>
-              <span className="text-acc/90">urgent signal — triggers CohortConnect peer support</span>
-            </div>
+            <Row label="/synth" value="toggle Soviet keyboard sound engine" />
+            <Row label="/radio" value="toggle ambient radio stream" />
+            <Row label="/night" value="activate night mode" />
+            <Row label="/prayer" value="activate prayer mode" />
+            <Row label="/freeze" value="halt all widget update cycles" />
+            <Row label="/scan" value="AI journal scan — extract patterns from recent entries" />
+            <Row label="/silent" value="suppress all widget surfaces for current session" />
+            <Row label="/breathe" value="surface breathing exercise overlay" />
+            <Row label="! (in text)" value="urgency signal — detected automatically · surfaces CohortConnect" />
           </div>
           <P>
-            The ❗ trigger is not a command. It is detected automatically.
+            The exclamation mark is not a command. Detection is automatic.
             Any log entry whose Punctuation & Intonation Engine score exceeds
             the call-for-help threshold surfaces the CohortConnect widget
-            with urgency flag set.
+            with urgency flag set. Intent classification disambiguates
+            exclamation from joy versus distress using word sentiment.
           </P>
 
           {/* ── FASTING CALENDAR ────────────────────────────────────── */}
@@ -933,6 +1017,34 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             project manager.
           </P>
 
+          {/* ── TEMPORAL PLANNER ────────────────────────────────────── */}
+          <SectionHeading id="temporal-planner">Temporal Planner</SectionHeading>
+          <P>
+            Introduced in Self-Assembly v14. The Temporal Planner surfaces the
+            nearest upcoming calendar entry in the System header as the{' '}
+            {'"'}Next:{'"'} block — above the widget stack, visible at session start.
+          </P>
+          <P>
+            The system derives this from the same logs array already fetched for
+            the System tab. Zero additional API calls. Calendar entries dated
+            today or later are filtered, sorted chronologically, and the nearest
+            is surfaced. The block hides automatically when no entries exist.
+          </P>
+          <CodeBlock>{`Format: Next:    Fri, May 9 — call with Alex (+2 more)
+Source: calendar_entry log events, date >= today
+Derived from: useLogs() — no new network request`}</CodeBlock>
+          <P>
+            The {'"'}Next:{'"'} block is not a reminder. It does not push
+            notifications. It does not alert. It reports the temporal position
+            of the nearest recorded commitment. Awareness, not interruption.
+          </P>
+          <P>
+            The Temporal Planner is the surface layer of the calendar-gap
+            pattern detection. If the Next: block is empty for 7 consecutive
+            days, the QIE fires the calendar-gap pattern, which may prompt
+            a planning intervention. The signal and the surface are linked.
+          </P>
+
           {/* ── AI ARCHITECTURE ─────────────────────────────────────── */}
           <SectionHeading id="ai-architecture">AI Architecture</SectionHeading>
           <P>
@@ -962,11 +1074,11 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
           {/* ── DESIGN PHILOSOPHY ───────────────────────────────────── */}
           <SectionHeading id="design-philosophy">Design Philosophy</SectionHeading>
           <P>
-            Eight principles govern all interface decisions. These are not
-            guidelines. They are constraints.
+            Nine principles govern all interface and system decisions.
+            Not guidelines. Constraints.
           </P>
           <div className="mb-16">
-            <Row label="01 — Minimalist First" value="Remove before adding. Less is the default." />
+            <Row label="01 — Minimalist First" value="Remove before adding. Less is the operating mode." />
             <Row label="02 — Context Over Notification" value="Smart timing. No aggressive prompting." />
             <Row label="03 — Database Over localStorage" value="Cross-device sync is non-negotiable." />
             <Row label="04 — Graceful Degradation" value="Fade out. Do not snap away." />
@@ -974,22 +1086,23 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             <Row label="06 — Long-Term Growth" value="Months and years. Not days and weeks." />
             <Row label="07 — Technical Accuracy" value="Truth over validation." />
             <Row label="08 — Consistent Voice" value="Direct. Concise. Respectful." />
+            <Row label="09 — Zero Dead Space" value="Nothing renders without purpose. If empty, hide." />
           </div>
           <P>
             Opacity hierarchy carries meaning: 90% primary content, 60%
             secondary, 40% metadata. The visual grammar is consistent across
-            the entire system. No decorative colors. No emojis in system
-            output. Periods over checkmarks.
+            every surface in the system. No decorative colors. No emojis in
+            system-generated output. Periods over checkmarks.
           </P>
           <P>
-            Interface Evolution: the UI starts breathable and compresses as
-            the user masters the system. Density is earned. Features gate
-            on demonstrated engagement, not subscription tier.
+            Interface Evolution: the UI starts sparse and compresses as
+            the user demonstrates mastery. Density is earned. Features gate
+            on engagement, not subscription tier.
           </P>
           <P>
-            Fade-out protocol: 3-second display window followed by 1.4-second
-            opacity transition. Total: 4.4 seconds. Mimics natural attention
-            cycle — acknowledgment, integration, release.
+            Fade-out protocol: 3-second hold followed by 1.4-second opacity
+            transition. Total: 4.4 seconds. Acknowledgment → integration →
+            release. The system completes its cycle and exits cleanly.
           </P>
 
           {/* ── USERSHIP TIERS ──────────────────────────────────────── */}
@@ -1072,11 +1185,15 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             LOT Systems.
           </P>
           <P>
-            Quantum Intent Engine, Self-Assembly Engine, Punctuation & Intonation
-            Engine, and Soul Archetype system are original inventions of LOT
-            Systems.
+            Quantum Intent Engine, Self-Assembly Engine, Punctuation &
+            Intonation Engine, Temporal Planner, and Soul Archetype system are
+            original inventions of LOT Systems.
           </P>
-          <P>The original quantum-intent operating system.</P>
+          <P>
+            Self-Assembly: 14 phases of the system building itself, documented
+            in continuous operation logs. Each phase named, dated, and committed.
+          </P>
+          <P>The original quantum-intent operating system. Day 920+.</P>
 
           {/* ── TERMS ───────────────────────────────────────────────── */}
           <SectionHeading id="terms">Terms</SectionHeading>
