@@ -346,8 +346,12 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Core services failing = 'error'; peripheral failures = 'degraded'
+  const failedChecks = checks.filter((c) => c.status === 'error')
+  const CORE_CHECKS = ['Database stack', 'Authentication engine']
+  const hasCoreFailure = failedChecks.some((c) => CORE_CHECKS.includes(c.name))
+  const overall: 'ok' | 'degraded' | 'error' =
+    failedChecks.length === 0 ? 'ok' : hasCoreFailure ? 'error' : 'degraded'
 
   return {
     version: VERSION,
@@ -387,8 +391,12 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
+  // Diagnostic endpoints are only available outside production
+  const isDev = config.env !== 'production'
+
   // Admin configuration diagnostic endpoint
   fastify.get('/verify-admin-config', async (req, reply) => {
+    if (!isDev) return reply.code(404).send({ error: 'Not found' })
     const adminEmailsEnv = process.env.ADMIN_EMAILS
     const adminsList = config.admins
 
@@ -413,6 +421,7 @@ export default async (fastify: FastifyInstance) => {
 
   // API key verification endpoint - shows masked API key for verification
   fastify.get('/verify-api-keys', async (req, reply) => {
+    if (!isDev) return reply.code(404).send({ error: 'Not found' })
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
     const resendKey = process.env.RESEND_API_KEY
     const openaiKey = process.env.OPENAI_API_KEY
@@ -450,6 +459,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Memory Engine diagnostic endpoint - shows why Claude might not be working
   fastify.get('/debug-memory-engine', async (req, reply) => {
+    if (!isDev) return reply.code(404).send({ error: 'Not found' })
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     // Test if we can initialize Anthropic client
@@ -496,6 +506,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test all AI engines to see which are available
   fastify.get('/test-ai-engines', async (req, reply) => {
+    if (!isDev) return reply.code(404).send({ error: 'Not found' })
     const { aiEngineManager } = await import('#server/utils/ai-engines.js')
 
     const status = aiEngineManager.getStatus()
@@ -545,6 +556,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test Anthropic API key with actual API call
   fastify.get('/test-anthropic-key', async (req, reply) => {
+    if (!isDev) return reply.code(404).send({ error: 'Not found' })
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     if (!anthropicKey) {
