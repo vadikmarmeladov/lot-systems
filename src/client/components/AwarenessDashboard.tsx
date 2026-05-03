@@ -30,7 +30,7 @@ export function AwarenessDashboard() {
     )
   }
 
-  const awarenessPercentage = Math.round((profile.selfAwarenessLevel / 10) * 100)
+  const awarenessPercentage = (profile.selfAwarenessLevel / 10).toFixed(1)
 
   // Cycle through views on label click
   const cycleView = () => {
@@ -62,6 +62,9 @@ export function AwarenessDashboard() {
       {awarenessView === 'overview' && (
         <div>
           <div>{awarenessPercentage}% Self-Awareness</div>
+          <div className="opacity-30 mt-4">
+            0–10% scale. Growth measures in months.
+          </div>
           {profile.growthTrajectory && (
             <div className="mt-4  capitalize">
               Journey: {profile.growthTrajectory}

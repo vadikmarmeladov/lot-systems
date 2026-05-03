@@ -66,6 +66,10 @@ import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
+import { QuantumCubeWidget } from './QuantumCubeWidget'
+import { GoalJourneyWidget } from './GoalJourneyWidget'
+import { AwarenessDashboard } from './AwarenessDashboard'
+import { JournalReflection } from './JournalReflection'
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -470,6 +474,11 @@ export const System = () => {
         </div>
       </div>
 
+      {/* Quantum Cube — always present system heartbeat. The body of the interface. */}
+      <WidgetErrorBoundary name="Quantum Cube">
+        <QuantumCubeWidget />
+      </WidgetErrorBoundary>
+
       {/* Recipe / Fasting guidance — promoted to the top section so it
           reads as the first thing the user sees at mealtime. On
           Christian fasting days the widget gradually degrades from a
@@ -666,6 +675,9 @@ export const System = () => {
 
           {/* Narrative - Story progression and achievements */}
           <NarrativeWidget />
+
+          {/* Goal Journey - Detected goals and progression stages */}
+          <GoalJourneyWidget />
 
           {/* Citizen Index - CQGS growth indicators */}
           <EvolutionWidget />
@@ -871,6 +883,9 @@ export const System = () => {
       {/* Community stack — LOT community is original and inimitable */}
       <WidgetErrorBoundary name="Community">
         <div className={cn('flex flex-col', density.stackGap)}>
+          {/* Awareness Dashboard - Psychological profile explorer (7 views) */}
+          <AwarenessDashboard />
+
           {/* Pattern Insights - Show user's discovered patterns and cohort matches */}
           <PatternInsightsWidget />
 
@@ -882,6 +897,9 @@ export const System = () => {
       {/* Planning stack */}
       <WidgetErrorBoundary name="Planning">
         <div className={cn('flex flex-col', density.stackGap)}>
+          {/* Journal Reflection - Time-aware writing prompts, links to Log */}
+          <JournalReflection />
+
           {/* Planner - Show occasionally for daily/weekly planning */}
           <PlannerWidget />
 
