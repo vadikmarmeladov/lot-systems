@@ -1016,6 +1016,127 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyUserIndexJob()) {
     await executeWeeklyUserIndexJob()
   }
+
+  // Check daily QOS aggregate snapshot
+  if (shouldRunDailyQOSAggregateJob()) {
+    await executeDailyQOSAggregateJob()
+  }
+}
+
+// ─── Daily QOS Aggregate Snapshot ────────────────────────────────────────────
+
+let isDailyQOSAggregateRunning = false
+let lastDailyQOSAggregateRun: Date | null = null
+
+function shouldRunDailyQOSAggregateJob(): boolean {
+  if (isDailyQOSAggregateRunning) return false
+  if (lastDailyQOSAggregateRun) {
+    if (dayjs(lastDailyQOSAggregateRun).isSame(dayjs(), 'day')) return false
+  }
+  return true
+}
+
+/**
+ * Runs daily at 04:00 UTC.
+ * Aggregates system-wide QOS health without writing per-user log entries.
+ * Produces a lightweight system health record for monitoring:
+ * active users · health distribution · top circadian phase · avg ATP.
+ */
+async function executeDailyQOSAggregateJob(): Promise<JobResult> {
+  const jobName = 'daily-qos-aggregate-snapshot'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily QOS Aggregate Snapshot')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyQOSAggregateRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log }  = await import('#server/models/log.js')
+    const { Op }   = await import('sequelize')
+
+    const oneDayAgo    = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where:  { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      limit: 2000,
+    })
+
+    const qosLogs = await Log.findAll({
+      where: {
+        event: 'qos_snapshot' as any,
+        createdAt: { [Op.gte]: oneDayAgo },
+      },
+      limit: 5000,
+    })
+
+    const energyLogs = await Log.findAll({
+      where: {
+        event: 'energy_checkin' as any,
+        createdAt: { [Op.gte]: sevenDaysAgo },
+      },
+      limit: 5000,
+    })
+
+    const healthCounts: Record<string, number> = { nominal: 0, degraded: 0, critical: 0 }
+    const circadianCounts: Record<string, number> = {}
+
+    for (const log of qosLogs) {
+      const meta = (log as any).metadata || {}
+      const health = meta.systemHealth as string | undefined
+      const phase  = meta.circadianPhase as string | undefined
+      if (health && health in healthCounts) healthCounts[health]++
+      if (phase) circadianCounts[phase] = (circadianCounts[phase] || 0) + 1
+    }
+
+    let totalATP = 0; let atpCount = 0
+    for (const log of energyLogs) {
+      const level = (log as any).metadata?.level as number | undefined
+      if (typeof level === 'number') { totalATP += level; atpCount++ }
+    }
+    const avgATP = atpCount > 0 ? Math.round(totalATP / atpCount) : null
+
+    const topCircadian = Object.entries(circadianCounts)
+      .sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'unknown'
+
+    console.log(`  Active users (24h):   ${activeUsers.length}`)
+    console.log(`  QOS snapshots logged: ${qosLogs.length}`)
+    console.log(`  Health — nominal: ${healthCounts.nominal} / degraded: ${healthCounts.degraded} / critical: ${healthCounts.critical}`)
+    console.log(`  Top circadian phase:  ${topCircadian}`)
+    if (avgATP !== null) console.log(`  Avg biofield ATP:     ${avgATP}%`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('QOS AGGREGATE JOB COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyQOSAggregateRun = new Date()
+    isDailyQOSAggregateRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: {
+        date: dayjs().format('YYYY-MM-DD'),
+        activeUsers: activeUsers.length,
+        qosSnapshots: qosLogs.length,
+        healthDistribution: healthCounts,
+        topCircadianPhase: topCircadian,
+        avgBiofieldATP: avgATP,
+      }
+    }
+  } catch (error: any) {
+    console.error('Daily QOS aggregate job failed:', error.message)
+    isDailyQOSAggregateRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
 }
 
 // ─── Weekly User Index Consolidation ─────────────────────────────────────────
@@ -1168,6 +1289,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('   - Daily OS vitals snapshot: 2 AM UTC every day')
   console.log('   - Daily QOS coherence report: 1 AM UTC every day')
+  console.log('   - Daily QOS aggregate snapshot: 4 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1177,8 +1299,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; user index: 23PM Sun; QIE: 3AM; vitals: 2AM; QOS: 1AM
-    if (hour === 9 || hour === 6 || hour === 5 || hour === 23 || hour === 3 || hour === 2 || hour === 1) {
+    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; user index: 23PM Sun; QIE: 3AM; vitals: 2AM; QOS: 1AM; aggregate: 4AM
+    if (hour === 9 || hour === 6 || hour === 5 || hour === 23 || hour === 4 || hour === 3 || hour === 2 || hour === 1) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

@@ -358,6 +358,7 @@ export const Logs: React.FC = () => {
           const pattern = log.metadata?.pattern as string | undefined
           const source = log.metadata?.source as string | undefined
           const confidence = log.metadata?.confidence as number | undefined
+          const timing = log.metadata?.timing as string | undefined
           if (!pattern && !log.text) return null
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
@@ -372,6 +373,101 @@ export const Logs: React.FC = () => {
                   <div className="opacity-40">
                     CONF: {Math.round(confidence * 100)}%
                   </div>
+                )}
+                {timing && (
+                  <div className="opacity-30 uppercase tracking-widest">
+                    T: {timing}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'energy_checkin') {
+          const level = log.metadata?.level as number | undefined
+          const status = log.metadata?.status as string | undefined
+          const trajectory = log.metadata?.trajectory as string | undefined
+          const needsReplenishment = log.metadata?.needsReplenishment as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BIOF:" blockView>
+                {level !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">
+                    ATP: {level}%
+                    {trajectory && <span className="opacity-40 ml-8">{trajectory.toUpperCase()}</span>}
+                  </div>
+                )}
+                {status && <div className="opacity-60">STATUS: {status.toUpperCase()}</div>}
+                {needsReplenishment && needsReplenishment.length > 0 && (
+                  <div className="opacity-40 mt-4">
+                    PRIORITY: {needsReplenishment[0].toUpperCase()}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'qos_snapshot') {
+          // Full state capture (QOSSnapshot type)
+          const phase = log.metadata?.circadianPhase as string | undefined
+          const health = log.metadata?.systemHealth as string | undefined
+          const energyState = log.metadata?.energy as string | undefined
+          const clarity = log.metadata?.clarity as string | undefined
+          const alignment = log.metadata?.alignment as string | undefined
+          const topPattern = log.metadata?.topPattern as string | undefined
+          const signalCount = log.metadata?.signalCount24h as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QOS:" blockView>
+                {(health || phase) && (
+                  <div className="flex justify-between mb-4">
+                    <span className="uppercase tracking-widest">
+                      {health?.toUpperCase() ?? '—'}
+                    </span>
+                    {phase && (
+                      <span className="opacity-40 uppercase tracking-widest">
+                        {phase.replace(/-/g, ' ')}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {energyState && (
+                  <div className="opacity-60">NRG: {energyState.toUpperCase()}</div>
+                )}
+                {clarity && (
+                  <div className="opacity-60">CLR: {clarity.toUpperCase()}</div>
+                )}
+                {alignment && (
+                  <div className="opacity-60">ALN: {alignment.toUpperCase()}</div>
+                )}
+                {topPattern && (
+                  <div className="opacity-40 mt-4 uppercase tracking-widest">
+                    PTN: {topPattern.replace(/-/g, ' ')}
+                  </div>
+                )}
+                {signalCount !== undefined && (
+                  <div className="opacity-20 mt-4">
+                    SIG/24H: {signalCount}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biorhythm_checkpoint') {
+          const phase = log.metadata?.phase as string | undefined
+          const dominant = log.metadata?.dominant as string | undefined
+          const directive = log.metadata?.directive as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CHRONO:" blockView>
+                {phase && (
+                  <div className="uppercase tracking-widest mb-4">
+                    {phase.replace(/-/g, ' ')}
+                  </div>
+                )}
+                {dominant && (
+                  <div className="opacity-60">DOMINANT: {dominant.toUpperCase()}</div>
+                )}
+                {directive && (
+                  <div className="opacity-40 mt-4">{directive}</div>
                 )}
               </Block>
             </LogContainer>
@@ -794,31 +890,6 @@ export const Logs: React.FC = () => {
                 )}
                 {coherence && (
                   <div className="opacity-40 uppercase tracking-widest">{coherence}</div>
-                )}
-              </Block>
-            </LogContainer>
-          )
-        } else if (log.event === 'qos_snapshot') {
-          const archetype = log.metadata?.archetype as string | undefined
-          const readiness = log.metadata?.readiness as number | undefined
-          const assemblyProgress = log.metadata?.assemblyProgress as number | undefined
-          return (
-            <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="QOS:" blockView>
-                {archetype && (
-                  <div className="uppercase tracking-widest mb-4">{archetype}</div>
-                )}
-                {readiness !== undefined && (
-                  <div className="flex justify-between mb-4">
-                    <span className="opacity-40">READINESS</span>
-                    <span className="tabular-nums">{readiness}%</span>
-                  </div>
-                )}
-                {assemblyProgress !== undefined && (
-                  <div className="flex justify-between">
-                    <span className="opacity-40">ASSEMBLY</span>
-                    <span className="tabular-nums">{assemblyProgress}%</span>
-                  </div>
                 )}
               </Block>
             </LogContainer>

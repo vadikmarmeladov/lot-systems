@@ -1760,3 +1760,151 @@ export function checkSignalCoherencePeak(): boolean {
   }
   return false
 }
+
+// ─── Quantum Operating System Snapshot ────────────────────────────────────────
+
+/**
+ * Complete person-state capture: a timestamped cross-section of all
+ * QIE dimensions at a single moment. Persisted to localStorage and
+ * optionally surfaced in the Log as a `qos_snapshot` event.
+ */
+export type QOSSnapshot = {
+  capturedAt: number
+  circadianPhase: 'early-morning' | 'morning' | 'midday' | 'afternoon' | 'evening' | 'night'
+  userState: UserState
+  userIndex: UserIndex
+  topPattern: string | null
+  topPatternConfidence: number
+  signalCount24h: number
+  modulesActive: number
+  systemHealth: 'nominal' | 'degraded' | 'critical'
+}
+
+const QOS_SNAPSHOT_KEY = 'qos-snapshots'
+const MAX_QOS_SNAPSHOTS = 48   // 48 × 30min = 24h rolling window
+const QOS_INTERVAL_MS  = 30 * 60 * 1000  // 30 minutes
+
+/**
+ * Determine circadian phase from the current hour
+ */
+export function getCircadianPhase(hour?: number): QOSSnapshot['circadianPhase'] {
+  const h = hour ?? new Date().getHours()
+  if (h >= 4  && h < 7)  return 'early-morning'
+  if (h >= 7  && h < 12) return 'morning'
+  if (h >= 12 && h < 14) return 'midday'
+  if (h >= 14 && h < 18) return 'afternoon'
+  if (h >= 18 && h < 23) return 'evening'
+  return 'night'
+}
+
+/**
+ * Capture a QOS snapshot from current engine state.
+ * Stores up to MAX_QOS_SNAPSHOTS in localStorage (24h rolling window).
+ */
+export function captureQOSSnapshot(): QOSSnapshot {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const dayAgo = now - 24 * 60 * 60 * 1000
+
+  const signals24h = state.signals.filter(s => s.timestamp > dayAgo)
+  const uniqueSources24h = new Set(signals24h.map(s => s.source)).size
+
+  const top = [...state.recognizedPatterns]
+    .sort((a, b) => b.confidence - a.confidence)[0] ?? null
+
+  const { energy, needsSupport } = state.userState
+  const systemHealth: QOSSnapshot['systemHealth'] =
+    needsSupport === 'critical' || energy === 'depleted' ? 'critical' :
+    needsSupport === 'moderate' || energy === 'low'      ? 'degraded' :
+    'nominal'
+
+  const snapshot: QOSSnapshot = {
+    capturedAt: now,
+    circadianPhase: getCircadianPhase(),
+    userState: { ...state.userState },
+    userIndex: { ...state.userIndex },
+    topPattern: top?.pattern ?? null,
+    topPatternConfidence: top ? Math.round(top.confidence * 100) : 0,
+    signalCount24h: signals24h.length,
+    modulesActive: uniqueSources24h,
+    systemHealth,
+  }
+
+  try {
+    const existing: QOSSnapshot[] = JSON.parse(
+      localStorage.getItem(QOS_SNAPSHOT_KEY) || '[]'
+    )
+    const updated = [...existing, snapshot].slice(-MAX_QOS_SNAPSHOTS)
+    localStorage.setItem(QOS_SNAPSHOT_KEY, JSON.stringify(updated))
+  } catch { /* ignore */ }
+
+  return snapshot
+}
+
+/**
+ * Retrieve the rolling QOS snapshot history (last 24h)
+ */
+export function getQOSHistory(): QOSSnapshot[] {
+  if (typeof window === 'undefined') return []
+  try {
+    return JSON.parse(localStorage.getItem(QOS_SNAPSHOT_KEY) || '[]')
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Start the background QOS monitor.
+ * Captures a snapshot every 30 minutes, triggers pattern analysis before each capture.
+ * Safe to call multiple times — only one interval runs.
+ */
+let _qosMonitorHandle: ReturnType<typeof setInterval> | null = null
+
+export function startBackgroundQOSMonitor(): () => void {
+  if (typeof window === 'undefined') return () => {}
+  if (_qosMonitorHandle !== null) return () => {}
+
+  analyzeIntentions()
+  captureQOSSnapshot()
+
+  _qosMonitorHandle = setInterval(() => {
+    analyzeIntentions()
+    captureQOSSnapshot()
+  }, QOS_INTERVAL_MS)
+
+  return () => {
+    if (_qosMonitorHandle !== null) {
+      clearInterval(_qosMonitorHandle)
+      _qosMonitorHandle = null
+    }
+  }
+}
+
+/**
+ * Extend PhysiologicalReport with circadian phase and latest QOS snapshot
+ */
+export function getEnrichedPhysiologicalReport(): PhysiologicalReport & {
+  circadianPhase: QOSSnapshot['circadianPhase']
+  latestQOSSnapshot: QOSSnapshot | null
+  qosTrend: 'improving' | 'stable' | 'degrading'
+} {
+  const base = getPhysiologicalReport()
+  const history = getQOSHistory()
+  const latestQOSSnapshot = history.length > 0 ? history[history.length - 1] : null
+
+  let qosTrend: 'improving' | 'stable' | 'degrading' = 'stable'
+  if (history.length >= 2) {
+    const first = history[0].userIndex.overall
+    const last  = history[history.length - 1].userIndex.overall
+    const delta = last - first
+    if (delta >= 5)  qosTrend = 'improving'
+    if (delta <= -5) qosTrend = 'degrading'
+  }
+
+  return {
+    ...base,
+    circadianPhase: getCircadianPhase(),
+    latestQOSSnapshot,
+    qosTrend,
+  }
+}

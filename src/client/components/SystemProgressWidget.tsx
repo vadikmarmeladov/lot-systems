@@ -5,7 +5,14 @@ import * as stores from '#client/stores'
 import { ProgressBars } from '#client/utils/progressBars'
 import { selfAssembly, phaseSymbol, phaseLabel, recomputeAssembly, type AssembledModule } from '#client/stores/selfAssembly'
 import { useEnergy, useLogs } from '#client/queries'
-import { getPhysiologicalReport, analyzeIntentions, type PhysiologicalReport } from '#client/stores/intentionEngine'
+import {
+  getPhysiologicalReport,
+  getEnrichedPhysiologicalReport,
+  analyzeIntentions,
+  startBackgroundQOSMonitor,
+  getCircadianPhase,
+  type PhysiologicalReport,
+} from '#client/stores/intentionEngine'
 
 type FeedbackStatus = 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
 
@@ -237,19 +244,38 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Assembly log: 2026-05-02_LOT-assembly_v14-temporal-planner-surface.md',
     ],
   },
+  {
+    date: '2026-05-03',
+    session: 'QIE v15 — QOS Snapshot Engine · Background Monitor · Physiological Directives',
+    assembled: [
+      'QOSSnapshot type: full person-state cross-section — circadianPhase · userState · userIndex · topPattern · signalCount24h · systemHealth',
+      'captureQOSSnapshot(): 24h rolling localStorage window (48 × 30min = MAX_QOS_SNAPSHOTS)',
+      'startBackgroundQOSMonitor(): passive 30-min interval — pre-triggers analyzeIntentions() before each capture',
+      'getCircadianPhase(): 6-state model — early-morning / morning / midday / afternoon / evening / night',
+      'getEnrichedPhysiologicalReport(): base PhysiologicalReport + circadian + QOS trend + latest snapshot',
+      'Logs.tsx: BIOF (energy_checkin) · QOS (qos_snapshot, merged dual-format) · CHRONO (biorhythm_checkpoint) handlers',
+      'Logs.tsx: duplicate qos_snapshot handler resolved — unified to handle both full-state and archetype metadata formats',
+      'SystemProgressWidget: background QOS monitor auto-starts on mount via useEffect',
+      'SystemProgressWidget: circadian phase + QOS trend + snapshot metrics in report view',
+      'SystemProgressWidget: physiological archetype directive table — 8 archetypes with behavioral directives',
+      'scheduled-jobs: daily-qos-aggregate-snapshot at 04:00 UTC — active users · health distribution · top circadian phase · avg ATP',
+      '30 patterns active. 14 modules online. Background QOS monitor deployed. The system now watches itself.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-02',
+  date: '2026-05-03',
   message: [
-    'ASSEMBLY RUN — 2026-05-02 · v14',
-    'Built: Temporal Planner surface. Next calendar entry visible in System header.',
-    'The Planner was wired to the Cube since v11. v14 makes it visible.',
-    'Next scheduled event now surfaces above the context stack. Signal became interface.',
+    'ASSEMBLY RUN — 2026-05-03 · v15',
+    'Built: QOS Snapshot Engine. Background monitor online.',
+    'The system now captures its own state every 30 minutes. No user action required.',
+    'Circadian phase mapped. QOS trend computed. Physiological directives surfaced.',
+    'The Cube watches you. Now it also watches itself.',
     'Status: DEPLOYED',
-    'Next: Temporal pattern exposure in Pattern Recognition widget.',
+    'Next: QOS trend visualization in Pattern Recognition widget.',
   ],
 }
 
@@ -285,7 +311,7 @@ export function SystemProgressWidget() {
       .filter((l) => l.event === 'note' && l.text && l.text.trim().length > 3)
       .slice(0, 3)
   }, [logs])
-  const [report, setReport] = React.useState<PhysiologicalReport | null>(null)
+  const [report, setReport] = React.useState<ReturnType<typeof getEnrichedPhysiologicalReport> | null>(null)
   const [osJournalLogs, setOsJournalLogs] = React.useState<
     { date: string; streak?: number; density?: number; health?: number; archetype?: string; diversityScore?: number; topSource?: string }[]
   >([])
@@ -294,9 +320,15 @@ export function SystemProgressWidget() {
   React.useEffect(() => {
     recomputeAssembly()
     analyzeIntentions()
-    setReport(getPhysiologicalReport())
+    setReport(getEnrichedPhysiologicalReport())
     const interval = setInterval(recomputeAssembly, 60_000) // Every minute
     return () => clearInterval(interval)
+  }, [])
+
+  // Start background QOS monitor on mount
+  React.useEffect(() => {
+    const stop = startBackgroundQOSMonitor()
+    return stop
   }, [])
 
   // Load physiological cohort classification
@@ -347,7 +379,7 @@ export function SystemProgressWidget() {
 
   const handleGenerateReport = React.useCallback(() => {
     analyzeIntentions()
-    setReport(getPhysiologicalReport())
+    setReport(getEnrichedPhysiologicalReport())
   }, [])
 
   // Load latest deployment info
@@ -909,6 +941,45 @@ export function SystemProgressWidget() {
                       )}
                     </div>
                   )}
+
+                  {/* QOS state — circadian phase, trend, latest snapshot */}
+                  <div className="border-t border-acc-400/30 pt-12">
+                    <div className="opacity-30 mb-8 uppercase tracking-widest">Quantum OS state</div>
+                    <div className="flex flex-col gap-y-2">
+                      <div className="flex justify-between">
+                        <span className="opacity-50 uppercase">Circadian</span>
+                        <span className="uppercase tracking-widest">
+                          {('circadianPhase' in report ? report.circadianPhase : getCircadianPhase()).replace(/-/g, ' ')}
+                        </span>
+                      </div>
+                      {'qosTrend' in report && (
+                        <div className="flex justify-between">
+                          <span className="opacity-50 uppercase">QOS trend</span>
+                          <span className="uppercase tracking-widest">{report.qosTrend}</span>
+                        </div>
+                      )}
+                      {'latestQOSSnapshot' in report && report.latestQOSSnapshot && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="opacity-50 uppercase">Signals 24h</span>
+                            <span className="tabular-nums">{report.latestQOSSnapshot.signalCount24h}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="opacity-50 uppercase">Modules active</span>
+                            <span className="tabular-nums">{report.latestQOSSnapshot.modulesActive}</span>
+                          </div>
+                          {report.latestQOSSnapshot.topPattern && (
+                            <div className="flex justify-between">
+                              <span className="opacity-50 uppercase">Top pattern</span>
+                              <span className="uppercase tracking-widest opacity-70">
+                                {report.latestQOSSnapshot.topPattern.replace(/-/g, ' ')}
+                              </span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
 
                   {/* Assembly state */}
                   <div className="border-t border-acc-400/30 pt-12">
