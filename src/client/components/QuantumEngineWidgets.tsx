@@ -20,7 +20,7 @@ function usePersistedState(key: string): [boolean, React.Dispatch<React.SetState
   return [value, setPersistedValue]
 }
 
-const TOTAL_DEVICES = 3
+const TOTAL_DEVICES = 5
 
 type QOSView = 'ecosystem' | 'biofield' | 'cohort'
 
@@ -28,6 +28,8 @@ export const QuantumEngineWidgets: React.FC = () => {
   const [carConnected, setCarConnected] = usePersistedState('qe-car-connected')
   const [homeConnected, setHomeConnected] = usePersistedState('qe-home-connected')
   const [computerConnected, setComputerConnected] = usePersistedState('qe-computer-connected')
+  const [phoneConnected, setPhoneConnected] = usePersistedState('qe-phone-connected')
+  const [watchConnected, setWatchConnected] = usePersistedState('qe-watch-connected')
   const [view, setView] = React.useState<QOSView>('ecosystem')
 
   const engineState = useStore(intentionEngine)
@@ -36,7 +38,7 @@ export const QuantumEngineWidgets: React.FC = () => {
   const [cohortData, setCohortData] = React.useState<{ archetype?: string; behavioralCohort?: string } | null>(null)
   const [readiness, setReadiness] = React.useState<number | null>(null)
 
-  const connectedCount = [carConnected, homeConnected, computerConnected].filter(Boolean).length
+  const connectedCount = [carConnected, homeConnected, computerConnected, phoneConnected, watchConnected].filter(Boolean).length
   const ecosystemNarrative = React.useMemo(
     () => getEcosystemNarrative(connectedCount, TOTAL_DEVICES),
     [connectedCount]
@@ -84,11 +86,27 @@ export const QuantumEngineWidgets: React.FC = () => {
     })
   }
 
+  const handlePhoneConnect = () => {
+    setPhoneConnected((prev) => {
+      const next = !prev
+      recordSignal('intentions', next ? 'phone_connected' : 'phone_disconnected', { timestamp: Date.now() })
+      return next
+    })
+  }
+
+  const handleWatchConnect = () => {
+    setWatchConnected((prev) => {
+      const next = !prev
+      recordSignal('intentions', next ? 'watch_connected' : 'watch_disconnected', { timestamp: Date.now() })
+      return next
+    })
+  }
+
   React.useEffect(() => {
     if (connectedCount === TOTAL_DEVICES) {
       recordSignal('intentions', 'ecosystem_full_coherence', {
         timestamp: Date.now(),
-        devices: { car: carConnected, home: homeConnected, computer: computerConnected },
+        devices: { car: carConnected, home: homeConnected, computer: computerConnected, phone: phoneConnected, watch: watchConnected },
       })
     }
   }, [connectedCount])
@@ -121,10 +139,12 @@ export const QuantumEngineWidgets: React.FC = () => {
                 <span className="opacity-30">Nodes</span>
                 <span className="tabular-nums">{connectedCount}/{TOTAL_DEVICES}</span>
               </div>
-              <div className="flex gap-x-16">
+              <div className="flex gap-x-12 flex-wrap">
                 <span className={carConnected ? '' : 'opacity-20'}>CAR</span>
                 <span className={homeConnected ? '' : 'opacity-20'}>HOME</span>
                 <span className={computerConnected ? '' : 'opacity-20'}>CPU</span>
+                <span className={phoneConnected ? '' : 'opacity-20'}>PHN</span>
+                <span className={watchConnected ? '' : 'opacity-20'}>WCH</span>
               </div>
               {assemblyState.overallAssembly > 0 && (
                 <div className="flex justify-between items-baseline">
@@ -239,6 +259,16 @@ export const QuantumEngineWidgets: React.FC = () => {
       <Block label="Computer:" containsSmallButton inProgress>
         <Button size="small" onClick={handleComputerConnect}>
           {computerConnected ? 'disconnect' : 'connect'}
+        </Button>
+      </Block>
+      <Block label="Phone:" containsSmallButton inProgress>
+        <Button size="small" onClick={handlePhoneConnect}>
+          {phoneConnected ? 'disconnect' : 'connect'}
+        </Button>
+      </Block>
+      <Block label="Watch:" containsSmallButton inProgress>
+        <Button size="small" onClick={handleWatchConnect}>
+          {watchConnected ? 'disconnect' : 'connect'}
         </Button>
       </Block>
     </>

@@ -876,20 +876,99 @@ export const Logs: React.FC = () => {
             </LogContainer>
           )
         } else if (log.event === 'ecosystem_update') {
-          const nodes = log.metadata?.nodes as { car?: boolean; home?: boolean; computer?: boolean } | undefined
+          const nodes = log.metadata?.nodes as { car?: boolean; home?: boolean; computer?: boolean; phone?: boolean; watch?: boolean } | undefined
           const coherence = log.metadata?.coherence as string | undefined
+          const nodeCount = nodes ? Object.values(nodes).filter(Boolean).length : 0
+          const totalNodes = 5
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="ECO:" blockView>
                 {nodes && (
-                  <div className="flex gap-x-16 mb-4">
+                  <div className="flex gap-x-12 mb-4 flex-wrap">
                     <span className={nodes.car ? '' : 'opacity-20'}>CAR</span>
                     <span className={nodes.home ? '' : 'opacity-20'}>HOME</span>
                     <span className={nodes.computer ? '' : 'opacity-20'}>CPU</span>
+                    <span className={nodes.phone ? '' : 'opacity-20'}>PHN</span>
+                    <span className={nodes.watch ? '' : 'opacity-20'}>WCH</span>
+                  </div>
+                )}
+                {nodes && (
+                  <div className="flex justify-between mb-4">
+                    <span className="opacity-30 uppercase tracking-widest">Nodes</span>
+                    <span className="tabular-nums">{nodeCount}/{totalNodes}</span>
                   </div>
                 )}
                 {coherence && (
                   <div className="opacity-40 uppercase tracking-widest">{coherence}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'phone_connected' || log.event === 'phone_disconnected') {
+          const isConnected = log.event === 'phone_connected'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PHON:" blockView>
+                <div className="uppercase tracking-widest">
+                  {isConnected ? '→ LINK ESTABLISHED' : '— LINK DROPPED'}
+                </div>
+                {log.metadata?.timestamp && (
+                  <div className="opacity-30 text-xs mt-4 uppercase tracking-widest">
+                    NODE: MOBILE
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'watch_connected' || log.event === 'watch_disconnected') {
+          const isConnected = log.event === 'watch_connected'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="WTCH:" blockView>
+                <div className="uppercase tracking-widest">
+                  {isConnected ? '→ WEARABLE ONLINE' : '— WEARABLE OFFLINE'}
+                </div>
+                {log.metadata?.timestamp && (
+                  <div className="opacity-30 text-xs mt-4 uppercase tracking-widest">
+                    NODE: WEARABLE
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'ecosystem_full_sync' || log.event === 'ecosystem_full_coherence') {
+          const deviceCount = log.metadata?.deviceCount as number | undefined
+          const devices = log.metadata?.devices as Record<string, boolean> | undefined
+          const activeCount = devices ? Object.values(devices).filter(Boolean).length : deviceCount
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ECO-SYNC:" blockView>
+                <div className="uppercase tracking-widest mb-4">FULL COHERENCE</div>
+                {activeCount !== undefined && (
+                  <div className="flex justify-between">
+                    <span className="opacity-30 uppercase tracking-widest">Nodes online</span>
+                    <span className="tabular-nums">{activeCount}/5</span>
+                  </div>
+                )}
+                {log.text && <div className="opacity-40 mt-4">{log.text}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'device_coherence_peak') {
+          const readiness = log.metadata?.readiness as number | undefined
+          const phase = log.metadata?.circadianPhase as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COHR:" blockView>
+                <div className="uppercase tracking-widest mb-4">COHERENCE PEAK</div>
+                {readiness !== undefined && (
+                  <div className="flex justify-between mb-2">
+                    <span className="opacity-30 uppercase tracking-widest">Readiness</span>
+                    <span className="tabular-nums">{readiness}%</span>
+                  </div>
+                )}
+                {phase && (
+                  <div className="opacity-40 uppercase tracking-widest">{phase.replace(/-/g, ' ')}</div>
                 )}
               </Block>
             </LogContainer>

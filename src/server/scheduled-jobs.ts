@@ -1021,6 +1021,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyQOSAggregateJob()) {
     await executeDailyQOSAggregateJob()
   }
+
+  // Check weekly ecosystem coherence audit
+  if (shouldRunWeeklyEcosystemAudit()) {
+    await executeWeeklyEcosystemAudit()
+  }
 }
 
 // ─── Daily QOS Aggregate Snapshot ────────────────────────────────────────────
@@ -1267,6 +1272,119 @@ async function executeWeeklyUserIndexJob(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly Ecosystem Coherence Audit ────────────────────────────────────────
+
+let isWeeklyEcosystemAuditRunning = false
+let lastWeeklyEcosystemAuditRun: Date | null = null
+
+/**
+ * Runs every Wednesday at 07:00 UTC.
+ * Audits ecosystem signal coherence across the active user base.
+ * Measures: devices connected per user, full-coherence rate, cross-device engagement density.
+ */
+function shouldRunWeeklyEcosystemAudit(): boolean {
+  const now = dayjs()
+  if (now.day() !== 3) return false // Wednesday only
+  if (isWeeklyEcosystemAuditRunning) return false
+  if (lastWeeklyEcosystemAuditRun) {
+    if (dayjs(lastWeeklyEcosystemAuditRun).isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeWeeklyEcosystemAudit(): Promise<JobResult> {
+  const jobName = 'weekly-ecosystem-coherence-audit'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Ecosystem Coherence Audit')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyEcosystemAuditRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log }  = await import('#server/models/log.js')
+    const { Op }   = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+    })
+
+    const DEVICE_EVENTS = [
+      'car_connected', 'home_connected', 'computer_connected',
+      'phone_connected', 'watch_connected',
+    ]
+
+    const results: any[] = []
+
+    for (const user of activeUsers) {
+      try {
+        const recentLogs = await Log.findAll({
+          where: {
+            userId: user.id,
+            event: { [Op.in]: ['ecosystem_full_coherence', 'ecosystem_update', 'ecosystem_full_sync', ...DEVICE_EVENTS] },
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+        })
+
+        const deviceSet = new Set<string>()
+        recentLogs.forEach((l: any) => {
+          if (DEVICE_EVENTS.includes(l.event)) {
+            deviceSet.add(l.event.replace('_connected', ''))
+          }
+        })
+
+        const fullCoherenceCount = recentLogs.filter(
+          (l: any) => l.event === 'ecosystem_full_coherence' || l.event === 'ecosystem_full_sync'
+        ).length
+
+        results.push({
+          userId: user.id,
+          deviceCount: deviceSet.size,
+          devicesActive: Array.from(deviceSet),
+          fullCoherenceEvents: fullCoherenceCount,
+          ecosystemScore: Math.round((deviceSet.size / 5) * 60 + Math.min(fullCoherenceCount * 10, 40)),
+        })
+      } catch { /* skip this user */ }
+    }
+
+    const avgDevices = results.length > 0
+      ? (results.reduce((s, r) => s + r.deviceCount, 0) / results.length).toFixed(1)
+      : '0'
+    const fullCoherenceUsers = results.filter(r => r.fullCoherenceEvents > 0).length
+    const avgEcosystemScore = results.length > 0
+      ? Math.round(results.reduce((s, r) => s + r.ecosystemScore, 0) / results.length)
+      : 0
+
+    console.log(`   Ecosystem Coherence Audit complete`)
+    console.log(`   Active users: ${activeUsers.length}`)
+    console.log(`   Avg devices per user: ${avgDevices}/5`)
+    console.log(`   Users with full coherence: ${fullCoherenceUsers}`)
+    console.log(`   Avg ecosystem score: ${avgEcosystemScore}`)
+    console.log('')
+
+    lastWeeklyEcosystemAuditRun = new Date()
+    isWeeklyEcosystemAuditRunning = false
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { totalUsers: activeUsers.length, avgDevices, fullCoherenceUsers, avgEcosystemScore },
+    }
+  } catch (error: any) {
+    console.error('Weekly ecosystem audit failed:', error.message)
+    isWeeklyEcosystemAuditRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1286,6 +1404,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
   console.log('   - Weekly OS signal diversity audit: 5 AM UTC every Sunday')
   console.log('   - Weekly User Index consolidation: 23 PM UTC every Sunday')
+  console.log('   - Weekly ecosystem coherence audit: 7 AM UTC every Wednesday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('   - Daily OS vitals snapshot: 2 AM UTC every day')
   console.log('   - Daily QOS coherence report: 1 AM UTC every day')
@@ -1299,8 +1418,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; user index: 23PM Sun; QIE: 3AM; vitals: 2AM; QOS: 1AM; aggregate: 4AM
-    if (hour === 9 || hour === 6 || hour === 5 || hour === 23 || hour === 4 || hour === 3 || hour === 2 || hour === 1) {
+    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; user index: 23PM Sun; ecosystem: 7AM Wed; QIE: 3AM; vitals: 2AM; QOS: 1AM; aggregate: 4AM
+    if (hour === 9 || hour === 7 || hour === 6 || hour === 5 || hour === 23 || hour === 4 || hour === 3 || hour === 2 || hour === 1) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

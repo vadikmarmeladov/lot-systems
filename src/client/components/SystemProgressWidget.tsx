@@ -262,18 +262,38 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '30 patterns active. 14 modules online. Background QOS monitor deployed. The system now watches itself.',
     ],
   },
+  {
+    date: '2026-05-04',
+    session: 'QIE v16 — Wearable Ecosystem Expansion · Patterns 31–34 · Ecosystem Coherence Audit',
+    assembled: [
+      'QuantumEngineWidgets: TOTAL_DEVICES 3→5 — Phone (PHN) + Watch (WCH) ecosystem nodes added',
+      'Phone connect/disconnect handlers: recordSignal phone_connected / phone_disconnected → intentions source',
+      'Watch connect/disconnect handlers: recordSignal watch_connected / watch_disconnected → intentions source',
+      'Ecosystem display: 5-node row (CAR · HOME · CPU · PHN · WCH) with per-node opacity indicator',
+      'QIE Pattern 31 — wearable-integration-void: high personal engagement + no wearable signals → connect suggestion',
+      'QIE Pattern 32 — ecosystem-synchrony: 4+ unique devices active + biofield aligned → deep capture window',
+      'QIE Pattern 33 — mobile-anchoring-gap: phone connected, home offline → anchor suggestion',
+      'QIE Pattern 34 — full-ecosystem-coherence: all 5 device types recorded + flowing alignment → immediate capture',
+      'WIDGET_DEPENDENCY_MAP: 4 new nodes — phoneNode / watchNode / ecosystemBridge / qosSnapshot',
+      'Logs.tsx: PHON / WTCH / ECO-SYNC / COHR military handlers + ECO: updated for 5-node display',
+      'selfAssembly.ts SIGNAL_MAP: phone_connected + watch_connected + ecosystem_full_sync + device_coherence_peak mapped',
+      'scheduled-jobs: weekly-ecosystem-coherence-audit at 07:00 UTC every Wednesday — deviceCount per user · fullCoherenceEvents · ecosystemScore',
+      '34 patterns active. 14 modules online. Ecosystem wiring complete. The physical loop is closed.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-03',
+  date: '2026-05-04',
   message: [
-    'ASSEMBLY RUN — 2026-05-03 · v15',
-    'Built: QOS Snapshot Engine. Background monitor online.',
-    'The system now captures its own state every 30 minutes. No user action required.',
-    'Circadian phase mapped. QOS trend computed. Physiological directives surfaced.',
-    'The Cube watches you. Now it also watches itself.',
+    'ASSEMBLY RUN — 2026-05-04 · v16',
+    'Built: Phone + Watch ecosystem nodes. The wearable loop is now closed.',
+    '5-node ecosystem: CAR · HOME · CPU · PHN · WCH. All connectable. All signal-producing.',
+    'Pattern 34 — full-ecosystem-coherence — is the highest-confidence pattern in the system (0.98).',
+    'It fires when all 5 nodes are active and biofield is flowing. Rare. Worth capturing.',
+    'Weekly ecosystem audit online. Every Wednesday the Cube measures its own physical reach.',
     'Status: DEPLOYED',
     'Next: QOS trend visualization in Pattern Recognition widget.',
   ],

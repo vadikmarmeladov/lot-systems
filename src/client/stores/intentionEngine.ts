@@ -764,6 +764,83 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 31: Wearable integration void — high personal engagement but no watch/phone ecosystem signals
+  const ecosystemSignals = recentSignals.filter(s =>
+    s.source === 'intentions' &&
+    (s.signal === 'phone_connected' || s.signal === 'watch_connected' ||
+     s.signal === 'phone_disconnected' || s.signal === 'watch_disconnected')
+  )
+  const personalEngagement = recentSignals.filter(s =>
+    ['mood', 'memory', 'journal', 'selfcare'].includes(s.source)
+  )
+  if (personalEngagement.length >= 4 && ecosystemSignals.length === 0 && signals.length >= 10) {
+    patterns.push({
+      pattern: 'wearable-integration-void',
+      confidence: 0.65,
+      suggestedWidget: 'system',
+      suggestedTiming: 'next-session',
+      reason: 'Active engagement detected. No wearable signals. Connect Phone or Watch to close the physical-digital loop.'
+    })
+  }
+
+  // Pattern 32: Ecosystem synchrony — 4+ devices active + biofield aligned
+  const deviceSignals = signals.filter(s =>
+    s.source === 'intentions' &&
+    ['car_connected', 'home_connected', 'computer_connected', 'phone_connected', 'watch_connected'].includes(s.signal) &&
+    now - s.timestamp < 7 * 24 * 60 * 60 * 1000
+  )
+  const uniqueDevices = new Set(deviceSignals.map(s => s.signal.replace('_connected', '')))
+  const { energy: currentEnergy, alignment: currentAlignment } = calculateUserState(signals, now)
+  if (
+    uniqueDevices.size >= 4 &&
+    (currentAlignment === 'aligned' || currentAlignment === 'flowing') &&
+    currentEnergy !== 'depleted' && currentEnergy !== 'unknown'
+  ) {
+    patterns.push({
+      pattern: 'ecosystem-synchrony',
+      confidence: Math.min(0.95, 0.70 + uniqueDevices.size * 0.05),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `${uniqueDevices.size} devices active. Biofield aligned. Ecosystem coherence achieved — deep capture conditions optimal.`
+    })
+  }
+
+  // Pattern 33: Mobile anchoring gap — phone active, home not connected
+  const phoneActive = signals.some(s =>
+    s.source === 'intentions' && s.signal === 'phone_connected' &&
+    now - s.timestamp < 7 * 24 * 60 * 60 * 1000
+  )
+  const homeActive = signals.some(s =>
+    s.source === 'intentions' && s.signal === 'home_connected' &&
+    now - s.timestamp < 7 * 24 * 60 * 60 * 1000
+  )
+  if (phoneActive && !homeActive && signals.length >= 15) {
+    patterns.push({
+      pattern: 'mobile-anchoring-gap',
+      confidence: 0.60,
+      suggestedWidget: 'system',
+      suggestedTiming: 'next-session',
+      reason: 'Phone connected. Home offline. Anchor the mobile signal — connect Home to complete the physical environment loop.'
+    })
+  }
+
+  // Pattern 34: Full ecosystem coherence peak — all 5 device types recorded + positive alignment
+  const hasAllDevices =
+    signals.some(s => s.source === 'intentions' && s.signal === 'car_connected') &&
+    signals.some(s => s.source === 'intentions' && s.signal === 'home_connected') &&
+    signals.some(s => s.source === 'intentions' && s.signal === 'computer_connected') &&
+    signals.some(s => s.source === 'intentions' && s.signal === 'phone_connected') &&
+    signals.some(s => s.source === 'intentions' && s.signal === 'watch_connected')
+  if (hasAllDevices && currentAlignment === 'flowing') {
+    patterns.push({
+      pattern: 'full-ecosystem-coherence',
+      confidence: 0.98,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'immediate',
+      reason: 'All 5 ecosystem nodes active. Biofield flowing. This is a peak coherence window — capture something real.'
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1180,6 +1257,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Tier 2: calendar + media widgets (2026-04-28 audit)
   calendarWidget:    ['planner', 'intentions', 'energy'],
   microImage:        ['log', 'mood'],
+
+  // ── Ecosystem layer: device-level nodes (2026-05-04 audit)
+  phoneNode:         ['mood', 'intentions', 'energy'],
+  watchNode:         ['mood', 'energy', 'selfcare'],
+  ecosystemBridge:   ['intentions', 'phoneNode', 'watchNode', 'ecosystem'],
+  qosSnapshot:       ['mood', 'energy', 'intentions', 'selfcare', 'memory', 'planner', 'cohort'],
 }
 
 /** Returns which signal sources a given widget depends on. */
