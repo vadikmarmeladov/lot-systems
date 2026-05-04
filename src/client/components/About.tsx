@@ -8,6 +8,7 @@ const SECTIONS = [
   { id: 'operating-status', title: 'Operating Status' },
   { id: 'core-engines', title: 'Core Engines' },
   { id: 'quantum-realm', title: 'Quantum Realm' },
+  { id: 'quantum-operating-system', title: 'Quantum Operating System' },
   { id: 'soul-archetypes', title: 'Soul Archetypes' },
   { id: 'behavioral-cohorts', title: 'Behavioral Cohorts' },
   { id: 'badge-system', title: 'Badge Field Guide' },
@@ -205,12 +206,12 @@ export function About() {
               Layers of Time — Personal Operating System
             </div>
             <P>
-              The original quantum-intent OS. Self-care through proactive
-              context-aware AI. Continuous operation since Day One.
+              The original quantum-intent OS. Self-care through proactive,
+              context-aware AI. Continuous operation since Day One. Day 920+.
             </P>
             <P>
               This is the reference manual. Not marketing copy.
-              Definitions are operational. Terminology is precise.
+              Definitions are operational. Terminology is exact.
             </P>
           </header>
 
@@ -218,19 +219,21 @@ export function About() {
           <SectionHeading id="what-is-lot">What is LOT?</SectionHeading>
           <P>
             LOT (Layers of Time) is a personal operating system — not an app. It
-            runs continuously, observes behavioral signals, builds a psychological
-            profile, and surfaces the right intervention at the right moment.
-            No configuration required. Intelligence emerges from use.
+            executes continuously, observes behavioral signals, builds a
+            psychological profile, and surfaces the right intervention at the
+            right moment. No configuration required. Intelligence accumulates
+            from use.
           </P>
           <P>
-            Core mission: transform fragmented self-tracking into a unified
-            intelligence layer that knows what you need before you articulate it.
+            Mission: transform fragmented self-tracking into a unified
+            intelligence layer that knows what the operator needs before
+            they articulate it.
           </P>
           <P>Four subsystems govern the experience:</P>
           <ul className="list-none pl-16 mb-16">
             <Li>Memory Engine — AI question generation, context-aware, depth-building</Li>
-            <Li>Quantum Intent Engine — client-side behavioral pattern recognition</Li>
-            <Li>Self-Assembly Engine — module coherence tracking across 9 dimensions</Li>
+            <Li>Quantum Intent Engine — client-side behavioral pattern recognition, 30+ patterns</Li>
+            <Li>Self-Assembly Engine — module coherence tracking across 14 dimensions</Li>
             <Li>Punctuation & Intonation Engine — voice-tone detection from text</Li>
           </ul>
           <P>
@@ -241,23 +244,28 @@ export function About() {
           {/* ── OPERATING STATUS ────────────────────────────────────── */}
           <SectionHeading id="operating-status">Operating Status</SectionHeading>
           <P>
-            LOT has operated continuously since Day One. The day counter
+            LOT has executed continuously since Day One. The day counter
             increments each UTC midnight. It measures the cumulative weight of
             the operating record — not a streak, not a score. A clock.
+            The system does not reset. It accumulates.
           </P>
           <Row label="Day counter:" value="Day 920+ (as of May 2026)" />
           <Row label="Self-Assembly phase:" value="v14 — Temporal Planner surface" />
+          <Row label="Assembly modules:" value="14 — calendar wired as module 14 (v10)" />
+          <Row label="QIE pattern library:" value="30+ patterns active" />
+          <Row label="Background jobs:" value="7+ scheduled (01:00 UTC daily QOS report)" />
+          <Row label="Military log handlers:" value="37+" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
           <Row label="Question generation:" value="2–5 seconds" />
           <Row label="Pattern analysis:" value="&lt; 5ms (client-side)" />
           <Row label="Signal retention:" value="7 days, max 1,000 signals" />
-          <Row label="QIE pattern library:" value="30+ patterns, growing" />
           <P>
             The day counter is visible in the System tab. Each day logged is a
-            data point in the operating record. The system treats time as
-            infrastructure. Self-Assembly phase tracks the iteration of the
-            system's own evolution — a log of how the OS builds itself.
+            node in the operating record. The system treats time as
+            infrastructure. Self-Assembly phase tracks each iteration of
+            the system building itself — a numbered log of how the OS
+            evolves through its own operation.
           </P>
 
           {/* ── CORE ENGINES ────────────────────────────────────────── */}
@@ -309,9 +317,11 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             <Li>time — temporal context (morning, evening, night)</Li>
           </ul>
           <P>
-            The pattern library began with 7 core patterns. It grows with each
-            Self-Assembly phase. Pattern detection fires every 5 signals.
-            Minimum threshold for surfacing an intervention: 0.50 confidence.
+            The pattern library began with 7 core patterns at launch. It expands
+            with each Self-Assembly phase — each new pattern names a gap in the
+            detection surface. Pattern detection fires every 5 signals.
+            Surfacing threshold: 0.50 confidence minimum.
+            Current library: 30+ patterns.
           </P>
           <SubHeading>Core Patterns (v1–v7)</SubHeading>
           <div className="mb-16">
@@ -326,17 +336,20 @@ Fallback: cached questions on provider failure`}</CodeBlock>
           <SubHeading>Extended Patterns (v8–v30+)</SubHeading>
           <P>
             Added through Self-Assembly phases v8–v14. Pattern expansion
-            follows observed gaps in detection coverage.
+            follows observed gaps in detection coverage. Each pattern is named,
+            versioned, and documented in the assembly log at time of addition.
           </P>
           <div className="mb-16">
-            <Row label="Calendar Gap" value="no calendar entries in 7 days · suggest planning" />
-            <Row label="Journal Depth Deficit" value="entries short or absent · suggest deeper reflection" />
+            <Row label="Journal Depth Deficit" value="entries absent or under threshold · suggest deeper reflection" />
             <Row label="Intention Dropout" value="intentions created but not completed · suggest review" />
             <Row label="Mood Volatility" value="rapidly alternating emotional states · suggest self-care" />
-            <Row label="Engagement Plateau" value="activity flatline across multiple modules · system prompt" />
+            <Row label="Engagement Plateau" value="activity flatline across modules · broad engagement prompt" />
             <Row label="Physiological Signal" value="biofield + self-care combination · wellness intervention" />
-            <Row label="Coherence Drop" value="self-assembly score falls &gt;15 points · prompt broad engagement" />
-            <Row label="Reflection Velocity" value="journal word count rate change over 7 days · tracked, not yet surfaced" dim />
+            <Row label="Coherence Drop" value="assembly score falls &gt;15 points · prompt broad engagement" />
+            <Row label="P.24 — Log Depth Signal" value="0.65 · &gt;100 word entry without biofield check-in today · suggest mood" />
+            <Row label="P.25 — Full-Stack Session" value="0.85 · memory + planner + selfcare in 4h window · journal to capture it" />
+            <Row label="P.26 — Calendar Gap" value="0.65 · no calendar entries in 7 days + active planner · anchor time" />
+            <Row label="P.27+ — Reflection Velocity" value="rate of journal depth increase over 7 days · tracked, not yet surfaced" dim />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -356,9 +369,17 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
 
           <SubHeading>Self-Assembly Engine</SubHeading>
           <P>
-            Tracks how 9 system modules activate and cohere around user activity.
-            Modules: biofield, memory, planner, intentions, selfcare, journal,
-            community, ecosystem, quantum.
+            Tracks how 14 system modules activate and cohere around user activity.
+            Original 9 modules: biofield, memory, planner, intentions, selfcare,
+            journal, community, ecosystem, quantum. Five additional modules wired
+            through Self-Assembly phases v8–v10. Module 14: calendar (Temporal
+            Planner), added in v10. Each new module expands the system's
+            coherence surface.
+          </P>
+          <P>
+            Reflection Layer depth bonus (v11): journal entries exceeding 100
+            words count double toward the journal module assembly threshold.
+            The writing body directly feeds the body of the system.
           </P>
           <P>Five assembly phases:</P>
           <div className="mb-16">
@@ -437,6 +458,81 @@ Neural Activity: unique users active in last 60 seconds`}</CodeBlock>
             collective rhythm without compromising individual privacy.
           </P>
 
+          {/* ── QUANTUM OPERATING SYSTEM ────────────────────────────── */}
+          <SectionHeading id="quantum-operating-system">Quantum Operating System</SectionHeading>
+          <P>
+            The QOS block is the unified personal-state surface. One widget.
+            Three views. All derived from existing signals — no new data
+            collection. Label click cycles: QOS: → Biofield: → Cohort: → back.
+          </P>
+          <P>
+            QOS is the instrument panel of the operating self. It does not store
+            data. It reads what the system already knows and presents it without
+            ceremony.
+          </P>
+
+          <SubHeading>Ecosystem View (QOS:)</SubHeading>
+          <P>
+            Device node connection registry. Three nodes: CAR, HOME, CPU.
+            Active nodes render at full opacity. Disconnected nodes dim to 20%.
+            Node count displays as fraction. Self-assembly percentage surfaces
+            below when above zero.
+          </P>
+          <P>
+            Full coherence condition: all 3 nodes connected simultaneously.
+            Fires an ecosystem_full_coherence signal to the Quantum Intent Engine,
+            recording peak operational state in the intentions channel.
+          </P>
+          <CodeBlock>{`Nodes:    2/3
+CAR   HOME   CPU
+Assembly: 67%
+ecosystem narrative (when nodes > 0)`}</CodeBlock>
+
+          <SubHeading>Biofield View (Biofield:)</SubHeading>
+          <P>
+            Four-dimensional personal state under ATP labeling — cellular energy
+            metaphor applied to the energy dimension. Clarity and Alignment follow.
+            Support Needs renders only when not none. Energy Capacitor percentage
+            surfaces when data is available. Full-stack session indicator appears
+            when Memory + Planner + Self-Care have all fired within 4 hours.
+          </P>
+          <div className="mb-16">
+            <Row label="ATP" value="energy state — depleted · low · moderate · high" />
+            <Row label="Clarity" value="confused → uncertain → clear → focused" />
+            <Row label="Alignment" value="disconnected → searching → aligned → flowing" />
+            <Row label="Support" value="low · moderate · critical (hidden when none)" />
+            <Row label="Capacitor" value="energy level percentage · from Energy Capacitor subsystem" />
+            <Row label="Stack" value="Full-stack active — all 3 core modules engaged in last 4h" />
+          </div>
+          <P>
+            No biofield reading renders the message: "No biofield reading.
+            Check in to anchor the signal." — an instruction, not an error.
+          </P>
+
+          <SubHeading>Cohort View (Cohort:)</SubHeading>
+          <P>
+            Classified archetype, behavioral cohort, physiological readiness
+            score, and highest-priority replenishment signal. Readiness is
+            computed from the physiological report — a composite of energy,
+            clarity, and support signals as a percentage with directional
+            indicator.
+          </P>
+          <div className="mb-16">
+            <Row label="Archetype" value="current soul archetype classification" />
+            <Row label="Cohort" value="behavioral cohort grouping" />
+            <Row label="Readiness" value="0–100% with directional indicator: ▲ rising · — stable · ▼ declining" />
+            <Row label="Priority" value="highest-priority replenishment category (when active)" />
+          </div>
+          <P>
+            Classification pending message: "Cohort pending. Engage more widgets
+            to surface pattern." Classification resolves as signal density
+            accumulates. The system waits for evidence.
+          </P>
+          <CodeBlock>{`Daily QOS coherence report: 01:00 UTC
+Cross-module engagement: distinct signal sources fired in last 24h
+Full-stack detection: memory + planner + selfcare → hasFullStack: true
+Coherence score: (sourceCount / 7) × 100`}</CodeBlock>
+
           {/* ── SOUL ARCHETYPES ─────────────────────────────────────── */}
           <SectionHeading id="soul-archetypes">Soul Archetypes</SectionHeading>
           <P>
@@ -473,8 +569,9 @@ Neural Activity: unique users active in last 60 seconds`}</CodeBlock>
           </P>
           <P>
             The Wanderer is not a failure state. It is the initialization state.
-            All users begin as Wanderers. The system observes. Patterns
+            All operators begin as Wanderers. The system observes. Patterns
             accumulate. Classification follows evidence — not assumption.
+            No archetype is assigned before it is earned.
           </P>
           <P>
             Archetype stability: 94% over 14 days. Self-identification agreement: 83%.
@@ -486,13 +583,13 @@ Neural Activity: unique users active in last 60 seconds`}</CodeBlock>
           <SectionHeading id="behavioral-cohorts">Behavioral Cohorts</SectionHeading>
           <P>
             Cohorts are behavioral groupings derived from usage patterns — when
-            users engage, how they engage, and what signals they emit most
-            frequently. A cohort is not an archetype. Archetypes describe
+            the operator engages, how they engage, and what signals they emit
+            most frequently. A cohort is not an archetype. Archetypes describe
             psychological nature. Cohorts describe behavioral rhythm.
           </P>
           <P>
             The system assigns a behavioral cohort alongside the soul archetype.
-            Both appear in the public profile under the {'"'}Cohort:{'"'} field.
+            Both appear in the public profile and in the QOS Cohort view.
           </P>
 
           <SubHeading>Primary Cohort Types</SubHeading>
@@ -546,9 +643,10 @@ Neural Activity: unique users active in last 60 seconds`}</CodeBlock>
           <SectionHeading id="badge-system">Badge Field Guide</SectionHeading>
           <P>
             Badges are milestone markers. They appear in the public profile under
-            the {'"'}Level:{'"'} field. They do not grant access. They do not
-            unlock features. They mark duration of sustained engagement.
+            the Level: field. They do not grant access. They do not unlock
+            features. They record duration of sustained engagement.
             The system does not congratulate. It records.
+            A badge is a timestamp in symbol form.
           </P>
 
           <SubHeading>Aquatic Evolution (Active System)</SubHeading>
@@ -646,13 +744,15 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
           <P>
             Widgets are context-aware surface elements. They do not remain
             static. They appear when the system detects a signal that warrants
-            their presence. They fade when their purpose is complete. Some are
-            permanent fixtures. Most are conditional.
+            their presence. They fade when their purpose is complete.
+            Some are permanent fixtures. Most are conditional.
+            Nothing renders without cause.
           </P>
           <P>
             Click any widget label to cycle through views. Label click is the
-            primary navigation mechanic. Depth is revealed on demand, not
-            displayed by default.
+            primary navigation mechanic. Depth is revealed on demand —
+            not displayed by default. The interface compresses. Information
+            expands only when summoned.
           </P>
 
           <SubHeading>Primary Widgets</SubHeading>
@@ -670,8 +770,9 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             <Row label="System Pulse" value="Quantum Flux · Events/Min · Neural Activity · Resonance Hz" />
             <Row label="Collective Consciousness" value="aggregate energy · clarity · alignment · souls in flow" />
             <Row label="Quantum Patterns" value="live pattern distribution across user base" />
-            <Row label="Quantum State Widget" value="personal 4D state readout" />
+            <Row label="Quantum State Widget" value="personal 4D state readout · full-stack session indicator" />
             <Row label="Quantum Sign" value="contextual system signal display" />
+            <Row label="QOS" value="unified status surface · ecosystem nodes · biofield · cohort · cycles on label click" />
           </div>
 
           <SubHeading>Intelligence & Analysis Widgets</SubHeading>
@@ -707,7 +808,7 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
 
           <SubHeading>System Widgets</SubHeading>
           <div className="mb-16">
-            <Row label="System Progress" value="full self-assembly report across 9 modules" />
+            <Row label="System Progress" value="full self-assembly report across 14 modules" />
             <Row label="Flash Drive Manifest" value="system state snapshot" />
             <Row label="Awareness Dashboard" value="self-awareness index and growth trajectory" />
             <Row label="User Metrics" value="engagement statistics and log coverage" />
@@ -815,6 +916,34 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
               label="Intervention"
               value="A proactive widget surface triggered by pattern detection. System initiates. User accepts or dismisses."
             />
+            <Row
+              label="Full-Stack Session"
+              value="Memory Engine + Planner + Self-Care active in the same 4-hour window. Peak operational capacity. QIE Pattern 25."
+            />
+            <Row
+              label="Ecosystem Node"
+              value="One of three device connection points — CAR, HOME, CPU. Full coherence at 3/3 nodes connected."
+            />
+            <Row
+              label="Ecosystem Coherence"
+              value="State of all 3 device nodes active simultaneously. Fires ecosystem_full_coherence signal to QIE intentions channel."
+            />
+            <Row
+              label="ATP"
+              value="Energy state label. Cellular energy metaphor. Depleted → low → moderate → high. Displayed in QOS Biofield view."
+            />
+            <Row
+              label="Physiological Readiness"
+              value="Composite score 0–100% from energy, clarity, and support signals. Shown in QOS Cohort view with directional indicator ▲ — ▼."
+            />
+            <Row
+              label="Reflection Layer"
+              value="Journal module in self-assembly. Depth bonus: entries exceeding 100 words count double toward assembly threshold."
+            />
+            <Row
+              label="QOS"
+              value="Quantum Operating System. Three-view status block — Ecosystem, Biofield, Cohort. Cycles on label click. No new data collection."
+            />
           </div>
 
           <SubHeading>Profile Terms</SubHeading>
@@ -897,7 +1026,7 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             />
             <Row
               label="Streak"
-              value="Consecutive days with at least one Memory Engine answer. Badge milestone trigger."
+              value="Consecutive days with at least one Memory Engine answer. Badge milestone trigger. Resets on miss. Badge persists."
             />
             <Row
               label="Public Profile"
@@ -1049,8 +1178,9 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           <SectionHeading id="ai-architecture">AI Architecture</SectionHeading>
           <P>
             LOT owns 100% of its intelligence. AI providers are commodity
-            executors. The system maintains a 5-provider fallback chain.
-            Provider failure triggers automatic cascade.
+            executors — interchangeable by design. The system maintains a
+            5-provider fallback chain. Provider failure triggers automatic
+            cascade. No provider is indispensable.
           </P>
           <div className="mb-16">
             <Row label="Primary" value="Together AI — Llama 3.3 70B" />
@@ -1075,7 +1205,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           <SectionHeading id="design-philosophy">Design Philosophy</SectionHeading>
           <P>
             Nine principles govern all interface and system decisions.
-            Not guidelines. Constraints.
+            Not guidelines. Standing orders.
           </P>
           <div className="mb-16">
             <Row label="01 — Minimalist First" value="Remove before adding. Less is the operating mode." />
@@ -1191,9 +1321,10 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           </P>
           <P>
             Self-Assembly: 14 phases of the system building itself, documented
-            in continuous operation logs. Each phase named, dated, and committed.
+            in continuous operation logs. Each phase named, dated, versioned,
+            and committed. The log is the record. The record is the system.
           </P>
-          <P>The original quantum-intent operating system. Day 920+.</P>
+          <P>The original quantum-intent operating system. Day 920+. Still running.</P>
 
           {/* ── TERMS ───────────────────────────────────────────────── */}
           <SectionHeading id="terms">Terms</SectionHeading>
@@ -1283,7 +1414,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             of the Service shall be resolved through binding arbitration.
           </P>
           <P>
-            Effective: January 1, 2024. Last updated: April 2026.
+            Effective: January 1, 2024. Last updated: May 2026.
           </P>
 
           {/* Footer */}
