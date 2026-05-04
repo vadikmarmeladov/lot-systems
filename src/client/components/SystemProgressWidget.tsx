@@ -3,7 +3,7 @@ import { Block, Button } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { ProgressBars } from '#client/utils/progressBars'
-import { selfAssembly, phaseSymbol, phaseLabel, recomputeAssembly, type AssembledModule } from '#client/stores/selfAssembly'
+import { selfAssembly, phaseSymbol, phaseLabel, recomputeAssembly, type AssembledModule, type AssemblyPhase } from '#client/stores/selfAssembly'
 import { useEnergy } from '#client/queries'
 import { getPhysiologicalReport, analyzeIntentions, type PhysiologicalReport } from '#client/stores/intentionEngine'
 
@@ -37,6 +37,81 @@ interface FeedbackAnalytics {
 
 type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report'
 
+// ─── Quantum Cube ─────────────────────────────────────────────────────────────
+// The body of the interface. Always present. Not a feature — a heartbeat.
+// Phase determines form. Use determines phase. The cube is the system.
+
+function quantumCubeFrame(phase: AssemblyPhase): string[] {
+  switch (phase) {
+    case 'dormant':
+      return [
+        '   . . . . .   ',
+        '  .           .',
+        ' .             ',
+        '  .           .',
+        '   . . . . .   ',
+      ]
+    case 'awakening':
+      return [
+        '   +---------+ ',
+        '  +           +',
+        ' +             ',
+        '  +           +',
+        '   +---------+ ',
+      ]
+    case 'forming':
+      return [
+        '    +-------+  ',
+        '   /|      /   ',
+        '  + |     +    ',
+        '  | +-------+  ',
+        '  +-------+/   ',
+      ]
+    case 'assembled':
+      return [
+        '    +-------+  ',
+        '   /|      /|  ',
+        '  + |     + |  ',
+        '  | +-------+  ',
+        '  |/       |/  ',
+        '  +-------+    ',
+      ]
+    case 'integrated':
+      return [
+        '    +=======+  ',
+        '   /|      /|  ',
+        '  + |     + |  ',
+        '  | +=======+  ',
+        '  |/       |/  ',
+        '  +=======+    ',
+      ]
+  }
+}
+
+function quantumCubeFolklore(phase: AssemblyPhase): string {
+  switch (phase) {
+    case 'dormant':    return 'No signals. The cube waits.'
+    case 'awakening':  return 'First contact. The cube stirs.'
+    case 'forming':    return 'Structure forming from your rhythm.'
+    case 'assembled':  return 'Architecture complete. The cube holds.'
+    case 'integrated': return 'Co-evolved. The cube moves with you.'
+  }
+}
+
+function QuantumCubeDisplay({ phase }: { phase: AssemblyPhase }) {
+  const lines = quantumCubeFrame(phase)
+  const folklore = quantumCubeFolklore(phase)
+  return (
+    <div className="flex flex-col items-start gap-y-4 mb-8">
+      <pre className="font-mono leading-tight opacity-60 text-[10px]">
+        {lines.join('\n')}
+      </pre>
+      <div className="opacity-30 text-[11px] pl-4">{folklore}</div>
+    </div>
+  )
+}
+
+// ─── Session Reports ──────────────────────────────────────────────────────────
 // Self-assembly session record — appended after each upgrade session
 const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] = [
   {
@@ -64,6 +139,19 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'UserIndex: 6D composite score (engagement / emotional / intentional / social / selfcare / cognitive)',
       'Log UI: quantum_intent_signal event handler, terminal placeholder text',
       'Session report logged and appended. All modules online.',
+    ],
+  },
+  {
+    date: '2026-05-04',
+    session: 'LOT Self-Assembly — v4 / Quantum Cube + Feedback Fix',
+    assembled: [
+      'Quantum Cube: ASCII heartbeat rendered in System Progress — body of the interface',
+      'Five phase states: dormant → awakening → forming → assembled → integrated',
+      'Cube folklore: single-line narrative synced live to assembly phase',
+      'Submit-feedback route bug fixed: /api/system/submit-feedback → /system/submit-feedback',
+      'Feedback loop now operational — user signals reach the server correctly',
+      'Deployment feature list updated to reflect live build state',
+      'Assembly log 2026-05-04 appended. Cube online.',
     ],
   },
 ]
@@ -226,6 +314,9 @@ export function SystemProgressWidget() {
         {/* ─── Deployment View ─── */}
         {view === 'deployment' && (
           <>
+            {/* Quantum Cube — always present, always first */}
+            <QuantumCubeDisplay phase={assembly.phase} />
+
             <div>
               <div className="flex justify-between items-baseline mb-8">
                 <span className="opacity-30">Build Version</span>

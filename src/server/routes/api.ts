@@ -4239,14 +4239,14 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         return 'activated'
       }
 
-      // Features in current version
+      // Features in current version — reflects actual live build state
       const features = [
-        'API Data Export Protocol',
-        'Hourly Time Chime Resonance',
-        'Quantum Intent Interactive Matrix',
-        'Community Wellness Pulse Monitor',
-        'Memory Engine Neural Analytics',
-        'Growth Milestone Tracking System'
+        'Quantum Cube Heartbeat — body of the interface, phase-locked to assembly',
+        'Soviet Keyboard Synth — type 🎹 or /synth to activate',
+        'Christian Fasting Algorithm — Recipe degrades to prayer-rest on holy days',
+        'Physiological Cohort Classification — weekly archetype analysis',
+        'Layout Density Progression — breathable → instrument, earned through use',
+        'Punctuation Context Engine — voice detection from journal intonation',
       ]
 
       const deployment = {
@@ -4309,7 +4309,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       version: string
       feedback: 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
     }
-  }>('/api/system/submit-feedback', async (req, reply) => {
+  }>('/system/submit-feedback', async (req, reply) => {
     if (!req.user) return reply.throw.authException()
 
     const { version, feedback } = req.body
