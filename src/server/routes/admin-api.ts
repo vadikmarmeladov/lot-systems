@@ -2162,6 +2162,144 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
+  // ─── Admin Diagnostic Endpoints ────────────────────────────────────────────
+  // These were previously public; they now require admin authentication.
+
+  fastify.get('/verify-admin-config', async (req: FastifyRequest, reply) => {
+    const { default: config } = await import('#server/config.js')
+    const adminEmailsEnv = process.env.ADMIN_EMAILS
+    const adminsList = config.admins
+    return {
+      timestamp: new Date().toISOString(),
+      environment: config.env,
+      adminConfig: {
+        ADMIN_EMAILS_env_var: adminEmailsEnv || 'NOT_SET',
+        parsed_admin_emails: adminsList.length > 0 ? adminsList : ['NONE'],
+        admin_count: adminsList.length,
+      },
+    }
+  })
+
+  fastify.get('/verify-api-keys', async (req: FastifyRequest, reply) => {
+    const { default: config } = await import('#server/config.js')
+    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
+    const resendKey = process.env.RESEND_API_KEY
+    const openaiKey = process.env.OPENAI_API_KEY
+
+    const maskKey = (key: string | undefined) => {
+      if (!key) return 'NOT_SET'
+      if (key.length < 20) return 'INVALID_LENGTH'
+      return `${key.slice(0, 4)}${'*'.repeat(key.length - 8)}${key.slice(-4)}`
+    }
+
+    return {
+      timestamp: new Date().toISOString(),
+      environment: config.env,
+      keys: {
+        anthropic: { configured: !!anthropicKey, preview: maskKey(anthropicKey) },
+        resend: { configured: !!resendKey, preview: maskKey(resendKey) },
+        openai: { configured: !!openaiKey, preview: maskKey(openaiKey) },
+      },
+    }
+  })
+
+  fastify.get('/debug-memory-engine', async (req: FastifyRequest, reply) => {
+    const { default: config } = await import('#server/config.js')
+    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
+
+    let anthropicClientTest = 'NOT_TESTED'
+    try {
+      const Anthropic = (await import('@anthropic-ai/sdk')).default
+      new Anthropic({ apiKey: anthropicKey })
+      anthropicClientTest = 'INITIALIZED_OK'
+    } catch (err: any) {
+      anthropicClientTest = `FAILED: ${err.message}`
+    }
+
+    return {
+      timestamp: new Date().toISOString(),
+      environment: config.env,
+      diagnosis: {
+        anthropicApiKey: {
+          exists: !!anthropicKey,
+          fromEnv: !!process.env.ANTHROPIC_API_KEY,
+          fromConfig: !!config.anthropic?.apiKey,
+        },
+        anthropicClient: { status: anthropicClientTest },
+        memoryEngineLogic: {
+          result: !!anthropicKey ? 'WILL_USE_CLAUDE_IF_USER_HAS_TAG' : 'WILL_USE_STANDARD_ONLY',
+        },
+      },
+    }
+  })
+
+  fastify.get('/test-ai-engines', async (req: FastifyRequest, reply) => {
+    const { default: config } = await import('#server/config.js')
+    const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+
+    const status = aiEngineManager.getStatus()
+    const hasAnyEngine = aiEngineManager.hasAvailableEngine()
+
+    let preferredEngine: string | null = null
+    let preferredEngineError: string | null = null
+    try {
+      const engine = aiEngineManager.getEngine('auto')
+      preferredEngine = engine.name
+    } catch (error: any) {
+      preferredEngineError = error.message
+    }
+
+    return {
+      timestamp: new Date().toISOString(),
+      environment: config.env,
+      engines: status,
+      summary: { hasAvailableEngine: hasAnyEngine, preferredEngine, error: preferredEngineError },
+      apiKeys: {
+        TOGETHER_API_KEY: !!process.env.TOGETHER_API_KEY,
+        GOOGLE_API_KEY: !!process.env.GOOGLE_API_KEY,
+        MISTRAL_API_KEY: !!process.env.MISTRAL_API_KEY,
+        ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY,
+        OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
+      },
+    }
+  })
+
+  fastify.get('/test-anthropic-key', async (req: FastifyRequest, reply) => {
+    const { default: config } = await import('#server/config.js')
+    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
+
+    if (!anthropicKey) {
+      return { success: false, error: 'ANTHROPIC_API_KEY not configured', timestamp: new Date().toISOString() }
+    }
+
+    try {
+      const Anthropic = (await import('@anthropic-ai/sdk')).default
+      const client = new Anthropic({ apiKey: anthropicKey })
+
+      const message = await client.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 10,
+        messages: [{ role: 'user', content: 'Respond with just "OK"' }],
+      })
+
+      return {
+        success: true,
+        message: 'API key is valid and working',
+        response: message.content[0].type === 'text' ? message.content[0].text : 'OK',
+        usage: { inputTokens: message.usage.input_tokens, outputTokens: message.usage.output_tokens },
+        timestamp: new Date().toISOString(),
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        error: error.message || 'Unknown error',
+        errorType: error.constructor.name,
+        status: error.status,
+        timestamp: new Date().toISOString(),
+      }
+    }
+  })
+
   // Manually trigger scheduled jobs (for testing)
   fastify.post('/trigger-scheduled-jobs', async (req: FastifyRequest, reply) => {
     try {
