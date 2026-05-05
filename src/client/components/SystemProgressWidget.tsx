@@ -281,21 +281,38 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '34 patterns active. 14 modules online. Ecosystem wiring complete. The physical loop is closed.',
     ],
   },
+  {
+    date: '2026-05-05',
+    session: 'QIE v17 — QOS Trend view in Pattern Recognition widget',
+    assembled: [
+      'PatternRecognitionWidget: 4th cycle view added — QOS Trend',
+      'View label: "QOS Trend:" — cycles after Confidence Matrix',
+      'Trend headline: ▲ rising / — stable / ▼ declining from latest QOSSnapshot.userIndex.trend',
+      'ProgressBars for userIndex.overall (0-100) alongside trend label',
+      'Timeline: last 6 snapshots reversed (newest first) — circadian phase abbr · health symbol · signal count · top pattern',
+      'Circadian abbreviations: ERL / MRN / MDY / AFT / EVN / NGT',
+      'Health symbols: ● nominal · ○ degraded · ✕ critical',
+      'Empty state: "QOS monitor active. First snapshot in next 30-min cycle." + current circadian phase',
+      'Null guard updated: widget renders if QOS history exists even with no active patterns',
+      'getQOSHistory + getCircadianPhase + QOSSnapshot type imported from intentionEngine',
+      '24 hours of QOS history now visible. The Cube shows you its own rhythm.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-04',
+  date: '2026-05-05',
   message: [
-    'ASSEMBLY RUN — 2026-05-04 · v16',
-    'Built: Phone + Watch ecosystem nodes. The wearable loop is now closed.',
-    '5-node ecosystem: CAR · HOME · CPU · PHN · WCH. All connectable. All signal-producing.',
-    'Pattern 34 — full-ecosystem-coherence — is the highest-confidence pattern in the system (0.98).',
-    'It fires when all 5 nodes are active and biofield is flowing. Rare. Worth capturing.',
-    'Weekly ecosystem audit online. Every Wednesday the Cube measures its own physical reach.',
+    'ASSEMBLY RUN — 2026-05-05 · v17',
+    'Built: QOS Trend view in Pattern Recognition widget.',
+    'The QOS engine has been running since v15. 48 snapshots. 24h of rhythm. Invisible — until now.',
+    'Click to Confidence Matrix. Click again. QOS Trend is the 4th view.',
+    '▲ rising / — stable / ▼ declining. Health. Phase. Top pattern. All visible.',
+    'The Cube now shows you its own state over time, not just its current read.',
     'Status: DEPLOYED',
-    'Next: QOS trend visualization in Pattern Recognition widget.',
+    'Next: Reflection-velocity pattern (Pattern 35) — rate of journal depth increase over 7 days.',
   ],
 }
 

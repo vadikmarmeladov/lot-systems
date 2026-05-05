@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.6
-**Last Updated:** May 2, 2026
-**Status:** Production Active — Self-Assembly Phase v14
+**Document Version:** 2.7
+**Last Updated:** May 5, 2026
+**Status:** Production Active — Self-Assembly Phase v17
 
 ---
 
@@ -626,6 +626,9 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Logs.tsx: mood_checkin → BIO [SECTOR] block; scheduled_job → JOB: block
 - [x] QIE v14 — Temporal Planner surface: upcomingCalendar memo + Next: Block in System header
 - [x] System.tsx: next calendar entry visible above context stack — Temporal Planner (module 14) now has a face
+- [x] QIE v15 — QOS Snapshot Engine: captureQOSSnapshot() · startBackgroundQOSMonitor() · getEnrichedPhysiologicalReport() · 6-state circadian model · daily aggregate job
+- [x] QIE v16 — Wearable Ecosystem: Phone + Watch nodes · Patterns 31–34 (wearable-void / ecosystem-synchrony / mobile-anchoring / full-ecosystem-coherence) · weekly ecosystem audit
+- [x] QIE v17 — QOS Trend view: PatternRecognitionWidget 4th cycle view surfaces 24h snapshot history — trend direction · health symbols · circadian phases · top patterns
 
 ### Near-Term (Q2-Q3 2026)
 - [ ] Mobile app (React Native)
