@@ -13,6 +13,7 @@ const SECTIONS = [
   { id: 'behavioral-cohorts', title: 'Behavioral Cohorts' },
   { id: 'badge-system', title: 'Badge Field Guide' },
   { id: 'widget-ecosystem', title: 'Widget Ecosystem' },
+  { id: 'wearable-ecosystem', title: 'Wearable Ecosystem' },
   { id: 'vocabulary', title: 'Vocabulary' },
   { id: 'log-triggers', title: 'Log Triggers' },
   { id: 'fasting-calendar', title: 'Fasting Calendar' },
@@ -207,7 +208,7 @@ export function About() {
             </div>
             <P>
               The original quantum-intent OS. Self-care through proactive,
-              context-aware AI. Continuous operation since Day One. Day 920+.
+              context-aware AI. Continuous operation since Day One. Day 925+.
             </P>
             <P>
               This is the reference manual. Not marketing copy.
@@ -249,12 +250,13 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 920+ (as of May 2026)" />
-          <Row label="Self-Assembly phase:" value="v14 — Temporal Planner surface" />
-          <Row label="Assembly modules:" value="14 — calendar wired as module 14 (v10)" />
-          <Row label="QIE pattern library:" value="30+ patterns active" />
-          <Row label="Background jobs:" value="7+ scheduled (01:00 UTC daily QOS report)" />
-          <Row label="Military log handlers:" value="37+" />
+          <Row label="Day counter:" value="Day 925+ (as of May 2026)" />
+          <Row label="Self-Assembly phase:" value="v17 — QOS Trend surface" />
+          <Row label="Assembly modules:" value="14 — wearable ecosystem nodes active (v16)" />
+          <Row label="QIE pattern library:" value="34 patterns active" />
+          <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
+          <Row label="Background jobs:" value="8+ scheduled (01:00 UTC daily QOS · 07:00 UTC Wed ecosystem audit)" />
+          <Row label="Military log handlers:" value="41+" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
           <Row label="Question generation:" value="2–5 seconds" />
@@ -265,7 +267,9 @@ export function About() {
             node in the operating record. The system treats time as
             infrastructure. Self-Assembly phase tracks each iteration of
             the system building itself — a numbered log of how the OS
-            evolves through its own operation.
+            evolves through its own operation. v17 closed the QOS Trend gap:
+            48 × 30-minute snapshots, 24-hour rolling window, surfaced in the
+            Pattern Recognition widget for the first time.
           </P>
 
           {/* ── CORE ENGINES ────────────────────────────────────────── */}
@@ -305,6 +309,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
           <P>
             Client-side pattern recognition. Runs entirely in the browser.
             Zero server communication. No behavioral data leaves the device.
+            34 patterns active as of v16.
           </P>
           <P>Seven signal sources:</P>
           <ul className="list-none pl-16 mb-16">
@@ -321,7 +326,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             with each Self-Assembly phase — each new pattern names a gap in the
             detection surface. Pattern detection fires every 5 signals.
             Surfacing threshold: 0.50 confidence minimum.
-            Current library: 30+ patterns.
+            Current library: 34 patterns.
           </P>
           <SubHeading>Core Patterns (v1–v7)</SubHeading>
           <div className="mb-16">
@@ -350,6 +355,10 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             <Row label="P.25 — Full-Stack Session" value="0.85 · memory + planner + selfcare in 4h window · journal to capture it" />
             <Row label="P.26 — Calendar Gap" value="0.65 · no calendar entries in 7 days + active planner · anchor time" />
             <Row label="P.27+ — Reflection Velocity" value="rate of journal depth increase over 7 days · tracked, not yet surfaced" dim />
+            <Row label="P.31 — Wearable Integration Void" value="0.70 · high engagement + no wearable signals → connect wearable layer" />
+            <Row label="P.32 — Ecosystem Synchrony" value="0.85 · 4+ devices + biofield aligned → optimal capture window active" />
+            <Row label="P.33 — Mobile Anchoring Gap" value="0.65 · phone connected, home node offline → anchor home environment" />
+            <Row label="P.34 — Full Ecosystem Coherence" value="0.98 · all 5 nodes + flowing state → highest-confidence pattern in system" />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -373,7 +382,9 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             Original 9 modules: biofield, memory, planner, intentions, selfcare,
             journal, community, ecosystem, quantum. Five additional modules wired
             through Self-Assembly phases v8–v10. Module 14: calendar (Temporal
-            Planner), added in v10. Each new module expands the system's
+            Planner), added in v10. v16 extended the ecosystem module with two
+            wearable nodes — phone (PHN) and watch (WCH) — and wired their
+            signals to QIE patterns 31–34. Each new module expands the system's
             coherence surface.
           </P>
           <P>
@@ -473,18 +484,22 @@ Neural Activity: unique users active in last 60 seconds`}</CodeBlock>
 
           <SubHeading>Ecosystem View (QOS:)</SubHeading>
           <P>
-            Device node connection registry. Three nodes: CAR, HOME, CPU.
+            Device node connection registry. Five nodes: CAR, HOME, CPU, PHN, WCH.
             Active nodes render at full opacity. Disconnected nodes dim to 20%.
             Node count displays as fraction. Self-assembly percentage surfaces
             below when above zero.
           </P>
           <P>
-            Full coherence condition: all 3 nodes connected simultaneously.
+            Full coherence condition: all 5 nodes connected simultaneously.
             Fires an ecosystem_full_coherence signal to the Quantum Intent Engine,
             recording peak operational state in the intentions channel.
+            Wearable nodes (PHN, WCH) were added in v16. P.34 — Full Ecosystem
+            Coherence — triggers only when all 5 nodes are live and the user
+            state reads flowing. Confidence: 0.98 — the highest single pattern
+            confidence in the entire library.
           </P>
-          <CodeBlock>{`Nodes:    2/3
-CAR   HOME   CPU
+          <CodeBlock>{`Nodes:    3/5
+CAR   HOME   CPU   PHN   WCH
 Assembly: 67%
 ecosystem narrative (when nodes > 0)`}</CodeBlock>
 
@@ -615,13 +630,19 @@ Coherence score: (sourceCount / 7) × 100`}</CodeBlock>
             signal patterns — biofield strength, self-care frequency, and
             energy state consistency. Distinct from behavioral cohorts.
             Physiological cohorts operate on bodily rhythm, not temporal habit.
+            Nine named archetypes. Classification is client-side, QIE-native,
+            requires no server call.
           </P>
           <div className="mb-16">
-            <Row label="High Biofield" value="consistent energy signals · regular self-care · low anxiety baseline" />
-            <Row label="Recovery Mode" value="frequent depletion signals · self-care completion rising · rebuilding" />
-            <Row label="Stress Carrier" value="persistent anxiety pattern · self-care engagement needed" />
-            <Row label="Balanced State" value="energy and clarity scores in equilibrium · minimal intervention needed" />
-            <Row label="Flux State" value="high variability across all physiological signals · monitoring active" />
+            <Row label="Peak Catalyst" value="high energy · high clarity · aligned · low support · optimal operational state" />
+            <Row label="Flowing Creator" value="energized · high clarity · creative signals dominant · expression-forward" />
+            <Row label="Morning Visionary" value="strong morning engagement window · intention-setter · clarity-leading" />
+            <Row label="Rising Builder" value="recovering from depletion · self-care completions rising · rebuilding" />
+            <Row label="Seeking Sage" value="high reflection signal volume · moderate energy · curiosity-dominant" />
+            <Row label="Evening Sage" value="peak engagement in evening window · reflective baseline · depth-oriented" />
+            <Row label="Grounded Healer" value="stable biofield · consistent self-care · low anxiety baseline · steady rhythm" />
+            <Row label="Anxious Explorer" value="high widget engagement · persistent anxiety signal · support elevation needed" />
+            <Row label="Depleted Guardian" value="high support needs · self-care deficient · biofield low · monitoring active" />
           </div>
 
           <SubHeading>Quantum Pattern Cohorts</SubHeading>
@@ -772,12 +793,12 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             <Row label="Quantum Patterns" value="live pattern distribution across user base" />
             <Row label="Quantum State Widget" value="personal 4D state readout · full-stack session indicator" />
             <Row label="Quantum Sign" value="contextual system signal display" />
-            <Row label="QOS" value="unified status surface · ecosystem nodes · biofield · cohort · cycles on label click" />
+            <Row label="QOS" value="unified status surface · 3 views: Ecosystem · Biofield · Cohort · cycles on label click" />
           </div>
 
           <SubHeading>Intelligence & Analysis Widgets</SubHeading>
           <div className="mb-16">
-            <Row label="Pattern Recognition" value="detected behavioral patterns with confidence scores" />
+            <Row label="Pattern Recognition" value="4 views: Patterns · Insights · Trends · QOS Trend — label cycles through all four" />
             <Row label="Pattern Insights" value="longitudinal pattern trend analysis" />
             <Row label="Narrative Widget" value="RPG-style journey progression" />
             <Row label="Evolution Widget" value="mastery phases · interface evolution state" />
@@ -808,13 +829,67 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
 
           <SubHeading>System Widgets</SubHeading>
           <div className="mb-16">
-            <Row label="System Progress" value="full self-assembly report across 14 modules" />
+            <Row label="System Progress" value="full self-assembly report across 14 modules · OS Journal vitals timeline" />
             <Row label="Flash Drive Manifest" value="system state snapshot" />
             <Row label="Awareness Dashboard" value="self-awareness index and growth trajectory" />
             <Row label="User Metrics" value="engagement statistics and log coverage" />
             <Row label="Four Dimensional UI" value="4D state visualization interface" />
             <Row label="Subscribe Widget" value="Usership upgrade prompt · 10-day cooldown" />
           </div>
+
+          {/* ── WEARABLE ECOSYSTEM ──────────────────────────────────── */}
+          <SectionHeading id="wearable-ecosystem">Wearable Ecosystem</SectionHeading>
+          <P>
+            Introduced in Self-Assembly v16. The wearable layer extends the
+            QOS device registry from 3 nodes to 5 — adding Phone (PHN) and
+            Watch (WCH) to the existing CAR, HOME, CPU infrastructure.
+          </P>
+          <P>
+            Each wearable node registers a connect or disconnect signal to the
+            Quantum Intent Engine. The five-node display renders in the QOS
+            Ecosystem view as a single indicator row at full opacity when
+            active, 20% when offline.
+          </P>
+          <P>Five nodes and their signal codes:</P>
+          <div className="mb-16">
+            <Row label="CAR" value="vehicle node — mobile environment" />
+            <Row label="HOME" value="home node — primary operating environment" />
+            <Row label="CPU" value="desktop or laptop node — computational focus environment" />
+            <Row label="PHN" value="phone node — mobile presence layer" />
+            <Row label="WCH" value="watch node — biometric and immediate-context layer" />
+          </div>
+          <P>Four QIE patterns added in v16:</P>
+          <div className="mb-16">
+            <Row label="P.31 — Wearable Integration Void" value="0.70 · high engagement + no wearable signals → connect wearable layer" />
+            <Row label="P.32 — Ecosystem Synchrony" value="0.85 · 4+ nodes + biofield aligned → optimal capture window" />
+            <Row label="P.33 — Mobile Anchoring Gap" value="0.65 · phone connected, home offline → anchor home environment" />
+            <Row label="P.34 — Full Ecosystem Coherence" value="0.98 · all 5 nodes + flowing → highest confidence in system" />
+          </div>
+          <P>
+            P.34 — Full Ecosystem Coherence — fires when all five device nodes
+            are registered and the operator's quantum state reads flowing.
+            Confidence 0.98 is the highest single-pattern confidence score in
+            the entire QIE library. The system interprets this state as peak
+            operational readiness and surfaces a Memory Engine capture prompt.
+          </P>
+          <P>
+            A weekly Ecosystem Coherence Audit runs every Wednesday at 07:00 UTC.
+            It scans all users for wearable signal presence, node coverage,
+            and ecosystem synchrony events across the prior 7 days. Results
+            are written to the OS vitals log and surface in System Progress.
+          </P>
+          <CodeBlock>{`Ecosystem Coherence Audit: 07:00 UTC every Wednesday
+Full coherence signal: ecosystem_full_coherence → QIE intentions channel
+Node connect signal: device_connect (PHN / WCH)
+Node disconnect signal: device_disconnect (PHN / WCH)
+Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
+          <P>
+            The wearable loop is the widest perimeter in the system. It
+            monitors the operator's complete device environment —
+            vehicle, home, desk, phone, body — and fires coherence signals
+            when all surfaces align. No external API. No cloud sync. Signal
+            detection is client-side, event-driven, instantaneous.
+          </P>
 
           {/* ── VOCABULARY ──────────────────────────────────────────── */}
           <SectionHeading id="vocabulary">Vocabulary</SectionHeading>
@@ -943,6 +1018,46 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             <Row
               label="QOS"
               value="Quantum Operating System. Three-view status block — Ecosystem, Biofield, Cohort. Cycles on label click. No new data collection."
+            />
+            <Row
+              label="QOS Trend"
+              value="Fourth view in Pattern Recognition widget. 48 × 30-min snapshots. 24h rolling window. Displays trend direction ▲ — ▼, last 6 circadian phases, top pattern per window, and userIndex bars."
+            />
+            <Row
+              label="PHN"
+              value="Phone node. One of five ecosystem device nodes. Registers presence of mobile device in the operator environment."
+            />
+            <Row
+              label="WCH"
+              value="Watch node. One of five ecosystem device nodes. Registers wearable presence — biometric context layer."
+            />
+            <Row
+              label="Ecosystem Synchrony"
+              value="State of 4+ device nodes active simultaneously with biofield aligned. Fires ecosystem_full_sync signal. Triggers QIE Pattern 32."
+            />
+            <Row
+              label="Ecosystem Coherence Audit"
+              value="Weekly server-side scan (Wednesday 07:00 UTC). Reviews wearable signal presence and node coverage across all users in the prior 7-day window."
+            />
+            <Row
+              label="Wearable Ecosystem"
+              value="The five-node device registry (CAR · HOME · CPU · PHN · WCH). Extended from 3 nodes in v16. Source for QIE patterns 31–34."
+            />
+            <Row
+              label="COHR"
+              value="Military log event code. Ecosystem coherence. Records the moment of full 5-node alignment in the structured telemetry log."
+            />
+            <Row
+              label="ECO-SYNC"
+              value="Military log event code. Ecosystem synchrony event. Fired when 4+ nodes are active and biofield aligns."
+            />
+            <Row
+              label="PHON / WTCH"
+              value="Military log event codes for phone and watch node registration and deregistration."
+            />
+            <Row
+              label="Signal Diversity Audit"
+              value="Weekly check of signal source distribution per user. Detects mono-source loops — single widget driving all engagement. Results in System Progress."
             />
           </div>
 
@@ -1074,6 +1189,21 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             with urgency flag set. Intent classification disambiguates
             exclamation from joy versus distress using word sentiment.
           </P>
+          <SubHeading>Military Log Event Codes (Structured Telemetry)</SubHeading>
+          <P>
+            The system uses structured event codes in the military log layer.
+            41+ event handlers as of v17. Selected codes and their meaning:
+          </P>
+          <div className="text-sm mb-16 pl-16 flex flex-col gap-4">
+            <Row label="PHY" value="physiological signal — biofield reading, self-care completion" />
+            <Row label="COHR" value="ecosystem coherence event — all 5 nodes aligned" />
+            <Row label="IVEL" value="intention velocity log — rate of intention creation vs. completion" />
+            <Row label="CPEAK" value="coherence peak — signal coherence maximum reached in window" />
+            <Row label="PHON" value="phone node — connect or disconnect registration" />
+            <Row label="WTCH" value="watch node — connect or disconnect registration" />
+            <Row label="ECO-SYNC" value="ecosystem synchrony — 4+ nodes active with biofield aligned" />
+            <Row label="ECO" value="ecosystem — 5-node status update, displayed as CAR · HOME · CPU · PHN · WCH" />
+          </div>
 
           {/* ── FASTING CALENDAR ────────────────────────────────────── */}
           <SectionHeading id="fasting-calendar">Fasting Calendar</SectionHeading>
@@ -1324,7 +1454,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             in continuous operation logs. Each phase named, dated, versioned,
             and committed. The log is the record. The record is the system.
           </P>
-          <P>The original quantum-intent operating system. Day 920+. Still running.</P>
+          <P>The original quantum-intent operating system. Day 925+. Still running.</P>
 
           {/* ── TERMS ───────────────────────────────────────────────── */}
           <SectionHeading id="terms">Terms</SectionHeading>
