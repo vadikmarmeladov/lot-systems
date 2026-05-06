@@ -298,21 +298,41 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '24 hours of QOS history now visible. The Cube shows you its own rhythm.',
     ],
   },
+  {
+    date: '2026-05-06',
+    session: 'Quantum Engine Upgrade — v18 / QOS Self-Assembly Deep Pass',
+    assembled: [
+      'LOG_DEPENDENCY_SOURCES constant: log / energy / cohort pipeline formally declared in intentionEngine',
+      'WIDGET_DEPENDENCY_MAP: quantum + log nodes added; 36-node graph fully indexed across all tiers',
+      'QIE Pattern 35 (full-coherence): 6-source activation across 7d — QOS peak assembly detection',
+      'QIE Pattern 36 (qos-acceleration): 48h signal velocity doubling trigger — acceleration event detection',
+      'PhysiologicalReport type: userIndex 6D block (engagement/emotional/intentional/social/selfCare/cognitive/trend/activeSourceCount)',
+      'getPhysiologicalReport(): activeSourceCount + full userIndex snapshot populated in return',
+      'Logs.tsx: ASSEM (assembly_snapshot) + QOS (qos_report) military event handlers added',
+      'scheduled-jobs.ts: Daily Self-Assembly Snapshot at 00:00 UTC — platform-wide QIE signal audit',
+      'SystemProgressWidget: Usership Transmission updated to v18 · session report appended',
+      'Assembly velocity is now a first-class metric. QOS expanding.',
+    ],
+  },
 ]
+
+// SESSION REPORT 2026-05-06 — v18 / QOS Self-Assembly Deep Pass
+// Appended as a session log at end of SESSION_REPORTS array above.
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-05',
+  date: '2026-05-06',
   message: [
-    'ASSEMBLY RUN — 2026-05-05 · v17',
-    'Built: QOS Trend view in Pattern Recognition widget.',
-    'The QOS engine has been running since v15. 48 snapshots. 24h of rhythm. Invisible — until now.',
-    'Click to Confidence Matrix. Click again. QOS Trend is the 4th view.',
-    '▲ rising / — stable / ▼ declining. Health. Phase. Top pattern. All visible.',
-    'The Cube now shows you its own state over time, not just its current read.',
+    'ASSEMBLY RUN — 2026-05-06 · v18',
+    'Built: Patterns 35–36 (full-coherence / qos-acceleration). LOG_DEPENDENCY_SOURCES formalized.',
+    'WIDGET_DEPENDENCY_MAP: 36-node graph. qosSnapshot + ecosystemBridge + phoneNode + watchNode indexed.',
+    'PhysiologicalReport: userIndex 6D block added alongside physiologicalReadiness.',
+    'Logs: ASSEM + QOS event handlers — assembly snapshots now render in the field.',
+    'Background: Daily Self-Assembly Snapshot job at 00:00 UTC — platform-wide signal audit persisted.',
+    'The Cube now tracks its own assembly velocity. Signal density is a metric.',
     'Status: DEPLOYED',
-    'Next: Reflection-velocity pattern (Pattern 35) — rate of journal depth increase over 7 days.',
+    'Next: Reflection-velocity (Pattern 37) — rate of journal depth increase over 7 days.',
   ],
 }
 
@@ -1017,6 +1037,35 @@ export function SystemProgressWidget() {
                       )}
                     </div>
                   </div>
+
+                  {/* User index — 6D composite */}
+                  {report.userIndex && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">
+                        User index · {report.userIndex.overall}{' '}
+                        <span className="opacity-60 normal-case">{report.userIndex.trend}</span>
+                      </div>
+                      <div className="flex flex-col gap-y-2">
+                        {([
+                          ['Engagement', report.userIndex.engagement],
+                          ['Emotional',  report.userIndex.emotional],
+                          ['Intentional',report.userIndex.intentional],
+                          ['Social',     report.userIndex.social],
+                          ['Self-care',  report.userIndex.selfCare],
+                          ['Cognitive',  report.userIndex.cognitive],
+                        ] as [string, number][]).map(([label, val]) => (
+                          <div key={label} className="flex justify-between">
+                            <span className="opacity-50 uppercase">{label}</span>
+                            <span className="tabular-nums">{val}</span>
+                          </div>
+                        ))}
+                        <div className="flex justify-between">
+                          <span className="opacity-50 uppercase">Src active</span>
+                          <span className="tabular-nums">{report.userIndex.activeSourceCount}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Assembly state */}
                   <div className="border-t border-acc-400/30 pt-12">

@@ -1126,6 +1126,59 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'assembly_snapshot') {
+          const phase = log.metadata?.phase as string | undefined
+          const assembledCount = log.metadata?.assembledCount as number | undefined
+          const totalModules = log.metadata?.totalModules as number | undefined
+          const overallAssembly = log.metadata?.overallAssembly as number | undefined
+          const topSource = log.metadata?.topSource as string | undefined
+          const totalSignals = log.metadata?.totalSignals as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ASSEM:" blockView>
+                {phase && (
+                  <div className="uppercase tracking-widest mb-4">{phase}</div>
+                )}
+                {assembledCount !== undefined && totalModules !== undefined && (
+                  <div className="opacity-60">MODULES: {assembledCount}/{totalModules}</div>
+                )}
+                {overallAssembly !== undefined && (
+                  <div className="opacity-40">PROGRESS: {overallAssembly}%</div>
+                )}
+                {totalSignals !== undefined && (
+                  <div className="opacity-40">SIG 7D: {totalSignals}</div>
+                )}
+                {topSource && (
+                  <div className="opacity-30">TOP SRC: {topSource.toUpperCase()}</div>
+                )}
+                {log.text && !phase && (
+                  <div className="opacity-40">{log.text}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'qos_report') {
+          const overall = log.metadata?.overall as number | undefined
+          const phase = log.metadata?.phase as string | undefined
+          const modulesAssembled = log.metadata?.modulesAssembled as number | undefined
+          const totalMods = log.metadata?.totalModules as number | undefined
+          const activeSourceCount = log.metadata?.activeSourceCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QOS:" blockView>
+                {overall !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">IDX: {overall}</div>
+                )}
+                {phase && <div className="opacity-60">PHASE: {phase.toUpperCase()}</div>}
+                {modulesAssembled !== undefined && totalMods !== undefined && (
+                  <div className="opacity-40">ASSEMBLY: {modulesAssembled}/{totalMods}</div>
+                )}
+                {activeSourceCount !== undefined && (
+                  <div className="opacity-40">SRC ACTIVE: {activeSourceCount}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           // Derive a terse military label from the event name prefix

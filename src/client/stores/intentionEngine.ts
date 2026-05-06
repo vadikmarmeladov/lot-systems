@@ -841,6 +841,39 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 35: Full cross-widget coherence — all 6 core signal sources active in 7d
+  // When every pillar of the QOS fires within a week, the system is in peak assembly.
+  const weekAgoP35 = now - 7 * 24 * 60 * 60 * 1000
+  const p35WeekSignals = signals.filter(s => s.timestamp > weekAgoP35)
+  const p35ActiveSources = new Set(p35WeekSignals.map(s => s.source))
+  const CORE_SOURCES_P35: IntentionSignal['source'][] = ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal']
+  const coreActiveP35 = CORE_SOURCES_P35.filter(src => p35ActiveSources.has(src))
+  if (coreActiveP35.length >= 5 && p35WeekSignals.length >= 20) {
+    patterns.push({
+      pattern: 'full-coherence',
+      confidence: Math.min(0.5 + coreActiveP35.length * 0.08, 1.0),
+      suggestedWidget: 'system',
+      suggestedTiming: 'passive',
+      reason: `${coreActiveP35.length}/6 core modules active this week. Full system coherence detected. QOS operating at peak.`
+    })
+  }
+
+  // Pattern 36: QOS acceleration window — 48h signal velocity doubling
+  // Rapid growth in signal density signals a self-assembly acceleration event.
+  const p36_48h = now - 2 * 24 * 60 * 60 * 1000
+  const p36_96h = now - 4 * 24 * 60 * 60 * 1000
+  const p36Recent = signals.filter(s => s.timestamp > p36_48h).length
+  const p36Prior = signals.filter(s => s.timestamp > p36_96h && s.timestamp <= p36_48h).length
+  if (p36Recent >= 10 && p36Prior > 0 && p36Recent / p36Prior >= 2) {
+    patterns.push({
+      pattern: 'qos-acceleration',
+      confidence: Math.min(p36Recent / 20, 0.9),
+      suggestedWidget: 'system',
+      suggestedTiming: 'passive',
+      reason: `Signal velocity doubled in 48h (${p36Prior}→${p36Recent}). Self-assembly accelerating. System building fast.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1265,6 +1298,13 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   qosSnapshot:       ['mood', 'energy', 'intentions', 'selfcare', 'memory', 'planner', 'cohort'],
 }
 
+/**
+ * Log-based signal sources — direct field-entry pipelines (not widget-driven).
+ * These feed the QIE independently of the widget dependency graph and are
+ * tracked separately in the physiological report log-dependency audit.
+ */
+export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort']
+
 /** Returns which signal sources a given widget depends on. */
 export function getWidgetDependencies(widget: string): string[] {
   return WIDGET_DEPENDENCY_MAP[widget] ?? []
@@ -1468,6 +1508,18 @@ export type PhysiologicalReport = {
   physiologicalReadiness: number
   /** Terse directive for the current readiness band. */
   readinessDirective: string
+  /** 6-dimensional User Index snapshot — engagement / emotional / intentional / social / selfCare / cognitive */
+  userIndex: {
+    overall: number
+    engagement: number
+    emotional: number
+    intentional: number
+    social: number
+    selfCare: number
+    cognitive: number
+    trend: string
+    activeSourceCount: number
+  }
   generatedAt: number
 }
 
@@ -1570,6 +1622,10 @@ export function getPhysiologicalReport(): PhysiologicalReport {
     ? classifyPhysiologicalCohort(signals, state.userState, state.recognizedPatterns)
     : null
 
+  // UserIndex snapshot for the report
+  const idx = state.userIndex
+  const activeSourceCount = new Set(weekSignals.map(s => s.source)).size
+
   return {
     sessionDate: new Date().toISOString().slice(0, 10),
     widgetDependencies,
@@ -1581,6 +1637,17 @@ export function getPhysiologicalReport(): PhysiologicalReport {
     systemHealth,
     physiologicalReadiness,
     readinessDirective,
+    userIndex: {
+      overall: idx.overall,
+      engagement: idx.dimensions.engagement,
+      emotional: idx.dimensions.emotional,
+      intentional: idx.dimensions.intentional,
+      social: idx.dimensions.social,
+      selfCare: idx.dimensions.selfCare,
+      cognitive: idx.dimensions.cognitive,
+      trend: idx.trend,
+      activeSourceCount,
+    },
     generatedAt: now
   }
 }

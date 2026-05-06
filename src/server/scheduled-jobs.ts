@@ -1026,6 +1026,136 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyEcosystemAudit()) {
     await executeWeeklyEcosystemAudit()
   }
+
+  // Check daily self-assembly snapshot
+  if (shouldRunDailyAssemblyJob()) {
+    await executeDailyAssemblyJob()
+  }
+}
+
+// ─── Daily Self-Assembly Snapshot ────────────────────────────────────────────
+
+let isDailyAssemblyJobRunning = false
+let lastDailyAssemblyRun: Date | null = null
+
+/**
+ * Runs daily at 00:00 UTC (midnight).
+ * Aggregates platform-wide QIE signal source distribution and pattern
+ * frequency across active users. Persists an assembly_snapshot log entry
+ * for system-level monitoring of the collective self-assembly trajectory.
+ * No user-identifiable data is written to the output log.
+ */
+function shouldRunDailyAssemblyJob(): boolean {
+  if (isDailyAssemblyJobRunning) return false
+  if (lastDailyAssemblyRun) {
+    if (dayjs(lastDailyAssemblyRun).isSame(dayjs(), 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyAssemblyJob(): Promise<JobResult> {
+  const jobName = 'daily-self-assembly-snapshot'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily Self-Assembly Snapshot')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyAssemblyJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+
+    const qieLogs = await Log.findAll({
+      where: {
+        event: 'quantum_intent_signal' as any,
+        createdAt: { [Op.gte]: sevenDaysAgo },
+      },
+      limit: 20000,
+    })
+
+    const sourceCounts: Record<string, number> = {}
+    const patternCounts: Record<string, number> = {}
+    for (const log of qieLogs) {
+      const meta = (log as any).metadata || {}
+      const source = meta.source as string | undefined
+      const pattern = meta.pattern as string | undefined
+      if (source) sourceCounts[source] = (sourceCounts[source] || 0) + 1
+      if (pattern) patternCounts[pattern] = (patternCounts[pattern] || 0) + 1
+    }
+
+    const topSource = Object.entries(sourceCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'none'
+    const topPattern = Object.entries(patternCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'none'
+    const uniqueSources = Object.keys(sourceCounts).length
+    const totalSignals = qieLogs.length
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    console.log(`  Total QIE signals (7d): ${totalSignals}`)
+    console.log(`  Unique signal sources: ${uniqueSources}`)
+    console.log(`  Top signal source: ${topSource}`)
+    console.log(`  Top pattern: ${topPattern}`)
+    console.log('')
+
+    try {
+      const { Op: Op2 } = await import('sequelize')
+      const adminUser = await User.findOne({
+        where: { tags: { [Op2.contains]: ['admin'] } }
+      })
+      if (adminUser) {
+        await Log.create({
+          userId: (adminUser as any).id,
+          event: 'assembly_snapshot' as any,
+          text: `Daily assembly snapshot: ${totalSignals} signals / ${uniqueSources} sources / ${activeUsers.length} active users`,
+          metadata: {
+            jobName,
+            executedAt,
+            activeUsers: activeUsers.length,
+            totalSignals,
+            uniqueSources,
+            topSource,
+            topPattern,
+            patternDistribution: patternCounts,
+          },
+        })
+      }
+    } catch (persistErr: any) {
+      console.warn('Failed to persist assembly snapshot:', persistErr.message)
+    }
+
+    console.log('─'.repeat(60))
+    console.log('ASSEMBLY SNAPSHOT COMPLETE')
+    console.log(`   Signals: ${totalSignals} / Sources: ${uniqueSources} / Users: ${activeUsers.length}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyAssemblyRun = new Date()
+    isDailyAssemblyJobRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { totalSignals, uniqueSources, activeUsers: activeUsers.length, topSource, topPattern },
+    }
+  } catch (error: any) {
+    console.error('Daily assembly snapshot job failed:', error.message)
+    isDailyAssemblyJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
 }
 
 // ─── Daily QOS Aggregate Snapshot ────────────────────────────────────────────
@@ -1409,6 +1539,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily OS vitals snapshot: 2 AM UTC every day')
   console.log('   - Daily QOS coherence report: 1 AM UTC every day')
   console.log('   - Daily QOS aggregate snapshot: 4 AM UTC every day')
+  console.log('   - Daily self-assembly snapshot: 0 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1419,7 +1550,7 @@ export function initializeScheduledJobs(): void {
     const hour = now.hour()
 
     // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; user index: 23PM Sun; ecosystem: 7AM Wed; QIE: 3AM; vitals: 2AM; QOS: 1AM; aggregate: 4AM
-    if (hour === 9 || hour === 7 || hour === 6 || hour === 5 || hour === 23 || hour === 4 || hour === 3 || hour === 2 || hour === 1) {
+    if (hour === 9 || hour === 7 || hour === 6 || hour === 5 || hour === 23 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
