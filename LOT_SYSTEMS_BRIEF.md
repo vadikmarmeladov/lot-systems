@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.7
-**Last Updated:** May 5, 2026
-**Status:** Production Active — Self-Assembly Phase v17
+**Document Version:** 2.8
+**Last Updated:** May 6, 2026
+**Status:** Production Active — Self-Assembly Phase v18
 
 ---
 
@@ -15,7 +15,7 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v12 — 30-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v18 — 35-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
@@ -629,6 +629,7 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] QIE v15 — QOS Snapshot Engine: captureQOSSnapshot() · startBackgroundQOSMonitor() · getEnrichedPhysiologicalReport() · 6-state circadian model · daily aggregate job
 - [x] QIE v16 — Wearable Ecosystem: Phone + Watch nodes · Patterns 31–34 (wearable-void / ecosystem-synchrony / mobile-anchoring / full-ecosystem-coherence) · weekly ecosystem audit
 - [x] QIE v17 — QOS Trend view: PatternRecognitionWidget 4th cycle view surfaces 24h snapshot history — trend direction · health symbols · circadian phases · top patterns
+- [x] QIE v18 — Pattern 35: reflection-velocity: fires when journal field_entry word counts increase ≥20% over 7-day window; confidence proportional to depth acceleration; suggests Memory Engine immediately
 
 ### Near-Term (Q2-Q3 2026)
 - [ ] Mobile app (React Native)

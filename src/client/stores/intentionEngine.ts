@@ -841,6 +841,36 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 35: Reflection velocity — journal entry depth increasing over 7 days
+  // Fires when word-count slope across field_entry signals is positive and sustained.
+  // recordJournalSignal() stores { wordCount, hasContext, hour } on every autosave.
+  const journalDepthSignals = signals
+    .filter(s =>
+      s.source === 'log' &&
+      s.signal === 'field_entry' &&
+      typeof s.metadata?.wordCount === 'number' &&
+      (s.metadata.wordCount as number) > 20
+    )
+    .sort((a, b) => a.timestamp - b.timestamp)
+  if (journalDepthSignals.length >= 4) {
+    const mid = Math.floor(journalDepthSignals.length / 2)
+    const olderHalf = journalDepthSignals.slice(0, mid)
+    const newerHalf = journalDepthSignals.slice(mid)
+    const avgOlder = olderHalf.reduce((sum, s) => sum + (s.metadata!.wordCount as number), 0) / olderHalf.length
+    const avgNewer = newerHalf.reduce((sum, s) => sum + (s.metadata!.wordCount as number), 0) / newerHalf.length
+    if (avgNewer > avgOlder * 1.2) {
+      const growthRatio = Math.min(avgNewer / avgOlder, 3)
+      const growthPct = Math.round((avgNewer / avgOlder - 1) * 100)
+      patterns.push({
+        pattern: 'reflection-velocity',
+        confidence: Math.min(0.85, 0.65 + (growthRatio - 1.2) * 0.2),
+        suggestedWidget: 'memory',
+        suggestedTiming: 'immediate',
+        reason: `Reflection deepening. Journal entries ${growthPct}% deeper over 7 days. Deploy Memory Engine — the pattern is forming.`
+      })
+    }
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals

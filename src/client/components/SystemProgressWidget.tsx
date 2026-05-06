@@ -298,21 +298,35 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '24 hours of QOS history now visible. The Cube shows you its own rhythm.',
     ],
   },
+  {
+    date: '2026-05-06',
+    session: 'QIE v18 — Pattern 35: reflection-velocity',
+    assembled: [
+      'QIE Pattern 35: reflection-velocity — fires when journal field_entry word counts increase ≥20% across 7-day window',
+      'Signal source: log/field_entry signals (recorded by recordJournalSignal() on every autosave)',
+      'Logic: split 7-day journal signals into two halves, compare average word count older→newer',
+      'Confidence: 0.65 base + 0.20 per growth ratio unit (cap 0.85) — proportional to depth acceleration',
+      'Suggested widget: memory · Timing: immediate — reflection deepening is a capture window',
+      'Reason text: dynamic — shows exact growth% so user sees the machine reading their own depth',
+      'PatternRecognitionWidget: "reflection-velocity" → "Reflection depth increasing" added to name map',
+      'The Cube now detects when you are writing more. Not just that you write — how deep you go.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-05',
+  date: '2026-05-06',
   message: [
-    'ASSEMBLY RUN — 2026-05-05 · v17',
-    'Built: QOS Trend view in Pattern Recognition widget.',
-    'The QOS engine has been running since v15. 48 snapshots. 24h of rhythm. Invisible — until now.',
-    'Click to Confidence Matrix. Click again. QOS Trend is the 4th view.',
-    '▲ rising / — stable / ▼ declining. Health. Phase. Top pattern. All visible.',
-    'The Cube now shows you its own state over time, not just its current read.',
+    'ASSEMBLY RUN — 2026-05-06 · v18',
+    'Built: Pattern 35 — reflection-velocity.',
+    'The Cube has read your journal entries since v11. Word by word. Entry by entry.',
+    'It now detects not just that you write — but that you are writing deeper.',
+    'When your last 7 days show ≥20% depth increase, Pattern 35 fires. Memory Engine deploys.',
+    'Confidence scales with acceleration. The faster you deepen, the stronger the signal.',
     'Status: DEPLOYED',
-    'Next: Reflection-velocity pattern (Pattern 35) — rate of journal depth increase over 7 days.',
+    'Next: Enhanced weekly summary with physiological cohort section — 7-day pattern digest for Usership.',
   ],
 }
 
