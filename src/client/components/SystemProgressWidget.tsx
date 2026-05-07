@@ -328,6 +328,20 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '37 patterns active. The Cube now knows when the signal is deepening, not just present.',
     ],
   },
+  {
+    date: '2026-05-07',
+    session: 'QIE v20 — Dep Map v2 · Log Handlers · Cohort Fix · QOS Index',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: quantum_random + emotional_checkin added as Tier 0 / Tier 1 nodes — 58-node graph complete',
+      'Log UI: CARE [SKIP] handler for self_care_skip events; MEM [W{n}] handler for weekly_summary_response with week number label',
+      'SystemProgressWidget cohort fetch corrected: /api/cohorts → /api/user-profile (archetype + behavioralCohort now surface from server-derived physiological classification)',
+      'QuantumEngineWidgets QOS: 4th cycle view "Index:" — 6D user index (ENG/EMO/INT/SOC/CARE/COG) + dep map trace for system_progress',
+      'Dep map trace: getWidgetDependencies(\'system_progress\') rendered inline — 10 upstream sources visible in QOS panel',
+      'Background pipeline verified: monthly email · weekly cohort · daily QIE · daily OS vitals · weekly ecosystem coherence all active',
+      'Physiological cohort pipeline: archetype + behavioralCohort + energy status persisted to user metadata by weekly job',
+      '38 patterns. 5 devices. 58-node dep graph. The Cube now maps itself.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
@@ -398,9 +412,9 @@ export function SystemProgressWidget() {
     return stop
   }, [])
 
-  // Load physiological cohort classification
+  // Load physiological cohort classification from user-profile (server-derived archetype)
   React.useEffect(() => {
-    fetch('/api/cohorts')
+    fetch('/api/user-profile')
       .then(res => res.json())
       .then(data => {
         if (data.archetype || data.behavioralCohort) {

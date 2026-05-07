@@ -279,6 +279,28 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'self_care_skip') {
+          const action = log.metadata?.action as string | undefined
+          const practice = log.metadata?.practice as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CARE [SKIP]:" blockView>
+                <div className="uppercase tracking-widest opacity-50">{action || practice || '— deferred'}</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'weekly_summary_response') {
+          const question = log.metadata?.question as string | undefined
+          const answer = log.metadata?.answer as string | undefined
+          const weekNumber = log.metadata?.weekNumber as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={weekNumber ? `MEM [W${weekNumber}]:` : 'MEM [W]:'} blockView>
+                {question && <div className="opacity-60 mb-4">{question}</div>}
+                {answer && <div>{answer}</div>}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'plan_set') {
           const intent = log.metadata?.intent as string | undefined
           const today = log.metadata?.today as string | undefined

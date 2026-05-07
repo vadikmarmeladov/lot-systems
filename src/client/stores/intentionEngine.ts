@@ -1272,9 +1272,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   calculator:        [],
   log:               [],
   time:              [],
+  quantum_random:    [],
 
   // ── Tier 1: single-source consumers
   selfcare:          ['mood'],
+  emotional_checkin: ['mood'],
   recipe:            ['mood', 'energy', 'time'],
   planner:           ['mood', 'intentions'],
   energy:            ['mood', 'selfcare', 'journal'],

@@ -1,7 +1,14 @@
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import { Block, Button } from '#client/components/ui'
-import { recordSignal, intentionEngine, getPhysiologicalReport } from '#client/stores/intentionEngine'
+import {
+  recordSignal,
+  intentionEngine,
+  getPhysiologicalReport,
+  getUserState,
+  getUserIndex,
+  getWidgetDependencies,
+} from '#client/stores/intentionEngine'
 import { getEcosystemNarrative } from '#client/utils/narrative'
 import { useEnergy } from '#client/queries'
 import { selfAssembly } from '#client/stores/selfAssembly'
@@ -22,7 +29,7 @@ function usePersistedState(key: string): [boolean, React.Dispatch<React.SetState
 
 const TOTAL_DEVICES = 5
 
-type QOSView = 'ecosystem' | 'biofield' | 'cohort'
+type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index'
 
 export const QuantumEngineWidgets: React.FC = () => {
   const [carConnected, setCarConnected] = usePersistedState('qe-car-connected')
@@ -44,8 +51,9 @@ export const QuantumEngineWidgets: React.FC = () => {
     [connectedCount]
   )
 
+  // Load cohort/archetype from user-profile (server-derived)
   React.useEffect(() => {
-    fetch('/api/cohorts')
+    fetch('/api/user-profile')
       .then(res => res.json())
       .then(data => {
         if (data.archetype || data.behavioralCohort) {
@@ -59,8 +67,12 @@ export const QuantumEngineWidgets: React.FC = () => {
   React.useEffect(() => {
     if (engineState.signals.length === 0) return
     const report = getPhysiologicalReport()
-    setReadiness(report.physiologicalReadiness)
+    setReadiness((report as any).physiologicalReadiness ?? null)
   }, [engineState.signals.length])
+
+  // Live user state + index for Index view
+  const userState = React.useMemo(() => getUserState(), [view])
+  const userIndex = React.useMemo(() => getUserIndex(), [view])
 
   const handleCarConnect = () => {
     setCarConnected((prev) => {
@@ -114,7 +126,8 @@ export const QuantumEngineWidgets: React.FC = () => {
   const cycleView = () => {
     setView(prev =>
       prev === 'ecosystem' ? 'biofield' :
-      prev === 'biofield' ? 'cohort' :
+      prev === 'biofield'  ? 'cohort' :
+      prev === 'cohort'    ? 'index' :
       'ecosystem'
     )
   }
@@ -122,14 +135,15 @@ export const QuantumEngineWidgets: React.FC = () => {
   const qosLabel =
     view === 'ecosystem' ? 'QOS:' :
     view === 'biofield'  ? 'Biofield:' :
-    'Cohort:'
+    view === 'cohort'    ? 'Cohort:' :
+    'Index:'
 
   const { energy, clarity, alignment, needsSupport } = engineState.userState
   const biofieldKnown = energy !== 'unknown'
 
   return (
     <>
-      {/* QOS Summary Block — label cycles ecosystem / biofield / cohort */}
+      {/* QOS Summary Block — label cycles ecosystem / biofield / cohort / index */}
       <Block label={qosLabel} blockView onLabelClick={cycleView}>
         <div className="flex flex-col gap-y-8">
 
@@ -240,6 +254,54 @@ export const QuantumEngineWidgets: React.FC = () => {
                 <div className="opacity-30">Cohort pending. Engage more widgets to surface pattern.</div>
               )}
             </>
+          )}
+
+          {view === 'index' && (
+            <div className="flex flex-col gap-y-4 font-mono text-xs">
+              {userIndex ? (
+                <>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase tracking-widest">Overall</span>
+                    <span className="tabular-nums">{userIndex.overall}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase">ENG</span>
+                    <span className="tabular-nums">{userIndex.dimensions.engagement}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase">EMO</span>
+                    <span className="tabular-nums">{userIndex.dimensions.emotional}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase">INT</span>
+                    <span className="tabular-nums">{userIndex.dimensions.intentional}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase">SOC</span>
+                    <span className="tabular-nums">{userIndex.dimensions.social}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase">CARE</span>
+                    <span className="tabular-nums">{userIndex.dimensions.selfcare}</span>
+                  </div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase">COG</span>
+                    <span className="tabular-nums">{userIndex.dimensions.cognitive}</span>
+                  </div>
+                  <div className="border-t border-acc-400/20 pt-8 mt-4">
+                    <div className="opacity-30 uppercase tracking-widest mb-6">Dep Map → QOS</div>
+                    {getWidgetDependencies('systemProgress').map(dep => (
+                      <div key={dep} className="flex justify-between mb-2">
+                        <span className="opacity-40 uppercase">{dep.slice(0, 6)}</span>
+                        <span className="opacity-20">↑</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="opacity-30">Index pending. Engage widgets to build signal.</div>
+              )}
+            </div>
           )}
 
         </div>
