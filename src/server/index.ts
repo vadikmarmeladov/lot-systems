@@ -130,8 +130,6 @@ fastify.register(fastifyView, {
   },
 })
 
-// gzip assets - TEMPORARILY DISABLED FOR TESTING
-/*
 if (config.env === 'production') {
   fastify.get(
     '/js/:file',
@@ -156,7 +154,6 @@ if (config.env === 'production') {
     reply.sendFile('')
   })
 }
-*/
 
 // ==============================================================================
 // SECURITY: Additional headers, vulnerability scan detection, session pruning
