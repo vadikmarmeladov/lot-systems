@@ -874,6 +874,35 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 37: Reflection velocity — journal depth increasing over 7 days
+  // Splits the last 7 days into two 3.5-day windows and compares average word count per entry.
+  // When the recent half is ≥20% deeper than the prior half, the Reflection Layer is advancing.
+  // Closes the signal loop started in v11: depth feeds assembly density; now the trend is named.
+  const p37_7d = now - 7 * 24 * 60 * 60 * 1000
+  const p37_mid = now - 3.5 * 24 * 60 * 60 * 1000
+  const p37AllJournal = signals.filter(s =>
+    s.source === 'log' && s.signal === 'field_entry' && s.timestamp > p37_7d &&
+    typeof s.metadata?.wordCount === 'number' && (s.metadata.wordCount as number) > 0
+  )
+  const p37Recent = p37AllJournal.filter(s => s.timestamp >= p37_mid)
+  const p37Prior  = p37AllJournal.filter(s => s.timestamp <  p37_mid)
+  const p37RecentAvg = p37Recent.length > 0
+    ? p37Recent.reduce((sum, s) => sum + (s.metadata!.wordCount as number), 0) / p37Recent.length
+    : 0
+  const p37PriorAvg = p37Prior.length > 0
+    ? p37Prior.reduce((sum, s) => sum + (s.metadata!.wordCount as number), 0) / p37Prior.length
+    : 0
+  const p37Growth = p37PriorAvg > 0 ? (p37RecentAvg - p37PriorAvg) / p37PriorAvg : 0
+  if (p37RecentAvg >= 30 && p37Growth >= 0.2 && p37AllJournal.length >= 3) {
+    patterns.push({
+      pattern: 'reflection-velocity',
+      confidence: Math.min(0.45 + p37Growth * 0.5, 0.85),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `Journal depth increasing. Recent entries average ${Math.round(p37RecentAvg)} words — up ${Math.round(p37Growth * 100)}% over 7 days. Reflection Layer advancing.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals

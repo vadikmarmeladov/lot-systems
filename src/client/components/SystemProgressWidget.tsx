@@ -314,25 +314,35 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Assembly velocity is now a first-class metric. QOS expanding.',
     ],
   },
+  {
+    date: '2026-05-07',
+    session: 'QIE v19 — Reflection Velocity · Pattern 37 · Reflection Layer named',
+    assembled: [
+      'QIE Pattern 37 (reflection-velocity): 7-day journal depth trend — splits last 7d into two 3.5d windows, compares avg word count per entry',
+      'Fires when recent avg ≥30 words, growth ≥20%, and ≥3 entries exist in 7d window',
+      'Confidence scales with growth rate: 0.45 + growth * 0.5, capped at 0.85',
+      'Suggests memory widget (passive timing) — extract insight from deepening reflection',
+      'PatternRecognitionWidget: reflection-velocity added to getPatternName map ("Reflection depth increasing")',
+      'Retroactive v18 assembly log created: 2026-05-06_LOT-assembly_v18-qos-assembly-deep-pass.md',
+      'Closes signal loop from v11: journal depth feeds Reflection Layer assembly density; trend now a named pattern.',
+      '37 patterns active. The Cube now knows when the signal is deepening, not just present.',
+    ],
+  },
 ]
-
-// SESSION REPORT 2026-05-06 — v18 / QOS Self-Assembly Deep Pass
-// Appended as a session log at end of SESSION_REPORTS array above.
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-06',
+  date: '2026-05-07',
   message: [
-    'ASSEMBLY RUN — 2026-05-06 · v18',
-    'Built: Patterns 35–36 (full-coherence / qos-acceleration). LOG_DEPENDENCY_SOURCES formalized.',
-    'WIDGET_DEPENDENCY_MAP: 36-node graph. qosSnapshot + ecosystemBridge + phoneNode + watchNode indexed.',
-    'PhysiologicalReport: userIndex 6D block added alongside physiologicalReadiness.',
-    'Logs: ASSEM + QOS event handlers — assembly snapshots now render in the field.',
-    'Background: Daily Self-Assembly Snapshot job at 00:00 UTC — platform-wide signal audit persisted.',
-    'The Cube now tracks its own assembly velocity. Signal density is a metric.',
+    'ASSEMBLY RUN — 2026-05-07 · v19',
+    'Built: Pattern 37 (reflection-velocity).',
+    'The Cube now watches how deep your field entries go — not just that you wrote, but how much.',
+    'Split 7-day window. Recent avg vs prior avg. ≥20% growth triggers the pattern.',
+    'Signal: "Reflection depth increasing." Suggestion: Memory engine — extract what the depth is producing.',
+    'Retroactive v18 log created. The missing record now exists.',
     'Status: DEPLOYED',
-    'Next: Reflection-velocity (Pattern 37) — rate of journal depth increase over 7 days.',
+    'Next: Surface calendar-gap pattern (Pattern 26) with recommended action in Pattern Recognition widget.',
   ],
 }
 

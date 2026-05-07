@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.7
-**Last Updated:** May 5, 2026
-**Status:** Production Active — Self-Assembly Phase v17
+**Document Version:** 2.8
+**Last Updated:** May 7, 2026
+**Status:** Production Active — Self-Assembly Phase v19
 
 ---
 
@@ -15,7 +15,7 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v12 — 30-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v19 — 37-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
@@ -123,7 +123,7 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (30 Types — v12):**
+**Pattern Recognition (37 Types — v19):**
 1. **Anxiety Pattern** — Multiple anxious moods → Self-care (confidence: 0.66–1.0)
 2. **Lack of Structure** — Tired + no planning → Planner (confidence: 0.7)
 3. **Seeking Direction** — No intention for weeks → Intentions (confidence: 0.8)
@@ -154,6 +154,13 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 28. **Sleep Debt Accumulation** — Late-night fatigue (22:00–02:00) repeating + morning fatigue → Rest protocol (confidence: 0.50–0.85)
 29. **Signal Coherence Window** — All 4 primary modules active in 6h window + positive state → Capture everything (confidence: 0.88)
 30. **Intention Velocity** — 3+ intention signals in 48h window → Structure now in Planner (confidence: 0.65–0.90)
+31. **Wearable Integration Void** — High engagement, no phone/watch signals → Connect physical loop (confidence: 0.60)
+32. **Ecosystem Synchrony** — 4+ devices active + biofield aligned → Deep capture window (confidence: 0.72)
+33. **Mobile Anchoring Gap** — Phone connected, home offline → Anchor suggestion (confidence: 0.55)
+34. **Full Ecosystem Coherence** — All 5 device types + flowing alignment → Immediate capture (confidence: 0.88)
+35. **Full Coherence** — All 6 core signal sources active in 7 days → QOS peak assembly (confidence: 0.58–1.0)
+36. **QOS Acceleration** — 48h signal velocity doubling → Self-assembly accelerating (confidence: up to 0.90)
+37. **Reflection Velocity** — Journal depth increasing ≥20% over 7-day split window → Reflection Layer advancing (confidence: 0.45–0.85)
 
 **Technical Specs:**
 - Signal retention: 7 days
@@ -629,6 +636,8 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] QIE v15 — QOS Snapshot Engine: captureQOSSnapshot() · startBackgroundQOSMonitor() · getEnrichedPhysiologicalReport() · 6-state circadian model · daily aggregate job
 - [x] QIE v16 — Wearable Ecosystem: Phone + Watch nodes · Patterns 31–34 (wearable-void / ecosystem-synchrony / mobile-anchoring / full-ecosystem-coherence) · weekly ecosystem audit
 - [x] QIE v17 — QOS Trend view: PatternRecognitionWidget 4th cycle view surfaces 24h snapshot history — trend direction · health symbols · circadian phases · top patterns
+- [x] QIE v18 — LOG_DEPENDENCY_SOURCES formalized · WIDGET_DEPENDENCY_MAP 36-node graph · Patterns 35–36 (full-coherence / qos-acceleration) · PhysiologicalReport userIndex 6D block · ASSEM + QOS log handlers · Daily Self-Assembly Snapshot job at 00:00 UTC
+- [x] QIE v19 — Pattern 37 (reflection-velocity): 7-day journal depth trend detection · Reflection Layer advance now a named pattern · PatternRecognitionWidget name map updated
 
 ### Near-Term (Q2-Q3 2026)
 - [ ] Mobile app (React Native)

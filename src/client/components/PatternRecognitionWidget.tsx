@@ -77,13 +77,14 @@ export function PatternRecognitionWidget() {
   // Technical pattern names
   const getPatternName = (pattern: string): string => {
     const names: Record<string, string> = {
-      'anxiety-pattern':   'Anxiety signal detected',
-      'lack-of-structure': 'Structure deficit',
-      'seeking-direction': 'Direction-seeking state',
-      'flow-potential':    'Flow state available',
-      'evening-overwhelm': 'Evening overload signal',
-      'surface-awareness': 'Surface-level telemetry',
-      'morning-clarity':   'Morning clarity window'
+      'anxiety-pattern':      'Anxiety signal detected',
+      'lack-of-structure':    'Structure deficit',
+      'seeking-direction':    'Direction-seeking state',
+      'flow-potential':       'Flow state available',
+      'evening-overwhelm':    'Evening overload signal',
+      'surface-awareness':    'Surface-level telemetry',
+      'morning-clarity':      'Morning clarity window',
+      'reflection-velocity':  'Reflection depth increasing'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
