@@ -5,7 +5,7 @@ import { Block, Button } from '#client/components/ui'
 import { useCohorts, useEnergy, useProfile } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
-import { recordSignal, getUserState } from '#client/stores/intentionEngine'
+import { recordSignal, getUserState, analyzeIntentions, intentionEngine } from '#client/stores/intentionEngine'
 
 /**
  * Cohort Connect Widget - Find and connect with cohort members
@@ -29,6 +29,23 @@ export const CohortConnectWidget: React.FC = () => {
   const physiologicalCohort = profileData?.behavioralCohort
   const energyLevel = energyData?.energyState?.currentLevel
   const energyTrajectory = energyData?.energyState?.trajectory
+
+  // Live QIE pattern layer — surfaces active physiological patterns into cohort readiness
+  const qieState = useStore(intentionEngine)
+  const activePhysioPatterns = React.useMemo(() => {
+    const PHYSIO_PATTERNS = [
+      'physiological-depletion',
+      'recovery-window',
+      'momentum-building',
+      'cognitive-overload',
+      'anxiety-pattern',
+      'evening-overwhelm',
+    ]
+    return qieState.recognizedPatterns
+      .filter(p => PHYSIO_PATTERNS.includes(p.pattern))
+      .sort((a, b) => b.confidence - a.confidence)
+      .slice(0, 2)
+  }, [qieState.recognizedPatterns])
 
   // Record cohort widget view signal once. Include punctuation tone
   // so the intent engine can correlate cohort engagement with the
@@ -172,6 +189,19 @@ export const CohortConnectWidget: React.FC = () => {
                       <span className="opacity-30 ml-8 capitalize">{energyTrajectory}</span>
                     )}
                   </span>
+                </div>
+              )}
+              {activePhysioPatterns.length > 0 && (
+                <div className="mt-8 pt-8 border-t border-acc-400/20">
+                  <div className="opacity-30 mb-4 uppercase tracking-widest text-xs">Physiological readiness</div>
+                  {activePhysioPatterns.map(p => (
+                    <div key={p.pattern} className="flex justify-between items-baseline">
+                      <span className="opacity-50 uppercase text-xs tracking-wide">
+                        {p.pattern.replace(/-/g, ' ')}
+                      </span>
+                      <span className="tabular-nums opacity-40">{Math.round(p.confidence * 100)}%</span>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

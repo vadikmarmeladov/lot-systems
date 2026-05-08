@@ -66,6 +66,19 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report logged and appended. All modules online.',
     ],
   },
+  {
+    date: '2026-05-08',
+    session: 'Quantum Engine Upgrade — v4 / QOS Runtime',
+    assembled: [
+      'Log pipeline: ATP / AUTH / ENV / FOOD / ASM blocks added in military style',
+      'QIE Patterns 14-16: cognitive-overload, momentum-building, social-cohort-gap',
+      'WIDGET_DEPENDENCY_MAP expanded: log source wired into memory, planner, journal, system, qos',
+      'QOS Runtime module added to self-assembly (10th module, all sources converge)',
+      'selfAssembly SOURCE_MAP: mood/memory/planner/intentions/selfcare/journal/log/energy/cohort all feed qos',
+      'CohortConnectWidget: physiological readiness indicators from QIE active patterns',
+      'Self-assembly session report generated and appended. QOS online.',
+    ],
+  },
 ]
 
 const FEEDBACK_OPTIONS = [

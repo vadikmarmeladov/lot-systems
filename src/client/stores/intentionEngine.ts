@@ -450,6 +450,49 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 14: Cognitive overload — high log + planner usage, no reflective journaling
+  const plannerSignals14 = recentSignals.filter(s => s.source === 'planner')
+  const journalSignals14 = recentSignals.filter(s => s.source === 'journal')
+  const memorySignals14 = recentSignals.filter(s => s.source === 'memory')
+  if (logSignals.length >= 4 && plannerSignals14.length >= 2 && journalSignals14.length === 0 && memorySignals14.length === 0) {
+    patterns.push({
+      pattern: 'cognitive-overload',
+      confidence: 0.72,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'soon',
+      reason: 'High cognitive output. No reflective counterbalance. Process before you plan more.'
+    })
+  }
+
+  // Pattern 15: Momentum building — intentions + selfcare + memory all active in same day
+  const todayMs = 24 * 60 * 60 * 1000
+  const todayIntentions = recentSignals.filter(s => s.source === 'intentions' && (now - s.timestamp) < todayMs)
+  const todaySelfCare = recentSignals.filter(s => s.source === 'selfcare' && (now - s.timestamp) < todayMs)
+  const todayMemory = recentSignals.filter(s => s.source === 'memory' && (now - s.timestamp) < todayMs)
+  if (todayIntentions.length >= 1 && todaySelfCare.length >= 1 && todayMemory.length >= 1) {
+    patterns.push({
+      pattern: 'momentum-building',
+      confidence: 0.88,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: 'All three pillars active: intention, care, memory. You are in rhythm. Let it compound.'
+    })
+  }
+
+  // Pattern 16: Social cohort gap — no cohort engagement for 7 days despite active engagement
+  const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000
+  const recentCohortSignals = signals.filter(s => s.source === 'cohort' && s.timestamp > sevenDaysAgo)
+  const weekSignalsCount = signals.filter(s => s.timestamp > sevenDaysAgo).length
+  if (recentCohortSignals.length === 0 && weekSignalsCount >= 5) {
+    patterns.push({
+      pattern: 'social-cohort-gap',
+      confidence: 0.65,
+      suggestedWidget: 'cohort',
+      suggestedTiming: 'next-session',
+      reason: 'Active but isolated. Your cohort is building without you. Reconnect.'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -798,15 +841,17 @@ export function forceSyncToServer(): Promise<boolean> {
  */
 export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   mood: [],
-  memory: ['mood', 'journal'],
-  planner: ['mood', 'intentions'],
+  memory: ['mood', 'journal', 'log'],
+  planner: ['mood', 'intentions', 'log'],
   intentions: ['mood', 'memory'],
-  selfcare: ['mood'],
-  journal: ['mood', 'planner'],
+  selfcare: ['mood', 'energy'],
+  journal: ['mood', 'planner', 'log'],
   energy: ['mood', 'selfcare', 'journal'],
-  system: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+  system: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'log', 'cohort'],
   calculator: [],
-  cohort: ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
+  cohort: ['mood', 'memory', 'journal', 'selfcare', 'intentions', 'energy'],
+  log: [],
+  qos: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
 }
 
 /** Returns which signal sources a given widget depends on. */

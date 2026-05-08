@@ -350,6 +350,81 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'energy_update') {
+          const level = log.metadata?.level as number | undefined
+          const status = log.metadata?.status as string | undefined
+          const trajectory = log.metadata?.trajectory as string | undefined
+          const category = log.metadata?.category as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ATP:" blockView>
+                {level !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">
+                    {level}% — {status?.toUpperCase() ?? 'UNKNOWN'}
+                  </div>
+                )}
+                {trajectory && <div className="opacity-60">VEC: {trajectory.toUpperCase()}</div>}
+                {category && <div className="opacity-40">CAT: {category.toUpperCase()}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'user_login' || log.event === 'user_logout') {
+          const action = log.event === 'user_login' ? 'SESSION OPEN' : 'SESSION CLOSE'
+          const device = log.metadata?.device as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="AUTH:" blockView>
+                <div className="uppercase tracking-widest">{action}</div>
+                {device && <div className="opacity-40">DEV: {device}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'weather_update') {
+          const temp = log.metadata?.temperature as number | undefined
+          const humidity = log.metadata?.humidity as number | undefined
+          const desc = log.metadata?.description as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ENV:" blockView>
+                {desc && <div className="uppercase tracking-widest mb-4">{desc}</div>}
+                {temp !== undefined && (
+                  <div className="opacity-60">
+                    TMP: {Math.round(temp)}°C
+                    {humidity !== undefined && ` · HUM: ${humidity}%`}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recipe_view' || log.event === 'recipe_cooked') {
+          const recipe = log.metadata?.recipe as string | undefined
+          const action = log.event === 'recipe_cooked' ? 'EXECUTED' : 'REVIEWED'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FOOD:" blockView>
+                <div className="uppercase tracking-widest">{action}</div>
+                {recipe && <div className="opacity-60">{recipe}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'self_assembly_report') {
+          const session = log.metadata?.session as string | undefined
+          const modules = log.metadata?.modules as number | undefined
+          const total = log.metadata?.total as number | undefined
+          const progress = log.metadata?.progress as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ASM:" blockView>
+                {session && <div className="uppercase tracking-widest mb-4">{session}</div>}
+                {modules !== undefined && total !== undefined && (
+                  <div className="opacity-60">MOD: {modules}/{total}</div>
+                )}
+                {progress !== undefined && (
+                  <div className="opacity-40">PROG: {progress}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -633,7 +708,7 @@ const NoteEditor = ({
           onChange={setValue}
           onKeyDown={onKeyDown}
           placeholder={
-            !primary ? '[ record cleared on empty ]' : '[ FIELD ENTRY ]'
+            !primary ? '[ record cleared on empty ]' : '[ FIELD ENTRY — type to log ]'
           }
           className={cn(
             'max-w-[700px] focus:opacity-100 group-hover:opacity-100',

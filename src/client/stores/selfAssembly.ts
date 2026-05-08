@@ -38,6 +38,7 @@ export type ModuleId =
   | 'community'     // Social + cohort signals
   | 'ecosystem'     // Car + home + computer connect signals
   | 'quantum'       // QIE meta-signals (calculator, cross-module)
+  | 'qos'           // Quantum Operating System — all sources converge here
 
 export type AssembledModule = {
   id: ModuleId
@@ -81,20 +82,21 @@ const MODULE_DEFINITIONS: Pick<AssembledModule, 'id' | 'label'>[] = [
   { id: 'community',   label: 'Community Mesh' },
   { id: 'ecosystem',   label: 'Ecosystem Bridge' },
   { id: 'quantum',     label: 'Quantum Substrate' },
+  { id: 'qos',         label: 'QOS Runtime' },
 ]
 
 // Signal source mapping: which QIE sources feed which assembly modules
 const SOURCE_MAP: Record<string, ModuleId[]> = {
-  'mood':        ['biofield'],
-  'memory':      ['memory', 'quantum'],
-  'planner':     ['planner'],
-  'intentions':  ['intentions', 'ecosystem'],
-  'selfcare':    ['selfcare'],
-  'journal':     ['journal'],
+  'mood':        ['biofield', 'qos'],
+  'memory':      ['memory', 'quantum', 'qos'],
+  'planner':     ['planner', 'qos'],
+  'intentions':  ['intentions', 'ecosystem', 'qos'],
+  'selfcare':    ['selfcare', 'qos'],
+  'journal':     ['journal', 'qos'],
   'calculator':  ['quantum'],
-  'log':         ['journal', 'quantum'],
-  'energy':      ['biofield', 'quantum'],
-  'cohort':      ['community', 'quantum'],
+  'log':         ['journal', 'quantum', 'qos'],
+  'energy':      ['biofield', 'quantum', 'qos'],
+  'cohort':      ['community', 'quantum', 'qos'],
 }
 
 // Specific signal patterns that map to modules beyond their source
@@ -346,6 +348,7 @@ export function recomputeAssembly(): AssemblyState {
     community: [],
     ecosystem: [],
     quantum: [],
+    qos: [],
   }
 
   signals.forEach(signal => {
