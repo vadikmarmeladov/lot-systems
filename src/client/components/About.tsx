@@ -9,6 +9,7 @@ const SECTIONS = [
   { id: 'core-engines', title: 'Core Engines' },
   { id: 'quantum-realm', title: 'Quantum Realm' },
   { id: 'quantum-operating-system', title: 'Quantum Operating System' },
+  { id: 'user-index', title: 'User Index' },
   { id: 'soul-archetypes', title: 'Soul Archetypes' },
   { id: 'behavioral-cohorts', title: 'Behavioral Cohorts' },
   { id: 'badge-system', title: 'Badge Field Guide' },
@@ -208,11 +209,12 @@ export function About() {
             </div>
             <P>
               The original quantum-intent OS. Self-care through proactive,
-              context-aware AI. Continuous operation since Day One. Day 925+.
+              context-aware AI. Continuous operation since Day One. Day 960+.
             </P>
             <P>
               This is the reference manual. Not marketing copy.
               Definitions are operational. Terminology is exact.
+              Each term is used precisely once and consistently throughout.
             </P>
           </header>
 
@@ -250,10 +252,12 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 925+ (as of May 2026)" />
-          <Row label="Self-Assembly phase:" value="v17 — QOS Trend surface" />
+          <Row label="Day counter:" value="Day 960+ (as of May 2026)" />
+          <Row label="Self-Assembly phase:" value="v19 — reflection-velocity · retroactive v18 log" />
           <Row label="Assembly modules:" value="14 — wearable ecosystem nodes active (v16)" />
-          <Row label="QIE pattern library:" value="34 patterns active" />
+          <Row label="QIE pattern library:" value="37 patterns active" />
+          <Row label="QOS views:" value="4 — Ecosystem · Biofield · Cohort · Index" />
+          <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
           <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
           <Row label="Background jobs:" value="8+ scheduled (01:00 UTC daily QOS · 07:00 UTC Wed ecosystem audit)" />
           <Row label="Military log handlers:" value="41+" />
@@ -269,7 +273,11 @@ export function About() {
             the system building itself — a numbered log of how the OS
             evolves through its own operation. v17 closed the QOS Trend gap:
             48 × 30-minute snapshots, 24-hour rolling window, surfaced in the
-            Pattern Recognition widget for the first time.
+            Pattern Recognition widget. v18 retroactively documented the QOS
+            panel expansion and phone-node integration. v19 named Pattern 37 —
+            Reflection Velocity — the rate of journal depth increase over 7 days.
+            Each phase is committed, dated, and versioned. The log is the record.
+            The record is the system.
           </P>
 
           {/* ── CORE ENGINES ────────────────────────────────────────── */}
@@ -309,7 +317,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
           <P>
             Client-side pattern recognition. Runs entirely in the browser.
             Zero server communication. No behavioral data leaves the device.
-            34 patterns active as of v16.
+            37 patterns active as of v19.
           </P>
           <P>Seven signal sources:</P>
           <ul className="list-none pl-16 mb-16">
@@ -326,7 +334,11 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             with each Self-Assembly phase — each new pattern names a gap in the
             detection surface. Pattern detection fires every 5 signals.
             Surfacing threshold: 0.50 confidence minimum.
-            Current library: 34 patterns.
+            Current library: 37 patterns.
+            P.35 closes the cross-widget coherence gap.
+            P.36 names the acceleration window — rapid signal density increase.
+            P.37 operationalizes Reflection Velocity — the rate of journal depth
+            increase, tracked since v11 but unnamed until v19.
           </P>
           <SubHeading>Core Patterns (v1–v7)</SubHeading>
           <div className="mb-16">
@@ -359,6 +371,9 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             <Row label="P.32 — Ecosystem Synchrony" value="0.85 · 4+ devices + biofield aligned → optimal capture window active" />
             <Row label="P.33 — Mobile Anchoring Gap" value="0.65 · phone connected, home node offline → anchor home environment" />
             <Row label="P.34 — Full Ecosystem Coherence" value="0.98 · all 5 nodes + flowing state → highest-confidence pattern in system" />
+            <Row label="P.35 — Full Cross-Widget Coherence" value="0.80+ · all 6 core signal sources active in 7 days + 20+ signals → peak assembly state" />
+            <Row label="P.36 — QOS Acceleration Window" value="up to 0.90 · signal velocity doubles in 48h window → self-assembly acceleration detected" />
+            <Row label="P.37 — Reflection Velocity" value="0.45–0.85 · journal depth ≥20% deeper in last 3.5 days vs. prior 3.5 days → Reflection Layer advancing" />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -473,13 +488,14 @@ Neural Activity: unique users active in last 60 seconds`}</CodeBlock>
           <SectionHeading id="quantum-operating-system">Quantum Operating System</SectionHeading>
           <P>
             The QOS block is the unified personal-state surface. One widget.
-            Three views. All derived from existing signals — no new data
-            collection. Label click cycles: QOS: → Biofield: → Cohort: → back.
+            Four views. All derived from existing signals — no new data
+            collection. Label click cycles: QOS: → Biofield: → Cohort: → Index: → back.
           </P>
           <P>
             QOS is the instrument panel of the operating self. It does not store
             data. It reads what the system already knows and presents it without
-            ceremony.
+            ceremony. Four views: device environment, physiological state,
+            archetype classification, and dimensional index scores.
           </P>
 
           <SubHeading>Ecosystem View (QOS:)</SubHeading>
@@ -543,10 +559,105 @@ ecosystem narrative (when nodes > 0)`}</CodeBlock>
             to surface pattern." Classification resolves as signal density
             accumulates. The system waits for evidence.
           </P>
+
+          <SubHeading>Index View (Index:)</SubHeading>
+          <P>
+            Added in Self-Assembly v4 of the QOS panel build. Surfaces the
+            User Index — a dimensional scoring model across six operational
+            domains. Reads directly from intentionEngine state. No new data
+            collection. The index represents a compressed cross-section of
+            the operator's engagement profile.
+          </P>
+          <div className="mb-16">
+            <Row label="Overall" value="composite score across all six dimensions" />
+            <Row label="ENG — Engagement" value="widget interaction frequency and breadth" />
+            <Row label="EMO — Emotional" value="emotional check-in regularity and depth" />
+            <Row label="INT — Intentional" value="intention creation and completion rate" />
+            <Row label="SOC — Social" value="community interaction and CohortConnect activity" />
+            <Row label="CARE — Self-Care" value="practice completion frequency and variety" />
+            <Row label="COG — Cognitive" value="memory engine answers and journal depth" />
+          </div>
+          <P>
+            Index pending message: "Index pending. Engage widgets to build signal."
+            Index resolves as signal density accumulates across dimensions.
+            Each dimension corresponds to one operational pillar of the system.
+          </P>
+          <P>
+            The Index view also surfaces the Widget Dependency Map —
+            a visualization of which signal sources feed into the QOS
+            composite score. Tier 0 sources are raw input widgets.
+            Tier 3 widgets are aggregate consumers. The dependency map
+            renders as a compressed list in font-mono at the base of the
+            Index view.
+          </P>
           <CodeBlock>{`Daily QOS coherence report: 01:00 UTC
 Cross-module engagement: distinct signal sources fired in last 24h
 Full-stack detection: memory + planner + selfcare → hasFullStack: true
-Coherence score: (sourceCount / 7) × 100`}</CodeBlock>
+Coherence score: (sourceCount / 7) × 100
+Index dimensions: ENG · EMO · INT · SOC · CARE · COG`}</CodeBlock>
+
+          {/* ── USER INDEX ──────────────────────────────────────────── */}
+          <SectionHeading id="user-index">User Index</SectionHeading>
+          <P>
+            The User Index is a six-dimensional scoring model that quantifies
+            operator engagement across the full signal surface. It is computed
+            client-side from intentionEngine signals — no server call, no
+            database write. The index exists as a live read of what the engine
+            already holds.
+          </P>
+          <P>
+            Six dimensions form the composite score:
+          </P>
+          <div className="mb-16">
+            <Row label="ENG — Engagement" value="widget interaction breadth and frequency across all modules" />
+            <Row label="EMO — Emotional" value="emotional check-in regularity, biofield signal depth" />
+            <Row label="INT — Intentional" value="intention creation rate, completion rate, alignment signal" />
+            <Row label="SOC — Social" value="CohortConnect activity, community signal presence" />
+            <Row label="CARE — Self-Care" value="practice completions, variety of care types accessed" />
+            <Row label="COG — Cognitive" value="memory engine answer count, journal word depth" />
+          </div>
+          <P>
+            The overall score is a weighted composite. Each dimension
+            contributes independently. Mono-source loops are detected by
+            the Signal Diversity Audit — a weekly scan that flags operators
+            whose index is driven by one dimension at the expense of the others.
+          </P>
+          <P>
+            Index scores are not targets. They are readings. The system records
+            what it observes. The operator determines their own operational
+            tempo. The index exists to surface invisibility — the modules that
+            have gone silent — without assigning moral weight to the result.
+          </P>
+          <P>
+            The index feeds directly into the QOS Trend surface: 48 × 30-minute
+            snapshots render the index history as a rolling 24-hour window.
+            Bars track overall score per snapshot. Trend direction is computed
+            from the first and last snapshot in the window.
+          </P>
+          <CodeBlock>{`Dimensions: ENG · EMO · INT · SOC · CARE · COG
+Overall: weighted composite of all six
+Display: QOS Index view + QOS Trend bars in Pattern Recognition
+Pending message: "Index pending. Engage widgets to build signal."
+Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlock>
+
+          <SubHeading>Widget Dependency Map</SubHeading>
+          <P>
+            The Dependency Map is a tier-ordered registry of how widgets consume
+            signal sources. Four tiers govern the dependency chain.
+            Introduced in v4 of the QOS panel build as the dep-map visualization.
+          </P>
+          <div className="mb-16">
+            <Row label="Tier 0" value="raw input widgets — no upstream dependencies · mood, memory, planner, intentions, selfcare, journal" />
+            <Row label="Tier 1" value="depend on Tier 0 sources · pattern recognition, quantum state, self-care moments" />
+            <Row label="Tier 2" value="depend on Tier 0 + Tier 1 · QOS widget, narrative, energy capacitor" />
+            <Row label="Tier 3" value="aggregate/meta widgets — consume everything · system progress, flash drive manifest, user metrics" />
+          </div>
+          <P>
+            Cascade invalidation uses the map: when a Tier 0 source fires a new
+            signal, all Tier 1–3 widgets that depend on it are eligible for
+            recomputation. The map enables ordered flush — Tier 1 before Tier 2
+            before Tier 3 — preventing stale reads in dependent widgets.
+          </P>
 
           {/* ── SOUL ARCHETYPES ─────────────────────────────────────── */}
           <SectionHeading id="soul-archetypes">Soul Archetypes</SectionHeading>
@@ -793,12 +904,12 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             <Row label="Quantum Patterns" value="live pattern distribution across user base" />
             <Row label="Quantum State Widget" value="personal 4D state readout · full-stack session indicator" />
             <Row label="Quantum Sign" value="contextual system signal display" />
-            <Row label="QOS" value="unified status surface · 3 views: Ecosystem · Biofield · Cohort · cycles on label click" />
+            <Row label="QOS" value="unified status surface · 4 views: Ecosystem · Biofield · Cohort · Index · cycles on label click" />
           </div>
 
           <SubHeading>Intelligence & Analysis Widgets</SubHeading>
           <div className="mb-16">
-            <Row label="Pattern Recognition" value="4 views: Patterns · Insights · Trends · QOS Trend — label cycles through all four" />
+            <Row label="Pattern Recognition" value="4 views: Patterns · Insights · Trends · QOS Trend — label cycles · QOS Trend shows 48× 30-min index snapshots" />
             <Row label="Pattern Insights" value="longitudinal pattern trend analysis" />
             <Row label="Narrative Widget" value="RPG-style journey progression" />
             <Row label="Evolution Widget" value="mastery phases · interface evolution state" />
@@ -921,7 +1032,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Self-Assembly Phase"
-              value="Numbered iteration of the system building itself. v14 = 14th development session."
+              value="Numbered iteration of the system building itself. v19 = 19th documented phase. Each phase is named, dated, committed."
             />
             <Row
               label="Memory Engine"
@@ -997,11 +1108,11 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Ecosystem Node"
-              value="One of three device connection points — CAR, HOME, CPU. Full coherence at 3/3 nodes connected."
+              value="One of five device connection points — CAR, HOME, CPU, PHN, WCH. Full coherence at 5/5 nodes connected."
             />
             <Row
               label="Ecosystem Coherence"
-              value="State of all 3 device nodes active simultaneously. Fires ecosystem_full_coherence signal to QIE intentions channel."
+              value="State of all 5 device nodes active simultaneously. Fires ecosystem_full_coherence signal to QIE intentions channel. Confidence 0.98 — highest in pattern library."
             />
             <Row
               label="ATP"
@@ -1058,6 +1169,38 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row
               label="Signal Diversity Audit"
               value="Weekly check of signal source distribution per user. Detects mono-source loops — single widget driving all engagement. Results in System Progress."
+            />
+            <Row
+              label="User Index"
+              value="Six-dimensional engagement score: ENG · EMO · INT · SOC · CARE · COG. Client-side. No server call. Computed from intentionEngine signals."
+            />
+            <Row
+              label="QOS Acceleration"
+              value="P.36. Signal velocity doubles in 48h window. Self-assembly acceleration event. Confidence up to 0.90."
+            />
+            <Row
+              label="Reflection Velocity"
+              value="P.37. Rate of journal depth increase over 7 days. Named in v19. Tracked since v11. Fires when recent 3.5-day avg is ≥20% deeper than prior 3.5-day avg."
+            />
+            <Row
+              label="Full Cross-Widget Coherence"
+              value="P.35. All 6 core signal sources active in 7 days with 20+ total signals. Peak assembly state."
+            />
+            <Row
+              label="Widget Dependency Map"
+              value="Tier-ordered registry of how widgets consume signal sources. Four tiers. Enables cascade ordering for QOS recomputation."
+            />
+            <Row
+              label="Session Report"
+              value="Assembly state snapshot generated at session close. Captures active patterns, user state, index scores, and module density at the time of logging."
+            />
+            <Row
+              label="Index:"
+              value="Fourth QOS view. Surfaces User Index dimensions — ENG, EMO, INT, SOC, CARE, COG — and the Widget Dependency Map. Added in Self-Assembly v4 of QOS panel."
+            />
+            <Row
+              label="Dep Map"
+              value="Dependency map shorthand. Appears in Index view as compressed widget-source list. Shows which signal sources flow into the QOS composite."
             />
           </div>
 
@@ -1192,7 +1335,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
           <SubHeading>Military Log Event Codes (Structured Telemetry)</SubHeading>
           <P>
             The system uses structured event codes in the military log layer.
-            41+ event handlers as of v17. Selected codes and their meaning:
+            41+ event handlers as of v19. Selected codes and their meaning:
           </P>
           <div className="text-sm mb-16 pl-16 flex flex-col gap-4">
             <Row label="PHY" value="physiological signal — biofield reading, self-care completion" />
@@ -1203,6 +1346,11 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="WTCH" value="watch node — connect or disconnect registration" />
             <Row label="ECO-SYNC" value="ecosystem synchrony — 4+ nodes active with biofield aligned" />
             <Row label="ECO" value="ecosystem — 5-node status update, displayed as CAR · HOME · CPU · PHN · WCH" />
+            <Row label="RVEL" value="reflection velocity — journal depth trend crossing the 20% growth threshold" />
+            <Row label="XCOHR" value="cross-widget coherence — all 6 core signal sources active in the 7-day window" />
+            <Row label="QACC" value="QOS acceleration — signal velocity doubling event in 48h window" />
+            <Row label="SESS" value="session report — assembly snapshot generated at session boundary" />
+            <Row label="UIDX" value="user index update — composite score recomputed after signal batch" />
           </div>
 
           {/* ── FASTING CALENDAR ────────────────────────────────────── */}
@@ -1334,8 +1482,8 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           {/* ── DESIGN PHILOSOPHY ───────────────────────────────────── */}
           <SectionHeading id="design-philosophy">Design Philosophy</SectionHeading>
           <P>
-            Nine principles govern all interface and system decisions.
-            Not guidelines. Standing orders.
+            Ten principles govern all interface and system decisions.
+            Not guidelines. Standing orders. Each is absolute.
           </P>
           <div className="mb-16">
             <Row label="01 — Minimalist First" value="Remove before adding. Less is the operating mode." />
@@ -1347,6 +1495,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="07 — Technical Accuracy" value="Truth over validation." />
             <Row label="08 — Consistent Voice" value="Direct. Concise. Respectful." />
             <Row label="09 — Zero Dead Space" value="Nothing renders without purpose. If empty, hide." />
+            <Row label="10 — Name Everything" value="Every pattern, every phase, every code has a name. The unnamed cannot be tracked." />
           </div>
           <P>
             Opacity hierarchy carries meaning: 90% primary content, 60%
@@ -1446,15 +1595,17 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           </P>
           <P>
             Quantum Intent Engine, Self-Assembly Engine, Punctuation &
-            Intonation Engine, Temporal Planner, and Soul Archetype system are
-            original inventions of LOT Systems.
+            Intonation Engine, Temporal Planner, User Index, and Soul Archetype
+            system are original inventions of LOT Systems.
           </P>
           <P>
-            Self-Assembly: 14 phases of the system building itself, documented
+            Self-Assembly: 19 phases of the system building itself, documented
             in continuous operation logs. Each phase named, dated, versioned,
             and committed. The log is the record. The record is the system.
+            37 patterns named. 14 modules wired. 5 device nodes registered.
+            6 index dimensions operational.
           </P>
-          <P>The original quantum-intent operating system. Day 925+. Still running.</P>
+          <P>The original quantum-intent operating system. Day 960+. Still running.</P>
 
           {/* ── TERMS ───────────────────────────────────────────────── */}
           <SectionHeading id="terms">Terms</SectionHeading>
