@@ -180,8 +180,8 @@ async function checkUsers(): Promise<SystemCheck> {
 async function checkSettings(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check if User model is available (settings are part of User model)
-    await models.User.findOne()
+    // Check if UserSettings model is accessible
+    await models.UserSettings.findOne()
 
     // Check if settings page bundle exists
     const settingsPagePath = path.join(process.cwd(), 'dist/client/js/app.js')
@@ -346,8 +346,11 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Core services whose failure is always a hard error
+  const coreChecks = ['Database stack', 'Authentication engine', 'Memory Engine']
+  const hasCoreError = checks.some((c) => coreChecks.includes(c.name) && c.status === 'error')
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall = hasCoreError ? 'error' : hasAnyError ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -387,8 +390,20 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
+  const isDiagnosticsAllowed = (req: any, reply: any) => {
+    const isProd = config.env === 'production' || process.env.NODE_ENV === 'production'
+    const diagKey = process.env.DIAGNOSTICS_KEY
+    const provided = (req.headers?.['x-diagnostics-key'] as string | undefined) ||
+                     (req.query as any)?.['diag_key']
+    if (!isProd) return true
+    if (diagKey && provided === diagKey) return true
+    reply.code(403).send({ error: 'Diagnostics endpoints are disabled in production' })
+    return false
+  }
+
   // Admin configuration diagnostic endpoint
   fastify.get('/verify-admin-config', async (req, reply) => {
+    if (!isDiagnosticsAllowed(req, reply)) return
     const adminEmailsEnv = process.env.ADMIN_EMAILS
     const adminsList = config.admins
 
@@ -413,6 +428,7 @@ export default async (fastify: FastifyInstance) => {
 
   // API key verification endpoint - shows masked API key for verification
   fastify.get('/verify-api-keys', async (req, reply) => {
+    if (!isDiagnosticsAllowed(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
     const resendKey = process.env.RESEND_API_KEY
     const openaiKey = process.env.OPENAI_API_KEY
@@ -450,6 +466,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Memory Engine diagnostic endpoint - shows why Claude might not be working
   fastify.get('/debug-memory-engine', async (req, reply) => {
+    if (!isDiagnosticsAllowed(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     // Test if we can initialize Anthropic client
@@ -496,6 +513,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test all AI engines to see which are available
   fastify.get('/test-ai-engines', async (req, reply) => {
+    if (!isDiagnosticsAllowed(req, reply)) return
     const { aiEngineManager } = await import('#server/utils/ai-engines.js')
 
     const status = aiEngineManager.getStatus()
@@ -545,6 +563,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test Anthropic API key with actual API call
   fastify.get('/test-anthropic-key', async (req, reply) => {
+    if (!isDiagnosticsAllowed(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     if (!anthropicKey) {
@@ -561,7 +580,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {
