@@ -128,7 +128,7 @@ export const useLogs = createQuery<Log[]>('/api/logs', {
   staleTime: 30 * 1000, // Cache for 30 seconds to prevent excessive refetching
 })
 
-export const useCreateLog = createMutation<{ text: string }, Log>(
+export const useCreateLog = createMutation<{ text: string; event?: string; metadata?: Record<string, any> }, Log>(
   'post',
   '/api/logs'
 )

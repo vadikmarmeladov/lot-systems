@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 1.0
-**Last Updated:** January 15, 2026
-**Status:** Production Active
+**Document Version:** 2.8
+**Last Updated:** May 7, 2026
+**Status:** Production Active — Self-Assembly Phase v19
 
 ---
 
@@ -15,10 +15,21 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ - Predictive pattern recognition across all user interactions
-- Context-aware AI question generation using Claude (Anthropic)
-- Real-time psychological profiling with 8 distinct archetypes
-- Zero-configuration intelligence - system learns passively from natural usage
+- Quantum Intent Engine™ v19 — 37-pattern behavioral recognition across all user interactions
+- Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
+- Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
+- Zero-configuration intelligence — system learns passively from natural usage
+- Self-Assembly Engine — 14 modules build themselves from real engagement signals
+- Physiological Cohort Classifier — 9-archetype real-time QIE-native classifier (no server required): Peak Catalyst / Flowing Creator / Morning Visionary / Rising Builder / Seeking Sage / Evening Sage / Grounded Healer / Anxious Explorer / Depleted Guardian
+- Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
+- Daily OS Vitals Snapshot + QOS Coherence Report — server-side persisted vitals for cross-device OS continuity
+- Weekly Signal Diversity Audit — detects mono-source loops, computes signal diversity per user
+- Military-style Log Interface — structured telemetry across 37+ event types (PHY / COHR / IVEL / CPEAK added)
+- OS Journal View — persisted vitals timeline surfaced in System Progress widget
+- Full-Stack Session Detection — fires when memory + planner + selfcare all engage in 4h window; visible in Biofield State widget
+- Temporal Planner module — 14th self-assembly module, calendar signals fully wired to QIE
+- Journal depth → Reflection Layer — every note written advances the Reflection Layer assembly density
+- Background coherence monitors — intention velocity, signal coherence peak, and QOS diversity auto-check after every analysis cycle
 
 ---
 
@@ -37,7 +48,7 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - **vs. Notion/Obsidian:** LOT has intelligent curation vs. manual organization
 
 **Market Validation:**
-- 814 days of continuous operation (Day 814 as of January 15, 2026)
+- 909 days of continuous operation (Day 909 as of April 20, 2026)
 - Active user base with measurable engagement metrics
 - Proven retention through badge/streak mechanics
 
@@ -112,14 +123,44 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (7 Types):**
-1. **Anxiety Pattern** - Multiple anxious moods → Suggest self-care (confidence: 0.66-1.0)
-2. **Lack of Structure** - Tired + no planning → Suggest planner (confidence: 0.7)
-3. **Seeking Direction** - No intention for weeks → Suggest intentions (confidence: 0.8)
-4. **Flow Potential** - Energized + planning → Passive memory prompts (confidence: 0.9)
-5. **Evening Overwhelm** - Evening + overwhelmed → Immediate self-care (confidence: 0.85)
-6. **Surface Awareness** - Consistent moods + no journaling → Suggest deeper reflection (confidence: 0.6)
-7. **Morning Clarity** - Calm morning state → Set intention (confidence: 0.75)
+**Pattern Recognition (37 Types — v19):**
+1. **Anxiety Pattern** — Multiple anxious moods → Self-care (confidence: 0.66–1.0)
+2. **Lack of Structure** — Tired + no planning → Planner (confidence: 0.7)
+3. **Seeking Direction** — No intention for weeks → Intentions (confidence: 0.8)
+4. **Flow Potential** — Energized + planning → Memory capture (confidence: 0.9)
+5. **Evening Overwhelm** — Evening + overwhelmed → Immediate self-care (confidence: 0.85)
+6. **Surface Awareness** — Consistent moods + no journaling → Deeper reflection (confidence: 0.6)
+7. **Morning Clarity** — Calm morning + no intention → Set intention (confidence: 0.75)
+8. **Cleanness Neglect** — No self-care in 3 days → First act (confidence: 0.7)
+9. **Morning Cleanness Gap** — Morning + no cleanness signals → Anchor protocol (confidence: 0.65)
+10. **Post-Overwhelm Cleanness** — Overwhelm subsiding + calm → Therapeutic cleanness (confidence: 0.8)
+11. **Physiological Depletion** — 3+ depleting moods + no self-care → Intervene (confidence: variable)
+12. **Recovery Window** — Self-care + positive mood shift → High-fidelity reflection (confidence: 0.75)
+13. **Ungrounded Activity** — Active log + no biofield reading → Mood check-in (confidence: 0.6)
+14. **OS Stagnation** — Signal diversity collapsed for 3+ days → Engagement expansion (confidence: 0.65)
+15. **Circadian Drift** — Late-night signal cluster + no recovery → Immediate intervention (confidence: 0.7)
+16. **Momentum Wave** — Multi-source engagement rising + active intention → Amplification (confidence: 0.8)
+17. **Flow State** — Memory + planner + intentions all active within 4h → Journal capture (confidence: 0.85)
+18. **Social Void** — 5-day cohort gap with high personal engagement → Connect (confidence: 0.6)
+19. **Biofield Coherence Peak** — All 4 state dimensions positive within 3h → Memory capture (confidence: 0.9)
+20. **Nutritional Void** — No recipe signals for 3 days + depleting mood → Fuel system (confidence: 0.65)
+21. **Goal Drift** — Goal signals present but no planning follow-through in 3 days → Planner (confidence: 0.7)
+22. **Ecosystem Without Biofield** — Connected nodes, no check-in today → Mood widget (confidence: 0.72)
+23. **Cognitive Overload** — Journal + memory + planner load, no self-care → Rest (confidence: variable)
+24. **Log Depth Signal** — Deep entry (>100 words) without biofield check-in → Mood anchor (confidence: 0.68)
+25. **Full-Stack Session** — Memory + planner + selfcare in 4h window → Journal capture (confidence: 0.88)
+26. **Calendar Gap** — Planner active, no scheduled entries in 7 days → Anchor time (confidence: 0.65)
+27. **Journal Depth Gap** — Deep journal entry (≥100 words) with no memory capture within 1h → Extract insight (confidence: 0.70)
+28. **Sleep Debt Accumulation** — Late-night fatigue (22:00–02:00) repeating + morning fatigue → Rest protocol (confidence: 0.50–0.85)
+29. **Signal Coherence Window** — All 4 primary modules active in 6h window + positive state → Capture everything (confidence: 0.88)
+30. **Intention Velocity** — 3+ intention signals in 48h window → Structure now in Planner (confidence: 0.65–0.90)
+31. **Wearable Integration Void** — High engagement, no phone/watch signals → Connect physical loop (confidence: 0.60)
+32. **Ecosystem Synchrony** — 4+ devices active + biofield aligned → Deep capture window (confidence: 0.72)
+33. **Mobile Anchoring Gap** — Phone connected, home offline → Anchor suggestion (confidence: 0.55)
+34. **Full Ecosystem Coherence** — All 5 device types + flowing alignment → Immediate capture (confidence: 0.88)
+35. **Full Coherence** — All 6 core signal sources active in 7 days → QOS peak assembly (confidence: 0.58–1.0)
+36. **QOS Acceleration** — 48h signal velocity doubling → Self-assembly accelerating (confidence: up to 0.90)
+37. **Reflection Velocity** — Journal depth increasing ≥20% over 7-day split window → Reflection Layer advancing (confidence: 0.45–0.85)
 
 **Technical Specs:**
 - Signal retention: 7 days
@@ -437,6 +478,21 @@ Insight Generation (Claude) → 7-second display → Widget dismiss
 
 ---
 
+## Background Intelligence (Scheduled Jobs)
+
+Four server-side cron jobs run automatically, requiring zero user interaction:
+
+| Job | Schedule | Purpose |
+|-----|----------|---------|
+| `monthly-email-sender` | 9 AM UTC, 1st of month | Sends personalized monthly OS review email to active Usership subscribers |
+| `weekly-physiological-cohort-digest` | 6 AM UTC, Monday | Classifies each active user's archetype + behavioral cohort from 30-day log history, persists to user metadata |
+| `daily-qie-pattern-analytics` | 3 AM UTC, daily | Aggregates QIE signal pattern frequencies across all active users for system monitoring |
+| `daily-os-vitals-snapshot` | 2 AM UTC, daily | Computes streak score, activity density, and cohort state per active user; persists `os_vitals_snapshot` log for cross-device OS continuity |
+
+All jobs are idempotent (run-once per period), include failure logging, and operate without user-visible side effects.
+
+---
+
 ## Performance Metrics
 
 ### System Reliability
@@ -446,7 +502,7 @@ Insight Generation (Claude) → 7-second display → Widget dismiss
 - **Database Query Optimization:** Indexed foreign keys, composite indexes
 
 ### User Engagement
-- **Day Counter:** Currently Day 814 (continuous operation since ~2023)
+- **Day Counter:** Currently Day 908 (continuous operation since ~2023)
 - **Daily Active Users:** Tracked via online presence
 - **Streak Mechanics:** Proven retention driver (7/30/100 day milestones)
 
@@ -517,21 +573,80 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 
 ## Roadmap & Vision
 
-### Immediate (Q1 2026)
+### Completed — Q1 2026
 - [x] Memory Engine bulletproofing (comprehensive error handling)
 - [x] Aquatic Evolution badge system
 - [x] Planner frame styling fixes
 - [x] Mirror mode System button fix
-- [ ] Mobile app (React Native)
-- [ ] Enhanced weekly summaries
-- [ ] Community features (cohort matching)
+- [x] Quantum Intent Engine v2 — widget deps + physiological cohorts + military log UI
+- [x] Self-Assembly Engine — 13 modules, 5 phases, real engagement-driven assembly
+- [x] PhysiologicalReport — biofield audit, widget dependency map, cohort signals
+- [x] Layout density progression system (breathable → instrument)
+- [x] Soviet synth keyboard with log triggers
+- [x] Recipe widget: gradual light-fasting algorithm
+
+### Completed — Q2 2026 (April)
+- [x] QIE v3 — daily QIE analytics background job (03:00 UTC), UserIndex 6D composite
+- [x] Physiological cohorts: 10 archetypes surfaced in Assembly Map + CohortConnect widget
+- [x] Public /about wiki page — comprehensive reference manual
+- [x] Feedback recording bugfix (submit-feedback route restored)
+- [x] QIE v4 — patterns 14–16 (OS stagnation / circadian drift / momentum wave)
+- [x] WIDGET_DEPENDENCY_MAP v2 — 18 nodes, Tier 0/1/2/3, reverse resolver
+- [x] Physiological Readiness Score (0-100 composite, surfaced in session report)
+- [x] Military Log: 8 new event types — GOAL / EVO / NARR / QRNG / ASSESS / INT / OS / IDX
+- [x] Daily OS Vitals Snapshot job (02:00 UTC, cross-device OS continuity)
+- [x] QIE v5 — patterns 17–18: flow-state (4h cross-source alignment), social-void (5-day cohort gap)
+- [x] WIDGET_DEPENDENCY_MAP v3 — 22 nodes: recipe, chakra, goals, time, badges added
+- [x] Self-Assembly Engine v2 — 12 modules: Nutrition Protocol, Goal Architecture, Archetype Classifier
+- [x] Military Log v2: 7 new handlers — REC / BADGE / COHORT / VITALS / SYNC / SIG-RPT / generic event label
+- [x] Weekly OS Signal Diversity Audit job (05:00 UTC Sunday) — sourceCount, topSource, diversity%, mono-loop flag
+- [x] OS Journal view in SystemProgressWidget — persisted vitals timeline, cohort summary, module count
+- [x] QIE v6 — patterns 19-21: biofield-coherence-peak, nutritional-void, goal-drift
+- [x] WIDGET_DEPENDENCY_MAP v4 — 26 nodes: patternInsights, cosmic, quantumSign, microGame added
+- [x] checkBiofieldCoherence(): peak detector recording biofield_peak when all 4 state dimensions align
+- [x] recordGoalSignal() + recordNutritionSignal(): typed signal helpers for goal and recipe events
+- [x] Self-Assembly Engine v3 — 13th module: OS Vitals Monitor wired to os_vitals_snapshot/signal_sync/biofield_peak
+- [x] Military Log v3: CHAKRA / GOAL-X / PEAK handlers; BIO handler extended with readiness % + directive
+- [x] QIE source union expanded: recipe + goals signal sources added
+- [x] QIE v7-9 — QOS widget surface, OS Journal field entries, physiological readiness on mount
+- [x] QuantumEngineWidgets promoted to QOS surface: ecosystem/biofield/cohort cycling views
+- [x] QIE v10 — patterns 22–25: ecosystem-without-biofield, cognitive-overload, log-depth-signal, full-stack-session
+- [x] QIE v11 — pattern 26: calendar-gap (planner active, no calendar entries in 7 days)
+- [x] CalendarWidget: QIE signal wired on entry creation — Temporal Planner module feeds from real activity
+- [x] QuantumStateWidget: full-stack session indicator in biofield state view
+- [x] Logs.tsx NoteEditor: journal depth signal on autosave — word count feeds Reflection Layer
+- [x] selfAssembly.ts: Reflection Layer depth bonus — deep entries (>100 words) count double for module density
+- [x] recordCalendarSignal() + recordJournalSignal() helpers added
+- [x] WIDGET_DEPENDENCY_MAP v5 — 34 nodes: calendarWidget + microImage added
+- [x] Self-Assembly Engine v4 — 14th module: Temporal Planner (calendar) wired to calendar signals
+- [x] Military Log v4: QOS / CAL / STACK handlers added
+- [x] Daily QOS coherence report (01:00 UTC) — cross-module engagement, full-stack detection, qos_snapshot log
+- [x] recordQOSSnapshot() + recordFullStackSession() + checkFullStackSession() helpers
+- [x] QIE v12 — patterns 27–30: journal-depth-gap, sleep-debt-accumulation, signal-coherence-window, intention-velocity
+- [x] classifyPhysiologicalCohort() — 9-archetype real-time classifier, no server required
+- [x] PhysiologicalReport.cohortClassification: live QIE-derived archetype in System Progress Report
+- [x] Background checks: checkIntentionVelocity() + checkSignalCoherencePeak() + recordQOSCoherence() wired into analysis
+- [x] Military Log v5: PHY / COHR / IVEL / CPEAK handlers added (37+ event types total)
+- [x] SystemProgressWidget USERSHIP_TRANSMISSION updated to v12
+- [x] QIE v13 — getWidgetTier(): memoized recursive tier resolver for cascade flush ordering (Tier 1 → Tier 4)
+- [x] Weekly User Index consolidation job: Sundays 23:00 UTC — 6D index (engagement/emotional/intentional/social/selfCare/cognitive) persisted to user metadata
+- [x] Logs.tsx: mood_checkin → BIO [SECTOR] block; scheduled_job → JOB: block
+- [x] QIE v14 — Temporal Planner surface: upcomingCalendar memo + Next: Block in System header
+- [x] System.tsx: next calendar entry visible above context stack — Temporal Planner (module 14) now has a face
+- [x] QIE v15 — QOS Snapshot Engine: captureQOSSnapshot() · startBackgroundQOSMonitor() · getEnrichedPhysiologicalReport() · 6-state circadian model · daily aggregate job
+- [x] QIE v16 — Wearable Ecosystem: Phone + Watch nodes · Patterns 31–34 (wearable-void / ecosystem-synchrony / mobile-anchoring / full-ecosystem-coherence) · weekly ecosystem audit
+- [x] QIE v17 — QOS Trend view: PatternRecognitionWidget 4th cycle view surfaces 24h snapshot history — trend direction · health symbols · circadian phases · top patterns
+- [x] QIE v18 — LOG_DEPENDENCY_SOURCES formalized · WIDGET_DEPENDENCY_MAP 36-node graph · Patterns 35–36 (full-coherence / qos-acceleration) · PhysiologicalReport userIndex 6D block · ASSEM + QOS log handlers · Daily Self-Assembly Snapshot job at 00:00 UTC
+- [x] QIE v19 — Pattern 37 (reflection-velocity): 7-day journal depth trend detection · Reflection Layer advance now a named pattern · PatternRecognitionWidget name map updated
 
 ### Near-Term (Q2-Q3 2026)
-- [ ] Voice interface for logging
-- [ ] Integration with wearables (sleep, activity)
+- [ ] Mobile app (React Native)
+- [ ] Voice interface for field logging
+- [ ] Integration with wearables (sleep, HRV, activity)
 - [ ] Collaborative intentions (shared goals)
-- [ ] Advanced pattern insights widget
+- [ ] Advanced pattern insights widget (QIE signal timeline)
 - [ ] Custom widget creation (power users)
+- [ ] Enhanced weekly summaries with physiological cohort section
 
 ### Long-Term Vision
 Transform LOT from personal OS to **distributed psychological network**:

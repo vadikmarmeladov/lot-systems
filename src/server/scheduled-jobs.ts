@@ -515,7 +515,7 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
     const { Log } = await import('#server/models/log.js')
     const { analyzeEnergyState } = await import('#server/utils/energy.js')
     const { determineUserCohort } = await import('#server/utils/memory/cohort-determination.js')
-    const { extractTraits } = await import('#server/utils/memory/trait-extraction.js')
+    const { extractUserTraits } = await import('#server/utils/memory/trait-extraction.js')
     const { Op } = await import('sequelize')
 
     const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
@@ -553,7 +553,7 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
         const energyState = analyzeEnergyState(logData)
 
         // Extract traits and determine cohort
-        const traitResult = await extractTraits(logData)
+        const traitResult = extractUserTraits(logData)
         const cohort = determineUserCohort(
           traitResult.traits,
           traitResult.patterns,
@@ -602,6 +602,381 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
   }
 }
 
+// ─── Daily OS Vitals Snapshot ─────────────────────────────────────────────────
+
+let isDailyOSVitalsJobRunning = false
+let lastDailyOSVitalsRun: Date | null = null
+
+/**
+ * Runs daily at 02:00 UTC.
+ * Computes lightweight OS vitals for each active user (streak score,
+ * activity density, cohort state) and persists as os_vitals_snapshot log
+ * entries for cross-device continuity and admin monitoring.
+ */
+function shouldRunDailyOSVitalsJob(): boolean {
+  if (isDailyOSVitalsJobRunning) return false
+  if (lastDailyOSVitalsRun) {
+    const lastRun = dayjs(lastDailyOSVitalsRun)
+    if (lastRun.isSame(dayjs(), 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyOSVitalsJob(): Promise<JobResult> {
+  const jobName = 'daily-os-vitals-snapshot'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily OS Vitals Snapshot')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+
+  isDailyOSVitalsJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+
+    let processed = 0
+    let skipped = 0
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+          order: [['createdAt', 'DESC']],
+          limit: 100,
+        })
+
+        if (logs.length < 2) { skipped++; continue }
+
+        const uniqueDays = new Set(
+          logs.map((l: any) => dayjs(l.createdAt).format('YYYY-MM-DD'))
+        ).size
+        const weeklyStreakScore = Math.min(100, Math.round((uniqueDays / 7) * 100))
+
+        const metadata = (user as any).metadata as any || {}
+        const cohort = metadata.physiologicalCohort
+
+        await Log.create({
+          userId: (user as any).id,
+          event: 'os_vitals_snapshot' as any,
+          text: '',
+          metadata: {
+            date: dayjs().format('YYYY-MM-DD'),
+            uniqueActiveDays: uniqueDays,
+            weeklyStreakScore,
+            logCount7d: logs.length,
+            archetype: cohort?.archetype ?? null,
+            energyStatus: cohort?.energyStatus ?? null,
+          },
+        })
+
+        processed++
+      } catch { skipped++ }
+    }
+
+    console.log(`  Processed: ${processed} / Skipped: ${skipped}`)
+    console.log('─'.repeat(60))
+    console.log('OS VITALS JOB COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyOSVitalsRun = new Date()
+    isDailyOSVitalsJobRunning = false
+
+    return { jobName, executedAt, success: true, result: { processed, skipped } }
+  } catch (error: any) {
+    console.error('Daily OS vitals job failed:', error.message)
+    isDailyOSVitalsJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Weekly OS Signal Diversity Audit ────────────────────────────────────────
+
+let isWeeklySignalAuditRunning = false
+let lastWeeklySignalAuditRun: Date | null = null
+
+/**
+ * Runs every Sunday at 05:00 UTC.
+ * Audits signal source diversity per active user over the past 7 days.
+ * Logs an os_signal_report event: sourceCount, topSource, diversityScore.
+ * Flags users in mono-source loops for contextual prompt intervention.
+ */
+function shouldRunWeeklySignalAudit(): boolean {
+  const now = dayjs()
+  if (now.day() !== 0) return false // Sunday only
+  if (isWeeklySignalAuditRunning) return false
+  if (lastWeeklySignalAuditRun) {
+    const lastRun = dayjs(lastWeeklySignalAuditRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeWeeklySignalAudit(): Promise<JobResult> {
+  const jobName = 'weekly-os-signal-diversity-audit'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly OS Signal Diversity Audit')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+
+  isWeeklySignalAuditRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const twoDaysAgo = dayjs().subtract(2, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: twoDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Active users (48h): ${activeUsers.length}`)
+
+    // Signal source categories derived from log event types
+    const SOURCE_EVENTS: Record<string, string[]> = {
+      mood:      ['emotional_checkin'],
+      memory:    ['answer'],
+      planner:   ['plan_set'],
+      selfcare:  ['self_care_complete', 'self_care_completed'],
+      journal:   ['note'],
+      intention: ['intention'],
+      evolution: ['evolution_update', 'evolution'],
+      narrative: ['narrative_progression', 'narrative'],
+      cohort:    ['cohort_determined', 'cohort_match'],
+      recipe:    ['recipe_viewed', 'recipe_suggestion'],
+    }
+    const ALL_SOURCE_EVENTS = Object.values(SOURCE_EVENTS).flat()
+    const EVENT_TO_SOURCE = Object.fromEntries(
+      Object.entries(SOURCE_EVENTS).flatMap(([src, evts]) => evts.map(e => [e, src]))
+    )
+
+    let processed = 0
+    let flagged = 0
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            event: { [Op.in]: ALL_SOURCE_EVENTS },
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+          attributes: ['event'],
+          limit: 200,
+        })
+
+        if (logs.length < 3) continue
+
+        const sourceFreq: Record<string, number> = {}
+        for (const l of logs) {
+          const src = EVENT_TO_SOURCE[(l as any).event] ?? 'unknown'
+          sourceFreq[src] = (sourceFreq[src] ?? 0) + 1
+        }
+
+        const sourceCount = Object.keys(sourceFreq).length
+        const topSource = Object.entries(sourceFreq).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'unknown'
+        const topCount = sourceFreq[topSource] ?? 0
+        const totalEvents = logs.length
+        // Diversity score: penalises single-source dominance. 100 = perfectly distributed.
+        const dominanceRatio = topCount / totalEvents
+        const diversityScore = Math.round((1 - dominanceRatio) * 100)
+
+        const isMonoLoop = sourceCount <= 2 && dominanceRatio > 0.8
+
+        await Log.create({
+          userId: (user as any).id,
+          event: 'os_signal_report' as any,
+          text: '',
+          metadata: {
+            date: dayjs().format('YYYY-MM-DD'),
+            sourceCount,
+            topSource,
+            diversityScore,
+            totalEvents,
+            monoLoop: isMonoLoop,
+          },
+        })
+
+        if (isMonoLoop) flagged++
+        processed++
+      } catch { /* skip individual user errors */ }
+    }
+
+    console.log(`  Processed: ${processed} / Flagged mono-loop: ${flagged}`)
+    console.log('─'.repeat(60))
+    console.log('SIGNAL DIVERSITY AUDIT COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklySignalAuditRun = new Date()
+    isWeeklySignalAuditRunning = false
+
+    return { jobName, executedAt, success: true, result: { processed, flagged } }
+  } catch (error: any) {
+    console.error('Weekly signal audit failed:', error.message)
+    isWeeklySignalAuditRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily QOS Coherence Report ──────────────────────────────────────────────
+
+let isDailyQOSCoherenceRunning = false
+let lastDailyQOSCoherenceRun: Date | null = null
+
+/**
+ * Runs daily at 01:00 UTC.
+ * Computes cross-module engagement coherence for active users over the past 24h:
+ * how many distinct signal sources fired, which sources were silent, and
+ * whether a full-stack session (memory + planner + selfcare) occurred.
+ * Writes a qos_snapshot log entry per qualifying user.
+ */
+function shouldRunDailyQOSCoherenceJob(): boolean {
+  if (isDailyQOSCoherenceRunning) return false
+  if (lastDailyQOSCoherenceRun) {
+    const lastRun = dayjs(lastDailyQOSCoherenceRun)
+    if (lastRun.isSame(dayjs(), 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyQOSCoherenceJob(): Promise<JobResult> {
+  const jobName = 'daily-qos-coherence-report'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily QOS Coherence Report')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+
+  isDailyQOSCoherenceRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+
+    // Map event types → signal source categories
+    const EVENT_SOURCE_MAP: Record<string, string> = {
+      emotional_checkin: 'mood',
+      answer: 'memory',
+      plan_set: 'planner',
+      self_care_complete: 'selfcare',
+      self_care_completed: 'selfcare',
+      note: 'journal',
+      intention: 'intentions',
+      recipe_viewed: 'recipe',
+      recipe_suggestion: 'recipe',
+      goal_journey: 'goals',
+      goal_complete: 'goals',
+    }
+
+    let processed = 0
+    let skipped = 0
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: Object.keys(EVENT_SOURCE_MAP) },
+          },
+          attributes: ['event'],
+          limit: 100,
+        })
+
+        if (logs.length < 2) { skipped++; continue }
+
+        const activeSources = new Set(
+          logs.map((l: any) => EVENT_SOURCE_MAP[(l as any).event]).filter(Boolean)
+        )
+        const sourceCount = activeSources.size
+
+        const hasFullStack =
+          activeSources.has('memory') &&
+          activeSources.has('planner') &&
+          activeSources.has('selfcare')
+
+        const coherenceScore = Math.round((sourceCount / 7) * 100)
+
+        const metadata = (user as any).metadata as any || {}
+        const cohort = metadata.physiologicalCohort
+
+        await Log.create({
+          userId: (user as any).id,
+          event: 'qos_snapshot' as any,
+          text: '',
+          metadata: {
+            date: dayjs().format('YYYY-MM-DD'),
+            archetype: cohort?.archetype ?? null,
+            readiness: coherenceScore,
+            assemblyProgress: null,
+            activeSourceCount: sourceCount,
+            activeSources: Array.from(activeSources),
+            hasFullStack,
+          },
+        })
+
+        processed++
+      } catch { skipped++ }
+    }
+
+    console.log(`  Processed: ${processed} / Skipped: ${skipped}`)
+    console.log('─'.repeat(60))
+    console.log('QOS COHERENCE JOB COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyQOSCoherenceRun = new Date()
+    isDailyQOSCoherenceRunning = false
+
+    return { jobName, executedAt, success: true, result: { processed, skipped } }
+  } catch (error: any) {
+    console.error('Daily QOS coherence job failed:', error.message)
+    isDailyQOSCoherenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -617,9 +992,526 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
     await executeWeeklyCohortJob()
   }
 
+  // Check weekly signal diversity audit
+  if (shouldRunWeeklySignalAudit()) {
+    await executeWeeklySignalAudit()
+  }
+
   // Check daily QIE analytics
   if (shouldRunDailyQIEJob()) {
     await executeDailyQIEJob()
+  }
+
+  // Check daily OS vitals snapshot
+  if (shouldRunDailyOSVitalsJob()) {
+    await executeDailyOSVitalsJob()
+  }
+
+  // Check daily QOS coherence report
+  if (shouldRunDailyQOSCoherenceJob()) {
+    await executeDailyQOSCoherenceJob()
+  }
+
+  // Check weekly user index consolidation
+  if (shouldRunWeeklyUserIndexJob()) {
+    await executeWeeklyUserIndexJob()
+  }
+
+  // Check daily QOS aggregate snapshot
+  if (shouldRunDailyQOSAggregateJob()) {
+    await executeDailyQOSAggregateJob()
+  }
+
+  // Check weekly ecosystem coherence audit
+  if (shouldRunWeeklyEcosystemAudit()) {
+    await executeWeeklyEcosystemAudit()
+  }
+
+  // Check daily self-assembly snapshot
+  if (shouldRunDailyAssemblyJob()) {
+    await executeDailyAssemblyJob()
+  }
+}
+
+// ─── Daily Self-Assembly Snapshot ────────────────────────────────────────────
+
+let isDailyAssemblyJobRunning = false
+let lastDailyAssemblyRun: Date | null = null
+
+/**
+ * Runs daily at 00:00 UTC (midnight).
+ * Aggregates platform-wide QIE signal source distribution and pattern
+ * frequency across active users. Persists an assembly_snapshot log entry
+ * for system-level monitoring of the collective self-assembly trajectory.
+ * No user-identifiable data is written to the output log.
+ */
+function shouldRunDailyAssemblyJob(): boolean {
+  if (isDailyAssemblyJobRunning) return false
+  if (lastDailyAssemblyRun) {
+    if (dayjs(lastDailyAssemblyRun).isSame(dayjs(), 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyAssemblyJob(): Promise<JobResult> {
+  const jobName = 'daily-self-assembly-snapshot'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily Self-Assembly Snapshot')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyAssemblyJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+
+    const qieLogs = await Log.findAll({
+      where: {
+        event: 'quantum_intent_signal' as any,
+        createdAt: { [Op.gte]: sevenDaysAgo },
+      },
+      limit: 20000,
+    })
+
+    const sourceCounts: Record<string, number> = {}
+    const patternCounts: Record<string, number> = {}
+    for (const log of qieLogs) {
+      const meta = (log as any).metadata || {}
+      const source = meta.source as string | undefined
+      const pattern = meta.pattern as string | undefined
+      if (source) sourceCounts[source] = (sourceCounts[source] || 0) + 1
+      if (pattern) patternCounts[pattern] = (patternCounts[pattern] || 0) + 1
+    }
+
+    const topSource = Object.entries(sourceCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'none'
+    const topPattern = Object.entries(patternCounts).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'none'
+    const uniqueSources = Object.keys(sourceCounts).length
+    const totalSignals = qieLogs.length
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    console.log(`  Total QIE signals (7d): ${totalSignals}`)
+    console.log(`  Unique signal sources: ${uniqueSources}`)
+    console.log(`  Top signal source: ${topSource}`)
+    console.log(`  Top pattern: ${topPattern}`)
+    console.log('')
+
+    try {
+      const { Op: Op2 } = await import('sequelize')
+      const adminUser = await User.findOne({
+        where: { tags: { [Op2.contains]: ['admin'] } }
+      })
+      if (adminUser) {
+        await Log.create({
+          userId: (adminUser as any).id,
+          event: 'assembly_snapshot' as any,
+          text: `Daily assembly snapshot: ${totalSignals} signals / ${uniqueSources} sources / ${activeUsers.length} active users`,
+          metadata: {
+            jobName,
+            executedAt,
+            activeUsers: activeUsers.length,
+            totalSignals,
+            uniqueSources,
+            topSource,
+            topPattern,
+            patternDistribution: patternCounts,
+          },
+        })
+      }
+    } catch (persistErr: any) {
+      console.warn('Failed to persist assembly snapshot:', persistErr.message)
+    }
+
+    console.log('─'.repeat(60))
+    console.log('ASSEMBLY SNAPSHOT COMPLETE')
+    console.log(`   Signals: ${totalSignals} / Sources: ${uniqueSources} / Users: ${activeUsers.length}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyAssemblyRun = new Date()
+    isDailyAssemblyJobRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { totalSignals, uniqueSources, activeUsers: activeUsers.length, topSource, topPattern },
+    }
+  } catch (error: any) {
+    console.error('Daily assembly snapshot job failed:', error.message)
+    isDailyAssemblyJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily QOS Aggregate Snapshot ────────────────────────────────────────────
+
+let isDailyQOSAggregateRunning = false
+let lastDailyQOSAggregateRun: Date | null = null
+
+function shouldRunDailyQOSAggregateJob(): boolean {
+  if (isDailyQOSAggregateRunning) return false
+  if (lastDailyQOSAggregateRun) {
+    if (dayjs(lastDailyQOSAggregateRun).isSame(dayjs(), 'day')) return false
+  }
+  return true
+}
+
+/**
+ * Runs daily at 04:00 UTC.
+ * Aggregates system-wide QOS health without writing per-user log entries.
+ * Produces a lightweight system health record for monitoring:
+ * active users · health distribution · top circadian phase · avg ATP.
+ */
+async function executeDailyQOSAggregateJob(): Promise<JobResult> {
+  const jobName = 'daily-qos-aggregate-snapshot'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily QOS Aggregate Snapshot')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyQOSAggregateRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log }  = await import('#server/models/log.js')
+    const { Op }   = await import('sequelize')
+
+    const oneDayAgo    = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where:  { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      limit: 2000,
+    })
+
+    const qosLogs = await Log.findAll({
+      where: {
+        event: 'qos_snapshot' as any,
+        createdAt: { [Op.gte]: oneDayAgo },
+      },
+      limit: 5000,
+    })
+
+    const energyLogs = await Log.findAll({
+      where: {
+        event: 'energy_checkin' as any,
+        createdAt: { [Op.gte]: sevenDaysAgo },
+      },
+      limit: 5000,
+    })
+
+    const healthCounts: Record<string, number> = { nominal: 0, degraded: 0, critical: 0 }
+    const circadianCounts: Record<string, number> = {}
+
+    for (const log of qosLogs) {
+      const meta = (log as any).metadata || {}
+      const health = meta.systemHealth as string | undefined
+      const phase  = meta.circadianPhase as string | undefined
+      if (health && health in healthCounts) healthCounts[health]++
+      if (phase) circadianCounts[phase] = (circadianCounts[phase] || 0) + 1
+    }
+
+    let totalATP = 0; let atpCount = 0
+    for (const log of energyLogs) {
+      const level = (log as any).metadata?.level as number | undefined
+      if (typeof level === 'number') { totalATP += level; atpCount++ }
+    }
+    const avgATP = atpCount > 0 ? Math.round(totalATP / atpCount) : null
+
+    const topCircadian = Object.entries(circadianCounts)
+      .sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'unknown'
+
+    console.log(`  Active users (24h):   ${activeUsers.length}`)
+    console.log(`  QOS snapshots logged: ${qosLogs.length}`)
+    console.log(`  Health — nominal: ${healthCounts.nominal} / degraded: ${healthCounts.degraded} / critical: ${healthCounts.critical}`)
+    console.log(`  Top circadian phase:  ${topCircadian}`)
+    if (avgATP !== null) console.log(`  Avg biofield ATP:     ${avgATP}%`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('QOS AGGREGATE JOB COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyQOSAggregateRun = new Date()
+    isDailyQOSAggregateRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: {
+        date: dayjs().format('YYYY-MM-DD'),
+        activeUsers: activeUsers.length,
+        qosSnapshots: qosLogs.length,
+        healthDistribution: healthCounts,
+        topCircadianPhase: topCircadian,
+        avgBiofieldATP: avgATP,
+      }
+    }
+  } catch (error: any) {
+    console.error('Daily QOS aggregate job failed:', error.message)
+    isDailyQOSAggregateRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Weekly User Index Consolidation ─────────────────────────────────────────
+
+let isWeeklyUserIndexJobRunning = false
+let lastWeeklyUserIndexRun: Date | null = null
+
+/**
+ * Runs on Sundays at 23:00 UTC.
+ * Reads server-side synced QIE signals, recomputes each user's
+ * accumulative UserIndex across 6 dimensions, and persists results
+ * to user metadata for cross-device continuity and analytics.
+ */
+function shouldRunWeeklyUserIndexJob(): boolean {
+  const now = dayjs()
+  if (now.day() !== 0) return false  // Sunday only
+  if (isWeeklyUserIndexJobRunning) return false
+  if (lastWeeklyUserIndexRun && dayjs(lastWeeklyUserIndexRun).isSame(now, 'day')) return false
+  return true
+}
+
+async function executeWeeklyUserIndexJob(): Promise<JobResult> {
+  const jobName = 'weekly-user-index-consolidation'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly User Index Consolidation')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyUserIndexJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Processing ${activeUsers.length} active users...`)
+
+    const results = { total: activeUsers.length, processed: 0, skipped: 0, failed: 0 }
+
+    for (const user of activeUsers) {
+      try {
+        const qieLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            event: 'quantum_intent_signal' as any,
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+          order: [['createdAt', 'DESC']],
+          limit: 1000,
+        })
+
+        if (qieLogs.length === 0) { results.skipped++; continue }
+
+        const dimensions: Record<string, number> = {
+          engagement: 0, emotional: 0, intentional: 0, social: 0, selfCare: 0, cognitive: 0
+        }
+        const sourceDayMap: Record<string, Set<string>> = {}
+
+        for (const log of qieLogs) {
+          const meta = (log as any).metadata || {}
+          const source = meta.source as string | undefined
+          const ts = new Date((log as any).createdAt).toDateString()
+          if (!source) continue
+          if (!sourceDayMap[source]) sourceDayMap[source] = new Set()
+          sourceDayMap[source].add(ts)
+          if (source === 'mood') dimensions.emotional++
+          if (source === 'memory' || source === 'journal') dimensions.cognitive++
+          if (source === 'planner' || source === 'intentions') dimensions.intentional++
+          if (source === 'selfcare') dimensions.selfCare++
+          if (source === 'cohort') dimensions.social++
+          dimensions.engagement++
+        }
+
+        const totalSources = Object.keys(sourceDayMap).length
+        const normalize = (n: number, max: number) => Math.round(Math.min(100, (n / max) * 100))
+
+        const userIndex = {
+          overall: normalize(qieLogs.length, 50),
+          dimensions: {
+            engagement: normalize(totalSources, 8),
+            emotional: normalize(dimensions.emotional, 15),
+            intentional: normalize(dimensions.intentional, 10),
+            social: normalize(dimensions.social, 5),
+            selfCare: normalize(dimensions.selfCare, 10),
+            cognitive: normalize(dimensions.cognitive, 10),
+          },
+          trend: 'stable' as const,
+          computedAt: new Date().toISOString(),
+        }
+
+        const metadata = (user as any).metadata as any || {}
+        await (user as any).set({ metadata: { ...metadata, weeklyUserIndex: userIndex } }).save()
+
+        results.processed++
+        console.log(`  ${(user as any).email}: idx=${userIndex.overall} src=${totalSources}`)
+      } catch (err: any) {
+        results.failed++
+        console.warn(`  ${(user as any).email}: failed — ${err.message}`)
+      }
+    }
+
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('USER INDEX JOB COMPLETE')
+    console.log(`   Processed: ${results.processed} / Skipped: ${results.skipped} / Failed: ${results.failed}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyUserIndexRun = new Date()
+    isWeeklyUserIndexJobRunning = false
+    return { jobName, executedAt, success: true, result: results }
+  } catch (error: any) {
+    console.error('Weekly user index job failed:', error.message)
+    isWeeklyUserIndexJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Weekly Ecosystem Coherence Audit ────────────────────────────────────────
+
+let isWeeklyEcosystemAuditRunning = false
+let lastWeeklyEcosystemAuditRun: Date | null = null
+
+/**
+ * Runs every Wednesday at 07:00 UTC.
+ * Audits ecosystem signal coherence across the active user base.
+ * Measures: devices connected per user, full-coherence rate, cross-device engagement density.
+ */
+function shouldRunWeeklyEcosystemAudit(): boolean {
+  const now = dayjs()
+  if (now.day() !== 3) return false // Wednesday only
+  if (isWeeklyEcosystemAuditRunning) return false
+  if (lastWeeklyEcosystemAuditRun) {
+    if (dayjs(lastWeeklyEcosystemAuditRun).isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeWeeklyEcosystemAudit(): Promise<JobResult> {
+  const jobName = 'weekly-ecosystem-coherence-audit'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Ecosystem Coherence Audit')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyEcosystemAuditRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log }  = await import('#server/models/log.js')
+    const { Op }   = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+    })
+
+    const DEVICE_EVENTS = [
+      'car_connected', 'home_connected', 'computer_connected',
+      'phone_connected', 'watch_connected',
+    ]
+
+    const results: any[] = []
+
+    for (const user of activeUsers) {
+      try {
+        const recentLogs = await Log.findAll({
+          where: {
+            userId: user.id,
+            event: { [Op.in]: ['ecosystem_full_coherence', 'ecosystem_update', 'ecosystem_full_sync', ...DEVICE_EVENTS] },
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+        })
+
+        const deviceSet = new Set<string>()
+        recentLogs.forEach((l: any) => {
+          if (DEVICE_EVENTS.includes(l.event)) {
+            deviceSet.add(l.event.replace('_connected', ''))
+          }
+        })
+
+        const fullCoherenceCount = recentLogs.filter(
+          (l: any) => l.event === 'ecosystem_full_coherence' || l.event === 'ecosystem_full_sync'
+        ).length
+
+        results.push({
+          userId: user.id,
+          deviceCount: deviceSet.size,
+          devicesActive: Array.from(deviceSet),
+          fullCoherenceEvents: fullCoherenceCount,
+          ecosystemScore: Math.round((deviceSet.size / 5) * 60 + Math.min(fullCoherenceCount * 10, 40)),
+        })
+      } catch { /* skip this user */ }
+    }
+
+    const avgDevices = results.length > 0
+      ? (results.reduce((s, r) => s + r.deviceCount, 0) / results.length).toFixed(1)
+      : '0'
+    const fullCoherenceUsers = results.filter(r => r.fullCoherenceEvents > 0).length
+    const avgEcosystemScore = results.length > 0
+      ? Math.round(results.reduce((s, r) => s + r.ecosystemScore, 0) / results.length)
+      : 0
+
+    console.log(`   Ecosystem Coherence Audit complete`)
+    console.log(`   Active users: ${activeUsers.length}`)
+    console.log(`   Avg devices per user: ${avgDevices}/5`)
+    console.log(`   Users with full coherence: ${fullCoherenceUsers}`)
+    console.log(`   Avg ecosystem score: ${avgEcosystemScore}`)
+    console.log('')
+
+    lastWeeklyEcosystemAuditRun = new Date()
+    isWeeklyEcosystemAuditRunning = false
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { totalUsers: activeUsers.length, avgDevices, fullCoherenceUsers, avgEcosystemScore },
+    }
+  } catch (error: any) {
+    console.error('Weekly ecosystem audit failed:', error.message)
+    isWeeklyEcosystemAuditRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
   }
 }
 
@@ -628,7 +1520,7 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
  * Used for testing and manual sends
  */
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
-  console.log('🔧 Manual trigger requested - bypassing time checks')
+  console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
 }
 
@@ -637,10 +1529,17 @@ export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
  * Sets up a simple interval-based scheduler
  */
 export function initializeScheduledJobs(): void {
-  console.log('⏰ Initializing scheduled job system...')
+  console.log('Initializing scheduled job system...')
   console.log('   - Monthly emails: 9 AM UTC on 1st of each month')
   console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
+  console.log('   - Weekly OS signal diversity audit: 5 AM UTC every Sunday')
+  console.log('   - Weekly User Index consolidation: 23 PM UTC every Sunday')
+  console.log('   - Weekly ecosystem coherence audit: 7 AM UTC every Wednesday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
+  console.log('   - Daily OS vitals snapshot: 2 AM UTC every day')
+  console.log('   - Daily QOS coherence report: 1 AM UTC every day')
+  console.log('   - Daily QOS aggregate snapshot: 4 AM UTC every day')
+  console.log('   - Daily self-assembly snapshot: 0 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -650,8 +1549,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM UTC; cohort digest: 6 AM UTC (Monday); QIE analytics: 3 AM UTC
-    if (hour === 9 || hour === 6 || hour === 3) {
+    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; user index: 23PM Sun; ecosystem: 7AM Wed; QIE: 3AM; vitals: 2AM; QOS: 1AM; aggregate: 4AM
+    if (hour === 9 || hour === 7 || hour === 6 || hour === 5 || hour === 23 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

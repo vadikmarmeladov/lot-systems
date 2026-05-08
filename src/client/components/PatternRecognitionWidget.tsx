@@ -1,18 +1,41 @@
 import React from 'react'
 import { Block, Button } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
-import { intentionEngine, analyzeIntentions, getOptimalWidget, type IntentionPattern } from '#client/stores/intentionEngine'
+import {
+  intentionEngine,
+  analyzeIntentions,
+  getOptimalWidget,
+  getQOSHistory,
+  getCircadianPhase,
+  type IntentionPattern,
+  type QOSSnapshot,
+} from '#client/stores/intentionEngine'
 import { useLogs } from '#client/queries'
 import { ProgressBars } from '#client/utils/progressBars'
 import { cn } from '#client/utils'
 import { useLogContext } from '#client/hooks/useLogContext'
 
-type PatternView = 'active' | 'recommendation' | 'confidence'
+type PatternView = 'active' | 'recommendation' | 'confidence' | 'qos-trend'
+
+const CIRCADIAN_ABBR: Record<QOSSnapshot['circadianPhase'], string> = {
+  'early-morning': 'ERL',
+  'morning':       'MRN',
+  'midday':        'MDY',
+  'afternoon':     'AFT',
+  'evening':       'EVN',
+  'night':         'NGT',
+}
+
+const HEALTH_SYMBOL: Record<QOSSnapshot['systemHealth'], string> = {
+  'nominal':  '●',
+  'degraded': '○',
+  'critical': '✕',
+}
 
 /**
  * Pattern Recognition Widget - Shows detected behavioral patterns from QIE
  * Displays confidence levels as text-based progress bars, enriched with log context
- * Cycles: Active Patterns > Recommendation > Confidence Map
+ * Cycles: Active Patterns > Recommendation > Confidence Map > QOS Trend
  */
 export function PatternRecognitionWidget() {
   const [view, setView] = React.useState<PatternView>('active')
@@ -25,13 +48,16 @@ export function PatternRecognitionWidget() {
     analyzeIntentions()
   }, [logs])
 
+  const qosHistory = React.useMemo(() => getQOSHistory(), [engine])
+
   const cycleView = () => {
     setView(prev => {
       switch (prev) {
-        case 'active': return 'recommendation'
+        case 'active':         return 'recommendation'
         case 'recommendation': return 'confidence'
-        case 'confidence': return 'active'
-        default: return 'active'
+        case 'confidence':     return 'qos-trend'
+        case 'qos-trend':      return 'active'
+        default:               return 'active'
       }
     })
   }
@@ -39,24 +65,26 @@ export function PatternRecognitionWidget() {
   const patterns = engine.recognizedPatterns
   const optimal = getOptimalWidget()
 
-  // Don't render if no patterns detected
-  if (patterns.length === 0 && !optimal) return null
+  // Don't render if no patterns and no QOS history
+  if (patterns.length === 0 && !optimal && qosHistory.length === 0) return null
 
   const label =
-    view === 'active' ? 'Recognized Patterns:' :
-    view === 'recommendation' ? 'Suggested Module:' :
-    'Confidence Matrix:'
+    view === 'active'         ? 'Recognized Patterns:' :
+    view === 'recommendation' ? 'Suggested Module:'    :
+    view === 'confidence'     ? 'Confidence Matrix:'   :
+                                'QOS Trend:'
 
   // Technical pattern names
   const getPatternName = (pattern: string): string => {
     const names: Record<string, string> = {
-      'anxiety-pattern': 'Anxiety signal detected',
-      'lack-of-structure': 'Structure deficit',
-      'seeking-direction': 'Direction-seeking state',
-      'flow-potential': 'Flow state available',
-      'evening-overwhelm': 'Evening overload signal',
-      'surface-awareness': 'Surface-level telemetry',
-      'morning-clarity': 'Morning clarity window'
+      'anxiety-pattern':      'Anxiety signal detected',
+      'lack-of-structure':    'Structure deficit',
+      'seeking-direction':    'Direction-seeking state',
+      'flow-potential':       'Flow state available',
+      'evening-overwhelm':    'Evening overload signal',
+      'surface-awareness':    'Surface-level telemetry',
+      'morning-clarity':      'Morning clarity window',
+      'reflection-velocity':  'Reflection depth increasing'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -64,10 +92,10 @@ export function PatternRecognitionWidget() {
   // Timing labels
   const getTimingLabel = (timing: string): string => {
     const labels: Record<string, string> = {
-      'immediate': 'Deploy now',
-      'soon': 'Queue next',
+      'immediate':    'Deploy now',
+      'soon':         'Queue next',
       'next-session': 'Next session',
-      'passive': 'Standby'
+      'passive':      'Standby'
     }
     return labels[timing] || timing
   }
@@ -75,12 +103,12 @@ export function PatternRecognitionWidget() {
   // CQGS module names
   const getWidgetLabel = (widget: string): string => {
     const labels: Record<string, string> = {
-      'selfcare': 'Cleanness module',
-      'planner': 'Routine module',
+      'selfcare':   'Cleanness module',
+      'planner':    'Routine module',
       'intentions': 'Intention engine',
-      'memory': 'Memory engine',
-      'journal': 'Journal module',
-      'mood': 'Biofield interface'
+      'memory':     'Memory engine',
+      'journal':    'Journal module',
+      'mood':       'Biofield interface'
     }
     return labels[widget] || widget
   }
@@ -181,6 +209,55 @@ export function PatternRecognitionWidget() {
               <div className="mt-8 opacity-30">
                 {patterns.length} pattern{patterns.length === 1 ? '' : 's'} indexed.
                 {!logCtx.isEmpty ? ` ${logCtx.activeModules.length}/6 modules reporting.` : ''}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {view === 'qos-trend' && (
+        <div>
+          {qosHistory.length === 0 ? (
+            <div>
+              <div className="mb-8">QOS monitor active.</div>
+              <div className="opacity-30">First snapshot in next 30-min cycle.</div>
+              <div className="opacity-30 mt-4">Phase: {getCircadianPhase()}</div>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {/* Trend headline with overall index */}
+              {(() => {
+                const latest = qosHistory[qosHistory.length - 1]
+                const trendLabel =
+                  latest.userIndex.trend === 'rising'    ? '▲ rising'    :
+                  latest.userIndex.trend === 'declining' ? '▼ declining' :
+                                                           '— stable'
+                return (
+                  <div className="flex items-center gap-8 mb-8">
+                    <span>{trendLabel}</span>
+                    <span className="opacity-30">·</span>
+                    <ProgressBars percentage={latest.userIndex.overall} barCount={10} />
+                    <span className="opacity-30 tabular-nums">{latest.userIndex.overall}</span>
+                  </div>
+                )
+              })()}
+
+              {/* Last 6 snapshots, newest first */}
+              {[...qosHistory].reverse().slice(0, 6).map((snap, idx) => (
+                <div key={idx} className="flex gap-8">
+                  <span className="opacity-50">{CIRCADIAN_ABBR[snap.circadianPhase]}</span>
+                  <span>{HEALTH_SYMBOL[snap.systemHealth]}</span>
+                  <span className="opacity-50 tabular-nums">{snap.signalCount24h}</span>
+                  <span className="opacity-30 truncate flex-1">
+                    {snap.topPattern ? snap.topPattern.replace(/-/g, ' ') : '—'}
+                  </span>
+                </div>
+              ))}
+
+              {/* Footer */}
+              <div className="mt-4 opacity-30">
+                {qosHistory[qosHistory.length - 1].modulesActive} module{qosHistory[qosHistory.length - 1].modulesActive === 1 ? '' : 's'} active.
+                {' '}{qosHistory.length} snapshot{qosHistory.length === 1 ? '' : 's'}.
               </div>
             </div>
           )}
