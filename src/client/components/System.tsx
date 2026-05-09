@@ -64,6 +64,9 @@ import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
+import { JournalReflection } from './JournalReflection'
+import { AwarenessDashboard } from './AwarenessDashboard'
+import { GoalJourneyWidget } from './GoalJourneyWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
 
@@ -641,6 +644,11 @@ export const System = () => {
         </Block>
       </div>
 
+      {/* Journal Reflection - Daily prompt anchor, navigates to Log tab */}
+      <WidgetErrorBoundary name="Reflect">
+        <JournalReflection />
+      </WidgetErrorBoundary>
+
       {/* Context stack */}
       <WidgetErrorBoundary name="Context">
         <div className={cn('flex flex-col', density.sectionGap)}>
@@ -672,6 +680,9 @@ export const System = () => {
 
           {/* Interface Evolution - Progression & feature unlocks */}
           <InterfaceEvolutionWidget />
+
+          {/* Awareness Dashboard - Psychological profile cycling through 7 dimensions */}
+          <AwarenessDashboard />
 
           {/* Evolution Milestone Toast - Subtle notifications for progression milestones */}
           <EvolutionMilestoneToast />
@@ -882,6 +893,9 @@ export const System = () => {
       {/* Planning stack */}
       <WidgetErrorBoundary name="Planning">
         <div className={cn('flex flex-col', density.stackGap)}>
+          {/* Goal Journey - Detected goals and progress from journal patterns */}
+          <GoalJourneyWidget />
+
           {/* Planner - Show occasionally for daily/weekly planning */}
           <PlannerWidget />
 
