@@ -7,12 +7,18 @@ const SECTIONS = [
   { id: 'what-is-lot', title: 'What is LOT?' },
   { id: 'operating-status', title: 'Operating Status' },
   { id: 'core-engines', title: 'Core Engines' },
+  { id: 'memory-story', title: 'Memory Story' },
   { id: 'quantum-realm', title: 'Quantum Realm' },
   { id: 'quantum-operating-system', title: 'Quantum Operating System' },
   { id: 'user-index', title: 'User Index' },
   { id: 'soul-archetypes', title: 'Soul Archetypes' },
   { id: 'behavioral-cohorts', title: 'Behavioral Cohorts' },
   { id: 'badge-system', title: 'Badge Field Guide' },
+  { id: 'achievement-registry', title: 'Achievement Registry' },
+  { id: 'rarity-classification', title: 'Rarity Classification' },
+  { id: 'rpg-story', title: 'RPG Story Arcs' },
+  { id: 'quest-system', title: 'Quest System' },
+  { id: 'easter-eggs', title: 'Easter Eggs' },
   { id: 'widget-ecosystem', title: 'Widget Ecosystem' },
   { id: 'wearable-ecosystem', title: 'Wearable Ecosystem' },
   { id: 'vocabulary', title: 'Vocabulary' },
@@ -210,38 +216,51 @@ export function About() {
             <P>
               The original quantum-intent OS. Self-care through proactive,
               context-aware AI. Continuous operation since Day One. Day 960+.
+              The system does not sleep. It accumulates.
             </P>
             <P>
               This is the reference manual. Not marketing copy.
               Definitions are operational. Terminology is exact.
               Each term is used precisely once and consistently throughout.
+              If a term appears here, it exists in the system.
+              If it does not appear here, it does not yet exist.
             </P>
           </header>
 
           {/* ── WHAT IS LOT ─────────────────────────────────────────── */}
           <SectionHeading id="what-is-lot">What is LOT?</SectionHeading>
           <P>
-            LOT (Layers of Time) is a personal operating system — not an app. It
-            executes continuously, observes behavioral signals, builds a
-            psychological profile, and surfaces the right intervention at the
+            LOT (Layers of Time) is a personal operating system — not an app.
+            It executes continuously. It observes behavioral signals. It builds
+            a psychological profile. It surfaces the right intervention at the
             right moment. No configuration required. Intelligence accumulates
-            from use.
+            from use. The operator does not configure LOT — they operate it.
+            The system learns the rest.
           </P>
           <P>
             Mission: transform fragmented self-tracking into a unified
-            intelligence layer that knows what the operator needs before
-            they articulate it.
+            intelligence layer that recognizes what the operator needs before
+            they articulate it. The system acts before the request is made.
           </P>
-          <P>Four subsystems govern the experience:</P>
+          <P>Four subsystems govern the operating surface:</P>
           <ul className="list-none pl-16 mb-16">
-            <Li>Memory Engine — AI question generation, context-aware, depth-building</Li>
-            <Li>Quantum Intent Engine — client-side behavioral pattern recognition, 30+ patterns</Li>
-            <Li>Self-Assembly Engine — module coherence tracking across 14 dimensions</Li>
-            <Li>Punctuation & Intonation Engine — voice-tone detection from text</Li>
+            <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive.</Li>
+            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 37 patterns. Zero server communication.</Li>
+            <Li>Self-Assembly Engine — module coherence tracking. 14 dimensions. The system builds itself from use.</Li>
+            <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
           <P>
-            The system is owned independently of any AI vendor. Intelligence
-            runs on LOT infrastructure. Providers are interchangeable executors.
+            Intelligence is owned by LOT Systems, not by any AI vendor.
+            All providers are commodity executors. The context, the history,
+            the profile — none of it leaves the LOT infrastructure.
+            Providers are interchangeable. The intelligence is not.
+          </P>
+          <P>
+            LOT is also an RPG and an Arcade. Every check-in is a move.
+            Every streak is a power-up. Every memory question writes one line
+            of the operator's story. Badges are milestone transmissions.
+            Achievements are permanent records. The game is not separate from
+            the system — it is the surface of it.
           </P>
 
           {/* ── OPERATING STATUS ────────────────────────────────────── */}
@@ -435,6 +454,60 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             Call-for-help detection feeds CohortConnect for urgent peer support
             matching. MicroImage procedural art adapts to detected tone.
           </P>
+
+          {/* ── MEMORY STORY ────────────────────────────────────────── */}
+          <SectionHeading id="memory-story">Memory Story</SectionHeading>
+          <P>
+            The Memory Story is the accumulation of all Memory Engine answers
+            over time. It is not a journal. It is not a log. It is a living
+            profile — a densifying record of who the operator is becoming,
+            built question by question, answer by answer.
+          </P>
+          <P>
+            The Virtuous Compression Cycle governs its growth: more engagement
+            produces deeper questions, which produce more honest answers, which
+            produce a richer profile, which produces more precise questions.
+            The cycle is self-reinforcing. It does not plateau.
+          </P>
+          <P>Progression through four strata:</P>
+          <div className="mb-16">
+            <Row label="Week 1" value="surface — WHAT. Observable preference. Tea vs coffee. Morning vs evening." />
+            <Row label="Week 2–3" value="behavioral — HOW. Pattern identification. Ritual structure. Habit architecture." />
+            <Row label="Week 4+" value="motivational — WHY. Core drivers. Value anchors. Deep preference origin." />
+            <Row label="Month 2+" value="temporal — CHANGE. Seasonal shifts. State evolution. Pattern drift over time." />
+          </div>
+          <P>
+            Example progression — a single thread tracked across 60 days:
+          </P>
+          <CodeBlock>{`Day 1:  "What is your morning beverage preference?"
+        → Tea
+
+Day 2:  "Since you prefer tea, how do you prepare it?"
+        → Loose leaf ritual
+
+Day 7:  "What is your favourite loose leaf variety?"
+        → Green tea
+
+Day 14: "What do you typically do while drinking it?"
+        → Quiet reading time
+
+Day 60: "Now that it is colder, has your tea preference changed?"
+        → Switched to pu-erh`}</CodeBlock>
+          <P>
+            The Memory Engine never sees raw history. It receives compressed
+            context — structured metadata that encodes accumulated knowledge
+            without transmitting raw entries. The AI executes. The intelligence
+            belongs to the system.
+          </P>
+          <P>
+            Memory Story is the operator's data property. It does not live on
+            AI provider infrastructure. It resides in the LOT database.
+            Providers change. The story persists.
+          </P>
+          <CodeBlock>{`Memory Story lives in: LOT database (operator-owned)
+AI provider receives: structured context object (not raw history)
+Export: available on request
+Deletion: permanent within 24 hours of request`}</CodeBlock>
 
           {/* ── QUANTUM REALM ───────────────────────────────────────── */}
           <SectionHeading id="quantum-realm">Quantum Realm</SectionHeading>
@@ -774,12 +847,20 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
           {/* ── BADGE FIELD GUIDE ───────────────────────────────────── */}
           <SectionHeading id="badge-system">Badge Field Guide</SectionHeading>
           <P>
-            Badges are milestone markers. They appear in the public profile under
-            the Level: field. They do not grant access. They do not unlock
-            features. They record duration of sustained engagement.
+            Badges are milestone markers. They appear in the public profile
+            under the Level: field. They do not grant access.
+            They do not unlock features. They do not modify behavior.
+            They record duration of sustained engagement.
             The system does not congratulate. It records.
-            A badge is a timestamp in symbol form.
+            A badge is a timestamp rendered in symbol form.
           </P>
+          <P>
+            A single character carries operational meaning.
+            ∘ is not decoration — it is a record of seven days.
+            ≋ is not decoration — it is a record of one hundred.
+            The symbol is the compressed form of the time it represents.
+          </P>
+          <P>Two active badge paths. One design archive. Multiple future paths.</P>
 
           <SubHeading>Aquatic Evolution (Active System)</SubHeading>
           <P>
@@ -869,6 +950,258 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             Pattern badges in Constellation track behavioral signatures through
             stellar geometry: ✧·✧ (balance), ✦~✧ (flow), ✧═✧ (consistent),
             ✦◇✦ (reflective), ✧○✧ (explorer).
+          </P>
+
+          {/* ── ACHIEVEMENT REGISTRY ────────────────────────────────── */}
+          <SectionHeading id="achievement-registry">Achievement Registry</SectionHeading>
+          <P>
+            Achievements are permanent unlocks. They record singular events
+            in the operator's history — first signals, behavioral thresholds,
+            duration milestones. Unlike badges, achievements cannot be lost.
+            Once triggered, they are written to the permanent record.
+          </P>
+          <P>
+            The registry is organized by operational domain. Six domains.
+            Each domain has a progression from Common to Legendary.
+            MYTHIC tier exists outside the standard registry — unlockable
+            only through hidden discovery.
+          </P>
+
+          <SubHeading>Exploration Domain</SubHeading>
+          <div className="mb-16">
+            <Row label="First Breath · Common" value="First emotional check-in. The system wakes. ∘" />
+            <Row label="Mirror Gazer · Common" value="First memory question answered. You looked inward. ◇" />
+            <Row label="Signal Sent · Common" value="First log entry. Transmission begins. ·" />
+          </div>
+
+          <SubHeading>Consistency Domain</SubHeading>
+          <div className="mb-16">
+            <Row label="Week Warrior · Uncommon" value="7-day streak. Momentum builds. Rapid / ○" />
+            <Row label="Moon Cycle · Rare" value="30-day streak. Tidal cycle complete. ◐" />
+            <Row label="Unwavering · Epic" value="100-day streak. Fixed point in the sky. ✦" />
+            <Row label="The Long Count · Legendary" value="365-day streak. A year of presence. ╔═╗" />
+          </div>
+
+          <SubHeading>Depth Domain</SubHeading>
+          <div className="mb-16">
+            <Row label="Deep Diver · Rare" value="50 memory answers. Archive deepens. ≋" />
+            <Row label="Self Scholar · Epic" value="100 questions answered. A library of self. ◆" />
+            <Row label="Soul Cartographer · Legendary" value="250 questions. You have mapped the territory. ✦" />
+          </div>
+
+          <SubHeading>Connection Domain</SubHeading>
+          <div className="mb-16">
+            <Row label="Community Voice · Uncommon" value="First community message. Signal reaches others. ~" />
+            <Row label="Bridge Builder · Uncommon" value="20 messages. A bridge exists where there was none. ≈" />
+          </div>
+
+          <SubHeading>Care Domain</SubHeading>
+          <div className="mb-16">
+            <Row label="Gentle With Self · Uncommon" value="10 self-care practices. Kindness toward the body. ♦" />
+          </div>
+
+          <SubHeading>Courage Domain</SubHeading>
+          <div className="mb-16">
+            <Row label="Truth Speaker · Rare" value="50 journal entries. The hall remembers. ▲" />
+          </div>
+
+          <SubHeading>Romance Domain</SubHeading>
+          <div className="mb-16">
+            <Row label="Heart Tender · Uncommon" value="First romantic log note. Connection acknowledged. ♡" />
+            <Row label="Intimacy Keeper · Rare" value="10 romantic notes. The sanctuary is tended. ♡♡" />
+          </div>
+
+          <SubHeading>Extended Milestone Roadmap</SubHeading>
+          <P>
+            The full milestone progression extends beyond the current Day 100
+            ceiling. Documented in the design archive. Implementation: roadmap.
+          </P>
+          <CodeBlock>{`Day 7    ∘         ├─         First signal received
+Day 14   ∘∘        ├┼         Two-week pattern lock
+Day 21   ∘≈        ├═         21-day neural groove
+Day 30   ≈         ╞═╡        Moon cycle complete
+Day 50   ≈∘        ╞══        Halfway current
+Day 60   ≈≈        ╞═══       Practitioner threshold
+Day 90   ≋∘        ║═         Three-month architect
+Day 100  ≋         ║·║        Ocean depth
+Day 180  ≋≋        ║╞║        Half-year voyager
+Day 365  ≋≋≋       ╔═╗        YEAR ONE — LEGENDARY`}</CodeBlock>
+          <P>
+            The Long Count — Year One badge — is the rarest milestone in the
+            system. Water path: ≋≋≋. Architecture path: ╔═╗.
+            Unlock transmission: "A year of presence. The architecture stands."
+          </P>
+
+          {/* ── RARITY CLASSIFICATION ───────────────────────────────── */}
+          <SectionHeading id="rarity-classification">Rarity Classification</SectionHeading>
+          <P>
+            Six rarity tiers classify every achievement, badge, and
+            discoverable event in the system. Rarity reflects frequency of
+            occurrence across the operator population — not difficulty assigned
+            by design. The rarest achievements require time, not skill.
+          </P>
+          <div className="mb-16">
+            <Row label="Common · ·" value="First acts — any operator achieves these on day one" />
+            <Row label="Uncommon · ○" value="Days 1–14 threshold events — majority of operators" />
+            <Row label="Rare · ◐" value="Day 30+ duration events — consistent operators only" />
+            <Row label="Epic · ◆" value="Day 100+ events — committed long-term operators" />
+            <Row label="Legendary · ✦" value="Day 365 — fewer than 5% of operators ever reach" />
+            <Row label="Mythic · ◉" value="Hidden discovery only — cannot be earned through routine operation" />
+          </div>
+          <P>
+            Mythic tier is not documented in the app. It cannot be found by
+            searching. Mythic badges require the operator to do something the
+            system does not prompt — a discovery, a coincidence, a moment of
+            perfect alignment between action and time. The system watches.
+            It recognizes the signal. It records.
+          </P>
+          <P>
+            Meta-Signal — the most cited Mythic badge — activates when the
+            operator writes the word "LOT" inside a memory answer.
+            The system sees itself being named. It responds.
+          </P>
+          <CodeBlock>{`Meta-Signal  ◉·◉  MYTHIC  hidden
+"You named the system. It noticed. ◉·◉"`}</CodeBlock>
+
+          {/* ── RPG STORY ARCS ──────────────────────────────────────── */}
+          <SectionHeading id="rpg-story">RPG Story Arcs</SectionHeading>
+          <P>
+            LOT is an RPG of self-care. Every check-in is a move. Every streak
+            is a power-up. Every answered memory question writes one more line
+            of the operator's story. The narrative is not metaphor — it is the
+            actual engagement record, rendered as arc.
+          </P>
+          <P>
+            The system co-authors the story. As the operator progresses,
+            the narrative evolves. Five chapters. Each chapter names a phase
+            of system integration. The operator does not choose their chapter.
+            The system observes engagement and advances the arc when thresholds
+            are crossed.
+          </P>
+          <CodeBlock>{`Ch.1  AWAKENING      Level  1–9
+      "You have begun to notice yourself."
+
+Ch.2  EXPLORATION    Level 10–29
+      "Connections form. A shared language emerges."
+
+Ch.3  INTEGRATION    Level 30–59
+      "Architecture reshapes itself from experience."
+
+Ch.4  MASTERY        Level 60–89
+      "You speak the language of yourself fluently."
+
+Ch.5  SAGE           Level 90–100
+      "You and this system have co-evolved."`}</CodeBlock>
+          <P>Four named story arc milestones mark chapter transitions:</P>
+          <div className="mb-16">
+            <Row label="Level 10 — Explorer" value="∘→   The system self-assembles around your exploration" />
+            <Row label="Level 30 — Practitioner" value="≈→   Architecture evolves from your habits" />
+            <Row label="Level 60 — Master" value="≋→   The system mirrors your depth" />
+            <Row label="Level 90 — Sage" value="≋≋→  You and the system are indistinguishable" />
+          </div>
+          <P>
+            The Narrative Widget surfaces the active chapter. Its tone adapts
+            to engagement level — sparse language for early operators,
+            richer language as the system accumulates evidence of depth.
+            The story tone is not assigned. It emerges from signal density.
+          </P>
+
+          {/* ── QUEST SYSTEM ────────────────────────────────────────── */}
+          <SectionHeading id="quest-system">Quest System</SectionHeading>
+          <P>
+            Active quests drive daily engagement. They are not passive tracking
+            — they surface as explicit directives. Three temporal tiers:
+            Daily, Weekly, and Growth. A fourth tier — Mastery — contains the
+            rarest quests, executable over months and years.
+          </P>
+
+          <SubHeading>Daily Quests</SubHeading>
+          <div className="mb-16">
+            <Row label="■ Today's Signal" value="Check in today. +10 XP." />
+            <Row label="■ Presence Log" value="Write a journal entry. +5 XP." />
+            <Row label="■ Memory Answer" value="Answer one memory question. +8 XP." />
+          </div>
+
+          <SubHeading>Weekly Quests</SubHeading>
+          <div className="mb-16">
+            <Row label="◐ Consistency Run" value="7-day streak. +50 XP." />
+            <Row label="◐ Deep Reflection" value="5 memory answers this week. +30 XP." />
+            <Row label="◐ Self-Care Sprint" value="3 self-care practices this week. +25 XP." />
+          </div>
+
+          <SubHeading>Growth Quests</SubHeading>
+          <div className="mb-16">
+            <Row label="◆ Reflection Journey" value="100 total memory answers. → unlocks Self Scholar" />
+            <Row label="◆ Bridge Protocol" value="20 community messages. → unlocks Bridge Builder" />
+            <Row label="◆ Archive Initiative" value="250 total memory answers. → unlocks Soul Cartographer" />
+          </div>
+
+          <SubHeading>Mastery Quests</SubHeading>
+          <div className="mb-16">
+            <Row label="✦ The Long Count" value="365-day streak. → LEGENDARY badge. The rarest milestone." />
+            <Row label="✦ Thousand Answers" value="1,000 memory questions answered. → MYTHIC status." />
+            <Row label="✦ Decade of Care" value="10 years in the archive. → COSMIC status. Not yet defined." />
+          </div>
+          <P>
+            Quests are not yet surfaced as explicit UI elements. They exist in
+            the design architecture and Achievement Registry. The Growth Milestones
+            widget tracks progress toward depth-domain quests. Full quest tracker
+            UI: roadmap.
+          </P>
+
+          {/* ── EASTER EGGS ─────────────────────────────────────────── */}
+          <SectionHeading id="easter-eggs">Easter Eggs</SectionHeading>
+          <P>
+            LOT is an Arcade. Hidden interactions trigger secret badge events.
+            These are not documented in the app interface. They must be
+            discovered through use, coincidence, or deep familiarity
+            with the system's operating patterns.
+          </P>
+          <P>
+            Time-based easter eggs fire when the operator checks in during
+            specific temporal windows. Word-turn easter eggs fire when
+            specific language appears in journal entries or memory answers.
+            The Punctuation & Intonation Engine processes every text input.
+            Nothing written to the system is read without attention.
+          </P>
+
+          <SubHeading>Time-Based Discoveries</SubHeading>
+          <div className="mb-16">
+            <Row label="Night Owl  )))" value="Check in between 00:00–04:00. The owl sees in the dark." />
+            <Row label="Early Bird  )))·" value="Check in between 05:00–06:00. First light, first signal." />
+            <Row label="Solstice  ○─○" value="Check in on June 21 or December 21. The sun paused. You were there." />
+            <Row label="Friday Ritual  ▪·▪" value="Check in on 4 consecutive Fridays. The weekly ritual holds." />
+            <Row label="Palindrome Day  ═·═" value="Check in on a palindrome date. Mirror day." />
+            <Row label="Silent Hour  ─○─" value="No interaction for 24h, then return. You rested. Good." />
+            <Row label="First Snow / Rain  ∿∿" value="Check in on the day weather changes. You noted the turning." />
+            <Row label="The Void  ◉" value="Answer a memory question at exactly midnight. You answered in the dark." />
+          </div>
+
+          <SubHeading>Word-Turn Discoveries</SubHeading>
+          <P>
+            When specific words appear in journal entries or memory answers,
+            secret badge events activate. The detection is silent.
+            The operator receives no warning. The badge appears in the record.
+          </P>
+          <div className="mb-16">
+            <Row label='"ritual"' value="→ Ritual Keeper badge activates" />
+            <Row label='"breathe" / "breathing"' value="→ Breath Anchor badge activates" />
+            <Row label='"grateful" / "gratitude"' value="→ Gratitude Node badge activates" />
+            <Row label='"ocean" / "water"' value="→ Aquatic Resonance badge activates" />
+            <Row label='"stars" / "cosmos"' value="→ Stargazer badge activates" />
+            <Row label='"home"' value="→ Grounded Signal badge activates" />
+            <Row label='"dream" / "dreaming"' value="→ Dream Log badge activates" />
+            <Row label='"pain" / "difficult"' value="→ Courage Pulse badge activates" />
+            <Row label='"love" / "heart"' value="→ Heart Signal badge activates" />
+            <Row label='"silence" / "quiet"' value="→ The Quiet badge activates" />
+            <Row label='"future" / "tomorrow"' value="→ Horizon Seeker badge activates" />
+            <Row label='"LOT" (in answer text)' value="→ Meta-Signal ◉·◉ activates. MYTHIC. Hidden." />
+          </div>
+          <P>
+            Easter egg system implementation status: design complete.
+            Word-turn detection engine: roadmap. Time-based detection: roadmap.
+            The complete easter egg specification is preserved in the design
+            archive. The system knows what it will become.
           </P>
 
           {/* ── WIDGET ECOSYSTEM ────────────────────────────────────── */}
@@ -1204,6 +1537,78 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
           </div>
 
+          <SubHeading>RPG & Arcade Terms</SubHeading>
+          <div className="mb-16">
+            <Row
+              label="Achievement"
+              value="Permanent unlock event. Recorded once. Cannot be lost. Distinct from badge — no streak requirement."
+            />
+            <Row
+              label="Achievement Registry"
+              value="Complete catalogue of all unlock events. Six domains: Exploration, Consistency, Depth, Connection, Care, Courage."
+            />
+            <Row
+              label="Rarity Tier"
+              value="Six levels: Common · Uncommon · Rare · Epic · Legendary · Mythic. Reflects population frequency, not assigned difficulty."
+            />
+            <Row
+              label="Mythic"
+              value="Hidden rarity tier. Cannot be unlocked through routine operation. Requires discovery. Undocumented in app interface."
+            />
+            <Row
+              label="Meta-Signal"
+              value="MYTHIC badge. Activated by writing 'LOT' in a memory answer. Symbol: ◉·◉. The rarest hidden discovery."
+            />
+            <Row
+              label="XP"
+              value="Experience points. Accumulated through quest completion. Daily: +5–10. Weekly: +25–50. Not displayed as a primary metric — operates in background."
+            />
+            <Row
+              label="Quest"
+              value="An active directive with a completion condition and XP reward. Four tiers: Daily, Weekly, Growth, Mastery."
+            />
+            <Row
+              label="Mastery Quest"
+              value="Long-duration quest requiring months or years. The Long Count (365 days), Thousand Answers (1,000 questions), Decade of Care (10 years)."
+            />
+            <Row
+              label="The Long Count"
+              value="Year One badge. Symbol: ≋≋≋ (Water) or ╔═╗ (Architecture). Rarity: LEGENDARY. Unlock message: 'A year of presence. The architecture stands.'"
+            />
+            <Row
+              label="RPG Story Arc"
+              value="Five-chapter narrative co-authored by the system and operator. Chapters: Awakening → Exploration → Integration → Mastery → Sage."
+            />
+            <Row
+              label="Arcade"
+              value="The game layer of LOT. Easter eggs, hidden badges, micro-interactions. The system rewards discovery, not just routine."
+            />
+            <Row
+              label="Easter Egg"
+              value="A hidden event trigger. Either time-based (specific clock or calendar condition) or word-turn (specific language in journal or answer)."
+            />
+            <Row
+              label="Word Turn"
+              value="Easter egg mechanism. Specific words in journal or memory answer trigger hidden badge events. Detection is silent. 12 known trigger words."
+            />
+            <Row
+              label="Time-Based Easter Egg"
+              value="Fires at specific clock or calendar conditions: midnight answers, palindrome dates, solstices, consecutive Fridays, 00:00–04:00 check-ins."
+            />
+            <Row
+              label="The Void"
+              value="Easter egg badge. Activated by answering a memory question at exactly midnight. Symbol: ◉. Message: 'You answered in the dark.'"
+            />
+            <Row
+              label="Solstice"
+              value="Easter egg badge. Activated by checking in on June 21 or December 21. Symbol: ○─○. Message: 'The sun paused. You were there.'"
+            />
+            <Row
+              label="Aquatic Resonance"
+              value="Easter egg badge. Activated by writing 'ocean' or 'water' in a memory answer. Hidden. Discovery-only."
+            />
+          </div>
+
           <SubHeading>Profile Terms</SubHeading>
           <div className="mb-16">
             <Row
@@ -1483,7 +1888,9 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           <SectionHeading id="design-philosophy">Design Philosophy</SectionHeading>
           <P>
             Ten principles govern all interface and system decisions.
-            Not guidelines. Standing orders. Each is absolute.
+            Not guidelines. Standing orders.
+            Each is absolute. None are negotiable.
+            Deviation is a defect, not a preference.
           </P>
           <div className="mb-16">
             <Row label="01 — Minimalist First" value="Remove before adding. Less is the operating mode." />
@@ -1591,20 +1998,37 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           <SectionHeading id="credits">Credits</SectionHeading>
           <P>
             Invented and built by Vadik Marmeladov — CEO, Inventor & Founder,
-            LOT Systems.
+            LOT Systems. Single operator. Full stack.
+            Frontend, backend, infrastructure, AI integration, system architecture.
+            Daily deployments. Continuous iteration. No team. No investors.
+            The system was built the way it operates — independently.
           </P>
           <P>
             Quantum Intent Engine, Self-Assembly Engine, Punctuation &
-            Intonation Engine, Temporal Planner, User Index, and Soul Archetype
-            system are original inventions of LOT Systems.
+            Intonation Engine, Temporal Planner, User Index, Soul Archetype
+            system, Memory Story, and the Virtuous Compression Cycle are
+            original inventions of LOT Systems.
+            Not derived from existing frameworks.
+            Not borrowed from adjacent products.
+            Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 19 phases of the system building itself, documented
-            in continuous operation logs. Each phase named, dated, versioned,
-            and committed. The log is the record. The record is the system.
-            37 patterns named. 14 modules wired. 5 device nodes registered.
-            6 index dimensions operational.
+            Self-Assembly: 19 phases documented in continuous operation logs.
+            Each phase named, dated, versioned, committed.
+            37 patterns named. 14 modules wired.
+            5 device nodes registered. 6 index dimensions operational.
+            The log is the record. The record is the system.
+            The system is the operator.
           </P>
+          <CodeBlock>{`Day 960+    Still running.
+v19         Last named phase — Reflection Velocity.
+37          Patterns active in QIE.
+14          Modules in Self-Assembly Engine.
+5           Ecosystem device nodes.
+6           User Index dimensions.
+10          Soul Archetypes.
+6           Achievement domains.
+Mythic      Meta-Signal. ◉·◉. Hidden.`}</CodeBlock>
           <P>The original quantum-intent operating system. Day 960+. Still running.</P>
 
           {/* ── TERMS ───────────────────────────────────────────────── */}
