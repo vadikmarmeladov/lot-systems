@@ -903,6 +903,49 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 38: Biofield recovery arc — self-care followed by mood improvement in 4h window
+  // Closes the loop between CARE events and measurable biofield shift.
+  // Named "arc" because it spans from action to measurable change.
+  const fourHoursAgoP38 = now - 4 * 60 * 60 * 1000
+  const p38SelfCare = signals.filter(s =>
+    s.source === 'selfcare' && s.timestamp > fourHoursAgoP38
+  )
+  const p38PositiveMoodAfterCare = p38SelfCare.some(careEvent =>
+    signals.some(s =>
+      s.source === 'mood' &&
+      ['calm', 'peaceful', 'energized', 'hopeful', 'grateful'].includes(s.signal) &&
+      s.timestamp > careEvent.timestamp &&
+      s.timestamp - careEvent.timestamp < 4 * 60 * 60 * 1000
+    )
+  )
+  if (p38SelfCare.length >= 1 && p38PositiveMoodAfterCare) {
+    patterns.push({
+      pattern: 'biofield-recovery-arc',
+      confidence: Math.min(0.55 + p38SelfCare.length * 0.1, 0.85),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: 'Self-care produced a measurable mood shift. Recovery arc complete. Document what moved — this is signal.'
+    })
+  }
+
+  // Pattern 39: Cognitive expansion — memory + journal + goals all active in 24h, word count rising
+  // The person is building mental architecture across three layers simultaneously.
+  const p39Memory  = recentSignals.filter(s => s.source === 'memory').length
+  const p39Journal = recentSignals.filter(s => s.source === 'journal').length
+  const p39Goals   = recentSignals.filter(s => s.source === 'goals').length
+  const p39WordCount = recentSignals
+    .filter(s => s.source === 'log' && s.signal === 'field_entry')
+    .reduce((sum, s) => sum + ((s.metadata?.wordCount as number) ?? 0), 0)
+  if (p39Memory >= 2 && p39Journal >= 1 && p39Goals >= 1 && p39WordCount >= 80) {
+    patterns.push({
+      pattern: 'cognitive-expansion',
+      confidence: Math.min(0.60 + p39WordCount / 400, 0.88),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `Memory, journal, and goals firing together with ${p39WordCount}+ words logged. Cognitive architecture expanding — extract the core insight.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1327,6 +1370,16 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   watchNode:         ['mood', 'energy', 'selfcare'],
   ecosystemBridge:   ['intentions', 'phoneNode', 'watchNode', 'ecosystem'],
   qosSnapshot:       ['mood', 'energy', 'intentions', 'selfcare', 'memory', 'planner', 'cohort'],
+
+  // ── Tier 2+: growth + awareness widgets (2026-05-09 audit)
+  goalJourney:       ['planner', 'intentions', 'memory', 'journal', 'goals'],
+  awarenessDashboard:['mood', 'memory', 'journal', 'energy', 'cohort'],
+  evolutionMilestone:['memory', 'intentions', 'selfcare', 'journal', 'planner', 'mood'],
+  cosmicUpdate:      ['mood', 'energy', 'intentions', 'log'],
+  wellnessPulse:     ['mood', 'energy', 'selfcare', 'cohort'],
+  collectiveConsciousness: ['mood', 'cohort'],
+  growthMilestones:  ['memory', 'intentions', 'journal', 'selfcare', 'planner', 'mood', 'badges'],
+  badgeUnlockFeed:   ['badges', 'memory', 'intentions'],
 }
 
 /**
@@ -1334,7 +1387,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * These feed the QIE independently of the widget dependency graph and are
  * tracked separately in the physiological report log-dependency audit.
  */
-export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort']
+export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort', 'recipe', 'goals']
 
 /** Returns which signal sources a given widget depends on. */
 export function getWidgetDependencies(widget: string): string[] {
@@ -1456,6 +1509,20 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['physiological-depletion', 'sleep-debt-accumulation', 'evening-overwhelm'],
     directive: 'Critical depletion. Rest protocol required.',
   },
+  {
+    archetype: 'Momentum Architect',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['goals', 'planner', 'intentions'],
+    patternConditions: ['intention-velocity', 'momentum-wave', 'goal-drift'],
+    directive: 'Intention velocity high. Convert signals to structure.',
+  },
+  {
+    archetype: 'Calibrating Guardian',
+    energyBands: ['low', 'moderate'],
+    dominantSources: ['selfcare', 'journal'],
+    patternConditions: ['biofield-recovery-arc', 'recovery-window', 'log-depth-signal'],
+    directive: 'Recovery arc active. Depth processing in progress.',
+  },
 ]
 
 /**
@@ -1568,7 +1635,7 @@ export function getPhysiologicalReport(): PhysiologicalReport {
 
   // Widget dependency map
   const WIDGET_SOURCES: IntentionSignal['source'][] = [
-    'mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'calculator', 'energy', 'cohort'
+    'mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'calculator', 'energy', 'cohort', 'recipe', 'goals', 'log'
   ]
   const widgetDependencies = WIDGET_SOURCES.map(source => {
     const relevant = weekSignals.filter(s => s.source === source)

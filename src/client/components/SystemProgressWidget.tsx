@@ -342,21 +342,41 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '38 patterns. 5 devices. 58-node dep graph. The Cube now maps itself.',
     ],
   },
+  {
+    date: '2026-05-09',
+    session: 'QIE v21 — Self-Assembly Session · Patterns 38–39 · Archetypes 10–11 · 66-node dep map',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 8 new nodes — goalJourney · awarenessDashboard · evolutionMilestone · cosmicUpdate · wellnessPulse · collectiveConsciousness · growthMilestones · badgeUnlockFeed. Total: 66 nodes',
+      'LOG_DEPENDENCY_SOURCES: recipe + goals + log added — physiological report widget audit now covers 12 signal sources',
+      'getPhysiologicalReport: WIDGET_SOURCES expanded to 12 (recipe / goals / log added alongside existing 9)',
+      'Pattern 38 (biofield-recovery-arc): self-care event + measurable positive mood shift within 4h window. Confidence 0.55–0.85',
+      'Pattern 39 (cognitive-expansion): memory + journal + goals simultaneously active with 80+ word log depth. Confidence 0.60–0.88',
+      'Archetype 10 (Momentum Architect): high-energy + goals/planner/intentions dominant + intention-velocity/momentum-wave patterns',
+      'Archetype 11 (Calibrating Guardian): low-moderate energy + selfcare/journal dominant + biofield-recovery-arc/log-depth-signal patterns',
+      'Logs.tsx: 3 new military handlers — ARC (biofield_recovery_arc) · CEXP (cognitive_expansion) · GOAL-X (goal_complete)',
+      'SystemProgressWidget deployment view: live QIE archetype + active pattern count added alongside readiness score',
+      'USERSHIP_TRANSMISSION updated to v21. Assembly log 2026-05-09 created.',
+      '39 patterns. 11 archetypes. 66-node dep graph. The Cube continues its self-assembly.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-07',
+  date: '2026-05-09',
   message: [
-    'ASSEMBLY RUN — 2026-05-07 · v19',
-    'Built: Pattern 37 (reflection-velocity).',
-    'The Cube now watches how deep your field entries go — not just that you wrote, but how much.',
-    'Split 7-day window. Recent avg vs prior avg. ≥20% growth triggers the pattern.',
-    'Signal: "Reflection depth increasing." Suggestion: Memory engine — extract what the depth is producing.',
-    'Retroactive v18 log created. The missing record now exists.',
+    'ASSEMBLY RUN — 2026-05-09 · v21',
+    'Built: Patterns 38–39. Archetypes 10–11. 66-node dep map. Log handlers: ARC / CEXP / GOAL-X.',
+    'Pattern 38 (biofield-recovery-arc): self-care produced a measurable mood shift. The arc is now named.',
+    'Pattern 39 (cognitive-expansion): memory + journal + goals firing together. Architecture building.',
+    'Archetype 10 (Momentum Architect): intention velocity converting to structure.',
+    'Archetype 11 (Calibrating Guardian): recovery arc active, depth processing in progress.',
+    'Dep map: goalJourney / awarenessDashboard / evolutionMilestone / cosmicUpdate / wellnessPulse / collectiveConsciousness / growthMilestones / badgeUnlockFeed added.',
+    'Log sources: recipe + goals + log added to physiological report widget audit.',
+    'Deployment panel: live archetype + pattern count surfaced alongside readiness score.',
     'Status: DEPLOYED',
-    'Next: Surface calendar-gap pattern (Pattern 26) with recommended action in Pattern Recognition widget.',
+    'Next: Pattern 40 — biofield-coherence-cascade (recovery arc → cognitive expansion → full-coherence within 24h).',
   ],
 }
 
@@ -588,19 +608,33 @@ export function SystemProgressWidget() {
 
               {/* Physiological readiness — live surface, auto-generated on mount */}
               {report && (
-                <div className="flex justify-between items-baseline mt-8">
-                  <span className="opacity-30">Readiness</span>
-                  <span className="tabular-nums">
-                    {report.physiologicalReadiness}/100
-                    {' '}<span className="opacity-30">{
-                      report.physiologicalReadiness >= 80 ? 'high' :
-                      report.physiologicalReadiness >= 60 ? 'functional' :
-                      report.physiologicalReadiness >= 40 ? 'reduced' :
-                      report.physiologicalReadiness >= 20 ? 'degraded' :
-                      'critical'
-                    }</span>
-                  </span>
-                </div>
+                <>
+                  <div className="flex justify-between items-baseline mt-8">
+                    <span className="opacity-30">Readiness</span>
+                    <span className="tabular-nums">
+                      {report.physiologicalReadiness}/100
+                      {' '}<span className="opacity-30">{
+                        report.physiologicalReadiness >= 80 ? 'high' :
+                        report.physiologicalReadiness >= 60 ? 'functional' :
+                        report.physiologicalReadiness >= 40 ? 'reduced' :
+                        report.physiologicalReadiness >= 20 ? 'degraded' :
+                        'critical'
+                      }</span>
+                    </span>
+                  </div>
+                  {report.cohortClassification && (
+                    <div className="flex justify-between items-baseline mt-8">
+                      <span className="opacity-30">Archetype · live</span>
+                      <span className="text-right">{report.cohortClassification.archetype}</span>
+                    </div>
+                  )}
+                  {report.activePatterns.length > 0 && (
+                    <div className="flex justify-between items-baseline mt-8">
+                      <span className="opacity-30">Patterns active</span>
+                      <span className="tabular-nums">{report.activePatterns.length}</span>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

@@ -1201,6 +1201,70 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'biofield_recovery_arc') {
+          // Pattern 38 signal — self-care produced a measurable mood shift
+          const selfCareType = log.metadata?.selfCareType as string | undefined
+          const moodAfter = log.metadata?.moodAfter as string | undefined
+          const hoursElapsed = log.metadata?.hoursElapsed as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">Biofield recovery arc</div>
+                <div className="flex flex-col gap-y-2">
+                  {selfCareType && (
+                    <div className="flex justify-between">
+                      <span className="opacity-40 uppercase">Care</span>
+                      <span className="uppercase">{selfCareType.replace(/_/g, ' ')}</span>
+                    </div>
+                  )}
+                  {moodAfter && (
+                    <div className="flex justify-between">
+                      <span className="opacity-40 uppercase">Shift</span>
+                      <span className="uppercase">{moodAfter}</span>
+                    </div>
+                  )}
+                  {hoursElapsed !== undefined && (
+                    <div className="flex justify-between">
+                      <span className="opacity-40 uppercase">Window</span>
+                      <span className="tabular-nums">{hoursElapsed}h</span>
+                    </div>
+                  )}
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_expansion') {
+          // Pattern 39 signal — memory + journal + goals active simultaneously
+          const wordCount = log.metadata?.wordCount as number | undefined
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CEXP:" blockView>
+                <div className="uppercase tracking-widest mb-4">Cognitive expansion</div>
+                <div className="flex gap-x-16 opacity-40 uppercase tracking-widest text-xs">
+                  {wordCount !== undefined && <span>WRD {wordCount}</span>}
+                  {sourceCount !== undefined && <span>SRC {sourceCount}</span>}
+                </div>
+                {log.text && <div className="opacity-30 mt-4">{log.text}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'goal_complete') {
+          const goalTitle = log.metadata?.goalTitle as string | undefined
+          const journeyDays = log.metadata?.journeyDays as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GOAL-X:" blockView>
+                <div className="uppercase tracking-widest mb-4">Objective complete</div>
+                {goalTitle && <div className="mb-2">{goalTitle}</div>}
+                {journeyDays !== undefined && (
+                  <div className="opacity-40 uppercase tracking-widest text-xs">
+                    {journeyDays}D JOURNEY
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           // Derive a terse military label from the event name prefix
