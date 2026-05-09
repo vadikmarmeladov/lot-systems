@@ -346,8 +346,15 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Critical checks that make the system fully broken when down
+  const criticalChecks = ['Database stack', 'Authentication engine']
+  const errorChecks = checks.filter((c) => c.status === 'error')
+  const hasCriticalError = errorChecks.some((c) => criticalChecks.includes(c.name))
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalError
+    ? 'error'
+    : errorChecks.length > 0
+      ? 'degraded'
+      : 'ok'
 
   return {
     version: VERSION,
@@ -387,8 +394,19 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
+  const requireLocalOrAdmin = (req: any, reply: any): boolean => {
+    const host = req.headers.host || ''
+    const isLocal = host.includes('localhost') || host.includes('127.0.0.1')
+    if (!isLocal && config.env === 'production') {
+      reply.code(403).send({ error: 'Forbidden' })
+      return false
+    }
+    return true
+  }
+
   // Admin configuration diagnostic endpoint
   fastify.get('/verify-admin-config', async (req, reply) => {
+    if (!requireLocalOrAdmin(req, reply)) return
     const adminEmailsEnv = process.env.ADMIN_EMAILS
     const adminsList = config.admins
 
@@ -413,6 +431,7 @@ export default async (fastify: FastifyInstance) => {
 
   // API key verification endpoint - shows masked API key for verification
   fastify.get('/verify-api-keys', async (req, reply) => {
+    if (!requireLocalOrAdmin(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
     const resendKey = process.env.RESEND_API_KEY
     const openaiKey = process.env.OPENAI_API_KEY
@@ -450,6 +469,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Memory Engine diagnostic endpoint - shows why Claude might not be working
   fastify.get('/debug-memory-engine', async (req, reply) => {
+    if (!requireLocalOrAdmin(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     // Test if we can initialize Anthropic client
@@ -496,6 +516,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test all AI engines to see which are available
   fastify.get('/test-ai-engines', async (req, reply) => {
+    if (!requireLocalOrAdmin(req, reply)) return
     const { aiEngineManager } = await import('#server/utils/ai-engines.js')
 
     const status = aiEngineManager.getStatus()
@@ -545,6 +566,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test Anthropic API key with actual API call
   fastify.get('/test-anthropic-key', async (req, reply) => {
+    if (!requireLocalOrAdmin(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     if (!anthropicKey) {
@@ -561,7 +583,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {
@@ -598,12 +620,10 @@ export default async (fastify: FastifyInstance) => {
     Params: { userIdOrUsername: string }
   }>('/profile/:userIdOrUsername', async (req, reply) => {
     const { userIdOrUsername } = req.params
-    console.log('[PUBLIC-PROFILE-API] Fetching profile for:', userIdOrUsername)
 
     // Demo account: Niccolò Machiavelli — autonomous hardcoded LOT account
     // Legacy level unlock showcase with weather station and wallet demos
     if (userIdOrUsername === 'machiavelli') {
-      console.log('[PUBLIC-PROFILE-API] Serving demo account: Machiavelli')
 
       // Compute real user counts so the demo board profile stays accurate
       let totalUsers = 1
@@ -763,51 +783,22 @@ export default async (fastify: FastifyInstance) => {
     }
 
     try {
-      // Prioritize custom URL over ID to avoid conflicts
-      // First, try to find user by custom URL in metadata
-      console.log('[PUBLIC-PROFILE-API] Searching for custom URL:', userIdOrUsername)
-      const users = await models.User.findAll()
-      let user = users.find(u => {
-        const customUrl = u.metadata?.privacy?.customUrl
-        return customUrl === userIdOrUsername
-      }) || null
+      // Try by ID first (cheapest), then scan for custom URL match
+      let user = await models.User.findOne({ where: { id: userIdOrUsername } })
 
-      if (user) {
-        console.log('[PUBLIC-PROFILE-API] ✓ User found by custom URL')
-        console.log('[PUBLIC-PROFILE-API] User ID:', user.id)
-      }
-
-      // If not found by custom URL, try by user ID
       if (!user) {
-        console.log('[PUBLIC-PROFILE-API] Custom URL not found, trying by ID')
-        user = await models.User.findOne({
-          where: { id: userIdOrUsername }
-        })
-        if (user) {
-          console.log('[PUBLIC-PROFILE-API] ✓ User found by ID:', user.id)
-        }
+        // Custom URLs are stored inside the JSON metadata field — scan with a limit
+        // to avoid loading the entire user table on large datasets.
+        const candidates = await models.User.findAll({ limit: 5000 })
+        user = candidates.find(u => u.metadata?.privacy?.customUrl === userIdOrUsername) || null
       }
 
       if (!user) {
-        console.log('[PUBLIC-PROFILE-API] User not found for:', userIdOrUsername)
         return reply.code(404).send({
           error: 'User not found',
           message: `No public profile exists for user: ${userIdOrUsername}`,
-          debug: {
-            searchedFor: userIdOrUsername,
-            searchMethods: ['By ID', 'By custom URL in metadata']
-          }
         })
       }
-
-      console.log('[PUBLIC-PROFILE-API] ✓ User found!')
-      console.log('[PUBLIC-PROFILE-API] User details:', {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        hasMetadata: !!user.metadata,
-        metadata: user.metadata
-      })
 
       // Get privacy settings from metadata (with defaults)
       // All profiles are public by default
@@ -819,13 +810,8 @@ export default async (fastify: FastifyInstance) => {
         showSound: true,
         showMemoryStory: true,
       }
-      console.log('[PUBLIC-PROFILE-API] Privacy settings:', JSON.stringify(privacy, null, 2))
-      console.log('[PUBLIC-PROFILE-API] isPublicProfile:', privacy.isPublicProfile)
-
       // Check if profile is public
       if (!privacy.isPublicProfile) {
-        console.log('[PUBLIC-PROFILE-API] Profile is private')
-
         // Even in private mode, return basic info with suspended tag
         const basicProfile = {
           firstName: user.firstName,
@@ -837,8 +823,6 @@ export default async (fastify: FastifyInstance) => {
 
         return basicProfile
       }
-
-      console.log('[PUBLIC-PROFILE-API] ✓ Profile is public, building response')
 
       // Increment profile visit counter
       const currentVisits = user.metadata?.profileVisits || 0
@@ -1156,15 +1140,10 @@ export default async (fastify: FastifyInstance) => {
 
       return profile
     } catch (error: any) {
-      console.error('[PUBLIC-PROFILE-API] Error:', error)
-      console.error('[PUBLIC-PROFILE-API] Error stack:', error.stack)
+      console.error('Public profile error:', error.message)
       return reply.code(500).send({
         error: 'Internal server error',
-        message: error.message || 'Failed to fetch public profile',
-        debug: {
-          errorType: error.constructor.name,
-          errorMessage: error.message,
-        }
+        message: 'Failed to fetch public profile',
       })
     }
   })
