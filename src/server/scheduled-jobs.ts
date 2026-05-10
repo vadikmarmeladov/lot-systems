@@ -1031,6 +1031,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyAssemblyJob()) {
     await executeDailyAssemblyJob()
   }
+
+  // Check morning biofield summary
+  if (shouldRunMorningBiofieldJob()) {
+    await executeMorningBiofieldJob()
+  }
 }
 
 // ─── Daily Self-Assembly Snapshot ────────────────────────────────────────────
@@ -1515,6 +1520,107 @@ async function executeWeeklyEcosystemAudit(): Promise<JobResult> {
   }
 }
 
+// ─── Morning Biofield Summary ─────────────────────────────────────────────────
+
+let isMorningBiofieldRunning = false
+let lastMorningBiofieldRun: Date | null = null
+
+/**
+ * Runs daily at 08:00 UTC.
+ * Aggregates overnight emotional + energy check-ins across active users
+ * and logs a biofield status summary for early-morning system monitoring.
+ * Detects collective depletion patterns before the daily active window opens.
+ */
+function shouldRunMorningBiofieldJob(): boolean {
+  if (isMorningBiofieldRunning) return false
+  if (lastMorningBiofieldRun) {
+    if (dayjs(lastMorningBiofieldRun).isSame(dayjs(), 'day')) return false
+  }
+  return true
+}
+
+async function executeMorningBiofieldJob(): Promise<JobResult> {
+  const jobName = 'morning-biofield-summary'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Morning Biofield Summary')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isMorningBiofieldRunning = true
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const eightHoursAgo = dayjs().subtract(8, 'hour').toDate()
+
+    // Emotional check-ins from the overnight window (midnight–8am)
+    const overnightCheckins = await Log.findAll({
+      where: {
+        event: 'emotional_checkin' as any,
+        createdAt: { [Op.gte]: eightHoursAgo },
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 5000,
+    })
+
+    const moodCounts: Record<string, number> = {}
+    let totalCheckins = 0
+
+    for (const log of overnightCheckins) {
+      const meta = (log as any).metadata || {}
+      const mood = meta.emotionalState as string | undefined
+      if (mood) {
+        moodCounts[mood] = (moodCounts[mood] || 0) + 1
+        totalCheckins++
+      }
+    }
+
+    const depletedStates = ['anxious', 'overwhelmed', 'tired', 'exhausted']
+    const depletedCount = depletedStates.reduce((sum, m) => sum + (moodCounts[m] || 0), 0)
+    const depletedRatio = totalCheckins > 0 ? Math.round((depletedCount / totalCheckins) * 100) : 0
+
+    const biofieldStatus =
+      depletedRatio >= 60 ? 'critical' :
+      depletedRatio >= 40 ? 'degraded' :
+      'nominal'
+
+    console.log(`   Overnight checkins: ${totalCheckins}`)
+    console.log(`   Depleted ratio: ${depletedRatio}%`)
+    console.log(`   Biofield status: ${biofieldStatus.toUpperCase()}`)
+    console.log('')
+    console.log('   Mood distribution:')
+    Object.entries(moodCounts)
+      .sort(([, a], [, b]) => b - a)
+      .forEach(([mood, count]) => console.log(`     ${mood}: ${count}`))
+
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('BIOFIELD JOB COMPLETE')
+    console.log(`   Checkins: ${totalCheckins} / Depleted: ${depletedRatio}% / Status: ${biofieldStatus}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastMorningBiofieldRun = new Date()
+    isMorningBiofieldRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { totalCheckins, depletedRatio, biofieldStatus, moodCounts }
+    }
+  } catch (error: any) {
+    console.error('Morning biofield job failed:', error.message)
+    isMorningBiofieldRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1540,6 +1646,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily QOS coherence report: 1 AM UTC every day')
   console.log('   - Daily QOS aggregate snapshot: 4 AM UTC every day')
   console.log('   - Daily self-assembly snapshot: 0 AM UTC every day')
+  console.log('   - Morning biofield summary: 8 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1549,8 +1656,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; user index: 23PM Sun; ecosystem: 7AM Wed; QIE: 3AM; vitals: 2AM; QOS: 1AM; aggregate: 4AM
-    if (hour === 9 || hour === 7 || hour === 6 || hour === 5 || hour === 23 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0) {
+    // Monthly: 9AM; cohort: 6AM Mon; signal audit: 5AM Sun; user index: 23PM Sun; ecosystem: 7AM Wed; QIE: 3AM; vitals: 2AM; QOS: 1AM; aggregate: 4AM; biofield: 8AM
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 23 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

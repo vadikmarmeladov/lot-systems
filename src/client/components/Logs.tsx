@@ -1308,6 +1308,39 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'direct_message_sent') {
+          const recipient = log.metadata?.recipientUsername as string | undefined
+          const msg = log.metadata?.message as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MSG [DIRECT]:" blockView>
+                {recipient && <div className="opacity-60 mb-4">TO: {recipient}</div>}
+                {msg && <div>{msg}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'connection_accepted' || log.event === 'cohort_profile_viewed') {
+          const cohortUser = log.metadata?.username as string | undefined
+          const matchPct = log.metadata?.matchPercentage as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="NET:" blockView>
+                {cohortUser && <div className="opacity-60 mb-4">NODE: {cohortUser}</div>}
+                {matchPct !== undefined && (
+                  <div className="opacity-40">MATCH: {matchPct}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'system_feedback') {
+          const fbStatus = log.metadata?.feedback as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SYS [FEEDBACK]:" blockView>
+                <div className="uppercase tracking-widest opacity-60">{fbStatus || '—'}</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           // Derive a terse military label from the event name prefix
