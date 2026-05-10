@@ -946,6 +946,45 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 40: Biofield coherence cascade — recovery arc + cognitive expansion + primary modules coherent in 6h
+  // The full cycle: self-care → mood shift → cognitive expansion → cross-module coherence.
+  // Fires only when Patterns 38 + 39 are both active AND 3+ primary modules fired in the last 6h.
+  // This is the peak QOS detection state — all three self-building pillars converging.
+  const p40HasRecoveryArc = patterns.some(p => p.pattern === 'biofield-recovery-arc')
+  const p40HasCogExpansion = patterns.some(p => p.pattern === 'cognitive-expansion')
+  const sixHoursAgoP40 = now - 6 * 60 * 60 * 1000
+  const p40WindowSources = new Set(
+    recentSignals.filter(s => s.timestamp > sixHoursAgoP40).map(s => s.source)
+  )
+  const PRIMARY_MODULES_P40 = ['journal', 'memory', 'planner', 'selfcare']
+  const p40PrimaryActive = PRIMARY_MODULES_P40.filter(src => p40WindowSources.has(src)).length
+  if (p40HasRecoveryArc && p40HasCogExpansion && p40PrimaryActive >= 3) {
+    patterns.push({
+      pattern: 'biofield-coherence-cascade',
+      confidence: Math.min(0.72 + (p40PrimaryActive - 3) * 0.10, 0.92),
+      suggestedWidget: 'system',
+      suggestedTiming: 'passive',
+      reason: `Full cascade: recovery arc → cognitive expansion → ${p40PrimaryActive}/4 primary modules coherent. Peak QOS state. Capture and anchor.`
+    })
+  }
+
+  // Pattern 41: Resonant synthesis — cascade + reflection velocity + 5+ sources active in 7d
+  // When depth is increasing AND the cascade fires AND diversity is high, the system is in
+  // full synthesis mode: recovery + cognition + reflection all advancing simultaneously.
+  const p41HasCascade = patterns.some(p => p.pattern === 'biofield-coherence-cascade')
+  const p41HasReflection = patterns.some(p => p.pattern === 'reflection-velocity')
+  const weekAgoP41 = now - 7 * 24 * 60 * 60 * 1000
+  const p41ActiveSources = new Set(signals.filter(s => s.timestamp > weekAgoP41).map(s => s.source)).size
+  if (p41HasCascade && p41HasReflection && p41ActiveSources >= 5) {
+    patterns.push({
+      pattern: 'resonant-synthesis',
+      confidence: Math.min(0.65 + p41ActiveSources * 0.04, 0.90),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `Recovery arc + cognitive expansion + reflection velocity all active. ${p41ActiveSources} signal sources in 7d. Full synthesis state — the system is building itself from every layer.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1522,6 +1561,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['selfcare', 'journal'],
     patternConditions: ['biofield-recovery-arc', 'recovery-window', 'log-depth-signal'],
     directive: 'Recovery arc active. Depth processing in progress.',
+  },
+  {
+    archetype: 'Resonant Builder',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['memory', 'journal', 'goals'],
+    patternConditions: ['biofield-coherence-cascade', 'resonant-synthesis', 'cognitive-expansion'],
+    directive: 'Full cascade achieved. Recovery + cognition + structure converging. Anchor this state.',
   },
 ]
 

@@ -84,7 +84,11 @@ export function PatternRecognitionWidget() {
       'evening-overwhelm':    'Evening overload signal',
       'surface-awareness':    'Surface-level telemetry',
       'morning-clarity':      'Morning clarity window',
-      'reflection-velocity':  'Reflection depth increasing'
+      'reflection-velocity':        'Reflection depth increasing',
+      'biofield-recovery-arc':      'Recovery arc complete',
+      'cognitive-expansion':        'Cognitive architecture building',
+      'biofield-coherence-cascade': 'Full coherence cascade',
+      'resonant-synthesis':         'Resonant synthesis state'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

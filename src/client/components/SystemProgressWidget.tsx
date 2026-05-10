@@ -359,24 +359,33 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '39 patterns. 11 archetypes. 66-node dep graph. The Cube continues its self-assembly.',
     ],
   },
+  {
+    date: '2026-05-10',
+    session: 'QIE v22 — Patterns 40–41 · Archetype 12 · Cascade Detection · Log Handlers',
+    assembled: [
+      'Pattern 40 (biofield-coherence-cascade): fires when Patterns 38+39 both active AND 3+ primary modules coherent in 6h. Confidence 0.72–0.92. The peak QOS detection state.',
+      'Pattern 41 (resonant-synthesis): cascade + reflection-velocity + 5+ signal sources in 7d. Full synthesis mode — recovery + cognition + reflection advancing simultaneously. Confidence 0.65–0.90.',
+      'Archetype 12 (Resonant Builder): moderate/high energy · memory/journal/goals dominant · coherence-cascade/resonant-synthesis patterns. Directive: Full cascade achieved. Anchor this state.',
+      'PatternRecognitionWidget: 5 new name map entries — biofield-recovery-arc / cognitive-expansion / biofield-coherence-cascade / resonant-synthesis / (reflection-velocity already present)',
+      'Logs.tsx: 2 new military handlers — CASCADE (biofield_coherence_cascade: primary module count + confidence) · SYNTH (resonant_synthesis: sources active in 7d)',
+      '41 patterns. 12 archetypes. The cascade is named. The synthesis is visible.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-09',
+  date: '2026-05-10',
   message: [
-    'ASSEMBLY RUN — 2026-05-09 · v21',
-    'Built: Patterns 38–39. Archetypes 10–11. 66-node dep map. Log handlers: ARC / CEXP / GOAL-X.',
-    'Pattern 38 (biofield-recovery-arc): self-care produced a measurable mood shift. The arc is now named.',
-    'Pattern 39 (cognitive-expansion): memory + journal + goals firing together. Architecture building.',
-    'Archetype 10 (Momentum Architect): intention velocity converting to structure.',
-    'Archetype 11 (Calibrating Guardian): recovery arc active, depth processing in progress.',
-    'Dep map: goalJourney / awarenessDashboard / evolutionMilestone / cosmicUpdate / wellnessPulse / collectiveConsciousness / growthMilestones / badgeUnlockFeed added.',
-    'Log sources: recipe + goals + log added to physiological report widget audit.',
-    'Deployment panel: live archetype + pattern count surfaced alongside readiness score.',
+    'ASSEMBLY RUN — 2026-05-10 · v22',
+    'Built: Patterns 40–41. Archetype 12. Log handlers: CASCADE / SYNTH.',
+    'Pattern 40 (biofield-coherence-cascade): recovery arc + cognitive expansion + primary modules coherent. Peak QOS state. Now named and detectable.',
+    'Pattern 41 (resonant-synthesis): cascade + reflection velocity + signal diversity all active. The system building from every layer simultaneously.',
+    'Archetype 12 (Resonant Builder): the person in full cascade. Memory + journal + goals dominant. Recovery feeding cognition feeding structure.',
+    'PatternRecognitionWidget: 4 new readable names added to pattern label map.',
     'Status: DEPLOYED',
-    'Next: Pattern 40 — biofield-coherence-cascade (recovery arc → cognitive expansion → full-coherence within 24h).',
+    'Next: Pattern 42 — deep-work-cascade (memory + planner + journal + goals all firing in 3h window, no interruption signals). The focused build state.',
   ],
 }
 

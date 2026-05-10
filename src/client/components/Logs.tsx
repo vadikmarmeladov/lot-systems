@@ -1265,6 +1265,49 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'biofield_coherence_cascade') {
+          const primaryActive = log.metadata?.primaryActive as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CASCADE:" blockView>
+                <div className="uppercase tracking-widest mb-4">Full cascade detected</div>
+                {primaryActive !== undefined && (
+                  <div className="flex justify-between mb-2">
+                    <span className="opacity-40 uppercase tracking-widest text-xs">Primary modules</span>
+                    <span className="tabular-nums">{primaryActive}/4</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between">
+                    <span className="opacity-40 uppercase tracking-widest text-xs">Confidence</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 uppercase tracking-widest text-xs mt-4">
+                  Recovery arc → Cognitive expansion → Coherence
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'resonant_synthesis') {
+          const sourcesActive = log.metadata?.sourcesActive as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SYNTH:" blockView>
+                <div className="uppercase tracking-widest mb-4">Resonant synthesis</div>
+                {sourcesActive !== undefined && (
+                  <div className="flex justify-between mb-2">
+                    <span className="opacity-40 uppercase tracking-widest text-xs">Sources 7d</span>
+                    <span className="tabular-nums">{sourcesActive}</span>
+                  </div>
+                )}
+                <div className="opacity-30 uppercase tracking-widest text-xs mt-4">
+                  Cascade + Reflection velocity + Signal diversity
+                </div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           // Derive a terse military label from the event name prefix
