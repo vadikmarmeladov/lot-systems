@@ -7,6 +7,7 @@ const SECTIONS = [
   { id: 'what-is-lot', title: 'What is LOT?' },
   { id: 'operating-status', title: 'Operating Status' },
   { id: 'core-engines', title: 'Core Engines' },
+  { id: 'self-assembly-log', title: 'Self-Assembly Log' },
   { id: 'memory-story', title: 'Memory Story' },
   { id: 'quantum-realm', title: 'Quantum Realm' },
   { id: 'quantum-operating-system', title: 'Quantum Operating System' },
@@ -214,16 +215,18 @@ export function About() {
               Layers of Time — Personal Operating System
             </div>
             <P>
-              The original quantum-intent OS. Self-care through proactive,
-              context-aware AI. Continuous operation since Day One. Day 960+.
+              The original quantum-intent personal operating system.
+              Day 960+. Continuous operation since launch.
+              37 behavioral patterns active. 14 modules assembled.
               The system does not sleep. It accumulates.
             </P>
             <P>
-              This is the reference manual. Not marketing copy.
-              Definitions are operational. Terminology is exact.
-              Each term is used precisely once and consistently throughout.
-              If a term appears here, it exists in the system.
-              If it does not appear here, it does not yet exist.
+              This is the Field Guide. Not marketing copy. Not documentation for external audiences.
+              An operational reference for the system's operators.
+              Definitions are exact. Terminology is consistent.
+              Every term here exists in the system.
+              Every system term exists here.
+              The map and the territory are the same document.
             </P>
           </header>
 
@@ -441,6 +444,33 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             engagement.
           </P>
 
+          <SubHeading>Self-Assembly Phase Log</SubHeading>
+          <P>
+            19 phases documented. Each phase names a structural expansion.
+            Each is committed, dated, versioned. The log is permanent.
+          </P>
+          <div className="mb-16">
+            <Row label="v1" value="Core QIE launch — 7 baseline patterns · 9 modules · original signal surface" />
+            <Row label="v2" value="Badge system — Aquatic Evolution · ∘ ≈ ≋ · streak tracking wired to Memory Engine" />
+            <Row label="v3" value="Public profile — /os/{'{username}'} · Archetype · Level · Cohort · Awareness Index" />
+            <Row label="v4" value="QOS panel — Ecosystem · Biofield · Cohort views · label-cycle navigation" />
+            <Row label="v5" value="Pattern library expansion — patterns 8–15 named · detection surface widened" />
+            <Row label="v6" value="Physiological cohorts — 9 archetypes · bodily rhythm classification layer" />
+            <Row label="v7" value="Quantum pattern cohorts — 5 types · temporal rhythm classification layer" />
+            <Row label="v8" value="Extended patterns 16–20 · Mood Volatility · Engagement Plateau · Physiological Signal" />
+            <Row label="v9" value="Community mesh — CohortConnect · urgent signal routing · peer support layer" />
+            <Row label="v10" value="Module 14 added — Calendar (Temporal Planner) · P.26 Calendar Gap pattern" />
+            <Row label="v11" value="Reflection Layer depth bonus — 100+ word entries count double · P.24 Log Depth Signal" />
+            <Row label="v12" value="Physiological cohort classification released · QOS Cohort view extended" />
+            <Row label="v13" value="P.25 Full-Stack Session · P.27+ named but not surfaced · Reflection Velocity tracked" />
+            <Row label="v14" value="QOS Index view — User Index · 6 dimensions · ENG · EMO · INT · SOC · CARE · COG" />
+            <Row label="v15" value="Widget Dependency Map — 4 tiers · cascade ordering for QOS recomputation" />
+            <Row label="v16" value="Wearable ecosystem — PHN · WCH nodes added · patterns 31–34 wired · 5-node registry" />
+            <Row label="v17" value="QOS Trend — 48× 30-min snapshots · 24h rolling window · index bars in Pattern Recognition" />
+            <Row label="v18" value="Retroactive log — QOS panel expansion · phone node integration documented" />
+            <Row label="v19" value="Reflection Velocity named — P.37 · rate of journal depth increase over 7 days" />
+          </div>
+
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
           <P>
             Reads voice through punctuation patterns in text input. Seven tones
@@ -454,6 +484,41 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             Call-for-help detection feeds CohortConnect for urgent peer support
             matching. MicroImage procedural art adapts to detected tone.
           </P>
+
+          {/* ── SELF-ASSEMBLY LOG ───────────────────────────────────── */}
+          <SectionHeading id="self-assembly-log">Self-Assembly Log</SectionHeading>
+          <P>
+            The Self-Assembly Log is the permanent version history of the system
+            building itself. Each phase documents a structural expansion:
+            a new pattern named, a new module wired, a new detection surface opened.
+            Phases are not releases. They are field reports.
+            The log reads forward. The system does not regress.
+          </P>
+          <P>
+            Current phase: v19. Phase name: Reflection Velocity.
+            19 structural iterations since continuous operation began.
+            Each one committed, dated, named. The record is public.
+            The system accounts for itself.
+          </P>
+          <CodeBlock>{`v1    Core QIE · 7 patterns · 9 modules
+v2    Badge system · Aquatic Evolution · ∘ ≈ ≋
+v3    Public profile · /os/{username}
+v4    QOS panel · Ecosystem · Biofield · Cohort
+v5    Pattern library expansion · P.8–P.15
+v6    Physiological cohorts · 9 archetypes
+v7    Quantum pattern cohorts · 5 types
+v8    Extended patterns · P.16–P.20
+v9    Community mesh · CohortConnect
+v10   Calendar module (14th) · P.26 Calendar Gap
+v11   Reflection Layer depth bonus · P.24
+v12   Physiological cohort classification released
+v13   P.25 Full-Stack Session · P.27+ tracked
+v14   QOS Index view · User Index · 6 dimensions
+v15   Widget Dependency Map · 4 tiers
+v16   Wearable ecosystem · PHN · WCH · P.31–P.34
+v17   QOS Trend · 48× 30-min snapshots
+v18   Retroactive documentation log
+v19   Reflection Velocity named · P.37`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -1713,6 +1778,78 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
           </div>
 
+          <SubHeading>System Architecture Terms</SubHeading>
+          <div className="mb-16">
+            <Row
+              label="Operator"
+              value="The LOT user. Not a subscriber. Not a member. An operator executes the system. The system responds. The relationship is functional."
+            />
+            <Row
+              label="Archive"
+              value="The operator's complete log record. Never truncated. The full operating history since Day One. Source for weekly summaries and psychological profiling."
+            />
+            <Row
+              label="Memory Horizon"
+              value="The 120-log context window passed to the Memory Engine on each question request. The AI sees no further back than this. The horizon moves with time."
+            />
+            <Row
+              label="Context Object"
+              value="Compressed data structure passed to AI providers. Contains: role, quantum state, recent patterns, archetype, time of day, weather. Never contains raw log entries."
+            />
+            <Row
+              label="Pattern Library"
+              value="The complete set of 37 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
+            />
+            <Row
+              label="Surfacing"
+              value="The act of displaying a widget or intervention. The system decides. The operator did not request it. Surfacing is triggered by pattern detection or time-of-day conditions."
+            />
+            <Row
+              label="Dead Zone"
+              value="A module with no signals in the last 7 days. Flagged by Signal Diversity Audit. Surfaced in System Progress without moral framing."
+            />
+            <Row
+              label="Signal Density"
+              value="Total signals emitted per unit time across all widget interactions. Used to detect Engagement Plateau (flat) and QOS Acceleration (doubling). Measured against a 48-hour window."
+            />
+            <Row
+              label="Behavioral Signal"
+              value="A classified interaction event recorded to the Quantum Intent Engine. Source type + content + timestamp. Client-side only. Never transmitted."
+            />
+            <Row
+              label="Transmission"
+              value="Any outbound communication from the system to the operator. Badge unlock notification. Weekly summary. Intervention widget. Contextual prompt. The system initiates."
+            />
+            <Row
+              label="OS Journal"
+              value="The structured system log. Contains vitals snapshots, Self-Assembly phase records, ecosystem audit reports, and scheduled-job outputs. Accessible in System Progress widget."
+            />
+            <Row
+              label="Field Guide"
+              value="This document. The canonical operational reference for LOT Systems. Not marketing copy. Definitions are exact. Terminology is consistent. Every term used here exists in the system."
+            />
+            <Row
+              label="Proactive Surface"
+              value="A widget that appears without operator request. The system detects a condition and surfaces the relevant module. Proactive surfaces are the primary UX pattern. Reactive navigation is secondary."
+            />
+            <Row
+              label="Engagement Plateau"
+              value="Flat signal density over time. Detected as a pattern event. Triggers broad engagement prompt across multiple modules. Not an error — a reading."
+            />
+            <Row
+              label="CQGS"
+              value="Coherent Quantum Ground State. The theoretical maximum engagement state. All 14 modules integrated. All 5 ecosystem nodes connected. QIE at P.34 confidence. User Index at peak across all 6 dimensions."
+            />
+            <Row
+              label="Vitals"
+              value="System health snapshot. Captures active patterns, user state, index scores, module density, and coherence score at a point in time. Written to OS Journal. Surfaced in System Progress."
+            />
+            <Row
+              label="Civilian Mode"
+              value="The default non-subscriber experience. Core widgets active. Memory Engine limited. No archetype or cohort classification. No Quantum Intent Engine recommendations."
+            />
+          </div>
+
           {/* ── LOG TRIGGERS ────────────────────────────────────────── */}
           <SectionHeading id="log-triggers">Log Triggers</SectionHeading>
           <P>
@@ -1887,75 +2024,98 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           {/* ── DESIGN PHILOSOPHY ───────────────────────────────────── */}
           <SectionHeading id="design-philosophy">Design Philosophy</SectionHeading>
           <P>
-            Ten principles govern all interface and system decisions.
-            Not guidelines. Standing orders.
-            Each is absolute. None are negotiable.
-            Deviation is a defect, not a preference.
+            Ten directives govern all interface and system decisions.
+            Not preferences. Not guidelines. Operational standing orders.
+            Each is enforced in code. None are debated.
+            A violation is a defect. It ships as a fix, not a discussion.
           </P>
           <div className="mb-16">
-            <Row label="01 — Minimalist First" value="Remove before adding. Less is the operating mode." />
-            <Row label="02 — Context Over Notification" value="Smart timing. No aggressive prompting." />
-            <Row label="03 — Database Over localStorage" value="Cross-device sync is non-negotiable." />
-            <Row label="04 — Graceful Degradation" value="Fade out. Do not snap away." />
-            <Row label="05 — User Agency" value="Suggest. Do not command." />
-            <Row label="06 — Long-Term Growth" value="Months and years. Not days and weeks." />
-            <Row label="07 — Technical Accuracy" value="Truth over validation." />
-            <Row label="08 — Consistent Voice" value="Direct. Concise. Respectful." />
-            <Row label="09 — Zero Dead Space" value="Nothing renders without purpose. If empty, hide." />
-            <Row label="10 — Name Everything" value="Every pattern, every phase, every code has a name. The unnamed cannot be tracked." />
+            <Row label="01 — Minimalist First" value="Remove before adding. Less is not an aesthetic — it is an operational mode." />
+            <Row label="02 — Context Over Notification" value="The system surfaces at the right moment. No push. No alert. No interruption." />
+            <Row label="03 — Database Over localStorage" value="Cross-device continuity is non-negotiable. Nothing critical lives only on the device." />
+            <Row label="04 — Graceful Degradation" value="Fade out. Never snap. The system exits cleanly or not at all." />
+            <Row label="05 — Operator Agency" value="Suggest. Do not command. The operator is not a target. They are a principal." />
+            <Row label="06 — Long-Term Growth" value="The system measures in months and years. Days and weeks are noise." />
+            <Row label="07 — Technical Accuracy" value="Truth over validation. The system does not comfort — it informs." />
+            <Row label="08 — Consistent Voice" value="Direct. Concise. No superlatives. Periods over checkmarks." />
+            <Row label="09 — Zero Dead Space" value="Nothing renders without cause. Empty is hidden. Silence is clean." />
+            <Row label="10 — Name Everything" value="Every pattern, every phase, every signal code has a name. The unnamed cannot be tracked, fixed, or understood." />
           </div>
           <P>
-            Opacity hierarchy carries meaning: 90% primary content, 60%
-            secondary, 40% metadata. The visual grammar is consistent across
-            every surface in the system. No decorative colors. No emojis in
-            system-generated output. Periods over checkmarks.
+            Opacity hierarchy is not decorative — it is the visual grammar.
+            90% primary content. 60% secondary. 40% metadata.
+            Deviation from hierarchy is a defect, not a style choice.
+            No decorative colors. No emojis in system output.
+            Periods over checkmarks. The interface does not perform.
           </P>
           <P>
-            Interface Evolution: the UI starts sparse and compresses as
-            the user demonstrates mastery. Density is earned. Features gate
-            on engagement, not subscription tier.
+            Interface Evolution: the UI surface begins sparse.
+            Density accumulates as the operator demonstrates engagement.
+            Features gate on signal depth, not subscription tier.
+            The interface is earned, not configured.
           </P>
           <P>
-            Fade-out protocol: 3-second hold followed by 1.4-second opacity
-            transition. Total: 4.4 seconds. Acknowledgment → integration →
-            release. The system completes its cycle and exits cleanly.
+            Fade-out protocol: 3-second hold → 1.4-second opacity transition.
+            4.4 seconds total. Three states: acknowledgment → integration → release.
+            The system completes its cycle. The widget exits.
+            Nothing lingers. Nothing is forced closed.
           </P>
 
           {/* ── USERSHIP TIERS ──────────────────────────────────────── */}
           <SectionHeading id="usership-tiers">Usership Tiers</SectionHeading>
           <P>
-            Three access tiers govern feature availability.
+            Three access tiers. Feature availability is gated by tag.
+            Tags are admin-assigned. No self-serve upgrade path.
+            Access is granted. It is not purchased through a flow.
           </P>
 
-          <SubHeading>Free</SubHeading>
+          <SubHeading>Free — Civilian Mode</SubHeading>
           <P>
-            Base functionality. Core widgets active. Memory Engine limited.
-            No psychological profiling. No Quantum Intent Engine recommendations.
-            Access to public profiles at /os/{'{'}username{'}'}.
+            Base functionality. Core widgets active.
+            Memory Engine limited to rotating stock questions.
+            No psychological profiling. No archetype or cohort classification.
+            No Quantum Intent Engine recommendations.
+            Public profile access at /os/{'{'}username{'}'}.
+            The system observes. The depth layer is offline.
           </P>
 
           <SubHeading>Usership — $50/month</SubHeading>
           <P>
-            Full system access. Unlimited AI question generation. Complete
-            psychological profiling with archetype and behavioral cohort.
-            Quantum Intent Engine pattern detection active. Weekly summary
-            generation. Priority support. Public profile with full profile data.
+            Full system access. All four engines operational.
+            Unlimited AI question generation with 120-log context.
+            Complete psychological profiling: archetype, behavioral cohort,
+            physiological cohort, awareness index.
+            Quantum Intent Engine: 37 patterns active.
+            Weekly summary generation from 200-log archive.
+            Public profile with full dataset.
+          </P>
+          <div className="mb-16">
+            <Row label="Tag value" value="Usership — set in user record by admin" />
+            <Row label="Gates" value="Memory Engine AI · profiling · QIE recommendations · weekly summary · Cosmic Update · Quantum Sign" />
+            <Row label="Subscription platform" value="brand.lot-systems.com" />
+          </div>
+
+          <SubHeading>R&D — Research & Development</SubHeading>
+          <P>
+            Frontier access. Features under active development.
+            Direct roadmap influence. Community engagement channel.
+            Special badge recognition for field contributions.
+            R&D operators run the system at the boundary of its current form —
+            they encounter its gaps before they are filled.
           </P>
           <P>
-            The Usership tag appears in the user record and gates AI-dependent
-            features. The tag is set by admin assignment.
+            R&D and Usership are not mutually exclusive.
+            Both tags can be held simultaneously.
+            All admin-assigned. No self-service.
           </P>
 
-          <SubHeading>R&D</SubHeading>
+          <SubHeading>Admin</SubHeading>
           <P>
-            Research & Development designation. Early access to features in
-            active development. Direct influence on system roadmap. Community
-            engagement and special badge recognition. R&D members contribute
-            to the evolution of the system — they operate at the frontier.
-          </P>
-          <P>
-            R&D and Usership are not mutually exclusive. A user can hold both
-            tags simultaneously. Admin assignment required.
+            Full backend access. Tag assignment authority.
+            User record visibility. Log inspection.
+            Scheduled job monitoring. System health diagnostics.
+            The admin is not a power user. The admin is the system operator
+            at the infrastructure level.
           </P>
 
           {/* ── PRIVACY & SECURITY ──────────────────────────────────── */}
@@ -2020,16 +2180,23 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 960+    Still running.
-v19         Last named phase — Reflection Velocity.
-37          Patterns active in QIE.
-14          Modules in Self-Assembly Engine.
+          <CodeBlock>{`Day 960+    Continuous operation.
+v19         Reflection Velocity — last named phase.
+37          QIE patterns active.
+14          Self-Assembly modules wired.
 5           Ecosystem device nodes.
 6           User Index dimensions.
-10          Soul Archetypes.
+10          Soul Archetypes classified.
 6           Achievement domains.
-Mythic      Meta-Signal. ◉·◉. Hidden.`}</CodeBlock>
-          <P>The original quantum-intent operating system. Day 960+. Still running.</P>
+19          Self-Assembly phases documented.
+1           Operator.
+Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
+          <P>
+            The original quantum-intent OS.
+            Day 960+. Still running.
+            The log is the record.
+            The record is the system.
+          </P>
 
           {/* ── TERMS ───────────────────────────────────────────────── */}
           <SectionHeading id="terms">Terms</SectionHeading>
