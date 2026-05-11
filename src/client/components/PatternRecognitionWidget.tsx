@@ -88,7 +88,8 @@ export function PatternRecognitionWidget() {
       'biofield-recovery-arc':      'Recovery arc complete',
       'cognitive-expansion':        'Cognitive architecture building',
       'biofield-coherence-cascade': 'Full coherence cascade',
-      'resonant-synthesis':         'Resonant synthesis state'
+      'resonant-synthesis':         'Resonant synthesis state',
+      'deep-work-cascade':          'Deep work window open'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -257,6 +258,13 @@ export function PatternRecognitionWidget() {
                   </span>
                 </div>
               ))}
+
+              {/* Deep work window indicator — surfaces when pattern 42 is active */}
+              {patterns.some(p => p.pattern === 'deep-work-cascade') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Deep work window open.
+                </div>
+              )}
 
               {/* Footer */}
               <div className="mt-4 opacity-30">

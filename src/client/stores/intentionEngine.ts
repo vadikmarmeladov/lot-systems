@@ -985,6 +985,32 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 42: Deep work cascade — memory + planner + journal + goals all coherent in 3h, no interruption signals
+  // The focused build state: structural coherence across all four output modules simultaneously.
+  // Distinct from biofield-coherence-cascade (which requires recovery arc + cognitive expansion);
+  // this fires on pure building mode — when the person is in execution without noise.
+  const threeHoursAgoP42 = now - 3 * 60 * 60 * 1000
+  const p42WindowSources = new Set(
+    recentSignals.filter(s => s.timestamp > threeHoursAgoP42).map(s => s.source)
+  )
+  const DEEP_WORK_MODULES_P42 = ['memory', 'planner', 'journal', 'goals']
+  const p42AllActive = DEEP_WORK_MODULES_P42.every(src => p42WindowSources.has(src))
+  const p42NoInterruption = !patterns.some(p =>
+    ['anxiety-pattern', 'evening-overwhelm', 'ungrounded-activity'].includes(p.pattern)
+  )
+  if (p42AllActive && p42NoInterruption) {
+    const p42SignalCount = recentSignals.filter(s =>
+      s.timestamp > threeHoursAgoP42 && DEEP_WORK_MODULES_P42.includes(s.source)
+    ).length
+    patterns.push({
+      pattern: 'deep-work-cascade',
+      confidence: Math.min(0.68 + p42SignalCount * 0.04, 0.90),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `Memory + planner + journal + goals all active in 3h window. No interruption signals. Deep work window open — protect this session.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1568,6 +1594,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['memory', 'journal', 'goals'],
     patternConditions: ['biofield-coherence-cascade', 'resonant-synthesis', 'cognitive-expansion'],
     directive: 'Full cascade achieved. Recovery + cognition + structure converging. Anchor this state.',
+  },
+  {
+    archetype: 'Deep Work Architect',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['planner', 'journal', 'memory'],
+    patternConditions: ['deep-work-cascade', 'momentum-wave', 'cognitive-expansion'],
+    directive: 'Deep work window open. All four build modules coherent. Protect this session.',
   },
 ]
 

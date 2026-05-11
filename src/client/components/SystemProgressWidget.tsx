@@ -385,21 +385,32 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Self-assembly session report deployed. CQGS Health now surfaces physiological identity and QOS dimensions. The Cube knows who it serves.',
     ],
   },
+  {
+    date: '2026-05-11',
+    session: 'QIE v24 — Pattern 42 · Archetype 13 · Deep Work Cascade · DWRK handler',
+    assembled: [
+      'Pattern 42 (deep-work-cascade): memory + planner + journal + goals all active in 3h window, no interruption signals. The focused build state. Confidence 0.68–0.90.',
+      'Archetype 13 (Deep Work Architect): moderate/high energy · planner/journal/memory dominant · deep-work-cascade/momentum-wave/cognitive-expansion patterns. Directive: Protect this session.',
+      'PatternRecognitionWidget: deep-work-cascade added to name map ("Deep work window open")',
+      'PatternRecognitionWidget QOS Trend view: "Deep work window open." indicator surfaces when Pattern 42 is active',
+      'Logs.tsx: DWRK handler (deep_work_cascade event) — signals 3h count + confidence + cascade chain label',
+      '42 patterns. 13 archetypes. The Cube now names its own peak build state.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-10',
+  date: '2026-05-11',
   message: [
-    'ASSEMBLY RUN — 2026-05-10 · v22',
-    'Built: Patterns 40–41. Archetype 12. Log handlers: CASCADE / SYNTH.',
-    'Pattern 40 (biofield-coherence-cascade): recovery arc + cognitive expansion + primary modules coherent. Peak QOS state. Now named and detectable.',
-    'Pattern 41 (resonant-synthesis): cascade + reflection velocity + signal diversity all active. The system building from every layer simultaneously.',
-    'Archetype 12 (Resonant Builder): the person in full cascade. Memory + journal + goals dominant. Recovery feeding cognition feeding structure.',
-    'PatternRecognitionWidget: 4 new readable names added to pattern label map.',
+    'ASSEMBLY RUN — 2026-05-11 · v24',
+    'Built: Pattern 42. Archetype 13. Log handler: DWRK.',
+    'Pattern 42 (deep-work-cascade): memory + planner + journal + goals all coherent in 3h. No interruption signals. The focused build state — now named and detectable.',
+    'Archetype 13 (Deep Work Architect): the person in pure execution mode. Planner + journal + memory dominant. All four build modules firing.',
+    'QOS Trend view: "Deep work window open." surfaces when Pattern 42 is active. The Cube tells you when the window exists.',
     'Status: DEPLOYED',
-    'Next: Pattern 42 — deep-work-cascade (memory + planner + journal + goals all firing in 3h window, no interruption signals). The focused build state.',
+    'Next: Pattern 43 — intention-completion-arc (intention set → goal action → journal entry all within 24h). The full loop: thought → structure → reflection.',
   ],
 }
 
