@@ -1011,6 +1011,31 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 43: Intention-completion arc — the full loop: intention → goal action → journal entry within 24h.
+  // Thought becomes structure becomes reflection. The person is operating with full intentionality.
+  const p43DayAgo = now - 24 * 60 * 60 * 1000
+  const p43Intentions = signals.filter(s =>
+    s.source === 'intentions' && s.timestamp > p43DayAgo
+  )
+  const p43Goals = signals.filter(s =>
+    s.source === 'goals' &&
+    s.timestamp > p43DayAgo &&
+    (s.signal.includes('goal_set') || s.signal.includes('goal_progress') || s.signal.includes('goal_action'))
+  )
+  const p43Journal = signals.filter(s =>
+    s.source === 'journal' && s.timestamp > p43DayAgo
+  )
+  if (p43Intentions.length >= 1 && p43Goals.length >= 1 && p43Journal.length >= 1) {
+    const loopCount = Math.min(p43Intentions.length, p43Goals.length, p43Journal.length)
+    patterns.push({
+      pattern: 'intention-completion-arc',
+      confidence: Math.min(0.72 + loopCount * 0.06, 0.95),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: 'Intention → goal action → journal reflection all within 24h. Full loop complete. The Cube recognises intentional execution.'
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1445,6 +1470,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   collectiveConsciousness: ['mood', 'cohort'],
   growthMilestones:  ['memory', 'intentions', 'journal', 'selfcare', 'planner', 'mood', 'badges'],
   badgeUnlockFeed:   ['badges', 'memory', 'intentions'],
+
+  // ── QOS meta-layer: Quantum Operating System (2026-05-11 audit)
+  quantumOS:         ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy',
+                      'cohort', 'log', 'calculator', 'goals', 'recipe', 'ecosystem', 'qosSnapshot'],
 }
 
 /**
@@ -2233,5 +2262,97 @@ export function getEnrichedPhysiologicalReport(): PhysiologicalReport & {
     circadianPhase: getCircadianPhase(),
     latestQOSSnapshot,
     qosTrend,
+  }
+}
+
+// ─── Quantum Operating System (QOS) ────────────────────────────────────────
+
+/**
+ * The Quantum Operating System is the complete runtime model of the person.
+ *
+ * It synthesises all engine layers — signals, patterns, biofield, user index,
+ * and coherence — into a single unified view of what state the person is
+ * currently operating in.
+ *
+ * QOS is not a score. It is a mirror. It shows the person what they are
+ * running as, right now, so they can steer with full intention.
+ */
+export type QuantumOS = {
+  runtime: {
+    energy: UserState['energy']
+    clarity: UserState['clarity']
+    alignment: UserState['alignment']
+    support: UserState['needsSupport']
+    circadianPhase: QOSSnapshot['circadianPhase']
+  }
+  index: {
+    overall: number
+    trend: UserIndex['trend']
+    dimensions: UserIndex['dimensions']
+  }
+  patterns: Array<{
+    id: string
+    confidence: number
+    urgency: IntentionPattern['suggestedTiming']
+    directive: string
+  }>
+  signalMap: Partial<Record<IntentionSignal['source'], number>>
+  coherence: number
+  operationalStatus: 'nominal' | 'degraded' | 'critical' | 'peak'
+  computedAt: number
+}
+
+/**
+ * Compute the Quantum Operating System snapshot from current engine state.
+ * Reads cached analysis — no heavy computation.
+ */
+export function getQuantumOS(): QuantumOS {
+  const state = intentionEngine.get()
+  const { userState, userIndex, recognizedPatterns, signals } = state
+  const now = Date.now()
+  const weekMs = 7 * 24 * 60 * 60 * 1000
+
+  const weekSignals = signals.filter(s => now - s.timestamp < weekMs)
+  const allSources: IntentionSignal['source'][] = [
+    'mood', 'memory', 'planner', 'intentions', 'selfcare',
+    'journal', 'calculator', 'log', 'energy', 'cohort'
+  ]
+  const signalMap = Object.fromEntries(
+    allSources.map(src => [src, weekSignals.filter(s => s.source === src).length])
+  ) as Record<IntentionSignal['source'], number>
+
+  const dims = Object.values(userIndex.dimensions)
+  const activeDims = dims.filter(d => d >= 30).length
+  const coherence = Math.round((activeDims / dims.length) * 100)
+
+  const operationalStatus: QuantumOS['operationalStatus'] =
+    userState.needsSupport === 'critical' || userState.energy === 'depleted' ? 'critical' :
+    userState.needsSupport === 'moderate' || userState.energy === 'low'      ? 'degraded' :
+    coherence >= 80 && userIndex.overall >= 60                                ? 'peak'    :
+    'nominal'
+
+  return {
+    runtime: {
+      energy: userState.energy,
+      clarity: userState.clarity,
+      alignment: userState.alignment,
+      support: userState.needsSupport,
+      circadianPhase: getCircadianPhase(),
+    },
+    index: {
+      overall: userIndex.overall,
+      trend: userIndex.trend,
+      dimensions: userIndex.dimensions,
+    },
+    patterns: recognizedPatterns.map(p => ({
+      id: p.pattern,
+      confidence: Math.round(p.confidence * 100),
+      urgency: p.suggestedTiming,
+      directive: p.reason,
+    })),
+    signalMap,
+    coherence,
+    operationalStatus,
+    computedAt: now,
   }
 }

@@ -43,6 +43,7 @@ export type ModuleId =
   | 'cohort-classify'  // Physiological archetype + cohort determination
   | 'vitals'           // OS Vitals Monitor — snapshot, sync, and biofield peak signals
   | 'calendar'         // Temporal planner — calendar entries and scheduled events
+  | 'quantum-os'       // Quantum Operating System — full coherence across all dimensions
 
 export type AssembledModule = {
   id: ModuleId
@@ -91,6 +92,7 @@ const MODULE_DEFINITIONS: Pick<AssembledModule, 'id' | 'label'>[] = [
   { id: 'cohort-classify', label: 'Archetype Classifier' },
   { id: 'vitals',          label: 'OS Vitals Monitor' },
   { id: 'calendar',        label: 'Temporal Planner' },
+  { id: 'quantum-os',      label: 'Quantum Operating System' },
 ]
 
 // Signal source mapping: which QIE sources feed which assembly modules
@@ -108,6 +110,8 @@ const SOURCE_MAP: Record<string, ModuleId[]> = {
   'recipe':      ['recipe'],
   'goals':       ['goals', 'intentions'],
   'calendar':    ['calendar', 'planner'],
+  // quantum-os assembles when cross-module coherence is detected via getQuantumOS
+  'quantum_coherence': ['quantum-os', 'quantum'],
 }
 
 // Specific signal patterns that map to modules beyond their source
@@ -143,6 +147,9 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'field_entry':           'vitals',
   'qos_snapshot':          'vitals',
   'full_stack_session':    'vitals',
+  'quantum-coherence':     'quantum-os',
+  'quantum_coherence':     'quantum-os',
+  'intention-completion-arc': 'quantum-os',
   'calendar_entry':        'calendar',
   'calendar_update':       'calendar',
 }
@@ -386,6 +393,7 @@ export function recomputeAssembly(): AssemblyState {
     'cohort-classify': [],
     vitals: [],
     calendar: [],
+    'quantum-os': [],
   }
 
   signals.forEach(signal => {

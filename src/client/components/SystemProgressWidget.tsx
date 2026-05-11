@@ -11,7 +11,9 @@ import {
   analyzeIntentions,
   startBackgroundQOSMonitor,
   getCircadianPhase,
+  getQuantumOS,
   type PhysiologicalReport,
+  type QuantumOS,
 } from '#client/stores/intentionEngine'
 
 type FeedbackStatus = 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
@@ -397,6 +399,19 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '42 patterns. 13 archetypes. The Cube now names its own peak build state.',
     ],
   },
+  {
+    date: '2026-05-11',
+    session: 'QIE v25 — Pattern 43 · QuantumOS · 15th Assembly Module',
+    assembled: [
+      'Pattern 43 (intention-completion-arc): intention set → goal action → journal entry within 24h. The full loop. Confidence 0.72–0.95.',
+      'QuantumOS type: runtime (energy/clarity/alignment/support/circadian) + index (6D) + patterns + signalMap + coherence + operationalStatus.',
+      'getQuantumOS(): complete person-state snapshot. Readable from any widget. No heavy computation.',
+      'quantum-os: 15th assembly module. Activated by quantum-coherence beacon and intention-completion-arc signals.',
+      'WIDGET_DEPENDENCY_MAP: quantumOS node added — depends on all 14 source nodes incl. goals, recipe, ecosystem, qosSnapshot.',
+      'SystemProgressWidget: QOS block in self-assembly report view — full runtime + index + directives.',
+      '43 patterns. 13 archetypes. 15 modules. QOS layer assembled.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
@@ -404,13 +419,15 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
 export const USERSHIP_TRANSMISSION = {
   date: '2026-05-11',
   message: [
-    'ASSEMBLY RUN — 2026-05-11 · v24',
-    'Built: Pattern 42. Archetype 13. Log handler: DWRK.',
-    'Pattern 42 (deep-work-cascade): memory + planner + journal + goals all coherent in 3h. No interruption signals. The focused build state — now named and detectable.',
-    'Archetype 13 (Deep Work Architect): the person in pure execution mode. Planner + journal + memory dominant. All four build modules firing.',
-    'QOS Trend view: "Deep work window open." surfaces when Pattern 42 is active. The Cube tells you when the window exists.',
-    'Status: DEPLOYED',
-    'Next: Pattern 43 — intention-completion-arc (intention set → goal action → journal entry all within 24h). The full loop: thought → structure → reflection.',
+    'ASSEMBLY RUN — 2026-05-11 · v25',
+    'Built: Pattern 43. QuantumOS type. quantum-os module (15th). WIDGET_DEPENDENCY_MAP: quantumOS node added.',
+    'Pattern 43 (intention-completion-arc): intention + goal action + journal entry all within 24h. The full loop: thought → structure → reflection. Confidence 0.72–0.95.',
+    'QuantumOS type: runtime (energy/clarity/alignment/support/circadian) + index (overall/trend/6D) + patterns + signalMap + coherence + operationalStatus.',
+    'getQuantumOS(): full person-state snapshot readable from any widget. Surfaced in System Progress Report view.',
+    'quantum-os assembly module: 15th module. Activated by quantum-coherence and intention-completion-arc signals.',
+    'SystemProgressWidget: QOS snapshot block in report view — operationalStatus · circadian · index · coherence · 6D dimensions · active directives.',
+    'Status: DEPLOYED. 43 patterns. 13 archetypes. 15 assembly modules. QOS layer online.',
+    'Next: Pattern 44 — social-resonance-arc (cohort view + message sent + journal entry within 48h). The connection loop.',
   ],
 }
 
@@ -447,6 +464,7 @@ export function SystemProgressWidget() {
       .slice(0, 3)
   }, [logs])
   const [report, setReport] = React.useState<ReturnType<typeof getEnrichedPhysiologicalReport> | null>(null)
+  const [qos, setQos] = React.useState<QuantumOS | null>(null)
   const [osJournalLogs, setOsJournalLogs] = React.useState<
     { date: string; streak?: number; density?: number; health?: number; archetype?: string; diversityScore?: number; topSource?: string }[]
   >([])
@@ -515,6 +533,7 @@ export function SystemProgressWidget() {
   const handleGenerateReport = React.useCallback(() => {
     analyzeIntentions()
     setReport(getEnrichedPhysiologicalReport())
+    setQos(getQuantumOS())
   }, [])
 
   // Load latest deployment info
@@ -1173,6 +1192,48 @@ export function SystemProgressWidget() {
                       </div>
                     </div>
                   </div>
+
+                  {/* QOS snapshot — full runtime model */}
+                  {qos && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">
+                        QOS · {qos.operationalStatus.toUpperCase()} · {qos.runtime.circadianPhase?.toUpperCase() ?? '—'}
+                      </div>
+                      <div className="flex flex-col gap-y-2 mb-8">
+                        <div className="flex justify-between">
+                          <span className="opacity-50 uppercase">Index</span>
+                          <span className="tabular-nums">
+                            {qos.index.overall}
+                            <span className="opacity-30 ml-8 uppercase">{qos.index.trend}</span>
+                          </span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="opacity-50 uppercase">Coherence</span>
+                          <span className="tabular-nums">{qos.coherence}%</span>
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-y-1">
+                        {(Object.entries(qos.index.dimensions) as [string, number][]).map(([dim, val]) => (
+                          <div key={dim} className="flex justify-between">
+                            <span className="opacity-30 uppercase">{dim.slice(0, 4)}</span>
+                            <span className={`tabular-nums ${val >= 50 ? '' : val >= 30 ? 'opacity-60' : 'opacity-30'}`}>
+                              {val}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      {qos.patterns.length > 0 && (
+                        <div className="mt-8">
+                          <div className="opacity-30 mb-4 uppercase tracking-widest">Active directives</div>
+                          <div className="flex flex-col gap-y-2">
+                            {qos.patterns.filter(p => p.urgency === 'immediate' || p.urgency === 'soon').slice(0, 3).map(p => (
+                              <div key={p.id} className="opacity-40">&gt; {p.directive}</div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="opacity-30 pt-4 uppercase tracking-widest border-t border-acc-400/20 pt-12">
                     Generated {new Date(report.generatedAt).toISOString().replace('T', ' ').slice(0, 19)}Z
