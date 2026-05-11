@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { Block } from './Block'
+import { GhostButton } from './Button'
 
 /**
  * WidgetErrorBoundary - Isolates widget crashes so they don't take down the whole app.
@@ -31,15 +32,11 @@ export class WidgetErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <Block label={`${this.props.name || 'Widget'}:`} blockView>
-          <div className="opacity-30">
-            Failed to load.{' '}
-            <button
-              onClick={() => this.setState({ hasError: false, error: null })}
-              className="underline cursor-pointer"
-              style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', padding: 0 }}
-            >
+          <div className="opacity-30 flex items-center gap-x-8">
+            <span>Failed to load.</span>
+            <GhostButton onClick={() => this.setState({ hasError: false, error: null })}>
               Retry
-            </button>
+            </GhostButton>
           </div>
         </Block>
       )

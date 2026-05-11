@@ -760,9 +760,11 @@ export default async (fastify: FastifyInstance) => {
       const { Sequelize } = await import('sequelize')
 
       // Connect to backup database
-      const backupDb = new Sequelize('defaultdb', 'doadmin', 'AVNS_8V6Hqzuxwj0JkMxgNvR', {
-        host: 'db-postgresql-nyc3-92053-dec-24-backup-do-user-22640384-0.l.db.ondigitalocean.com',
-        port: 25060,
+      const backupDbUrl = process.env.BACKUP_DATABASE_URL
+      if (!backupDbUrl) {
+        return reply.code(500).send('BACKUP_DATABASE_URL environment variable is not set')
+      }
+      const backupDb = new Sequelize(backupDbUrl, {
         dialect: 'postgres',
         logging: false,
         dialectOptions: {
@@ -923,9 +925,11 @@ export default async (fastify: FastifyInstance) => {
       const { Sequelize } = await import('sequelize')
 
       // Connect to backup database
-      const backupDb = new Sequelize('defaultdb', 'doadmin', 'AVNS_8V6Hqzuxwj0JkMxgNvR', {
-        host: 'db-postgresql-nyc3-92053-dec-24-backup-do-user-22640384-0.l.db.ondigitalocean.com',
-        port: 25060,
+      const backupDbUrl = process.env.BACKUP_DATABASE_URL
+      if (!backupDbUrl) {
+        return reply.code(500).send('BACKUP_DATABASE_URL environment variable is not set')
+      }
+      const backupDb = new Sequelize(backupDbUrl, {
         dialect: 'postgres',
         logging: false,
         dialectOptions: {
