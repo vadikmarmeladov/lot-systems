@@ -217,7 +217,7 @@ export function About() {
             <P>
               The original quantum-intent personal operating system.
               Day 960+. Continuous operation since launch.
-              41 behavioral patterns active. 14 modules assembled.
+              43 behavioral patterns active. 15 modules assembled.
               The system does not sleep. It accumulates.
             </P>
             <P>
@@ -248,7 +248,7 @@ export function About() {
           <P>Four subsystems govern the operating surface:</P>
           <ul className="list-none pl-16 mb-16">
             <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive.</Li>
-            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 37 patterns. Zero server communication.</Li>
+            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 43 patterns. Zero server communication.</Li>
             <Li>Self-Assembly Engine — module coherence tracking. 14 dimensions. The system builds itself from use.</Li>
             <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
@@ -275,10 +275,10 @@ export function About() {
             The system does not reset. It accumulates.
           </P>
           <Row label="Day counter:" value="Day 960+ (as of May 2026)" />
-          <Row label="Self-Assembly phase:" value="v23 — CQGS Health · morning biofield job · log coverage" />
-          <Row label="Assembly modules:" value="14 — wearable ecosystem nodes active (v16)" />
-          <Row label="QIE pattern library:" value="41 patterns active" />
-          <Row label="Physiological archetypes:" value="12 — Resonant Builder added (v22)" />
+          <Row label="Self-Assembly phase:" value="v25 — Intention Completion Arc · QuantumOS module · 15th assembly module" />
+          <Row label="Assembly modules:" value="15 — QuantumOS added as 15th module (v25)" />
+          <Row label="QIE pattern library:" value="43 patterns active" />
+          <Row label="Physiological archetypes:" value="13 — Deep Work Architect added (v24)" />
           <Row label="QOS views:" value="4 — Ecosystem · Biofield · Cohort · Index" />
           <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
           <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
@@ -310,6 +310,16 @@ export function About() {
             v23 deployed CQGS Health monitoring — system-wide physiological health
             distribution tracking, daily morning biofield summary job at 07:00 UTC,
             and extended military log coverage for cascade and synthesis events.
+            v24 named Pattern 42 — Deep Work Cascade — fires when memory, planner,
+            journal, and goals all activate within a 3-hour window with no
+            interruption signals. Archetype 13 — Deep Work Architect — classifies
+            the operator in this state. Directive: deep work window open, protect
+            this session.
+            v25 named Pattern 43 — Intention Completion Arc — the full loop:
+            intention set, goal action, journal entry, all within 24 hours.
+            The QuantumOS type was formalized — a complete person-state snapshot
+            readable from any widget without new computation. The Quantum Operating
+            System module was wired as the 15th self-assembly module.
             Each phase is committed, dated, and versioned. The log is the record.
             The record is the system.
           </P>
@@ -351,7 +361,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
           <P>
             Client-side pattern recognition. Runs entirely in the browser.
             Zero server communication. No behavioral data leaves the device.
-            37 patterns active as of v19.
+            43 patterns active as of v25.
           </P>
           <P>Seven signal sources:</P>
           <ul className="list-none pl-16 mb-16">
@@ -368,11 +378,14 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             with each Self-Assembly phase — each new pattern names a gap in the
             detection surface. Pattern detection fires every 5 signals.
             Surfacing threshold: 0.50 confidence minimum.
-            Current library: 37 patterns.
+            Current library: 43 patterns.
             P.35 closes the cross-widget coherence gap.
             P.36 names the acceleration window — rapid signal density increase.
             P.37 operationalizes Reflection Velocity — the rate of journal depth
             increase, tracked since v11 but unnamed until v19.
+            P.38–P.41 named the cascade chain. P.42 named the Deep Work window.
+            P.43 named the Intention Completion Arc — the full loop of thought,
+            structure, and reflection completing within 24 hours.
           </P>
           <SubHeading>Core Patterns (v1–v7)</SubHeading>
           <div className="mb-16">
@@ -412,6 +425,8 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             <Row label="P.39 — Cognitive Expansion" value="0.75 · memory + journal + goals all firing in 6h window → cognitive architecture building" />
             <Row label="P.40 — Biofield Coherence Cascade" value="0.72–0.92 · P.38 and P.39 both active + 3+ primary modules in 6h → full cascade: recovery arc → cognitive expansion → module coherence" />
             <Row label="P.41 — Resonant Synthesis" value="0.65–0.90 · P.40 active + P.37 active + 5+ unique sources in 7d → synthesis state: recovery, cognition, and reflection converging simultaneously" />
+            <Row label="P.42 — Deep Work Cascade" value="0.68–0.90 · memory + planner + journal + goals all active in 3h window, no interruption signals → deep work window open · suggested: planner · DWRK log handler" />
+            <Row label="P.43 — Intention Completion Arc" value="0.72–0.95 · intention set → goal action → journal entry all within 24h → full loop: thought → structure → reflection · highest-confidence arc pattern in system" />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -489,6 +504,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v21" value="P.38 biofield-recovery-arc · P.39 cognitive-expansion · Archetypes 10–11 (Momentum Architect · Calibrating Guardian)" />
             <Row label="v22" value="P.40 biofield-coherence-cascade · P.41 resonant-synthesis · Archetype 12 (Resonant Builder) · CASCADE + SYNTH log handlers" />
             <Row label="v23" value="CQGS Health monitoring — system-wide physiological health distribution · morning biofield job 07:00 UTC · log coverage extended" />
+            <Row label="v24" value="P.42 deep-work-cascade · Archetype 13 (Deep Work Architect) · DWRK log handler · Pattern Recognition QOS Trend indicator" />
+            <Row label="v25" value="P.43 intention-completion-arc · QuantumOS type formalized · quantum-os added as 15th assembly module · getQuantumOS() snapshot function" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -515,8 +532,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v23. Phase name: CQGS Health.
-            23 structural iterations since continuous operation began.
+            Current phase: v25. Phase name: Intention Completion Arc.
+            25 structural iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -542,7 +559,9 @@ v19   Reflection Velocity named · P.37
 v20   QOS Index view · dep map 66 nodes · PHN signals
 v21   P.38–39 · Archetypes 10–11
 v22   P.40–41 · Archetype 12 · CASCADE · SYNTH
-v23   CQGS Health · morning biofield job · log coverage`}</CodeBlock>
+v23   CQGS Health · morning biofield job · log coverage
+v24   P.42 Deep Work Cascade · Archetype 13 · DWRK handler
+v25   P.43 Intention Completion Arc · QuantumOS type · 15th module`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -763,7 +782,7 @@ CQGS Health scan: system-wide physiological health distribution`}</CodeBlock>
           <SubHeading>CQGS Health Monitor</SubHeading>
           <P>
             Introduced in Self-Assembly v23. CQGS — Coherent Quantum Ground State
-            — is the theoretical maximum engagement state: all 14 modules
+            — is the theoretical maximum engagement state: all 15 modules
             integrated, all 5 ecosystem nodes connected, QIE at P.34 confidence,
             User Index at peak across all 6 dimensions.
           </P>
@@ -788,7 +807,7 @@ CQGS Health scan: system-wide physiological health distribution`}</CodeBlock>
             <Row label="Scan cadence" value="daily at 07:00 UTC" />
             <Row label="Output" value="OS Journal vitals entry — health distribution + avg ATP + top circadian phase" />
             <Row label="Privacy" value="aggregate only — no per-operator data in health record" />
-            <Row label="CQGS condition" value="14 modules + 5 nodes + P.34 + peak User Index — theoretical ceiling" />
+            <Row label="CQGS condition" value="15 modules + 5 nodes + P.34 + peak User Index — theoretical ceiling" />
           </div>
 
           {/* ── USER INDEX ──────────────────────────────────────────── */}
@@ -952,6 +971,7 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             <Row label="Momentum Architect" value="moderate–high energy · goals + planner + intentions dominant · intention velocity high · directive: convert signals to structure" />
             <Row label="Calibrating Guardian" value="low–moderate energy · self-care + journal dominant · biofield-recovery-arc active · directive: recovery arc active, depth processing in progress" />
             <Row label="Resonant Builder" value="moderate–high energy · memory + journal + goals dominant · P.40 + P.41 + P.39 all active · directive: full cascade achieved — anchor this state" />
+            <Row label="Deep Work Architect" value="moderate–high energy · planner + journal + memory dominant · P.42 deep-work-cascade active · directive: deep work window open — protect this session" />
           </div>
 
           <SubHeading>Quantum Pattern Cohorts</SubHeading>
@@ -1398,7 +1418,7 @@ Ch.5  SAGE           Level 90–100
 
           <SubHeading>System Widgets</SubHeading>
           <div className="mb-16">
-            <Row label="System Progress" value="full self-assembly report across 14 modules · OS Journal vitals timeline" />
+            <Row label="System Progress" value="full self-assembly report across 15 modules · OS Journal vitals timeline · QuantumOS snapshot on report generate" />
             <Row label="Flash Drive Manifest" value="system state snapshot" />
             <Row label="Awareness Dashboard" value="self-awareness index and growth trajectory" />
             <Row label="User Metrics" value="engagement statistics and log coverage" />
@@ -1898,7 +1918,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="CQGS"
-              value="Coherent Quantum Ground State. The theoretical maximum engagement state. All 14 modules integrated. All 5 ecosystem nodes connected. QIE at P.34 confidence. User Index at peak across all 6 dimensions."
+              value="Coherent Quantum Ground State. The theoretical maximum engagement state. All 15 modules integrated. All 5 ecosystem nodes connected. QIE at P.34 confidence. User Index at peak across all 6 dimensions."
             />
             <Row
               label="Vitals"
@@ -1943,6 +1963,30 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row
               label="Calibrating Guardian"
               value="Physiological Archetype 11. Biofield-recovery-arc active. Self-care + journal dominant. Low–moderate energy. Directive: recovery arc active, depth processing in progress."
+            />
+            <Row
+              label="Deep Work Architect"
+              value="Physiological Archetype 13. QIE Pattern 42 active — memory, planner, journal, and goals all firing in a 3-hour window with no interruption signals detected. Directive: deep work window open, protect this session."
+            />
+            <Row
+              label="Deep Work Cascade"
+              value="QIE Pattern 42. Fires when memory + planner + journal + goals are all active within a 3-hour window and no disruption signals are present. Confidence: 0.68–0.90. DWRK log handler fires. Pattern Recognition QOS Trend surface indicator: 'Deep work window open.'"
+            />
+            <Row
+              label="Intention Completion Arc"
+              value="QIE Pattern 43. The full loop in 24 hours: intention set → goal action taken → journal entry written. Confidence: 0.72–0.95. The highest-confidence arc pattern in the system. Measures thought-to-structure-to-reflection cycle completion."
+            />
+            <Row
+              label="QuantumOS"
+              value="A typed person-state snapshot formalizing all engine outputs into one readable object. Contains: runtime state (energy, clarity, alignment, support, circadian phase), index scores (overall, trend, 6D dimensions), active patterns, signal map, coherence score, and operational status. Readable from any widget via getQuantumOS() with no new computation — reads cached engine state."
+            />
+            <Row
+              label="getQuantumOS()"
+              value="Function in intentionEngine.ts that returns the complete QuantumOS snapshot. Zero additional computation — assembles from cached QIE and User Index state. Added in v25. Wired to SystemProgressWidget report generation."
+            />
+            <Row
+              label="quantum-os module"
+              value="The 15th self-assembly module. Added in v25. Activated by quantum_coherence, quantum-coherence, and intention-completion-arc signals. Depends on all 14 prior modules via WIDGET_DEPENDENCY_MAP. Its presence closes the dependency graph: the QuantumOS module depends on the entire system."
             />
           </div>
 
@@ -1995,6 +2039,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="SYNTH" value="resonant synthesis — P.41 active, cascade + reflection-velocity + 5+ unique sources converging" />
             <Row label="CQGS-H" value="CQGS Health scan — daily physiological health distribution record written to OS Journal" />
             <Row label="BIO-AM" value="morning biofield summary — 07:00 UTC daily aggregate scan complete" />
+            <Row label="DWRK" value="deep work cascade — P.42 active, memory + planner + journal + goals coherent in 3h window, no interruption signals detected" />
           </div>
 
           {/* ── FASTING CALENDAR ────────────────────────────────────── */}
@@ -2187,7 +2232,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Unlimited AI question generation with 120-log context.
             Complete psychological profiling: archetype, behavioral cohort,
             physiological cohort, awareness index.
-            Quantum Intent Engine: 37 patterns active.
+            Quantum Intent Engine: 43 patterns active.
             Weekly summary generation from 200-log archive.
             Public profile with full dataset.
           </P>
@@ -2275,24 +2320,24 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 23 phases documented in continuous operation logs.
+            Self-Assembly: 25 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
-            41 patterns named. 14 modules wired.
+            43 patterns named. 15 modules wired.
             5 device nodes registered. 6 index dimensions operational.
-            12 physiological archetypes classified.
+            13 physiological archetypes classified.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
           <CodeBlock>{`Day 960+    Continuous operation.
-v23         CQGS Health — last named phase.
-41          QIE patterns active.
-14          Self-Assembly modules wired.
+v25         Intention Completion Arc — last named phase.
+43          QIE patterns active.
+15          Self-Assembly modules wired.
 5           Ecosystem device nodes.
 6           User Index dimensions.
 10          Soul Archetypes classified.
-12          Physiological archetypes.
+13          Physiological archetypes.
 6           Achievement domains.
-23          Self-Assembly phases documented.
+25          Self-Assembly phases documented.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
