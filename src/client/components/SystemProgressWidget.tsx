@@ -425,6 +425,20 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '44 patterns. 14 archetypes. The Cube now reads the social circuit closing.',
     ],
   },
+  {
+    date: '2026-05-12',
+    session: 'QIE v27 — Pattern 45 · Archetype 15 · Cognitive Load Release · RLSE handler',
+    assembled: [
+      'Pattern 45 (cognitive-load-release): planner active + deep journal entry + self-care completed within 24h. Structural inverse of cognitive overload. Decompression loop. Confidence 0.68–0.90.',
+      'Archetype 15 (Cognitive Liberator): moderate/high energy · selfcare/journal/planner dominant · cognitive-load-release/biofield-recovery-arc/reflection-velocity. Directive: Decompression loop complete. Load released. The system breathes.',
+      'Logs.tsx: RLSE handler (cognitive_load_release event) — planner 24h count + journal 24h count + confidence + chain label',
+      'PatternRecognitionWidget: cognitive-load-release added to name map ("Decompression loop closed")',
+      'PatternRecognitionWidget QOS Trend view: "Decompression active." indicator surfaces when Pattern 45 fires',
+      'selfAssembly.ts: cognitive-load-release and cognitive_load_release routed to selfcare module',
+      'WIDGET_DEPENDENCY_MAP: cognitiveRelease node added — planner/journal/selfcare/log pipeline',
+      '45 patterns. 15 archetypes. The Cube now reads the full decompression cycle.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
@@ -432,15 +446,16 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
 export const USERSHIP_TRANSMISSION = {
   date: '2026-05-12',
   message: [
-    'ASSEMBLY RUN — 2026-05-12 · v26',
-    'Built: Pattern 44. Archetype 14. SOCR log handler. Community module signal routing.',
-    'Pattern 44 (social-resonance-arc): cohort view → message sent → journal reflection within 48h. The connection loop: community → outreach → reflection. Confidence 0.65–0.90.',
-    'Archetype 14 (Social Connector): cohort/journal/intentions dominant. Directive: Connection loop complete. The signal went out and came back. Anchor this resonance.',
-    'PatternRecognitionWidget QOS Trend: "Connection loop active." indicator now surfaces when Pattern 44 fires.',
-    'SOCR military log handler: Signals 48h · Confidence · "Cohort view + message + journal within 48h" chain label.',
-    'selfAssembly: social-resonance-arc routed to Community Mesh module.',
-    'Status: DEPLOYED. 44 patterns. 14 archetypes. 15 assembly modules.',
-    'Next: Pattern 45 — cognitive-load-release (planner cleared + journal depth + self-care within 24h). The decompression loop.',
+    'ASSEMBLY RUN — 2026-05-12 · v27',
+    'Built: Pattern 45. Archetype 15. RLSE log handler. cognitiveRelease dep node. Selfcare module signal routing.',
+    'Pattern 45 (cognitive-load-release): planner active + deep journal entry + self-care completed within 24h. Structural inverse of cognitive overload (Pattern 23). Fires only when no overload patterns active. Confidence 0.68–0.90.',
+    'Archetype 15 (Cognitive Liberator): selfcare/journal/planner dominant. Directive: Decompression loop complete. Load released. The system breathes.',
+    'PatternRecognitionWidget QOS Trend: "Decompression active." indicator now surfaces when Pattern 45 fires.',
+    'RLSE military log handler: Planner 24h · Journal 24h · Confidence · "Planner + journal depth + self-care within 24h" chain label.',
+    'selfAssembly: cognitive-load-release routed to Cleanness Protocol (selfcare) module.',
+    'WIDGET_DEPENDENCY_MAP: cognitiveRelease node added (planner/journal/selfcare/log).',
+    'Status: DEPLOYED. 45 patterns. 15 archetypes. 15 assembly modules.',
+    'Next: Pattern 46 — temporal-coherence-window (calendar + planner + intentions all active in 7d, temporal planning rhythm emerging).',
   ],
 }
 

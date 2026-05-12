@@ -3,7 +3,7 @@
 **Classification:** Public
 **Document Version:** 2.8
 **Last Updated:** May 7, 2026
-**Status:** Production Active — Self-Assembly Phase v19
+**Status:** Production Active — Self-Assembly Phase v27
 
 ---
 
@@ -19,7 +19,7 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
-- Self-Assembly Engine — 14 modules build themselves from real engagement signals
+- Self-Assembly Engine — 15 modules build themselves from real engagement signals
 - Physiological Cohort Classifier — 9-archetype real-time QIE-native classifier (no server required): Peak Catalyst / Flowing Creator / Morning Visionary / Rising Builder / Seeking Sage / Evening Sage / Grounded Healer / Anxious Explorer / Depleted Guardian
 - Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
 - Daily OS Vitals Snapshot + QOS Coherence Report — server-side persisted vitals for cross-device OS continuity
@@ -28,6 +28,9 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - OS Journal View — persisted vitals timeline surfaced in System Progress widget
 - Full-Stack Session Detection — fires when memory + planner + selfcare all engage in 4h window; visible in Biofield State widget
 - Temporal Planner module — 14th self-assembly module, calendar signals fully wired to QIE
+- Quantum Operating System (QuantumOS) — 15th assembly module, meta-layer across all 14 sources
+- 45 behavioral patterns (incl. cognitive-load-release decompression loop)
+- 15 physiological archetypes (incl. Cognitive Liberator)
 - Journal depth → Reflection Layer — every note written advances the Reflection Layer assembly density
 - Background coherence monitors — intention velocity, signal coherence peak, and QOS diversity auto-check after every analysis cycle
 
@@ -123,7 +126,7 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (37 Types — v19):**
+**Pattern Recognition (45 Types — v27 / 2026-05-12):**
 1. **Anxiety Pattern** — Multiple anxious moods → Self-care (confidence: 0.66–1.0)
 2. **Lack of Structure** — Tired + no planning → Planner (confidence: 0.7)
 3. **Seeking Direction** — No intention for weeks → Intentions (confidence: 0.8)
@@ -137,12 +140,8 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 11. **Physiological Depletion** — 3+ depleting moods + no self-care → Intervene (confidence: variable)
 12. **Recovery Window** — Self-care + positive mood shift → High-fidelity reflection (confidence: 0.75)
 13. **Ungrounded Activity** — Active log + no biofield reading → Mood check-in (confidence: 0.6)
-14. **OS Stagnation** — Signal diversity collapsed for 3+ days → Engagement expansion (confidence: 0.65)
-15. **Circadian Drift** — Late-night signal cluster + no recovery → Immediate intervention (confidence: 0.7)
-16. **Momentum Wave** — Multi-source engagement rising + active intention → Amplification (confidence: 0.8)
-17. **Flow State** — Memory + planner + intentions all active within 4h → Journal capture (confidence: 0.85)
-18. **Social Void** — 5-day cohort gap with high personal engagement → Connect (confidence: 0.6)
-19. **Biofield Coherence Peak** — All 4 state dimensions positive within 3h → Memory capture (confidence: 0.9)
+14–44. **Patterns 14–44** — Advanced QOS cascade states, ecosystem coherence, deep work, social resonance arc (see quantum engine source)
+45. **Cognitive Load Release** — Planner + deep journal + self-care within 24h; no overload active. Decompression loop. Structural inverse of overload. (confidence: 0.68–0.90)
 20. **Nutritional Void** — No recipe signals for 3 days + depleting mood → Fuel system (confidence: 0.65)
 21. **Goal Drift** — Goal signals present but no planning follow-through in 3 days → Planner (confidence: 0.7)
 22. **Ecosystem Without Biofield** — Connected nodes, no check-in today → Mood widget (confidence: 0.72)
@@ -197,15 +196,11 @@ PsychologicalProfile {
 - Regenerates on significant behavioral shifts
 - Public profiles at `/os/{username}`
 
-**8 Core Archetypes:**
-- The Explorer
-- The Builder
-- The Healer
-- The Sage
-- The Creator
-- The Guardian
-- The Catalyst
-- The Visionary
+**8 Psychological Archetypes (profile-based):**
+- The Explorer, The Builder, The Healer, The Sage, The Creator, The Guardian, The Catalyst, The Visionary
+
+**15 Physiological Archetypes (QIE signal-based — v27):**
+Peak Catalyst · Flowing Creator · Morning Visionary · Rising Builder · Seeking Sage · Evening Sage · Grounded Healer · Anxious Explorer · Depleted Guardian · Momentum Architect · Calibrating Guardian · Resonant Builder · Deep Work Architect · Social Connector · Cognitive Liberator
 
 #### 4. Badge System (Aquatic Evolution)
 **Philosophy:** Water metaphor for growth - droplet → wave → deep current

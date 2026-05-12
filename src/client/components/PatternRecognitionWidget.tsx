@@ -90,7 +90,8 @@ export function PatternRecognitionWidget() {
       'biofield-coherence-cascade': 'Full coherence cascade',
       'resonant-synthesis':         'Resonant synthesis state',
       'deep-work-cascade':          'Deep work window open',
-      'social-resonance-arc':       'Connection loop complete'
+      'social-resonance-arc':       'Connection loop complete',
+      'cognitive-load-release':     'Decompression loop closed'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -271,6 +272,13 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'social-resonance-arc') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Connection loop active.
+                </div>
+              )}
+
+              {/* Cognitive load release indicator — surfaces when pattern 45 is active */}
+              {patterns.some(p => p.pattern === 'cognitive-load-release') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Decompression active.
                 </div>
               )}
 

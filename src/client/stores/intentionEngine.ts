@@ -1064,6 +1064,33 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 45: Cognitive load release — planner active + deep journal entry + self-care completed, all within 24h.
+  // The decompression loop: the person worked through their task structure, went deep in writing,
+  // and completed a self-care cycle. Structural inverse of cognitive overload (Pattern 23).
+  // Fires only when no active overload patterns are present — the release is real only after the pressure lifts.
+  const p45DayAgo = now - 24 * 60 * 60 * 1000
+  const p45Planner = signals.filter(s => s.source === 'planner' && s.timestamp > p45DayAgo)
+  const p45Journal = signals.filter(s =>
+    (s.source === 'journal' ||
+      (s.source === 'log' && s.signal === 'field_entry' &&
+        typeof s.metadata?.wordCount === 'number' && (s.metadata.wordCount as number) >= 20)) &&
+    s.timestamp > p45DayAgo
+  )
+  const p45SelfCare = signals.filter(s => s.source === 'selfcare' && s.timestamp > p45DayAgo)
+  const p45NoOverload = !patterns.some(p =>
+    ['anxiety-pattern', 'physiological-depletion', 'cognitive-overload', 'evening-overwhelm'].includes(p.pattern)
+  )
+  if (p45Planner.length >= 1 && p45Journal.length >= 1 && p45SelfCare.length >= 1 && p45NoOverload) {
+    const loopCount = Math.min(p45Planner.length, p45Journal.length, p45SelfCare.length)
+    patterns.push({
+      pattern: 'cognitive-load-release',
+      confidence: Math.min(0.68 + loopCount * 0.08, 0.90),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `Planner active + deep journal entry + self-care completed within 24h. Decompression loop closed. Load released — document what changed.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1502,6 +1529,9 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── QOS meta-layer: Quantum Operating System (2026-05-11 audit)
   quantumOS:         ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy',
                       'cohort', 'log', 'calculator', 'goals', 'recipe', 'ecosystem', 'qosSnapshot'],
+
+  // ── Decompression layer: cognitive load release node (2026-05-12 audit)
+  cognitiveRelease:  ['planner', 'journal', 'selfcare', 'log'],
 }
 
 /**
@@ -1665,6 +1695,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['cohort', 'journal', 'intentions'],
     patternConditions: ['social-resonance-arc', 'momentum-wave', 'reflection-velocity'],
     directive: 'Connection loop complete. The signal went out and came back. Anchor this resonance.',
+  },
+  {
+    archetype: 'Cognitive Liberator',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['selfcare', 'journal', 'planner'],
+    patternConditions: ['cognitive-load-release', 'biofield-recovery-arc', 'reflection-velocity'],
+    directive: 'Decompression loop complete. Load released. The system breathes.',
   },
 ]
 
