@@ -150,6 +150,8 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'quantum-coherence':     'quantum-os',
   'quantum_coherence':     'quantum-os',
   'intention-completion-arc': 'quantum-os',
+  'social-resonance-arc':  'community',
+  'social_resonance_arc':  'community',
   'calendar_entry':        'calendar',
   'calendar_update':       'calendar',
 }

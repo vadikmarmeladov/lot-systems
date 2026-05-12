@@ -1333,6 +1333,31 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'social_resonance_arc') {
+          const cohortSignals = log.metadata?.cohortSignals as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOCR:" blockView>
+                <div className="uppercase tracking-widest mb-4">Social resonance arc</div>
+                {cohortSignals !== undefined && (
+                  <div className="flex justify-between mb-2">
+                    <span className="opacity-40 uppercase tracking-widest text-xs">Signals 48h</span>
+                    <span className="tabular-nums">{cohortSignals}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between">
+                    <span className="opacity-40 uppercase tracking-widest text-xs">Confidence</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 uppercase tracking-widest text-xs mt-4">
+                  Cohort view + message + journal within 48h
+                </div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'direct_message_sent') {
           const recipient = log.metadata?.recipientUsername as string | undefined
           const msg = log.metadata?.message as string | undefined

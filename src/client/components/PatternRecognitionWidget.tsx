@@ -89,7 +89,8 @@ export function PatternRecognitionWidget() {
       'cognitive-expansion':        'Cognitive architecture building',
       'biofield-coherence-cascade': 'Full coherence cascade',
       'resonant-synthesis':         'Resonant synthesis state',
-      'deep-work-cascade':          'Deep work window open'
+      'deep-work-cascade':          'Deep work window open',
+      'social-resonance-arc':       'Connection loop complete'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -263,6 +264,13 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'deep-work-cascade') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Deep work window open.
+                </div>
+              )}
+
+              {/* Social resonance arc indicator — surfaces when pattern 44 is active */}
+              {patterns.some(p => p.pattern === 'social-resonance-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Connection loop active.
                 </div>
               )}
 

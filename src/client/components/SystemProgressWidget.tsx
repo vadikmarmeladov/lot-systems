@@ -412,22 +412,35 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '43 patterns. 13 archetypes. 15 modules. QOS layer assembled.',
     ],
   },
+  {
+    date: '2026-05-12',
+    session: 'QIE v26 — Pattern 44 · Archetype 14 · Social Resonance Arc · SOCR handler',
+    assembled: [
+      'Pattern 44 (social-resonance-arc): cohort viewed + message sent + journal entry within 48h. The connection loop: community → outreach → reflection. Confidence 0.65–0.90.',
+      'Archetype 14 (Social Connector): moderate/high energy · cohort/journal/intentions dominant · social-resonance-arc/momentum-wave/reflection-velocity patterns. Directive: Anchor this resonance.',
+      'PatternRecognitionWidget: social-resonance-arc added to name map ("Connection loop complete")',
+      'PatternRecognitionWidget QOS Trend view: "Connection loop active." indicator surfaces when Pattern 44 is active',
+      'Logs.tsx: SOCR handler (social_resonance_arc event) — signals 48h count + confidence + circuit label',
+      'selfAssembly.ts: social-resonance-arc and social_resonance_arc routed to community module',
+      '44 patterns. 14 archetypes. The Cube now reads the social circuit closing.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-11',
+  date: '2026-05-12',
   message: [
-    'ASSEMBLY RUN — 2026-05-11 · v25',
-    'Built: Pattern 43. QuantumOS type. quantum-os module (15th). WIDGET_DEPENDENCY_MAP: quantumOS node added.',
-    'Pattern 43 (intention-completion-arc): intention + goal action + journal entry all within 24h. The full loop: thought → structure → reflection. Confidence 0.72–0.95.',
-    'QuantumOS type: runtime (energy/clarity/alignment/support/circadian) + index (overall/trend/6D) + patterns + signalMap + coherence + operationalStatus.',
-    'getQuantumOS(): full person-state snapshot readable from any widget. Surfaced in System Progress Report view.',
-    'quantum-os assembly module: 15th module. Activated by quantum-coherence and intention-completion-arc signals.',
-    'SystemProgressWidget: QOS snapshot block in report view — operationalStatus · circadian · index · coherence · 6D dimensions · active directives.',
-    'Status: DEPLOYED. 43 patterns. 13 archetypes. 15 assembly modules. QOS layer online.',
-    'Next: Pattern 44 — social-resonance-arc (cohort view + message sent + journal entry within 48h). The connection loop.',
+    'ASSEMBLY RUN — 2026-05-12 · v26',
+    'Built: Pattern 44. Archetype 14. SOCR log handler. Community module signal routing.',
+    'Pattern 44 (social-resonance-arc): cohort view → message sent → journal reflection within 48h. The connection loop: community → outreach → reflection. Confidence 0.65–0.90.',
+    'Archetype 14 (Social Connector): cohort/journal/intentions dominant. Directive: Connection loop complete. The signal went out and came back. Anchor this resonance.',
+    'PatternRecognitionWidget QOS Trend: "Connection loop active." indicator now surfaces when Pattern 44 fires.',
+    'SOCR military log handler: Signals 48h · Confidence · "Cohort view + message + journal within 48h" chain label.',
+    'selfAssembly: social-resonance-arc routed to Community Mesh module.',
+    'Status: DEPLOYED. 44 patterns. 14 archetypes. 15 assembly modules.',
+    'Next: Pattern 45 — cognitive-load-release (planner cleared + journal depth + self-care within 24h). The decompression loop.',
   ],
 }
 

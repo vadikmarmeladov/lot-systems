@@ -1036,6 +1036,34 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 44: Social resonance arc — cohort viewed + message sent + journal entry within 48h.
+  // The connection loop: observation of community → outreach → reflection on that contact.
+  // When the person sees others, reaches out, and then processes it in writing —
+  // the social circuit closes. The Cube registers the full human signal arc.
+  const p44WindowAgo = now - 48 * 60 * 60 * 1000
+  const p44CohortSignals = signals.filter(s =>
+    s.timestamp > p44WindowAgo &&
+    s.source === 'cohort'
+  )
+  const p44MessageSignals = signals.filter(s =>
+    s.timestamp > p44WindowAgo &&
+    (s.signal.includes('message') || s.signal.includes('connection') ||
+     s.signal.includes('chat') || s.signal.includes('direct_message'))
+  )
+  const p44JournalSignals = signals.filter(s =>
+    s.source === 'journal' && s.timestamp > p44WindowAgo
+  )
+  if (p44CohortSignals.length >= 1 && p44MessageSignals.length >= 1 && p44JournalSignals.length >= 1) {
+    const loopDepth = Math.min(p44CohortSignals.length, p44MessageSignals.length, p44JournalSignals.length)
+    patterns.push({
+      pattern: 'social-resonance-arc',
+      confidence: Math.min(0.65 + loopDepth * 0.08, 0.90),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: 'Cohort view → message sent → journal reflection within 48h. Connection loop complete. The Cube reads the social circuit closing.'
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1630,6 +1658,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'journal', 'memory'],
     patternConditions: ['deep-work-cascade', 'momentum-wave', 'cognitive-expansion'],
     directive: 'Deep work window open. All four build modules coherent. Protect this session.',
+  },
+  {
+    archetype: 'Social Connector',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['cohort', 'journal', 'intentions'],
+    patternConditions: ['social-resonance-arc', 'momentum-wave', 'reflection-velocity'],
+    directive: 'Connection loop complete. The signal went out and came back. Anchor this resonance.',
   },
 ]
 
