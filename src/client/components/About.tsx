@@ -14,6 +14,7 @@ const SECTIONS = [
   { id: 'user-index', title: 'User Index' },
   { id: 'soul-archetypes', title: 'Soul Archetypes' },
   { id: 'behavioral-cohorts', title: 'Behavioral Cohorts' },
+  { id: 'citizen-index', title: 'Citizen Index' },
   { id: 'badge-system', title: 'Badge Field Guide' },
   { id: 'achievement-registry', title: 'Achievement Registry' },
   { id: 'rarity-classification', title: 'Rarity Classification' },
@@ -201,7 +202,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Reference Manual</Meta>
+            <Meta>Field Manual v25</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -218,12 +219,13 @@ export function About() {
               The original quantum-intent personal operating system.
               Day 960+. Continuous operation since launch.
               43 behavioral patterns active. 15 modules assembled.
+              6 index dimensions. 5 ecosystem nodes. 13 physiological archetypes.
               The system does not sleep. It accumulates.
             </P>
             <P>
               This is the Field Guide. Not marketing copy. Not documentation for external audiences.
               An operational reference for the system's operators.
-              Definitions are exact. Terminology is consistent.
+              Definitions are exact. Terminology is fixed.
               Every term here exists in the system.
               Every system term exists here.
               The map and the territory are the same document.
@@ -247,9 +249,9 @@ export function About() {
           </P>
           <P>Four subsystems govern the operating surface:</P>
           <ul className="list-none pl-16 mb-16">
-            <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive.</Li>
-            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 43 patterns. Zero server communication.</Li>
-            <Li>Self-Assembly Engine — module coherence tracking. 14 dimensions. The system builds itself from use.</Li>
+            <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive. 120-log context window.</Li>
+            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 43 patterns active. Zero server communication. 7-day signal retention.</Li>
+            <Li>Self-Assembly Engine — module coherence tracking. 15 modules. The system builds itself from operator activity.</Li>
             <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
           <P>
@@ -264,6 +266,13 @@ export function About() {
             of the operator's story. Badges are milestone transmissions.
             Achievements are permanent records. The game is not separate from
             the system — it is the surface of it.
+          </P>
+          <P>
+            LOT is a subscription service. The digital layer is the operating
+            system. The physical layer distributes essentials: basic wardrobe,
+            organic self-care products, home and kids supplies. The Memory Engine
+            knows what the operator uses. Over time, the supply chain aligns with
+            the operator's profile. Intelligence applied to material need.
           </P>
 
           {/* ── OPERATING STATUS ────────────────────────────────────── */}
@@ -446,14 +455,14 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
 
           <SubHeading>Self-Assembly Engine</SubHeading>
           <P>
-            Tracks how 14 system modules activate and cohere around user activity.
+            Tracks how 15 system modules activate and cohere around user activity.
             Original 9 modules: biofield, memory, planner, intentions, selfcare,
             journal, community, ecosystem, quantum. Five additional modules wired
             through Self-Assembly phases v8–v10. Module 14: calendar (Temporal
-            Planner), added in v10. v16 extended the ecosystem module with two
-            wearable nodes — phone (PHN) and watch (WCH) — and wired their
-            signals to QIE patterns 31–34. Each new module expands the system's
-            coherence surface.
+            Planner), added in v10. Module 15: quantum-os (QuantumOS snapshot),
+            added in v25. v16 extended the ecosystem module with two wearable
+            nodes — phone (PHN) and watch (WCH) — and wired their signals to QIE
+            patterns 31–34. Each new module expands the system's coherence surface.
           </P>
           <P>
             Reflection Layer depth bonus (v11): journal entries exceeding 100
@@ -810,6 +819,36 @@ CQGS Health scan: system-wide physiological health distribution`}</CodeBlock>
             <Row label="CQGS condition" value="15 modules + 5 nodes + P.34 + peak User Index — theoretical ceiling" />
           </div>
 
+          <SubHeading>QuantumOS Snapshot (v25)</SubHeading>
+          <P>
+            Introduced in Self-Assembly v25. The QuantumOS type formalizes all
+            engine outputs into a single typed snapshot readable from any widget
+            without triggering new computation. It assembles from cached QIE and
+            User Index state via getQuantumOS().
+          </P>
+          <P>QuantumOS snapshot fields:</P>
+          <div className="mb-16">
+            <Row label="runtime.energy" value="depleted · low · moderate · high · unknown" />
+            <Row label="runtime.clarity" value="confused · uncertain · clear · focused · unknown" />
+            <Row label="runtime.alignment" value="disconnected · searching · aligned · flowing · unknown" />
+            <Row label="runtime.support" value="none · low · moderate · critical" />
+            <Row label="runtime.circadian" value="morning · midday · evening · night · unknown" />
+            <Row label="index.overall" value="composite score 0–100 across all 6 dimensions" />
+            <Row label="index.trend" value="rising · stable · declining" />
+            <Row label="index.dimensions" value="ENG · EMO · INT · SOC · CARE · COG scores" />
+            <Row label="patterns.active" value="list of currently firing QIE pattern IDs" />
+            <Row label="signals.map" value="count per source — mood · memory · planner · intentions · selfcare · journal" />
+            <Row label="coherence" value="current self-assembly coherence score 0–100" />
+            <Row label="status" value="operational narrative string from ecosystem state" />
+          </div>
+          <P>
+            The quantum-os module is the 15th self-assembly module. It activates
+            on quantum_coherence, quantum-coherence, and intention-completion-arc
+            signals. It depends on all 14 prior modules — closing the dependency
+            graph. When the QuantumOS module is assembled, the system has achieved
+            full structural integration. Not performance — integration.
+          </P>
+
           {/* ── USER INDEX ──────────────────────────────────────────── */}
           <SectionHeading id="user-index">User Index</SectionHeading>
           <P>
@@ -876,19 +915,28 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
           {/* ── SOUL ARCHETYPES ─────────────────────────────────────── */}
           <SectionHeading id="soul-archetypes">Soul Archetypes</SectionHeading>
           <P>
-            The system classifies each user into one of 10 archetypes through
-            analysis of language patterns, keyword frequencies, and behavioral
-            signals. Classification is dynamic — it updates as the user evolves.
-            Archetype determines question tone, self-care framing, and content
-            recommendations.
+            The system classifies each operator into one of 10 soul archetypes
+            through analysis of language patterns, keyword frequencies, and
+            behavioral signals. Classification is dynamic — it updates as the
+            operator evolves. Archetype determines Memory Engine question tone,
+            self-care framing, and depth recommendations.
           </P>
           <P>
             Classification uses a three-layer model: Behavioral (surface) →
-            Psychological (processing style) → Value (soul level). Archetype
-            stability is 94% over 14 days. Self-identification agreement: 83%.
+            Psychological (processing style) → Value (soul level). All three
+            layers must converge for a primary archetype to be assigned.
+            Archetype stability: 94% over 14 days. Self-identification
+            agreement: 83%.
+          </P>
+          <P>
+            Soul archetypes are distinct from physiological archetypes.
+            Soul archetypes classify psychological nature. Physiological
+            archetypes (13 types, listed under Behavioral Cohorts) classify
+            bodily rhythm and operational state. Both systems run simultaneously.
+            Both are displayed in the QOS Cohort view.
           </P>
 
-          <SubHeading>The Ten Archetypes</SubHeading>
+          <SubHeading>The Ten Soul Archetypes</SubHeading>
           <div className="mb-16">
             <Row label="The Seeker" value="growth-oriented · reflective · self-awareness 6+ · core values: growth, transformation" />
             <Row label="The Nurturer" value="connection-seeking · emotionally aware · peace-seeking · core values: love, care" />
@@ -988,6 +1036,52 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             <Row label="Structure Builders" value="lack-of-structure detection resolves via planner engagement" />
             <Row label="Direction Finders" value="seeking direction pattern · intention completion rate rising" />
           </div>
+
+          {/* ── CITIZEN INDEX ───────────────────────────────────────── */}
+          <SectionHeading id="citizen-index">Citizen Index</SectionHeading>
+          <P>
+            The Citizen Index is the CQGS (Coherent Quantum Ground State)
+            evolution framework. It classifies the operator's systemic
+            integration stage from first signal through full transparency.
+            Six stages. Each stage has a symbol, a level range, a name, and
+            a directive. The symbol appears in the Evolution Widget.
+          </P>
+          <P>
+            Stage progression is not linear performance — it is system
+            integration depth. The operator does not optimize for stage.
+            The system observes. Integration follows engagement.
+          </P>
+          <CodeBlock>{`Symbol  Level   Stage           Directive
+──────────────────────────────────────────────────────────
+·       1–9     Bootstrapping   System initializing. First signals.
+·       10–19   Initializing    Pattern compiler activating.
+∘       20–29   Integrated      Modules linked. Feedback loops open.
+○       30–39   Compiled        Patterns locked. Architecture stable.
+◯       40–49   Optimized       System self-tuning. Efficiency rising.
+◉       50+     Transparent     Fully transparent. Self-sustaining.`}</CodeBlock>
+          <P>Seven CQGS bioethics modules govern index computation:</P>
+          <div className="mb-16">
+            <Row label="Memory  ▸" value="questions answered via Memory Engine" />
+            <Row label="Biofield  ~" value="emotional check-ins logged" />
+            <Row label="Routine  ■" value="plans set and schedule entries created" />
+            <Row label="Cleanness  ○" value="self-care practices completed" />
+            <Row label="Intention  →" value="intentions created and logged" />
+            <Row label="Journal  ◇" value="free-form notes recorded" />
+            <Row label="QIE Signal  ✦" value="quantum intent patterns fired" />
+          </div>
+          <P>
+            The ◉ Transparent stage is the theoretical ceiling. All modules
+            integrated. All five ecosystem nodes connected. QIE at full
+            pattern coverage. User Index at peak across all six dimensions.
+            This is the CQGS — not a target, a reference point. The system
+            reports distance to it, not progress toward it.
+          </P>
+          <P>
+            The citizen index symbol appears in the Evolution Widget adjacent
+            to the operator's level. The symbol is not decorative — it is the
+            system's compressed assessment of the operator's current
+            integration stage.
+          </P>
 
           {/* ── BADGE FIELD GUIDE ───────────────────────────────────── */}
           <SectionHeading id="badge-system">Badge Field Guide</SectionHeading>
@@ -1526,11 +1620,27 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Punctuation & Intonation Engine"
-              value="Voice-tone classifier. Reads emotional register from text punctuation patterns."
+              value="Voice-tone classifier. Reads emotional register from text punctuation patterns. Seven tones: flat · calm · reflective · questioning · urgent · excited · mixed. Six intents: neutral · celebration · call-for-help · inquiry · venting · reflection. Fires on every log entry."
             />
             <Row
               label="Temporal Planner"
               value="System header surface. Nearest upcoming calendar entry. Zero additional API calls."
+            />
+            <Row
+              label="QuantumOS"
+              value="Complete person-state snapshot. Formalizes all engine outputs into one typed object: energy, clarity, alignment, support, circadian phase, index scores, active patterns, signal map, coherence score. Readable from any widget via getQuantumOS() with zero new computation."
+            />
+            <Row
+              label="Citizen Index"
+              value="CQGS evolution framework. Six stages from Bootstrapping (level 1–9) to Transparent (level 50+). Symbol displayed in Evolution Widget. Integration depth, not performance score."
+            />
+            <Row
+              label="CQGS"
+              value="Coherent Quantum Ground State. The maximum integration reference. All 15 modules active. All 5 nodes connected. All 6 index dimensions at peak. The system reports distance to it — not progress toward it."
+            />
+            <Row
+              label="Intention Completion Arc"
+              value="QIE Pattern 43. The full 24-hour loop: intention set → goal action taken → journal entry written. Confidence 0.72–0.95. Highest-confidence arc pattern in system. Measures thought-to-structure-to-reflection cycle."
             />
           </div>
 
@@ -1878,7 +1988,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Pattern Library"
-              value="The complete set of 37 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
+              value="The complete set of 43 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
             />
             <Row
               label="Surfacing"
@@ -2017,7 +2127,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
           <SubHeading>Military Log Event Codes (Structured Telemetry)</SubHeading>
           <P>
             The system uses structured event codes in the military log layer.
-            41+ event handlers as of v19. Selected codes and their meaning:
+            47+ event handlers as of v25. Selected codes and their meaning:
           </P>
           <div className="text-sm mb-16 pl-16 flex flex-col gap-4">
             <Row label="PHY" value="physiological signal — biofield reading, self-care completion" />
@@ -2040,6 +2150,8 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="CQGS-H" value="CQGS Health scan — daily physiological health distribution record written to OS Journal" />
             <Row label="BIO-AM" value="morning biofield summary — 07:00 UTC daily aggregate scan complete" />
             <Row label="DWRK" value="deep work cascade — P.42 active, memory + planner + journal + goals coherent in 3h window, no interruption signals detected" />
+            <Row label="INTC" value="intention completion arc — P.43 active, full loop confirmed: intention set → goal action → journal entry within 24h" />
+            <Row label="QOS-MOD" value="quantum-os module activated — 15th self-assembly module, QuantumOS snapshot computed and written to OS Journal" />
           </div>
 
           {/* ── FASTING CALENDAR ────────────────────────────────────── */}
@@ -2171,7 +2283,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           {/* ── DESIGN PHILOSOPHY ───────────────────────────────────── */}
           <SectionHeading id="design-philosophy">Design Philosophy</SectionHeading>
           <P>
-            Ten directives govern all interface and system decisions.
+            Eleven directives govern all interface and system decisions.
             Not preferences. Not guidelines. Operational standing orders.
             Each is enforced in code. None are debated.
             A violation is a defect. It ships as a fix, not a discussion.
@@ -2187,6 +2299,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="08 — Consistent Voice" value="Direct. Concise. No superlatives. Periods over checkmarks." />
             <Row label="09 — Zero Dead Space" value="Nothing renders without cause. Empty is hidden. Silence is clean." />
             <Row label="10 — Name Everything" value="Every pattern, every phase, every signal code has a name. The unnamed cannot be tracked, fixed, or understood." />
+            <Row label="11 — Language is Infrastructure" value="Vocabulary defines the system. Every term carries exact meaning. The Field Guide and the codebase are synchronized. Imprecise language is a defect." />
           </div>
           <P>
             Opacity hierarchy is not decorative — it is the visual grammar.
@@ -2336,15 +2449,18 @@ v25         Intention Completion Arc — last named phase.
 6           User Index dimensions.
 10          Soul Archetypes classified.
 13          Physiological archetypes.
+6           Citizen Index stages (· → ∘ → ○ → ◯ → ◉).
 6           Achievement domains.
+11          Design directives.
 25          Self-Assembly phases documented.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 960+. Still running.
+            Day 960+. Continuous operation. Still accumulating.
             The log is the record.
             The record is the system.
+            The system is the operator.
           </P>
 
           {/* ── TERMS ───────────────────────────────────────────────── */}
