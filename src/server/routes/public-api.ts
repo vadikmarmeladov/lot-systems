@@ -345,9 +345,11 @@ async function performHealthChecks(): Promise<{
     checkMemory(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Determine overall status — critical failures surface as 'error', non-critical as 'degraded'
+  const criticalChecks = new Set(['Database stack', 'Authentication engine', 'Memory Engine', 'Systems'])
+  const hasCriticalError = checks.some((c) => c.status === 'error' && criticalChecks.has(c.name))
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall = hasCriticalError ? 'error' : hasAnyError ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -561,7 +563,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {
