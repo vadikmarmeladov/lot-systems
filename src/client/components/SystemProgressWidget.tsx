@@ -35,7 +35,7 @@ interface FeedbackAnalytics {
   insights: string[]
 }
 
-type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report'
+type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'transmission' | 'report'
 
 // Self-assembly session record — appended after each upgrade session
 const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] = [
@@ -65,6 +65,38 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Log UI: quantum_intent_signal event handler, terminal placeholder text',
       'Session report logged and appended. All modules online.',
     ],
+  },
+  {
+    date: '2026-05-13',
+    session: 'Self-Assembly Run — Transmission Layer',
+    assembled: [
+      'Transmission view: Usership-gated LOT voice channel in System Progress',
+      'TRANSMISSION_LOG: structured assembly run messages surfaced to paid tier',
+      'Subscription-aware view cycle: transmission skipped for free users',
+      'Session report 2026-05-13 appended to SESSION_REPORTS',
+      'LOT assembly log MD created: 2026-05-13_LOT-assembly_transmission-view',
+    ],
+  },
+]
+
+// Structured transmission messages pushed to Usership / R&D / Legacy tier
+// Each entry is a direct channel from the system to the person — LOT voice, terse, alive.
+const TRANSMISSION_LOG: {
+  date: string
+  built: string[]
+  feedbackApplied: string
+  status: 'DEPLOYED' | 'HELD'
+  next: string
+}[] = [
+  {
+    date: '2026-05-13',
+    built: [
+      'Transmission view (Usership-gated direct channel)',
+      'Subscription-aware view cycle in System Progress',
+    ],
+    feedbackApplied: 'personal UI, personal vocabulary, personal widgets',
+    status: 'DEPLOYED',
+    next: 'Pull live journal vocabulary — system starts talking back in your words',
   },
 ]
 
@@ -113,14 +145,20 @@ export function SystemProgressWidget() {
       .catch(() => {})
   }, [])
 
+  const isSubscribed = me?.tags?.some(tag => {
+    const t = tag.toLowerCase()
+    return t === 'usership' || t === 'rnd' || t === 'legacy'
+  })
+
   const cycleView = () => {
     setView(prev => {
       switch (prev) {
-        case 'deployment': return 'assembly'
-        case 'assembly': return 'feedback'
-        case 'feedback': return 'report'
-        case 'report': return 'deployment'
-        default: return 'deployment'
+        case 'deployment':   return 'assembly'
+        case 'assembly':     return 'feedback'
+        case 'feedback':     return isSubscribed ? 'transmission' : 'report'
+        case 'transmission': return 'report'
+        case 'report':       return 'deployment'
+        default:             return 'deployment'
       }
     })
   }
@@ -214,9 +252,10 @@ export function SystemProgressWidget() {
   }
 
   const label =
-    view === 'deployment' ? 'System Progress:' :
-    view === 'assembly' ? 'Self-Assembly:' :
-    view === 'feedback' ? 'System Feedback:' :
+    view === 'deployment'   ? 'System Progress:' :
+    view === 'assembly'     ? 'Self-Assembly:' :
+    view === 'feedback'     ? 'System Feedback:' :
+    view === 'transmission' ? 'Transmission:' :
     'System Report:'
 
   return (
@@ -468,6 +507,57 @@ export function SystemProgressWidget() {
                 )}
               </div>
             )}
+          </>
+        )}
+
+        {/* ─── Transmission View (Usership / R&D / Legacy) ─── */}
+        {view === 'transmission' && (
+          <>
+            <div className="flex flex-col gap-y-16">
+              <div className="opacity-30">Direct channel. Assembly logs transmitted.</div>
+
+              {TRANSMISSION_LOG.slice().reverse().map((tx) => (
+                <div key={tx.date} className="flex flex-col gap-y-8 font-mono text-xs">
+
+                  {/* Run header */}
+                  <div className="flex justify-between items-baseline">
+                    <span className="uppercase tracking-widest">ASSEMBLY RUN</span>
+                    <span className="tabular-nums opacity-40">{tx.date}</span>
+                  </div>
+                  <div className="border-t border-acc-400/20" />
+
+                  {/* What was built */}
+                  <div className="flex flex-col gap-y-4">
+                    {tx.built.map((item, i) => (
+                      <div key={i} className="flex gap-8">
+                        <span className="opacity-30 shrink-0">Built:</span>
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Verbatim user phrase applied */}
+                  <div className="flex gap-8">
+                    <span className="opacity-30 shrink-0">Applied:</span>
+                    <span className="opacity-60">"{tx.feedbackApplied}"</span>
+                  </div>
+
+                  {/* Deployment status */}
+                  <div className="flex justify-between">
+                    <span className="opacity-30">Status</span>
+                    <span className={tx.status === 'DEPLOYED' ? 'text-green' : 'opacity-40'}>
+                      {tx.status}
+                    </span>
+                  </div>
+
+                  {/* Next directive */}
+                  <div className="flex gap-8">
+                    <span className="opacity-30 shrink-0">Next:</span>
+                    <span className="opacity-60">{tx.next}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </>
         )}
 
