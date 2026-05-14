@@ -27,7 +27,6 @@ services:
       - key: DATABASE_URL
         scope: RUN_AND_BUILD_TIME
         type: SECRET
-        value: "postgresql://doadmin:AVNS_8V6Hqzuxwj0JkMxgNvR@db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com:25060/defaultdb?sslmode=require"
       - key: PORT
         scope: RUN_TIME
         value: "8080"
@@ -43,11 +42,9 @@ services:
       - key: JWT_SECRET
         scope: RUN_AND_BUILD_TIME
         type: SECRET
-        value: "13919320b2a8816ced947b7a6385811b"
       - key: RESEND_API_KEY
         scope: RUN_TIME
         type: SECRET
-        value: "re_83s23f6W_LbDfdmmXpXJ4je4i2kt1HA7u"
       - key: RESEND_FROM_EMAIL
         scope: RUN_TIME
         value: "support@lot-systems.com"
@@ -57,7 +54,6 @@ services:
       - key: DB_HOST
         scope: RUN_AND_BUILD_TIME
         type: SECRET
-        value: "db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com"
       - key: DB_PORT
         scope: RUN_AND_BUILD_TIME
         value: "25060"
@@ -67,26 +63,21 @@ services:
       - key: DB_USER
         scope: RUN_AND_BUILD_TIME
         type: SECRET
-        value: "doadmin"
       - key: DB_PASSWORD
         scope: RUN_AND_BUILD_TIME
         type: SECRET
-        value: "AVNS_8V6Hqzuxwj0JkMxgNvR"
       - key: DB_SSL
         scope: RUN_AND_BUILD_TIME
         value: "true"
       - key: ANTHROPIC_API_KEY
         scope: RUN_TIME
         type: SECRET
-        value: "sk-ant-api03-mUyBScB4JoNdfYJm1rA8zPv_bitstkNpfa9LZnvur6D8Hi6WYUEwvdmYStLlmzOmJxKa3hYESub-wvqPsLVETg-TP4RhQAA"
       - key: OPENAI_API_KEY
         scope: RUN_TIME
         type: SECRET
-        value: "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"
       - key: TOGETHER_API_KEY
         scope: RUN_TIME
         type: SECRET
-        value: "tgp_v1_T3CicyWdakDXJhaWefknD6lTKsPFvLukpS99YJM77A0"
       - key: GOOGLE_API_KEY
         scope: RUN_TIME
         type: SECRET

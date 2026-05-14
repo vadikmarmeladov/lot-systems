@@ -103,11 +103,42 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
   const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
     switch (checkStatus) {
       case 'ok':
-        return '✓'
+        return (
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeOpacity="0.4" />
+            <path d="M4 7l2 2 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )
       case 'error':
-        return '✕'
+        return (
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeOpacity="0.4" />
+            <path d="M5 5l4 4M9 5l-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        )
       case 'unknown':
-        return '?'
+        return (
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <circle cx="7" cy="7" r="6.5" stroke="currentColor" strokeOpacity="0.4" />
+            <path d="M5.5 5.5a1.5 1.5 0 012.83.75c0 1-1.33 1.25-1.33 2.25M7 10.5v.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        )
+    }
+  }
+
+  const getCheckColor = (checkStatus: 'ok' | 'error' | 'unknown') => {
+    switch (checkStatus) {
+      case 'ok': return 'text-acc'
+      case 'error': return 'text-acc/50'
+      case 'unknown': return 'text-acc/40'
+    }
+  }
+
+  const getOverallBanner = (overall: 'ok' | 'degraded' | 'error') => {
+    switch (overall) {
+      case 'ok': return { label: 'All systems operational', color: 'text-acc' }
+      case 'degraded': return { label: 'Degraded performance', color: 'text-acc/70' }
+      case 'error': return { label: 'System issues detected', color: 'text-acc/50' }
     }
   }
 
@@ -152,9 +183,10 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
         <>
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+              {(() => {
+                const { label, color } = getOverallBanner(status.overall)
+                return <span className={color}>{label}</span>
+              })()}
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
@@ -182,19 +214,16 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
           <div className="mb-16">
             <div className="mb-16">System components:</div>
-            {status.checks.map((check, index) => (
+            {status.checks.map((check) => (
               <Block
-                key={index}
+                key={check.name}
                 label={check.name + ':'}
                 labelClassName="!pl-0"
                 className="mb-8"
               >
-                <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
-                  <span className={cn(
-                    check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
-                  )}>
+                <div className={cn('flex items-center gap-x-8', getCheckColor(check.status))}>
+                  {getStatusIcon(check.status)}
+                  <span>
                     {check.status === 'ok' ? 'Ok' :
                      check.status === 'error' ? 'Error' :
                      'Unknown'}
@@ -204,7 +233,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                   )}
                 </div>
                 {check.message && (
-                  <div className="text-acc/60 mt-4">{check.message}</div>
+                  <div className="text-acc/50 mt-4 text-sm">{check.message}</div>
                 )}
               </Block>
             ))}
@@ -233,11 +262,9 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 )}
               </Block>
               <Block label="Next prompt:" labelClassName="!pl-0">
-                <div className="flex items-center gap-x-8">
-                  <span>{memoryStatus.nextPromptAvailable ? '✓' : '✕'}</span>
-                  <span className={cn(
-                    memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/60'
-                  )}>
+                <div className={cn('flex items-center gap-x-8', memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/50')}>
+                  {getStatusIcon(memoryStatus.nextPromptAvailable ? 'ok' : 'error')}
+                  <span>
                     {memoryStatus.nextPromptAvailable ? 'Available now' : 'Not available'}
                   </span>
                 </div>
