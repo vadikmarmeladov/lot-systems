@@ -152,8 +152,10 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'intention-completion-arc': 'quantum-os',
   'social-resonance-arc':  'community',
   'social_resonance_arc':  'community',
-  'cognitive-load-release': 'selfcare',
-  'cognitive_load_release': 'selfcare',
+  'cognitive-load-release':    'selfcare',
+  'cognitive_load_release':    'selfcare',
+  'temporal-coherence-window': 'calendar',
+  'temporal_coherence_window': 'calendar',
   'calendar_entry':        'calendar',
   'calendar_update':       'calendar',
 }

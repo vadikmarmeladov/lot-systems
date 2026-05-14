@@ -1091,6 +1091,33 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 46: Temporal coherence window — calendar + planner + intentions all active in 7d.
+  // The temporal planning rhythm: the person has anchored time (calendar), structured their day
+  // (planner), and declared intent (intentions) across the same 7-day window.
+  // Not a peak state — a rhythm. The signal that time is becoming architecture.
+  const p46Week = now - 7 * 24 * 60 * 60 * 1000
+  const p46Calendar = signals.filter(s =>
+    (s.source === 'calendar' ||
+      (s.signal === 'calendar_entry') ||
+      (s.signal === 'calendar_update')) &&
+    s.timestamp > p46Week
+  )
+  const p46Planner = signals.filter(s => s.source === 'planner' && s.timestamp > p46Week)
+  const p46Intentions = signals.filter(s =>
+    (s.source === 'intentions' || s.signal === 'intention_set') &&
+    s.timestamp > p46Week
+  )
+  if (p46Calendar.length >= 1 && p46Planner.length >= 3 && p46Intentions.length >= 1) {
+    const rhythmDepth = Math.min(p46Calendar.length, Math.floor(p46Planner.length / 3), p46Intentions.length)
+    patterns.push({
+      pattern: 'temporal-coherence-window',
+      confidence: Math.min(0.60 + rhythmDepth * 0.08, 0.85),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `Calendar anchored + planner active + intentions set within 7d. Temporal rhythm emerging — time is becoming structure.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1702,6 +1729,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['selfcare', 'journal', 'planner'],
     patternConditions: ['cognitive-load-release', 'biofield-recovery-arc', 'reflection-velocity'],
     directive: 'Decompression loop complete. Load released. The system breathes.',
+  },
+  {
+    archetype: 'Temporal Architect',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['calendar', 'planner', 'intentions'],
+    patternConditions: ['temporal-coherence-window', 'intention-velocity', 'momentum-wave'],
+    directive: 'Temporal rhythm established. Time is structure. The calendar holds.',
   },
 ]
 

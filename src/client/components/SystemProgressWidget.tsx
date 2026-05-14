@@ -439,23 +439,35 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '45 patterns. 15 archetypes. The Cube now reads the full decompression cycle.',
     ],
   },
+  {
+    date: '2026-05-14',
+    session: 'QIE v28 — Pattern 46 · Archetype 16 · Temporal Coherence Window · TCW handler',
+    assembled: [
+      'Pattern 46 (temporal-coherence-window): calendar anchored + planner active (3+ signals) + intentions set — all within 7d. The temporal rhythm: time becoming architecture. Confidence 0.60–0.85.',
+      'Archetype 16 (Temporal Architect): moderate/high energy · calendar/planner/intentions dominant · temporal-coherence-window/intention-velocity/momentum-wave patterns. Directive: Temporal rhythm established. Time is structure. The calendar holds.',
+      'Logs.tsx: TCW handler (temporal_coherence_window event) — Calendar 7d · Planner 7d · Intentions 7d · Confidence · chain label',
+      'PatternRecognitionWidget: temporal-coherence-window added to name map ("Temporal rhythm emerging")',
+      'PatternRecognitionWidget QOS Trend view: "Temporal window active." indicator surfaces when Pattern 46 fires',
+      'selfAssembly.ts: temporal-coherence-window and temporal_coherence_window routed to Temporal Planner (calendar) module',
+      '46 patterns. 16 archetypes. The Cube reads the rhythm of time.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-12',
+  date: '2026-05-14',
   message: [
-    'ASSEMBLY RUN — 2026-05-12 · v27',
-    'Built: Pattern 45. Archetype 15. RLSE log handler. cognitiveRelease dep node. Selfcare module signal routing.',
-    'Pattern 45 (cognitive-load-release): planner active + deep journal entry + self-care completed within 24h. Structural inverse of cognitive overload (Pattern 23). Fires only when no overload patterns active. Confidence 0.68–0.90.',
-    'Archetype 15 (Cognitive Liberator): selfcare/journal/planner dominant. Directive: Decompression loop complete. Load released. The system breathes.',
-    'PatternRecognitionWidget QOS Trend: "Decompression active." indicator now surfaces when Pattern 45 fires.',
-    'RLSE military log handler: Planner 24h · Journal 24h · Confidence · "Planner + journal depth + self-care within 24h" chain label.',
-    'selfAssembly: cognitive-load-release routed to Cleanness Protocol (selfcare) module.',
-    'WIDGET_DEPENDENCY_MAP: cognitiveRelease node added (planner/journal/selfcare/log).',
-    'Status: DEPLOYED. 45 patterns. 15 archetypes. 15 assembly modules.',
-    'Next: Pattern 46 — temporal-coherence-window (calendar + planner + intentions all active in 7d, temporal planning rhythm emerging).',
+    'ASSEMBLY RUN — 2026-05-14 · v28',
+    'Built: Pattern 46. Archetype 16. TCW log handler. selfAssembly calendar routing.',
+    'Pattern 46 (temporal-coherence-window): calendar + planner + intentions all active in 7d. Not a peak — a rhythm. The signal that time is becoming architecture. Confidence 0.60–0.85.',
+    'Archetype 16 (Temporal Architect): calendar/planner/intentions dominant. Directive: Temporal rhythm established. Time is structure. The calendar holds.',
+    'PatternRecognitionWidget QOS Trend: "Temporal window active." surfaces when Pattern 46 fires.',
+    'TCW military log handler: Calendar 7d · Planner 7d · Intentions 7d · Confidence · "Calendar + planner + intentions in 7d" chain label.',
+    'selfAssembly: temporal-coherence-window routed to Temporal Planner (calendar) module.',
+    'Status: DEPLOYED. 46 patterns. 16 archetypes. 15 assembly modules.',
+    'Next: Pattern 47 — goal-velocity-surge (goal signals accelerating: more goals set + completed in 7d than prior 7d).',
   ],
 }
 

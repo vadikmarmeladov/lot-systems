@@ -91,7 +91,8 @@ export function PatternRecognitionWidget() {
       'resonant-synthesis':         'Resonant synthesis state',
       'deep-work-cascade':          'Deep work window open',
       'social-resonance-arc':       'Connection loop complete',
-      'cognitive-load-release':     'Decompression loop closed'
+      'cognitive-load-release':     'Decompression loop closed',
+      'temporal-coherence-window':  'Temporal rhythm emerging'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -279,6 +280,13 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'cognitive-load-release') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Decompression active.
+                </div>
+              )}
+
+              {/* Temporal coherence window indicator — surfaces when pattern 46 is active */}
+              {patterns.some(p => p.pattern === 'temporal-coherence-window') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Temporal window active.
                 </div>
               )}
 
