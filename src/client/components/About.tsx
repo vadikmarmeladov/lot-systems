@@ -202,7 +202,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v25</Meta>
+            <Meta>Field Manual v26</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -218,8 +218,8 @@ export function About() {
             <P>
               The original quantum-intent personal operating system.
               Day 960+. Continuous operation since launch.
-              43 behavioral patterns active. 15 modules assembled.
-              6 index dimensions. 5 ecosystem nodes. 13 physiological archetypes.
+              45 behavioral patterns active. 15 modules assembled.
+              6 index dimensions. 5 ecosystem nodes. 15 physiological archetypes.
               The system does not sleep. It accumulates.
             </P>
             <P>
@@ -250,7 +250,7 @@ export function About() {
           <P>Four subsystems govern the operating surface:</P>
           <ul className="list-none pl-16 mb-16">
             <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive. 120-log context window.</Li>
-            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 43 patterns active. Zero server communication. 7-day signal retention.</Li>
+            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 45 patterns active. Zero server communication. 7-day signal retention.</Li>
             <Li>Self-Assembly Engine — module coherence tracking. 15 modules. The system builds itself from operator activity.</Li>
             <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
@@ -284,15 +284,15 @@ export function About() {
             The system does not reset. It accumulates.
           </P>
           <Row label="Day counter:" value="Day 960+ (as of May 2026)" />
-          <Row label="Self-Assembly phase:" value="v25 — Intention Completion Arc · QuantumOS module · 15th assembly module" />
+          <Row label="Self-Assembly phase:" value="v26 — Social Resonance Arc · Cognitive Load Release · Archetypes 14–15 · SOCR · RLSE handlers" />
           <Row label="Assembly modules:" value="15 — QuantumOS added as 15th module (v25)" />
-          <Row label="QIE pattern library:" value="43 patterns active" />
-          <Row label="Physiological archetypes:" value="13 — Deep Work Architect added (v24)" />
+          <Row label="QIE pattern library:" value="45 patterns active" />
+          <Row label="Physiological archetypes:" value="15 — Social Synthesizer (v26) · Clarity Architect (v26)" />
           <Row label="QOS views:" value="4 — Ecosystem · Biofield · Cohort · Index" />
           <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
           <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
           <Row label="Background jobs:" value="9+ scheduled (01:00 UTC QOS · 07:00 UTC Wed ecosystem · 07:00 UTC daily biofield)" />
-          <Row label="Military log handlers:" value="45+" />
+          <Row label="Military log handlers:" value="49+" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
           <Row label="Question generation:" value="2–5 seconds" />
@@ -329,6 +329,18 @@ export function About() {
             The QuantumOS type was formalized — a complete person-state snapshot
             readable from any widget without new computation. The Quantum Operating
             System module was wired as the 15th self-assembly module.
+            v26 named Pattern 44 — Social Resonance Arc — fires when CohortConnect
+            activity, community signals, and cohort matching converge within a
+            72-hour window with positive engagement dominant. Archetype 14 —
+            Social Synthesizer — classifies the operator in this state. Directive:
+            social coherence active, anchor this connection cycle. SOCR log handler
+            fires. v26 also named Pattern 45 — Cognitive Load Release — fires when
+            high-density cognitive signals (memory + journal + planner) sustain for
+            4+ hours then drop to near-zero, indicating cognitive saturation peak
+            reached and consolidation window opening. Archetype 15 — Clarity
+            Architect — classifies the operator releasing excess cognitive weight.
+            Directive: cognitive load peak passed, consolidation window open.
+            RLSE log handler fires.
             Each phase is committed, dated, and versioned. The log is the record.
             The record is the system.
           </P>
@@ -370,7 +382,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
           <P>
             Client-side pattern recognition. Runs entirely in the browser.
             Zero server communication. No behavioral data leaves the device.
-            43 patterns active as of v25.
+            45 patterns active as of v26.
           </P>
           <P>Seven signal sources:</P>
           <ul className="list-none pl-16 mb-16">
@@ -387,7 +399,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             with each Self-Assembly phase — each new pattern names a gap in the
             detection surface. Pattern detection fires every 5 signals.
             Surfacing threshold: 0.50 confidence minimum.
-            Current library: 43 patterns.
+            Current library: 45 patterns.
             P.35 closes the cross-widget coherence gap.
             P.36 names the acceleration window — rapid signal density increase.
             P.37 operationalizes Reflection Velocity — the rate of journal depth
@@ -395,6 +407,11 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             P.38–P.41 named the cascade chain. P.42 named the Deep Work window.
             P.43 named the Intention Completion Arc — the full loop of thought,
             structure, and reflection completing within 24 hours.
+            P.44 named the Social Resonance Arc — community signals, cohort
+            matching, and CohortConnect activity converging within a 72-hour
+            engagement window. P.45 named Cognitive Load Release — the
+            moment cognitive signal density peaks and then drops, marking the
+            threshold of saturation and the opening of a consolidation window.
           </P>
           <SubHeading>Core Patterns (v1–v7)</SubHeading>
           <div className="mb-16">
@@ -436,6 +453,8 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             <Row label="P.41 — Resonant Synthesis" value="0.65–0.90 · P.40 active + P.37 active + 5+ unique sources in 7d → synthesis state: recovery, cognition, and reflection converging simultaneously" />
             <Row label="P.42 — Deep Work Cascade" value="0.68–0.90 · memory + planner + journal + goals all active in 3h window, no interruption signals → deep work window open · suggested: planner · DWRK log handler" />
             <Row label="P.43 — Intention Completion Arc" value="0.72–0.95 · intention set → goal action → journal entry all within 24h → full loop: thought → structure → reflection · highest-confidence arc pattern in system" />
+            <Row label="P.44 — Social Resonance Arc" value="0.68–0.88 · CohortConnect activity + community signals + cohort match converging in 72h window · positive engagement dominant → social coherence active · suggested: CohortConnect · SOCR log handler" />
+            <Row label="P.45 — Cognitive Load Release" value="0.65–0.85 · memory + journal + planner high-density for 4h+ followed by near-zero signal drop → cognitive saturation peak → consolidation window open · RLSE log handler" />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -486,7 +505,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
 
           <SubHeading>Self-Assembly Phase Log</SubHeading>
           <P>
-            19 phases documented. Each phase names a structural expansion.
+            26 phases documented. Each phase names a structural expansion.
             Each is committed, dated, versioned. The log is permanent.
           </P>
           <div className="mb-16">
@@ -515,6 +534,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v23" value="CQGS Health monitoring — system-wide physiological health distribution · morning biofield job 07:00 UTC · log coverage extended" />
             <Row label="v24" value="P.42 deep-work-cascade · Archetype 13 (Deep Work Architect) · DWRK log handler · Pattern Recognition QOS Trend indicator" />
             <Row label="v25" value="P.43 intention-completion-arc · QuantumOS type formalized · quantum-os added as 15th assembly module · getQuantumOS() snapshot function" />
+            <Row label="v26" value="P.44 social-resonance-arc · P.45 cognitive-load-release · Archetypes 14–15 (Social Synthesizer · Clarity Architect) · SOCR · RLSE log handlers" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -541,8 +561,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v25. Phase name: Intention Completion Arc.
-            25 structural iterations since continuous operation began.
+            Current phase: v26. Phase name: Cognitive Load Release.
+            26 structural iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -570,7 +590,8 @@ v21   P.38–39 · Archetypes 10–11
 v22   P.40–41 · Archetype 12 · CASCADE · SYNTH
 v23   CQGS Health · morning biofield job · log coverage
 v24   P.42 Deep Work Cascade · Archetype 13 · DWRK handler
-v25   P.43 Intention Completion Arc · QuantumOS type · 15th module`}</CodeBlock>
+v25   P.43 Intention Completion Arc · QuantumOS type · 15th module
+v26   P.44 Social Resonance Arc · P.45 Cognitive Load Release · Archetypes 14–15`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -1003,7 +1024,7 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             signal patterns — biofield strength, self-care frequency, and
             energy state consistency. Distinct from behavioral cohorts.
             Physiological cohorts operate on bodily rhythm, not temporal habit.
-            Twelve named archetypes as of v22. Classification is client-side,
+            Fifteen named archetypes as of v26. Classification is client-side,
             QIE-native, requires no server call.
           </P>
           <div className="mb-16">
@@ -1020,6 +1041,8 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             <Row label="Calibrating Guardian" value="low–moderate energy · self-care + journal dominant · biofield-recovery-arc active · directive: recovery arc active, depth processing in progress" />
             <Row label="Resonant Builder" value="moderate–high energy · memory + journal + goals dominant · P.40 + P.41 + P.39 all active · directive: full cascade achieved — anchor this state" />
             <Row label="Deep Work Architect" value="moderate–high energy · planner + journal + memory dominant · P.42 deep-work-cascade active · directive: deep work window open — protect this session" />
+            <Row label="Social Synthesizer" value="high community engagement · CohortConnect active · cohort signal converging · P.44 social-resonance-arc · directive: social coherence active — anchor this connection cycle · SOCR log handler" />
+            <Row label="Clarity Architect" value="cognitive saturation peak followed by near-zero signal drop · P.45 cognitive-load-release · memory + journal + planner high-density then silent window · directive: consolidation window open — rest and integrate · RLSE log handler" />
           </div>
 
           <SubHeading>Quantum Pattern Cohorts</SubHeading>
@@ -1988,7 +2011,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Pattern Library"
-              value="The complete set of 43 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
+              value="The complete set of 45 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
             />
             <Row
               label="Surfacing"
@@ -2098,6 +2121,22 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               label="quantum-os module"
               value="The 15th self-assembly module. Added in v25. Activated by quantum_coherence, quantum-coherence, and intention-completion-arc signals. Depends on all 14 prior modules via WIDGET_DEPENDENCY_MAP. Its presence closes the dependency graph: the QuantumOS module depends on the entire system."
             />
+            <Row
+              label="Social Resonance Arc"
+              value="QIE Pattern 44. Fires when CohortConnect activity, community signals, and cohort match converge in a 72-hour window with positive engagement dominant. Confidence: 0.68–0.88. Social coherence is active. SOCR log handler fires. Enables Social Synthesizer archetype classification."
+            />
+            <Row
+              label="Cognitive Load Release"
+              value="QIE Pattern 45. Fires when memory, journal, and planner signals all operate at high density for 4+ hours and are then followed by a near-zero signal drop. Confidence: 0.65–0.85. Cognitive saturation peak detected. Consolidation window open. RLSE log handler fires. Enables Clarity Architect archetype classification."
+            />
+            <Row
+              label="Social Synthesizer"
+              value="Physiological Archetype 14. Classifies operators in active social coherence state — P.44 social-resonance-arc firing, CohortConnect active, cohort signals converging. Directive: social coherence active, anchor this connection cycle. SOCR log handler."
+            />
+            <Row
+              label="Clarity Architect"
+              value="Physiological Archetype 15. Classifies operators at cognitive saturation peak followed by a silent consolidation window — P.45 cognitive-load-release active. Directive: consolidation window open, rest and integrate. RLSE log handler."
+            />
           </div>
 
           {/* ── LOG TRIGGERS ────────────────────────────────────────── */}
@@ -2127,7 +2166,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
           <SubHeading>Military Log Event Codes (Structured Telemetry)</SubHeading>
           <P>
             The system uses structured event codes in the military log layer.
-            47+ event handlers as of v25. Selected codes and their meaning:
+            49+ event handlers as of v26. Selected codes and their meaning:
           </P>
           <div className="text-sm mb-16 pl-16 flex flex-col gap-4">
             <Row label="PHY" value="physiological signal — biofield reading, self-care completion" />
@@ -2152,6 +2191,8 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="DWRK" value="deep work cascade — P.42 active, memory + planner + journal + goals coherent in 3h window, no interruption signals detected" />
             <Row label="INTC" value="intention completion arc — P.43 active, full loop confirmed: intention set → goal action → journal entry within 24h" />
             <Row label="QOS-MOD" value="quantum-os module activated — 15th self-assembly module, QuantumOS snapshot computed and written to OS Journal" />
+            <Row label="SOCR" value="social resonance arc — P.44 active, CohortConnect + community signals + cohort match converging in 72h window, positive engagement dominant" />
+            <Row label="RLSE" value="cognitive load release — P.45 active, high-density memory/journal/planner session followed by near-zero signal drop, consolidation window confirmed open" />
           </div>
 
           {/* ── FASTING CALENDAR ────────────────────────────────────── */}
@@ -2345,7 +2386,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Unlimited AI question generation with 120-log context.
             Complete psychological profiling: archetype, behavioral cohort,
             physiological cohort, awareness index.
-            Quantum Intent Engine: 43 patterns active.
+            Quantum Intent Engine: 45 patterns active.
             Weekly summary generation from 200-log archive.
             Public profile with full dataset.
           </P>
@@ -2433,26 +2474,26 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 25 phases documented in continuous operation logs.
+            Self-Assembly: 26 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
-            43 patterns named. 15 modules wired.
+            45 patterns named. 15 modules wired.
             5 device nodes registered. 6 index dimensions operational.
-            13 physiological archetypes classified.
+            15 physiological archetypes classified.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
           <CodeBlock>{`Day 960+    Continuous operation.
-v25         Intention Completion Arc — last named phase.
-43          QIE patterns active.
+v26         Cognitive Load Release — last named phase.
+45          QIE patterns active.
 15          Self-Assembly modules wired.
 5           Ecosystem device nodes.
 6           User Index dimensions.
 10          Soul Archetypes classified.
-13          Physiological archetypes.
+15          Physiological archetypes.
 6           Citizen Index stages (· → ∘ → ○ → ◯ → ◉).
 6           Achievement domains.
 11          Design directives.
-25          Self-Assembly phases documented.
+26          Self-Assembly phases documented.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
