@@ -182,9 +182,9 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
           <div className="mb-16">
             <div className="mb-16">System components:</div>
-            {status.checks.map((check, index) => (
+            {status.checks.map((check) => (
               <Block
-                key={index}
+                key={check.name}
                 label={check.name + ':'}
                 labelClassName="!pl-0"
                 className="mb-8"

@@ -24,7 +24,9 @@ import publicApiRoutes from './routes/public-api.js'
 const CWD = process.cwd()
 
 const fastify = Fastify({
-  logger: false  // Temporarily disable logging for development
+  logger: config.env === 'production'
+    ? { level: 'warn' }
+    : false,
 })
 
 const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/api', '/sync', '/log']

@@ -76,14 +76,14 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
       }
     }
 
-    // Check Node.js version is compatible
+    // Check Node.js version is compatible (engines.node in package.json requires >=20)
     const nodeVersion = process.version
     const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
-    if (majorVersion < 18) {
+    if (majorVersion < 20) {
       return {
         name: 'Engine stack',
         status: 'error',
-        message: `Node.js version ${nodeVersion} is too old (requires 18+)`,
+        message: `Node.js version ${nodeVersion} is too old (requires 20+)`,
         duration: Date.now() - start,
       }
     }
@@ -326,6 +326,34 @@ async function checkSystems(): Promise<SystemCheck> {
   }
 }
 
+async function checkStoryAI(): Promise<SystemCheck> {
+  const start = Date.now()
+  try {
+    // Verify at least one AI engine is available for narrative/story generation
+    const hasAvailableEngine = aiEngineManager.hasAvailableEngine()
+    if (!hasAvailableEngine) {
+      return {
+        name: 'Story AI',
+        status: 'error',
+        message: 'No AI engine configured — set ANTHROPIC_API_KEY, OPENAI_API_KEY, GOOGLE_API_KEY, or MISTRAL_API_KEY',
+        duration: Date.now() - start,
+      }
+    }
+    return {
+      name: 'Story AI',
+      status: 'ok',
+      duration: Date.now() - start,
+    }
+  } catch (error: any) {
+    return {
+      name: 'Story AI',
+      status: 'error',
+      message: error?.message || 'Story AI check failed',
+      duration: Date.now() - start,
+    }
+  }
+}
+
 async function performHealthChecks(): Promise<{
   version: string
   timestamp: string
@@ -342,6 +370,7 @@ async function performHealthChecks(): Promise<{
     checkSystems(),
     checkWeatherAPI(),
     checkDatabase(),
+    checkStoryAI(),
     checkMemory(),
   ])
 
@@ -389,6 +418,10 @@ export default async (fastify: FastifyInstance) => {
 
   // Admin configuration diagnostic endpoint
   fastify.get('/verify-admin-config', async (req, reply) => {
+    const user = (req as any).user
+    if (!user || !user.isAdmin()) {
+      return reply.code(403).send({ error: 'Forbidden: admin access required' })
+    }
     const adminEmailsEnv = process.env.ADMIN_EMAILS
     const adminsList = config.admins
 
@@ -413,6 +446,10 @@ export default async (fastify: FastifyInstance) => {
 
   // API key verification endpoint - shows masked API key for verification
   fastify.get('/verify-api-keys', async (req, reply) => {
+    const user = (req as any).user
+    if (!user || !user.isAdmin()) {
+      return reply.code(403).send({ error: 'Forbidden: admin access required' })
+    }
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
     const resendKey = process.env.RESEND_API_KEY
     const openaiKey = process.env.OPENAI_API_KEY
@@ -450,6 +487,10 @@ export default async (fastify: FastifyInstance) => {
 
   // Memory Engine diagnostic endpoint - shows why Claude might not be working
   fastify.get('/debug-memory-engine', async (req, reply) => {
+    const user = (req as any).user
+    if (!user || !user.isAdmin()) {
+      return reply.code(403).send({ error: 'Forbidden: admin access required' })
+    }
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     // Test if we can initialize Anthropic client
@@ -496,6 +537,10 @@ export default async (fastify: FastifyInstance) => {
 
   // Test all AI engines to see which are available
   fastify.get('/test-ai-engines', async (req, reply) => {
+    const user = (req as any).user
+    if (!user || !user.isAdmin()) {
+      return reply.code(403).send({ error: 'Forbidden: admin access required' })
+    }
     const { aiEngineManager } = await import('#server/utils/ai-engines.js')
 
     const status = aiEngineManager.getStatus()
@@ -545,6 +590,10 @@ export default async (fastify: FastifyInstance) => {
 
   // Test Anthropic API key with actual API call
   fastify.get('/test-anthropic-key', async (req, reply) => {
+    const user = (req as any).user
+    if (!user || !user.isAdmin()) {
+      return reply.code(403).send({ error: 'Forbidden: admin access required' })
+    }
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     if (!anthropicKey) {
@@ -561,7 +610,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 10,
         messages: [
           {
