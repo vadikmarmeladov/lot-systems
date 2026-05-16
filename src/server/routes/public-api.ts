@@ -9,7 +9,7 @@ import config from '#server/config'
 import { toCelsius } from '#shared/utils'
 import fs from 'fs'
 import path from 'path'
-import dayjs from 'dayjs'
+import dayjs from '#server/utils/dayjs'
 
 // Read package.json to get version
 const packageJson = JSON.parse(
@@ -37,13 +37,13 @@ async function checkDatabase(): Promise<SystemCheck> {
   try {
     await sequelize.authenticate()
     return {
-      name: 'Database stack',
+      name: 'Database stack check',
       status: 'ok',
       duration: Date.now() - start,
     }
   } catch (error: any) {
     return {
-      name: 'Database stack',
+      name: 'Database stack check',
       status: 'error',
       message: error?.message || 'Database connection failed',
       duration: Date.now() - start,
@@ -58,7 +58,7 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     const data = await weather.getWeather(40.7128, -74.0060)
     if (!data) {
       return {
-        name: 'Engine stack',
+        name: 'Engine stack check',
         status: 'error',
         message: 'Weather API returned no data',
         duration: Date.now() - start,
@@ -69,7 +69,7 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     const reactBundlePath = path.join(process.cwd(), 'dist/client/js/app.js')
     if (!fs.existsSync(reactBundlePath)) {
       return {
-        name: 'Engine stack',
+        name: 'Engine stack check',
         status: 'error',
         message: 'React bundle not found',
         duration: Date.now() - start,
@@ -81,7 +81,7 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
     if (majorVersion < 18) {
       return {
-        name: 'Engine stack',
+        name: 'Engine stack check',
         status: 'error',
         message: `Node.js version ${nodeVersion} is too old (requires 18+)`,
         duration: Date.now() - start,
@@ -89,13 +89,13 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     }
 
     return {
-      name: 'Engine stack',
+      name: 'Engine stack check',
       status: 'ok',
       duration: Date.now() - start,
     }
   } catch (error: any) {
     return {
-      name: 'Engine stack',
+      name: 'Engine stack check',
       status: 'error',
       message: error?.message || 'Engine stack check failed',
       duration: Date.now() - start,
@@ -229,36 +229,57 @@ async function checkSync(): Promise<SystemCheck> {
   }
 }
 
-async function checkMemory(): Promise<SystemCheck> {
+async function checkStoryAI(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check if Answer model is available (Memory answers/prompts)
-    await models.Answer.findOne()
-
-    // Check if Log model is available (logging system)
-    await models.Log.findOne()
-
-    // Check if Anthropic API key is configured for Claude-powered Memory
+    // Verify Claude (Anthropic) API key is configured for Story AI generation
     const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY || !!config.anthropic?.apiKey
     if (!hasAnthropicKey) {
       return {
-        name: 'Memory Engine',
+        name: 'Story AI stack check',
         status: 'error',
         message: 'Claude API key not configured',
         duration: Date.now() - start,
       }
     }
 
+    // Verify UserMemory storage (Answer model)
+    await models.Answer.findOne()
+
     return {
-      name: 'Memory Engine',
+      name: 'Story AI stack check',
       status: 'ok',
       duration: Date.now() - start,
     }
   } catch (error: any) {
     return {
-      name: 'Memory Engine',
+      name: 'Story AI stack check',
       status: 'error',
-      message: error?.message || 'Memory/Log check failed',
+      message: error?.message || 'Story AI stack check failed',
+      duration: Date.now() - start,
+    }
+  }
+}
+
+async function checkMemoryEngine(): Promise<SystemCheck> {
+  const start = Date.now()
+  try {
+    // Check if Answer model is available (memory prompt storage)
+    await models.Answer.findOne()
+
+    // Check if Log model is available (logging system)
+    await models.Log.findOne()
+
+    return {
+      name: 'Memory Engine check',
+      status: 'ok',
+      duration: Date.now() - start,
+    }
+  } catch (error: any) {
+    return {
+      name: 'Memory Engine check',
+      status: 'error',
+      message: error?.message || 'Memory Engine check failed',
       duration: Date.now() - start,
     }
   }
@@ -271,7 +292,7 @@ async function checkSystems(): Promise<SystemCheck> {
     const hasConfig = !!config.appName && !!config.appHost
     if (!hasConfig) {
       return {
-        name: 'Systems',
+        name: 'Systems check',
         status: 'error',
         message: 'Configuration not loaded',
         duration: Date.now() - start,
@@ -282,7 +303,7 @@ async function checkSystems(): Promise<SystemCheck> {
     const nodeModulesPath = path.join(process.cwd(), 'node_modules')
     if (!fs.existsSync(nodeModulesPath)) {
       return {
-        name: 'Systems',
+        name: 'Systems check',
         status: 'error',
         message: 'Dependencies not installed',
         duration: Date.now() - start,
@@ -293,7 +314,7 @@ async function checkSystems(): Promise<SystemCheck> {
     const packageJsonPath = path.join(process.cwd(), 'package.json')
     if (!fs.existsSync(packageJsonPath)) {
       return {
-        name: 'Systems',
+        name: 'Systems check',
         status: 'error',
         message: 'package.json not found',
         duration: Date.now() - start,
@@ -304,7 +325,7 @@ async function checkSystems(): Promise<SystemCheck> {
     const serverBuildPath = path.join(process.cwd(), 'dist/server/server/index.js')
     if (!fs.existsSync(serverBuildPath)) {
       return {
-        name: 'Systems',
+        name: 'Systems check',
         status: 'error',
         message: 'Server build not found',
         duration: Date.now() - start,
@@ -312,13 +333,13 @@ async function checkSystems(): Promise<SystemCheck> {
     }
 
     return {
-      name: 'Systems',
+      name: 'Systems check',
       status: 'ok',
       duration: Date.now() - start,
     }
   } catch (error: any) {
     return {
-      name: 'Systems',
+      name: 'Systems check',
       status: 'error',
       message: error?.message || 'System check failed',
       duration: Date.now() - start,
@@ -342,12 +363,14 @@ async function performHealthChecks(): Promise<{
     checkSystems(),
     checkWeatherAPI(),
     checkDatabase(),
-    checkMemory(),
+    checkStoryAI(),
+    checkMemoryEngine(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Determine overall status: degraded = minority of checks failing, error = majority failing
+  const errorCount = checks.filter((c) => c.status === 'error').length
+  const overall: 'ok' | 'degraded' | 'error' =
+    errorCount === 0 ? 'ok' : errorCount < checks.length / 2 ? 'degraded' : 'error'
 
   return {
     version: VERSION,
@@ -387,8 +410,24 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
+  // Guard for sensitive diagnostic endpoints — requires DEBUG_SECRET query param.
+  // Set DEBUG_SECRET in environment variables to enable these endpoints.
+  const requireDebugSecret = (req: any, reply: any): boolean => {
+    const secret = process.env.DEBUG_SECRET
+    if (!secret) {
+      reply.code(404).send({ error: 'Not found' })
+      return false
+    }
+    if ((req.query as any).secret !== secret) {
+      reply.code(403).send({ error: 'Forbidden' })
+      return false
+    }
+    return true
+  }
+
   // Admin configuration diagnostic endpoint
   fastify.get('/verify-admin-config', async (req, reply) => {
+    if (!requireDebugSecret(req, reply)) return
     const adminEmailsEnv = process.env.ADMIN_EMAILS
     const adminsList = config.admins
 
@@ -413,6 +452,7 @@ export default async (fastify: FastifyInstance) => {
 
   // API key verification endpoint - shows masked API key for verification
   fastify.get('/verify-api-keys', async (req, reply) => {
+    if (!requireDebugSecret(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
     const resendKey = process.env.RESEND_API_KEY
     const openaiKey = process.env.OPENAI_API_KEY
@@ -450,6 +490,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Memory Engine diagnostic endpoint - shows why Claude might not be working
   fastify.get('/debug-memory-engine', async (req, reply) => {
+    if (!requireDebugSecret(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     // Test if we can initialize Anthropic client
@@ -496,6 +537,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test all AI engines to see which are available
   fastify.get('/test-ai-engines', async (req, reply) => {
+    if (!requireDebugSecret(req, reply)) return
     const { aiEngineManager } = await import('#server/utils/ai-engines.js')
 
     const status = aiEngineManager.getStatus()
@@ -545,6 +587,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test Anthropic API key with actual API call
   fastify.get('/test-anthropic-key', async (req, reply) => {
+    if (!requireDebugSecret(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     if (!anthropicKey) {
@@ -561,7 +604,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {

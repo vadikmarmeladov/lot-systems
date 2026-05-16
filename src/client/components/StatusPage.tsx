@@ -102,12 +102,17 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
   const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
     switch (checkStatus) {
-      case 'ok':
-        return '✓'
-      case 'error':
-        return '✕'
-      case 'unknown':
-        return '?'
+      case 'ok':    return '●'
+      case 'error': return '○'
+      case 'unknown': return '◌'
+    }
+  }
+
+  const getOverallLabel = (overall: StatusData['overall']) => {
+    switch (overall) {
+      case 'ok':       return 'All systems operational'
+      case 'degraded': return 'Partial degradation'
+      case 'error':    return 'System issues detected'
     }
   }
 
@@ -152,9 +157,13 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
         <>
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+              <span className={cn(
+                status.overall === 'ok' && 'text-acc',
+                status.overall === 'degraded' && 'text-acc/70',
+                status.overall === 'error' && 'text-acc/50'
+              )}>
+                {getOverallLabel(status.overall)}
+              </span>
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
@@ -190,21 +199,29 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
+                  <span className={cn(
+                    'tabular-nums',
+                    check.status === 'ok' && 'text-acc',
+                    check.status === 'error' && 'text-acc/40',
+                    check.status === 'unknown' && 'text-acc/30'
+                  )}>
+                    {getStatusIcon(check.status)}
+                  </span>
                   <span className={cn(
                     check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
+                    check.status === 'error' && 'text-acc/60',
+                    check.status === 'unknown' && 'text-acc/40'
                   )}>
-                    {check.status === 'ok' ? 'Ok' :
+                    {check.status === 'ok' ? 'Operational' :
                      check.status === 'error' ? 'Error' :
                      'Unknown'}
                   </span>
                   {check.duration !== undefined && (
-                    <span className="text-acc/40">({check.duration}ms)</span>
+                    <span className="text-acc/30">{check.duration}ms</span>
                   )}
                 </div>
                 {check.message && (
-                  <div className="text-acc/60 mt-4">{check.message}</div>
+                  <div className="text-acc/50 mt-4 text-sm">{check.message}</div>
                 )}
               </Block>
             ))}
