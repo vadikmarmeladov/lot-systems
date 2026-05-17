@@ -79,11 +79,11 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     // Check Node.js version is compatible
     const nodeVersion = process.version
     const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
-    if (majorVersion < 18) {
+    if (majorVersion < 20) {
       return {
         name: 'Engine stack',
         status: 'error',
-        message: `Node.js version ${nodeVersion} is too old (requires 18+)`,
+        message: `Node.js version ${nodeVersion} is too old (requires 20+)`,
         duration: Date.now() - start,
       }
     }
@@ -232,22 +232,8 @@ async function checkSync(): Promise<SystemCheck> {
 async function checkMemory(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check if Answer model is available (Memory answers/prompts)
     await models.Answer.findOne()
-
-    // Check if Log model is available (logging system)
     await models.Log.findOne()
-
-    // Check if Anthropic API key is configured for Claude-powered Memory
-    const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY || !!config.anthropic?.apiKey
-    if (!hasAnthropicKey) {
-      return {
-        name: 'Memory Engine',
-        status: 'error',
-        message: 'Claude API key not configured',
-        duration: Date.now() - start,
-      }
-    }
 
     return {
       name: 'Memory Engine',
@@ -259,6 +245,37 @@ async function checkMemory(): Promise<SystemCheck> {
       name: 'Memory Engine',
       status: 'error',
       message: error?.message || 'Memory/Log check failed',
+      duration: Date.now() - start,
+    }
+  }
+}
+
+async function checkStoryAI(): Promise<SystemCheck> {
+  const start = Date.now()
+  try {
+    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
+    if (!anthropicKey) {
+      return {
+        name: 'Story AI',
+        status: 'error',
+        message: 'Claude API key not configured',
+        duration: Date.now() - start,
+      }
+    }
+
+    const Anthropic = (await import('@anthropic-ai/sdk')).default
+    new Anthropic({ apiKey: anthropicKey })
+
+    return {
+      name: 'Story AI',
+      status: 'ok',
+      duration: Date.now() - start,
+    }
+  } catch (error: any) {
+    return {
+      name: 'Story AI',
+      status: 'error',
+      message: error?.message || 'Story AI check failed',
       duration: Date.now() - start,
     }
   }
@@ -326,6 +343,17 @@ async function checkSystems(): Promise<SystemCheck> {
   }
 }
 
+// Critical checks — failure = 'error' overall
+const CRITICAL_CHECK_NAMES = new Set([
+  'Authentication engine',
+  'Database stack',
+  'Memory Engine',
+  'Sync',
+  'Settings',
+  'Admin',
+  'Story AI',
+])
+
 async function performHealthChecks(): Promise<{
   version: string
   timestamp: string
@@ -343,11 +371,16 @@ async function performHealthChecks(): Promise<{
     checkWeatherAPI(),
     checkDatabase(),
     checkMemory(),
+    checkStoryAI(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  const failedChecks = checks.filter((c) => c.status === 'error')
+  const hasCriticalError = failedChecks.some((c) => CRITICAL_CHECK_NAMES.has(c.name))
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalError
+    ? 'error'
+    : failedChecks.length > 0
+    ? 'degraded'
+    : 'ok'
 
   return {
     version: VERSION,
@@ -561,7 +594,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {

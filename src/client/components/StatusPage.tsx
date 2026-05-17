@@ -107,7 +107,18 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       case 'error':
         return '✕'
       case 'unknown':
-        return '?'
+        return '–'
+    }
+  }
+
+  const getOverallLabel = (overall: StatusData['overall']) => {
+    switch (overall) {
+      case 'ok':
+        return 'All systems operational'
+      case 'degraded':
+        return 'Degraded performance'
+      case 'error':
+        return 'System issues detected'
     }
   }
 
@@ -152,9 +163,13 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
         <>
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+              <span className={cn(
+                status.overall === 'ok' && 'text-acc',
+                status.overall === 'degraded' && 'text-acc/70',
+                status.overall === 'error' && 'text-acc/50'
+              )}>
+                {getOverallLabel(status.overall)}
+              </span>
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
