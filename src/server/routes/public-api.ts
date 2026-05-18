@@ -1,7 +1,6 @@
 import { FastifyInstance } from 'fastify'
 import { sequelize } from '#server/utils/db'
 import { models } from '#server/models'
-import * as weather from '#server/utils/weather'
 import { extractUserTraits, determineUserCohort, calculateCorrelatedIndexes } from '#server/utils/memory'
 import { aiEngineManager } from '#server/utils/ai-engines'
 import { AI_ENGINE_PREFERENCE } from '#server/utils/memory/constants'
@@ -51,20 +50,9 @@ async function checkDatabase(): Promise<SystemCheck> {
   }
 }
 
-async function checkWeatherAPI(): Promise<SystemCheck> {
+async function checkEngineStack(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check Weather API
-    const data = await weather.getWeather(40.7128, -74.0060)
-    if (!data) {
-      return {
-        name: 'Engine stack',
-        status: 'error',
-        message: 'Weather API returned no data',
-        duration: Date.now() - start,
-      }
-    }
-
     // Check React bundle exists
     const reactBundlePath = path.join(process.cwd(), 'dist/client/js/app.js')
     if (!fs.existsSync(reactBundlePath)) {
@@ -76,14 +64,13 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
       }
     }
 
-    // Check Node.js version is compatible
-    const nodeVersion = process.version
-    const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
+    // Check Node.js version (>=18 required, >=20 recommended)
+    const majorVersion = parseInt(process.version.slice(1).split('.')[0])
     if (majorVersion < 18) {
       return {
         name: 'Engine stack',
         status: 'error',
-        message: `Node.js version ${nodeVersion} is too old (requires 18+)`,
+        message: `Node.js ${process.version} is too old (requires 18+)`,
         duration: Date.now() - start,
       }
     }
@@ -340,14 +327,19 @@ async function performHealthChecks(): Promise<{
     checkSettings(),
     checkUsers(),
     checkSystems(),
-    checkWeatherAPI(),
+    checkEngineStack(),
     checkDatabase(),
     checkMemory(),
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Critical checks — if these fail, the platform is down
+  const criticalCheckNames = ['Database stack', 'Authentication engine']
+  const hasCriticalError = checks.some(
+    (c) => criticalCheckNames.includes(c.name) && c.status === 'error'
+  )
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall = hasCriticalError ? 'error' : hasAnyError ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -561,7 +553,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 10,
         messages: [
           {
