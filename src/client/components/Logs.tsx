@@ -332,6 +332,7 @@ export const Logs: React.FC = () => {
           const pattern = log.metadata?.pattern as string | undefined
           const source = log.metadata?.source as string | undefined
           const confidence = log.metadata?.confidence as number | undefined
+          const reason = log.metadata?.reason as string | undefined
           if (!pattern && !log.text) return null
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
@@ -341,11 +342,166 @@ export const Logs: React.FC = () => {
                     {pattern.replace(/-/g, ' ')}
                   </div>
                 )}
-                {source && <div className="opacity-60">SRC: {source}</div>}
+                {source && <div className="opacity-60">SRC: {source.toUpperCase()}</div>}
                 {confidence !== undefined && (
                   <div className="opacity-40">
                     CONF: {Math.round(confidence * 100)}%
                   </div>
+                )}
+                {reason && (
+                  <div className="opacity-30 mt-4">{reason}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'energy_state' || log.event === 'energy_update') {
+          const status = log.metadata?.status as string | undefined
+          const level = log.metadata?.level as number | undefined
+          const trajectory = log.metadata?.trajectory as string | undefined
+          const needsReplenishment = log.metadata?.needsReplenishment as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BIOFIELD:" blockView>
+                {status && (
+                  <div className="uppercase tracking-widest mb-4">{status}</div>
+                )}
+                {level !== undefined && (
+                  <div className="opacity-60">
+                    ATP: {level}%
+                    {trajectory && (
+                      <span className="ml-8 capitalize opacity-60">{trajectory}</span>
+                    )}
+                  </div>
+                )}
+                {needsReplenishment && needsReplenishment.length > 0 && (
+                  <div className="opacity-40 mt-4">
+                    NEED: {needsReplenishment.slice(0, 2).join(', ')}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'qos_state') {
+          const version = log.metadata?.version as string | undefined
+          const archetype = log.metadata?.archetype as string | undefined
+          const cohort = log.metadata?.behavioralCohort as string | undefined
+          const atp = log.metadata?.atp as number | undefined
+          const assembledModules = log.metadata?.assembledModules as number | undefined
+          const totalModules = log.metadata?.totalModules as number | undefined
+          const health = log.metadata?.health as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QOS:" blockView>
+                {version && (
+                  <div className="uppercase tracking-widest mb-4">VER: {version}</div>
+                )}
+                {archetype && (
+                  <div className="opacity-60">ARCH: {archetype}</div>
+                )}
+                {cohort && (
+                  <div className="opacity-60">COHORT: {cohort}</div>
+                )}
+                {atp !== undefined && (
+                  <div className="opacity-60">ATP: {atp}%</div>
+                )}
+                {assembledModules !== undefined && totalModules !== undefined && (
+                  <div className="opacity-40">
+                    ASM: {assembledModules}/{totalModules} modules
+                  </div>
+                )}
+                {health && (
+                  <div className="opacity-30 uppercase tracking-widest mt-4">{health}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'physiological_cohort') {
+          const archetype = log.metadata?.archetype as string | undefined
+          const behavioralCohort = log.metadata?.behavioralCohort as string | undefined
+          const description = log.metadata?.description as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COHORT:" blockView>
+                {archetype && (
+                  <div className="uppercase tracking-widest mb-4">{archetype}</div>
+                )}
+                {behavioralCohort && (
+                  <div className="opacity-60">TYPE: {behavioralCohort}</div>
+                )}
+                {description && (
+                  <div className="opacity-30 mt-4">{description}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'self_assembly') {
+          const phase = log.metadata?.phase as string | undefined
+          const assembled = log.metadata?.assembled as number | undefined
+          const total = log.metadata?.total as number | undefined
+          const milestone = log.metadata?.milestone as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ASM:" blockView>
+                {phase && (
+                  <div className="uppercase tracking-widest mb-4">{phase}</div>
+                )}
+                {assembled !== undefined && total !== undefined && (
+                  <div className="opacity-60">MODULES: {assembled}/{total}</div>
+                )}
+                {milestone && (
+                  <div className="opacity-40 mt-4">{milestone}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'care_momentum') {
+          const careCount = log.metadata?.careCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CARM:" blockView>
+                <div className="uppercase tracking-widest mb-4">Care momentum</div>
+                {careCount !== undefined && (
+                  <div className="opacity-60">Self-care 24h: {careCount}</div>
+                )}
+                <div className="opacity-40">No depleting signals. Proactive cycle active.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'intention_decay_notice') {
+          const note = log.metadata?.note as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTENT-DECAY:" blockView>
+                <div className="uppercase tracking-widest mb-4">Intention set — no execution 48h</div>
+                {note && <div className="opacity-40">{note}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'intention_follow_through') {
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const goalCount = log.metadata?.goalCount as number | undefined
+          const intentionLabel = log.metadata?.intentionLabel as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTF:" blockView>
+                <div className="uppercase tracking-widest mb-4">Execution arc complete</div>
+                {intentionLabel && (
+                  <div className="opacity-60 mb-4">&gt; {intentionLabel}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60">PLAN 48h: {plannerCount}</div>
+                )}
+                {goalCount !== undefined && (
+                  <div className="opacity-60">GOAL 48h: {goalCount}</div>
+                )}
+                <div className="opacity-40 mt-4">Intention → structure → action. Loop closed.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
                 )}
               </Block>
             </LogContainer>
@@ -633,7 +789,28 @@ const NoteEditor = ({
           onChange={setValue}
           onKeyDown={onKeyDown}
           placeholder={
-            !primary ? '[ record cleared on empty ]' : '[ FIELD ENTRY ]'
+            !primary ? '[ record cleared on empty ]' : (() => {
+              const hour = new Date().getHours()
+              const phrases = [
+                '[ FIELD ENTRY — 0000–0400: night protocol ]',
+                '[ FIELD ENTRY — 0400–0600: pre-dawn window ]',
+                '[ FIELD ENTRY — 0600–0900: morning briefing ]',
+                '[ FIELD ENTRY — 0900–1200: operational block ]',
+                '[ FIELD ENTRY — 1200–1400: midday audit ]',
+                '[ FIELD ENTRY — 1400–1700: afternoon mission ]',
+                '[ FIELD ENTRY — 1700–2000: evening debrief ]',
+                '[ FIELD ENTRY — 2000–2400: night transmission ]',
+              ]
+              const idx =
+                hour < 4  ? 0 :
+                hour < 6  ? 1 :
+                hour < 9  ? 2 :
+                hour < 12 ? 3 :
+                hour < 14 ? 4 :
+                hour < 17 ? 5 :
+                hour < 20 ? 6 : 7
+              return phrases[idx]
+            })()
           }
           className={cn(
             'max-w-[700px] focus:opacity-100 group-hover:opacity-100',

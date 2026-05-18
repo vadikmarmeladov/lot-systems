@@ -96,6 +96,14 @@ export function QuantumStateWidget() {
     return counts
   }, [engine.signals])
 
+  // Check for active full-stack session (fired in last 4 hours)
+  const hasFullStack = React.useMemo(() => {
+    const fourHoursAgoTs = Date.now() - 4 * 60 * 60 * 1000
+    return engine.signals.some(s =>
+      s.signal === 'full_stack_session' && s.timestamp > fourHoursAgoTs
+    )
+  }, [engine.signals])
+
   // Get recent signals for history view
   const recentSignals = React.useMemo(() => {
     return [...engine.signals]
@@ -160,8 +168,16 @@ export function QuantumStateWidget() {
             </div>
           </div>
 
+          {/* Full-stack session indicator */}
+          {hasFullStack && (
+            <div className="flex items-center gap-8 mt-8">
+              <span className="w-[80px] opacity-30">Stack</span>
+              <span>Full-stack active</span>
+            </div>
+          )}
+
           {/* Signal count enriched with log context — biofeedback loop */}
-          <div className="opacity-30">
+          <div className="opacity-30 mt-8">
             {engine.signals.length} signal{engine.signals.length === 1 ? '' : 's'} in biofeedback loop.
           </div>
           {!logCtx.isEmpty && (

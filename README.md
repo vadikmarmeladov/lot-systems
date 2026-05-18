@@ -100,6 +100,38 @@ Unlike other wellness apps:
 
 ---
 
+## ⚡ Quantum Operating System (QOS)
+
+The **Quantum Operating System** is each person's private, client-side execution kernel — synthesising all signal streams into a single operating state in real time.
+
+### QOS Operating Modes
+
+| Mode | Trigger | System Behaviour |
+|------|---------|-----------------|
+| `maintenance` | Low signal density | Conserve — idle cadence |
+| `recovery` | Depletion / overwhelm detected | Repair first — other tasks pause |
+| `growth` | Steady positive engagement | Expand — absorb more |
+| `peak` | High energy + clarity + intention | Optimal — full commitment |
+
+### QOS Metrics (0–100 each)
+
+- **Biofield Capacity** — self-care signal density vs active depletion events
+- **Cognitive Load** — journal/memory/planner interactions in the last 24 h
+- **Intention Resolution** — active intention × planner alignment × goal momentum
+- **System Pressure** — `low / moderate / high / critical`
+
+### Where QOS Surfaces
+
+- **System Progress widget** → `System Report:` view → **QOS Kernel** panel
+- **Self-Assembly map** → physiological cohort block shows live mode + pressure
+- **Background monitor** — 30-min interval refresh, no user action needed
+- **Console observability** — `[QOS] System pressure CRITICAL` on threshold breach
+
+> The QOS does not direct the person — it mirrors their actual state with precision.
+> A person in `recovery` mode does not need more tasks. They need to see that clearly.
+
+---
+
 ## 🤖 AI Vendor Independence
 
 LOT uses a revolutionary AI engine abstraction that gives you:

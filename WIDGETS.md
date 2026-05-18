@@ -218,12 +218,14 @@ Personal operating system metrics dashboard. Cycles through Status, Performance,
 
 ### System Progress Widget
 
-Displays deployment information, self-assembly map, and collects user feedback on system status. Cycles through three views: Deployment (build version, features, assembly summary), Self-Assembly (module-by-module assembly map with density progress bars), and Feedback (Operational / Resonating / Needs Calibration / Evolving with community analytics).
+Displays deployment information, self-assembly map, physiological report, OS journal, and collects user feedback on system status. Cycles through five views: Deployment (build version, live features, assembly summary, session logs, Usership transmission), Self-Assembly (12-module assembly map with density progress bars and physiological cohort), Feedback (Operational / Resonating / Needs Calibration / Evolving with community analytics), System Report (on-demand physiological readiness + biofield audit), and OS Journal (persisted vitals timeline from daily snapshot jobs).
 
-The Self-Assembly view tracks 9 modules — Biofield Engine, Memory Architecture, Routine Compiler, Intention Core, Cleanness Protocol, Reflection Layer, Community Mesh, Ecosystem Bridge, Quantum Substrate — each progressing through phases: Dormant, Awakening, Forming, Assembled, Integrated. Assembly derives entirely from real Quantum Intention Engine signals.
+The Self-Assembly view tracks 12 modules — Biofield Engine, Memory Architecture, Routine Compiler, Intention Core, Cleanness Protocol, Reflection Layer, Community Mesh, Ecosystem Bridge, Quantum Substrate, Nutrition Protocol, Goal Architecture, Archetype Classifier — each progressing through phases: Dormant, Awakening, Forming, Assembled, Integrated. Assembly derives entirely from real QIE v5 signals (18 patterns, 12 sources). The Quantum Cube is the system heartbeat: narrative strings reflect its assembly state in Vadik's vocabulary.
 
-- **Data Source:** `/api/system/deployment-status`, `/api/system/my-feedback`, `/api/system/feedback-analytics` endpoints; `selfAssembly` nanostore (derived from Quantum Intention Engine signals)
-- **Connection:** Submits to `/api/system/submit-feedback`; aggregates community sentiment; reads self-assembly state computed by `selfAssembly.ts` store
+Five background jobs feed this widget: Daily OS Vitals Snapshot (02:00 UTC), Daily QIE Analytics (03:00 UTC), Weekly Physiological Cohort Digest (06:00 UTC Monday), Weekly OS Signal Diversity Audit (05:00 UTC Sunday), Monthly Email Sender (09:00 UTC, 1st).
+
+- **Data Source:** `/api/system/deployment-status`, `/api/system/my-feedback`, `/api/system/feedback-analytics`, `/api/cohorts`, `/api/logs?events=os_vitals_snapshot,os_signal_report` endpoints; `selfAssembly` nanostore (derived from QIE v5 signals); `intentionEngine` store for physiological report
+- **Connection:** Submits to `/api/system/submit-feedback`; aggregates community sentiment; reads self-assembly state computed by `selfAssembly.ts`; surfaces Usership-gated transmission block after each assembly run
 
 ### System Pulse Widget
 
@@ -389,6 +391,36 @@ Connect your DIY PC to the LOT quantum engine. Toggle on/off to record computer 
 
 ---
 
+## System & Metrics Widgets
+
+### System Progress Widget
+
+The self-building system surface. Cycles through four views: Deployment (build version, assembly progress, session logs), Self-Assembly Map (per-module assembly phase with density scores), System Feedback (operational / resonating / needs-calibration / self-evolving), and Self-Assembly Report (full physiological audit from the QIE).
+
+- **Data Source:** `/api/system/deployment-status`, `/api/system/my-feedback`, `/api/system/feedback-analytics`, `/api/cohorts` for physiological cohort; `selfAssembly` nanostore for module state; `intentionEngine` store for patterns
+- **Persistence:** Feedback stored server-side; assembly state in `localStorage`
+- **Connection:** Reads from every QIE signal source; writes QOS signals (`qos_report_generated`) back into the engine on report generation. Session reports are appended after each upgrade session and displayed in Deployment view.
+
+### Quantum OS (QOS)
+
+The user's living operating system — a versioned snapshot derived from assembly progress, physiological archetype, biofield ATP, and behavioral cohort. Not a widget per se: it is a signal concept that unifies the Self-Assembly Engine, the Physiological Cohort system, and the Quantum Intention Engine into a single coherent state.
+
+- **Assembly Module:** `qos` — feeds the Quantum Substrate module
+- **Signal Type:** `qos` source — events: `qos_report_generated`, `qos_phase_transition`, `qos_cohort_resolved`, `qos_assembly_milestone`
+- **Log Rendering:** `QOS:` block — VER / ARCH / COHORT / ATP / ASM / health status
+- **Background Job:** Weekly QOS State Digest (Wednesday 04:00 UTC) — compiles archetype + version distribution across active users
+
+### Signal Archive (Log Module)
+
+The field entry archive — every typed note, event-driven log, and QIE signal record. The Signal Archive is the raw substrate from which all higher-order patterns emerge.
+
+- **Assembly Module:** `log` — feeds the Reflection Layer and Quantum Substrate modules
+- **Sources:** `log` QIE source (`field_entry` signals from the note editor)
+- **Log Renderings:** BIOFIELD (energy state) / QOS (quantum OS state) / COHORT (physiological archetype update) / ASM (assembly milestone) / QIE (quantum intent pattern) / CARE / PLAN / INTENT / BIO / MEM / CFG / SYS / COMM / LOG
+- **Connection:** The editor detects `/synth` and 🎹 triggers inline; saves on 7s debounce, visibility change, and unmount
+
+---
+
 ## Architecture Overview
 
 ### Dashboard Orchestration
@@ -407,20 +439,22 @@ All widgets are orchestrated by `System.tsx`, the master dashboard component. Wi
 10. **Subscriber Stack** — Cosmic update, quantum sign
 11. **Quantum Engine Connect** — Car, home, computer connection toggles
 12. **QIE Stack** — Quantum state, pattern recognition, feedback, signal stream
-12. **Dashboard Stack** — User metrics, system progress, system pulse
-13. **Stats Stack** — Patterns, consciousness, wellness, memory stats, growth, badges
+13. **Dashboard Stack** — User metrics, system progress, system pulse
+14. **Stats Stack** — Patterns, consciousness, wellness, memory stats, growth, badges
 
 ### Core Data Systems
 
 | System | Role | Key Endpoints |
 |--------|------|---------------|
-| **Quantum Intention Engine (QIE)** | Central intelligence — analyzes signals, detects patterns, recommends actions | Nanostore-based; client-side signal processing |
-| **Self-Assembly Engine** | Tracks module-level assembly state from QIE signals — the system literally builds itself from use | `selfAssembly` nanostore; derives from QIE signals |
-| **Log Context** | Foundation data layer — aggregates all interactions | `/api/logs` |
+| **Quantum Intention Engine (QIE)** | Central intelligence — 14 patterns, 11 signal sources, 4D user state, widget dependency map with depth ordering | Nanostore-based; client-side signal processing |
+| **Self-Assembly Engine** | Tracks 11 module-level assembly states from QIE signals — the system literally builds itself from use | `selfAssembly` nanostore; derives from QIE signals |
+| **Quantum OS (QOS)** | Versioned user operating system state — aggregates assembly progress, physiological archetype, biofield ATP, and cohort into one coherent snapshot | `qos` QIE signal source; weekly digest job |
+| **Log Context** | Foundation data layer — aggregates all interactions; 14+ event renderers in military format | `/api/logs` |
 | **Evolution System** | Progression tracking across 7 dimensions | `/api/narrative`, nanostores |
 | **Badge System** | Milestone gamification | `/api/badge-stats`, `localStorage` |
 | **Narrative System** | RPG-style story grounded in engagement; includes self-assembly and ecosystem narrative layers | `/api/narrative` |
-| **Profile System** | Psychological profiling and awareness | `/api/profile` |
+| **Profile System** | Psychological profiling; 10 archetypes, behavioral cohort, trait extraction | `/api/user-profile` |
+| **Physiological Cohort System** | Weekly server job classifies users into 10 archetypes + behavioral cohort; persisted to user metadata | Weekly cohort digest (Mon 06:00 UTC); `/api/cohorts` |
 | **Chakra Ergonomics** | Maps session activity to 7-chakra model for holistic wellness | `chakraErgonomics` nanostore |
 
 ### State Management

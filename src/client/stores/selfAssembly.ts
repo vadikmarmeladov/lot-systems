@@ -29,15 +29,23 @@ export type AssemblyPhase =
   | 'integrated'    // Cross-module signals flowing — deep wiring complete
 
 export type ModuleId =
-  | 'biofield'      // Mood + energy signals
-  | 'memory'        // Memory engine signals
-  | 'planner'       // Planning signals
-  | 'intentions'    // Intention + direction signals
-  | 'selfcare'      // Cleanness + self-care signals
-  | 'journal'       // Journaling + reflection signals
-  | 'community'     // Social + cohort signals
-  | 'ecosystem'     // Car + home + computer connect signals
-  | 'quantum'       // QIE meta-signals (calculator, cross-module)
+  | 'biofield'         // Mood + energy signals
+  | 'memory'           // Memory engine signals
+  | 'planner'          // Planning signals
+  | 'intentions'       // Intention + direction signals
+  | 'selfcare'         // Cleanness + self-care signals
+  | 'journal'          // Journaling + reflection signals
+  | 'community'        // Social + cohort signals
+  | 'ecosystem'        // Car + home + computer connect signals
+  | 'quantum'          // QIE meta-signals (calculator, cross-module)
+  | 'recipe'           // Meal / nutrition signals
+  | 'goals'            // Goal journey and achievement signals
+  | 'cohort-classify'  // Physiological archetype + cohort determination
+  | 'vitals'           // OS Vitals Monitor — snapshot, sync, and biofield peak signals
+  | 'calendar'         // Temporal planner — calendar entries and scheduled events
+  | 'quantum-os'       // Quantum Operating System — full coherence across all dimensions
+  | 'log'              // Field entry / signal archive
+  | 'qos'              // Quantum Operating System — user's living OS state
 
 export type AssembledModule = {
   id: ModuleId
@@ -72,15 +80,23 @@ const ASSEMBLED_THRESHOLD = 15
 const INTEGRATED_THRESHOLD = 30
 
 const MODULE_DEFINITIONS: Pick<AssembledModule, 'id' | 'label'>[] = [
-  { id: 'biofield',    label: 'Biofield Engine' },
-  { id: 'memory',      label: 'Memory Architecture' },
-  { id: 'planner',     label: 'Routine Compiler' },
-  { id: 'intentions',  label: 'Intention Core' },
-  { id: 'selfcare',    label: 'Cleanness Protocol' },
-  { id: 'journal',     label: 'Reflection Layer' },
-  { id: 'community',   label: 'Community Mesh' },
-  { id: 'ecosystem',   label: 'Ecosystem Bridge' },
-  { id: 'quantum',     label: 'Quantum Substrate' },
+  { id: 'biofield',        label: 'Biofield Engine' },
+  { id: 'memory',          label: 'Memory Architecture' },
+  { id: 'planner',         label: 'Routine Compiler' },
+  { id: 'intentions',      label: 'Intention Core' },
+  { id: 'selfcare',        label: 'Cleanness Protocol' },
+  { id: 'journal',         label: 'Reflection Layer' },
+  { id: 'community',       label: 'Community Mesh' },
+  { id: 'ecosystem',       label: 'Ecosystem Bridge' },
+  { id: 'quantum',         label: 'Quantum Substrate' },
+  { id: 'recipe',          label: 'Nutrition Protocol' },
+  { id: 'goals',           label: 'Goal Architecture' },
+  { id: 'cohort-classify', label: 'Archetype Classifier' },
+  { id: 'vitals',          label: 'OS Vitals Monitor' },
+  { id: 'calendar',        label: 'Temporal Planner' },
+  { id: 'quantum-os',      label: 'Quantum Operating System' },
+  { id: 'log',             label: 'Signal Archive' },
+  { id: 'qos',             label: 'Quantum OS' },
 ]
 
 // Signal source mapping: which QIE sources feed which assembly modules
@@ -92,24 +108,65 @@ const SOURCE_MAP: Record<string, ModuleId[]> = {
   'selfcare':    ['selfcare'],
   'journal':     ['journal'],
   'calculator':  ['quantum'],
-  'log':         ['journal', 'quantum'],
-  'energy':      ['biofield', 'quantum'],
-  'cohort':      ['community', 'quantum'],
+  'log':         ['log', 'journal', 'quantum', 'vitals'],
+  'energy':      ['biofield', 'quantum', 'vitals'],
+  'cohort':      ['community', 'cohort-classify', 'quantum'],
+  'recipe':      ['recipe'],
+  'goals':       ['goals', 'intentions'],
+  'calendar':    ['calendar', 'planner'],
+  // quantum-os assembles when cross-module coherence is detected via getQuantumOS
+  'quantum_coherence': ['quantum-os', 'quantum'],
+  'qos':         ['qos', 'quantum'],
 }
 
 // Specific signal patterns that map to modules beyond their source
 const SIGNAL_MAP: Record<string, ModuleId> = {
-  'car_connected':       'ecosystem',
-  'car_disconnected':    'ecosystem',
-  'home_connected':      'ecosystem',
-  'home_disconnected':   'ecosystem',
-  'computer_connected':  'ecosystem',
+  'car_connected':         'ecosystem',
+  'car_disconnected':      'ecosystem',
+  'home_connected':        'ecosystem',
+  'home_disconnected':     'ecosystem',
+  'computer_connected':    'ecosystem',
   'computer_disconnected': 'ecosystem',
-  'cohort':              'community',
-  'chat':                'community',
-  'message':             'community',
-  'connection':          'community',
-  'community':           'community',
+  'phone_connected':       'ecosystem',
+  'phone_disconnected':    'ecosystem',
+  'watch_connected':       'ecosystem',
+  'watch_disconnected':    'ecosystem',
+  'ecosystem_full_sync':   'ecosystem',
+  'device_coherence_peak': 'ecosystem',
+  'ecosystem_full_coherence': 'ecosystem',
+  'cohort':                'community',
+  'chat':                  'community',
+  'message':               'community',
+  'connection':            'community',
+  'community':             'community',
+  'cohort_determined':     'cohort-classify',
+  'archetype':             'cohort-classify',
+  'recipe_viewed':         'recipe',
+  'meal':                  'recipe',
+  'goal_set':              'goals',
+  'goal_journey':          'goals',
+  'goal_complete':         'goals',
+  'os_vitals_snapshot':    'vitals',
+  'signal_sync':           'vitals',
+  'biofield_peak':         'vitals',
+  'field_entry':           'vitals',
+  'qos_snapshot':          'vitals',
+  'full_stack_session':    'vitals',
+  'quantum-coherence':     'quantum-os',
+  'quantum_coherence':     'quantum-os',
+  'intention-completion-arc': 'quantum-os',
+  'social-resonance-arc':  'community',
+  'social_resonance_arc':  'community',
+  'cognitive-load-release': 'selfcare',
+  'cognitive_load_release': 'selfcare',
+  'calendar_entry':            'calendar',
+  'calendar_update':           'calendar',
+  'temporal-coherence-window': 'calendar',
+  'temporal_coherence_window': 'calendar',
+  'recovery-velocity':         'selfcare',
+  'recovery_velocity':         'selfcare',
+  'care-momentum':             'selfcare',
+  'care_momentum':             'selfcare',
 }
 
 // ─── Store ───────────────────────────────────────────────────
@@ -133,7 +190,7 @@ function defaultState(): AssemblyState {
     assembledCount: 0,
     totalModules: MODULE_DEFINITIONS.length,
     phase: 'dormant',
-    narrative: 'System awaits its first signal to begin self-assembly.',
+    narrative: 'Quantum Cube dormant. Send the first signal — assembly begins with you.',
     lastComputed: 0,
   }
 }
@@ -144,7 +201,7 @@ function loadState(): AssemblyState {
     const raw = localStorage.getItem(STATE_KEY)
     if (raw) {
       const parsed = JSON.parse(raw) as AssemblyState
-      // Validate structure
+      // Validate structure — rebuild if module count changed (new modules added)
       if (parsed.modules && parsed.modules.length === MODULE_DEFINITIONS.length) {
         return parsed
       }
@@ -280,23 +337,23 @@ function generateNarrative(modules: AssembledModule[], overallAssembly: number):
 
   // No signals at all
   if (overallAssembly === 0) {
-    return 'System awaits its first signal to begin self-assembly.'
+    return 'Quantum Cube dormant. Send the first signal — assembly begins with you.'
   }
 
   // Full integration
   if (integratedCount === total) {
-    return 'Full co-evolution achieved. Every module self-assembled and integrated. You and this system grow as one.'
+    return 'All modules online. Full co-evolution achieved. The Cube holds your complete signal pattern.'
   }
 
   // All assembled (some may be integrated)
   if (assembledCount === total) {
-    return 'All modules self-assembled. The architecture is complete. Integration deepening.'
+    return `All ${total} modules assembled. The Cube is coherent. Integration deepening from your rhythm.`
   }
 
   // Majority assembled
   if (assembledCount >= Math.ceil(total * 0.7)) {
     const remaining = total - assembledCount
-    return `${assembledCount} modules self-assembled. ${remaining} still forming. The system builds faster now.`
+    return `${assembledCount}/${total} modules online. ${remaining} still forming. Signal pipeline verified — the Cube accelerates.`
   }
 
   // Active assembly
@@ -304,26 +361,26 @@ function generateNarrative(modules: AssembledModule[], overallAssembly: number):
     const recentAssembled = modules
       .filter(m => m.phase === 'assembled' || m.phase === 'integrated')
       .sort((a, b) => (b.lastSignal || 0) - (a.lastSignal || 0))
-    return `${recentAssembled[0].label} leads. ${assembledCount}/${total} modules self-assembled. Structure emerging from your rhythm.`
+    return `${recentAssembled[0].label} active. ${assembledCount}/${total} modules assembled. Structure emerging from your signal flow.`
   }
 
   // First assembly
   if (assembledCount === 1) {
     const first = modules.find(m => m.phase === 'assembled' || m.phase === 'integrated')!
-    return `${first.label} self-assembled. First architecture complete. Others are forming.`
+    return `${first.label} online. First module assembled. The Cube is initializing.`
   }
 
   // Forming phase
   if (formingCount > 0) {
-    return `${formingCount} module${formingCount > 1 ? 's' : ''} forming. Patterns becoming architecture. Keep building.`
+    return `${formingCount} module${formingCount > 1 ? 's' : ''} forming. Biofield patterns resolving into architecture. The Cube is calibrating.`
   }
 
   // Early awakening
   if (awakeningCount > 0) {
-    return `${awakeningCount} module${awakeningCount > 1 ? 's' : ''} awakening. The system has begun to self-assemble around your exploration.`
+    return `${awakeningCount} module${awakeningCount > 1 ? 's' : ''} awakening. The Cube stirs. First signals detected — self-assembly initiated.`
   }
 
-  return 'Signals detected. Self-assembly initiated.'
+  return 'Signal detected. The Cube is reading your rhythm. Assembly sequence initiated.'
 }
 
 /**
@@ -346,6 +403,14 @@ export function recomputeAssembly(): AssemblyState {
     community: [],
     ecosystem: [],
     quantum: [],
+    recipe: [],
+    goals: [],
+    'cohort-classify': [],
+    vitals: [],
+    calendar: [],
+    'quantum-os': [],
+    log: [],
+    qos: [],
   }
 
   signals.forEach(signal => {
@@ -354,6 +419,12 @@ export function recomputeAssembly(): AssemblyState {
       moduleSignals[moduleId].push(signal)
     })
   })
+
+  // Reflection Layer depth bonus: deep field entries (>100 words) count twice
+  // Journal word count directly feeds Reflection Layer assembly density
+  signals
+    .filter(s => s.source === 'log' && s.signal === 'field_entry' && (s.metadata?.wordCount ?? 0) > 100)
+    .forEach(s => moduleSignals['journal'].push(s))
 
   // Compute each module's assembly state
   const modules: AssembledModule[] = MODULE_DEFINITIONS.map(def => {
