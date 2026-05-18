@@ -4212,10 +4212,11 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
 
     try {
       // Get current version from package.json or env
-      const version = process.env.APP_VERSION || 'v1.2.1-stable'
+      const version = process.env.APP_VERSION || 'v1.3.0-assembly'
 
       // Determine program name based on version features
       const getProgramName = (ver: string) => {
+        if (ver.includes('1.3')) return 'Quantum Assembly Cycle'
         if (ver.includes('1.2.1')) return 'Quantum Intent Calibration'
         if (ver.includes('1.2.0')) return 'Memory Engine Synthesis'
         return 'Neural Pathway Integration'
@@ -4239,14 +4240,18 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         return 'activated'
       }
 
-      // Features in current version
+      // Features in current version — derived from actual assembled code
       const features = [
-        'API Data Export Protocol',
-        'Hourly Time Chime Resonance',
-        'Quantum Intent Interactive Matrix',
-        'Community Wellness Pulse Monitor',
-        'Memory Engine Neural Analytics',
-        'Growth Milestone Tracking System'
+        'Quantum Intention Engine v3 — 13 patterns, 10 signal sources',
+        'Self-Assembly Engine — 9 modules, phase-tracked from real signals',
+        'Physiological Cohort Classification — weekly archetype digest',
+        'Military log interface — CARE / PLAN / INTENT / BIO / MEM / SYS',
+        'Chakra Ergonomics Engine — 7-chakra session wellness mapping',
+        'Soviet keyboard synth — per-key click, /synth inline toggle',
+        'Layout density progression — breathable → instrument (5 levels)',
+        'Christian fasting algorithm — Orthodox + Catholic, xerophagy',
+        'MicroImage widget — punctuation-driven procedural pixel art',
+        'Daily QIE analytics job — 03:00 UTC signal compilation',
       ]
 
       const deployment = {
