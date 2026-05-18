@@ -450,6 +450,59 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 14: Ecosystem coherence surge — all devices connected + high energy
+  const deviceSignals = recentSignals.filter(s =>
+    ['car_connected', 'home_connected', 'computer_connected'].some(k => s.signal.includes(k))
+  )
+  const uniqueDevices = new Set(
+    deviceSignals
+      .filter(s => s.signal.endsWith('_connected'))
+      .map(s => s.signal.replace('_connected', ''))
+  )
+  if (uniqueDevices.size >= 3 && energizedMoods.length >= 1) {
+    patterns.push({
+      pattern: 'ecosystem-coherence-surge',
+      confidence: 0.85,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'immediate',
+      reason: 'Full ecosystem coherence. Elevated energy. Capture this aligned state now.'
+    })
+  }
+
+  // Pattern 15: Cognitive sprint — deep memory + journal engagement + active planning
+  const weekAgoMs = now - 7 * 24 * 60 * 60 * 1000
+  const weekMemoryCount = signals.filter(s => s.source === 'memory' && s.timestamp > weekAgoMs).length
+  const weekJournalCount = signals.filter(s => s.source === 'journal' && s.timestamp > weekAgoMs).length
+  const recentPlannerCount = recentSignals.filter(s => s.source === 'planner').length
+  if (weekMemoryCount >= 5 && weekJournalCount >= 3 && recentPlannerCount >= 1) {
+    patterns.push({
+      pattern: 'cognitive-sprint',
+      confidence: 0.8,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: 'Cognitive sprint active. Memory and journal both dense. Anchor structure while clarity holds.'
+    })
+  }
+
+  // Pattern 16: Social isolation drift — prior community engagement, then 5-day silence
+  const fiveDaysAgoMs = now - 5 * 24 * 60 * 60 * 1000
+  const socialBaseline = signals.filter(s =>
+    s.signal.includes('cohort') || s.signal.includes('community') || s.signal.includes('message')
+  ).length
+  const recentSocialCount = signals.filter(s =>
+    s.timestamp > fiveDaysAgoMs &&
+    (s.signal.includes('cohort') || s.signal.includes('community') || s.signal.includes('message'))
+  ).length
+  if (socialBaseline >= 3 && recentSocialCount === 0) {
+    patterns.push({
+      pattern: 'social-isolation-drift',
+      confidence: 0.65,
+      suggestedWidget: 'cohort',
+      suggestedTiming: 'next-session',
+      reason: 'Cohort signal gap. Five days of social silence. Reconnect — your people are still here.'
+    })
+  }
+
   // Calculate overall user state
   const userState = calculateUserState(signals, now)
 
@@ -804,9 +857,13 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   selfcare: ['mood'],
   journal: ['mood', 'planner'],
   energy: ['mood', 'selfcare', 'journal'],
-  system: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+  system: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
   calculator: [],
   cohort: ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
+  log: ['mood', 'intentions', 'memory'],
+  ecosystem: ['intentions'],
+  quantum: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort'],
+  goals: ['intentions', 'planner', 'memory'],
 }
 
 /** Returns which signal sources a given widget depends on. */
@@ -938,4 +995,106 @@ export function recordEnergySignal(
  */
 export function recordLogSignal(wordCount: number, hasContext: boolean) {
   recordSignal('log', 'field_entry', { wordCount, hasContext, hour: new Date().getHours() })
+}
+
+/**
+ * Record an OS checkpoint signal when signal milestones are crossed.
+ * Fires at every 100-signal boundary as a lightweight OS state snapshot.
+ */
+export function recordOsCheckpointSignal(
+  signalCount: number,
+  assembledModules: number,
+  totalModules: number,
+  version: string
+) {
+  recordSignal('quantum', 'os_checkpoint', {
+    signalCount,
+    assembledModules,
+    totalModules,
+    version,
+    checkpointAt: new Date().toISOString().slice(0, 10),
+  })
+}
+
+// ─── Physiological Cohort Classifier ────────────────────────────────────────
+
+/**
+ * Classify the user's physiological cohort from their signal patterns.
+ * Returns one of 9 archetypes derived from energy band, temporal rhythm,
+ * coherence, and dominant signal source.
+ */
+export function getPhysiologicalCohortFromSignals(): PhysiologicalCohort {
+  const state = intentionEngine.get()
+  const signals = state.signals
+  const now = Date.now()
+  const weekMs = 7 * 24 * 60 * 60 * 1000
+  const weekSignals = signals.filter(s => now - s.timestamp < weekMs)
+
+  const energyBand: PhysiologicalCohort['energyBand'] =
+    state.userState.energy === 'depleted' ? 'depleted' :
+    state.userState.energy === 'low' ? 'low' :
+    state.userState.energy === 'high' ? 'high' : 'moderate'
+
+  // Dominant signal source by volume
+  const sourceCounts: Record<string, number> = {}
+  weekSignals.forEach(s => {
+    sourceCounts[s.source] = (sourceCounts[s.source] || 0) + 1
+  })
+  const dominant = Object.entries(sourceCounts)
+    .sort(([, a], [, b]) => b - a)
+    .map(([src]) => src)[0] || 'mood'
+
+  // Temporal rhythm: compare morning vs. night activity
+  const hourCounts = new Array(24).fill(0)
+  weekSignals.forEach(s => {
+    hourCounts[new Date(s.timestamp).getHours()]++
+  })
+  const morningLoad = hourCounts.slice(5, 11).reduce((a, b) => a + b, 0)
+  const nightLoad = hourCounts.slice(19, 24).reduce((a, b) => a + b, 0)
+
+  // Coherence: days active out of 7
+  const activeDaySet = new Set(weekSignals.map(s => new Date(s.timestamp).toDateString()))
+  const coherenceLevel = activeDaySet.size >= 6 ? 'high' : activeDaySet.size >= 4 ? 'medium' : 'low'
+
+  const moodSignals = weekSignals.filter(s => s.source === 'mood')
+  const depleting = moodSignals.filter(s => ['tired', 'exhausted', 'overwhelmed'].includes(s.signal)).length
+  const recovering = weekSignals.filter(s => s.source === 'selfcare').length
+  const ecosystemActivity = weekSignals.filter(s =>
+    ['car_connected', 'home_connected', 'computer_connected', 'ecosystem_full_coherence']
+      .some(k => s.signal.includes(k))
+  ).length
+
+  let label: string
+  let directive: string
+
+  if (depleting >= 3 && recovering >= 2) {
+    label = 'Recovery Architect'
+    directive = 'Depletion-recovery cycle active. Extend recovery windows.'
+  } else if (coherenceLevel === 'high' && morningLoad > nightLoad * 1.5) {
+    label = 'Morning Catalyst'
+    directive = 'Peak cognitive window 06:00-10:00. Guard it fiercely.'
+  } else if (nightLoad > morningLoad * 1.5) {
+    label = 'Night Operator'
+    directive = 'Nocturnal signal density elevated. Monitor recovery quality.'
+  } else if (ecosystemActivity >= 2) {
+    label = 'Bio-Integration Seeker'
+    directive = 'Cross-environment coherence building. Ecosystem engaged.'
+  } else if (energyBand === 'high' && weekSignals.length >= 20) {
+    label = 'High-Flux Driver'
+    directive = 'Signal density high. High-flux state. Monitor for burnout boundary.'
+  } else if (coherenceLevel === 'high') {
+    label = 'Circadian Anchor'
+    directive = 'Consistent daily rhythm. Stable foundation for compound growth.'
+  } else if (weekSignals.length < 5) {
+    label = 'Pattern Fragmenter'
+    directive = 'Signal fragmentation detected. Daily anchor habit recommended.'
+  } else if (energyBand === 'moderate' && coherenceLevel !== 'low') {
+    label = 'Steady Burner'
+    directive = 'Sustainable moderate output. Prime for long-term compounding.'
+  } else {
+    label = 'Threshold Runner'
+    directive = 'Operating near depletion boundary. Self-care deficit detected.'
+  }
+
+  return { label, energyBand, dominant, directive }
 }

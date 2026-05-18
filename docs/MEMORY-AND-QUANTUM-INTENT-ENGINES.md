@@ -10,10 +10,12 @@
 1. [System Overview](#system-overview)
 2. [Memory Engine](#memory-engine)
 3. [Quantum Intent Engine](#quantum-intent-engine)
-4. [System Integration](#system-integration)
-5. [AI Engine Abstraction](#ai-engine-abstraction)
-6. [Competitive Advantages](#competitive-advantages)
-7. [Development Guidelines](#development-guidelines)
+4. [Self-Assembly Engine](#self-assembly-engine)
+5. [Physiological Cohort Classifier](#physiological-cohort-classifier)
+6. [System Integration](#system-integration)
+7. [AI Engine Abstraction](#ai-engine-abstraction)
+8. [Competitive Advantages](#competitive-advantages)
+9. [Development Guidelines](#development-guidelines)
 
 ---
 
@@ -460,6 +462,93 @@ if (quantumState && quantumState.energy !== 'unknown') {
 
 ---
 
+## Self-Assembly Engine
+
+### Purpose
+
+The **Self-Assembly Engine** tracks how the system builds itself around user activity. Each of 9 modules "assembles" as signal density from that module's sources crosses threshold levels. The result is a living architecture — dormant modules awaken, form, assemble, and integrate based solely on real engagement patterns. No synthetic data. No fake progress.
+
+### Location
+
+- **Primary File**: `src/client/stores/selfAssembly.ts`
+- **Frontend Widget**: `src/client/components/SystemProgressWidget.tsx` (Assembly Map view)
+
+### Assembly Phases
+
+| Phase | Symbol | Threshold | Definition |
+|-------|--------|-----------|------------|
+| **Dormant** | `·` | 0 signals | Module awaits first activation |
+| **Awakening** | `∘` | 1+ signals | First signals detected — module stirring |
+| **Forming** | `○` | 5+ or 30%+ density | Pattern emerging — structure taking shape |
+| **Assembled** | `◯` | 15+ or 60%+ density | Threshold reached — self-built |
+| **Integrated** | `◉` | 30+ and 40%+ coherence | Cross-module wiring complete |
+
+### Assembly Modules (9)
+
+| Module | ID | Feeds From |
+|--------|----|------------|
+| Biofield Engine | `biofield` | mood, energy signals |
+| Memory Architecture | `memory` | memory, quantum signals |
+| Routine Compiler | `planner` | planner signals |
+| Intention Core | `intentions` | intentions, ecosystem signals |
+| Cleanness Protocol | `selfcare` | selfcare signals |
+| Reflection Layer | `journal` | journal, log signals |
+| Community Mesh | `community` | social, cohort signals |
+| Ecosystem Bridge | `ecosystem` | car/home/computer connect signals |
+| Quantum Substrate | `quantum` | QIE meta-signals |
+
+### Density & Coherence Metrics
+
+- **Density (0-100)**: How active is this module in the last 7 days? Combines active-day ratio (60%) with daily frequency (40%)
+- **Coherence (0-100)**: How consistent is signal flow? High coherence = signals spread evenly across days; low coherence = burst-then-silence
+
+### OS Checkpoint Signals
+
+`recordOsCheckpointSignal()` fires at every 100-signal boundary and logs a `quantum_os_checkpoint` event to the log stream. This creates a lightweight OS kernel heartbeat visible in the Log UI (`QOS:` block) — giving the user a periodic record of their quantum OS state.
+
+---
+
+## Physiological Cohort Classifier
+
+### Purpose
+
+Classifies the user into one of 9 physiological archetypes derived in real-time from their signal patterns — no server round-trip required. This is distinct from Memory Engine's psychological archetypes (soul-level) and behavioral cohorts (lifestyle). Physiological archetypes describe **how** the user's system operates: their energy band, temporal rhythm, coherence, and dominant engagement mode.
+
+### Location
+
+- **Function**: `getPhysiologicalCohortFromSignals()` in `src/client/stores/intentionEngine.ts`
+- **Surfaced In**: `SystemProgressWidget.tsx` (Assembly Map + Self-Assembly Report views)
+- **Log Event**: `physiological_cohort` → `BIO-COHORT:` log block
+
+### The 9 Physiological Archetypes
+
+| Label | Trigger Condition | Directive |
+|-------|------------------|-----------|
+| **Recovery Architect** | 3+ depleting moods + 2+ self-care completions | Depletion-recovery cycle active. Extend recovery windows. |
+| **Morning Catalyst** | High coherence + morning load > 1.5× night load | Peak cognitive window 06:00-10:00. Guard it fiercely. |
+| **Night Operator** | Night load > 1.5× morning load | Nocturnal signal density elevated. Monitor recovery quality. |
+| **Bio-Integration Seeker** | 2+ ecosystem signals (device connects) | Cross-environment coherence building. Ecosystem engaged. |
+| **High-Flux Driver** | High energy band + 20+ week signals | Signal density high. Monitor for burnout boundary. |
+| **Circadian Anchor** | High coherence (6+ active days) | Consistent daily rhythm. Stable foundation for compound growth. |
+| **Pattern Fragmenter** | Fewer than 5 week signals | Signal fragmentation. Daily anchor habit recommended. |
+| **Steady Burner** | Moderate energy + medium+ coherence | Sustainable output. Prime for long-term compounding. |
+| **Threshold Runner** | Default (no stronger pattern) | Operating near depletion boundary. Self-care deficit detected. |
+
+### Integration with Log Stream
+
+When a physiological cohort is determined, a `physiological_cohort` log event can be written with fields:
+```json
+{
+  "cohortLabel": "Morning Catalyst",
+  "energyBand": "moderate",
+  "dominant": "memory",
+  "directive": "Peak cognitive window 06:00-10:00. Guard it fiercely."
+}
+```
+The `BIO-COHORT:` log block renders this in military minimalist format.
+
+---
+
 ## System Integration
 
 ### Complete Workflow
@@ -718,15 +807,27 @@ The **Memory Engine** and **Quantum Intent Engine™** represent a sophisticated
 - Adapts to quantum state in real-time
 
 **Quantum Intent Engine™** (Client-Side):
-- Records signals from all user interactions
-- Detects 7 distinct behavioral patterns
-- Calculates 4-dimensional user state
+- Records signals from all user interactions across 14 widget sources
+- Detects 16 distinct behavioral patterns (expanded from 7 in v1.0)
+- Calculates 4-dimensional user state (energy, clarity, alignment, support)
 - Recommends optimal widgets and timing
 - Provides state to Memory Engine
+
+**Self-Assembly Engine** (Client-Side):
+- 9 modules that self-activate from signal density
+- 5 assembly phases: dormant → awakening → forming → assembled → integrated
+- OS checkpoint signals at every 100-signal boundary
+- Real-time Assembly Map visible in SystemProgressWidget
+
+**Physiological Cohort Classifier** (Client-Side):
+- 9 signal-derived archetypes (no server round-trip)
+- Derived from energy band, temporal rhythm, coherence, dominant source
+- Surfaced in Assembly Map and Self-Assembly Report views
+- Log-piped via `BIO-COHORT:` military event block
 
 **Together**: They create a system that anticipates user needs before they articulate them, providing proactive support that adapts to energy, clarity, alignment, and support needs in real-time.
 
 ---
 
-*Last Updated: 2026-01-26*
-*Document Version: 1.0*
+*Last Updated: 2026-05-18*
+*Document Version: 1.2*

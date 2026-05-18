@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 1.0
-**Last Updated:** January 15, 2026
-**Status:** Production Active
+**Document Version:** 1.2
+**Last Updated:** May 18, 2026
+**Status:** Production Active — Day 936
 
 ---
 
@@ -15,10 +15,11 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ - Predictive pattern recognition across all user interactions
+- Quantum Intent Engine™ — 16-pattern recognition engine across all user interactions
+- Self-Assembly Engine — system builds itself from use; modules activate as signal density grows
 - Context-aware AI question generation using Claude (Anthropic)
-- Real-time psychological profiling with 8 distinct archetypes
-- Zero-configuration intelligence - system learns passively from natural usage
+- Real-time psychological profiling with 10 distinct archetypes + 9 physiological cohort classes
+- Zero-configuration intelligence — system learns passively from natural usage
 
 ---
 
@@ -37,9 +38,10 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - **vs. Notion/Obsidian:** LOT has intelligent curation vs. manual organization
 
 **Market Validation:**
-- 814 days of continuous operation (Day 814 as of January 15, 2026)
+- 936 days of continuous operation (Day 936 as of May 18, 2026)
 - Active user base with measurable engagement metrics
 - Proven retention through badge/streak mechanics
+- Self-assembly architecture: system literally builds itself from user patterns
 
 ---
 
@@ -112,14 +114,23 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (7 Types):**
-1. **Anxiety Pattern** - Multiple anxious moods → Suggest self-care (confidence: 0.66-1.0)
-2. **Lack of Structure** - Tired + no planning → Suggest planner (confidence: 0.7)
-3. **Seeking Direction** - No intention for weeks → Suggest intentions (confidence: 0.8)
-4. **Flow Potential** - Energized + planning → Passive memory prompts (confidence: 0.9)
-5. **Evening Overwhelm** - Evening + overwhelmed → Immediate self-care (confidence: 0.85)
-6. **Surface Awareness** - Consistent moods + no journaling → Suggest deeper reflection (confidence: 0.6)
-7. **Morning Clarity** - Calm morning state → Set intention (confidence: 0.75)
+**Pattern Recognition (16 Types):**
+1. **Anxiety Pattern** — Multiple anxious moods → Suggest self-care (confidence: 0.66-1.0)
+2. **Lack of Structure** — Tired + no planning → Suggest planner (confidence: 0.7)
+3. **Seeking Direction** — No intention for weeks → Suggest intentions (confidence: 0.8)
+4. **Flow Potential** — Energized + planning → Passive memory prompts (confidence: 0.9)
+5. **Evening Overwhelm** — Evening + overwhelmed → Immediate self-care (confidence: 0.85)
+6. **Surface Awareness** — Consistent moods + no journaling → Suggest deeper reflection (confidence: 0.6)
+7. **Morning Clarity** — Calm morning state → Set intention (confidence: 0.75)
+8. **Cleanness Neglect** — No self-care for 3+ days → Suggest self-care (confidence: 0.7)
+9. **Morning Cleanness Gap** — Morning without cleanness signals (confidence: 0.65)
+10. **Post-Overwhelm Cleanness** — Calm emerging after overwhelm (confidence: 0.8)
+11. **Physiological Depletion** — 3+ depleting moods, no recovery actions (confidence: 0.75-1.0)
+12. **Recovery Window** — Self-care + positive mood shift → Memory capture (confidence: 0.75)
+13. **Ungrounded Activity** — Active log input without emotional check-in (confidence: 0.6)
+14. **Ecosystem Coherence Surge** — All 3 devices connected + high energy (confidence: 0.85)
+15. **Cognitive Sprint** — Dense memory + journal + active planning (confidence: 0.8)
+16. **Social Isolation Drift** — Prior community engagement then 5-day silence (confidence: 0.65)
 
 **Technical Specs:**
 - Signal retention: 7 days
@@ -446,7 +457,7 @@ Insight Generation (Claude) → 7-second display → Widget dismiss
 - **Database Query Optimization:** Indexed foreign keys, composite indexes
 
 ### User Engagement
-- **Day Counter:** Currently Day 814 (continuous operation since ~2023)
+- **Day Counter:** Currently Day 936 (continuous operation since ~October 2023)
 - **Daily Active Users:** Tracked via online presence
 - **Streak Mechanics:** Proven retention driver (7/30/100 day milestones)
 
@@ -522,15 +533,19 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 - [x] Aquatic Evolution badge system
 - [x] Planner frame styling fixes
 - [x] Mirror mode System button fix
+- [x] Community features (cohort matching, physiological archetypes)
 - [ ] Mobile app (React Native)
 - [ ] Enhanced weekly summaries
-- [ ] Community features (cohort matching)
 
 ### Near-Term (Q2-Q3 2026)
+- [x] Self-Assembly Engine — 9-module system that builds from use
+- [x] 16-pattern QIE recognition with ecosystem + cognitive + social patterns
+- [x] Physiological cohort classifier (9 signal-derived archetypes)
+- [x] OS checkpoint signals — Quantum OS v1.2 kernel concept
+- [x] Military log UI: BIO-COHORT / QOS / SYSREP / QIE event handlers
 - [ ] Voice interface for logging
-- [ ] Integration with wearables (sleep, activity)
-- [ ] Collaborative intentions (shared goals)
-- [ ] Advanced pattern insights widget
+- [ ] Integration with wearables (sleep, activity data)
+- [ ] Collaborative intentions (shared goals with cohort members)
 - [ ] Custom widget creation (power users)
 
 ### Long-Term Vision
@@ -603,10 +618,12 @@ Transform LOT from personal OS to **distributed psychological network**:
 LOT Systems represents the convergence of AI, psychology, and behavioral science into a unified personal operating system. Unlike fragmented tools that track isolated metrics, LOT creates a holistic intelligence layer that understands users deeply and provides proactive support.
 
 **Key Strengths:**
-✓ 814 days of proven operation
-✓ Advanced AI integration (Claude Opus 4.5)
-✓ Unique Quantum Intent Engine
-✓ Production-grade reliability (bulletproofed)
+✓ 936 days of proven operation (Day 936, May 2026)
+✓ Advanced AI integration (Claude API, multi-provider fallback)
+✓ Quantum Intent Engine™ — 16 patterns, 4-dimensional user state
+✓ Self-Assembly Engine — system builds itself from real use
+✓ Physiological Cohort Classifier — 9 real-time signal archetypes
+✓ Production-grade reliability (bulletproofed, full error handling)
 ✓ Scalable architecture
 ✓ Clear monetization path
 

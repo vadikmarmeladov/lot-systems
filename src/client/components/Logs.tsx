@@ -350,6 +350,75 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'physiological_cohort') {
+          const cohortLabel = log.metadata?.cohortLabel as string | undefined
+          const energyBand = log.metadata?.energyBand as string | undefined
+          const directive = log.metadata?.directive as string | undefined
+          const dominant = log.metadata?.dominant as string | undefined
+          if (!cohortLabel) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BIO-COHORT:" blockView>
+                <div className="uppercase tracking-widest mb-4">{cohortLabel}</div>
+                {energyBand && (
+                  <div className="opacity-60">ATP: {energyBand.toUpperCase()}</div>
+                )}
+                {dominant && (
+                  <div className="opacity-50">DOM: {dominant.toUpperCase()}</div>
+                )}
+                {directive && (
+                  <div className="opacity-40 mt-4">{directive}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_os_checkpoint') {
+          const version = log.metadata?.version as string | undefined
+          const signalCount = log.metadata?.signalCount as number | undefined
+          const assembledModules = log.metadata?.assembledModules as number | undefined
+          const totalModules = log.metadata?.totalModules as number | undefined
+          const checkpointAt = log.metadata?.checkpointAt as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QOS:" blockView>
+                {version && (
+                  <div className="uppercase tracking-widest mb-4">VER: {version}</div>
+                )}
+                {signalCount !== undefined && (
+                  <div className="opacity-60">SIG: {signalCount}</div>
+                )}
+                {assembledModules !== undefined && totalModules !== undefined && (
+                  <div className="opacity-50">MOD: {assembledModules}/{totalModules}</div>
+                )}
+                {checkpointAt && (
+                  <div className="opacity-30">DATE: {checkpointAt}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'session_report') {
+          const session = log.metadata?.session as string | undefined
+          const assembled = log.metadata?.assembled as string[] | undefined
+          const reportDate = log.metadata?.date as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SYSREP:" blockView>
+                {session && (
+                  <div className="uppercase tracking-widest mb-8">{session}</div>
+                )}
+                {reportDate && (
+                  <div className="opacity-40 mb-8">DATE: {reportDate}</div>
+                )}
+                {assembled && assembled.length > 0 && (
+                  <div className="flex flex-col gap-y-2">
+                    {assembled.map((item, i) => (
+                      <div key={i} className="opacity-60">&gt; {item}</div>
+                    ))}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

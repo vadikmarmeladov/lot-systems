@@ -5,7 +5,13 @@ import * as stores from '#client/stores'
 import { ProgressBars } from '#client/utils/progressBars'
 import { selfAssembly, phaseSymbol, phaseLabel, recomputeAssembly, type AssembledModule } from '#client/stores/selfAssembly'
 import { useEnergy } from '#client/queries'
-import { getPhysiologicalReport, analyzeIntentions, type PhysiologicalReport } from '#client/stores/intentionEngine'
+import {
+  getPhysiologicalReport,
+  analyzeIntentions,
+  getPhysiologicalCohortFromSignals,
+  type PhysiologicalReport,
+  type PhysiologicalCohort,
+} from '#client/stores/intentionEngine'
 
 type FeedbackStatus = 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
 
@@ -66,6 +72,21 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report logged and appended. All modules online.',
     ],
   },
+  {
+    date: '2026-05-18',
+    session: 'Quantum Intent Engine Upgrade — v4 / Self-Assembly',
+    assembled: [
+      'Widget dependency map expanded: log / ecosystem / quantum / goals nodes added',
+      'Log events: BIO-COHORT / QOS checkpoint / SYSREP session report handlers',
+      'Patterns 14–16: ecosystem coherence surge / cognitive sprint / social isolation drift',
+      'Physiological cohort classifier: 9 archetypes from real-time signal analysis',
+      'getPhysiologicalCohortFromSignals() surfaced in Assembly Map widget',
+      'recordOsCheckpointSignal() — OS kernel checkpoint at every 100-signal boundary',
+      'LOT_SYSTEMS_BRIEF.md: Day 936, 16 patterns, Q2 roadmap updated',
+      'MEMORY-AND-QUANTUM-INTENT-ENGINES.md: self-assembly + physiological cohort docs added',
+      'Session report filed. 16 patterns operational. Quantum OS v1.2 active.',
+    ],
+  },
 ]
 
 const FEEDBACK_OPTIONS = [
@@ -93,11 +114,16 @@ export function SystemProgressWidget() {
   const { data: energyData } = useEnergy()
   const [cohortData, setCohortData] = React.useState<{ archetype?: string; behavioralCohort?: string } | null>(null)
   const [report, setReport] = React.useState<PhysiologicalReport | null>(null)
+  const [physioCohort, setPhysioCohort] = React.useState<PhysiologicalCohort | null>(null)
 
   // Recompute assembly on mount and periodically
   React.useEffect(() => {
     recomputeAssembly()
-    const interval = setInterval(recomputeAssembly, 60_000) // Every minute
+    setPhysioCohort(getPhysiologicalCohortFromSignals())
+    const interval = setInterval(() => {
+      recomputeAssembly()
+      setPhysioCohort(getPhysiologicalCohortFromSignals())
+    }, 60_000)
     return () => clearInterval(interval)
   }, [])
 
@@ -368,6 +394,28 @@ export function SystemProgressWidget() {
               </div>
             )}
 
+            {/* Signal-derived physiological archetype */}
+            {physioCohort && (
+              <div className="border-t border-acc-400/30 pt-16">
+                <div className="opacity-30 mb-8">Signal archetype:</div>
+                <div className="flex flex-col gap-y-4">
+                  <div className="flex justify-between">
+                    <span className="opacity-30">Class</span>
+                    <span>{physioCohort.label}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-30">Energy band</span>
+                    <span className="capitalize">{physioCohort.energyBand}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="opacity-30">Dominant</span>
+                    <span className="capitalize">{physioCohort.dominant}</span>
+                  </div>
+                  <div className="opacity-30 text-xs mt-4">{physioCohort.directive}</div>
+                </div>
+              </div>
+            )}
+
             {/* Assembly narrative */}
             <div className="opacity-30 pt-8">
               {assembly.narrative}
@@ -572,7 +620,7 @@ export function SystemProgressWidget() {
                   )}
 
                   {/* Cohort classification */}
-                  {(report.cohortSignals.archetype || report.cohortSignals.behavioralCohort || cohortData) && (
+                  {(report.cohortSignals.archetype || report.cohortSignals.behavioralCohort || cohortData || physioCohort) && (
                     <div className="border-t border-acc-400/30 pt-12">
                       <div className="opacity-30 mb-8 uppercase tracking-widest">Physiological cohort</div>
                       {(report.cohortSignals.archetype ?? cohortData?.archetype) && (
@@ -582,10 +630,25 @@ export function SystemProgressWidget() {
                         </div>
                       )}
                       {(report.cohortSignals.behavioralCohort ?? cohortData?.behavioralCohort) && (
-                        <div className="flex justify-between">
+                        <div className="flex justify-between mb-2">
                           <span className="opacity-50 uppercase">Cohort</span>
                           <span>{report.cohortSignals.behavioralCohort ?? cohortData?.behavioralCohort}</span>
                         </div>
+                      )}
+                      {physioCohort && (
+                        <>
+                          <div className="flex justify-between mb-2">
+                            <span className="opacity-50 uppercase">Signal class</span>
+                            <span>{physioCohort.label}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="opacity-50 uppercase">ATP band</span>
+                            <span className="capitalize">{physioCohort.energyBand}</span>
+                          </div>
+                          {physioCohort.directive && (
+                            <div className="opacity-30 mt-4">{physioCohort.directive}</div>
+                          )}
+                        </>
                       )}
                     </div>
                   )}
