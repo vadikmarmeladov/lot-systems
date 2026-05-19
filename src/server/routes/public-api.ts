@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify'
+import { Op } from 'sequelize'
 import { sequelize } from '#server/utils/db'
 import { models } from '#server/models'
 import * as weather from '#server/utils/weather'
@@ -387,233 +388,26 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // Admin configuration diagnostic endpoint
-  fastify.get('/verify-admin-config', async (req, reply) => {
-    const adminEmailsEnv = process.env.ADMIN_EMAILS
-    const adminsList = config.admins
-
-    return {
-      timestamp: new Date().toISOString(),
-      environment: config.env,
-      adminConfig: {
-        ADMIN_EMAILS_env_var: adminEmailsEnv || 'NOT_SET',
-        parsed_admin_emails: adminsList.length > 0 ? adminsList : ['NONE'],
-        admin_count: adminsList.length,
-        includes_vadikmarmeladov: adminsList.includes('vadikmarmeladov@gmail.com'),
-      },
-      instructions: {
-        step1: 'Ensure ADMIN_EMAILS is set in Digital Ocean environment variables',
-        step2: 'Value should be: vadikmarmeladov@gmail.com',
-        step3: 'Redeploy app after adding environment variable',
-        step4: 'Log out and log back in to refresh session',
-      },
-      note: 'This endpoint shows how ADMIN_EMAILS is configured. Admin access is granted if user email is in this list OR has Admin tag in database.',
-    }
-  })
-
-  // API key verification endpoint - shows masked API key for verification
-  fastify.get('/verify-api-keys', async (req, reply) => {
-    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
-    const resendKey = process.env.RESEND_API_KEY
-    const openaiKey = process.env.OPENAI_API_KEY
-
-    const maskKey = (key: string | undefined) => {
-      if (!key) return 'NOT_SET'
-      if (key.length < 20) return 'INVALID_LENGTH'
-      // Show first 8 and last 4 characters
-      return `${key.slice(0, 8)}...${key.slice(-4)}`
-    }
-
-    return {
-      timestamp: new Date().toISOString(),
-      environment: config.env,
-      keys: {
-        anthropic: {
-          configured: !!anthropicKey,
-          preview: maskKey(anthropicKey),
-          length: anthropicKey?.length || 0,
-        },
-        resend: {
-          configured: !!resendKey,
-          preview: maskKey(resendKey),
-          length: resendKey?.length || 0,
-        },
-        openai: {
-          configured: !!openaiKey,
-          preview: maskKey(openaiKey),
-          length: openaiKey?.length || 0,
-        },
-      },
-      note: 'Keys are masked for security. Only first 8 and last 4 characters shown.',
-    }
-  })
-
-  // Memory Engine diagnostic endpoint - shows why Claude might not be working
-  fastify.get('/debug-memory-engine', async (req, reply) => {
-    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
-
-    // Test if we can initialize Anthropic client
-    let anthropicClientTest = 'NOT_TESTED'
-    try {
-      const Anthropic = (await import('@anthropic-ai/sdk')).default
-      const testClient = new Anthropic({ apiKey: anthropicKey })
-      anthropicClientTest = 'INITIALIZED_OK'
-    } catch (err: any) {
-      anthropicClientTest = `FAILED: ${err.message}`
-    }
-
-    return {
-      timestamp: new Date().toISOString(),
-      environment: config.env,
-      diagnosis: {
-        anthropicApiKey: {
-          exists: !!anthropicKey,
-          fromEnv: !!process.env.ANTHROPIC_API_KEY,
-          fromConfig: !!config.anthropic?.apiKey,
-          preview: anthropicKey ? `${anthropicKey.slice(0, 8)}...${anthropicKey.slice(-4)}` : 'NOT_SET',
-          length: anthropicKey?.length || 0,
-        },
-        anthropicClient: {
-          status: anthropicClientTest,
-        },
-        userTagCheck: {
-          requiredTag: 'Usership',
-          note: 'Users need the "Usership" tag (case-insensitive) to use Claude engine',
-        },
-        memoryEngineLogic: {
-          condition: 'hasUsershipTag && config.anthropic.apiKey',
-          result: !!anthropicKey ? 'WILL_USE_CLAUDE_IF_USER_HAS_TAG' : 'WILL_USE_STANDARD_ONLY',
-        },
-      },
-      troubleshooting: {
-        step1: 'Check if ANTHROPIC_API_KEY environment variable is set in Digital Ocean',
-        step2: 'Verify your user has the "Usership" tag in the database',
-        step3: 'Check server logs for "Memory question generation failed" errors',
-        step4: 'Test Claude API key at https://console.anthropic.com/',
-      },
-    }
-  })
-
-  // Test all AI engines to see which are available
-  fastify.get('/test-ai-engines', async (req, reply) => {
-    const { aiEngineManager } = await import('#server/utils/ai-engines.js')
-
-    const status = aiEngineManager.getStatus()
-    const hasAnyEngine = aiEngineManager.hasAvailableEngine()
-
-    // Try to get the preferred engine
-    let preferredEngine = null
-    let preferredEngineError = null
-    try {
-      const engine = aiEngineManager.getEngine('auto')
-      preferredEngine = engine.name
-    } catch (error: any) {
-      preferredEngineError = error.message
-    }
-
-    return {
-      timestamp: new Date().toISOString(),
-      environment: config.env,
-      engines: status,
-      summary: {
-        hasAvailableEngine: hasAnyEngine,
-        preferredEngine: preferredEngine,
-        error: preferredEngineError,
-      },
-      apiKeys: {
-        TOGETHER_API_KEY: !!process.env.TOGETHER_API_KEY,
-        GOOGLE_API_KEY: !!process.env.GOOGLE_API_KEY,
-        MISTRAL_API_KEY: !!process.env.MISTRAL_API_KEY,
-        ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY,
-        OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
-      },
-      instructions: {
-        step1: 'At least ONE API key must be configured in environment variables',
-        step2: 'Get API keys from: Together AI, Google AI Studio, Mistral, Anthropic, or OpenAI',
-        step3: 'Add the key to Digital Ocean App settings (Environment Variables)',
-        step4: 'Redeploy the app to load the new environment variable',
-      },
-      links: {
-        togetherAI: 'https://api.together.xyz/',
-        googleGemini: 'https://aistudio.google.com/app/apikey',
-        mistralAI: 'https://console.mistral.ai/',
-        anthropic: 'https://console.anthropic.com/settings/keys',
-        openAI: 'https://platform.openai.com/api-keys',
-      }
-    }
-  })
-
-  // Test Anthropic API key with actual API call
-  fastify.get('/test-anthropic-key', async (req, reply) => {
-    const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
-
-    if (!anthropicKey) {
-      return {
-        success: false,
-        error: 'ANTHROPIC_API_KEY not configured',
-        timestamp: new Date().toISOString(),
-      }
-    }
-
-    try {
-      const Anthropic = (await import('@anthropic-ai/sdk')).default
-      const client = new Anthropic({ apiKey: anthropicKey })
-
-      // Make a minimal API call to test the key
-      const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 10,
-        messages: [
-          {
-            role: 'user',
-            content: 'Respond with just "OK"',
-          },
-        ],
-      })
-
-      return {
-        success: true,
-        message: 'API key is valid and working',
-        response: message.content[0].type === 'text' ? message.content[0].text : 'OK',
-        usage: {
-          inputTokens: message.usage.input_tokens,
-          outputTokens: message.usage.output_tokens,
-        },
-        timestamp: new Date().toISOString(),
-        note: 'This test consumed a small number of tokens. Check Anthropic dashboard for usage update.',
-      }
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message || 'Unknown error',
-        errorType: error.constructor.name,
-        status: error.status,
-        timestamp: new Date().toISOString(),
-      }
-    }
-  })
-
   // Public profile endpoint - no authentication required
   fastify.get<{
     Params: { userIdOrUsername: string }
   }>('/profile/:userIdOrUsername', async (req, reply) => {
     const { userIdOrUsername } = req.params
-    console.log('[PUBLIC-PROFILE-API] Fetching profile for:', userIdOrUsername)
 
     // Demo account: Niccolò Machiavelli — autonomous hardcoded LOT account
     // Legacy level unlock showcase with weather station and wallet demos
     if (userIdOrUsername === 'machiavelli') {
-      console.log('[PUBLIC-PROFILE-API] Serving demo account: Machiavelli')
 
       // Compute real user counts so the demo board profile stays accurate
       let totalUsers = 1
       let usershipCount = 1
       try {
-        const allUsers = await models.User.findAll()
-        totalUsers = allUsers.length + 1 // +1 for demo account
-        usershipCount = allUsers.filter(u => u.tags?.some(t => t.toLowerCase() === 'usership')).length + 1 // +1 for demo
+        totalUsers = (await models.User.count()) + 1 // +1 for demo account
+        usershipCount = (await models.User.count({
+          where: { tags: { [Op.contains]: ['Usership'] } }
+        })) + 1 // +1 for demo
       } catch (e) {
-        console.error('[PUBLIC-PROFILE-API] Demo user count query failed:', e)
+        // ignore — demo defaults hold
       }
       const freeCitizens = Math.max(0, totalUsers - usershipCount)
       const poweringCitizens = usershipCount > 0 ? Math.round(freeCitizens / usershipCount) : 0
@@ -763,51 +557,24 @@ export default async (fastify: FastifyInstance) => {
     }
 
     try {
-      // Prioritize custom URL over ID to avoid conflicts
-      // First, try to find user by custom URL in metadata
-      console.log('[PUBLIC-PROFILE-API] Searching for custom URL:', userIdOrUsername)
-      const users = await models.User.findAll()
-      let user = users.find(u => {
-        const customUrl = u.metadata?.privacy?.customUrl
-        return customUrl === userIdOrUsername
-      }) || null
+      // Try custom URL first (JSONB containment query — avoids full table scan)
+      let user = await models.User.findOne({
+        where: {
+          metadata: { [Op.contains]: { privacy: { customUrl: userIdOrUsername } } },
+        },
+      })
 
-      if (user) {
-        console.log('[PUBLIC-PROFILE-API] ✓ User found by custom URL')
-        console.log('[PUBLIC-PROFILE-API] User ID:', user.id)
-      }
-
-      // If not found by custom URL, try by user ID
+      // Fall back to user ID lookup
       if (!user) {
-        console.log('[PUBLIC-PROFILE-API] Custom URL not found, trying by ID')
-        user = await models.User.findOne({
-          where: { id: userIdOrUsername }
-        })
-        if (user) {
-          console.log('[PUBLIC-PROFILE-API] ✓ User found by ID:', user.id)
-        }
+        user = await models.User.findOne({ where: { id: userIdOrUsername } })
       }
 
       if (!user) {
-        console.log('[PUBLIC-PROFILE-API] User not found for:', userIdOrUsername)
         return reply.code(404).send({
           error: 'User not found',
           message: `No public profile exists for user: ${userIdOrUsername}`,
-          debug: {
-            searchedFor: userIdOrUsername,
-            searchMethods: ['By ID', 'By custom URL in metadata']
-          }
         })
       }
-
-      console.log('[PUBLIC-PROFILE-API] ✓ User found!')
-      console.log('[PUBLIC-PROFILE-API] User details:', {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        hasMetadata: !!user.metadata,
-        metadata: user.metadata
-      })
 
       // Get privacy settings from metadata (with defaults)
       // All profiles are public by default
@@ -819,12 +586,8 @@ export default async (fastify: FastifyInstance) => {
         showSound: true,
         showMemoryStory: true,
       }
-      console.log('[PUBLIC-PROFILE-API] Privacy settings:', JSON.stringify(privacy, null, 2))
-      console.log('[PUBLIC-PROFILE-API] isPublicProfile:', privacy.isPublicProfile)
-
       // Check if profile is public
       if (!privacy.isPublicProfile) {
-        console.log('[PUBLIC-PROFILE-API] Profile is private')
 
         // Even in private mode, return basic info with suspended tag
         const basicProfile = {
@@ -837,8 +600,6 @@ export default async (fastify: FastifyInstance) => {
 
         return basicProfile
       }
-
-      console.log('[PUBLIC-PROFILE-API] ✓ Profile is public, building response')
 
       // Increment profile visit counter
       const currentVisits = user.metadata?.profileVisits || 0
@@ -1081,16 +842,13 @@ export default async (fastify: FastifyInstance) => {
       if (hasUsershipTag) {
         try {
           // Board member number: sequential ordering by joinedAt among Usership users
-          const allUsers = await models.User.findAll()
-          const usershipMembers = allUsers
-            .filter(u => u.tags?.some(t => t.toLowerCase() === 'usership'))
-            .sort((a, b) => {
-              const dateA = a.joinedAt || a.createdAt
-              const dateB = b.joinedAt || b.createdAt
-              return new Date(dateA).getTime() - new Date(dateB).getTime()
-            })
+          const usershipMembers = await models.User.findAll({
+            where: { tags: { [Op.contains]: ['Usership'] } },
+            attributes: ['id', 'joinedAt', 'createdAt'],
+            order: [['joinedAt', 'ASC']],
+          })
           const boardMemberNumber = usershipMembers.findIndex(u => u.id === user.id) + 1
-          const totalUsers = allUsers.length
+          const totalUsers = await models.User.count()
           const usershipCount = usershipMembers.length
           const freeCitizens = Math.max(0, totalUsers - usershipCount)
           const poweringCitizens = usershipCount > 0 ? Math.round(freeCitizens / usershipCount) : 0
