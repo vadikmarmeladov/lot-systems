@@ -102,6 +102,17 @@ function Meta({ children }: { children: React.ReactNode }) {
   return <span className="text-acc/40 text-[14px]">{children}</span>
 }
 
+function StackLogo({ name, children }: { name: string; children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="w-[40px] h-[40px] flex items-center justify-center text-acc/60">
+        {children}
+      </div>
+      <span className="text-acc/40 text-[11px]">{name}</span>
+    </div>
+  )
+}
+
 function Row({
   label,
   value,
@@ -2689,6 +2700,116 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="Infrastructure" value="Digital Ocean, automated daily backups" />
             <Row label="Auth" value="Session-based, HTTP-only cookies, bcrypt" />
             <Row label="State" value="Nanostores (client), React Query (server), localStorage (patterns)" />
+          </div>
+
+          <div className="flex flex-wrap gap-16 mb-16 py-16">
+            {/* React */}
+            <StackLogo name="React">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <ellipse cx="20" cy="20" rx="16" ry="6" />
+                <ellipse cx="20" cy="20" rx="16" ry="6" transform="rotate(60 20 20)" />
+                <ellipse cx="20" cy="20" rx="16" ry="6" transform="rotate(120 20 20)" />
+                <circle cx="20" cy="20" r="2.5" fill="currentColor" stroke="none" />
+              </svg>
+            </StackLogo>
+
+            {/* TypeScript */}
+            <StackLogo name="TypeScript">
+              <svg viewBox="0 0 40 40" fill="none">
+                <rect x="4" y="4" width="32" height="32" rx="3" stroke="currentColor" strokeWidth="1.2" />
+                <text x="12" y="29" fill="currentColor" fontSize="18" fontWeight="bold" fontFamily="Arial, sans-serif">TS</text>
+              </svg>
+            </StackLogo>
+
+            {/* Node.js */}
+            <StackLogo name="Node.js">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <polygon points="20,3 37,12 37,28 20,37 3,28 3,12" />
+                <text x="11" y="25" fill="currentColor" stroke="none" fontSize="13" fontWeight="bold" fontFamily="Arial, sans-serif">N</text>
+              </svg>
+            </StackLogo>
+
+            {/* Fastify */}
+            <StackLogo name="Fastify">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <path d="M8 12 L32 12 L28 20 L32 28 L8 28 L12 20 Z" />
+                <line x1="20" y1="8" x2="20" y2="32" />
+              </svg>
+            </StackLogo>
+
+            {/* PostgreSQL */}
+            <StackLogo name="PostgreSQL">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <ellipse cx="20" cy="12" rx="12" ry="5" />
+                <line x1="8" y1="12" x2="8" y2="28" />
+                <line x1="32" y1="12" x2="32" y2="28" />
+                <ellipse cx="20" cy="28" rx="12" ry="5" />
+                <ellipse cx="20" cy="20" rx="12" ry="5" />
+              </svg>
+            </StackLogo>
+
+            {/* Tailwind CSS */}
+            <StackLogo name="Tailwind">
+              <svg viewBox="0 0 40 40" fill="currentColor">
+                <path d="M12 16c1.5-5 5-7.5 10.5-7.5 8.25 0 9.3 6.19 13.44 7.22C38.08 16.24 39.75 15 41 12.5c-1.5 5-5 7.5-10.5 7.5-8.25 0-9.3-6.19-13.44-7.22C14.92 12.26 13.25 13.5 12 16z" transform="translate(-10 2) scale(0.85)" />
+                <path d="M4 26c1.5-5 5-7.5 10.5-7.5 8.25 0 9.3 6.19 13.44 7.22C30.08 26.24 31.75 25 33 22.5c-1.5 5-5 7.5-10.5 7.5-8.25 0-9.3-6.19-13.44-7.22C6.92 22.26 5.25 23.5 4 26z" transform="translate(-2 2) scale(0.85)" />
+              </svg>
+            </StackLogo>
+
+            {/* esbuild */}
+            <StackLogo name="esbuild">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <path d="M10 8 L30 20 L10 32" />
+                <line x1="14" y1="20" x2="34" y2="20" />
+              </svg>
+            </StackLogo>
+
+            {/* Nginx */}
+            <StackLogo name="Nginx">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <polygon points="20,4 34,12 34,28 20,36 6,28 6,12" />
+                <path d="M14 27 L14 13 L26 27 L26 13" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </StackLogo>
+
+            {/* Digital Ocean */}
+            <StackLogo name="DO">
+              <svg viewBox="0 0 40 40" fill="currentColor">
+                <path d="M20 36v-6.08c6.72 0 11.52-6.96 8.64-14.08a9.6 9.6 0 0 0-5.6-5.6C15.92 7.36 8.96 12.16 8.96 18.88H2.88C2.88 8.56 13.12.64 23.76 4.32a16 16 0 0 1 9.92 9.92C37.36 24.88 29.44 35.12 19.12 35.12V36H20z" transform="translate(0 -1) scale(0.95)" />
+                <rect x="8" y="30" width="6" height="6" />
+                <rect x="2" y="24.5" width="5.5" height="5.5" />
+              </svg>
+            </StackLogo>
+
+            {/* Sequelize */}
+            <StackLogo name="Sequelize">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.2">
+                <polygon points="20,4 36,12 36,28 20,36 4,28 4,12" />
+                <polygon points="20,10 30,15 30,25 20,30 10,25 10,15" />
+                <circle cx="20" cy="20" r="3" fill="currentColor" stroke="none" />
+              </svg>
+            </StackLogo>
+
+            {/* Resend */}
+            <StackLogo name="Resend">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <rect x="6" y="10" width="28" height="20" rx="2" />
+                <path d="M6 14 L20 24 L34 14" />
+              </svg>
+            </StackLogo>
+
+            {/* LOT */}
+            <StackLogo name="LOT">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="20" cy="20" r="15" />
+                <circle cx="20" cy="20" r="8" />
+                <circle cx="20" cy="20" r="2" fill="currentColor" stroke="none" />
+                <line x1="20" y1="5" x2="20" y2="12" />
+                <line x1="20" y1="28" x2="20" y2="35" />
+                <line x1="5" y1="20" x2="12" y2="20" />
+                <line x1="28" y1="20" x2="35" y2="20" />
+              </svg>
+            </StackLogo>
           </div>
 
           {/* ── CREDITS ─────────────────────────────────────────────── */}
