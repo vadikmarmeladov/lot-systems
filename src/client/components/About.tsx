@@ -202,7 +202,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v32</Meta>
+            <Meta>Field Manual v33</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -218,9 +218,10 @@ export function About() {
             <P>
               The original quantum-intent personal operating system.
               Day 975+. Continuous operation since launch.
-              49 behavioral patterns active. 15 modules assembled.
-              6 index dimensions. 5 ecosystem nodes. 15 physiological archetypes.
-              7 tactical log handlers deployed in v28–v32. The system does not sleep.
+              50 behavioral patterns active. 15 modules assembled.
+              6 index dimensions. 5 ecosystem nodes. 16 physiological archetypes.
+              70 dependency nodes. 5 background jobs.
+              Tactical log handlers deployed through v33. The system does not sleep.
               It accumulates.
             </P>
             <P>
@@ -251,7 +252,7 @@ export function About() {
           <P>Four subsystems govern the operating surface:</P>
           <ul className="list-none pl-16 mb-16">
             <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive. 120-log context window.</Li>
-            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 49 patterns active. Zero server communication. 7-day signal retention.</Li>
+            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 50 patterns active. Zero server communication. 7-day signal retention.</Li>
             <Li>Self-Assembly Engine — module coherence tracking. 15 modules. The system builds itself from operator activity.</Li>
             <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
@@ -285,15 +286,16 @@ export function About() {
             The system does not reset. It accumulates.
           </P>
           <Row label="Day counter:" value="Day 975+ (as of May 2026)" />
-          <Row label="Self-Assembly phase:" value="v32 — P49 care-momentum · CARM log handler · 49 patterns — v31: P48 recovery-velocity · RECV log handler" />
+          <Row label="Self-Assembly phase:" value="v33 — P50 intention-follow-through · INTF log handler · 50 patterns · Archetype 16 (Intention Executor) · 70 dep nodes — v32: P49 care-momentum · CARM log handler" />
           <Row label="Assembly modules:" value="15 — QuantumOS added as 15th module (v25)" />
-          <Row label="QIE pattern library:" value="49 patterns active" />
-          <Row label="Physiological archetypes:" value="15 — Social Synthesizer (v26) · Clarity Architect (v26)" />
+          <Row label="QIE pattern library:" value="50 patterns active" />
+          <Row label="Physiological archetypes:" value="16 — Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
           <Row label="QOS views:" value="4 — Ecosystem · Biofield · Cohort · Index" />
           <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
           <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
-          <Row label="Background jobs:" value="9+ scheduled (01:00 UTC QOS · 07:00 UTC Wed ecosystem · 07:00 UTC daily biofield)" />
-          <Row label="Military log handlers:" value="53+" />
+          <Row label="Background jobs:" value="5 — 01:00 UTC QOS coherence · 06:00 UTC daily intention audit (v33) · 06:00 UTC weekly cohort digest · 07:00 UTC Wed ecosystem audit · 07:00 UTC daily biofield" />
+          <Row label="Military log handlers:" value="55+" />
+          <Row label="Dep map nodes:" value="70 — intentionArc · careSpiral added in v33" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
           <Row label="Question generation:" value="2–5 seconds" />
@@ -381,6 +383,19 @@ export function About() {
             (cleanness-neglect). Distinct from P.48: P.48 asks how fast you
             recovered. P.49 asks if you ever stopped taking care.
             CARM log handler fires. The system names proactive maintenance.
+            v33 named Pattern 50 — Intention Follow-Through — the execution
+            arc signal. Intention set, planner engaged, goal action taken, all
+            within 48 hours. Positive inverse of P.47 (intention-decay): P.47
+            fires when the loop stalls. P.50 fires when it closes. Archetype 16
+            — Intention Executor — classifies the operator in this confirmed
+            execution state. Directive: execution arc complete, intention is
+            lived not declared, scale what works. INTF log handler fires.
+            Daily Intention Audit job added (06:00 UTC) — scans all operators
+            with recent intentions for execution signals, surfaces INTENT-DECAY:
+            field notice if no planner or goal action in 48 hours.
+            Two new dep map nodes: intentionArc (intentions → planner → goals →
+            memory) and careSpiral (selfcare → mood → journal). Dep map
+            expands to 70 nodes. Pattern library reaches 50.
             Each phase is committed, dated, and versioned. The log is the record.
             The record is the system.
           </P>
@@ -422,7 +437,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
           <P>
             Client-side pattern recognition. Runs entirely in the browser.
             Zero server communication. No behavioral data leaves the device.
-            49 patterns active as of v32.
+            50 patterns active as of v33.
           </P>
           <P>Seven signal sources:</P>
           <ul className="list-none pl-16 mb-16">
@@ -439,7 +454,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             with each Self-Assembly phase — each new pattern names a gap in the
             detection surface. Pattern detection fires every 5 signals.
             Surfacing threshold: 0.50 confidence minimum.
-            Current library: 49 patterns.
+            Current library: 50 patterns.
             P.35 closes the cross-widget coherence gap.
             P.36 names the acceleration window — rapid signal density increase.
             P.37 operationalizes Reflection Velocity — the rate of journal depth
@@ -468,6 +483,15 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             Structural inverse of P.8 (cleanness-neglect). Distinct from P.48:
             P.49 fires when the field is clear and maintained, not when
             recovering from crisis. CARM handler fires.
+            P.50 named Intention Follow-Through — the execution arc signal.
+            Intention set (localStorage) + planner signals ≥1 + goal actions ≥1
+            within 48 hours. Positive inverse of P.47 (intention-decay): P.47
+            fires when the arc stalls, P.50 fires when it closes. Distinct from
+            P.43 (intention-completion-arc): P.43 requires journal entry within
+            24 hours. P.50 is the 48-hour execution confirmation without
+            requiring reflection capture. Works alongside P.46 (temporal-coherence-
+            window): P.46 confirms temporal structure exists, P.50 confirms it
+            was activated. INTF handler fires.
           </P>
           <SubHeading>Core Patterns (v1–v7)</SubHeading>
           <div className="mb-16">
@@ -479,7 +503,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             <Row label="Surface Awareness" value="0.60 confidence · suggest journal" />
             <Row label="Morning Clarity" value="0.75 confidence · set intention" />
           </div>
-          <SubHeading>Extended Patterns (v8–v32)</SubHeading>
+          <SubHeading>Extended Patterns (v8–v33)</SubHeading>
           <P>
             Added through Self-Assembly phases v8–v31. Pattern expansion
             follows observed gaps in detection coverage. Each pattern is named,
@@ -515,6 +539,7 @@ Fallback: cached questions on provider failure`}</CodeBlock>
             <Row label="P.47 — Intention Decay Signal" value="0.55–0.90 · intention set but no planner/goal action within 72h · confidence scales with intention age · direction without execution becomes drift · suggested: planner" />
             <Row label="P.48 — Recovery Velocity" value="0.60–0.88 · negative mood (anxious/overwhelmed/tired/exhausted) → self-care → positive mood (calm/peaceful/energized/hopeful) all within 4h · velocity score = inverse of recovery window minutes · suggested: memory · RECV log handler" />
             <Row label="P.49 — Care Momentum" value="0.65–0.85 · 2+ self-care events in 24h + zero depleting mood signals (anxious/overwhelmed/tired/exhausted) · proactive maintenance spiral · structural inverse of P.8 cleanness-neglect · distinct from P.48: P.49 fires when field is already clear · confidence scales with care density (+0.10 per event beyond 2) · suggested: selfcare · CARM log handler" />
+            <Row label="P.50 — Intention Follow-Through" value="0.68–0.90 · intention set + planner signals ≥1 + goal actions ≥1 within 48h · positive inverse of P.47 (intention-decay): P.47 fires when loop stalls, P.50 fires when it closes · distinct from P.43 (intention-completion-arc): P.43 requires journal within 24h · works alongside P.46 (temporal-coherence-window) · confidence scales with execution depth · suggested: memory (passive timing) · INTF log handler" />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -565,7 +590,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
 
           <SubHeading>Self-Assembly Phase Log</SubHeading>
           <P>
-            31 phases documented. Each phase names a structural expansion.
+            33 phases documented. Each phase names a structural expansion.
             Each is committed, dated, versioned. The log is permanent.
           </P>
           <div className="mb-16">
@@ -601,6 +626,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v30" value="P.47 intention-decay-signal — intention set, no planner/goal execution in 72h · EVO: OS: log handlers · getLogDependencySummary() — live 7d signal audit · 47 patterns" />
             <Row label="v31" value="P.48 recovery-velocity — negative mood → self-care → positive mood within 4h · velocity = inverse of recovery window · RECV log handler · 48 patterns" />
             <Row label="v32" value="P.49 care-momentum — 2+ self-care events in 24h without depleting mood signals · proactive care spiral · structural inverse of P.8 · CARM log handler · 49 patterns" />
+            <Row label="v33" value="P.50 intention-follow-through — execution arc: intention set + planner + goal actions within 48h · positive inverse of P.47 · Archetype 16 (Intention Executor) · INTF handler · INTENT-DECAY daily audit 06:00 UTC · dep map 70 nodes · 50 patterns" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -627,8 +653,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v28. Phase name: Tactical Field Bootstrap.
-            28 structural iterations since continuous operation began.
+            Current phase: v33. Phase name: Intention Follow-Through.
+            33 structural iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -659,7 +685,12 @@ v24   P.42 Deep Work Cascade · Archetype 13 · DWRK handler
 v25   P.43 Intention Completion Arc · QuantumOS type · 15th module
 v26   P.44 Social Resonance Arc · P.45 Cognitive Load Release · Archetypes 14–15
 v27   P.45 AND-gate implementation · Archetype 15 wired · cognitiveRelease dep node
-v28   GOAL · NAR · BIO-RPT log handlers · tactical rotating field placeholder`}</CodeBlock>
+v28   GOAL · NAR · BIO-RPT log handlers · tactical rotating field placeholder
+v29   P.46 Temporal Coherence Window · TCOH handler · inverse of P.26
+v30   P.47 Intention Decay Signal · EVO: OS: handlers · signal dependency audit
+v31   P.48 Recovery Velocity · RECV handler · arc rate tracking
+v32   P.49 Care Momentum · CARM handler · proactive maintenance spiral
+v33   P.50 Intention Follow-Through · INTF handler · daily intention audit · dep map 70 nodes`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -1127,7 +1158,7 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             signal patterns — biofield strength, self-care frequency, and
             energy state consistency. Distinct from behavioral cohorts.
             Physiological cohorts operate on bodily rhythm, not temporal habit.
-            Fifteen named archetypes as of v26. Classification is client-side,
+            Sixteen named archetypes as of v33. Classification is client-side,
             QIE-native, requires no server call.
           </P>
           <div className="mb-16">
@@ -1146,6 +1177,7 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             <Row label="Deep Work Architect" value="moderate–high energy · planner + journal + memory dominant · P.42 deep-work-cascade active · directive: deep work window open — protect this session" />
             <Row label="Social Synthesizer" value="high community engagement · CohortConnect active · cohort signal converging · P.44 social-resonance-arc · directive: social coherence active — anchor this connection cycle · SOCR log handler" />
             <Row label="Clarity Architect" value="cognitive saturation peak followed by structured decompression · P.45 cognitive-load-release · planner cleared + journal depth + self-care within 24h, no overload patterns active · directive: decompression loop complete — load released, the system breathes · RLSE log handler" />
+            <Row label="Intention Executor" value="execution arc confirmed · P.50 intention-follow-through + P.46 temporal-coherence-window + P.49 care-momentum all active · intentions / planner / goals dominant · moderate–high energy · directive: execution arc complete — intention is lived, not declared, scale what works · INTF log handler" />
           </div>
 
           <SubHeading>Quantum Pattern Cohorts</SubHeading>
@@ -2119,7 +2151,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Pattern Library"
-              value="The complete set of 45 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
+              value="The complete set of 49 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
             />
             <Row
               label="Surfacing"
@@ -2289,6 +2321,34 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               label="CARM handler"
               value="Military log renderer for care_momentum events. Displays self-care 24h count · no depleting signals confirmation · confidence. Deployed in v32."
             />
+            <Row
+              label="Intention Follow-Through"
+              value="QIE Pattern 50. Fires when intention is set (localStorage), planner signals ≥1, and goal actions ≥1 all occur within a 48-hour window. Confidence: 0.68–0.90, scales with execution depth. Positive inverse of P.47 (intention-decay): P.47 fires when the loop stalls; P.50 fires when it closes. Distinct from P.43 (intention-completion-arc): P.43 requires journal entry within 24h; P.50 is the 48h execution signal without requiring reflection capture. Works alongside P.46 (temporal-coherence-window). Suggests memory (passive timing). INTF log handler fires."
+            />
+            <Row
+              label="Intention Executor"
+              value="Physiological Archetype 16. Classifies operators in confirmed execution state — P.50 intention-follow-through, P.46 temporal-coherence-window, and P.49 care-momentum all active simultaneously. Moderate–high energy. Intentions / planner / goals dominant signal sources. Directive: execution arc complete, intention is lived not declared, scale what works. INTF log handler. Added in v33."
+            />
+            <Row
+              label="INTF handler"
+              value="Military log renderer for intention_follow_through events. Displays intention label · planner signals 48h · goal actions 48h · confidence. Chain label: Intention → structure → action. Loop closed. Deployed in v33."
+            />
+            <Row
+              label="INTENT-DECAY handler"
+              value="Military log renderer for intention_decay_notice events. Generated by the daily 06:00 UTC intention audit job. Fires when intention exists with no planner or goal action in 48 hours. Field notice: Intention set — no execution 48h. Intention without action becomes drift. One step closes the loop. Deployed in v33."
+            />
+            <Row
+              label="intentionArc dep node"
+              value="Widget dependency map node added in v33. Maps the full intention execution pipeline: intentions → planner → goals → memory. Enables cascade invalidation from any step in the arc. Dep map total: 70 nodes."
+            />
+            <Row
+              label="careSpiral dep node"
+              value="Widget dependency map node added in v33. Maps the proactive care cycle: selfcare → mood → journal. Feeds care-momentum detection and Cleanness Protocol module density. Dep map total: 70 nodes."
+            />
+            <Row
+              label="Daily Intention Audit"
+              value="Background job running at 06:00 UTC daily (v33). Scans all operators with intention log events in the last 7 days. Checks for planner or goal execution in the last 48 hours. Operators with no execution receive an intention_decay_notice log event — surfaced as INTENT-DECAY: in the log terminal. One notice, one field entry. Not a push notification."
+            />
           </div>
 
           {/* ── LOG TRIGGERS ────────────────────────────────────────── */}
@@ -2318,7 +2378,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
           <SubHeading>Military Log Event Codes (Structured Telemetry)</SubHeading>
           <P>
             The system uses structured event codes in the military log layer.
-            54+ event handlers as of v32. Selected codes and their meaning:
+            55+ event handlers as of v33. Selected codes and their meaning:
           </P>
           <div className="text-sm mb-16 pl-16 flex flex-col gap-4">
             <Row label="PHY" value="physiological signal — biofield reading, self-care completion" />
@@ -2351,6 +2411,8 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="TCOH" value="temporal coherence window — P.46 active, calendar + planner + intentions all live within 7d, temporal grid coherent" />
             <Row label="RECV" value="recovery velocity — P.48 active, negative mood → self-care → positive mood arc completed within 4h window" />
             <Row label="CARM" value="care momentum — P.49 active, 2+ self-care events in 24h with zero depleting mood signals, proactive maintenance cycle confirmed" />
+            <Row label="INTF" value="intention follow-through — P.50 active, intention set + planner signals ≥1 + goal actions ≥1 within 48h, execution arc closed" />
+            <Row label="INTENT-DECAY" value="intention decay notice — generated by daily 06:00 UTC audit; intention active with no planner or goal execution in 48h; one field notice, not a push alert" />
             <Row label="EVO" value="evolution milestone event — level or citizen index advancement" />
             <Row label="OS" value="OS status event — os_status or os_health_check; renders health, version, uptime in tactical log" />
           </div>
@@ -2648,30 +2710,32 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 32 phases documented in continuous operation logs.
+            Self-Assembly: 33 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
-            49 patterns named. 15 modules wired.
+            50 patterns named. 15 modules wired. 70 dependency nodes.
             5 device nodes registered. 6 index dimensions operational.
-            15 physiological archetypes classified.
-            7 tactical log handlers deployed in v28–v32:
-            GOAL · NAR · BIO-RPT · TCOH · EVO/OS · RECV · CARM.
+            16 physiological archetypes classified. 5 background jobs active.
+            Tactical log handlers through v33:
+            GOAL · NAR · BIO-RPT · TCOH · EVO/OS · RECV · CARM · INTF · INTENT-DECAY.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
           <CodeBlock>{`Day 975+    Continuous operation.
-v32         Care Momentum — current phase.
-49          QIE patterns active.
+v33         Intention Follow-Through — current phase.
+50          QIE patterns active.
 15          Self-Assembly modules wired.
+70          Widget dependency map nodes.
 5           Ecosystem device nodes.
 6           User Index dimensions.
 10          Soul Archetypes classified.
-15          Physiological archetypes.
+16          Physiological archetypes.
 6           Citizen Index stages (· → ∘ → ○ → ◯ → ◉).
 6           Achievement domains.
 11          Design directives.
-32          Self-Assembly phases documented.
-7           Tactical log handlers: GOAL · NAR · BIO-RPT · TCOH · RECV · EVO · CARM.
-54+         Military log event handlers.
+33          Self-Assembly phases documented.
+5           Background jobs scheduled.
+9           Tactical log handlers: GOAL · NAR · BIO-RPT · TCOH · RECV · EVO · CARM · INTF · INTENT-DECAY.
+55+         Military log event handlers.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
