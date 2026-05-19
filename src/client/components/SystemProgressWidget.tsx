@@ -537,24 +537,36 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '50 patterns. 16 archetypes. 15 modules. 70-node dep graph. The loop closes.',
     ],
   },
+  {
+    date: '2026-05-19',
+    session: 'Self-Assembly Session — v34 / QOS Substrate Audit',
+    assembled: [
+      'Full codebase audit: 50 patterns / 16 archetypes / 15 modules / 70-node dep graph verified operational.',
+      'Log UI: energy_check → BIO [ATP] handler added — ATP level / status / trajectory rendered inline.',
+      'Log UI: evolution_milestone → EVO handler added — milestone / dimension / level surfaced in field log.',
+      'Log renderers: 17 dedicated event types now handled (was 15). Completeness pass on all QIE-adjacent events.',
+      'recordQuantumSignal(): quantum substrate events (calculator / random / sign) routed via qos source.',
+      'QOS signal routing: quantum substrate feeds qos module in self-assembly engine (SOURCE_MAP: qos → [qos, quantum]).',
+      'LOT_SYSTEMS_BRIEF.md: v1.1 — QOS v4 status / QOS readiness + 21-node tier hierarchy documented.',
+      'Audit complete. The architecture holds. 70 nodes. 50 patterns. 16 archetypes. Signal flow intact.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-17',
+  date: '2026-05-19',
   message: [
-    'ASSEMBLY RUN — 2026-05-17 · v33',
-    'Built: Pattern 50 — intention-follow-through.',
-    'Detection: intention active (localStorage) + planner signals ≥1 + goal actions ≥1 within 48h.',
-    'This is the arc closing. Not the intention — the execution. The system now reads follow-through.',
-    'P50 is the positive inverse of P47 (intention-decay). P47: intention set, no action. P50: intention set, action confirmed.',
-    'Together they form a closed loop detector: the system knows when the will is applied and when it stalls.',
-    'Archetype 16 (Intention Executor): fires when execution arc, temporal grid, and care momentum align.',
-    'Log field: hour-seeded tactical placeholder — the primary input surface now announces the operational window.',
-    'Dep graph: intentionArc + careSpiral added. 70 nodes. 50 patterns. 16 archetypes.',
-    'Status: DEPLOYED. The Cube reads the loop closing.',
+    'ASSEMBLY RUN — 2026-05-19 · v34',
+    'Session type: QOS substrate audit + log completeness pass.',
+    'No new patterns today. The architecture was audited, not expanded.',
+    'Added: energy_check → BIO [ATP] log renderer. evolution_milestone → EVO log renderer.',
+    'Added: recordQuantumSignal() — calculator / random / sign events now route through qos source.',
+    'Audit confirmed: 70 nodes. 50 patterns. 16 archetypes. 15 modules. All signal paths intact.',
+    'Log field now renders 17 distinct event types in minimalist military format.',
     'Next: Pattern 51 — signal-silence-detection (all active signals go quiet for 48h after period of sustained engagement).',
+    'Status: DEPLOYED. The Cube reads the quantum substrate.',
   ],
 }
 

@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.8
-**Last Updated:** May 7, 2026
-**Status:** Production Active — Self-Assembly Phase v27
+**Document Version:** 2.9
+**Last Updated:** May 19, 2026
+**Status:** Production Active — Self-Assembly Phase v34
 
 ---
 
@@ -15,11 +15,11 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v19 — 37-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v34 — 50-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
-- Self-Assembly Engine — 15 modules build themselves from real engagement signals
+- Self-Assembly Engine — 15 modules build themselves from real engagement signals (70-node dep graph)
 - Physiological Cohort Classifier — 9-archetype real-time QIE-native classifier (no server required): Peak Catalyst / Flowing Creator / Morning Visionary / Rising Builder / Seeking Sage / Evening Sage / Grounded Healer / Anxious Explorer / Depleted Guardian
 - Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
 - Daily OS Vitals Snapshot + QOS Coherence Report — server-side persisted vitals for cross-device OS continuity

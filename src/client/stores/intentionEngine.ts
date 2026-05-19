@@ -2667,3 +2667,11 @@ export function recordCareSpiralSignal(careCount: number, dominantAction?: strin
     hour: new Date().getHours()
   })
 }
+
+/**
+ * Record a quantum substrate signal from the calculator, random, or sign widget.
+ * Feeds the quantum module in the self-assembly engine via 'qos' source.
+ */
+export function recordQuantumSignal(type: 'calculator' | 'random' | 'sign', value?: number) {
+  recordSignal('qos', `quantum_${type}`, { value, hour: new Date().getHours() })
+}

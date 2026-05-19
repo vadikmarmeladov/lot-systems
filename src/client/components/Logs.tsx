@@ -506,6 +506,44 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'energy_check') {
+          const level = log.metadata?.level as number | undefined
+          const status = log.metadata?.status as string | undefined
+          const trajectory = log.metadata?.trajectory as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BIO [ATP]:" blockView>
+                {level !== undefined && (
+                  <div className="tabular-nums uppercase tracking-widest">{level}%</div>
+                )}
+                {status && (
+                  <div className="opacity-60 uppercase">{status}</div>
+                )}
+                {trajectory && (
+                  <div className="opacity-40">&rarr; {trajectory}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'evolution_milestone') {
+          const milestone = log.metadata?.milestone as string | undefined
+          const dimension = log.metadata?.dimension as string | undefined
+          const level = log.metadata?.level as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EVO:" blockView>
+                {milestone && (
+                  <div className="uppercase tracking-widest">{milestone}</div>
+                )}
+                {dimension && (
+                  <div className="opacity-60">{dimension}</div>
+                )}
+                {level !== undefined && (
+                  <div className="opacity-40 tabular-nums">LVL {level}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
