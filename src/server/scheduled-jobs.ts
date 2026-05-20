@@ -515,7 +515,7 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
     const { Log } = await import('#server/models/log.js')
     const { analyzeEnergyState } = await import('#server/utils/energy.js')
     const { determineUserCohort } = await import('#server/utils/memory/cohort-determination.js')
-    const { extractTraits } = await import('#server/utils/memory/trait-extraction.js')
+    const { extractUserTraits } = await import('#server/utils/memory/trait-extraction.js')
     const { Op } = await import('sequelize')
 
     const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
@@ -553,7 +553,7 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
         const energyState = analyzeEnergyState(logData)
 
         // Extract traits and determine cohort
-        const traitResult = await extractTraits(logData)
+        const traitResult = extractUserTraits(logData)
         const cohort = determineUserCohort(
           traitResult.traits,
           traitResult.patterns,
@@ -753,13 +753,13 @@ async function executeDailyIntentionAudit(): Promise<JobResult> {
   isDailyIntentionAuditRunning = true
 
   try {
-    const { models } = await import('../models/index.js')
+    const { Log } = await import('#server/models/log.js')
 
     // Find users with recent intention signals (7d) but no execution (48h)
     const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
     const fortyEightHoursAgo = dayjs().subtract(48, 'hour').toDate()
 
-    const intentionLogs = await models.Log.findAll({
+    const intentionLogs = await Log.findAll({
       where: {
         event: 'intention',
         createdAt: { $gte: sevenDaysAgo } as any,
@@ -767,7 +767,7 @@ async function executeDailyIntentionAudit(): Promise<JobResult> {
       attributes: ['userId', 'createdAt'],
     })
 
-    const executionLogs = await models.Log.findAll({
+    const executionLogs = await Log.findAll({
       where: {
         event: ['plan_set', 'goal_updated', 'goal_complete'],
         createdAt: { $gte: fortyEightHoursAgo } as any,
@@ -782,7 +782,7 @@ async function executeDailyIntentionAudit(): Promise<JobResult> {
     for (const userId of Array.from(usersWithIntention)) {
       if (!usersWithExecution.has(userId)) {
         // Log intention_decay notice — surfaced in log UI as INTENT-DECAY:
-        await models.Log.create({
+        await Log.create({
           userId,
           event: 'intention_decay_notice',
           text: 'Intention set. No execution signal in 48h.',
