@@ -1241,6 +1241,47 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 51: Signal silence detection — all primary activity signals go quiet for ≥48h
+  // after a period of sustained engagement (≥5 signals from ≥3 distinct sources in prior 7d).
+  // Positive inverse of os-stagnation (P14): P14 fires when diversity collapses but signals persist;
+  // P51 fires when the field itself goes quiet — no user output of any kind.
+  // The system notices the silence. It does not alarm. It holds the field open.
+  const ACTIVE_USER_SOURCES: IntentionSignal['source'][] = [
+    'mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'goals', 'recipe'
+  ]
+  const p51FortyEightHoursAgo = now - 48 * 60 * 60 * 1000
+  const p51SevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000
+  const p51RecentSignals = signals.filter(s =>
+    s.timestamp > p51FortyEightHoursAgo &&
+    ACTIVE_USER_SOURCES.includes(s.source as any)
+  )
+  const p51PriorEngagementSignals = signals.filter(s =>
+    s.timestamp > p51SevenDaysAgo &&
+    s.timestamp <= p51FortyEightHoursAgo &&
+    ACTIVE_USER_SOURCES.includes(s.source as any)
+  )
+  const p51PriorSources = new Set(p51PriorEngagementSignals.map(s => s.source))
+  if (
+    p51RecentSignals.length === 0 &&
+    p51PriorEngagementSignals.length >= 5 &&
+    p51PriorSources.size >= 3
+  ) {
+    const p51LastSignal = [...signals]
+      .filter(s => ACTIVE_USER_SOURCES.includes(s.source as any))
+      .sort((a, b) => b.timestamp - a.timestamp)[0]
+    const p51HoursSinceLast = p51LastSignal
+      ? Math.round((now - p51LastSignal.timestamp) / (60 * 60 * 1000))
+      : 48
+    const p51Confidence = Math.min(0.70 + (p51PriorEngagementSignals.length - 5) * 0.03, 0.85)
+    patterns.push({
+      pattern: 'signal-silence-detection',
+      confidence: p51Confidence,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `Signal field quiet: no activity in ${p51HoursSinceLast}h. Prior 7d: ${p51PriorEngagementSignals.length} signals across ${p51PriorSources.size} sources. The field is open. Return when ready.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals

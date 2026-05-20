@@ -544,6 +544,23 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'signal_silence') {
+          const hours = log.metadata?.hoursSinceLast as number | undefined
+          const priorCount = log.metadata?.priorSignalCount as number | undefined
+          const priorSources = log.metadata?.priorSources as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SLNC:" blockView>
+                <div className="uppercase tracking-widest">FIELD QUIET</div>
+                {hours !== undefined && (
+                  <div className="opacity-60 tabular-nums">&rarr; {hours}h no signal</div>
+                )}
+                {priorCount !== undefined && priorSources !== undefined && (
+                  <div className="opacity-40">PRIOR 7D: {priorCount} signals · {priorSources} sources</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

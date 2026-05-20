@@ -95,7 +95,8 @@ export function PatternRecognitionWidget() {
       'temporal-coherence-window':  'Temporal grid active',
       'recovery-velocity':          'Recovery arc accelerating',
       'care-momentum':              'Proactive care spiral',
-      'intention-follow-through':   'Execution arc complete'
+      'intention-follow-through':   'Execution arc complete',
+      'signal-silence-detection':   'Field quiet'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

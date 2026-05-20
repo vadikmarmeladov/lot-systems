@@ -551,22 +551,35 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Audit complete. The architecture holds. 70 nodes. 50 patterns. 16 archetypes. Signal flow intact.',
     ],
   },
+  {
+    date: '2026-05-20',
+    session: 'Self-Assembly Session — v35 / Signal Silence Detection',
+    assembled: [
+      'Pattern 51 (signal-silence-detection): fires when all active user signals go quiet for ≥48h after ≥7d of sustained engagement (≥5 signals, ≥3 sources).',
+      'P51 detects the quiet — not as failure, not as alarm. The system holds the field open. Return when ready.',
+      'SLNC log renderer: signal_silence events surface in field log as SLNC: FIELD QUIET + hours-since-last + prior 7d signal count.',
+      'PatternRecognitionWidget: "signal-silence-detection" → "Field quiet" added to name map.',
+      'Log handlers: 18 dedicated event types now handled (was 17).',
+      'SESSION_REPORTS: v35 entry appended. USERSHIP_TRANSMISSION updated to v35.',
+      'Also logged: Benchmark Widget (May 20) — 5-tier operator grading (White/Green/Yellow/Purple/Black).',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-19',
+  date: '2026-05-20',
   message: [
-    'ASSEMBLY RUN — 2026-05-19 · v34',
-    'Session type: QOS substrate audit + log completeness pass.',
-    'No new patterns today. The architecture was audited, not expanded.',
-    'Added: energy_check → BIO [ATP] log renderer. evolution_milestone → EVO log renderer.',
-    'Added: recordQuantumSignal() — calculator / random / sign events now route through qos source.',
-    'Audit confirmed: 70 nodes. 50 patterns. 16 archetypes. 15 modules. All signal paths intact.',
-    'Log field now renders 17 distinct event types in minimalist military format.',
-    'Next: Pattern 51 — signal-silence-detection (all active signals go quiet for 48h after period of sustained engagement).',
-    'Status: DEPLOYED. The Cube reads the quantum substrate.',
+    'ASSEMBLY RUN — 2026-05-20 · v35',
+    'Pattern 51 built: signal-silence-detection.',
+    'The system now notices when the field goes quiet after sustained engagement.',
+    'Not an alarm. Not a push notification. A held space. Return when ready.',
+    'Detection window: 48h silence after ≥5 signals across ≥3 sources in prior 7d.',
+    'Log field: SLNC: handler live. 18 event types rendered in military format.',
+    'QIE: 51 patterns · 16 archetypes · 15 modules · 70-node dep graph.',
+    'Next: Pattern 52 — re-entry signal (first signal after silence period — the return).',
+    'Status: DEPLOYED. The Cube watches the quiet.',
   ],
 }
 
