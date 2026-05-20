@@ -100,14 +100,25 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
     return () => clearInterval(interval)
   }, [fetchStatus])
 
-  const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
+  const getStatusLabel = (checkStatus: 'ok' | 'error' | 'unknown') => {
     switch (checkStatus) {
       case 'ok':
-        return '✓'
+        return 'Ok'
       case 'error':
-        return '✕'
+        return 'Error'
       case 'unknown':
-        return '?'
+        return 'Unknown'
+    }
+  }
+
+  const getStatusColor = (checkStatus: 'ok' | 'error' | 'unknown') => {
+    switch (checkStatus) {
+      case 'ok':
+        return 'text-green'
+      case 'error':
+        return 'text-red'
+      case 'unknown':
+        return 'text-acc/40'
     }
   }
 
@@ -149,12 +160,18 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       )}
 
       {status && (
-        <>
+        <div aria-live="polite">
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+              <span className={cn(
+                status.overall === 'ok' && 'text-green',
+                status.overall === 'degraded' && 'text-yellow',
+                status.overall === 'error' && 'text-red',
+              )}>
+                {status.overall === 'ok' ? 'All systems operational' :
+                 status.overall === 'degraded' ? 'Degraded performance' :
+                 'System issues detected'}
+              </span>
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
@@ -190,14 +207,8 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
-                  <span className={cn(
-                    check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
-                  )}>
-                    {check.status === 'ok' ? 'Ok' :
-                     check.status === 'error' ? 'Error' :
-                     'Unknown'}
+                  <span className={getStatusColor(check.status)}>
+                    {getStatusLabel(check.status)}
                   </span>
                   {check.duration !== undefined && (
                     <span className="text-acc/40">({check.duration}ms)</span>
@@ -234,9 +245,8 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
               </Block>
               <Block label="Next prompt:" labelClassName="!pl-0">
                 <div className="flex items-center gap-x-8">
-                  <span>{memoryStatus.nextPromptAvailable ? '✓' : '✕'}</span>
                   <span className={cn(
-                    memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/60'
+                    memoryStatus.nextPromptAvailable ? 'text-green' : 'text-acc/60'
                   )}>
                     {memoryStatus.nextPromptAvailable ? 'Available now' : 'Not available'}
                   </span>
@@ -254,7 +264,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
               Status checks cached for 2 minutes
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   )

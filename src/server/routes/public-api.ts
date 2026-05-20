@@ -51,7 +51,7 @@ async function checkDatabase(): Promise<SystemCheck> {
   }
 }
 
-async function checkWeatherAPI(): Promise<SystemCheck> {
+async function checkEngineStack(): Promise<SystemCheck> {
   const start = Date.now()
   try {
     // Check Weather API
@@ -180,10 +180,7 @@ async function checkUsers(): Promise<SystemCheck> {
 async function checkSettings(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check if User model is available (settings are part of User model)
-    await models.User.findOne()
-
-    // Check if settings page bundle exists
+    // Check if settings page bundle exists (User model validated in checkUsers)
     const settingsPagePath = path.join(process.cwd(), 'dist/client/js/app.js')
     if (!fs.existsSync(settingsPagePath)) {
       return {
@@ -340,14 +337,17 @@ async function performHealthChecks(): Promise<{
     checkSettings(),
     checkUsers(),
     checkSystems(),
-    checkWeatherAPI(),
+    checkEngineStack(),
     checkDatabase(),
     checkMemory(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Critical checks — failure means 'error' overall
+  const criticalNames = new Set(['Database stack', 'Authentication engine', 'Sync'])
+  const hasCriticalError = checks.some((c) => c.status === 'error' && criticalNames.has(c.name))
+  // Non-critical failures degrade the system but keep it functional
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall = hasCriticalError ? 'error' : hasAnyError ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
