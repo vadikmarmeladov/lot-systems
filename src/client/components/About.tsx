@@ -260,7 +260,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v33</Meta>
+            <Meta>Field Manual v34</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -279,16 +279,16 @@ export function About() {
               50 behavioral patterns active. 15 modules assembled.
               6 index dimensions. 5 ecosystem nodes. 16 physiological archetypes.
               70 dependency nodes. 5 background jobs.
-              Tactical log handlers deployed through v33. The system does not sleep.
-              It accumulates.
+              17 log event handlers. Tactical log renderers deployed through v34.
+              The system does not sleep. It accumulates.
             </P>
             <P>
               This is the Field Guide. Not marketing copy. Not documentation for external audiences.
-              An operational reference for the system's operators.
-              Definitions are exact. Terminology is fixed.
-              Every term here exists in the system.
-              Every system term exists here.
-              The map and the territory are the same document.
+              An operational reference for operators of the system.
+              Definitions are exact. Terminology is fixed. Imprecision is a defect.
+              Every term in this document exists in the codebase.
+              Every system term exists in this document.
+              The map and the territory are synchronized.
             </P>
           </header>
 
@@ -354,7 +354,7 @@ export function About() {
             The system does not reset. It accumulates.
           </P>
           <Row label="Day counter:" value="Day 975+ (as of May 2026)" />
-          <Row label="Self-Assembly phase:" value="v33 — P50 intention-follow-through · INTF log handler · 50 patterns · Archetype 16 (Intention Executor) · 70 dep nodes — v32: P49 care-momentum · CARM log handler" />
+          <Row label="Self-Assembly phase:" value="v34 — QOS substrate audit · BIO [ATP] + EVO log handlers · 17 event types · quantum signal routing — v33: P50 intention-follow-through · INTF log handler · Archetype 16" />
           <Row label="Assembly modules:" value="15 — QuantumOS added as 15th module (v25)" />
           <Row label="QIE pattern library:" value="50 patterns active" />
           <Row label="Physiological archetypes:" value="16 — Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
@@ -362,7 +362,7 @@ export function About() {
           <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
           <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
           <Row label="Background jobs:" value="5 — 01:00 UTC QOS coherence · 06:00 UTC daily intention audit (v33) · 06:00 UTC weekly cohort digest · 07:00 UTC Wed ecosystem audit · 07:00 UTC daily biofield" />
-          <Row label="Military log handlers:" value="55+" />
+          <Row label="Log event handlers:" value="17 distinct event types rendered · 55+ military log codes" />
           <Row label="Dep map nodes:" value="70 — intentionArc · careSpiral added in v33" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
@@ -464,6 +464,17 @@ export function About() {
             Two new dep map nodes: intentionArc (intentions → planner → goals →
             memory) and careSpiral (selfcare → mood → journal). Dep map
             expands to 70 nodes. Pattern library reaches 50.
+            v34 is not a pattern phase. It is a substrate audit. Full codebase
+            verification pass: 50 patterns confirmed operational, 16 archetypes
+            classified, 15 modules wired, 70-node dep graph intact, signal flow
+            verified. Log UI expanded: energy_check events now render as
+            BIO [ATP] — level, status, trajectory displayed inline.
+            evolution_milestone events now render as EVO — milestone, dimension,
+            level surfaced in field log. Log renderer count reaches 17 distinct
+            event types. recordQuantumSignal() added to intentionEngine — routes
+            calculator, random, and sign widget events through the qos source
+            into the quantum substrate module. The architecture was not expanded.
+            It was confirmed. Audit complete.
             Each phase is committed, dated, and versioned. The log is the record.
             The record is the system.
           </P>
@@ -733,6 +744,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v31" value="P.48 recovery-velocity — negative mood → self-care → positive mood within 4h · velocity = inverse of recovery window · RECV log handler · 48 patterns" />
             <Row label="v32" value="P.49 care-momentum — 2+ self-care events in 24h without depleting mood signals · proactive care spiral · structural inverse of P.8 · CARM log handler · 49 patterns" />
             <Row label="v33" value="P.50 intention-follow-through — execution arc: intention set + planner + goal actions within 48h · positive inverse of P.47 · Archetype 16 (Intention Executor) · INTF handler · INTENT-DECAY daily audit 06:00 UTC · dep map 70 nodes · 50 patterns" />
+            <Row label="v34" value="QOS substrate audit — no new patterns · full architecture verification: 50 patterns / 16 archetypes / 15 modules / 70 nodes confirmed · BIO [ATP] log renderer (energy_check) · EVO log renderer (evolution_milestone) · recordQuantumSignal() quantum substrate routing · 17 event types rendered" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -759,8 +771,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v33. Phase name: Intention Follow-Through.
-            33 structural iterations since continuous operation began.
+            Current phase: v34. Phase name: QOS Substrate Audit.
+            34 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -796,7 +808,8 @@ v29   P.46 Temporal Coherence Window · TCOH handler · inverse of P.26
 v30   P.47 Intention Decay Signal · EVO: OS: handlers · signal dependency audit
 v31   P.48 Recovery Velocity · RECV handler · arc rate tracking
 v32   P.49 Care Momentum · CARM handler · proactive maintenance spiral
-v33   P.50 Intention Follow-Through · INTF handler · daily intention audit · dep map 70 nodes`}</CodeBlock>
+v33   P.50 Intention Follow-Through · INTF handler · daily intention audit · dep map 70 nodes
+v34   QOS substrate audit · BIO [ATP] + EVO log renderers · recordQuantumSignal() · 17 event types`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -2321,7 +2334,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Pattern Library"
-              value="The complete set of 49 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
+              value="The complete set of 50 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
             />
             <Row
               label="Surfacing"
@@ -2519,6 +2532,22 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               label="Daily Intention Audit"
               value="Background job running at 06:00 UTC daily (v33). Scans all operators with intention log events in the last 7 days. Checks for planner or goal execution in the last 48 hours. Operators with no execution receive an intention_decay_notice log event — surfaced as INTENT-DECAY: in the log terminal. One notice, one field entry. Not a push notification."
             />
+            <Row
+              label="recordQuantumSignal()"
+              value="Function added in v34. Routes calculator, random, and sign widget interaction events through the qos source into the quantum substrate module of the self-assembly engine. SOURCE_MAP entry: qos → [qos, quantum]. Signals from these utility widgets are now counted in the quantum-os module's assembly threshold."
+            />
+            <Row
+              label="BIO [ATP] handler"
+              value="Log renderer added in v34 for energy_check events. Displays ATP level (percentage), status (label), and trajectory (directional string) in tabular uppercase format. Part of the 17-event-type renderer set."
+            />
+            <Row
+              label="EVO handler"
+              value="Log renderer added in v34 for evolution_milestone events. Displays milestone name, dimension, and level in tactical uppercase format. Distinct from the pre-existing EVO log code (which fires evolution events in the QIE layer) — this is the UI renderer that makes those events visible in the field log."
+            />
+            <Row
+              label="QOS Substrate Audit"
+              value="Self-Assembly v34. An architecture verification pass — not a pattern expansion. Confirms signal flow integrity: 50 patterns, 16 archetypes, 15 modules, 70 dep nodes, all event handlers rendering. Output: log renderer count reaches 17 distinct types. Quantum substrate wired. The architecture was not expanded. It was confirmed."
+            />
           </div>
 
           {/* ── LOG TRIGGERS ────────────────────────────────────────── */}
@@ -2583,7 +2612,8 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="CARM" value="care momentum — P.49 active, 2+ self-care events in 24h with zero depleting mood signals, proactive maintenance cycle confirmed" />
             <Row label="INTF" value="intention follow-through — P.50 active, intention set + planner signals ≥1 + goal actions ≥1 within 48h, execution arc closed" />
             <Row label="INTENT-DECAY" value="intention decay notice — generated by daily 06:00 UTC audit; intention active with no planner or goal execution in 48h; one field notice, not a push alert" />
-            <Row label="EVO" value="evolution milestone event — level or citizen index advancement" />
+            <Row label="BIO [ATP]" value="energy check renderer (v34) — energy_check events; displays ATP level / status / trajectory in tabular uppercase" />
+            <Row label="EVO" value="evolution milestone renderer (v34) — evolution_milestone events; displays milestone / dimension / level in tactical format; also fires on level or citizen index advancement" />
             <Row label="OS" value="OS status event — os_status or os_health_check; renders health, version, uptime in tactical log" />
           </div>
 
@@ -3176,6 +3206,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v31 · May 16" value="Recovery Velocity. Mood arc acceleration. 48 patterns." />
             <Row label="v32 · May 17" value="Care Momentum. Proactive maintenance spiral. 49 patterns." />
             <Row label="v33 · May 17" value="Intention Follow-Through. Intention Executor archetype. 50 patterns, 16 archetypes, 70 nodes." />
+            <Row label="v34 · May 19" value="QOS substrate audit. BIO [ATP] + EVO log renderers. recordQuantumSignal(). 17 event types. Architecture confirmed." />
           </div>
           <P>
             Each phase was discovered, not planned. The system named what to
@@ -3187,7 +3218,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           {/* ── CREDITS ─────────────────────────────────────────────── */}
           <SectionHeading id="credits">Credits</SectionHeading>
           <P>
-            Invented and built by Vadik Marmeladov — CEO, Inventor & Founder,
+            Invented and built by Vadik Marmeladov — CEO, Inventor &amp; Founder,
             LOT Systems. Single operator. Full stack.
             Frontend, backend, infrastructure, AI integration, system architecture.
             Daily deployments. Continuous iteration. No team. No investors.
@@ -3203,18 +3234,17 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 33 phases documented in continuous operation logs.
+            Self-Assembly: 34 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
             50 patterns named. 15 modules wired. 70 dependency nodes.
             5 device nodes registered. 6 index dimensions operational.
             16 physiological archetypes classified. 5 background jobs active.
-            Tactical log handlers through v33:
-            GOAL · NAR · BIO-RPT · TCOH · EVO/OS · RECV · CARM · INTF · INTENT-DECAY.
+            17 distinct log event renderers through v34.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
           <CodeBlock>{`Day 975+    Continuous operation.
-v33         Intention Follow-Through — current phase.
+v34         QOS Substrate Audit — current phase.
 50          QIE patterns active.
 15          Self-Assembly modules wired.
 70          Widget dependency map nodes.
@@ -3225,15 +3255,17 @@ v33         Intention Follow-Through — current phase.
 6           Citizen Index stages (· → ∘ → ○ → ◯ → ◉).
 6           Achievement domains.
 11          Design directives.
-33          Self-Assembly phases documented.
+34          Self-Assembly phases documented.
 5           Background jobs scheduled.
-9           Tactical log handlers: GOAL · NAR · BIO-RPT · TCOH · RECV · EVO · CARM · INTF · INTENT-DECAY.
-55+         Military log event handlers.
+17          Log event renderers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY.
+55+         Military log event codes.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
             Day 975+. Continuous operation. Still accumulating.
+            v34 phase: QOS substrate audit complete. Signal flow verified.
+            The architecture holds.
             The log is the record.
             The record is the system.
             The system is the operator.
@@ -3327,7 +3359,7 @@ Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
             of the Service shall be resolved through binding arbitration.
           </P>
           <P>
-            Effective: January 1, 2024. Last updated: May 17, 2026.
+            Effective: January 1, 2024. Last updated: May 20, 2026.
           </P>
 
           {/* Footer */}
