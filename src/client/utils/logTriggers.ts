@@ -27,6 +27,8 @@ export type LogTrigger =
   | 'cohort-support'    // ❗  (heavy exclamation, distinct from regular '!')
   | 'qos-report'        // /qos — surface Quantum OS state in current log session
   | 'assembly-check'    // /assembly — trigger self-assembly module status check
+  | 'phys-report'       // /phys — generate physiological cohort report
+  | 'sil-check'         // /sil — check for signal silence pattern
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -47,6 +49,8 @@ const RULES: TriggerRule[] = [
   { trigger: 'cohort-support', emojis: ['❗', '‼️', '‼'], keywords: [] },
   { trigger: 'qos-report',     emojis: [],        keywords: ['qos', 'os-report'] },
   { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
+  { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
+  { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
 ]
 
 /**

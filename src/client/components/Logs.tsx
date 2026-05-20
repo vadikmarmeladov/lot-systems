@@ -21,6 +21,7 @@ import {
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { recordLogSignal, recordJournalSignal, analyzeIntentions } from '#client/stores/intentionEngine'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -544,6 +545,211 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'biofield_recovery_arc') {
+          const confidence = log.metadata?.confidence as number | undefined
+          const selfCareCount = log.metadata?.selfCareCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">Recovery arc closed</div>
+                {selfCareCount !== undefined && (
+                  <div className="opacity-60">CARE 4h: {selfCareCount}</div>
+                )}
+                <div className="opacity-40">Depleted → intervention → restored.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_expansion') {
+          const sourcesActive = log.metadata?.sourcesActive as number | undefined
+          const wordCount = log.metadata?.wordCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CEXP:" blockView>
+                <div className="uppercase tracking-widest mb-4">Cognitive expansion</div>
+                {wordCount !== undefined && (
+                  <div className="opacity-60">LOG DEPTH: {wordCount}w</div>
+                )}
+                {sourcesActive !== undefined && (
+                  <div className="opacity-60">SOURCES: {sourcesActive}</div>
+                )}
+                <div className="opacity-40">Memory + journal + goals simultaneous.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'goal_complete') {
+          const goalTitle = log.metadata?.title as string | undefined
+          const category = log.metadata?.category as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GOAL-X:" blockView>
+                <div className="uppercase tracking-widest mb-4">Goal complete</div>
+                {goalTitle && <div className="opacity-60">&gt; {goalTitle}</div>}
+                {category && <div className="opacity-40">CAT: {category.toUpperCase()}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biofield_coherence_cascade') {
+          const moduleCount = log.metadata?.moduleCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CASCADE:" blockView>
+                <div className="uppercase tracking-widest mb-4">Biofield coherence cascade</div>
+                {moduleCount !== undefined && (
+                  <div className="opacity-60">PRIMARY MODULES: {moduleCount}</div>
+                )}
+                <div className="opacity-40">Recovery arc + cognitive expansion converging.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'resonant_synthesis') {
+          const sourcesActive = log.metadata?.sourcesActive as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SYNTH:" blockView>
+                <div className="uppercase tracking-widest mb-4">Resonant synthesis</div>
+                {sourcesActive !== undefined && (
+                  <div className="opacity-60">SOURCES 7d: {sourcesActive}</div>
+                )}
+                <div className="opacity-40">Full cascade + reflection + cognition advancing.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'deep_work_cascade') {
+          const signalCount = log.metadata?.signalCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DWRK:" blockView>
+                <div className="uppercase tracking-widest mb-4">Deep work cascade</div>
+                {signalCount !== undefined && (
+                  <div className="opacity-60">SIGNALS 3h: {signalCount}</div>
+                )}
+                <div className="opacity-40">Memory + planner + journal + goals. No interruption.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'social_resonance_arc') {
+          const signalCount = log.metadata?.signalCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOCR:" blockView>
+                <div className="uppercase tracking-widest mb-4">Connection loop closed</div>
+                {signalCount !== undefined && (
+                  <div className="opacity-60">SIGNALS 48h: {signalCount}</div>
+                )}
+                <div className="opacity-40">Community → outreach → reflection.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_load_release') {
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const journalCount = log.metadata?.journalCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RLSE:" blockView>
+                <div className="uppercase tracking-widest mb-4">Decompression loop closed</div>
+                {plannerCount !== undefined && (
+                  <div className="opacity-60">PLAN 24h: {plannerCount}</div>
+                )}
+                {journalCount !== undefined && (
+                  <div className="opacity-60">JRN 24h: {journalCount}</div>
+                )}
+                <div className="opacity-40">Structure → reflection → care. Load released.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'temporal_coherence_window') {
+          const calCount = log.metadata?.calendarCount as number | undefined
+          const planCount = log.metadata?.plannerCount as number | undefined
+          const intentCount = log.metadata?.intentionCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TCOH:" blockView>
+                <div className="uppercase tracking-widest mb-4">Temporal grid active</div>
+                {calCount !== undefined && (
+                  <div className="opacity-60">CAL 7d: {calCount}</div>
+                )}
+                {planCount !== undefined && (
+                  <div className="opacity-60">PLAN 7d: {planCount}</div>
+                )}
+                {intentCount !== undefined && (
+                  <div className="opacity-60">INTENT 7d: {intentCount}</div>
+                )}
+                <div className="opacity-40">Calendar + planner + intentions. Time anchored.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recovery_velocity') {
+          const preMood = log.metadata?.preMood as string | undefined
+          const postMood = log.metadata?.postMood as string | undefined
+          const windowMinutes = log.metadata?.windowMinutes as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RECV:" blockView>
+                <div className="uppercase tracking-widest mb-4">Recovery arc accelerating</div>
+                {(preMood || postMood) && (
+                  <div className="opacity-60">
+                    {preMood && preMood.toUpperCase()} → {postMood && postMood.toUpperCase()}
+                  </div>
+                )}
+                {windowMinutes !== undefined && (
+                  <div className="opacity-60">WINDOW: {windowMinutes}min</div>
+                )}
+                <div className="opacity-40">Negative → care → positive restored.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_silence') {
+          const priorSources = log.metadata?.priorSources as number | undefined
+          const silenceHours = log.metadata?.silenceHours as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIL:" blockView>
+                <div className="uppercase tracking-widest mb-4">Signal silence detected</div>
+                {priorSources !== undefined && (
+                  <div className="opacity-60">PRIOR SOURCES: {priorSources}</div>
+                )}
+                {silenceHours !== undefined && (
+                  <div className="opacity-60">QUIET: {silenceHours}h</div>
+                )}
+                <div className="opacity-40">The field went still. Check in.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -624,6 +830,18 @@ const NoteEditor = ({
 
     // Save the log
     onChange(debouncedValue)
+
+    // Feed QIE biofield loop — journal depth signal for Reflection Layer assembly
+    const wordCount = debouncedValue.trim().split(/\s+/).filter(Boolean).length
+    if (wordCount > 0) {
+      try {
+        if (primary) {
+          recordJournalSignal(wordCount)
+        } else {
+          recordLogSignal(wordCount, !!log.context)
+        }
+      } catch {}
+    }
 
     // Update timestamp
     setLastSavedAt(new Date())
@@ -748,8 +966,9 @@ const NoteEditor = ({
           else playSynthDeactivationChime()
         } catch {}
       }
-      // Other triggers are detected but intentionally a no-op here —
-      // the brainstorm list above will wire them in as dedicated PRs.
+      } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
+        // Force immediate quantum intent analysis + recompute self-assembly state
+        try { analyzeIntentions() } catch {}
     }
   }, [value])
 

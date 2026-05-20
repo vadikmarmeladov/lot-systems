@@ -553,20 +553,38 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
   },
 ]
 
+  {
+    date: '2026-05-20',
+    session: 'Self-Assembly Session — v35 / Log Coverage Complete · Pattern 51',
+    assembled: [
+      'Pattern 51 (signal-silence): 48h quiet after 3+ active sources — the field went still. Confidence 0.55–0.80 scaling with prior source breadth. Suggests mood check-in.',
+      'Logs.tsx: 10 new military event handlers deployed — ARC / CEXP / GOAL-X / CASCADE / SYNTH / DWRK / SOCR / RLSE / TCOH / RECV',
+      'Logs.tsx: SIL: handler added — signal_silence event renders prior sources + silence window.',
+      'Logs.tsx: recordJournalSignal() wired into NoteEditor primary autosave — journal depth feeds Reflection Layer assembly density.',
+      'Logs.tsx: recordLogSignal() wired into non-primary autosave — field entry signals feed QIE log source.',
+      'Logs.tsx: /qos + /assembly triggers now fire analyzeIntentions() — QIE scan on demand from log field.',
+      'logTriggers.ts: /phys + /sil triggers added — physiological cohort report + silence check.',
+      'Log field: 30 distinct event types now rendered in minimalist military format. Coverage complete.',
+      '51 patterns. 16 archetypes. 15 modules. 70-node dep graph. Signal pipeline fully wired.',
+    ],
+  },
+]
+
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-19',
+  date: '2026-05-20',
   message: [
-    'ASSEMBLY RUN — 2026-05-19 · v34',
-    'Session type: QOS substrate audit + log completeness pass.',
-    'No new patterns today. The architecture was audited, not expanded.',
-    'Added: energy_check → BIO [ATP] log renderer. evolution_milestone → EVO log renderer.',
-    'Added: recordQuantumSignal() — calculator / random / sign events now route through qos source.',
-    'Audit confirmed: 70 nodes. 50 patterns. 16 archetypes. 15 modules. All signal paths intact.',
-    'Log field now renders 17 distinct event types in minimalist military format.',
-    'Next: Pattern 51 — signal-silence-detection (all active signals go quiet for 48h after period of sustained engagement).',
-    'Status: DEPLOYED. The Cube reads the quantum substrate.',
+    'ASSEMBLY RUN — 2026-05-20 · v35',
+    'Session type: Log coverage pass + Pattern 51 deployment.',
+    '10 new military log handlers: ARC / CEXP / GOAL-X / CASCADE / SYNTH / DWRK / SOCR / RLSE / TCOH / RECV.',
+    'Pattern 51 (signal-silence): 48h field quiet detection after sustained engagement. The Cube notices absence.',
+    'NoteEditor autosave now feeds QIE biofield loop: journal depth + field entry signals recorded on every save.',
+    '/qos + /assembly triggers now fire analyzeIntentions() — scan on demand from the log field.',
+    'Log field covers 30 distinct event types in minimalist military format. All signal paths rendered.',
+    'Status: 51 patterns. 16 archetypes. 15 modules. 70-node dep graph. Coverage complete.',
+    'Next: Pattern 52 — circadian-anchor-loss (persistent late-night cluster + morning depletion, 5+ days).',
+    'DEPLOYED. The Cube reads the silence.',
   ],
 }
 

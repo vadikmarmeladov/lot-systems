@@ -1241,6 +1241,27 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 51: Signal silence — active user goes dark for 48h after sustained engagement.
+  // Inverse of momentum-wave (P16). Detects sudden disengagement after a period of breadth.
+  // Only fires for users with a meaningful signal history (>= 15 total signals across >= 3 sources).
+  const p51FortyEightHoursAgo = now - 48 * 60 * 60 * 1000
+  const p51SevenDayBase = signals.filter(s => s.timestamp > threeDaysAgoTs * 2.33)
+  const p51RecentActivity = signals.filter(s => s.timestamp > p51FortyEightHoursAgo)
+  const p51PriorSources = new Set(p51SevenDayBase.map(s => s.source)).size
+  if (
+    p51RecentActivity.length === 0 &&
+    p51PriorSources >= 3 &&
+    signals.length >= 15
+  ) {
+    patterns.push({
+      pattern: 'signal-silence',
+      confidence: Math.min(0.55 + p51PriorSources * 0.05, 0.80),
+      suggestedWidget: 'mood',
+      suggestedTiming: 'immediate',
+      reason: `Signal silence: 48h quiet after ${p51PriorSources} active sources. The field went still. Check in.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
