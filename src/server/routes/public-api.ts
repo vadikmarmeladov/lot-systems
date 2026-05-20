@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify'
+import { Op } from 'sequelize'
 import { sequelize } from '#server/utils/db'
 import { models } from '#server/models'
 import * as weather from '#server/utils/weather'
@@ -359,7 +360,147 @@ async function performHealthChecks(): Promise<{
   }
 }
 
+let analyticsCache: any = null
+let analyticsLastCheck = 0
+const ANALYTICS_CACHE_DURATION = 60 * 1000 // 1 minute
+
 export default async (fastify: FastifyInstance) => {
+  fastify.get('/analytics', async (req, reply) => {
+    const now = Date.now()
+    if (analyticsCache && (now - analyticsLastCheck) < ANALYTICS_CACHE_DURATION) {
+      return { ...analyticsCache, cached: true }
+    }
+
+    try {
+      const totalUsers = await models.User.countJoined()
+      const usersOnline = await models.User.countOnline()
+
+      const allUsers = await models.User.findAll({
+        attributes: ['id', 'createdAt', 'lastSeenAt', 'joinedAt', 'tags'],
+      })
+
+      const thirtyDaysAgo = dayjs().subtract(30, 'day').toDate()
+      const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+      const activeUsers30d = allUsers.filter(
+        u => u.lastSeenAt && new Date(u.lastSeenAt) >= thirtyDaysAgo
+      ).length
+
+      const activeUsers7d = allUsers.filter(
+        u => u.lastSeenAt && new Date(u.lastSeenAt) >= sevenDaysAgo
+      ).length
+
+      const returnRate = totalUsers > 0
+        ? Math.round((activeUsers30d / totalUsers) * 100)
+        : 0
+
+      const userIds = allUsers.map(u => u.id)
+
+      const totalLogs = await models.Log.count({
+        where: { userId: { [Op.in]: userIds } },
+      })
+
+      const avgLogsPerUser = totalUsers > 0
+        ? Math.round(totalLogs / totalUsers)
+        : 0
+
+      const recentLogs = await models.Log.count({
+        where: {
+          createdAt: { [Op.gte]: sevenDaysAgo },
+          userId: { [Op.in]: userIds },
+        },
+      })
+
+      const avgDailyLogs = activeUsers7d > 0
+        ? Math.round((recentLogs / 7) / activeUsers7d * 10) / 10
+        : 0
+
+      const sessionRows: Array<{ userId: string; createdAt: Date; lastUsedAt: Date | null }> = await models.Session.findAll({
+        attributes: ['userId', 'createdAt', 'lastUsedAt'],
+        where: { lastUsedAt: { [Op.not]: null } },
+        order: [['createdAt', 'DESC']],
+        limit: 500,
+        raw: true,
+      })
+
+      let avgSessionMinutes = 0
+      if (sessionRows.length > 0) {
+        const durations = sessionRows
+          .map(s => {
+            const start = new Date(s.createdAt).getTime()
+            const end = new Date(s.lastUsedAt!).getTime()
+            return (end - start) / 60000
+          })
+          .filter(d => d > 0 && d < 480)
+        if (durations.length > 0) {
+          avgSessionMinutes = Math.round(
+            (durations.reduce((a, b) => a + b, 0) / durations.length) * 10
+          ) / 10
+        }
+      }
+
+      const distinctEventTypes = await models.Log.findAll({
+        attributes: [[sequelize.fn('COUNT', sequelize.fn('DISTINCT', sequelize.col('event'))), 'count']],
+        where: {
+          createdAt: { [Op.gte]: thirtyDaysAgo },
+          userId: { [Op.in]: userIds },
+        },
+        raw: true,
+      })
+      const featuresBreadth = (distinctEventTypes[0] as any)?.count || 0
+
+      const streaks: number[] = []
+      for (const user of allUsers.slice(0, 50)) {
+        const answers = await models.Answer.findAll({
+          where: { userId: user.id },
+          attributes: ['createdAt'],
+          order: [['createdAt', 'DESC']],
+          limit: 120,
+          raw: true,
+        })
+        if (answers.length === 0) continue
+        const days = new Set(answers.map((a: any) => dayjs(a.createdAt).format('YYYY-MM-DD')))
+        let streak = 0
+        let d = dayjs()
+        if (!days.has(d.format('YYYY-MM-DD'))) d = d.subtract(1, 'day')
+        while (days.has(d.format('YYYY-MM-DD'))) {
+          streak++
+          d = d.subtract(1, 'day')
+        }
+        if (streak > 0) streaks.push(streak)
+      }
+
+      const avgStreak = streaks.length > 0
+        ? Math.round((streaks.reduce((a, b) => a + b, 0) / streaks.length) * 10) / 10
+        : 0
+
+      const result = {
+        timestamp: new Date().toISOString(),
+        traffic: {
+          totalUsers,
+          usersOnline,
+          activeUsers7d,
+          activeUsers30d,
+        },
+        benchmarks: {
+          avgSessionMinutes,
+          avgDailyLogs,
+          avgLogsPerUser,
+          returnRate,
+          avgStreakDays: avgStreak,
+          featuresBreadth: Number(featuresBreadth),
+        },
+      }
+
+      analyticsCache = result
+      analyticsLastCheck = now
+      return result
+    } catch (error: any) {
+      console.error('[PUBLIC-ANALYTICS] Error:', error.message)
+      return reply.code(500).send({ error: 'Analytics unavailable' })
+    }
+  })
+
   // Public status endpoint - no authentication required
   // Cached for 2 minutes to be cost-effective with Digital Ocean
   fastify.get('/status', async (req, reply) => {

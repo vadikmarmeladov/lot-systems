@@ -201,10 +201,51 @@ function MobileNav({
   )
 }
 
+type Analytics = {
+  traffic: {
+    totalUsers: number
+    usersOnline: number
+    activeUsers7d: number
+    activeUsers30d: number
+  }
+  benchmarks: {
+    avgSessionMinutes: number
+    avgDailyLogs: number
+    avgLogsPerUser: number
+    returnRate: number
+    avgStreakDays: number
+    featuresBreadth: number
+  }
+} | null
+
+function useAnalytics() {
+  const [data, setData] = React.useState<Analytics>(null)
+
+  React.useEffect(() => {
+    let cancelled = false
+    fetch('/api/public/analytics')
+      .then(r => r.ok ? r.json() : null)
+      .then(d => { if (!cancelled && d) setData(d) })
+      .catch(() => {})
+
+    const interval = setInterval(() => {
+      fetch('/api/public/analytics')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (!cancelled && d) setData(d) })
+        .catch(() => {})
+    }, 60000)
+
+    return () => { cancelled = true; clearInterval(interval) }
+  }, [])
+
+  return data
+}
+
 export function About() {
   useDocumentTitle('About', false)
   const activeId = useActiveSection()
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
+  const analytics = useAnalytics()
 
   return (
     <div className="min-h-screen bg-bac text-acc">
@@ -426,6 +467,28 @@ export function About() {
             Each phase is committed, dated, and versioned. The log is the record.
             The record is the system.
           </P>
+
+          {analytics && (
+            <>
+              <SubHeading>Live Traffic</SubHeading>
+              <div className="mb-16">
+                <Row label="Total users" value={String(analytics.traffic.totalUsers)} />
+                <Row label="Users online" value={String(analytics.traffic.usersOnline)} />
+                <Row label="Active (7d)" value={String(analytics.traffic.activeUsers7d)} />
+                <Row label="Active (30d)" value={String(analytics.traffic.activeUsers30d)} />
+              </div>
+
+              <SubHeading>Success Benchmarks</SubHeading>
+              <div className="mb-16">
+                <Row label="Avg. session" value={`${analytics.benchmarks.avgSessionMinutes} min`} />
+                <Row label="Avg. daily logs" value={`${analytics.benchmarks.avgDailyLogs} logs/user/day`} />
+                <Row label="Avg. total logs" value={`${analytics.benchmarks.avgLogsPerUser} logs/user (lifetime)`} />
+                <Row label="Return rate" value={`${analytics.benchmarks.returnRate}% — users active within 30 days`} />
+                <Row label="Avg. streak" value={`${analytics.benchmarks.avgStreakDays} days — consecutive daily engagement`} />
+                <Row label="Feature breadth" value={`${analytics.benchmarks.featuresBreadth} distinct event types in last 30 days`} />
+              </div>
+            </>
+          )}
 
           {/* ── CORE ENGINES ────────────────────────────────────────── */}
           <SectionHeading id="core-engines">Core Engines</SectionHeading>
