@@ -12,6 +12,10 @@ on:
         required: false
         default: 'Manual trigger'
 
+concurrency:
+  group: lot-rebuild
+  cancel-in-progress: false
+
 jobs:
   rebuild:
     name: Trigger DO App Platform Rebuild
