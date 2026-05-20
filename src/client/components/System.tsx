@@ -65,6 +65,7 @@ import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 import { CalendarWidget } from './CalendarWidget'
+import { BenchmarkWidget } from './BenchmarkWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
 
@@ -998,6 +999,10 @@ export const System = () => {
       {/* Calendar — Personal date planner */}
       <WidgetErrorBoundary name="Calendar">
         <CalendarWidget />
+      </WidgetErrorBoundary>
+
+      <WidgetErrorBoundary name="Benchmark">
+        <BenchmarkWidget />
       </WidgetErrorBoundary>
 
       {/* The original. Imitation is the sincerest form of flattery, but the quantum field knows. */}
