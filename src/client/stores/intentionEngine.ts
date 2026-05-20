@@ -782,7 +782,7 @@ export function analyzeIntentions(): IntentionPattern[] {
   }
 
   // Pattern 31: Wearable integration void — high personal engagement but no watch/phone ecosystem signals
-  const ecosystemSignals = recentSignals.filter(s =>
+  const wearableSignals = recentSignals.filter(s =>
     s.source === 'intentions' &&
     (s.signal === 'phone_connected' || s.signal === 'watch_connected' ||
      s.signal === 'phone_disconnected' || s.signal === 'watch_disconnected')
@@ -790,7 +790,7 @@ export function analyzeIntentions(): IntentionPattern[] {
   const personalEngagement = recentSignals.filter(s =>
     ['mood', 'memory', 'journal', 'selfcare'].includes(s.source)
   )
-  if (personalEngagement.length >= 4 && ecosystemSignals.length === 0 && signals.length >= 10) {
+  if (personalEngagement.length >= 4 && wearableSignals.length === 0 && signals.length >= 10) {
     patterns.push({
       pattern: 'wearable-integration-void',
       confidence: 0.65,
