@@ -40,19 +40,13 @@ mayan        ○∿  → ○≈○ →  ≋○≋   Oceanic Mayan Cycles
 
 ### Water Theme — Aquatic Evolution
 
-The original LOT badge theme. Based on Mayan water cycle metaphor.
-
 | Symbol | Name | Streak | Unlock Message |
 |--------|------|--------|----------------|
 | `∘` | Droplet | 7 days | "First drops form." |
 | `≈` | Wave | 30 days | "Waves begin to flow." |
 | `≋` | Current | 100 days | "Deep currents established." |
 
-*Progression metaphor: individual droplet → wave pattern → deep ocean current.*
-
 ### Architecture Theme — Structural Growth
-
-Box-drawing characters representing the construction of self-knowledge.
 
 | Symbol | Name | Streak | Unlock Message |
 |--------|------|--------|----------------|
@@ -62,8 +56,6 @@ Box-drawing characters representing the construction of self-knowledge.
 
 ### Terminal Theme — Computer Metaphor
 
-Command-line aesthetic. Self-care as system operation.
-
 | Symbol | Name | Streak | Unlock Message |
 |--------|------|--------|----------------|
 | `>_` | Boot | 7 days | "Boot sequence initiated." |
@@ -71,8 +63,6 @@ Command-line aesthetic. Self-care as system operation.
 | `>|<` | Master | 100 days | "System mastered." |
 
 ### Pixel Theme — 8-Bit Arcade
-
-Classic pixel art metaphor. From sprite to full bitmap render.
 
 | Symbol | Name | Streak | Unlock Message |
 |--------|------|--------|----------------|
@@ -82,8 +72,6 @@ Classic pixel art metaphor. From sprite to full bitmap render.
 
 ### Circuit Theme — Electronics / Sci-Fi
 
-Electrical circuit metaphor. From open circuit to full current.
-
 | Symbol | Name | Streak | Unlock Message |
 |--------|------|--------|----------------|
 | `-o-` | Open | 7 days | "Circuit open." |
@@ -92,16 +80,13 @@ Electrical circuit metaphor. From open circuit to full current.
 
 ### Oceanic Mayan Theme — Ancient Cycles
 
-Inspired by Mayan K'in day counts and water cycle philosophy.  
-Circle `○` = Mayan zero/completion. Waves `∿≈≋` = water depth.
-
 | Symbol | Name | Streak | Unlock Message |
 |--------|------|--------|----------------|
 | `○∿` | Wave | 7 days | "Wave patterns emerge." |
 | `○≈○` | Tide | 30 days | "Tides complete their cycle." |
 | `≋○≋` | Ocean | 100 days | "Ocean depth achieved." |
 
-*Mayan K'in philosophy: 7 days = first mini-cycle, 30 = major cycle (~1.5 uinals), 100 = mastery (approaching 1/4 Tun).*
+*Mayan K'in philosophy: 7 days = first mini-cycle, 30 = major cycle (~1.5 uinals), 100 = mastery.*
 
 ---
 
@@ -128,8 +113,6 @@ These badges **do not appear in-app** until discovered. Trigger conditions are i
 
 ## Part III — RPG Character Classes
 
-Each of the 8 LOT archetypes maps to a classic RPG character class. Class badge unlocks when the profile engine confirms the archetype.
-
 | Archetype | Class | Description | Quote |
 |-----------|-------|-------------|-------|
 | The Explorer | `[ RANGER ]` | Scouts the unknown. Maps inner terrain. | "Every exploration is a quest." |
@@ -141,48 +124,40 @@ Each of the 8 LOT archetypes maps to a classic RPG character class. Class badge 
 | The Catalyst | `[ ROGUE ]` | Disrupts. Transforms. Moves fast. | "The pattern breaker is the pattern." |
 | The Visionary | `[ ORACLE ]` | Sees ahead. Synthesizes the unseen. | "The future is already a memory." |
 
-> **Note:** Archetypes are not fixed. The profile engine re-evaluates after significant behavioral shifts. A user may transition from `[ ROGUE ]` to `[ ARCHMAGE ]` as their patterns deepen. The RPG class badge updates automatically.
-
 ---
 
 ## Part IV — Word Achievement Badges
 
-Named badges that speak plainly. No symbols. Just words.
-
-### Journey Tier — Engagement Level
-
+### Journey Tier
 | Badge | Trigger | Message |
-|-------|---------|---------|
+|-------|---------|--------|
 | `NEWCOMER` | First Memory answer | "The journey of a thousand days begins now." |
 | `REGULAR` | 10 total answers | "You are building a habit." |
 | `DEDICATED` | 50 total answers | "Dedication is a superpower." |
 | `VETERAN` | 200 total answers | "You have seen the system evolve." |
 | `LEGEND` | 500 total answers | "Your Memory Story is a novel now." |
 
-### Data Tier — Memory Depth
-
+### Data Tier
 | Badge | Trigger | Message |
-|-------|---------|---------|
-| `BYTE` | 5 questions answered | "First byte of self-knowledge stored." |
-| `KILOBYTE` | 20 questions answered | "A kilobyte of self-awareness." |
-| `MEGABYTE` | 100 questions answered | "Megabyte-class memory density." |
-| `GIGABYTE` | 500 questions answered | "Your story exceeds most libraries." |
-| `TERABYTE` | 1,000 questions answered | "TERABYTE CLASS. The system is you." |
+|-------|---------|--------|
+| `BYTE` | 5 questions | "First byte of self-knowledge stored." |
+| `KILOBYTE` | 20 questions | "A kilobyte of self-awareness." |
+| `MEGABYTE` | 100 questions | "Megabyte-class memory density." |
+| `GIGABYTE` | 500 questions | "Your story exceeds most libraries." |
+| `TERABYTE` | 1,000 questions | "TERABYTE CLASS. The system is you." |
 
-### Chapter Tier — Story Progression
-
+### Chapter Tier
 | Badge | Trigger | Message |
-|-------|---------|---------|
+|-------|---------|--------|
 | `CHAPTER I` | Day 1 | "The story begins." |
 | `CHAPTER III` | Day 30 | "The first arc closes." |
 | `CHAPTER VII` | Day 100 | "The middle of everything." |
 | `CHAPTER X` | Day 365 | "A year of chapters." |
 | `EPILOGUE` | Day 500+ | "Beyond the story. Into the myth." |
 
-### SYS Tier — Computer System
-
+### SYS Tier
 | Badge | Trigger | Message |
-|-------|---------|---------|
+|-------|---------|--------|
 | `SYS.BOOT` | First session | "Operating system: online." |
 | `SYS.RUN` | 7-day streak | "Processes running. Stay online." |
 | `SYS.COMPILE` | 30-day streak | "Compiled and optimized." |
@@ -192,28 +167,24 @@ Named badges that speak plainly. No symbols. Just words.
 
 ## Part V — Sci-Fi Easter Egg Messages
 
-Hidden messages woven into the unlock flow. Each one is a micro-story. A wink from the system.
-
 | Reference | Message | Context |
-|-----------|---------|---------|
+|-----------|---------|--------|
 | *Dune* — Frank Herbert | "The spice must flow." | 100-day Water badge |
 | *Solaris* — Stanislaw Lem | "The ocean is thinking about you." | 30-day Water badge |
 | *Neuromancer* — William Gibson | "Ice broken. The matrix yields." | Deep Reflection badge |
-| *1984* — George Orwell | "DOUBLETHINK.EXE: knowing and not-knowing, simultaneously." | Reflective badge |
+| *1984* — George Orwell | "DOUBLETHINK.EXE: knowing and not-knowing." | Reflective badge |
 | *Hitchhiker's Guide* — Douglas Adams | "42. The answer is always the process." | 42-day streak |
-| *Foundation* — Isaac Asimov | "Psychohistory confirms: you are ahead of the curve." | 50 questions answered |
-| *2001: A Space Odyssey* — Arthur C. Clarke | "Any sufficiently advanced self-care is indistinguishable from magic." | All badges complete |
+| *Foundation* — Isaac Asimov | "Psychohistory confirms: you are ahead of the curve." | 50 questions |
+| *2001* — Arthur C. Clarke | "Any sufficiently advanced self-care is indistinguishable from magic." | All badges |
 | *Do Androids Dream* — Philip K. Dick | "Do androids dream of electric self-care? Yes." | NIGHT.OWL badge |
 | *Ender's Game* — Orson Scott Card | "The enemy's gate is down. The enemy was entropy." | FINAL.BOSS badge |
 
 ---
 
-## Part VI — Arcade Callback Messages
-
-Classic arcade game references applied to the self-care journey.
+## Part VI — Arcade Callbacks
 
 | Message | Context |
-|---------|---------|
+|---------|--------|
 | `PRESS START` | First app open |
 | `GAME OVER... BUT...` | Streak broken |
 | `1-UP` | Streak restored |
@@ -226,43 +197,6 @@ Classic arcade game references applied to the self-care journey.
 ---
 
 ## Part VII — Technical Reference
-
-### Badge Unlock Flow
-
-```
-1. User answers Memory question
-2. checkAndAwardBadges() called
-3. GET /api/user-stats → { streak, totalAnswers, daysSinceLastAnswer }
-4. Thresholds checked for all badge categories
-5. awardBadge(id) → localStorage + notification queue
-6. Memory Widget reads queue on next render
-7. Unlock toast shown 5 seconds, then fades
-8. Level symbol visible in Public Profile
-```
-
-### localStorage Keys
-
-| Key | Format | Purpose |
-|-----|--------|---------|
-| `badge_theme` | `'water'` \| `'architecture'` \| `'terminal'` \| `'pixel'` \| `'circuit'` \| `'mayan'` | User's visual theme |
-| `earned_badges` | comma-separated badge IDs | All badges earned |
-| `badge_unlock_queue` | comma-separated badge IDs | Pending notifications |
-
-### Key API Functions
-
-```typescript
-getBadgeTheme()              // Returns current theme
-setBadgeTheme(theme)         // Saves theme to localStorage
-getEarnedBadges()            // Returns earned badge ID array
-awardBadge(badgeId)          // Awards badge + queues notification
-hasBadge(badgeId)            // Checks if badge earned
-getLevelSymbol(streak)       // Theme-aware level symbol
-getLevelName(streak)         // Theme-aware level name
-getBadgeProgressionDisplay() // Full ∘ → ≈ → ≋ string
-getNextBadgeUnlock()         // Pops next notification from queue
-checkAndAwardBadges()        // Full check: streak + answers + easter eggs
-getEarnedAchievements()      // All non-milestone earned badges
-```
 
 ### Badge Taxonomy Summary
 
@@ -278,43 +212,29 @@ SYS tier word badges                =  4 named badges
 TOTAL                               = 57 unique badges
 ```
 
----
+### localStorage Keys
 
-## Philosophy Notes
+| Key | Values | Purpose |
+|-----|--------|---------|
+| `badge_theme` | water / architecture / terminal / pixel / circuit / mayan | User's visual theme |
+| `earned_badges` | comma-separated IDs | All earned badges |
+| `badge_unlock_queue` | comma-separated IDs | Pending notifications |
 
-### Why Mayan + Water?
+### Key API Functions (badges.ts)
 
-**Mayan contributions:**
-- Cyclical time (not linear progress)
-- Interconnected systems
-- Sacred mathematics (numbers have meaning)
-- Long-term thinking (long count calendar)
-
-**Water contributions:**
-- Fluidity (not rigid achievement)
-- Depth (shallow → deep practice)
-- Tides (natural ebb and flow)
-- Reflection (mirror for self-awareness)
-
-**Combined:** Growth through cycles, not grinding. Natural rhythms over forced consistency. Ancient wisdom meets modern introspection.
-
-### Why RPG Classes?
-
-The 8 archetypes already function like RPG character classes in psychology. Making this explicit:
-- Honors who you already are (not aspirational pressure)
-- Creates identity resonance with the journey
-- Makes profile exploration more engaging
-- Allows narrative generation keyed to class vocabulary
-
-### Why Easter Eggs?
-
-Easter eggs reward:
-- **Curiosity** — finding hidden things
-- **Consistency** — patterns only the app can detect
-- **Humor** — self-care doesn't have to be serious
-- **Discovery** — the app has depth worth exploring
-
-> "Self-care as an RPG means the game never really ends — it just gets deeper."
+```typescript
+getBadgeTheme()              // Returns current theme
+setBadgeTheme(theme)         // Saves theme
+getEarnedBadges()            // Array of earned IDs
+awardBadge(badgeId)          // Award + queue notification
+hasBadge(badgeId)            // Check if earned
+getLevelSymbol(streak)       // Theme-aware symbol
+getLevelName(streak)         // Theme-aware name
+getBadgeProgressionDisplay() // Full ∘ → ≈ → ≋ string
+getNextBadgeUnlock()         // Pop next notification
+checkAndAwardBadges()        // Full check: all categories
+getEarnedAchievements()      // All non-milestone earned
+```
 
 ---
 
