@@ -16,19 +16,19 @@ NC='\033[0m' # No Color
 
 echo -e "${BLUE}🔄 Starting Memory Answer Restoration${NC}\n"
 
-# Backup database credentials
-BACKUP_HOST="db-postgresql-nyc3-92053-dec-24-backup-do-user-22640384-0.l.db.ondigitalocean.com"
-BACKUP_PORT="25060"
-BACKUP_USER="doadmin"
-BACKUP_PASS="AVNS_8V6Hqzuxwj0JkMxgNvR"
-BACKUP_DB="defaultdb"
+# Backup database credentials (set these environment variables before running)
+BACKUP_HOST="${BACKUP_DB_HOST:?Set BACKUP_DB_HOST}"
+BACKUP_PORT="${BACKUP_DB_PORT:-25060}"
+BACKUP_USER="${BACKUP_DB_USER:?Set BACKUP_DB_USER}"
+BACKUP_PASS="${BACKUP_DB_PASSWORD:?Set BACKUP_DB_PASSWORD}"
+BACKUP_DB="${BACKUP_DB_NAME:-defaultdb}"
 
-# Production database credentials
-PROD_HOST="db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com"
-PROD_PORT="25060"
-PROD_USER="doadmin"
-PROD_PASS="AVNS_8V6Hqzuxwj0JkMxgNvR"
-PROD_DB="defaultdb"
+# Production database credentials (set these environment variables before running)
+PROD_HOST="${DB_HOST:?Set DB_HOST}"
+PROD_PORT="${DB_PORT:-25060}"
+PROD_USER="${DB_USER:?Set DB_USER}"
+PROD_PASS="${DB_PASSWORD:?Set DB_PASSWORD}"
+PROD_DB="${DB_NAME:-defaultdb}"
 
 # Calculate 4 days ago
 FOUR_DAYS_AGO=$(date -u -d '4 days ago' '+%Y-%m-%d %H:%M:%S')

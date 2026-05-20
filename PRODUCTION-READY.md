@@ -40,16 +40,16 @@ The repository has been cleaned and organized for production deployment.
 The following credentials were exposed in git history and MUST be rotated:
 
 **Database:**
-- Password: `AVNS_8V6Hqzuxwj0JkMxgNvR`
-- Update in Digital Ocean dashboard
+- Rotate password in Digital Ocean database dashboard
+- Update DATABASE_URL and DB_PASSWORD in DO App Platform env vars
 
 **JWT Secret:**
-- Current: `13919320b2a8816ced947b7a6385811b`
-- Generate new: `openssl rand -hex 32`
+- Generate: `openssl rand -hex 32`
+- Store in DO App Platform as SECRET (never commit)
 
 **API Keys:**
-- Resend API Key: `re_83s23f6W_LbDfdmmXpXJ4je4i2kt1HA7u`
-- Together AI Key: `91f01cf8fcba1d44dbf5e2b712210edfffecd6d7f6e5e50816cd50d1efa8414c`
+- Resend API Key: Set via Resend dashboard → DO env vars (never commit)
+- Together AI Key: Set via Together dashboard → DO env vars (never commit)
 - Regenerate in respective dashboards
 
 **SSH Keys:**

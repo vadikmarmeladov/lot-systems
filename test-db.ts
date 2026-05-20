@@ -5,11 +5,11 @@ async function testDatabase() {
   
   const sequelize = new Sequelize({
     dialect: 'postgres',
-    host: 'db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com',
-    port: 25060,
-    database: 'defaultdb',
-    username: 'doadmin',
-    password: 'AVNS_8V6Hqzuxwj0JkMxgNvR',
+    host: process.env.DB_HOST || '',
+    port: parseInt(process.env.DB_PORT || '25060'),
+    database: process.env.DB_NAME || 'defaultdb',
+    username: process.env.DB_USER || '',
+    password: process.env.DB_PASSWORD || '',
     dialectOptions: {
       ssl: {
         require: true,
