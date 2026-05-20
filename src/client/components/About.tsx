@@ -531,12 +531,12 @@ export function About() {
             post-answer.
           </P>
           <P>
-            The paradigm is a loving partner — notices context, remembers
-            answers, asks at the right time, adapts to energy level. Intelligent
-            pacing enforces a 2-hour minimum cooldown between prompts. Daily
-            quota: 3–6 questions depending on day (variable pacing, weekend
-            adjustment). Topic repetition detection: 3+ of the same topic in 5
-            questions triggers automatic compression to 8-word brevity.
+            Intelligent pacing: 2-hour minimum cooldown between prompts.
+            Daily quota: 3–6 questions per day — variable pacing, weekend
+            adjustment active. Topic repetition detection: 3 or more questions
+            on the same topic within 5 consecutive prompts triggers automatic
+            compression to 8-word brevity. The system does not repeat itself.
+            It compresses.
           </P>
           <P>
             Journal integration reads up to 8 recent journal entries for
@@ -1831,6 +1831,7 @@ Ch.5  SAGE           Level 90–100
           <SubHeading>System Widgets</SubHeading>
           <div className="mb-16">
             <Row label="System Progress" value="full self-assembly report across 15 modules · OS Journal vitals timeline · QuantumOS snapshot on report generate" />
+            <Row label="Benchmark Widget" value="operator success tier — 5 levels: White · Green · Yellow · Purple · Black — computed from journal depth (30%), streak continuity (20%), active days, user index, and engagement breadth — single color label · score 0–100 — displayed in System tab" />
             <Row label="Flash Drive Manifest" value="system state snapshot" />
             <Row label="Awareness Dashboard" value="self-awareness index and growth trajectory" />
             <Row label="User Metrics" value="engagement statistics and log coverage" />
@@ -2244,6 +2245,19 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               label="Awareness Index"
               value="Shorthand for Self-Awareness Index. Displayed on public profile. Growth is measured in months."
             />
+          </div>
+
+          <SubHeading>Benchmark Terms</SubHeading>
+          <div className="mb-16">
+            <Row
+              label="Benchmark Widget"
+              value="Operator success tier. Single color label. Five tiers computed from a 0–100 composite score: journal depth (30%), streak continuity (20%), active engagement days, User Index composite, and module breadth. Displayed in System tab. The score is a reading, not a target."
+            />
+            <Row label="White · 0–19" value="Initialization tier. First signals registered. System observing." dim />
+            <Row label="Green · 20–39" value="Active tier. Regular engagement. Patterns beginning to form." dim />
+            <Row label="Yellow · 40–59" value="Developing tier. Consistent engagement. Signal diversity growing." dim />
+            <Row label="Purple · 60–79" value="Advanced tier. Depth and breadth both active. System self-assembling." dim />
+            <Row label="Black · 80–100" value="Peak tier. Full engagement across all dimensions. Architecture coherent." dim />
           </div>
 
           <SubHeading>Interface Terms</SubHeading>
@@ -2828,7 +2842,9 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             The system was built this way from the start. Any provider can be
             removed or replaced with one configuration change. Adding a new
             engine requires five lines through the aiEngineManager abstraction
-            layer.
+            layer — a vendor-neutral interface that normalizes all providers
+            to a single API surface. No provider has access to more than
+            the completion call. Context, history, and profile remain inside LOT.
           </P>
 
           {/* ── DESIGN PHILOSOPHY ───────────────────────────────────── */}
