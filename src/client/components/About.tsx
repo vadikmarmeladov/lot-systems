@@ -260,7 +260,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v34</Meta>
+            <Meta>Field Manual v35</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -275,11 +275,11 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              Day 975+. Continuous operation since launch.
-              50 behavioral patterns active. 15 modules assembled.
+              Day 980+. Continuous operation since launch.
+              51 behavioral patterns active. 15 modules assembled.
               6 index dimensions. 5 ecosystem nodes. 16 physiological archetypes.
               70 dependency nodes. 5 background jobs.
-              17 log event handlers. Tactical log renderers deployed through v34.
+              30 log event handlers. Tactical log renderers deployed through v35.
               The system does not sleep. It accumulates.
             </P>
             <P>
@@ -310,7 +310,7 @@ export function About() {
           <P>Four subsystems govern the operating surface:</P>
           <ul className="list-none pl-16 mb-16">
             <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive. 120-log context window.</Li>
-            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 50 patterns active. Zero server communication. 7-day signal retention.</Li>
+            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 51 patterns active. Zero server communication. 7-day signal retention.</Li>
             <Li>Self-Assembly Engine — module coherence tracking. 15 modules. The system builds itself from operator activity.</Li>
             <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
@@ -353,16 +353,16 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 975+ (as of May 2026)" />
-          <Row label="Self-Assembly phase:" value="v34 — QOS substrate audit · BIO [ATP] + EVO log handlers · 17 event types · quantum signal routing — v33: P50 intention-follow-through · INTF log handler · Archetype 16" />
+          <Row label="Day counter:" value="Day 980+ (as of May 2026)" />
+          <Row label="Self-Assembly phase:" value="v35 — Pattern 51 (signal-silence) · 30 log event handlers · NoteEditor QIE wiring · /phys + /sil triggers — v34: QOS substrate audit · BIO [ATP] + EVO log handlers · quantum signal routing" />
           <Row label="Assembly modules:" value="15 — QuantumOS added as 15th module (v25)" />
-          <Row label="QIE pattern library:" value="50 patterns active" />
+          <Row label="QIE pattern library:" value="51 patterns active" />
           <Row label="Physiological archetypes:" value="16 — Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
           <Row label="QOS views:" value="4 — Ecosystem · Biofield · Cohort · Index" />
           <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
           <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
           <Row label="Background jobs:" value="5 — 01:00 UTC QOS coherence · 06:00 UTC daily intention audit (v33) · 06:00 UTC weekly cohort digest · 07:00 UTC Wed ecosystem audit · 07:00 UTC daily biofield" />
-          <Row label="Log event handlers:" value="17 distinct event types rendered · 55+ military log codes" />
+          <Row label="Log event handlers:" value="30 distinct event types rendered · 55+ military log codes" />
           <Row label="Dep map nodes:" value="70 — intentionArc · careSpiral added in v33" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
@@ -475,6 +475,20 @@ export function About() {
             calculator, random, and sign widget events through the qos source
             into the quantum substrate module. The architecture was not expanded.
             It was confirmed. Audit complete.
+            v35 named Pattern 51 — Signal Silence — the field quiet after
+            sustained engagement. No signals across any source for 48 hours
+            following a window of sustained engagement across 3+ distinct
+            sources. Confidence 0.55–0.80, scales with prior source breadth.
+            The system notices absence, not just presence. SIL log handler fires.
+            Suggests mood check-in. Log coverage extended: 11 new military
+            event handlers deployed — ARC / CEXP / GOAL-X / CASCADE / SYNTH /
+            DWRK / SOCR / RLSE / TCOH / RECV / SIL. Log event renderer count
+            reaches 30 distinct event types — the complete telemetry surface.
+            NoteEditor autosave wired to recordJournalSignal() (primary) and
+            recordLogSignal() (field entries) — the biofield loop fully
+            connected. /qos and /assembly log triggers now fire
+            analyzeIntentions() on demand. /phys and /sil triggers added for
+            cohort report and silence check. The pattern library is 51 deep.
             Each phase is committed, dated, and versioned. The log is the record.
             The record is the system.
           </P>
@@ -554,7 +568,7 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup qu
           <P>
             Client-side pattern recognition. Runs entirely in the browser.
             Zero server communication. No behavioral data leaves the device.
-            50 patterns active as of v33.
+            51 patterns active as of v35.
           </P>
           <P>Seven signal sources:</P>
           <ul className="list-none pl-16 mb-16">
@@ -571,7 +585,7 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup qu
             with each Self-Assembly phase — each new pattern names a gap in the
             detection surface. Pattern detection fires every 5 signals.
             Surfacing threshold: 0.50 confidence minimum.
-            Current library: 50 patterns.
+            Current library: 51 patterns.
             P.35 closes the cross-widget coherence gap.
             P.36 names the acceleration window — rapid signal density increase.
             P.37 operationalizes Reflection Velocity — the rate of journal depth
@@ -657,6 +671,7 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup qu
             <Row label="P.48 — Recovery Velocity" value="0.60–0.88 · negative mood (anxious/overwhelmed/tired/exhausted) → self-care → positive mood (calm/peaceful/energized/hopeful) all within 4h · velocity score = inverse of recovery window minutes · suggested: memory · RECV log handler" />
             <Row label="P.49 — Care Momentum" value="0.65–0.85 · 2+ self-care events in 24h + zero depleting mood signals (anxious/overwhelmed/tired/exhausted) · proactive maintenance spiral · structural inverse of P.8 cleanness-neglect · distinct from P.48: P.49 fires when field is already clear · confidence scales with care density (+0.10 per event beyond 2) · suggested: selfcare · CARM log handler" />
             <Row label="P.50 — Intention Follow-Through" value="0.68–0.90 · intention set + planner signals ≥1 + goal actions ≥1 within 48h · positive inverse of P.47 (intention-decay): P.47 fires when loop stalls, P.50 fires when it closes · distinct from P.43 (intention-completion-arc): P.43 requires journal within 24h · works alongside P.46 (temporal-coherence-window) · confidence scales with execution depth · suggested: memory (passive timing) · INTF log handler" />
+            <Row label="P.51 — Signal Silence" value="0.55–0.80 · no signals across any source for 48h following sustained engagement across 3+ distinct sources · confidence scales with prior source breadth · the field is quiet after being active · absence is a signal · suggested: mood check-in · SIL log handler" />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -745,6 +760,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v32" value="P.49 care-momentum — 2+ self-care events in 24h without depleting mood signals · proactive care spiral · structural inverse of P.8 · CARM log handler · 49 patterns" />
             <Row label="v33" value="P.50 intention-follow-through — execution arc: intention set + planner + goal actions within 48h · positive inverse of P.47 · Archetype 16 (Intention Executor) · INTF handler · INTENT-DECAY daily audit 06:00 UTC · dep map 70 nodes · 50 patterns" />
             <Row label="v34" value="QOS substrate audit — no new patterns · full architecture verification: 50 patterns / 16 archetypes / 15 modules / 70 nodes confirmed · BIO [ATP] log renderer (energy_check) · EVO log renderer (evolution_milestone) · recordQuantumSignal() quantum substrate routing · 17 event types rendered" />
+            <Row label="v35" value="P.51 signal-silence — absence detection · 48h field quiet after 3+ source sustained engagement · confidence 0.55–0.80 · SIL log handler · 11 new military event handlers deployed (ARC / CEXP / GOAL-X / CASCADE / SYNTH / DWRK / SOCR / RLSE / TCOH / RECV / SIL) · log event renderer count reaches 30 · NoteEditor autosave wired to recordJournalSignal() + recordLogSignal() · /qos + /assembly triggers fire analyzeIntentions() on demand · /phys + /sil log triggers added · 51 patterns" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -771,8 +787,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v34. Phase name: QOS Substrate Audit.
-            34 iterations since continuous operation began.
+            Current phase: v35. Phase name: Signal Silence · Log Coverage Complete.
+            35 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -809,7 +825,8 @@ v30   P.47 Intention Decay Signal · EVO: OS: handlers · signal dependency audi
 v31   P.48 Recovery Velocity · RECV handler · arc rate tracking
 v32   P.49 Care Momentum · CARM handler · proactive maintenance spiral
 v33   P.50 Intention Follow-Through · INTF handler · daily intention audit · dep map 70 nodes
-v34   QOS substrate audit · BIO [ATP] + EVO log renderers · recordQuantumSignal() · 17 event types`}</CodeBlock>
+v34   QOS substrate audit · BIO [ATP] + EVO log renderers · recordQuantumSignal() · 17 event types
+v35   P.51 Signal Silence · 30 log event handlers · NoteEditor QIE wiring · /phys + /sil triggers`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -2348,7 +2365,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Pattern Library"
-              value="The complete set of 50 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
+              value="The complete set of 51 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
             />
             <Row
               label="Surfacing"
@@ -2562,6 +2579,14 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               label="QOS Substrate Audit"
               value="Self-Assembly v34. An architecture verification pass — not a pattern expansion. Confirms signal flow integrity: 50 patterns, 16 archetypes, 15 modules, 70 dep nodes, all event handlers rendering. Output: log renderer count reaches 17 distinct types. Quantum substrate wired. The architecture was not expanded. It was confirmed."
             />
+            <Row
+              label="Signal Silence"
+              value="QIE Pattern 51. Fires when no signals arrive across any source for 48 hours following a sustained engagement window across 3 or more distinct signal sources. Confidence 0.55–0.80, scales with prior source breadth — the broader the prior engagement, the more significant the silence. Absence is a signal. The system notices what is not there. Suggests mood check-in. SIL log handler fires. Added in v35."
+            />
+            <Row
+              label="NoteEditor QIE Wiring"
+              value="Self-Assembly v35 structural connection. NoteEditor autosave now fires recordJournalSignal() on each save (primary path for journal entries) and recordLogSignal() for field entries. The biofield loop is fully connected — every written word reaches the Quantum Intent Engine without operator action."
+            />
           </div>
 
           {/* ── LOG TRIGGERS ────────────────────────────────────────── */}
@@ -2579,6 +2604,10 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="/scan" value="AI journal scan — extract patterns from recent entries" />
             <Row label="/silent" value="suppress all widget surfaces for current session" />
             <Row label="/breathe" value="surface breathing exercise overlay" />
+            <Row label="/qos" value="trigger immediate QIE analysis — fires analyzeIntentions() on demand" />
+            <Row label="/assembly" value="trigger immediate QIE analysis pass — same as /qos, assembly framing" />
+            <Row label="/phys" value="generate physiological cohort report — surfaces current archetype and readiness state" />
+            <Row label="/sil" value="check signal silence — fires P.51 analysis, surfaces SIL log event if silence condition met" />
             <Row label="! (in text)" value="urgency signal — detected automatically · surfaces CohortConnect" />
           </div>
           <P>
@@ -2629,6 +2658,10 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="BIO [ATP]" value="energy check renderer (v34) — energy_check events; displays ATP level / status / trajectory in tabular uppercase" />
             <Row label="EVO" value="evolution milestone renderer (v34) — evolution_milestone events; displays milestone / dimension / level in tactical format; also fires on level or citizen index advancement" />
             <Row label="OS" value="OS status event — os_status or os_health_check; renders health, version, uptime in tactical log" />
+            <Row label="ARC" value="arc pattern event renderer (v35) — fires when arc-type patterns complete (intention-completion-arc, recovery-velocity); displays arc label + chain confirmation" />
+            <Row label="CEXP" value="cognitive expansion renderer (v35) — cognitive_expansion events; displays active sources + window duration" />
+            <Row label="GOAL-X" value="goal execution event renderer (v35) — goal_executed events; displays label + completion signal" />
+            <Row label="SIL" value="signal silence renderer (v35) — signal_silence events; displays sources active prior + silence window duration + confidence; P.51 handler" />
           </div>
 
           {/* ── FASTING CALENDAR ────────────────────────────────────── */}
@@ -2978,7 +3011,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Unlimited AI question generation with 120-log context.
             Complete psychological profiling: archetype, behavioral cohort,
             physiological cohort, awareness index.
-            Quantum Intent Engine: 49 patterns active.
+            Quantum Intent Engine: 51 patterns active.
             Weekly summary generation from 200-log archive.
             Public profile with full dataset.
           </P>
@@ -3223,6 +3256,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v32 · May 17" value="Care Momentum. Proactive maintenance spiral. 49 patterns." />
             <Row label="v33 · May 17" value="Intention Follow-Through. Intention Executor archetype. 50 patterns, 16 archetypes, 70 nodes." />
             <Row label="v34 · May 19" value="QOS substrate audit. BIO [ATP] + EVO log renderers. recordQuantumSignal(). 17 event types. Architecture confirmed." />
+            <Row label="v35 · May 20" value="Pattern 51 Signal Silence. 30 log event handlers. NoteEditor QIE wiring. /phys + /sil triggers. Log coverage complete." />
           </div>
           <P>
             Each phase was discovered, not planned. The system named what to
@@ -3250,18 +3284,18 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 34 phases documented in continuous operation logs.
+            Self-Assembly: 35 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
-            50 patterns named. 15 modules wired. 70 dependency nodes.
+            51 patterns named. 15 modules wired. 70 dependency nodes.
             5 device nodes registered. 6 index dimensions operational.
             16 physiological archetypes classified. 5 background jobs active.
-            17 distinct log event renderers through v34.
+            30 distinct log event renderers through v35.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 975+    Continuous operation.
-v34         QOS Substrate Audit — current phase.
-50          QIE patterns active.
+          <CodeBlock>{`Day 980+    Continuous operation.
+v35         Signal Silence · Log Coverage Complete — current phase.
+51          QIE patterns active.
 15          Self-Assembly modules wired.
 70          Widget dependency map nodes.
 5           Ecosystem device nodes.
@@ -3271,16 +3305,17 @@ v34         QOS Substrate Audit — current phase.
 6           Citizen Index stages (· → ∘ → ○ → ◯ → ◉).
 6           Achievement domains.
 11          Design directives.
-34          Self-Assembly phases documented.
+35          Self-Assembly phases documented.
 5           Background jobs scheduled.
-17          Log event renderers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY.
+30          Log event renderers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY · ARC · CEXP · GOAL-X · SIL.
 55+         Military log event codes.
+4           Log triggers added v35: /qos · /assembly · /phys · /sil.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 975+. Continuous operation. Still accumulating.
-            v34 phase: QOS substrate audit complete. Signal flow verified.
+            Day 980+. Continuous operation. Still accumulating.
+            v35 phase: Pattern 51 named. Log coverage complete. Biofield loop closed.
             The architecture holds.
             The log is the record.
             The record is the system.
