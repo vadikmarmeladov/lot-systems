@@ -750,6 +750,23 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'circadian_anchor_loss') {
+          const consecutiveNights = log.metadata?.consecutiveNights as number | undefined
+          const depletedMornings = log.metadata?.depletedMornings as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CIRC:" blockView>
+                <div className="uppercase tracking-widest mb-4">Circadian anchor lost</div>
+                {consecutiveNights !== undefined && (
+                  <div className="opacity-60">LATE-NIGHT RUN: {consecutiveNights} consecutive nights</div>
+                )}
+                {depletedMornings !== undefined && (
+                  <div className="opacity-60">MORNING DEPLETION: {depletedMornings} day{depletedMornings === 1 ? '' : 's'}</div>
+                )}
+                <div className="opacity-40">Sleep architecture destabilizing. Rest protocol now.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

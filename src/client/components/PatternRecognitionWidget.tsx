@@ -95,7 +95,8 @@ export function PatternRecognitionWidget() {
       'temporal-coherence-window':  'Temporal grid active',
       'recovery-velocity':          'Recovery arc accelerating',
       'care-momentum':              'Proactive care spiral',
-      'intention-follow-through':   'Execution arc complete'
+      'intention-follow-through':   'Execution arc complete',
+      'circadian-anchor-loss':      'Circadian anchor lost'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -311,6 +312,13 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'intention-follow-through') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Execution arc closed.
+                </div>
+              )}
+
+              {/* Circadian anchor loss indicator — surfaces when pattern 52 is active */}
+              {patterns.some(p => p.pattern === 'circadian-anchor-loss') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Circadian anchor lost. Rest protocol.
                 </div>
               )}
 

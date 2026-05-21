@@ -1262,6 +1262,48 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 52: Circadian anchor loss — persistent late-night activity (22:00–03:00) across 5+
+  // consecutive days combined with morning depletion (tired/exhausted mood 06:00–10:00).
+  // Chronic counterpart to P15 (circadian-drift), which fires on acute single-night clusters.
+  const p52SevenDaysAgoTs = now - 7 * 24 * 60 * 60 * 1000
+  const p52WeekSignals = signals.filter(s => s.timestamp > p52SevenDaysAgoTs)
+  const p52LateNightDays = new Set<string>()
+  p52WeekSignals.forEach(s => {
+    const h = new Date(s.timestamp).getHours()
+    if (h >= 22 || h < 3) {
+      const d = new Date(s.timestamp)
+      p52LateNightDays.add(`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`)
+    }
+  })
+  let p52ConsecutiveLateNights = 0
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now - i * 24 * 60 * 60 * 1000)
+    const dayKey = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+    if (p52LateNightDays.has(dayKey)) {
+      p52ConsecutiveLateNights++
+    } else if (i > 0) {
+      break
+    }
+  }
+  const p52MorningDepletion = p52WeekSignals.filter(s => {
+    const h = new Date(s.timestamp).getHours()
+    return h >= 6 && h < 10 && s.source === 'mood' &&
+      ['tired', 'exhausted', 'overwhelmed'].includes(s.signal)
+  })
+  if (p52ConsecutiveLateNights >= 5 && p52MorningDepletion.length >= 2) {
+    const p52DepletedMornings = new Set(p52MorningDepletion.map(s => {
+      const d = new Date(s.timestamp)
+      return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+    })).size
+    patterns.push({
+      pattern: 'circadian-anchor-loss',
+      confidence: Math.min(0.65 + p52ConsecutiveLateNights * 0.04, 0.88),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'immediate',
+      reason: `Circadian anchor lost: ${p52ConsecutiveLateNights} consecutive late-night sessions + morning depletion on ${p52DepletedMornings} day${p52DepletedMornings === 1 ? '' : 's'}. Sleep architecture destabilizing. Rest protocol now.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals

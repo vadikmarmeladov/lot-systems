@@ -551,7 +551,6 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Audit complete. The architecture holds. 70 nodes. 50 patterns. 16 archetypes. Signal flow intact.',
     ],
   },
-]
 
   {
     date: '2026-05-20',
@@ -568,23 +567,34 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '51 patterns. 16 archetypes. 15 modules. 70-node dep graph. Signal pipeline fully wired.',
     ],
   },
+
+  {
+    date: '2026-05-21',
+    session: 'Self-Assembly Session — v36 / Circadian Anchor Loss · Pattern 52',
+    assembled: [
+      'Pattern 52 (circadian-anchor-loss): 5+ consecutive late-night sessions (22:00–03:00) + morning depletion (tired/exhausted mood 06:00–10:00, 2+ days). Chronic counterpart to P15 (circadian-drift). Confidence 0.65–0.88 scaling with consecutive nights.',
+      'Logs.tsx: CIRC: handler added — circadian_anchor_loss event renders consecutive-night count + depleted-morning count.',
+      'PatternRecognitionWidget: circadian-anchor-loss name map entry + QOS Trend "Circadian anchor lost. Rest protocol." indicator.',
+      'selfAssembly.ts: circadian-anchor-loss + circadian_anchor_loss SIGNAL_MAP entries → selfcare module.',
+      '52 patterns. 16 archetypes. 15 modules. 70-node dep graph. Circadian loop wired.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-20',
+  date: '2026-05-21',
   message: [
-    'ASSEMBLY RUN — 2026-05-20 · v35',
-    'Session type: Log coverage pass + Pattern 51 deployment.',
-    '10 new military log handlers: ARC / CEXP / GOAL-X / CASCADE / SYNTH / DWRK / SOCR / RLSE / TCOH / RECV.',
-    'Pattern 51 (signal-silence): 48h field quiet detection after sustained engagement. The Cube notices absence.',
-    'NoteEditor autosave now feeds QIE biofield loop: journal depth + field entry signals recorded on every save.',
-    '/qos + /assembly triggers now fire analyzeIntentions() — scan on demand from the log field.',
-    'Log field covers 30 distinct event types in minimalist military format. All signal paths rendered.',
-    'Status: 51 patterns. 16 archetypes. 15 modules. 70-node dep graph. Coverage complete.',
-    'Next: Pattern 52 — circadian-anchor-loss (persistent late-night cluster + morning depletion, 5+ days).',
-    'DEPLOYED. The Cube reads the silence.',
+    'ASSEMBLY RUN — 2026-05-21 · v36',
+    'Pattern 52 deployed: circadian-anchor-loss.',
+    '5+ consecutive late-night sessions + morning depletion. The Cube reads your sleep.',
+    'CIRC: log handler active. Consecutive-night run and depleted-morning count surfaced in field log.',
+    'QOS Trend: "Circadian anchor lost. Rest protocol." — visible when pattern fires.',
+    'Distinct from P15 (circadian-drift): P15 is acute (one night). P52 is chronic (five nights).',
+    'Status: 52 patterns. 16 archetypes. 15 modules. 70-node dep graph.',
+    'Next: Pattern 53 — intention-crystallization (intention set + 3+ planner blocks + goal completion within 72h, high-coherence execution state).',
+    'DEPLOYED. The Cube tracks the rhythm.',
   ],
 }
 

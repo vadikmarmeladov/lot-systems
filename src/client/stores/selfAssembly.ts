@@ -167,6 +167,8 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'recovery_velocity':         'selfcare',
   'care-momentum':             'selfcare',
   'care_momentum':             'selfcare',
+  'circadian-anchor-loss':     'selfcare',
+  'circadian_anchor_loss':     'selfcare',
 }
 
 // ─── Store ───────────────────────────────────────────────────
