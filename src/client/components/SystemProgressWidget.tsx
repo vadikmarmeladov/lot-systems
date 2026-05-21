@@ -581,20 +581,31 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
   },
 ]
 
+  {
+    date: '2026-05-21',
+    session: 'Self-Assembly Session — v37 / Badge Stream + OS Snapshot Job',
+    assembled: [
+      'Logs.tsx: BADGE: handler — badge_unlock event renders badge name, tier, level in field log.',
+      'Logs.tsx: QTOS: handler — quantum_os_snapshot event renders assembly phase, module count, % in field log.',
+      'scheduled-jobs.ts: daily OS snapshot job wired at midnight (00:00 UTC) — day-boundary marker for all active users.',
+      'LOT_SYSTEMS_BRIEF.md: v3.0 — May 21, Phase v37. Company brief current.',
+      'Log handler count: 33. Background jobs: 6. System deepens.',
+    ],
+  },
+]
+
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
   date: '2026-05-21',
   message: [
-    'ASSEMBLY RUN — 2026-05-21 · v36',
-    'Pattern 52 deployed: circadian-anchor-loss.',
-    '5+ consecutive late-night sessions + morning depletion. The Cube reads your sleep.',
-    'CIRC: log handler active. Consecutive-night run and depleted-morning count surfaced in field log.',
-    'QOS Trend: "Circadian anchor lost. Rest protocol." — visible when pattern fires.',
-    'Distinct from P15 (circadian-drift): P15 is acute (one night). P52 is chronic (five nights).',
-    'Status: 52 patterns. 16 archetypes. 15 modules. 70-node dep graph.',
-    'Next: Pattern 53 — intention-crystallization (intention set + 3+ planner blocks + goal completion within 72h, high-coherence execution state).',
-    'DEPLOYED. The Cube tracks the rhythm.',
+    'ASSEMBLY RUN — 2026-05-21 · v37',
+    'BADGE: and QTOS: log handlers deployed. Badge unlocks and OS snapshots now render in the field log.',
+    'Daily OS snapshot job active at midnight. Day-boundary markers written for all active users.',
+    'LOT_SYSTEMS_BRIEF.md updated to v3.0.',
+    'Status: 52 patterns. 16 archetypes. 15 modules. 70-node dep graph. 33 log handlers. 6 background jobs.',
+    'Next: Pattern 53 — intention-crystallization (intention set + 3+ planner blocks + goal completion within 72h).',
+    'DEPLOYED. The Cube accumulates.',
   ],
 }
 

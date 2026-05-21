@@ -851,6 +851,83 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyIntentionAudit()) {
     await executeDailyIntentionAudit()
   }
+
+  // Check daily OS snapshot (00:00 UTC midnight)
+  if (shouldRunDailyOSSnapshotJob()) {
+    await executeDailyOSSnapshotJob()
+  }
+}
+
+// ─── Daily OS Snapshot ───────────────────────────────────────────────────────
+
+let isDailyOSSnapshotRunning = false
+let lastDailyOSSnapshotRun: Date | null = null
+
+function shouldRunDailyOSSnapshotJob(): boolean {
+  const now = dayjs()
+  if (isDailyOSSnapshotRunning) return false
+  if (lastDailyOSSnapshotRun) {
+    const lastRun = dayjs(lastDailyOSSnapshotRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyOSSnapshotJob(): Promise<JobResult> {
+  const jobName = 'daily-os-snapshot'
+  const executedAt = new Date().toISOString()
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily OS Snapshot')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+  isDailyOSSnapshotRunning = true
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let created = 0
+    let failed = 0
+    for (const user of activeUsers) {
+      try {
+        const metadata = (user as any).metadata as any || {}
+        const snapshotMeta: Record<string, any> = {}
+        if (metadata.theme) snapshotMeta.theme = { theme: metadata.theme }
+        if (metadata.sound) snapshotMeta.sound = metadata.sound
+        await Log.create({
+          userId: (user as any).id,
+          event: 'system_snapshot' as any,
+          text: `OS midnight snapshot — ${dayjs().format('YYYY-MM-DD')}`,
+          metadata: snapshotMeta,
+          context: {},
+        })
+        created++
+      } catch (err: any) {
+        failed++
+      }
+    }
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('OS SNAPSHOT JOB COMPLETE')
+    console.log(`   Created: ${created} / Failed: ${failed} / Total: ${activeUsers.length}`)
+    console.log('─'.repeat(60))
+    console.log('')
+    lastDailyOSSnapshotRun = new Date()
+    isDailyOSSnapshotRunning = false
+    return { jobName, executedAt, success: true, result: { created, failed, total: activeUsers.length } }
+  } catch (error: any) {
+    console.error('Daily OS snapshot job failed:', error.message)
+    isDailyOSSnapshotRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
 }
 
 /**
@@ -873,6 +950,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly QOS state digest: 4 AM UTC every Wednesday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('   - Daily intention audit: 6 AM UTC every day')
+  console.log('   - Daily OS snapshot: midnight (0 AM UTC) every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -882,8 +960,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM UTC; cohort digest + intention audit: 6 AM; QOS digest: 4 AM; QIE analytics: 3 AM
-    if (hour === 9 || hour === 6 || hour === 4 || hour === 3) {
+    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM
+    if (hour === 9 || hour === 6 || hour === 4 || hour === 3 || hour === 0) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

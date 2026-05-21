@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 2.9
-**Last Updated:** May 19, 2026
-**Status:** Production Active — Self-Assembly Phase v34
+**Document Version:** 3.0
+**Last Updated:** May 21, 2026
+**Status:** Production Active — Self-Assembly Phase v37
 
 ---
 

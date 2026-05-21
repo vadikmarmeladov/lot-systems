@@ -767,6 +767,46 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'badge_unlock') {
+          const badgeName = log.metadata?.badgeName as string | undefined
+          const tier = log.metadata?.tier as string | undefined
+          const level = log.metadata?.level as number | undefined
+          if (!badgeName && !log.text) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BADGE:" blockView>
+                <div className="uppercase tracking-widest mb-4">
+                  {badgeName || log.text || '—'}
+                </div>
+                {tier && <div className="opacity-60">TIER: {tier.toUpperCase()}</div>}
+                {level !== undefined && (
+                  <div className="opacity-40">LVL: {level}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_os_snapshot') {
+          const modules = log.metadata?.assembledModules as number | undefined
+          const totalModules = log.metadata?.totalModules as number | undefined
+          const assembly = log.metadata?.assembly as number | undefined
+          const phase = log.metadata?.phase as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QTOS:" blockView>
+                {phase && (
+                  <div className="uppercase tracking-widest mb-4">{phase}</div>
+                )}
+                {modules !== undefined && totalModules !== undefined && (
+                  <div className="opacity-60 tabular-nums">
+                    MOD: {modules}/{totalModules}
+                  </div>
+                )}
+                {assembly !== undefined && (
+                  <div className="opacity-40 tabular-nums">ASM: {assembly}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
