@@ -579,8 +579,6 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '52 patterns. 16 archetypes. 15 modules. 70-node dep graph. Circadian loop wired.',
     ],
   },
-]
-
   {
     date: '2026-05-21',
     session: 'Self-Assembly Session — v37 / Badge Stream + OS Snapshot Job',

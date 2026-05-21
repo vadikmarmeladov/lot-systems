@@ -1022,7 +1022,6 @@ const NoteEditor = ({
           if (next) playSynthActivationChime()
           else playSynthDeactivationChime()
         } catch {}
-      }
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
