@@ -35,7 +35,7 @@ interface FeedbackAnalytics {
   insights: string[]
 }
 
-type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report'
+type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report' | 'transmission'
 
 // Self-assembly session record — appended after each upgrade session
 const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] = [
@@ -65,6 +65,49 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Log UI: quantum_intent_signal event handler, terminal placeholder text',
       'Session report logged and appended. All modules online.',
     ],
+  },
+  {
+    date: '2026-05-22',
+    session: 'Self-Assembly Run — v4 / Transmission Layer',
+    assembled: [
+      'Assembly transmission layer: structured run messages pushed to System Progress widget',
+      'SESSION_REPORTS updated: v4 entry appended, all prior sessions preserved',
+      'Deployment features sync: api.ts features updated to reflect actual system capabilities',
+      'ProgressView extended: transmission view added as 5th cycle point',
+      'Assembly .MD log: 2026-05-22_LOT-assembly_transmission-layer.md created in repo',
+    ],
+  },
+]
+
+// Assembly transmissions — the system talking to the person
+// Each run appends one entry. Format: terse, technical, alive.
+const ASSEMBLY_TRANSMISSIONS: {
+  date: string
+  built: string[]
+  feedbackApplied: string
+  status: 'DEPLOYED' | 'HELD'
+  next: string
+}[] = [
+  {
+    date: '2026-04-17',
+    built: ['Physiological cohort engine', 'Military log interface', 'Session report system'],
+    feedbackApplied: 'the system needs to know the person',
+    status: 'DEPLOYED',
+    next: 'Daily QIE analytics + cohort voice matching',
+  },
+  {
+    date: '2026-04-18',
+    built: ['QIE v3 daily analytics', 'Physiological cohorts in assembly map', 'UserIndex 6D composite'],
+    feedbackApplied: 'system should build itself from real signals',
+    status: 'DEPLOYED',
+    next: 'Assembly transmission layer — the system talking to the person',
+  },
+  {
+    date: '2026-05-22',
+    built: ['Assembly transmission layer', 'Session reports v4', 'Deployment features sync'],
+    feedbackApplied: 'the system talking to the person',
+    status: 'DEPLOYED',
+    next: 'Journal vocabulary extraction → personal interface language injection',
   },
 ]
 
@@ -119,7 +162,8 @@ export function SystemProgressWidget() {
         case 'deployment': return 'assembly'
         case 'assembly': return 'feedback'
         case 'feedback': return 'report'
-        case 'report': return 'deployment'
+        case 'report': return 'transmission'
+        case 'transmission': return 'deployment'
         default: return 'deployment'
       }
     })
@@ -217,7 +261,8 @@ export function SystemProgressWidget() {
     view === 'deployment' ? 'System Progress:' :
     view === 'assembly' ? 'Self-Assembly:' :
     view === 'feedback' ? 'System Feedback:' :
-    'System Report:'
+    view === 'report' ? 'System Report:' :
+    'Transmission:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>
@@ -617,6 +662,43 @@ export function SystemProgressWidget() {
                   </button>
                 </div>
               )}
+            </div>
+          </>
+        )}
+
+        {/* ─── Transmission View ─── */}
+        {view === 'transmission' && (
+          <>
+            <div>
+              <div className="opacity-30 mb-16">The system talking to the person.</div>
+              <div className="flex flex-col gap-y-24">
+                {[...ASSEMBLY_TRANSMISSIONS].reverse().map((tx, idx) => (
+                  <div key={tx.date} className={`flex flex-col gap-y-4 font-mono text-xs${idx > 0 ? ' opacity-40' : ''}`}>
+                    <div className="flex justify-between items-baseline mb-4">
+                      <span className="uppercase tracking-widest">ASSEMBLY RUN</span>
+                      <span className="tabular-nums opacity-60">{tx.date}</span>
+                    </div>
+                    <div className="flex flex-col gap-y-2 pl-8 border-l border-acc-400/20">
+                      <div className="flex gap-8">
+                        <span className="opacity-30 shrink-0">Built:</span>
+                        <span>{tx.built.join(' · ')}</span>
+                      </div>
+                      <div className="flex gap-8">
+                        <span className="opacity-30 shrink-0">Applied:</span>
+                        <span>"{tx.feedbackApplied}"</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="opacity-30">Status</span>
+                        <span>{tx.status}</span>
+                      </div>
+                      <div className="flex gap-8">
+                        <span className="opacity-30 shrink-0">Next:</span>
+                        <span>{tx.next}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </>
         )}
