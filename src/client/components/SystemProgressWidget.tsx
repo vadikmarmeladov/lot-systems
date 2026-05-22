@@ -590,20 +590,37 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Log handler count: 33. Background jobs: 6. System deepens.',
     ],
   },
+  {
+    date: '2026-05-22',
+    session: 'Self-Assembly Session — v38 / Resend Recovery + Benchmark Arbitrage',
+    assembled: [
+      'SECURITY: Resend API key compromise resolved. Phishing email sent via exposed key. Account reactivated.',
+      '9 files scrubbed of plaintext secrets: app.yaml, PRODUCTION-READY.md, test-db.ts, restore scripts, docs.',
+      'All secrets migrated to DO App Platform encrypted env vars (EV[1:...] format).',
+      'GitHub repository set to private. No plaintext secrets in any committed file.',
+      'Weekly rebuild workflow: concurrency guard added (queue, not cancel).',
+      'Build fixes: ecosystemSignals duplicate, extractTraits import, Logs.tsx brace mismatch, SystemProgressWidget array structure.',
+      'Quantum Success Benchmark: White/Green/Yellow/Purple/Black — 5-tier engagement depth reading.',
+      'About page: v36-v38 release history + Benchmark Arbitrage section.',
+      'Status: 52 patterns. 16 archetypes. 15 modules. 0 exposed secrets. Site live.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-21',
+  date: '2026-05-22',
   message: [
-    'ASSEMBLY RUN — 2026-05-21 · v37',
-    'BADGE: and QTOS: log handlers deployed. Badge unlocks and OS snapshots now render in the field log.',
-    'Daily OS snapshot job active at midnight. Day-boundary markers written for all active users.',
-    'LOT_SYSTEMS_BRIEF.md updated to v3.0.',
+    'ASSEMBLY RUN — 2026-05-22 · v38',
+    'Resend API key was compromised. Phishing email sent through LOT account. Key rotated. Account restored.',
+    'Nine files purged of plaintext secrets. All credentials now encrypted in DO environment.',
+    'Repository set to private. The system no longer exposes its internals to the public internet.',
+    'Four build errors fixed: duplicate variable, wrong import, orphaned else-if, misplaced array entry.',
+    'Quantum Success Benchmark deployed: 5-tier reading from White to Black. The Cube measures depth.',
     'Status: 52 patterns. 16 archetypes. 15 modules. 70-node dep graph. 33 log handlers. 6 background jobs.',
-    'Next: Pattern 53 — intention-crystallization (intention set + 3+ planner blocks + goal completion within 72h).',
-    'DEPLOYED. The Cube accumulates.',
+    'Next: Pattern 53 — intention-crystallization. Or: pre-commit secret scanning hook.',
+    'DEPLOYED. The Cube secures what it builds.',
   ],
 }
 

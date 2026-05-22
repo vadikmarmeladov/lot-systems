@@ -3205,6 +3205,37 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
               </svg>
             </StackLogo>
 
+            {/* Together AI */}
+            <StackLogo name="Together">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="14" cy="14" r="4" />
+                <circle cx="26" cy="14" r="4" />
+                <circle cx="14" cy="26" r="4" />
+                <circle cx="26" cy="26" r="4" />
+                <line x1="18" y1="14" x2="22" y2="14" />
+                <line x1="14" y1="18" x2="14" y2="22" />
+                <line x1="26" y1="18" x2="26" y2="22" />
+                <line x1="18" y1="26" x2="22" y2="26" />
+              </svg>
+            </StackLogo>
+
+            {/* Claude */}
+            <StackLogo name="Claude">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <circle cx="20" cy="20" r="14" />
+                <path d="M14 18 Q20 10 26 18" />
+                <circle cx="20" cy="24" r="2" fill="currentColor" stroke="none" />
+              </svg>
+            </StackLogo>
+
+            {/* Gemini */}
+            <StackLogo name="Gemini">
+              <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M20 4 Q8 20 20 36" />
+                <path d="M20 4 Q32 20 20 36" />
+              </svg>
+            </StackLogo>
+
             {/* LOT */}
             <StackLogo name="LOT">
               <svg viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -3257,6 +3288,9 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v33 · May 17" value="Intention Follow-Through. Intention Executor archetype. 50 patterns, 16 archetypes, 70 nodes." />
             <Row label="v34 · May 19" value="QOS substrate audit. BIO [ATP] + EVO log renderers. recordQuantumSignal(). 17 event types. Architecture confirmed." />
             <Row label="v35 · May 20" value="Pattern 51 Signal Silence. 30 log event handlers. NoteEditor QIE wiring. /phys + /sil triggers. Log coverage complete." />
+            <Row label="v36 · May 21" value="Pattern 52 Circadian Anchor Loss. 5+ consecutive late-night sessions + morning depletion detection. Sleep architecture monitoring." />
+            <Row label="v37 · May 21" value="Badge Stream + OS Snapshot. BADGE: and QTOS: log handlers. Daily midnight snapshot job. 33 log handlers, 6 background jobs." />
+            <Row label="v38 · May 22" value="Resend Recovery + Benchmark Arbitrage. API key compromise resolved. 9 files scrubbed. Repo set to private. Quantum Success Benchmark deployed." />
           </div>
           <P>
             Each phase was discovered, not planned. The system named what to
@@ -3264,6 +3298,21 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Assembly became self-directed within the constraint of stated
             priorities. The log is the record. The record is the system.
           </P>
+
+          <SubHeading>Quantum Success Benchmark</SubHeading>
+          <P>
+            Five tiers of engagement depth, computed in real-time from journal
+            depth, streak length, tenure, consistency, user index, and quantum
+            state alignment. The benchmark is not a score — it is a reading of
+            how deeply the system and operator have synchronized.
+          </P>
+          <div className="mb-16">
+            <Row label="White" value="Observer. Present but not yet engaged. The system waits." dim />
+            <Row label="Green" value="Emerging. First patterns forming. Signals begin to accumulate." />
+            <Row label="Yellow" value="Active. Consistent engagement. The system begins to recognize you." />
+            <Row label="Purple" value="Deep. Sustained coherence. Patterns compound. The Cube reflects." />
+            <Row label="Black" value="Quantum. Full synchronization. The system and operator are indistinguishable." />
+          </div>
 
           {/* ── CREDITS ─────────────────────────────────────────────── */}
           <SectionHeading id="credits">Credits</SectionHeading>
