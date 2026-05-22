@@ -152,9 +152,14 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
         <>
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
+              <span className={cn(
+                status.overall === 'ok' && 'text-acc',
+                (status.overall === 'degraded' || status.overall === 'error') && 'opacity-60'
+              )}>
               {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+               status.overall === 'degraded' ? 'Degraded — some services affected' :
+               'Incident — critical services down'}
+              </span>
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
@@ -182,9 +187,9 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
           <div className="mb-16">
             <div className="mb-16">System components:</div>
-            {status.checks.map((check, index) => (
+            {status.checks.map((check) => (
               <Block
-                key={index}
+                key={check.name}
                 label={check.name + ':'}
                 labelClassName="!pl-0"
                 className="mb-8"
@@ -193,7 +198,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                   <span>{getStatusIcon(check.status)}</span>
                   <span className={cn(
                     check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
+                    check.status === 'error' && 'opacity-50'
                   )}>
                     {check.status === 'ok' ? 'Ok' :
                      check.status === 'error' ? 'Error' :
