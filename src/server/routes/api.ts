@@ -4216,6 +4216,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
 
       // Determine program name based on version features
       const getProgramName = (ver: string) => {
+        if (ver.includes('1.3')) return 'Assembly Transmission Protocol'
         if (ver.includes('1.2.1')) return 'Quantum Intent Calibration'
         if (ver.includes('1.2.0')) return 'Memory Engine Synthesis'
         return 'Neural Pathway Integration'
@@ -4241,12 +4242,12 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
 
       // Features in current version
       const features = [
-        'API Data Export Protocol',
-        'Hourly Time Chime Resonance',
-        'Quantum Intent Interactive Matrix',
-        'Community Wellness Pulse Monitor',
-        'Memory Engine Neural Analytics',
-        'Growth Milestone Tracking System'
+        'Physiological Cohort Classification Engine',
+        'Military Log Interface: CARE/PLAN/INTENT/MOOD/SYS',
+        'QIE v3: Daily Analytics + Biofield Signals',
+        'Self-Assembly Map: 9-Module Real-Time Progress',
+        'Memory Engine: AI Questions via Claude API',
+        'Assembly Transmission Layer: Usership Broadcasts',
       ]
 
       const deployment = {
