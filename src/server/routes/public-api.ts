@@ -180,9 +180,6 @@ async function checkUsers(): Promise<SystemCheck> {
 async function checkSettings(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check if User model is available (settings are part of User model)
-    await models.User.findOne()
-
     // Check if settings page bundle exists
     const settingsPagePath = path.join(process.cwd(), 'dist/client/js/app.js')
     if (!fs.existsSync(settingsPagePath)) {
@@ -345,9 +342,17 @@ async function performHealthChecks(): Promise<{
     checkMemory(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Determine overall status: critical services down = error, non-critical = degraded
+  const criticalNames = new Set(['Database stack', 'Authentication engine'])
+  const hasCriticalError = checks
+    .filter((c) => criticalNames.has(c.name))
+    .some((c) => c.status === 'error')
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalError
+    ? 'error'
+    : hasAnyError
+    ? 'degraded'
+    : 'ok'
 
   return {
     version: VERSION,

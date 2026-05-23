@@ -122,8 +122,7 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
                   'rounded',
                   (!!props.onClick || !!props.onChildrenClick)
                     ? '-ml-4 pl-4 pr-4 cursor-pointer transition-[background-color] ' + hoverClassName
-                    : '',
-                  props.labelClassName
+                    : ''
                 )}
                 onClick={(e) => {
                   if (props.onChildrenClick) {

@@ -76,6 +76,7 @@ export const Button: React.FC<Props> = ({
   if (isButton(props))
     return (
       <button
+        type="button"
         {...(props as ButtonProps)}
         className={cn(className, 'select-none')}
       />
@@ -96,24 +97,27 @@ export const Button: React.FC<Props> = ({
 type GhostButtonProps = AProps | ButtonProps | SpanProps
 export const GhostButton: React.FC<GhostButtonProps> = ({ ...props }) => {
   if (isButton(props)) {
+    const { className, ...rest } = props as ButtonProps
     return (
       <button
-        {...(props as ButtonProps)}
+        type="button"
+        {...rest}
         className={cn(
-          !!(props as ButtonProps).onClick &&
-            '-ml-4 px-4 rounded cursor-pointer grid-fill-hover'
+          !!rest.onClick && '-ml-4 px-4 rounded cursor-pointer grid-fill-hover',
+          className
         )}
       />
     )
   }
 
   if ((props as AProps).href !== undefined) {
+    const { className, ...rest } = props as AProps
     return (
       <a
-        {...(props as AProps)}
+        {...rest}
         className={cn(
-          !!(props as AProps).href &&
-            '-ml-4 px-4 rounded cursor-pointer grid-fill-hover'
+          !!rest.href && '-ml-4 px-4 rounded cursor-pointer grid-fill-hover',
+          className
         )}
       />
     )
