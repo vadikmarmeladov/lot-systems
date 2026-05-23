@@ -4508,6 +4508,104 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   })
 
   // ============================================================================
+  // Journal Vocabulary Engine — extract the user's personal language from notes
+  // ============================================================================
+  fastify.get('/journal/vocabulary', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      const ninetyDaysAgo = dayjs().subtract(90, 'day').toDate()
+
+      const noteLogs = await fastify.models.Log.findAll({
+        where: {
+          userId: req.user.id,
+          event: 'note',
+          text: { [Op.and]: [{ [Op.ne]: null }, { [Op.ne]: '' }] },
+          createdAt: { [Op.gte]: ninetyDaysAgo },
+        },
+        attributes: ['text'],
+        order: [['createdAt', 'DESC']],
+        limit: 500,
+      })
+
+      if (!noteLogs.length) {
+        return { phrases: [], totalEntries: 0, uniqueWords: 0 }
+      }
+
+      const STOPWORDS = new Set([
+        'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+        'of', 'with', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+        'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
+        'should', 'can', 'may', 'might', 'must', 'i', 'me', 'my', 'myself',
+        'we', 'our', 'you', 'your', 'it', 'its', 'this', 'that', 'they',
+        'them', 'their', 'he', 'she', 'him', 'her', 'not', 'no', 'so', 'if',
+        'as', 'from', 'by', 'about', 'up', 'out', 'into', 'then', 'than',
+        'too', 'just', 'what', 'when', 'how', 'who', 'which', 'also', 'all',
+        'more', 'very', 'am', 'get', 'got', 'go', 'going', 'went', 'know',
+        'like', 'want', 'need', 'think', 'feel', 'felt', 'still', 'back',
+        'well', 'now', 'here', 'there', 'some', 'any', 'time', 'day', 'one',
+        'two', 'first', 'last', 'new', 'good', 'lot', 'thing', 'things',
+        'right', 'make', 'made', 'really', 'much', 'see', 'down', 'even',
+        'again', 'after', 'before', 'because', 'dont', 'dont', 'its', 'im',
+        'ive', 'ill', 'id', 'thats', 'its', 'cant', 'wont', 'dont',
+      ])
+
+      const allText = noteLogs
+        .map((log) => log.text || '')
+        .join(' ')
+        .toLowerCase()
+        .replace(/['']/g, '') // collapse apostrophes so "don't" → "dont"
+        .replace(/[^a-z\s-]/g, ' ')
+
+      const tokens = allText.split(/\s+/).filter((w) => w.length >= 3 && !STOPWORDS.has(w))
+
+      // Unigram frequency
+      const wordFreq = new Map<string, number>()
+      for (const w of tokens) {
+        wordFreq.set(w, (wordFreq.get(w) || 0) + 1)
+      }
+
+      // Bigram frequency (only non-stopword pairs)
+      const bigramFreq = new Map<string, number>()
+      const rawTokens = allText.split(/\s+/).filter((w) => w.length >= 2)
+      for (let i = 0; i < rawTokens.length - 1; i++) {
+        const w1 = rawTokens[i]
+        const w2 = rawTokens[i + 1]
+        if (!STOPWORDS.has(w1) && !STOPWORDS.has(w2) && w1.length >= 3 && w2.length >= 3) {
+          const bigram = `${w1} ${w2}`
+          bigramFreq.set(bigram, (bigramFreq.get(bigram) || 0) + 1)
+        }
+      }
+
+      const phrases: { text: string; count: number }[] = []
+
+      // Bigrams with count >= 2 get priority — these are the user's actual phrases
+      bigramFreq.forEach((count, text) => {
+        if (count >= 2) phrases.push({ text, count })
+      })
+
+      // Unigrams with count >= 3, not already represented in a bigram
+      wordFreq.forEach((count, text) => {
+        if (count >= 3) {
+          const inBigram = phrases.some((p) => p.text.includes(text))
+          if (!inBigram) phrases.push({ text, count })
+        }
+      })
+
+      phrases.sort((a, b) => b.count - a.count)
+
+      return {
+        phrases: phrases.slice(0, 15),
+        totalEntries: noteLogs.length,
+        uniqueWords: wordFreq.size,
+      }
+    } catch (error) {
+      console.error('Error extracting journal vocabulary:', error)
+      return reply.status(500).send({ error: 'Failed to extract vocabulary' })
+    }
+  })
+
+  // ============================================================================
   // Cosmic Update — Together AI image generation
   // ============================================================================
   fastify.post(

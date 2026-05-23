@@ -35,7 +35,7 @@ interface FeedbackAnalytics {
   insights: string[]
 }
 
-type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report' | 'transmission'
+type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report' | 'transmission' | 'vocab'
 
 // Self-assembly session record — appended after each upgrade session
 const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] = [
@@ -77,6 +77,17 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Assembly .MD log: 2026-05-22_LOT-assembly_transmission-layer.md created in repo',
     ],
   },
+  {
+    date: '2026-05-23',
+    session: 'Self-Assembly Run — v5 / Personal Language Engine',
+    assembled: [
+      'GoalJourneyWidget wired: goal detection + journey stages now in Bioethics stack',
+      'Journal vocabulary endpoint: GET /api/journal/vocabulary — 90-day phrase extraction',
+      'My Language view: ProgressView 6th cycle point, user\'s own words reflected back',
+      'Bigram + unigram engine: frequency-ranked personal vocabulary, stopword-filtered',
+      'Assembly .MD log: 2026-05-23_LOT-assembly_personal-language-engine.md created',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -109,6 +120,13 @@ const ASSEMBLY_TRANSMISSIONS: {
     status: 'DEPLOYED',
     next: 'Journal vocabulary extraction → personal interface language injection',
   },
+  {
+    date: '2026-05-23',
+    built: ['GoalJourneyWidget', 'Journal vocabulary engine', 'My Language view'],
+    feedbackApplied: 'Journal vocabulary extraction → personal interface language injection',
+    status: 'DEPLOYED',
+    next: 'Vocabulary injection — surface user phrases in Memory questions and widget copy',
+  },
 ]
 
 const FEEDBACK_OPTIONS = [
@@ -136,12 +154,23 @@ export function SystemProgressWidget() {
   const { data: energyData } = useEnergy()
   const [cohortData, setCohortData] = React.useState<{ archetype?: string; behavioralCohort?: string } | null>(null)
   const [report, setReport] = React.useState<PhysiologicalReport | null>(null)
+  const [vocab, setVocab] = React.useState<{ phrases: { text: string; count: number }[]; totalEntries: number; uniqueWords: number } | null>(null)
 
   // Recompute assembly on mount and periodically
   React.useEffect(() => {
     recomputeAssembly()
     const interval = setInterval(recomputeAssembly, 60_000) // Every minute
     return () => clearInterval(interval)
+  }, [])
+
+  // Load journal vocabulary — user's own language extracted from notes
+  React.useEffect(() => {
+    fetch('/api/journal/vocabulary')
+      .then(res => res.json())
+      .then(data => {
+        if (data.phrases) setVocab(data)
+      })
+      .catch(() => {})
   }, [])
 
   // Load physiological cohort classification
@@ -163,7 +192,8 @@ export function SystemProgressWidget() {
         case 'assembly': return 'feedback'
         case 'feedback': return 'report'
         case 'report': return 'transmission'
-        case 'transmission': return 'deployment'
+        case 'transmission': return 'vocab'
+        case 'vocab': return 'deployment'
         default: return 'deployment'
       }
     })
@@ -262,7 +292,8 @@ export function SystemProgressWidget() {
     view === 'assembly' ? 'Self-Assembly:' :
     view === 'feedback' ? 'System Feedback:' :
     view === 'report' ? 'System Report:' :
-    'Transmission:'
+    view === 'transmission' ? 'Transmission:' :
+    'My Language:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>
@@ -699,6 +730,60 @@ export function SystemProgressWidget() {
                   </div>
                 ))}
               </div>
+            </div>
+          </>
+        )}
+
+        {/* ─── My Language View ─── */}
+        {view === 'vocab' && (
+          <>
+            <div>
+              <div className="opacity-30 mb-16">Your words. Extracted from 90 days of notes.</div>
+
+              {!vocab ? (
+                <div className="opacity-30 font-mono text-xs">Loading language map...</div>
+              ) : vocab.phrases.length === 0 ? (
+                <div className="flex flex-col gap-y-8">
+                  <div className="opacity-30 font-mono text-xs">
+                    No patterns found yet.
+                  </div>
+                  <div className="opacity-20 font-mono text-xs">
+                    Write more notes. The language map builds from your words.
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-y-16">
+                  {/* Phrase frequency grid */}
+                  <div className="flex flex-col gap-y-4 font-mono text-xs">
+                    {vocab.phrases.map((p, idx) => (
+                      <div key={p.text} className="flex justify-between items-baseline">
+                        <span className={idx < 3 ? '' : 'opacity-60'}>{p.text}</span>
+                        <span className="tabular-nums opacity-30">{p.count}x</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Stats footer */}
+                  <div className="border-t border-acc-400/20 pt-12 flex flex-col gap-y-4 font-mono text-xs opacity-30">
+                    <div className="flex justify-between">
+                      <span className="uppercase tracking-widest">Notes scanned</span>
+                      <span className="tabular-nums">{vocab.totalEntries}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="uppercase tracking-widest">Unique words</span>
+                      <span className="tabular-nums">{vocab.uniqueWords}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="uppercase tracking-widest">Window</span>
+                      <span>90 days</span>
+                    </div>
+                  </div>
+
+                  <div className="opacity-20 font-mono text-xs">
+                    The system listens. These are the words you return to.
+                  </div>
+                </div>
+              )}
             </div>
           </>
         )}
