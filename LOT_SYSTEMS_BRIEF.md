@@ -1,9 +1,9 @@
 # LOT SYSTEMS: Technical Brief & Strategic Overview
 
 **Classification:** Public
-**Document Version:** 3.0
-**Last Updated:** May 21, 2026
-**Status:** Production Active — Self-Assembly Phase v37
+**Document Version:** 3.1
+**Last Updated:** May 23, 2026
+**Status:** Production Active — Self-Assembly Phase v39
 
 ---
 
@@ -15,24 +15,26 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ v34 — 50-pattern behavioral recognition across all user interactions
+- Quantum Intent Engine™ v39 — 55-pattern behavioral recognition across all user interactions
 - Context-aware AI question generation using Claude (Anthropic), enriched with quantum state
 - Real-time psychological profiling with 10 distinct archetypes + physiological cohort classification
 - Zero-configuration intelligence — system learns passively from natural usage
-- Self-Assembly Engine — 15 modules build themselves from real engagement signals (70-node dep graph)
+- Self-Assembly Engine — 17 modules build themselves from real engagement signals (75-node dep graph)
 - Physiological Cohort Classifier — 9-archetype real-time QIE-native classifier (no server required): Peak Catalyst / Flowing Creator / Morning Visionary / Rising Builder / Seeking Sage / Evening Sage / Grounded Healer / Anxious Explorer / Depleted Guardian
 - Physiological Readiness Score — composite 0-100 biofield health metric surfaced in every session
 - Daily OS Vitals Snapshot + QOS Coherence Report — server-side persisted vitals for cross-device OS continuity
 - Weekly Signal Diversity Audit — detects mono-source loops, computes signal diversity per user
-- Military-style Log Interface — structured telemetry across 37+ event types (PHY / COHR / IVEL / CPEAK added)
+- Military-style Log Interface — structured telemetry across 38 event types (NUTR / GOAL / STACK / BENCH / PHASE added v39)
 - OS Journal View — persisted vitals timeline surfaced in System Progress widget
 - Full-Stack Session Detection — fires when memory + planner + selfcare all engage in 4h window; visible in Biofield State widget
 - Temporal Planner module — 14th self-assembly module, calendar signals fully wired to QIE
 - Quantum Operating System (QuantumOS) — 15th assembly module, meta-layer across all 14 sources
-- 45 behavioral patterns (incl. cognitive-load-release decompression loop)
-- 15 physiological archetypes (incl. Cognitive Liberator)
+- Convergence Layer monitors — successBenchmark, circadianMonitor, droughtMonitor, crystallizationArc, vitalConvergence (v39)
+- 55 behavioral patterns (incl. intention-crystallization, os-vitals-convergence, signal-drought — v39)
+- 16 physiological archetypes (incl. Cognitive Liberator)
 - Journal depth → Reflection Layer — every note written advances the Reflection Layer assembly density
 - Background coherence monitors — intention velocity, signal coherence peak, and QOS diversity auto-check after every analysis cycle
+- Quantum Success Benchmark — 5-tier engagement depth reading (White/Green/Yellow/Purple/Black)
 
 ---
 
@@ -51,7 +53,7 @@ Transform fragmented self-tracking into a unified, intelligent system that recog
 - **vs. Notion/Obsidian:** LOT has intelligent curation vs. manual organization
 
 **Market Validation:**
-- 909 days of continuous operation (Day 909 as of April 20, 2026)
+- 942 days of continuous operation (Day 942 as of May 23, 2026)
 - Active user base with measurable engagement metrics
 - Proven retention through badge/streak mechanics
 
@@ -126,7 +128,7 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (45 Types — v27 / 2026-05-12):**
+**Pattern Recognition (55 Types — v39 / 2026-05-23):**
 1. **Anxiety Pattern** — Multiple anxious moods → Self-care (confidence: 0.66–1.0)
 2. **Lack of Structure** — Tired + no planning → Planner (confidence: 0.7)
 3. **Seeking Direction** — No intention for weeks → Intentions (confidence: 0.8)

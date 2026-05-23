@@ -807,6 +807,87 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'recipe_viewed') {
+          const mealType = log.metadata?.mealType as string | undefined
+          const recipeName = log.metadata?.recipeName as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="NUTR:" blockView>
+                {mealType && (
+                  <div className="uppercase tracking-widest mb-4">{mealType}</div>
+                )}
+                {recipeName && (
+                  <div className="opacity-60">{recipeName}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'goal_set' || log.event === 'goal_journey' || log.event === 'goal_update') {
+          const title = log.metadata?.title as string | undefined
+          const action = log.metadata?.action as string | undefined
+          const stage = log.metadata?.stage as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GOAL:" blockView>
+                {title && (
+                  <div className="uppercase tracking-widest mb-4">{title}</div>
+                )}
+                {(action || stage) && (
+                  <div className="opacity-60">
+                    {action || stage}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'full_stack_session') {
+          const activeSources = log.metadata?.activeSources as string[] | undefined
+          const windowMinutes = log.metadata?.windowMinutes as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="STACK:" blockView>
+                <div className="uppercase tracking-widest mb-4">FULL STACK</div>
+                {activeSources && activeSources.length > 0 && (
+                  <div className="opacity-60">{activeSources.join(' · ')}</div>
+                )}
+                {windowMinutes !== undefined && (
+                  <div className="opacity-40 tabular-nums">WIN: {windowMinutes}m</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'benchmark_read') {
+          const tier = log.metadata?.tier as string | undefined
+          const score = log.metadata?.score as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BENCH:" blockView>
+                {tier && (
+                  <div className="uppercase tracking-widest mb-4">{tier}</div>
+                )}
+                {score !== undefined && (
+                  <div className="opacity-60 tabular-nums">SCR: {score}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'qos_phase_transition') {
+          const fromPhase = log.metadata?.fromPhase as string | undefined
+          const toPhase = log.metadata?.toPhase as string | undefined
+          const moduleId = log.metadata?.moduleId as string | undefined
+          if (!fromPhase && !toPhase) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PHASE:" blockView>
+                {moduleId && (
+                  <div className="uppercase tracking-widest mb-4">{moduleId.replace(/-/g, ' ')}</div>
+                )}
+                <div className="opacity-60 tabular-nums">
+                  {fromPhase?.toUpperCase() || '—'} → {toPhase?.toUpperCase() || '—'}
+                </div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

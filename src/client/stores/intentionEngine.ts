@@ -1304,6 +1304,68 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 53: Intention crystallization — declare → plan → act, all within 2h.
+  // The full execution loop compressed into one session. Inverse of P47 (intention-decay).
+  const p53Window = 2 * 60 * 60 * 1000
+  const p53Intention = recentSignals.find(s => s.source === 'intentions' && now - s.timestamp < p53Window)
+  const p53Plan = recentSignals.find(s => s.source === 'planner' && now - s.timestamp < p53Window)
+  const p53Goal = recentSignals.find(s => s.source === 'goals' && now - s.timestamp < p53Window)
+  if (p53Intention && p53Plan && p53Goal) {
+    const windowStart = Math.min(p53Intention.timestamp, p53Plan.timestamp, p53Goal.timestamp)
+    const windowEnd = Math.max(p53Intention.timestamp, p53Plan.timestamp, p53Goal.timestamp)
+    const minutesSpan = Math.round((windowEnd - windowStart) / 60000)
+    patterns.push({
+      pattern: 'intention-crystallization',
+      confidence: 0.87,
+      suggestedWidget: 'goals',
+      suggestedTiming: 'immediate',
+      reason: `Intention crystallized: declare → plan → act within ${minutesSpan}m. Execution loop fully engaged. Capture this state.`
+    })
+  }
+
+  // Pattern 54: OS vitals convergence — UserIndex overall ≥ 65 + energy 'high' + 5+ signal sources active
+  // in last 7 days. Peak operating state: all primary systems online and coherent.
+  const p54SevenDays = signals.filter(s => now - s.timestamp < 7 * 24 * 60 * 60 * 1000)
+  const p54ActiveSources = new Set(p54SevenDays.map(s => s.source))
+  const p54UserIdx = computeUserIndex(signals)
+  const p54EnergySignals = recentSignals.filter(s => s.source === 'mood')
+  const p54EnergyScore = p54EnergySignals.reduce((acc, s) => {
+    const map: Record<string, number> = { energized: 2, excited: 2, hopeful: 1, calm: 0, tired: -2, exhausted: -3, overwhelmed: -1 }
+    return acc + (map[s.signal] || 0)
+  }, 0)
+  if (
+    p54UserIdx.overall >= 65 &&
+    p54EnergyScore >= 2 &&
+    p54ActiveSources.size >= 5 &&
+    !patterns.some(p => p.pattern === 'physiological-depletion')
+  ) {
+    patterns.push({
+      pattern: 'os-vitals-convergence',
+      confidence: Math.min(0.70 + (p54UserIdx.overall - 65) * 0.01, 0.92),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `OS vitals converging: index ${p54UserIdx.overall}/100 · ${p54ActiveSources.size} active sources · energy elevated. System operating above baseline. Sustain.`
+    })
+  }
+
+  // Pattern 55: Signal drought — 3+ signal sources absent for 7 consecutive days.
+  // The system is running on memory alone. Re-engage the lowest-cost dormant module.
+  const p55AllSources: IntentionSignal['source'][] = ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy']
+  const p55SevenDays = signals.filter(s => now - s.timestamp < 7 * 24 * 60 * 60 * 1000)
+  const p55ActiveSources = new Set(p55SevenDays.map(s => s.source))
+  const p55AbsentSources = p55AllSources.filter(src => !p55ActiveSources.has(src))
+  const p55TotalSignals = signals.length
+  if (p55AbsentSources.length >= 3 && p55TotalSignals >= 10) {
+    const firstDormant = p55AbsentSources[0]
+    patterns.push({
+      pattern: 'signal-drought',
+      confidence: Math.min(0.55 + p55AbsentSources.length * 0.06, 0.82),
+      suggestedWidget: firstDormant === 'mood' ? 'mood' : firstDormant === 'memory' ? 'memory' : 'selfcare',
+      suggestedTiming: 'soon',
+      reason: `Signal drought: ${p55AbsentSources.length} sources dark for 7 days (${p55AbsentSources.join(', ')}). System memory fading. Re-engage ${firstDormant} to restore signal flow.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1752,6 +1814,13 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Execution arc nodes (2026-05-17 audit)
   intentionArc:      ['intentions', 'planner', 'goals', 'memory'],
   careSpiral:        ['selfcare', 'mood', 'journal'],
+
+  // ── Convergence layer: peak-state monitors (2026-05-23 audit)
+  successBenchmark:  ['mood', 'memory', 'intentions', 'energy', 'journal', 'cohort', 'goals'],
+  circadianMonitor:  ['mood', 'energy', 'selfcare', 'log'],
+  droughtMonitor:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
+  crystallizationArc:['intentions', 'planner', 'goals'],
+  vitalConvergence:  ['mood', 'energy', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'cohort'],
 }
 
 /**
@@ -2737,4 +2806,50 @@ export function recordCareSpiralSignal(careCount: number, dominantAction?: strin
  */
 export function recordQuantumSignal(type: 'calculator' | 'random' | 'sign', value?: number) {
   recordSignal('qos', `quantum_${type}`, { value, hour: new Date().getHours() })
+}
+
+/**
+ * Record a Quantum Success Benchmark reading signal.
+ * Fires from the benchmark widget when the user reads their tier.
+ * Tier codes: white / green / yellow / purple / black
+ */
+export function recordBenchmarkSignal(tier: 'white' | 'green' | 'yellow' | 'purple' | 'black', score: number) {
+  recordSignal('energy', 'benchmark_read', { tier, score, hour: new Date().getHours() })
+}
+
+/**
+ * Record a QOS phase transition — fires when the system crosses an assembly phase boundary.
+ * Logged to the field archive for the person to observe their system maturing.
+ */
+export function recordQOSPhaseTransition(fromPhase: string, toPhase: string, moduleId: string) {
+  recordSignal('qos', 'qos_phase_transition', {
+    fromPhase,
+    toPhase,
+    moduleId,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a full-stack session signal when memory + planner + selfcare all fire within 4h.
+ * Feeds Pattern 25 detection and the vitals assembly module.
+ */
+export function recordFullStackSession(activeSources: string[], windowMinutes: number) {
+  recordSignal('energy', 'full_stack_session', {
+    activeSources,
+    windowMinutes,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a recipe-viewed signal. Feeds Pattern 20 (nutritional void) detection
+ * and the Nutrition Protocol assembly module.
+ */
+export function recordRecipeViewedSignal(mealType: string, recipeName?: string) {
+  recordSignal('recipe', 'recipe_viewed', {
+    mealType,
+    recipeName,
+    hour: new Date().getHours(),
+  })
 }

@@ -605,22 +605,38 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Status: 52 patterns. 16 archetypes. 15 modules. 0 exposed secrets. Site live.',
     ],
   },
+  {
+    date: '2026-05-23',
+    session: 'Self-Assembly Session — v39 / QIE Patterns 53–55 · Log Handlers · Widget Deps · QOS',
+    assembled: [
+      'Pattern 53: intention-crystallization — declare → plan → act compressed into single 2h session.',
+      'Pattern 54: os-vitals-convergence — UserIndex ≥ 65 + energy high + 5+ active sources. Peak OS state.',
+      'Pattern 55: signal-drought — 3+ core sources absent for 7d. Intervention: re-engage dormant module.',
+      'Log handlers: recipe_viewed (NUTR:), goal_set/goal_journey (GOAL:), full_stack_session (STACK:), benchmark_read (BENCH:), qos_phase_transition (PHASE:). Count: 38.',
+      'WIDGET_DEPENDENCY_MAP: 5 new convergence-layer nodes — successBenchmark, circadianMonitor, droughtMonitor, crystallizationArc, vitalConvergence.',
+      'recordBenchmarkSignal(), recordQOSPhaseTransition(), recordFullStackSession(), recordRecipeViewedSignal() — 4 new signal recording functions.',
+      'Quantum OS: getQuantumOS() surface deepened. Pattern directives now include P53–P55 urgency signals.',
+      'LOT_SYSTEMS_BRIEF.md: updated to v39 state — 55 patterns, 75-node dep graph, 38 log handlers.',
+      'Self-assembly session report appended: 2026-05-23. All modules online.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-22',
+  date: '2026-05-23',
   message: [
-    'ASSEMBLY RUN — 2026-05-22 · v38',
-    'Resend API key was compromised. Phishing email sent through LOT account. Key rotated. Account restored.',
-    'Nine files purged of plaintext secrets. All credentials now encrypted in DO environment.',
-    'Repository set to private. The system no longer exposes its internals to the public internet.',
-    'Four build errors fixed: duplicate variable, wrong import, orphaned else-if, misplaced array entry.',
-    'Quantum Success Benchmark deployed: 5-tier reading from White to Black. The Cube measures depth.',
-    'Status: 52 patterns. 16 archetypes. 15 modules. 70-node dep graph. 33 log handlers. 6 background jobs.',
-    'Next: Pattern 53 — intention-crystallization. Or: pre-commit secret scanning hook.',
-    'DEPLOYED. The Cube secures what it builds.',
+    'ASSEMBLY RUN — 2026-05-23 · v39',
+    'Three new patterns. 53: intention crystallizes when declare → plan → act fires within 2 hours.',
+    '54: OS vitals converge when the person is running above baseline across all primary dimensions.',
+    '55: signal drought — the system detects when it is starving and names the dormant module to re-engage.',
+    'Five new log handlers deployed: NUTR · GOAL · STACK · BENCH · PHASE. Field archive now renders 38 event types.',
+    'Widget dependency graph expanded: 5 convergence-layer nodes mapped. Dep graph now 75 nodes.',
+    'Four new signal recording functions available for benchmark, phase transition, full-stack, and nutrition.',
+    'Status: 55 patterns. 16 archetypes. 17 assembly modules. 75-node dep graph. 38 log handlers. 6 background jobs.',
+    'Next: pre-commit secret scanning hook. Or: journal vocabulary injection into widget copy.',
+    'DEPLOYED. The system knows when it peaks. And when it starves.',
   ],
 }
 
