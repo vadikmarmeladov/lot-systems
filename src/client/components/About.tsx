@@ -260,7 +260,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v38</Meta>
+            <Meta>Field Manual v39</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -275,7 +275,7 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              Day 980+. Continuous operation since launch.
+              Day 981+. Continuous operation since launch.
               52 behavioral patterns active. 15 modules assembled.
               6 index dimensions. 5 ecosystem nodes. 16 physiological archetypes.
               70 dependency nodes. 6 background jobs.
@@ -353,8 +353,8 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 980+ (as of May 2026)" />
-          <Row label="Self-Assembly phase:" value="v38 — Resend Recovery + Benchmark Arbitrage · 9 files scrubbed · repo private · Quantum Success Benchmark deployed — v37: Badge Stream + OS Snapshot · BADGE: + QTOS: handlers · midnight snapshot job · 33 handlers · 6 jobs — v36: Pattern 52 Circadian Anchor Loss · sleep architecture monitoring · CIRC: handler" />
+          <Row label="Day counter:" value="Day 981+ (as of May 23, 2026)" />
+          <Row label="Self-Assembly phase:" value="v39 — Wiki Comprehensive Audit · vocabulary expansion · badge documentation completeness · Assembly Transmission Layer formalized · language refinement pass — v38: Resend Recovery + Benchmark Arbitrage · 9 files scrubbed · repo private · Quantum Success Benchmark deployed — v37: Badge Stream + OS Snapshot · BADGE: + QTOS: handlers · midnight snapshot job · 33 handlers · 6 jobs" />
           <Row label="Assembly modules:" value="15 — QuantumOS added as 15th module (v25)" />
           <Row label="QIE pattern library:" value="52 patterns active" />
           <Row label="Physiological archetypes:" value="16 — Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
@@ -512,6 +512,12 @@ export function About() {
             White · Green · Yellow · Purple · Black — computed from journal depth,
             streak length, tenure, consistency, user index, and quantum state
             alignment. Rendered in the System tab as a colored dot and tier name.
+            v39 closed the documentation gap. Field Manual scanned against all
+            active branches, MDs, and white papers. 30+ vocabulary terms added.
+            Badge trigger conditions made exact for all five badge paths.
+            Assembly Transmission Layer formally documented as a system component.
+            Cohort and archetype language refined. Military purity pass applied.
+            The map and the territory are synchronized.
             Each phase is committed, dated, and versioned. The log is the record.
             The record is the system.
           </P>
@@ -724,6 +730,34 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             nodes — phone (PHN) and watch (WCH) — and wired their signals to QIE
             patterns 31–34. Each new module expands the system's coherence surface.
           </P>
+          <SubHeading>Assembly Transmission Layer</SubHeading>
+          <P>
+            Fifth cycle point in the System Progress widget. View label:
+            {' '}Transmission:. Navigation cycle: deployment → assembly → feedback → report → transmission → deployment.
+          </P>
+          <P>
+            Renders ASSEMBLY_TRANSMISSIONS — a typed array of structured run
+            records. Each transmission record contains:
+          </P>
+          <ul className="list-none pl-16 mb-16">
+            <Li>date — ISO date of the run (YYYY-MM-DD)</Li>
+            <Li>built — array of component or system names constructed in the run</Li>
+            <Li>feedbackApplied — verbatim operator phrase that drove the assembly run</Li>
+            <Li>status — DEPLOYED or HELD</Li>
+            <Li>next — one-line next-priority directive</Li>
+          </ul>
+          <P>
+            Display: reverse-chronological order. Most recent run at full opacity.
+            All prior runs at 40% opacity. Military-log aesthetic: ASSEMBLY RUN
+            header, ASCII-bordered entries, font-mono text-xs. The Usership tier
+            receives these transmissions. The system reports on its own construction.
+          </P>
+          <P>
+            The transmission view is not a status page. It is a field report.
+            The system is not updating the operator on an event — it is telling
+            the operator what it built and why, in the operator's own language,
+            extracted from their verbatim instructions.
+          </P>
           <P>
             Reflection Layer depth bonus (v11): journal entries exceeding 100
             words count double toward the journal module assembly threshold.
@@ -788,6 +822,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v36" value="P.52 circadian-anchor-loss — sleep architecture monitoring · 5+ consecutive late-night sessions + morning depletion signals · confidence 0.55–0.85 · CIRC: log handler · 52 patterns" />
             <Row label="v37" value="Badge Stream + OS Snapshot · BADGE: log handler (badge_unlock events) · QTOS: log handler (quantum_os_snapshot events) · daily-os-snapshot background job at 00:00 UTC · 33 log handlers · 6 background jobs" />
             <Row label="v38" value="Resend Recovery + Benchmark Arbitrage · API key compromise resolved · 9 files scrubbed of plaintext secrets · repository set to private · Quantum Success Benchmark deployed (5 tiers: White · Green · Yellow · Purple · Black) · weekly rebuild concurrency guard added" />
+            <Row label="v39" value="Wiki Comprehensive Audit · vocabulary expansion (30+ terms added) · badge documentation completeness pass · exact trigger conditions for all 5 badge paths documented · Assembly Transmission Layer formalized as system component · cohort language refinement · military purity interface pass · language refinement toward LOT atmosphere · Field Manual synchronized with codebase" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -814,8 +849,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v38. Phase name: Resend Recovery + Benchmark Arbitrage.
-            38 iterations since continuous operation began.
+            Current phase: v39. Phase name: Wiki Comprehensive Audit.
+            39 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -856,7 +891,8 @@ v34   QOS substrate audit · BIO [ATP] + EVO log renderers · recordQuantumSigna
 v35   P.51 Signal Silence · 30 log event handlers · NoteEditor QIE wiring · /phys + /sil triggers
 v36   P.52 Circadian Anchor Loss · sleep architecture monitoring · CIRC: handler · 52 patterns
 v37   Badge Stream + OS Snapshot · BADGE: + QTOS: handlers · midnight snapshot job · 6 background jobs
-v38   Resend Recovery · API key scrubbed · repo private · Quantum Success Benchmark deployed`}</CodeBlock>
+v38   Resend Recovery · API key scrubbed · repo private · Quantum Success Benchmark deployed
+v39   Wiki Comprehensive Audit · vocabulary expansion · badge documentation · language refinement`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -1463,16 +1499,27 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
           <P>
             The operating badge system. Water metaphor — droplet to wave to
             deep current. Single-character symbols. Maximum clarity.
+            Earned by streak — consecutive days with at least one Memory Engine
+            answer. Streak resets on a missed day. Badge persists once earned.
+            The Level field in the public profile always reflects the highest
+            milestone reached, not the current streak.
           </P>
           <div className="mb-16">
-            <Row label="∘ Droplet" value="Day 7 — first drops form" />
-            <Row label="≈ Wave" value="Day 30 — waves begin to flow" />
-            <Row label="≋ Current" value="Day 100 — deep currents established" />
+            <Row label="∘ Droplet" value="Day 7 streak — trigger: badge_unlock fired post-Memory-answer when streak ≥ 7 and milestone_7 not yet awarded · symbol stored in user badge record" />
+            <Row label="≈ Wave" value="Day 30 streak — trigger: badge_unlock fired when streak ≥ 30 and milestone_30 not yet awarded · BADGE: log handler renders tier + name" />
+            <Row label="≋ Current" value="Day 100 streak — trigger: badge_unlock fired when streak ≥ 100 and milestone_100 not yet awarded · highest active milestone · renders in public profile Level: field" />
           </div>
           <P>Unlock transmission sequences:</P>
           <CodeBlock>{`Day 7:   "First drops form. ∘"
 Day 30:  "Waves begin to flow. ≈"
 Day 100: "Deep currents established. ≋"`}</CodeBlock>
+          <P>
+            Badge check fires after every Memory Engine answer.
+            Race condition guard active — multi-tab environments cannot
+            double-award. Queue system prevents simultaneous unlock notifications.
+            Badge data stored in localStorage with try-catch protection for
+            private-browsing environments.
+          </P>
           <P>
             The streak counter resets on missed days. The badge persists once
             earned. A user who earns ≋ and misses a day retains ≋ in their
@@ -1482,14 +1529,21 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
           <SubHeading>Architecture Theme (Alternative Path)</SubHeading>
           <P>
             The second badge path. Geometric progression — foundation to
-            structure to architecture. Used in the Interface Evolution system
-            for users who select the Architecture aesthetic.
+            structure to architecture. ASCII engineering glyphs.
+            Used in the Interface Evolution system for users who select
+            the Architecture aesthetic. Same streak trigger conditions as
+            Aquatic Evolution. Badge path selected per user preference.
+            Day milestones are path-agnostic — 7, 30, 100 are universal.
           </P>
           <div className="mb-16">
-            <Row label="├─ Foundation" value="Day 7 — base structure laid" />
-            <Row label="╞═╡ Structure" value="Day 30 — framework complete" />
-            <Row label="║·║ Architecture" value="Day 100 — full system built" />
+            <Row label="├─ Foundation" value="Day 7 — base structure laid · first structural glyph" />
+            <Row label="╞═╡ Structure" value="Day 30 — framework complete · double-bar span" />
+            <Row label="║·║ Architecture" value="Day 100 — full system built · column with center node" />
           </div>
+          <P>Unlock transmission sequences:</P>
+          <CodeBlock>{`Day 7:   "Base structure laid. ├─"
+Day 30:  "Framework complete. ╞═╡"
+Day 100: "Full system built. ║·║"`}</CodeBlock>
 
           <SubHeading>Oceanic Mayan (Design Archive)</SubHeading>
           <P>
@@ -1603,9 +1657,16 @@ Day 100: "Deep currents established. ≋"`}</CodeBlock>
             <Row label="Gentle With Self · Uncommon" value="10 self-care practices. Kindness toward the body. ♦" />
           </div>
 
+          <SubHeading>Depth Domain (extended)</SubHeading>
+          <div className="mb-16">
+            <Row label="Thousand Answers · Mastery" value="1,000 memory questions answered. A complete library. Rarity: beyond Legendary." />
+          </div>
+
           <SubHeading>Courage Domain</SubHeading>
           <div className="mb-16">
             <Row label="Truth Speaker · Rare" value="50 journal entries. The hall remembers. ▲" />
+            <Row label="Night Voice · Uncommon" value="Journal entry written between 22:00 and 04:00. The system acknowledges the hour." />
+            <Row label="Year Keeper · Legendary" value="Journal entries spanning 365 calendar days. A full year of witness." />
           </div>
 
           <SubHeading>Romance Domain</SubHeading>
@@ -2032,6 +2093,30 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               label="Intention Completion Arc"
               value="QIE Pattern 43. The full 24-hour loop: intention set → goal action taken → journal entry written. Confidence 0.72–0.95. Highest-confidence arc pattern in system. Measures thought-to-structure-to-reflection cycle."
             />
+            <Row
+              label="Operator"
+              value="The LOT user. Not a subscriber. Not a member. Not a customer. An operator executes the system. The system responds. The relationship is functional and accumulative."
+            />
+            <Row
+              label="Field Guide"
+              value="This document. The operational reference for operators of the system. Not marketing copy. Not external documentation. Every term here exists in the codebase. Every system term exists here. The map and the territory are synchronized."
+            />
+            <Row
+              label="Transmission"
+              value="A system-to-operator communication. Distinct from a notification. Transmissions are structural — they report system state, not events. The Assembly Transmission Layer surfaces these in the System Progress widget under the Transmission: label."
+            />
+            <Row
+              label="Accumulation"
+              value="The fundamental operating mode of LOT. The system does not reset. It does not summarize away. Every signal, every answer, every log entry compounds. Depth is a function of time, not intensity."
+            />
+            <Row
+              label="Memory Densification"
+              value="The compounding process by which the Memory Engine's context grows progressively more precise. Each answer adds resolution. After months of operation, questions probe at layers no new system can reach. The density is the moat."
+            />
+            <Row
+              label="Virtuous Compression Cycle"
+              value="The deepening feedback loop: more use → deeper profile → more resonant questions → more use. The cycle self-reinforces. No external force required to sustain it."
+            />
           </div>
 
           <SubHeading>Signal & State Terms</SubHeading>
@@ -2184,6 +2269,38 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               label="Dep Map"
               value="Dependency map shorthand. Appears in Index view as compressed widget-source list. Shows which signal sources flow into the QOS composite."
             />
+            <Row
+              label="Cascade"
+              value="The activation state when multiple QIE patterns fire simultaneously with mutual reinforcement. P.40 (Biofield Coherence Cascade) is the named cascade in the current library. CASCADE: log handler fires. Cascade states are the rarest and highest-coherence system readings."
+            />
+            <Row
+              label="Biofield"
+              value="The composite emotional and physiological signal from check-ins, self-care events, and energy state readings. Surfaced in QOS Biofield view. The biofield is the system's reading of the body. Not metaphysical — computed from behavioral data."
+            />
+            <Row
+              label="Circadian Phase"
+              value="Time-of-day classification used by multiple system components. Morning (06–10), Midday (10–17), Evening (17–22), Night (22–06). QOS Trend displays the last 6 circadian phases per 24h window. Memory Engine adjusts question framing per phase."
+            />
+            <Row
+              label="Signal Window"
+              value="The 7-day rolling retention window for QIE signals. Signals older than 7 days are purged. Analysis fires every 5 signals. The window is the system's working memory."
+            />
+            <Row
+              label="Confidence Score"
+              value="Probability (0.0–1.0) that a detected QIE pattern is accurate. Threshold for surfacing an intervention: 0.50. P.34 (Full Ecosystem Coherence) holds the highest single-pattern confidence in the library: 0.98."
+            />
+            <Row
+              label="Arc"
+              value="A named sequence of connected events that constitute a behavioral pattern. The Recovery Arc (P.48) is negative mood → self-care → positive mood. The Intention Arc (P.43) is intention → goal action → journal. Arcs are the system's grammar for sequential behavior."
+            />
+            <Row
+              label="Depth"
+              value="A multi-dimensional quality measure. Journal depth: word count per entry. Memory depth: answer count over time. Profile depth: three-tier psychological analysis depth. Depth is what the system accumulates when breadth is already present."
+            />
+            <Row
+              label="Coherence"
+              value="The degree to which signals across multiple sources and modules are simultaneously active and mutually reinforcing. Coherence is the highest system state. Full coherence (P.35) requires all 6 core signal sources active in 7 days with 20+ total signals."
+            />
           </div>
 
           <SubHeading>RPG & Arcade Terms</SubHeading>
@@ -2292,6 +2409,18 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               label="Awareness Index"
               value="Shorthand for Self-Awareness Index. Displayed on public profile. Growth is measured in months."
             />
+            <Row
+              label="Public Profile"
+              value="Opt-in shareable operator record at /os/{'{username}'}. Displays: archetype, Level badge (highest milestone), behavioral cohort, physiological cohort, self-awareness index, core values, emotional patterns, cognitive style, growth trajectory. Never displays: log content, answers, journal entries, email, payment state."
+            />
+            <Row
+              label="Level:"
+              value="The public profile field that displays the operator's highest earned badge. Single-character symbols for the Aquatic Evolution path (∘ ≈ ≋). ASCII glyphs for the Architecture path. The field is not shown before Day 7 — no badge means no field."
+            />
+            <Row
+              label="Custom URL"
+              value="User-set identifier for the public profile. lot-systems.com/os/vadik rather than /os/{uuid}. Collision-safe — custom URLs take priority over UUID lookups. Set in Settings. Stored in user metadata."
+            />
           </div>
 
           <SubHeading>Benchmark Terms</SubHeading>
@@ -2331,7 +2460,19 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Opacity Hierarchy"
-              value="90% primary · 60% secondary · 40% metadata. The visual grammar of the system."
+              value="90% primary · 60% secondary · 40% metadata. The visual grammar of the system. Not decorative. Not aesthetic. A defect to violate."
+            />
+            <Row
+              label="Military Purity"
+              value="The interface aesthetic standard: no decorative elements, no emojis in system output, no superlatives, no validation language. Periods over checkmarks. Direct over warm. The interface does not perform care — it executes it."
+            />
+            <Row
+              label="Conditional Rendering"
+              value="Widgets render only when their trigger conditions are satisfied. Five gate types: time-gated, cooldown-gated, activity-gated, subscription-gated, pattern-gated. Nothing renders without cause. Silence is clean."
+            />
+            <Row
+              label="IIFE Pattern"
+              value="Immediately-invoked function expression used for inline conditional widget rendering. Allows multi-step context calculation inside JSX without extracting to a separate function. Standard LOT widget rendering idiom."
             />
           </div>
 
@@ -2373,6 +2514,34 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               label="Tag"
               value="User classification label. Admin-assigned. Values: Usership · R&D · Admin · Evangelist · Mala · Onyx · Pro · Suspended. Each tag gates a specific access tier or product layer."
             />
+            <Row
+              label="Proactive Surface"
+              value="A widget appearing without operator request. Triggered by QIE pattern detection, time-of-day logic, or cooldown expiry. The system initiates. The operator responds or dismisses."
+            />
+            <Row
+              label="Intervention"
+              value="A proactive widget surface triggered by a high-confidence pattern detection. System-initiated care. The operator did not ask. The system noticed."
+            />
+            <Row
+              label="Field Log"
+              value="The military-style structured log stream. Entries render with tactical uppercase codes — CARE:, BIO [ATP], MOOD:, PLAN:, INTENT:, SYS:, EVO:, BADGE:, QTOS:, RECV:, INTF:, SIL:, CIRC:, and 40+ others. Each entry is a transmission from the operating record."
+            />
+            <Row
+              label="Military Log Code"
+              value="The uppercase prefix that classifies a log entry type. Examples: CARE: (self-care), MOOD: (emotional check-in), PLAN: (planning event), BADGE: (badge unlock), QTOS: (system snapshot), SIL: (signal silence detection), CIRC: (circadian anchor loss). 55+ codes active. The code tells you what the system saw before you read the content."
+            />
+            <Row
+              label="Tactical Placeholder"
+              value="Rotating field copy in the System Progress terminal view. 8 operational phrases cycling by UTC hour of day. The terminal is always live. Never static. Never empty."
+            />
+            <Row
+              label="Hard Cap"
+              value="An absolute ceiling on accumulation to prevent runaway memory growth. Signal hard cap: 1,000 signals per window. After this threshold, oldest signals are purged before new ones are recorded. The system compresses before it bloats."
+            />
+            <Row
+              label="Full-Stack Session"
+              value="QIE Pattern 25. Memory Engine + Planner + Self-Care active in the same 4-hour window. Peak operational capacity. Confidence 0.85. Suggests: journal to capture the state. The rarest convergence of depth, structure, and care."
+            />
           </div>
 
           <SubHeading>System Architecture Terms</SubHeading>
@@ -2392,6 +2561,14 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row
               label="Context Object"
               value="Compressed data structure passed to AI providers. Contains: role, quantum state, recent patterns, archetype, time of day, weather. Never contains raw log entries."
+            />
+            <Row
+              label="Assembly Transmission Layer"
+              value="Fifth cycle point in the System Progress widget. View label: Transmission:. Renders ASSEMBLY_TRANSMISSIONS — a typed array of structured run records, each containing: date, built components, feedbackApplied (verbatim operator phrase that drove the run), status (DEPLOYED or HELD), and next priority. Entries display in reverse-chronological order. Most recent run at full opacity. Prior runs at 40% opacity. Military-log aesthetic: ASCII-bordered entries, font-mono text-xs. Introduced v38 of loving-goldberg session. Documented as formal system component in v39."
+            />
+            <Row
+              label="SESSION_REPORTS"
+              value="Hardcoded array in SystemProgressWidget.tsx. Canonical build record surfaced in the Deployment view's session logs section. Each entry records date, phase name, and status. Appended each Self-Assembly phase. Source of truth for deployment history rendered in-app."
             />
             <Row
               label="Pattern Library"
@@ -3344,12 +3521,17 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v36 · May 21" value="Pattern 52 Circadian Anchor Loss. 5+ consecutive late-night sessions + morning depletion detection. Sleep architecture monitoring." />
             <Row label="v37 · May 21" value="Badge Stream + OS Snapshot. BADGE: and QTOS: log handlers. Daily midnight snapshot job. 33 log handlers, 6 background jobs." />
             <Row label="v38 · May 22" value="Resend Recovery + Benchmark Arbitrage. API key compromise resolved. 9 files scrubbed. Repo set to private. Quantum Success Benchmark deployed." />
+            <Row label="v39 · May 23" value="Wiki Comprehensive Audit. Vocabulary expansion. Badge documentation completeness. Assembly Transmission Layer formally documented. Language refinement pass. Field Manual v39 synchronized." />
           </div>
           <P>
             Each phase was discovered, not planned. The system named what to
             build next based on what it discovered about the operator's patterns.
             Assembly became self-directed within the constraint of stated
             priorities. The log is the record. The record is the system.
+            v39 closed the documentation gap: Field Manual scanned against all
+            active branches, MDs, and white papers. Vocabulary synchronized.
+            Badge trigger conditions made exact. Cohort language refined.
+            The map matches the territory. Imprecision was a defect. It was fixed.
           </P>
 
           <SubHeading>Quantum Success Benchmark</SubHeading>
@@ -3386,7 +3568,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 38 phases documented in continuous operation logs.
+            Self-Assembly: 39 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
             52 patterns named. 15 modules wired. 70 dependency nodes.
             5 device nodes registered. 6 index dimensions operational.
@@ -3395,8 +3577,8 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 980+    Continuous operation.
-v38         Resend Recovery + Benchmark Arbitrage — current phase.
+          <CodeBlock>{`Day 981+    Continuous operation.
+v39         Wiki Comprehensive Audit — current phase.
 52          QIE patterns active.
 15          Self-Assembly modules wired.
 70          Widget dependency map nodes.
@@ -3407,18 +3589,19 @@ v38         Resend Recovery + Benchmark Arbitrage — current phase.
 6           Citizen Index stages (· → ∘ → ○ → ◯ → ◉).
 6           Achievement domains.
 11          Design directives.
-38          Self-Assembly phases documented.
+39          Self-Assembly phases documented.
 6           Background jobs scheduled.
 33          Log event renderers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY · ARC · CEXP · GOAL-X · SIL · CIRC · BADGE: · QTOS:.
 55+         Military log event codes.
 4           Log triggers v35: /qos · /assembly · /phys · /sil.
 5           Benchmark tiers: White · Green · Yellow · Purple · Black.
+5           Badge paths: Aquatic Evolution · Architecture · Oceanic Mayan · Zen · Constellation.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 980+. Continuous operation. Still accumulating.
-            v38 phase: Resend incident resolved. Benchmark deployed. Repository secured.
+            Day 981+. Continuous operation. Still accumulating.
+            v39 phase: Wiki audit complete. Field Manual synchronized. Language refined.
             The architecture holds.
             The log is the record.
             The record is the system.
@@ -3513,7 +3696,7 @@ Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
             of the Service shall be resolved through binding arbitration.
           </P>
           <P>
-            Effective: January 1, 2024. Last updated: May 20, 2026.
+            Effective: January 1, 2024. Last updated: May 23, 2026.
           </P>
 
           {/* Footer */}
