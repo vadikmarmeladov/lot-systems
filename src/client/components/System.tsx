@@ -32,6 +32,7 @@ import { PatternInsightsWidget } from './PatternInsightsWidget'
 import { ContextualPromptsWidget } from './ContextualPromptsWidget'
 import { EnergyCapacitor } from './EnergyCapacitor'
 import { NarrativeWidget } from './NarrativeWidget'
+import { GoalJourneyWidget } from './GoalJourneyWidget'
 import { InterventionsWidget } from './InterventionsWidget'
 import { ChatCatalystWidget } from './ChatCatalystWidget'
 import { SystemProgressWidget } from './SystemProgressWidget'
@@ -666,6 +667,9 @@ export const System = () => {
 
           {/* Narrative - Story progression and achievements */}
           <NarrativeWidget />
+
+          {/* Goal Journey - Detected goals and progression narrative */}
+          <GoalJourneyWidget />
 
           {/* Citizen Index - CQGS growth indicators */}
           <EvolutionWidget />

@@ -4,8 +4,9 @@ import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { ProgressBars } from '#client/utils/progressBars'
 import { selfAssembly, phaseSymbol, phaseLabel, recomputeAssembly, type AssembledModule } from '#client/stores/selfAssembly'
-import { useEnergy } from '#client/queries'
+import { useEnergy, useLogs } from '#client/queries'
 import { getPhysiologicalReport, analyzeIntentions, type PhysiologicalReport } from '#client/stores/intentionEngine'
+import { extractJournalVocabulary } from '#client/utils/journalVocabulary'
 
 type FeedbackStatus = 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
 
@@ -35,7 +36,7 @@ interface FeedbackAnalytics {
   insights: string[]
 }
 
-type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report' | 'transmission'
+type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report' | 'transmission' | 'voice'
 
 // Self-assembly session record — appended after each upgrade session
 const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] = [
@@ -77,6 +78,17 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Assembly .MD log: 2026-05-22_LOT-assembly_transmission-layer.md created in repo',
     ],
   },
+  {
+    date: '2026-05-24',
+    session: 'Self-Assembly Run — v5 / Voice Layer',
+    assembled: [
+      'Journal vocabulary engine: extractJournalVocabulary() parses note entries for word + phrase frequency',
+      'GoalJourneyWidget wired: imported and rendered in Bioethics stack after NarrativeWidget',
+      'ProgressView extended: voice view added as 6th cycle point (Voice:)',
+      'Voice view: surfaces user\'s own recurring words and phrases from journal entries',
+      'Assembly .MD log: 2026-05-24_LOT-assembly_voice-layer.md created in repo',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -109,6 +121,13 @@ const ASSEMBLY_TRANSMISSIONS: {
     status: 'DEPLOYED',
     next: 'Journal vocabulary extraction → personal interface language injection',
   },
+  {
+    date: '2026-05-24',
+    built: ['Journal vocabulary engine', 'GoalJourney wired', 'Voice view in System Progress'],
+    feedbackApplied: 'Journal vocabulary extraction → personal interface language injection',
+    status: 'DEPLOYED',
+    next: 'Vocabulary injection → prompts that speak in the user\'s own words',
+  },
 ]
 
 const FEEDBACK_OPTIONS = [
@@ -134,8 +153,11 @@ export function SystemProgressWidget() {
 
   const assembly = useStore(selfAssembly)
   const { data: energyData } = useEnergy()
+  const { data: logs = [] } = useLogs()
   const [cohortData, setCohortData] = React.useState<{ archetype?: string; behavioralCohort?: string } | null>(null)
   const [report, setReport] = React.useState<PhysiologicalReport | null>(null)
+
+  const vocabulary = React.useMemo(() => extractJournalVocabulary(logs), [logs])
 
   // Recompute assembly on mount and periodically
   React.useEffect(() => {
@@ -163,7 +185,8 @@ export function SystemProgressWidget() {
         case 'assembly': return 'feedback'
         case 'feedback': return 'report'
         case 'report': return 'transmission'
-        case 'transmission': return 'deployment'
+        case 'transmission': return 'voice'
+        case 'voice': return 'deployment'
         default: return 'deployment'
       }
     })
@@ -262,7 +285,8 @@ export function SystemProgressWidget() {
     view === 'assembly' ? 'Self-Assembly:' :
     view === 'feedback' ? 'System Feedback:' :
     view === 'report' ? 'System Report:' :
-    'Transmission:'
+    view === 'transmission' ? 'Transmission:' :
+    'Voice:'
 
   return (
     <Block label={label} blockView onLabelClick={cycleView}>
@@ -699,6 +723,59 @@ export function SystemProgressWidget() {
                   </div>
                 ))}
               </div>
+            </div>
+          </>
+        )}
+
+        {/* ─── Voice View ─── */}
+        {view === 'voice' && (
+          <>
+            <div className="flex flex-col gap-y-16 font-mono text-xs">
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Journal entries</span>
+                <span className="tabular-nums">{vocabulary.entryCount}</span>
+              </div>
+
+              {vocabulary.entryCount === 0 ? (
+                <div className="opacity-30">No journal entries detected. Write in the Log tab to calibrate voice.</div>
+              ) : (
+                <>
+                  {vocabulary.topWords.length > 0 && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">Recurring terms</div>
+                      <div className="flex flex-col gap-y-2">
+                        {vocabulary.topWords.map(word => (
+                          <div key={word}>&gt; {word}</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {vocabulary.topPhrases.length > 0 && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="opacity-30 mb-8 uppercase tracking-widest">Recurring phrases</div>
+                      <div className="flex flex-col gap-y-2">
+                        {vocabulary.topPhrases.map(phrase => (
+                          <div key={phrase}>"{phrase}"</div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {vocabulary.dominantTone && (
+                    <div className="border-t border-acc-400/30 pt-12">
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-30 uppercase tracking-widest">Voice register</span>
+                        <span className="uppercase tracking-widest">{vocabulary.dominantTone}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="opacity-20 pt-4 uppercase tracking-widest">
+                    {vocabulary.totalWords} words across {vocabulary.entryCount} {vocabulary.entryCount === 1 ? 'entry' : 'entries'}
+                  </div>
+                </>
+              )}
             </div>
           </>
         )}
