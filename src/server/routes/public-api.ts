@@ -238,17 +238,6 @@ async function checkMemory(): Promise<SystemCheck> {
     // Check if Log model is available (logging system)
     await models.Log.findOne()
 
-    // Check if Anthropic API key is configured for Claude-powered Memory
-    const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY || !!config.anthropic?.apiKey
-    if (!hasAnthropicKey) {
-      return {
-        name: 'Memory Engine',
-        status: 'error',
-        message: 'Claude API key not configured',
-        duration: Date.now() - start,
-      }
-    }
-
     return {
       name: 'Memory Engine',
       status: 'ok',
@@ -259,6 +248,38 @@ async function checkMemory(): Promise<SystemCheck> {
       name: 'Memory Engine',
       status: 'error',
       message: error?.message || 'Memory/Log check failed',
+      duration: Date.now() - start,
+    }
+  }
+}
+
+async function checkStoryAI(): Promise<SystemCheck> {
+  const start = Date.now()
+  try {
+    // Check Claude (Anthropic) API key is configured for story/AI features
+    const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY || !!config.anthropic?.apiKey
+    if (!hasAnthropicKey) {
+      return {
+        name: 'Story AI',
+        status: 'error',
+        message: 'Claude API key not configured',
+        duration: Date.now() - start,
+      }
+    }
+
+    // Check UserMemory model (Answer) is queryable
+    await models.Answer.findOne()
+
+    return {
+      name: 'Story AI',
+      status: 'ok',
+      duration: Date.now() - start,
+    }
+  } catch (error: any) {
+    return {
+      name: 'Story AI',
+      status: 'error',
+      message: error?.message || 'Story AI check failed',
       duration: Date.now() - start,
     }
   }
@@ -343,6 +364,7 @@ async function performHealthChecks(): Promise<{
     checkWeatherAPI(),
     checkDatabase(),
     checkMemory(),
+    checkStoryAI(),
   ])
 
   // Determine overall status
@@ -561,7 +583,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 10,
         messages: [
           {
