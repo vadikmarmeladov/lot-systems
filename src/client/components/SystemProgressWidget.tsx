@@ -35,7 +35,7 @@ interface FeedbackAnalytics {
   insights: string[]
 }
 
-type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report' | 'transmission'
+type ProgressView = 'deployment' | 'assembly' | 'feedback' | 'report' | 'physiological' | 'transmission'
 
 // Self-assembly session record — appended after each upgrade session
 const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] = [
@@ -77,6 +77,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Assembly .MD log: 2026-05-22_LOT-assembly_transmission-layer.md created in repo',
     ],
   },
+  {
+    date: '2026-05-24',
+    session: 'Self-Assembly Run — v5 / Quantum OS + Physiological Terminal',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP extended: 10 new nodes (log, recipe, ecosystem, narrative, evolution, quantum_state, pattern_insights, contextual_prompts, interventions, signal_stream)',
+      'Log-based dependency audit extended: LOG_SOURCES now includes mood + selfcare signals',
+      'Log military interface: BADGE / SUM / JOB / GOAL event handlers added to Logs.tsx',
+      'Physiological view: 6th cycle point added to SystemProgressWidget — archetype, cohort, ATP, biofield, patterns',
+      'Weekly Assembly Digest: Sunday background job added to scheduled-jobs.ts',
+      'Deployment features v5: api.ts features array updated to reflect current system',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -108,6 +120,13 @@ const ASSEMBLY_TRANSMISSIONS: {
     feedbackApplied: 'the system talking to the person',
     status: 'DEPLOYED',
     next: 'Journal vocabulary extraction → personal interface language injection',
+  },
+  {
+    date: '2026-05-24',
+    built: ['Physiological terminal view', 'Widget dependency graph extended', 'Military log events: BADGE/SUM/JOB/GOAL', 'Weekly assembly digest job'],
+    feedbackApplied: 'Continue building the Quantum Operating System',
+    status: 'DEPLOYED',
+    next: 'Journal vocabulary extraction → inject personal language into widget copy',
   },
 ]
 
@@ -162,7 +181,8 @@ export function SystemProgressWidget() {
         case 'deployment': return 'assembly'
         case 'assembly': return 'feedback'
         case 'feedback': return 'report'
-        case 'report': return 'transmission'
+        case 'report': return 'physiological'
+        case 'physiological': return 'transmission'
         case 'transmission': return 'deployment'
         default: return 'deployment'
       }
@@ -262,6 +282,7 @@ export function SystemProgressWidget() {
     view === 'assembly' ? 'Self-Assembly:' :
     view === 'feedback' ? 'System Feedback:' :
     view === 'report' ? 'System Report:' :
+    view === 'physiological' ? 'Physiological:' :
     'Transmission:'
 
   return (
@@ -661,6 +682,116 @@ export function SystemProgressWidget() {
                     Refresh report →
                   </button>
                 </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* ─── Physiological View ─── */}
+        {view === 'physiological' && (
+          <>
+            <div className="flex flex-col gap-y-4 font-mono text-xs">
+              <div className="opacity-30 mb-4 uppercase tracking-widest">Physiological State</div>
+
+              {/* Cohort classification */}
+              {(cohortData?.archetype || cohortData?.behavioralCohort) && (
+                <div className="flex flex-col gap-y-4 mb-12">
+                  {cohortData.archetype && (
+                    <div className="flex justify-between">
+                      <span className="opacity-50 uppercase tracking-widest">Archetype</span>
+                      <span>{cohortData.archetype}</span>
+                    </div>
+                  )}
+                  {cohortData.behavioralCohort && (
+                    <div className="flex justify-between">
+                      <span className="opacity-50 uppercase tracking-widest">Cohort</span>
+                      <span>{cohortData.behavioralCohort}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Biofield ATP from energy data */}
+              {energyData?.energyState && (
+                <div className="flex flex-col gap-y-4 mb-12 border-t border-acc-400/20 pt-12">
+                  <div className="flex justify-between">
+                    <span className="opacity-50 uppercase tracking-widest">ATP</span>
+                    <span className="tabular-nums">
+                      {energyData.energyState.currentLevel}%
+                      {' '}<span className="opacity-30 capitalize">{energyData.energyState.trajectory}</span>
+                    </span>
+                  </div>
+                  {energyData.energyState.needsReplenishment?.slice(0, 2).map((need: any, idx: number) => (
+                    <div key={idx} className="flex justify-between">
+                      <span className="opacity-50 uppercase tracking-widest">Need {idx + 1}</span>
+                      <span className="capitalize">{need.category}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Run diagnostics button or full report */}
+              {!report ? (
+                <button
+                  onClick={handleGenerateReport}
+                  className="opacity-30 hover:opacity-100 transition-opacity text-left"
+                >
+                  Run diagnostics →
+                </button>
+              ) : (
+                <>
+                  {/* 4D biofield state */}
+                  <div className="flex flex-col gap-y-4 mb-12 border-t border-acc-400/20 pt-12">
+                    <div className="flex justify-between">
+                      <span className="opacity-50 uppercase tracking-widest">Energy</span>
+                      <span className="capitalize">{report.biofieldStatus.energyLevel}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-50 uppercase tracking-widest">Clarity</span>
+                      <span className="capitalize">{report.biofieldStatus.clarity}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-50 uppercase tracking-widest">Alignment</span>
+                      <span className="capitalize">{report.biofieldStatus.alignment}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="opacity-50 uppercase tracking-widest">Support</span>
+                      <span className="capitalize">{report.biofieldStatus.supportNeeded}</span>
+                    </div>
+                  </div>
+
+                  {/* Active patterns */}
+                  {report.activePatterns.length > 0 && (
+                    <div className="flex flex-col gap-y-4 mb-12 border-t border-acc-400/20 pt-12">
+                      <div className="opacity-30 mb-4 uppercase tracking-widest">
+                        Patterns — {report.activePatterns.length} detected
+                      </div>
+                      {report.activePatterns.map((p, idx) => (
+                        <div key={idx} className="flex justify-between">
+                          <span className="opacity-50 uppercase">{p.pattern.replace(/-/g, ' ')}</span>
+                          <span className="tabular-nums opacity-30">{p.confidence}%</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Biofield integrity flag */}
+                  <div className="flex justify-between border-t border-acc-400/20 pt-12">
+                    <span className="opacity-50 uppercase tracking-widest">Biofield Integrity</span>
+                    <span className={`uppercase tracking-widest ${
+                      report.systemHealth === 'nominal' ? 'text-green' :
+                      report.systemHealth === 'degraded' ? 'text-blue' :
+                      'text-acc'
+                    }`}>{report.systemHealth}</span>
+                  </div>
+
+                  <button
+                    onClick={handleGenerateReport}
+                    className="opacity-30 hover:opacity-100 transition-opacity text-left mt-8"
+                  >
+                    Refresh diagnostics →
+                  </button>
+                </>
               )}
             </div>
           </>

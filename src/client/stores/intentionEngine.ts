@@ -797,6 +797,7 @@ export function forceSyncToServer(): Promise<boolean> {
  * Enables cross-widget cascade invalidation and dependency tracing.
  */
 export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
+  // ─── core signal sources ───
   mood: [],
   memory: ['mood', 'journal'],
   planner: ['mood', 'intentions'],
@@ -807,6 +808,17 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   system: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
   calculator: [],
   cohort: ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
+  // ─── extended nodes ───
+  log: [],
+  recipe: [],
+  ecosystem: ['intentions', 'energy'],
+  narrative: ['memory', 'journal', 'energy'],
+  evolution: ['narrative', 'memory', 'journal'],
+  quantum_state: ['mood', 'memory', 'energy', 'log'],
+  pattern_insights: ['mood', 'memory', 'intentions', 'cohort'],
+  contextual_prompts: ['log', 'mood', 'intentions'],
+  interventions: ['mood', 'journal', 'memory'],
+  signal_stream: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'log', 'cohort', 'calculator'],
 }
 
 /** Returns which signal sources a given widget depends on. */
@@ -863,8 +875,8 @@ export function getPhysiologicalReport(): PhysiologicalReport {
     return { widget: source, signalCount: relevant.length, lastSeen: last }
   }).filter(w => w.signalCount > 0)
 
-  // Log-based signal dependency audit (non-widget sources)
-  const LOG_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort']
+  // Log-based signal dependency audit — field entry, energy, cohort, and mood-log sources
+  const LOG_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort', 'mood', 'selfcare']
   const logDependencies = LOG_SOURCES.map(source => ({
     source,
     signalCount: weekSignals.filter(s => s.source === source).length

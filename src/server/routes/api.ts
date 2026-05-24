@@ -4216,6 +4216,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
 
       // Determine program name based on version features
       const getProgramName = (ver: string) => {
+        if (ver.includes('1.4')) return 'Quantum OS + Physiological Terminal'
         if (ver.includes('1.3')) return 'Assembly Transmission Protocol'
         if (ver.includes('1.2.1')) return 'Quantum Intent Calibration'
         if (ver.includes('1.2.0')) return 'Memory Engine Synthesis'
@@ -4243,11 +4244,13 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       // Features in current version
       const features = [
         'Physiological Cohort Classification Engine',
-        'Military Log Interface: CARE/PLAN/INTENT/MOOD/SYS',
-        'QIE v3: Daily Analytics + Biofield Signals',
+        'Military Log Interface: CARE/PLAN/INTENT/MOOD/SYS/BADGE/SUM/JOB/GOAL',
+        'QIE v5: Widget Dependency Graph — 20-node extended map',
         'Self-Assembly Map: 9-Module Real-Time Progress',
         'Memory Engine: AI Questions via Claude API',
         'Assembly Transmission Layer: Usership Broadcasts',
+        'Physiological Terminal: Archetype + Cohort + Biofield + Patterns',
+        'Weekly Assembly Digest: Sunday background job',
       ]
 
       const deployment = {

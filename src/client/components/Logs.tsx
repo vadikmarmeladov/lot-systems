@@ -328,6 +328,53 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'badge_unlock') {
+          const badge = log.metadata?.badge as string | undefined
+          const level = log.metadata?.level as string | undefined
+          const milestone = log.metadata?.milestone as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BADGE:" blockView>
+                <div className="uppercase tracking-widest">{badge || level || milestone || '— unlocked'}</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'weekly_summary') {
+          const period = log.metadata?.period as string | undefined
+          const insights = log.metadata?.insights as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SUM:" blockView>
+                {period && <div className="opacity-60 mb-4 uppercase tracking-widest">{period}</div>}
+                {insights && insights.slice(0, 2).map((insight, idx) => (
+                  <div key={idx}>· {insight}</div>
+                ))}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'scheduled_job') {
+          const jobName = log.metadata?.jobName as string | undefined
+          const sent = log.metadata?.sent as number | undefined
+          const processed = log.metadata?.processed as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="JOB:" blockView>
+                <div className="uppercase tracking-widest mb-4">{jobName ? jobName.replace(/-/g, ' ') : '—'}</div>
+                {sent !== undefined && <div className="opacity-60">SND {sent}</div>}
+                {processed !== undefined && <div className="opacity-60">PROC {processed}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'goal_set' || log.event === 'goal_update') {
+          const goal = log.metadata?.goal as string | undefined
+          const action = log.metadata?.action as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GOAL:" blockView>
+                <div className="uppercase tracking-widest">{goal || action || log.text || '—'}</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'quantum_intent_signal') {
           const pattern = log.metadata?.pattern as string | undefined
           const source = log.metadata?.source as string | undefined

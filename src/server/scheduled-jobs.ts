@@ -602,6 +602,137 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly Assembly Digest ───────────────────────────────────────────────────
+
+let isWeeklyAssemblyJobRunning = false
+let lastWeeklyAssemblyRun: Date | null = null
+
+/**
+ * Runs on Sundays at 7 AM UTC.
+ * Compiles aggregate self-assembly progress statistics across active users
+ * and logs a system event for audit trail. No personal data is persisted.
+ */
+function shouldRunWeeklyAssemblyJob(): boolean {
+  const now = dayjs()
+  const dayOfWeek = now.day() // 0 = Sunday
+
+  if (dayOfWeek !== 0) return false
+  if (isWeeklyAssemblyJobRunning) return false
+
+  if (lastWeeklyAssemblyRun) {
+    const lastRun = dayjs(lastWeeklyAssemblyRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+
+  return true
+}
+
+async function executeWeeklyAssemblyJob(): Promise<JobResult> {
+  const jobName = 'weekly-assembly-digest'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Assembly Digest')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyAssemblyJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 1000,
+    })
+
+    // Tally QIE signal activity across all active users
+    const assemblyLogs = await Log.findAll({
+      where: {
+        event: { [Op.in]: ['quantum_intent_signal', 'system_snapshot', 'emotional_checkin', 'self_care_complete', 'plan_set', 'intention'] as any },
+        createdAt: { [Op.gte]: sevenDaysAgo },
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 20000,
+    })
+
+    // Event type breakdown
+    const eventCounts: Record<string, number> = {}
+    for (const log of assemblyLogs) {
+      const event = (log as any).event as string
+      eventCounts[event] = (eventCounts[event] || 0) + 1
+    }
+
+    // Unique active users who logged any assembly-relevant event
+    const activeAssemblyUserIds = new Set(assemblyLogs.map((l: any) => l.userId))
+    const assemblyParticipation = activeUsers.length > 0
+      ? Math.round((activeAssemblyUserIds.size / activeUsers.length) * 100)
+      : 0
+
+    console.log(`  Active users (7d): ${activeUsers.length}`)
+    console.log(`  Assembly event logs (7d): ${assemblyLogs.length}`)
+    console.log(`  Users with assembly events: ${activeAssemblyUserIds.size} (${assemblyParticipation}%)`)
+    console.log('')
+    console.log('  Event breakdown:')
+    Object.entries(eventCounts)
+      .sort(([, a], [, b]) => b - a)
+      .forEach(([event, count]) => {
+        console.log(`    ${event}: ${count}`)
+      })
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('ASSEMBLY DIGEST COMPLETE')
+    console.log(`   Users: ${activeUsers.length} / Events: ${assemblyLogs.length} / Participation: ${assemblyParticipation}%`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    // Persist digest to database
+    try {
+      const adminUser = await User.findOne({
+        where: { tags: { [Op.contains]: ['admin'] } }
+      })
+      if (adminUser) {
+        await Log.create({
+          userId: adminUser.id,
+          event: 'scheduled_job' as any,
+          text: `Weekly assembly digest: ${activeUsers.length} active users, ${assemblyLogs.length} assembly events, ${assemblyParticipation}% participation`,
+          metadata: {
+            jobName,
+            executedAt,
+            activeUsers: activeUsers.length,
+            assemblyEvents: assemblyLogs.length,
+            assemblyParticipation,
+            eventCounts,
+          }
+        })
+      }
+    } catch (persistError: any) {
+      console.warn('Failed to persist assembly digest:', persistError.message)
+    }
+
+    lastWeeklyAssemblyRun = new Date()
+    isWeeklyAssemblyJobRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { activeUsers: activeUsers.length, assemblyEvents: assemblyLogs.length, assemblyParticipation, eventCounts }
+    }
+  } catch (error: any) {
+    console.error('Weekly assembly digest failed:', error.message)
+    isWeeklyAssemblyJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -615,6 +746,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check weekly cohort digest
   if (shouldRunWeeklyCohortJob()) {
     await executeWeeklyCohortJob()
+  }
+
+  // Check weekly assembly digest
+  if (shouldRunWeeklyAssemblyJob()) {
+    await executeWeeklyAssemblyJob()
   }
 
   // Check daily QIE analytics
@@ -640,6 +776,7 @@ export function initializeScheduledJobs(): void {
   console.log('⏰ Initializing scheduled job system...')
   console.log('   - Monthly emails: 9 AM UTC on 1st of each month')
   console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
+  console.log('   - Weekly assembly digest: 7 AM UTC every Sunday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('')
 
@@ -650,8 +787,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM UTC; cohort digest: 6 AM UTC (Monday); QIE analytics: 3 AM UTC
-    if (hour === 9 || hour === 6 || hour === 3) {
+    // Monthly emails: 9 AM UTC; cohort digest: 6 AM UTC (Monday); assembly digest: 7 AM (Sunday); QIE analytics: 3 AM UTC
+    if (hour === 9 || hour === 7 || hour === 6 || hour === 3) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
