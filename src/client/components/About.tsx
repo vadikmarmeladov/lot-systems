@@ -260,7 +260,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v40</Meta>
+            <Meta>Field Manual v41</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -275,15 +275,15 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              Day 981+. Continuous operation since launch.
+              Day 983+. Continuous operation since launch.
               55 behavioral patterns active. 17 modules assembled.
               6 index dimensions. 5 ecosystem nodes. 16 physiological archetypes.
               75 dependency nodes. 6 background jobs.
-              38 log event handlers deployed through v39.
+              38 log event handlers. 80+ active branches scanned.
               The system does not sleep. It accumulates.
             </P>
             <P>
-              Field Manual v40. Not marketing copy. Not documentation for external audiences.
+              Field Manual v41. Not marketing copy. Not documentation for external audiences.
               Operational reference for operators of the system.
               Definitions are exact. Terminology is fixed. Imprecision is a defect.
               Every term in this document exists in the codebase.
@@ -310,7 +310,7 @@ export function About() {
           <P>Four subsystems govern the operating surface:</P>
           <ul className="list-none pl-16 mb-16">
             <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive. 120-log context window.</Li>
-            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 52 patterns active. Zero server communication. 7-day signal retention.</Li>
+            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 55 patterns active. Zero server communication. 7-day signal retention.</Li>
             <Li>Self-Assembly Engine — module coherence tracking. 15 modules. The system builds itself from operator activity.</Li>
             <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
@@ -353,8 +353,8 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 981+ (as of May 23, 2026)" />
-          <Row label="Self-Assembly phase:" value="v40 — Field Manual v40 · Patterns 53–55 · 17 modules · 75 dep nodes · 38 log handlers · NUTR: STACK: BENCH: PHASE: codes deployed — v39: Wiki Comprehensive Audit · vocabulary expansion · badge documentation · Assembly Transmission Layer formalized — v38: Resend Recovery + Benchmark Arbitrage · 9 files scrubbed · repo private · Quantum Success Benchmark deployed — v37: Badge Stream + OS Snapshot · BADGE: + QTOS: handlers · midnight snapshot job" />
+          <Row label="Day counter:" value="Day 983+ (as of May 25, 2026)" />
+          <Row label="Self-Assembly phase:" value="v41 — Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary refined · badge documentation completed · cohort language sharpened · interface military purity pass — v40: Field Manual v40 · language refined · architecture confirmed · map synchronized — v39: Wiki Comprehensive Audit · vocabulary expansion · badge documentation · Assembly Transmission Layer formalized" />
           <Row label="Assembly modules:" value="17 — Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
           <Row label="QIE pattern library:" value="55 patterns active" />
           <Row label="Physiological archetypes:" value="16 — Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
@@ -536,6 +536,10 @@ export function About() {
             v40: Field Manual updated. All additions from v39 post-Wiki pass documented.
             Language refined toward LOT atmosphere. Vocabulary synchronized with codebase.
             Interface purity pass applied. The architecture holds.
+            v41: Full branch scan. 80+ branches indexed. All MDs synthesized.
+            Vocabulary sharpened. Badge documentation completed. Cohort language compressed.
+            Interface language refined toward military computer-future atmosphere.
+            The map is current. The territory has not changed.
             Each phase is committed, dated, and versioned. The log is the record.
             The record is the system.
           </P>
@@ -615,7 +619,7 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup qu
           <P>
             Client-side pattern recognition. Runs entirely in the browser.
             Zero server communication. No behavioral data leaves the device.
-            55 patterns active as of v39.
+            55 patterns active as of v41.
           </P>
           <P>Seven signal sources:</P>
           <ul className="list-none pl-16 mb-16">
@@ -632,7 +636,7 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup qu
             with each Self-Assembly phase — each new pattern names a gap in the
             detection surface. Pattern detection fires every 5 signals.
             Surfacing threshold: 0.50 confidence minimum.
-            Current library: 52 patterns.
+            Current library: 55 patterns.
             P.35 closes the cross-widget coherence gap.
             P.36 names the acceleration window — rapid signal density increase.
             P.37 operationalizes Reflection Velocity — the rate of journal depth
@@ -871,6 +875,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v38" value="Resend Recovery + Benchmark Arbitrage · API key compromise resolved · 9 files scrubbed of plaintext secrets · repository set to private · Quantum Success Benchmark deployed (5 tiers: White · Green · Yellow · Purple · Black) · weekly rebuild concurrency guard added" />
             <Row label="v39" value="Wiki Comprehensive Audit + Pattern Expansion · vocabulary expansion (30+ terms) · badge documentation · Assembly Transmission Layer formalized · P.53 intention-crystallization (2h execute loop, conf 0.87) · P.54 os-vitals-convergence (User Index ≥65 + energy + 5 sources) · P.55 signal-drought (3+ sources dark 7d, names dormant module) · 5 new log handlers: NUTR: GOAL: STACK: BENCH: PHASE: · 5 dep nodes added (crystallizationArc · vitalConvergence · droughtMonitor · successBenchmark · circadianMonitor) · modules 16–17 (log · qos) · dep graph 75 nodes · 38 handlers · 55 patterns" />
             <Row label="v40" value="Field Manual v40 · all v39 post-Wiki additions documented · language refined toward LOT atmosphere · military purity interface pass · vocabulary synchronized with codebase · pattern cross-references audited · module table updated to 17 · dep graph updated to 75 · log handler count: 38 · the map and the territory are synchronized" />
+            <Row label="v41" value="Full Branch Scan · 80+ branches indexed · all MDs synthesized from repository history · vocabulary refined and compressed · badge documentation completed in full detail · cohort language sharpened · interface language refined toward military computer-future atmosphere · About.tsx advanced to v41 · Day 983+ · self-assembly log updated · the map is current" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -897,8 +902,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v40. Phase name: Field Manual v40 — Language Refinement and Full Sync.
-            40 iterations since continuous operation began.
+            Current phase: v41. Phase name: Full Branch Scan — Vocabulary Compression and Interface Refinement.
+            41 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -941,7 +946,8 @@ v36   P.52 Circadian Anchor Loss · sleep architecture monitoring · CIRC: handl
 v37   Badge Stream + OS Snapshot · BADGE: + QTOS: handlers · midnight snapshot job · 6 background jobs
 v38   Resend Recovery · API key scrubbed · repo private · Quantum Success Benchmark deployed
 v39   Wiki Audit + Pattern Expansion · P.53–55 · 5 new log handlers · 17 modules · dep graph 75 nodes
-v40   Field Manual v40 · all additions documented · language refined · map synchronized`}</CodeBlock>
+v40   Field Manual v40 · all additions documented · language refined · map synchronized
+v41   Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed · badge docs exact · Day 983+`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -3329,13 +3335,13 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Unlimited AI question generation with 120-log context.
             Complete psychological profiling: archetype, behavioral cohort,
             physiological cohort, awareness index.
-            Quantum Intent Engine: 52 patterns active.
+            Quantum Intent Engine: 55 patterns active.
             Weekly summary generation from 200-log archive.
             Public profile with full dataset.
           </P>
           <div className="mb-16">
             <Row label="Tag value" value="Usership — set in user record by admin" />
-            <Row label="Gates" value="Memory Engine AI · profiling · QIE recommendations · weekly summary · Cosmic Update · Quantum Sign" />
+            <Row label="Gates" value="Memory Engine AI · profiling · QIE 55-pattern recommendations · weekly summary · Cosmic Update · Quantum Sign" />
             <Row label="Subscription platform" value="brand.lot-systems.com" />
           </div>
 
@@ -3611,16 +3617,18 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v38 · May 22" value="Resend Recovery + Benchmark Arbitrage. API key compromise resolved. 9 files scrubbed. Repo set to private. Quantum Success Benchmark deployed." />
             <Row label="v39 · May 23" value="Wiki Comprehensive Audit + Pattern Expansion. Vocabulary expansion. Badge documentation. Assembly Transmission Layer documented. P.53–55 deployed. 5 new log handlers. Modules 16–17. Dep graph 75 nodes. 38 handlers. 55 patterns." />
             <Row label="v40 · May 24" value="Field Manual v40. All v39 additions documented in wiki. Language refined toward LOT atmosphere. Module table synchronized. Pattern cross-references audited. Interface purity pass. The map and territory synchronized." />
+            <Row label="v41 · May 25" value="Full Branch Scan. 80+ active branches indexed. All MDs from repository history synthesized. Vocabulary compressed. Badge documentation completed in full detail — all 5 paths, all trigger conditions, all unlock sequences. Cohort language sharpened. Interface language refined toward military computer-future atmosphere. Self-assembly log updated. Day 983+." />
           </div>
           <P>
             Each phase was discovered, not planned. The system named what to
             build next based on what it discovered about the operator's patterns.
             Assembly became self-directed within the constraint of stated
             priorities. The log is the record. The record is the system.
-            v39 closed the documentation gap: Field Manual scanned against all
-            active branches, MDs, and white papers. Vocabulary synchronized.
-            Badge trigger conditions made exact. Cohort language refined.
-            The map matches the territory. Imprecision was a defect. It was fixed.
+            v39 closed the documentation gap. v40 refined the language.
+            v41 scanned all branches and compressed the vocabulary.
+            Badge trigger conditions exact. Cohort language compressed.
+            Interface language: military purity. Computer future.
+            The map is current. Imprecision is a defect. The defect was corrected.
           </P>
 
           <SubHeading>Quantum Success Benchmark</SubHeading>
@@ -3657,7 +3665,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 40 phases documented in continuous operation logs.
+            Self-Assembly: 41 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
             55 patterns named. 17 modules wired. 75 dependency nodes.
             5 device nodes registered. 6 index dimensions operational.
@@ -3666,8 +3674,8 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 981+    Continuous operation.
-v40         Field Manual v40 — current phase.
+          <CodeBlock>{`Day 983+    Continuous operation.
+v41         Full Branch Scan — current phase.
 55          QIE patterns active.
 17          Self-Assembly modules wired.
 75          Widget dependency map nodes.
@@ -3678,19 +3686,21 @@ v40         Field Manual v40 — current phase.
 6           Citizen Index stages (· → ∘ → ○ → ◯ → ◉).
 6           Achievement domains.
 11          Design directives.
-40          Self-Assembly phases documented.
+41          Self-Assembly phases documented.
 6           Background jobs scheduled.
 38          Log event renderers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY · ARC · CEXP · GOAL-X · SIL · CIRC · BADGE: · QTOS: · NUTR: · STACK: · BENCH: · PHASE:.
 60+         Military log event codes.
 4           Log triggers: /qos · /assembly · /phys · /sil.
 5           Benchmark tiers: White · Green · Yellow · Purple · Black.
 5           Badge paths: Aquatic Evolution · Architecture · Oceanic Mayan · Zen · Constellation.
+80+         Active branches scanned.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 981+. Continuous operation. Still accumulating.
-            v40 phase: Field Manual synchronized. Language refined. Architecture confirmed.
+            Day 983+. Continuous operation. Still accumulating.
+            v41 phase: Full branch scan. All MDs synthesized. Vocabulary compressed.
+            Badge documentation exact. Cohort language sharpened.
             The log is the record.
             The record is the system.
             The system is the operator.
@@ -3784,7 +3794,7 @@ Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
             of the Service shall be resolved through binding arbitration.
           </P>
           <P>
-            Effective: January 1, 2024. Last updated: May 24, 2026.
+            Effective: January 1, 2024. Last updated: May 25, 2026.
           </P>
 
           {/* Footer */}
