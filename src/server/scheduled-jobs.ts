@@ -856,6 +856,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyOSSnapshotJob()) {
     await executeDailyOSSnapshotJob()
   }
+
+  // Check weekly intention completion audit (Sunday 20:00 UTC)
+  if (shouldRunWeeklyIntentionCompletionJob()) {
+    await executeWeeklyIntentionCompletionJob()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -930,12 +935,139 @@ async function executeDailyOSSnapshotJob(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly Intention Completion Audit ──────────────────────────────────────
+
+let isWeeklyIntentionCompletionRunning = false
+let lastWeeklyIntentionCompletionRun: Date | null = null
+
+/**
+ * Runs on Sundays at 20:00 UTC.
+ * For each active user, scans intention_set log events from the past 7 days.
+ * Cross-references with plan_set or self_care_complete events within +7 days.
+ * Computes a completion rate and logs an aggregate system summary.
+ * No individual data is persisted — system monitoring only.
+ */
+function shouldRunWeeklyIntentionCompletionJob(): boolean {
+  const now = dayjs()
+  const dayOfWeek = now.day() // 0 = Sunday
+  if (dayOfWeek !== 0) return false
+  if (isWeeklyIntentionCompletionRunning) return false
+  if (lastWeeklyIntentionCompletionRun) {
+    const lastRun = dayjs(lastWeeklyIntentionCompletionRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeWeeklyIntentionCompletionJob(): Promise<JobResult> {
+  const jobName = 'weekly-intention-completion-audit'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Intention Completion Audit')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyIntentionCompletionRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const fourteenDaysAgo = dayjs().subtract(14, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Active users (7d): ${activeUsers.length}`)
+
+    let totalIntentions = 0
+    let completedArcs = 0 // intention followed by plan + care within 7 days
+    let partialArcs = 0   // intention followed by either plan or care
+    let openArcs = 0      // intention with no follow-through yet
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: fourteenDaysAgo },
+            event: { [Op.in]: ['intention', 'plan_set', 'self_care_complete', 'self_care_completed'] as any[] }
+          },
+          order: [['createdAt', 'ASC']],
+        })
+
+        const intentionLogs = logs.filter((l: any) => l.event === 'intention')
+        const planLogs = logs.filter((l: any) => l.event === 'plan_set')
+        const careLogs = logs.filter((l: any) =>
+          l.event === 'self_care_complete' || l.event === 'self_care_completed'
+        )
+
+        for (const iLog of intentionLogs) {
+          totalIntentions++
+          const intentionTime = new Date(iLog.createdAt).getTime()
+          const sevenDaysMs = 7 * 24 * 60 * 60 * 1000
+
+          const hasPlan = planLogs.some((p: any) => {
+            const pt = new Date(p.createdAt).getTime()
+            return pt > intentionTime && pt < intentionTime + sevenDaysMs
+          })
+          const hasCare = careLogs.some((c: any) => {
+            const ct = new Date(c.createdAt).getTime()
+            return ct > intentionTime && ct < intentionTime + sevenDaysMs
+          })
+
+          if (hasPlan && hasCare) completedArcs++
+          else if (hasPlan || hasCare) partialArcs++
+          else openArcs++
+        }
+      } catch { /* skip user */ }
+    }
+
+    const completionRate = totalIntentions > 0
+      ? Math.round((completedArcs / totalIntentions) * 100)
+      : 0
+
+    console.log(`  Total intentions (14d): ${totalIntentions}`)
+    console.log(`  Completed arcs (intent→plan+care): ${completedArcs} (${completionRate}%)`)
+    console.log(`  Partial arcs: ${partialArcs}`)
+    console.log(`  Open arcs: ${openArcs}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('INTENTION COMPLETION AUDIT COMPLETE')
+    console.log(`   Completion rate: ${completionRate}% · ${completedArcs}/${totalIntentions} full arcs`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyIntentionCompletionRun = new Date()
+    isWeeklyIntentionCompletionRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { totalIntentions, completedArcs, partialArcs, openArcs, completionRate }
+    }
+  } catch (error: any) {
+    console.error('Weekly intention completion audit failed:', error.message)
+    isWeeklyIntentionCompletionRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
  */
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
-  console.log('🔧 Manual trigger requested - bypassing time checks')
+  console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
 }
 
@@ -948,6 +1080,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Monthly emails: 9 AM UTC on 1st of each month')
   console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
   console.log('   - Weekly QOS state digest: 4 AM UTC every Wednesday')
+  console.log('   - Weekly intention completion audit: 8 PM UTC every Sunday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('   - Daily intention audit: 6 AM UTC every day')
   console.log('   - Daily OS snapshot: midnight (0 AM UTC) every day')
@@ -960,8 +1093,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM
-    if (hour === 9 || hour === 6 || hour === 4 || hour === 3 || hour === 0) {
+    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM; intention completion: 20
+    if (hour === 9 || hour === 6 || hour === 4 || hour === 3 || hour === 0 || hour === 20) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

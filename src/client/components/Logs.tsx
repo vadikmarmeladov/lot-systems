@@ -888,6 +888,40 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'user_login' || log.event === 'user_logout') {
+          const isLogin = log.event === 'user_login'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="AUTH:" blockView>
+                <div className="uppercase tracking-widest">
+                  {isLogin ? 'SESSION OPENED' : 'SESSION CLOSED'}
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'weather_update') {
+          const city = log.context?.city as string | undefined
+          const temp = log.context?.temperature as number | undefined
+          const description = log.metadata?.description as string | undefined
+          if (!city && !temp) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ENV:" blockView>
+                {city && <div className="uppercase tracking-widest">{city}</div>}
+                {temp && <div className="opacity-60">{Math.round(temp - 273.15)}°C{description ? ` · ${description}` : ''}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'theme_change') {
+          const theme = log.metadata?.theme as string | undefined
+          if (!theme) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="UI:" blockView>
+                <div className="uppercase tracking-widest">THM {theme}</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

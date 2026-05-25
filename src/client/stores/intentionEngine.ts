@@ -1366,6 +1366,74 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 56: Circadian anchor — log signals consistently at the same hour (±1h) for 5+ consecutive days.
+  // The person has found a rhythm. The system should reinforce it, not disrupt it.
+  const p56HourBuckets = new Map<number, Set<number>>() // hour → set of day timestamps
+  const p56SevenDays = signals.filter(s => now - s.timestamp < 7 * 24 * 60 * 60 * 1000)
+  p56SevenDays.forEach(s => {
+    const d = new Date(s.timestamp)
+    const hour = d.getHours()
+    const dayKey = Math.floor(s.timestamp / (24 * 60 * 60 * 1000))
+    const bucket = Math.floor(hour / 2) // 2h buckets to allow ±1h drift
+    if (!p56HourBuckets.has(bucket)) p56HourBuckets.set(bucket, new Set())
+    p56HourBuckets.get(bucket)!.add(dayKey)
+  })
+  let p56AnchorBucket = -1
+  let p56AnchorDays = 0
+  p56HourBuckets.forEach((days, bucket) => {
+    if (days.size > p56AnchorDays) { p56AnchorDays = days.size; p56AnchorBucket = bucket }
+  })
+  if (p56AnchorDays >= 5) {
+    const anchorHour = p56AnchorBucket * 2
+    const anchorLabel = anchorHour < 6 ? 'NIGHT' : anchorHour < 12 ? 'MORNING' : anchorHour < 18 ? 'AFTERNOON' : 'EVENING'
+    patterns.push({
+      pattern: 'circadian-anchor',
+      confidence: Math.min(0.60 + (p56AnchorDays - 5) * 0.05, 0.88),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `Circadian anchor detected: ${anchorLabel} session (${p56AnchorDays} consecutive days). Rhythm established. Deepening this window maximizes signal quality.`
+    })
+  }
+
+  // Pattern 57: Intention completion arc — intention set → plan + self-care within 7 days.
+  // The person declared intent, made a plan, and took action. The arc is complete.
+  const p57IntentionSignals = signals.filter(s =>
+    s.source === 'intentions' &&
+    (s.signal === 'intention_set' || s.signal === 'integration' || s.signal.includes('intention')) &&
+    now - s.timestamp < 7 * 24 * 60 * 60 * 1000
+  )
+  const p57PlanSignals = signals.filter(s =>
+    s.source === 'planner' && now - s.timestamp < 7 * 24 * 60 * 60 * 1000
+  )
+  const p57CareSignals = signals.filter(s =>
+    s.source === 'selfcare' && now - s.timestamp < 7 * 24 * 60 * 60 * 1000
+  )
+  if (p57IntentionSignals.length >= 1 && p57PlanSignals.length >= 1 && p57CareSignals.length >= 1) {
+    const arcStrength = Math.min(p57IntentionSignals.length + p57PlanSignals.length + p57CareSignals.length, 9)
+    patterns.push({
+      pattern: 'intention-completion-arc',
+      confidence: Math.min(0.65 + arcStrength * 0.03, 0.90),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: 'Intention → plan → care arc complete within 7 days. This is the full cycle. Anchor it in memory before it fades.'
+    })
+  }
+
+  // Pattern 58: Self-care saturation — 5+ self-care completions in 48 hours.
+  // High engagement or compensation. Either way: quality over quantity now.
+  const p58CareRecent = signals.filter(s =>
+    s.source === 'selfcare' && now - s.timestamp < 48 * 60 * 60 * 1000
+  )
+  if (p58CareRecent.length >= 5) {
+    patterns.push({
+      pattern: 'selfcare-saturation',
+      confidence: Math.min(0.60 + (p58CareRecent.length - 5) * 0.04, 0.80),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'next-session',
+      reason: `Self-care saturation: ${p58CareRecent.length} care actions in 48h. Shift from doing to reflecting. What is driving this frequency?`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals

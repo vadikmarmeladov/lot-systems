@@ -620,23 +620,38 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Self-assembly session report appended: 2026-05-23. All modules online.',
     ],
   },
+  {
+    date: '2026-05-25',
+    session: 'Self-Assembly Session — v42 / Patterns 56–58 · Log Handlers 39–41 · Intention Completion Audit',
+    assembled: [
+      'Pattern 56: circadian-anchor — 2h session-hour bucket analysis detects stable daily rhythm (5+ consecutive days). Confidence 0.60–0.88.',
+      'Pattern 57: intention-completion-arc — intent + plan + care all fire within 7-day window. Full arc confirmed. Confidence 0.65–0.90.',
+      'Pattern 58: selfcare-saturation — 5+ care completions in 48h. System flags quality-over-quantity. Routes to journal. Confidence 0.60–0.80.',
+      'Log handlers 39–41: user_login/user_logout → AUTH:, weather_update → ENV:, theme_change → UI:. Field archive count: 41.',
+      'Background job 7: weekly-intention-completion-audit. Sundays 20:00 UTC. Tracks intention → plan + care arc completion rate across active users.',
+      'Widget dep audit: WIDGET_DEPENDENCY_MAP traversed — all 17 modules verified. Ecosystem and QOS nodes confirmed current.',
+      'Physiological cohort: surfaced in QOS widget (Cohort view) and SystemProgressWidget (assembly + report views). Both paths active.',
+      'Log military style: AUTH: / ENV: / UI: codes added. Field archive now terse, technical, 41 handlers.',
+      'Self-assembly report: this entry. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-23',
+  date: '2026-05-25',
   message: [
-    'ASSEMBLY RUN — 2026-05-23 · v39',
-    'Three new patterns. 53: intention crystallizes when declare → plan → act fires within 2 hours.',
-    '54: OS vitals converge when the person is running above baseline across all primary dimensions.',
-    '55: signal drought — the system detects when it is starving and names the dormant module to re-engage.',
-    'Five new log handlers deployed: NUTR · GOAL · STACK · BENCH · PHASE. Field archive now renders 38 event types.',
-    'Widget dependency graph expanded: 5 convergence-layer nodes mapped. Dep graph now 75 nodes.',
-    'Four new signal recording functions available for benchmark, phase transition, full-stack, and nutrition.',
-    'Status: 55 patterns. 16 archetypes. 17 assembly modules. 75-node dep graph. 38 log handlers. 6 background jobs.',
-    'Next: pre-commit secret scanning hook. Or: journal vocabulary injection into widget copy.',
-    'DEPLOYED. The system knows when it peaks. And when it starves.',
+    'ASSEMBLY RUN — 2026-05-25 · v42',
+    'Three new patterns. 56: the system detects your daily rhythm — same hour, five days running.',
+    '57: the intention arc completes when you declare, plan, and act within a week. The full cycle.',
+    '58: self-care saturation — five care actions in 48 hours means something is driving this. Reflect.',
+    'Log handlers 39–41 deployed: AUTH: (session open/close) · ENV: (weather update) · UI: (theme change). Archive: 41 handlers.',
+    'Background job 7 initialized: weekly intention completion audit. Every Sunday 20:00 UTC. Tracks the arc rate across all users.',
+    'Widget dependency map traversed. All 17 assembly modules verified. Ecosystem and QOS confirmed current.',
+    'Physiological cohort surfaced in two places: QOS widget Cohort view + SystemProgressWidget report view.',
+    'Status: 58 patterns. 17 modules. 41 log handlers. 7 background jobs. 75+ dep nodes.',
+    'DEPLOYED. The system now knows when you found your rhythm. And when the arc completed.',
   ],
 }
 
