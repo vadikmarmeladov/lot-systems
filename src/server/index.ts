@@ -29,6 +29,7 @@ import authRoutes from './routes/auth.js'
 import apiRoutes from './routes/api.js'
 import adminApiRoutes from './routes/admin-api.js'
 import publicApiRoutes from './routes/public-api.js'
+import deviceApiRoutes from './routes/device-api.js'
 
 const CWD = process.cwd()
 
@@ -294,6 +295,9 @@ fastify.register(async (fastify: FastifyInstance) => {
 
     // Public API
     fastify.register(authRoutes, { prefix: '/auth' })
+
+    // Device API — COSMO® CIA hardware connector (device-token + session auth)
+    fastify.register(deviceApiRoutes, { prefix: '/api/device' })
 
     // User API
     fastify.register(async (fastify) => {
