@@ -59,7 +59,7 @@ export class ClaudeEngine implements AIEngine {
     }
 
     const response = await this.client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-6',
       max_tokens: maxTokens,
       messages: [
         {
@@ -109,7 +109,7 @@ export class OpenAIEngine implements AIEngine {
     }
 
     const response = await this.client.chat.completions.create({
-      model: 'gpt-4-turbo-preview',
+      model: 'gpt-4o',
       max_tokens: maxTokens,
       messages: [
         {

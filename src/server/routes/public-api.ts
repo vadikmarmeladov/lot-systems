@@ -326,6 +326,33 @@ async function checkSystems(): Promise<SystemCheck> {
   }
 }
 
+async function checkStoryAI(): Promise<SystemCheck> {
+  const start = Date.now()
+  try {
+    const hasEngine = aiEngineManager.hasAvailableEngine()
+    if (!hasEngine) {
+      return {
+        name: 'Story AI stack',
+        status: 'error',
+        message: 'No AI engine available — configure at least one API key',
+        duration: Date.now() - start,
+      }
+    }
+    return {
+      name: 'Story AI stack',
+      status: 'ok',
+      duration: Date.now() - start,
+    }
+  } catch (error: any) {
+    return {
+      name: 'Story AI stack',
+      status: 'error',
+      message: error?.message || 'Story AI stack check failed',
+      duration: Date.now() - start,
+    }
+  }
+}
+
 async function performHealthChecks(): Promise<{
   version: string
   timestamp: string
@@ -343,11 +370,13 @@ async function performHealthChecks(): Promise<{
     checkWeatherAPI(),
     checkDatabase(),
     checkMemory(),
+    checkStoryAI(),
   ])
 
   // Determine overall status
   const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  const hasUnknowns = checks.some((c) => c.status === 'unknown')
+  const overall = hasErrors ? 'error' : hasUnknowns ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -561,7 +590,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {
