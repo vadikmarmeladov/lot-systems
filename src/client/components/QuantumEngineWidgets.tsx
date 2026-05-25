@@ -27,7 +27,7 @@ function usePersistedState(key: string): [boolean, React.Dispatch<React.SetState
   return [value, setPersistedValue]
 }
 
-const TOTAL_DEVICES = 5
+const TOTAL_DEVICES = 6
 
 type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index'
 
@@ -37,6 +37,7 @@ export const QuantumEngineWidgets: React.FC = () => {
   const [computerConnected, setComputerConnected] = usePersistedState('qe-computer-connected')
   const [phoneConnected, setPhoneConnected] = usePersistedState('qe-phone-connected')
   const [watchConnected, setWatchConnected] = usePersistedState('qe-watch-connected')
+  const [robotConnected, setRobotConnected] = usePersistedState('qe-robot-connected')
   const [view, setView] = React.useState<QOSView>('ecosystem')
 
   const engineState = useStore(intentionEngine)
@@ -45,7 +46,7 @@ export const QuantumEngineWidgets: React.FC = () => {
   const [cohortData, setCohortData] = React.useState<{ archetype?: string; behavioralCohort?: string } | null>(null)
   const [readiness, setReadiness] = React.useState<number | null>(null)
 
-  const connectedCount = [carConnected, homeConnected, computerConnected, phoneConnected, watchConnected].filter(Boolean).length
+  const connectedCount = [carConnected, homeConnected, computerConnected, phoneConnected, watchConnected, robotConnected].filter(Boolean).length
   const ecosystemNarrative = React.useMemo(
     () => getEcosystemNarrative(connectedCount, TOTAL_DEVICES),
     [connectedCount]
@@ -114,11 +115,19 @@ export const QuantumEngineWidgets: React.FC = () => {
     })
   }
 
+  const handleRobotConnect = () => {
+    setRobotConnected((prev) => {
+      const next = !prev
+      recordSignal('intentions', next ? 'robot_connected' : 'robot_disconnected', { timestamp: Date.now() })
+      return next
+    })
+  }
+
   React.useEffect(() => {
     if (connectedCount === TOTAL_DEVICES) {
       recordSignal('intentions', 'ecosystem_full_coherence', {
         timestamp: Date.now(),
-        devices: { car: carConnected, home: homeConnected, computer: computerConnected, phone: phoneConnected, watch: watchConnected },
+        devices: { car: carConnected, home: homeConnected, computer: computerConnected, phone: phoneConnected, watch: watchConnected, robot: robotConnected },
       })
     }
   }, [connectedCount])
@@ -159,6 +168,7 @@ export const QuantumEngineWidgets: React.FC = () => {
                 <span className={computerConnected ? '' : 'opacity-20'}>CPU</span>
                 <span className={phoneConnected ? '' : 'opacity-20'}>PHN</span>
                 <span className={watchConnected ? '' : 'opacity-20'}>WCH</span>
+                <span className={robotConnected ? '' : 'opacity-20'}>ROB</span>
               </div>
               {assemblyState.overallAssembly > 0 && (
                 <div className="flex justify-between items-baseline">
@@ -331,6 +341,11 @@ export const QuantumEngineWidgets: React.FC = () => {
       <Block label="Watch:" containsSmallButton inProgress>
         <Button size="small" onClick={handleWatchConnect}>
           {watchConnected ? 'disconnect' : 'connect'}
+        </Button>
+      </Block>
+      <Block label="Robot:" containsSmallButton inProgress>
+        <Button size="small" onClick={handleRobotConnect}>
+          {robotConnected ? 'disconnect' : 'connect'}
         </Button>
       </Block>
     </>
