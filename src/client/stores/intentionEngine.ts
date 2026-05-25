@@ -2899,18 +2899,6 @@ export function recordQOSPhaseTransition(fromPhase: string, toPhase: string, mod
 }
 
 /**
- * Record a full-stack session signal when memory + planner + selfcare all fire within 4h.
- * Feeds Pattern 25 detection and the vitals assembly module.
- */
-export function recordFullStackSession(activeSources: string[], windowMinutes: number) {
-  recordSignal('energy', 'full_stack_session', {
-    activeSources,
-    windowMinutes,
-    hour: new Date().getHours(),
-  })
-}
-
-/**
  * Record a recipe-viewed signal. Feeds Pattern 20 (nutritional void) detection
  * and the Nutrition Protocol assembly module.
  */
