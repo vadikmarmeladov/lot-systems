@@ -1,250 +1,642 @@
-# LOT SYSTEMS — U.S. IPO PLAN
+# LOT SYSTEMS, INC. — U.S. INITIAL PUBLIC OFFERING PLAN
 
 **Document:** LOT_USA_IPO.md
-**Classification:** Confidential — Internal Strategy
+**Classification:** Confidential — Board & Counsel Only
 **Prepared:** May 25, 2026
-**Target Filing:** Q4 2026 (Form S-1)
-**Target Listing:** Q1 2027
+**Author:** Vadik Marmeladov, Founder & CEO
 **Proposed Ticker:** LOT
-**Proposed Exchange:** NYSE (or NASDAQ if capital markets team recommends)
-**Proposed Price:** $4.00 per share
-**Registration Threshold:** Section 12(g) Exchange Act — 2,000+ holders or 500 non-accredited
+**Proposed Exchange:** NASDAQ Capital Market
+**Proposed IPO Price:** $4.00 per share
+**Target IPO Date:** Monday, January 25, 2027
 
 ---
 
-## 1. Corporate Structure
+## PART I — CORPORATE STRUCTURE
 
-### Entity Formation
+### 1.1 Entity
 
-| Item | Detail |
-|------|--------|
-| Legal Entity | LOT Systems, Inc. (Delaware C-Corp) |
-| State of Incorporation | Delaware |
-| Headquarters | New York, NY (or remote-first, registered agent in DE) |
+| Field | Value |
+|-------|-------|
+| Legal Name | LOT Systems, Inc. |
+| Incorporation | Delaware (General Corporation Law) |
+| Entity Type | C-Corporation |
+| Headquarters | New York, NY |
+| Federal EIN | To be assigned |
+| Fiscal Year End | December 31 |
 | Founder & CEO | Vadik Marmeladov |
-| Ownership (Pre-IPO) | 100% — single founder |
-| Authorized Shares | 100,000,000 Common Stock, $0.0001 par value |
-| IPO Shares Offered | 2,500,000 shares (10% dilution at minimum threshold) |
-| IPO Price | $4.00 / share |
-| Raise Target | $10,000,000 (minimum to trigger Section 12(g) asset threshold) |
-| Post-IPO Valuation | $100,000,000 (fully diluted at $4/share) |
+| Pre-IPO Ownership | 100% single founder |
 
-### Pre-IPO Timeline
+### 1.2 Capitalization Table
 
-| Date | Milestone |
-|------|-----------|
-| **Jun 2026** | Incorporate LOT Systems, Inc. (Delaware). Assign IP. Open corporate bank account. |
-| **Jul 2026** | Engage securities counsel (Cooley / Wilson Sonsini / Fenwick). Engage auditors (BDO / Grant Thornton). |
-| **Aug 2026** | Complete PCAOB-compliant audit of FY2025 + H1 2026 financials. |
-| **Sep 2026** | Prepare Form S-1 Registration Statement. Finalize prospectus. |
-| **Oct 2026** | File S-1 with SEC. Begin SEC review period (30–60 days). |
-| **Nov 2026** | Respond to SEC comment letter(s). Amend S-1 as needed. |
-| **Dec 2026** | S-1 declared effective. Set pricing. Launch roadshow. |
-| **Jan 2027** | IPO date. First day of trading. |
+| Class | Authorized | Issued | Par Value |
+|-------|-----------|--------|-----------|
+| Common Stock | 100,000,000 | 25,000,000 | $0.0001 |
+| Preferred Stock | 10,000,000 | 0 | $0.0001 |
 
----
+### 1.3 Share Distribution
 
-## 2. Section 12(g) Compliance Strategy
+| Holder | Shares | % | Lock-Up |
+|--------|--------|---|---------|
+| Vadik Marmeladov (Founder) | 22,500,000 | 90.0% | 180 days post-IPO |
+| Public Offering (IPO) | 2,500,000 | 10.0% | None |
+| **Total Outstanding** | **25,000,000** | **100%** | |
+| Employee Option Pool (reserved, unissued) | 5,000,000 | — | 4-year vesting, 1-year cliff |
 
-Under Section 12(g) of the Securities Exchange Act of 1934:
-
-- **Trigger:** Total assets > $10M AND equity securities held by 2,000+ persons (or 500+ non-accredited)
-- **Strategy:** Structure the IPO to reach 2,000+ shareholders at $4/share with $10M+ in assets post-raise
-- **Registration:** File Form 10 (or go effective on S-1) to register the class of equity securities
-
-### Share Distribution Plan
-
-| Allocation | Shares | % | Purpose |
-|-----------|--------|---|---------|
-| Founder (Vadik Marmeladov) | 22,500,000 | 90% | Retained control, 180-day lockup |
-| Public Offering | 2,500,000 | 10% | IPO raise @ $4/share = $10M |
-| Employee Option Pool (reserved) | — | — | 10% post-IPO reserved for grants |
-
-**Minimum Shareholders Target:** 2,500 individual investors (exceeds 2,000 threshold)
-**Average Allocation:** ~$4,000 per investor (1,000 shares at $4)
-
----
-
-## 3. Software & Technology Assets
-
-### Intellectual Property Portfolio
-
-| Asset | Status | Registration |
-|-------|--------|-------------|
-| Quantum Intent Engine™ | Production (52 patterns) | Trademark pending |
-| Self-Assembly Engine™ | Production (15 modules, 70-node dep graph) | Trademark pending |
-| Benchmark Arbitrage™ | Production (5-tier scoring) | Trademark pending |
-| Punctuation & Intonation Engine | Production | Trade secret |
-| User Index (10-dimensional) | Production | Trade secret |
-| Soul Archetype System (16 types) | Production | Trade secret |
-| LOT Operating System | Production v1.2.0 | Copyright |
-| lot-systems.com | Production | Domain asset |
-
-### Platform Metrics (as of May 2026)
+### 1.4 IPO Economics
 
 | Metric | Value |
 |--------|-------|
-| Codebase | ~50,000 LOC (TypeScript, full-stack) |
-| Active Patterns | 52 behavioral recognition patterns |
-| Physiological Archetypes | 16 |
-| Assembly Modules | 15 (self-building) |
-| Dependency Graph | 70 nodes |
-| Background Jobs | 6 automated |
-| Log Event Handlers | 33 |
-| AI Integrations | 5 providers (Together, Claude, Gemini, OpenAI, Mistral) |
-| Infrastructure | Digital Ocean (NYC3), PostgreSQL, Node.js, Nginx |
-| Deployment | Continuous (automated weekly + on-push) |
-| Uptime Target | 99.5% |
-
-### Technology Stack (Production)
-
-```
-Frontend:    React 18, TypeScript, Nanostores, Tailwind CSS, esbuild
-Backend:     Node.js 22, Fastify, PostgreSQL 16, Sequelize ORM
-AI Layer:    Together AI (primary), Claude (Anthropic), Gemini, OpenAI, Mistral
-Infra:       Digital Ocean App Platform, Nginx, automated backups
-Auth:        Session-based, HTTP-only cookies, bcrypt
-Monitoring:  Self-Assembly Engine, QOS reports, daily OS snapshots
-```
+| Shares Offered | 2,500,000 |
+| Offering Price | $4.00 |
+| Gross Proceeds | $10,000,000 |
+| Underwriting Discount (7%) | $700,000 |
+| Net Proceeds | $9,300,000 |
+| Post-Money Market Cap | $100,000,000 |
+| Minimum Shareholders Target | 2,500 (exceeds Section 12(g) threshold of 2,000) |
 
 ---
 
-## 4. Revenue Model
+## PART II — CRITICAL PATH TIMELINE
 
-### Subscription Tiers
+### Phase 1: Foundation (June 2026)
 
-| Tier | Price | Features |
-|------|-------|----------|
-| Free | $0/mo | Core widgets, 30-day retention, basic patterns |
-| Usership | $50/mo | Full Quantum OS, unlimited retention, all 52 patterns, AI questions, archetypes |
-| R&D | Invite-only | Beta features, early pattern access, assembly participation |
+| Date | Action | Owner | Cost |
+|------|--------|-------|------|
+| Mon, Jun 1 | Incorporate LOT Systems, Inc. via Stripe Atlas or Clerky | Vadik | $500 |
+| Wed, Jun 3 | Apply for Federal EIN (IRS Form SS-4) | Vadik | $0 |
+| Fri, Jun 6 | Open corporate bank account (Mercury or SVB) | Vadik | $0 |
+| Mon, Jun 9 | Execute IP Assignment Agreement (all code, trademarks, domain from personal → corporate) | Vadik | $0 |
+| Mon, Jun 9 | Transfer domain `lot-systems.com` to corporate entity | Vadik | $0 |
+| Fri, Jun 13 | File trademark applications: Quantum Intent Engine™, Self-Assembly Engine™, Benchmark Arbitrage™ | Counsel | $750/class |
+| Mon, Jun 16 | Initial consultation with 2-3 securities law firms | Vadik | Free consult |
+| Fri, Jun 27 | Select and engage securities counsel | Vadik | $10K retainer |
+| Mon, Jun 30 | Adopt corporate bylaws, issue founder shares, establish option pool | Counsel | Included |
 
-### Revenue Projections (Conservative)
+### Phase 2: Audit & Board (July – August 2026)
 
-| Period | Users | Paid (5% conversion) | MRR | ARR |
-|--------|-------|---------------------|-----|-----|
+| Date | Action | Owner | Cost |
+|------|--------|-------|------|
+| Tue, Jul 1 | Engage PCAOB-registered auditor (BDO / Marcum / Friedman) | Counsel + Vadik | $75K–$150K |
+| Mon, Jul 7 | Begin preparation of historical financials (Nov 2025 – Jun 2026) | Vadik + CPA | Internal |
+| Mon, Jul 14 | Recruit CFO (fractional or full-time) | Vadik | $150K–$200K/yr |
+| Fri, Jul 25 | Identify independent director candidates (minimum 3) | Vadik + Counsel | — |
+| Fri, Aug 1 | Financial statements delivered to auditor | Vadik + CFO | — |
+| Mon, Aug 11 | Appoint Board of Directors (Vadik + 2 independent) | Board | — |
+| Fri, Aug 15 | Form Audit Committee (2 independent directors + financial expert) | Board | — |
+| Fri, Aug 22 | Form Compensation Committee | Board | — |
+| Fri, Aug 29 | Obtain D&O insurance ($5M coverage) | Counsel | $25K–$50K/yr |
+| Sat, Aug 30 | PCAOB audit fieldwork complete | Auditor | — |
+
+### Phase 3: S-1 Preparation (September – October 2026)
+
+| Date | Action | Owner | Cost |
+|------|--------|-------|------|
+| Mon, Sep 1 | Begin drafting Form S-1 Registration Statement | Securities Counsel | $200K–$400K |
+| Mon, Sep 8 | Draft prospectus: business description, risk factors, MD&A | Vadik + Counsel | — |
+| Mon, Sep 15 | Draft financial statements section (audited) | CFO + Auditor | — |
+| Mon, Sep 22 | Draft use of proceeds, dilution, capitalization tables | CFO + Counsel | — |
+| Fri, Sep 26 | Internal S-1 review — all sections complete | Board | — |
+| Mon, Sep 29 | Engage transfer agent (Continental Stock Transfer) | Counsel | $5K setup |
+| Mon, Oct 6 | Engage underwriter or placement agent | Vadik + Counsel | — |
+| Mon, Oct 13 | Apply for EDGAR access (SEC CIK number) | Counsel | $0 |
+| Mon, Oct 13 | File FINRA Form 211 (if applicable) | Underwriter | — |
+| Fri, Oct 17 | Final S-1 review by Board and Counsel | Board | — |
+| **Mon, Oct 20** | **File Form S-1 with SEC** | **Securities Counsel** | **—** |
+
+### Phase 4: SEC Review (November – December 2026)
+
+| Date | Action | Owner | Cost |
+|------|--------|-------|------|
+| Mon, Nov 3 | Expected receipt of SEC comment letter (~30 days from filing) | SEC | — |
+| Mon, Nov 10 | Prepare responses to SEC comments | Securities Counsel | — |
+| Mon, Nov 17 | File S-1/A (Amendment No. 1) responding to comments | Securities Counsel | — |
+| Mon, Dec 1 | Second SEC comment letter (if any) and response | Securities Counsel | — |
+| Mon, Dec 8 | File S-1/A (Amendment No. 2) with final pricing | Securities Counsel | — |
+| Fri, Dec 12 | S-1 declared effective by SEC | SEC | — |
+| Mon, Dec 15 | File Form 8-A (Exchange Act registration) | Securities Counsel | — |
+| Mon, Dec 15 | Begin investor roadshow (2 weeks) | Vadik + Underwriter | $50K travel |
+| Fri, Dec 19 | NASDAQ listing application submitted | Counsel | $50K–$75K |
+
+### Phase 5: IPO (January 2027)
+
+| Date | Action | Owner | Cost |
+|------|--------|-------|------|
+| Mon, Jan 6 | Roadshow concludes. Book building complete. | Underwriter | — |
+| Wed, Jan 8 | Pricing meeting. Final IPO price set at $4.00/share. | Board + Underwriter | — |
+| Thu, Jan 9 | File final prospectus (Rule 424(b)) | Securities Counsel | — |
+| Mon, Jan 13 | NASDAQ listing approved | NASDAQ | — |
+| Fri, Jan 16 | DTC eligibility confirmed (shares eligible for electronic settlement) | Transfer Agent | — |
+| Mon, Jan 20 | Martin Luther King Jr. Day (market closed) | — | — |
+| Tue, Jan 21 | Pre-market preparations. Final checks. | All | — |
+| **Mon, Jan 25, 2027** | **IPO DAY — LOT begins trading on NASDAQ at $4.00/share** | **All** | **—** |
+| Tue, Jan 26 | File Form 8-K (material event — IPO completion) | Securities Counsel | — |
+| Fri, Jan 30 | Settlement (T+1). Proceeds wired to corporate account. | Transfer Agent | — |
+
+### Phase 6: Post-IPO Reporting Obligations
+
+| Date | Filing | Description |
+|------|--------|-------------|
+| Mar 31, 2027 | Form 10-K | Annual report for fiscal year ending Dec 31, 2026 |
+| May 15, 2027 | Form 10-Q | Q1 2027 quarterly report |
+| Jun 2027 | DEF 14A | Proxy statement for first annual meeting |
+| Aug 14, 2027 | Form 10-Q | Q2 2027 quarterly report |
+| Nov 14, 2027 | Form 10-Q | Q3 2027 quarterly report |
+| Ongoing | Form 8-K | Within 4 business days of any material event |
+
+---
+
+## PART III — SOFTWARE PLATFORM & TECHNOLOGY ASSETS
+
+### 3.1 Platform Overview
+
+LOT (Layers of Time) Systems is an AI-powered personal operating system that combines behavioral pattern recognition, psychological profiling, and self-assembling intelligence to create a digital companion for human awareness and flourishing.
+
+**Production URL:** https://lot-systems.com
+**First Production Deployment:** November 8, 2025
+**Current Version:** v1.2.0 (Self-Assembly Phase v38)
+**Uptime Since Launch:** 198 days continuous operation
+
+### 3.2 Codebase Metrics
+
+| Metric | Value |
+|--------|-------|
+| Total Source Files | 206 TypeScript/TSX |
+| Total Lines of Code | 64,084 |
+| Language | 100% TypeScript (full-stack) |
+| Module System | ESM (ECMAScript Modules) |
+| License | MIT |
+| Node.js Requirement | >=20.x |
+| Package Manager | Yarn 1.22.x |
+
+### 3.3 Technology Stack
+
+```
+FRONTEND
+├── React 18.2                  UI framework
+├── TypeScript 5.9              Type system
+├── Nanostores 0.9              Global state management
+├── @nanostores/react 0.4       React bindings
+├── @nanostores/router 0.9      Client-side routing
+├── @nanostores/persistent 0.9  localStorage persistence
+├── Tailwind CSS 3.x            Utility-first styling
+├── tailwind-merge              Class deduplication
+├── React Query 3.39            Server state / caching
+├── dayjs 1.11                  Date manipulation
+├── values.js 2.1               Color manipulation
+├── color-convert 3.1           Color space conversion
+├── seedrandom 3.0              Deterministic randomness
+└── esbuild 0.20                Bundler (sub-second builds)
+
+BACKEND
+├── Fastify 5.6                 HTTP framework
+├── @fastify/cookie 10.0        Session cookies
+├── @fastify/helmet 12.0        Security headers
+├── @fastify/rate-limit 10.3    API rate limiting
+├── @fastify/static 8.0         Static file serving
+├── @fastify/view 10.0          Server-side rendering
+├── ejs 3.1                     Template engine
+├── jsonwebtoken 9.0            JWT authentication
+├── PostgreSQL 16               Primary database
+├── Sequelize 6.29              ORM
+├── pg 8.11                     PostgreSQL driver
+├── pg-hstore 2.3               hstore support
+├── umzug 3.8                   Database migrations
+├── dotenv 17.2                 Environment configuration
+├── uuid 9.0                    ID generation
+└── zod 3.23                    Runtime validation
+
+AI LAYER (5 providers)
+├── Together AI                 Primary LLM (cost-optimized)
+├── @anthropic-ai/sdk 0.32      Claude (Anthropic)
+├── @google/generative-ai 0.24  Gemini
+├── openai 4.52                 OpenAI / GPT
+├── @mistralai/mistralai 1.10   Mistral
+├── @instructor-ai/instructor   Structured AI output
+└── axios 0.27                  HTTP client for AI calls
+
+EMAIL
+└── resend 6.1                  Transactional email
+
+INFRASTRUCTURE
+├── Docker (node:22-alpine)     Container runtime
+├── Digital Ocean App Platform  Hosting (NYC3)
+├── Nginx                       Reverse proxy
+├── GitHub Actions              CI/CD + scheduled rebuilds
+└── PostgreSQL (DO Managed)     Database hosting
+```
+
+### 3.4 Widget Ecosystem (36 Production Widgets)
+
+Each widget is a self-contained React component rendering inside the LOT operating system interface.
+
+| # | Widget | Purpose | Size |
+|---|--------|---------|------|
+| 1 | SystemProgressWidget | Self-assembly dashboard, session reports, usership transmission | 92.9KB |
+| 2 | MicroGameWidget | Procedurally generated mini-games for engagement | 34.0KB |
+| 3 | UserMetricsWidget | 10-dimensional user index visualization | 15.9KB |
+| 4 | QuantumEngineWidgets | Quantum Intent Engine surface (patterns, state, signals) | 14.5KB |
+| 5 | PatternRecognitionWidget | Real-time pattern detection display | 13.4KB |
+| 6 | MemoryWidget | AI-powered question generation + answer journal | 11.8KB |
+| 7 | AIFeedbackWidget | AI interaction feedback loop | 11.8KB |
+| 8 | CohortConnectWidget | Behavioral cohort classification + community | 11.7KB |
+| 9 | ContextualPromptsWidget | Context-aware journaling prompts | 9.7KB |
+| 10 | IntentionsWidget | Daily intention setting + tracking | 9.5KB |
+| 11 | CalendarWidget | Calendar entries + fasting/event tracking | 9.3KB |
+| 12 | MicroImageWidget | AI image generation interface | 9.0KB |
+| 13 | PlannerWidget | Temporal planner + routine compiler | 8.8KB |
+| 14 | QuantumStateWidget | Live quantum state readout (energy, clarity, alignment) | 8.5KB |
+| 15 | NarrativeWidget | RPG narrative arc engine | 7.8KB |
+| 16 | CosmicUpdateWidget | Astrology (Western + Japanese + Rokuyo) | 7.6KB |
+| 17 | PatternInsightsWidget | Deep pattern analysis + insights | 7.2KB |
+| 18 | EvolutionWidget | System evolution tracking | 7.3KB |
+| 19 | SystemPulseWidget | Real-time system pulse monitor | 6.6KB |
+| 20 | RecipeWidget | AI nutrition + recipe generation | 6.6KB |
+| 21 | CorrelatedIndexesWidget | Multi-dimensional index correlation | 6.6KB |
+| 22 | InterfaceEvolutionWidget | UI evolution timeline | 6.6KB |
+| 23 | QuantumSignWidget | Quantum sign computation | 6.5KB |
+| 24 | MicroCalculatorWidget | Built-in calculator | 5.9KB |
+| 25 | ChakraErgonomicsWidget | Body awareness + ergonomic reminders | 5.4KB |
+| 26 | SignalStreamWidget | Live signal stream visualization | 5.0KB |
+| 27 | AngelInvestorWidget | Investment interest capture | 4.4KB |
+| 28 | GoalJourneyWidget | Goal tracking + completion arcs | 4.3KB |
+| 29 | TimeWidget | Clock + temporal awareness | 4.0KB |
+| 30 | DemoDayWidget | Product demo interface | 3.8KB |
+| 31 | ChatCatalystWidget | Community chat catalyst | 3.6KB |
+| 32 | BenchmarkWidget | Quantum Success Benchmark (5-tier) | 3.5KB |
+| 33 | CorporatePlanWidget | Corporate planning tools | 3.3KB |
+| 34 | InterventionsWidget | Compassionate intervention system | 2.7KB |
+| 35 | QuantumRandomWidget | Quantum randomness generator | 2.2KB |
+| 36 | SubscribeWidget | Subscription capture | 1.0KB |
+
+### 3.5 Server Architecture
+
+#### Data Models (10 production tables)
+
+| Model | Purpose | Key Fields |
+|-------|---------|------------|
+| User | User accounts + profiles | email, firstName, tags, metadata, lastSeenAt, joinedAt |
+| Log | All user events (journal, mood, signals) | userId, event, text, metadata, context |
+| Answer | Memory Engine AI Q&A pairs | userId, question, answer |
+| Session | Active session tracking | userId, lastUsedAt, userAgent |
+| EmailCode | Authentication codes | email, code, expiresAt |
+| ChatMessage | Community messages | userId, text, roomId |
+| ChatMessageLike | Message reactions | userId, messageId |
+| DirectMessage | Private messages | senderId, receiverId, text |
+| LiveMessage | Real-time broadcasts | userId, text, type |
+| WeatherResponse | Cached weather data | location, data, fetchedAt |
+
+#### API Routes (6 route files)
+
+| Route File | Endpoints | Auth | Purpose |
+|------------|-----------|------|---------|
+| api.ts | ~80 endpoints | Session | Core application API (logs, users, AI, settings) |
+| auth.ts | 6 endpoints | Public/Session | Login, signup, email codes, session management |
+| public-api.ts | 10 endpoints | None | Public data, analytics, status, about page data |
+| os-api.ts | 15 endpoints | Session | Quantum OS operations, vitals, snapshots |
+| admin-api.ts | 25 endpoints | Admin | Administration, user management, system config |
+| index.ts | — | — | Route registration and middleware |
+
+#### Background Jobs (6 automated)
+
+| Job | Schedule | Purpose |
+|-----|----------|---------|
+| Monthly Email Sender | 1st of month, 09:00 UTC | Monthly review emails to engaged users (3+ months, 60%+ daily) |
+| Daily QIE Analysis | Every 6 hours | Quantum Intent Engine pattern analysis for all active users |
+| Weekly Cohort Classification | Sundays, 05:00 UTC | Behavioral cohort + archetype reclassification |
+| Weekly QOS Report | Sundays, 05:00 UTC | Quantum Operating System coherence reports |
+| Daily Intention Audit | Daily, 18:00 UTC | Detect intention-without-execution decay (48h window) |
+| Daily OS Snapshot | Daily, 00:00 UTC | Midnight boundary marker for all active users |
+
+### 3.6 Proprietary AI Systems
+
+#### Quantum Intent Engine™ (QIE) — 52 Patterns
+
+The QIE observes signals from all user interactions and recognizes behavioral patterns without explicit user input. Each pattern has a confidence score (0.0–1.0) and suggests a widget + timing.
+
+| Range | Patterns | Examples |
+|-------|----------|---------|
+| P1–P10 | Emotional foundation | Anxiety pattern, lack of structure, seeking direction, flow potential |
+| P11–P20 | Temporal + behavioral | Circadian drift, weekend warrior, morning clarity, planning paralysis |
+| P21–P30 | Advanced compound | Ecosystem without biofield, cognitive overload, intention velocity |
+| P31–P40 | Ecosystem + social | Wearable integration void, ecosystem synchrony, social resonance arc |
+| P41–P50 | Deep coherence | Deep work cascade, temporal coherence, recovery velocity, care momentum |
+| P51–P52 | Signal meta-patterns | Signal silence (48h quiet), circadian anchor loss (5+ night cluster) |
+
+#### Self-Assembly Engine™ — 17 Modules
+
+The system builds itself from user engagement signals. No module is manually activated — each assembles when sufficient signals accumulate.
+
+| Module | Trigger | Assembly Condition |
+|--------|---------|-------------------|
+| Biofield Engine | Mood check-ins | 3+ mood signals in 7 days |
+| Memory Architecture | AI Q&A engagement | 2+ memory answers |
+| Routine Compiler | Planner usage | 3+ planner entries |
+| Intention Core | Intention setting | Active intention set |
+| Cleanness Protocol | Self-care logs | 2+ selfcare signals |
+| Reflection Layer | Journal notes | 5+ journal entries |
+| Community Mesh | Chat participation | 1+ community message |
+| Ecosystem Bridge | Device connections | 1+ device signal |
+| Quantum Substrate | Pattern accumulation | 10+ recognized patterns |
+| Nutrition Protocol | Recipe engagement | 1+ recipe interaction |
+| Goal Architecture | Goal setting | 1+ goal created |
+| Archetype Classifier | Enough data | 20+ total signals |
+| OS Vitals Monitor | Session depth | 5+ sessions |
+| Temporal Planner | Calendar + planning | Calendar + planner signals |
+| Quantum Operating System | Meta-coherence | 12+ modules assembled |
+| Signal Archive | Log volume | 10+ log entries |
+| Quantum OS (QOS) | Full system | All core modules active |
+
+#### Benchmark Arbitrage™ — 5-Tier Grading
+
+| Tier | Score | Meaning |
+|------|-------|---------|
+| White | 0–19 | Observer. Present but not yet engaged. |
+| Green | 20–39 | Emerging. First patterns forming. |
+| Yellow | 40–59 | Active. Consistent engagement. System recognizes you. |
+| Purple | 60–79 | Deep. Sustained coherence. Patterns compound. |
+| Black | 80–100 | Quantum. Full synchronization. System and operator indistinguishable. |
+
+Score computed from: journal depth (30%), streak (20%), tenure (15%), consistency (15%), user index (10%), quantum state (10%).
+
+#### Additional Proprietary Systems
+
+| System | Function |
+|--------|----------|
+| User Index | 10-dimensional behavioral scoring across all interactions |
+| Soul Archetype System | 16 psychological archetypes derived from usage patterns |
+| Physiological Cohort Classifier | 9 cohort types (Peak Catalyst, Flowing Creator, Morning Visionary, etc.) |
+| Punctuation & Intonation Engine | NLP analysis of journal writing style + emotional tone |
+| Memory Story Engine | AI-powered question generation calibrated to user's psychological depth |
+| Compassionate Intervention System | Context-aware support triggered by distress signals |
+| Weather Sound System | Ambient soundscapes generated from real-time weather data |
+| Soviet Synth | Keyboard sound engine with synthesizer feedback |
+
+### 3.7 Infrastructure & Security
+
+| Component | Detail |
+|-----------|--------|
+| Hosting | Digital Ocean App Platform (NYC3 region) |
+| Instance | basic-xxs ($7/month) |
+| Database | DO Managed PostgreSQL 16 (single node) |
+| Domain | lot-systems.com (HTTPS, auto-renewed SSL) |
+| Container | Docker (node:22-alpine) |
+| Build | esbuild (client, <1s) + tsc (server) |
+| CI/CD | GitHub Actions (weekly rebuild Sunday 21:00 UTC + on-push) |
+| Auth | Session-based, HTTP-only cookies, bcrypt password hashing |
+| Rate Limiting | Fastify rate-limit plugin |
+| Security Headers | Helmet (CSP, HSTS, X-Frame-Options) |
+| Secrets | DO encrypted environment variables (EV[1:...] format) |
+| Backups | Automated daily database backups (DO managed) |
+| Monitoring | Self-Assembly Engine + QOS reports + daily OS snapshots |
+
+### 3.8 Deployment Architecture
+
+```
+User Browser
+     │
+     ▼
+[HTTPS / SSL]
+     │
+     ▼
+Digital Ocean App Platform (NYC3)
+     │
+     ├── Nginx (reverse proxy, static assets)
+     │
+     ├── Node.js 22 (Fastify server)
+     │   ├── /api/*          Authenticated API
+     │   ├── /api/public/*   Public endpoints
+     │   ├── /api/os/*       Quantum OS API
+     │   ├── /api/admin/*    Admin API
+     │   ├── /auth/*         Authentication
+     │   └── /*              Static SPA (React)
+     │
+     └── PostgreSQL 16 (DO Managed)
+         ├── users
+         ├── logs (primary data store)
+         ├── answers
+         ├── sessions
+         ├── email_codes
+         ├── chat_messages
+         ├── weather_responses
+         └── [migrations via umzug]
+```
+
+### 3.9 Software Development History
+
+| Version | Date | Milestone |
+|---------|------|-----------|
+| v0.0.2 | Nov 8, 2025 | First production deployment. Digital Ocean. Status page. Memory Story Engine. |
+| v0.0.3 | Nov 8, 2025 | API diagnostics. Anthropic key verification. Public route registration. |
+| v0.1.0 | Nov 15, 2025 | Together AI integration. Weather-responsive sound system. 70% cost reduction. |
+| v1.0.0 | Dec 11, 2025 | Public profiles. Astrology widget. PWA. Arial typography system. |
+| v1.0-stable | Jan 30, 2026 | Context-aware mood widget. Self-care moments. Long-term awareness tracking. |
+| v1.1.0 | Mar 9, 2026 | Week number fix. Stability improvements. Blank page loading resolved. |
+| v1.2.0 | Apr 3, 2026 | Quantum Intention Engine (10 patterns). 44 widgets. MicroGame. Evolution system. |
+
+**Self-Assembly Phases (automated, system-directed):**
+
+| Phase | Date | Patterns | Modules | Key Addition |
+|-------|------|----------|---------|-------------|
+| v5 | Apr 21 | 18 | 12 | Quantum Cube vocabulary |
+| v10 | Apr 28 | 25 | 14 | Widget dependency map (34 nodes) |
+| v14 | May 2 | 30 | 14 | Calendar events in System header |
+| v17 | May 5 | 34 | 14 | QOS Trend view |
+| v22 | May 10 | 41 | 15 | Cascade detection |
+| v27 | May 12 | 45 | 15 | Cognitive Load Release |
+| v33 | May 17 | 50 | 15 | 16 archetypes, 70-node dep graph |
+| v35 | May 20 | 51 | 15 | Signal Silence pattern, 30 log handlers |
+| v37 | May 21 | 52 | 15 | Badge stream, OS snapshot job, 33 handlers |
+| v38 | May 22 | 52 | 15 | Security hardening, Benchmark Arbitrage |
+
+---
+
+## PART IV — REVENUE MODEL
+
+### 4.1 Subscription Tiers
+
+| Tier | Monthly | Annual | Features |
+|------|---------|--------|----------|
+| Free | $0 | $0 | Core widgets, 30-day retention, basic patterns, 5 AI questions/month |
+| Usership | $50 | $500 | Full Quantum OS, unlimited retention, all 52 patterns, unlimited AI, archetypes, cohort |
+| R&D | Invite | — | Beta features, early pattern access, assembly participation |
+
+### 4.2 Revenue Projections
+
+| Quarter | Total Users | Paid (5%) | MRR | ARR |
+|---------|------------|-----------|-----|-----|
 | Q1 2027 (IPO) | 5,000 | 250 | $12,500 | $150,000 |
 | Q2 2027 | 15,000 | 750 | $37,500 | $450,000 |
 | Q4 2027 | 50,000 | 2,500 | $125,000 | $1,500,000 |
+| Q2 2028 | 100,000 | 5,000 | $250,000 | $3,000,000 |
 | Q4 2028 | 200,000 | 10,000 | $500,000 | $6,000,000 |
 
-### Use of Proceeds ($10M Raise)
+### 4.3 Unit Economics (Target)
 
-| Category | Amount | % |
-|----------|--------|---|
-| Engineering & Product | $3,500,000 | 35% |
-| Marketing & Growth | $2,500,000 | 25% |
-| Operations & Infrastructure | $1,500,000 | 15% |
-| Legal & Compliance | $1,000,000 | 10% |
-| Working Capital Reserve | $1,500,000 | 15% |
+| Metric | Value |
+|--------|-------|
+| Customer Acquisition Cost (CAC) | $25 |
+| Monthly ARPU (paid) | $50 |
+| Annual LTV (paid, 24-month avg retention) | $1,200 |
+| LTV/CAC Ratio | 48x |
+| Gross Margin | 85% (AI API costs ~15%) |
+| Infrastructure Cost per User | $0.04/month |
+
+### 4.4 Use of Proceeds ($9.3M Net)
+
+| Category | Amount | % | Purpose |
+|----------|--------|---|---------|
+| Engineering & Product | $3,250,000 | 35% | Hire 3 engineers, mobile app, API platform |
+| Marketing & Growth | $2,325,000 | 25% | User acquisition, content, community |
+| Operations & Infra | $1,395,000 | 15% | Multi-region hosting, SOC 2, monitoring |
+| Legal & Compliance | $930,000 | 10% | SEC reporting, patents, ongoing counsel |
+| Working Capital | $1,400,000 | 15% | 18-month runway reserve |
 
 ---
 
-## 5. Legal & Regulatory Requirements
+## PART V — LEGAL & COMPLIANCE
 
-### SEC Filings Required
+### 5.1 SEC Filing Schedule
 
 | Filing | Purpose | Deadline |
 |--------|---------|----------|
-| Form S-1 | Registration Statement (IPO) | Oct 2026 |
-| Form 8-A | Exchange Act registration | At effectiveness |
-| Form 10-K | Annual report | 60 days after fiscal year end |
-| Form 10-Q | Quarterly report | 40 days after quarter end |
-| Form 8-K | Material events | 4 business days after event |
-| Proxy Statement (DEF 14A) | Annual meeting | Before shareholder vote |
+| Form S-1 | IPO Registration Statement | October 20, 2026 |
+| Form S-1/A | Amendment(s) responding to SEC comments | November–December 2026 |
+| Form 8-A | Exchange Act registration | At S-1 effectiveness |
+| Rule 424(b) | Final prospectus filing | January 9, 2027 |
+| Form 8-K | IPO completion announcement | January 26, 2027 |
+| Form 10-K | Annual report (FY2026) | March 31, 2027 |
+| Form 10-Q | Q1 2027 quarterly report | May 15, 2027 |
 
-### Compliance Requirements
+### 5.2 Compliance Checklist
 
-- [ ] Delaware C-Corp formation with dual-class consideration
-- [ ] PCAOB-compliant financial audit (2 fiscal years)
-- [ ] SOX 302/906 CEO/CFO certifications
-- [ ] Board of Directors: minimum 3 members, majority independent
-- [ ] Audit Committee: minimum 3 independent directors, 1 financial expert
-- [ ] D&O insurance ($5M+ coverage)
-- [ ] Transfer agent engagement (Computershare / Continental Stock Transfer)
-- [ ] EDGAR filing access (SEC CIK number)
-- [ ] Blue Sky compliance (state securities filings)
-- [ ] FINRA review of underwriting arrangements
+- [ ] Delaware C-Corp incorporation (Jun 1, 2026)
+- [ ] Federal EIN obtained (Jun 3, 2026)
+- [ ] IP assignment executed (Jun 9, 2026)
+- [ ] Corporate bank account opened (Jun 6, 2026)
+- [ ] Bylaws adopted, shares issued (Jun 30, 2026)
+- [ ] Securities counsel engaged (Jun 27, 2026)
+- [ ] PCAOB auditor engaged (Jul 1, 2026)
+- [ ] CFO hired (fractional or full-time) (Jul 14, 2026)
+- [ ] Board of Directors formed (3 members) (Aug 11, 2026)
+- [ ] Audit Committee formed (Aug 15, 2026)
+- [ ] D&O insurance obtained (Aug 29, 2026)
+- [ ] PCAOB audit complete (Aug 30, 2026)
+- [ ] Trademark applications filed (Jun 13, 2026)
+- [ ] S-1 drafted and reviewed (Sep 1–Oct 17, 2026)
+- [ ] EDGAR CIK number obtained (Oct 13, 2026)
+- [ ] Transfer agent engaged (Sep 29, 2026)
+- [ ] S-1 filed with SEC (Oct 20, 2026)
+- [ ] SEC comment letter responses (Nov 2026)
+- [ ] S-1 declared effective (Dec 12, 2026)
+- [ ] NASDAQ listing application (Dec 15, 2026)
+- [ ] Roadshow completed (Dec 15–Jan 6, 2027)
+- [ ] Pricing set (Jan 8, 2027)
+- [ ] IPO (Jan 25, 2027)
+- [ ] Blue Sky filings (all 50 states, Dec 2026)
+- [ ] SOX 302/906 certifications (ongoing post-IPO)
 
-### Key Appointments Needed
+### 5.3 Key Appointments
 
-| Role | Purpose | Timeline |
-|------|---------|----------|
-| CFO | Financial reporting, SOX compliance | Jul 2026 |
-| General Counsel | SEC filings, corporate governance | Jul 2026 |
-| Independent Directors (3) | Board governance, audit committee | Aug 2026 |
-| Auditor (PCAOB-registered) | Financial statement audit | Jul 2026 |
-| Securities Counsel | S-1 preparation, SEC correspondence | Jul 2026 |
-| Transfer Agent | Share registry, DTC eligibility | Sep 2026 |
-| Underwriter (optional) | Distribution, market-making | Oct 2026 |
+| Role | Responsibility | Target Date | Est. Compensation |
+|------|---------------|-------------|-------------------|
+| CFO (fractional) | Financial reporting, SOX, SEC filings | Jul 14, 2026 | $150K–$200K/yr |
+| Securities Counsel | S-1, SEC correspondence, compliance | Jun 27, 2026 | $200K–$400K (project) |
+| Independent Director #1 | Board governance, audit committee | Aug 11, 2026 | $30K/yr + options |
+| Independent Director #2 | Board governance, compensation committee | Aug 11, 2026 | $30K/yr + options |
+| PCAOB Auditor | Financial statement audit | Jul 1, 2026 | $75K–$150K |
+| Transfer Agent | Share registry, DTC eligibility | Sep 29, 2026 | $5K setup + $3K/yr |
+| Underwriter (optional) | Distribution, market-making | Oct 6, 2026 | 7% of gross proceeds |
 
 ---
 
-## 6. Risk Factors (Prospectus Disclosure)
+## PART VI — RISK FACTORS
 
 ### Business Risks
-- Single-operator dependency (Founder is sole engineer)
-- Pre-revenue / early-revenue stage
-- Unproven at scale (current user base small)
-- AI provider dependency (Together AI, Anthropic, OpenAI)
-- No patents filed (trade secret strategy only)
-
-### Market Risks
-- Competitive AI/wellness market (Apple Health, Headspace, etc.)
-- Regulatory changes to AI / data privacy
-- Economic downturn reducing consumer SaaS spend
+- Single-operator dependency — Founder is sole engineer, architect, and operator
+- Pre-revenue stage — no material revenue history
+- Unproven at scale — current user base in early growth
+- AI provider dependency — platform relies on third-party AI APIs (Together AI, Anthropic, OpenAI, Google, Mistral)
+- No patents filed — intellectual property protected only by trade secret and copyright
+- Customer concentration — single price tier limits revenue diversification
 
 ### Technology Risks
-- Single-point infrastructure (one DO droplet)
-- Prior security incident (API key compromise, May 2026 — resolved)
-- No SOC 2 certification (planned post-IPO)
+- Single-region infrastructure — all services in one Digital Ocean datacenter (NYC3)
+- Prior security incident — API key exposure via public GitHub repository (May 2026, resolved)
+- No SOC 2 certification — planned post-IPO
+- Open-source dependencies — 36 production npm packages with upstream risk
+- No redundant database — single PostgreSQL instance
+
+### Market Risks
+- Competitive pressure from Apple Health, Headspace, Calm, Notion, and emerging AI companions
+- Regulatory changes to AI, data privacy (GDPR, CCPA, proposed federal AI regulation)
+- Economic downturn reducing consumer willingness to pay for SaaS subscriptions
+- Platform risk — dependent on Digital Ocean infrastructure availability
+
+### Financial Risks
+- No operating history as a corporation
+- Negative cash flow expected for 12–24 months post-IPO
+- Use of proceeds dependent on execution of growth plan
+- Share price may decline below $4.00 offering price
 
 ---
 
-## 7. Post-IPO Roadmap
+## PART VII — POST-IPO ROADMAP
 
-### Q1 2027 (IPO Quarter)
-- Hire engineering team (3 engineers)
-- SOC 2 Type I audit initiated
-- Mobile app development (React Native)
-- Scale infrastructure to multi-region
+### Q1 2027 — Foundation Quarter
+- Hire 3 engineers (frontend, backend, AI/ML)
+- Begin mobile app development (React Native — iOS + Android)
+- Initiate SOC 2 Type I audit
+- Scale to multi-region infrastructure (NYC + SFO)
+- Launch Usership paid tier
 
-### Q2–Q3 2027
-- 100+ behavioral patterns
-- Wearable integrations (Apple Watch, Fitbit)
-- Enterprise/team tier launch
-- International expansion (EU, GDPR compliance)
+### Q2 2027 — Growth Quarter
+- Mobile app public beta
+- 75+ behavioral patterns in QIE
+- Wearable integrations (Apple Watch, Fitbit API)
+- Launch referral program
+- First quarterly earnings call
 
-### Q4 2027
-- SOC 2 Type II certification
+### Q3 2027 — Expansion Quarter
+- Enterprise/team tier development
 - API platform for third-party developers
-- Patent filings for core algorithms
-- Series A consideration (if needed for growth acceleration)
+- International expansion (EU — GDPR compliance verified)
+- Patent applications filed for QIE and Self-Assembly Engine
+
+### Q4 2027 — Maturity Quarter
+- SOC 2 Type II certification
+- 100+ behavioral patterns
+- Mobile app GA (general availability)
+- First annual shareholder meeting
+- Evaluate Series A for accelerated growth
 
 ---
 
-## 8. Valuation Rationale
+## PART VIII — VALUATION
 
-**$4/share at 25M shares outstanding = $100M fully diluted market cap**
+**$4.00/share x 25,000,000 shares = $100,000,000 fully diluted market cap**
 
-Comparable companies at similar stage:
+### Comparable Analysis
 
-| Company | IPO Valuation | Revenue at IPO | Multiple |
-|---------|--------------|----------------|----------|
-| Calm (projected) | $2B | $150M | 13x |
-| Headspace | $3B (merger) | $100M | 30x |
-| Notion (private) | $10B | $250M | 40x |
+| Company | Stage | Valuation | Revenue | Multiple |
+|---------|-------|-----------|---------|----------|
+| Calm | Growth | $2.0B | $150M ARR | 13x |
+| Headspace (merger) | Growth | $3.0B | $100M ARR | 30x |
+| Notion | Growth | $10.0B | $250M ARR | 40x |
+| Character.AI | Early | $1.0B | ~$17M ARR | 59x |
+| Replika | Early | $200M | ~$50M ARR | 4x |
 
-LOT Systems justification at $100M:
-- Proprietary AI engine (52 patterns, self-assembling)
-- Unique technology moat (no competitor has Quantum Intent Engine)
-- Capital-efficient operation (single operator built entire platform)
-- High potential LTV ($600/year per paying user)
-- $10M post-money gives 18+ months runway to prove model
+### LOT Systems Justification at $100M
+
+- **Technology moat:** Quantum Intent Engine with 52 self-discovered patterns — no competitor has equivalent
+- **Capital efficiency:** Entire platform built by single operator on $7/month infrastructure
+- **Self-assembling architecture:** System discovers and builds its own features from usage data
+- **High potential LTV:** $1,200/year per paying user at $50/month
+- **IP portfolio:** 6 proprietary AI systems, 17 self-assembling modules, 36 widgets
+- **First-mover advantage:** Only AI companion with behavioral pattern recognition at this depth
 
 ---
 
-## 9. Founder's Letter (Draft)
+## PART IX — FOUNDER'S LETTER
 
 > To future shareholders:
 >
@@ -257,32 +649,61 @@ LOT Systems justification at $100M:
 > resources beyond what one operator can deploy.
 >
 > What you are investing in is not a startup. It is a system that builds
-> itself. 52 patterns recognized. 15 modules self-assembled. 70 nodes
+> itself. 52 patterns recognized. 17 modules self-assembled. 70 nodes
 > in a dependency graph that no human drew — the system discovered its
 > own architecture from watching one person live their life.
 >
 > The question is not whether this works. It works. I am the proof.
 > The question is whether it works for everyone. I believe it does.
 >
-> — Vadik Marmeladov, Founder & CEO
+> This is a $4 bet on the future of human self-awareness.
+>
+> — Vadik Marmeladov
+> Founder & CEO, LOT Systems, Inc.
+> May 25, 2026
 
 ---
 
-## 10. Immediate Next Steps
+## PART X — IMMEDIATE NEXT STEPS
 
-| # | Action | Owner | Deadline |
-|---|--------|-------|----------|
-| 1 | Incorporate LOT Systems, Inc. (Delaware) | Vadik | Jun 1, 2026 |
-| 2 | Open corporate bank account (Mercury / SVB) | Vadik | Jun 7, 2026 |
-| 3 | Assign all IP from personal to corporate entity | Vadik + Counsel | Jun 15, 2026 |
-| 4 | Engage securities counsel (initial consultation) | Vadik | Jun 15, 2026 |
-| 5 | Engage PCAOB auditor | Vadik + Counsel | Jul 1, 2026 |
-| 6 | Prepare historical financials (Nov 2025 – present) | Vadik + CFO | Jul–Aug 2026 |
-| 7 | Trademark applications (QIE, Self-Assembly, Benchmark Arbitrage) | Counsel | Jul 2026 |
-| 8 | Recruit 2 independent board members | Vadik | Aug 2026 |
-| 9 | Draft S-1 Registration Statement | Securities Counsel | Sep–Oct 2026 |
-| 10 | File with SEC | Securities Counsel | Oct 2026 |
+| # | Action | Owner | Date | Status |
+|---|--------|-------|------|--------|
+| 1 | Incorporate LOT Systems, Inc. (Delaware C-Corp) | Vadik | Jun 1, 2026 | Pending |
+| 2 | Apply for Federal EIN | Vadik | Jun 3, 2026 | Pending |
+| 3 | Open corporate bank account (Mercury) | Vadik | Jun 6, 2026 | Pending |
+| 4 | Execute IP Assignment Agreement | Vadik | Jun 9, 2026 | Pending |
+| 5 | File trademark applications (QIE, Self-Assembly, Benchmark Arbitrage) | Counsel | Jun 13, 2026 | Pending |
+| 6 | Engage securities counsel | Vadik | Jun 27, 2026 | Pending |
+| 7 | Adopt bylaws, issue founder shares | Counsel | Jun 30, 2026 | Pending |
+| 8 | Engage PCAOB auditor | Counsel | Jul 1, 2026 | Pending |
+| 9 | Hire fractional CFO | Vadik | Jul 14, 2026 | Pending |
+| 10 | Appoint Board of Directors | Vadik | Aug 11, 2026 | Pending |
+| 11 | Complete audit | Auditor | Aug 30, 2026 | Pending |
+| 12 | Draft S-1 | Securities Counsel | Sep 1, 2026 | Pending |
+| 13 | File S-1 with SEC | Securities Counsel | Oct 20, 2026 | Pending |
+| 14 | IPO — first day of trading | All | Jan 25, 2027 | Pending |
 
 ---
 
-*LOT Systems. One operator. One system. Public.*
+## APPENDIX A — COST ESTIMATE (PRE-IPO)
+
+| Item | Estimated Cost |
+|------|---------------|
+| Incorporation (Stripe Atlas) | $500 |
+| Trademark applications (3 marks, 1 class each) | $2,250 |
+| Securities counsel (S-1 preparation + SEC review) | $300,000 |
+| PCAOB audit (2 fiscal years) | $100,000 |
+| D&O insurance (annual) | $35,000 |
+| Transfer agent setup | $5,000 |
+| NASDAQ listing fee | $50,000 |
+| Roadshow expenses | $50,000 |
+| Fractional CFO (6 months pre-IPO) | $90,000 |
+| Underwriter commission (7% of $10M) | $700,000 |
+| Miscellaneous legal + filing fees | $25,000 |
+| **Total Pre-IPO Cost** | **~$1,358,000** |
+
+**Funding:** Pre-IPO costs to be funded through bridge financing, founder capital, or deducted from IPO proceeds.
+
+---
+
+*LOT Systems, Inc. — One operator. One system. 64,084 lines of code. Public at $4.*
