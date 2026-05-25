@@ -24,7 +24,7 @@
 ## Incident Report: Resend API Key Compromise
 
 **Timeline:**
-- API key `re_83s23f6W_LbDfdmmXpXJ4je4i2kt1HA7u` committed to `app.yaml` and `PRODUCTION-READY.md` in public GitHub repository
+- API key `re_83s2****` (revoked) committed to `app.yaml` and `PRODUCTION-READY.md` in public GitHub repository
 - Unknown actor used exposed key to send phishing email impersonating Orange Telecom (French ISP invoice scam)
 - Resend flagged activity, suspended account, initiated compliance review
 - LOT sign-up codes stopped working ("Unable to send sign up code")
