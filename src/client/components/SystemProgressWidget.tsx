@@ -77,6 +77,19 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Assembly .MD log: 2026-05-22_LOT-assembly_transmission-layer.md created in repo',
     ],
   },
+  {
+    date: '2026-05-25',
+    session: 'Self-Assembly Run — v5 / Journal Vocabulary Engine',
+    assembled: [
+      'journalVocabulary.ts: phrase extraction engine — bigrams/trigrams, stop-word filter, voice signature',
+      'VoiceMirrorWidget: Signal / Vocabulary / Echo views — system reading the user\'s language back',
+      'GoalJourneyWidget: wired into System.tsx bioethics stack after NarrativeWidget',
+      'Voice signature classification: energetic / questioning / reflective / measured',
+      'Echo lines: system-generated copy composed from the user\'s exact repeated phrases',
+      'QIE signal: voice_mirror_viewed records note count, phrase count, signature',
+      'Assembly .MD log: 2026-05-25_LOT-assembly_voice-mirror.md created in repo',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -108,6 +121,13 @@ const ASSEMBLY_TRANSMISSIONS: {
     feedbackApplied: 'the system talking to the person',
     status: 'DEPLOYED',
     next: 'Journal vocabulary extraction → personal interface language injection',
+  },
+  {
+    date: '2026-05-25',
+    built: ['Journal Vocabulary Engine', 'VoiceMirrorWidget', 'GoalJourneyWidget wired'],
+    feedbackApplied: 'Journal vocabulary extraction → personal interface language injection',
+    status: 'DEPLOYED',
+    next: 'Feedback personalization → modulate widget copy from Operational/Resonating/Evolving signals',
   },
 ]
 

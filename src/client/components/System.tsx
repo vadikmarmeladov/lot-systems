@@ -63,6 +63,8 @@ import { QuantumSignWidget } from './QuantumSignWidget'
 import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
+import { GoalJourneyWidget } from './GoalJourneyWidget'
+import { VoiceMirrorWidget } from './VoiceMirrorWidget'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
@@ -667,6 +669,9 @@ export const System = () => {
           {/* Narrative - Story progression and achievements */}
           <NarrativeWidget />
 
+          {/* Goal Journey - Detected personal goals and journey stages */}
+          <GoalJourneyWidget />
+
           {/* Citizen Index - CQGS growth indicators */}
           <EvolutionWidget />
 
@@ -877,6 +882,11 @@ export const System = () => {
           {/* Cohort Connect - Browse and connect with cohort members */}
           <CohortConnectWidget />
         </div>
+      </WidgetErrorBoundary>
+
+      {/* Voice Mirror — the system reads the user's language back to them */}
+      <WidgetErrorBoundary name="Voice Mirror">
+        <VoiceMirrorWidget logs={logs} />
       </WidgetErrorBoundary>
 
       {/* Planning stack */}
