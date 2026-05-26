@@ -754,6 +754,7 @@ async function executeDailyIntentionAudit(): Promise<JobResult> {
 
   try {
     const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
 
     // Find users with recent intention signals (7d) but no execution (48h)
     const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
@@ -762,15 +763,15 @@ async function executeDailyIntentionAudit(): Promise<JobResult> {
     const intentionLogs = await Log.findAll({
       where: {
         event: 'intention',
-        createdAt: { $gte: sevenDaysAgo } as any,
+        createdAt: { [Op.gte]: sevenDaysAgo },
       },
       attributes: ['userId', 'createdAt'],
     })
 
     const executionLogs = await Log.findAll({
       where: {
-        event: ['plan_set', 'goal_updated', 'goal_complete'],
-        createdAt: { $gte: fortyEightHoursAgo } as any,
+        event: { [Op.in]: ['plan_set', 'goal_update', 'goal_complete'] },
+        createdAt: { [Op.gte]: fortyEightHoursAgo },
       },
       attributes: ['userId'],
     })

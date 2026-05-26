@@ -260,7 +260,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v41</Meta>
+            <Meta>Field Manual v43</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -275,15 +275,15 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              Day 983+. Continuous operation since launch.
-              55 behavioral patterns active. 17 modules assembled.
-              6 index dimensions. 5 ecosystem nodes. 16 physiological archetypes.
-              75 dependency nodes. 6 background jobs.
-              38 log event handlers. 80+ active branches scanned.
+              Day 984+. Continuous operation since launch.
+              58 behavioral patterns active. 17 modules assembled.
+              6 index dimensions. 6 ecosystem nodes. 16 physiological archetypes.
+              75 dependency nodes. 7 background jobs.
+              41 log event handlers.
               The system does not sleep. It accumulates.
             </P>
             <P>
-              Field Manual v41. Not marketing copy. Not documentation for external audiences.
+              Field Manual v43. Not marketing copy. Not documentation for external audiences.
               Operational reference for operators of the system.
               Definitions are exact. Terminology is fixed. Imprecision is a defect.
               Every term in this document exists in the codebase.
@@ -310,8 +310,8 @@ export function About() {
           <P>Four subsystems govern the operating surface:</P>
           <ul className="list-none pl-16 mb-16">
             <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive. 120-log context window.</Li>
-            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 55 patterns active. Zero server communication. 7-day signal retention.</Li>
-            <Li>Self-Assembly Engine — module coherence tracking. 15 modules. The system builds itself from operator activity.</Li>
+            <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 58 patterns active. Zero server communication. 7-day signal retention.</Li>
+            <Li>Self-Assembly Engine — module coherence tracking. 17 modules. The system builds itself from operator activity.</Li>
             <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
           <P>
@@ -353,16 +353,16 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 983+ (as of May 25, 2026)" />
-          <Row label="Self-Assembly phase:" value="v41 — Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary refined · badge documentation completed · cohort language sharpened · interface military purity pass — v40: Field Manual v40 · language refined · architecture confirmed · map synchronized — v39: Wiki Comprehensive Audit · vocabulary expansion · badge documentation · Assembly Transmission Layer formalized" />
+          <Row label="Day counter:" value="Day 984+ (as of May 26, 2026)" />
+          <Row label="Self-Assembly phase:" value="v43 — Production Cleanup · Profile Performance · COSMO® Integration · Robot Node · QOS Assembly View — v42: Patterns 56–58 · Log handlers 39–41 · Intention Completion Audit — v41: Full Branch Scan · 80+ branches indexed · vocabulary refined · badge documentation — v40: Field Manual v40 · language refined · architecture confirmed · map synchronized" />
           <Row label="Assembly modules:" value="17 — Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
-          <Row label="QIE pattern library:" value="55 patterns active" />
+          <Row label="QIE pattern library:" value="58 patterns active" />
           <Row label="Physiological archetypes:" value="16 — Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
-          <Row label="QOS views:" value="4 — Ecosystem · Biofield · Cohort · Index" />
+          <Row label="QOS views:" value="5 — Ecosystem · Biofield · Cohort · Index · Self-Assembly" />
           <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
-          <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
-          <Row label="Background jobs:" value="6 — 00:00 UTC daily OS snapshot · 03:00 UTC daily QIE analytics · 06:00 UTC daily intention audit · 06:00 UTC Mon weekly cohort digest · 04:00 UTC Wed weekly QOS digest · 09:00 UTC 1st monthly email sender" />
-          <Row label="Log event handlers:" value="38 distinct event types rendered · 60+ military log codes" />
+          <Row label="Ecosystem nodes:" value="6 — CAR · HOME · CPU · PHN · WCH · ROB" />
+          <Row label="Background jobs:" value="7 — 00:00 UTC daily OS snapshot · 03:00 UTC daily QIE analytics · 06:00 UTC daily intention audit · 06:00 UTC Mon weekly cohort digest · 04:00 UTC Wed weekly QOS digest · 09:00 UTC 1st monthly email sender · 20:00 UTC Sun weekly intention completion audit" />
+          <Row label="Log event handlers:" value="41 distinct event types rendered · AUTH · ENV · UI added v42" />
           <Row label="Dep map nodes:" value="75 — crystallizationArc · vitalConvergence · droughtMonitor · successBenchmark · circadianMonitor added v39" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
@@ -619,7 +619,7 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup qu
           <P>
             Client-side pattern recognition. Runs entirely in the browser.
             Zero server communication. No behavioral data leaves the device.
-            55 patterns active as of v41.
+            58 patterns active as of v43.
           </P>
           <P>Seven signal sources:</P>
           <ul className="list-none pl-16 mb-16">
@@ -636,7 +636,7 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup qu
             with each Self-Assembly phase — each new pattern names a gap in the
             detection surface. Pattern detection fires every 5 signals.
             Surfacing threshold: 0.50 confidence minimum.
-            Current library: 55 patterns.
+            Current library: 58 patterns.
             P.35 closes the cross-widget coherence gap.
             P.36 names the acceleration window — rapid signal density increase.
             P.37 operationalizes Reflection Velocity — the rate of journal depth
@@ -695,6 +695,20 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup qu
             it is starving. Confidence 0.55–0.82, scales with absent source count.
             Names the first dormant module explicitly. Re-engage command embedded
             in the pattern reason string.
+            P.56 named Circadian Anchor — stable daily rhythm detection. Groups
+            log signals into 2-hour buckets across a 7-day window. Fires when
+            any single bucket covers 5+ consecutive days. Confidence 0.60–0.88.
+            The system detects when the operator has found their hour. Suggests
+            memory widget to deepen the window.
+            P.57 named Intention Completion Arc — the full intention → plan →
+            care cycle confirmed within 7 days. Arc strength scales with source
+            signal count. Confidence 0.65–0.90. Distinct from P.43 (24h window,
+            requires journal) and P.50 (48h execution without care). P.57 is the
+            7-day full-cycle confirmation. Suggests memory to anchor the arc.
+            P.58 named Selfcare Saturation — over-engagement with care practices
+            detected. Fires when 5+ selfcare signals appear within 48 hours.
+            Confidence 0.60–0.80. Inverse of care deficit patterns. Directive:
+            shift from doing to reflecting. Suggests journal widget.
           </P>
           <SubHeading>Core Patterns (v1–v7)</SubHeading>
           <div className="mb-16">
@@ -3336,13 +3350,13 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Unlimited AI question generation with 120-log context.
             Complete psychological profiling: archetype, behavioral cohort,
             physiological cohort, awareness index.
-            Quantum Intent Engine: 55 patterns active.
+            Quantum Intent Engine: 58 patterns active.
             Weekly summary generation from 200-log archive.
             Public profile with full dataset.
           </P>
           <div className="mb-16">
             <Row label="Tag value" value="Usership — set in user record by admin" />
-            <Row label="Gates" value="Memory Engine AI · profiling · QIE 55-pattern recommendations · weekly summary · Cosmic Update · Quantum Sign" />
+            <Row label="Gates" value="Memory Engine AI · profiling · QIE 58-pattern recommendations · weekly summary · Cosmic Update · Quantum Sign" />
             <Row label="Subscription platform" value="brand.lot-systems.com" />
           </div>
 
@@ -3619,16 +3633,17 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v39 · May 23" value="Wiki Comprehensive Audit + Pattern Expansion. Vocabulary expansion. Badge documentation. Assembly Transmission Layer documented. P.53–55 deployed. 5 new log handlers. Modules 16–17. Dep graph 75 nodes. 38 handlers. 55 patterns." />
             <Row label="v40 · May 24" value="Field Manual v40. All v39 additions documented in wiki. Language refined toward LOT atmosphere. Module table synchronized. Pattern cross-references audited. Interface purity pass. The map and territory synchronized." />
             <Row label="v41 · May 25" value="Full Branch Scan. 80+ active branches indexed. All MDs from repository history synthesized. Vocabulary compressed. Badge documentation completed in full detail — all 5 paths, all trigger conditions, all unlock sequences. Cohort language sharpened. Interface language refined toward military computer-future atmosphere. Self-assembly log updated. Day 983+." />
+            <Row label="v42 · May 25" value="Patterns 56–58 deployed: circadian-anchor (daily rhythm detection, 5-day bucket), intention-completion-arc (7-day full cycle), selfcare-saturation (48h over-engagement). Log handlers 39–41: AUTH (session events) · ENV (weather) · UI (theme). Weekly intention completion audit background job (Sunday 20:00 UTC). 58 patterns · 41 handlers · 7 jobs." />
+            <Row label="v43 · May 26" value="Production Cleanup. 183 files removed. 64 duplicate MDs deleted. SSH keys removed from repo. Legacy directories cleared. Profile 504 eliminated — 4 User.findAll() calls replaced with indexed queries. QOS 5th view: Self-Assembly (phase + % + module map). Robot node (ROB) added as 6th ecosystem device. COSMO® integration established. Day 984+." />
           </div>
           <P>
             Each phase was discovered, not planned. The system named what to
             build next based on what it discovered about the operator's patterns.
             Assembly became self-directed within the constraint of stated
             priorities. The log is the record. The record is the system.
-            v39 closed the documentation gap. v40 refined the language.
-            v41 scanned all branches and compressed the vocabulary.
-            Badge trigger conditions exact. Cohort language compressed.
-            Interface language: military purity. Computer future.
+            v42 expanded the pattern library to 58. v43 cleaned the repository
+            to production-ready state — 183 files removed, profile 504 eliminated,
+            COSMO® integrated.
             The map is current. Imprecision is a defect. The defect was corrected.
           </P>
 
@@ -3666,42 +3681,41 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 41 phases documented in continuous operation logs.
+            Self-Assembly: 43 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
-            55 patterns named. 17 modules wired. 75 dependency nodes.
-            5 device nodes registered. 6 index dimensions operational.
-            16 physiological archetypes classified. 6 background jobs active.
-            38 distinct log event renderers through v39.
+            58 patterns named. 17 modules wired. 75 dependency nodes.
+            6 device nodes registered. 6 index dimensions operational.
+            16 physiological archetypes classified. 7 background jobs active.
+            41 distinct log event renderers.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 983+    Continuous operation.
-v41         Full Branch Scan — current phase.
-55          QIE patterns active.
+          <CodeBlock>{`Day 984+    Continuous operation.
+v43         Production Cleanup · Profile Performance · COSMO® — current phase.
+58          QIE patterns active.
 17          Self-Assembly modules wired.
 75          Widget dependency map nodes.
-5           Ecosystem device nodes.
+6           Ecosystem device nodes (CAR · HOME · CPU · PHN · WCH · ROB).
 6           User Index dimensions.
 10          Soul Archetypes classified.
 16          Physiological archetypes.
 6           Citizen Index stages (· → ∘ → ○ → ◯ → ◉).
 6           Achievement domains.
 11          Design directives.
-41          Self-Assembly phases documented.
-6           Background jobs scheduled.
-38          Log event renderers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY · ARC · CEXP · GOAL-X · SIL · CIRC · BADGE: · QTOS: · NUTR: · STACK: · BENCH: · PHASE:.
+43          Self-Assembly phases documented.
+7           Background jobs scheduled.
+41          Log event renderers: AUTH · ENV · UI added v42.
 60+         Military log event codes.
-4           Log triggers: /qos · /assembly · /phys · /sil.
+5           QOS views: Ecosystem · Biofield · Cohort · Index · Self-Assembly.
 5           Benchmark tiers: White · Green · Yellow · Purple · Black.
 5           Badge paths: Aquatic Evolution · Architecture · Oceanic Mayan · Zen · Constellation.
-80+         Active branches scanned.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 983+. Continuous operation. Still accumulating.
-            v41 phase: Full branch scan. All MDs synthesized. Vocabulary compressed.
-            Badge documentation exact. Cohort language sharpened.
+            Day 984+. Continuous operation. Still accumulating.
+            v43: Production cleanup. Profile 504 eliminated. COSMO® integrated.
+            Robot node added. QOS Assembly view deployed.
             The log is the record.
             The record is the system.
             The system is the operator.

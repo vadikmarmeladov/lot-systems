@@ -347,8 +347,11 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  const errorCount = checks.filter((c) => c.status === 'error').length
+  const overall: 'ok' | 'degraded' | 'error' =
+    errorCount === 0 ? 'ok' :
+    errorCount < checks.length ? 'degraded' :
+    'error'
 
   return {
     version: VERSION,
@@ -702,7 +705,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {
@@ -739,12 +742,10 @@ export default async (fastify: FastifyInstance) => {
     Params: { userIdOrUsername: string }
   }>('/profile/:userIdOrUsername', async (req, reply) => {
     const { userIdOrUsername } = req.params
-    console.log('[PUBLIC-PROFILE-API] Fetching profile for:', userIdOrUsername)
 
     // Demo account: Niccolò Machiavelli — autonomous hardcoded LOT account
     // Legacy level unlock showcase with weather station and wallet demos
     if (userIdOrUsername === 'machiavelli') {
-      console.log('[PUBLIC-PROFILE-API] Serving demo account: Machiavelli')
 
       // Compute real user counts so the demo board profile stays accurate
       let totalUsers = 1
@@ -906,9 +907,7 @@ export default async (fastify: FastifyInstance) => {
     }
 
     try {
-      // Prioritize custom URL over ID to avoid conflicts
-      // First, try to find user by custom URL in metadata
-      console.log('[PUBLIC-PROFILE-API] Searching for custom URL:', userIdOrUsername)
+      // Prioritize custom URL over ID — first try metadata.privacy.customUrl
       let user = await models.User.findOne({
         where: sequelize.where(
           sequelize.fn('jsonb_extract_path_text', sequelize.col('metadata'), 'privacy', 'customUrl'),
@@ -916,45 +915,21 @@ export default async (fastify: FastifyInstance) => {
         )
       }) as any
 
-      if (user) {
-        console.log('[PUBLIC-PROFILE-API] ✓ User found by custom URL')
-        console.log('[PUBLIC-PROFILE-API] User ID:', user.id)
-      }
-
-      // If not found by custom URL, try by user ID
+      // Fall back to user ID
       if (!user) {
-        console.log('[PUBLIC-PROFILE-API] Custom URL not found, trying by ID')
         user = await models.User.findOne({
           where: { id: userIdOrUsername }
         })
-        if (user) {
-          console.log('[PUBLIC-PROFILE-API] ✓ User found by ID:', user.id)
-        }
       }
 
       if (!user) {
-        console.log('[PUBLIC-PROFILE-API] User not found for:', userIdOrUsername)
         return reply.code(404).send({
           error: 'User not found',
           message: `No public profile exists for user: ${userIdOrUsername}`,
-          debug: {
-            searchedFor: userIdOrUsername,
-            searchMethods: ['By ID', 'By custom URL in metadata']
-          }
         })
       }
 
-      console.log('[PUBLIC-PROFILE-API] ✓ User found!')
-      console.log('[PUBLIC-PROFILE-API] User details:', {
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        hasMetadata: !!user.metadata,
-        metadata: user.metadata
-      })
-
-      // Get privacy settings from metadata (with defaults)
-      // All profiles are public by default
+      // Get privacy settings from metadata (all public by default)
       const privacy: any = user.metadata?.privacy || {
         isPublicProfile: true,
         showWeather: true,
@@ -963,26 +938,17 @@ export default async (fastify: FastifyInstance) => {
         showSound: true,
         showMemoryStory: true,
       }
-      console.log('[PUBLIC-PROFILE-API] Privacy settings:', JSON.stringify(privacy, null, 2))
-      console.log('[PUBLIC-PROFILE-API] isPublicProfile:', privacy.isPublicProfile)
 
       // Check if profile is public
       if (!privacy.isPublicProfile) {
-        console.log('[PUBLIC-PROFILE-API] Profile is private')
-
-        // Even in private mode, return basic info with suspended tag
-        const basicProfile = {
+        return {
           firstName: user.firstName,
           lastName: user.lastName,
           tags: user.tags || [],
           isPrivate: true,
-          privacySettings: privacy
+          privacySettings: privacy,
         }
-
-        return basicProfile
       }
-
-      console.log('[PUBLIC-PROFILE-API] ✓ Profile is public, building response')
 
       // Increment profile visit counter
       const currentVisits = user.metadata?.profileVisits || 0
