@@ -907,11 +907,12 @@ export default async (fastify: FastifyInstance) => {
       // Prioritize custom URL over ID to avoid conflicts
       // First, try to find user by custom URL in metadata
       console.log('[PUBLIC-PROFILE-API] Searching for custom URL:', userIdOrUsername)
-      const users = await models.User.findAll()
-      let user = users.find(u => {
-        const customUrl = u.metadata?.privacy?.customUrl
-        return customUrl === userIdOrUsername
-      }) || null
+      let user = await models.User.findOne({
+        where: sequelize.where(
+          sequelize.fn('jsonb_extract_path_text', sequelize.col('metadata'), 'privacy', 'customUrl'),
+          userIdOrUsername
+        )
+      }) as any
 
       if (user) {
         console.log('[PUBLIC-PROFILE-API] ✓ User found by custom URL')
