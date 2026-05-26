@@ -8,21 +8,21 @@
 
 import { Client } from 'pg'
 
-// Backup database credentials (provided by user)
+// Backup database credentials (set via environment variables)
 const BACKUP_DB = {
-  user: 'doadmin',
-  password: 'AVNS_8V6Hqzuxwj0JkMxgNvR',
-  host: 'db-postgresql-nyc3-92053-dec-24-backup-do-user-22640384-0.l.db.ondigitalocean.com',
-  port: 25060,
-  database: 'defaultdb',
+  user: process.env.BACKUP_DB_USER || '',
+  password: process.env.BACKUP_DB_PASSWORD || '',
+  host: process.env.BACKUP_DB_HOST || '',
+  port: parseInt(process.env.BACKUP_DB_PORT || '25060'),
+  database: process.env.BACKUP_DB_NAME || 'defaultdb',
   ssl: { rejectUnauthorized: false }
 }
 
-// Production database credentials (from config.ts defaults)
+// Production database credentials (set via environment variables)
 const PRODUCTION_DB = {
-  user: process.env.DB_USER || 'doadmin',
-  password: process.env.DB_PASSWORD || 'AVNS_8V6Hqzuxwj0JkMxgNvR',
-  host: process.env.DB_HOST || 'db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com',
+  user: process.env.DB_USER || '',
+  password: process.env.DB_PASSWORD || '',
+  host: process.env.DB_HOST || '',
   port: parseInt(process.env.DB_PORT || '25060'),
   database: process.env.DB_NAME || 'defaultdb',
   ssl: { rejectUnauthorized: false }

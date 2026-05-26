@@ -64,6 +64,8 @@ import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
+import { CalendarWidget } from './CalendarWidget'
+import { BenchmarkWidget } from './BenchmarkWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
 
@@ -300,6 +302,19 @@ export const System = () => {
   // Community pulse — atmosphere layer
   const convergence = React.useMemo(() => getConvergenceSignal(), [])
   const ambientIntensity = React.useMemo(() => getAmbientIntensity(), [])
+
+  // Temporal Planner — next scheduled calendar entry, from QIE signal pipeline
+  const upcomingCalendar = React.useMemo(() => {
+    const today = dayjs().format('YYYY-MM-DD')
+    const entries = logs
+      .filter(log => log.event === 'calendar_entry' && log.metadata?.date && (log.metadata.date as string) >= today)
+      .map(log => ({
+        date: log.metadata!.date as string,
+        text: (log.metadata!.text as string) || log.text || '',
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date))
+    return { next: entries[0] ?? null, count: entries.length }
+  }, [logs])
 
   // Check for recipe and planner suggestions when component mounts
   React.useEffect(() => {
@@ -641,6 +656,18 @@ export const System = () => {
         </Block>
       </div>
 
+      {/* Temporal Planner — next scheduled entry surfaced from QIE calendar module */}
+      {upcomingCalendar.next && (
+        <div>
+          <Block label="Next:">
+            {dayjs(upcomingCalendar.next.date).format('ddd, MMMM D')}
+            {' — '}
+            {upcomingCalendar.next.text}
+            {upcomingCalendar.count > 1 && ` (+${upcomingCalendar.count - 1} more)`}
+          </Block>
+        </div>
+      )}
+
       {/* Context stack */}
       <WidgetErrorBoundary name="Context">
         <div className={cn('flex flex-col', density.sectionGap)}>
@@ -967,6 +994,15 @@ export const System = () => {
           <GrowthMilestones />
           <BadgeUnlockFeed />
         </div>
+      </WidgetErrorBoundary>
+
+      {/* Calendar — Personal date planner */}
+      <WidgetErrorBoundary name="Calendar">
+        <CalendarWidget />
+      </WidgetErrorBoundary>
+
+      <WidgetErrorBoundary name="Benchmark">
+        <BenchmarkWidget />
       </WidgetErrorBoundary>
 
       {/* The original. Imitation is the sincerest form of flattery, but the quantum field knows. */}

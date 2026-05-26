@@ -177,7 +177,7 @@ const AI_ENGINE_PREFERENCE: EnginePreference = 'together'
 
 **Environment Variables (app.yaml):**
 ```yaml
-TOGETHER_API_KEY:  "tgp_v1_T3CicyWdakDXJhaWefknD6lTKsPFvLukpS99YJM77A0" ✅
+TOGETHER_API_KEY:  "[set in DO dashboard]" ✅
 GOOGLE_API_KEY:    "PLACEHOLDER_GOOGLE_API_KEY_OPTIONAL"
 MISTRAL_API_KEY:   "PLACEHOLDER_MISTRAL_API_KEY_OPTIONAL"
 ANTHROPIC_API_KEY: "[existing key]" ✅

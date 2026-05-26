@@ -515,7 +515,7 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
     const { Log } = await import('#server/models/log.js')
     const { analyzeEnergyState } = await import('#server/utils/energy.js')
     const { determineUserCohort } = await import('#server/utils/memory/cohort-determination.js')
-    const { extractTraits } = await import('#server/utils/memory/trait-extraction.js')
+    const { extractUserTraits } = await import('#server/utils/memory/trait-extraction.js')
     const { Op } = await import('sequelize')
 
     const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
@@ -553,7 +553,7 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
         const energyState = analyzeEnergyState(logData)
 
         // Extract traits and determine cohort
-        const traitResult = await extractTraits(logData)
+        const traitResult = extractUserTraits(logData)
         const cohort = determineUserCohort(
           traitResult.traits,
           traitResult.patterns,
@@ -602,6 +602,226 @@ async function executeWeeklyCohortJob(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly QOS State Digest ──────────────────────────────────────────────────
+
+let isWeeklyQOSJobRunning = false
+let lastWeeklyQOSRun: Date | null = null
+
+/**
+ * Runs on Wednesdays at 4 AM UTC.
+ * Computes each active user's Quantum OS version (derived from assembly progress,
+ * physiological cohort, and QIE index) and logs a system summary.
+ * No user data is persisted — summary is for system monitoring only.
+ */
+function shouldRunWeeklyQOSJob(): boolean {
+  const now = dayjs()
+  const dayOfWeek = now.day() // 0 = Sunday, 3 = Wednesday
+
+  if (dayOfWeek !== 3) return false
+  if (isWeeklyQOSJobRunning) return false
+
+  if (lastWeeklyQOSRun) {
+    const lastRun = dayjs(lastWeeklyQOSRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+
+  return true
+}
+
+async function executeWeeklyQOSJob(): Promise<JobResult> {
+  const jobName = 'weekly-qos-state-digest'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly QOS State Digest')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyQOSJobRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Active users (7d): ${activeUsers.length}`)
+
+    // Compute QOS version distribution from metadata
+    const versionBuckets: Record<string, number> = {}
+    const archetypeCounts: Record<string, number> = {}
+    let usersWithCohort = 0
+    let usersWithoutCohort = 0
+
+    for (const user of activeUsers) {
+      const metadata = (user as any).metadata as any || {}
+      const pc = metadata.physiologicalCohort
+
+      if (pc?.archetype) {
+        archetypeCounts[pc.archetype] = (archetypeCounts[pc.archetype] || 0) + 1
+        usersWithCohort++
+
+        // Derive QOS version from energy + archetype availability
+        const energyStatus = pc.energyStatus || 'unknown'
+        const ver = energyStatus === 'optimal' ? 'v2' : energyStatus === 'moderate' ? 'v1' : 'v0'
+        versionBuckets[ver] = (versionBuckets[ver] || 0) + 1
+      } else {
+        usersWithoutCohort++
+        versionBuckets['v0'] = (versionBuckets['v0'] || 0) + 1
+      }
+    }
+
+    console.log('')
+    console.log('  QOS Version Distribution:')
+    Object.entries(versionBuckets).sort().forEach(([ver, count]) => {
+      console.log(`    ${ver}: ${count} users`)
+    })
+
+    console.log('')
+    console.log('  Archetype Distribution (top 5):')
+    Object.entries(archetypeCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+      .forEach(([arch, count]) => {
+        console.log(`    ${arch}: ${count}`)
+      })
+
+    console.log('')
+    console.log(`  Cohort-resolved: ${usersWithCohort} / Pending: ${usersWithoutCohort}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('QOS DIGEST COMPLETE')
+    console.log(`   Total: ${activeUsers.length} / Resolved: ${usersWithCohort}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyQOSRun = new Date()
+    isWeeklyQOSJobRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { total: activeUsers.length, usersWithCohort, usersWithoutCohort, versionBuckets, archetypeCounts }
+    }
+  } catch (error: any) {
+    console.error('Weekly QOS digest failed:', error.message)
+    isWeeklyQOSJobRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Intention Audit ────────────────────────────────────────────────────
+
+let isDailyIntentionAuditRunning = false
+let lastDailyIntentionAuditRun: Date | null = null
+
+/**
+ * Runs daily at 06:00 UTC.
+ * Audits intention follow-through: users with active intention signals
+ * but no planner/goal execution in 48h receive an intention_decay log entry.
+ * Surfaced in the log UI as INTENT-DECAY: — terse field notice, not a notification.
+ */
+function shouldRunDailyIntentionAudit(): boolean {
+  const now = dayjs()
+  if (isDailyIntentionAuditRunning) return false
+  if (lastDailyIntentionAuditRun) {
+    const lastRun = dayjs(lastDailyIntentionAuditRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyIntentionAudit(): Promise<JobResult> {
+  const jobName = 'daily-intention-audit'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily Intention Audit')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyIntentionAuditRunning = true
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+
+    // Find users with recent intention signals (7d) but no execution (48h)
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const fortyEightHoursAgo = dayjs().subtract(48, 'hour').toDate()
+
+    const intentionLogs = await Log.findAll({
+      where: {
+        event: 'intention',
+        createdAt: { $gte: sevenDaysAgo } as any,
+      },
+      attributes: ['userId', 'createdAt'],
+    })
+
+    const executionLogs = await Log.findAll({
+      where: {
+        event: ['plan_set', 'goal_updated', 'goal_complete'],
+        createdAt: { $gte: fortyEightHoursAgo } as any,
+      },
+      attributes: ['userId'],
+    })
+
+    const usersWithIntention = new Set(intentionLogs.map((l: any) => l.userId))
+    const usersWithExecution = new Set(executionLogs.map((l: any) => l.userId))
+
+    let decayCount = 0
+    for (const userId of Array.from(usersWithIntention)) {
+      if (!usersWithExecution.has(userId)) {
+        // Log intention_decay notice — surfaced in log UI as INTENT-DECAY:
+        await Log.create({
+          userId,
+          event: 'intention_decay_notice',
+          text: 'Intention set. No execution signal in 48h.',
+          metadata: {
+            auditAt: executedAt,
+            executionWindow: '48h',
+            note: 'Intention without action becomes drift. One step closes the loop.',
+          },
+        })
+        decayCount++
+      }
+    }
+
+    console.log(`  Users with active intention: ${usersWithIntention.size}`)
+    console.log(`  Users with 48h execution:    ${usersWithExecution.size}`)
+    console.log(`  Intention-decay notices:     ${decayCount}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('INTENTION AUDIT COMPLETE')
+    console.log(`   Decay: ${decayCount} / Active: ${usersWithIntention.size}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyIntentionAuditRun = new Date()
+    isDailyIntentionAuditRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { intentionUsers: usersWithIntention.size, executionUsers: usersWithExecution.size, decayCount }
+    }
+  } catch (error: any) {
+    console.error('Daily intention audit failed:', error.message)
+    isDailyIntentionAuditRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -617,9 +837,228 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
     await executeWeeklyCohortJob()
   }
 
+  // Check weekly QOS state digest
+  if (shouldRunWeeklyQOSJob()) {
+    await executeWeeklyQOSJob()
+  }
+
   // Check daily QIE analytics
   if (shouldRunDailyQIEJob()) {
     await executeDailyQIEJob()
+  }
+
+  // Check daily intention audit (06:00 UTC)
+  if (shouldRunDailyIntentionAudit()) {
+    await executeDailyIntentionAudit()
+  }
+
+  // Check daily OS snapshot (00:00 UTC midnight)
+  if (shouldRunDailyOSSnapshotJob()) {
+    await executeDailyOSSnapshotJob()
+  }
+
+  // Check weekly intention completion audit (Sunday 20:00 UTC)
+  if (shouldRunWeeklyIntentionCompletionJob()) {
+    await executeWeeklyIntentionCompletionJob()
+  }
+}
+
+// ─── Daily OS Snapshot ───────────────────────────────────────────────────────
+
+let isDailyOSSnapshotRunning = false
+let lastDailyOSSnapshotRun: Date | null = null
+
+function shouldRunDailyOSSnapshotJob(): boolean {
+  const now = dayjs()
+  if (isDailyOSSnapshotRunning) return false
+  if (lastDailyOSSnapshotRun) {
+    const lastRun = dayjs(lastDailyOSSnapshotRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyOSSnapshotJob(): Promise<JobResult> {
+  const jobName = 'daily-os-snapshot'
+  const executedAt = new Date().toISOString()
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily OS Snapshot')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+  isDailyOSSnapshotRunning = true
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let created = 0
+    let failed = 0
+    for (const user of activeUsers) {
+      try {
+        const metadata = (user as any).metadata as any || {}
+        const snapshotMeta: Record<string, any> = {}
+        if (metadata.theme) snapshotMeta.theme = { theme: metadata.theme }
+        if (metadata.sound) snapshotMeta.sound = metadata.sound
+        await Log.create({
+          userId: (user as any).id,
+          event: 'system_snapshot' as any,
+          text: `OS midnight snapshot — ${dayjs().format('YYYY-MM-DD')}`,
+          metadata: snapshotMeta,
+          context: {},
+        })
+        created++
+      } catch (err: any) {
+        failed++
+      }
+    }
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('OS SNAPSHOT JOB COMPLETE')
+    console.log(`   Created: ${created} / Failed: ${failed} / Total: ${activeUsers.length}`)
+    console.log('─'.repeat(60))
+    console.log('')
+    lastDailyOSSnapshotRun = new Date()
+    isDailyOSSnapshotRunning = false
+    return { jobName, executedAt, success: true, result: { created, failed, total: activeUsers.length } }
+  } catch (error: any) {
+    console.error('Daily OS snapshot job failed:', error.message)
+    isDailyOSSnapshotRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Weekly Intention Completion Audit ──────────────────────────────────────
+
+let isWeeklyIntentionCompletionRunning = false
+let lastWeeklyIntentionCompletionRun: Date | null = null
+
+/**
+ * Runs on Sundays at 20:00 UTC.
+ * For each active user, scans intention_set log events from the past 7 days.
+ * Cross-references with plan_set or self_care_complete events within +7 days.
+ * Computes a completion rate and logs an aggregate system summary.
+ * No individual data is persisted — system monitoring only.
+ */
+function shouldRunWeeklyIntentionCompletionJob(): boolean {
+  const now = dayjs()
+  const dayOfWeek = now.day() // 0 = Sunday
+  if (dayOfWeek !== 0) return false
+  if (isWeeklyIntentionCompletionRunning) return false
+  if (lastWeeklyIntentionCompletionRun) {
+    const lastRun = dayjs(lastWeeklyIntentionCompletionRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeWeeklyIntentionCompletionJob(): Promise<JobResult> {
+  const jobName = 'weekly-intention-completion-audit'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Intention Completion Audit')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyIntentionCompletionRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const fourteenDaysAgo = dayjs().subtract(14, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Active users (7d): ${activeUsers.length}`)
+
+    let totalIntentions = 0
+    let completedArcs = 0 // intention followed by plan + care within 7 days
+    let partialArcs = 0   // intention followed by either plan or care
+    let openArcs = 0      // intention with no follow-through yet
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: fourteenDaysAgo },
+            event: { [Op.in]: ['intention', 'plan_set', 'self_care_complete', 'self_care_completed'] as any[] }
+          },
+          order: [['createdAt', 'ASC']],
+        })
+
+        const intentionLogs = logs.filter((l: any) => l.event === 'intention')
+        const planLogs = logs.filter((l: any) => l.event === 'plan_set')
+        const careLogs = logs.filter((l: any) =>
+          l.event === 'self_care_complete' || l.event === 'self_care_completed'
+        )
+
+        for (const iLog of intentionLogs) {
+          totalIntentions++
+          const intentionTime = new Date(iLog.createdAt).getTime()
+          const sevenDaysMs = 7 * 24 * 60 * 60 * 1000
+
+          const hasPlan = planLogs.some((p: any) => {
+            const pt = new Date(p.createdAt).getTime()
+            return pt > intentionTime && pt < intentionTime + sevenDaysMs
+          })
+          const hasCare = careLogs.some((c: any) => {
+            const ct = new Date(c.createdAt).getTime()
+            return ct > intentionTime && ct < intentionTime + sevenDaysMs
+          })
+
+          if (hasPlan && hasCare) completedArcs++
+          else if (hasPlan || hasCare) partialArcs++
+          else openArcs++
+        }
+      } catch { /* skip user */ }
+    }
+
+    const completionRate = totalIntentions > 0
+      ? Math.round((completedArcs / totalIntentions) * 100)
+      : 0
+
+    console.log(`  Total intentions (14d): ${totalIntentions}`)
+    console.log(`  Completed arcs (intent→plan+care): ${completedArcs} (${completionRate}%)`)
+    console.log(`  Partial arcs: ${partialArcs}`)
+    console.log(`  Open arcs: ${openArcs}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('INTENTION COMPLETION AUDIT COMPLETE')
+    console.log(`   Completion rate: ${completionRate}% · ${completedArcs}/${totalIntentions} full arcs`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyIntentionCompletionRun = new Date()
+    isWeeklyIntentionCompletionRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { totalIntentions, completedArcs, partialArcs, openArcs, completionRate }
+    }
+  } catch (error: any) {
+    console.error('Weekly intention completion audit failed:', error.message)
+    isWeeklyIntentionCompletionRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
   }
 }
 
@@ -628,7 +1067,7 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
  * Used for testing and manual sends
  */
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
-  console.log('🔧 Manual trigger requested - bypassing time checks')
+  console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
 }
 
@@ -637,10 +1076,14 @@ export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
  * Sets up a simple interval-based scheduler
  */
 export function initializeScheduledJobs(): void {
-  console.log('⏰ Initializing scheduled job system...')
+  console.log('Initializing scheduled job system...')
   console.log('   - Monthly emails: 9 AM UTC on 1st of each month')
   console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
+  console.log('   - Weekly QOS state digest: 4 AM UTC every Wednesday')
+  console.log('   - Weekly intention completion audit: 8 PM UTC every Sunday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
+  console.log('   - Daily intention audit: 6 AM UTC every day')
+  console.log('   - Daily OS snapshot: midnight (0 AM UTC) every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -650,8 +1093,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM UTC; cohort digest: 6 AM UTC (Monday); QIE analytics: 3 AM UTC
-    if (hour === 9 || hour === 6 || hour === 3) {
+    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM; intention completion: 20
+    if (hour === 9 || hour === 6 || hour === 4 || hour === 3 || hour === 0 || hour === 20) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

@@ -24,6 +24,10 @@ config/backups/.env*
 *.p12
 id_rsa*
 id_ed25519*
+LOT_*_key_git*
+
+# SQL dumps (use managed backups, not repo)
+*.sql
 
 # Configuration files with secrets (keep example versions)
 app.yaml

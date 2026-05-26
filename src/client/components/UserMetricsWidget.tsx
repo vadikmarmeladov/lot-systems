@@ -3,14 +3,16 @@ import { Block } from '#client/components/ui'
 import { useOSStatus, useOSVersion, useOSPerformance } from '#client/queries'
 import { ProgressBars } from '#client/utils/progressBars'
 import { useLogContext } from '#client/hooks/useLogContext'
+import { useStore } from '@nanostores/react'
+import { intentionEngine, getUserIndex, classifyPhysiologicalCohort, recordOSSignal } from '#client/stores/intentionEngine'
 
-type MetricsView = 'status' | 'performance' | 'version'
+type MetricsView = 'status' | 'performance' | 'version' | 'physiology' | 'qos'
 
 /**
  * CQGS Dashboard Widget - Personal operating system metrics
  * Shows Bioethics health, performance, version progression from OS API
  * enriched with user log data and biofeedback loop.
- * Cycles: Status > Performance > Version
+ * Cycles: Status > Performance > Version > Physiology > QOS
  */
 export function UserMetricsWidget() {
   const [view, setView] = React.useState<MetricsView>('status')
@@ -18,27 +20,83 @@ export function UserMetricsWidget() {
   const { data: performance, isLoading: perfLoading } = useOSPerformance()
   const { data: version, isLoading: versionLoading } = useOSVersion()
   const logCtx = useLogContext()
+  const engineState = useStore(intentionEngine)
+  const [cohortData, setCohortData] = React.useState<{
+    archetype?: string
+    behavioralCohort?: string
+    energyStatus?: string
+    energyTrajectory?: string
+    computedAt?: string
+  } | null>(null)
+
+  React.useEffect(() => {
+    // Load physiological cohort from server API
+    fetch('/api/cohorts')
+      .then(res => res.json())
+      .then(data => {
+        if (data.archetype || data.behavioralCohort) {
+          setCohortData(prev => ({
+            ...prev,
+            archetype: data.archetype,
+            behavioralCohort: data.behavioralCohort,
+          }))
+        }
+      })
+      .catch(() => {})
+    // Also pull user metadata from weekly cohort job
+    fetch('/api/me')
+      .then(res => res.json())
+      .then(data => {
+        const pc = data?.metadata?.physiologicalCohort
+        if (pc) {
+          setCohortData(prev => ({
+            ...prev,
+            archetype: pc.archetype ?? prev?.archetype,
+            behavioralCohort: pc.behavioralCohort ?? prev?.behavioralCohort,
+            energyStatus: pc.energyStatus,
+            energyTrajectory: pc.energyTrajectory,
+            computedAt: pc.computedAt,
+          }))
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   const cycleView = () => {
     setView(prev => {
       switch (prev) {
         case 'status': return 'performance'
         case 'performance': return 'version'
-        case 'version': return 'status'
+        case 'version': return 'physiology'
+        case 'physiology': return 'qos'
+        case 'qos': return 'status'
         default: return 'status'
       }
     })
   }
+
+  // Fire OS health-check signal on first status load
+  const hasRecordedOSRef = React.useRef(false)
+  React.useEffect(() => {
+    if (!status || hasRecordedOSRef.current) return
+    hasRecordedOSRef.current = true
+    recordOSSignal('health_check', { health: status.health, state: status.state, uptime: status.uptime })
+  }, [status])
 
   // Don't render while loading all data
   if (statusLoading && perfLoading && versionLoading) return null
   // Need at least status to show anything
   if (!status) return null
 
+  const userIndex = getUserIndex()
+  const qieCohort = classifyPhysiologicalCohort()
+
   const label =
     view === 'status' ? 'CQGS Health:' :
     view === 'performance' ? 'Performance Benchmark:' :
-    'Runtime Version:'
+    view === 'version' ? 'Runtime Version:' :
+    view === 'physiology' ? 'Physiological Profile:' :
+    'Quantum OS:'
 
   return (
     <Block
@@ -178,6 +236,131 @@ export function UserMetricsWidget() {
       {view === 'version' && !version && (
         <div>
           <div className="opacity-30">Loading version data.</div>
+        </div>
+      )}
+
+      {/* ─── Physiological Profile View ─── */}
+      {view === 'physiology' && (
+        <div className="flex flex-col gap-y-8">
+          {/* Archetype: server-derived if available, otherwise client QIE classification */}
+          <div className="flex justify-between items-baseline">
+            <span className="opacity-30">Archetype</span>
+            <span>{cohortData?.archetype ?? qieCohort.label}</span>
+          </div>
+          {cohortData?.behavioralCohort && (
+            <div className="flex justify-between items-baseline">
+              <span className="opacity-30">Cohort</span>
+              <span>{cohortData.behavioralCohort}</span>
+            </div>
+          )}
+          <div className="flex justify-between items-baseline">
+            <span className="opacity-30">Dominant</span>
+            <span className="capitalize">{qieCohort.dominant}</span>
+          </div>
+          <div className="opacity-30 text-xs mt-4">{qieCohort.directive}</div>
+
+          {/* Biofield state from QIE */}
+          <div className="border-t border-acc-400/30 pt-8 mt-4">
+            <div className="flex justify-between items-baseline mb-4">
+              <span className="opacity-30">QIE Energy</span>
+              <span className="capitalize">{engineState.userState.energy}</span>
+            </div>
+            <div className="flex justify-between items-baseline mb-4">
+              <span className="opacity-30">Clarity</span>
+              <span className="capitalize">{engineState.userState.clarity}</span>
+            </div>
+            <div className="flex justify-between items-baseline mb-4">
+              <span className="opacity-30">Alignment</span>
+              <span className="capitalize">{engineState.userState.alignment}</span>
+            </div>
+            <div className="flex justify-between items-baseline">
+              <span className="opacity-30">Support Need</span>
+              <span className="capitalize">{engineState.userState.needsSupport}</span>
+            </div>
+          </div>
+
+          {/* Active physiological patterns */}
+          {engineState.recognizedPatterns.filter(p =>
+            ['physiological-depletion', 'recovery-window', 'circadian-drift', 'engagement-burst', 'biofield-coherence-peak', 'biofield-recovery-arc'].includes(p.pattern)
+          ).length > 0 && (
+            <div className="border-t border-acc-400/30 pt-8 mt-4">
+              <div className="opacity-30 mb-4 uppercase tracking-widest text-xs">Biofield signals</div>
+              {engineState.recognizedPatterns
+                .filter(p => ['physiological-depletion', 'recovery-window', 'circadian-drift', 'engagement-burst', 'biofield-coherence-peak', 'biofield-recovery-arc'].includes(p.pattern))
+                .map((p, idx) => (
+                  <div key={idx} className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-50 uppercase text-xs">{p.pattern.replace(/-/g, ' ')}</span>
+                    <span className="opacity-30 tabular-nums text-xs">{Math.round(p.confidence * 100)}%</span>
+                  </div>
+                ))
+              }
+            </div>
+          )}
+
+          {cohortData?.computedAt && (
+            <div className="opacity-20 text-xs mt-4">
+              Updated {new Date(cohortData.computedAt).toISOString().slice(0, 10)}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ─── Quantum OS View ─── */}
+      {view === 'qos' && (
+        <div>
+          <div className="flex flex-col gap-y-8 mb-16">
+            <div className="flex items-center gap-8">
+              <span className="w-[100px] opacity-30 text-xs uppercase tracking-widest">Engagement</span>
+              <ProgressBars percentage={userIndex.dimensions.engagement} barCount={10} />
+              <span className="tabular-nums">{userIndex.dimensions.engagement}%</span>
+            </div>
+            <div className="flex items-center gap-8">
+              <span className="w-[100px] opacity-30 text-xs uppercase tracking-widest">Emotional</span>
+              <ProgressBars percentage={userIndex.dimensions.emotional} barCount={10} />
+              <span className="tabular-nums">{userIndex.dimensions.emotional}%</span>
+            </div>
+            <div className="flex items-center gap-8">
+              <span className="w-[100px] opacity-30 text-xs uppercase tracking-widest">Intentional</span>
+              <ProgressBars percentage={userIndex.dimensions.intentional} barCount={10} />
+              <span className="tabular-nums">{userIndex.dimensions.intentional}%</span>
+            </div>
+            <div className="flex items-center gap-8">
+              <span className="w-[100px] opacity-30 text-xs uppercase tracking-widest">Social</span>
+              <ProgressBars percentage={userIndex.dimensions.social} barCount={10} />
+              <span className="tabular-nums">{userIndex.dimensions.social}%</span>
+            </div>
+            <div className="flex items-center gap-8">
+              <span className="w-[100px] opacity-30 text-xs uppercase tracking-widest">Self-Care</span>
+              <ProgressBars percentage={userIndex.dimensions.selfCare} barCount={10} />
+              <span className="tabular-nums">{userIndex.dimensions.selfCare}%</span>
+            </div>
+            <div className="flex items-center gap-8">
+              <span className="w-[100px] opacity-30 text-xs uppercase tracking-widest">Cognitive</span>
+              <ProgressBars percentage={userIndex.dimensions.cognitive} barCount={10} />
+              <span className="tabular-nums">{userIndex.dimensions.cognitive}%</span>
+            </div>
+          </div>
+
+          <div className="flex justify-between items-baseline mb-8">
+            <span className="opacity-30">QOS Index</span>
+            <span className="tabular-nums">{userIndex.overall}%</span>
+          </div>
+
+          <div className="flex justify-between items-baseline mb-8">
+            <span className="opacity-30">Trend</span>
+            <span className="capitalize">{userIndex.trend}</span>
+          </div>
+
+          <div className="flex justify-between items-baseline">
+            <span className="opacity-30">Signals (7d)</span>
+            <span className="tabular-nums">{engineState.signals.length.toLocaleString()}</span>
+          </div>
+
+          {!logCtx.isEmpty && (
+            <div className="opacity-30 mt-8">
+              {logCtx.activeModules.length}/6 modules active
+            </div>
+          )}
         </div>
       )}
     </Block>

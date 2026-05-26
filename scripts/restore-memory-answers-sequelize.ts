@@ -11,27 +11,32 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-// Backup database credentials (provided by user)
-const backupDb = new Sequelize('defaultdb', 'doadmin', 'AVNS_8V6Hqzuxwj0JkMxgNvR', {
-  host: 'db-postgresql-nyc3-92053-dec-24-backup-do-user-22640384-0.l.db.ondigitalocean.com',
-  port: 25060,
-  dialect: 'postgres',
-  logging: false,
-  dialectOptions: {
-    ssl: {
-      require: true,
-      rejectUnauthorized: false
+// Backup database credentials (set via environment variables)
+const backupDb = new Sequelize(
+  process.env.BACKUP_DB_NAME || 'defaultdb',
+  process.env.BACKUP_DB_USER || '',
+  process.env.BACKUP_DB_PASSWORD || '',
+  {
+    host: process.env.BACKUP_DB_HOST || '',
+    port: parseInt(process.env.BACKUP_DB_PORT || '25060'),
+    dialect: 'postgres',
+    logging: false,
+    dialectOptions: {
+      ssl: {
+        require: true,
+        rejectUnauthorized: false
+      }
     }
   }
-})
+)
 
-// Production database credentials
+// Production database credentials (set via environment variables)
 const prodDb = new Sequelize(
   process.env.DB_NAME || 'defaultdb',
-  process.env.DB_USER || 'doadmin',
-  process.env.DB_PASSWORD || 'AVNS_8V6Hqzuxwj0JkMxgNvR',
+  process.env.DB_USER || '',
+  process.env.DB_PASSWORD || '',
   {
-    host: process.env.DB_HOST || 'db-postgresql-nyc3-92053-do-user-22640384-0.f.db.ondigitalocean.com',
+    host: process.env.DB_HOST || '',
     port: parseInt(process.env.DB_PORT || '25060'),
     dialect: 'postgres',
     logging: false,
