@@ -169,6 +169,14 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'care_momentum':             'selfcare',
   'circadian-anchor-loss':     'selfcare',
   'circadian_anchor_loss':     'selfcare',
+  'meridian-lock':             'biofield',
+  'meridian_lock':             'biofield',
+  'architect-phase':           'goals',
+  'architect_phase':           'goals',
+  'multimodal-peak':           'quantum-os',
+  'multimodal_peak':           'quantum-os',
+  'intention-seed':            'intentions',
+  'intention_seed':            'intentions',
 }
 
 // ─── Store ───────────────────────────────────────────────────

@@ -922,6 +922,54 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'scheduled_job') {
+          const jobName = log.metadata?.jobName as string | undefined
+          const success = log.metadata?.success as boolean | undefined
+          const resultSent = log.metadata?.result?.sent as number | undefined
+          const resultProcessed = log.metadata?.result?.processed as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="JOB:" blockView>
+                {jobName && (
+                  <div className="uppercase tracking-widest mb-4">
+                    {jobName.replace(/-/g, ' ')}
+                  </div>
+                )}
+                <div className="opacity-60">
+                  {success === true ? 'STATUS: OK' : success === false ? 'STATUS: ERR' : 'STATUS: —'}
+                </div>
+                {(resultSent !== undefined || resultProcessed !== undefined) && (
+                  <div className="opacity-40 tabular-nums">
+                    {resultSent !== undefined ? `SENT: ${resultSent}` : ''}
+                    {resultProcessed !== undefined ? `PROC: ${resultProcessed}` : ''}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'self_care_skip') {
+          const reason = log.metadata?.reason as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CARE [SKIP]:" blockView>
+                <div className="uppercase tracking-widest opacity-40">
+                  {reason || 'Protocol skipped'}
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'weekly_summary_response') {
+          const weekNumber = log.metadata?.weekNumber as number | undefined
+          const response = log.metadata?.response as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={`MEM [W${weekNumber ?? '—'}]:`} blockView>
+                {response && (
+                  <div className="opacity-60">{response}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -1434,6 +1434,82 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 59: Meridian lock — signals in morning (06–12), afternoon (12–18), and evening (18–23)
+  // within the same calendar day. The person's full waking arc is logged.
+  // Fires when today's signals span all three time windows.
+  const p59Today = recentSignals.filter(s => now - s.timestamp < 24 * 60 * 60 * 1000)
+  const p59Morning = p59Today.filter(s => { const h = new Date(s.timestamp).getHours(); return h >= 6 && h < 12 })
+  const p59Afternoon = p59Today.filter(s => { const h = new Date(s.timestamp).getHours(); return h >= 12 && h < 18 })
+  const p59Evening = p59Today.filter(s => { const h = new Date(s.timestamp).getHours(); return h >= 18 && h < 23 })
+  if (p59Morning.length >= 1 && p59Afternoon.length >= 1 && p59Evening.length >= 1) {
+    const p59TotalToday = p59Today.length
+    patterns.push({
+      pattern: 'meridian-lock',
+      confidence: Math.min(0.70 + (p59TotalToday / 30) * 0.12, 0.82),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `Full day arc registered: morning · afternoon · evening. ${p59TotalToday} signals today. The complete waking cycle is present — anchor the arc.`
+    })
+  }
+
+  // Pattern 60: Intention seed — first signal after 48h silence is an intentions signal.
+  // The system boots from stillness into direction. Rare and significant.
+  const p60FortyEightHoursAgo = now - 48 * 60 * 60 * 1000
+  const p60SilentPeriod = signals.filter(s => s.timestamp > p60FortyEightHoursAgo)
+  const p60FirstSignal = p60SilentPeriod.sort((a, b) => a.timestamp - b.timestamp)[0]
+  const p60HadSilence = signals.filter(s =>
+    s.timestamp < p60FortyEightHoursAgo && s.timestamp > now - 4 * 24 * 60 * 60 * 1000
+  ).length === 0
+  if (p60HadSilence && p60FirstSignal?.source === 'intentions' && p60SilentPeriod.length <= 5) {
+    patterns.push({
+      pattern: 'intention-seed',
+      confidence: 0.75,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'soon',
+      reason: 'Field was dark. First signal is an intention. The system seeded from silence. Map the first step now.'
+    })
+  }
+
+  // Pattern 61: Multimodal peak — all 5 primary input modules (mood, memory, planner, selfcare, journal)
+  // have signals in the last 24h. Every dimension of the QOS is live today. Full coverage.
+  const PRIMARY_FIVE: IntentionSignal['source'][] = ['mood', 'memory', 'planner', 'selfcare', 'journal']
+  const p61DaySources = new Set(recentSignals.map(s => s.source))
+  const p61Coverage = PRIMARY_FIVE.filter(src => p61DaySources.has(src)).length
+  if (p61Coverage >= 5) {
+    const p61SignalCount = recentSignals.length
+    patterns.push({
+      pattern: 'multimodal-peak',
+      confidence: Math.min(0.85 + (p61SignalCount / 50) * 0.07, 0.92),
+      suggestedWidget: 'system',
+      suggestedTiming: 'passive',
+      reason: `All 5 primary modules active today (${p61SignalCount} signals). Mood · memory · planning · care · reflection — the full stack is live. Check the system view.`
+    })
+  }
+
+  // Pattern 62: Architect phase — planner + goals + intentions all have signals across 3 consecutive days.
+  // Structured, directed, momentum-driven. The system has entered an execution architecture phase.
+  const p62ThreeDays = now - 3 * 24 * 60 * 60 * 1000
+  const p62Signals = signals.filter(s => s.timestamp > p62ThreeDays)
+  const p62PlannerDays = new Set(
+    p62Signals.filter(s => s.source === 'planner').map(s => new Date(s.timestamp).toDateString())
+  ).size
+  const p62GoalsDays = new Set(
+    p62Signals.filter(s => s.source === 'goals').map(s => new Date(s.timestamp).toDateString())
+  ).size
+  const p62IntentionsDays = new Set(
+    p62Signals.filter(s => s.source === 'intentions').map(s => new Date(s.timestamp).toDateString())
+  ).size
+  if (p62PlannerDays >= 3 && p62GoalsDays >= 2 && p62IntentionsDays >= 2) {
+    const p62Depth = p62PlannerDays + p62GoalsDays + p62IntentionsDays
+    patterns.push({
+      pattern: 'architect-phase',
+      confidence: Math.min(0.70 + (p62Depth - 7) * 0.04, 0.88),
+      suggestedWidget: 'goals',
+      suggestedTiming: 'passive',
+      reason: `Architecture phase active: ${p62PlannerDays}d planner · ${p62GoalsDays}d goals · ${p62IntentionsDays}d intentions. Structured execution in progress. Review the goal map.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1889,6 +1965,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   droughtMonitor:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy'],
   crystallizationArc:['intentions', 'planner', 'goals'],
   vitalConvergence:  ['mood', 'energy', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'cohort'],
+
+  // ── Day-arc detection (2026-05-26 audit)
+  meridianDetector:  ['mood', 'log', 'energy', 'selfcare', 'journal'],
+  architectPhase:    ['planner', 'goals', 'intentions'],
+  multimodalSurface: ['mood', 'memory', 'planner', 'selfcare', 'journal'],
+  intentionSeed:     ['intentions'],
 }
 
 /**
@@ -1896,7 +1978,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * These feed the QIE independently of the widget dependency graph and are
  * tracked separately in the physiological report log-dependency audit.
  */
-export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort', 'recipe', 'goals']
+export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort', 'recipe', 'goals', 'qos']
 
 /** Returns which signal sources a given widget depends on. */
 export function getWidgetDependencies(widget: string): string[] {
@@ -2066,6 +2148,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['intentions', 'planner', 'goals'],
     patternConditions: ['intention-follow-through', 'temporal-coherence-window', 'care-momentum'],
     directive: 'Execution arc complete. Intention is lived, not declared. Scale what works.',
+  },
+  {
+    archetype: 'Meridian Master',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['mood', 'journal', 'planner'],
+    patternConditions: ['meridian-lock', 'circadian-anchor', 'temporal-coherence-window'],
+    directive: 'Full day arc covered. Morning to evening coherent. The complete cycle is registered.',
   },
 ]
 
@@ -2906,6 +2995,18 @@ export function recordRecipeViewedSignal(mealType: string, recipeName?: string) 
   recordSignal('recipe', 'recipe_viewed', {
     mealType,
     recipeName,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a meridian lock signal when morning + afternoon + evening all fire in the same day.
+ * Feeds Pattern 59 (meridian-lock) and the Biofield Engine module.
+ */
+export function recordMeridianLockSignal(signalCount: number) {
+  recordSignal('energy', 'meridian_lock', {
+    signalCount,
+    windows: ['morning', 'afternoon', 'evening'],
     hour: new Date().getHours(),
   })
 }

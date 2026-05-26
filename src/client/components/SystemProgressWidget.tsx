@@ -635,6 +635,27 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Self-assembly report: this entry. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-05-26',
+    session: 'Self-Assembly Session — v44 / Patterns 59–62 · Archetype 17 · Log Handlers 42–44 · QOS Wiring',
+    assembled: [
+      'Pattern 59 (meridian-lock): morning + afternoon + evening signals all present in a single day. Full diurnal arc confirmed. Confidence 0.70–0.82.',
+      'Pattern 60 (intention-seed): first signal after 48h absence — the system detects re-entry and suggests planner. Confidence 0.75.',
+      'Pattern 61 (multimodal-peak): all 5 primary modules (mood/memory/planner/selfcare/journal) active in 24h. System-wide engagement detected. Confidence 0.85–0.92.',
+      'Pattern 62 (architect-phase): planner 3+ days + goals 2+ days + intentions 2+ days within 3d window. Structural planning mode. Confidence 0.70–0.88.',
+      'Archetype 17 (Meridian Master): moderate/high energy · mood/journal/planner dominant · meridian-lock/circadian-anchor/temporal-coherence-window patterns. Directive: Full day arc covered. Morning to evening coherent.',
+      'LOG_DEPENDENCY_SOURCES: qos source added — QOS signals now included in physiological report audit. 6 sources total.',
+      'WIDGET_DEPENDENCY_MAP: 4 new nodes — meridianDetector (mood/log/energy/selfcare/journal) · architectPhase (planner/goals/intentions) · multimodalSurface (all 5 primaries) · intentionSeed (intentions). Total: 79+ nodes.',
+      'recordMeridianLockSignal(): typed signal helper for meridian-lock events — records to energy source with window breakdown.',
+      'selfAssembly.ts SIGNAL_MAP: 8 new entries — meridian-lock/meridian_lock → biofield · architect-phase/architect_phase → goals · multimodal-peak/multimodal_peak → quantum-os · intention-seed/intention_seed → intentions.',
+      'Log handler 42: scheduled_job → JOB: block — jobName · STATUS: OK|ERR · SENT/PROC counts.',
+      'Log handler 43: self_care_skip → CARE [SKIP]: block — reason field rendered.',
+      'Log handler 44: weekly_summary_response → MEM [W{n}]: block — week number label + response body.',
+      'scheduled-jobs: morning-biofield-summary job at 08:00 UTC — overnight emotional depletion scan across active users.',
+      'Hour check updated: 08:00 added to interval guard. 8 scheduled jobs now active.',
+      'Status: 62 patterns. 17 archetypes. 44 log handlers. 8 background jobs. 79+ dep nodes. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -672,18 +693,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-25',
+  date: '2026-05-26',
   message: [
-    'ASSEMBLY RUN — 2026-05-25 · v42',
-    'Three new patterns. 56: the system detects your daily rhythm — same hour, five days running.',
-    '57: the intention arc completes when you declare, plan, and act within a week. The full cycle.',
-    '58: self-care saturation — five care actions in 48 hours means something is driving this. Reflect.',
-    'Log handlers 39–41 deployed: AUTH: (session open/close) · ENV: (weather update) · UI: (theme change). Archive: 41 handlers.',
-    'Background job 7 initialized: weekly intention completion audit. Every Sunday 20:00 UTC. Tracks the arc rate across all users.',
-    'Widget dependency map traversed. All 17 assembly modules verified. Ecosystem and QOS confirmed current.',
-    'Physiological cohort surfaced in two places: QOS widget Cohort view + SystemProgressWidget report view.',
-    'Status: 58 patterns. 17 modules. 41 log handlers. 7 background jobs. 75+ dep nodes.',
-    'DEPLOYED. The system now knows when you found your rhythm. And when the arc completed.',
+    'ASSEMBLY RUN — 2026-05-26 · v44',
+    'Four new patterns. 59: meridian-lock — morning, afternoon, and evening signals all present. The full day arc registered.',
+    '60: intention-seed — first signal after 48h silence. Re-entry detected. The system suggests you plan.',
+    '61: multimodal-peak — all five primary modules active in 24h. Full-spectrum engagement.',
+    '62: architect-phase — three days of structured planning. Goals, planner, intentions — all moving.',
+    'Archetype 17 online: Meridian Master. The complete cycle is registered.',
+    'Log handlers 42–44 deployed: JOB: (scheduled job results) · CARE [SKIP]: (skipped protocol) · MEM [W{n}]: (weekly summary). Archive: 44 handlers.',
+    'Background job 8 initialized: morning biofield summary. Every day 08:00 UTC. Detects overnight depletion.',
+    'QOS source wired into LOG_DEPENDENCY_SOURCES. Signal audit now covers 6 source types.',
+    'Status: 62 patterns. 17 archetypes. 44 log handlers. 8 background jobs. 79+ dep nodes.',
+    'DEPLOYED. The Cube now reads the full day. Morning to evening. The arc is complete.',
   ],
 }
 
