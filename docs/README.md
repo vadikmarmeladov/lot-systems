@@ -58,6 +58,18 @@ Troubleshooting guides and diagnostic documentation.
 - Memory Questions Diagnostic - Memory Engine troubleshooting
 - PWA Cache Fix - Cache-related issues
 
+### [Hardware — COSMO® CIA](./hardware/)
+COSMO® CIA Connected Intelligence Appliance — full hardware specification, BOM, roadmap, firmware, software bridge, manufacturing guide, and user manual.
+
+**Key Documents:**
+- [COSMO-CIA-SPEC.md](./hardware/COSMO-CIA-SPEC.md) — Hardware specification (MCU, display, sensors, power, API)
+- [COSMO-CIA-BOM.md](./hardware/COSMO-CIA-BOM.md) — Bill of materials with supplier links and 100-unit pricing
+- [COSMO-CIA-ROADMAP.md](./hardware/COSMO-CIA-ROADMAP.md) — Development roadmap (May–Nov 2026, 100-unit pilot)
+- [COSMO-CIA-FIRMWARE.md](./hardware/COSMO-CIA-FIRMWARE.md) — Firmware architecture, drivers, OTA, session compression
+- [COSMO-CIA-SOFTWARE.md](./hardware/COSMO-CIA-SOFTWARE.md) — LOT API bridge, device routes, Log tab integration
+- [COSMO-CIA-MANUFACTURING.md](./hardware/COSMO-CIA-MANUFACTURING.md) — PCBWay PCBA + CNC SS, assembly procedure
+- [COSMO-CIA-MANUAL.md](./hardware/COSMO-CIA-MANUAL.md) — User manual (PDF source, A5 12-page)
+
 ### [Security](./security/)
 Security documentation and repository maintenance.
 
