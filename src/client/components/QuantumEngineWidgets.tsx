@@ -11,7 +11,7 @@ import {
 } from '#client/stores/intentionEngine'
 import { getEcosystemNarrative } from '#client/utils/narrative'
 import { useEnergy } from '#client/queries'
-import { selfAssembly } from '#client/stores/selfAssembly'
+import { selfAssembly, phaseSymbol, phaseLabel, recomputeAssembly } from '#client/stores/selfAssembly'
 
 function usePersistedState(key: string): [boolean, React.Dispatch<React.SetStateAction<boolean>>] {
   const [value, setValue] = React.useState(() => {
@@ -29,7 +29,7 @@ function usePersistedState(key: string): [boolean, React.Dispatch<React.SetState
 
 const TOTAL_DEVICES = 6
 
-type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index'
+type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index' | 'assembly'
 
 export const QuantumEngineWidgets: React.FC = () => {
   const [carConnected, setCarConnected] = usePersistedState('qe-car-connected')
@@ -132,11 +132,14 @@ export const QuantumEngineWidgets: React.FC = () => {
     }
   }, [connectedCount])
 
+  React.useEffect(() => { recomputeAssembly() }, [])
+
   const cycleView = () => {
     setView(prev =>
       prev === 'ecosystem' ? 'biofield' :
       prev === 'biofield'  ? 'cohort' :
       prev === 'cohort'    ? 'index' :
+      prev === 'index'     ? 'assembly' :
       'ecosystem'
     )
   }
@@ -145,6 +148,7 @@ export const QuantumEngineWidgets: React.FC = () => {
     view === 'ecosystem' ? 'QOS:' :
     view === 'biofield'  ? 'Biofield:' :
     view === 'cohort'    ? 'Cohort:' :
+    view === 'assembly'  ? 'Self-Assembly:' :
     'Index:'
 
   const { energy, clarity, alignment, needsSupport } = engineState.userState
@@ -311,6 +315,35 @@ export const QuantumEngineWidgets: React.FC = () => {
               ) : (
                 <div className="opacity-30">Index pending. Engage widgets to build signal.</div>
               )}
+            </div>
+          )}
+
+          {view === 'assembly' && (
+            <div className="flex flex-col gap-y-4 font-mono text-xs">
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Phase</span>
+                <span>{phaseSymbol(assemblyState.phase)} {phaseLabel(assemblyState.phase)}</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Assembly</span>
+                <span className="tabular-nums">{assemblyState.overallAssembly}%</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Modules</span>
+                <span className="tabular-nums">{assemblyState.assembledCount}/{assemblyState.totalModules}</span>
+              </div>
+              <div className="border-t border-acc-400/20 pt-8 mt-4">
+                <div className="opacity-30 uppercase tracking-widest mb-6">Module Map</div>
+                {assemblyState.modules.map(mod => (
+                  <div key={mod.id} className="flex justify-between mb-2">
+                    <span className={mod.phase === 'dormant' ? 'opacity-20' : mod.phase === 'integrated' ? '' : 'opacity-60'}>
+                      {phaseSymbol(mod.phase)} {mod.label}
+                    </span>
+                    <span className="opacity-30 tabular-nums">{mod.density}%</span>
+                  </div>
+                ))}
+              </div>
+              <div className="opacity-30 pt-4">{assemblyState.narrative}</div>
             </div>
           )}
 

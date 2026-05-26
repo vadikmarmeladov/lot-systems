@@ -2912,19 +2912,20 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             The system executes. No UI required.
           </P>
           <div className="text-sm mb-16 pl-16 flex flex-col gap-4">
-            <Row label="/synth" value="toggle Soviet keyboard sound engine" />
-            <Row label="/radio" value="toggle ambient radio stream" />
-            <Row label="/night" value="activate night mode" />
-            <Row label="/prayer" value="activate prayer mode" />
-            <Row label="/freeze" value="halt all widget update cycles" />
+            <Row label="🎹 /synth" value="toggle Soviet keyboard sound engine" />
+            <Row label="🎧 /radio" value="toggle ambient radio stream" />
+            <Row label="🌙 /night" value="activate night mode" />
+            <Row label="🕯️ /prayer" value="activate prayer mode" />
+            <Row label="🧊 /freeze" value="halt all widget update cycles" />
             <Row label="/scan" value="AI journal scan — extract patterns from recent entries" />
             <Row label="/silent" value="suppress all widget surfaces for current session" />
             <Row label="/breathe" value="surface breathing exercise overlay" />
+            <Row label="/fast" value="force fast mode for current session" />
             <Row label="/qos" value="trigger immediate QIE analysis — fires analyzeIntentions() on demand" />
             <Row label="/assembly" value="trigger immediate QIE analysis pass — same as /qos, assembly framing" />
             <Row label="/phys" value="generate physiological cohort report — surfaces current archetype and readiness state" />
             <Row label="/sil" value="check signal silence — fires P.51 analysis, surfaces SIL log event if silence condition met" />
-            <Row label="! (in text)" value="urgency signal — detected automatically · surfaces CohortConnect" />
+            <Row label="❗ (in text)" value="urgency signal — detected automatically · surfaces CohortConnect" />
           </div>
           <P>
             The exclamation mark is not a command. Detection is automatic.
