@@ -635,6 +635,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Self-assembly report: this entry. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-05-26',
+    session: 'Self-Assembly Session — v43 / Production Cleanup · Profile Fix · COSMO® · Robot Node · QOS Assembly View',
+    assembled: [
+      'Repository cleanup: 183 files removed from root. 64 duplicate MDs deleted. 25 session logs moved to docs/assembly/. SSH keys removed. Legacy directories cleared.',
+      'Robot node (ROB): 6th ecosystem device added. CAR · HOME · CPU · PHN · WCH · ROB. COSMO® integration point. ecosystem_full_coherence includes robot state.',
+      'QOS widget: 5th view — Assembly. Phase symbol · assembly % · module count · full module map with density. recomputeAssembly() on mount.',
+      'Public profile 504 fix: eliminated 4 findAll() table scans. Custom URL, board member count, active days, demo counts — all converted to indexed queries. Profile loads instantly.',
+      'About.tsx emoji log triggers restored: /synth · /radio · /night · /prayer · /freeze · /fast. Trigger documentation complete.',
+      'Security: SSH keys removed from repo. .gitignore updated. Build PASS. Git state CLEAN. Production stable.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -667,23 +679,30 @@ const ASSEMBLY_TRANSMISSIONS: {
     status: 'DEPLOYED',
     next: 'Journal vocabulary extraction → personal interface language injection',
   },
+  {
+    date: '2026-05-26',
+    built: ['Pattern 59 index-erosion', 'EROS: log handler', 'Field Manual v44 sync', 'v43 session report'],
+    feedbackApplied: 'the system knows when the trajectory turns',
+    status: 'DEPLOYED',
+    next: 'Journal vocabulary extraction → inject personal language into widget copy',
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-25',
+  date: '2026-05-26',
   message: [
-    'ASSEMBLY RUN — 2026-05-25 · v42',
-    'Three new patterns. 56: the system detects your daily rhythm — same hour, five days running.',
-    '57: the intention arc completes when you declare, plan, and act within a week. The full cycle.',
-    '58: self-care saturation — five care actions in 48 hours means something is driving this. Reflect.',
-    'Log handlers 39–41 deployed: AUTH: (session open/close) · ENV: (weather update) · UI: (theme change). Archive: 41 handlers.',
-    'Background job 7 initialized: weekly intention completion audit. Every Sunday 20:00 UTC. Tracks the arc rate across all users.',
-    'Widget dependency map traversed. All 17 assembly modules verified. Ecosystem and QOS confirmed current.',
-    'Physiological cohort surfaced in two places: QOS widget Cohort view + SystemProgressWidget report view.',
-    'Status: 58 patterns. 17 modules. 41 log handlers. 7 background jobs. 75+ dep nodes.',
-    'DEPLOYED. The system now knows when you found your rhythm. And when the arc completed.',
+    'ASSEMBLY RUN — 2026-05-26 · v44',
+    'Pattern 59 deployed: index-erosion. The system now reads the trend before you feel it.',
+    'Four or more declining QOS snapshots in the recent window — or a 10-point index drop — triggers the pattern.',
+    'Confidence 0.55–0.80. Suggested: systemProgress. The trajectory is visible. Name what changed.',
+    'EROS: log handler wired. index_erosion events now render in the field log: declining snapshot count + score drop.',
+    'Field Manual advanced to v44. 58 patterns documented. 6 ecosystem nodes (CAR · HOME · CPU · PHN · WCH · ROB).',
+    'QOS: 5 views. Assembly view live. Robot node active. Background jobs: 7. Log handlers: 42.',
+    'Repository clean. Profile loads instant. No 504s. No secrets in code. The infrastructure holds.',
+    'Status: 59 patterns. 17 modules. 42 log handlers. 7 background jobs. 6 ecosystem nodes.',
+    'DEPLOYED. The system now sees the trajectory, not just the moment.',
   ],
 }
 

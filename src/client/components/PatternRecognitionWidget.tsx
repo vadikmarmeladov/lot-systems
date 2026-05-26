@@ -96,7 +96,11 @@ export function PatternRecognitionWidget() {
       'recovery-velocity':          'Recovery arc accelerating',
       'care-momentum':              'Proactive care spiral',
       'intention-follow-through':   'Execution arc complete',
-      'circadian-anchor-loss':      'Circadian anchor lost'
+      'circadian-anchor-loss':      'Circadian anchor lost',
+      'circadian-anchor':           'Daily rhythm detected',
+      'intention-completion-arc':   'Weekly arc complete',
+      'selfcare-saturation':        'Care saturation signal',
+      'index-erosion':              'Index declining'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -319,6 +323,20 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'circadian-anchor-loss') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Circadian anchor lost. Rest protocol.
+                </div>
+              )}
+
+              {/* Circadian anchor indicator — surfaces when pattern 56 is active */}
+              {patterns.some(p => p.pattern === 'circadian-anchor') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Rhythm detected. Same hour, five days.
+                </div>
+              )}
+
+              {/* Index erosion indicator — surfaces when pattern 59 is active */}
+              {patterns.some(p => p.pattern === 'index-erosion') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Index declining. Name what changed.
                 </div>
               )}
 

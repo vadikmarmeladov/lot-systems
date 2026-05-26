@@ -1434,6 +1434,27 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 59: Index erosion — QOS snapshot trend declining for 4+ consecutive reads.
+  // Sustained downward pressure on the user index. The system names the trajectory before the
+  // operator feels it. Fires on trend data alone — no mood signals required.
+  const qosHistory = getQOSHistory()
+  if (qosHistory.length >= 6) {
+    const recent = qosHistory.slice(-8)
+    const decliningCount = recent.filter(s => s.userIndex.trend === 'declining').length
+    const firstScore = recent[0].userIndex.overall
+    const lastScore = recent[recent.length - 1].userIndex.overall
+    const scoreDrop = firstScore - lastScore
+    if (decliningCount >= 4 || scoreDrop >= 10) {
+      patterns.push({
+        pattern: 'index-erosion',
+        confidence: Math.min(0.55 + decliningCount * 0.05, 0.80),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `Index erosion: ${decliningCount} declining snapshots in recent window${scoreDrop >= 10 ? ` · score dropped ${scoreDrop} pts` : ''}. The trajectory is visible. Name what changed.`
+      })
+    }
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
