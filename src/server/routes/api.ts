@@ -4217,6 +4217,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
 
       // Determine program name based on version features
       const getProgramName = (ver: string) => {
+        if (ver.includes('1.3')) return 'Assembly Transmission Protocol'
         if (ver.includes('1.2.1')) return 'Quantum Intent Calibration'
         if (ver.includes('1.2.0')) return 'Memory Engine Synthesis'
         return 'Neural Pathway Integration'

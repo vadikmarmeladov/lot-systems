@@ -637,6 +637,38 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
   },
 ]
 
+// Assembly transmissions — the system talking to the person
+// Each run appends one entry. Format: terse, technical, alive.
+const ASSEMBLY_TRANSMISSIONS: {
+  date: string
+  built: string[]
+  feedbackApplied: string
+  status: 'DEPLOYED' | 'HELD'
+  next: string
+}[] = [
+  {
+    date: '2026-04-17',
+    built: ['Physiological cohort engine', 'Military log interface', 'Session report system'],
+    feedbackApplied: 'the system needs to know the person',
+    status: 'DEPLOYED',
+    next: 'Daily QIE analytics + cohort voice matching',
+  },
+  {
+    date: '2026-04-18',
+    built: ['QIE v3 daily analytics', 'Physiological cohorts in assembly map', 'UserIndex 6D composite'],
+    feedbackApplied: 'system should build itself from real signals',
+    status: 'DEPLOYED',
+    next: 'Assembly transmission layer — the system talking to the person',
+  },
+  {
+    date: '2026-05-22',
+    built: ['Assembly transmission layer', 'Session reports v4', 'Deployment features sync'],
+    feedbackApplied: 'the system talking to the person',
+    status: 'DEPLOYED',
+    next: 'Journal vocabulary extraction → personal interface language injection',
+  },
+]
+
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
@@ -1501,6 +1533,7 @@ export function SystemProgressWidget() {
             </div>
           </>
         )}
+
         {/* ─── OS Journal View ─── */}
         {view === 'os-journal' && (
           <>
