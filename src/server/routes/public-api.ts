@@ -1062,7 +1062,7 @@ export default async (fastify: FastifyInstance) => {
       }
 
       // Add memory story if enabled (only for Usership users)
-      const hasUsershipTag = user.tags?.some((tag) => tag.toLowerCase() === 'usership')
+      const hasUsershipTag = user.tags?.some((tag: string) => tag.toLowerCase() === 'usership')
       if (privacy.showMemoryStory && hasUsershipTag) {
         try {
           // Get latest memory story from user metadata
