@@ -750,9 +750,11 @@ export default async (fastify: FastifyInstance) => {
       let totalUsers = 1
       let usershipCount = 1
       try {
-        const allUsers = await models.User.findAll()
-        totalUsers = allUsers.length + 1 // +1 for demo account
-        usershipCount = allUsers.filter(u => u.tags?.some(t => t.toLowerCase() === 'usership')).length + 1 // +1 for demo
+        totalUsers = (await models.User.count()) + 1
+        const usCount = await models.User.count({
+          where: sequelize.literal(`tags::jsonb @> '"usership"'::jsonb OR tags::jsonb @> '"Usership"'::jsonb`),
+        })
+        usershipCount = usCount + 1
       } catch (e) {
         console.error('[PUBLIC-PROFILE-API] Demo user count query failed:', e)
       }
@@ -1223,17 +1225,14 @@ export default async (fastify: FastifyInstance) => {
       if (hasUsershipTag) {
         try {
           // Board member number: sequential ordering by joinedAt among Usership users
-          const allUsers = await models.User.findAll()
-          const usershipMembers = allUsers
-            .filter(u => u.tags?.some(t => t.toLowerCase() === 'usership'))
-            .sort((a, b) => {
-              const dateA = a.joinedAt || a.createdAt
-              const dateB = b.joinedAt || b.createdAt
-              return new Date(dateA).getTime() - new Date(dateB).getTime()
-            })
-          const boardMemberNumber = usershipMembers.findIndex(u => u.id === user.id) + 1
-          const totalUsers = allUsers.length
-          const usershipCount = usershipMembers.length
+          const allUsership = await models.User.findAll({
+            where: sequelize.literal(`tags::jsonb @> '"usership"'::jsonb OR tags::jsonb @> '"Usership"'::jsonb`),
+            attributes: ['id', 'joinedAt', 'createdAt'],
+            order: [['createdAt', 'ASC']],
+          })
+          const boardMemberNumber = allUsership.findIndex(u => u.id === user.id) + 1
+          const totalUsers = await models.User.count()
+          const usershipCount = allUsership.length
           const freeCitizens = Math.max(0, totalUsers - usershipCount)
           const poweringCitizens = usershipCount > 0 ? Math.round(freeCitizens / usershipCount) : 0
 
@@ -1255,11 +1254,11 @@ export default async (fastify: FastifyInstance) => {
           const totalLogs = await models.Log.count({ where: { userId: user.id } })
           const answerCount = await models.Log.count({ where: { userId: user.id, event: 'answer' } })
           const noteCount = await models.Log.count({ where: { userId: user.id, event: 'note' } })
-          const allLogs = await models.Log.findAll({
-            where: { userId: user.id },
-            attributes: ['createdAt'],
-          })
-          const activeDays = new Set(allLogs.map(l => dayjs(l.createdAt).format('YYYY-MM-DD'))).size
+          const [activeDaysResult] = await sequelize.query(
+            `SELECT COUNT(DISTINCT DATE("createdAt")) as count FROM "Logs" WHERE "userId" = :userId`,
+            { replacements: { userId: user.id }, type: 'SELECT' as any }
+          ) as any[]
+          const activeDays = activeDaysResult?.count ? Number(activeDaysResult.count) : 0
 
           // Memory engine name
           let memoryEngineName = 'Standard'
