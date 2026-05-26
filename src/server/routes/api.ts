@@ -712,11 +712,17 @@ export default async (fastify: FastifyInstance) => {
         }
 
         // Check if custom URL is already taken by another user
-        const users = await fastify.models.User.findAll()
-        const existingUser = users.find(u =>
-          u.id !== req.user.id &&
-          u.metadata?.privacy?.customUrl === privacy.customUrl
-        )
+        const existingUser = await fastify.models.User.findOne({
+          where: {
+            id: { [Op.ne]: req.user.id },
+            [Op.and]: [
+              fastify.sequelize.where(
+                fastify.sequelize.fn('jsonb_extract_path_text', fastify.sequelize.col('metadata'), 'privacy', 'customUrl'),
+                privacy.customUrl
+              )
+            ]
+          }
+        })
         if (existingUser) {
           return reply.code(400).send({
             error: 'Custom URL taken',
