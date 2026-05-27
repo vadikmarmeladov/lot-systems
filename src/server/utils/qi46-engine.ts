@@ -1,6 +1,7 @@
 /**
  * QI·46 — Soul Engine
  * Node 1: The first inference layer. Listens to the body. Responds to the soul.
+ * Node 2: The mirror layer. The engine learns the subscriber's language.
  *
  * Author:    Vadik · LOT Systems Corporation
  * Named for: Kuzya — the reason the question was asked in the first place
@@ -12,6 +13,7 @@
 
 import Anthropic from '@anthropic-ai/sdk'
 import type { Log } from '#shared/types'
+import { extractPersonalVocabulary, formatVocabularyForPrompt, type PersonalVocabulary } from './qi46-vocabulary.js'
 
 // ============================================================================
 // QI·46 SYSTEM PROMPT — v0.1
@@ -65,6 +67,7 @@ export interface CalibrationVector {
   consistencyScore: number // 0–1, 30-day window
   lastNote: string | null
   trajectory: 'improving' | 'declining' | 'stable' | 'unknown'
+  vocabulary: PersonalVocabulary // Node 2 — subscriber's personal language
 }
 
 export function buildCalibrationVector(recentLogs: Log[]): CalibrationVector {
@@ -138,6 +141,9 @@ export function buildCalibrationVector(recentLogs: Log[]): CalibrationVector {
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .map(l => l.text as string)[0] || null
 
+  // Node 2 — extract subscriber's personal vocabulary (journal mirror)
+  const vocabulary = extractPersonalVocabulary(recentLogs)
+
   return {
     arcPosition,
     dominantEmotionalPattern,
@@ -147,6 +153,7 @@ export function buildCalibrationVector(recentLogs: Log[]): CalibrationVector {
     consistencyScore,
     lastNote,
     trajectory,
+    vocabulary,
   }
 }
 
@@ -274,6 +281,13 @@ function buildArcContext(vector: CalibrationVector): string {
     lines.push(`Last subscriber note: "${note}${vector.lastNote.length > 180 ? '...' : ''}"`)
   }
 
+  // Node 2 — personal lexicon injection
+  const vocabPrompt = formatVocabularyForPrompt(vector.vocabulary)
+  if (vocabPrompt) {
+    lines.push('')
+    lines.push(vocabPrompt)
+  }
+
   return lines.join('\n')
 }
 
@@ -321,6 +335,7 @@ export interface QI46InferenceResult {
   cosmoReason: string | null
   arcPosition: string
   trajectory: string
+  vocabularySize: number  // how many personal vocab entries were available
   engine: 'qi46' | 'cosmo-fallback'
   timestamp: string
 }
@@ -331,6 +346,7 @@ export async function generateQI46Response(
 ): Promise<QI46InferenceResult> {
   const { emotionalState, checkInType, calibrationVector, note } = input
   const timestamp = new Date().toISOString()
+  const vocabSize = calibrationVector.vocabulary.phrases.length + calibrationVector.vocabulary.keywords.length
 
   // No AI available — COSMO®-cleared static fallback
   if (!anthropicClient) {
@@ -340,6 +356,7 @@ export async function generateQI46Response(
       cosmoReason: null,
       arcPosition: calibrationVector.arcPosition,
       trajectory: calibrationVector.trajectory,
+      vocabularySize: vocabSize,
       engine: 'cosmo-fallback',
       timestamp,
     }
@@ -348,6 +365,10 @@ export async function generateQI46Response(
   const arcContext = buildArcContext(calibrationVector)
   const sessionContext = buildSessionContext(emotionalState, checkInType, note)
   const userMessage = `${arcContext}\n\n${sessionContext}`
+
+  if (vocabSize > 0) {
+    console.log(`[QI·46] Personal lexicon active — ${vocabSize} vocab entries · ${calibrationVector.vocabulary.corpusSize} journal notes`)
+  }
 
   try {
     const message = await anthropicClient.messages.create({
@@ -371,13 +392,13 @@ export async function generateQI46Response(
     if (!screen.cleared) {
       console.warn(`[QI·46] COSMO® HELD — ${screen.reason}`)
       console.warn(`[QI·46] Held content: ${rawResponse}`)
-      // Held response logged; COSMO® fallback delivered
       return {
         response: cosmoFallback(emotionalState),
         cosmoCleared: false,
         cosmoReason: screen.reason,
         arcPosition: calibrationVector.arcPosition,
         trajectory: calibrationVector.trajectory,
+        vocabularySize: vocabSize,
         engine: 'cosmo-fallback',
         timestamp,
       }
@@ -389,6 +410,7 @@ export async function generateQI46Response(
       cosmoReason: null,
       arcPosition: calibrationVector.arcPosition,
       trajectory: calibrationVector.trajectory,
+      vocabularySize: vocabSize,
       engine: 'qi46',
       timestamp,
     }
@@ -401,6 +423,7 @@ export async function generateQI46Response(
       cosmoReason: null,
       arcPosition: calibrationVector.arcPosition,
       trajectory: calibrationVector.trajectory,
+      vocabularySize: vocabSize,
       engine: 'cosmo-fallback',
       timestamp,
     }

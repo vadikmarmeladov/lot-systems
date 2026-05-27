@@ -1510,6 +1510,7 @@ export default async (fastify: FastifyInstance) => {
           cosmoCleared: qi46Result.cosmoCleared,
           arcPosition: qi46Result.arcPosition,
           trajectory: qi46Result.trajectory,
+          vocabularySize: qi46Result.vocabularySize,
         }
 
         console.log(`[QI·46] ${qi46Result.engine} · arc:${qi46Result.arcPosition} · cosmo:${qi46Result.cosmoCleared ? 'CLEARED' : 'HELD'}`)

@@ -674,6 +674,13 @@ const ASSEMBLY_TRANSMISSIONS: {
     status: 'DEPLOYED',
     next: 'QI·46 Node 2 — journal vocabulary extraction · personal voice injection',
   },
+  {
+    date: '2026-05-27',
+    built: ['QI·46 Node 2 — Journal Vocabulary Extractor', 'Personal lexicon injection', 'Body metaphor detection', 'Mirror layer active'],
+    feedbackApplied: 'the engine speaks back in the subscriber\'s own language',
+    status: 'DEPLOYED',
+    next: 'QI·46 Node 3 — standalone /qi46/infer endpoint · arc memory persistence',
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
