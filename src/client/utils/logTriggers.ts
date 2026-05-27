@@ -29,6 +29,7 @@ export type LogTrigger =
   | 'assembly-check'    // /assembly — trigger self-assembly module status check
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
+  | 'email-send'        // /email to <name>. <message> — send a LOT Mail
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -51,6 +52,10 @@ const RULES: TriggerRule[] = [
   { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
+  // email-send is intentionally NOT in RULES — it has a richer parser
+  // (it needs recipient name + message body, not just presence detection).
+  // It is detected separately by detectEmailCommand() below and handled
+  // by detectTriggers() as a special case.
 ]
 
 /**
@@ -79,7 +84,43 @@ export function detectTriggers(text: string): LogTrigger[] {
     if (hasEmoji || hasKeyword) hits.push(rule.trigger)
   }
 
+  // email-send special-case: detect "/email to <name>" with an optional message
+  if (detectEmailCommand(text) !== null) {
+    hits.push('email-send')
+  }
+
   return hits
+}
+
+/**
+ * Parses a LOT Mail command from log text.
+ *
+ * Supported forms:
+ *   /email to Hitomi.
+ *   /email to Hitomi. Hello, how are you?
+ *   /email to Hitomi Hello there
+ *
+ * Returns `null` if the command is not present or malformed.
+ */
+export type EmailCommand = {
+  recipientName: string   // First name to look up in LOT Community
+  message: string         // Body — text after the period or after the name
+}
+
+export function detectEmailCommand(text: string): EmailCommand | null {
+  if (!text) return null
+  // Match: /email to <Word(s)>[.][optional message]
+  // recipient name = one or more words (first name + optional last name)
+  const m = text.match(/\/email\s+to\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s]{0,39}?)(?:\.\s*([\s\S]*)$|\s*$)/i)
+  if (!m) return null
+
+  const recipientName = m[1].trim()
+  if (!recipientName) return null
+
+  // Message is everything after the period (or empty if none given)
+  const rawMessage = (m[2] ?? '').trim()
+
+  return { recipientName, message: rawMessage }
 }
 
 /**

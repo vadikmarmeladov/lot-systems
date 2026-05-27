@@ -15,6 +15,7 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  LotMailRecord,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -22,6 +23,7 @@ import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+import { LotMailWidget } from '#client/components/LotMailWidget'
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -32,6 +34,9 @@ export const Sync = () => {
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
   const hasInitiallyLoaded = React.useRef(false)
+
+  // LOT Mail — new mails delivered in real-time via SSE
+  const [newLotMail, setNewLotMail] = React.useState<LotMailRecord | null>(null)
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -111,9 +116,28 @@ export const Sync = () => {
         })
       }
     )
+    // LOT Mail — listen for new mails addressed to the current user
+    const { dispose: disposeLotMailListener } = sync.listen(
+      'lot_mail',
+      (data: any) => {
+        if (data.receiverId !== me?.id) return
+        setNewLotMail({
+          id: data.id,
+          senderId: data.senderId,
+          receiverId: data.receiverId,
+          message: data.message,
+          isRead: false,
+          createdAt: data.createdAt,
+          senderName: data.senderName,
+          receiverName: me?.firstName || '',
+        })
+      }
+    )
+
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotMailListener()
     }
   }, [me?.id])
 
@@ -177,6 +201,11 @@ export const Sync = () => {
 
   return (
     <div className="max-w-[700px]">
+      {/* LOT Mail inbox — appears above chat when there are messages */}
+      <div className="mb-48">
+        <LotMailWidget newMail={newLotMail} />
+      </div>
+
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}

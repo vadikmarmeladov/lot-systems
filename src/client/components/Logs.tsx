@@ -20,8 +20,9 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, detectEmailCommand, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions } from '#client/stores/intentionEngine'
+import { useSendLotMail } from '#client/queries'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -970,6 +971,10 @@ const NoteEditor = ({
   const [value, setValue] = React.useState(log.text || '')
   const [lastSavedAt, setLastSavedAt] = React.useState<Date | null>(null)
   const [isSaved, setIsSaved] = React.useState(true) // Track if current content is saved
+
+  // LOT Mail — status feedback shown briefly after /email trigger fires
+  const [mailStatus, setMailStatus] = React.useState<{ ok: boolean; text: string } | null>(null)
+  const { mutate: sendLotMail } = useSendLotMail()
   const debounceTime = 7000  // 7s for all logs
   const debouncedValue = useDebounce(value, debounceTime)
 
@@ -1140,6 +1145,33 @@ const NoteEditor = ({
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'email-send') {
+        // /email to <name>. <message> — send a LOT Mail
+        const cmd = detectEmailCommand(value)
+        if (cmd) {
+          // Use message from command; fall back to full log text minus the command line
+          const body = cmd.message ||
+            value.replace(/\/email\s+to\s+[^\n.]+\.?/i, '').trim()
+          if (!body) {
+            setMailStatus({ ok: false, text: `Write a message after the period: /email to ${cmd.recipientName}. Your message here.` })
+            setTimeout(() => setMailStatus(null), 5000)
+            break
+          }
+          sendLotMail(
+            { recipientName: cmd.recipientName, message: body },
+            {
+              onSuccess: (data) => {
+                setMailStatus({ ok: true, text: `✉ Sent to ${data.recipientName}` })
+                setTimeout(() => setMailStatus(null), 4000)
+              },
+              onError: (err: any) => {
+                const msg = err?.response?.data?.error || 'Could not deliver LOT Mail'
+                setMailStatus({ ok: false, text: msg })
+                setTimeout(() => setMailStatus(null), 6000)
+              },
+            }
+          )
+        }
       }
     }
   }, [value])
@@ -1163,6 +1195,18 @@ const NoteEditor = ({
 
   return (
     <div className="relative group">
+      {/* LOT Mail status feedback — inline, transient, LOT-style */}
+      {mailStatus && (
+        <div
+          className={cn(
+            'mb-8 text-sm leading-tight',
+            mailStatus.ok ? 'text-acc/70' : 'text-acc/50'
+          )}
+        >
+          {mailStatus.text}
+        </div>
+      )}
+
       <div
         className={cn(
           'relative mb-4 sm:mb-0',

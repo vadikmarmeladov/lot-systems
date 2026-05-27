@@ -2,7 +2,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button } from '#client/components/ui'
-import { useCohorts, useEnergy, useProfile } from '#client/queries'
+import { useCohorts, useEnergy, useProfile, useSendLotMail } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
 import { recordSignal, getUserState } from '#client/stores/intentionEngine'
@@ -20,9 +20,11 @@ export const CohortConnectWidget: React.FC = () => {
   const { data: energyData } = useEnergy()
   const { data: profileData } = useProfile()
   const [expandedMemberId, setExpandedMemberId] = React.useState<string | null>(null)
+  const [lotMailStatus, setLotMailStatus] = React.useState<Record<string, 'sent' | 'error' | 'sending'>>({})
   const logCtx = useLogContext()
   const punctuation = usePunctuationContext()
   const hasRecordedRef = React.useRef(false)
+  const { mutate: sendLotMail } = useSendLotMail()
 
   // Resolved physiological classification from profile (server-derived archetype)
   const physiologicalArchetype = profileData?.archetype
@@ -116,6 +118,41 @@ export const CohortConnectWidget: React.FC = () => {
       hour: new Date().getHours()
     })
     window.location.href = '/sync'
+  }
+
+  const handleSendLotMail = (recipientFirstName: string, similarity: number) => {
+    const alreadySent = lotMailStatus[recipientFirstName]
+    if (alreadySent === 'sent' || alreadySent === 'sending') return
+
+    setLotMailStatus(prev => ({ ...prev, [recipientFirstName]: 'sending' }))
+    recordSignal('mood', 'cohort_lot_mail_initiated', {
+      recipientFirstName,
+      similarity,
+      connectionReadiness,
+      hour: new Date().getHours(),
+    })
+
+    sendLotMail(
+      {
+        recipientName: recipientFirstName,
+        message: `Hello from the LOT Community. I noticed we share similar patterns — would love to connect.`,
+      },
+      {
+        onSuccess: () => {
+          setLotMailStatus(prev => ({ ...prev, [recipientFirstName]: 'sent' }))
+        },
+        onError: () => {
+          setLotMailStatus(prev => ({ ...prev, [recipientFirstName]: 'error' }))
+          setTimeout(() => {
+            setLotMailStatus(prev => {
+              const next = { ...prev }
+              delete next[recipientFirstName]
+              return next
+            })
+          }, 4000)
+        },
+      }
+    )
   }
 
   const handleToggleExpand = (userId: string) => {
@@ -259,8 +296,29 @@ export const CohortConnectWidget: React.FC = () => {
                           handleSendMessage(match.user.id, match.similarity)
                         }}
                       >
-                        Send message
+                        Sync chat
                       </Button>
+                      {match.user.firstName && (
+                        <Button
+                          size="small"
+                          disabled={
+                            lotMailStatus[match.user.firstName] === 'sent' ||
+                            lotMailStatus[match.user.firstName] === 'sending'
+                          }
+                          onClick={(e: React.MouseEvent) => {
+                            e.stopPropagation()
+                            handleSendLotMail(match.user.firstName!, match.similarity)
+                          }}
+                        >
+                          {lotMailStatus[match.user.firstName] === 'sent'
+                            ? '✉ Sent'
+                            : lotMailStatus[match.user.firstName] === 'sending'
+                              ? 'Sending…'
+                              : lotMailStatus[match.user.firstName] === 'error'
+                                ? 'Try again'
+                                : '✉ LOT Mail'}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}

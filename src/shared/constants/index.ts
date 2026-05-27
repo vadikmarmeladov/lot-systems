@@ -12,6 +12,9 @@ export const MAX_SYNC_CHAT_MESSAGE_LENGTH = 300
 
 export const MAX_LOG_TEXT_LENGTH = 3000
 
+export const MAX_LOT_MAIL_MESSAGE_LENGTH = 2000
+export const LOT_MAIL_INBOX_LIMIT = 50
+
 export const USER_TAGS_BY_ID: Record<UserTag, { name: string; color?: Color }> = {
   [UserTag.Admin]: { name: 'Admin' },
   [UserTag.RND]: { name: 'R&D' },
