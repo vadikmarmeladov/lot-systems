@@ -737,6 +737,7 @@ export function SystemProgressWidget() {
   const [analytics, setAnalytics] = React.useState<FeedbackAnalytics | null>(null)
   const [showAnalytics, setShowAnalytics] = React.useState(false)
   const [view, setView] = React.useState<ProgressView>('deployment')
+  const [showSessionLogs, setShowSessionLogs] = React.useState(false)
 
   const assembly = useStore(selfAssembly)
   const { data: energyData } = useEnergy()
@@ -1049,22 +1050,30 @@ export function SystemProgressWidget() {
 
             {/* Session reports — logged after each upgrade session */}
             <div className="border-t border-acc-400/30 pt-16">
-              <div className="opacity-30 mb-8">Session logs:</div>
-              <div className="flex flex-col gap-y-16">
-                {SESSION_REPORTS.map((report) => (
-                  <div key={report.date} className="flex flex-col gap-y-4 font-mono text-xs">
-                    <div className="flex justify-between items-baseline">
-                      <span className="opacity-50 uppercase tracking-widest">{report.session}</span>
-                      <span className="tabular-nums opacity-40">{report.date}</span>
+              <button
+                onClick={() => setShowSessionLogs(!showSessionLogs)}
+                className="w-full flex justify-between items-center opacity-30 hover:opacity-100 transition-opacity mb-8"
+              >
+                <span>Session logs ({SESSION_REPORTS.length}):</span>
+                <span>{showSessionLogs ? '▾' : '▸'}</span>
+              </button>
+              {showSessionLogs && (
+                <div className="flex flex-col gap-y-16">
+                  {SESSION_REPORTS.map((report) => (
+                    <div key={report.date} className="flex flex-col gap-y-4 font-mono text-xs">
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-50 uppercase tracking-widest">{report.session}</span>
+                        <span className="tabular-nums opacity-40">{report.date}</span>
+                      </div>
+                      <div className="flex flex-col gap-y-2 pl-4">
+                        {report.assembled.map((item, i) => (
+                          <div key={i} className="opacity-40">&gt; {item}</div>
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-y-2 pl-4">
-                      {report.assembled.map((item, i) => (
-                        <div key={i} className="opacity-40">&gt; {item}</div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </>
         )}

@@ -74,6 +74,7 @@ import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 import { CalendarWidget } from './CalendarWidget'
 import { BenchmarkWidget } from './BenchmarkWidget'
+import { ArchitectWidget } from './ArchitectWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
 
@@ -990,6 +991,11 @@ export const System = () => {
           {/* System Pulse - Real-time system metrics */}
           <SystemPulseWidget />
         </div>
+      </WidgetErrorBoundary>
+
+      {/* Architect — executive self-assembly telemetry, paid users only */}
+      <WidgetErrorBoundary name="Architect">
+        <ArchitectWidget />
       </WidgetErrorBoundary>
 
       {/* Stats stack */}
