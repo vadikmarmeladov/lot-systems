@@ -1,3 +1,11 @@
+/**
+ * LOT SYSTEMS CORPORATION
+ * Vadim Marmeladov — CEO, Owner LOT®
+ * Kuzya Cosmo Marmeladov — CEO, Owner COSMO®
+ * LOT® Founded 7 April 2016 | COSMO® Founded 1 July 2024
+ * Made in the USA | brand.lot-systems.com
+ */
+
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
@@ -150,22 +158,16 @@ export const Logs: React.FC = () => {
 
   React.useEffect(() => {
     if (isTouchDevice) return
-    let container = containerRef.current
-    setTimeout(() => {
-      container = containerRef.current // 🩼
-    }, 600)
     const page = document.querySelector('#page')
     const onClick = (ev: Event) => {
-      const target = ev.target as HTMLDivElement
-      if (target === container || container?.contains(target)) return
-      ev.preventDefault()
+      if (ev.target !== page) return
       stores.goTo('system')
     }
     page?.addEventListener('click', onClick)
     return () => {
       page?.removeEventListener('click', onClick)
     }
-  }, [containerRef, isTouchDevice])
+  }, [isTouchDevice])
 
   if (!logIds.length) return <>Loading...</>
 
@@ -922,6 +924,54 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'scheduled_job') {
+          const jobName = log.metadata?.jobName as string | undefined
+          const success = log.metadata?.success as boolean | undefined
+          const resultSent = log.metadata?.result?.sent as number | undefined
+          const resultProcessed = log.metadata?.result?.processed as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="JOB:" blockView>
+                {jobName && (
+                  <div className="uppercase tracking-widest mb-4">
+                    {jobName.replace(/-/g, ' ')}
+                  </div>
+                )}
+                <div className="opacity-60">
+                  {success === true ? 'STATUS: OK' : success === false ? 'STATUS: ERR' : 'STATUS: —'}
+                </div>
+                {(resultSent !== undefined || resultProcessed !== undefined) && (
+                  <div className="opacity-40 tabular-nums">
+                    {resultSent !== undefined ? `SENT: ${resultSent}` : ''}
+                    {resultProcessed !== undefined ? `PROC: ${resultProcessed}` : ''}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'self_care_skip') {
+          const reason = log.metadata?.reason as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CARE [SKIP]:" blockView>
+                <div className="uppercase tracking-widest opacity-40">
+                  {reason || 'Protocol skipped'}
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'weekly_summary_response') {
+          const weekNumber = log.metadata?.weekNumber as number | undefined
+          const response = log.metadata?.response as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={`MEM [W${weekNumber ?? '—'}]:`} blockView>
+                {response && (
+                  <div className="opacity-60">{response}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1123,7 +1173,7 @@ const NoteEditor = ({
   // the editor. We compare against the previous value via ref so
   // editing around an existing trigger doesn't re-fire it.
   // --------------------------------------------------------------------
-  const lastTriggerScanRef = React.useRef('')
+  const lastTriggerScanRef = React.useRef(log.text || '')
   React.useEffect(() => {
     const fresh = detectNewTriggers(value, lastTriggerScanRef.current)
     lastTriggerScanRef.current = value
@@ -1137,6 +1187,12 @@ const NoteEditor = ({
           if (next) playSynthActivationChime()
           else playSynthDeactivationChime()
         } catch {}
+      } else if (trigger === 'radio-toggle') {
+        stores.isRadioOn.set(!stores.isRadioOn.get())
+      } else if (trigger === 'prayer-mode' || trigger === 'night-mode') {
+        if (!stores.isCustomThemeEnabled.get()) {
+          stores.theme.set('dark')
+        }
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}

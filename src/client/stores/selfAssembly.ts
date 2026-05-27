@@ -1,4 +1,12 @@
 /**
+ * LOT SYSTEMS CORPORATION
+ * Vadim Marmeladov — CEO, Owner LOT®
+ * Kuzya Cosmo Marmeladov — CEO, Owner COSMO®
+ * LOT® Founded 7 April 2016 | COSMO® Founded 1 July 2024
+ * Made in the USA | brand.lot-systems.com
+ */
+
+/**
  * Self-Assembly Engine
  *
  * Tracks how the system self-assembles around user activity.
@@ -169,6 +177,14 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'care_momentum':             'selfcare',
   'circadian-anchor-loss':     'selfcare',
   'circadian_anchor_loss':     'selfcare',
+  'meridian-lock':             'biofield',
+  'meridian_lock':             'biofield',
+  'architect-phase':           'goals',
+  'architect_phase':           'goals',
+  'multimodal-peak':           'quantum-os',
+  'multimodal_peak':           'quantum-os',
+  'intention-seed':            'intentions',
+  'intention_seed':            'intentions',
 }
 
 // ─── Store ───────────────────────────────────────────────────

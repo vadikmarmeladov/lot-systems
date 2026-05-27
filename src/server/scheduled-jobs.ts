@@ -1,3 +1,11 @@
+/**
+ * LOT SYSTEMS CORPORATION
+ * Vadim Marmeladov — CEO, Owner LOT®
+ * Kuzya Cosmo Marmeladov — CEO, Owner COSMO®
+ * LOT® Founded 7 April 2016 | COSMO® Founded 1 July 2024
+ * Made in the USA | brand.lot-systems.com
+ */
+
 import dayjs from '#server/utils/dayjs'
 
 /**
@@ -861,6 +869,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyIntentionCompletionJob()) {
     await executeWeeklyIntentionCompletionJob()
   }
+
+  // Check morning biofield summary (08:00 UTC daily)
+  if (shouldRunMorningBiofieldJob()) {
+    await executeMorningBiofieldJob()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1062,6 +1075,107 @@ async function executeWeeklyIntentionCompletionJob(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Morning Biofield Summary ──────────────────────────────────────────
+
+let isMorningBiofieldRunning = false
+let lastMorningBiofieldRun: Date | null = null
+
+function shouldRunMorningBiofieldJob(): boolean {
+  const now = dayjs()
+  if (isMorningBiofieldRunning) return false
+  if (lastMorningBiofieldRun) {
+    const lastRun = dayjs(lastMorningBiofieldRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeMorningBiofieldJob(): Promise<JobResult> {
+  const jobName = 'morning-biofield-summary'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Morning Biofield Summary')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isMorningBiofieldRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Active users (7d): ${activeUsers.length}`)
+
+    let depletedCount = 0
+    let stableCount = 0
+    let recoveredCount = 0
+
+    for (const user of activeUsers) {
+      try {
+        const overnightLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: ['mood_checkin', 'energy_checkin', 'emotional_checkin'] as any[] }
+          },
+          order: [['createdAt', 'ASC']],
+        })
+
+        if (overnightLogs.length === 0) continue
+
+        const lowEnergySignals = overnightLogs.filter((l: any) => {
+          const m = l.metadata as any || {}
+          const energy = m.energy || m.energyLevel || m.value
+          return typeof energy === 'number' ? energy <= 3 : energy === 'low' || energy === 'depleted'
+        })
+
+        const ratio = lowEnergySignals.length / overnightLogs.length
+
+        if (ratio >= 0.6) depletedCount++
+        else if (ratio <= 0.2) recoveredCount++
+        else stableCount++
+      } catch { /* skip user */ }
+    }
+
+    console.log(`  Overnight depletion scan:`)
+    console.log(`    Depleted (60%+ low signals): ${depletedCount}`)
+    console.log(`    Stable: ${stableCount}`)
+    console.log(`    Recovered: ${recoveredCount}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('MORNING BIOFIELD SUMMARY COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastMorningBiofieldRun = new Date()
+    isMorningBiofieldRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned: activeUsers.length, depletedCount, stableCount, recoveredCount }
+    }
+  } catch (error: any) {
+    console.error('Morning biofield job failed:', error.message)
+    isMorningBiofieldRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1084,6 +1198,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('   - Daily intention audit: 6 AM UTC every day')
   console.log('   - Daily OS snapshot: midnight (0 AM UTC) every day')
+  console.log('   - Daily morning biofield summary: 8 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1093,8 +1208,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM; intention completion: 20
-    if (hour === 9 || hour === 6 || hour === 4 || hour === 3 || hour === 0 || hour === 20) {
+    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM; intention completion: 20; morning biofield: 8 AM
+    if (hour === 9 || hour === 8 || hour === 6 || hour === 4 || hour === 3 || hour === 0 || hour === 20) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
