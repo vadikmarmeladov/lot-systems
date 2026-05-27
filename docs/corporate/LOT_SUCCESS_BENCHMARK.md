@@ -30,7 +30,7 @@ PROJECT TIMELINE: 29 December 2025 → 26 May 2026 (149 days)
 | TypeScript source files | 199 |
 | Total lines of TypeScript | 61,144 |
 | Client components | 78 |
-| Widget components | 36 |
+| Widget components | 37 |
 | Client stores | 12 |
 | Server route modules | 6 |
 | Server utility modules | 21 |
@@ -41,16 +41,16 @@ PROJECT TIMELINE: 29 December 2025 → 26 May 2026 (149 days)
 | Engine | File | Lines |
 |---|---|---|
 | Quantum Intent Engine | `stores/intentionEngine.ts` | 3,020 |
-| System Progress Widget | `components/SystemProgressWidget.tsx` | 1,065+ |
-| About Page | `components/About.tsx` | 3,854 |
+| System Progress Widget | `components/SystemProgressWidget.tsx` | 1,695 |
+| About Page | `components/About.tsx` | 3,862 |
 | Scheduled Jobs | `server/scheduled-jobs.ts` | 1,224 |
 | API Routes | `server/routes/api.ts` | 4,577 |
 | Admin API | `server/routes/admin-api.ts` | 2,197 |
 | Public API | `server/routes/public-api.ts` | 1,320 |
 | OS API | `server/routes/os-api.ts` | 759 |
-| Log Editor | `components/Logs.tsx` | 614+ |
+| Log Editor | `components/Logs.tsx` | 1,382 |
 | Self-Assembly Store | `stores/selfAssembly.ts` | 559 |
-| **Core engine total** | | **~15,760** |
+| **Core engine total** | | **20,595** |
 
 ### Memory Engine (server-side)
 | Module | Lines |
@@ -98,7 +98,7 @@ PROJECT TIMELINE: 29 December 2025 → 26 May 2026 (149 days)
 
 ---
 
-## WIDGET INVENTORY (36 widgets)
+## WIDGET INVENTORY (37 widgets)
 
 ```
 AIFeedbackWidget        AngelInvestorWidget     BenchmarkWidget
@@ -125,14 +125,14 @@ Plus 6 stat components: `BadgeUnlockFeed`, `CollectiveConsciousness`, `GrowthMil
 |---|---|---|
 | Assembly logs | 27 | — |
 | Badge documentation | 9 .md + 12 PDFs | — |
-| Corporate docs | 3 | — |
-| Deployment guides | 16 | — |
+| Corporate docs | 4 | — |
+| Deployment guides | 21 | — |
 | Diagnostic docs | 8 | — |
 | Release notes | 9 | — |
 | Security docs | 3 | — |
 | Setup guides | 7 | — |
-| Technical docs | 17 | — |
-| **Total documentation** | **116 .md files** | **30,990 lines** |
+| Technical docs | 25 | — |
+| **Total documentation** | **117 .md files** | **31,267 lines** |
 
 ---
 
@@ -271,7 +271,7 @@ MADE IN THE USA
 Vadim Marmeladov — CEO, Owner LOT®        Founded 7 April 2016
 Kuzya Cosmo Marmeladov — CEO, Owner COSMO®  Founded 1 July 2024
 
-456 commits. 61,144 lines of TypeScript. 36 widgets. 62 patterns.
+457 commits. 61,144 lines of TypeScript. 37 widgets. 62 patterns.
 149 days from first commit to this benchmark.
 Papa and son. First node. Building.
 ```
