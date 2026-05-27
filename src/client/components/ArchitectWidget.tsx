@@ -124,8 +124,19 @@ export function ArchitectWidget() {
     <Block label="Architect:" blockView>
       <div className="flex flex-col gap-y-16 font-mono text-xs">
 
-        {/* System overview */}
+        {/* Brand header */}
         <div className="flex flex-col gap-y-4">
+          <div className="flex justify-between items-baseline">
+            <span className="uppercase tracking-widest">LOT® Self-Assembly®</span>
+            <span className="opacity-30 tabular-nums">v{assembly.totalModules}.{assembly.assembledCount}</span>
+          </div>
+          <div className="opacity-30">
+            Living software that builds itself from use. Each module assembles when your signal pattern reaches threshold. No synthetic data. No fake progress. Real assembly from real use.
+          </div>
+        </div>
+
+        {/* System overview */}
+        <div className="border-t border-acc-400/30 pt-16 flex flex-col gap-y-4">
           <div className="flex justify-between items-baseline">
             <span className="opacity-30 uppercase tracking-widest">System phase</span>
             <span>{phaseSymbol(assembly.phase)} {phaseLabel(assembly.phase)}</span>
