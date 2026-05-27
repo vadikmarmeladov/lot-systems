@@ -122,12 +122,12 @@ export function ArchitectWidget() {
 
   return (
     <Block label="Architect:" blockView>
-      <div className="flex flex-col gap-y-16 font-mono text-xs">
+      <div className="flex flex-col gap-y-16">
 
         {/* Brand header */}
-        <div className="flex flex-col gap-y-4">
-          <div className="flex justify-between items-baseline">
-            <span className="uppercase tracking-widest">LOT® Self-Assembly®</span>
+        <div>
+          <div className="flex justify-between items-baseline mb-8">
+            <span>LOT® Self-Assembly®</span>
             <span className="opacity-30 tabular-nums">v{assembly.totalModules}.{assembly.assembledCount}</span>
           </div>
           <div className="opacity-30">
@@ -136,35 +136,35 @@ export function ArchitectWidget() {
         </div>
 
         {/* System overview */}
-        <div className="border-t border-acc-400/30 pt-16 flex flex-col gap-y-4">
-          <div className="flex justify-between items-baseline">
-            <span className="opacity-30 uppercase tracking-widest">System phase</span>
+        <div>
+          <div className="flex justify-between items-baseline mb-8">
+            <span className="opacity-30">System Phase</span>
             <span>{phaseSymbol(assembly.phase)} {phaseLabel(assembly.phase)}</span>
           </div>
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-8 mb-8">
             <ProgressBars percentage={assembly.overallAssembly} barCount={17} />
             <span className="tabular-nums">{assembly.overallAssembly}%</span>
           </div>
-          <div className="flex justify-between items-baseline">
-            <span className="opacity-30 uppercase tracking-widest">Modules</span>
+          <div className="flex justify-between items-baseline mb-8">
+            <span className="opacity-30">Modules</span>
             <span className="tabular-nums">
               {assembly.assembledCount}/{assembly.totalModules} online
             </span>
           </div>
-          <div className="flex justify-between items-baseline">
-            <span className="opacity-30 uppercase tracking-widest">Signals 24h</span>
+          <div className="flex justify-between items-baseline mb-8">
+            <span className="opacity-30">Signals 24h</span>
             <span className="tabular-nums">{signals24h.length}</span>
           </div>
           <div className="flex justify-between items-baseline">
-            <span className="opacity-30 uppercase tracking-widest">Signals 7d</span>
+            <span className="opacity-30">Signals 7d</span>
             <span className="tabular-nums">{signals7d.length}</span>
           </div>
         </div>
 
         {/* Phase distribution */}
         <div className="border-t border-acc-400/30 pt-16">
-          <div className="opacity-30 uppercase tracking-widest mb-8">Phase distribution</div>
-          <div className="flex flex-col gap-y-2">
+          <div className="opacity-30 mb-8">Phase distribution:</div>
+          <div className="flex flex-col gap-y-4">
             {integrated > 0 && (
               <div className="flex justify-between">
                 <span className="text-acc">{'◉'} Integrated</span>
@@ -200,7 +200,7 @@ export function ArchitectWidget() {
 
         {/* Module telemetry — expandable rows */}
         <div className="border-t border-acc-400/30 pt-16">
-          <div className="opacity-30 uppercase tracking-widest mb-8">Module telemetry</div>
+          <div className="opacity-30 mb-8">Module telemetry:</div>
           <div className="flex flex-col gap-y-8">
             {sortedModules.map(module => {
               const isExpanded = expanded.has(module.id)
@@ -219,7 +219,7 @@ export function ArchitectWidget() {
                       </span>
                     </div>
                     {module.phase !== 'dormant' && (
-                      <div className="flex items-center gap-8 mt-2">
+                      <div className="flex items-center gap-8 mt-4">
                         <ProgressBars percentage={module.density} barCount={10} />
                         <span className="opacity-20 tabular-nums">
                           {signalAge(module.lastSignal)}
@@ -229,27 +229,27 @@ export function ArchitectWidget() {
                   </button>
 
                   {isExpanded && module.phase !== 'dormant' && (
-                    <div className="pl-12 mt-4 flex flex-col gap-y-2 border-l border-acc-400/10">
+                    <div className="pl-16 mt-8 flex flex-col gap-y-4 border-l border-acc-400/10">
                       <div className="flex justify-between">
-                        <span className="opacity-30 uppercase">Signals</span>
+                        <span className="opacity-30">Signals</span>
                         <span className="tabular-nums">{module.signalCount}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="opacity-30 uppercase">Coherence</span>
+                        <span className="opacity-30">Coherence</span>
                         <span className="tabular-nums">
-                          {module.coherence}% {coherenceLabel(module.coherence)}
+                          {module.coherence}% <span className="opacity-30">{coherenceLabel(module.coherence)}</span>
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="opacity-30 uppercase">First signal</span>
+                        <span className="opacity-30">First signal</span>
                         <span className="tabular-nums">{signalAge(module.firstSignal)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="opacity-30 uppercase">Last signal</span>
+                        <span className="opacity-30">Last signal</span>
                         <span className="tabular-nums">{signalAge(module.lastSignal)}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="opacity-30 uppercase">Phase</span>
+                        <span className="opacity-30">Phase</span>
                         <span>{phaseLabel(module.phase)}</span>
                       </div>
                     </div>
@@ -263,11 +263,11 @@ export function ArchitectWidget() {
         {/* Signal source breakdown */}
         {sourceBreakdown.length > 0 && (
           <div className="border-t border-acc-400/30 pt-16">
-            <div className="opacity-30 uppercase tracking-widest mb-8">Signal sources · 7d</div>
-            <div className="flex flex-col gap-y-2">
+            <div className="opacity-30 mb-8">Signal sources · 7d:</div>
+            <div className="flex flex-col gap-y-4">
               {sourceBreakdown.map(([source, count]) => (
                 <div key={source} className="flex justify-between">
-                  <span className="opacity-50 uppercase">{source}</span>
+                  <span className="opacity-50 capitalize">{source}</span>
                   <span className="tabular-nums">{count}</span>
                 </div>
               ))}
@@ -276,14 +276,10 @@ export function ArchitectWidget() {
         )}
 
         {/* Narrative */}
-        <div className="opacity-30 pt-8">
+        <div className="opacity-30">
           {assembly.narrative}
         </div>
 
-        {/* Recompute timestamp */}
-        <div className="opacity-20 text-right tabular-nums">
-          {new Date(lastRecompute).toISOString().replace('T', ' ').slice(11, 19)}Z
-        </div>
       </div>
     </Block>
   )
