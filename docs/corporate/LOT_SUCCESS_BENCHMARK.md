@@ -16,8 +16,9 @@ CLASSIFICATION: INTERNAL REFERENCE
 STATUS: ALL SYSTEMS GREEN
 BUILD: PASSING
 BRANCH: claude/quantum-engine-widgets-RgFfC (ready to merge → master)
-COMMIT COUNT: 456
-PROJECT TIMELINE: 29 December 2025 → 26 May 2026 (149 days)
+COMMIT COUNT: 459
+PROJECT TIMELINE: 29 December 2025 → 27 May 2026 (149 days)
+LOG TRIGGERS: ALL WIRED — /synth /radio /prayer /night /qos /assembly
 ```
 
 ---
@@ -28,7 +29,7 @@ PROJECT TIMELINE: 29 December 2025 → 26 May 2026 (149 days)
 | Metric | Count |
 |---|---|
 | TypeScript source files | 199 |
-| Total lines of TypeScript | 61,144 |
+| Total lines of TypeScript | 61,150 |
 | Client components | 78 |
 | Widget components | 37 |
 | Client stores | 12 |
@@ -48,9 +49,9 @@ PROJECT TIMELINE: 29 December 2025 → 26 May 2026 (149 days)
 | Admin API | `server/routes/admin-api.ts` | 2,197 |
 | Public API | `server/routes/public-api.ts` | 1,320 |
 | OS API | `server/routes/os-api.ts` | 759 |
-| Log Editor | `components/Logs.tsx` | 1,382 |
+| Log Editor | `components/Logs.tsx` | 1,388 |
 | Self-Assembly Store | `stores/selfAssembly.ts` | 559 |
-| **Core engine total** | | **20,595** |
+| **Core engine total** | | **20,601** |
 
 ### Memory Engine (server-side)
 | Module | Lines |
@@ -125,14 +126,14 @@ Plus 6 stat components: `BadgeUnlockFeed`, `CollectiveConsciousness`, `GrowthMil
 |---|---|---|
 | Assembly logs | 27 | — |
 | Badge documentation | 9 .md + 12 PDFs | — |
-| Corporate docs | 4 | — |
+| Corporate docs | 5 | — |
 | Deployment guides | 21 | — |
 | Diagnostic docs | 8 | — |
 | Release notes | 9 | — |
 | Security docs | 3 | — |
 | Setup guides | 7 | — |
 | Technical docs | 25 | — |
-| **Total documentation** | **117 .md files** | **31,267 lines** |
+| **Total documentation** | **118 .md files** | **31,633 lines** |
 
 ---
 
@@ -219,6 +220,13 @@ Helmet:                 @fastify/helmet (CSP, headers)
 Patterns documented:    62 (through v44)
 Archetypes:             17
 Log handlers:           44
+Log trigger commands:   14 defined, 6 wired to actions
+  /synth    → toggle Soviet keyboard sound
+  /radio    → toggle radio on/off
+  /prayer   → switch to dark (prayer) mode
+  /night    → switch to dark (night) mode
+  /qos      → quantum OS state report
+  /assembly → self-assembly status check
 Assembly logs:          v1 through v43
 Self-assembly phases:   Active (bootstrap → calibration → integration)
 Intelligence modes:     ANALYSIS / SYNTHESIS / GENERATION / COMPRESSION /
@@ -235,6 +243,8 @@ Intelligence modes:     ANALYSIS / SYNTHESIS / GENERATION / COMPRESSION /
 | LOT USA IPO Plan | Complete with full software inventory |
 | LOT Robotics COSMO | Vision document |
 | LOT Badges & Achievements Codex v6 | PDF + markdown |
+| LOT Success Benchmark | Established 26 May 2026 |
+| LOT Benchmark Color System | 5-color operational protocol |
 
 ---
 
@@ -271,7 +281,7 @@ MADE IN THE USA
 Vadim Marmeladov — CEO, Owner LOT®        Founded 7 April 2016
 Kuzya Cosmo Marmeladov — CEO, Owner COSMO®  Founded 1 July 2024
 
-457 commits. 61,144 lines of TypeScript. 37 widgets. 62 patterns.
+459 commits. 61,150 lines of TypeScript. 37 widgets. 62 patterns.
 149 days from first commit to this benchmark.
 Papa and son. First node. Building.
 ```
