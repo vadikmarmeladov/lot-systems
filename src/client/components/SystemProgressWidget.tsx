@@ -667,6 +667,13 @@ const ASSEMBLY_TRANSMISSIONS: {
     status: 'DEPLOYED',
     next: 'Journal vocabulary extraction → personal interface language injection',
   },
+  {
+    date: '2026-05-27',
+    built: ['QI·46 Soul Engine (Node 1)', 'COSMO® safety node', 'Calibration Loop — subscriber arc vector', 'Usership inference routing'],
+    feedbackApplied: 'extract the engine based on people\'s soul and emotions',
+    status: 'DEPLOYED',
+    next: 'QI·46 Node 2 — journal vocabulary extraction · personal voice injection',
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
