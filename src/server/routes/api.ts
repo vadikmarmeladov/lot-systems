@@ -955,7 +955,7 @@ export default async (fastify: FastifyInstance) => {
     const displayableEvents = [
       'note', 'answer', 'chat_message', 'chat_message_like',
       'emotional_checkin', 'settings_change', 'system_snapshot',
-      'weekly_summary_response',
+      'weekly_summary_response', 'calendar_entry',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
