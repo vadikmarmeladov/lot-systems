@@ -1193,6 +1193,12 @@ const NoteEditor = ({
           if (next) playSynthActivationChime()
           else playSynthDeactivationChime()
         } catch {}
+      } else if (trigger === 'radio-toggle') {
+        stores.isRadioOn.set(!stores.isRadioOn.get())
+      } else if (trigger === 'prayer-mode') {
+        stores.theme.set('dark')
+      } else if (trigger === 'night-mode') {
+        stores.theme.set('dark')
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
