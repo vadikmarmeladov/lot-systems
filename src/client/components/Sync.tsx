@@ -15,9 +15,12 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useEmailInbox,
+  useMarkEmailRead,
+  useDeleteEmail,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, UserTag, LotEmailMessage } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -53,6 +56,12 @@ export const Sync = () => {
       queryClient.invalidateQueries(['/api/chat-messages'])
     }
   })
+
+  const { data: inboxEmails = [], refetch: refetchInbox } = useEmailInbox()
+  const [emails, setEmails] = React.useState<LotEmailMessage[]>([])
+  const [inboxOpen, setInboxOpen] = React.useState(false)
+  const { mutate: markRead } = useMarkEmailRead()
+  const { mutate: deleteEmail } = useDeleteEmail({ onSuccess: () => refetchInbox() })
 
   const onChangeMessage = React.useCallback((value: string) => {
     setMessage(
@@ -116,6 +125,17 @@ export const Sync = () => {
       disposeChatMessageLikeListener()
     }
   }, [me?.id])
+
+  React.useEffect(() => {
+    setEmails(inboxEmails)
+  }, [inboxEmails])
+
+  React.useEffect(() => {
+    const { dispose } = sync.listen('lot_email', (data: LotEmailMessage) => {
+      setEmails((prev) => [data, ...prev])
+    })
+    return () => dispose()
+  }, [])
 
   const onSubmitMessage = React.useCallback(
     (ev?: React.FormEvent) => {

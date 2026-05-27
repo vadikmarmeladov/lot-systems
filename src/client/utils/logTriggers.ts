@@ -29,6 +29,7 @@ export type LogTrigger =
   | 'assembly-check'    // /assembly — trigger self-assembly module status check
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
+  | 'send-email'        // ✉️  or  /email
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -51,6 +52,7 @@ const RULES: TriggerRule[] = [
   { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
+  { trigger: 'send-email',     emojis: ['✉️', '📧'], keywords: ['email'] },
 ]
 
 /**
@@ -98,4 +100,22 @@ export function detectNewTriggers(
   const fresh: LogTrigger[] = []
   current.forEach(t => { if (!prior.has(t)) fresh.push(t) })
   return fresh
+}
+
+/**
+ * Parses an /email to [name] command from log text.
+ * Returns the recipient name and the body (everything except the command line).
+ */
+export function parseEmailCommand(text: string): { to: string | null; body: string } {
+  // Match: /email to [Name] (optionally followed by more text)
+  const match = text.match(/\/email\s+to\s+([^\n,\.?!]+)/i)
+  if (!match) return { to: null, body: text.trim() }
+
+  const to = match[1].trim()
+  // Body = all text except the command line
+  const body = text
+    .replace(/\/?email\s+to\s+[^\n]*/gi, '')
+    .trim()
+
+  return { to: to || null, body }
 }

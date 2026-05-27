@@ -112,6 +112,25 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+export const useSendEmail = createMutation<
+  { to: string; body: string },
+  { id: string; receiverName: string | null }
+>('post', '/api/emails')
+
+export const useEmailInbox = createQuery<
+  import('#shared/types').LotEmailMessage[]
+>('/api/emails/inbox', { refetchOnWindowFocus: false })
+
+export const useMarkEmailRead = createMutation<{ id: string }, void>(
+  'put',
+  (data) => `/api/emails/${data.id}/read`
+)
+
+export const useDeleteEmail = createMutation<{ id: string }, void>(
+  'delete',
+  (data) => `/api/emails/${data.id}`
+)
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

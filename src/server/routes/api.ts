@@ -4,6 +4,7 @@ import seedrandom from 'seedrandom'
 import {
   ChatMessageLikeEventPayload,
   ChatMessageLikePayload,
+  LotEmailMessage,
   PublicChatMessage,
   UserSettings,
   UserTag,
@@ -15,6 +16,7 @@ import {
   DATE_FORMAT,
   DATE_TIME_FORMAT,
   LOG_MESSAGE_STALE_TIME_MINUTES,
+  MAX_EMAIL_BODY_LENGTH,
   MAX_LOG_TEXT_LENGTH,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
   SYNC_CHAT_MESSAGES_TO_SHOW,
@@ -370,6 +372,13 @@ export default async (fastify: FastifyInstance) => {
             isLiked: likes.some(fp.propEq('userId', req.user.id)),
           }
           write({ event, data: updatedPayload })
+          break
+        }
+        case 'lot_email': {
+          // Only deliver to the intended receiver
+          if ((data as any).receiverId === req.user.id) {
+            write({ event, data })
+          }
           break
         }
       }
@@ -4519,6 +4528,132 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       return reply.status(500).send({ error: 'Failed to fetch pulse' })
     }
   })
+
+  // ============================================================================
+  // LOT® EMAIL SYSTEM
+  // ============================================================================
+
+  // POST /api/emails — send a message to another LOT member by first name
+  fastify.post(
+    '/emails',
+    async (req: FastifyRequest<{ Body: { to: string; body: string } }>, reply) => {
+      const { to, body } = req.body
+      if (!to?.trim() || !body?.trim()) {
+        return reply.throw.badParams('Recipient and body are required')
+      }
+
+      const trimmedBody = body.trim().slice(0, MAX_EMAIL_BODY_LENGTH)
+
+      // Find recipient by first name (case-insensitive)
+      const receiver = await fastify.models.User.findOne({
+        where: {
+          firstName: { [Op.iLike]: to.trim() },
+        },
+      })
+
+      if (!receiver) {
+        return reply.code(404).send({
+          error: 'Recipient not found',
+          message: `No member named "${to.trim()}"`,
+        })
+      }
+
+      if (receiver.id === req.user.id) {
+        return reply.code(400).send({ error: 'Cannot send email to yourself' })
+      }
+
+      const email = await fastify.models.LotEmail.create({
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        body: trimmedBody,
+      })
+
+      // Broadcast via SSE — the SSE handler filters by receiverId
+      sync.emit('lot_email', {
+        id: email.id,
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        body: trimmedBody,
+        readAt: null,
+        createdAt: email.createdAt,
+        updatedAt: email.updatedAt,
+        senderName: req.user.firstName,
+        receiverName: receiver.firstName,
+        isMine: false,
+      })
+
+      // Record in sender's log
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'lot_email_sent',
+        text: '',
+        metadata: {
+          emailId: email.id,
+          receiverId: receiver.id,
+          receiverName: receiver.firstName,
+          bodyPreview: trimmedBody.slice(0, 100),
+        },
+        context,
+      })
+
+      return { id: email.id, receiverName: receiver.firstName }
+    }
+  )
+
+  // GET /api/emails/inbox — received emails
+  fastify.get('/emails/inbox', async (req, reply) => {
+    const emails = await fastify.models.LotEmail.findAll({
+      where: { receiverId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+
+    const senderIds = [...new Set(emails.map((e: any) => e.senderId))]
+    const senders =
+      senderIds.length > 0
+        ? await fastify.models.User.findAll({ where: { id: senderIds } })
+        : []
+    const senderById = senders.reduce((acc: any, s: any) => ({ ...acc, [s.id]: s }), {})
+
+    return emails.map((email: any) => ({
+      ...email.toJSON(),
+      senderName: senderById[email.senderId]?.firstName || null,
+      receiverName: req.user.firstName,
+      isMine: false,
+    }))
+  })
+
+  // PUT /api/emails/:id/read — mark email as read
+  fastify.put(
+    '/emails/:id/read',
+    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
+      const email = await fastify.models.LotEmail.findOne({
+        where: { id: req.params.id, receiverId: req.user.id },
+      })
+      if (!email) return reply.throw.notFound()
+      if (!email.readAt) {
+        await email.set({ readAt: new Date() }).save()
+      }
+      return reply.ok()
+    }
+  )
+
+  // DELETE /api/emails/:id — delete email (sender or receiver)
+  fastify.delete(
+    '/emails/:id',
+    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
+      const email = await fastify.models.LotEmail.findOne({
+        where: {
+          id: req.params.id,
+          [Op.or]: [{ receiverId: req.user.id }, { senderId: req.user.id }],
+        },
+      })
+      if (!email) return reply.throw.notFound()
+      await email.destroy()
+      return reply.ok()
+    }
+  )
 
   // ============================================================================
   // Cosmic Update — Together AI image generation

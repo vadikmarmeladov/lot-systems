@@ -20,7 +20,8 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, type LogTrigger, parseEmailCommand } from '#client/utils/logTriggers'
+import { EmailCompose } from '#client/components/EmailCompose'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions } from '#client/stores/intentionEngine'
 
 const localStore = {
@@ -922,6 +923,27 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'lot_email_sent') {
+          const receiverName = log.metadata?.receiverName as string | undefined
+          const bodyPreview = log.metadata?.bodyPreview as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                {receiverName && (
+                  <div className="uppercase tracking-widest mb-4">
+                    → {receiverName}
+                  </div>
+                )}
+                {bodyPreview && (
+                  <div className="opacity-60">
+                    {bodyPreview.length > 80
+                      ? bodyPreview.slice(0, 80) + '...'
+                      : bodyPreview}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -970,6 +992,11 @@ const NoteEditor = ({
   const [value, setValue] = React.useState(log.text || '')
   const [lastSavedAt, setLastSavedAt] = React.useState<Date | null>(null)
   const [isSaved, setIsSaved] = React.useState(true) // Track if current content is saved
+  const [emailCompose, setEmailCompose] = React.useState<{
+    to: string | null
+    body: string
+  } | null>(null)
+  const [emailSentTo, setEmailSentTo] = React.useState<string | null>(null)
   const debounceTime = 7000  // 7s for all logs
   const debouncedValue = useDebounce(value, debounceTime)
 
@@ -1140,6 +1167,12 @@ const NoteEditor = ({
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'send-email') {
+        const parsed = parseEmailCommand(value)
+        if (parsed.to && !emailCompose) {
+          setEmailCompose({ to: parsed.to, body: parsed.body })
+          setEmailSentTo(null)
+        }
       }
     }
   }, [value])
@@ -1251,6 +1284,24 @@ const NoteEditor = ({
           rows={primary ? 10 : 1}
         />
       </div>
+
+      {/* Email Compose Overlay */}
+      {emailCompose && (
+        <EmailCompose
+          to={emailCompose.to || ''}
+          body={emailCompose.body}
+          onSent={(receiverName) => {
+            setEmailCompose(null)
+            setEmailSentTo(receiverName)
+          }}
+          onCancel={() => setEmailCompose(null)}
+        />
+      )}
+      {emailSentTo && (
+        <div className="mt-8 text-acc/40 text-xs uppercase tracking-widest">
+          ✉ SENT → {emailSentTo}
+        </div>
+      )}
     </div>
   )
 }
