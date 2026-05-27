@@ -341,6 +341,7 @@ docs/corporate/
 ├── LOT_SUCCESS_BENCHMARK.md           — Baseline metrics snapshot
 ├── LOT_BENCHMARK_COLOR_SYSTEM.md      — 5-color status protocol
 ├── LOT_PRODUCT_BENCHMARK.md           — This document
+├── LOT_QI46_ENGINE.md                 — QI·46 Engine spec & self-assembly manual
 ├── LOT_ROBOTICS_COSMO.md              — COSMO® robotics vision
 └── LOT_USA_IPO.md                     — IPO plan + software inventory
 ```
