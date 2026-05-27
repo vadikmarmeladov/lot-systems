@@ -38,6 +38,7 @@ import { SystemProgressWidget } from './SystemProgressWidget'
 import { SystemPulseWidget } from './SystemPulseWidget'
 import { EvolutionWidget } from './EvolutionWidget'
 import { CohortConnectWidget } from './CohortConnectWidget'
+import { MailWidget } from './MailWidget'
 import { InterfaceEvolutionWidget } from './InterfaceEvolutionWidget'
 import { EvolutionMilestoneToast } from './EvolutionMilestoneToast'
 import { MicroCalculatorWidget } from './MicroCalculatorWidget'
@@ -455,6 +456,10 @@ export const System = () => {
 
         <WidgetErrorBoundary name="Game">
           <MicroGameWidget />
+        </WidgetErrorBoundary>
+
+        <WidgetErrorBoundary name="Mail">
+          <MailWidget />
         </WidgetErrorBoundary>
 
         <WidgetErrorBoundary name="Subscribe">

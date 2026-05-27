@@ -956,7 +956,7 @@ export default async (fastify: FastifyInstance) => {
     const displayableEvents = [
       'note', 'answer', 'chat_message', 'chat_message_like',
       'emotional_checkin', 'settings_change', 'system_snapshot',
-      'weekly_summary_response',
+      'weekly_summary_response', 'lot_email_sent', 'lot_email_received',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -4595,6 +4595,22 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
           bodyPreview: trimmedBody.slice(0, 100),
         },
         context,
+      })
+
+      // Record in receiver's log (async — non-blocking for sender)
+      process.nextTick(async () => {
+        await fastify.models.Log.create({
+          userId: receiver.id,
+          event: 'lot_email_received',
+          text: '',
+          metadata: {
+            emailId: email.id,
+            senderId: req.user.id,
+            senderName: req.user.firstName,
+            bodyPreview: trimmedBody.slice(0, 100),
+          },
+          context: {},
+        })
       })
 
       return { id: email.id, receiverName: receiver.firstName }

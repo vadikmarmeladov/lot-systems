@@ -944,6 +944,27 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'lot_email_received') {
+          const senderName = log.metadata?.senderName as string | undefined
+          const bodyPreview = log.metadata?.bodyPreview as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                {senderName && (
+                  <div className="uppercase tracking-widest mb-4">
+                    ← {senderName}
+                  </div>
+                )}
+                {bodyPreview && (
+                  <div className="opacity-60">
+                    {bodyPreview.length > 80
+                      ? bodyPreview.slice(0, 80) + '...'
+                      : bodyPreview}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

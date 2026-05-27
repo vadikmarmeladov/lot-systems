@@ -21,6 +21,7 @@ import {
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag, LotEmailMessage } from '#shared/types'
+import { EmailCompose } from '#client/components/EmailCompose'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -60,6 +61,8 @@ export const Sync = () => {
   const { data: inboxEmails = [], refetch: refetchInbox } = useEmailInbox()
   const [emails, setEmails] = React.useState<LotEmailMessage[]>([])
   const [inboxOpen, setInboxOpen] = React.useState(false)
+  const [expandedEmailId, setExpandedEmailId] = React.useState<string | null>(null)
+  const [replyToEmail, setReplyToEmail] = React.useState<LotEmailMessage | null>(null)
   const { mutate: markRead } = useMarkEmailRead()
   const { mutate: deleteEmail } = useDeleteEmail({ onSuccess: () => refetchInbox() })
 
@@ -200,62 +203,120 @@ export const Sync = () => {
       {/* EMAIL INBOX */}
       {emails.length > 0 && (
         <div className="mb-80">
+          {/* Header / toggle */}
           <button
-            className="flex items-center gap-x-8 text-acc/40 text-xs uppercase tracking-widest mb-0 hover:text-acc/70 transition-colors"
-            onClick={() => setInboxOpen((v) => !v)}
+            className="flex items-center gap-x-8 text-acc/40 text-xs uppercase tracking-widest hover:text-acc/70 transition-colors"
+            onClick={() => {
+              setInboxOpen((v) => !v)
+              if (inboxOpen) {
+                setExpandedEmailId(null)
+                setReplyToEmail(null)
+              }
+            }}
           >
             <span>✉</span>
             <span>MAIL</span>
-            <span className="ml-4">{emails.filter((e) => !e.readAt).length > 0 && `[${emails.filter((e) => !e.readAt).length}]`}</span>
+            {emails.filter((e) => !e.readAt).length > 0 && (
+              <span className="ml-4">
+                [{emails.filter((e) => !e.readAt).length}]
+              </span>
+            )}
             <span className="ml-4 opacity-50">{inboxOpen ? '▲' : '▼'}</span>
           </button>
+
           {inboxOpen && (
-            <div className="mt-8 border-t border-acc/10 pt-8">
-              {emails.map((email) => (
-                <div
-                  key={email.id}
-                  className={cn(
-                    'group flex items-start gap-x-8 -mx-4 px-4 py-4 rounded',
-                    !email.readAt && 'border-l-2 border-acc/30 pl-6',
-                    'grid-fill-hover'
-                  )}
-                  onClick={() => {
-                    if (!email.readAt) {
-                      markRead({ id: email.id })
-                      setEmails((prev) =>
-                        prev.map((e) =>
-                          e.id === email.id ? { ...e, readAt: new Date() } : e
-                        )
-                      )
-                    }
-                  }}
-                >
-                  <span className="whitespace-nowrap text-sm">
-                    {email.senderName || 'Unknown'}
-                  </span>
-                  <div
-                    className="flex-1 text-sm opacity-60 truncate"
-                    style={{ wordBreak: 'break-word' }}
-                  >
-                    {email.body.length > 60
-                      ? email.body.slice(0, 60) + '...'
-                      : email.body}
-                  </div>
-                  <div className="flex items-center gap-x-8 opacity-0 group-hover:opacity-40 transition-opacity">
-                    <MessageTimeLabel dateString={String(email.createdAt)} />
-                    <button
-                      className="text-xs hover:opacity-80"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        deleteEmail({ id: email.id })
-                        setEmails((prev) => prev.filter((x) => x.id !== email.id))
+            <div className="mt-8 border-t border-acc/10 pt-8 space-y-0">
+              {emails.map((email) => {
+                const isExpanded = expandedEmailId === email.id
+                return (
+                  <div key={email.id} className="mb-4">
+                    {/* Row */}
+                    <div
+                      className={cn(
+                        'group flex items-start gap-x-8 -mx-4 px-4 py-2 rounded cursor-pointer',
+                        !email.readAt && 'border-l-2 border-acc/40 pl-[14px]',
+                        isExpanded && 'text-acc',
+                        'grid-fill-hover'
+                      )}
+                      onClick={() => {
+                        const next = isExpanded ? null : email.id
+                        setExpandedEmailId(next)
+                        setReplyToEmail(null)
+                        // Mark read on expand
+                        if (!email.readAt && next) {
+                          markRead({ id: email.id })
+                          setEmails((prev) =>
+                            prev.map((e) =>
+                              e.id === email.id ? { ...e, readAt: new Date() } : e
+                            )
+                          )
+                        }
                       }}
                     >
-                      ×
-                    </button>
+                      <span className="whitespace-nowrap text-sm font-medium">
+                        {email.senderName || 'Unknown'}
+                      </span>
+                      <div
+                        className={cn(
+                          'flex-1 text-sm transition-opacity',
+                          isExpanded ? 'opacity-80' : 'opacity-50'
+                        )}
+                        style={{ wordBreak: 'break-word' }}
+                      >
+                        {isExpanded
+                          ? email.body
+                          : email.body.length > 55
+                            ? email.body.slice(0, 55) + '...'
+                            : email.body}
+                      </div>
+                      <div className="flex items-center gap-x-8 opacity-0 group-hover:opacity-40 transition-opacity shrink-0">
+                        <MessageTimeLabel dateString={String(email.createdAt)} />
+                        <button
+                          className="text-xs hover:opacity-80"
+                          title="Delete"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            if (isExpanded) setExpandedEmailId(null)
+                            deleteEmail({ id: email.id })
+                            setEmails((prev) =>
+                              prev.filter((x) => x.id !== email.id)
+                            )
+                          }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Expanded: actions */}
+                    {isExpanded && !replyToEmail && (
+                      <div className="pl-4 mt-4">
+                        <GhostButton
+                          className="text-xs uppercase tracking-widest"
+                          onClick={() => setReplyToEmail(email)}
+                        >
+                          ↩ Reply
+                        </GhostButton>
+                      </div>
+                    )}
+
+                    {/* Inline reply compose */}
+                    {isExpanded && replyToEmail?.id === email.id && (
+                      <div className="pl-4 mt-4">
+                        <EmailCompose
+                          to={email.senderName || ''}
+                          body=""
+                          onSent={() => {
+                            setReplyToEmail(null)
+                            setExpandedEmailId(null)
+                          }}
+                          onCancel={() => setReplyToEmail(null)}
+                        />
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
         </div>
