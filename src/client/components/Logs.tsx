@@ -1173,7 +1173,7 @@ const NoteEditor = ({
   // the editor. We compare against the previous value via ref so
   // editing around an existing trigger doesn't re-fire it.
   // --------------------------------------------------------------------
-  const lastTriggerScanRef = React.useRef('')
+  const lastTriggerScanRef = React.useRef(log.text || '')
   React.useEffect(() => {
     const fresh = detectNewTriggers(value, lastTriggerScanRef.current)
     lastTriggerScanRef.current = value
@@ -1189,10 +1189,10 @@ const NoteEditor = ({
         } catch {}
       } else if (trigger === 'radio-toggle') {
         stores.isRadioOn.set(!stores.isRadioOn.get())
-      } else if (trigger === 'prayer-mode') {
-        stores.theme.set('dark')
-      } else if (trigger === 'night-mode') {
-        stores.theme.set('dark')
+      } else if (trigger === 'prayer-mode' || trigger === 'night-mode') {
+        if (!stores.isCustomThemeEnabled.get()) {
+          stores.theme.set('dark')
+        }
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
