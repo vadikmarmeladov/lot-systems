@@ -112,6 +112,26 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+// LOT Email
+export const useCreateEmail = createMutation<
+  {
+    receiverName: string
+    body: string
+    receiverUserId?: string
+    isCohortMessage?: boolean
+  },
+  {
+    id: string
+    senderId: string
+    senderName: string
+    receiverName: string
+    receiverUserId: string | null
+    body: string
+    isCohortMessage: boolean
+    createdAt: string
+  }
+>('post', '/api/emails')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

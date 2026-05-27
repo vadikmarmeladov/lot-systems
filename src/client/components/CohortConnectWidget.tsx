@@ -6,6 +6,7 @@ import { useCohorts, useEnergy, useProfile } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
 import { recordSignal, getUserState } from '#client/stores/intentionEngine'
+import { openEmailCompose, EmailComposer } from '#client/components/EmailComposer'
 
 /**
  * Cohort Connect Widget - Find and connect with cohort members
@@ -108,14 +109,24 @@ export const CohortConnectWidget: React.FC = () => {
     window.location.href = `/users/${userId}`
   }
 
-  const handleSendMessage = (userId: string, similarity: number) => {
+  const handleSendMessage = (
+    userId: string,
+    firstName: string | undefined,
+    lastName: string | undefined,
+    similarity: number
+  ) => {
     recordSignal('mood', 'cohort_message_initiated', {
       userId,
       similarity,
       connectionReadiness,
       hour: new Date().getHours()
     })
-    window.location.href = '/sync'
+    const recipientName = [firstName, lastName?.charAt(0)]
+      .filter(Boolean)
+      .join(' ')
+      .trim() || 'Member'
+    // Open LOT Email composer with cohort context
+    openEmailCompose(recipientName, userId, true)
   }
 
   const handleToggleExpand = (userId: string) => {
@@ -256,10 +267,15 @@ export const CohortConnectWidget: React.FC = () => {
                         size="small"
                         onClick={(e: React.MouseEvent) => {
                           e.stopPropagation()
-                          handleSendMessage(match.user.id, match.similarity)
+                          handleSendMessage(
+                            match.user.id,
+                            match.user.firstName,
+                            match.user.lastName,
+                            match.similarity
+                          )
                         }}
                       >
-                        Send message
+                        ✉ Message
                       </Button>
                     </div>
                   </div>
@@ -290,6 +306,9 @@ export const CohortConnectWidget: React.FC = () => {
               : 'Connections based on shared patterns.'
           }
         </div>
+
+        {/* LOT Email composer — opens when "✉ Message" is clicked */}
+        <EmailComposer />
       </div>
     </Block>
   )

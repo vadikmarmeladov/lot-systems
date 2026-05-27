@@ -429,8 +429,32 @@ export type ChatMessageLikeEventPayload = {
   isLiked?: boolean;
 };
 
+// LOT Email Types
+export type LotEmail = {
+  id: string;
+  senderId: string;
+  receiverName: string;
+  receiverUserId: string | null;
+  body: string;
+  isCohortMessage: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type PublicEmailMessage = {
+  id: string;
+  senderId: string;
+  senderName: string;
+  receiverName: string;
+  receiverUserId: string | null;
+  body: string;
+  isCohortMessage: boolean;
+  createdAt: string;
+};
+
 // Sync Events
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
+  email_message: PublicEmailMessage;
 };

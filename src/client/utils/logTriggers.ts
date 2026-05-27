@@ -29,6 +29,7 @@ export type LogTrigger =
   | 'assembly-check'    // /assembly — trigger self-assembly module status check
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
+  | 'email-compose'     // /email to [Name] — compose a LOT message to someone
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -51,7 +52,28 @@ const RULES: TriggerRule[] = [
   { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
+  // email-compose is detected separately via extractEmailRecipient() — no simple rule here
+  // But we register a placeholder so the type is used in detectTriggers for "to:" forms
+  { trigger: 'email-compose',  emojis: ['✉️', '✉'], keywords: [] },
 ]
+
+/**
+ * Parses `/email to <Name>` or `/msg to <Name>` from text and returns the
+ * recipient name. Returns null if no such pattern is present.
+ *
+ * Examples:
+ *   "/email to Hitomi"  → "Hitomi"
+ *   "/email to Sae Kim" → "Sae Kim"
+ *   "/msg to Jo"        → "Jo"
+ */
+export function extractEmailRecipient(text: string): string | null {
+  if (!text) return null
+  // Match: /email to Name or /msg to Name (at start of line or after whitespace)
+  const match = text.match(/(?:^|\s)\/(?:email|msg)\s+to\s+(.+?)(?:\n|$)/i)
+  if (!match) return null
+  const name = match[1].trim()
+  return name.length > 0 ? name : null
+}
 
 /**
  * Returns every trigger present in `text`. An empty array means the
@@ -64,6 +86,12 @@ export function detectTriggers(text: string): LogTrigger[] {
   const lower = text.toLowerCase()
 
   for (const rule of RULES) {
+    // email-compose is detected via extractEmailRecipient — skip keyword check
+    if (rule.trigger === 'email-compose') {
+      if (extractEmailRecipient(text) !== null) hits.push(rule.trigger)
+      continue
+    }
+
     // Emoji check — literal includes, no boundary. Emojis are already
     // atomic enough that a substring match is the correct behavior.
     const hasEmoji = rule.emojis.some(e => text.includes(e))

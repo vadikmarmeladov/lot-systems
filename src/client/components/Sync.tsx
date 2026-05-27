@@ -17,11 +17,16 @@ import {
   useLikeChatMessage,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, PublicEmailMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+
+// Union type for the Sync feed
+type SyncFeedItem =
+  | ({ kind: 'chat' } & PublicChatMessage)
+  | ({ kind: 'email' } & PublicEmailMessage)
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -31,6 +36,7 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [feedItems, setFeedItems] = React.useState<SyncFeedItem[]>([])
   const hasInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
@@ -67,6 +73,8 @@ export const Sync = () => {
   React.useEffect(() => {
     if (fetchedMessages?.length && !hasInitiallyLoaded.current) {
       setMessages(fetchedMessages)
+      // Seed feedItems from initial chat messages
+      setFeedItems(fetchedMessages.map((m) => ({ kind: 'chat' as const, ...m })))
       hasInitiallyLoaded.current = true
     }
   }, [fetchedMessages])
@@ -83,13 +91,17 @@ export const Sync = () => {
   React.useEffect(() => {
     const { dispose: disposeChatMessageListener } = sync.listen(
       'chat_message',
-      (data) => {
+      (data: PublicChatMessage) => {
         setMessages((prev) => {
           if (prev.some((x) => x.id === data.id)) return prev
           const newValue = [data, ...prev]
           return canAccessUserProfiles
             ? newValue
             : newValue.slice(0, SYNC_CHAT_MESSAGES_TO_SHOW)
+        })
+        setFeedItems((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [{ kind: 'chat', ...data }, ...prev].slice(0, SYNC_CHAT_MESSAGES_TO_SHOW + 20)
         })
       }
     )
@@ -109,11 +121,33 @@ export const Sync = () => {
             return x
           })
         })
+        // Also update feedItems
+        setFeedItems((prev) =>
+          prev.map((x) => {
+            if (x.kind === 'chat' && x.id === data.messageId) {
+              if (data.userId === me?.id) {
+                return { ...x, likes: data.likes, isLiked: data.isLiked }
+              }
+              return { ...x, likes: data.likes }
+            }
+            return x
+          })
+        )
+      }
+    )
+    const { dispose: disposeEmailListener } = sync.listen(
+      'email_message',
+      (data: PublicEmailMessage) => {
+        setFeedItems((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [{ kind: 'email', ...data }, ...prev].slice(0, SYNC_CHAT_MESSAGES_TO_SHOW + 20)
+        })
       }
     )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeEmailListener()
     }
   }, [me?.id])
 
@@ -212,7 +246,47 @@ export const Sync = () => {
       </div>
 
       <div>
-        {messages.map((x, i) => {
+        {feedItems.map((item, i) => {
+          if (item.kind === 'email') {
+            // LOT Email message row
+            return (
+              <div
+                key={item.id}
+                className={cn(
+                  'group flex items-start gap-x-8 -mx-4 px-4 py-2 rounded',
+                  i >= SYNC_CHAT_MESSAGES_TO_SHOW && 'text-acc/20'
+                )}
+              >
+                <span className="whitespace-nowrap text-acc/40 select-none text-xs uppercase tracking-widest leading-normal mt-[3px] shrink-0">
+                  ✉
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-x-6 flex-wrap">
+                    <span className="text-acc/70 leading-normal">{item.senderName}</span>
+                    <span className="text-acc/30 leading-normal select-none">→</span>
+                    <span className="text-acc/50 leading-normal">{item.receiverName}</span>
+                    {item.isCohortMessage && (
+                      <span className="text-acc/25 text-xs uppercase tracking-widest select-none">◈ cohort</span>
+                    )}
+                  </div>
+                  <div
+                    className="text-acc/50 mt-2 leading-normal"
+                    style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+                  >
+                    {item.body}
+                  </div>
+                </div>
+                {!isTouchDevice && (
+                  <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40 shrink-0">
+                    <MessageTimeLabel dateString={item.createdAt} />
+                  </div>
+                )}
+              </div>
+            )
+          }
+
+          // Regular chat message row
+          const x = item as SyncFeedItem & { kind: 'chat' }
           const authorObj = typeof x.author === 'object' ? x.author : null
           const authorName = typeof x.author === 'string'
             ? x.author

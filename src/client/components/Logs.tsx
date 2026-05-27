@@ -20,8 +20,9 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, extractEmailRecipient, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions } from '#client/stores/intentionEngine'
+import { EmailComposer, EmailTriggerLabel, openEmailCompose } from '#client/components/EmailComposer'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -199,6 +200,27 @@ export const Logs: React.FC = () => {
               </Block>
               <Block label="OUT:" blockView>
                 {log.metadata.answer as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'email_sent') {
+          const receiverName = log.metadata?.receiverName as string | undefined
+          const body = log.metadata?.body as string | undefined
+          const isCohortMessage = log.metadata?.isCohortMessage as boolean | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MSG:" blockView>
+                <div className="flex items-center gap-x-8 mb-4">
+                  <span className="uppercase tracking-widest">
+                    → {receiverName || '—'}
+                  </span>
+                  {isCohortMessage && (
+                    <span className="opacity-40 text-xs uppercase tracking-widest">◈ cohort</span>
+                  )}
+                </div>
+                {body && (
+                  <div className="opacity-60">{body}</div>
+                )}
               </Block>
             </LogContainer>
           )
@@ -1124,6 +1146,14 @@ const NoteEditor = ({
   // editing around an existing trigger doesn't re-fire it.
   // --------------------------------------------------------------------
   const lastTriggerScanRef = React.useRef('')
+  const [emailRecipient, setEmailRecipient] = React.useState<string | null>(null)
+
+  // Track the current email recipient from the live textarea value (not just on trigger)
+  React.useEffect(() => {
+    const recipient = extractEmailRecipient(value)
+    setEmailRecipient(recipient)
+  }, [value])
+
   React.useEffect(() => {
     const fresh = detectNewTriggers(value, lastTriggerScanRef.current)
     lastTriggerScanRef.current = value
@@ -1140,6 +1170,10 @@ const NoteEditor = ({
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'email-compose') {
+        // Open email composer with the parsed recipient name
+        const recipient = extractEmailRecipient(value)
+        if (recipient) openEmailCompose(recipient)
       }
     }
   }, [value])
@@ -1251,6 +1285,14 @@ const NoteEditor = ({
           rows={primary ? 10 : 1}
         />
       </div>
+
+      {/* Email compose trigger hint + composer */}
+      {emailRecipient && (
+        <div className="max-w-[700px]">
+          <EmailTriggerLabel recipient={emailRecipient} />
+          <EmailComposer onClose={() => setEmailRecipient(null)} />
+        </div>
+      )}
     </div>
   )
 }
