@@ -13,15 +13,11 @@ import { Block } from '#client/components/ui'
 import { ProgressBars } from '#client/utils/progressBars'
 import {
   selfAssembly,
-  recomputeAssembly,
   phaseSymbol,
   phaseLabel,
   type AssemblyPhase,
 } from '#client/stores/selfAssembly'
-import {
-  intentionEngine,
-  analyzeIntentions,
-} from '#client/stores/intentionEngine'
+import { intentionEngine } from '#client/stores/intentionEngine'
 import { UserTag } from '#shared/types'
 
 const PHASE_ORDER: AssemblyPhase[] = ['integrated', 'assembled', 'forming', 'awakening', 'dormant']
@@ -52,9 +48,7 @@ function signalAge(ts: number | null): string {
 export function ArchitectWidget() {
   const me = useStore(stores.me)
   const assembly = useStore(selfAssembly)
-  const engine = useStore(intentionEngine)
   const [expanded, setExpanded] = React.useState<Set<string>>(new Set())
-  const [lastRecompute, setLastRecompute] = React.useState(Date.now())
 
   const isPaid = React.useMemo(() => {
     if (!me?.tags) return false
@@ -64,51 +58,53 @@ export function ArchitectWidget() {
     )
   }, [me])
 
-  React.useEffect(() => {
-    if (!isPaid) return
-    recomputeAssembly()
-    analyzeIntentions()
-    const interval = setInterval(() => {
-      recomputeAssembly()
-      setLastRecompute(Date.now())
-    }, 30_000)
-    return () => clearInterval(interval)
-  }, [isPaid])
+  const signalCounts = React.useMemo(() => {
+    try {
+      const signals = intentionEngine.get().signals || []
+      const now = Date.now()
+      const week = 7 * 24 * 60 * 60 * 1000
+      const day = 24 * 60 * 60 * 1000
+      const s7d = signals.filter(s => now - s.timestamp < week)
+      const s24h = signals.filter(s => now - s.timestamp < day)
+      const counts: Record<string, number> = {}
+      s7d.forEach(s => { counts[s.source] = (counts[s.source] || 0) + 1 })
+      return {
+        total7d: s7d.length,
+        total24h: s24h.length,
+        sources: Object.entries(counts).sort(([, a], [, b]) => b - a),
+      }
+    } catch {
+      return { total7d: 0, total24h: 0, sources: [] }
+    }
+  }, [assembly.lastComputed])
 
-  if (!isPaid || !me) return null
+  const sortedModules = React.useMemo(() =>
+    [...assembly.modules].sort((a, b) => {
+      const phaseD = phaseRank(a.phase) - phaseRank(b.phase)
+      if (phaseD !== 0) return phaseD
+      return b.density - a.density
+    }),
+    [assembly.modules]
+  )
 
-  const sortedModules = [...assembly.modules].sort((a, b) => {
-    const phaseD = phaseRank(a.phase) - phaseRank(b.phase)
-    if (phaseD !== 0) return phaseD
-    return b.density - a.density
-  })
+  const phaseCounts = React.useMemo(() => ({
+    integrated: assembly.modules.filter(m => m.phase === 'integrated').length,
+    assembled: assembly.modules.filter(m => m.phase === 'assembled').length,
+    forming: assembly.modules.filter(m => m.phase === 'forming').length,
+    awakening: assembly.modules.filter(m => m.phase === 'awakening').length,
+    dormant: assembly.modules.filter(m => m.phase === 'dormant').length,
+  }), [assembly.modules])
 
-  const integrated = assembly.modules.filter(m => m.phase === 'integrated').length
-  const assembled = assembly.modules.filter(m => m.phase === 'assembled').length
-  const forming = assembly.modules.filter(m => m.phase === 'forming').length
-  const awakening = assembly.modules.filter(m => m.phase === 'awakening').length
-  const dormant = assembly.modules.filter(m => m.phase === 'dormant').length
-
-  const signals7d = engine.signals.filter(s => Date.now() - s.timestamp < 7 * 24 * 60 * 60 * 1000)
-  const signals24h = engine.signals.filter(s => Date.now() - s.timestamp < 24 * 60 * 60 * 1000)
-
-  const sourceBreakdown = React.useMemo(() => {
-    const counts: Record<string, number> = {}
-    signals7d.forEach(s => {
-      counts[s.source] = (counts[s.source] || 0) + 1
-    })
-    return Object.entries(counts)
-      .sort(([, a], [, b]) => b - a)
-  }, [signals7d])
-
-  const toggleModule = (id: string) => {
+  const toggleModule = React.useCallback((id: string) => {
     setExpanded(prev => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
       return next
     })
-  }
+  }, [])
+
+  if (!isPaid) return null
 
   const getPhaseColor = (phase: AssemblyPhase): string => {
     switch (phase) {
@@ -153,11 +149,11 @@ export function ArchitectWidget() {
           </div>
           <div className="flex justify-between items-baseline mb-8">
             <span className="opacity-30">Signals 24h</span>
-            <span className="tabular-nums">{signals24h.length}</span>
+            <span className="tabular-nums">{signalCounts.total24h}</span>
           </div>
           <div className="flex justify-between items-baseline">
             <span className="opacity-30">Signals 7d</span>
-            <span className="tabular-nums">{signals7d.length}</span>
+            <span className="tabular-nums">{signalCounts.total7d}</span>
           </div>
         </div>
 
@@ -165,34 +161,34 @@ export function ArchitectWidget() {
         <div className="border-t border-acc-400/30 pt-16">
           <div className="opacity-30 mb-8">Phase distribution:</div>
           <div className="flex flex-col gap-y-4">
-            {integrated > 0 && (
+            {phaseCounts.integrated > 0 && (
               <div className="flex justify-between">
                 <span className="text-acc">{'◉'} Integrated</span>
-                <span className="tabular-nums">{integrated}</span>
+                <span className="tabular-nums">{phaseCounts.integrated}</span>
               </div>
             )}
-            {assembled > 0 && (
+            {phaseCounts.assembled > 0 && (
               <div className="flex justify-between">
                 <span>{'◯'} Assembled</span>
-                <span className="tabular-nums">{assembled}</span>
+                <span className="tabular-nums">{phaseCounts.assembled}</span>
               </div>
             )}
-            {forming > 0 && (
+            {phaseCounts.forming > 0 && (
               <div className="flex justify-between">
                 <span className="opacity-70">{'○'} Forming</span>
-                <span className="tabular-nums">{forming}</span>
+                <span className="tabular-nums">{phaseCounts.forming}</span>
               </div>
             )}
-            {awakening > 0 && (
+            {phaseCounts.awakening > 0 && (
               <div className="flex justify-between">
                 <span className="opacity-50">{'∘'} Awakening</span>
-                <span className="tabular-nums">{awakening}</span>
+                <span className="tabular-nums">{phaseCounts.awakening}</span>
               </div>
             )}
-            {dormant > 0 && (
+            {phaseCounts.dormant > 0 && (
               <div className="flex justify-between">
                 <span className="opacity-20">{'·'} Dormant</span>
-                <span className="tabular-nums">{dormant}</span>
+                <span className="tabular-nums">{phaseCounts.dormant}</span>
               </div>
             )}
           </div>
@@ -261,11 +257,11 @@ export function ArchitectWidget() {
         </div>
 
         {/* Signal source breakdown */}
-        {sourceBreakdown.length > 0 && (
+        {signalCounts.sources.length > 0 && (
           <div className="border-t border-acc-400/30 pt-16">
             <div className="opacity-30 mb-8">Signal sources · 7d:</div>
             <div className="flex flex-col gap-y-4">
-              {sourceBreakdown.map(([source, count]) => (
+              {signalCounts.sources.map(([source, count]) => (
                 <div key={source} className="flex justify-between">
                   <span className="opacity-50 capitalize">{source}</span>
                   <span className="tabular-nums">{count}</span>
