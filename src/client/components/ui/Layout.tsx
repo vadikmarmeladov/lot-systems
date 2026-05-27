@@ -9,10 +9,21 @@
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
+import { goTo } from '#client/stores/router'
 import { Button, Page } from '#client/components/ui'
 import { cn } from '#client/utils'
 
-type NavItem = { href: string | null; label: string | null; spacer?: boolean }
+type RouteName = 'sync' | 'logs' | 'system' | 'api' | 'settings'
+
+type NavItem = { href: string | null; label: string | null; spacer?: boolean; route?: RouteName }
+
+const PATH_TO_ROUTE: Record<string, RouteName> = {
+  '/sync': 'sync',
+  '/log': 'logs',
+  '/': 'system',
+  '/api': 'api',
+  '/settings': 'settings',
+}
 
 type Props = {
   children: React.ReactNode
@@ -23,26 +34,27 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
   const me = useStore(stores.me)
   const layoutView = useStore(stores.layoutView)
   const isMirrorOn = useStore(stores.isMirrorOn)
+  const routerState = useStore(stores.router)
   const none = React.useMemo(() => () => {}, [])
-  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+  const currentRoute = routerState?.route ?? 'system'
   const navLinks = React.useMemo<NavItem[]>(() => {
     const result: NavItem[] = me
       ? [
-          { href: '/sync', label: 'Sync' },
-          { href: '/log', label: 'Log' },
-          { href: '/', label: 'System' },
+          { href: '/sync', label: 'Sync', route: 'sync' },
+          { href: '/log', label: 'Log', route: 'logs' },
+          { href: '/', label: 'System', route: 'system' },
           { href: null, label: 'Basics' },
           { href: null, label: 'Self-care' },
           { href: null, label: 'Kids' },
           { href: null, label: 'Home' },
           { href: null, label: null, spacer: true },
-          { href: '/api', label: 'API' },
-          { href: '/settings', label: 'Settings' },
+          { href: '/api', label: 'API', route: 'api' },
+          { href: '/settings', label: 'Settings', route: 'settings' },
         ]
       : [
           { href: null, label: 'Sync' },
           { href: null, label: 'Logs' },
-          { href: '/', label: 'System' },
+          { href: '/', label: 'System', route: 'system' },
           { href: null, label: 'Basics' },
           { href: null, label: 'Self-care' },
           { href: null, label: 'Kids' },
@@ -52,6 +64,12 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
         ]
     return layoutView === 'desktop' ? result : result.reverse()
   }, [layoutView, me])
+
+  const handleNavClick = React.useCallback((e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    e.preventDefault()
+    const route = PATH_TO_ROUTE[href]
+    if (route) goTo(route)
+  }, [])
 
   return (
     <div className="min-h-[100dvh] grid leading-[1.5rem]" data-lot-genesis="true">
@@ -71,7 +89,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
               )}
             >
               {navLinks.map((link, i) => {
-                const isActive = link.href === currentPath
+                const isActive = link.route === currentRoute
                 return link.spacer ? (
                   <div
                     key={link.label ?? i}
@@ -88,7 +106,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
                         ? 'bg-white/20 hover:bg-white/30'
                         : 'bg-acc text-bac hover:bg-acc/90')
                     )}
-                    onClick={!link.href ? none : undefined}
+                    onClick={link.href ? (e: React.MouseEvent<HTMLAnchorElement>) => handleNavClick(e, link.href!) : none}
                     disabled={!link.href}
                   >
                     {link.label}
