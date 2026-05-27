@@ -197,6 +197,70 @@ export const Sync = () => {
 
   return (
     <div className="max-w-[700px]">
+      {/* EMAIL INBOX */}
+      {emails.length > 0 && (
+        <div className="mb-80">
+          <button
+            className="flex items-center gap-x-8 text-acc/40 text-xs uppercase tracking-widest mb-0 hover:text-acc/70 transition-colors"
+            onClick={() => setInboxOpen((v) => !v)}
+          >
+            <span>✉</span>
+            <span>MAIL</span>
+            <span className="ml-4">{emails.filter((e) => !e.readAt).length > 0 && `[${emails.filter((e) => !e.readAt).length}]`}</span>
+            <span className="ml-4 opacity-50">{inboxOpen ? '▲' : '▼'}</span>
+          </button>
+          {inboxOpen && (
+            <div className="mt-8 border-t border-acc/10 pt-8">
+              {emails.map((email) => (
+                <div
+                  key={email.id}
+                  className={cn(
+                    'group flex items-start gap-x-8 -mx-4 px-4 py-4 rounded',
+                    !email.readAt && 'border-l-2 border-acc/30 pl-6',
+                    'grid-fill-hover'
+                  )}
+                  onClick={() => {
+                    if (!email.readAt) {
+                      markRead({ id: email.id })
+                      setEmails((prev) =>
+                        prev.map((e) =>
+                          e.id === email.id ? { ...e, readAt: new Date() } : e
+                        )
+                      )
+                    }
+                  }}
+                >
+                  <span className="whitespace-nowrap text-sm">
+                    {email.senderName || 'Unknown'}
+                  </span>
+                  <div
+                    className="flex-1 text-sm opacity-60 truncate"
+                    style={{ wordBreak: 'break-word' }}
+                  >
+                    {email.body.length > 60
+                      ? email.body.slice(0, 60) + '...'
+                      : email.body}
+                  </div>
+                  <div className="flex items-center gap-x-8 opacity-0 group-hover:opacity-40 transition-opacity">
+                    <MessageTimeLabel dateString={String(email.createdAt)} />
+                    <button
+                      className="text-xs hover:opacity-80"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        deleteEmail({ id: email.id })
+                        setEmails((prev) => prev.filter((x) => x.id !== email.id))
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}
