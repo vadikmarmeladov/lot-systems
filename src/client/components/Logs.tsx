@@ -158,22 +158,16 @@ export const Logs: React.FC = () => {
 
   React.useEffect(() => {
     if (isTouchDevice) return
-    let container = containerRef.current
-    setTimeout(() => {
-      container = containerRef.current // 🩼
-    }, 600)
     const page = document.querySelector('#page')
     const onClick = (ev: Event) => {
-      const target = ev.target as HTMLDivElement
-      if (target === container || container?.contains(target)) return
-      ev.preventDefault()
+      if (ev.target !== page) return
       stores.goTo('system')
     }
     page?.addEventListener('click', onClick)
     return () => {
       page?.removeEventListener('click', onClick)
     }
-  }, [containerRef, isTouchDevice])
+  }, [isTouchDevice])
 
   if (!logIds.length) return <>Loading...</>
 
