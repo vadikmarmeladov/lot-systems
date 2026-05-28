@@ -972,6 +972,45 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'calendar_entry') {
+          const entryDate = log.metadata?.date as string | undefined
+          const entryText = log.metadata?.text as string | undefined
+          const entryType = (log.metadata?.entryType as string | undefined) || 'note'
+          const typeLabel = entryType.toUpperCase()
+          const formattedDate = entryDate
+            ? dayjs(entryDate).format('YYYY-MM-DD / ddd').toUpperCase()
+            : '—'
+          const daysUntil = entryDate
+            ? dayjs(entryDate).startOf('day').diff(dayjs().startOf('day'), 'day')
+            : null
+          const countdownLabel =
+            daysUntil === null
+              ? null
+              : daysUntil === 0
+                ? 'TODAY'
+                : daysUntil > 0
+                  ? `T-${daysUntil}`
+                  : `+${Math.abs(daysUntil)}`
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={`CAL [${typeLabel}]:`} blockView>
+                <div className="uppercase tracking-widest mb-4 flex items-baseline gap-8">
+                  <span>{formattedDate}</span>
+                  {countdownLabel && (
+                    <span className={cn(
+                      'text-xs tabular-nums',
+                      daysUntil === 0 ? 'opacity-100' : 'opacity-40'
+                    )}>
+                      {countdownLabel}
+                    </span>
+                  )}
+                </div>
+                {entryText && (
+                  <div className="opacity-60">{entryText}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -25,6 +25,19 @@ type CalendarEntry = {
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
+const TYPE_LABELS: Record<EntryType, string> = {
+  note: 'NOTE',
+  task: 'TASK',
+  call: 'CALL',
+}
+
+function getCountdown(dateStr: string): string {
+  const diff = dayjs(dateStr).startOf('day').diff(dayjs().startOf('day'), 'day')
+  if (diff === 0) return 'T-0'
+  if (diff > 0) return `T-${diff}`
+  return `+${Math.abs(diff)}`
+}
+
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
   const last = dayjs().year(year).month(month).endOf('month')
@@ -60,6 +73,15 @@ export function CalendarWidget() {
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
 
+  // Tick every 60s so countdowns and today-check stay accurate
+  const [, setTick] = React.useState(0)
+  React.useEffect(() => {
+    const id = setInterval(() => setTick(t => t + 1), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  const today = dayjs().format('YYYY-MM-DD')
+
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
@@ -73,11 +95,10 @@ export function CalendarWidget() {
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
     return entries
       .filter(e => e.date >= today)
       .slice(0, 10)
-  }, [entries])
+  }, [entries, today])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,7 +111,6 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
@@ -258,22 +278,36 @@ export function CalendarWidget() {
         )}
 
         {upcomingEntries.length > 0 && (
-          <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between text-sm gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+          <div className="space-y-0.5">
+            {upcomingEntries.map((entry, i) => {
+              const cd = getCountdown(entry.date)
+              const isToday = cd === 'T-0'
+              const dateLabel = dayjs(entry.date).format('DD/MM ddd').toUpperCase()
+              const typeLabel = TYPE_LABELS[entry.type] ?? 'EVT'
+              return (
+                <div
+                  key={i}
+                  className={cn(
+                    'flex gap-8 text-sm font-mono',
+                    isToday ? 'text-acc' : 'text-acc/50'
+                  )}
+                >
+                  <span className={cn('tabular-nums w-[2.8em] shrink-0', isToday && 'font-bold')}>
+                    {cd}
+                  </span>
+                  <span className="text-acc/30 whitespace-nowrap shrink-0">{dateLabel}</span>
+                  <span className={cn('shrink-0 text-xs', isToday ? 'text-acc/60' : 'text-acc/30')}>
+                    [{typeLabel}]
+                  </span>
+                  <span className="truncate">{entry.text}</span>
+                </div>
+              )
+            })}
           </div>
         )}
 
         {upcomingEntries.length === 0 && !isCalendarOpen && (
-          <div className="text-acc/40 text-sm">No upcoming dates.</div>
+          <div className="text-acc/30 text-sm font-mono">NO EVENTS SCHEDULED</div>
         )}
       </div>
     </Block>
