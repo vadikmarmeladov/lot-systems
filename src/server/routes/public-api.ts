@@ -354,9 +354,11 @@ async function performHealthChecks(): Promise<{
     checkMemory(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Determine overall status: database failure = hard error; any other failure = degraded
+  const dbCheck = checks.find((c) => c.name === 'Database stack')
+  const dbFailed = dbCheck?.status === 'error'
+  const anyFailed = checks.some((c) => c.status === 'error')
+  const overall: 'ok' | 'degraded' | 'error' = dbFailed ? 'error' : anyFailed ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -536,8 +538,11 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // Admin configuration diagnostic endpoint
+  // Admin configuration diagnostic endpoint — admin only
   fastify.get('/verify-admin-config', async (req, reply) => {
+    if (!req.user || !req.user.isAdmin()) {
+      return reply.status(403).send({ error: 'Admin access required' })
+    }
     const adminEmailsEnv = process.env.ADMIN_EMAILS
     const adminsList = config.admins
 
@@ -560,8 +565,11 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // API key verification endpoint - shows masked API key for verification
+  // API key verification endpoint — admin only
   fastify.get('/verify-api-keys', async (req, reply) => {
+    if (!req.user || !req.user.isAdmin()) {
+      return reply.status(403).send({ error: 'Admin access required' })
+    }
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
     const resendKey = process.env.RESEND_API_KEY
     const openaiKey = process.env.OPENAI_API_KEY
@@ -597,8 +605,11 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // Memory Engine diagnostic endpoint - shows why Claude might not be working
+  // Memory Engine diagnostic endpoint — admin only
   fastify.get('/debug-memory-engine', async (req, reply) => {
+    if (!req.user || !req.user.isAdmin()) {
+      return reply.status(403).send({ error: 'Admin access required' })
+    }
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     // Test if we can initialize Anthropic client
@@ -643,8 +654,11 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // Test all AI engines to see which are available
+  // Test all AI engines — admin only
   fastify.get('/test-ai-engines', async (req, reply) => {
+    if (!req.user || !req.user.isAdmin()) {
+      return reply.status(403).send({ error: 'Admin access required' })
+    }
     const { aiEngineManager } = await import('#server/utils/ai-engines.js')
 
     const status = aiEngineManager.getStatus()
@@ -692,8 +706,11 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
-  // Test Anthropic API key with actual API call
+  // Test Anthropic API key with actual API call — admin only
   fastify.get('/test-anthropic-key', async (req, reply) => {
+    if (!req.user || !req.user.isAdmin()) {
+      return reply.status(403).send({ error: 'Admin access required' })
+    }
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     if (!anthropicKey) {
@@ -710,7 +727,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         max_tokens: 10,
         messages: [
           {

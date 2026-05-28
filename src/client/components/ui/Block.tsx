@@ -47,7 +47,7 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
       color = `rgb(var(--acc-color-300) / 0.5)`
     }
     return { '--widget-progress-color': color } as React.CSSProperties
-  }, [props.inProgress, theme, isMirrorOn, baseColor, accentColor])
+  }, [props.inProgress, theme, isMirrorOn])
 
   return (
     <div
