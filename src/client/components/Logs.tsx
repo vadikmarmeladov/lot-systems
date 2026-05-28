@@ -983,6 +983,70 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'calendar_entry') {
+          const date = log.metadata?.date as string | undefined
+          const entryType = (log.metadata?.entryType as string | undefined) || 'note'
+          const text = (log.metadata?.text as string | undefined) || log.text || ''
+          const typeCode = entryType === 'task' ? 'TASK' : entryType === 'call' ? 'CALL' : 'NOTE'
+          const daysUntil = date
+            ? dayjs(date).startOf('day').diff(dayjs().startOf('day'), 'day')
+            : null
+          const statusLabel =
+            daysUntil === null ? '—' :
+            daysUntil < 0 ? `ELAPSED +${Math.abs(daysUntil)}d` :
+            daysUntil === 0 ? 'ACTIVE' :
+            `T-${daysUntil}d`
+          if (!text) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SCHED:" blockView>
+                <div className="uppercase tracking-widest mb-4">
+                  {typeCode}: {text}
+                </div>
+                {date && (
+                  <div className="opacity-60">
+                    {dayjs(date).format('ddd DD MMM YYYY').toUpperCase()}
+                  </div>
+                )}
+                <div className={cn(
+                  'opacity-40',
+                  daysUntil !== null && daysUntil <= 0 && 'opacity-60'
+                )}>
+                  STATUS: {statusLabel}
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_alert') {
+          const date = log.metadata?.date as string | undefined
+          const status = (log.metadata?.status as string | undefined) || 'ALERT'
+          const entryType = (log.metadata?.entryType as string | undefined) || 'note'
+          const text = (log.metadata?.text as string | undefined) || log.text || ''
+          const daysUntil = log.metadata?.daysUntil as number | undefined
+          const typeCode = entryType === 'task' ? 'TASK' : entryType === 'call' ? 'CALL' : 'NOTE'
+          const executionNote =
+            daysUntil === 0 ? 'TODAY — EXECUTE NOW' :
+            daysUntil === 1 ? 'T-1d — PREPARE' :
+            daysUntil !== undefined && daysUntil < 0
+              ? `ELAPSED ${Math.abs(daysUntil)}d — INTERVENTION REQUIRED`
+              : undefined
+          if (!text) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SCHED [ALERT]:" blockView>
+                <div className="uppercase tracking-widest mb-4">{status}</div>
+                <div className="opacity-80">{typeCode}: {text}</div>
+                {date && (
+                  <div className="opacity-60">
+                    {dayjs(date).format('ddd DD MMM YYYY').toUpperCase()}
+                  </div>
+                )}
+                {executionNote && (
+                  <div className="opacity-40 mt-4">{executionNote}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

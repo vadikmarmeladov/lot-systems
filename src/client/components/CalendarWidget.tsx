@@ -25,11 +25,17 @@ type CalendarEntry = {
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
+const TYPE_CODE: Record<EntryType, string> = {
+  note: 'NOTE',
+  task: 'TASK',
+  call: 'CALL',
+}
+
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
   const last = dayjs().year(year).month(month).endOf('month')
 
-  let isoDay = first.day() === 0 ? 6 : first.day() - 1
+  const isoDay = first.day() === 0 ? 6 : first.day() - 1
   const start = first.subtract(isoDay, 'day')
 
   const weeks: Dayjs[][] = []
@@ -48,10 +54,15 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
   return weeks
 }
 
+function getDaysUntil(date: string): number {
+  return dayjs(date).startOf('day').diff(dayjs().startOf('day'), 'day')
+}
+
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
+  const firedAlertsRef = React.useRef<Set<string>>(new Set())
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
@@ -72,12 +83,77 @@ export function CalendarWidget() {
       .sort((a, b) => a.date.localeCompare(b.date))
   }, [logs])
 
+  // Notification system: fire calendar_alert logs for due, standby, and overdue events
+  React.useEffect(() => {
+    if (!entries.length) return
+
+    const todayKey = dayjs().format('YYYY-MM-DD')
+    const storageKey = `lot-cal-alerts-${todayKey}`
+
+    let storedList: string[] = []
+    try {
+      storedList = JSON.parse(localStorage.getItem(storageKey) || '[]')
+    } catch {
+      storedList = []
+    }
+    const stored = new Set<string>(storedList)
+
+    const toAlert: Array<{ entry: CalendarEntry; daysUntil: number }> = []
+
+    for (const entry of entries) {
+      const daysUntil = getDaysUntil(entry.date)
+      // Alert window: tomorrow (1), today (0), and up to 30 days overdue
+      if (daysUntil > 1 || daysUntil < -30) continue
+
+      const alertKey = `${entry.date}:${entry.text}`
+      if (stored.has(alertKey) || firedAlertsRef.current.has(alertKey)) continue
+
+      firedAlertsRef.current.add(alertKey)
+      toAlert.push({ entry, daysUntil })
+    }
+
+    if (!toAlert.length) return
+
+    const allStored = new Set([...stored, ...toAlert.map(a => `${a.entry.date}:${a.entry.text}`)])
+    try {
+      localStorage.setItem(storageKey, JSON.stringify([...allStored]))
+    } catch {}
+
+    for (const { entry, daysUntil } of toAlert) {
+      const status = daysUntil < 0 ? 'OVERDUE' : daysUntil === 0 ? 'ACTIVE' : 'STANDBY'
+      createLog(
+        {
+          text: `[${status}] ${TYPE_CODE[entry.type]}: ${entry.text} — ${entry.date}`,
+          event: 'calendar_alert',
+          metadata: {
+            date: entry.date,
+            text: entry.text,
+            entryType: entry.type,
+            daysUntil,
+            status,
+          },
+        },
+        {
+          onSuccess: () => {
+            queryClient.invalidateQueries(['/api/logs'])
+          },
+        }
+      )
+    }
+  }, [entries]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const today = dayjs().format('YYYY-MM-DD')
+
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
+    return entries.filter(e => e.date >= today)
+  }, [entries, today])
+
+  const overdueEntries = React.useMemo(() => {
     return entries
-      .filter(e => e.date >= today)
-      .slice(0, 10)
-  }, [entries])
+      .filter(e => e.date < today)
+      .slice(-5)
+      .reverse()
+  }, [entries, today])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,7 +166,6 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
@@ -141,7 +216,7 @@ export function CalendarWidget() {
       <div className="w-full">
         <div className="mb-16">
           <Button onClick={handleToggleCalendar}>
-            Add date
+            Add entry
           </Button>
         </div>
 
@@ -244,12 +319,13 @@ export function CalendarWidget() {
 
             {selectedDate && entriesOnDate.length > 0 && (
               <div className="mt-8">
-                <div className="text-acc/40 text-xs mb-4">
-                  {dayjs(selectedDate).format('dddd, MMMM D')}
+                <div className="text-acc/40 text-xs mb-4 uppercase tracking-widest">
+                  {dayjs(selectedDate).format('ddd DD MMM YYYY')}
                 </div>
                 {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 text-sm mb-1">
-                    {e.text}
+                  <div key={i} className="text-sm mb-1 flex gap-8">
+                    <span className="text-acc/40 text-xs font-mono">{TYPE_CODE[e.type]}</span>
+                    <span className="text-acc/80">{e.text}</span>
                   </div>
                 ))}
               </div>
@@ -257,23 +333,59 @@ export function CalendarWidget() {
           </div>
         )}
 
+        {/* Upcoming operations */}
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between text-sm gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+            {upcomingEntries.slice(0, 10).map((entry, i) => {
+              const daysUntil = getDaysUntil(entry.date)
+              const isToday = daysUntil === 0
+              return (
+                <div key={i} className="flex gap-8 text-sm items-baseline">
+                  <span className={cn(
+                    'text-xs font-mono tracking-wider whitespace-nowrap w-12 shrink-0',
+                    isToday ? 'text-acc' : 'text-acc/40'
+                  )}>
+                    {isToday ? 'T+0' : `T-${daysUntil}d`}
+                  </span>
+                  <span className="text-acc/40 text-xs whitespace-nowrap shrink-0 w-8">
+                    {TYPE_CODE[entry.type]}
+                  </span>
+                  <span className={cn(
+                    'text-sm flex-1',
+                    isToday ? 'text-acc' : 'text-acc/80'
+                  )}>
+                    {entry.text}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 
-        {upcomingEntries.length === 0 && !isCalendarOpen && (
-          <div className="text-acc/40 text-sm">No upcoming dates.</div>
+        {/* Overdue entries */}
+        {overdueEntries.length > 0 && (
+          <div className="space-y-1 mt-8">
+            {overdueEntries.map((entry, i) => {
+              const elapsed = Math.abs(getDaysUntil(entry.date))
+              return (
+                <div key={i} className="flex gap-8 text-sm items-baseline">
+                  <span className="text-acc/25 text-xs font-mono tracking-wider whitespace-nowrap w-12 shrink-0">
+                    +{elapsed}d
+                  </span>
+                  <span className="text-acc/25 text-xs whitespace-nowrap shrink-0 w-8">
+                    {TYPE_CODE[entry.type]}
+                  </span>
+                  <span className="text-acc/25 text-sm flex-1 line-through">
+                    {entry.text}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+
+        {upcomingEntries.length === 0 && overdueEntries.length === 0 && !isCalendarOpen && (
+          <div className="text-acc/40 text-sm">No scheduled operations.</div>
         )}
       </div>
     </Block>
