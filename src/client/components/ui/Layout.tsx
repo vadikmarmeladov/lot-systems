@@ -86,6 +86,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
                     kind="secondary-rounded"
                     className={cn(
                       'mb-4 flex-shrink-0',
+                      !link.route && 'opacity-30 pointer-events-none',
                       isActive && (isMirrorOn
                         ? 'bg-white/20 hover:bg-white/30'
                         : 'bg-acc text-bac hover:bg-acc/90')
