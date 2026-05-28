@@ -361,17 +361,17 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 983+ (as of May 25, 2026)" />
-          <Row label="Self-Assembly phase:" value="v41 — Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary refined · badge documentation completed · cohort language sharpened · interface military purity pass — v40: Field Manual v40 · language refined · architecture confirmed · map synchronized — v39: Wiki Comprehensive Audit · vocabulary expansion · badge documentation · Assembly Transmission Layer formalized" />
+          <Row label="Day counter:" value="Day 986+ (as of May 28, 2026)" />
+          <Row label="Self-Assembly phase:" value="v45 — Patterns 63–65 · Log handlers 45–47 · QOS Quantum OS view · Job 9 signal momentum audit — v44: Patterns 59–62 · Archetype 17 Meridian Master · Log handlers 42–44 · Job 8 morning biofield — v42: Patterns 56–58 · Log handlers 39–41 · Job 7 intention completion audit" />
           <Row label="Assembly modules:" value="17 — Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
-          <Row label="QIE pattern library:" value="55 patterns active" />
-          <Row label="Physiological archetypes:" value="16 — Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
-          <Row label="QOS views:" value="4 — Ecosystem · Biofield · Cohort · Index" />
+          <Row label="QIE pattern library:" value="65 patterns active — P63: signal-momentum-loss · P64: night-shift-drift · P65: goal-velocity" />
+          <Row label="Physiological archetypes:" value="17 — Meridian Master (v44) · Intention Executor (v33)" />
+          <Row label="QOS views:" value="6 — Ecosystem · Biofield · Cohort · Index · Self-Assembly · Quantum OS" />
           <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
-          <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
-          <Row label="Background jobs:" value="6 — 00:00 UTC daily OS snapshot · 03:00 UTC daily QIE analytics · 06:00 UTC daily intention audit · 06:00 UTC Mon weekly cohort digest · 04:00 UTC Wed weekly QOS digest · 09:00 UTC 1st monthly email sender" />
-          <Row label="Log event handlers:" value="38 distinct event types rendered · 60+ military log codes" />
-          <Row label="Dep map nodes:" value="75 — crystallizationArc · vitalConvergence · droughtMonitor · successBenchmark · circadianMonitor added v39" />
+          <Row label="Ecosystem nodes:" value="6 — CAR · HOME · CPU · PHN · WCH · ROB" />
+          <Row label="Background jobs:" value="9 — 00:00 UTC daily OS snapshot · 03:00 UTC daily QIE analytics · 06:00 UTC daily intention audit · 06:00 UTC Mon weekly cohort digest · 04:00 UTC Wed weekly QOS digest · 08:00 UTC daily morning biofield summary · 08 PM UTC Sun weekly intention completion audit · 10 PM UTC Sun weekly signal momentum audit · 09:00 UTC 1st monthly email sender" />
+          <Row label="Log event handlers:" value="47 distinct event types rendered — CRYS: MPEAK: MDN: added v45" />
+          <Row label="Dep map nodes:" value="82+ — momentumMonitor · nightShiftDetector · goalVelocity added v45" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
           <Row label="Question generation:" value="2–5 seconds" />
@@ -884,6 +884,9 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v39" value="Wiki Comprehensive Audit + Pattern Expansion · vocabulary expansion (30+ terms) · badge documentation · Assembly Transmission Layer formalized · P.53 intention-crystallization (2h execute loop, conf 0.87) · P.54 os-vitals-convergence (User Index ≥65 + energy + 5 sources) · P.55 signal-drought (3+ sources dark 7d, names dormant module) · 5 new log handlers: NUTR: GOAL: STACK: BENCH: PHASE: · 5 dep nodes added (crystallizationArc · vitalConvergence · droughtMonitor · successBenchmark · circadianMonitor) · modules 16–17 (log · qos) · dep graph 75 nodes · 38 handlers · 55 patterns" />
             <Row label="v40" value="Field Manual v40 · all v39 post-Wiki additions documented · language refined toward LOT atmosphere · military purity interface pass · vocabulary synchronized with codebase · pattern cross-references audited · module table updated to 17 · dep graph updated to 75 · log handler count: 38 · the map and the territory are synchronized" />
             <Row label="v41" value="Full Branch Scan · 80+ branches indexed · all MDs synthesized from repository history · vocabulary refined and compressed · badge documentation completed in full detail · cohort language sharpened · interface language refined toward military computer-future atmosphere · About.tsx advanced to v41 · Day 983+ · self-assembly log updated · the map is current" />
+            <Row label="v42" value="Patterns 56–58 · P.56 circadian-anchor (5+ consecutive same-hour sessions) · P.57 intention-completion-arc (intent + plan + care within 7d) · P.58 selfcare-saturation (5+ care completions in 48h, routes to journal) · Log handlers 39–41: AUTH: (login/logout) · ENV: (weather update) · UI: (theme change) · Background job 7: weekly intention completion audit Sundays 20:00 UTC · Widget dep audit: all 17 modules verified · 58 patterns · 17 modules · 41 handlers · 7 jobs" />
+            <Row label="v44" value="Patterns 59–62 · P.59 meridian-lock (morning + afternoon + evening all present same day) · P.60 intention-seed (first post-48h-silence signal is intent) · P.61 multimodal-peak (all 5 primary modules 24h) · P.62 architect-phase (planner 3d + goals 2d + intentions 2d) · Archetype 17: Meridian Master · Log handlers 42–44: JOB: CARE[SKIP]: MEM[Wn]: · Background job 8: morning-biofield-summary 08:00 UTC daily · WIDGET_DEPENDENCY_MAP 79+ nodes · 62 patterns · 44 handlers · 8 jobs" />
+            <Row label="v45" value="Patterns 63–65 · P.63 signal-momentum-loss (3d rolling deceleration <50%) · P.64 night-shift-drift (session window drifts 2.5h+ later over 7d) · P.65 goal-velocity (2+ completions + new goal in 5d) · Log handlers 45–47: CRYS: (crystallized execution) · MPEAK: (multimodal peak) · MDN: (meridian arc) · QOS widget 6th cycle: Quantum OS view (status · coherence · circadian · patterns) · Background job 9: weekly-signal-momentum-audit Sundays 22:00 UTC · dep map 82+ nodes · 65 patterns · 47 handlers · 9 jobs · Day 986+" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -910,8 +913,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v41. Phase name: Full Branch Scan — Vocabulary Compression and Interface Refinement.
-            41 iterations since continuous operation began.
+            Current phase: v45. Phase name: Patterns 63–65 — Signal Momentum · Night-Shift Drift · Goal Velocity.
+            45 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -955,7 +958,10 @@ v37   Badge Stream + OS Snapshot · BADGE: + QTOS: handlers · midnight snapshot
 v38   Resend Recovery · API key scrubbed · repo private · Quantum Success Benchmark deployed
 v39   Wiki Audit + Pattern Expansion · P.53–55 · 5 new log handlers · 17 modules · dep graph 75 nodes
 v40   Field Manual v40 · all additions documented · language refined · map synchronized
-v41   Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed · badge docs exact · Day 983+`}</CodeBlock>
+v41   Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed · badge docs exact · Day 983+
+v42   P.56–58 · circadian-anchor · intention-completion-arc · selfcare-saturation · AUTH: ENV: UI: handlers · job 7 · 58 patterns
+v44   P.59–62 · meridian-lock · intention-seed · multimodal-peak · architect-phase · Archetype 17 Meridian Master · JOB: CARE[SKIP]: MEM[Wn]: · job 8 · 62 patterns · 44 handlers
+v45   P.63–65 · signal-momentum-loss · night-shift-drift · goal-velocity · CRYS: MPEAK: MDN: · QOS Quantum OS view · job 9 · 65 patterns · 47 handlers · 9 jobs · 82+ dep nodes · Day 986+`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -2075,8 +2081,11 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="00:00 UTC daily" value="Daily OS Snapshot — day-turn marker · writes system_snapshot log per active user · source of QTOS: field log entries" />
             <Row label="03:00 UTC daily" value="Daily QIE Analytics — pattern detection summary · signal density · active pattern count per user" />
             <Row label="06:00 UTC daily" value="Daily Intention Audit — intention age scan · follow-through rate · INTENT-DECAY: field notice when no execution in 48h" />
+            <Row label="08:00 UTC daily" value="Morning Biofield Summary — overnight depletion scan · emotional check-in ratio · depleted/stable/recovered distribution across active users" />
             <Row label="06:00 UTC Mon" value="Weekly Physiological Cohort Digest — archetype reclassification · readiness distribution · health scan per active user" />
             <Row label="04:00 UTC Wed" value="Weekly QOS State Digest — cross-module engagement · full-stack detection · coherence scores across active users" />
+            <Row label="20:00 UTC Sun" value="Weekly Intention Completion Audit — tracks intention → plan + care arc completion rate · aggregate stats only · no individual data stored" />
+            <Row label="22:00 UTC Sun" value="Weekly Signal Momentum Audit — classifies active users as accelerating (≥120%) · stable · decelerating (<50%) based on 3-day rolling signal ratio · product telemetry only" />
             <Row label="09:00 UTC 1st" value="Monthly Email Summary — sent to active users with near-daily engagement (60%+ active days over 3 months) · requires Resend API" />
           </div>
           <P>

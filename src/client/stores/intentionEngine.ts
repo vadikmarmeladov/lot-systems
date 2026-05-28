@@ -1518,6 +1518,70 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 63: Signal momentum loss — recent 3-day signal count is less than 50% of
+  // the prior 3-day count, when prior engagement was meaningful (≥5 signals).
+  // Measures engagement deceleration across consecutive windows.
+  const p63ThreeDaysAgo = now - 3 * 24 * 60 * 60 * 1000
+  const p63SixDaysAgo = now - 6 * 24 * 60 * 60 * 1000
+  const p63Recent = signals.filter(s => s.timestamp > p63ThreeDaysAgo).length
+  const p63Prior = signals.filter(s => s.timestamp > p63SixDaysAgo && s.timestamp <= p63ThreeDaysAgo).length
+  if (p63Prior >= 5 && p63Recent < p63Prior * 0.5) {
+    const p63Drop = Math.round((1 - p63Recent / p63Prior) * 100)
+    patterns.push({
+      pattern: 'signal-momentum-loss',
+      confidence: Math.min(0.55 + (p63Drop - 50) * 0.006, 0.80),
+      suggestedWidget: 'mood',
+      suggestedTiming: 'soon',
+      reason: `Signal momentum dropped ${p63Drop}% over 3 days (${p63Prior} → ${p63Recent} signals). Engagement is decelerating. A mood check-in re-anchors the field.`
+    })
+  }
+
+  // Pattern 64: Night-shift drift — average signal hour is getting progressively later
+  // across the 7-day window. Compare first 3.5 days vs last 3.5 days average hour.
+  // Indicates the operator's active window is shifting toward night.
+  const p64SevenDays = signals.filter(s => now - s.timestamp < 7 * 24 * 60 * 60 * 1000)
+  const p64MidPoint = now - 3.5 * 24 * 60 * 60 * 1000
+  const p64Early = p64SevenDays.filter(s => s.timestamp <= p64MidPoint)
+  const p64Late = p64SevenDays.filter(s => s.timestamp > p64MidPoint)
+  if (p64Early.length >= 3 && p64Late.length >= 3) {
+    const p64EarlyAvgHour = p64Early.reduce((sum, s) => sum + new Date(s.timestamp).getHours(), 0) / p64Early.length
+    const p64LateAvgHour = p64Late.reduce((sum, s) => sum + new Date(s.timestamp).getHours(), 0) / p64Late.length
+    const p64Drift = p64LateAvgHour - p64EarlyAvgHour
+    if (p64Drift >= 2.5 && p64LateAvgHour >= 20) {
+      patterns.push({
+        pattern: 'night-shift-drift',
+        confidence: Math.min(0.60 + (p64Drift - 2.5) * 0.05, 0.82),
+        suggestedWidget: 'selfcare',
+        suggestedTiming: 'soon',
+        reason: `Active window shifted ${Math.round(p64Drift)}h later over 7 days (avg session now ~${Math.round(p64LateAvgHour)}:00). Night-shift drift detected. Circadian anchor at risk.`
+      })
+    }
+  }
+
+  // Pattern 65: Goal velocity — 2+ goal completions within 5 days with a new goal set
+  // after each completion. The productive loop: complete → set → complete. Forward momentum.
+  const p65FiveDays = now - 5 * 24 * 60 * 60 * 1000
+  const p65Completions = signals.filter(s =>
+    s.source === 'goals' &&
+    (s.signal === 'goal_complete' || s.signal === 'goal_completed') &&
+    s.timestamp > p65FiveDays
+  )
+  const p65NewGoals = signals.filter(s =>
+    s.source === 'goals' &&
+    (s.signal === 'goal_set' || s.signal === 'goal_created') &&
+    s.timestamp > p65FiveDays
+  )
+  if (p65Completions.length >= 2 && p65NewGoals.length >= 1) {
+    const p65Velocity = p65Completions.length + p65NewGoals.length
+    patterns.push({
+      pattern: 'goal-velocity',
+      confidence: Math.min(0.70 + (p65Velocity - 3) * 0.04, 0.90),
+      suggestedWidget: 'goals',
+      suggestedTiming: 'passive',
+      reason: `Goal velocity: ${p65Completions.length} completions + ${p65NewGoals.length} new goals in 5 days. The execution loop is self-sustaining. Review the goal map — the system is accelerating.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1979,6 +2043,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   architectPhase:    ['planner', 'goals', 'intentions'],
   multimodalSurface: ['mood', 'memory', 'planner', 'selfcare', 'journal'],
   intentionSeed:     ['intentions'],
+
+  // ── Momentum & drift monitors (2026-05-28 audit)
+  momentumMonitor:   ['mood', 'log', 'energy', 'selfcare', 'journal', 'planner'],
+  nightShiftDetector:['mood', 'log', 'energy', 'selfcare'],
+  goalVelocity:      ['goals', 'intentions', 'planner'],
 }
 
 /**
@@ -3015,6 +3084,19 @@ export function recordMeridianLockSignal(signalCount: number) {
   recordSignal('energy', 'meridian_lock', {
     signalCount,
     windows: ['morning', 'afternoon', 'evening'],
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a goal velocity signal when consecutive completions + new goals fire.
+ * Feeds Pattern 65 (goal-velocity) and the Goal Architecture module.
+ */
+export function recordGoalVelocitySignal(completionCount: number, newGoalCount: number) {
+  recordSignal('goals', 'goal_velocity', {
+    completionCount,
+    newGoalCount,
+    velocityScore: completionCount + newGoalCount,
     hour: new Date().getHours(),
   })
 }

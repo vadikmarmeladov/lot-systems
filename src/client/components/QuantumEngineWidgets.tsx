@@ -16,6 +16,7 @@ import {
   getUserState,
   getUserIndex,
   getWidgetDependencies,
+  getQuantumOS,
 } from '#client/stores/intentionEngine'
 import { getEcosystemNarrative } from '#client/utils/narrative'
 import { useEnergy } from '#client/queries'
@@ -37,7 +38,7 @@ function usePersistedState(key: string): [boolean, React.Dispatch<React.SetState
 
 const TOTAL_DEVICES = 6
 
-type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index' | 'assembly'
+type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index' | 'assembly' | 'qos'
 
 export const QuantumEngineWidgets: React.FC = () => {
   const [carConnected, setCarConnected] = usePersistedState('qe-car-connected')
@@ -148,6 +149,7 @@ export const QuantumEngineWidgets: React.FC = () => {
       prev === 'biofield'  ? 'cohort' :
       prev === 'cohort'    ? 'index' :
       prev === 'index'     ? 'assembly' :
+      prev === 'assembly'  ? 'qos' :
       'ecosystem'
     )
   }
@@ -157,6 +159,7 @@ export const QuantumEngineWidgets: React.FC = () => {
     view === 'biofield'  ? 'Biofield:' :
     view === 'cohort'    ? 'Cohort:' :
     view === 'assembly'  ? 'Self-Assembly:' :
+    view === 'qos'       ? 'Quantum OS:' :
     'Index:'
 
   const { energy, clarity, alignment, needsSupport } = engineState.userState
@@ -354,6 +357,44 @@ export const QuantumEngineWidgets: React.FC = () => {
               <div className="opacity-30 pt-4">{assemblyState.narrative}</div>
             </div>
           )}
+
+          {view === 'qos' && (() => {
+            const qos = getQuantumOS()
+            return (
+              <div className="flex flex-col gap-y-4 font-mono text-xs">
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Status</span>
+                  <span className="uppercase">{qos.operationalStatus}</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Coherence</span>
+                  <span className="tabular-nums">{Math.round(qos.coherence * 100)}%</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Circadian</span>
+                  <span className="uppercase">{qos.runtime.circadian}</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Sources</span>
+                  <span className="tabular-nums">{Object.keys(qos.signalMap).filter(k => (qos.signalMap as any)[k] > 0).length} active</span>
+                </div>
+                {qos.patterns.length > 0 && (
+                  <div className="border-t border-acc-400/20 pt-8 mt-4">
+                    <div className="opacity-30 uppercase tracking-widest mb-6">Active Patterns</div>
+                    {qos.patterns.slice(0, 4).map((p, i) => (
+                      <div key={i} className="flex justify-between mb-2">
+                        <span className="opacity-60 truncate max-w-[120px]">{p.pattern.replace(/-/g, ' ')}</span>
+                        <span className="opacity-30 tabular-nums">{Math.round(p.confidence * 100)}%</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {qos.patterns.length === 0 && (
+                  <div className="opacity-30">No active patterns. Engage widgets to build signal.</div>
+                )}
+              </div>
+            )
+          })()}
 
         </div>
       </Block>

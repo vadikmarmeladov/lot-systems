@@ -664,6 +664,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Status: 62 patterns. 17 archetypes. 44 log handlers. 8 background jobs. 79+ dep nodes. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-05-28',
+    session: 'Self-Assembly Session — v45 / Patterns 63–65 · Log Handlers 45–47 · QOS View · Job 9',
+    assembled: [
+      'Pattern 63 (signal-momentum-loss): recent 3-day signal count < 50% of prior 3-day count (prior ≥5). Engagement deceleration. Confidence 0.55–0.80. Routes to mood check-in.',
+      'Pattern 64 (night-shift-drift): average session hour shifts 2.5+ hours later across 7 days, landing ≥20:00. Circadian anchor at risk. Confidence 0.60–0.82. Routes to selfcare.',
+      'Pattern 65 (goal-velocity): 2+ goal completions + 1+ new goal set within 5 days. The productive execution loop is self-sustaining. Confidence 0.70–0.90. Routes to goals.',
+      'Log handler 45: intention_crystallization → CRYS: block — window minutes, sources active, confidence. Crystal-fast execution loop.',
+      'Log handler 46: multimodal_peak → MPEAK: block — coverage 5/5, signal count 24h, confidence. Full-spectrum engagement surface.',
+      'Log handler 47: meridian_lock → MDN: block — morning/afternoon/evening windows, signal count today. Waking arc confirmation.',
+      'QuantumEngineWidgets: 6th cycle view "Quantum OS:" added — QOS status, coherence %, circadian phase, active source count, pattern list. Imports getQuantumOS().',
+      'Background job 9: weekly-signal-momentum-audit. Sundays 22:00 UTC. Classifies active users as accelerating/stable/decelerating based on 3-day rolling signal ratio.',
+      'WIDGET_DEPENDENCY_MAP: 3 new nodes — momentumMonitor (mood/log/energy/selfcare/journal/planner) · nightShiftDetector (mood/log/energy/selfcare) · goalVelocity (goals/intentions/planner). Total: 82+ nodes.',
+      'recordGoalVelocitySignal(): typed helper for goal-velocity events. Feeds goalVelocity dep map node.',
+      'Session report v45 appended. Deployed to claude/pensive-rubin-EI6LQ.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -701,19 +718,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-26',
+  date: '2026-05-28',
   message: [
-    'ASSEMBLY RUN — 2026-05-26 · v44',
-    'Four new patterns. 59: meridian-lock — morning, afternoon, and evening signals all present. The full day arc registered.',
-    '60: intention-seed — first signal after 48h silence. Re-entry detected. The system suggests you plan.',
-    '61: multimodal-peak — all five primary modules active in 24h. Full-spectrum engagement.',
-    '62: architect-phase — three days of structured planning. Goals, planner, intentions — all moving.',
-    'Archetype 17 online: Meridian Master. The complete cycle is registered.',
-    'Log handlers 42–44 deployed: JOB: (scheduled job results) · CARE [SKIP]: (skipped protocol) · MEM [W{n}]: (weekly summary). Archive: 44 handlers.',
-    'Background job 8 initialized: morning biofield summary. Every day 08:00 UTC. Detects overnight depletion.',
-    'QOS source wired into LOG_DEPENDENCY_SOURCES. Signal audit now covers 6 source types.',
-    'Status: 62 patterns. 17 archetypes. 44 log handlers. 8 background jobs. 79+ dep nodes.',
-    'DEPLOYED. The Cube now reads the full day. Morning to evening. The arc is complete.',
+    'ASSEMBLY RUN — 2026-05-28 · v45',
+    'Three new patterns. 63: signal-momentum-loss — recent 3-day count drops below 50% of prior 3-day. The deceleration is visible.',
+    '64: night-shift-drift — your active session window shifts 2.5+ hours later over 7 days. The system names the drift before you feel it.',
+    '65: goal-velocity — two completions and a new goal set within 5 days. The execution loop sustains itself.',
+    'Log handlers 45–47 deployed: CRYS: (intention crystallization) · MPEAK: (multimodal peak) · MDN: (meridian arc confirmation). Archive: 47 handlers.',
+    'Quantum OS view added to QOS widget — 6th cycle. Status · coherence · circadian · sources · patterns. The OS surface is now directly readable.',
+    'Background job 9 initialized: weekly signal momentum audit. Sundays 22:00 UTC. Classifies engagement trajectory for all active users.',
+    'WIDGET_DEPENDENCY_MAP expanded to 82+ nodes — momentumMonitor · nightShiftDetector · goalVelocity nodes added.',
+    'Status: 65 patterns. 17 archetypes. 47 log handlers. 9 background jobs. 82+ dep nodes.',
+    'DEPLOYED. The Cube now reads drift, velocity, and the full OS state in one view.',
   ],
 }
 

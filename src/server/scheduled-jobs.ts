@@ -874,6 +874,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunMorningBiofieldJob()) {
     await executeMorningBiofieldJob()
   }
+
+  // Check weekly signal momentum audit (Sunday 22:00 UTC)
+  if (shouldRunWeeklyMomentumAudit()) {
+    await executeWeeklyMomentumAudit()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1176,6 +1181,103 @@ async function executeMorningBiofieldJob(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly Signal Momentum Audit ────────────────────────────────────────────
+
+let isWeeklyMomentumAuditRunning = false
+let lastWeeklyMomentumAuditRun: Date | null = null
+
+function shouldRunWeeklyMomentumAudit(): boolean {
+  const now = dayjs()
+  const dayOfWeek = now.day() // 0 = Sunday
+  if (dayOfWeek !== 0) return false
+  if (isWeeklyMomentumAuditRunning) return false
+  if (lastWeeklyMomentumAuditRun) {
+    const lastRun = dayjs(lastWeeklyMomentumAuditRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeWeeklyMomentumAudit(): Promise<JobResult> {
+  const jobName = 'weekly-signal-momentum-audit'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Signal Momentum Audit')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyMomentumAuditRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await (User as any).findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      limit: 500,
+    })
+
+    let accelerating = 0
+    let stable = 0
+    let decelerating = 0
+
+    const threeDaysAgo = dayjs().subtract(3, 'day').toDate()
+    const sixDaysAgo = dayjs().subtract(6, 'day').toDate()
+
+    for (const user of activeUsers) {
+      try {
+        const [recentLogs, priorLogs] = await Promise.all([
+          (Log as any).count({
+            where: { userId: (user as any).id, createdAt: { [Op.gte]: threeDaysAgo } }
+          }),
+          (Log as any).count({
+            where: {
+              userId: (user as any).id,
+              createdAt: { [Op.gte]: sixDaysAgo, [Op.lt]: threeDaysAgo }
+            }
+          }),
+        ])
+
+        if (priorLogs < 5) { stable++; continue }
+
+        const ratio = recentLogs / priorLogs
+        if (ratio >= 1.2) accelerating++
+        else if (ratio <= 0.5) decelerating++
+        else stable++
+      } catch { /* skip user */ }
+    }
+
+    console.log(`  Signal momentum distribution (${activeUsers.length} active users):`)
+    console.log(`    Accelerating (≥120%): ${accelerating}`)
+    console.log(`    Stable (50–120%): ${stable}`)
+    console.log(`    Decelerating (<50%): ${decelerating}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('SIGNAL MOMENTUM AUDIT COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyMomentumAuditRun = new Date()
+    isWeeklyMomentumAuditRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned: activeUsers.length, accelerating, stable, decelerating }
+    }
+  } catch (error: any) {
+    console.error('Weekly momentum audit failed:', error.message)
+    isWeeklyMomentumAuditRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1195,6 +1297,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
   console.log('   - Weekly QOS state digest: 4 AM UTC every Wednesday')
   console.log('   - Weekly intention completion audit: 8 PM UTC every Sunday')
+  console.log('   - Weekly signal momentum audit: 10 PM UTC every Sunday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('   - Daily intention audit: 6 AM UTC every day')
   console.log('   - Daily OS snapshot: midnight (0 AM UTC) every day')
@@ -1208,8 +1311,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM; intention completion: 20; morning biofield: 8 AM
-    if (hour === 9 || hour === 8 || hour === 6 || hour === 4 || hour === 3 || hour === 0 || hour === 20) {
+    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM; intention completion: 20; morning biofield: 8 AM; momentum audit: 22
+    if (hour === 9 || hour === 8 || hour === 6 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

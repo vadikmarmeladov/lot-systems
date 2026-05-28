@@ -972,6 +972,69 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'intention_crystallization') {
+          const windowMinutes = log.metadata?.windowMinutes as number | undefined
+          const sourcesActive = log.metadata?.sourcesActive as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CRYS:" blockView>
+                <div className="uppercase tracking-widest mb-4">Execution crystallized</div>
+                {windowMinutes !== undefined && (
+                  <div className="opacity-60">WIN: {windowMinutes}min</div>
+                )}
+                {sourcesActive !== undefined && (
+                  <div className="opacity-60">SOURCES: {sourcesActive}</div>
+                )}
+                <div className="opacity-40">Intent → plan → action. Compressed single session.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'multimodal_peak') {
+          const coverage = log.metadata?.coverage as number | undefined
+          const signalCount = log.metadata?.signalCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MPEAK:" blockView>
+                <div className="uppercase tracking-widest mb-4">Multimodal peak</div>
+                {coverage !== undefined && (
+                  <div className="opacity-60">COVERAGE: {coverage}/5 primary modules</div>
+                )}
+                {signalCount !== undefined && (
+                  <div className="opacity-60">SIGNALS 24h: {signalCount}</div>
+                )}
+                <div className="opacity-40">Full spectrum engagement. All primary channels live.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'meridian_lock') {
+          const signalCount = log.metadata?.signalCount as number | undefined
+          const windows = log.metadata?.windows as string[] | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MDN:" blockView>
+                <div className="uppercase tracking-widest mb-4">Full arc registered</div>
+                {windows && windows.length > 0 && (
+                  <div className="opacity-60">{windows.map(w => w.toUpperCase()).join(' · ')}</div>
+                )}
+                {signalCount !== undefined && (
+                  <div className="opacity-60">SIGNALS TODAY: {signalCount}</div>
+                )}
+                <div className="opacity-40">Morning to evening. The waking cycle is complete.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
