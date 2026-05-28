@@ -29,6 +29,7 @@ import { aiEngineManager } from '../ai-engines.js'
 import { extractGoals, type ExtractedGoal } from '../goal-understanding.js'
 import {
   BACKUP_SELFCARE_QUESTIONS,
+  BACKUP_MEDICAL_QUESTIONS,
   questionSchema,
   oaiClient,
   anthropic,
@@ -43,11 +44,11 @@ import { determineUserCohort } from './cohort-determination.js'
  * Cycles through questions based on day of year + prompt count to avoid repeats
  */
 function getBackupQuestion(dayOfYear: number, promptsShownToday: number = 0): MemoryQuestion {
-  // Combine day + prompt count so each request within the same day gets a different question
-  const index = (dayOfYear + promptsShownToday) % BACKUP_SELFCARE_QUESTIONS.length
-  const backup = BACKUP_SELFCARE_QUESTIONS[index]
+  const allBackupQuestions = [...BACKUP_SELFCARE_QUESTIONS, ...BACKUP_MEDICAL_QUESTIONS]
+  const index = (dayOfYear + promptsShownToday) % allBackupQuestions.length
+  const backup = allBackupQuestions[index]
 
-  console.log(`Using backup question #${index + 1}/${BACKUP_SELFCARE_QUESTIONS.length} (day=${dayOfYear}, shown=${promptsShownToday})`)
+  console.log(`Using backup question #${index + 1}/${allBackupQuestions.length} (day=${dayOfYear}, shown=${promptsShownToday})`)
 
   return {
     id: randomUUID(),
@@ -175,7 +176,8 @@ function extractQuestionTopics(questions: string[]): {
     routine: ['routine', 'habit', 'daily', 'schedule', 'ritual', 'practice'],
     social: ['people', 'social', 'friends', 'family', 'connection', 'relationship'],
     creativity: ['create', 'creative', 'art', 'expression', 'hobby', 'interest'],
-    mindset: ['feel', 'think', 'mindset', 'mental', 'emotion', 'mood', 'perspective']
+    mindset: ['feel', 'think', 'mindset', 'mental', 'emotion', 'mood', 'perspective'],
+    medical: ['blood type', 'allergy', 'allergies', 'medication', 'prescription', 'chronic', 'vision', 'dental', 'vaccination', 'heart rate', 'medical', 'health condition', 'supplement']
   }
 
   const topicCounts: { [key: string]: number } = {}
@@ -408,7 +410,7 @@ The system exists to help users achieve their goals. Your questions are tools fo
   }
 
   // Extract Memory answers to build user's story
-  const memoryLogs = logs.filter((log) => log.event === 'answer')
+  const memoryLogs = logs.filter((log) => log.event === 'answer' || log.event === 'medical_record')
 
   console.log(`💬 Extracted ${memoryLogs.length} memory answers from ${logs.length} total logs`)
 
@@ -512,6 +514,7 @@ CRITICAL: Use this SOUL-LEVEL understanding to craft questions that speak to the
       clothing: ['wear', 'clothing', 'fabric', 'outfit', 'dress', 'comfort'],
       routine: ['morning', 'evening', 'routine', 'ritual', 'habit', 'daily'],
       wellness: ['wellness', 'health', 'exercise', 'stretch', 'posture', 'sleep'],
+      medical: ['blood type', 'allergy', 'allergies', 'medication', 'prescription', 'chronic', 'vision', 'dental', 'vaccination', 'heart rate', 'medical', 'supplement'],
     }
 
     // Count how many recent questions share the same topic
@@ -582,6 +585,7 @@ ${uniquenessInstruction}`
 - Social preferences and boundaries
 - Work and rest balance
 - Seasonal preferences
+- Medical and health records (blood type, allergies, medications, conditions)
 
 ${uniquenessInstruction}`
   } else if (shouldExploreNewTopic) {
@@ -644,6 +648,7 @@ Based on these answers and journal entries, we're building their story. Now let'
 - Movement, posture, and physical awareness
 - Sleep and rest patterns
 - Creative or hobby pursuits
+- Medical and health records (blood type, allergies, medications, chronic conditions, vision, dental)
 
 ${cohortInfo ? `**Soul Archetype Question Guidance:**
 Tailor your question to their soul archetype "${archetype}":
@@ -816,7 +821,8 @@ Recent activity logs (for additional context):
 function formatLog(log: Log): string {
   let body = ''
   switch (log.event) {
-    case 'answer': {
+    case 'answer':
+    case 'medical_record': {
       body = [
         `Q: "${log.metadata.question}"`,
         `O: ${((log.metadata.options || []) as string[])
@@ -950,5 +956,6 @@ const MODULE_BY_LOG_EVENT: Record<string, string> = {
   self_care_skip: 'Self-care',
   intention: 'Intention',
   answer: 'Memory',
+  medical_record: 'Medical',
   other: 'Other',
 }

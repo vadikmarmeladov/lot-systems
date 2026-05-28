@@ -18,6 +18,7 @@ import {
   type AssemblyPhase,
 } from '#client/stores/selfAssembly'
 import { intentionEngine } from '#client/stores/intentionEngine'
+import { USERSHIP_TRANSMISSION } from '#client/components/SystemProgressWidget'
 import { UserTag } from '#shared/types'
 
 const PHASE_ORDER: AssemblyPhase[] = ['integrated', 'assembled', 'forming', 'awakening', 'dormant']
@@ -274,6 +275,18 @@ export function ArchitectWidget() {
         {/* Narrative */}
         <div className="opacity-30">
           {assembly.narrative}
+        </div>
+
+        {/* Assembly Transmission Run */}
+        <div className="border-t border-acc-400/30 pt-16 font-mono text-xs">
+          <div className="opacity-30 mb-8 uppercase tracking-widest">Transmission:</div>
+          <div className="flex flex-col gap-y-2">
+            {USERSHIP_TRANSMISSION.message.map((line, i) => (
+              <div key={i} className={i === 0 ? 'opacity-80 uppercase tracking-widest' : 'opacity-50'}>
+                {line}
+              </div>
+            ))}
+          </div>
         </div>
 
       </div>

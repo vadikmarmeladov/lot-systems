@@ -2159,11 +2159,28 @@ export default async (fastify: FastifyInstance) => {
         }
       })
 
+      // Detect medical questions by keyword matching
+      const MEDICAL_KEYWORDS = [
+        'blood type', 'allergy', 'allergies', 'allergic', 'medication', 'medications',
+        'supplement', 'supplements', 'chronic', 'prescription', 'vision', 'eyesight',
+        'glasses', 'contacts', 'checkup', 'heart rate', 'blood pressure', 'dental',
+        'skin type', 'vaccination', 'vaccine', 'drug allergy', 'hearing', 'dominant hand',
+        'health condition', 'recurring pain', 'resting heart', 'bpm',
+      ]
+      const lowerQ = questionText.toLowerCase()
+      const isMedical = MEDICAL_KEYWORDS.some(kw => lowerQ.includes(kw))
+
+      const logEvent = isWeeklySummary
+        ? 'weekly_summary_response'
+        : isMedical
+          ? 'medical_record'
+          : 'answer'
+
       // Log answer synchronously with context for pattern analysis
       const context = await getLogContext(req.user)
       await fastify.models.Log.create({
         userId: req.user.id,
-        event: isWeeklySummary ? 'weekly_summary_response' : 'answer',
+        event: logEvent,
         text: '',
         metadata: {
           questionId,

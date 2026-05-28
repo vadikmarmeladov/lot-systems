@@ -94,3 +94,30 @@ export const BACKUP_SELFCARE_QUESTIONS: Array<{ question: string; options: strin
   { question: 'Do you prefer to eat lunch alone or with others?', options: ['Alone', 'With others', 'Either works', 'Depends on my mood'] },
   { question: 'How do you commute or start your work day?', options: ['Walk or bike', 'Drive', 'Public transit', 'Work from home'] },
 ]
+
+export const BACKUP_MEDICAL_QUESTIONS: Array<{ question: string; options: string[] }> = [
+  { question: 'What is your blood type?', options: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Not sure'] },
+  { question: 'Do you have any known food allergies?', options: ['None', 'Nuts or peanuts', 'Dairy or lactose', 'Gluten', 'Other'] },
+  { question: 'Do you take any daily medications or supplements?', options: ['None', 'Vitamins or supplements', 'Prescription medication', 'Both'] },
+  { question: 'Do you have any chronic health conditions?', options: ['None', 'Respiratory (asthma, etc.)', 'Digestive', 'Musculoskeletal', 'Other'] },
+  { question: 'How would you describe your vision?', options: ['Normal / no correction', 'Glasses', 'Contact lenses', 'Corrective surgery'] },
+  { question: 'When was your last general health checkup?', options: ['Within 6 months', 'Within a year', 'Over a year ago', 'Can\'t remember'] },
+  { question: 'Do you have any seasonal allergies?', options: ['None', 'Mild (occasional sneezing)', 'Moderate (daily antihistamine)', 'Severe'] },
+  { question: 'What is your typical resting heart rate range?', options: ['Under 60 bpm', '60-80 bpm', '80-100 bpm', 'Not sure'] },
+  { question: 'Do you have any dental concerns?', options: ['None', 'Sensitivity', 'Alignment', 'Gum health', 'Regular maintenance'] },
+  { question: 'How would you describe your skin type?', options: ['Normal', 'Dry', 'Oily', 'Combination', 'Sensitive'] },
+  { question: 'Do you experience any recurring pain?', options: ['None', 'Back or neck', 'Headaches', 'Joint pain', 'Other'] },
+  { question: 'Are you up to date on vaccinations?', options: ['Yes, fully up to date', 'Mostly', 'Not sure', 'Prefer not to say'] },
+  { question: 'Do you have any drug allergies?', options: ['None known', 'Penicillin or antibiotics', 'NSAIDs (ibuprofen, aspirin)', 'Other', 'Not sure'] },
+  { question: 'What is your dominant hand?', options: ['Right', 'Left', 'Ambidextrous'] },
+  { question: 'How would you rate your hearing?', options: ['Excellent', 'Good', 'Some difficulty', 'Use hearing aids'] },
+]
+
+export const MEDICAL_QUESTION_KEYWORDS = [
+  'blood type', 'allergy', 'allergies', 'allergic', 'medication', 'medications',
+  'supplement', 'supplements', 'chronic', 'condition', 'diagnosis', 'diagnosed',
+  'prescription', 'vision', 'eyesight', 'glasses', 'contacts', 'checkup',
+  'heart rate', 'blood pressure', 'dental', 'skin type', 'vaccination',
+  'vaccine', 'drug allergy', 'hearing', 'dominant hand', 'medical', 'health condition',
+  'recurring pain', 'resting heart', 'bpm',
+]
