@@ -193,7 +193,18 @@ export const Logs: React.FC = () => {
       {pastLogIds.map((id) => {
         const log = logById[id]
         if (!log) return null  // Skip if log doesn't exist yet
-        if (log.event === 'answer') {
+        if (log.event === 'medical_record') {
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MED:" blockView>
+                {log.metadata.question as string}
+              </Block>
+              <Block label="REC:" blockView>
+                {log.metadata.answer as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'answer') {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="MEM:" blockView>
