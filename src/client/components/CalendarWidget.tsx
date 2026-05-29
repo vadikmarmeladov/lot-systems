@@ -9,7 +9,7 @@
 import * as React from 'react'
 import { useQueryClient } from 'react-query'
 import { Block, Button } from '#client/components/ui'
-import { useCreateLog, useLogs } from '#client/queries'
+import { useCreateLog, useDeleteLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
@@ -18,12 +18,17 @@ import { recordCalendarSignal } from '#client/stores/intentionEngine'
 type EntryType = 'note' | 'task' | 'call'
 
 type CalendarEntry = {
+  id: string
   date: string
   text: string
   type: EntryType
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+// Alert horizon: fire notifications for events this many days out
+const ALERT_HORIZON = 2
+const ALERT_STORAGE_KEY = 'calendar-alerts'
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -48,10 +53,62 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
   return weeks
 }
 
+function getEta(date: string, today: string): string {
+  const daysUntil = dayjs(date).diff(dayjs(today), 'day')
+  if (daysUntil === 0) return 'TODAY'
+  if (daysUntil === 1) return 'T-1'
+  return `T-${daysUntil}`
+}
+
+function alertKey(entry: CalendarEntry, today: string): string {
+  const slug = entry.text.slice(0, 24).toLowerCase().replace(/\s+/g, '-')
+  return `${today}|${entry.date}|${entry.type}|${slug}`
+}
+
+function loadAlerts(): Set<string> {
+  try {
+    const raw = localStorage.getItem(ALERT_STORAGE_KEY)
+    if (!raw) return new Set()
+    const items: string[] = JSON.parse(raw)
+    const cutoff = dayjs().subtract(3, 'day').format('YYYY-MM-DD')
+    return new Set(items.filter(k => (k.split('|')[0] ?? '') >= cutoff))
+  } catch {
+    return new Set()
+  }
+}
+
+function saveAlerts(alerts: Set<string>) {
+  try {
+    const cutoff = dayjs().subtract(3, 'day').format('YYYY-MM-DD')
+    const valid = [...alerts].filter(k => (k.split('|')[0] ?? '') >= cutoff)
+    localStorage.setItem(ALERT_STORAGE_KEY, JSON.stringify(valid))
+  } catch {}
+}
+
+function buildAlertText(entry: CalendarEntry, today: string): string {
+  const daysUntil = dayjs(entry.date).diff(dayjs(today), 'day')
+  const typeCode = entry.type === 'note' ? 'NOTE' : entry.type === 'task' ? 'TASK' : 'COMMS'
+  const eta =
+    daysUntil === 0 ? 'EXECUTE: TODAY' :
+    daysUntil === 1 ? 'ETA: T-1 DAY' :
+    `ETA: T-${daysUntil} DAYS`
+  return `[CAL/${typeCode}] ${entry.text.toUpperCase()} — ${eta}`
+}
+
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
+  const { mutate: deleteLog } = useDeleteLog()
+
+  // Live clock — updates every minute so ETAs stay fresh
+  const [now, setNow] = React.useState(() => dayjs())
+  React.useEffect(() => {
+    const id = setInterval(() => setNow(dayjs()), 60_000)
+    return () => clearInterval(id)
+  }, [])
+
+  const today = now.format('YYYY-MM-DD')
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
@@ -59,25 +116,24 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [confirmDeleteId, setConfirmDeleteId] = React.useState<string | null>(null)
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
+        id: log.id,
         date: log.metadata?.date as string,
-        text: log.metadata?.text as string || log.text || '',
-        type: (log.metadata?.entryType as EntryType) || 'note',
+        text: (log.metadata?.text as string) || log.text || '',
+        type: ((log.metadata?.entryType as EntryType) || 'note'),
       }))
       .filter(e => e.date && e.text)
       .sort((a, b) => a.date.localeCompare(b.date))
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
-    return entries
-      .filter(e => e.date >= today)
-      .slice(0, 10)
-  }, [entries])
+    return entries.filter(e => e.date >= today).slice(0, 10)
+  }, [entries, today])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,19 +146,54 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
   )
 
+  // Military-grade event notifications: fire once per day per upcoming event within horizon
+  React.useEffect(() => {
+    if (upcomingEntries.length === 0) return
+
+    const firedAlerts = loadAlerts()
+    const horizon = dayjs(today).add(ALERT_HORIZON, 'day').format('YYYY-MM-DD')
+
+    const toFire = upcomingEntries.filter(e => {
+      if (e.date > horizon) return false
+      return !firedAlerts.has(alertKey(e, today))
+    })
+
+    if (toFire.length === 0) return
+
+    const timeouts: ReturnType<typeof setTimeout>[] = []
+
+    toFire.forEach((entry, i) => {
+      const t = setTimeout(() => {
+        createLog(
+          {
+            text: buildAlertText(entry, today),
+            event: 'calendar_alert',
+            metadata: { date: entry.date, entryType: entry.type },
+          },
+          {
+            onSuccess: () => {
+              const key = alertKey(entry, today)
+              firedAlerts.add(key)
+              saveAlerts(firedAlerts)
+              queryClient.invalidateQueries(['/api/logs'])
+            },
+          }
+        )
+      }, i * 600)
+      timeouts.push(t)
+    })
+
+    return () => timeouts.forEach(clearTimeout)
+  }, [upcomingEntries, today])
+
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
-    if (selectedDate === key) {
-      setSelectedDate(null)
-    } else {
-      setSelectedDate(key)
-    }
+    setSelectedDate(selectedDate === key ? null : key)
   }
 
   const handleAddEntry = () => {
@@ -110,29 +201,46 @@ export function CalendarWidget() {
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
 
-    createLog({
-      text: `${entryType}: ${entryText.trim()} (${dateLabel})`,
-      event: 'calendar_entry',
-      metadata: {
-        date: selectedDate,
-        text: entryText.trim(),
-        entryType,
+    createLog(
+      {
+        text: `${entryType}: ${entryText.trim()} (${dateLabel})`,
+        event: 'calendar_entry',
+        metadata: { date: selectedDate, text: entryText.trim(), entryType },
       },
-    }, {
-      onSuccess: () => {
-        queryClient.invalidateQueries(['/api/logs'])
-        try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
-      },
-    })
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries(['/api/logs'])
+          try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        },
+      }
+    )
 
     setEntryText('')
     setIsAddingEntry(false)
   }
 
-  const handleToggleCalendar = () => {
-    if (!isCalendarOpen) {
-      setViewMonth(dayjs())
+  const handleDeleteEntry = (entry: CalendarEntry) => {
+    if (confirmDeleteId === entry.id) {
+      deleteLog(
+        { id: entry.id },
+        {
+          onSuccess: () => {
+            setConfirmDeleteId(null)
+            queryClient.invalidateQueries(['/api/logs'])
+          },
+        }
+      )
+    } else {
+      setConfirmDeleteId(entry.id)
+      setTimeout(
+        () => setConfirmDeleteId(prev => (prev === entry.id ? null : prev)),
+        3000
+      )
     }
+  }
+
+  const handleToggleCalendar = () => {
+    if (!isCalendarOpen) setViewMonth(dayjs())
     setIsCalendarOpen(!isCalendarOpen)
   }
 
@@ -140,13 +248,12 @@ export function CalendarWidget() {
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
         <div className="mb-16">
-          <Button onClick={handleToggleCalendar}>
-            Add date
-          </Button>
+          <Button onClick={handleToggleCalendar}>Add date</Button>
         </div>
 
         {isCalendarOpen && (
           <div className="mb-16">
+            {/* Month navigation */}
             <div className="flex items-center gap-8 mb-8">
               <button
                 className="text-acc/40 hover:text-acc text-sm transition-opacity"
@@ -165,6 +272,7 @@ export function CalendarWidget() {
               </button>
             </div>
 
+            {/* Calendar grid */}
             <div className="text-sm space-y-1">
               {weeks.map((week, wi) => (
                 <div key={wi} className="flex gap-0">
@@ -211,6 +319,7 @@ export function CalendarWidget() {
               ))}
             </div>
 
+            {/* Add entry form */}
             {isAddingEntry && selectedDate && (
               <div className="mt-8">
                 <div className="flex gap-8 mb-8">
@@ -242,14 +351,26 @@ export function CalendarWidget() {
               </div>
             )}
 
+            {/* Entries on selected date */}
             {selectedDate && entriesOnDate.length > 0 && (
               <div className="mt-8">
                 <div className="text-acc/40 text-xs mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 text-sm mb-1">
-                    {e.text}
+                {entriesOnDate.map(e => (
+                  <div key={e.id} className="flex items-center gap-8 mb-1 group">
+                    <span className="text-acc/80 text-sm flex-1">{e.text}</span>
+                    <button
+                      onClick={() => handleDeleteEntry(e)}
+                      className={cn(
+                        'text-xs opacity-0 group-hover:opacity-100 transition-opacity',
+                        confirmDeleteId === e.id
+                          ? 'text-acc'
+                          : 'text-acc/30 hover:text-acc/60'
+                      )}
+                    >
+                      {confirmDeleteId === e.id ? 'confirm' : '×'}
+                    </button>
                   </div>
                 ))}
               </div>
@@ -257,18 +378,47 @@ export function CalendarWidget() {
           </div>
         )}
 
+        {/* Upcoming events with ETA */}
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between text-sm gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+            {upcomingEntries.map(entry => {
+              const eta = getEta(entry.date, today)
+              const isToday = eta === 'TODAY'
+
+              return (
+                <div key={entry.id} className="flex items-baseline gap-8 text-sm group">
+                  <span className={cn(
+                    'shrink-0 tabular-nums',
+                    isToday ? 'text-acc font-bold' : 'text-acc/40'
+                  )}>
+                    {eta}
+                  </span>
+                  <span className={cn(
+                    'shrink-0 text-xs uppercase tracking-widest',
+                    isToday ? 'text-acc/60' : 'text-acc/20'
+                  )}>
+                    {entry.type}
+                  </span>
+                  <span className={cn(
+                    'flex-1 text-right truncate',
+                    isToday ? 'text-acc' : 'text-acc/70'
+                  )}>
+                    {entry.text}
+                  </span>
+                  <button
+                    onClick={() => handleDeleteEntry(entry)}
+                    className={cn(
+                      'shrink-0 text-xs opacity-0 group-hover:opacity-100 transition-opacity',
+                      confirmDeleteId === entry.id
+                        ? 'text-acc'
+                        : 'text-acc/30 hover:text-acc/60'
+                    )}
+                  >
+                    {confirmDeleteId === entry.id ? 'confirm' : '×'}
+                  </button>
+                </div>
+              )
+            })}
           </div>
         )}
 

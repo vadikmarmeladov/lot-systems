@@ -1360,6 +1360,23 @@ export default async (fastify: FastifyInstance) => {
     }
   )
 
+  fastify.delete(
+    '/logs/:id',
+    async (
+      req: FastifyRequest<{
+        Params: { id: string }
+      }>,
+      reply
+    ) => {
+      const log = await fastify.models.Log.findOne({
+        where: { id: req.params.id, userId: req.user.id }
+      })
+      if (!log) return reply.throw.notFound()
+      await log.destroy()
+      return { id: req.params.id, deleted: true }
+    }
+  )
+
   // ============================================================================
   // EMOTIONAL CHECK-IN ENDPOINT
   // ============================================================================
