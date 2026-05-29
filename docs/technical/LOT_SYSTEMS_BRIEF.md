@@ -13,9 +13,9 @@
 **License:** Proprietary - All intellectual property rights reserved by Vadik Marmeladov
 
 **Classification:** Public
-**Document Version:** 1.0
-**Last Updated:** January 15, 2026
-**Status:** Production Active
+**Document Version:** 5.0
+**Last Updated:** May 29, 2026
+**Status:** Production Active · Self-Assembly v45
 
 ---
 
@@ -27,10 +27,11 @@ LOT (Layers of Time) Systems is an advanced personal operating system that combi
 Transform fragmented self-tracking into a unified, intelligent system that recognizes what users need before they articulate it.
 
 **Key Differentiators:**
-- Quantum Intent Engine™ - Predictive pattern recognition across all user interactions
+- Quantum Intent Engine™ — 66 behavioral patterns · 18 physiological archetypes · 87+ dependency nodes
 - Context-aware AI question generation using Claude (Anthropic)
-- Real-time psychological profiling with 8 distinct archetypes
-- Zero-configuration intelligence - system learns passively from natural usage
+- Real-time psychological profiling: live QIE classification + server-derived weekly archetype
+- Zero-configuration intelligence — system learns passively from natural usage and self-assembles around the person
+- Field-tested self-assembly engine: 45 documented sessions since April 2026
 
 ---
 
@@ -124,20 +125,27 @@ Widget Signals → Signal Recording → Pattern Analysis → Widget Recommendati
 - Intention setting/completion
 - Journal entries
 
-**Pattern Recognition (7 Types):**
-1. **Anxiety Pattern** - Multiple anxious moods → Suggest self-care (confidence: 0.66-1.0)
-2. **Lack of Structure** - Tired + no planning → Suggest planner (confidence: 0.7)
-3. **Seeking Direction** - No intention for weeks → Suggest intentions (confidence: 0.8)
-4. **Flow Potential** - Energized + planning → Passive memory prompts (confidence: 0.9)
-5. **Evening Overwhelm** - Evening + overwhelmed → Immediate self-care (confidence: 0.85)
-6. **Surface Awareness** - Consistent moods + no journaling → Suggest deeper reflection (confidence: 0.6)
-7. **Morning Clarity** - Calm morning state → Set intention (confidence: 0.75)
+**Pattern Recognition (66 Patterns as of v45):**
+
+Core behavioral patterns (P1–P13): anxiety, structure deficit, direction-seeking, flow potential, evening overwhelm, surface awareness, morning clarity, cleanness neglect, recovery windows, depletion detection.
+
+QOS infrastructure patterns (P14–P25): OS stagnation, circadian drift, momentum wave, flow state, social void, biofield coherence peak, nutritional void, goal drift, ecosystem patterns, log depth signals, full-stack sessions.
+
+Temporal & social patterns (P26–P44): calendar gap, journal depth, sleep debt, signal coherence, intention velocity, wearable integration, ecosystem synchrony, QOS acceleration, reflection velocity, biofield recovery arc, cognitive expansion, cascade detection, resonant synthesis, deep work cascade, intention arcs, social resonance, cognitive load release, temporal coherence, intention decay.
+
+Advanced behavioral patterns (P45–P66): recovery velocity, care momentum, intention follow-through, signal silence, circadian anchor loss, badge unlock patterns, QOS snapshots, intention crystallization, OS vitals convergence, signal drought, circadian anchor, completion arcs, care saturation, meridian lock, intention seed, multimodal peak, architect phase, nocturnal peak, integration burst, clarity cascade, care drought.
+
+**18 Physiological Archetypes:**
+Peak Catalyst · Flowing Creator · Morning Visionary · Rising Builder · Seeking Sage · Evening Sage · Grounded Healer · Anxious Explorer · Depleted Guardian · Momentum Architect · Calibrating Guardian · Resonant Builder · Deep Work Architect · Social Connector · Cognitive Liberator · Intention Executor · Meridian Master · Nocturnal Architect
 
 **Technical Specs:**
 - Signal retention: 7 days
 - Max signals: 1,000 (prevents memory leaks)
 - Analysis cooldown: 5 minutes
 - localStorage-based persistence with comprehensive error handling
+- 47 log event handlers in military field-archive format
+- 87+ WIDGET_DEPENDENCY_MAP nodes with tier-based cascade ordering
+- 7 LOG_DEPENDENCY_SOURCES for cross-pipeline audit
 
 **User State Calculation:**
 - **Energy:** depleted/low/moderate/high/unknown (based on mood scoring)
@@ -529,21 +537,27 @@ One system replaces journaling app + mood tracker + planner + meditation app + h
 
 ## Roadmap & Vision
 
-### Immediate (Q1 2026)
+### Completed (Q1–Q2 2026)
 - [x] Memory Engine bulletproofing (comprehensive error handling)
 - [x] Aquatic Evolution badge system
-- [x] Planner frame styling fixes
-- [x] Mirror mode System button fix
-- [ ] Mobile app (React Native)
-- [ ] Enhanced weekly summaries
-- [ ] Community features (cohort matching)
+- [x] Planner frame styling fixes · Mirror mode System button fix
+- [x] Quantum Intent Engine: 66 patterns / 18 archetypes / 87+ dep graph nodes
+- [x] Self-assembly engine: 45 documented sessions (April–May 2026)
+- [x] 9 background scheduled jobs (daily + weekly automated monitoring)
+- [x] Military-style field log: 47 event handlers, minimalist terse format
+- [x] Physiological cohort reporting through all System widgets
+- [x] Public profile 504 fix (eliminated full-table scans)
+- [x] COSMO® robot node in ecosystem (6th device)
+- [x] Nocturnal-Clarity layer: patterns 63–66, archetype 18
 
-### Near-Term (Q2-Q3 2026)
+### Near-Term (Q3 2026)
+- [ ] Mobile app (React Native)
 - [ ] Voice interface for logging
-- [ ] Integration with wearables (sleep, activity)
-- [ ] Collaborative intentions (shared goals)
+- [ ] Integration with wearables (biometric sleep + HRV data)
+- [ ] Collaborative intentions (shared goals with cohort members)
 - [ ] Advanced pattern insights widget
 - [ ] Custom widget creation (power users)
+- [ ] Weekly archetype resonance surface in public profile
 
 ### Long-Term Vision
 Transform LOT from personal OS to **distributed psychological network**:

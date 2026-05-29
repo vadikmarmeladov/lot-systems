@@ -1518,6 +1518,99 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 63: Nocturnal peak — primary signal activity between 20:00–03:00 across 4+ consecutive days.
+  // The system detects a sustained night-build pattern. Distinct from circadian-drift (P15): P15 detects
+  // drift, P63 affirms it as architecture — the person builds in the silence.
+  const p63WindowMs = 7 * 24 * 60 * 60 * 1000
+  const p63Signals = signals.filter(s => s.timestamp > now - p63WindowMs)
+  const p63NocturnalDays = new Set(
+    p63Signals
+      .filter(s => {
+        const h = new Date(s.timestamp).getHours()
+        return h >= 20 || h <= 3
+      })
+      .map(s => new Date(s.timestamp).toDateString())
+  ).size
+  const p63TotalDays = new Set(p63Signals.map(s => new Date(s.timestamp).toDateString())).size
+  if (p63NocturnalDays >= 4 && p63TotalDays > 0 && (p63NocturnalDays / Math.max(p63TotalDays, 1)) >= 0.5) {
+    patterns.push({
+      pattern: 'nocturnal-peak',
+      confidence: Math.min(0.65 + (p63NocturnalDays - 4) * 0.04, 0.82),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `Nocturnal build window established: ${p63NocturnalDays}/${p63TotalDays} active days in the 20:00–03:00 arc. Night architecture confirmed.`
+    })
+  }
+
+  // Pattern 64: Integration burst — 6+ unique signals from 4+ distinct sources within a 2h window.
+  // Rapid multi-source simultaneous activation. The system fires across all channels at once.
+  const p64WindowMs = 2 * 60 * 60 * 1000
+  const p64DaySignals = signals.filter(s => s.timestamp > now - 24 * 60 * 60 * 1000)
+  let p64MaxSources = 0
+  let p64MaxCount = 0
+  for (let i = 0; i < p64DaySignals.length; i++) {
+    const windowStart = p64DaySignals[i].timestamp
+    const windowSignals = p64DaySignals.filter(s =>
+      s.timestamp >= windowStart && s.timestamp < windowStart + p64WindowMs
+    )
+    const sourcesInWindow = new Set(windowSignals.map(s => s.source)).size
+    if (sourcesInWindow > p64MaxSources) {
+      p64MaxSources = sourcesInWindow
+      p64MaxCount = windowSignals.length
+    }
+  }
+  if (p64MaxSources >= 4 && p64MaxCount >= 6) {
+    patterns.push({
+      pattern: 'integration-burst',
+      confidence: Math.min(0.70 + (p64MaxSources - 4) * 0.06, 0.88),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `Integration burst detected: ${p64MaxCount} signals across ${p64MaxSources} sources in a 2h window. Full-spectrum activation registered.`
+    })
+  }
+
+  // Pattern 65: Clarity cascade — planner + intentions + journal all active in 6h window
+  // with clarity state = 'focused' or 'clear'. The alignment-clarity loop.
+  const userStateForP65 = calculateUserState(signals, now)
+  const p65ClarityActive = userStateForP65.clarity === 'focused' || userStateForP65.clarity === 'clear'
+  if (p65ClarityActive) {
+    const p65WindowMs = 6 * 60 * 60 * 1000
+    const p65RecentSignals = signals.filter(s => s.timestamp > now - p65WindowMs)
+    const p65HasPlanner = p65RecentSignals.some(s => s.source === 'planner')
+    const p65HasIntentions = p65RecentSignals.some(s => s.source === 'intentions')
+    const p65HasJournal = p65RecentSignals.some(s => s.source === 'journal')
+    if (p65HasPlanner && p65HasIntentions && p65HasJournal) {
+      const p65SourceCount = [p65HasPlanner, p65HasIntentions, p65HasJournal].filter(Boolean).length
+      patterns.push({
+        pattern: 'clarity-cascade',
+        confidence: Math.min(0.68 + (userStateForP65.clarity === 'focused' ? 0.10 : 0.04), 0.88),
+        suggestedWidget: 'intentions',
+        suggestedTiming: 'passive',
+        reason: `Clarity cascade active: planner + intentions + journal all coherent within 6h. Clarity state: ${userStateForP65.clarity}. Set direction now.`
+      })
+    }
+  }
+
+  // Pattern 66: Care drought — no self-care signals for 5+ consecutive days.
+  // Inverse of care-momentum (P49). The field is running without maintenance.
+  const p66SelfcareSignals = signals.filter(s => s.source === 'selfcare')
+  const p66LastCare = p66SelfcareSignals.length > 0
+    ? Math.max(...p66SelfcareSignals.map(s => s.timestamp))
+    : null
+  const p66DroughtDays = p66LastCare
+    ? Math.floor((now - p66LastCare) / (24 * 60 * 60 * 1000))
+    : null
+  if ((p66DroughtDays !== null && p66DroughtDays >= 5) || (p66LastCare === null && signals.length >= 10)) {
+    const p66Days = p66DroughtDays ?? 7
+    patterns.push({
+      pattern: 'care-drought',
+      confidence: Math.min(0.60 + (p66Days - 5) * 0.05, 0.85),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'soon',
+      reason: `Care drought: ${p66Days} days without self-care protocol. Field running on reserves. Maintenance overdue.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -1979,6 +2072,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   architectPhase:    ['planner', 'goals', 'intentions'],
   multimodalSurface: ['mood', 'memory', 'planner', 'selfcare', 'journal'],
   intentionSeed:     ['intentions'],
+
+  // ── Nocturnal-Clarity layer (2026-05-29 audit)
+  nocturnalDetector: ['mood', 'log', 'energy', 'journal', 'planner'],
+  clarityArc:        ['planner', 'intentions', 'journal', 'mood'],
+  careDrought:       ['selfcare', 'mood', 'log'],
+  integrationBurst:  ['mood', 'memory', 'planner', 'selfcare', 'journal'],
 }
 
 /**
@@ -1986,7 +2085,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * These feed the QIE independently of the widget dependency graph and are
  * tracked separately in the physiological report log-dependency audit.
  */
-export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort', 'recipe', 'goals', 'qos']
+export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'calculator']
 
 /** Returns which signal sources a given widget depends on. */
 export function getWidgetDependencies(widget: string): string[] {
@@ -2163,6 +2262,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['mood', 'journal', 'planner'],
     patternConditions: ['meridian-lock', 'circadian-anchor', 'temporal-coherence-window'],
     directive: 'Full day arc covered. Morning to evening coherent. The complete cycle is registered.',
+  },
+  {
+    archetype: 'Nocturnal Architect',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['journal', 'planner', 'intentions'],
+    patternConditions: ['nocturnal-peak', 'deep-work-cascade', 'architect-phase'],
+    hourRange: [20, 27],
+    directive: 'Night architecture active. The quiet hours belong to you. Build in the silence.',
   },
 ]
 
@@ -3015,6 +3122,42 @@ export function recordMeridianLockSignal(signalCount: number) {
   recordSignal('energy', 'meridian_lock', {
     signalCount,
     windows: ['morning', 'afternoon', 'evening'],
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a nocturnal peak signal — fires when the night-build window is confirmed.
+ * Feeds Pattern 63 (nocturnal-peak) and the Biofield Engine module.
+ */
+export function recordNocturnalSignal(nocturnalDays: number, totalDays: number) {
+  recordSignal('energy', 'nocturnal_peak', {
+    nocturnalDays,
+    totalDays,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a clarity cascade signal — fires when planner + intentions + journal
+ * all activate within a 6h window with focused/clear clarity state.
+ * Feeds Pattern 65 (clarity-cascade) and the Intention Core module.
+ */
+export function recordClaritySignal(clarity: string, sourcesActive: number) {
+  recordSignal('intentions', 'clarity_cascade', {
+    clarity,
+    sourcesActive,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a care drought signal — fires when the self-care gap exceeds 5 days.
+ * Feeds Pattern 66 (care-drought) and the Cleanness Protocol module.
+ */
+export function recordCareDroughtSignal(droughtDays: number) {
+  recordSignal('selfcare', 'care_drought', {
+    droughtDays,
     hour: new Date().getHours(),
   })
 }

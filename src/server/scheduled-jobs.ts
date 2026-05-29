@@ -874,6 +874,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunMorningBiofieldJob()) {
     await executeMorningBiofieldJob()
   }
+
+  // Check weekly archetype resonance audit (Thursday 06:00 UTC)
+  if (shouldRunWeeklyArchetypeAudit()) {
+    await executeWeeklyArchetypeAudit()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1172,6 +1177,138 @@ async function executeMorningBiofieldJob(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Morning biofield job failed:', error.message)
     isMorningBiofieldRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Weekly Archetype Resonance Audit ────────────────────────────────────────
+
+let isWeeklyArchetypeAuditRunning = false
+let lastWeeklyArchetypeAuditRun: Date | null = null
+
+/**
+ * Runs on Thursdays at 06:00 UTC.
+ * For each active user, reads archetype metadata from the last 4 weeks of logs.
+ * Computes archetype stability — consistent vs. drifting cohort identity.
+ * Surfaces resonance score: high stability = the system has found its person.
+ */
+function shouldRunWeeklyArchetypeAudit(): boolean {
+  const now = dayjs()
+  const dayOfWeek = now.day() // 4 = Thursday
+  if (dayOfWeek !== 4) return false
+  if (isWeeklyArchetypeAuditRunning) return false
+  if (lastWeeklyArchetypeAuditRun) {
+    const lastRun = dayjs(lastWeeklyArchetypeAuditRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeWeeklyArchetypeAudit(): Promise<JobResult> {
+  const jobName = 'weekly-archetype-resonance-audit'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Archetype Resonance Audit')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyArchetypeAuditRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const fourWeeksAgo = dayjs().subtract(28, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 500,
+    })
+
+    console.log(`  Active users (7d): ${activeUsers.length}`)
+
+    let stableCount = 0     // same archetype for 3+ of 4 weeks
+    let driftingCount = 0   // archetype changed week-over-week
+    let emergingCount = 0   // archetype present but <3 weeks of data
+    let unclassifiedCount = 0
+
+    for (const user of activeUsers) {
+      try {
+        const archetypeLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: fourWeeksAgo },
+            event: { [Op.in]: ['physiological_cohort', 'qos_state'] as any[] }
+          },
+          order: [['createdAt', 'ASC']],
+        })
+
+        if (archetypeLogs.length === 0) {
+          unclassifiedCount++
+          continue
+        }
+
+        const archetypesByWeek: Record<number, string[]> = {}
+        for (const log of archetypeLogs) {
+          const weeksAgo = Math.floor(
+            (Date.now() - new Date(log.createdAt).getTime()) / (7 * 24 * 60 * 60 * 1000)
+          )
+          const weekBucket = Math.min(weeksAgo, 3)
+          const archetype = (log.metadata as any)?.archetype as string | undefined
+          if (archetype) {
+            if (!archetypesByWeek[weekBucket]) archetypesByWeek[weekBucket] = []
+            archetypesByWeek[weekBucket].push(archetype)
+          }
+        }
+
+        const weekArchetypes = Object.values(archetypesByWeek).map(arr => {
+          const counts: Record<string, number> = {}
+          arr.forEach(a => { counts[a] = (counts[a] || 0) + 1 })
+          return Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0]
+        }).filter(Boolean)
+
+        if (weekArchetypes.length < 2) {
+          emergingCount++
+        } else {
+          const dominant = weekArchetypes[0]
+          const stableWeeks = weekArchetypes.filter(a => a === dominant).length
+          if (stableWeeks >= 3) stableCount++
+          else if (stableWeeks <= 1) driftingCount++
+          else emergingCount++
+        }
+      } catch { /* skip user */ }
+    }
+
+    console.log('')
+    console.log('  Archetype resonance results:')
+    console.log(`    Stable (3+ weeks consistent): ${stableCount}`)
+    console.log(`    Drifting (changing week-over-week): ${driftingCount}`)
+    console.log(`    Emerging (insufficient history): ${emergingCount}`)
+    console.log(`    Unclassified (no archetype logs): ${unclassifiedCount}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('ARCHETYPE RESONANCE AUDIT COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyArchetypeAuditRun = new Date()
+    isWeeklyArchetypeAuditRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned: activeUsers.length, stableCount, driftingCount, emergingCount, unclassifiedCount }
+    }
+  } catch (error: any) {
+    console.error('Weekly archetype resonance audit failed:', error.message)
+    isWeeklyArchetypeAuditRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

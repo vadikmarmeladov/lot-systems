@@ -104,7 +104,11 @@ export function PatternRecognitionWidget() {
       'recovery-velocity':          'Recovery arc accelerating',
       'care-momentum':              'Proactive care spiral',
       'intention-follow-through':   'Execution arc complete',
-      'circadian-anchor-loss':      'Circadian anchor lost'
+      'circadian-anchor-loss':      'Circadian anchor lost',
+      'nocturnal-peak':             'Night build window open',
+      'integration-burst':          'Full-spectrum burst active',
+      'clarity-cascade':            'Clarity cascade aligned',
+      'care-drought':               'Care protocol overdue'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -327,6 +331,27 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'circadian-anchor-loss') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Circadian anchor lost. Rest protocol.
+                </div>
+              )}
+
+              {/* Nocturnal peak indicator — surfaces when pattern 63 is active */}
+              {patterns.some(p => p.pattern === 'nocturnal-peak') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Night architecture active. Build window open.
+                </div>
+              )}
+
+              {/* Clarity cascade indicator — surfaces when pattern 65 is active */}
+              {patterns.some(p => p.pattern === 'clarity-cascade') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Clarity cascade locked. Direction is clear.
+                </div>
+              )}
+
+              {/* Care drought indicator — surfaces when pattern 66 is active */}
+              {patterns.some(p => p.pattern === 'care-drought') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Care drought. Protocol needed.
                 </div>
               )}
 

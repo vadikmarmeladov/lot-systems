@@ -983,6 +983,58 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'nocturnal_peak') {
+          const nocturnalDays = log.metadata?.nocturnalDays as number | undefined
+          const totalDays = log.metadata?.totalDays as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="NCTL:" blockView>
+                <div className="uppercase tracking-widest mb-4">Night architecture confirmed</div>
+                {nocturnalDays !== undefined && totalDays !== undefined && (
+                  <div className="opacity-60">NOCTURNAL DAYS: {nocturnalDays}/{totalDays}</div>
+                )}
+                <div className="opacity-40">Build window: 20:00–03:00. Silence is signal.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'clarity_cascade') {
+          const clarity = log.metadata?.clarity as string | undefined
+          const sourcesActive = log.metadata?.sourcesActive as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CLAR:" blockView>
+                <div className="uppercase tracking-widest mb-4">Clarity cascade active</div>
+                {clarity && (
+                  <div className="opacity-60">STATE: {clarity.toUpperCase()}</div>
+                )}
+                {sourcesActive !== undefined && (
+                  <div className="opacity-60">SOURCES 6h: {sourcesActive}</div>
+                )}
+                <div className="opacity-40">Planner + intentions + journal aligned.</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'care_drought') {
+          const droughtDays = log.metadata?.droughtDays as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CARE [DROUGHT]:" blockView>
+                <div className="uppercase tracking-widest mb-4">Care protocol gap</div>
+                {droughtDays !== undefined && (
+                  <div className="opacity-60">DAYS WITHOUT CARE: {droughtDays}</div>
+                )}
+                <div className="opacity-40">Field running on reserves. Maintenance required.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

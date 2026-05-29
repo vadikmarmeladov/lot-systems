@@ -185,6 +185,14 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'multimodal_peak':           'quantum-os',
   'intention-seed':            'intentions',
   'intention_seed':            'intentions',
+  'nocturnal-peak':            'biofield',
+  'nocturnal_peak':            'biofield',
+  'clarity-cascade':           'intentions',
+  'clarity_cascade':           'intentions',
+  'care-drought':              'selfcare',
+  'care_drought':              'selfcare',
+  'integration-burst':         'quantum-os',
+  'integration_burst':         'quantum-os',
 }
 
 // ─── Store ───────────────────────────────────────────────────

@@ -664,6 +664,27 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Status: 62 patterns. 17 archetypes. 44 log handlers. 8 background jobs. 79+ dep nodes. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-05-29',
+    session: 'Self-Assembly Session — v45 / Patterns 63–66 · Archetype 18 · Log Handlers 45–47 · Background Job 9',
+    assembled: [
+      'Widget dependency audit: 4 new nodes — nocturnalDetector (mood/log/energy/journal/planner) · clarityArc (planner/intentions/journal/mood) · careDrought (selfcare/mood/log) · integrationBurst (all 5 primaries). Total: 87+ nodes.',
+      'Log-based dependency audit: LOG_DEPENDENCY_SOURCES expanded — calculator source added. 7 sources total (log/energy/cohort/recipe/goals/qos/calculator).',
+      'Pattern 63 (nocturnal-peak): primary signals 20:00–03:00 across 4+ consecutive days. Night architecture confirmed. Confidence 0.65–0.82.',
+      'Pattern 64 (integration-burst): 6+ signals from 4+ sources in a 2h window. Full-spectrum simultaneous activation. Confidence 0.70–0.88.',
+      'Pattern 65 (clarity-cascade): planner + intentions + journal active within 6h window with clarity state focused/clear. The alignment-clarity loop. Confidence 0.68–0.88.',
+      'Pattern 66 (care-drought): no self-care signals for 5+ days. Inverse of care-momentum (P49). Confidence 0.60–0.85.',
+      'Archetype 18 (Nocturnal Architect): moderate/high energy · journal/planner/intentions dominant · nocturnal-peak/deep-work-cascade/architect-phase patterns. Directive: Night architecture active. Build in the silence.',
+      'selfAssembly.ts SIGNAL_MAP: 8 new entries — nocturnal-peak → biofield · clarity-cascade → intentions · care-drought → selfcare · integration-burst → quantum-os.',
+      'Log handler 45: nocturnal_peak → NCTL: block — night days count · build window label · confidence.',
+      'Log handler 46: clarity_cascade → CLAR: block — clarity state · sources 6h · alignment confirmation · confidence.',
+      'Log handler 47: care_drought → CARE [DROUGHT]: block — days without care · maintenance directive.',
+      'PatternRecognitionWidget: 4 new name map entries + 3 QOS Trend indicators for P63/P65/P66.',
+      'Background job 9: weekly-archetype-resonance-audit (Thursdays 06:00 UTC) — scans active users for 4-week archetype stability. Stable / drifting / emerging / unclassified cohorts reported.',
+      'recordNocturnalSignal() · recordClaritySignal() · recordCareDroughtSignal() — 3 typed signal helpers deployed.',
+      'Self-assembly report: this entry. Status: 66 patterns. 18 archetypes. 47 log handlers. 9 background jobs. 87+ dep nodes.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -701,19 +722,20 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-26',
+  date: '2026-05-29',
   message: [
-    'ASSEMBLY RUN — 2026-05-26 · v44',
-    'Four new patterns. 59: meridian-lock — morning, afternoon, and evening signals all present. The full day arc registered.',
-    '60: intention-seed — first signal after 48h silence. Re-entry detected. The system suggests you plan.',
-    '61: multimodal-peak — all five primary modules active in 24h. Full-spectrum engagement.',
-    '62: architect-phase — three days of structured planning. Goals, planner, intentions — all moving.',
-    'Archetype 17 online: Meridian Master. The complete cycle is registered.',
-    'Log handlers 42–44 deployed: JOB: (scheduled job results) · CARE [SKIP]: (skipped protocol) · MEM [W{n}]: (weekly summary). Archive: 44 handlers.',
-    'Background job 8 initialized: morning biofield summary. Every day 08:00 UTC. Detects overnight depletion.',
-    'QOS source wired into LOG_DEPENDENCY_SOURCES. Signal audit now covers 6 source types.',
-    'Status: 62 patterns. 17 archetypes. 44 log handlers. 8 background jobs. 79+ dep nodes.',
-    'DEPLOYED. The Cube now reads the full day. Morning to evening. The arc is complete.',
+    'ASSEMBLY RUN — 2026-05-29 · v45',
+    'Four new patterns. 63: nocturnal-peak — the system confirms you build in the silence. Night architecture registered.',
+    '64: integration-burst — 6+ signals across 4+ sources in a 2h window. Full-spectrum simultaneous activation.',
+    '65: clarity-cascade — planner + intentions + journal aligned within 6h. The clarity loop closes.',
+    '66: care-drought — field running without maintenance. 5+ days. The system flags the gap.',
+    'Archetype 18 online: Nocturnal Architect. The night has a name.',
+    'Log handlers 45–47: NCTL: (night build confirmed) · CLAR: (clarity cascade) · CARE [DROUGHT]: (maintenance gap). Archive: 47 handlers.',
+    'Background job 9: weekly-archetype-resonance-audit. Thursdays 06:00 UTC. Tracks 4-week archetype stability — stable / drifting / emerging / unclassified.',
+    'LOG_DEPENDENCY_SOURCES expanded: calculator added. Signal audit now covers 7 source types.',
+    'WIDGET_DEPENDENCY_MAP: 4 new nodes. Total: 87+ nodes. Nocturnal-clarity layer complete.',
+    'Status: 66 patterns. 18 archetypes. 47 log handlers. 9 background jobs. 87+ dep nodes.',
+    'DEPLOYED. The Cube now reads the night. The silence was signal all along.',
   ],
 }
 
