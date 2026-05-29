@@ -15,6 +15,18 @@
 :root {
   --base-color: #fff;
 
+  /* LOT TERMINAL — BASICS TAB (LOT-FM-001 §4.1) */
+  --lot-bg: #ffffff;
+  --lot-ink: #000000;
+  --lot-invert-bg: #000000;
+  --lot-invert-fg: #ffffff;
+  --lot-rule: 2px solid #000000;
+  --lot-font: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --lot-font-weight: 700;
+  --lot-pad: 6px;
+  --lot-radius: 0px;
+  --lot-font-size: 13px;
+
   --acc-color-default: 0 0 0;
   --acc-color-900: 0 0 0;
   --acc-color-800: 0 0 0;

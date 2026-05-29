@@ -1,0 +1,19 @@
+LOT SYSTEMS / BASICS TAB — PRODUCT IMAGE SLOTS
+================================================
+Drop product images here. Filenames must match exactly.
+
+SLOT    FILE                  ITEM   DESCRIPTION
+------  --------------------  -----  ----------------------------
+A       lot-floss.png         006    FLOSS, DENTAL (translucent container)
+B       lot-tee.png           003    SHIRT, TEE, COTTON, BLACK
+C       lot-cream.png         018    CREAM, HAND/FACE (black jar, LOT 0012 label)
+D       lot-clipper.png       015    CLIPPER, NAIL (black, vertical)
+E       lot-bag.png           022    BAG, COTTON, REUSABLE (black, coordinates)
+
+Style reference:
+- White background, product centered
+- LOT dot-matrix issue stamp on product
+- Monochrome only (black or natural/undyed items)
+- No props, no shadows, no styling
+
+Source: LOT2046 archive / LOT-FM-001 §3

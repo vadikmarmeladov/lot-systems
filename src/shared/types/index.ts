@@ -17,6 +17,22 @@ export enum UserTag {
   Pro = 'Pro',
   Suspended = 'Suspended',
   Legacy = 'Legacy',
+  Basic = 'Basic',
+}
+
+// LOT BASIC ration plan types (LOT-FM-001)
+export type RationTier = 'public' | 'usership' | 'basic'
+
+export type IssueStatus = 'DELIVERED' | 'IN TRANSIT' | 'SCHEDULED'
+
+export type IssueLogEntry = {
+  id: string
+  issueDate: string
+  month: number
+  year: number
+  items: string[]
+  status: IssueStatus
+  trackingCode?: string
 }
 
 // User Types

@@ -19,6 +19,7 @@ import { Sync } from '#client/components/Sync'
 import { DirectMessageThread } from '#client/components/DirectMessageThread'
 import { StatusPage } from '#client/components/StatusPage'
 import { ApiPage } from '#client/components/ApiPage'
+import { BasicsPage } from '#client/components/Basics'
 import { ConnectionStatus } from '#client/components/ConnectionStatus'
 import { render } from '#client/utils/render'
 import { listenSSE } from '#client/utils/sse'
@@ -247,6 +248,7 @@ const App = () => {
         )}
         {router?.route === 'status' && <StatusPage noWrapper />}
         {router?.route === 'logs' && <Logs />}
+        {router?.route === 'basics' && <BasicsPage />}
         {isMirrorOn && (
           <video
             ref={mirrorRef}
