@@ -12,6 +12,7 @@ import { useUpdateSettings, useMyMemoryStory } from '#client/queries'
 import * as stores from '#client/stores'
 import { Block, Button, GhostButton, Input, Select, Link } from '#client/components/ui'
 import { UserSettings, UserTag, UserPrivacySettings, UserWorld } from '#shared/types'
+import { goTo } from '#client/stores/router'
 import {
   COUNTRIES,
   getUserTagByIdCaseInsensitive,
@@ -587,6 +588,16 @@ export const Settings = () => {
           </div>
         )}
 
+        {/* Basics Plan — physical ration subscription (LOT-FM-001) */}
+        {userTagIds.includes(UserTag.Usership) && (
+          <BasicsPlanSection
+            userTagIds={userTagIds}
+            address={state.address}
+            city={state.city}
+            country={state.country}
+          />
+        )}
+
         <div className="flex gap-x-8">
           <Button kind="primary" type="submit" disabled={!changed}>
             Save
@@ -635,6 +646,137 @@ export const Settings = () => {
       <GrowthMilestones />
       <BadgeUnlockFeed />
 
+    </div>
+  )
+}
+
+// ─── BASICS PLAN SECTION (LOT-FM-001) ────────────────────────────────────────
+
+type BasicsPlanProps = {
+  userTagIds: UserTag[]
+  address: string
+  city: string
+  country: string
+}
+
+type BasicUpgradeState = 'idle' | 'pending' | 'done'
+type StandDownState = 'idle' | 'confirming'
+
+const BasicsPlanSection: React.FC<BasicsPlanProps> = ({
+  userTagIds,
+  address,
+  city,
+  country,
+}) => {
+  const isEnrolled = userTagIds.includes(UserTag.Basic)
+  const hasAddress = !!(address?.trim())
+
+  const [upgradeState, setUpgradeState] = React.useState<BasicUpgradeState>('idle')
+  const [standDownState, setStandDownState] = React.useState<StandDownState>('idle')
+
+  const handleUpgrade = React.useCallback(async () => {
+    if (upgradeState !== 'idle') return
+    setUpgradeState('pending')
+    // M3: POST /api/basics/upgrade — Stripe recurring + tag assignment
+    // Simulated transition until backend is wired
+    setTimeout(() => setUpgradeState('done'), 1500)
+  }, [upgradeState])
+
+  const handleStandDown = React.useCallback(async () => {
+    // M3: POST /api/basics/stand-down
+    setStandDownState('idle')
+    window.location.reload()
+  }, [])
+
+  if (isEnrolled) {
+    return (
+      <div>
+        <Block label="Basics plan:" blockView>
+          <div className="mb-8">On strength. Physical ration active.</div>
+          <div className="mb-16">
+            <GhostButton onClick={() => goTo('basics')}>
+              View manifest and issue log →
+            </GhostButton>
+          </div>
+          {standDownState === 'idle' ? (
+            <button
+              type="button"
+              onClick={() => setStandDownState('confirming')}
+              className="text-acc/30 hover:text-acc/60 transition-opacity underline cursor-pointer bg-transparent border-none p-0 font-inherit"
+            >
+              Stand down
+            </button>
+          ) : (
+            <div className="flex items-center gap-x-8">
+              <span className="text-acc/50">Remove from ration roster?</span>
+              <Button kind="secondary" size="small" onClick={handleStandDown}>
+                Confirm
+              </Button>
+              <Button
+                kind="secondary"
+                size="small"
+                onClick={() => setStandDownState('idle')}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+        </Block>
+      </div>
+    )
+  }
+
+  if (upgradeState === 'done') {
+    return (
+      <div>
+        <Block label="Basics plan:">
+          On strength. First issue scheduled for next month.
+        </Block>
+      </div>
+    )
+  }
+
+  return (
+    <div>
+      <Block label="Basics plan:" blockView>
+        <div className="mb-8">
+          23 daily-use items delivered monthly. USD 100.00 / month.
+        </div>
+        <div className="mb-16 text-acc/60">
+          Add-on to Usership (AI) plan — AI plan persists beneath.
+          Eliminate one distraction.
+        </div>
+
+        {hasAddress ? (
+          <div className="mb-16 text-acc/60">
+            Ships to: {address}{city ? `, ${city}` : ''}{country ? `, ${country}` : ''}
+          </div>
+        ) : (
+          <div className="mb-16 text-acc/60">
+            Add a shipping address above before enrolling.
+          </div>
+        )}
+
+        <div className="flex items-center gap-x-8 mb-8">
+          <Button
+            kind="primary"
+            type="button"
+            disabled={!hasAddress || upgradeState === 'pending'}
+            onClick={handleUpgrade}
+          >
+            {upgradeState === 'pending' ? 'Enrolling…' : 'Enroll in Basics plan'}
+          </Button>
+          <GhostButton onClick={() => goTo('basics')}>
+            View manifest →
+          </GhostButton>
+        </div>
+
+        {!hasAddress && (
+          <div className="text-acc/40">
+            Fill in address, city, and country above first.
+          </div>
+        )}
+      </Block>
     </div>
   )
 }
