@@ -304,7 +304,7 @@ Match your question to their quantum state. The engine recognizes patterns they 
 
     // Module usage map
     const moduleMap: Record<string, string> = {
-      'answer': 'Memory', 'emotional_checkin': 'Mood', 'plan_set': 'Planner',
+      'answer': 'Memory', 'medical_record': 'Medical', 'emotional_checkin': 'Mood', 'plan_set': 'Planner',
       'self_care_complete': 'Self-care', 'intention': 'Intentions',
       'note': 'Journal', 'chat_message': 'Chat',
     }
