@@ -60,6 +60,15 @@ export interface QuantumState {
   needsSupport?: string
 }
 
+export interface EatingDisorderProfile {
+  restriction: number          // 0-100: food restriction, skipping meals, calorie fear
+  bingeing: number             // 0-100: binge eating, loss of control around food
+  purging: number              // 0-100: compensatory behavior, excessive exercise
+  bodyDissatisfaction: number  // 0-100: negative body image, mirror avoidance, weight fixation
+  foodAnxiety: number          // 0-100: meal-time stress, fear of certain foods
+  recoverySignals: number      // 0-100: healthy relationship with food, nourishment language
+}
+
 export interface TraumaIndicatorProfile {
   score: number // 0-100 composite severity indicator
   clusters: {
@@ -73,6 +82,7 @@ export interface TraumaIndicatorProfile {
     negativeSelfConcept: number    // Persistent shame, guilt, worthlessness, feeling damaged
     interpersonalDifficulty: number // Difficulty maintaining relationships, trust issues, isolation
   }
+  eatingDisorder: EatingDisorderProfile
   possibleSources: string[]    // Detected possible trauma origins (non-diagnostic)
   trajectory: 'stable' | 'improving' | 'declining' | 'emerging' | 'unknown'
   recoveryIndicators: string[] // Positive coping signals detected

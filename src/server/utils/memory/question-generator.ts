@@ -31,6 +31,7 @@ import {
   BACKUP_SELFCARE_QUESTIONS,
   BACKUP_MEDICAL_QUESTIONS,
   BACKUP_TRAUMA_INFORMED_QUESTIONS,
+  BACKUP_EATING_RECOVERY_QUESTIONS,
   questionSchema,
   oaiClient,
   anthropic,
@@ -46,7 +47,7 @@ import { determineUserCohort } from './cohort-determination.js'
  * Cycles through questions based on day of year + prompt count to avoid repeats
  */
 function getBackupQuestion(dayOfYear: number, promptsShownToday: number = 0): MemoryQuestion {
-  const allBackupQuestions = [...BACKUP_SELFCARE_QUESTIONS, ...BACKUP_MEDICAL_QUESTIONS, ...BACKUP_TRAUMA_INFORMED_QUESTIONS]
+  const allBackupQuestions = [...BACKUP_SELFCARE_QUESTIONS, ...BACKUP_MEDICAL_QUESTIONS, ...BACKUP_TRAUMA_INFORMED_QUESTIONS, ...BACKUP_EATING_RECOVERY_QUESTIONS]
   const index = (dayOfYear + promptsShownToday) % allBackupQuestions.length
   const backup = allBackupQuestions[index]
 
@@ -180,7 +181,8 @@ function extractQuestionTopics(questions: string[]): {
     creativity: ['create', 'creative', 'art', 'expression', 'hobby', 'interest'],
     mindset: ['feel', 'think', 'mindset', 'mental', 'emotion', 'mood', 'perspective'],
     medical: ['blood type', 'allergy', 'allergies', 'medication', 'prescription', 'chronic', 'vision', 'dental', 'vaccination', 'heart rate', 'medical', 'health condition', 'supplement'],
-    resilience: ['sleep', 'startle', 'avoid', 'trust', 'numb', 'tense', 'relax', 'recover', 'difficult memory', 'hard time', 'cope', 'safe']
+    resilience: ['sleep', 'startle', 'avoid', 'trust', 'numb', 'tense', 'relax', 'recover', 'difficult memory', 'hard time', 'cope', 'safe'],
+    nutrition: ['meal', 'appetite', 'eating', 'food relationship', 'nourish', 'body image', 'weight', 'hunger', 'digestion']
   }
 
   const topicCounts: { [key: string]: number } = {}
@@ -513,6 +515,12 @@ CRITICAL: Use this SOUL-LEVEL understanding to craft questions that speak to the
       if (traumaProfile.cptsdIndicators.affectDysregulation >= 25) clusterNames.push('emotional dysregulation')
       if (traumaProfile.cptsdIndicators.interpersonalDifficulty >= 25) clusterNames.push('relationship difficulty')
 
+      const edActive = traumaProfile.eatingDisorder.restriction >= 17 ||
+        traumaProfile.eatingDisorder.bingeing >= 17 ||
+        traumaProfile.eatingDisorder.bodyDissatisfaction >= 17 ||
+        traumaProfile.eatingDisorder.foodAnxiety >= 17
+      if (edActive) clusterNames.push('eating/nutrition distress')
+
       traumaContext = `\n\n**TRAUMA-INFORMED PROTOCOL (ACTIVE):**
 Risk level: ${traumaProfile.riskLevel}
 Detected patterns: ${clusterNames.join(', ') || 'subclinical indicators'}
@@ -531,6 +539,8 @@ Trajectory: ${traumaProfile.trajectory}
 - If avoidance detected: ask about gentle engagement, safe activities, comfort zones.
 - If negative self-concept: ask about strengths, values, moments of competence.
 - If interpersonal difficulty: ask about safe connections, boundaries they're proud of.
+- If eating/nutrition distress: ask about nourishment, meal routines, body kindness — NEVER about weight, calories, or appearance. Frame food as fuel and care, not control.
+${traumaProfile.eatingDisorder.recoverySignals >= 17 ? '- NUTRITION RECOVERY DETECTED: They show signs of healing their relationship with food. Acknowledge gently.' : ''}
 ${traumaProfile.trajectory === 'improving' ? '- CELEBRATE PROGRESS: Their trajectory is improving. Acknowledge without over-praising.' : ''}
 ${traumaProfile.trajectory === 'declining' ? '- GENTLENESS PRIORITY: Their trajectory shows decline. Keep questions light, supportive, non-demanding.' : ''}
 
@@ -566,6 +576,7 @@ This person may be carrying more than they show. Your questions are not therapy 
       routine: ['morning', 'evening', 'routine', 'ritual', 'habit', 'daily'],
       wellness: ['wellness', 'health', 'exercise', 'stretch', 'posture', 'sleep'],
       medical: ['blood type', 'allergy', 'allergies', 'medication', 'prescription', 'chronic', 'vision', 'dental', 'vaccination', 'heart rate', 'medical', 'supplement'],
+      nutrition: ['meal', 'appetite', 'eating', 'food', 'nourish', 'body image', 'weight', 'hunger', 'digestion'],
     }
 
     // Count how many recent questions share the same topic

@@ -35,7 +35,9 @@ export {
 
 // Cohort determination
 export {
-  determineUserCohort
+  determineUserCohort,
+  assessMedicalProfile,
+  qualifiesForPaidCohort,
 } from './cohort-determination.js'
 
 // Recipe suggestions
@@ -53,6 +55,7 @@ export {
   BACKUP_SELFCARE_QUESTIONS,
   BACKUP_MEDICAL_QUESTIONS,
   BACKUP_TRAUMA_INFORMED_QUESTIONS,
+  BACKUP_EATING_RECOVERY_QUESTIONS,
   AI_ENGINE_PREFERENCE,
   questionSchema,
   userSummarySchema,
@@ -68,5 +71,6 @@ export type {
   CohortClassification,
   PacingResult,
   QuantumState,
-  TraumaIndicatorProfile
+  TraumaIndicatorProfile,
+  EatingDisorderProfile
 } from './types.js'

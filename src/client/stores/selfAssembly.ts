@@ -194,6 +194,8 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'trauma_informed_answer':    'resilience',
   'resilience_signal':         'resilience',
   'recovery_indicator':        'resilience',
+  'eating_recovery_answer':    'resilience',
+  'nutrition_signal':          'resilience',
 }
 
 // ─── Store ───────────────────────────────────────────────────

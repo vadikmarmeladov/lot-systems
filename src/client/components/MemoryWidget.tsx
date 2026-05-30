@@ -114,8 +114,8 @@ export function MemoryWidget() {
 
       try {
         const lowerQ = (question.question || '').toLowerCase()
-        const isMedical = ['blood type', 'allergy', 'allergies', 'medication', 'chronic', 'vision', 'dental', 'vaccination', 'heart rate', 'skin type', 'recurring pain', 'hearing', 'drug allergy', 'checkup', 'dominant hand'].some(kw => lowerQ.includes(kw))
-        const isTraumaInformed = ['sleep most nights', 'sudden loud noise', 'physically tense', 'easy is it for you to relax', 'go out of your way to avoid', 'difficult memory', 'cancel plans', 'feel about yourself', 'emotionally numb', 'feel joy', 'unwanted memories', 'vivid dreams', 'emotions become intense', 'trust new people', 'push people away', 'talk to when things feel heavy', 'going through a hard time', 'recover from difficult'].some(kw => lowerQ.includes(kw))
+        const isMedical = ['blood type', 'allergy', 'allergies', 'medication', 'chronic', 'vision', 'dental', 'vaccination', 'heart rate', 'skin type', 'recurring pain', 'hearing', 'drug allergy', 'checkup', 'dominant hand', 'appetite', 'digestion', 'food sensitivity', 'eating habits'].some(kw => lowerQ.includes(kw))
+        const isTraumaInformed = ['sleep most nights', 'sudden loud noise', 'physically tense', 'easy is it for you to relax', 'go out of your way to avoid', 'difficult memory', 'cancel plans', 'feel about yourself', 'emotionally numb', 'feel joy', 'unwanted memories', 'vivid dreams', 'emotions become intense', 'trust new people', 'push people away', 'talk to when things feel heavy', 'going through a hard time', 'recover from difficult', 'relationship with food', 'regular are your meals', 'sit down to eat', 'feel about your body', 'check your weight', 'nourish your body', 'eating well', 'appetite been recently'].some(kw => lowerQ.includes(kw))
 
         const signalSource = isMedical ? 'medical' : isTraumaInformed ? 'resilience' : 'memory'
         const signalName = isMedical ? 'medical_answer' : isTraumaInformed ? 'trauma_informed_answer' : 'answer_given'

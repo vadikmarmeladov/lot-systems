@@ -2166,6 +2166,7 @@ export default async (fastify: FastifyInstance) => {
         'glasses', 'contacts', 'checkup', 'heart rate', 'blood pressure', 'dental',
         'skin type', 'vaccination', 'vaccine', 'drug allergy', 'hearing', 'dominant hand',
         'health condition', 'recurring pain', 'resting heart', 'bpm',
+        'appetite', 'digestion', 'digestive', 'nutrition', 'eating habits', 'food sensitivity',
       ]
       const lowerQ = questionText.toLowerCase()
       const isMedical = MEDICAL_KEYWORDS.some(kw => lowerQ.includes(kw))

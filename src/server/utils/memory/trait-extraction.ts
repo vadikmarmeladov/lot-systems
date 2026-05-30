@@ -451,6 +451,7 @@ export function detectTraumaIndicators(logs: Log[]): TraumaIndicatorProfile {
       score: 0,
       clusters: { hyperarousal: 0, avoidance: 0, negativeAlterations: 0, reExperiencing: 0 },
       cptsdIndicators: { affectDysregulation: 0, negativeSelfConcept: 0, interpersonalDifficulty: 0 },
+      eatingDisorder: { restriction: 0, bingeing: 0, purging: 0, bodyDissatisfaction: 0, foodAnxiety: 0, recoverySignals: 0 },
       possibleSources: [],
       trajectory: 'unknown',
       recoveryIndicators: [],
@@ -526,6 +527,43 @@ export function detectTraumaIndicators(logs: Log[]): TraumaIndicatorProfile {
     'walls up', 'guard up', 'can\'t connect', 'feel disconnected',
   ]
 
+  // ─── Eating Disorder Detection (PTSD-comorbid) ─────────────────────────
+  const restrictionKeywords = [
+    'skip meals', 'skipping meals', 'don\'t eat', 'not eating', 'restrict',
+    'restricting', 'fast', 'fasting', 'calories', 'counting calories',
+    'afraid to eat', 'fear of food', 'won\'t eat', 'barely eat', 'starving',
+    'thin enough', 'too much food', 'eat less', 'cutting food', 'food rules',
+  ]
+  const bingeingKeywords = [
+    'binge', 'bingeing', 'can\'t stop eating', 'ate too much', 'lost control',
+    'overate', 'overeating', 'stuffed', 'eat everything', 'emotional eating',
+    'comfort eating', 'eat my feelings', 'food is my comfort', 'eat when stressed',
+    'secret eating', 'hide food', 'eat alone', 'shame about eating',
+  ]
+  const purgingKeywords = [
+    'purge', 'purging', 'throw up', 'vomit', 'make myself sick',
+    'laxative', 'exercise to burn', 'compensate', 'undo eating',
+    'over-exercise', 'excessive exercise', 'punish myself for eating',
+  ]
+  const bodyDissatisfactionKeywords = [
+    'hate my body', 'body image', 'fat', 'too big', 'too small', 'ugly',
+    'disgusting', 'mirror', 'avoid mirrors', 'weigh myself', 'scale',
+    'weight', 'don\'t like how i look', 'body dysmorphia', 'wish i looked',
+    'body shame', 'comparing my body', 'not thin enough', 'body checking',
+  ]
+  const foodAnxietyKeywords = [
+    'anxious about food', 'food anxiety', 'scared to eat', 'meal stress',
+    'dread eating', 'panic at meals', 'can\'t eat around people',
+    'nervous about food', 'safe foods', 'fear of gaining', 'afraid of weight',
+    'obsess about food', 'food obsession', 'think about food all the time',
+  ]
+  const nutritionRecoveryKeywords = [
+    'nourish', 'nourishing', 'fuel my body', 'regular meals', 'balanced meal',
+    'enjoying food', 'food is fuel', 'healthy relationship with food',
+    'eat when hungry', 'intuitive eating', 'body acceptance', 'body kindness',
+    'feeding myself', 'three meals', 'nutrition', 'grateful for food',
+  ]
+
   // ─── Trauma Source Detection ───────────────────────────────────────────
   const traumaSourceKeywords: Record<string, string[]> = {
     'childhood adversity': ['childhood', 'growing up', 'parents', 'parent', 'raised', 'abused', 'neglected', 'foster', 'orphan'],
@@ -538,6 +576,7 @@ export function detectTraumaIndicators(logs: Log[]): TraumaIndicatorProfile {
     'military or combat': ['combat', 'deployment', 'war', 'military', 'service', 'veteran', 'active duty', 'firefight'],
     'sexual trauma': ['assault', 'violated', 'rape', 'molested', 'coerced', 'inappropriate', 'boundary crossed'],
     'displacement': ['refugee', 'displaced', 'lost home', 'moved constantly', 'nowhere to go', 'uprooted', 'immigration'],
+    'eating disorder': ['anorexia', 'bulimia', 'eating disorder', 'binge eating', 'purging', 'restriction', 'body dysmorphia', 'disordered eating'],
   }
 
   // ─── Recovery Indicators ───────────────────────────────────────────────
@@ -548,6 +587,7 @@ export function detectTraumaIndicators(logs: Log[]): TraumaIndicatorProfile {
     'routine stabilization': ['routine', 'structure', 'consistent', 'stable', 'predictable', 'safe space', 'grounded'],
     'emotional regulation': ['breathing', 'meditation', 'grounding', 'coping', 'regulate', 'managing', 'tools'],
     'meaning-making': ['purpose', 'meaning', 'growth', 'stronger', 'survived', 'resilient', 'learned from'],
+    'nutrition recovery': ['nourish', 'regular meals', 'balanced meal', 'intuitive eating', 'body acceptance', 'healthy relationship with food', 'fuel my body'],
   }
 
   // ─── Count matches ─────────────────────────────────────────────────────
@@ -563,6 +603,13 @@ export function detectTraumaIndicators(logs: Log[]): TraumaIndicatorProfile {
   const affectDysregulation = countMatches(allText, affectDysregulationKeywords)
   const negativeSelfConcept = countMatches(allText, negativeSelfConceptKeywords)
   const interpersonalDifficulty = countMatches(allText, interpersonalDifficultyKeywords)
+
+  const restriction = countMatches(allText, restrictionKeywords)
+  const bingeing = countMatches(allText, bingeingKeywords)
+  const purging = countMatches(allText, purgingKeywords)
+  const bodyDissatisfaction = countMatches(allText, bodyDissatisfactionKeywords)
+  const foodAnxiety = countMatches(allText, foodAnxietyKeywords)
+  const nutritionRecovery = countMatches(allText, nutritionRecoveryKeywords)
 
   // Normalize cluster scores to 0-100
   const maxPerCluster = 8
@@ -595,10 +642,21 @@ export function detectTraumaIndicators(logs: Log[]): TraumaIndicatorProfile {
     }
   })
 
-  // Composite score (weighted: clusters + C-PTSD indicators)
+  const edMaxPerDim = 6
+  const eatingDisorder = {
+    restriction: Math.min(100, Math.round((restriction / edMaxPerDim) * 100)),
+    bingeing: Math.min(100, Math.round((bingeing / edMaxPerDim) * 100)),
+    purging: Math.min(100, Math.round((purging / edMaxPerDim) * 100)),
+    bodyDissatisfaction: Math.min(100, Math.round((bodyDissatisfaction / edMaxPerDim) * 100)),
+    foodAnxiety: Math.min(100, Math.round((foodAnxiety / edMaxPerDim) * 100)),
+    recoverySignals: Math.min(100, Math.round((nutritionRecovery / edMaxPerDim) * 100)),
+  }
+
+  // Composite score (weighted: clusters + C-PTSD + eating disorder indicators)
   const clusterAvg = (clusters.hyperarousal + clusters.avoidance + clusters.negativeAlterations + clusters.reExperiencing) / 4
   const cptsdAvg = (cptsdIndicators.affectDysregulation + cptsdIndicators.negativeSelfConcept + cptsdIndicators.interpersonalDifficulty) / 3
-  const score = Math.round(clusterAvg * 0.6 + cptsdAvg * 0.4)
+  const edAvg = (eatingDisorder.restriction + eatingDisorder.bingeing + eatingDisorder.purging + eatingDisorder.bodyDissatisfaction + eatingDisorder.foodAnxiety) / 5
+  const score = Math.round(clusterAvg * 0.5 + cptsdAvg * 0.3 + edAvg * 0.2)
 
   // Determine trajectory from mood check-in patterns over time
   let trajectory: TraumaIndicatorProfile['trajectory'] = 'unknown'
@@ -626,6 +684,7 @@ export function detectTraumaIndicators(logs: Log[]): TraumaIndicatorProfile {
     score,
     clusters,
     cptsdIndicators,
+    eatingDisorder,
     possibleSources,
     trajectory,
     recoveryIndicators,
