@@ -983,6 +983,59 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'calendar_entry') {
+          const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const entryType = ((log.metadata?.entryType as string | undefined) || 'note').toUpperCase()
+          const time = log.metadata?.time as string | undefined
+          if (!date || !text) return null
+          const todayStr = dayjs().format('YYYY-MM-DD')
+          const isToday = date === todayStr
+          const isPast = date < todayStr
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={`SCHED [${entryType}]:`} blockView>
+                <div className={cn('mb-4', isPast && !isToday && 'opacity-40')}>{text}</div>
+                <div className="opacity-40">
+                  {dayjs(date).format('YYYY MMM D').toUpperCase()}
+                  {time && ` · ${time}`}
+                  {isToday && ' · T+0'}
+                  {isPast && !isToday && ' · PAST'}
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_due') {
+          const date = log.metadata?.date as string | undefined
+          const events = log.metadata?.events as Array<{ text: string; type: string; time?: string }> | undefined
+          const text = log.metadata?.text as string | undefined
+          const entryType = log.metadata?.entryType as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EVT [ACTIVE]:" blockView>
+                <div className="uppercase tracking-widest mb-4">T+0 — On deck</div>
+                {events
+                  ? events.map((e, i) => (
+                      <div key={i} className="opacity-80 mb-1">
+                        <span className="opacity-50 mr-8">[{e.type.toUpperCase()}]</span>
+                        {e.text}
+                        {e.time && <span className="opacity-40 ml-8">{e.time}</span>}
+                      </div>
+                    ))
+                  : text && (
+                      <div className="opacity-80">
+                        <span className="opacity-50 mr-8">[{(entryType || 'NOTE').toUpperCase()}]</span>
+                        {text}
+                      </div>
+                    )}
+                {date && (
+                  <div className="opacity-30 mt-4">
+                    {dayjs(date).format('YYYY MMM D').toUpperCase()}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
