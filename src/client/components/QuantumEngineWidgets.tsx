@@ -37,7 +37,48 @@ function usePersistedState(key: string): [boolean, React.Dispatch<React.SetState
 
 const TOTAL_DEVICES = 6
 
-type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index' | 'assembly'
+type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index' | 'assembly' | 'qos-mode'
+
+type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
+
+function computeQOSMode(
+  energy: string,
+  patterns: { pattern: string }[],
+  assemblyPct: number
+): { mode: QOSOperatingMode; pressure: 'low' | 'moderate' | 'high' | 'critical'; directive: string } {
+  const activePatternNames = new Set(patterns.map(p => p.pattern))
+  const isDepletion = energy === 'depleted' ||
+    activePatternNames.has('physiological-depletion') ||
+    activePatternNames.has('recovery-plateau')
+  const isRecovery = energy === 'low' ||
+    activePatternNames.has('biofield-recovery-arc') ||
+    activePatternNames.has('recovery-window')
+  const isPeak = energy === 'high' &&
+    (activePatternNames.has('multimodal-peak') || activePatternNames.has('meridian-lock') || activePatternNames.has('flow-state'))
+  const isGrowth = energy === 'moderate' || energy === 'high'
+
+  let mode: QOSOperatingMode
+  if (isDepletion) mode = 'recovery'
+  else if (isPeak) mode = 'peak'
+  else if (isGrowth) mode = 'growth'
+  else mode = 'maintenance'
+
+  const criticalPatterns = ['physiological-depletion', 'sleep-debt-accumulation', 'recovery-plateau']
+  const highPatterns = ['signal-drought', 'circadian-drift', 'evening-overwhelm']
+  const hasCritical = criticalPatterns.some(p => activePatternNames.has(p))
+  const hasHigh = highPatterns.some(p => activePatternNames.has(p))
+  const pressure: 'low' | 'moderate' | 'high' | 'critical' =
+    hasCritical ? 'critical' : hasHigh ? 'high' : assemblyPct < 30 ? 'moderate' : 'low'
+
+  const directives: Record<QOSOperatingMode, string> = {
+    maintenance: 'Low signal density. Conserve. Idle cadence.',
+    recovery: 'Depletion detected. Repair first — other tasks pause.',
+    growth: 'Steady engagement. Expand — absorb more.',
+    peak: 'High energy + clarity + intention. Full commitment.',
+  }
+
+  return { mode, pressure, directive: directives[mode] }
+}
 
 export const QuantumEngineWidgets: React.FC = () => {
   const [carConnected, setCarConnected] = usePersistedState('qe-car-connected')
@@ -148,6 +189,7 @@ export const QuantumEngineWidgets: React.FC = () => {
       prev === 'biofield'  ? 'cohort' :
       prev === 'cohort'    ? 'index' :
       prev === 'index'     ? 'assembly' :
+      prev === 'assembly'  ? 'qos-mode' :
       'ecosystem'
     )
   }
@@ -157,10 +199,16 @@ export const QuantumEngineWidgets: React.FC = () => {
     view === 'biofield'  ? 'Biofield:' :
     view === 'cohort'    ? 'Cohort:' :
     view === 'assembly'  ? 'Self-Assembly:' :
+    view === 'qos-mode'  ? 'Mode:' :
     'Index:'
 
   const { energy, clarity, alignment, needsSupport } = engineState.userState
   const biofieldKnown = energy !== 'unknown'
+
+  const qosModeData = React.useMemo(
+    () => computeQOSMode(energy, engineState.recognizedPatterns, assemblyState.overallAssembly),
+    [energy, engineState.recognizedPatterns, assemblyState.overallAssembly]
+  )
 
   return (
     <>
@@ -352,6 +400,41 @@ export const QuantumEngineWidgets: React.FC = () => {
                 ))}
               </div>
               <div className="opacity-30 pt-4">{assemblyState.narrative}</div>
+            </div>
+          )}
+
+          {view === 'qos-mode' && (
+            <div className="flex flex-col gap-y-8 font-mono text-xs">
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Mode</span>
+                <span className="uppercase tracking-widest">{qosModeData.mode}</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Pressure</span>
+                <span className={`uppercase tabular-nums ${
+                  qosModeData.pressure === 'critical' ? '' :
+                  qosModeData.pressure === 'high' ? 'opacity-70' :
+                  'opacity-40'
+                }`}>{qosModeData.pressure}</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Patterns</span>
+                <span className="tabular-nums">{engineState.recognizedPatterns.length}</span>
+              </div>
+              <div className="border-t border-acc-400/20 pt-8 mt-4">
+                <div className="opacity-40">{qosModeData.directive}</div>
+              </div>
+              {engineState.recognizedPatterns.length > 0 && (
+                <div className="border-t border-acc-400/20 pt-8">
+                  <div className="opacity-30 uppercase tracking-widest mb-6">Active signals</div>
+                  {engineState.recognizedPatterns.slice(0, 4).map(p => (
+                    <div key={p.pattern} className="flex justify-between mb-2">
+                      <span className="opacity-50 uppercase">{p.pattern.replace(/-/g, ' ').slice(0, 18)}</span>
+                      <span className="opacity-30 tabular-nums">{Math.round(p.confidence * 100)}%</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

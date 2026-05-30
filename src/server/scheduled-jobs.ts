@@ -874,6 +874,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunMorningBiofieldJob()) {
     await executeMorningBiofieldJob()
   }
+
+  // Check daily pattern coverage audit (23:00 UTC daily)
+  if (shouldRunDailyPatternCoverageJob()) {
+    await executeDailyPatternCoverageJob()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1176,6 +1181,145 @@ async function executeMorningBiofieldJob(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Pattern Coverage Audit ────────────────────────────────────────────
+
+let isDailyPatternCoverageRunning = false
+let lastDailyPatternCoverageRun: Date | null = null
+
+function shouldRunDailyPatternCoverageJob(): boolean {
+  const now = dayjs()
+  if (now.hour() !== 23) return false
+  if (isDailyPatternCoverageRunning) return false
+  if (lastDailyPatternCoverageRun) {
+    const lastRun = dayjs(lastDailyPatternCoverageRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+/**
+ * Runs daily at 23:00 UTC.
+ * Scans QIE pattern signals fired in the last 24h across all active users.
+ * Reports: top patterns, coverage rate (% of users with at least one pattern),
+ * and dormant patterns (none fired in 7 days — product signal for tuning).
+ * No individual data persisted — system observability only.
+ */
+async function executeDailyPatternCoverageJob(): Promise<JobResult> {
+  const jobName = 'daily-pattern-coverage-audit'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily Pattern Coverage Audit')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyPatternCoverageRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 1000,
+    })
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+
+    // Count pattern firings from quantum_intent_signal events
+    const patternCounts: Record<string, number> = {}
+    const userPatternSets: Record<string, Set<string>> = {}
+    let usersWithPatterns = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const qieLogs = await Log.findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: 'quantum_intent_signal' as any,
+          },
+        })
+
+        const userPatterns = new Set<string>()
+        for (const log of qieLogs) {
+          const patternName = (log.metadata as any)?.pattern
+          if (patternName) {
+            patternCounts[patternName] = (patternCounts[patternName] ?? 0) + 1
+            userPatterns.add(patternName)
+          }
+        }
+
+        if (userPatterns.size > 0) {
+          usersWithPatterns++
+          userPatternSets[userId] = userPatterns
+        }
+      } catch { /* skip user */ }
+    }
+
+    const coverageRate = activeUsers.length > 0
+      ? Math.round((usersWithPatterns / activeUsers.length) * 100)
+      : 0
+
+    const topPatterns = Object.entries(patternCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+
+    console.log(`  Users with active patterns: ${usersWithPatterns}/${activeUsers.length} (${coverageRate}%)`)
+    console.log(`  Top patterns (24h):`)
+    topPatterns.forEach(([name, count]) => {
+      console.log(`    ${name}: ${count} firings`)
+    })
+
+    // Dormant pattern check — patterns with no firings in 7 days
+    const sevenDayLogs = await Log.findAll({
+      where: {
+        createdAt: { [Op.gte]: sevenDaysAgo },
+        event: 'quantum_intent_signal' as any,
+      },
+    })
+    const activePatternNames = new Set(
+      sevenDayLogs.map((l: any) => (l.metadata as any)?.pattern).filter(Boolean)
+    )
+
+    console.log(`  Patterns active in last 7d: ${activePatternNames.size}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('PATTERN COVERAGE AUDIT COMPLETE')
+    console.log(`   Coverage: ${coverageRate}% · Top: ${topPatterns[0]?.[0] ?? 'none'} (${topPatterns[0]?.[1] ?? 0})`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyPatternCoverageRun = new Date()
+    isDailyPatternCoverageRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: {
+        scanned: activeUsers.length,
+        usersWithPatterns,
+        coverageRate,
+        topPatterns: topPatterns.map(([name, count]) => ({ name, count })),
+        activePatternsSevenDays: activePatternNames.size,
+      }
+    }
+  } catch (error: any) {
+    console.error('Daily pattern coverage audit failed:', error.message)
+    isDailyPatternCoverageRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1199,6 +1343,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily intention audit: 6 AM UTC every day')
   console.log('   - Daily OS snapshot: midnight (0 AM UTC) every day')
   console.log('   - Daily morning biofield summary: 8 AM UTC every day')
+  console.log('   - Daily pattern coverage audit: 11 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1208,8 +1353,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM; intention completion: 20; morning biofield: 8 AM
-    if (hour === 9 || hour === 8 || hour === 6 || hour === 4 || hour === 3 || hour === 0 || hour === 20) {
+    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM; intention completion: 20; morning biofield: 8 AM; pattern coverage: 23 PM
+    if (hour === 9 || hour === 8 || hour === 6 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
