@@ -29,7 +29,8 @@ export {
 // Trait extraction
 export {
   extractUserTraits,
-  calculateCorrelatedIndexes
+  calculateCorrelatedIndexes,
+  detectTraumaIndicators
 } from './trait-extraction.js'
 
 // Cohort determination
@@ -50,6 +51,8 @@ export {
 // Constants
 export {
   BACKUP_SELFCARE_QUESTIONS,
+  BACKUP_MEDICAL_QUESTIONS,
+  BACKUP_TRAUMA_INFORMED_QUESTIONS,
   AI_ENGINE_PREFERENCE,
   questionSchema,
   userSummarySchema,
@@ -64,5 +67,6 @@ export type {
   CorrelatedIndexSnapshot,
   CohortClassification,
   PacingResult,
-  QuantumState
+  QuantumState,
+  TraumaIndicatorProfile
 } from './types.js'

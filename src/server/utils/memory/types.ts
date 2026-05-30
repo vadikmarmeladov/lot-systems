@@ -59,3 +59,22 @@ export interface QuantumState {
   alignment?: string
   needsSupport?: string
 }
+
+export interface TraumaIndicatorProfile {
+  score: number // 0-100 composite severity indicator
+  clusters: {
+    hyperarousal: number       // Sleep disruption, hypervigilance, startle, irritability
+    avoidance: number          // Avoidance of thoughts, feelings, reminders, social withdrawal
+    negativeAlterations: number // Negative self-concept, emotional numbing, detachment, loss of interest
+    reExperiencing: number     // Intrusive thoughts, nightmares, flashbacks, distress at reminders
+  }
+  cptsdIndicators: {
+    affectDysregulation: number    // Difficulty controlling emotions, explosive or suppressed affect
+    negativeSelfConcept: number    // Persistent shame, guilt, worthlessness, feeling damaged
+    interpersonalDifficulty: number // Difficulty maintaining relationships, trust issues, isolation
+  }
+  possibleSources: string[]    // Detected possible trauma origins (non-diagnostic)
+  trajectory: 'stable' | 'improving' | 'declining' | 'emerging' | 'unknown'
+  recoveryIndicators: string[] // Positive coping signals detected
+  riskLevel: 'none' | 'low' | 'moderate' | 'elevated'
+}

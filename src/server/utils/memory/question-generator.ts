@@ -30,11 +30,13 @@ import { extractGoals, type ExtractedGoal } from '../goal-understanding.js'
 import {
   BACKUP_SELFCARE_QUESTIONS,
   BACKUP_MEDICAL_QUESTIONS,
+  BACKUP_TRAUMA_INFORMED_QUESTIONS,
   questionSchema,
   oaiClient,
   anthropic,
   AI_ENGINE_PREFERENCE,
 } from './constants.js'
+import { detectTraumaIndicators } from './trait-extraction.js'
 import type { QuantumState } from './types.js'
 import { extractUserTraits } from './trait-extraction.js'
 import { determineUserCohort } from './cohort-determination.js'
@@ -44,7 +46,7 @@ import { determineUserCohort } from './cohort-determination.js'
  * Cycles through questions based on day of year + prompt count to avoid repeats
  */
 function getBackupQuestion(dayOfYear: number, promptsShownToday: number = 0): MemoryQuestion {
-  const allBackupQuestions = [...BACKUP_SELFCARE_QUESTIONS, ...BACKUP_MEDICAL_QUESTIONS]
+  const allBackupQuestions = [...BACKUP_SELFCARE_QUESTIONS, ...BACKUP_MEDICAL_QUESTIONS, ...BACKUP_TRAUMA_INFORMED_QUESTIONS]
   const index = (dayOfYear + promptsShownToday) % allBackupQuestions.length
   const backup = allBackupQuestions[index]
 
@@ -177,7 +179,8 @@ function extractQuestionTopics(questions: string[]): {
     social: ['people', 'social', 'friends', 'family', 'connection', 'relationship'],
     creativity: ['create', 'creative', 'art', 'expression', 'hobby', 'interest'],
     mindset: ['feel', 'think', 'mindset', 'mental', 'emotion', 'mood', 'perspective'],
-    medical: ['blood type', 'allergy', 'allergies', 'medication', 'prescription', 'chronic', 'vision', 'dental', 'vaccination', 'heart rate', 'medical', 'health condition', 'supplement']
+    medical: ['blood type', 'allergy', 'allergies', 'medication', 'prescription', 'chronic', 'vision', 'dental', 'vaccination', 'heart rate', 'medical', 'health condition', 'supplement'],
+    resilience: ['sleep', 'startle', 'avoid', 'trust', 'numb', 'tense', 'relax', 'recover', 'difficult memory', 'hard time', 'cope', 'safe']
   }
 
   const topicCounts: { [key: string]: number } = {}
@@ -497,6 +500,54 @@ CRITICAL: Use this SOUL-LEVEL understanding to craft questions that speak to the
     }
   }
 
+  // ─── PTSD/C-PTSD Trauma-Informed Protocol ────────────────────────────
+  let traumaContext = ''
+  if (logs.length >= 10) {
+    const traumaProfile = detectTraumaIndicators(logs)
+    if (traumaProfile.riskLevel !== 'none') {
+      const clusterNames: string[] = []
+      if (traumaProfile.clusters.hyperarousal >= 25) clusterNames.push('hyperarousal/sleep disruption')
+      if (traumaProfile.clusters.avoidance >= 25) clusterNames.push('avoidance patterns')
+      if (traumaProfile.clusters.negativeAlterations >= 25) clusterNames.push('negative self-view')
+      if (traumaProfile.clusters.reExperiencing >= 25) clusterNames.push('intrusive experiences')
+      if (traumaProfile.cptsdIndicators.affectDysregulation >= 25) clusterNames.push('emotional dysregulation')
+      if (traumaProfile.cptsdIndicators.interpersonalDifficulty >= 25) clusterNames.push('relationship difficulty')
+
+      traumaContext = `\n\n**TRAUMA-INFORMED PROTOCOL (ACTIVE):**
+Risk level: ${traumaProfile.riskLevel}
+Detected patterns: ${clusterNames.join(', ') || 'subclinical indicators'}
+${traumaProfile.possibleSources.length > 0 ? `Possible context: ${traumaProfile.possibleSources.join(', ')}` : ''}
+${traumaProfile.recoveryIndicators.length > 0 ? `Recovery signals: ${traumaProfile.recoveryIndicators.join(', ')}` : ''}
+Trajectory: ${traumaProfile.trajectory}
+
+**CRITICAL TRAUMA-INFORMED GUIDANCE:**
+- NEVER ask directly about traumatic events. NEVER probe for details of what happened.
+- Ask about PRESENT-DAY functioning, coping, and safety — not the past.
+- Use gentle, observational framing: "How do you..." not "Why do you..."
+- Honor avoidance — if they avoid a topic, respect that boundary completely.
+- Prioritize questions about: safety, stability, routines, trusted connections, small wins.
+- Frame recovery as natural and gradual — no pressure to "heal faster."
+- If hyperarousal detected: ask about rest, calm, grounding practices.
+- If avoidance detected: ask about gentle engagement, safe activities, comfort zones.
+- If negative self-concept: ask about strengths, values, moments of competence.
+- If interpersonal difficulty: ask about safe connections, boundaries they're proud of.
+${traumaProfile.trajectory === 'improving' ? '- CELEBRATE PROGRESS: Their trajectory is improving. Acknowledge without over-praising.' : ''}
+${traumaProfile.trajectory === 'declining' ? '- GENTLENESS PRIORITY: Their trajectory shows decline. Keep questions light, supportive, non-demanding.' : ''}
+
+**TONE: Calm. Steady. Non-judgmental. Like a field medic — competent, gentle, unhurried.**
+This person may be carrying more than they show. Your questions are not therapy — they are presence.`
+
+      console.log(`🛡️ Trauma-informed protocol active for user:`, {
+        riskLevel: traumaProfile.riskLevel,
+        score: traumaProfile.score,
+        clusters: clusterNames,
+        sources: traumaProfile.possibleSources,
+        recovery: traumaProfile.recoveryIndicators,
+        trajectory: traumaProfile.trajectory,
+      })
+    }
+  }
+
   // Detect if recent questions are on similar topics (for compression)
   const detectTopicRepetition = (logs: Log[]): boolean => {
     if (logs.length < 3) return false
@@ -804,7 +855,7 @@ Recent activity logs (for additional context):
   `.trim()
   const formattedLogs = logs.map(formatLog).filter(Boolean).join('\n\n')
 
-  const fullPrompt = head + quantumContext + widgetContext + engagementContext + goalContext + '\n\n' + formattedLogs
+  const fullPrompt = head + quantumContext + widgetContext + engagementContext + goalContext + traumaContext + '\n\n' + formattedLogs
 
   console.log(`📨 Prompt built: ${fullPrompt.length} chars total`)
   console.log(`   - Head section: ${head.length} chars`)
