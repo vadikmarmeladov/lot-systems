@@ -983,6 +983,50 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'intention_velocity') {
+          const velocity = log.metadata?.velocity as number | undefined
+          const sources = log.metadata?.sourcesActive as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTENT [VEL]:" blockView>
+                {velocity !== undefined && (
+                  <div className="uppercase tracking-widest">VEL {velocity}</div>
+                )}
+                {sources !== undefined && (
+                  <div className="opacity-50 tabular-nums">SRC: {sources}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_burst') {
+          const burstCount = log.metadata?.burstCount as number | undefined
+          const windowMinutes = log.metadata?.windowMinutes as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIG [BURST]:" blockView>
+                {burstCount !== undefined && (
+                  <div className="uppercase tracking-widest tabular-nums">{burstCount} SIGNALS</div>
+                )}
+                {windowMinutes !== undefined && (
+                  <div className="opacity-50 tabular-nums">WIN: {windowMinutes}m</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'pattern_detected') {
+          const patternName = log.metadata?.pattern as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          if (!patternName) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QIE [PAT]:" blockView>
+                <div className="uppercase tracking-widest">{patternName.replace(/-/g, ' ')}</div>
+                {confidence !== undefined && (
+                  <div className="opacity-50 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

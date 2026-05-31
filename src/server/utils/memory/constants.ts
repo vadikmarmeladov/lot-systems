@@ -120,4 +120,65 @@ export const MEDICAL_QUESTION_KEYWORDS = [
   'heart rate', 'blood pressure', 'dental', 'skin type', 'vaccination',
   'vaccine', 'drug allergy', 'hearing', 'dominant hand', 'medical', 'health condition',
   'recurring pain', 'resting heart', 'bpm',
+  'appetite', 'digestion', 'digestive', 'nutrition', 'eating habits', 'food sensitivity',
+]
+
+// ============================================================================
+// TRAUMA-INFORMED QUESTIONS
+// Based on PCL-5 cluster areas, delivered gently through behavioral observation.
+// These are NOT diagnostic. They observe patterns over time.
+// Protocol: VA Whole Health Library + ICD-11 C-PTSD + ACE framework
+// ============================================================================
+export const BACKUP_TRAUMA_INFORMED_QUESTIONS: Array<{ question: string; options: string[] }> = [
+  // CLUSTER E: Hyperarousal — sleep, startle, tension
+  { question: 'How would you describe your sleep most nights?', options: ['Deep and restful', 'Light but adequate', 'Interrupted or restless', 'Difficult to fall or stay asleep'] },
+  { question: 'When you hear a sudden loud noise, how do you typically react?', options: ['Barely notice', 'Slight startle then fine', 'Strong startle, takes a moment', 'Heart races, body tenses'] },
+  { question: 'How often do you feel physically tense without a clear reason?', options: ['Rarely', 'Sometimes', 'Often', 'Most of the time'] },
+  { question: 'How easy is it for you to relax when you have free time?', options: ['Very easy', 'Takes a little while', 'Difficult — mind stays busy', 'Almost impossible to truly relax'] },
+
+  // CLUSTER C: Avoidance — withdrawal, emotional numbing
+  { question: 'Are there places or situations you go out of your way to avoid?', options: ['No, I go wherever I need to', 'A few places, minor inconvenience', 'Yes, it limits my daily life', 'Prefer not to say'] },
+  { question: 'When a difficult memory surfaces, what do you usually do?', options: ['Sit with it and process', 'Acknowledge then redirect', 'Push it away quickly', 'Distract myself immediately'] },
+  { question: 'How often do you cancel plans because you don\'t feel up to being around people?', options: ['Rarely or never', 'Occasionally', 'Frequently', 'Most of the time'] },
+
+  // CLUSTER D: Negative alterations — self-concept, emotional range
+  { question: 'How do you generally feel about yourself most days?', options: ['Confident and capable', 'Okay, with some doubts', 'Frequently self-critical', 'Persistently negative about myself'] },
+  { question: 'How often do you feel emotionally numb or disconnected?', options: ['Almost never', 'Occasionally after stress', 'Several times a week', 'Most days'] },
+  { question: 'Do you find it easy to feel joy or excitement about things?', options: ['Yes, regularly', 'Sometimes, but less than before', 'Rarely — things feel flat', 'I struggle to feel much at all'] },
+
+  // CLUSTER B: Re-experiencing — intrusion, triggers
+  { question: 'How often do unwanted memories from the past interrupt your day?', options: ['Almost never', 'Occasionally', 'Several times a week', 'Daily or near-daily'] },
+  { question: 'Do you ever have vivid dreams that leave you unsettled upon waking?', options: ['Rarely or never', 'Occasionally', 'Frequently', 'Most nights'] },
+
+  // C-PTSD: Affect regulation, relationships, trust
+  { question: 'When your emotions become intense, how well can you manage them?', options: ['I can usually regulate myself', 'Takes effort but I manage', 'I often feel overwhelmed', 'I feel out of control'] },
+  { question: 'How easy is it for you to trust new people?', options: ['Fairly easy — I give people a chance', 'Cautious at first, then open up', 'Very difficult — takes a long time', 'I don\'t trust easily at all'] },
+  { question: 'In close relationships, do you tend to push people away?', options: ['No, I welcome closeness', 'Sometimes when stressed', 'Often — even when I don\'t want to', 'I keep most people at a distance'] },
+
+  // Recovery and coping
+  { question: 'Do you have someone you can talk to when things feel heavy?', options: ['Yes, several people', 'One or two trusted people', 'Not really — I keep it to myself', 'I don\'t feel safe sharing'] },
+  { question: 'What helps you most when you\'re going through a hard time?', options: ['Talking it through', 'Physical activity or movement', 'Being alone and quiet', 'I\'m not sure what helps'] },
+  { question: 'How do you feel about your ability to recover from difficult experiences?', options: ['Strong — I bounce back', 'Moderate — it takes time but I manage', 'Uncertain — some things stay with me', 'Doubtful — I feel stuck'] },
+]
+
+// ============================================================================
+// EATING RECOVERY QUESTIONS
+// PTSD-comorbid eating disorder healing — behavioral observation only.
+// Based on EDE-Q (Eating Disorder Examination Questionnaire) adapted for
+// non-diagnostic, gentle, present-day functioning observation.
+// ============================================================================
+export const BACKUP_EATING_RECOVERY_QUESTIONS: Array<{ question: string; options: string[] }> = [
+  // Relationship with food
+  { question: 'How would you describe your relationship with food right now?', options: ['Peaceful and easy', 'Mostly okay with some hard days', 'Complicated — I think about it a lot', 'Difficult — food causes me stress'] },
+  { question: 'How regular are your meals on a typical day?', options: ['Three meals plus snacks', 'Two to three meals', 'One meal — I often skip', 'Irregular — depends on the day'] },
+  { question: 'When you sit down to eat, how do you usually feel?', options: ['Hungry and ready', 'Neutral', 'Anxious or uneasy', 'I try to avoid sit-down meals'] },
+
+  // Body relationship
+  { question: 'How do you feel about your body most days?', options: ['Comfortable and accepting', 'Okay — some good days, some hard', 'Critical — I notice flaws often', 'Disconnected — I try not to think about it'] },
+  { question: 'How often do you check your weight or body in the mirror?', options: ['Rarely — it doesn\'t bother me', 'Occasionally', 'Frequently — multiple times a day', 'I avoid mirrors and scales'] },
+
+  // Nourishment and recovery
+  { question: 'Do you feel you nourish your body enough each day?', options: ['Yes — I eat well and regularly', 'Usually, but I could do better', 'Not always — I forget or avoid meals', 'I struggle with this'] },
+  { question: 'What does "eating well" mean to you?', options: ['Fueling my body with what it needs', 'Eating balanced and enjoying it', 'Following rules about what I should eat', 'I\'m not sure — it\'s complicated'] },
+  { question: 'How has your appetite been recently?', options: ['Stable and healthy', 'Varies but mostly okay', 'Noticeably decreased', 'Unpredictable — swings between extremes'] },
 ]

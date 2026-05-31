@@ -664,6 +664,25 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Status: 62 patterns. 17 archetypes. 44 log handlers. 8 background jobs. 79+ dep nodes. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-05-30',
+    session: 'Self-Assembly Session — v45 / Patterns 63–65 · Archetype 18 · Log Handlers 45–47 · QOS Mode View · Job 9',
+    assembled: [
+      'Pattern 63 (signal-burst): 10+ signals in any 2h window within 24h. Dense engagement cluster detected. Confidence 0.65–0.82. Routes to journal.',
+      'Pattern 64 (cross-domain-coherence): mood + selfcare + journal + memory all active in 48h. Full inner stack — felt → tended → reflected → remembered. Confidence 0.78–0.90.',
+      'Pattern 65 (recovery-plateau): energy signals persistently low across 5+ days. Same protocol not moving the needle. Confidence 0.70. Routes to selfcare.',
+      'Archetype 18 (Coherence Holder): moderate/high energy · mood/journal/selfcare/memory dominant · cross-domain-coherence/intention-completion-arc patterns. Directive: All layers present. Hold this state.',
+      'Log handler 45: intention_velocity → INTENT [VEL]: block — velocity count + sources active.',
+      'Log handler 46: signal_burst → SIG [BURST]: block — burst count + window minutes.',
+      'Log handler 47: pattern_detected → QIE [PAT]: block — pattern name + confidence %.',
+      'QuantumEngineWidgets: qos-mode view added as 6th cycle. Computes live QOS operating mode (maintenance/recovery/growth/peak) + system pressure + active directives.',
+      'QOS mode computation: reads energy state + active patterns → derives mode and pressure tier. Surfaces top 4 active patterns with confidence.',
+      'Background job 9: daily-pattern-coverage-audit. 23:00 UTC daily. Scans QIE pattern firings across active users — top patterns, coverage rate, dormant patterns.',
+      'Hour 23 added to scheduler interval guard. 9 scheduled jobs now active.',
+      'Widget dep audit: WIDGET_DEPENDENCY_MAP accurate. 79+ nodes confirmed. qos-mode draws from engineState.recognizedPatterns and assemblyState.',
+      'Status: 65 patterns. 18 archetypes. 47 log handlers. 9 background jobs. 79+ dep nodes. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -701,19 +720,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-26',
+  date: '2026-05-30',
   message: [
-    'ASSEMBLY RUN — 2026-05-26 · v44',
-    'Four new patterns. 59: meridian-lock — morning, afternoon, and evening signals all present. The full day arc registered.',
-    '60: intention-seed — first signal after 48h silence. Re-entry detected. The system suggests you plan.',
-    '61: multimodal-peak — all five primary modules active in 24h. Full-spectrum engagement.',
-    '62: architect-phase — three days of structured planning. Goals, planner, intentions — all moving.',
-    'Archetype 17 online: Meridian Master. The complete cycle is registered.',
-    'Log handlers 42–44 deployed: JOB: (scheduled job results) · CARE [SKIP]: (skipped protocol) · MEM [W{n}]: (weekly summary). Archive: 44 handlers.',
-    'Background job 8 initialized: morning biofield summary. Every day 08:00 UTC. Detects overnight depletion.',
-    'QOS source wired into LOG_DEPENDENCY_SOURCES. Signal audit now covers 6 source types.',
-    'Status: 62 patterns. 17 archetypes. 44 log handlers. 8 background jobs. 79+ dep nodes.',
-    'DEPLOYED. The Cube now reads the full day. Morning to evening. The arc is complete.',
+    'ASSEMBLY RUN — 2026-05-30 · v45',
+    'Three new patterns. 63: signal-burst — ten or more signals in a two-hour window. Dense cluster. What was driving this?',
+    '64: cross-domain-coherence — mood, body, reflection, memory all active in 48 hours. The full inner stack is present.',
+    '65: recovery-plateau — energy signals persistently low for five days. Same protocol not working. Shift the input.',
+    'Archetype 18 online: Coherence Holder. Mood, care, journal, memory — all layers alive simultaneously.',
+    'Log handlers 45–47 deployed: INTENT [VEL]: (velocity signal) · SIG [BURST]: (burst event) · QIE [PAT]: (pattern detection). Archive: 47 handlers.',
+    'QOS Mode view live. QuantumEngineWidgets now cycles through a sixth panel: Mode · Pressure · Active directives. The operating mode is computed live from energy and pattern state.',
+    'Background job 9 initialized: daily pattern coverage audit. Every day 23:00 UTC. Reports which QIE patterns fired — top patterns, user coverage rate, dormant patterns.',
+    'Status: 65 patterns. 18 archetypes. 47 log handlers. 9 background jobs. 79+ dep nodes.',
+    'DEPLOYED. The system now reads the inner stack. Burst. Coherence. Plateau. All registered.',
   ],
 }
 

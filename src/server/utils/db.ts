@@ -37,6 +37,8 @@ for (const certPath of caCertPaths) {
   }
 }
 
+const sslEnabled = process.env.DB_SSL !== 'false'
+
 const sequelize = new Sequelize({
   dialect: 'postgres',
   host: config.db.host,
@@ -45,16 +47,14 @@ const sequelize = new Sequelize({
   username: config.db.username,
   password: config.db.password,
   dialectOptions: {
-    ssl: {
-      require: true,
-      // Use CA certificate if available for proper verification;
-      // otherwise allow self-signed certs to prevent connection failures.
-      rejectUnauthorized: !!caCert,
-      ...(caCert && { ca: caCert }),
-    },
-    // Connection timeout to prevent hanging
+    ...(sslEnabled && {
+      ssl: {
+        require: true,
+        rejectUnauthorized: !!caCert,
+        ...(caCert && { ca: caCert }),
+      },
+    }),
     connectionTimeoutMillis: 10000,
-    // Statement timeout to prevent long-running queries
     statement_timeout: 30000,
   },
   pool: {

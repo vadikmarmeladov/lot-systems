@@ -146,14 +146,18 @@ const App = () => {
   const isSoundOn = useStore(stores.isSoundOn)
   const isRadioOn = useStore(stores.isRadioOn)
 
-  const [visited, setVisited] = React.useState<Set<PersistentRoute>>(new Set(['system']))
+  const visitedRef = React.useRef<Set<PersistentRoute>>(new Set(['system']))
+  const [, forceUpdate] = React.useState(0)
 
-  React.useEffect(() => {
-    const route = router?.route as PersistentRoute | undefined
-    if (route && PERSISTENT_ROUTES.includes(route) && !visited.has(route)) {
-      setVisited(prev => new Set(prev).add(route))
+  const currentRoute = router?.route ?? 'system'
+
+  if (PERSISTENT_ROUTES.includes(currentRoute as PersistentRoute)) {
+    const route = currentRoute as PersistentRoute
+    if (!visitedRef.current.has(route)) {
+      visitedRef.current.add(route)
+      forceUpdate(n => n + 1)
     }
-  }, [router?.route])
+  }
 
   const { data: weather, refetch: refetchWeather } = useWeather()
 
@@ -254,33 +258,31 @@ const App = () => {
     return <Layout>Loading...</Layout>
   }
 
-  const currentRoute = router?.route ?? 'system'
-
   return (
     <>
       <ConnectionStatus />
       <Layout>
-        {visited.has('system') && (
+        {visitedRef.current.has('system') && (
           <TabPanel route="system" active={currentRoute === 'system'}>
             <System />
           </TabPanel>
         )}
-        {visited.has('logs') && (
+        {visitedRef.current.has('logs') && (
           <TabPanel route="logs" active={currentRoute === 'logs'}>
             <Logs />
           </TabPanel>
         )}
-        {visited.has('sync') && (
+        {visitedRef.current.has('sync') && (
           <TabPanel route="sync" active={currentRoute === 'sync'}>
             <Sync />
           </TabPanel>
         )}
-        {visited.has('settings') && (
+        {visitedRef.current.has('settings') && (
           <TabPanel route="settings" active={currentRoute === 'settings'}>
             <Settings />
           </TabPanel>
         )}
-        {visited.has('api') && (
+        {visitedRef.current.has('api') && (
           <TabPanel route="api" active={currentRoute === 'api'}>
             <ApiPage />
           </TabPanel>

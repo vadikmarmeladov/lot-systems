@@ -54,6 +54,7 @@ export type ModuleId =
   | 'quantum-os'       // Quantum Operating System — full coherence across all dimensions
   | 'log'              // Field entry / signal archive
   | 'qos'              // Quantum Operating System — user's living OS state
+  | 'resilience'       // PTSD/C-PTSD trauma-informed protocol + medical records
 
 export type AssembledModule = {
   id: ModuleId
@@ -105,6 +106,7 @@ const MODULE_DEFINITIONS: Pick<AssembledModule, 'id' | 'label'>[] = [
   { id: 'quantum-os',      label: 'Quantum Operating System' },
   { id: 'log',             label: 'Signal Archive' },
   { id: 'qos',             label: 'Quantum OS' },
+  { id: 'resilience',      label: 'Resilience Protocol' },
 ]
 
 // Signal source mapping: which QIE sources feed which assembly modules
@@ -125,6 +127,8 @@ const SOURCE_MAP: Record<string, ModuleId[]> = {
   // quantum-os assembles when cross-module coherence is detected via getQuantumOS
   'quantum_coherence': ['quantum-os', 'quantum'],
   'qos':         ['qos', 'quantum'],
+  'medical':     ['resilience', 'memory'],
+  'resilience':  ['resilience', 'biofield'],
 }
 
 // Specific signal patterns that map to modules beyond their source
@@ -185,6 +189,13 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'multimodal_peak':           'quantum-os',
   'intention-seed':            'intentions',
   'intention_seed':            'intentions',
+  'medical_record':            'resilience',
+  'medical_answer':            'resilience',
+  'trauma_informed_answer':    'resilience',
+  'resilience_signal':         'resilience',
+  'recovery_indicator':        'resilience',
+  'eating_recovery_answer':    'resilience',
+  'nutrition_signal':          'resilience',
 }
 
 // ─── Store ───────────────────────────────────────────────────
@@ -429,6 +440,7 @@ export function recomputeAssembly(): AssemblyState {
     'quantum-os': [],
     log: [],
     qos: [],
+    resilience: [],
   }
 
   signals.forEach(signal => {

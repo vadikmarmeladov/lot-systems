@@ -10,6 +10,7 @@ import React from 'react'
 import { Block, Button } from '#client/components/ui'
 import { cn } from '#client/utils'
 import { recordSignal } from '#client/stores/intentionEngine'
+import { shouldShowRewardWidget } from '#client/stores/rewardWidgets'
 import {
   playMoveSound, playRotateSound, playScoreSound, playDropSound,
   playShootSound, playEnemyHitSound, playGameOverSound, playSwitchSound,
@@ -742,6 +743,7 @@ const GAME_LABELS: Record<GameId, string> = {
 // ---------------------------------------------------------------------------
 
 export function MicroGameWidget() {
+  const [visible] = React.useState(() => shouldShowRewardWidget('micro_game'))
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
   const [gameId, setGameId] = React.useState<GameId>(pickGame)
   const [score, setScore] = React.useState(0)
@@ -901,6 +903,8 @@ export function MicroGameWidget() {
     else if (gameId === 'invaders') { invadersRef.current = moveInvaders(invadersRef.current, 'shoot'); playShootSound() }
     else { snakeRef.current = moveSnake(snakeRef.current, 'down'); playMoveSound() }
   }
+
+  if (!visible) return null
 
   return (
     <Block label="Micro Game:" blockView onLabelClick={switchGame}>

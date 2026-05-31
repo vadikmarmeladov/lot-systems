@@ -26,7 +26,7 @@ import { atom } from 'nanostores'
 // Intention signals collected from all widgets and background monitors
 export type IntentionSignal = {
   timestamp: number
-  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals' | 'qos'
+  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals' | 'qos' | 'medical' | 'resilience'
   signal: string
   metadata?: Record<string, any>
 }
@@ -1518,6 +1518,69 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 63: Signal burst — 10+ signals in any 2-hour window within the last 24h.
+  // Intense engagement cluster. System registers a burst event.
+  // Suggests reflection immediately after the burst — what was driving this?
+  const p63TwentyFourH = signals.filter(s => now - s.timestamp < 24 * 60 * 60 * 1000)
+  const p63BucketMap = new Map<number, number>()
+  p63TwentyFourH.forEach(s => {
+    const bucket = Math.floor(s.timestamp / (2 * 60 * 60 * 1000))
+    p63BucketMap.set(bucket, (p63BucketMap.get(bucket) ?? 0) + 1)
+  })
+  let p63PeakBurst = 0
+  p63BucketMap.forEach(count => { if (count > p63PeakBurst) p63PeakBurst = count })
+  if (p63PeakBurst >= 10) {
+    patterns.push({
+      pattern: 'signal-burst',
+      confidence: Math.min(0.65 + (p63PeakBurst / 10 - 1) * 0.05, 0.82),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'next-session',
+      reason: `Signal burst: ${p63PeakBurst} events in a 2h window today. High-density engagement cluster detected. What was the driver? Reflect before it fades.`
+    })
+  }
+
+  // Pattern 64: Cross-domain coherence — mood + selfcare + journal + memory all active in last 48h.
+  // The emotional, physical, reflective, and stored layers are all alive simultaneously.
+  // This is full inner coherence: felt → tended → reflected → remembered.
+  const p64FortyEightH = signals.filter(s => now - s.timestamp < 48 * 60 * 60 * 1000)
+  const p64Sources = new Set(p64FortyEightH.map(s => s.source))
+  const CROSS_DOMAIN_FOUR: IntentionSignal['source'][] = ['mood', 'selfcare', 'journal', 'memory']
+  const p64Coverage = CROSS_DOMAIN_FOUR.filter(src => p64Sources.has(src)).length
+  if (p64Coverage >= 4) {
+    const p64Depth = p64FortyEightH.length
+    patterns.push({
+      pattern: 'cross-domain-coherence',
+      confidence: Math.min(0.78 + (p64Depth / 20) * 0.12, 0.90),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: 'Cross-domain coherence: mood · care · reflection · memory all active in 48h. Inner stack complete. The full cycle is present — preserve this state.'
+    })
+  }
+
+  // Pattern 65: Recovery plateau — energy source signals persist consistently low for 5+ days.
+  // The person is in recovery but not bouncing back. Protocol needs a shift, not more of the same.
+  const p65FiveDays = signals.filter(s =>
+    s.source === 'energy' && now - s.timestamp < 5 * 24 * 60 * 60 * 1000
+  )
+  const p65DaysWithSignal = new Set(
+    p65FiveDays.map(s => new Date(s.timestamp).toDateString())
+  ).size
+  const p65LowSignals = p65FiveDays.filter(s => {
+    const m = s.metadata as any
+    const level = m?.energyLevel ?? m?.energy ?? m?.value
+    if (typeof level === 'number') return level <= 3
+    return level === 'low' || level === 'depleted'
+  })
+  if (p65DaysWithSignal >= 5 && p65LowSignals.length >= 3 && p65LowSignals.length >= p65FiveDays.length * 0.5) {
+    patterns.push({
+      pattern: 'recovery-plateau',
+      confidence: 0.70,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'soon',
+      reason: `Recovery plateau: energy signals persistently low across ${p65DaysWithSignal} days. Same protocol is not moving the needle. Shift the approach — rest mode needs a new input.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2163,6 +2226,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['mood', 'journal', 'planner'],
     patternConditions: ['meridian-lock', 'circadian-anchor', 'temporal-coherence-window'],
     directive: 'Full day arc covered. Morning to evening coherent. The complete cycle is registered.',
+  },
+  {
+    archetype: 'Coherence Holder',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['mood', 'journal', 'selfcare', 'memory'],
+    patternConditions: ['cross-domain-coherence', 'intention-completion-arc', 'biofield-recovery-arc'],
+    directive: 'All layers present. Mood, body, reflection, memory — the full inner stack is alive. Hold this state.',
   },
 ]
 
