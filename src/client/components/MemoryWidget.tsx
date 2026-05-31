@@ -64,9 +64,9 @@ export function MemoryWidget() {
         markQuestionAnswered(question.id)
       }
 
-      // Invalidate the memory query cache so answered question won't reappear
       const date = btoa(dayjs().format('YYYY-MM-DD'))
-      queryClient.removeQueries(['/api/memory', date])
+      shownQuestionId.current = null
+      queryClient.invalidateQueries(['/api/memory', date])
 
       setIsQuestionShown(false)
       setTimeout(() => {

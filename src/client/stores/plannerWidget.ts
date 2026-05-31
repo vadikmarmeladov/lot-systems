@@ -8,6 +8,7 @@
 
 import { atom } from 'nanostores'
 import { shouldShowWidget } from './intentionEngine'
+import { shouldShowRewardWidget } from './rewardWidgets'
 
 type PlanCategory = 'intent' | 'today' | 'how' | 'feeling'
 
@@ -221,6 +222,8 @@ export async function checkPlannerWidget() {
   const isGoodTimingForPlanning = isMorning || isMidday || isAfternoon || isMondayMorning || isFridayAfternoon
 
   if (!intentionSuggestsPlanner && !isGoodTimingForPlanning) return
+
+  if (!shouldShowRewardWidget('planner')) return
 
   // If intention engine suggests, show immediately (100% chance)
   // Otherwise, 50% chance during planning times
