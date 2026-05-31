@@ -37,6 +37,7 @@ export type LogTrigger =
   | 'assembly-check'    // /assembly — trigger self-assembly module status check
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
+  | 'email-compose'     // /email to [Name] — open LOT® Email composer
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -59,7 +60,15 @@ const RULES: TriggerRule[] = [
   { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
+  // email-compose uses a custom detector below (needs "to" clause)
 ]
+
+// Special detector for /email to [Name] — returns the name fragment or null
+const EMAIL_TO_RE = /(?:^|\s)\/email\s+to\s+([^\n\r]{1,60})/i
+export function extractEmailRecipientName(text: string): string | null {
+  const m = EMAIL_TO_RE.exec(text)
+  return m ? m[1].trim() : null
+}
 
 /**
  * Returns every trigger present in `text`. An empty array means the
@@ -86,6 +95,9 @@ export function detectTriggers(text: string): LogTrigger[] {
 
     if (hasEmoji || hasKeyword) hits.push(rule.trigger)
   }
+
+  // email-compose: /email to [Name]
+  if (EMAIL_TO_RE.test(text)) hits.push('email-compose')
 
   return hits
 }

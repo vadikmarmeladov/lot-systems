@@ -28,8 +28,9 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, extractEmailRecipientName, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions } from '#client/stores/intentionEngine'
+import { LotEmailComposer } from '#client/components/LotEmailComposer'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -47,6 +48,10 @@ export const Logs: React.FC = () => {
 
   const [isMouseActive, setIsMouseActive] = React.useState(true)
   const pendingPushRef = React.useRef<NodeJS.Timeout | null>(null)
+
+  // LOT® Email composer state
+  const [emailComposerOpen, setEmailComposerOpen] = React.useState(false)
+  const [emailRecipientName, setEmailRecipientName] = React.useState('')
 
   const { data: loadedLogs = [], refetch: refetchLogs } = useLogs()
 
@@ -172,6 +177,14 @@ export const Logs: React.FC = () => {
   if (!logIds.length) return <>Loading...</>
 
   return (
+    <>
+    {emailComposerOpen && (
+      <LotEmailComposer
+        initialRecipientName={emailRecipientName}
+        onClose={() => setEmailComposerOpen(false)}
+        onSent={() => setEmailComposerOpen(false)}
+      />
+    )}
     <div
       ref={containerRef}
       className="flex flex-col gap-y-[1.5rem] leading-[1.5rem] px-4 sm:px-0"
@@ -186,6 +199,10 @@ export const Logs: React.FC = () => {
             isMouseActive={isMouseActive}
             dateFormat={dateFormat}
             pendingPushRef={pendingPushRef}
+            onEmailCompose={(name) => {
+              setEmailRecipientName(name)
+              setEmailComposerOpen(true)
+            }}
           />
         ) : null}
       </div>
@@ -901,6 +918,25 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'lot_email_sent') {
+          const receiverName = log.metadata?.receiverName as string | undefined
+          const subject = log.metadata?.subject as string | undefined
+          const preview = log.metadata?.preview as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL →" blockView>
+                {receiverName && (
+                  <div className="uppercase tracking-widest mb-4">TO: {receiverName}</div>
+                )}
+                {subject && (
+                  <div className="opacity-60">RE: {subject}</div>
+                )}
+                {preview && (
+                  <div className="opacity-30 mt-4">{preview}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'user_login' || log.event === 'user_logout') {
           const isLogin = log.event === 'user_login'
           return (
@@ -1004,6 +1040,7 @@ export const Logs: React.FC = () => {
         )
       })}
     </div>
+    </>
   )
 }
 
@@ -1014,6 +1051,7 @@ const NoteEditor = ({
   isMouseActive,
   dateFormat,
   pendingPushRef,
+  onEmailCompose,
 }: {
   log: Log
   primary?: boolean
@@ -1021,6 +1059,7 @@ const NoteEditor = ({
   isMouseActive: boolean
   dateFormat: string
   pendingPushRef?: React.MutableRefObject<NodeJS.Timeout | null>
+  onEmailCompose?: (recipientName: string) => void
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const valueRef = React.useRef(log.text || '')
@@ -1207,6 +1246,9 @@ const NoteEditor = ({
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'email-compose') {
+        const name = extractEmailRecipientName(value) || ''
+        onEmailCompose?.(name)
       }
     }
   }, [value])

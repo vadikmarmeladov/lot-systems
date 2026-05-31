@@ -14,6 +14,8 @@ import { useCohorts, useEnergy, useProfile } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
 import { recordSignal, getUserState } from '#client/stores/intentionEngine'
+import { LotEmailComposer } from '#client/components/LotEmailComposer'
+import type { LotEmailUser } from '#client/queries'
 
 /**
  * Cohort Connect Widget - Find and connect with cohort members
@@ -28,6 +30,7 @@ export const CohortConnectWidget: React.FC = () => {
   const { data: energyData } = useEnergy()
   const { data: profileData } = useProfile()
   const [expandedMemberId, setExpandedMemberId] = React.useState<string | null>(null)
+  const [emailComposerRecipient, setEmailComposerRecipient] = React.useState<LotEmailUser | null>(null)
   const logCtx = useLogContext()
   const punctuation = usePunctuationContext()
   const hasRecordedRef = React.useRef(false)
@@ -116,14 +119,19 @@ export const CohortConnectWidget: React.FC = () => {
     window.location.href = `/users/${userId}`
   }
 
-  const handleSendMessage = (userId: string, similarity: number) => {
-    recordSignal('mood', 'cohort_message_initiated', {
-      userId,
-      similarity,
+  const handleSendEmail = (match: { user: { id: string; firstName: string | null; lastName: string | null; city: string | null }; similarity: number }) => {
+    recordSignal('mood', 'cohort_email_initiated', {
+      userId: match.user.id,
+      similarity: match.similarity,
       connectionReadiness,
       hour: new Date().getHours()
     })
-    window.location.href = '/sync'
+    setEmailComposerRecipient({
+      id: match.user.id,
+      firstName: match.user.firstName,
+      lastName: match.user.lastName,
+      city: match.user.city,
+    })
   }
 
   const handleToggleExpand = (userId: string) => {
@@ -152,6 +160,19 @@ export const CohortConnectWidget: React.FC = () => {
               : null
 
   return (
+    <>
+    {emailComposerRecipient && (
+      <LotEmailComposer
+        initialRecipient={emailComposerRecipient}
+        cohortContext={{
+          cohort,
+          connectionReadiness,
+          similarity: topMatches.find(m => m.user.id === emailComposerRecipient.id)?.similarity,
+        }}
+        onClose={() => setEmailComposerRecipient(null)}
+        onSent={() => setEmailComposerRecipient(null)}
+      />
+    )}
     <Block label="Cohort:" blockView>
       <div>
         {/* Physiological classification */}
@@ -264,10 +285,10 @@ export const CohortConnectWidget: React.FC = () => {
                         size="small"
                         onClick={(e: React.MouseEvent) => {
                           e.stopPropagation()
-                          handleSendMessage(match.user.id, match.similarity)
+                          handleSendEmail(match)
                         }}
                       >
-                        Send message
+                        Email
                       </Button>
                     </div>
                   </div>
@@ -300,5 +321,6 @@ export const CohortConnectWidget: React.FC = () => {
         </div>
       </div>
     </Block>
+    </>
   )
 }

@@ -23,13 +23,21 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotEmailInbox,
+  useMarkLotEmailRead,
+  LotEmailRecord,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { LotEmailComposer } from '#client/components/LotEmailComposer'
+import { PublicChatMessage, LotEmailEventPayload, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+
+type SyncFeedItem =
+  | { kind: 'chat'; data: PublicChatMessage }
+  | { kind: 'email'; data: LotEmailRecord }
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -40,6 +48,13 @@ export const Sync = () => {
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
   const hasInitiallyLoaded = React.useRef(false)
+
+  // LOT® Email state
+  const [inboxEmails, setInboxEmails] = React.useState<LotEmailRecord[]>([])
+  const [emailComposerOpen, setEmailComposerOpen] = React.useState(false)
+  const [expandedEmailId, setExpandedEmailId] = React.useState<string | null>(null)
+  const { data: fetchedInbox = [] } = useLotEmailInbox()
+  const { mutate: markRead } = useMarkLotEmailRead()
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -79,6 +94,11 @@ export const Sync = () => {
     }
   }, [fetchedMessages])
 
+  // Load inbox emails on mount
+  React.useEffect(() => {
+    if (fetchedInbox.length) setInboxEmails(fetchedInbox)
+  }, [fetchedInbox])
+
   // Invalidate cache on mount to ensure fresh data (filters suspended users)
   // Reset hasInitiallyLoaded when component unmounts so data reloads on return
   React.useEffect(() => {
@@ -107,8 +127,6 @@ export const Sync = () => {
         setMessages((prev) => {
           return prev.map((x) => {
             if (x.id === data.messageId) {
-              // Update likes count for all users
-              // Update isLiked only if this user performed the action
               if (data.userId === me?.id) {
                 return { ...x, likes: data.likes, isLiked: data.isLiked }
               }
@@ -119,9 +137,36 @@ export const Sync = () => {
         })
       }
     )
+    // LOT® Email SSE listener — new email arrives for current user
+    const { dispose: disposeLotEmailListener } = sync.listen(
+      'lot_email',
+      (data: LotEmailEventPayload) => {
+        if (data.receiverId !== me?.id) return
+        const emailRecord: LotEmailRecord = {
+          id: data.id,
+          senderId: data.senderId,
+          receiverId: data.receiverId,
+          subject: data.subject,
+          body: data.body,
+          readAt: null,
+          cohortContext: data.cohortContext,
+          createdAt: data.createdAt as any,
+          updatedAt: data.createdAt as any,
+          isMine: false,
+          sender: { id: data.senderId, firstName: data.senderName.split(' ')[0] || null, lastName: data.senderName.split(' ').slice(1).join(' ') || null },
+          receiver: { id: me?.id || '', firstName: null, lastName: null },
+        }
+        setInboxEmails((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [emailRecord, ...prev]
+        })
+        queryClient.invalidateQueries(['/api/lot-emails/inbox'])
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotEmailListener()
     }
   }, [me?.id])
 
@@ -183,8 +228,34 @@ export const Sync = () => {
     formRef.current?.querySelector('textarea')?.focus()
   }, [])
 
+  const unreadEmailCount = inboxEmails.filter((e) => !e.readAt).length
+
+  const handleEmailExpand = (email: LotEmailRecord) => {
+    const isOpening = expandedEmailId !== email.id
+    setExpandedEmailId(isOpening ? email.id : null)
+    if (isOpening && !email.readAt) {
+      markRead({ id: email.id }, {
+        onSuccess: () => {
+          setInboxEmails((prev) => prev.map((e) => e.id === email.id ? { ...e, readAt: new Date().toISOString() as any } : e))
+          queryClient.invalidateQueries(['/api/lot-emails/inbox'])
+        },
+      })
+    }
+  }
+
   return (
+    <>
+    {emailComposerOpen && (
+      <LotEmailComposer
+        onClose={() => setEmailComposerOpen(false)}
+        onSent={() => {
+          setEmailComposerOpen(false)
+          queryClient.invalidateQueries(['/api/lot-emails/sent'])
+        }}
+      />
+    )}
     <div className="max-w-[700px]">
+      {/* Chat input */}
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}
@@ -219,6 +290,92 @@ export const Sync = () => {
         </form>
       </div>
 
+      {/* LOT® Mail inbox — new emails appear here */}
+      {inboxEmails.length > 0 && (
+        <div className="mb-48">
+          <div className="opacity-30 text-xs uppercase tracking-widest mb-16 flex items-center justify-between">
+            <span>
+              LOT® Mail
+              {unreadEmailCount > 0 && (
+                <span className="ml-8">[{unreadEmailCount} new]</span>
+              )}
+            </span>
+            <button
+              className="hover:opacity-60 transition-opacity"
+              onClick={() => setEmailComposerOpen(true)}
+            >
+              + Compose
+            </button>
+          </div>
+          <div>
+            {inboxEmails.slice(0, 10).map((email) => {
+              const senderName = email.sender
+                ? `${email.sender.firstName || ''} ${email.sender.lastName || ''}`.trim() || 'LOT® Member'
+                : 'LOT® Member'
+              const isOpen = expandedEmailId === email.id
+              const isUnread = !email.readAt
+
+              return (
+                <div
+                  key={email.id}
+                  className={cn(
+                    'group border-t border-acc/10 pt-8 first:border-t-0 first:pt-0',
+                    'cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded'
+                  )}
+                  onClick={() => handleEmailExpand(email)}
+                >
+                  <div className="flex items-start gap-x-8">
+                    <span className={cn('whitespace-nowrap', isUnread && 'opacity-100', !isUnread && 'opacity-40')}>
+                      {senderName}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      {email.subject && (
+                        <div className={cn('truncate', isUnread ? 'opacity-80' : 'opacity-40')}>
+                          {email.subject}
+                        </div>
+                      )}
+                      {!isOpen && (
+                        <div className="opacity-20 truncate">{email.body}</div>
+                      )}
+                      {isOpen && (
+                        <div className="mt-4 whitespace-pre-wrap opacity-80">
+                          {email.body}
+                          {email.cohortContext && (
+                            <div className="mt-8 opacity-30 text-xs">via Cohort Dating</div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {!isTouchDevice && (
+                      <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40">
+                        <MessageTimeLabel dateString={email.createdAt as any} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {inboxEmails.length === 0 && (
+            <div className="opacity-20">No messages yet.</div>
+          )}
+        </div>
+      )}
+
+      {/* Compose button when no emails yet */}
+      {inboxEmails.length === 0 && (
+        <div className="mb-48">
+          <div className="opacity-20 text-xs uppercase tracking-widest mb-8">LOT® Mail</div>
+          <button
+            className="opacity-30 hover:opacity-80 transition-opacity text-sm"
+            onClick={() => setEmailComposerOpen(true)}
+          >
+            + Compose email
+          </button>
+        </div>
+      )}
+
+      {/* Community chat feed */}
       <div>
         {messages.map((x, i) => {
           const authorObj = typeof x.author === 'object' ? x.author : null
@@ -283,6 +440,7 @@ export const Sync = () => {
         })}
       </div>
     </div>
+    </>
   )
 }
 

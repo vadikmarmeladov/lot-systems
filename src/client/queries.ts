@@ -797,3 +797,57 @@ export const useCosmicUpdate = createMutation<
   { prompt?: string },
   { imageUrl: string; prompt: string }
 >('post', '/api/cosmic-update')
+
+// ============================================================================
+// LOT® EMAIL
+// ============================================================================
+
+export interface LotEmailUser {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  city?: string | null
+}
+
+export interface LotEmailRecord {
+  id: string
+  senderId: string
+  receiverId: string
+  subject: string | null
+  body: string
+  readAt: string | null
+  cohortContext: Record<string, any> | null
+  createdAt: string
+  updatedAt: string
+  isMine: boolean
+  sender: LotEmailUser | null
+  receiver: LotEmailUser | null
+}
+
+export const useLotEmailInbox = createQuery<LotEmailRecord[]>(
+  '/api/lot-emails/inbox',
+  { refetchOnWindowFocus: false }
+)
+
+export const useLotEmailSent = createQuery<LotEmailRecord[]>(
+  '/api/lot-emails/sent',
+  { refetchOnWindowFocus: false }
+)
+
+export const useSearchLotEmailUsers = (q: string) =>
+  useQuery<LotEmailUser[]>({
+    queryKey: ['/api/lot-emails/users/search', q],
+    queryFn: () => api.get<LotEmailUser[]>('/api/lot-emails/users/search', { params: { q } }).then(r => r.data),
+    enabled: q.length >= 2,
+    staleTime: 30 * 1000,
+  })
+
+export const useSendLotEmail = createMutation<
+  { receiverId: string; subject?: string; body: string; cohortContext?: Record<string, any> },
+  LotEmailRecord
+>('post', '/api/lot-emails')
+
+export const useMarkLotEmailRead = createMutation<{ id: string }, { ok: boolean }>(
+  'put',
+  (data) => `/api/lot-emails/${data.id}/read`
+)

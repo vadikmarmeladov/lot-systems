@@ -4591,4 +4591,184 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       }
     }
   )
+
+  // ============================================================================
+  // LOT® EMAIL — Internal community messaging via Log /email command
+  // ============================================================================
+
+  // Search users by first name (for /email to [Name] resolution)
+  fastify.get('/lot-emails/users/search', async (req: FastifyRequest<{
+    Querystring: { q: string }
+  }>, reply) => {
+    const q = (req.query.q || '').trim()
+    if (!q || q.length < 2) return reply.send([])
+    const users = await fastify.models.User.findAll({
+      where: {
+        [Op.or]: [
+          { firstName: { [Op.iLike]: `%${q}%` } },
+          { lastName: { [Op.iLike]: `%${q}%` } },
+        ],
+        id: { [Op.ne]: req.user.id },
+      },
+      attributes: ['id', 'firstName', 'lastName', 'city'],
+      limit: 8,
+    })
+    return reply.send(users.map(u => ({
+      id: u.id,
+      firstName: u.firstName,
+      lastName: u.lastName,
+      city: u.city,
+    })))
+  })
+
+  // Get inbox (received emails)
+  fastify.get('/lot-emails/inbox', async (req, reply) => {
+    const emails = await fastify.models.LotEmail.findAll({
+      where: { receiverId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+
+    const senderIds = [...new Set(emails.map(e => e.senderId))]
+    const senders = senderIds.length
+      ? await fastify.models.User.findAll({
+          where: { id: senderIds },
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+      : []
+    const senderMap = Object.fromEntries(senders.map(u => [u.id, u]))
+
+    return reply.send(emails.map(e => ({
+      id: e.id,
+      senderId: e.senderId,
+      receiverId: e.receiverId,
+      subject: e.subject,
+      body: e.body,
+      readAt: e.readAt,
+      cohortContext: e.cohortContext,
+      createdAt: e.createdAt,
+      updatedAt: e.updatedAt,
+      isMine: false,
+      sender: senderMap[e.senderId]
+        ? { id: senderMap[e.senderId].id, firstName: senderMap[e.senderId].firstName, lastName: senderMap[e.senderId].lastName }
+        : null,
+      receiver: { id: req.user.id, firstName: req.user.firstName, lastName: req.user.lastName },
+    })))
+  })
+
+  // Get sent emails
+  fastify.get('/lot-emails/sent', async (req, reply) => {
+    const emails = await fastify.models.LotEmail.findAll({
+      where: { senderId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+
+    const receiverIds = [...new Set(emails.map(e => e.receiverId))]
+    const receivers = receiverIds.length
+      ? await fastify.models.User.findAll({
+          where: { id: receiverIds },
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+      : []
+    const receiverMap = Object.fromEntries(receivers.map(u => [u.id, u]))
+
+    return reply.send(emails.map(e => ({
+      id: e.id,
+      senderId: e.senderId,
+      receiverId: e.receiverId,
+      subject: e.subject,
+      body: e.body,
+      readAt: e.readAt,
+      cohortContext: e.cohortContext,
+      createdAt: e.createdAt,
+      updatedAt: e.updatedAt,
+      isMine: true,
+      sender: { id: req.user.id, firstName: req.user.firstName, lastName: req.user.lastName },
+      receiver: receiverMap[e.receiverId]
+        ? { id: receiverMap[e.receiverId].id, firstName: receiverMap[e.receiverId].firstName, lastName: receiverMap[e.receiverId].lastName }
+        : null,
+    })))
+  })
+
+  // Send a LOT® Email
+  fastify.post('/lot-emails', async (req: FastifyRequest<{
+    Body: { receiverId: string; subject?: string; body: string; cohortContext?: Record<string, any> }
+  }>, reply) => {
+    const { receiverId, subject, body, cohortContext } = req.body
+
+    if (!receiverId || !body?.trim()) {
+      return reply.status(400).send({ error: 'Receiver and body are required' })
+    }
+
+    const receiver = await fastify.models.User.findByPk(receiverId)
+    if (!receiver) {
+      return reply.status(404).send({ error: 'Receiver not found' })
+    }
+
+    const email = await fastify.models.LotEmail.create({
+      senderId: req.user.id,
+      receiverId,
+      subject: subject?.trim().slice(0, 500) || null,
+      body: body.trim().slice(0, 5000),
+      cohortContext: cohortContext || null,
+    })
+
+    const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'LOT® Member'
+
+    // Broadcast SSE event so Sync shows the email in real time for the receiver
+    sync.emit('lot_email', {
+      id: email.id,
+      senderId: req.user.id,
+      receiverId,
+      subject: email.subject,
+      body: email.body,
+      senderName,
+      cohortContext: email.cohortContext,
+      createdAt: email.createdAt,
+    })
+
+    // Log the sent action into the sender's Log
+    process.nextTick(async () => {
+      try {
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          event: 'lot_email_sent',
+          text: '',
+          metadata: {
+            lotEmailId: email.id,
+            receiverId,
+            receiverName: `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim(),
+            subject: email.subject,
+            preview: email.body.slice(0, 120),
+          },
+          context,
+        })
+      } catch {}
+    })
+
+    return reply.send({
+      id: email.id,
+      senderId: email.senderId,
+      receiverId: email.receiverId,
+      subject: email.subject,
+      body: email.body,
+      createdAt: email.createdAt,
+    })
+  })
+
+  // Mark email as read
+  fastify.put('/lot-emails/:id/read', async (req: FastifyRequest<{
+    Params: { id: string }
+  }>, reply) => {
+    const email = await fastify.models.LotEmail.findOne({
+      where: { id: req.params.id, receiverId: req.user.id },
+    })
+    if (!email) return reply.status(404).send({ error: 'Email not found' })
+    if (!email.readAt) {
+      await email.update({ readAt: new Date() })
+    }
+    return reply.send({ ok: true })
+  })
 }

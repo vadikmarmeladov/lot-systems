@@ -46,6 +46,7 @@ import { SystemProgressWidget } from './SystemProgressWidget'
 import { SystemPulseWidget } from './SystemPulseWidget'
 import { EvolutionWidget } from './EvolutionWidget'
 import { CohortConnectWidget } from './CohortConnectWidget'
+import { LotEmailInbox } from './LotEmailInbox'
 import { InterfaceEvolutionWidget } from './InterfaceEvolutionWidget'
 import { EvolutionMilestoneToast } from './EvolutionMilestoneToast'
 import { MicroCalculatorWidget } from './MicroCalculatorWidget'
@@ -912,6 +913,9 @@ export const System = () => {
 
           {/* Cohort Connect - Browse and connect with cohort members */}
           <CohortConnectWidget />
+
+          {/* LOT® Mail - inbox for emails sent via /email command or Cohort Dating */}
+          <LotEmailInbox />
         </div>
       </WidgetErrorBoundary>
 
