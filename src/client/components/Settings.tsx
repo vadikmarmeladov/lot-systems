@@ -21,6 +21,7 @@ import { cn } from '#client/utils'
 import { WorldCanvas } from './WorldCanvas'
 import { GrowthMilestones, BadgeUnlockFeed } from './stats'
 import { InvestmentSwitch } from './InvestmentSwitch'
+import { ProfileQRCode } from './ProfileQRCode'
 
 interface StatusData {
   version: string
@@ -498,6 +499,24 @@ export const Settings = () => {
                 )}
               </Block>
             </div>
+
+            {privacySettings.isPublicProfile && userTagIds.includes(UserTag.Usership) && (
+              <div className="mb-8">
+                <Block label="QR Code:" blockView>
+                  <div className="flex items-center gap-x-12">
+                    <ProfileQRCode
+                      url={`https://lot-systems.com/u/${privacySettings.customUrl || me?.id}`}
+                      fgColor={accentColor}
+                      bgColor={baseColor}
+                      size={80}
+                    />
+                    <div className="opacity-30" style={{ fontSize: '0.8em' }}>
+                      Scan to open profile
+                    </div>
+                  </div>
+                </Block>
+              </div>
+            )}
 
             {privacySettings.isPublicProfile && (
               <>

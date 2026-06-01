@@ -659,6 +659,64 @@ export default async (fastify: FastifyInstance) => {
   )
 
   fastify.post<{
+    Body: {
+      earnedBadges: string[]
+      badgeTheme: string | null
+      newBadges?: string[]
+    }
+  }>(
+    '/sync-badges',
+    async (req: FastifyRequest<{
+      Body: {
+        earnedBadges: string[]
+        badgeTheme: string | null
+        newBadges?: string[]
+      }
+    }>, reply) => {
+      const { earnedBadges, badgeTheme, newBadges } = req.body
+
+      const validBadges = ['milestone_7', 'milestone_30', 'milestone_100']
+      const validThemes = ['water', 'architecture']
+
+      const filtered = (earnedBadges || []).filter(b => validBadges.includes(b))
+      const theme = badgeTheme && validThemes.includes(badgeTheme) ? badgeTheme : null
+
+      const currentMetadata = req.user.metadata || {}
+      const serverBadges: string[] = (currentMetadata as any).badges?.earnedBadges || []
+      const merged = Array.from(new Set([...serverBadges, ...filtered]))
+
+      const updatedMetadata = {
+        ...currentMetadata,
+        badges: {
+          earnedBadges: merged,
+          badgeTheme: theme,
+          lastSynced: new Date().toISOString(),
+        },
+      }
+      await req.user.set({ metadata: updatedMetadata }).save()
+
+      if (newBadges && newBadges.length > 0) {
+        const context = await getLogContext(req.user)
+        for (const badgeId of newBadges) {
+          if (!validBadges.includes(badgeId)) continue
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'badge_unlock',
+            text: `Badge unlocked: ${badgeId}`,
+            metadata: {
+              badge: badgeId,
+              badgeName: badgeId.replace('milestone_', 'Day '),
+            },
+            context,
+          })
+        }
+      }
+
+      return { earnedBadges: merged, badgeTheme: theme }
+    }
+  )
+
+  fastify.post<{
     Body: { soundDescription: string | null }
   }>(
     '/update-current-sound',

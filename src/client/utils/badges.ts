@@ -106,6 +106,7 @@ export function setBadgeTheme(theme: BadgeTheme): void {
 
   try {
     localStorage.setItem('badge_theme', theme)
+    syncBadgesToServer()
   } catch (e) {
     console.warn('Failed to set badge theme:', e)
   }
@@ -170,8 +171,8 @@ export function awardBadge(badgeId: BadgeType): boolean {
     earned.push(badgeId)
     saveEarnedBadges(earned)
 
-    // Queue unlock notification for Memory widget
     queueBadgeUnlock(badgeId)
+    syncBadgesToServer([badgeId])
 
     return true
   } finally {
@@ -342,4 +343,50 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
   }
 
   return newBadges
+}
+
+function syncBadgesToServer(newBadges?: string[]): void {
+  if (typeof window === 'undefined') return
+
+  try {
+    const earnedBadges = getEarnedBadges()
+    const badgeTheme = getBadgeTheme()
+
+    fetch('/api/sync-badges', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        earnedBadges,
+        badgeTheme,
+        newBadges: newBadges || [],
+      }),
+    }).catch(() => {})
+  } catch { /* non-critical */ }
+}
+
+export function hydrateBadgesFromServer(serverBadges: {
+  earnedBadges?: string[]
+  badgeTheme?: string | null
+}): void {
+  if (typeof window === 'undefined') return
+  if (!serverBadges) return
+
+  try {
+    if (serverBadges.earnedBadges && serverBadges.earnedBadges.length > 0) {
+      const localBadges = getEarnedBadges()
+      const merged = Array.from(new Set([...localBadges, ...serverBadges.earnedBadges]))
+      if (merged.length > localBadges.length) {
+        saveEarnedBadges(merged as BadgeType[])
+        console.log('[Badges] Hydrated from server:', merged)
+      }
+    }
+
+    if (serverBadges.badgeTheme === 'water' || serverBadges.badgeTheme === 'architecture') {
+      const localTheme = localStorage.getItem('badge_theme')
+      if (!localTheme) {
+        localStorage.setItem('badge_theme', serverBadges.badgeTheme)
+        console.log('[Badges] Theme hydrated from server:', serverBadges.badgeTheme)
+      }
+    }
+  } catch { /* non-critical */ }
 }

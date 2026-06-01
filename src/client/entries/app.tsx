@@ -28,6 +28,7 @@ import { useSound } from '#client/utils/sound'
 import { useRadio } from '#client/utils/radio'
 import { sync } from '../sync'
 import { initRecipeWidget } from '#client/stores/recipeWidget'
+import { hydrateBadgesFromServer } from '#client/utils/badges'
 
 // Error boundary to prevent blank page when a widget crashes
 class AppErrorBoundary extends React.Component<
@@ -147,16 +148,11 @@ const App = () => {
   const isRadioOn = useStore(stores.isRadioOn)
 
   const visitedRef = React.useRef<Set<PersistentRoute>>(new Set(['system']))
-  const [, forceUpdate] = React.useState(0)
 
   const currentRoute = router?.route ?? 'system'
 
   if (PERSISTENT_ROUTES.includes(currentRoute as PersistentRoute)) {
-    const route = currentRoute as PersistentRoute
-    if (!visitedRef.current.has(route)) {
-      visitedRef.current.add(route)
-      forceUpdate(n => n + 1)
-    }
+    visitedRef.current.add(currentRoute as PersistentRoute)
   }
 
   const { data: weather, refetch: refetchWeather } = useWeather()
@@ -205,6 +201,11 @@ const App = () => {
       if (user.timeChime !== undefined) {
         stores.isTimeChimeEnabled.set(user.timeChime)
         console.log('[App] Syncing timeChime from server:', user.timeChime)
+      }
+
+      // Sync badges from server metadata to localStorage (multi-device support)
+      if (user.metadata?.badges) {
+        hydrateBadgesFromServer(user.metadata.badges as any)
       }
 
       if (!user.firstName && !user.lastName) {
