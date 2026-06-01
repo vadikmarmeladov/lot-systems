@@ -28,14 +28,20 @@ export const ProfileQRCode: React.FC<ProfileQRCodeProps> = ({
     const canvas = canvasRef.current
     if (!canvas) return
 
+    const dpr = window.devicePixelRatio || 1
+    const renderSize = Math.round(size * dpr)
+
     QRCode.toCanvas(canvas, url, {
-      width: size,
+      width: renderSize,
       margin: 1,
       color: {
         dark: fgColor,
         light: bgColor,
       },
       errorCorrectionLevel: 'M',
+    }).then(() => {
+      canvas.style.width = `${size}px`
+      canvas.style.height = `${size}px`
     }).catch((err: Error) => {
       console.warn('[ProfileQRCode] Generation failed:', err)
     })
