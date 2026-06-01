@@ -148,16 +148,11 @@ const App = () => {
   const isRadioOn = useStore(stores.isRadioOn)
 
   const visitedRef = React.useRef<Set<PersistentRoute>>(new Set(['system']))
-  const [, forceUpdate] = React.useState(0)
 
   const currentRoute = router?.route ?? 'system'
 
   if (PERSISTENT_ROUTES.includes(currentRoute as PersistentRoute)) {
-    const route = currentRoute as PersistentRoute
-    if (!visitedRef.current.has(route)) {
-      visitedRef.current.add(route)
-      forceUpdate(n => n + 1)
-    }
+    visitedRef.current.add(currentRoute as PersistentRoute)
   }
 
   const { data: weather, refetch: refetchWeather } = useWeather()
