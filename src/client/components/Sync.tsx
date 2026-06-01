@@ -26,6 +26,7 @@ import {
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
+import { goTo } from '#client/stores/router'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -40,6 +41,25 @@ export const Sync = () => {
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
   const hasInitiallyLoaded = React.useRef(false)
+
+  const [emailNotifications, setEmailNotifications] = React.useState<Array<{
+    id: string
+    senderName: string
+    bodyPreview: string
+    createdAt: string
+  }>>([])
+
+  React.useEffect(() => {
+    const { dispose } = sync.listen('email_received', (data: any) => {
+      if (data.receiverId === me?.id) {
+        setEmailNotifications((prev) => {
+          if (prev.some((n) => n.id === data.id)) return prev
+          return [{ id: data.id, senderName: data.senderName, bodyPreview: data.bodyPreview, createdAt: data.createdAt }, ...prev].slice(0, 5)
+        })
+      }
+    })
+    return dispose
+  }, [me?.id])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -218,6 +238,24 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {emailNotifications.length > 0 && (
+        <div className="mb-32">
+          {emailNotifications.map((n) => (
+            <div
+              key={n.id}
+              className="group flex items-start gap-x-8 cursor-pointer -mx-4 px-4 py-2 rounded grid-fill-hover"
+              onClick={() => goTo('email')}
+            >
+              <span className="whitespace-nowrap opacity-60">✉ {n.senderName}</span>
+              <span className="opacity-60 truncate">{n.bodyPreview}</span>
+              <span className="text-acc/40 opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none select-none">
+                <MessageTimeLabel dateString={n.createdAt} />
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

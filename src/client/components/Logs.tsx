@@ -11,6 +11,7 @@ import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button, ResizibleGhostInput, Unknown } from '#client/components/ui'
 import { useLogs, useUpdateLog } from '#client/queries'
+import { LotMail } from '#client/components/LotMail'
 import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
@@ -36,6 +37,12 @@ const localStore = {
   logIds: atom<string[]>([]),
 }
 
+function parseEmailCommand(text: string): { name: string } | null {
+  const m = text.match(/\/email\s+to\s+([^\n]+)/i)
+  if (!m) return null
+  return { name: m[1].trim() }
+}
+
 export const Logs: React.FC = () => {
   const inputContainerRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -47,6 +54,7 @@ export const Logs: React.FC = () => {
 
   const [isMouseActive, setIsMouseActive] = React.useState(true)
   const pendingPushRef = React.useRef<NodeJS.Timeout | null>(null)
+  const [emailCompose, setEmailCompose] = React.useState<{ name: string } | null>(null)
 
   const { data: loadedLogs = [], refetch: refetchLogs } = useLogs()
 
@@ -186,9 +194,24 @@ export const Logs: React.FC = () => {
             isMouseActive={isMouseActive}
             dateFormat={dateFormat}
             pendingPushRef={pendingPushRef}
+            onTrigger={(trigger, value) => {
+              if (trigger === 'email-compose') {
+                const parsed = parseEmailCommand(value)
+                setEmailCompose(parsed || { name: '' })
+              }
+            }}
           />
         ) : null}
       </div>
+
+      {emailCompose && (
+        <div className="mb-16">
+          <LotMail
+            initialComposeTo={emailCompose.name || undefined}
+            onComposeClose={() => setEmailCompose(null)}
+          />
+        </div>
+      )}
 
       {pastLogIds.map((id) => {
         const log = logById[id]
@@ -1027,6 +1050,17 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'email_sent') {
+          const receiverName = log.metadata?.receiverName as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                <div className="uppercase tracking-widest">
+                  → {receiverName || 'sent'}
+                </div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1058,6 +1092,7 @@ const NoteEditor = ({
   isMouseActive,
   dateFormat,
   pendingPushRef,
+  onTrigger,
 }: {
   log: Log
   primary?: boolean
@@ -1065,6 +1100,7 @@ const NoteEditor = ({
   isMouseActive: boolean
   dateFormat: string
   pendingPushRef?: React.MutableRefObject<NodeJS.Timeout | null>
+  onTrigger?: (trigger: string, value: string) => void
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const valueRef = React.useRef(log.text || '')
@@ -1251,6 +1287,8 @@ const NoteEditor = ({
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'email-compose') {
+        onTrigger?.('email-compose', value)
       }
     }
   }, [value])

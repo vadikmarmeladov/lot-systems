@@ -17,6 +17,7 @@ import { Settings } from '#client/components/Settings'
 import { Logs } from '#client/components/Logs'
 import { Sync } from '#client/components/Sync'
 import { DirectMessageThread } from '#client/components/DirectMessageThread'
+import { LotMail } from '#client/components/LotMail'
 import { StatusPage } from '#client/components/StatusPage'
 import { ApiPage } from '#client/components/ApiPage'
 import { ConnectionStatus } from '#client/components/ConnectionStatus'
@@ -290,6 +291,7 @@ const App = () => {
         {currentRoute === 'dm' && router?.params?.userId && (
           <DirectMessageThread userId={router.params.userId} />
         )}
+        {currentRoute === 'email' && <LotMail />}
         {currentRoute === 'status' && <StatusPage noWrapper />}
         {isMirrorOn && (
           <video

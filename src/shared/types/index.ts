@@ -172,6 +172,18 @@ export type LogSettingsChangeMetadata = {
   changes: Record<string, any>;
 };
 
+// LOT® Email Type
+export type LotEmail = {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  subject: string | null;
+  body: string;
+  isRead: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 // Answer Type
 export type Answer = {
   id: string;

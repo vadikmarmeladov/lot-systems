@@ -797,3 +797,53 @@ export const useCosmicUpdate = createMutation<
   { prompt?: string },
   { imageUrl: string; prompt: string }
 >('post', '/api/cosmic-update')
+
+// ============================================================================
+// LOT® EMAIL SYSTEM
+// ============================================================================
+
+export interface LotEmailRecord {
+  id: string
+  senderId: string
+  receiverId: string
+  subject: string | null
+  body: string
+  isRead: boolean
+  isMine: boolean
+  createdAt: string
+  updatedAt: string
+  sender: { id: string; firstName: string | null; lastName: string | null } | null
+  receiver: { id: string; firstName: string | null; lastName: string | null } | null
+}
+
+export interface LotEmailContact {
+  id: string
+  firstName: string | null
+  lastName: string | null
+}
+
+export const useLotEmails = () =>
+  createQuery<{
+    inbox: LotEmailRecord[]
+    sent: LotEmailRecord[]
+    unreadCount: number
+  }>('/api/lot-emails', {
+    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000,
+  })()
+
+export const useSendLotEmail = createMutation<
+  { receiverId: string; body: string; subject?: string },
+  { id: string }
+>('post', '/api/lot-emails')
+
+export const useMarkLotEmailRead = createMutation<{ id: string }, { ok: boolean }>(
+  'patch',
+  (data) => `/api/lot-emails/${data.id}/read`
+)
+
+export const useEmailContacts = (q: string) =>
+  createQuery<{ contacts: LotEmailContact[] }>(`/api/lot-emails/contacts?q=${encodeURIComponent(q)}`, {
+    enabled: q.length >= 1,
+    staleTime: 60 * 1000,
+  })()
