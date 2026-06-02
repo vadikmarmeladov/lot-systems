@@ -140,12 +140,6 @@ function TabPanel({ route, active, children }: { route: string; active: boolean;
   )
 }
 
-const MemoSystem = React.memo(System)
-const MemoLogs = React.memo(Logs)
-const MemoSync = React.memo(Sync)
-const MemoSettings = React.memo(Settings)
-const MemoApiPage = React.memo(ApiPage)
-
 const App = () => {
   const mirrorRef = React.useRef<HTMLVideoElement>(null)
   const user = useStore(stores.me)
@@ -273,27 +267,27 @@ const App = () => {
       <Layout>
         {visitedRef.current.has('system') && (
           <TabPanel route="system" active={currentRoute === 'system'}>
-            <MemoSystem />
+            <System />
           </TabPanel>
         )}
         {visitedRef.current.has('logs') && (
           <TabPanel route="logs" active={currentRoute === 'logs'}>
-            <MemoLogs />
+            <Logs />
           </TabPanel>
         )}
         {visitedRef.current.has('sync') && (
           <TabPanel route="sync" active={currentRoute === 'sync'}>
-            <MemoSync />
+            <Sync />
           </TabPanel>
         )}
         {visitedRef.current.has('settings') && (
           <TabPanel route="settings" active={currentRoute === 'settings'}>
-            <MemoSettings />
+            <Settings />
           </TabPanel>
         )}
         {visitedRef.current.has('api') && (
           <TabPanel route="api" active={currentRoute === 'api'}>
-            <MemoApiPage />
+            <ApiPage />
           </TabPanel>
         )}
         {currentRoute === 'dm' && router?.params?.userId && (
