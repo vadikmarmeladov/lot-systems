@@ -22,39 +22,6 @@ type Props = {
   hideNav?: boolean
 }
 
-const NavButton = React.memo(function NavButton({
-  label,
-  route,
-  isActive,
-  isMirrorOn,
-}: {
-  label: string
-  route?: RouteName
-  isActive: boolean
-  isMirrorOn: boolean
-}) {
-  const handleClick = React.useCallback(() => {
-    if (route) goTo(route)
-  }, [route])
-
-  return (
-    <Button
-      kind="secondary-rounded"
-      className={cn(
-        'mb-4 flex-shrink-0',
-        !route && 'opacity-30 pointer-events-none',
-        isActive && (isMirrorOn
-          ? 'bg-white/20 hover:bg-white/30'
-          : 'bg-acc text-bac hover:bg-acc/90')
-      )}
-      onClick={route ? handleClick : undefined}
-      disabled={!route}
-    >
-      {label}
-    </Button>
-  )
-})
-
 export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
   const me = useStore(stores.me)
   const layoutView = useStore(stores.layoutView)
@@ -95,8 +62,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
       {!hideNav && (
         <div
           id="nav"
-          className="sticky bottom-0 left-0 right-0 self-end z-50"
-          style={{ isolation: 'isolate' }}
+          className="sticky bottom-0 left-0 right-0 self-end transition-opacity"
         >
           <div className="px-16 phone:px-32 tablet:px-48 desktop:px-64 mb-16 phone:mb-32 tablet:mb-48 desktop:mb-64">
             <nav
@@ -107,22 +73,31 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
                 'justify-end tablet:justify-start'
               )}
             >
-              {navLinks.map((link, i) =>
-                link.spacer ? (
+              {navLinks.map((link, i) => {
+                const isActive = link.route === currentRoute
+                return link.spacer ? (
                   <div
                     key={link.label ?? i}
                     className="flex-grow tablet:block hidden"
                   />
                 ) : (
-                  <NavButton
+                  <Button
                     key={link.label}
-                    label={link.label!}
-                    route={link.route}
-                    isActive={link.route === currentRoute}
-                    isMirrorOn={isMirrorOn}
-                  />
+                    kind="secondary-rounded"
+                    className={cn(
+                      'mb-4 flex-shrink-0',
+                      !link.route && 'opacity-30 pointer-events-none',
+                      isActive && (isMirrorOn
+                        ? 'bg-white/20 hover:bg-white/30'
+                        : 'bg-acc text-bac hover:bg-acc/90')
+                    )}
+                    onClick={link.route ? () => goTo(link.route!) : undefined}
+                    disabled={!link.route}
+                  >
+                    {link.label}
+                  </Button>
                 )
-              )}
+              })}
             </nav>
           </div>
         </div>

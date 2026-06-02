@@ -82,21 +82,6 @@ input:-webkit-autofill {
   *:focus {
     @apply outline-none;
   }
-
-  /* Content area layout containment — prevents hidden widget reflows from blocking the main thread */
-  #page {
-    contain: style;
-  }
-
-  /* Hidden tab panels — skip layout and paint entirely */
-  [data-tab][style*="display: none"] {
-    content-visibility: hidden;
-  }
-
-  /* Nav buttons — eliminate mobile tap delay */
-  #nav button {
-    touch-action: manipulation;
-  }
 }
 
 @layer components {
