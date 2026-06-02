@@ -20,6 +20,7 @@ import {
   Log,
   Paginated,
   PublicChatMessage,
+  PublicLotMail,
   User,
   UserProfile,
   UserSettings,
@@ -797,3 +798,16 @@ export const useCosmicUpdate = createMutation<
   { prompt?: string },
   { imageUrl: string; prompt: string }
 >('post', '/api/cosmic-update')
+
+// ============================================================================
+// LOT MAIL
+// ============================================================================
+export const useMails = createQuery<PublicLotMail[]>('/api/mail', {
+  refetchOnWindowFocus: false,
+  staleTime: 60 * 1000,
+})
+
+export const useSendMail = createMutation<
+  { toName: string; body: string },
+  void
+>('post', '/api/mail')

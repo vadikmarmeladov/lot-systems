@@ -23,9 +23,10 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useMails,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, PublicLotMail, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -39,7 +40,9 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [mails, setMails] = React.useState<PublicLotMail[]>([])
   const hasInitiallyLoaded = React.useRef(false)
+  const hasMailsLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -52,6 +55,7 @@ export const Sync = () => {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: fetchedMails } = useMails()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -78,6 +82,13 @@ export const Sync = () => {
       hasInitiallyLoaded.current = true
     }
   }, [fetchedMessages])
+
+  React.useEffect(() => {
+    if (fetchedMails && !hasMailsLoaded.current) {
+      setMails(fetchedMails.slice(0, 5))
+      hasMailsLoaded.current = true
+    }
+  }, [fetchedMails])
 
   // Invalidate cache on mount to ensure fresh data (filters suspended users)
   // Reset hasInitiallyLoaded when component unmounts so data reloads on return
@@ -119,9 +130,19 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeMailListener } = sync.listen(
+      'lot_mail',
+      (data) => {
+        setMails((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [data, ...prev].slice(0, 5)
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeMailListener()
     }
   }, [me?.id])
 
@@ -185,6 +206,34 @@ export const Sync = () => {
 
   return (
     <div className="max-w-[700px]">
+      {mails.length > 0 && (
+        <div className="mb-32">
+          {mails.map((mail) => (
+            <div
+              key={mail.id}
+              className="group flex items-start gap-x-8 -mx-4 px-4 py-2 opacity-60 hover:opacity-100 transition-opacity"
+            >
+              <span className="whitespace-nowrap uppercase tracking-widest text-xs opacity-50 select-none pt-[2px]">
+                MAIL
+              </span>
+              <div
+                className="whitespace-breakspaces"
+                style={{ wordBreak: 'break-word' }}
+              >
+                <span className="opacity-70">{mail.senderName} → {mail.toName}</span>
+                <span className="opacity-40 mx-8">·</span>
+                <span>{mail.body.length > 80 ? mail.body.slice(0, 80) + '…' : mail.body}</span>
+              </div>
+              {!isTouchDevice && (
+                <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40">
+                  <MessageTimeLabel dateString={mail.createdAt as unknown as string} />
+                </div>
+              )}
+            </div>
+          ))}
+          <div className="border-t border-acc/10 mt-8 mb-8" />
+        </div>
+      )}
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}

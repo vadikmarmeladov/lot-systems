@@ -10,11 +10,12 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button, ResizibleGhostInput, Unknown } from '#client/components/ui'
-import { useLogs, useUpdateLog } from '#client/queries'
+import { useLogs, useUpdateLog, useSendMail } from '#client/queries'
 import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
 import { Log, LogSettingsChangeMetadata } from '#shared/types'
+import { MAX_MAIL_BODY_LENGTH } from '#shared/constants'
 import { cn } from '#client/utils'
 import { atom, map } from 'nanostores'
 import {
@@ -47,6 +48,21 @@ export const Logs: React.FC = () => {
 
   const [isMouseActive, setIsMouseActive] = React.useState(true)
   const pendingPushRef = React.useRef<NodeJS.Timeout | null>(null)
+
+  const [emailCompose, setEmailCompose] = React.useState<{ to: string } | null>(null)
+  const [mailBody, setMailBody] = React.useState('')
+  const [mailSent, setMailSent] = React.useState(false)
+
+  const { mutate: sendMail, isLoading: isSendingMail } = useSendMail({
+    onSuccess: () => {
+      setMailSent(true)
+      setMailBody('')
+      setTimeout(() => {
+        setEmailCompose(null)
+        setMailSent(false)
+      }, 1800)
+    },
+  })
 
   const { data: loadedLogs = [], refetch: refetchLogs } = useLogs()
 
@@ -186,9 +202,34 @@ export const Logs: React.FC = () => {
             isMouseActive={isMouseActive}
             dateFormat={dateFormat}
             pendingPushRef={pendingPushRef}
+            onEmailCompose={(to) => {
+              setEmailCompose({ to })
+              setMailBody('')
+              setMailSent(false)
+            }}
           />
         ) : null}
       </div>
+
+      {emailCompose && (
+        <MailCompose
+          to={emailCompose.to}
+          body={mailBody}
+          sent={mailSent}
+          sending={isSendingMail}
+          onBodyChange={(v) => setMailBody(v.slice(0, MAX_MAIL_BODY_LENGTH))}
+          onSend={() => {
+            if (mailBody.trim() && emailCompose.to) {
+              sendMail({ toName: emailCompose.to, body: mailBody.trim() })
+            }
+          }}
+          onCancel={() => {
+            setEmailCompose(null)
+            setMailBody('')
+            setMailSent(false)
+          }}
+        />
+      )}
 
       {pastLogIds.map((id) => {
         const log = logById[id]
@@ -1027,6 +1068,21 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'email_sent') {
+          const toName = log.metadata?.toName as string | undefined
+          const body = log.metadata?.body as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                {toName && (
+                  <div className="uppercase tracking-widest mb-4">→ {toName}</div>
+                )}
+                {body && (
+                  <div className="opacity-60">{body}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1058,6 +1114,7 @@ const NoteEditor = ({
   isMouseActive,
   dateFormat,
   pendingPushRef,
+  onEmailCompose,
 }: {
   log: Log
   primary?: boolean
@@ -1065,6 +1122,7 @@ const NoteEditor = ({
   isMouseActive: boolean
   dateFormat: string
   pendingPushRef?: React.MutableRefObject<NodeJS.Timeout | null>
+  onEmailCompose?: (to: string) => void
 }) => {
   const containerRef = React.useRef<HTMLDivElement>(null)
   const valueRef = React.useRef(log.text || '')
@@ -1251,9 +1309,14 @@ const NoteEditor = ({
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'email-compose' && onEmailCompose) {
+        // Parse recipient name from "/email to [name]" or "/email [name]"
+        const match = value.match(/\/(?:email|mail)\s+(?:to\s+)?([^\s/]+)/i)
+        const toName = match ? match[1] : ''
+        onEmailCompose(toName)
       }
     }
-  }, [value])
+  }, [value, onEmailCompose])
 
   const contextText = React.useMemo(() => {
     if (!log?.context) return ''
@@ -1431,6 +1494,71 @@ const LogContainer: React.FC<{
         )}
       >
         {children}
+      </div>
+    </div>
+  )
+}
+
+const MailCompose: React.FC<{
+  to: string
+  body: string
+  sent: boolean
+  sending: boolean
+  onBodyChange: (v: string) => void
+  onSend: () => void
+  onCancel: () => void
+}> = ({ to, body, sent, sending, onBodyChange, onSend, onCancel }) => {
+  const onKeyDown = React.useCallback(
+    (ev: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (ev.key === 'Enter' && (ev.metaKey || ev.ctrlKey)) {
+        ev.preventDefault()
+        onSend()
+      }
+      if (ev.key === 'Escape') {
+        onCancel()
+      }
+    },
+    [onSend, onCancel]
+  )
+
+  if (sent) {
+    return (
+      <div className="max-w-[700px]">
+        <Block label="MAIL:" blockView>
+          <div className="uppercase tracking-widest opacity-60">
+            → {to || '—'} · TRANSMITTED
+          </div>
+        </Block>
+      </div>
+    )
+  }
+
+  return (
+    <div className="max-w-[700px]">
+      <Block label="MAIL:" blockView>
+        <div className="mb-8 uppercase tracking-widest opacity-50 text-xs">
+          TO: {to || '[ recipient ]'}
+        </div>
+        <ResizibleGhostInput
+          direction="v"
+          value={body}
+          onChange={onBodyChange}
+          onKeyDown={onKeyDown}
+          placeholder="[ compose message — Cmd+Enter to send ]"
+        />
+      </Block>
+      <div className="flex gap-8 mt-8">
+        <Button kind="secondary" size="small" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button
+          kind="primary"
+          size="small"
+          onClick={onSend}
+          disabled={!body.trim() || !to || sending}
+        >
+          {sending ? 'Sending...' : 'Send'}
+        </Button>
       </div>
     </div>
   )

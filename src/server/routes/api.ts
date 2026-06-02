@@ -380,6 +380,10 @@ export default async (fastify: FastifyInstance) => {
           write({ event, data: updatedPayload })
           break
         }
+        case 'lot_mail': {
+          write({ event, data })
+          break
+        }
       }
     })
 
@@ -964,6 +968,85 @@ export default async (fastify: FastifyInstance) => {
     }
   )
 
+  // ============================================================================
+  // LOT Mail
+  // ============================================================================
+
+  fastify.post(
+    '/mail',
+    async (req: FastifyRequest<{ Body: { toName: string; body: string } }>, reply) => {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+
+      const toName = (req.body.toName || '').trim().slice(0, 200)
+      const body = (req.body.body || '').trim().slice(0, 1000)
+
+      if (!toName || !body) {
+        return reply.status(400).send({ error: 'toName and body are required' })
+      }
+
+      const mail = await fastify.models.LotMail.create({
+        senderUserId: req.user.id,
+        toName,
+        body,
+      })
+
+      const senderName = [req.user.firstName, req.user.lastName].filter(Boolean).join(' ') || 'Someone'
+
+      sync.emit('lot_mail', {
+        id: mail.id,
+        senderName,
+        toName,
+        body,
+        createdAt: mail.createdAt,
+      })
+
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'email_sent',
+        text: '',
+        metadata: {
+          mailId: mail.id,
+          toName,
+          body,
+        },
+        context,
+      })
+
+      return reply.ok()
+    }
+  )
+
+  fastify.get('/mail', async (req: FastifyRequest, reply) => {
+    const mails = await fastify.models.LotMail.findAll({
+      order: [['createdAt', 'DESC']],
+      limit: 20,
+    })
+
+    const senderIds = mails.map((m: any) => m.senderUserId)
+    const senders = senderIds.length > 0
+      ? await fastify.models.User.findAll({
+          where: { id: { [Op.in]: senderIds } },
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+      : []
+    const senderMap = senders.reduce((acc: any, u: any) => {
+      acc[u.id] = [u.firstName, u.lastName].filter(Boolean).join(' ') || 'Someone'
+      return acc
+    }, {} as Record<string, string>)
+
+    return mails.map((m: any) => ({
+      id: m.id,
+      senderName: senderMap[m.senderUserId] || 'Someone',
+      toName: m.toName,
+      body: m.body,
+      createdAt: m.createdAt,
+    }))
+  })
+
   fastify.get('/weather', async (req: FastifyRequest, reply) => {
     try {
       const { city, country } = req.user
@@ -1013,7 +1096,7 @@ export default async (fastify: FastifyInstance) => {
     const displayableEvents = [
       'note', 'answer', 'chat_message', 'chat_message_like',
       'emotional_checkin', 'settings_change', 'system_snapshot',
-      'weekly_summary_response',
+      'weekly_summary_response', 'email_sent',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
