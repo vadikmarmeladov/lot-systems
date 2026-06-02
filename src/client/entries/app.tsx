@@ -134,11 +134,7 @@ const PERSISTENT_ROUTES: PersistentRoute[] = ['system', 'logs', 'sync', 'setting
 
 function TabPanel({ route, active, children }: { route: string; active: boolean; children: React.ReactNode }) {
   return (
-    <div
-      style={{ display: active ? 'contents' : 'none' }}
-      data-tab={route}
-      {...(!active && { inert: '' as any })}
-    >
+    <div style={{ display: active ? 'contents' : 'none' }} data-tab={route}>
       {children}
     </div>
   )
