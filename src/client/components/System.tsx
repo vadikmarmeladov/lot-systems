@@ -184,16 +184,18 @@ export const System = () => {
     }
   }, [])
 
+  const answerLogs = React.useMemo(() => {
+    return logs.filter(log => log.event === 'answer')
+  }, [logs])
+
   // Journey calculations
   const journeyData = React.useMemo(() => {
-    // Count memory answers
-    const memoryAnswers = logs.filter(log => log.event === 'answer')
-    const answerCount = memoryAnswers.length
+    const answerCount = answerLogs.length
 
     // Calculate days since first answer
     let daysSinceStart = 0
-    if (memoryAnswers.length > 0) {
-      const firstAnswer = memoryAnswers[memoryAnswers.length - 1] // Oldest first
+    if (answerLogs.length > 0) {
+      const firstAnswer = answerLogs[answerLogs.length - 1] // Oldest first
       daysSinceStart = dayjs().diff(dayjs(firstAnswer.createdAt), 'day')
     }
 
@@ -201,7 +203,7 @@ export const System = () => {
       daysSinceStart: daysSinceStart > 0 ? daysSinceStart : answerCount > 0 ? 1 : 0,
       answerCount,
     }
-  }, [logs])
+  }, [answerLogs])
 
   // Quantum state - analyze intentions and get current user state
   const quantumState = React.useMemo(() => {
@@ -217,7 +219,6 @@ export const System = () => {
 
   // Calculate streak for evolution system
   const evolutionStreak = React.useMemo(() => {
-    const answerLogs = logs.filter(log => log.event === 'answer')
     if (answerLogs.length === 0) return 0
 
     // Get unique days with answers
@@ -243,7 +244,7 @@ export const System = () => {
       }
     }
     return streakDays
-  }, [logs])
+  }, [answerLogs])
 
   // Sync evolution state with achievements and progression
   useEvolutionSync(logs.length, evolutionStreak)
@@ -307,6 +308,8 @@ export const System = () => {
     const index = seed % options.length
     return options[index]
   }, [weather])
+
+  const optimalWidget = React.useMemo(() => getOptimalWidget(), [logs])
 
   // Community pulse — atmosphere layer
   const convergence = React.useMemo(() => getConvergenceSignal(), [])
@@ -813,9 +816,7 @@ export const System = () => {
             } catch (e) {}
           }
 
-          // Check if intention engine recognizes self-care need
-          const optimal = getOptimalWidget()
-          const intentionSuggestsSelfCare = optimal?.widget === 'selfcare'
+          const intentionSuggestsSelfCare = optimalWidget?.widget === 'selfcare'
 
           // Show if:
           // 1. Intention engine detects anxiety/overwhelm patterns, OR
@@ -825,8 +826,8 @@ export const System = () => {
           if (!shouldShow) return null
 
           // Store quantum reasoning for widget to display
-          if (intentionSuggestsSelfCare && optimal?.reason) {
-            localStorage.setItem('selfcare-quantum-reason', optimal.reason)
+          if (intentionSuggestsSelfCare && optimalWidget?.reason) {
+            localStorage.setItem('selfcare-quantum-reason', optimalWidget.reason)
           } else {
             localStorage.removeItem('selfcare-quantum-reason')
           }
@@ -849,9 +850,7 @@ export const System = () => {
           const cooldownPeriod = twoDaysMs + Math.random() * (threeDaysMs - twoDaysMs)
           const cooldownPassed = !lastShown || (Date.now() - parseInt(lastShown)) >= cooldownPeriod
 
-          // Check if intention engine recognizes need for direction
-          const optimal = getOptimalWidget()
-          const intentionSuggestsIntentions = optimal?.widget === 'intentions'
+          const intentionSuggestsIntentions = optimalWidget?.widget === 'intentions'
 
           // Show if:
           // 1. User has an existing intention to display, OR
@@ -864,8 +863,8 @@ export const System = () => {
             }
 
             // Store quantum reasoning for widget to display
-            if (intentionSuggestsIntentions && optimal?.reason) {
-              localStorage.setItem('intentions-quantum-reason', optimal.reason)
+            if (intentionSuggestsIntentions && optimalWidget?.reason) {
+              localStorage.setItem('intentions-quantum-reason', optimalWidget.reason)
             } else {
               localStorage.removeItem('intentions-quantum-reason')
             }
@@ -887,9 +886,7 @@ export const System = () => {
           )
           if (hasSubscription) return null
 
-          // Only show to engaged users (10+ Memory answers)
-          const answerCount = logs.filter(log => log.event === 'answer').length
-          if (answerCount < 10) return null
+          if (answerLogs.length < 10) return null
 
           // Check if clicked recently (10 days cooldown)
           const lastClicked = localStorage.getItem('subscribe-clicked')
