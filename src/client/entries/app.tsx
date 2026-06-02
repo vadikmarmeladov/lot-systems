@@ -29,6 +29,7 @@ import { useRadio } from '#client/utils/radio'
 import { sync } from '../sync'
 import { initRecipeWidget } from '#client/stores/recipeWidget'
 import { hydrateBadgesFromServer } from '#client/utils/badges'
+import { initPerfObserver } from '#client/utils/perf'
 
 // Error boundary to prevent blank page when a widget crashes
 class AppErrorBoundary extends React.Component<
@@ -133,11 +134,21 @@ const PERSISTENT_ROUTES: PersistentRoute[] = ['system', 'logs', 'sync', 'setting
 
 function TabPanel({ route, active, children }: { route: string; active: boolean; children: React.ReactNode }) {
   return (
-    <div style={{ display: active ? 'contents' : 'none' }} data-tab={route}>
+    <div
+      style={{ display: active ? 'contents' : 'none' }}
+      data-tab={route}
+      {...(!active && { inert: '' as any })}
+    >
       {children}
     </div>
   )
 }
+
+const MemoSystem = React.memo(System)
+const MemoLogs = React.memo(Logs)
+const MemoSync = React.memo(Sync)
+const MemoSettings = React.memo(Settings)
+const MemoApiPage = React.memo(ApiPage)
 
 const App = () => {
   const mirrorRef = React.useRef<HTMLVideoElement>(null)
@@ -158,8 +169,6 @@ const App = () => {
   const { data: weather, refetch: refetchWeather } = useWeather()
 
   const isLoaded = React.useMemo(() => {
-    // Only require user data to load - weather is optional
-    // Weather is only used in System and SelfCareMoments components
     return !!user
   }, [user])
 
@@ -236,6 +245,9 @@ const App = () => {
     // Initialize recipe widget periodic checking
     initRecipeWidget()
 
+    // Initialize interaction latency observer
+    initPerfObserver()
+
     return () => {
       unbindRouter()
     }
@@ -265,27 +277,27 @@ const App = () => {
       <Layout>
         {visitedRef.current.has('system') && (
           <TabPanel route="system" active={currentRoute === 'system'}>
-            <System />
+            <MemoSystem />
           </TabPanel>
         )}
         {visitedRef.current.has('logs') && (
           <TabPanel route="logs" active={currentRoute === 'logs'}>
-            <Logs />
+            <MemoLogs />
           </TabPanel>
         )}
         {visitedRef.current.has('sync') && (
           <TabPanel route="sync" active={currentRoute === 'sync'}>
-            <Sync />
+            <MemoSync />
           </TabPanel>
         )}
         {visitedRef.current.has('settings') && (
           <TabPanel route="settings" active={currentRoute === 'settings'}>
-            <Settings />
+            <MemoSettings />
           </TabPanel>
         )}
         {visitedRef.current.has('api') && (
           <TabPanel route="api" active={currentRoute === 'api'}>
-            <ApiPage />
+            <MemoApiPage />
           </TabPanel>
         )}
         {currentRoute === 'dm' && router?.params?.userId && (

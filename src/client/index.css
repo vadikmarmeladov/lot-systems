@@ -82,6 +82,29 @@ input:-webkit-autofill {
   *:focus {
     @apply outline-none;
   }
+
+  /* Content area layout containment — prevents hidden widget reflows from blocking the main thread */
+  #page {
+    contain: layout style;
+  }
+
+  /* Hidden tab panels — fully inert, no hit-testing, no layout cost */
+  [data-tab][style*="display: none"] {
+    contain: strict;
+    content-visibility: hidden;
+  }
+
+  /* Nav bar — isolated stacking context, GPU-promoted for instant response */
+  #nav {
+    contain: layout style;
+    will-change: transform;
+  }
+
+  /* Nav buttons — own compositing layer, no reflow from widget changes beneath */
+  #nav button {
+    will-change: transform;
+    touch-action: manipulation;
+  }
 }
 
 @layer components {
