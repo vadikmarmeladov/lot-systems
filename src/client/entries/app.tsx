@@ -130,9 +130,13 @@ if (typeof window !== 'undefined') {
 }
 
 type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api'
-const PERSISTENT_ROUTES: PersistentRoute[] = ['system', 'logs', 'sync', 'settings', 'api']
 
-function TabPanel({ route, active, children }: { route: string; active: boolean; children: React.ReactNode }) {
+function TabPanel({ route, children }: { route: string; children: React.ReactNode }) {
+  const router = useStore(stores.router)
+  const active = (router?.route ?? 'system') === route
+  const visitedRef = React.useRef(active)
+  if (active) visitedRef.current = true
+  if (!visitedRef.current) return null
   return (
     <div style={{ display: active ? 'contents' : 'none' }} data-tab={route}>
       {children}
@@ -140,21 +144,25 @@ function TabPanel({ route, active, children }: { route: string; active: boolean;
   )
 }
 
+function DynamicRoutes() {
+  const router = useStore(stores.router)
+  const currentRoute = router?.route ?? 'system'
+  return (
+    <>
+      {currentRoute === 'dm' && router?.params?.userId && (
+        <DirectMessageThread userId={router.params.userId} />
+      )}
+      {currentRoute === 'status' && <StatusPage noWrapper />}
+    </>
+  )
+}
+
 const App = () => {
   const mirrorRef = React.useRef<HTMLVideoElement>(null)
   const user = useStore(stores.me)
-  const router = useStore(stores.router)
   const isMirrorOn = useStore(stores.isMirrorOn)
   const isSoundOn = useStore(stores.isSoundOn)
   const isRadioOn = useStore(stores.isRadioOn)
-
-  const visitedRef = React.useRef<Set<PersistentRoute>>(new Set(['system']))
-
-  const currentRoute = router?.route ?? 'system'
-
-  if (PERSISTENT_ROUTES.includes(currentRoute as PersistentRoute)) {
-    visitedRef.current.add(currentRoute as PersistentRoute)
-  }
 
   const { data: weather, refetch: refetchWeather } = useWeather()
 
@@ -265,35 +273,22 @@ const App = () => {
     <>
       <ConnectionStatus />
       <Layout>
-        {visitedRef.current.has('system') && (
-          <TabPanel route="system" active={currentRoute === 'system'}>
-            <System />
-          </TabPanel>
-        )}
-        {visitedRef.current.has('logs') && (
-          <TabPanel route="logs" active={currentRoute === 'logs'}>
-            <Logs />
-          </TabPanel>
-        )}
-        {visitedRef.current.has('sync') && (
-          <TabPanel route="sync" active={currentRoute === 'sync'}>
-            <Sync />
-          </TabPanel>
-        )}
-        {visitedRef.current.has('settings') && (
-          <TabPanel route="settings" active={currentRoute === 'settings'}>
-            <Settings />
-          </TabPanel>
-        )}
-        {visitedRef.current.has('api') && (
-          <TabPanel route="api" active={currentRoute === 'api'}>
-            <ApiPage />
-          </TabPanel>
-        )}
-        {currentRoute === 'dm' && router?.params?.userId && (
-          <DirectMessageThread userId={router.params.userId} />
-        )}
-        {currentRoute === 'status' && <StatusPage noWrapper />}
+        <TabPanel route="system">
+          <System />
+        </TabPanel>
+        <TabPanel route="logs">
+          <Logs />
+        </TabPanel>
+        <TabPanel route="sync">
+          <Sync />
+        </TabPanel>
+        <TabPanel route="settings">
+          <Settings />
+        </TabPanel>
+        <TabPanel route="api">
+          <ApiPage />
+        </TabPanel>
+        <DynamicRoutes />
         {isMirrorOn && (
           <video
             ref={mirrorRef}
