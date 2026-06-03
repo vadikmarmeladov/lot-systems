@@ -4650,4 +4650,167 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       }
     }
   )
+
+  // ============================================================================
+  // BASICS RATION — LOT-FM-001
+  // ============================================================================
+
+  fastify.get('/basics/status', async (req: FastifyRequest, reply) => {
+    const user = await fastify.models.User.findByPk(req.user.id)
+    if (!user) return reply.status(404).send({ error: 'Not found' })
+
+    const ration = (user.metadata?.basicRation || {}) as Record<string, any>
+    const issues = await fastify.models.RationIssue
+      ? (fastify.models as any).RationIssue?.findAll({
+          where: { userId: req.user.id },
+          order: [['issueNumber', 'DESC']],
+          limit: 24,
+        }).then((rows: any[]) => rows.map((r: any) => r.toJSON()))
+      : []
+
+    return {
+      status: ration.status || null,
+      roster: ration.roster || null,
+      issueCount: ration.issueCount || 0,
+      nextIssueDate: ration.nextIssueDate || null,
+      activatedAt: ration.activatedAt || null,
+      issues: issues || [],
+    }
+  })
+
+  fastify.post('/basics/upgrade', async (req: FastifyRequest, reply) => {
+    const user = await fastify.models.User.findByPk(req.user.id)
+    if (!user) return reply.status(404).send({ error: 'Not found' })
+
+    const current = (user.metadata?.basicRation || {}) as Record<string, any>
+    if (current.status) {
+      return reply.status(400).send({ error: 'ALREADY ON STRENGTH OR PENDING' })
+    }
+
+    const updated = {
+      ...user.metadata,
+      basicRation: {
+        ...current,
+        status: 'pending',
+        activatedAt: null,
+      },
+    }
+    await user.update({ metadata: updated })
+
+    const context = await getLogContext(req.user)
+    await fastify.models.Log.create({
+      userId: req.user.id,
+      event: 'other',
+      text: 'Basic ration upgrade initiated',
+      metadata: { type: 'ration_upgrade', status: 'pending' },
+      context,
+    })
+
+    return { status: 'pending' }
+  })
+
+  fastify.post(
+    '/basics/roster',
+    async (
+      req: FastifyRequest<{
+        Body: {
+          size: string
+          address: string
+          city: string
+          country: string
+          cadenceStart: string | null
+        }
+      }>,
+      reply
+    ) => {
+      const user = await fastify.models.User.findByPk(req.user.id)
+      if (!user) return reply.status(404).send({ error: 'Not found' })
+
+      const { size, address, city, country } = req.body
+      if (!size || !address || !city || !country) {
+        return reply.status(400).send({ error: 'ROSTER INCOMPLETE' })
+      }
+
+      const current = (user.metadata?.basicRation || {}) as Record<string, any>
+
+      const now = dayjs()
+      const nextFirst = now.date() < 25
+        ? now.startOf('month').add(1, 'month').format('YYYY-MM-DD')
+        : now.startOf('month').add(2, 'month').format('YYYY-MM-DD')
+
+      const roster = { size, address, city, country, cadenceStart: nextFirst }
+      const newStatus = current.status === 'pending' ? 'on-strength' : current.status
+
+      const updated = {
+        ...user.metadata,
+        basicRation: {
+          ...current,
+          roster,
+          status: newStatus,
+          activatedAt: current.activatedAt || now.toISOString(),
+          nextIssueDate: nextFirst,
+          issueCount: current.issueCount || 0,
+        },
+      }
+      await user.update({ metadata: updated })
+
+      // Add Basic tag if activating
+      if (newStatus === 'on-strength' && !user.tags.includes(UserTag.Basic)) {
+        await user.update({ tags: [...user.tags, UserTag.Basic] })
+      }
+
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'other',
+        text: 'Basic ration roster confirmed',
+        metadata: { type: 'ration_roster', roster, status: newStatus },
+        context,
+      })
+
+      return { roster, status: newStatus, nextIssueDate: nextFirst }
+    }
+  )
+
+  fastify.post('/basics/stand-down', async (req: FastifyRequest, reply) => {
+    const user = await fastify.models.User.findByPk(req.user.id)
+    if (!user) return reply.status(404).send({ error: 'Not found' })
+
+    const updated = {
+      ...user.metadata,
+      basicRation: {
+        status: null,
+        roster: null,
+        issueCount: 0,
+        nextIssueDate: null,
+        activatedAt: null,
+      },
+    }
+    await user.update({ metadata: updated })
+
+    // Remove Basic tag, retain Usership
+    const nextTags = user.tags.filter((t: string) => t !== UserTag.Basic)
+    await user.update({ tags: nextTags })
+
+    const context = await getLogContext(req.user)
+    await fastify.models.Log.create({
+      userId: req.user.id,
+      event: 'other',
+      text: 'Basic ration stand down — ration stopped, AI plan retained',
+      metadata: { type: 'ration_stand_down' },
+      context,
+    })
+
+    return { status: null }
+  })
+
+  fastify.get('/basics/issues', async (req: FastifyRequest, reply) => {
+    const user = await fastify.models.User.findByPk(req.user.id)
+    if (!user) return reply.status(404).send({ error: 'Not found' })
+
+    const ration = (user.metadata?.basicRation || {}) as Record<string, any>
+    const issueLedger = (ration.issues || []) as any[]
+
+    return { issues: issueLedger, issueCount: ration.issueCount || 0 }
+  })
 }

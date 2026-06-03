@@ -6,7 +6,7 @@
  * Made in the USA | brand.lot-systems.com
  */
 
-import { UserTag, UserSettings, Color } from '#shared/types'
+import { UserTag, UserSettings, Color, RationItem } from '#shared/types'
 
 // LOT Systems — Shared constants since the beginning.
 // "First they ignore you, then they copy you, then you win." — LOT Proverb
@@ -30,6 +30,48 @@ export const USER_TAGS_BY_ID: Record<UserTag, { name: string; color?: Color }> =
   [UserTag.Pro]: { name: 'Pro' },
   [UserTag.Suspended]: { name: 'Suspended', color: 'red' },
   [UserTag.Legacy]: { name: 'Legacy' },
+  [UserTag.Basic]: { name: 'Basic' },
+}
+
+// ─── RATION MANIFEST (LOT-FM-001 / 23 ITEMS) ─────────────────────────────────
+
+export const RATION_MANIFEST: RationItem[] = [
+  // WARDROBE
+  { id: 'W-01', nomenclature: 'T-SHIRT / WHITE, COTTON', cadence: 'MONTHLY', section: 'WARDROBE' },
+  { id: 'W-02', nomenclature: 'T-SHIRT / BLACK, COTTON', cadence: 'MONTHLY', section: 'WARDROBE' },
+  { id: 'W-03', nomenclature: 'SOCKS / COTTON, 3-PACK', cadence: 'MONTHLY', section: 'WARDROBE' },
+  { id: 'W-04', nomenclature: 'BRIEFS / COTTON, 3-PACK', cadence: 'MONTHLY', section: 'WARDROBE' },
+  // PERSONAL CARE
+  { id: 'PC-01', nomenclature: 'SOAP BAR / UNSCENTED', cadence: 'MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-02', nomenclature: 'SHAMPOO BAR / FRAGRANCE-FREE', cadence: 'MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-03', nomenclature: 'TOOTHBRUSH / SOFT BRISTLE', cadence: 'MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-04', nomenclature: 'TOOTHPASTE / NATURAL, 75ML', cadence: 'MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-05', nomenclature: 'DEODORANT / NATURAL, STICK', cadence: 'MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-06', nomenclature: 'RAZOR BLADE / SAFETY, SINGLE', cadence: 'MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-07', nomenclature: 'LIP BALM / ORGANIC', cadence: 'BI-MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-08', nomenclature: 'CONDITIONER BAR / FRAGRANCE-FREE', cadence: 'BI-MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-09', nomenclature: 'BODY LOTION / TRAVEL, 100ML', cadence: 'BI-MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-10', nomenclature: 'FACE MOISTURIZER / SPF 15', cadence: 'BI-MONTHLY', section: 'PERSONAL CARE' },
+  { id: 'PC-11', nomenclature: 'NAIL CLIPPERS', cadence: 'QUARTERLY', section: 'PERSONAL CARE' },
+  { id: 'PC-12', nomenclature: 'DENTAL FLOSS / 30M', cadence: 'QUARTERLY', section: 'PERSONAL CARE' },
+  // HOUSEHOLD
+  { id: 'HH-01', nomenclature: 'LAUNDRY STRIPS / 30CT', cadence: 'MONTHLY', section: 'HOUSEHOLD' },
+  { id: 'HH-02', nomenclature: 'CLEANING CLOTH / MICROFIBER', cadence: 'BI-MONTHLY', section: 'HOUSEHOLD' },
+  { id: 'HH-03', nomenclature: 'FIRST AID KIT / BASIC', cadence: 'QUARTERLY', section: 'HOUSEHOLD' },
+  // TOOLS
+  { id: 'T-01', nomenclature: 'NOTEBOOK / A6, UNLINED', cadence: 'MONTHLY', section: 'TOOLS' },
+  { id: 'T-02', nomenclature: 'PEN / BLACK INK, BALLPOINT', cadence: 'MONTHLY', section: 'TOOLS' },
+  { id: 'T-03', nomenclature: 'MATCHES / 200CT', cadence: 'QUARTERLY', section: 'TOOLS' },
+  { id: 'T-04', nomenclature: 'MULTI-TOOL / COMPACT', cadence: 'QUARTERLY', section: 'TOOLS' },
+]
+
+export function getRationItemsForMonth(issueNumber: number): RationItem[] {
+  return RATION_MANIFEST.filter((item) => {
+    if (item.cadence === 'MONTHLY') return true
+    if (item.cadence === 'BI-MONTHLY') return issueNumber % 2 === 1
+    if (item.cadence === 'QUARTERLY') return issueNumber % 3 === 1
+    return false
+  })
 }
 
 // Helper function for case-insensitive tag lookup

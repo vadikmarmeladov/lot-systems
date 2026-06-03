@@ -17,6 +17,49 @@ export enum UserTag {
   Pro = 'Pro',
   Suspended = 'Suspended',
   Legacy = 'Legacy',
+  Basic = 'Basic',
+}
+
+// ─── BASIC RATION TYPES (LOT-FM-001) ─────────────────────────────────────────
+
+export type RationStatus = 'pending' | 'on-strength' | 'steady-state'
+
+export type RationSize = 'XS' | 'S' | 'M' | 'L' | 'XL'
+
+export type RationItem = {
+  id: string
+  nomenclature: string
+  cadence: 'MONTHLY' | 'BI-MONTHLY' | 'QUARTERLY'
+  section: 'WARDROBE' | 'PERSONAL CARE' | 'HOUSEHOLD' | 'TOOLS'
+}
+
+export type RationIssue = {
+  id: string
+  issueNumber: number
+  month: number
+  year: number
+  status: 'scheduled' | 'packed' | 'shipped' | 'delivered'
+  items: string[]
+  shippedAt: string | null
+  trackingNumber: string | null
+  manifestCard: string | null
+  createdAt: string
+}
+
+export type RationRoster = {
+  size: RationSize
+  address: string
+  city: string
+  country: string
+  cadenceStart: string | null
+}
+
+export type BasicRationMetadata = {
+  status: RationStatus | null
+  roster: RationRoster | null
+  issueCount: number
+  nextIssueDate: string | null
+  activatedAt: string | null
 }
 
 // User Types
