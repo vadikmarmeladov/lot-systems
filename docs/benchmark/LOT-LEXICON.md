@@ -24,4 +24,5 @@ RECOVERY PLATEAU   QIE P.65 — energy low 5+ consecutive days, same protocol   
 QOS MODE VIEW      6th QOS block — MAINTENANCE/RECOVERY/GROWTH/PEAK           A     20260603
 CQGS               Coherent Quantum Ground State — theoretical system ceiling  A     20260603
 VIRTUOUS CYCLE     More use → deeper profile → more resonant questions → more use A  20260603
+RENDER-ISOLATION   Subscriptions at narrowest scope; default variants subscribe 0   B  20260603
 ```

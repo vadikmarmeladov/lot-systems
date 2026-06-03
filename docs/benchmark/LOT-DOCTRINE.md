@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev B
+# LOT-DOCTRINE  rev C
 
 ## Render Isolation
 
@@ -10,3 +10,16 @@ visibility belongs in lightweight wrapper components, not the root.
 eliminated on tab switch. SR-20260603-01: unused Block subscriptions
 removed; per-item subscriptions lifted to parent in Sync; nav buttons
 memoized so only active-state changes trigger re-render.)
+
+## Subscription Minimization
+
+When a component serves multiple variants via a `kind` prop, each variant
+should subscribe only to the stores its rendering path requires. Variant
+dispatch (primary / secondary / secondary-rounded) belongs in thin private
+sub-components, not a single top-level component. The default variant
+(secondary) subscribes to nothing — any store added must earn its presence
+by being read in the render output.
+(SR-20260603-02: Button.tsx split into PrimaryBtn [theme only],
+SecondaryRoundedBtn [isMirrorOn only], secondary inline [no subscriptions].
+Eliminates wasted re-renders on every theme and mirror toggle for the
+majority of button instances in the system.)

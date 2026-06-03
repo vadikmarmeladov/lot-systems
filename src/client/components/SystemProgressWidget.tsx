@@ -720,18 +720,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-30',
+  date: '2026-06-03',
   message: [
-    'ASSEMBLY RUN — 2026-05-30 · v45',
-    'Three new patterns. 63: signal-burst — ten or more signals in a two-hour window. Dense cluster. What was driving this?',
-    '64: cross-domain-coherence — mood, body, reflection, memory all active in 48 hours. The full inner stack is present.',
-    '65: recovery-plateau — energy signals persistently low for five days. Same protocol not working. Shift the input.',
-    'Archetype 18 online: Coherence Holder. Mood, care, journal, memory — all layers alive simultaneously.',
-    'Log handlers 45–47 deployed: INTENT [VEL]: (velocity signal) · SIG [BURST]: (burst event) · QIE [PAT]: (pattern detection). Archive: 47 handlers.',
-    'QOS Mode view live. QuantumEngineWidgets now cycles through a sixth panel: Mode · Pressure · Active directives. The operating mode is computed live from energy and pattern state.',
-    'Background job 9 initialized: daily pattern coverage audit. Every day 23:00 UTC. Reports which QIE patterns fired — top patterns, user coverage rate, dormant patterns.',
-    'Status: 65 patterns. 18 archetypes. 47 log handlers. 9 background jobs. 79+ dep nodes.',
-    'DEPLOYED. The system now reads the inner stack. Burst. Coherence. Plateau. All registered.',
+    'ASSEMBLY RUN — 2026-06-03 · LOT-SR-20260603-02',
+    'Button.tsx subscription reduction complete.',
+    'Before: every button subscribed to both stores.theme and stores.isMirrorOn — regardless of kind.',
+    'After: secondary kind (the default, used across the system) subscribes to nothing. Primary subscribes to theme only. Secondary-rounded subscribes to isMirrorOn only.',
+    'The default variant now costs nothing on theme change or mirror toggle. Three stores. Three kinds. Exact match.',
+    'This completes the render isolation series: router (SR-20260602-01), Block/Sync/nav (SR-20260603-01), Button (SR-20260603-02).',
+    'Next: heavy widget lazy-mount. MicroGameWidget runs a 150ms game loop. QuantumEngineWidgets carries the most dependency weight.',
+    'DEPLOYED. Subscription lattice tightened. Military purity through the component tree.',
   ],
 }
 
