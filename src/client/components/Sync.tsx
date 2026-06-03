@@ -23,6 +23,7 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotEmailUnreadCount,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -30,6 +31,7 @@ import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+import { LotEmailInbox } from './LotEmailInbox'
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -37,9 +39,12 @@ export const Sync = () => {
   const isTouchDevice = useStore(stores.isTouchDevice)
   const queryClient = useQueryClient()
 
+  const [panel, setPanel] = React.useState<'chat' | 'mail'>('chat')
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
   const hasInitiallyLoaded = React.useRef(false)
+
+  const { data: unreadData } = useLotEmailUnreadCount()
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -185,6 +190,39 @@ export const Sync = () => {
 
   return (
     <div className="max-w-[700px]">
+      {/* Panel switcher */}
+      <div className="flex items-center gap-x-6 mb-60 border-b border-acc/10 pb-4">
+        <GhostButton
+          onClick={() => setPanel('chat')}
+          className={cn(
+            'text-sm',
+            panel === 'chat' ? 'text-acc' : 'text-acc/40'
+          )}
+        >
+          Chat
+        </GhostButton>
+        <GhostButton
+          onClick={() => setPanel('mail')}
+          className={cn(
+            'text-sm flex items-center gap-x-1',
+            panel === 'mail' ? 'text-acc' : 'text-acc/40'
+          )}
+        >
+          Mail
+          {!!unreadData?.count && (
+            <span className="text-xs bg-acc/20 text-acc/80 rounded-full px-1.5 py-0 leading-normal">
+              {unreadData.count}
+            </span>
+          )}
+        </GhostButton>
+      </div>
+
+      {panel === 'mail' && (
+        <LotEmailInbox />
+      )}
+
+      {panel === 'chat' && (
+      <>
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}
@@ -282,6 +320,8 @@ export const Sync = () => {
           )
         })}
       </div>
+      </>
+      )}
     </div>
   )
 }

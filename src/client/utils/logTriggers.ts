@@ -37,6 +37,7 @@ export type LogTrigger =
   | 'assembly-check'    // /assembly — trigger self-assembly module status check
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
+  | 'email-compose'     // /email to <name> — compose a LOT® Email
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -59,6 +60,7 @@ const RULES: TriggerRule[] = [
   { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
+  { trigger: 'email-compose',  emojis: ['✉️', '📧'], keywords: ['email'] },
 ]
 
 /**
@@ -106,4 +108,13 @@ export function detectNewTriggers(
   const fresh: LogTrigger[] = []
   current.forEach(t => { if (!prior.has(t)) fresh.push(t) })
   return fresh
+}
+
+/**
+ * Extracts the recipient handle from `/email to <name>` in text.
+ * Returns null if the pattern isn't present.
+ */
+export function extractEmailRecipient(text: string): string | null {
+  const match = text.match(/(?:^|\s)\/email\s+to\s+([^\n,]+)/i)
+  return match ? match[1].trim() : null
 }

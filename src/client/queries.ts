@@ -20,6 +20,7 @@ import {
   Log,
   Paginated,
   PublicChatMessage,
+  PublicLotEmail,
   User,
   UserProfile,
   UserSettings,
@@ -119,6 +120,27 @@ export const useSendDirectMessage = createMutation<
   { receiverId: string; message: string },
   void
 >('post', '/api/direct-messages')
+
+// LOT® Email
+export const useLotEmailInbox = createQuery<PublicLotEmail[]>(
+  '/api/lot-email/inbox',
+  { refetchOnWindowFocus: false }
+)
+
+export const useLotEmailUnreadCount = createQuery<{ count: number }>(
+  '/api/lot-email/unread-count',
+  { refetchInterval: 30_000 }
+)
+
+export const useSendLotEmail = createMutation<
+  { toHandle: string; subject?: string; body: string },
+  { id: string; toHandle: string; toUserId: string | null; resolved: boolean; recipientName: string | null }
+>('post', '/api/lot-email/send')
+
+export const useMarkLotEmailRead = createMutation<
+  { id: string },
+  { ok: boolean }
+>('put', (data) => `/api/lot-email/${data.id}/read`)
 
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,

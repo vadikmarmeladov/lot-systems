@@ -28,8 +28,9 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, extractEmailRecipient, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions } from '#client/stores/intentionEngine'
+import { LotEmailCompose } from './LotEmailCompose'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -47,6 +48,7 @@ export const Logs: React.FC = () => {
 
   const [isMouseActive, setIsMouseActive] = React.useState(true)
   const pendingPushRef = React.useRef<NodeJS.Timeout | null>(null)
+  const composeRecipient = useStore(stores.lotEmailCompose)
 
   const { data: loadedLogs = [], refetch: refetchLogs } = useLogs()
 
@@ -176,6 +178,12 @@ export const Logs: React.FC = () => {
       ref={containerRef}
       className="flex flex-col gap-y-[1.5rem] leading-[1.5rem] px-4 sm:px-0"
     >
+      {composeRecipient !== null && (
+        <LotEmailCompose
+          initialRecipient={composeRecipient}
+          onClose={() => stores.lotEmailCompose.set(null)}
+        />
+      )}
       <div ref={inputContainerRef} className="min-h-[200px]">
         {logById[recentLogId] ? (
           <NoteEditor
@@ -1251,6 +1259,9 @@ const NoteEditor = ({
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'email-compose') {
+        const recipient = extractEmailRecipient(value) || ''
+        stores.lotEmailCompose.set(recipient)
       }
     }
   }, [value])

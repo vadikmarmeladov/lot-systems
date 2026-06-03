@@ -83,5 +83,8 @@ export const lastAnsweredMemoryQuestionId = persistentAtom<string | null>(
   }
 )
 
+// LOT® Email compose trigger: null = closed, string = pre-filled recipient
+export const lotEmailCompose = atom<string | null>(null)
+
 // computed
 // ...

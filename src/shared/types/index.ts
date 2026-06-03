@@ -442,3 +442,31 @@ export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
 };
+
+// LOT® Email Types
+export type LotEmail = {
+  id: string;
+  fromUserId: string;
+  toUserId: string | null;
+  toHandle: string;
+  subject: string | null;
+  body: string;
+  isRead: boolean;
+  readAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type PublicLotEmail = LotEmail & {
+  from: Pick<User, 'id' | 'firstName' | 'lastName'> | null;
+};
+
+export type LotEmailSyncPayload = {
+  id: string;
+  fromUserId: string;
+  toUserId: string;
+  fromName: string;
+  subject: string | null;
+  preview: string;
+  createdAt: Date;
+};
