@@ -19,6 +19,7 @@ import { Sync } from '#client/components/Sync'
 import { DirectMessageThread } from '#client/components/DirectMessageThread'
 import { StatusPage } from '#client/components/StatusPage'
 import { ApiPage } from '#client/components/ApiPage'
+import { Basics } from '#client/components/Basics'
 import { ConnectionStatus } from '#client/components/ConnectionStatus'
 import { render } from '#client/utils/render'
 import { listenSSE } from '#client/utils/sse'
@@ -128,8 +129,8 @@ if (typeof window !== 'undefined') {
   })
 }
 
-type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api'
-const PERSISTENT_ROUTES: PersistentRoute[] = ['system', 'logs', 'sync', 'settings', 'api']
+type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api' | 'basics'
+const PERSISTENT_ROUTES: PersistentRoute[] = ['system', 'logs', 'sync', 'settings', 'api', 'basics']
 
 function TabPanel({ route, active, children }: { route: string; active: boolean; children: React.ReactNode }) {
   return (
@@ -286,6 +287,11 @@ const App = () => {
         {visitedRef.current.has('api') && (
           <TabPanel route="api" active={currentRoute === 'api'}>
             <ApiPage />
+          </TabPanel>
+        )}
+        {visitedRef.current.has('basics') && (
+          <TabPanel route="basics" active={currentRoute === 'basics'}>
+            <Basics />
           </TabPanel>
         )}
         {currentRoute === 'dm' && router?.params?.userId && (
