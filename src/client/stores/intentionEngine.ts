@@ -150,7 +150,7 @@ if (typeof window !== 'undefined') {
 /**
  * Helper: Safely check if user has current intention
  */
-function hasCurrentIntention(): boolean {
+export function hasCurrentIntention(): boolean {
   if (typeof window === 'undefined') return false
   try {
     return !!localStorage.getItem('current-intention')
