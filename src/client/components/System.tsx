@@ -77,6 +77,16 @@ import { BenchmarkWidget } from './BenchmarkWidget'
 import { ArchitectWidget } from './ArchitectWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
+import { useInViewport } from '#client/hooks/useInViewport'
+
+// Defers mount of children until element first enters the viewport.
+// Once mounted, stays mounted — no unmount on scroll away.
+// Prevents heavy store subscriptions from running before the widget is needed.
+function LazyMount({ children }: { children: React.ReactNode }) {
+  const ref = React.useRef<HTMLDivElement>(null)
+  const inViewport = useInViewport(ref)
+  return <div ref={ref}>{inViewport ? children : null}</div>
+}
 
 export const System = () => {
   const me = useStore(stores.me)
@@ -956,11 +966,11 @@ export const System = () => {
         </div>
       </WidgetErrorBoundary>
 
-      {/* Quantum Engine Connect Widgets */}
+      {/* Quantum Engine Connect Widgets — lazy-mounted: subscriptions only start when widget enters viewport */}
       <WidgetErrorBoundary name="Quantum Engine Connect">
-        <div>
+        <LazyMount>
           <QuantumEngineWidgets />
-        </div>
+        </LazyMount>
       </WidgetErrorBoundary>
 
       {/* CQGS Biofield Engine Widgets */}
