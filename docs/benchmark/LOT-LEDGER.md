@@ -6,5 +6,5 @@ Append-only index. One line per benchmark run. Never edit prior entries.
 ID             | CLASS        | SUMMARY                                              | RESULT | HASH    | METRIC
 ──────────────   ────────────   ────────────────────────────────────────────────────   ──────   ───────   ──────────────────────
 20260601-01    | ENGINEERING  | Bug fixes, reward gating, QR profiles, benchmark skill | GREEN  | 6d3055d | WORDS: 396 (median 396)
-20260604-01    | ENGINEERING  | Basics tab M1 — OPEN TAB, 23-item ledger, LOT-FM-001  | GREEN  | TBD     | WORDS: 441 (median 419)
+20260604-01    | ENGINEERING  | Basics tab M1 — OPEN TAB, 23-item ledger, LOT-FM-001  | GREEN  | f68d4c9 | WORDS: 441 (median 419)
 ```
