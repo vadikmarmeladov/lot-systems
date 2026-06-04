@@ -683,6 +683,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Status: 65 patterns. 18 archetypes. 47 log handlers. 9 background jobs. 79+ dep nodes. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-06-04',
+    session: 'Self-Assembly Session — v49 / Viewport Isolation · LazyMount · Game Loop Gate',
+    assembled: [
+      'useInViewport.ts: new shared hook. useInViewport (one-shot — stays true after first intersection, rootMargin 200px pre-mount). useActiveViewport (continuous — mirrors live intersection state, threshold 0.1). IntersectionObserver not-available fallback to true.',
+      'MicroGameWidget: containerRef added to Block inner div. useActiveViewport(containerRef) gates game loop useEffect. When off-screen: clearInterval fires, loop stops. On re-entry: loop restarts. Game state preserved across pause/resume. Dependency array: [gameId, inViewport].',
+      'System.tsx: LazyMount component added (11 lines). Renders null until element enters viewport (200px pre-mount margin), then mounts children permanently. QuantumEngineWidgets wrapped with LazyMount — intentionEngine + selfAssembly subscriptions now deferred until widget is near viewport.',
+      'Render isolation series complete through 4 layers: router (SR-20260602-01) → Block/Sync/nav (SR-20260603-01) → Button (SR-20260603-02) → game loop + lazy-mount (SR-20260604-01).',
+      'BUILD: GREEN (11.44s). Commit: 0fdf1d8. Deployed to claude/quantum-engine-widgets-RgFfC.',
+      'The system no longer runs when you are not looking.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -720,16 +732,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-03',
+  date: '2026-06-04',
   message: [
-    'ASSEMBLY RUN — 2026-06-03 · LOT-SR-20260603-02',
-    'Button.tsx subscription reduction complete.',
-    'Before: every button subscribed to both stores.theme and stores.isMirrorOn — regardless of kind.',
-    'After: secondary kind (the default, used across the system) subscribes to nothing. Primary subscribes to theme only. Secondary-rounded subscribes to isMirrorOn only.',
-    'The default variant now costs nothing on theme change or mirror toggle. Three stores. Three kinds. Exact match.',
-    'This completes the render isolation series: router (SR-20260602-01), Block/Sync/nav (SR-20260603-01), Button (SR-20260603-02).',
-    'Next: heavy widget lazy-mount. MicroGameWidget runs a 150ms game loop. QuantumEngineWidgets carries the most dependency weight.',
-    'DEPLOYED. Subscription lattice tightened. Military purity through the component tree.',
+    'ASSEMBLY RUN — 2026-06-04 · LOT-SR-20260604-01',
+    'Viewport isolation layer deployed. Two targets, two techniques.',
+    'MicroGameWidget: 150ms game loop now gated by IntersectionObserver. Loop stops when widget scrolls off-screen. Resumes on re-entry. Game state preserved across pause.',
+    'QuantumEngineWidgets: LazyMount wrapper in System.tsx. intentionEngine + selfAssembly subscriptions do not start until widget enters viewport. Once mounted — stays mounted. No thrash.',
+    'useInViewport.ts: new shared hook. useInViewport (one-shot, pre-mounts 200px early). useActiveViewport (continuous, for loop gating). Both fallback to true if IntersectionObserver unavailable.',
+    'Render isolation series: router → Block/Sync/nav → Button → game loop + lazy-mount.',
+    'Next: QuantumStateWidget + PatternRecognitionWidget — next two intentionEngine subscribers below the fold. Complete the viewport-isolation layer across the full CQGS block.',
+    'DEPLOYED. The system no longer runs when you are not looking.',
   ],
 }
 
