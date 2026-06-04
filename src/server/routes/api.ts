@@ -1013,7 +1013,7 @@ export default async (fastify: FastifyInstance) => {
     const displayableEvents = [
       'note', 'answer', 'chat_message', 'chat_message_like',
       'emotional_checkin', 'settings_change', 'system_snapshot',
-      'weekly_summary_response',
+      'weekly_summary_response', 'calendar_entry',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -3394,7 +3394,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     Body: {
       signals: Array<{
         timestamp: number
-        source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal'
+        source: string
         signal: string
         metadata?: Record<string, any>
       }>

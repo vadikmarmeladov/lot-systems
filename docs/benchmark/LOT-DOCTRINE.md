@@ -23,3 +23,17 @@ by being read in the render output.
 SecondaryRoundedBtn [isMirrorOn only], secondary inline [no subscriptions].
 Eliminates wasted re-renders on every theme and mirror toggle for the
 majority of button instances in the system.)
+
+## Async Signal Recording
+
+Synchronous QIE signal work (localStorage serialization, pattern analysis)
+must not block user-facing visual feedback. Defer signal recording via
+setTimeout(0) so React commits the render before expensive work runs.
+(SR-20260604-01: biofield cascade animation blocked by recordSignal;
+deferred to allow immediate visual response.)
+
+## Backend Whitelist Hygiene
+
+User-facing event types created via POST must appear in the GET
+displayableEvents whitelist or the write→read loop is silently broken.
+(SR-20260604-01: calendar_entry saved but never returned.)
