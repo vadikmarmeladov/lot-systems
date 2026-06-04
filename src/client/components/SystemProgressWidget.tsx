@@ -683,6 +683,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Status: 65 patterns. 18 archetypes. 47 log handlers. 9 background jobs. 79+ dep nodes. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-06-04',
+    session: 'Self-Assembly Session — v49 / Viewport Isolation · LazyMount · Game Loop Gate',
+    assembled: [
+      'useInViewport.ts: new shared hook. useInViewport (one-shot — stays true after first intersection, rootMargin 200px pre-mount). useActiveViewport (continuous — mirrors live intersection state, threshold 0.1). IntersectionObserver not-available fallback to true.',
+      'MicroGameWidget: containerRef added to Block inner div. useActiveViewport(containerRef) gates game loop useEffect. When off-screen: clearInterval fires, loop stops. On re-entry: loop restarts. Game state preserved across pause/resume. Dependency array: [gameId, inViewport].',
+      'System.tsx: LazyMount component added (11 lines). Renders null until element enters viewport (200px pre-mount margin), then mounts children permanently. QuantumEngineWidgets wrapped with LazyMount — intentionEngine + selfAssembly subscriptions now deferred until widget is near viewport.',
+      'Render isolation series complete through 4 layers: router (SR-20260602-01) → Block/Sync/nav (SR-20260603-01) → Button (SR-20260603-02) → game loop + lazy-mount (SR-20260604-01).',
+      'BUILD: GREEN (11.44s). Commit: 0fdf1d8. Deployed to claude/quantum-engine-widgets-RgFfC.',
+      'The system no longer runs when you are not looking.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -720,18 +732,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-05-30',
+  date: '2026-06-04',
   message: [
-    'ASSEMBLY RUN — 2026-05-30 · v45',
-    'Three new patterns. 63: signal-burst — ten or more signals in a two-hour window. Dense cluster. What was driving this?',
-    '64: cross-domain-coherence — mood, body, reflection, memory all active in 48 hours. The full inner stack is present.',
-    '65: recovery-plateau — energy signals persistently low for five days. Same protocol not working. Shift the input.',
-    'Archetype 18 online: Coherence Holder. Mood, care, journal, memory — all layers alive simultaneously.',
-    'Log handlers 45–47 deployed: INTENT [VEL]: (velocity signal) · SIG [BURST]: (burst event) · QIE [PAT]: (pattern detection). Archive: 47 handlers.',
-    'QOS Mode view live. QuantumEngineWidgets now cycles through a sixth panel: Mode · Pressure · Active directives. The operating mode is computed live from energy and pattern state.',
-    'Background job 9 initialized: daily pattern coverage audit. Every day 23:00 UTC. Reports which QIE patterns fired — top patterns, user coverage rate, dormant patterns.',
-    'Status: 65 patterns. 18 archetypes. 47 log handlers. 9 background jobs. 79+ dep nodes.',
-    'DEPLOYED. The system now reads the inner stack. Burst. Coherence. Plateau. All registered.',
+    'ASSEMBLY RUN — 2026-06-04 · LOT-SR-20260604-01',
+    'Viewport isolation layer deployed. Two targets, two techniques.',
+    'MicroGameWidget: 150ms game loop now gated by IntersectionObserver. Loop stops when widget scrolls off-screen. Resumes on re-entry. Game state preserved across pause.',
+    'QuantumEngineWidgets: LazyMount wrapper in System.tsx. intentionEngine + selfAssembly subscriptions do not start until widget enters viewport. Once mounted — stays mounted. No thrash.',
+    'useInViewport.ts: new shared hook. useInViewport (one-shot, pre-mounts 200px early). useActiveViewport (continuous, for loop gating). Both fallback to true if IntersectionObserver unavailable.',
+    'Render isolation series: router → Block/Sync/nav → Button → game loop + lazy-mount.',
+    'Next: QuantumStateWidget + PatternRecognitionWidget — next two intentionEngine subscribers below the fold. Complete the viewport-isolation layer across the full CQGS block.',
+    'DEPLOYED. The system no longer runs when you are not looking.',
   ],
 }
 

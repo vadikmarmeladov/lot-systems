@@ -60,11 +60,10 @@ protocol is plain text in the repo; any clone on any machine has the whole thing
 04  CHECK B     Re-run checks -- GREEN gate
                   red          -> fix-and-recheck loop until green
                   unrecoverable-> PLAN B (guarded rollback) — see step 04
-05  REPORT      Write Terminal Grid report -> docs/benchmark/ (NEW file)
-06  ROUTE       File produced artifacts into the correct existing docs/ subfolder
-07  DISTILL     Append LEDGER; update LEXICON; fold DOCTRINE; record compression
-08  PUSH        Commit + push on the CURRENT ship branch; tag benchmark-DATE-NN
-09  CHECK C     Post-push verification
+05  REPORT      Write Terminal Grid report -> docs/benchmark/ (NEW file); route artifacts
+06  DISTILL     Append LEDGER; update LEXICON; fold DOCTRINE; record compression
+07  PUSH        Commit + push on the CURRENT ship branch; tag benchmark-DATE-NN
+08  CHECK C     Post-push verification
 ```
 
 Nothing past step 04 runs while any check is red.
@@ -82,7 +81,7 @@ than discover it at push time.
 - `docs/` exists and is writable (else: report the problem, do not proceed).
 - A remote is configured and reachable: `git ls-remote --exit-code <remote> >/dev/null`.
   If unreachable, you may still run the local cycle but MUST mark the report
-  `REMOTE: UNREACHABLE` and SKIP step 08's push (record it as deferred).
+  `REMOTE: UNREACHABLE` and SKIP step 07's push (record it as deferred).
 
 **Orient (read the repo as it is now):**
 ```bash
@@ -150,21 +149,19 @@ Record classification, action, and target folder for the INTAKE block.
      S-2-authorized). The intended change is abandoned; the tree is restored.
      Rollback is a legitimate recorded outcome, not a failure to conceal.
 
-## STEP 05 — REPORT
+## STEP 05 — REPORT + ROUTE
 
 Write a NEW Terminal Grid `.MD` to **`docs/benchmark/`** using the template at the
 end of this file. ID `LOT-SR-YYYYMMDD-NN`; compute `NN` from existing files for
 today; NEVER overwrite. Record `VERSION` (last tag or short-hash) and the ship
 `BRANCH` in the header.
 
-## STEP 06 — ROUTE
-
 File produced artifact(s) into the correct EXISTING `docs/` subfolder from step
 00. If the natural folder is absent, file under the documented default and note
 it — do not silently spawn a competing folder. (A future `style/` auto-receives
 STYLE artifacts.)
 
-## STEP 07 — DISTILL (self-assembly core)
+## STEP 06 — DISTILL (self-assembly core)
 
 History is append-only; doctrine/lexicon are the compressing layer.
 
@@ -183,7 +180,7 @@ History is append-only; doctrine/lexicon are the compressing layer.
   compressed" ratio. If you want to note qualitative density, mark it
   `ESTIMATE`.
 
-## STEP 08 — PUSH (green only; current ship branch)
+## STEP 07 — PUSH (green only; current ship branch)
 
 Only reachable when CHECK B is green (or after a completed Plan-B rollback).
 Push to the **current ship branch** read in step 00 — do not switch branches.
@@ -199,7 +196,7 @@ If REMOTE was UNREACHABLE in step 00: commit and tag locally, mark the report
 > Benchmark tags are permanent infrastructure, not housekeeping. They are the
 > rollback lattice that makes multi-year recovery possible. Never prune them.
 
-## STEP 09 — CHECK C
+## STEP 08 — CHECK C (post-push verification)
 
 Re-run checks against the pushed state. Record GREEN/RED as the report's closing
 `POST-PUSH VERIFICATION`. Red post-push is a CRITICAL note for the next session.

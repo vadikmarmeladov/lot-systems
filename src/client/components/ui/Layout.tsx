@@ -17,6 +17,33 @@ type RouteName = 'sync' | 'logs' | 'system' | 'api' | 'settings'
 
 type NavItem = { label: string | null; spacer?: boolean; route?: RouteName }
 
+const NavButton = React.memo(function NavButton({
+  link,
+  isActive,
+  isMirrorOn,
+}: {
+  link: NavItem
+  isActive: boolean
+  isMirrorOn: boolean
+}) {
+  return (
+    <Button
+      kind="secondary-rounded"
+      className={cn(
+        'mb-4 flex-shrink-0',
+        !link.route && 'opacity-30 pointer-events-none',
+        isActive && (isMirrorOn
+          ? 'bg-white/20 hover:bg-white/30'
+          : 'bg-acc text-bac hover:bg-acc/90')
+      )}
+      onClick={link.route ? () => goTo(link.route!) : undefined}
+      disabled={!link.route}
+    >
+      {link.label}
+    </Button>
+  )
+})
+
 type Props = {
   children: React.ReactNode
   hideNav?: boolean
@@ -73,31 +100,21 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
                 'justify-end tablet:justify-start'
               )}
             >
-              {navLinks.map((link, i) => {
-                const isActive = link.route === currentRoute
-                return link.spacer ? (
+              {navLinks.map((link, i) =>
+                link.spacer ? (
                   <div
                     key={link.label ?? i}
                     className="flex-grow tablet:block hidden"
                   />
                 ) : (
-                  <Button
+                  <NavButton
                     key={link.label}
-                    kind="secondary-rounded"
-                    className={cn(
-                      'mb-4 flex-shrink-0',
-                      !link.route && 'opacity-30 pointer-events-none',
-                      isActive && (isMirrorOn
-                        ? 'bg-white/20 hover:bg-white/30'
-                        : 'bg-acc text-bac hover:bg-acc/90')
-                    )}
-                    onClick={link.route ? () => goTo(link.route!) : undefined}
-                    disabled={!link.route}
-                  >
-                    {link.label}
-                  </Button>
+                    link={link}
+                    isActive={link.route === currentRoute}
+                    isMirrorOn={isMirrorOn}
+                  />
                 )
-              })}
+              )}
             </nav>
           </div>
         </div>

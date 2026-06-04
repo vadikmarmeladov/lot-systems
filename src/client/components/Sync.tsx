@@ -35,6 +35,7 @@ export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
   const me = useStore(stores.me)
   const isTouchDevice = useStore(stores.isTouchDevice)
+  const isTimeFormat12h = useStore(stores.isTimeFormat12h)
   const queryClient = useQueryClient()
 
   const [message, setMessage] = React.useState('')
@@ -275,7 +276,7 @@ export const Sync = () => {
 
               {!isTouchDevice && (
                 <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40">
-                  <MessageTimeLabel dateString={x.createdAt} />
+                  <MessageTimeLabel dateString={x.createdAt} isTimeFormat12h={isTimeFormat12h} />
                 </div>
               )}
             </div>
@@ -286,8 +287,7 @@ export const Sync = () => {
   )
 }
 
-const MessageTimeLabel: React.FC<{ dateString: string }> = ({ dateString }) => {
-  const isTimeFormat12h = useStore(stores.isTimeFormat12h)
+const MessageTimeLabel: React.FC<{ dateString: string | Date; isTimeFormat12h: boolean }> = ({ dateString, isTimeFormat12h }) => {
   const date = dayjs(dateString)
   const now = dayjs()
   const isPast = now.diff(date, 'day') >= 1

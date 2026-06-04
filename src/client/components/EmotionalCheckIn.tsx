@@ -136,14 +136,16 @@ export function EmotionalCheckIn() {
     // Record which button was clicked for cascade effect
     setClickedButtonIndex(buttonIndex)
 
-    // Record intention signal for quantum pattern recognition
-    recordSignal('mood', emotionalState, { checkInType, hour })
-
     createCheckIn({
       checkInType,
       emotionalState,
       intensity: 5, // Default intensity
     })
+
+    // Defer signal recording so visual cascade plays immediately
+    setTimeout(() => {
+      recordSignal('mood', emotionalState, { checkInType, hour })
+    }, 0)
   }
 
   if (!shouldRender || !isDisplayed) return null

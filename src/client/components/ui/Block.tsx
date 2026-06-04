@@ -29,8 +29,6 @@ type Props = {
 export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
   const theme = useStore(stores.theme)
   const isMirrorOn = useStore(stores.isMirrorOn)
-  const baseColor = useStore(stores.baseColor)
-  const accentColor = useStore(stores.accentColor)
 
   const hoverClassName = isMirrorOn
     ? 'hover:bg-white/10 group-hover:bg-white/10'
@@ -47,7 +45,7 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
       color = `rgb(var(--acc-color-300) / 0.5)`
     }
     return { '--widget-progress-color': color } as React.CSSProperties
-  }, [props.inProgress, theme, isMirrorOn, baseColor, accentColor])
+  }, [props.inProgress, theme, isMirrorOn])
 
   return (
     <div

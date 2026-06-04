@@ -11,6 +11,7 @@ import { Block, Button } from '#client/components/ui'
 import { cn } from '#client/utils'
 import { recordSignal } from '#client/stores/intentionEngine'
 import { shouldShowRewardWidget } from '#client/stores/rewardWidgets'
+import { useActiveViewport } from '#client/hooks/useInViewport'
 import {
   playMoveSound, playRotateSound, playScoreSound, playDropSound,
   playShootSound, playEnemyHitSound, playGameOverSound, playSwitchSound,
@@ -744,10 +745,14 @@ const GAME_LABELS: Record<GameId, string> = {
 
 export function MicroGameWidget() {
   const [visible] = React.useState(() => shouldShowRewardWidget('micro_game'))
+  const containerRef = React.useRef<HTMLDivElement>(null)
   const canvasRef = React.useRef<HTMLCanvasElement>(null)
   const [gameId, setGameId] = React.useState<GameId>(pickGame)
   const [score, setScore] = React.useState(0)
   const [paused, setPaused] = React.useState(false)
+
+  // Pause game loop when widget is scrolled off-screen — eliminates idle 150ms ticks
+  const inViewport = useActiveViewport(containerRef)
 
   // Game state refs (avoid re-render per tick)
   const tetrisRef = React.useRef<TetrisState>(initTetris())
@@ -774,8 +779,9 @@ export function MicroGameWidget() {
     recordSignal('micro_game', 'switch', { game: next, bgTheme: bgRef.current.theme })
   }, [gameId])
 
-  // Main game loop
+  // Main game loop — only runs while widget is in viewport
   React.useEffect(() => {
+    if (!inViewport) return
     const canvas = canvasRef.current
     if (!canvas) return
     const ctx = canvas.getContext('2d')
@@ -814,7 +820,7 @@ export function MicroGameWidget() {
     }, TICK_MS)
 
     return () => clearInterval(iv)
-  }, [gameId])
+  }, [gameId, inViewport])
 
   // Keyboard controls
   React.useEffect(() => {
@@ -908,7 +914,7 @@ export function MicroGameWidget() {
 
   return (
     <Block label="Micro Game:" blockView onLabelClick={switchGame}>
-      <div className="max-w-[200px]">
+      <div ref={containerRef} className="max-w-[200px]">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <button

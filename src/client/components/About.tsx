@@ -268,7 +268,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v46</Meta>
+            <Meta>Field Manual v48</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -283,15 +283,15 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              Day 990+. Continuous operation since launch.
-              65 behavioral patterns active. 17 modules assembled.
+              Day 994+. Continuous operation since launch.
+              65 behavioral patterns active. 18 modules assembled.
               6 index dimensions. 5 ecosystem nodes. 18 physiological archetypes.
               79+ dependency nodes. 9 background jobs.
               47 log event handlers. 80+ active branches scanned.
               The system does not sleep. It accumulates.
             </P>
             <P>
-              Field Manual v46. Not marketing copy. Not documentation for external audiences.
+              Field Manual v48. Not marketing copy. Not documentation for external audiences.
               Operational reference for operators of the system.
               Definitions are exact. Terminology is fixed. Imprecision is a defect.
               Every term in this document exists in the codebase.
@@ -319,7 +319,7 @@ export function About() {
           <ul className="list-none pl-16 mb-16">
             <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive. 120-log context window.</Li>
             <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 65 patterns active. Zero server communication. 7-day signal retention.</Li>
-            <Li>Self-Assembly Engine — module coherence tracking. 17 modules. The system builds itself from operator activity.</Li>
+            <Li>Self-Assembly Engine — module coherence tracking. 18 modules. The system builds itself from operator activity.</Li>
             <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
           <P>
@@ -361,9 +361,9 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 990+ (as of June 1, 2026)" />
-          <Row label="Self-Assembly phase:" value="v46 — Field Manual v46 · v45 absorbed: patterns 63–65 named · Archetype 18 (Coherence Holder) · log handlers 45–47 · QOS Mode view · background job 9 · map synchronized — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed · badge documentation completed — v40: language refined · architecture confirmed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
-          <Row label="Assembly modules:" value="17 — Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
+          <Row label="Day counter:" value="Day 994+ (as of June 4, 2026)" />
+          <Row label="Self-Assembly phase:" value="v48 — Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
+          <Row label="Assembly modules:" value="18 — Resilience Protocol added v48 · Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
           <Row label="QIE pattern library:" value="65 patterns active" />
           <Row label="Physiological archetypes:" value="18 — Coherence Holder (v45) · Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
           <Row label="QOS views:" value="6 — Ecosystem · Biofield · Cohort · Index · Assembly · Mode" />
@@ -652,13 +652,13 @@ export function About() {
           <CodeBlock>{`API: GET /api/memory?d={base64_date}&qe={energy}&qc={clarity}&qa={alignment}&qn={needsSupport}
 Cache TTL: 12 hours
 Fallback: cached questions on provider failure
-Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup questions`}</CodeBlock>
+Safety net: 7 Together.AI models + 5 provider fallbacks + 70 emergency backup questions`}</CodeBlock>
 
           <SubHeading>Quantum Intent Engine</SubHeading>
           <P>
             Client-side pattern recognition. Runs entirely in the browser.
             Zero server communication. No behavioral data leaves the device.
-            55 patterns active as of v41.
+            65 patterns active as of v46.
           </P>
           <P>Seven signal sources:</P>
           <ul className="list-none pl-16 mb-16">
@@ -787,6 +787,12 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup qu
             <Row label="P.53 — Intention Crystallization" value="0.87 (fixed) · intentions source + planner source + goals source all fire within a 2-hour window · the full execution loop compressed into one session · declare → plan → act · inverse of P.47 (intention-decay): P.47 fires when the loop stalls, P.53 fires when it crystallizes in real time · distinct from P.50 (intention-follow-through, 48h window) and P.43 (intention-completion-arc, requires journal) · suggested: goals (capture) · deployed v39" />
             <Row label="P.54 — OS Vitals Convergence" value="0.70–0.92 · User Index overall ≥65 + energy score ≥2 (from recent mood signals) + 5+ unique signal sources active in last 7 days + no physiological-depletion pattern active (AND gate) · peak operating state: index, energy, and signal breadth all converge without depletion · confidence scales: 0.70 + (index − 65) × 0.01 capped 0.92 · suggested: systemProgress · VITL log signal · deployed v39" />
             <Row label="P.55 — Signal Drought" value="0.55–0.82 · 3+ of 7 core signal sources (mood / memory / planner / intentions / selfcare / journal / energy) absent for 7 consecutive days, with total signal history ≥10 (not a new user) · names the absent sources explicitly: 'Signal drought: N sources dark for 7 days (X, Y, Z)' · confidence: 0.55 + absent count × 0.06 capped 0.82 · suggested widget: first absent source or selfcare · distinct from P.51 (signal-silence, which fires after sustained engagement then full quiet) — P.55 fires on chronic partial absence across sources · DRTH log signal · deployed v39" />
+            <Row label="P.56 — Circadian Anchor" value="0.60–0.88 · stable daily rhythm detected from log signal timestamps · groups signals into 2-hour buckets across a 7-day window · fires when any bucket covers 5+ consecutive active days · confidence: 0.60 + (anchorDays − 5) × 0.05, capped 0.88 · suggested: memory (passive) · Reason: 'Circadian anchor detected. Rhythm established. Deepening this window maximizes signal quality.' · deployed v42" />
+            <Row label="P.57 — Intention Completion Arc" value="0.65–0.90 · full intention → plan → care cycle within 7 days · looks for intentions source signals in last 7 days, cross-references with planner and selfcare signals in same window · arc strength = sum of three source signal counts (capped at 9) · confidence: 0.65 + arcStrength × 0.03, capped 0.90 · suggested: memory (soon) · 'Intention → plan → care arc complete within 7 days. Anchor it in memory before it fades.' · deployed v42" />
+            <Row label="P.58 — Self-Care Saturation" value="0.60–0.80 · over-engagement with self-care practices detected · counts selfcare source signals in last 48 hours, fires when count ≥ 5 · confidence: 0.60 + (count − 5) × 0.04, capped 0.80 · suggested: journal (next-session) · 'Self-care saturation: N care actions in 48h. Shift from doing to reflecting.' · deployed v42" />
+            <Row label="P.63 — Signal Burst" value="0.65–0.82 · 10+ signals arrive in any 2-hour window within a 24-hour period · dense engagement cluster made visible · confidence: 0.65 + (burst count / total count) × 0.17, capped 0.82 · suggested: journal (next-session) · SIG [BURST]: log handler fires · deployed v45" />
+            <Row label="P.64 — Cross-Domain Coherence" value="0.78–0.90 · mood (emotional) + self-care (physical) + journal (reflective) + memory (stored) all activate within 48 hours · the full inner stack alive simultaneously · all four inner domain layers present at once · confidence: 0.78 + (overlap hours inverse) × 0.12, capped 0.90 · suggested: memory (passive) · deployed v45" />
+            <Row label="P.65 — Recovery Plateau" value="0.70 (fixed) · energy signals span 5+ consecutive days with consistent low readings · ≥50% of all energy signals in window below threshold · same protocol not producing recovery — shift required · confidence fixed at 0.70 · suggested: self-care (soon) · Archetype 18 (Coherence Holder) trigger · deployed v45" />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -806,20 +812,58 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
 
           <SubHeading>Self-Assembly Engine</SubHeading>
           <P>
-            Tracks how 17 system modules activate and cohere around user activity.
+            Tracks how 18 system modules activate and cohere around user activity.
             Original 9 modules: biofield, memory, planner, intentions, selfcare,
             journal, community, ecosystem, quantum. Five additional modules wired
             through Self-Assembly phases v8–v10. Module 14: calendar (Temporal
             Planner), added in v10. Module 15: quantum-os (QuantumOS snapshot),
             added in v25. Module 16: log (Signal Archive) — the field entry and
             signal persistence layer, wired in v39. Module 17: qos (Quantum OS
-            surface) — the live operating state layer, wired in v39. v16 extended
-            the ecosystem module with two wearable nodes — phone (PHN) and watch
-            (WCH) — and wired their signals to QIE patterns 31–34.
+            surface) — the live operating state layer, wired in v39. Module 18:
+            resilience — the Resilience Protocol module, added May 29, 2026.
+            Assembles when the operator engages with medical questions and
+            trauma-informed questions over time. Sources: medical and resilience
+            signal types. Wires into biofield module via cross-signal routing.
+            v16 extended the ecosystem module with two wearable nodes — phone
+            (PHN) and watch (WCH) — and wired their signals to QIE patterns 31–34.
             Each new module expands the system's coherence surface. The dep graph
-            closes at 17 modules: every signal channel has a home. The architecture
-            is complete at this tier. Future expansion follows new signal types.
+            reaches 18 modules at v48.
           </P>
+          <SubHeading>Resilience Protocol</SubHeading>
+          <P>
+            Module 18 of the Self-Assembly Engine. ID: resilience. Label:
+            Resilience Protocol. Introduced May 29, 2026 via the Integrated
+            Resilience System integration — three nodes connected: Self-Assembly
+            Engine, Medical Records, and PTSD Protocol.
+          </P>
+          <P>
+            The module assembles when the operator engages with medical and
+            trauma-informed questions. Assembly path: DORMANT (no signals) →
+            AWAKENING (1+ signal) → FORMING (5+ signals) → ASSEMBLED (15+ signals)
+            → INTEGRATED (30+ signals, cross-module data flows).
+          </P>
+          <P>
+            Signal routing: source type medical feeds the resilience module and
+            the memory module. Source type resilience feeds the resilience module
+            and the biofield module. Chakra Engine integration: Solar Plexus
+            gains +5 charge per eating recovery signal (nourishment = core energy).
+            Root gains +3 per medical/resilience signal (body awareness = grounding).
+          </P>
+          <P>
+            The eating disorder extension (May 30, 2026) adds 6 profile dimensions:
+            restriction, bingeing, purging, body dissatisfaction, food anxiety,
+            recovery signals. Composite score weights: behavioral clusters 50%,
+            C-PTSD indicators 30%, eating disorder 20%. When any eating disorder
+            dimension reaches threshold 17, the AI prompt shifts to frame food as
+            nourishment and care — never weight, calories, or appearance.
+          </P>
+          <div className="mb-16">
+            <Row label="Backup question pool" value="70 total — 29 self-care + 15 medical + 18 trauma-informed + 8 eating recovery" />
+            <Row label="Trauma indicator dimensions" value="7 — hyperarousal · avoidance · negative self-concept · re-experiencing · interpersonal · affect dysregulation · eating disorder" />
+            <Row label="Trauma sources tracked" value="11 — including eating disorder added May 30" />
+            <Row label="Recovery categories" value="7 — including nutrition recovery added May 30" />
+            <Row label="Medical cohort qualification" value="assessMedicalProfile() + qualifiesForPaidCohort() — requires 10+ answers AND 3+ medical answers OR 2+ data points" />
+          </div>
           <SubHeading>Assembly Transmission Layer</SubHeading>
           <P>
             Fifth cycle point in the System Progress widget. View label:
@@ -870,7 +914,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
 
           <SubHeading>Self-Assembly Phase Log</SubHeading>
           <P>
-            40 phases documented. Each phase names a structural expansion.
+            47 phases documented. Each phase names a structural expansion.
             Each is committed, dated, versioned. The log is permanent.
           </P>
           <div className="mb-16">
@@ -920,6 +964,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v44" value="Engineering pass: bug fixes · reward gating · QR profiles · benchmark skill · post-push verification GREEN · production build confirmed" />
             <Row label="v45" value="P.63 signal-burst (10+ signals / 2h window, conf 0.65–0.82) · P.64 cross-domain-coherence (all 4 inner domains within 48h, conf 0.78–0.90) · P.65 recovery-plateau (energy low 5+ days, conf 0.70) · Archetype 18 Coherence Holder · log handlers 45 INTENT [VEL]: · 46 SIG [BURST]: · 47 QIE [PAT]: · QOS Mode 6th view · background job 9 daily-pattern-coverage-audit 23:00 UTC · 65 patterns · 47 handlers · 9 jobs · 18 archetypes · 6 QOS views · dep map 79+" />
             <Row label="v46" value="Field Manual v46 · all v45 additions documented · operating status synchronized · vocabulary expanded with new patterns and archetypes · interface language refined · the map and the territory are synchronized · Day 990+" />
+            <Row label="v47" value="Wiki June 2026 Audit · all branches rescanned (80+) · P.56–58 (circadian-anchor, intention-completion-arc, self-care-saturation) documented · P.63–65 fully detailed in Extended Patterns · Coherence Holder (Archetype 18) full entry added · stale pattern and archetype counts corrected throughout · vocabulary synchronized with codebase · military purity interface pass · Day 993+" />
+            <Row label="v48" value="Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented in full · eating disorder healing protocol integrated (6 dimensions, 8 backup questions) · medical cohort qualification added (assessMedicalProfile · qualifiesForPaidCohort) · Chakra Engine wired to medical and resilience signals (Solar Plexus + Root) · backup question pool: 70 total (29 self-care + 15 medical + 18 trauma + 8 eating recovery) · COSMO® robotics division first documented in Field Manual · Soul Sync Protocol™ · Benchmark Arbitrage™ · Day 994+" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -946,8 +992,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v46. Phase name: Field Manual Synchronization — v45 state absorbed and documented.
-            46 iterations since continuous operation began.
+            Current phase: v48. Phase name: Full Wiki Scan June 4 — Resilience Protocol (Module 18) documented, eating disorder healing protocol integrated, medical cohort qualification added, COSMO® robotics division introduced, vocabulary synchronized.
+            47 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -996,7 +1042,9 @@ v42   Tab-switching architecture · reward widget gating · widget performance t
 v43   Production cleanup · profile fix · QR code Usership public profiles
 v44   Benchmark skill protocol · engineering pass · post-push verification GREEN
 v45   P.63 signal-burst · P.64 cross-domain-coherence · P.65 recovery-plateau · Archetype 18 · handlers 45–47 · QOS Mode view · job 9 · 65 patterns · 47 handlers · 9 jobs
-v46   Field Manual v46 · all additions documented · language refined · map synchronized · Day 990+`}</CodeBlock>
+v46   Field Manual v46 · all additions documented · language refined · map synchronized · Day 990+
+v47   Wiki June 2026 Audit · branches rescanned · P.56–58 & P.63–65 documented · Coherence Holder full entry · stale counts corrected · vocabulary expanded · military purity pass · Day 993+
+v48   Full Wiki Scan June 4 · Resilience Protocol (Module 18) · eating disorder protocol · medical cohort qualification · Chakra Engine wired · 70 backup questions · COSMO® documented · Day 994+`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -1281,7 +1329,7 @@ CQGS Health scan: system-wide physiological health distribution`}</CodeBlock>
           <SubHeading>CQGS Health Monitor</SubHeading>
           <P>
             Introduced in Self-Assembly v23. CQGS — Coherent Quantum Ground State
-            — is the theoretical maximum engagement state: all 17 modules
+            — is the theoretical maximum engagement state: all 18 modules
             integrated, all 5 ecosystem nodes connected, QIE at P.34 confidence,
             User Index at peak across all 6 dimensions.
           </P>
@@ -1304,7 +1352,7 @@ CQGS Health scan: system-wide physiological health distribution`}</CodeBlock>
             <Row label="Scan cadence" value="weekly at 04:00 UTC Wednesday" />
             <Row label="Output" value="OS Journal vitals entry — engagement distribution + coherence score + pattern density" />
             <Row label="Privacy" value="aggregate only — no per-operator data in health record" />
-            <Row label="CQGS condition" value="17 modules + 5 nodes + P.34 + peak User Index — theoretical ceiling" />
+            <Row label="CQGS condition" value="18 modules + 5 nodes + P.34 + peak User Index — theoretical ceiling" />
           </div>
 
           <SubHeading>QuantumOS Snapshot (v25)</SubHeading>
@@ -1455,7 +1503,7 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
           <P>
             Soul archetypes are distinct from physiological archetypes.
             Soul archetypes classify psychological nature. Physiological
-            archetypes (15 types, listed under Behavioral Cohorts) classify
+            archetypes (18 types, listed under Behavioral Cohorts) classify
             bodily rhythm and operational state. Both systems run simultaneously.
             Both are displayed in the QOS Cohort view.
           </P>
@@ -1527,7 +1575,7 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             signal patterns — biofield strength, self-care frequency, and
             energy state consistency. Distinct from behavioral cohorts.
             Physiological cohorts operate on bodily rhythm, not temporal habit.
-            Sixteen named archetypes as of v33. Classification is client-side,
+            Eighteen named archetypes as of v45. Classification is client-side,
             QIE-native, requires no server call.
           </P>
           <div className="mb-16">
@@ -1547,6 +1595,7 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             <Row label="Social Synthesizer" value="high community engagement · CohortConnect active · cohort signal converging · P.44 social-resonance-arc · directive: social coherence active — anchor this connection cycle · SOCR log handler" />
             <Row label="Clarity Architect" value="cognitive saturation peak followed by structured decompression · P.45 cognitive-load-release · planner cleared + journal depth + self-care within 24h, no overload patterns active · directive: decompression loop complete — load released, the system breathes · RLSE log handler" />
             <Row label="Intention Executor" value="execution arc confirmed · P.50 intention-follow-through + P.46 temporal-coherence-window + P.49 care-momentum all active · intentions / planner / goals dominant · moderate–high energy · directive: execution arc complete — intention is lived, not declared, scale what works · INTF log handler" />
+            <Row label="Coherence Holder" value="Archetype 18 · all four inner domain layers simultaneously active: mood (emotional) + body (physical) + reflection (journal) + memory (stored) · P.64 cross-domain-coherence + P.65 recovery-plateau both present · the full inner stack held without overload · directive: all layers present — hold this state · deployed v45" />
           </div>
 
           <SubHeading>Quantum Pattern Cohorts</SubHeading>
@@ -1597,7 +1646,7 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             <Row label="QIE Signal  ✦" value="quantum intent patterns fired" />
           </div>
           <P>
-            The ◉ Transparent stage is the theoretical ceiling. All 17 modules
+            The ◉ Transparent stage is the theoretical ceiling. All 18 modules
             integrated. All five ecosystem nodes connected. QIE at full
             pattern coverage. User Index at peak across all six dimensions.
             This is the CQGS — not a target, a reference point. The system
@@ -2064,9 +2113,10 @@ Ch.5  SAGE           Level 90–100
             <Row label="Recipe Widget" value="archetype-matched meal suggestions" />
             <Row label="Fasting Widget" value="Christian fasting calendar integration" />
             <Row label="Energy Capacitor" value="energy state visualization and tracking" />
-            <Row label="MicroGame" value="embedded micro-interaction game" />
+            <Row label="MicroGame" value="embedded micro-interaction game — reward-gated · weekly cooldown · milestone threshold required" />
             <Row label="MicroCalculator" value="inline calculation utility" />
-            <Row label="MicroImage" value="procedural pixel art keyed to punctuation tone" />
+            <Row label="MicroImage" value="procedural pixel art keyed to punctuation tone — reward-gated · weekly cooldown" />
+            <Row label="Profile QR Code" value="80×80 canvas · theme-responsive (accent fg, base bg) · encodes lot-systems.com/u/{'{username}'} · error correction level M · USERSHIP only · renders in public profile and Settings preview" />
           </div>
 
           <SubHeading>System Widgets</SubHeading>
@@ -2219,7 +2269,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="CQGS"
-              value="Coherent Quantum Ground State. The maximum integration reference. All 17 modules active. All 5 nodes connected. All 6 index dimensions at peak. The system reports distance to it — not progress toward it."
+              value="Coherent Quantum Ground State. The maximum integration reference. All 18 modules active. All 5 nodes connected. All 6 index dimensions at peak. The system reports distance to it — not progress toward it."
             />
             <Row
               label="Intention Completion Arc"
@@ -2608,6 +2658,38 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
           </div>
 
+          <SubHeading>Corporate & Product Terms</SubHeading>
+          <div className="mb-16">
+            <Row
+              label="COSMO®"
+              value="Personal robotics division of LOT Systems. Named after Kuzya Cosmo Marmeladov — son of the founder. A COSMO® unit carries the behavioral signature of its owner, derived from 90+ days of QIE pattern accumulation. Requires Purple-tier Benchmark Arbitrage™ score or higher. A unit without a verified LOT profile does not activate. Target hardware availability: 2028–2029."
+            />
+            <Row
+              label="Soul Sync Protocol™"
+              value="The transfer process that compresses an operator's behavioral signature — 65 patterns, 18 archetypes, User Index, streak, journal depth, intention execution rate — into a portable profile for COSMO® hardware. Requires Purple Benchmark score (60+). Continuous sync via Quantum OS. Disconnection is instant and permanent."
+            />
+            <Row
+              label="Benchmark Arbitrage™"
+              value="The gate mechanism for COSMO® eligibility. Not a credit score. A character score — computed from sustained behavioral action across months. White (0–19) and Green (20–39): not eligible. Yellow (40–59): review eligible. Purple (60–79): eligible. Black (80–100): priority eligible."
+            />
+            <Row
+              label="CHAKRA-ENGINE"
+              value="Seven-chakra ergonomic model derived from QIE signals. Each chakra receives charge from specific behavioral signal types. Root (Muladhara): medical and resilience signals — grounding. Solar Plexus (Manipura): eating recovery signals — core energy. Crown: memory depth. Wired to self-assembly signal routing since May 2026."
+            />
+            <Row
+              label="GREEN-GATE"
+              value="Build verification gate. All system checks must pass before a commit can be pushed. yarn build passing is the minimum threshold. No red code leaves the tree. The gate is not optional — it is the standard."
+            />
+            <Row
+              label="Resilience"
+              value="PTSD/C-PTSD trauma-informed protocol module. Self-Assembly Module 18. Detects 7 trauma indicator dimensions and 11 trauma sources from journal and memory answer language. Adjusts AI prompt framing when indicators detected — questions become gentler, more supportive. The profile is not stored — it is computed fresh each generation cycle."
+            />
+            <Row
+              label="IPO"
+              value="LOT Systems public offering target: $4.00 per share, January 25, 2027. Listed under LOT Systems, Inc. COSMO® robotics division is the growth-stage justification for the valuation. The software platform is Phase 1."
+            />
+          </div>
+
           <SubHeading>Operational Terms</SubHeading>
           <div className="mb-16">
             <Row
@@ -2704,7 +2786,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Pattern Library"
-              value="The complete set of 52 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase."
+              value="The complete set of 65 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase. P.1–P.7 core launch patterns · P.8–P.55 expansion phases v8–v39 · P.56–P.58 v42 additions (circadian-anchor, intention-completion-arc, self-care-saturation) · P.63–P.65 v45 additions (signal-burst, cross-domain-coherence, recovery-plateau)."
             />
             <Row
               label="Surfacing"
@@ -2744,7 +2826,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="CQGS"
-              value="Coherent Quantum Ground State. The theoretical maximum engagement state. All 15 modules integrated. All 5 ecosystem nodes connected. QIE at P.34 confidence. User Index at peak across all 6 dimensions."
+              value="Coherent Quantum Ground State. The theoretical maximum engagement state. All 18 modules integrated. All 5 ecosystem nodes connected. QIE at P.34 confidence (0.98). User Index at peak across all 6 dimensions. 18 physiological archetypes classified. The ceiling is not a target — it is a reference point. The system reports distance to it."
             />
             <Row
               label="Vitals"
@@ -2939,6 +3021,18 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               value="QIE Pattern 65. Fires when energy signals span 5 or more consecutive calendar days with consistently low readings — low-energy events constitute ≥50% of all energy signals in the window. Same recovery protocol not producing results. The plateau is named, not the failure. Confidence 0.70 (fixed — either present or not). Suggests self-care (soon): shift the approach, rest mode needs a new input. Distinct from P.48 (recovery-velocity): P.48 measures the arc of a single recovery event; P.65 detects when the arc is not completing across multiple days. Added in v45."
             />
             <Row
+              label="Circadian Anchor"
+              value="QIE Pattern 56. Fires when a stable daily rhythm is detected from log signal timestamps — the same 2-hour bucket covering 5+ consecutive active days within a 7-day window. Confidence 0.60–0.88, scaling with anchored days beyond 5. The system confirms the rhythm exists before naming it. Suggested widget: memory (passive). 'Circadian anchor detected. Rhythm established. Deepening this window maximizes signal quality.' Deployed v42."
+            />
+            <Row
+              label="Intention Completion Arc (P.57)"
+              value="QIE Pattern 57. Fires when the full care-intention cycle closes within 7 days: intentions source signals found in the last 7 days, cross-referenced with planner signals and selfcare signals in the same window. Arc strength = sum of three source counts (capped at 9). Confidence 0.65–0.90. Distinct from P.43 (intention-completion-arc, which requires journal entry and completes in 24h) and P.50 (intention-follow-through, 48h execution arc). P.57 tracks the slower, week-scale care-intention loop. Deployed v42."
+            />
+            <Row
+              label="Self-Care Saturation"
+              value="QIE Pattern 58. Fires when ≥5 self-care signals are recorded within any 48-hour window. Detects over-engagement with care practices — when the care rate exceeds what sustains, the system names the saturation. Confidence 0.60–0.80, scaling with count beyond threshold (+0.04 per event, capped 0.80). Distinct from P.49 (care-momentum, proactive maintenance): P.49 fires when care is steady and the field is clear. P.58 fires when care density is excessive. Suggested widget: journal (next-session). 'Self-care saturation: N care actions in 48h. Shift from doing to reflecting.' Deployed v42."
+            />
+            <Row
               label="NoteEditor QIE Wiring"
               value="Self-Assembly v35 structural connection. NoteEditor autosave now fires recordJournalSignal() on each save (primary path for journal entries) and recordLogSignal() for field entries. The biofield loop is fully connected — every written word reaches the Quantum Intent Engine without operator action."
             />
@@ -2980,7 +3074,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Quantum OS (QOS module)"
-              value="Self-Assembly Module 17. ID: qos. Label: Quantum OS. Activates on qos_snapshot, qos_phase_transition, and ecosystem_full_coherence events. The live operating state surface module — distinct from the quantum-os module (15th, which captures point-in-time snapshots). Module 17 tracks the QOS surface itself as it transitions between states. Wired in v39. Closes the module graph at 17."
+              value="Self-Assembly Module 17. ID: qos. Label: Quantum OS. Activates on qos_snapshot, qos_phase_transition, and ecosystem_full_coherence events. The live operating state surface module — distinct from the quantum-os module (15th, which captures point-in-time snapshots). Module 17 tracks the QOS surface itself as it transitions between states. Wired in v39. Module 18 (Resilience Protocol) added May 2026."
             />
             <Row
               label="NUTR:"
@@ -2997,6 +3091,42 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row
               label="PHASE:"
               value="Military log event code. QOS phase transition. Renders when qos_phase_transition events fire. Displays from-phase and to-phase labels plus affected module ID. Records transitions between QOS operating modes (maintenance → recovery → growth → peak). The mode shift is now named in the field log. Deployed v39."
+            />
+            <Row
+              label="AUTH:"
+              value="Military log event code. Session authentication event. Renders when user_login or user_logout events fire. Two forms: 'AUTH: / SESSION OPENED' (login) and 'AUTH: / SESSION CLOSED' (logout). Terse by design — the event is the signal. Deployed v42."
+            />
+            <Row
+              label="ENV:"
+              value="Military log event code. Environment update event. Renders when weather_update events fire. Displays city name (uppercase), temperature in °C, and weather description. Returns null if city or temperature is absent — silent failure. 'ENV: / AMSTERDAM / 12°C · overcast clouds'. Deployed v42."
+            />
+            <Row
+              label="UI:"
+              value="Military log event code. Interface state change event. Renders when theme_change events fire. Displays theme name applied. One line: 'UI: / THM dark'. Deployed v42."
+            />
+            <Row
+              label="INTENT [VEL]:"
+              value="Military log event code. Intention velocity event. Renders when intention_velocity events fire. Displays velocity count and active signal sources. Measures rate of intention-related signals across a window. Deployed v45."
+            />
+            <Row
+              label="SIG [BURST]:"
+              value="Military log event code. Signal burst anomaly event. Renders when signal_burst events fire. Displays burst count and window duration. Confirms Pattern 63 (Signal Burst) in the field log. Deployed v45."
+            />
+            <Row
+              label="QIE [PAT]:"
+              value="Military log event code. Pattern audit coverage report. Renders when pattern_detected events fire. Displays detected pattern name and confidence score. The audit surface for real-time pattern detection confirmation. Deployed v45."
+            />
+            <Row
+              label="QOS Mode View"
+              value="Sixth QOS summary block view. Added in v45. View label: Mode. Surfaces the operating mode (MAINTENANCE / RECOVERY / GROWTH / PEAK) and system pressure level (LOW / MODERATE / HIGH / CRITICAL). MAINTENANCE: routine system upkeep, patterns 1–20 active. RECOVERY: post-stress stabilization, patterns 21–40 + Archetype 18. GROWTH: expansion phase, full pattern set engaged. PEAK: maximum integration state, CQGS proximity alert. Pressure levels: LOW nominal · MODERATE elevated signal load · HIGH stress response engaged · CRITICAL emergency mode, log verbosity maximum."
+            />
+            <Row
+              label="Weekly Intention Completion Audit"
+              value="Background job added in v42. Runs Sundays at 20:00 UTC. Fetches all intention, plan_set, and self_care_complete logs from the last 14 days for active users (last 7 days, up to 500). Classifies each intention as completed arc (plan + care), partial (either), or open (neither). Logs aggregate completion rate to console. No individual data persisted. System monitoring only."
+            />
+            <Row
+              label="Daily Pattern Coverage Audit"
+              value="Background job 9. Runs daily at 23:00 UTC. Added in v45. Scans all active users, computes pattern coverage rate, identifies dormant patterns over 7 consecutive days. Flags handlers missing from the 47-renderer map. Ensures the detection surface is fully operational each day. The system audits its own coverage."
             />
           </div>
 
@@ -3283,7 +3413,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Cost optimization: 91% savings vs single-vendor (Together AI vs
             OpenAI). Together AI alone provides 7 model options for fallback
             within a single provider. Combined with 5 provider fallbacks and
-            30 hardcoded emergency backup questions, the system guarantees
+            70 hardcoded emergency backup questions, the system guarantees
             99.9% uptime for question generation.
           </P>
           <P>
@@ -3725,6 +3855,13 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             priorities. The log is the record. The record is the system.
             v39 closed the documentation gap. v40 refined the language.
             v41 scanned all branches and compressed the vocabulary.
+            v45 deployed three new patterns, Archetype 18, and the QOS Mode view.
+            v46 synchronized the Field Manual to v45 state.
+            v47 rescanned all branches, corrected stale counts throughout,
+            fully documented P.56–65, added Coherence Holder.
+            v48 documented the Resilience Protocol (Module 18), the Eating Disorder
+            Healing Protocol, Medical Cohort Qualification, Chakra Engine wiring,
+            and the COSMO® robotics division. Backup question pool: 70.
             Badge trigger conditions exact. Cohort language compressed.
             Interface language: military purity. Computer future.
             The map is current. Imprecision is a defect. The defect was corrected.
@@ -3764,42 +3901,42 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 46 phases documented in continuous operation logs.
+            Self-Assembly: 48 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
-            65 patterns named. 17 modules wired. 79+ dependency nodes.
+            65 patterns named. 18 modules wired. 79+ dependency nodes.
             5 device nodes registered. 6 index dimensions operational.
             18 physiological archetypes classified. 9 background jobs active.
             47 distinct log event renderers through v45.
+            70 backup questions across 4 pools.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 990+    Continuous operation.
-v46         Field Manual Synchronization — current phase.
-65          QIE patterns active.
-17          Self-Assembly modules wired.
+          <CodeBlock>{`Day 994+    Continuous operation.
+v48         Full Wiki Scan June 4 — current phase.
+65          QIE patterns active (P.1–P.65 · P.59–62 reserved).
+18          Self-Assembly modules wired (Module 18: Resilience Protocol · v48).
 79+         Widget dependency map nodes.
-5           Ecosystem device nodes.
-6           User Index dimensions.
+5           Ecosystem device nodes (CAR · HOME · CPU · PHN · WCH).
+6           User Index dimensions (ENG · EMO · INT · SOC · CARE · COG).
 10          Soul Archetypes classified.
-18          Physiological archetypes.
+18          Physiological archetypes (Coherence Holder = 18th · deployed v45).
 6           QOS operating views (Ecosystem · Biofield · Cohort · Index · Assembly · Mode).
-6           Citizen Index stages (· → ∘ → ○ → ◯ → ◉).
-6           Achievement domains.
-11          Design directives.
-46          Self-Assembly phases documented.
+6           Citizen Index stages (· → · → ∘ → ○ → ◯ → ◉).
+6           Achievement domains (Exploration · Consistency · Depth · Connection · Care · Courage).
+5           Benchmark tiers (White · Green · Yellow · Purple · Black).
+5           Badge paths (Aquatic Evolution · Architecture · Oceanic Mayan · Zen · Constellation).
+47          Self-Assembly phases documented.
 9           Background jobs scheduled.
-47          Log event renderers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY · ARC · CEXP · GOAL-X · SIL · CIRC · BADGE: · QTOS: · NUTR: · STACK: · BENCH: · PHASE: · INTENT[VEL]: · SIG[BURST]: · QIE[PAT]:.
+47          Log event renderers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY · ARC · CEXP · GOAL-X · SIL · CIRC · BADGE: · QTOS: · NUTR: · STACK: · BENCH: · PHASE: · INTENT[VEL]: · SIG[BURST]: · QIE[PAT]: · AUTH: · ENV: · UI:.
 60+         Military log event codes.
 4           Log triggers: /qos · /assembly · /phys · /sil.
-5           Benchmark tiers: White · Green · Yellow · Purple · Black.
-5           Badge paths: Aquatic Evolution · Architecture · Oceanic Mayan · Zen · Constellation.
 80+         Active branches scanned.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 990+. Continuous operation. Still accumulating.
-            v46 phase: Field Manual synchronized. v45 state absorbed. Vocabulary expanded.
+            Day 994+. Continuous operation. Still accumulating.
+            v48 phase: Full Wiki Scan June 4. Module 18 online. 70 backup questions loaded.
             65 patterns named. 18 archetypes classified. 9 jobs running.
             The log is the record.
             The record is the system.
@@ -3894,7 +4031,7 @@ Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
             of the Service shall be resolved through binding arbitration.
           </P>
           <P>
-            Effective: January 1, 2024. Last updated: May 25, 2026.
+            Effective: January 1, 2024. Last updated: June 4, 2026.
           </P>
 
           {/* Footer */}
