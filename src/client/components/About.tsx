@@ -268,7 +268,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v47</Meta>
+            <Meta>Field Manual v48</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -283,15 +283,15 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              Day 990+. Continuous operation since launch.
-              65 behavioral patterns active. 17 modules assembled.
+              Day 994+. Continuous operation since launch.
+              65 behavioral patterns active. 18 modules assembled.
               6 index dimensions. 5 ecosystem nodes. 18 physiological archetypes.
               79+ dependency nodes. 9 background jobs.
               47 log event handlers. 80+ active branches scanned.
               The system does not sleep. It accumulates.
             </P>
             <P>
-              Field Manual v47. Not marketing copy. Not documentation for external audiences.
+              Field Manual v48. Not marketing copy. Not documentation for external audiences.
               Operational reference for operators of the system.
               Definitions are exact. Terminology is fixed. Imprecision is a defect.
               Every term in this document exists in the codebase.
@@ -319,7 +319,7 @@ export function About() {
           <ul className="list-none pl-16 mb-16">
             <Li>Memory Engine — AI question generation. Context-aware. Depth-building. Proactive. 120-log context window.</Li>
             <Li>Quantum Intent Engine — client-side behavioral pattern recognition. 65 patterns active. Zero server communication. 7-day signal retention.</Li>
-            <Li>Self-Assembly Engine — module coherence tracking. 17 modules. The system builds itself from operator activity.</Li>
+            <Li>Self-Assembly Engine — module coherence tracking. 18 modules. The system builds itself from operator activity.</Li>
             <Li>Punctuation & Intonation Engine — voice-tone classification from text. Seven tones. Six intents. Fires on every entry.</Li>
           </ul>
           <P>
@@ -361,9 +361,9 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 993+ (as of June 3, 2026)" />
-          <Row label="Self-Assembly phase:" value="v47 — Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full · interface language refined toward military purity · stale counts corrected · map and territory synchronized — v46: Field Manual sync · v45 state absorbed — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
-          <Row label="Assembly modules:" value="17 — Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
+          <Row label="Day counter:" value="Day 994+ (as of June 4, 2026)" />
+          <Row label="Self-Assembly phase:" value="v48 — Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
+          <Row label="Assembly modules:" value="18 — Resilience Protocol added v48 · Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
           <Row label="QIE pattern library:" value="65 patterns active" />
           <Row label="Physiological archetypes:" value="18 — Coherence Holder (v45) · Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
           <Row label="QOS views:" value="6 — Ecosystem · Biofield · Cohort · Index · Assembly · Mode" />
@@ -652,7 +652,7 @@ export function About() {
           <CodeBlock>{`API: GET /api/memory?d={base64_date}&qe={energy}&qc={clarity}&qa={alignment}&qn={needsSupport}
 Cache TTL: 12 hours
 Fallback: cached questions on provider failure
-Safety net: 7 Together.AI models + 5 provider fallbacks + 30 emergency backup questions`}</CodeBlock>
+Safety net: 7 Together.AI models + 5 provider fallbacks + 70 emergency backup questions`}</CodeBlock>
 
           <SubHeading>Quantum Intent Engine</SubHeading>
           <P>
@@ -812,20 +812,58 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
 
           <SubHeading>Self-Assembly Engine</SubHeading>
           <P>
-            Tracks how 17 system modules activate and cohere around user activity.
+            Tracks how 18 system modules activate and cohere around user activity.
             Original 9 modules: biofield, memory, planner, intentions, selfcare,
             journal, community, ecosystem, quantum. Five additional modules wired
             through Self-Assembly phases v8–v10. Module 14: calendar (Temporal
             Planner), added in v10. Module 15: quantum-os (QuantumOS snapshot),
             added in v25. Module 16: log (Signal Archive) — the field entry and
             signal persistence layer, wired in v39. Module 17: qos (Quantum OS
-            surface) — the live operating state layer, wired in v39. v16 extended
-            the ecosystem module with two wearable nodes — phone (PHN) and watch
-            (WCH) — and wired their signals to QIE patterns 31–34.
+            surface) — the live operating state layer, wired in v39. Module 18:
+            resilience — the Resilience Protocol module, added May 29, 2026.
+            Assembles when the operator engages with medical questions and
+            trauma-informed questions over time. Sources: medical and resilience
+            signal types. Wires into biofield module via cross-signal routing.
+            v16 extended the ecosystem module with two wearable nodes — phone
+            (PHN) and watch (WCH) — and wired their signals to QIE patterns 31–34.
             Each new module expands the system's coherence surface. The dep graph
-            closes at 17 modules: every signal channel has a home. The architecture
-            is complete at this tier. Future expansion follows new signal types.
+            reaches 18 modules at v48.
           </P>
+          <SubHeading>Resilience Protocol</SubHeading>
+          <P>
+            Module 18 of the Self-Assembly Engine. ID: resilience. Label:
+            Resilience Protocol. Introduced May 29, 2026 via the Integrated
+            Resilience System integration — three nodes connected: Self-Assembly
+            Engine, Medical Records, and PTSD Protocol.
+          </P>
+          <P>
+            The module assembles when the operator engages with medical and
+            trauma-informed questions. Assembly path: DORMANT (no signals) →
+            AWAKENING (1+ signal) → FORMING (5+ signals) → ASSEMBLED (15+ signals)
+            → INTEGRATED (30+ signals, cross-module data flows).
+          </P>
+          <P>
+            Signal routing: source type medical feeds the resilience module and
+            the memory module. Source type resilience feeds the resilience module
+            and the biofield module. Chakra Engine integration: Solar Plexus
+            gains +5 charge per eating recovery signal (nourishment = core energy).
+            Root gains +3 per medical/resilience signal (body awareness = grounding).
+          </P>
+          <P>
+            The eating disorder extension (May 30, 2026) adds 6 profile dimensions:
+            restriction, bingeing, purging, body dissatisfaction, food anxiety,
+            recovery signals. Composite score weights: behavioral clusters 50%,
+            C-PTSD indicators 30%, eating disorder 20%. When any eating disorder
+            dimension reaches threshold 17, the AI prompt shifts to frame food as
+            nourishment and care — never weight, calories, or appearance.
+          </P>
+          <div className="mb-16">
+            <Row label="Backup question pool" value="70 total — 29 self-care + 15 medical + 18 trauma-informed + 8 eating recovery" />
+            <Row label="Trauma indicator dimensions" value="7 — hyperarousal · avoidance · negative self-concept · re-experiencing · interpersonal · affect dysregulation · eating disorder" />
+            <Row label="Trauma sources tracked" value="11 — including eating disorder added May 30" />
+            <Row label="Recovery categories" value="7 — including nutrition recovery added May 30" />
+            <Row label="Medical cohort qualification" value="assessMedicalProfile() + qualifiesForPaidCohort() — requires 10+ answers AND 3+ medical answers OR 2+ data points" />
+          </div>
           <SubHeading>Assembly Transmission Layer</SubHeading>
           <P>
             Fifth cycle point in the System Progress widget. View label:
@@ -927,6 +965,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v45" value="P.63 signal-burst (10+ signals / 2h window, conf 0.65–0.82) · P.64 cross-domain-coherence (all 4 inner domains within 48h, conf 0.78–0.90) · P.65 recovery-plateau (energy low 5+ days, conf 0.70) · Archetype 18 Coherence Holder · log handlers 45 INTENT [VEL]: · 46 SIG [BURST]: · 47 QIE [PAT]: · QOS Mode 6th view · background job 9 daily-pattern-coverage-audit 23:00 UTC · 65 patterns · 47 handlers · 9 jobs · 18 archetypes · 6 QOS views · dep map 79+" />
             <Row label="v46" value="Field Manual v46 · all v45 additions documented · operating status synchronized · vocabulary expanded with new patterns and archetypes · interface language refined · the map and the territory are synchronized · Day 990+" />
             <Row label="v47" value="Wiki June 2026 Audit · all branches rescanned (80+) · P.56–58 (circadian-anchor, intention-completion-arc, self-care-saturation) documented · P.63–65 fully detailed in Extended Patterns · Coherence Holder (Archetype 18) full entry added · stale pattern and archetype counts corrected throughout · vocabulary synchronized with codebase · military purity interface pass · Day 993+" />
+            <Row label="v48" value="Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented in full · eating disorder healing protocol integrated (6 dimensions, 8 backup questions) · medical cohort qualification added (assessMedicalProfile · qualifiesForPaidCohort) · Chakra Engine wired to medical and resilience signals (Solar Plexus + Root) · backup question pool: 70 total (29 self-care + 15 medical + 18 trauma + 8 eating recovery) · COSMO® robotics division first documented in Field Manual · Soul Sync Protocol™ · Benchmark Arbitrage™ · Day 994+" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -953,7 +992,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v47. Phase name: Wiki June 2026 Audit — branches rescanned, vocabulary synchronized, Coherence Holder documented, interface language refined.
+            Current phase: v48. Phase name: Full Wiki Scan June 4 — Resilience Protocol (Module 18) documented, eating disorder healing protocol integrated, medical cohort qualification added, COSMO® robotics division introduced, vocabulary synchronized.
             47 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
@@ -1004,7 +1043,8 @@ v43   Production cleanup · profile fix · QR code Usership public profiles
 v44   Benchmark skill protocol · engineering pass · post-push verification GREEN
 v45   P.63 signal-burst · P.64 cross-domain-coherence · P.65 recovery-plateau · Archetype 18 · handlers 45–47 · QOS Mode view · job 9 · 65 patterns · 47 handlers · 9 jobs
 v46   Field Manual v46 · all additions documented · language refined · map synchronized · Day 990+
-v47   Wiki June 2026 Audit · branches rescanned · P.56–58 & P.63–65 documented · Coherence Holder full entry · stale counts corrected · vocabulary expanded · military purity pass · Day 993+`}</CodeBlock>
+v47   Wiki June 2026 Audit · branches rescanned · P.56–58 & P.63–65 documented · Coherence Holder full entry · stale counts corrected · vocabulary expanded · military purity pass · Day 993+
+v48   Full Wiki Scan June 4 · Resilience Protocol (Module 18) · eating disorder protocol · medical cohort qualification · Chakra Engine wired · 70 backup questions · COSMO® documented · Day 994+`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -1289,7 +1329,7 @@ CQGS Health scan: system-wide physiological health distribution`}</CodeBlock>
           <SubHeading>CQGS Health Monitor</SubHeading>
           <P>
             Introduced in Self-Assembly v23. CQGS — Coherent Quantum Ground State
-            — is the theoretical maximum engagement state: all 17 modules
+            — is the theoretical maximum engagement state: all 18 modules
             integrated, all 5 ecosystem nodes connected, QIE at P.34 confidence,
             User Index at peak across all 6 dimensions.
           </P>
@@ -1312,7 +1352,7 @@ CQGS Health scan: system-wide physiological health distribution`}</CodeBlock>
             <Row label="Scan cadence" value="weekly at 04:00 UTC Wednesday" />
             <Row label="Output" value="OS Journal vitals entry — engagement distribution + coherence score + pattern density" />
             <Row label="Privacy" value="aggregate only — no per-operator data in health record" />
-            <Row label="CQGS condition" value="17 modules + 5 nodes + P.34 + peak User Index — theoretical ceiling" />
+            <Row label="CQGS condition" value="18 modules + 5 nodes + P.34 + peak User Index — theoretical ceiling" />
           </div>
 
           <SubHeading>QuantumOS Snapshot (v25)</SubHeading>
@@ -1606,7 +1646,7 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             <Row label="QIE Signal  ✦" value="quantum intent patterns fired" />
           </div>
           <P>
-            The ◉ Transparent stage is the theoretical ceiling. All 17 modules
+            The ◉ Transparent stage is the theoretical ceiling. All 18 modules
             integrated. All five ecosystem nodes connected. QIE at full
             pattern coverage. User Index at peak across all six dimensions.
             This is the CQGS — not a target, a reference point. The system
@@ -2073,9 +2113,10 @@ Ch.5  SAGE           Level 90–100
             <Row label="Recipe Widget" value="archetype-matched meal suggestions" />
             <Row label="Fasting Widget" value="Christian fasting calendar integration" />
             <Row label="Energy Capacitor" value="energy state visualization and tracking" />
-            <Row label="MicroGame" value="embedded micro-interaction game" />
+            <Row label="MicroGame" value="embedded micro-interaction game — reward-gated · weekly cooldown · milestone threshold required" />
             <Row label="MicroCalculator" value="inline calculation utility" />
-            <Row label="MicroImage" value="procedural pixel art keyed to punctuation tone" />
+            <Row label="MicroImage" value="procedural pixel art keyed to punctuation tone — reward-gated · weekly cooldown" />
+            <Row label="Profile QR Code" value="80×80 canvas · theme-responsive (accent fg, base bg) · encodes lot-systems.com/u/{'{username}'} · error correction level M · USERSHIP only · renders in public profile and Settings preview" />
           </div>
 
           <SubHeading>System Widgets</SubHeading>
@@ -2228,7 +2269,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="CQGS"
-              value="Coherent Quantum Ground State. The maximum integration reference. All 17 modules active. All 5 nodes connected. All 6 index dimensions at peak. The system reports distance to it — not progress toward it."
+              value="Coherent Quantum Ground State. The maximum integration reference. All 18 modules active. All 5 nodes connected. All 6 index dimensions at peak. The system reports distance to it — not progress toward it."
             />
             <Row
               label="Intention Completion Arc"
@@ -2617,6 +2658,38 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
           </div>
 
+          <SubHeading>Corporate & Product Terms</SubHeading>
+          <div className="mb-16">
+            <Row
+              label="COSMO®"
+              value="Personal robotics division of LOT Systems. Named after Kuzya Cosmo Marmeladov — son of the founder. A COSMO® unit carries the behavioral signature of its owner, derived from 90+ days of QIE pattern accumulation. Requires Purple-tier Benchmark Arbitrage™ score or higher. A unit without a verified LOT profile does not activate. Target hardware availability: 2028–2029."
+            />
+            <Row
+              label="Soul Sync Protocol™"
+              value="The transfer process that compresses an operator's behavioral signature — 65 patterns, 18 archetypes, User Index, streak, journal depth, intention execution rate — into a portable profile for COSMO® hardware. Requires Purple Benchmark score (60+). Continuous sync via Quantum OS. Disconnection is instant and permanent."
+            />
+            <Row
+              label="Benchmark Arbitrage™"
+              value="The gate mechanism for COSMO® eligibility. Not a credit score. A character score — computed from sustained behavioral action across months. White (0–19) and Green (20–39): not eligible. Yellow (40–59): review eligible. Purple (60–79): eligible. Black (80–100): priority eligible."
+            />
+            <Row
+              label="CHAKRA-ENGINE"
+              value="Seven-chakra ergonomic model derived from QIE signals. Each chakra receives charge from specific behavioral signal types. Root (Muladhara): medical and resilience signals — grounding. Solar Plexus (Manipura): eating recovery signals — core energy. Crown: memory depth. Wired to self-assembly signal routing since May 2026."
+            />
+            <Row
+              label="GREEN-GATE"
+              value="Build verification gate. All system checks must pass before a commit can be pushed. yarn build passing is the minimum threshold. No red code leaves the tree. The gate is not optional — it is the standard."
+            />
+            <Row
+              label="Resilience"
+              value="PTSD/C-PTSD trauma-informed protocol module. Self-Assembly Module 18. Detects 7 trauma indicator dimensions and 11 trauma sources from journal and memory answer language. Adjusts AI prompt framing when indicators detected — questions become gentler, more supportive. The profile is not stored — it is computed fresh each generation cycle."
+            />
+            <Row
+              label="IPO"
+              value="LOT Systems public offering target: $4.00 per share, January 25, 2027. Listed under LOT Systems, Inc. COSMO® robotics division is the growth-stage justification for the valuation. The software platform is Phase 1."
+            />
+          </div>
+
           <SubHeading>Operational Terms</SubHeading>
           <div className="mb-16">
             <Row
@@ -2753,7 +2826,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="CQGS"
-              value="Coherent Quantum Ground State. The theoretical maximum engagement state. All 17 modules integrated. All 5 ecosystem nodes connected. QIE at P.34 confidence (0.98). User Index at peak across all 6 dimensions. 18 physiological archetypes classified. The ceiling is not a target — it is a reference point. The system reports distance to it."
+              value="Coherent Quantum Ground State. The theoretical maximum engagement state. All 18 modules integrated. All 5 ecosystem nodes connected. QIE at P.34 confidence (0.98). User Index at peak across all 6 dimensions. 18 physiological archetypes classified. The ceiling is not a target — it is a reference point. The system reports distance to it."
             />
             <Row
               label="Vitals"
@@ -3001,7 +3074,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Quantum OS (QOS module)"
-              value="Self-Assembly Module 17. ID: qos. Label: Quantum OS. Activates on qos_snapshot, qos_phase_transition, and ecosystem_full_coherence events. The live operating state surface module — distinct from the quantum-os module (15th, which captures point-in-time snapshots). Module 17 tracks the QOS surface itself as it transitions between states. Wired in v39. Closes the module graph at 17."
+              value="Self-Assembly Module 17. ID: qos. Label: Quantum OS. Activates on qos_snapshot, qos_phase_transition, and ecosystem_full_coherence events. The live operating state surface module — distinct from the quantum-os module (15th, which captures point-in-time snapshots). Module 17 tracks the QOS surface itself as it transitions between states. Wired in v39. Module 18 (Resilience Protocol) added May 2026."
             />
             <Row
               label="NUTR:"
@@ -3340,7 +3413,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Cost optimization: 91% savings vs single-vendor (Together AI vs
             OpenAI). Together AI alone provides 7 model options for fallback
             within a single provider. Combined with 5 provider fallbacks and
-            30 hardcoded emergency backup questions, the system guarantees
+            70 hardcoded emergency backup questions, the system guarantees
             99.9% uptime for question generation.
           </P>
           <P>
@@ -3785,8 +3858,10 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             v45 deployed three new patterns, Archetype 18, and the QOS Mode view.
             v46 synchronized the Field Manual to v45 state.
             v47 rescanned all branches, corrected stale counts throughout,
-            fully documented P.56–65, added Coherence Holder to the physiological
-            archetype table, and applied a full military purity pass.
+            fully documented P.56–65, added Coherence Holder.
+            v48 documented the Resilience Protocol (Module 18), the Eating Disorder
+            Healing Protocol, Medical Cohort Qualification, Chakra Engine wiring,
+            and the COSMO® robotics division. Backup question pool: 70.
             Badge trigger conditions exact. Cohort language compressed.
             Interface language: military purity. Computer future.
             The map is current. Imprecision is a defect. The defect was corrected.
@@ -3826,19 +3901,20 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 47 phases documented in continuous operation logs.
+            Self-Assembly: 48 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
-            65 patterns named. 17 modules wired. 79+ dependency nodes.
+            65 patterns named. 18 modules wired. 79+ dependency nodes.
             5 device nodes registered. 6 index dimensions operational.
             18 physiological archetypes classified. 9 background jobs active.
             47 distinct log event renderers through v45.
+            70 backup questions across 4 pools.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 993+    Continuous operation.
-v47         Wiki June 2026 Audit — current phase.
+          <CodeBlock>{`Day 994+    Continuous operation.
+v48         Full Wiki Scan June 4 — current phase.
 65          QIE patterns active (P.1–P.65 · P.59–62 reserved).
-17          Self-Assembly modules wired.
+18          Self-Assembly modules wired (Module 18: Resilience Protocol · v48).
 79+         Widget dependency map nodes.
 5           Ecosystem device nodes (CAR · HOME · CPU · PHN · WCH).
 6           User Index dimensions (ENG · EMO · INT · SOC · CARE · COG).
@@ -3859,8 +3935,8 @@ v47         Wiki June 2026 Audit — current phase.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 993+. Continuous operation. Still accumulating.
-            v47 phase: Wiki audit complete. All branches rescanned. Vocabulary synchronized.
+            Day 994+. Continuous operation. Still accumulating.
+            v48 phase: Full Wiki Scan June 4. Module 18 online. 70 backup questions loaded.
             65 patterns named. 18 archetypes classified. 9 jobs running.
             The log is the record.
             The record is the system.
@@ -3955,7 +4031,7 @@ Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
             of the Service shall be resolved through binding arbitration.
           </P>
           <P>
-            Effective: January 1, 2024. Last updated: June 3, 2026.
+            Effective: January 1, 2024. Last updated: June 4, 2026.
           </P>
 
           {/* Footer */}
