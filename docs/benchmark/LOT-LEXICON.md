@@ -14,4 +14,8 @@ GREEN-GATE         Build must pass all checks before push                      A
 USERSHIP           Paid subscriber tier with full system access                A     20260601
 RESILIENCE         PTSD/C-PTSD trauma-informed protocol module                 A     20260601
 COHORT             User classification by archetype + behavioral pattern       A     20260601
+-- PROVISIONAL (below earn threshold; first sighting 20260604-01) --
+OPEN-TAB           Public ration manifest visible to any visitor               -     20260604
+ON-STRENGTH        Subscriber status with active ration issue                  -     20260604
+BASICS             Physical ration module; hardware layer of LOT system        -     20260604
 ```

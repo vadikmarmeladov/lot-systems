@@ -75,9 +75,8 @@ const COL_GRID = '3.5rem 1fr 5.5rem 7rem'
 export const Basics = () => {
   const me = useStore(stores.me)
 
-  // Month 1: status is always OPEN / NOT ON STRENGTH.
-  // Month 2 will wire the state machine: PENDING → ON STRENGTH → STEADY STATE.
-  const rationStatus: 'OPEN' | 'PENDING' | 'ON STRENGTH' = 'OPEN'
+  // Month 2 replaces these constants with the subscription state machine.
+  const rationStatus: string = 'OPEN'
   const isOnStrength = rationStatus === 'ON STRENGTH'
 
   return (
