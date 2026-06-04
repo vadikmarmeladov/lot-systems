@@ -20,6 +20,7 @@ import {
   Log,
   Paginated,
   PublicChatMessage,
+  PublicUserMail,
   User,
   UserProfile,
   UserSettings,
@@ -797,3 +798,28 @@ export const useCosmicUpdate = createMutation<
   { prompt?: string },
   { imageUrl: string; prompt: string }
 >('post', '/api/cosmic-update')
+
+// ============================================================================
+// MAIL
+// ============================================================================
+export const useMailInbox = () =>
+  createQuery<PublicUserMail[]>('/api/mail/inbox', {
+    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000,
+  })()
+
+export const useMailSent = () =>
+  createQuery<PublicUserMail[]>('/api/mail/sent', {
+    refetchOnWindowFocus: false,
+    staleTime: 30 * 1000,
+  })()
+
+export const useSendMail = createMutation<
+  { recipientName: string; subject?: string; body: string; cohortTag?: string },
+  { ok: boolean; mailId: string; recipientName: string }
+>('post', '/api/mail')
+
+export const useMarkMailRead = createMutation<{ id: string }, void>(
+  'put',
+  (data) => `/api/mail/${data.id}/read`
+)

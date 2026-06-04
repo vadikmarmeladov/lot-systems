@@ -37,6 +37,7 @@ export type LogTrigger =
   | 'assembly-check'    // /assembly — trigger self-assembly module status check
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
+  | 'email-compose'     // ✉️  or  /email to [Name] — open mail compose
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -59,6 +60,7 @@ const RULES: TriggerRule[] = [
   { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
+  { trigger: 'email-compose',  emojis: ['✉️', '📧'], keywords: ['email'] },
 ]
 
 /**
@@ -88,6 +90,16 @@ export function detectTriggers(text: string): LogTrigger[] {
   }
 
   return hits
+}
+
+/**
+ * Extracts the intended recipient name from a /email command.
+ * "/email to Hitomi" → "Hitomi"
+ * Returns null if no recognizable recipient pattern found.
+ */
+export function extractEmailRecipient(text: string): string | null {
+  const match = text.match(/\/email\s+to\s+([A-Za-zÀ-ÿ''-]+)/i)
+  return match ? match[1] : null
 }
 
 /**

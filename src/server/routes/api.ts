@@ -4650,4 +4650,113 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       }
     }
   )
+
+  // ============================================================================
+  // Mail — LOT® in-app messaging
+  // ============================================================================
+
+  fastify.post<{
+    Body: { recipientName: string; subject?: string; body: string; cohortTag?: string }
+  }>(
+    '/mail',
+    async (req, reply) => {
+      const { recipientName, subject, body, cohortTag } = req.body
+      if (!body?.trim()) return reply.status(400).send({ error: 'Body required' })
+      if (!recipientName?.trim()) return reply.status(400).send({ error: 'Recipient required' })
+
+      const recipient = await fastify.models.User.findOne({
+        where: { firstName: { [Op.iLike]: recipientName.trim() } },
+      })
+      if (!recipient) {
+        return reply.status(404).send({ error: `No user named "${recipientName}" found` })
+      }
+      if (recipient.id === req.user.id) {
+        return reply.status(400).send({ error: 'Cannot send mail to yourself' })
+      }
+
+      const mail = await fastify.models.UserMail.create({
+        senderId: req.user.id,
+        recipientId: recipient.id,
+        subject: subject?.trim() || null,
+        body: body.trim(),
+        cohortTag: cohortTag || null,
+      })
+
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'other',
+        text: `→ ${recipient.firstName || recipientName}${subject ? `: ${subject}` : ''}`,
+        metadata: { type: 'email_sent', mailId: mail.id, recipientName },
+        context,
+      })
+
+      sync.emit('mail_message', {
+        ...mail.toJSON(),
+        sender: { id: req.user.id, firstName: req.user.firstName, lastName: req.user.lastName },
+        recipient: { id: recipient.id, firstName: recipient.firstName, lastName: recipient.lastName },
+      })
+
+      return { ok: true, mailId: mail.id, recipientName: recipient.firstName || recipientName }
+    }
+  )
+
+  fastify.get('/mail/inbox', async (req, reply) => {
+    const mails = await fastify.models.UserMail.findAll({
+      where: { recipientId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+
+    const senderIds = [...new Set(mails.map((m) => m.senderId))]
+    const senders = senderIds.length
+      ? await fastify.models.User.findAll({
+          where: { id: senderIds },
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+      : []
+    const senderMap = Object.fromEntries(senders.map((s) => [s.id, s]))
+
+    return mails.map((m) => ({
+      ...m.toJSON(),
+      sender: senderMap[m.senderId]
+        ? { id: senderMap[m.senderId].id, firstName: senderMap[m.senderId].firstName, lastName: senderMap[m.senderId].lastName }
+        : null,
+      recipient: null,
+    }))
+  })
+
+  fastify.get('/mail/sent', async (req, reply) => {
+    const mails = await fastify.models.UserMail.findAll({
+      where: { senderId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+
+    const recipientIds = [...new Set(mails.map((m) => m.recipientId))]
+    const recipients = recipientIds.length
+      ? await fastify.models.User.findAll({
+          where: { id: recipientIds },
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+      : []
+    const recipientMap = Object.fromEntries(recipients.map((r) => [r.id, r]))
+
+    return mails.map((m) => ({
+      ...m.toJSON(),
+      sender: null,
+      recipient: recipientMap[m.recipientId]
+        ? { id: recipientMap[m.recipientId].id, firstName: recipientMap[m.recipientId].firstName, lastName: recipientMap[m.recipientId].lastName }
+        : null,
+    }))
+  })
+
+  fastify.put<{ Params: { id: string } }>('/mail/:id/read', async (req, reply) => {
+    const mail = await fastify.models.UserMail.findOne({
+      where: { id: req.params.id, recipientId: req.user.id },
+    })
+    if (!mail) return reply.status(404).send({ error: 'Not found' })
+    await mail.update({ readAt: new Date() })
+    reply.ok()
+  })
 }

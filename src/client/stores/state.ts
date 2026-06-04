@@ -83,5 +83,9 @@ export const lastAnsweredMemoryQuestionId = persistentAtom<string | null>(
   }
 )
 
+// Mail compose overlay — set to trigger the global compose panel from any surface
+// { to: 'Hitomi' } opens compose pre-filled with recipient; null closes it
+export const mailCompose = atom<{ to: string } | null>(null)
+
 // computed
 // ...

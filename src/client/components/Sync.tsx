@@ -25,7 +25,7 @@ import {
   useLikeChatMessage,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, PublicUserMail, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -39,6 +39,7 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [mailNotifications, setMailNotifications] = React.useState<PublicUserMail[]>([])
   const hasInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
@@ -119,9 +120,21 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeMailListener } = sync.listen(
+      'mail_message',
+      (data: PublicUserMail) => {
+        if (data.recipientId !== me?.id) return
+        setMailNotifications((prev) => {
+          if (prev.some((m) => m.id === data.id)) return prev
+          return [data, ...prev].slice(0, 5)
+        })
+      }
+    )
+
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeMailListener()
     }
   }, [me?.id])
 
@@ -218,6 +231,32 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {mailNotifications.length > 0 && (
+        <div className="mb-48 space-y-0">
+          {mailNotifications.map((mail) => {
+            const senderName = mail.sender
+              ? `${mail.sender.firstName || ''} ${mail.sender.lastName || ''}`.trim() || 'Someone'
+              : 'Someone'
+            return (
+              <div
+                key={mail.id}
+                className="group flex items-start gap-8 -mx-4 px-4 py-2 rounded grid-fill-hover cursor-pointer"
+                onClick={() => stores.goTo('mail')}
+              >
+                <span className="text-acc/40 shrink-0">✉</span>
+                <span className="text-acc/60">
+                  {senderName} sent you a message
+                  {mail.subject ? `: ${mail.subject}` : ''}
+                </span>
+                <span className="text-acc/0 group-hover:text-acc/30 transition-opacity text-[0.85em] whitespace-nowrap pointer-events-none">
+                  {dayjs(mail.createdAt as unknown as string).fromNow()}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

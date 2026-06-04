@@ -219,6 +219,24 @@ export type LiveMessage = {
   updatedAt: Date;
 };
 
+// User Mail Types (in-app messaging)
+export type UserMail = {
+  id: string
+  senderId: string
+  recipientId: string
+  subject: string | null
+  body: string
+  readAt: Date | null
+  cohortTag: string | null
+  createdAt: Date
+  updatedAt: Date
+}
+
+export type PublicUserMail = UserMail & {
+  sender: { id: string; firstName: string | null; lastName: string | null } | null
+  recipient: { id: string; firstName: string | null; lastName: string | null } | null
+}
+
 // Email Code Type
 export type EmailCode = {
   id: string;
@@ -441,4 +459,5 @@ export type ChatMessageLikeEventPayload = {
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
+  mail_message: PublicUserMail;
 };

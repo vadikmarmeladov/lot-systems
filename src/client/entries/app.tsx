@@ -16,6 +16,7 @@ import { System } from '#client/components/System'
 import { Settings } from '#client/components/Settings'
 import { Logs } from '#client/components/Logs'
 import { Sync } from '#client/components/Sync'
+import { Mail, MailCompose } from '#client/components/Mail'
 import { DirectMessageThread } from '#client/components/DirectMessageThread'
 import { StatusPage } from '#client/components/StatusPage'
 import { ApiPage } from '#client/components/ApiPage'
@@ -128,8 +129,8 @@ if (typeof window !== 'undefined') {
   })
 }
 
-type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api'
-const PERSISTENT_ROUTES: PersistentRoute[] = ['system', 'logs', 'sync', 'settings', 'api']
+type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api' | 'mail'
+const PERSISTENT_ROUTES: PersistentRoute[] = ['system', 'logs', 'sync', 'settings', 'api', 'mail']
 
 function TabPanel({ route, active, children }: { route: string; active: boolean; children: React.ReactNode }) {
   return (
@@ -146,6 +147,7 @@ const App = () => {
   const isMirrorOn = useStore(stores.isMirrorOn)
   const isSoundOn = useStore(stores.isSoundOn)
   const isRadioOn = useStore(stores.isRadioOn)
+  const mailCompose = useStore(stores.mailCompose)
 
   const visitedRef = React.useRef<Set<PersistentRoute>>(new Set(['system']))
 
@@ -278,6 +280,11 @@ const App = () => {
             <Sync />
           </TabPanel>
         )}
+        {visitedRef.current.has('mail') && (
+          <TabPanel route="mail" active={currentRoute === 'mail'}>
+            <Mail />
+          </TabPanel>
+        )}
         {visitedRef.current.has('settings') && (
           <TabPanel route="settings" active={currentRoute === 'settings'}>
             <Settings />
@@ -292,6 +299,12 @@ const App = () => {
           <DirectMessageThread userId={router.params.userId} />
         )}
         {currentRoute === 'status' && <StatusPage noWrapper />}
+        {mailCompose !== null && (
+          <MailCompose
+            initialTo={mailCompose.to}
+            onClose={() => stores.mailCompose.set(null)}
+          />
+        )}
         {isMirrorOn && (
           <video
             ref={mirrorRef}
