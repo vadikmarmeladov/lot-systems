@@ -83,5 +83,8 @@ export const lastAnsweredMemoryQuestionId = persistentAtom<string | null>(
   }
 )
 
+// LOT® Mail — pending compose from Cohort widget or external trigger
+export const pendingEmailTo = atom<{ id: string; name: string } | null>(null)
+
 // computed
 // ...

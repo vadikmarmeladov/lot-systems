@@ -194,6 +194,24 @@ export type DirectMessage = {
   updatedAt: Date;
 };
 
+// LOT® Email Type
+export type LotEmail = {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  subject: string;
+  body: string;
+  isRead: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type LotEmailCard = LotEmail & {
+  senderName: string;
+  receiverName: string;
+  isMine: boolean;
+};
+
 // Chat Message Types
 export type ChatMessage = {
   id: string;

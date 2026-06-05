@@ -30,6 +30,7 @@ import {
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions } from '#client/stores/intentionEngine'
+import { EmailComposePanel } from '#client/components/EmailComposePanel'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -1027,6 +1028,32 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'email_sent') {
+          const to = log.metadata?.receiverName as string | undefined
+          const subject = log.metadata?.subject as string | undefined
+          const body = log.metadata?.body as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL [OUT]:" blockView>
+                {to && <div className="uppercase tracking-widest mb-4">TO: {to}</div>}
+                {subject && <div className="opacity-60">RE: {subject}</div>}
+                {body && <div className="opacity-40 mt-4">{body.slice(0, 120)}{body.length > 120 ? '…' : ''}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'email_received') {
+          const from = log.metadata?.senderName as string | undefined
+          const subject = log.metadata?.subject as string | undefined
+          const body = log.metadata?.body as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL [IN]:" blockView>
+                {from && <div className="uppercase tracking-widest mb-4">FROM: {from}</div>}
+                {subject && <div className="opacity-60">RE: {subject}</div>}
+                {body && <div className="opacity-40 mt-4">{body.slice(0, 120)}{body.length > 120 ? '…' : ''}</div>}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1075,6 +1102,23 @@ const NoteEditor = ({
   const [value, setValue] = React.useState(log.text || '')
   const [lastSavedAt, setLastSavedAt] = React.useState<Date | null>(null)
   const [isSaved, setIsSaved] = React.useState(true) // Track if current content is saved
+  const [emailRecipient, setEmailRecipient] = React.useState<string | null>(null)
+
+  // Pick up pending email from Cohort widget
+  React.useEffect(() => {
+    if (!primary) return
+    const pending = stores.pendingEmailTo.get()
+    if (pending) {
+      setEmailRecipient(pending.name)
+      stores.pendingEmailTo.set(null)
+    }
+    return stores.pendingEmailTo.subscribe((val) => {
+      if (val && primary) {
+        setEmailRecipient(val.name)
+        stores.pendingEmailTo.set(null)
+      }
+    })
+  }, [primary])
   const debounceTime = 7000  // 7s for all logs
   const debouncedValue = useDebounce(value, debounceTime)
 
@@ -1251,6 +1295,11 @@ const NoteEditor = ({
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'compose-email') {
+        // Parse recipient from "/email to [Name]" pattern
+        const match = value.match(/\/email\s+to\s+([^\n,]+)/i)
+        const recipient = match ? match[1].trim() : ''
+        setEmailRecipient(recipient || 'Community')
       }
     }
   }, [value])
@@ -1361,6 +1410,20 @@ const NoteEditor = ({
           )}
           rows={primary ? 10 : 1}
         />
+
+        {emailRecipient !== null && (
+          <EmailComposePanel
+            recipientName={emailRecipient}
+            onClose={() => setEmailRecipient(null)}
+            onSent={() => {
+              setEmailRecipient(null)
+              // Clear the /email command from the log text
+              const cleaned = value.replace(/\/email\s+to\s+[^\n]*/i, '').trim()
+              setValue(cleaned)
+              onChange(cleaned)
+            }}
+          />
+        )}
       </div>
     </div>
   )

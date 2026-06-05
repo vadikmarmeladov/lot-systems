@@ -3839,6 +3839,212 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   })
 
   // ============================================================================
+  // LOT® MAIL API — In-app email system
+  // ============================================================================
+
+  // Search users by first name (for email recipient lookup)
+  fastify.post('/users/search', async (req: FastifyRequest<{
+    Body: { query: string }
+  }>, reply) => {
+    try {
+      const { query } = req.body
+      if (!query || !query.trim()) {
+        return reply.send({ users: [] })
+      }
+      const users = await fastify.models.User.findAll({
+        where: {
+          [Op.or]: [
+            { firstName: { [Op.iLike]: `${query.trim()}%` } },
+            { lastName: { [Op.iLike]: `${query.trim()}%` } },
+          ],
+          id: { [Op.ne]: req.user.id },
+        },
+        attributes: ['id', 'firstName', 'lastName'],
+        limit: 10,
+        order: [['firstName', 'ASC']],
+      })
+      return reply.send({
+        users: users.map(u => ({
+          id: u.id,
+          firstName: u.firstName,
+          lastName: u.lastName,
+        })),
+      })
+    } catch (error) {
+      console.error('Error searching users:', error)
+      return reply.status(500).send({ error: 'Search failed' })
+    }
+  })
+
+  // Send a LOT® email
+  fastify.post('/email', async (req: FastifyRequest<{
+    Body: { receiverId: string; subject: string; body: string }
+  }>, reply) => {
+    try {
+      const { receiverId, subject, body } = req.body
+
+      if (!receiverId || !body || !body.trim()) {
+        return reply.status(400).send({ error: 'Receiver and body are required' })
+      }
+
+      const receiver = await fastify.models.User.findByPk(receiverId)
+      if (!receiver) {
+        return reply.status(404).send({ error: 'Recipient not found' })
+      }
+
+      const email = await fastify.models.EmailMessage.create({
+        senderId: req.user.id,
+        receiverId,
+        subject: (subject || '').trim().slice(0, 200),
+        body: body.trim().slice(0, 2000),
+      })
+
+      const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'Someone'
+      const receiverName = `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim() || 'Someone'
+
+      const payload = {
+        id: email.id,
+        senderId: email.senderId,
+        receiverId: email.receiverId,
+        subject: email.subject,
+        body: email.body,
+        isRead: email.isRead,
+        createdAt: email.createdAt,
+        updatedAt: email.updatedAt,
+        senderName,
+        receiverName,
+        isMine: false,
+      }
+
+      // Broadcast to all clients — receiver sees it in Sync inbox
+      sync.emit('email_message', payload)
+
+      // Log sent email for sender
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'email_sent',
+            text: '',
+            metadata: {
+              emailId: email.id,
+              receiverName,
+              subject: email.subject,
+              body: email.body,
+            },
+            context,
+          })
+          // Log received email for receiver
+          await fastify.models.Log.create({
+            userId: receiverId,
+            event: 'email_received',
+            text: '',
+            metadata: {
+              emailId: email.id,
+              senderName,
+              subject: email.subject,
+              body: email.body,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging email:', logError)
+        }
+      })
+
+      return reply.send({ ...payload, isMine: true })
+    } catch (error) {
+      console.error('Error sending email:', error)
+      return reply.status(500).send({ error: 'Failed to send email' })
+    }
+  })
+
+  // Get email inbox (received emails)
+  fastify.get('/email/inbox', async (req, reply) => {
+    try {
+      const emails = await fastify.models.EmailMessage.findAll({
+        where: { receiverId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+
+      const senderIds = [...new Set(emails.map(e => e.senderId))]
+      const senders = senderIds.length
+        ? await fastify.models.User.findAll({
+            where: { id: senderIds },
+            attributes: ['id', 'firstName', 'lastName'],
+          })
+        : []
+      const senderById = Object.fromEntries(
+        senders.map(u => [u.id, `${u.firstName || ''} ${u.lastName || ''}`.trim()])
+      )
+      const myName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim()
+
+      return reply.send(
+        emails.map(e => ({
+          id: e.id,
+          senderId: e.senderId,
+          receiverId: e.receiverId,
+          subject: e.subject,
+          body: e.body,
+          isRead: e.isRead,
+          createdAt: e.createdAt,
+          updatedAt: e.updatedAt,
+          senderName: senderById[e.senderId] || 'Unknown',
+          receiverName: myName,
+          isMine: false,
+        }))
+      )
+    } catch (error) {
+      console.error('Error fetching inbox:', error)
+      return reply.status(500).send({ error: 'Failed to fetch inbox' })
+    }
+  })
+
+  // Get sent emails
+  fastify.get('/email/sent', async (req, reply) => {
+    try {
+      const emails = await fastify.models.EmailMessage.findAll({
+        where: { senderId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+
+      const receiverIds = [...new Set(emails.map(e => e.receiverId))]
+      const receivers = receiverIds.length
+        ? await fastify.models.User.findAll({
+            where: { id: receiverIds },
+            attributes: ['id', 'firstName', 'lastName'],
+          })
+        : []
+      const receiverById = Object.fromEntries(
+        receivers.map(u => [u.id, `${u.firstName || ''} ${u.lastName || ''}`.trim()])
+      )
+      const myName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim()
+
+      return reply.send(
+        emails.map(e => ({
+          id: e.id,
+          senderId: e.senderId,
+          receiverId: e.receiverId,
+          subject: e.subject,
+          body: e.body,
+          isRead: e.isRead,
+          createdAt: e.createdAt,
+          updatedAt: e.updatedAt,
+          senderName: myName,
+          receiverName: receiverById[e.receiverId] || 'Unknown',
+          isMine: true,
+        }))
+      )
+    } catch (error) {
+      console.error('Error fetching sent emails:', error)
+      return reply.status(500).send({ error: 'Failed to fetch sent emails' })
+    }
+  })
+
+  // ============================================================================
   // STATS API - Real-time metrics and community insights
   // ============================================================================
 

@@ -14,6 +14,7 @@ import { useCohorts, useEnergy, useProfile } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
 import { recordSignal, getUserState } from '#client/stores/intentionEngine'
+import * as stores from '#client/stores'
 
 /**
  * Cohort Connect Widget - Find and connect with cohort members
@@ -124,6 +125,18 @@ export const CohortConnectWidget: React.FC = () => {
       hour: new Date().getHours()
     })
     stores.goTo('sync')
+  }
+
+  const handleSendEmail = (userId: string, firstName: string | null, lastName: string | null, similarity: number) => {
+    recordSignal('mood', 'cohort_email_initiated', {
+      userId,
+      similarity,
+      connectionReadiness,
+      hour: new Date().getHours()
+    })
+    const name = `${firstName || ''} ${lastName || ''}`.trim() || firstName || 'someone'
+    stores.pendingEmailTo.set({ id: userId, name })
+    stores.goTo('logs')
   }
 
   const handleToggleExpand = (userId: string) => {
@@ -250,7 +263,7 @@ export const CohortConnectWidget: React.FC = () => {
                     )}
 
                     {/* Actions */}
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-wrap">
                       <Button
                         size="small"
                         onClick={(e: React.MouseEvent) => {
@@ -268,6 +281,15 @@ export const CohortConnectWidget: React.FC = () => {
                         }}
                       >
                         Send message
+                      </Button>
+                      <Button
+                        size="small"
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation()
+                          handleSendEmail(match.user.id, match.user.firstName, match.user.lastName || null, match.similarity)
+                        }}
+                      >
+                        Mail
                       </Button>
                     </div>
                   </div>

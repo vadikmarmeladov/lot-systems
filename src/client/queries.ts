@@ -18,6 +18,7 @@ import {
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
+  LotEmailCard,
   Paginated,
   PublicChatMessage,
   User,
@@ -119,6 +120,25 @@ export const useSendDirectMessage = createMutation<
   { receiverId: string; message: string },
   void
 >('post', '/api/direct-messages')
+
+// LOT® Mail
+export const useSendEmail = createMutation<
+  { receiverId: string; subject: string; body: string },
+  LotEmailCard
+>('post', '/api/email')
+
+export const useEmailInbox = createQuery<LotEmailCard[]>('/api/email/inbox', {
+  refetchOnWindowFocus: false,
+})
+
+export const useEmailSent = createQuery<LotEmailCard[]>('/api/email/sent', {
+  refetchOnWindowFocus: false,
+})
+
+export const useSearchUsers = createMutation<
+  { query: string },
+  { users: Array<{ id: string; firstName: string | null; lastName: string | null }> }
+>('post', '/api/users/search')
 
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,

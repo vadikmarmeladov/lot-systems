@@ -23,9 +23,10 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useEmailInbox,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, UserTag, LotEmailCard } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -40,7 +41,10 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [emailCards, setEmailCards] = React.useState<LotEmailCard[]>([])
   const hasInitiallyLoaded = React.useRef(false)
+
+  const { data: inboxEmails } = useEmailInbox()
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -84,10 +88,29 @@ export const Sync = () => {
   // Reset hasInitiallyLoaded when component unmounts so data reloads on return
   React.useEffect(() => {
     queryClient.invalidateQueries(['/api/chat-messages'])
+    queryClient.invalidateQueries(['/api/email/inbox'])
     return () => {
       hasInitiallyLoaded.current = false
     }
   }, [])
+
+  React.useEffect(() => {
+    if (inboxEmails?.length) {
+      setEmailCards(inboxEmails)
+    }
+  }, [inboxEmails])
+
+  React.useEffect(() => {
+    const { dispose } = sync.listen('email_message', (data: LotEmailCard) => {
+      if (data.receiverId === me?.id) {
+        setEmailCards((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [data, ...prev]
+        })
+      }
+    })
+    return dispose
+  }, [me?.id])
 
   React.useEffect(() => {
     const { dispose: disposeChatMessageListener } = sync.listen(
@@ -219,6 +242,45 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {emailCards.length > 0 && (
+        <div className="mb-80">
+          <div className="text-acc/30 text-sm uppercase tracking-widest mb-16 select-none">
+            LOT® Mail · Inbox
+          </div>
+          {emailCards.map((x) => (
+            <div
+              key={x.id}
+              className="flex items-start gap-x-8 -mx-4 px-4 py-8 border-t border-acc/10 first:border-0"
+            >
+              <span className="text-acc/40 whitespace-nowrap select-none text-sm uppercase tracking-widest pt-[2px]">
+                MAIL
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-x-8 mb-4">
+                  <span className="text-acc/60 whitespace-nowrap">
+                    {x.senderName}
+                  </span>
+                  {x.subject && (
+                    <span className="text-acc/40 truncate">
+                      · {x.subject}
+                    </span>
+                  )}
+                </div>
+                <div
+                  className="opacity-60 whitespace-breakspaces"
+                  style={{ wordBreak: 'break-word' }}
+                >
+                  {x.body}
+                </div>
+                <div className="text-acc/30 text-sm mt-4">
+                  <MessageTimeLabel dateString={x.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {
