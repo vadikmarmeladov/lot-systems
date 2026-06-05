@@ -5,11 +5,12 @@ description: >-
   this skill WHENEVER S-2 (Vadik Marmeladov) says "Benchmark", "green build",
   "run the benchmark", or "ship it" inside a Claude Code session on a LOT repo —
   and use it even when the request is phrased loosely (e.g. "lock this in",
-  "make it green, push it"). It runs the full pipeline: preflight the
-  environment, intake an artifact (article, generated PDF, roadmap, vision,
-  design, style spec, UI detail, bug-fix, or user request), classify it, take
-  action, run all system checks, build, re-check until green (never push red),
-  write a military-grade Terminal Grid session report into docs/benchmark/,
+  "make it green, push it"). Also triggered by "Ship [feature]" to merge a
+  self-assembly routine from a feature branch to master via staging (reads
+  LOT-MANIFEST.md, cherry-picks BEST iteration, green-gates, merges). It runs
+  the full pipeline: preflight the environment, intake an artifact, classify it,
+  take action, run all system checks, build, re-check until green (never push
+  red), write a military-grade Terminal Grid session report into docs/benchmark/,
   route artifacts to the correct existing folder, distill learnings into an
   evolving lexicon and doctrine, and push to GitHub on the current ship branch.
   Trigger this for any LOT build-and-record cycle; do NOT use it for one-off
@@ -292,6 +293,58 @@ If `docs/benchmark/` lacks the three files, create them:
 
 Then before the first real Benchmark, anchor the rollback lattice once:
 `git tag benchmark-$(date -u +%Y%m%d)-00 && git push --tags`
+
+---
+
+## SHIP MODE (self-assembly routine merge)
+
+Triggered by S-2 with **"Ship [feature]"** (e.g. "Ship LOT Mail", "Ship Basics
+Tab", "Ship Calendar Alerts"). Ships a feature from a development branch to
+master via a staging branch, green-gated by the full 00-08 pipeline.
+
+### SHIP PIPELINE
+
+```
+S0  READ MANIFEST     Read docs/benchmark/LOT-MANIFEST.md, find BEST iteration
+S1  FETCH             git fetch origin <best-branch>
+S2  STAGING           git checkout master && git pull && git checkout -b staging
+S3  CHERRY-PICK       git cherry-pick <hash(es)> from the BEST branch
+S4  RESOLVE           If conflicts, resolve; if unresolvable, abort and report
+S5  GREEN GATE        Run full 02-04 (CHECK A → BUILD → CHECK B)
+S6  REPORT            Write session report with CLASS: SHIP
+S7  MERGE             git checkout master && git merge staging
+S8  PUSH + TAG        git push origin master --follow-tags
+S9  CHECK C           Post-push verification
+S10 UPDATE MANIFEST   Mark feature SHIPPED in LOT-MANIFEST.md, commit + push
+```
+
+### CARDINAL RULES (Ship Mode)
+
+1. **Master is never touched while any check is red.** Staging is the buffer.
+2. **Cherry-pick, don't merge branches.** Feature branches carry history that
+   may conflict with other shipped features. Cherry-pick gives per-commit control.
+3. **One feature per ship.** Don't batch multiple features into one staging pass.
+   Each feature gets its own report, its own green gate, its own merge commit.
+4. **MANIFEST is the source of truth.** Only ship branches marked BEST in the
+   manifest. If the manifest doesn't have it, scan the branch first and add it.
+5. **Staging is disposable.** If the green gate fails and the fix is non-trivial,
+   delete the staging branch and report. Don't accumulate fixes on staging.
+6. **The ship branch stays.** Never delete a shipped feature branch — it's the
+   provenance record. Only prune branches marked SUPERSEDED after S-2 confirms.
+
+### SHIP REPORT TEMPLATE
+
+Use the standard report template with these modifications:
+- `CLASS: SHIP` (not ENGINEERING/CORPORATE/etc.)
+- INTAKE block shows: source branch, cherry-picked hashes, feature summary
+- FILES CHANGED shows the diff against master (not the feature branch diff)
+
+### MANIFEST UPDATE
+
+After successful ship, update `docs/benchmark/LOT-MANIFEST.md`:
+- Change the feature's STATUS from BEST to SHIPPED
+- Add the merge commit hash
+- Append a line to the LEDGER with `CLASS: SHIP`
 
 ---
 

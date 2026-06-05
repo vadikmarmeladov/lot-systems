@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev C
+# LOT-DOCTRINE  rev D
 
 ## Render Isolation
 
@@ -37,3 +37,14 @@ deferred to allow immediate visual response.)
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
 (SR-20260604-01: calendar_entry saved but never returned.)
+
+## Ship Mode Discipline
+
+When multiple session branches develop the same feature independently,
+competing iterations accumulate. MANIFEST catalogs all branches, marks
+the BEST iteration per feature, and Ship mode cherry-picks that single
+iteration onto a staging branch for green-gated merge to master.
+One feature per ship. Master never touched while red. Cherry-pick not
+merge (avoids dragging divergent branch history into the main line).
+(SR-20260605-01: 115 branches across 23 clusters; 69 redundant
+iterations identified; 8 features ready for ship-mode merge.)

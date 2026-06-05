@@ -75,6 +75,7 @@ import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 import { CalendarWidget } from './CalendarWidget'
 import { BenchmarkWidget } from './BenchmarkWidget'
 import { ArchitectWidget } from './ArchitectWidget'
+import { IntegrityWidget } from './IntegrityWidget'
 import { recomputeAssembly } from '#client/stores/selfAssembly'
 import { $layoutDensity } from '#client/stores/evolution'
 import { useInViewport } from '#client/hooks/useInViewport'
@@ -980,6 +981,7 @@ export const System = () => {
           <PatternRecognitionWidget />
           <AIFeedbackWidget />
           <SignalStreamWidget />
+          <IntegrityWidget />
         </div>
       </WidgetErrorBoundary>
 

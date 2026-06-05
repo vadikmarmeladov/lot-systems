@@ -25,4 +25,6 @@ QOS MODE VIEW      6th QOS block — MAINTENANCE/RECOVERY/GROWTH/PEAK           
 CQGS               Coherent Quantum Ground State — theoretical system ceiling  A     20260603
 VIRTUOUS CYCLE     More use → deeper profile → more resonant questions → more use A  20260603
 RENDER-ISOLATION   Subscriptions at narrowest scope; default variants subscribe 0   B  20260603
+MANIFEST           Central catalog of all feature branches + status tracking         A  20260605
+SHIP MODE          Cherry-pick BEST iteration from MANIFEST → staging → green gate → master  A  20260605
 ```
