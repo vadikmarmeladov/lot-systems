@@ -11,4 +11,5 @@ ID             | CLASS        | SUMMARY                                         
 20260603-02    | ENGINEERING  | Button.tsx subscription reduction (secondary → 0 subs)  | GREEN  | 4d48dfb | WORDS: 284 (median 335)
 20260604-01    | ENGINEERING  | Biofield lag + calendar retrieval fix + sync audit      | GREEN  | d609978 | WORDS: 327 (median 320)
 20260605-01    | SELF-ASSEMBLY| System scan + MANIFEST + Ship mode + merge proposal     | GREEN  | 8a88f01 | WORDS: 390 (median 331)
+20260605-02    | WIKI-BUILD   | Field Manual v49 — release history v42-v49 · 14 vocab entries · credits updated | GREEN  | pending | BUILD: 8.69s
 ```
