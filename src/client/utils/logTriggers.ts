@@ -37,6 +37,7 @@ export type LogTrigger =
   | 'assembly-check'    // /assembly — trigger self-assembly module status check
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
+  | 'qi-rfi'            // /qi — Quantum Intelligence RFI (Request for Information)
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -59,6 +60,7 @@ const RULES: TriggerRule[] = [
   { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
+  { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'] },
 ]
 
 /**

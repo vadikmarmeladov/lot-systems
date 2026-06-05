@@ -1013,7 +1013,7 @@ export default async (fastify: FastifyInstance) => {
     const displayableEvents = [
       'note', 'answer', 'chat_message', 'chat_message_like',
       'emotional_checkin', 'settings_change', 'system_snapshot',
-      'weekly_summary_response', 'calendar_entry',
+      'weekly_summary_response', 'calendar_entry', 'qi_rfi',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -4647,6 +4647,213 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       } catch (error: any) {
         console.error('Cosmic Update generation failed:', error)
         return reply.status(500).send({ error: 'Cosmic Update generation failed' })
+      }
+    }
+  )
+
+  // ============================================================================
+  // QI — Quantum Intelligence RFI (Request for Information)
+  // Operator queries their own intelligence apparatus via /qi in the LOG.
+  // Engine: Together AI. Response format: military INTSUM (intelligence summary).
+  // ============================================================================
+  fastify.post(
+    '/qi',
+    async (
+      req: FastifyRequest<{
+        Body: {
+          query: string
+          quantumState?: {
+            energy?: string
+            clarity?: string
+            alignment?: string
+            needsSupport?: string
+          }
+          userIndex?: {
+            overall?: number
+            dimensions?: Record<string, number>
+            trend?: string
+          }
+        }
+      }>,
+      reply
+    ) => {
+      const { query, quantumState, userIndex } = req.body
+
+      if (!query || query.trim().length < 2) {
+        return reply.throw.badParams('RFI query required')
+      }
+
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 500,
+      })
+
+      // Gather intelligence from the operator's signal record
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 20)
+      const journalLogs = logs.filter(l => l.event === 'note' && l.text && l.text.length > 20).slice(0, 10)
+      const memoryLogs = logs.filter(l => l.event === 'answer').slice(0, 15)
+      const planLogs = logs.filter(l => l.event === 'plan_set').slice(0, 5)
+      const intentionLogs = logs.filter(l => l.event === 'intention').slice(0, 5)
+      const careLogs = logs.filter(l => l.event === 'self_care_complete' || l.event === 'self_care_completed').slice(0, 10)
+      const goalLogs = logs.filter(l => l.event === 'goal_set' || l.event === 'goal_journey' || l.event === 'goal_complete').slice(0, 5)
+      const calendarLogs = logs.filter(l => l.event === 'calendar_entry').slice(0, 10)
+      const qieLogs = logs.filter(l => l.event === 'quantum_intent_signal' || l.event === 'pattern_detected').slice(0, 10)
+
+      // Build mood timeline
+      const moodTimeline = moodLogs.map(l => {
+        const d = dayjs(l.createdAt)
+        return `${d.format('MM-DD HHmm')}: ${(l.metadata?.emotionalState as string || '').toUpperCase()}`
+      }).join('\n')
+
+      // Build journal excerpts
+      const journalExcerpts = journalLogs.map(l => {
+        const d = dayjs(l.createdAt)
+        const text = (l.text || '').substring(0, 200)
+        return `[${d.format('MM-DD')}] ${text}`
+      }).join('\n')
+
+      // Build Memory Q&A context
+      const memoryContext = memoryLogs.map(l => {
+        return `Q: ${l.metadata?.question || '—'}\nA: ${l.metadata?.answer || '—'}`
+      }).join('\n\n')
+
+      // Build intentions and plans
+      const intentContext = [
+        ...intentionLogs.map(l => `INTENT: ${l.metadata?.intention || l.text || '—'}`),
+        ...planLogs.map(l => `PLAN: ${l.metadata?.intent || '—'}${l.metadata?.today ? ' | TODAY: ' + l.metadata.today : ''}`),
+      ].join('\n')
+
+      // Build goal context
+      const goalContext = goalLogs.map(l => {
+        const title = l.metadata?.title as string || '—'
+        const stage = l.metadata?.stage as string || l.event.replace('goal_', '')
+        return `GOAL [${stage.toUpperCase()}]: ${title}`
+      }).join('\n')
+
+      // Build self-care record
+      const careContext = careLogs.map(l => {
+        const d = dayjs(l.createdAt)
+        return `${d.format('MM-DD')}: ${l.metadata?.action || l.metadata?.practice || 'care executed'}`
+      }).join('\n')
+
+      // Build QIE pattern context
+      const patternContext = qieLogs.map(l => {
+        const pattern = l.metadata?.pattern as string || ''
+        const confidence = l.metadata?.confidence as number || 0
+        return `${pattern.replace(/-/g, ' ').toUpperCase()} (${Math.round(confidence * 100)}%)`
+      }).join('\n')
+
+      // Quantum state summary
+      let stateBlock = ''
+      if (quantumState && quantumState.energy) {
+        stateBlock = `CURRENT STATE: ${quantumState.energy?.toUpperCase()} energy, ${quantumState.clarity?.toUpperCase()} clarity, ${quantumState.alignment?.toUpperCase()} alignment, support: ${quantumState.needsSupport?.toUpperCase()}`
+      }
+      if (userIndex && userIndex.overall !== undefined) {
+        const dims = userIndex.dimensions || {}
+        stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'}) | ENG:${dims.engagement ?? '—'} EMO:${dims.emotional ?? '—'} INT:${dims.intentional ?? '—'} SOC:${dims.social ?? '—'} CARE:${dims.selfCare ?? '—'} COG:${dims.cognitive ?? '—'}`
+      }
+
+      // Extract traits if enough data
+      let traitBlock = ''
+      try {
+        if (memoryLogs.length >= 3) {
+          const { extractUserTraits } = await import('#server/utils/memory')
+          const analysis = extractUserTraits(logs)
+          if (analysis.traits.length > 0) {
+            traitBlock = `ARCHETYPE TRAITS: ${analysis.traits.join(', ')}`
+          }
+        }
+      } catch {}
+
+      // Build the QI system prompt
+      const systemPrompt = `You are the Quantum Intelligence (QI) terminal for LOT Systems — a personal operating system.
+The operator has submitted an RFI (Request for Information) through their LOG terminal.
+
+Your role: Answer from the operator's OWN data record. You are not a chatbot. You are an intelligence analyst reading the operator's signal history and providing an assessment.
+
+RESPONSE FORMAT — INTSUM (Intelligence Summary):
+- Lead with a direct assessment answering their query
+- Support with specific data points from their record (dates, patterns, counts)
+- End with a single operational recommendation if warranted
+- Tone: direct, data-backed, military brevity. No pleasantries, no filler, no emojis.
+- Use uppercase for classifications and key terms
+- Keep total response under 150 words
+- If the data doesn't support an answer, say so: "INSUFFICIENT DATA" with what's missing
+
+NEVER fabricate data. Only reference what exists in the record below.
+NEVER give medical advice. Flag medical queries as outside QI scope.
+NEVER use the word "I". Use impersonal constructions: "Record shows...", "Data indicates...", "Assessment:".`
+
+      const dataBlock = `
+=== OPERATOR SIGNAL RECORD ===
+
+${stateBlock ? `--- QUANTUM STATE ---\n${stateBlock}\n` : ''}
+${traitBlock ? `--- PROFILE ---\n${traitBlock}\n` : ''}
+${moodTimeline ? `--- BIOFIELD LOG (recent) ---\n${moodTimeline}\n` : '--- BIOFIELD LOG ---\nNo readings on record.\n'}
+${intentContext ? `--- INTENTIONS / PLANS ---\n${intentContext}\n` : ''}
+${goalContext ? `--- GOALS ---\n${goalContext}\n` : ''}
+${careContext ? `--- SELF-CARE RECORD ---\n${careContext}\n` : ''}
+${patternContext ? `--- QIE PATTERNS DETECTED ---\n${patternContext}\n` : ''}
+${journalExcerpts ? `--- JOURNAL EXCERPTS ---\n${journalExcerpts}\n` : ''}
+${memoryContext ? `--- MEMORY Q&A (recent) ---\n${memoryContext}\n` : ''}
+${calendarLogs.length > 0 ? `--- CALENDAR ---\n${calendarLogs.map(l => `${dayjs(l.createdAt).format('MM-DD')}: ${l.text || '—'}`).join('\n')}\n` : ''}
+=== END RECORD ===
+
+OPERATOR RFI: ${query.trim()}`
+
+      const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
+
+      try {
+        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+        const engine = aiEngineManager.getEngine('together')
+
+        console.log(`🔍 QI RFI from ${req.user.email}: "${query.trim()}"`)
+
+        const assessment = await engine.generateCompletion(fullPrompt, 512)
+
+        // Log the RFI and response
+        const context = await getLogContext(req.user)
+        const rfiLog = await fastify.models.Log.create({
+          userId: req.user.id,
+          text: query.trim(),
+          event: 'qi_rfi',
+          context,
+          metadata: {
+            query: query.trim(),
+            assessment: assessment.trim(),
+            quantumState: quantumState || null,
+            userIndex: userIndex ? { overall: userIndex.overall, trend: userIndex.trend } : null,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          assessment: assessment.trim(),
+          logId: rfiLog.id,
+        }
+      } catch (error: any) {
+        console.error('QI RFI generation failed:', error)
+
+        // Still log the RFI even on failure
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          text: query.trim(),
+          event: 'qi_rfi',
+          context,
+          metadata: {
+            query: query.trim(),
+            assessment: 'QI OFFLINE — Engine unavailable. RFI logged for manual review.',
+            error: true,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          assessment: 'QI OFFLINE — Engine unavailable. RFI logged for manual review.',
+          logId: null,
+        }
       }
     }
   )

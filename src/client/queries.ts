@@ -797,3 +797,28 @@ export const useCosmicUpdate = createMutation<
   { prompt?: string },
   { imageUrl: string; prompt: string }
 >('post', '/api/cosmic-update')
+
+// ============================================================================
+// QI — Quantum Intelligence RFI
+// ============================================================================
+
+export const useQiQuery = createMutation<
+  {
+    query: string
+    quantumState?: {
+      energy?: string
+      clarity?: string
+      alignment?: string
+      needsSupport?: string
+    }
+    userIndex?: {
+      overall?: number
+      dimensions?: Record<string, number>
+      trend?: string
+    }
+  },
+  {
+    assessment: string
+    logId: string | null
+  }
+>('post', '/api/qi')

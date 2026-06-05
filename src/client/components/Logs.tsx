@@ -29,7 +29,8 @@ import {
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
-import { recordLogSignal, recordJournalSignal, analyzeIntentions } from '#client/stores/intentionEngine'
+import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex } from '#client/stores/intentionEngine'
+import { useQiQuery } from '#client/queries'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -1027,6 +1028,26 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'qi_rfi') {
+          const rfiQuery = log.metadata?.query as string | undefined
+          const assessment = log.metadata?.assessment as string | undefined
+          const isError = log.metadata?.error as boolean | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QI [RFI]:" blockView>
+                {rfiQuery && (
+                  <div className="uppercase tracking-widest mb-8">{rfiQuery}</div>
+                )}
+                {assessment && (
+                  <div className={cn('opacity-60', isError && 'opacity-40')}>
+                    {assessment.split('\n').map((line, idx) => (
+                      <div key={idx}>{line}</div>
+                    ))}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1075,6 +1096,18 @@ const NoteEditor = ({
   const [value, setValue] = React.useState(log.text || '')
   const [lastSavedAt, setLastSavedAt] = React.useState<Date | null>(null)
   const [isSaved, setIsSaved] = React.useState(true) // Track if current content is saved
+  const [qiResponse, setQiResponse] = React.useState<string | null>(null)
+  const [qiLoading, setQiLoading] = React.useState(false)
+  const { mutate: submitQi } = useQiQuery({
+    onSuccess: (data) => {
+      setQiResponse(data.assessment)
+      setQiLoading(false)
+    },
+    onError: () => {
+      setQiResponse('QI OFFLINE — Engine unavailable.')
+      setQiLoading(false)
+    },
+  })
   const debounceTime = 7000  // 7s for all logs
   const debouncedValue = useDebounce(value, debounceTime)
 
@@ -1251,6 +1284,24 @@ const NoteEditor = ({
       } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
         // Force immediate quantum intent analysis + recompute self-assembly state
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'qi-rfi') {
+        const qiMatch = value.match(/\/qi\s+(.+)/i)
+        if (qiMatch && qiMatch[1].trim().length >= 2 && !qiLoading) {
+          const query = qiMatch[1].trim()
+          setQiLoading(true)
+          setQiResponse(null)
+          try {
+            const state = getUserState()
+            const index = getUserIndex()
+            submitQi({
+              query,
+              quantumState: state,
+              userIndex: index,
+            })
+          } catch {
+            submitQi({ query })
+          }
+        }
       }
     }
   }, [value])
@@ -1361,6 +1412,22 @@ const NoteEditor = ({
           )}
           rows={primary ? 10 : 1}
         />
+        {(qiLoading || qiResponse) && (
+          <div className="mt-8">
+            <Block label="QI [INTSUM]:" blockView>
+              {qiLoading && !qiResponse && (
+                <div className="opacity-40 uppercase tracking-widest">Processing RFI...</div>
+              )}
+              {qiResponse && (
+                <div className="opacity-60">
+                  {qiResponse.split('\n').map((line, idx) => (
+                    <div key={idx}>{line}</div>
+                  ))}
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
       </div>
     </div>
   )
