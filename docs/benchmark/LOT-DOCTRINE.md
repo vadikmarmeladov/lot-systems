@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev D
+# LOT-DOCTRINE  rev E
 
 ## Render Isolation
 
@@ -48,3 +48,16 @@ One feature per ship. Master never touched while red. Cherry-pick not
 merge (avoids dragging divergent branch history into the main line).
 (SR-20260605-01: 115 branches across 23 clusters; 69 redundant
 iterations identified; 8 features ready for ship-mode merge.)
+
+## Operator RFI Pattern
+
+The system prompts the operator (Memory Engine: daily questions based on signal
+density). The inverse — operator queries the system — is a Request for
+Information (RFI) through the QI terminal. The QI is not a chatbot; it is an
+intelligence analyst reading the operator's own record. Response format is
+INTSUM: direct assessment, specific data points, one recommendation.
+The same data pipeline that builds the Memory prompt serves the QI response.
+New event types from RFI responses (qi_rfi) must appear in displayableEvents
+(Backend Whitelist Hygiene) so the write→read loop persists in the LOG.
+(SR-20260605-04: /qi trigger → POST /api/qi → Together AI → qi_rfi log;
+reuses QIE getUserState + getUserIndex from client side.)

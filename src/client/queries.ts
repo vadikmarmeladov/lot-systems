@@ -797,3 +797,86 @@ export const useCosmicUpdate = createMutation<
   { prompt?: string },
   { imageUrl: string; prompt: string }
 >('post', '/api/cosmic-update')
+
+// ============================================================================
+// QI — Quantum Intelligence RFI
+// ============================================================================
+
+export const useQiQuery = createMutation<
+  {
+    query: string
+    quantumState?: {
+      energy?: string
+      clarity?: string
+      alignment?: string
+      needsSupport?: string
+    }
+    userIndex?: {
+      overall?: number
+      dimensions?: Record<string, number>
+      trend?: string
+    }
+  },
+  {
+    assessment: string
+    logId: string | null
+  }
+>('post', '/api/qi')
+
+// ============================================================================
+// ASSEMBLY — Self-Assembly Directive
+// ============================================================================
+
+export const useAssemblyDirective = createMutation<
+  {
+    quantumState?: {
+      energy?: string
+      clarity?: string
+      alignment?: string
+      needsSupport?: string
+    }
+    userIndex?: {
+      overall?: number
+      dimensions?: Record<string, number>
+      trend?: string
+    }
+    assemblyState?: {
+      overallAssembly?: number
+      assembledCount?: number
+      totalModules?: number
+      phase?: string
+      dormantModules?: string[]
+      activeModules?: string[]
+    }
+  },
+  {
+    directive: string
+    logId: string | null
+  }
+>('post', '/api/assembly')
+
+// ============================================================================
+// PRAYER — Contextual Scripture
+// ============================================================================
+
+export const usePrayerScripture = createMutation<
+  {
+    logText: string
+    quantumState?: {
+      energy?: string
+      clarity?: string
+      alignment?: string
+      needsSupport?: string
+    }
+    userIndex?: {
+      overall?: number
+      dimensions?: Record<string, number>
+      trend?: string
+    }
+  },
+  {
+    scripture: string
+    reference: string
+    logId: string | null
+  }
+>('post', '/api/prayer')

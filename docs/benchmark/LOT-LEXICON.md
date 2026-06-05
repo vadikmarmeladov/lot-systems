@@ -27,4 +27,7 @@ VIRTUOUS CYCLE     More use → deeper profile → more resonant questions → m
 RENDER-ISOLATION   Subscriptions at narrowest scope; default variants subscribe 0   B  20260603
 MANIFEST           Central catalog of all feature branches + status tracking         A  20260605
 SHIP MODE          Cherry-pick BEST iteration from MANIFEST → staging → green gate → master  A  20260605
+QI                 Quantum Intelligence — operator RFI terminal querying own signal record via /qi  A  20260605
+RFI                Request for Information — operator-initiated query to the QI terminal            A  20260605
+INTSUM             Intelligence Summary — QI response format: assessment, data points, recommendation A  20260605
 ```

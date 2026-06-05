@@ -1013,7 +1013,8 @@ export default async (fastify: FastifyInstance) => {
     const displayableEvents = [
       'note', 'answer', 'chat_message', 'chat_message_like',
       'emotional_checkin', 'settings_change', 'system_snapshot',
-      'weekly_summary_response', 'calendar_entry',
+      'weekly_summary_response', 'calendar_entry', 'qi_rfi',
+      'assembly_directive', 'prayer_scripture',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -4647,6 +4648,565 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       } catch (error: any) {
         console.error('Cosmic Update generation failed:', error)
         return reply.status(500).send({ error: 'Cosmic Update generation failed' })
+      }
+    }
+  )
+
+  // ============================================================================
+  // QI — Quantum Intelligence RFI (Request for Information)
+  // Operator queries their own intelligence apparatus via /qi in the LOG.
+  // Engine: Together AI. Response format: military INTSUM (intelligence summary).
+  // ============================================================================
+  fastify.post(
+    '/qi',
+    async (
+      req: FastifyRequest<{
+        Body: {
+          query: string
+          quantumState?: {
+            energy?: string
+            clarity?: string
+            alignment?: string
+            needsSupport?: string
+          }
+          userIndex?: {
+            overall?: number
+            dimensions?: Record<string, number>
+            trend?: string
+          }
+        }
+      }>,
+      reply
+    ) => {
+      const { query, quantumState, userIndex } = req.body
+
+      if (!query || query.trim().length < 2) {
+        return reply.throw.badParams('RFI query required')
+      }
+
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 500,
+      })
+
+      // Gather intelligence from the operator's signal record
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 20)
+      const journalLogs = logs.filter(l => l.event === 'note' && l.text && l.text.length > 20).slice(0, 10)
+      const memoryLogs = logs.filter(l => l.event === 'answer').slice(0, 15)
+      const planLogs = logs.filter(l => l.event === 'plan_set').slice(0, 5)
+      const intentionLogs = logs.filter(l => l.event === 'intention').slice(0, 5)
+      const careLogs = logs.filter(l => l.event === 'self_care_complete' || l.event === 'self_care_completed').slice(0, 10)
+      const goalLogs = logs.filter(l => l.event === 'goal_set' || l.event === 'goal_journey' || l.event === 'goal_complete').slice(0, 5)
+      const calendarLogs = logs.filter(l => l.event === 'calendar_entry').slice(0, 10)
+      const qieLogs = logs.filter(l => l.event === 'quantum_intent_signal' || l.event === 'pattern_detected').slice(0, 10)
+
+      // Build mood timeline
+      const moodTimeline = moodLogs.map(l => {
+        const d = dayjs(l.createdAt)
+        return `${d.format('MM-DD HHmm')}: ${(l.metadata?.emotionalState as string || '').toUpperCase()}`
+      }).join('\n')
+
+      // Build journal excerpts
+      const journalExcerpts = journalLogs.map(l => {
+        const d = dayjs(l.createdAt)
+        const text = (l.text || '').substring(0, 200)
+        return `[${d.format('MM-DD')}] ${text}`
+      }).join('\n')
+
+      // Build Memory Q&A context
+      const memoryContext = memoryLogs.map(l => {
+        return `Q: ${l.metadata?.question || '—'}\nA: ${l.metadata?.answer || '—'}`
+      }).join('\n\n')
+
+      // Build intentions and plans
+      const intentContext = [
+        ...intentionLogs.map(l => `INTENT: ${l.metadata?.intention || l.text || '—'}`),
+        ...planLogs.map(l => `PLAN: ${l.metadata?.intent || '—'}${l.metadata?.today ? ' | TODAY: ' + l.metadata.today : ''}`),
+      ].join('\n')
+
+      // Build goal context
+      const goalContext = goalLogs.map(l => {
+        const title = l.metadata?.title as string || '—'
+        const stage = l.metadata?.stage as string || l.event.replace('goal_', '')
+        return `GOAL [${stage.toUpperCase()}]: ${title}`
+      }).join('\n')
+
+      // Build self-care record
+      const careContext = careLogs.map(l => {
+        const d = dayjs(l.createdAt)
+        return `${d.format('MM-DD')}: ${l.metadata?.action || l.metadata?.practice || 'care executed'}`
+      }).join('\n')
+
+      // Build QIE pattern context
+      const patternContext = qieLogs.map(l => {
+        const pattern = l.metadata?.pattern as string || ''
+        const confidence = l.metadata?.confidence as number || 0
+        return `${pattern.replace(/-/g, ' ').toUpperCase()} (${Math.round(confidence * 100)}%)`
+      }).join('\n')
+
+      // Quantum state summary
+      let stateBlock = ''
+      if (quantumState && quantumState.energy) {
+        stateBlock = `CURRENT STATE: ${quantumState.energy?.toUpperCase()} energy, ${quantumState.clarity?.toUpperCase()} clarity, ${quantumState.alignment?.toUpperCase()} alignment, support: ${quantumState.needsSupport?.toUpperCase()}`
+      }
+      if (userIndex && userIndex.overall !== undefined) {
+        const dims = userIndex.dimensions || {}
+        stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'}) | ENG:${dims.engagement ?? '—'} EMO:${dims.emotional ?? '—'} INT:${dims.intentional ?? '—'} SOC:${dims.social ?? '—'} CARE:${dims.selfCare ?? '—'} COG:${dims.cognitive ?? '—'}`
+      }
+
+      // Extract traits if enough data
+      let traitBlock = ''
+      try {
+        if (memoryLogs.length >= 3) {
+          const { extractUserTraits } = await import('#server/utils/memory')
+          const analysis = extractUserTraits(logs)
+          if (analysis.traits.length > 0) {
+            traitBlock = `ARCHETYPE TRAITS: ${analysis.traits.join(', ')}`
+          }
+        }
+      } catch {}
+
+      // Build the QI system prompt
+      const systemPrompt = `You are the Quantum Intelligence (QI) terminal for LOT Systems — a personal operating system.
+The operator has submitted an RFI (Request for Information) through their LOG terminal.
+
+Your role: Answer from the operator's OWN data record. You are not a chatbot. You are an intelligence analyst reading the operator's signal history and providing an assessment.
+
+RESPONSE FORMAT — INTSUM (Intelligence Summary):
+- Lead with a direct assessment answering their query
+- Support with specific data points from their record (dates, patterns, counts)
+- End with a single operational recommendation if warranted
+- Tone: direct, data-backed, military brevity. No pleasantries, no filler, no emojis.
+- Use uppercase for classifications and key terms
+- Keep total response under 150 words
+- If the data doesn't support an answer, say so: "INSUFFICIENT DATA" with what's missing
+
+NEVER fabricate data. Only reference what exists in the record below.
+NEVER give medical advice. Flag medical queries as outside QI scope.
+NEVER use the word "I". Use impersonal constructions: "Record shows...", "Data indicates...", "Assessment:".`
+
+      const dataBlock = `
+=== OPERATOR SIGNAL RECORD ===
+
+${stateBlock ? `--- QUANTUM STATE ---\n${stateBlock}\n` : ''}
+${traitBlock ? `--- PROFILE ---\n${traitBlock}\n` : ''}
+${moodTimeline ? `--- BIOFIELD LOG (recent) ---\n${moodTimeline}\n` : '--- BIOFIELD LOG ---\nNo readings on record.\n'}
+${intentContext ? `--- INTENTIONS / PLANS ---\n${intentContext}\n` : ''}
+${goalContext ? `--- GOALS ---\n${goalContext}\n` : ''}
+${careContext ? `--- SELF-CARE RECORD ---\n${careContext}\n` : ''}
+${patternContext ? `--- QIE PATTERNS DETECTED ---\n${patternContext}\n` : ''}
+${journalExcerpts ? `--- JOURNAL EXCERPTS ---\n${journalExcerpts}\n` : ''}
+${memoryContext ? `--- MEMORY Q&A (recent) ---\n${memoryContext}\n` : ''}
+${calendarLogs.length > 0 ? `--- CALENDAR ---\n${calendarLogs.map(l => `${dayjs(l.createdAt).format('MM-DD')}: ${l.text || '—'}`).join('\n')}\n` : ''}
+=== END RECORD ===
+
+OPERATOR RFI: ${query.trim()}`
+
+      const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
+
+      try {
+        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+        const engine = aiEngineManager.getEngine('together')
+
+        console.log(`🔍 QI RFI from ${req.user.email}: "${query.trim()}"`)
+
+        const assessment = await engine.generateCompletion(fullPrompt, 512)
+
+        // Log the RFI and response
+        const context = await getLogContext(req.user)
+        const rfiLog = await fastify.models.Log.create({
+          userId: req.user.id,
+          text: query.trim(),
+          event: 'qi_rfi',
+          context,
+          metadata: {
+            query: query.trim(),
+            assessment: assessment.trim(),
+            quantumState: quantumState || null,
+            userIndex: userIndex ? { overall: userIndex.overall, trend: userIndex.trend } : null,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          assessment: assessment.trim(),
+          logId: rfiLog.id,
+        }
+      } catch (error: any) {
+        console.error('QI RFI generation failed:', error)
+
+        // Still log the RFI even on failure
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          text: query.trim(),
+          event: 'qi_rfi',
+          context,
+          metadata: {
+            query: query.trim(),
+            assessment: 'QI OFFLINE — Engine unavailable. RFI logged for manual review.',
+            error: true,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          assessment: 'QI OFFLINE — Engine unavailable. RFI logged for manual review.',
+          logId: null,
+        }
+      }
+    }
+  )
+
+  // ============================================================================
+  // ASSEMBLY — Self-Assembly Directive
+  // System scans operator's signal record and generates a long-term directive.
+  // Not a response to a question — a proactive instruction from the machine.
+  // ============================================================================
+  fastify.post(
+    '/assembly',
+    async (
+      req: FastifyRequest<{
+        Body: {
+          quantumState?: {
+            energy?: string
+            clarity?: string
+            alignment?: string
+            needsSupport?: string
+          }
+          userIndex?: {
+            overall?: number
+            dimensions?: Record<string, number>
+            trend?: string
+          }
+          assemblyState?: {
+            overallAssembly?: number
+            assembledCount?: number
+            totalModules?: number
+            phase?: string
+            dormantModules?: string[]
+            activeModules?: string[]
+          }
+        }
+      }>,
+      reply
+    ) => {
+      const { quantumState, userIndex, assemblyState } = req.body
+
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 500,
+      })
+
+      // Gather signal data
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 20)
+      const planLogs = logs.filter(l => l.event === 'plan_set').slice(0, 10)
+      const intentionLogs = logs.filter(l => l.event === 'intention').slice(0, 10)
+      const careLogs = logs.filter(l => l.event === 'self_care_complete' || l.event === 'self_care_completed').slice(0, 10)
+      const careSkipLogs = logs.filter(l => l.event === 'self_care_skip').slice(0, 10)
+      const goalLogs = logs.filter(l => l.event === 'goal_set' || l.event === 'goal_journey' || l.event === 'goal_complete').slice(0, 10)
+      const journalLogs = logs.filter(l => l.event === 'note' && l.text && l.text.length > 20).slice(0, 5)
+      const qieLogs = logs.filter(l => l.event === 'quantum_intent_signal' || l.event === 'pattern_detected').slice(0, 10)
+      const energyLogs = logs.filter(l => l.event === 'energy_state' || l.event === 'energy_check').slice(0, 5)
+
+      // Compute signal gaps
+      const moduleMap: Record<string, string> = {
+        'answer': 'memory', 'emotional_checkin': 'biofield', 'plan_set': 'planner',
+        'self_care_complete': 'selfcare', 'self_care_completed': 'selfcare',
+        'intention': 'intentions', 'note': 'journal', 'chat_message': 'community',
+        'goal_set': 'goals', 'goal_journey': 'goals', 'goal_complete': 'goals',
+        'recipe_viewed': 'recipe', 'calendar_entry': 'calendar',
+      }
+      const lastSignalByModule: Record<string, Date> = {}
+      for (const log of logs) {
+        const mod = moduleMap[log.event]
+        if (mod && !lastSignalByModule[mod]) {
+          lastSignalByModule[mod] = new Date(log.createdAt)
+        }
+      }
+      const now = new Date()
+      const silentModules: string[] = []
+      const allModules = ['biofield', 'memory', 'planner', 'selfcare', 'intentions', 'journal', 'community', 'goals', 'recipe', 'calendar']
+      for (const mod of allModules) {
+        const last = lastSignalByModule[mod]
+        if (!last) {
+          silentModules.push(`${mod}: NEVER ACTIVATED`)
+        } else {
+          const hoursAgo = Math.round((now.getTime() - last.getTime()) / (1000 * 60 * 60))
+          if (hoursAgo > 72) {
+            silentModules.push(`${mod}: silent ${Math.round(hoursAgo / 24)}d`)
+          }
+        }
+      }
+
+      // Mood trajectory
+      const positiveMoods = ['energized', 'calm', 'hopeful', 'grateful', 'fulfilled', 'content', 'peaceful', 'excited']
+      const recentMoods = moodLogs.slice(0, 5).map(l => (l.metadata?.emotionalState as string || ''))
+      const olderMoods = moodLogs.slice(5, 10).map(l => (l.metadata?.emotionalState as string || ''))
+      const recentPositive = recentMoods.filter(m => positiveMoods.includes(m)).length
+      const olderPositive = olderMoods.length > 0 ? olderMoods.filter(m => positiveMoods.includes(m)).length : recentPositive
+      const moodTrajectory = recentPositive > olderPositive ? 'IMPROVING' : recentPositive < olderPositive ? 'DECLINING' : 'STABLE'
+
+      // Care ratio
+      const careCount = careLogs.length
+      const careSkipCount = careSkipLogs.length
+      const careRatio = careCount + careSkipCount > 0 ? Math.round((careCount / (careCount + careSkipCount)) * 100) : 0
+
+      // Build quantum state block
+      let stateBlock = ''
+      if (quantumState && quantumState.energy) {
+        stateBlock = `QUANTUM STATE: ${quantumState.energy?.toUpperCase()} energy, ${quantumState.clarity?.toUpperCase()} clarity, ${quantumState.alignment?.toUpperCase()} alignment`
+      }
+      if (userIndex && userIndex.overall !== undefined) {
+        const dims = userIndex.dimensions || {}
+        stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
+        stateBlock += `\nDIMENSIONS: ENG:${dims.engagement ?? '—'} EMO:${dims.emotional ?? '—'} INT:${dims.intentional ?? '—'} SOC:${dims.social ?? '—'} CARE:${dims.selfCare ?? '—'} COG:${dims.cognitive ?? '—'}`
+      }
+
+      // Build assembly block
+      let asmBlock = ''
+      if (assemblyState) {
+        asmBlock = `ASSEMBLY: ${assemblyState.overallAssembly ?? 0}% (${assemblyState.assembledCount ?? 0}/${assemblyState.totalModules ?? 18} modules) PHASE: ${(assemblyState.phase || 'unknown').toUpperCase()}`
+        if (assemblyState.dormantModules && assemblyState.dormantModules.length > 0) {
+          asmBlock += `\nDORMANT: ${assemblyState.dormantModules.join(', ')}`
+        }
+      }
+
+      const systemPrompt = `You are the Self-Assembly Engine for LOT Systems — a personal operating system that builds itself from the operator's usage patterns.
+
+Your task: Analyze the operator's signal record and generate ONE long-term directive. This is not a response to a question. This is a proactive instruction from the machine to the human — the system telling the operator what to build next in their life.
+
+DIRECTIVE FORMAT:
+- Start with "DIRECTIVE:" followed by a clear, actionable instruction
+- Then 2-3 lines of supporting data from their record (specific dates, counts, patterns)
+- End with "HORIZON:" followed by the timeframe (1 week, 2 weeks, 1 month)
+- Total: under 100 words. Dense. No filler.
+
+DIRECTIVE PRINCIPLES:
+- Target the WEAKEST dimension in their User Index, or the most dormant module
+- If mood is declining, prioritize stabilization over growth
+- If care ratio is low, prioritize self-care before ambition
+- If signal gaps exist, name them specifically ("Journal silent 12 days")
+- Directives must be concrete ("Move 20 minutes daily") not abstract ("Consider wellness")
+- Never repeat a directive the system has already given (check recent assembly logs)
+- The directive should feel like it comes from a machine that knows them — not a therapist
+
+TONE: Military brevity. Direct. The system speaks as an authority on the operator's patterns.`
+
+      const dataBlock = `
+=== OPERATOR SIGNAL RECORD ===
+
+${stateBlock ? `${stateBlock}\n` : ''}
+${asmBlock ? `${asmBlock}\n` : ''}
+MOOD TRAJECTORY: ${moodTrajectory}
+RECENT MOODS: ${recentMoods.map(m => m.toUpperCase()).join(', ') || 'NO DATA'}
+CARE RATIO: ${careRatio}% (${careCount} completed, ${careSkipCount} skipped)
+
+SIGNAL GAPS:
+${silentModules.length > 0 ? silentModules.join('\n') : 'All modules active within 72h.'}
+
+ACTIVE GOALS:
+${goalLogs.length > 0 ? goalLogs.map(l => `${(l.metadata?.title as string || l.text || '—').toUpperCase()}: ${l.event.replace('goal_', '')}`).join('\n') : 'No active goals.'}
+
+RECENT INTENTIONS:
+${intentionLogs.length > 0 ? intentionLogs.map(l => l.metadata?.intention || l.text || '—').join('\n') : 'No recorded intentions.'}
+
+RECENT PLANS:
+${planLogs.length > 0 ? planLogs.map(l => l.metadata?.intent || '—').join('\n') : 'No recent plans.'}
+
+QIE PATTERNS:
+${qieLogs.length > 0 ? qieLogs.map(l => `${(l.metadata?.pattern as string || '').replace(/-/g, ' ').toUpperCase()} (${Math.round((l.metadata?.confidence as number || 0) * 100)}%)`).join('\n') : 'No patterns detected yet.'}
+
+=== END RECORD ===`
+
+      const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
+
+      try {
+        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+        const engine = aiEngineManager.getEngine('together')
+
+        console.log(`🔧 Assembly directive for ${req.user.email}`)
+
+        const directive = await engine.generateCompletion(fullPrompt, 256)
+
+        const context = await getLogContext(req.user)
+        const asmLog = await fastify.models.Log.create({
+          userId: req.user.id,
+          text: directive.trim(),
+          event: 'assembly_directive',
+          context,
+          metadata: {
+            directive: directive.trim(),
+            moodTrajectory,
+            careRatio,
+            silentModules,
+            assemblyPercent: assemblyState?.overallAssembly || null,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          directive: directive.trim(),
+          logId: asmLog.id,
+        }
+      } catch (error: any) {
+        console.error('Assembly directive generation failed:', error)
+
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          text: 'ASSEMBLY OFFLINE — Engine unavailable.',
+          event: 'assembly_directive',
+          context,
+          metadata: {
+            directive: 'ASSEMBLY OFFLINE — Engine unavailable.',
+            error: true,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          directive: 'ASSEMBLY OFFLINE — Engine unavailable.',
+          logId: null,
+        }
+      }
+    }
+  )
+
+  // ============================================================================
+  // PRAYER — Contextual Scripture
+  // System reads the operator's log entry + biofield state and returns
+  // a Bible verse that resonates. The scripture finds the operator.
+  // ============================================================================
+  fastify.post(
+    '/prayer',
+    async (
+      req: FastifyRequest<{
+        Body: {
+          logText: string
+          quantumState?: {
+            energy?: string
+            clarity?: string
+            alignment?: string
+            needsSupport?: string
+          }
+          userIndex?: {
+            overall?: number
+            dimensions?: Record<string, number>
+            trend?: string
+          }
+        }
+      }>,
+      reply
+    ) => {
+      const { logText, quantumState, userIndex } = req.body
+
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 200,
+      })
+
+      // Recent mood trajectory
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
+
+      // Recent prayer history to avoid repeats
+      const recentPrayers = logs
+        .filter(l => l.event === 'prayer_scripture')
+        .slice(0, 10)
+        .map(l => l.metadata?.reference as string || '')
+        .filter(Boolean)
+
+      // Build state context
+      let stateBlock = ''
+      if (quantumState && quantumState.energy) {
+        stateBlock = `OPERATOR STATE: ${quantumState.energy} energy, ${quantumState.clarity} clarity, ${quantumState.alignment} alignment, support: ${quantumState.needsSupport}`
+      }
+      if (userIndex && userIndex.overall !== undefined) {
+        const dims = userIndex.dimensions || {}
+        const weakest = Object.entries(dims).sort(([,a], [,b]) => (a as number) - (b as number))[0]
+        stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
+        if (weakest) stateBlock += ` | WEAKEST: ${weakest[0]} (${weakest[1]})`
+      }
+
+      const systemPrompt = `You are the Prayer module of LOT Systems — a personal operating system with a Christian scripture engine.
+
+The operator typed a log entry and invoked /prayer. Your task: select ONE Bible verse that speaks directly to what they wrote and what their biofield shows. The scripture should feel like it found them.
+
+RULES:
+- Return EXACTLY one verse in this format: BOOK chapter:verse — full verse text
+- Use modern language translations (NIV, ESV, NLT, or similar). Never KJV archaic language.
+- The verse must RESONATE with their specific words and state, not be generic
+- If they mention nature (ocean, mountain, sky) — find verses about that element
+- If they're exhausted/depleted — find verses about rest, restoration, strength renewed
+- If they're grateful/joyful — find verses that amplify praise and gratitude
+- If they're anxious/overwhelmed — find verses about peace, stillness, being held
+- If their energy dimensions are low — find verses about renewal and quiet strength
+- If their alignment is "disconnected" — find verses about purpose and calling
+- Match the EMOTIONAL REGISTER of their log entry. Don't force positivity on pain.
+- NEVER repeat a verse from the recent history list below
+- Return ONLY the verse line. No commentary. No explanation. No preamble.
+
+Example outputs:
+- Psalm 93:4 — Mightier than the thunder of the great waters, mightier than the breakers of the sea—the Lord on high is mighty.
+- Isaiah 40:31 — But those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint.
+- Philippians 4:7 — And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.`
+
+      const dataBlock = `
+OPERATOR LOG ENTRY: "${logText || '(no text)'}"
+
+${stateBlock ? stateBlock : 'STATE: unknown'}
+
+RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+
+${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayers.join('\n')}` : ''}`
+
+      const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
+
+      try {
+        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+        const engine = aiEngineManager.getEngine('together')
+
+        console.log(`🕯️ Prayer scripture for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+
+        const scripture = await engine.generateCompletion(fullPrompt, 256)
+
+        const cleaned = scripture.trim().replace(/^["']|["']$/g, '')
+
+        // Extract reference (e.g. "Psalm 93:4") from the response
+        const refMatch = cleaned.match(/^([\w\d\s]+\d+:\d+[\-–]?\d*)/)
+        const reference = refMatch ? refMatch[1].trim() : cleaned.substring(0, 30)
+
+        const context = await getLogContext(req.user)
+        const prayerLog = await fastify.models.Log.create({
+          userId: req.user.id,
+          text: cleaned,
+          event: 'prayer_scripture',
+          context,
+          metadata: {
+            scripture: cleaned,
+            reference,
+            logText: (logText || '').substring(0, 500),
+            quantumState: quantumState || null,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          scripture: cleaned,
+          reference,
+          logId: prayerLog.id,
+        }
+      } catch (error: any) {
+        console.error('Prayer scripture generation failed:', error)
+        return {
+          scripture: 'Psalm 46:10 — He says, "Be still, and know that I am God."',
+          reference: 'Psalm 46:10',
+          logId: null,
+        }
       }
     }
   )
