@@ -75,35 +75,25 @@ export function EmotionalCheckIn() {
 
   const { mutate: createCheckIn, isLoading } = useCreateEmotionalCheckIn({
     onSuccess: (data) => {
-      // Fade out buttons
-      setIsPromptShown(false)
+      const fullResponse = data.compassionateResponse || 'Noted.'
+      setResponse(fullResponse)
+      setInsight(data.insights)
 
-      // Wait for buttons to fade out completely (1500ms - matches Memory widget)
       setTimeout(() => {
-        // Set the affirmation/response (no need to clear first - direct replacement)
-        const fullResponse = data.compassionateResponse || 'Noted.'
-        setResponse(fullResponse)
-        setInsight(data.insights)
+        setIsResponseShown(true)
 
-        // Fade in the response
         setTimeout(() => {
-          setIsResponseShown(true)
+          setIsShown(false)
 
-          // Show response for a while, then fade out entire widget
           setTimeout(() => {
-            setIsShown(false)
-
-            // After widget fades out, hide it completely and reset state (matches Memory widget)
-            setTimeout(() => {
-              setIsDisplayed(false)
-              setIsResponseShown(false)
-              setResponse(null)
-              setInsight(null)
-              setShouldRender(false) // Now safe to stop rendering
-            }, 1500)
-          }, data.insights?.length ? 7000 : 5000) // Show longer if there are insights
-        }, 100)
-      }, 1500)
+            setIsDisplayed(false)
+            setIsResponseShown(false)
+            setResponse(null)
+            setInsight(null)
+            setShouldRender(false)
+          }, 1500)
+        }, data.insights?.length ? 7000 : 5000)
+      }, 100)
     }
   })
 
@@ -133,8 +123,9 @@ export function EmotionalCheckIn() {
     const hour = new Date().getHours()
     const checkInType = hour < 12 ? 'morning' : hour >= 19 ? 'evening' : 'moment'
 
-    // Record which button was clicked for cascade effect
+    // Record which button was clicked and start cascade immediately
     setClickedButtonIndex(buttonIndex)
+    setIsPromptShown(false)
 
     createCheckIn({
       checkInType,
