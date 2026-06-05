@@ -822,3 +822,35 @@ export const useQiQuery = createMutation<
     logId: string | null
   }
 >('post', '/api/qi')
+
+// ============================================================================
+// ASSEMBLY — Self-Assembly Directive
+// ============================================================================
+
+export const useAssemblyDirective = createMutation<
+  {
+    quantumState?: {
+      energy?: string
+      clarity?: string
+      alignment?: string
+      needsSupport?: string
+    }
+    userIndex?: {
+      overall?: number
+      dimensions?: Record<string, number>
+      trend?: string
+    }
+    assemblyState?: {
+      overallAssembly?: number
+      assembledCount?: number
+      totalModules?: number
+      phase?: string
+      dormantModules?: string[]
+      activeModules?: string[]
+    }
+  },
+  {
+    directive: string
+    logId: string | null
+  }
+>('post', '/api/assembly')

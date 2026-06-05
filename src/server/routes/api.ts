@@ -1014,6 +1014,7 @@ export default async (fastify: FastifyInstance) => {
       'note', 'answer', 'chat_message', 'chat_message_like',
       'emotional_checkin', 'settings_change', 'system_snapshot',
       'weekly_summary_response', 'calendar_entry', 'qi_rfi',
+      'assembly_directive',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -4852,6 +4853,222 @@ OPERATOR RFI: ${query.trim()}`
 
         return {
           assessment: 'QI OFFLINE — Engine unavailable. RFI logged for manual review.',
+          logId: null,
+        }
+      }
+    }
+  )
+
+  // ============================================================================
+  // ASSEMBLY — Self-Assembly Directive
+  // System scans operator's signal record and generates a long-term directive.
+  // Not a response to a question — a proactive instruction from the machine.
+  // ============================================================================
+  fastify.post(
+    '/assembly',
+    async (
+      req: FastifyRequest<{
+        Body: {
+          quantumState?: {
+            energy?: string
+            clarity?: string
+            alignment?: string
+            needsSupport?: string
+          }
+          userIndex?: {
+            overall?: number
+            dimensions?: Record<string, number>
+            trend?: string
+          }
+          assemblyState?: {
+            overallAssembly?: number
+            assembledCount?: number
+            totalModules?: number
+            phase?: string
+            dormantModules?: string[]
+            activeModules?: string[]
+          }
+        }
+      }>,
+      reply
+    ) => {
+      const { quantumState, userIndex, assemblyState } = req.body
+
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 500,
+      })
+
+      // Gather signal data
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 20)
+      const planLogs = logs.filter(l => l.event === 'plan_set').slice(0, 10)
+      const intentionLogs = logs.filter(l => l.event === 'intention').slice(0, 10)
+      const careLogs = logs.filter(l => l.event === 'self_care_complete' || l.event === 'self_care_completed').slice(0, 10)
+      const careSkipLogs = logs.filter(l => l.event === 'self_care_skip').slice(0, 10)
+      const goalLogs = logs.filter(l => l.event === 'goal_set' || l.event === 'goal_journey' || l.event === 'goal_complete').slice(0, 10)
+      const journalLogs = logs.filter(l => l.event === 'note' && l.text && l.text.length > 20).slice(0, 5)
+      const qieLogs = logs.filter(l => l.event === 'quantum_intent_signal' || l.event === 'pattern_detected').slice(0, 10)
+      const energyLogs = logs.filter(l => l.event === 'energy_state' || l.event === 'energy_check').slice(0, 5)
+
+      // Compute signal gaps
+      const moduleMap: Record<string, string> = {
+        'answer': 'memory', 'emotional_checkin': 'biofield', 'plan_set': 'planner',
+        'self_care_complete': 'selfcare', 'self_care_completed': 'selfcare',
+        'intention': 'intentions', 'note': 'journal', 'chat_message': 'community',
+        'goal_set': 'goals', 'goal_journey': 'goals', 'goal_complete': 'goals',
+        'recipe_viewed': 'recipe', 'calendar_entry': 'calendar',
+      }
+      const lastSignalByModule: Record<string, Date> = {}
+      for (const log of logs) {
+        const mod = moduleMap[log.event]
+        if (mod && !lastSignalByModule[mod]) {
+          lastSignalByModule[mod] = new Date(log.createdAt)
+        }
+      }
+      const now = new Date()
+      const silentModules: string[] = []
+      const allModules = ['biofield', 'memory', 'planner', 'selfcare', 'intentions', 'journal', 'community', 'goals', 'recipe', 'calendar']
+      for (const mod of allModules) {
+        const last = lastSignalByModule[mod]
+        if (!last) {
+          silentModules.push(`${mod}: NEVER ACTIVATED`)
+        } else {
+          const hoursAgo = Math.round((now.getTime() - last.getTime()) / (1000 * 60 * 60))
+          if (hoursAgo > 72) {
+            silentModules.push(`${mod}: silent ${Math.round(hoursAgo / 24)}d`)
+          }
+        }
+      }
+
+      // Mood trajectory
+      const positiveMoods = ['energized', 'calm', 'hopeful', 'grateful', 'fulfilled', 'content', 'peaceful', 'excited']
+      const recentMoods = moodLogs.slice(0, 5).map(l => (l.metadata?.emotionalState as string || ''))
+      const olderMoods = moodLogs.slice(5, 10).map(l => (l.metadata?.emotionalState as string || ''))
+      const recentPositive = recentMoods.filter(m => positiveMoods.includes(m)).length
+      const olderPositive = olderMoods.length > 0 ? olderMoods.filter(m => positiveMoods.includes(m)).length : recentPositive
+      const moodTrajectory = recentPositive > olderPositive ? 'IMPROVING' : recentPositive < olderPositive ? 'DECLINING' : 'STABLE'
+
+      // Care ratio
+      const careCount = careLogs.length
+      const careSkipCount = careSkipLogs.length
+      const careRatio = careCount + careSkipCount > 0 ? Math.round((careCount / (careCount + careSkipCount)) * 100) : 0
+
+      // Build quantum state block
+      let stateBlock = ''
+      if (quantumState && quantumState.energy) {
+        stateBlock = `QUANTUM STATE: ${quantumState.energy?.toUpperCase()} energy, ${quantumState.clarity?.toUpperCase()} clarity, ${quantumState.alignment?.toUpperCase()} alignment`
+      }
+      if (userIndex && userIndex.overall !== undefined) {
+        const dims = userIndex.dimensions || {}
+        stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
+        stateBlock += `\nDIMENSIONS: ENG:${dims.engagement ?? '—'} EMO:${dims.emotional ?? '—'} INT:${dims.intentional ?? '—'} SOC:${dims.social ?? '—'} CARE:${dims.selfCare ?? '—'} COG:${dims.cognitive ?? '—'}`
+      }
+
+      // Build assembly block
+      let asmBlock = ''
+      if (assemblyState) {
+        asmBlock = `ASSEMBLY: ${assemblyState.overallAssembly ?? 0}% (${assemblyState.assembledCount ?? 0}/${assemblyState.totalModules ?? 18} modules) PHASE: ${(assemblyState.phase || 'unknown').toUpperCase()}`
+        if (assemblyState.dormantModules && assemblyState.dormantModules.length > 0) {
+          asmBlock += `\nDORMANT: ${assemblyState.dormantModules.join(', ')}`
+        }
+      }
+
+      const systemPrompt = `You are the Self-Assembly Engine for LOT Systems — a personal operating system that builds itself from the operator's usage patterns.
+
+Your task: Analyze the operator's signal record and generate ONE long-term directive. This is not a response to a question. This is a proactive instruction from the machine to the human — the system telling the operator what to build next in their life.
+
+DIRECTIVE FORMAT:
+- Start with "DIRECTIVE:" followed by a clear, actionable instruction
+- Then 2-3 lines of supporting data from their record (specific dates, counts, patterns)
+- End with "HORIZON:" followed by the timeframe (1 week, 2 weeks, 1 month)
+- Total: under 100 words. Dense. No filler.
+
+DIRECTIVE PRINCIPLES:
+- Target the WEAKEST dimension in their User Index, or the most dormant module
+- If mood is declining, prioritize stabilization over growth
+- If care ratio is low, prioritize self-care before ambition
+- If signal gaps exist, name them specifically ("Journal silent 12 days")
+- Directives must be concrete ("Move 20 minutes daily") not abstract ("Consider wellness")
+- Never repeat a directive the system has already given (check recent assembly logs)
+- The directive should feel like it comes from a machine that knows them — not a therapist
+
+TONE: Military brevity. Direct. The system speaks as an authority on the operator's patterns.`
+
+      const dataBlock = `
+=== OPERATOR SIGNAL RECORD ===
+
+${stateBlock ? `${stateBlock}\n` : ''}
+${asmBlock ? `${asmBlock}\n` : ''}
+MOOD TRAJECTORY: ${moodTrajectory}
+RECENT MOODS: ${recentMoods.map(m => m.toUpperCase()).join(', ') || 'NO DATA'}
+CARE RATIO: ${careRatio}% (${careCount} completed, ${careSkipCount} skipped)
+
+SIGNAL GAPS:
+${silentModules.length > 0 ? silentModules.join('\n') : 'All modules active within 72h.'}
+
+ACTIVE GOALS:
+${goalLogs.length > 0 ? goalLogs.map(l => `${(l.metadata?.title as string || l.text || '—').toUpperCase()}: ${l.event.replace('goal_', '')}`).join('\n') : 'No active goals.'}
+
+RECENT INTENTIONS:
+${intentionLogs.length > 0 ? intentionLogs.map(l => l.metadata?.intention || l.text || '—').join('\n') : 'No recorded intentions.'}
+
+RECENT PLANS:
+${planLogs.length > 0 ? planLogs.map(l => l.metadata?.intent || '—').join('\n') : 'No recent plans.'}
+
+QIE PATTERNS:
+${qieLogs.length > 0 ? qieLogs.map(l => `${(l.metadata?.pattern as string || '').replace(/-/g, ' ').toUpperCase()} (${Math.round((l.metadata?.confidence as number || 0) * 100)}%)`).join('\n') : 'No patterns detected yet.'}
+
+=== END RECORD ===`
+
+      const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
+
+      try {
+        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+        const engine = aiEngineManager.getEngine('together')
+
+        console.log(`🔧 Assembly directive for ${req.user.email}`)
+
+        const directive = await engine.generateCompletion(fullPrompt, 256)
+
+        const context = await getLogContext(req.user)
+        const asmLog = await fastify.models.Log.create({
+          userId: req.user.id,
+          text: directive.trim(),
+          event: 'assembly_directive',
+          context,
+          metadata: {
+            directive: directive.trim(),
+            moodTrajectory,
+            careRatio,
+            silentModules,
+            assemblyPercent: assemblyState?.overallAssembly || null,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          directive: directive.trim(),
+          logId: asmLog.id,
+        }
+      } catch (error: any) {
+        console.error('Assembly directive generation failed:', error)
+
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          text: 'ASSEMBLY OFFLINE — Engine unavailable.',
+          event: 'assembly_directive',
+          context,
+          metadata: {
+            directive: 'ASSEMBLY OFFLINE — Engine unavailable.',
+            error: true,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          directive: 'ASSEMBLY OFFLINE — Engine unavailable.',
           logId: null,
         }
       }

@@ -29,8 +29,10 @@ import {
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
-import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex } from '#client/stores/intentionEngine'
-import { useQiQuery } from '#client/queries'
+import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
+import { getAssemblyState } from '#client/stores/selfAssembly'
+import { getEarnedBadges, BADGES } from '#client/utils/badges'
+import { useQiQuery, useAssemblyDirective } from '#client/queries'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -1048,6 +1050,22 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'assembly_directive') {
+          const directive = log.metadata?.directive as string | undefined
+          const isError = log.metadata?.error as boolean | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ASM [DIRECTIVE]:" blockView>
+                {directive && (
+                  <div className={cn('opacity-60', isError && 'opacity-40')}>
+                    {directive.split('\n').map((line, idx) => (
+                      <div key={idx}>{line}</div>
+                    ))}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1098,6 +1116,9 @@ const NoteEditor = ({
   const [isSaved, setIsSaved] = React.useState(true) // Track if current content is saved
   const [qiResponse, setQiResponse] = React.useState<string | null>(null)
   const [qiLoading, setQiLoading] = React.useState(false)
+  const [asmResponse, setAsmResponse] = React.useState<string | null>(null)
+  const [asmLoading, setAsmLoading] = React.useState(false)
+  const [scanResult, setScanResult] = React.useState<string | null>(null)
   const { mutate: submitQi } = useQiQuery({
     onSuccess: (data) => {
       setQiResponse(data.assessment)
@@ -1106,6 +1127,16 @@ const NoteEditor = ({
     onError: () => {
       setQiResponse('QI OFFLINE — Engine unavailable.')
       setQiLoading(false)
+    },
+  })
+  const { mutate: submitAssembly } = useAssemblyDirective({
+    onSuccess: (data) => {
+      setAsmResponse(data.directive)
+      setAsmLoading(false)
+    },
+    onError: () => {
+      setAsmResponse('ASSEMBLY OFFLINE — Engine unavailable.')
+      setAsmLoading(false)
     },
   })
   const debounceTime = 7000  // 7s for all logs
@@ -1281,9 +1312,68 @@ const NoteEditor = ({
         if (!stores.isCustomThemeEnabled.get()) {
           stores.theme.set('dark')
         }
-      } else if (trigger === 'qos-report' || trigger === 'assembly-check') {
-        // Force immediate quantum intent analysis + recompute self-assembly state
+      } else if (trigger === 'qos-report') {
         try { analyzeIntentions() } catch {}
+      } else if (trigger === 'assembly-check') {
+        if (!asmLoading) {
+          setAsmLoading(true)
+          setAsmResponse(null)
+          try {
+            const state = getUserState()
+            const index = getUserIndex()
+            const asm = getAssemblyState()
+            const dormant = asm.modules.filter(m => m.phase === 'dormant').map(m => m.id)
+            const active = asm.modules.filter(m => m.phase !== 'dormant').map(m => m.id)
+            submitAssembly({
+              quantumState: state,
+              userIndex: index,
+              assemblyState: {
+                overallAssembly: asm.overallAssembly,
+                assembledCount: asm.assembledCount,
+                totalModules: asm.totalModules,
+                phase: asm.phase,
+                dormantModules: dormant,
+                activeModules: active,
+              },
+            })
+          } catch {
+            submitAssembly({})
+          }
+        }
+      } else if (trigger === 'ai-scan') {
+        try {
+          const asm = getAssemblyState()
+          const eng = intentionEngine.get()
+          const badges = getEarnedBadges()
+          const totalBadges = Object.keys(BADGES).length
+          const patternCount = eng.recognizedPatterns?.length || 0
+          const signals = eng.signals || []
+          const lastSignal = signals.length > 0 ? signals[signals.length - 1] : null
+          const lastSignalAgo = lastSignal ? Math.round((Date.now() - lastSignal.timestamp) / (1000 * 60)) : null
+          const connected = stores.isConnected.get()
+          const online = stores.usersOnline.get()
+          const total = stores.usersTotal.get()
+          const version = stores.appVersion.get()
+          const moduleLines = asm.modules.map(m => {
+            const pct = Math.round(m.density * 100)
+            return `  ${m.id.toUpperCase().padEnd(16)} ${m.phase.toUpperCase().padEnd(12)} ${pct}%`
+          }).join('\n')
+
+          const lines = [
+            `LOT STATUS: ${connected ? 'CONNECTED' : 'OFFLINE'}${version ? ` (v${version})` : ''}`,
+            `NETWORK: ${online}/${total} operators online`,
+            `ASSEMBLY: ${asm.overallAssembly}% (${asm.assembledCount}/${asm.totalModules} modules) PHASE: ${asm.phase.toUpperCase()}`,
+            `BADGES: ${badges.length}/${totalBadges} unlocked`,
+            `QIE: ${patternCount} patterns detected`,
+            lastSignalAgo !== null ? `LAST SIGNAL: ${lastSignalAgo < 60 ? lastSignalAgo + 'm ago' : Math.round(lastSignalAgo / 60) + 'h ago'}` : 'LAST SIGNAL: NO DATA',
+            ``,
+            `MODULES:`,
+            moduleLines,
+          ]
+          setScanResult(lines.join('\n'))
+        } catch {
+          setScanResult('SCAN FAILED — Unable to read system state.')
+        }
       } else if (trigger === 'qi-rfi') {
         const qiMatch = value.match(/\/qi\s+(.+)/i)
         if (qiMatch && qiMatch[1].trim().length >= 2 && !qiLoading) {
@@ -1425,6 +1515,31 @@ const NoteEditor = ({
                   ))}
                 </div>
               )}
+            </Block>
+          </div>
+        )}
+        {(asmLoading || asmResponse) && (
+          <div className="mt-8">
+            <Block label="ASM [DIRECTIVE]:" blockView>
+              {asmLoading && !asmResponse && (
+                <div className="opacity-40 uppercase tracking-widest">Generating directive...</div>
+              )}
+              {asmResponse && (
+                <div className="opacity-60">
+                  {asmResponse.split('\n').map((line, idx) => (
+                    <div key={idx}>{line}</div>
+                  ))}
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {scanResult && (
+          <div className="mt-8">
+            <Block label="SCAN:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">
+                {scanResult}
+              </div>
             </Block>
           </div>
         )}
