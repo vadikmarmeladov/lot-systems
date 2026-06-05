@@ -974,15 +974,17 @@ export const System = () => {
         </LazyMount>
       </WidgetErrorBoundary>
 
-      {/* CQGS Biofield Engine Widgets */}
+      {/* CQGS Biofield Engine Widgets — lazy-mounted: subscriptions deferred until block enters viewport */}
       <WidgetErrorBoundary name="Biofield Engine">
-        <div className={cn('flex flex-col', density.sectionGap)}>
-          <QuantumStateWidget />
-          <PatternRecognitionWidget />
-          <AIFeedbackWidget />
-          <SignalStreamWidget />
-          <IntegrityWidget />
-        </div>
+        <LazyMount>
+          <div className={cn('flex flex-col', density.sectionGap)}>
+            <QuantumStateWidget />
+            <PatternRecognitionWidget />
+            <AIFeedbackWidget />
+            <SignalStreamWidget />
+            <IntegrityWidget />
+          </div>
+        </LazyMount>
       </WidgetErrorBoundary>
 
       {/* CQGS Dashboard stack */}

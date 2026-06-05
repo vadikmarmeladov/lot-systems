@@ -695,6 +695,33 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'The system no longer runs when you are not looking.',
     ],
   },
+  {
+    date: '2026-06-05',
+    session: 'Self-Assembly Session — LOT-SR-20260605-01 / System Scan + IntegrityWidget + MANIFEST + Ship Mode',
+    assembled: [
+      'LOT-MANIFEST.md created: central catalog of all 125 remote branches across 23 session clusters. 8 features ship-ready, 69 prunable iterations identified. BEST iteration per feature locked.',
+      'LOT-SYSTEM-OUTLINE.md created: full architecture map — 213 files, 69K lines, 81 components, 65 QIE patterns, 18 archetypes, 18 assembly modules, 9 background jobs.',
+      'IntegrityWidget deployed: 6 fracture types (mood-action, intention-execution, energy-behavior, care-claim, temporal-drift, signal-void). Integrity score 0-100. 4 views: verdict, fractures, timeline, field. hasCurrentIntention() exported from intentionEngine.',
+      'CalendarWidget: [SCHEDULE] military tag on log entries. Font size normalized to base — text-sm/text-xs removed. The time grid speaks in the same weight as everything else.',
+      'Ship Mode added to Benchmark skill: "Ship [feature]" reads MANIFEST, cherry-picks BEST iteration onto staging, green-gates, merges to master. One feature per ship. Master never touched while red.',
+      'Benchmark skill aligned to 00-08 pipeline steps. ROUTE merged into REPORT (step 05). Renumbered cleanly.',
+      'Merge proposal logged: 8 features, risk-ascending sequence (Health/Security → Calendar Alerts → Badge RPG → LOT Mail → Basics Tab → QI-46 → Self-Assembly v45 → COSMO). Week of 2026-06-08.',
+      'BUILD: GREEN. Hash: 8a88f01. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
+  {
+    date: '2026-06-05',
+    session: 'Self-Assembly Session — LOT-SR-20260605-02 / CQGS Biofield Engine Viewport Isolation',
+    assembled: [
+      'System.tsx: LazyMount wrapper applied to CQGS Biofield Engine block. Five widgets now defer subscriptions until the block enters viewport.',
+      'Widgets isolated: QuantumStateWidget · PatternRecognitionWidget · AIFeedbackWidget · SignalStreamWidget · IntegrityWidget.',
+      'All five subscribed to intentionEngine (useStore) or call analyzeIntentions() on log change. Now dormant until operator scrolls into range.',
+      'Render isolation series: router → Block/Sync/nav → Button → game loop + QuantumEngine LazyMount → CQGS Biofield Engine LazyMount.',
+      'SystemProgressWidget session log synchronized: LOT-SR-20260605-01 entry added. USERSHIP_TRANSMISSION updated to current run.',
+      'BUILD: GREEN. Deployed to claude/quantum-engine-widgets-RgFfC.',
+      'The system is quieter when you are not there.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -732,16 +759,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-04',
+  date: '2026-06-05',
   message: [
-    'ASSEMBLY RUN — 2026-06-04 · LOT-SR-20260604-01',
-    'Viewport isolation layer deployed. Two targets, two techniques.',
-    'MicroGameWidget: 150ms game loop now gated by IntersectionObserver. Loop stops when widget scrolls off-screen. Resumes on re-entry. Game state preserved across pause.',
-    'QuantumEngineWidgets: LazyMount wrapper in System.tsx. intentionEngine + selfAssembly subscriptions do not start until widget enters viewport. Once mounted — stays mounted. No thrash.',
-    'useInViewport.ts: new shared hook. useInViewport (one-shot, pre-mounts 200px early). useActiveViewport (continuous, for loop gating). Both fallback to true if IntersectionObserver unavailable.',
-    'Render isolation series: router → Block/Sync/nav → Button → game loop + lazy-mount.',
-    'Next: QuantumStateWidget + PatternRecognitionWidget — next two intentionEngine subscribers below the fold. Complete the viewport-isolation layer across the full CQGS block.',
-    'DEPLOYED. The system no longer runs when you are not looking.',
+    'ASSEMBLY RUN — 2026-06-05 · LOT-SR-20260605-02',
+    'CQGS Biofield Engine: five widgets lazy-mounted. Subscriptions start only when you scroll in.',
+    'QuantumStateWidget · PatternRecognitionWidget · AIFeedbackWidget · SignalStreamWidget · IntegrityWidget — all deferred.',
+    'intentionEngine subscriptions for the full CQGS block: dormant until viewport entry. No analysis runs off-screen.',
+    'Render isolation series complete: router → Block/Sync/nav → Button → game loop → QuantumEngine → CQGS Biofield Engine.',
+    'Lie detector online. 125 branches catalogued. 8 features queued for ship. First: Health/Security — LOW risk, +148 lines.',
+    'MANIFEST is the source of truth. Ship Mode is live. Waiting on S-2 approval to begin.',
+    'DEPLOYED. The system is quieter when you are not there.',
   ],
 }
 
