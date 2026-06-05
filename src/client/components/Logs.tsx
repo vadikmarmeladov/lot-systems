@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -1050,6 +1050,17 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'prayer_scripture') {
+          const scripture = log.metadata?.scripture as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="🕯️" blockView>
+                {scripture && (
+                  <div className="opacity-60 italic">{scripture}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'assembly_directive') {
           const directive = log.metadata?.directive as string | undefined
           const isError = log.metadata?.error as boolean | undefined
@@ -1137,6 +1148,18 @@ const NoteEditor = ({
     onError: () => {
       setAsmResponse('ASSEMBLY OFFLINE — Engine unavailable.')
       setAsmLoading(false)
+    },
+  })
+  const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
+  const [prayerLoading, setPrayerLoading] = React.useState(false)
+  const { mutate: submitPrayer } = usePrayerScripture({
+    onSuccess: (data) => {
+      setPrayerResponse(data.scripture)
+      setPrayerLoading(false)
+    },
+    onError: () => {
+      setPrayerResponse('Psalm 46:10 — He says, "Be still, and know that I am God."')
+      setPrayerLoading(false)
     },
   })
   const debounceTime = 7000  // 7s for all logs
@@ -1308,9 +1331,29 @@ const NoteEditor = ({
         } catch {}
       } else if (trigger === 'radio-toggle') {
         stores.isRadioOn.set(!stores.isRadioOn.get())
-      } else if (trigger === 'prayer-mode' || trigger === 'night-mode') {
+      } else if (trigger === 'night-mode') {
         if (!stores.isCustomThemeEnabled.get()) {
           stores.theme.set('dark')
+        }
+      } else if (trigger === 'prayer-mode') {
+        if (!stores.isCustomThemeEnabled.get()) {
+          stores.theme.set('dark')
+        }
+        if (!prayerLoading) {
+          setPrayerLoading(true)
+          setPrayerResponse(null)
+          try {
+            const logText = value.replace(/\/prayer/i, '').replace(/🕯️?/g, '').trim()
+            const state = getUserState()
+            const index = getUserIndex()
+            submitPrayer({
+              logText,
+              quantumState: state,
+              userIndex: index,
+            })
+          } catch {
+            submitPrayer({ logText: value })
+          }
         }
       } else if (trigger === 'qos-report') {
         try { analyzeIntentions() } catch {}
@@ -1540,6 +1583,20 @@ const NoteEditor = ({
               <div className="opacity-60 font-mono whitespace-pre">
                 {scanResult}
               </div>
+            </Block>
+          </div>
+        )}
+        {(prayerLoading || prayerResponse) && (
+          <div className="mt-8">
+            <Block label="🕯️" blockView>
+              {prayerLoading && !prayerResponse && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {prayerResponse && (
+                <div className="opacity-60 italic">
+                  {prayerResponse}
+                </div>
+              )}
             </Block>
           </div>
         )}

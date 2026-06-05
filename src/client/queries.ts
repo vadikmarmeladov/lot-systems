@@ -854,3 +854,29 @@ export const useAssemblyDirective = createMutation<
     logId: string | null
   }
 >('post', '/api/assembly')
+
+// ============================================================================
+// PRAYER — Contextual Scripture
+// ============================================================================
+
+export const usePrayerScripture = createMutation<
+  {
+    logText: string
+    quantumState?: {
+      energy?: string
+      clarity?: string
+      alignment?: string
+      needsSupport?: string
+    }
+    userIndex?: {
+      overall?: number
+      dimensions?: Record<string, number>
+      trend?: string
+    }
+  },
+  {
+    scripture: string
+    reference: string
+    logId: string | null
+  }
+>('post', '/api/prayer')

@@ -1014,7 +1014,7 @@ export default async (fastify: FastifyInstance) => {
       'note', 'answer', 'chat_message', 'chat_message_like',
       'emotional_checkin', 'settings_change', 'system_snapshot',
       'weekly_summary_response', 'calendar_entry', 'qi_rfi',
-      'assembly_directive',
+      'assembly_directive', 'prayer_scripture',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -5069,6 +5069,142 @@ ${qieLogs.length > 0 ? qieLogs.map(l => `${(l.metadata?.pattern as string || '')
 
         return {
           directive: 'ASSEMBLY OFFLINE — Engine unavailable.',
+          logId: null,
+        }
+      }
+    }
+  )
+
+  // ============================================================================
+  // PRAYER — Contextual Scripture
+  // System reads the operator's log entry + biofield state and returns
+  // a Bible verse that resonates. The scripture finds the operator.
+  // ============================================================================
+  fastify.post(
+    '/prayer',
+    async (
+      req: FastifyRequest<{
+        Body: {
+          logText: string
+          quantumState?: {
+            energy?: string
+            clarity?: string
+            alignment?: string
+            needsSupport?: string
+          }
+          userIndex?: {
+            overall?: number
+            dimensions?: Record<string, number>
+            trend?: string
+          }
+        }
+      }>,
+      reply
+    ) => {
+      const { logText, quantumState, userIndex } = req.body
+
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 200,
+      })
+
+      // Recent mood trajectory
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
+
+      // Recent prayer history to avoid repeats
+      const recentPrayers = logs
+        .filter(l => l.event === 'prayer_scripture')
+        .slice(0, 10)
+        .map(l => l.metadata?.reference as string || '')
+        .filter(Boolean)
+
+      // Build state context
+      let stateBlock = ''
+      if (quantumState && quantumState.energy) {
+        stateBlock = `OPERATOR STATE: ${quantumState.energy} energy, ${quantumState.clarity} clarity, ${quantumState.alignment} alignment, support: ${quantumState.needsSupport}`
+      }
+      if (userIndex && userIndex.overall !== undefined) {
+        const dims = userIndex.dimensions || {}
+        const weakest = Object.entries(dims).sort(([,a], [,b]) => (a as number) - (b as number))[0]
+        stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
+        if (weakest) stateBlock += ` | WEAKEST: ${weakest[0]} (${weakest[1]})`
+      }
+
+      const systemPrompt = `You are the Prayer module of LOT Systems — a personal operating system with a Christian scripture engine.
+
+The operator typed a log entry and invoked /prayer. Your task: select ONE Bible verse that speaks directly to what they wrote and what their biofield shows. The scripture should feel like it found them.
+
+RULES:
+- Return EXACTLY one verse in this format: BOOK chapter:verse — full verse text
+- Use modern language translations (NIV, ESV, NLT, or similar). Never KJV archaic language.
+- The verse must RESONATE with their specific words and state, not be generic
+- If they mention nature (ocean, mountain, sky) — find verses about that element
+- If they're exhausted/depleted — find verses about rest, restoration, strength renewed
+- If they're grateful/joyful — find verses that amplify praise and gratitude
+- If they're anxious/overwhelmed — find verses about peace, stillness, being held
+- If their energy dimensions are low — find verses about renewal and quiet strength
+- If their alignment is "disconnected" — find verses about purpose and calling
+- Match the EMOTIONAL REGISTER of their log entry. Don't force positivity on pain.
+- NEVER repeat a verse from the recent history list below
+- Return ONLY the verse line. No commentary. No explanation. No preamble.
+
+Example outputs:
+- Psalm 93:4 — Mightier than the thunder of the great waters, mightier than the breakers of the sea—the Lord on high is mighty.
+- Isaiah 40:31 — But those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint.
+- Philippians 4:7 — And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.`
+
+      const dataBlock = `
+OPERATOR LOG ENTRY: "${logText || '(no text)'}"
+
+${stateBlock ? stateBlock : 'STATE: unknown'}
+
+RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+
+${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayers.join('\n')}` : ''}`
+
+      const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
+
+      try {
+        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+        const engine = aiEngineManager.getEngine('together')
+
+        console.log(`🕯️ Prayer scripture for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+
+        const scripture = await engine.generateCompletion(fullPrompt, 256)
+
+        const cleaned = scripture.trim().replace(/^["']|["']$/g, '')
+
+        // Extract reference (e.g. "Psalm 93:4") from the response
+        const refMatch = cleaned.match(/^([\w\d\s]+\d+:\d+[\-–]?\d*)/)
+        const reference = refMatch ? refMatch[1].trim() : cleaned.substring(0, 30)
+
+        const context = await getLogContext(req.user)
+        const prayerLog = await fastify.models.Log.create({
+          userId: req.user.id,
+          text: cleaned,
+          event: 'prayer_scripture',
+          context,
+          metadata: {
+            scripture: cleaned,
+            reference,
+            logText: (logText || '').substring(0, 500),
+            quantumState: quantumState || null,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          scripture: cleaned,
+          reference,
+          logId: prayerLog.id,
+        }
+      } catch (error: any) {
+        console.error('Prayer scripture generation failed:', error)
+        return {
+          scripture: 'Psalm 46:10 — He says, "Be still, and know that I am God."',
+          reference: 'Psalm 46:10',
           logId: null,
         }
       }
