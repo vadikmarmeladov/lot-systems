@@ -14,5 +14,5 @@ ID             | CLASS        | SUMMARY                                         
 20260605-02    | WIKI-BUILD   | Field Manual v49 — release history v42-v49 · 14 vocab entries · credits updated | GREEN  | 7c91f0c | BUILD: 8.69s
 20260605-03    | ENGINEERING  | Badge RPG codex v9 — 42+ badges · easter-eggs.ts LIVE · PDF 25pp · Sci-Fi/Terminal/Arcade | GREEN  | c83de89 | WORDS: 388 (median 339)
 20260605-04    | ENGINEERING  | QI terminal (/qi RFI) + biofield button responsiveness  | GREEN  | 48aa898 | WORDS: 449 (median 339)
-20260605-05    | ENGINEERING  | LOG commands: /prayer + /assembly + /scan               | GREEN  | pending | WORDS: 498 (median 388)
+20260605-05    | ENGINEERING  | LOG commands: /prayer + /assembly + /scan               | GREEN  | 76e7253 | WORDS: 498 (median 388)
 ```
