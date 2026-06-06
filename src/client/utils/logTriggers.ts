@@ -38,6 +38,7 @@ export type LogTrigger =
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
   | 'qi-rfi'            // /qi — Quantum Intelligence RFI (Request for Information)
+  | 'email-compose'     // /email to [name] [body] — compose LOT® Mail
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -61,6 +62,7 @@ const RULES: TriggerRule[] = [
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
   { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'] },
+  { trigger: 'email-compose',  emojis: ['✉️', '📧'], keywords: ['email'] },
 ]
 
 /**

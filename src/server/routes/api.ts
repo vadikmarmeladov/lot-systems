@@ -380,6 +380,13 @@ export default async (fastify: FastifyInstance) => {
           write({ event, data: updatedPayload })
           break
         }
+        case 'lotMail': {
+          // Only deliver to the intended recipient
+          if (data.receiverId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
       }
     })
 
@@ -5208,6 +5215,138 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
           logId: null,
         }
       }
+    }
+  )
+
+  // ============================================================================
+  // LOT® Mail Routes
+  // ============================================================================
+
+  // GET /api/lot-mail — inbox + sent
+  fastify.get('/lot-mail', async (req, reply) => {
+    const Op = (await import('sequelize')).Op
+
+    const [inbox, sent] = await Promise.all([
+      fastify.models.LotMail.findAll({
+        where: { receiverId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      }),
+      fastify.models.LotMail.findAll({
+        where: { senderId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      }),
+    ])
+
+    const senderIds = [...new Set([
+      ...inbox.map((m) => m.senderId),
+      ...sent.map((m) => m.senderId),
+    ])]
+
+    const senders = await fastify.models.User.findAll({
+      where: { id: senderIds as any },
+      attributes: ['id', 'firstName', 'lastName'],
+    })
+
+    const senderMap: Record<string, string> = {}
+    for (const s of senders) {
+      senderMap[s.id] = [s.firstName, s.lastName].filter(Boolean).join(' ') || s.email
+    }
+
+    const toPublic = (m: any, direction: 'inbox' | 'sent') => ({
+      id: m.id,
+      senderId: m.senderId,
+      receiverId: m.receiverId,
+      recipientName: m.recipientName,
+      subject: m.subject,
+      body: m.body,
+      isRead: m.isRead,
+      createdAt: m.createdAt,
+      updatedAt: m.updatedAt,
+      senderName: senderMap[m.senderId] || 'Unknown',
+      direction,
+    })
+
+    return {
+      inbox: inbox.map((m) => toPublic(m, 'inbox')),
+      sent: sent.map((m) => toPublic(m, 'sent')),
+      unreadCount: inbox.filter((m) => !m.isRead).length,
+    }
+  })
+
+  // POST /api/lot-mail — send a mail
+  fastify.post<{
+    Body: { recipientName: string; subject?: string; body: string }
+  }>('/lot-mail', async (req, reply) => {
+    const { recipientName, subject, body } = req.body
+
+    if (!recipientName?.trim() || !body?.trim()) {
+      return reply.throw.badParams('recipientName and body are required')
+    }
+
+    // Resolve recipient by firstName (case-insensitive)
+    const nameParts = recipientName.trim().split(/\s+/)
+    const Op = (await import('sequelize')).Op
+    const candidate = await fastify.models.User.findOne({
+      where: {
+        firstName: { [Op.iLike]: nameParts[0] },
+      },
+      attributes: ['id', 'firstName', 'lastName', 'email'],
+    })
+
+    const mail = await fastify.models.LotMail.create({
+      senderId: req.user.id,
+      receiverId: candidate?.id ?? null,
+      recipientName: recipientName.trim(),
+      subject: subject?.trim() || null,
+      body: body.trim(),
+    })
+
+    const senderName = [req.user.firstName, req.user.lastName].filter(Boolean).join(' ') || req.user.email
+
+    const publicMail = {
+      id: mail.id,
+      senderId: mail.senderId,
+      receiverId: mail.receiverId,
+      recipientName: mail.recipientName,
+      subject: mail.subject,
+      body: mail.body,
+      isRead: mail.isRead,
+      createdAt: mail.createdAt,
+      updatedAt: mail.updatedAt,
+      senderName,
+      direction: 'inbox' as const,
+    }
+
+    // Notify recipient via SSE sync
+    if (candidate?.id) {
+      sync.emit('lotMail', publicMail)
+    }
+
+    // Log the send action
+    const context = await getLogContext(req.user)
+    await fastify.models.Log.create({
+      userId: req.user.id,
+      event: 'note' as any,
+      text: `/email to ${recipientName}${subject ? ` — ${subject}` : ''}: ${body}`,
+      metadata: { mailId: mail.id, mailType: 'lot_mail_sent' },
+      context,
+    })
+
+    return { id: mail.id, recipientResolved: !!candidate }
+  })
+
+  // PUT /api/lot-mail/:id/read — mark as read
+  fastify.put<{ Params: { id: string } }>(
+    '/lot-mail/:id/read',
+    async (req, reply) => {
+      const mail = await fastify.models.LotMail.findOne({
+        where: { id: req.params.id, receiverId: req.user.id },
+      })
+      if (!mail) return reply.throw.notFound('Mail not found')
+      await mail.set({ isRead: true }).save()
+      reply.ok()
     }
   )
 }

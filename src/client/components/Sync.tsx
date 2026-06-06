@@ -30,6 +30,7 @@ import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+import { LotMailInbox } from './LotMailInbox'
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -37,6 +38,7 @@ export const Sync = () => {
   const isTouchDevice = useStore(stores.isTouchDevice)
   const isTimeFormat12h = useStore(stores.isTimeFormat12h)
   const queryClient = useQueryClient()
+  const [mailUnread, setMailUnread] = React.useState(0)
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
@@ -283,6 +285,8 @@ export const Sync = () => {
           )
         })}
       </div>
+
+      <LotMailInbox onUnreadChange={setMailUnread} />
     </div>
   )
 }

@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useSendLotMail } from '#client/queries'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -215,6 +215,19 @@ export const Logs: React.FC = () => {
               </Block>
               <Block label="OUT:" blockView>
                 {log.metadata.answer as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'note' && log.metadata?.mailType === 'lot_mail_sent') {
+          const mailId = log.metadata?.mailId as string | undefined
+          const body = log.text?.replace(/^\/email to \S+\s*—?\s*/i, '') || log.text || ''
+          const recipientMatch = log.text?.match(/^\/email to (\S+)/i)
+          const recipient = recipientMatch ? recipientMatch[1] : '?'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                <div className="uppercase tracking-widest text-acc/50 text-xs mb-4">→ {recipient}</div>
+                <div>{body}</div>
               </Block>
             </LogContainer>
           )
@@ -1150,6 +1163,23 @@ const NoteEditor = ({
       setAsmLoading(false)
     },
   })
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { mutate: sendLotMail } = useSendLotMail({
+    onSuccess: (data) => {
+      setEmailResult(
+        data.recipientResolved
+          ? 'MAIL SENT — delivered to recipient.'
+          : 'MAIL SENT — recipient logged, not yet in system.'
+      )
+      setEmailLoading(false)
+    },
+    onError: () => {
+      setEmailResult('MAIL FAILED — unable to send.')
+      setEmailLoading(false)
+    },
+  })
+
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const { mutate: submitPrayer } = usePrayerScripture({
@@ -1435,6 +1465,18 @@ const NoteEditor = ({
             submitQi({ query })
           }
         }
+      } else if (trigger === 'email-compose') {
+        // Pattern: /email to <name> <body>
+        const emailMatch = value.match(/\/email\s+to\s+(\S+)\s+([\s\S]+)/i)
+        if (emailMatch && !emailLoading) {
+          const recipientName = emailMatch[1].trim()
+          const body = emailMatch[2].trim()
+          if (body.length >= 1) {
+            setEmailLoading(true)
+            setEmailResult(null)
+            sendLotMail({ recipientName, body })
+          }
+        }
       }
     }
   }, [value])
@@ -1595,6 +1637,20 @@ const NoteEditor = ({
               {prayerResponse && (
                 <div className="opacity-60 italic">
                   {prayerResponse}
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 tracking-widest">sending...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60 uppercase tracking-widest text-sm">
+                  {emailResult}
                 </div>
               )}
             </Block>
