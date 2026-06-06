@@ -88,11 +88,11 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     // Check Node.js version is compatible
     const nodeVersion = process.version
     const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
-    if (majorVersion < 18) {
+    if (majorVersion < 20) {
       return {
         name: 'Engine stack',
         status: 'error',
-        message: `Node.js version ${nodeVersion} is too old (requires 18+)`,
+        message: `Node.js version ${nodeVersion} is too old (requires 20+)`,
         duration: Date.now() - start,
       }
     }
@@ -189,20 +189,8 @@ async function checkUsers(): Promise<SystemCheck> {
 async function checkSettings(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check if User model is available (settings are part of User model)
-    await models.User.findOne()
-
-    // Check if settings page bundle exists
-    const settingsPagePath = path.join(process.cwd(), 'dist/client/js/app.js')
-    if (!fs.existsSync(settingsPagePath)) {
-      return {
-        name: 'Settings',
-        status: 'error',
-        message: 'Settings page bundle not found',
-        duration: Date.now() - start,
-      }
-    }
-
+    // Settings are stored in User.metadata — verify the model can surface metadata fields
+    await models.User.findOne({ attributes: ['id', 'metadata'] })
     return {
       name: 'Settings',
       status: 'ok',
@@ -355,8 +343,17 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Critical path: database and engine stack failures → error
+  // Any non-critical failure → degraded
+  const hasCriticalError = checks.some(
+    (c) => (c.name === 'Database stack' || c.name === 'Engine stack') && c.status === 'error'
+  )
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalError
+    ? 'error'
+    : hasAnyError
+    ? 'degraded'
+    : 'ok'
 
   return {
     version: VERSION,
@@ -708,9 +705,9 @@ export default async (fastify: FastifyInstance) => {
       const Anthropic = (await import('@anthropic-ai/sdk')).default
       const client = new Anthropic({ apiKey: anthropicKey })
 
-      // Make a minimal API call to test the key
+      // Make a minimal API call to test the key (haiku — lowest cost)
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 10,
         messages: [
           {
