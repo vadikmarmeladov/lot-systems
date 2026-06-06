@@ -974,11 +974,11 @@ export const System = () => {
         </LazyMount>
       </WidgetErrorBoundary>
 
-      {/* CQGS Biofield Engine Widgets */}
+      {/* CQGS Biofield Engine Widgets — QuantumStateWidget + PatternRecognitionWidget lazy-mounted */}
       <WidgetErrorBoundary name="Biofield Engine">
         <div className={cn('flex flex-col', density.sectionGap)}>
-          <QuantumStateWidget />
-          <PatternRecognitionWidget />
+          <LazyMount><QuantumStateWidget /></LazyMount>
+          <LazyMount><PatternRecognitionWidget /></LazyMount>
           <AIFeedbackWidget />
           <SignalStreamWidget />
           <IntegrityWidget />
