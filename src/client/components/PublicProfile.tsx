@@ -608,12 +608,18 @@ export const PublicProfile = () => {
           </div>
         )}
 
-        {/* QR Code — Usership only */}
+        {/* QR Code — Usership + assembly stage gate */}
         {(() => {
           const isUsership = profile.tags?.some(
             t => t.toLowerCase() === 'usership'
           )
           if (!isUsership) return null
+
+          const PHASE_ORDER = ['dormant', 'awakening', 'forming', 'assembled', 'integrated']
+          const phase = profile.assemblyPhase || 'dormant'
+          const phaseRank = PHASE_ORDER.indexOf(phase)
+          const formingRank = PHASE_ORDER.indexOf('forming')
+          if (phaseRank < formingRank) return null
 
           const THEMES: Record<string, { base: string; acc: string }> = {
             light: { base: '#ffffff', acc: '#000000' },

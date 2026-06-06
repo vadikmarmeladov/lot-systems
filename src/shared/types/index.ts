@@ -323,6 +323,8 @@ export type PublicProfile = {
   };
   // Correlated indexes (four-dimensional long-term tracking)
   correlatedIndexes?: CorrelatedIndexes;
+  // Self-assembly phase (server-computed from engagement data)
+  assemblyPhase?: 'dormant' | 'awakening' | 'forming' | 'assembled' | 'integrated';
   // Demo account flag
   isDemo?: boolean;
   // Legacy level unlock widgets
