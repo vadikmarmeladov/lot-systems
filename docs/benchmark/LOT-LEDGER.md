@@ -16,4 +16,5 @@ ID             | CLASS        | SUMMARY                                         
 20260605-04    | ENGINEERING  | QI terminal (/qi RFI) + biofield button responsiveness  | GREEN  | 48aa898 | WORDS: 449 (median 339)
 20260605-05    | ENGINEERING  | LOG commands: /prayer + /assembly + /scan               | GREEN  | 76e7253 | WORDS: 498 (median 388)
 20260606-01    | ENGINEERING  | QR code gating: Usership + assembly phase >= forming    | GREEN  | 2d05066f | WORDS: 396 (median 388)
+20260606-02    | SELF-ASSEMBLY| Week 23 ship report — 22 features, 11 GREEN benchmarks  | GREEN  | <pending> | WORDS: 271 (median 388)
 ```
