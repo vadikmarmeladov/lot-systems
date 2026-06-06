@@ -1298,6 +1298,40 @@ export default async (fastify: FastifyInstance) => {
         }
       }
 
+      // Compute assembly phase from server-side engagement data
+      try {
+        const distinctEvents = await models.Log.findAll({
+          attributes: [[sequelize.fn('DISTINCT', sequelize.col('event')), 'event']],
+          where: { userId: user.id },
+          raw: true,
+        })
+        const eventTypeCount = distinctEvents.length
+        const totalLogs = await models.Log.count({ where: { userId: user.id } })
+        const [activeDaysRow] = await sequelize.query(
+          `SELECT COUNT(DISTINCT DATE("createdAt")) as count FROM "Logs" WHERE "userId" = :userId`,
+          { replacements: { userId: user.id }, type: 'SELECT' as any }
+        ) as any[]
+        const activeDays = activeDaysRow?.count ? Number(activeDaysRow.count) : 0
+
+        let assemblyPhase: 'dormant' | 'awakening' | 'forming' | 'assembled' | 'integrated' = 'dormant'
+        if (totalLogs === 0) {
+          assemblyPhase = 'dormant'
+        } else if (eventTypeCount >= 8 && totalLogs >= 150 && activeDays >= 30) {
+          assemblyPhase = 'integrated'
+        } else if (eventTypeCount >= 5 && totalLogs >= 50 && activeDays >= 14) {
+          assemblyPhase = 'assembled'
+        } else if (eventTypeCount >= 3 && totalLogs >= 10 && activeDays >= 3) {
+          assemblyPhase = 'forming'
+        } else {
+          assemblyPhase = 'awakening'
+        }
+
+        profile.assemblyPhase = assemblyPhase
+      } catch (asmError: any) {
+        console.error('[PUBLIC-PROFILE-API] Assembly phase error:', asmError.message)
+        profile.assemblyPhase = 'dormant'
+      }
+
       // Add theme settings if available
       if (user.metadata?.theme) {
         profile.theme = user.metadata.theme

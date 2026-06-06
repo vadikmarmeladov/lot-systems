@@ -15,4 +15,5 @@ ID             | CLASS        | SUMMARY                                         
 20260605-03    | ENGINEERING  | Badge RPG codex v9 — 42+ badges · easter-eggs.ts LIVE · PDF 25pp · Sci-Fi/Terminal/Arcade | GREEN  | c83de89 | WORDS: 388 (median 339)
 20260605-04    | ENGINEERING  | QI terminal (/qi RFI) + biofield button responsiveness  | GREEN  | 48aa898 | WORDS: 449 (median 339)
 20260605-05    | ENGINEERING  | LOG commands: /prayer + /assembly + /scan               | GREEN  | 76e7253 | WORDS: 498 (median 388)
+20260606-01    | ENGINEERING  | QR code gating: Usership + assembly phase >= forming    | GREEN  | 2d05066f | WORDS: 396 (median 388)
 ```
