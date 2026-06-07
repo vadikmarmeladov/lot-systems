@@ -21,5 +21,5 @@ ID             | CLASS        | SUMMARY                                         
 20260606-04    | SECURITY     | Emergency Rebuild Protocol — full disaster recovery doc  | GREEN  | a49ca026 | WORDS: 259 (median 382)
 20260607-02    | ENGINEERING  | QR code assembly gate fix + security audit (deferred)    | GREEN  | c0895b8b | WORDS: 345 (median 345)
 20260607-03    | SELF-ASSEMBLY| Wiki v51 — Full Branch Scan · Graceful Degradation doctrine surface · vocab sync · military purity | GREEN  | b23482e  | WORDS: 420 (median 345)
-20260607-04    | SELF-ASSEMBLY| QIE v52 — dep map 8 nodes · log handlers 6 · cohort pulse · background job 10 · LOT_SYSTEMS_BRIEF v3.1 | GREEN  | pending  | WORDS: 540 (median 380)
+20260607-04    | SELF-ASSEMBLY| QIE v52 — dep map 8 nodes · log handlers 6 · cohort pulse · background job 10 · LOT_SYSTEMS_BRIEF v3.1 | GREEN  | cc4dbdd  | WORDS: 540 (median 380)
 ```
