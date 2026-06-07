@@ -1329,7 +1329,6 @@ export default async (fastify: FastifyInstance) => {
         profile.assemblyPhase = assemblyPhase
       } catch (asmError: any) {
         console.error('[PUBLIC-PROFILE-API] Assembly phase error:', asmError.message)
-        profile.assemblyPhase = 'dormant'
       }
 
       // Add theme settings if available
