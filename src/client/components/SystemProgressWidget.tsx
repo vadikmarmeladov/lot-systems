@@ -727,21 +727,32 @@ const ASSEMBLY_TRANSMISSIONS: {
     status: 'DEPLOYED',
     next: 'Journal vocabulary extraction → personal interface language injection',
   },
+  {
+    date: '2026-06-07',
+    built: ['Debug endpoint removal (5 endpoints)', 'Private profile data seal', 'Error response sanitization'],
+    feedbackApplied: 're-apply security fixes ONE AT A TIME with deploy verification between each',
+    status: 'DEPLOYED',
+    next: 'C2 — Hardcoded backup DB credentials (requires DO env var BACKUP_DATABASE_URL set first)',
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-04',
+  date: '2026-06-07',
   message: [
-    'ASSEMBLY RUN — 2026-06-04 · LOT-SR-20260604-01',
-    'Viewport isolation layer deployed. Two targets, two techniques.',
-    'MicroGameWidget: 150ms game loop now gated by IntersectionObserver. Loop stops when widget scrolls off-screen. Resumes on re-entry. Game state preserved across pause.',
-    'QuantumEngineWidgets: LazyMount wrapper in System.tsx. intentionEngine + selfAssembly subscriptions do not start until widget enters viewport. Once mounted — stays mounted. No thrash.',
-    'useInViewport.ts: new shared hook. useInViewport (one-shot, pre-mounts 200px early). useActiveViewport (continuous, for loop gating). Both fallback to true if IntersectionObserver unavailable.',
-    'Render isolation series: router → Block/Sync/nav → Button → game loop + lazy-mount.',
-    'Next: QuantumStateWidget + PatternRecognitionWidget — next two intentionEngine subscribers below the fold. Complete the viewport-isolation layer across the full CQGS block.',
-    'DEPLOYED. The system no longer runs when you are not looking.',
+    'ASSEMBLY RUN — 2026-06-07 · LOT-SR-20260607-03',
+    'Security surface sealed. Five unauthenticated endpoints removed.',
+    '/verify-admin-config — exposed admin email list. Gone.',
+    '/verify-api-keys — exposed key fragments. Gone.',
+    '/debug-memory-engine — exposed API key status + Anthropic client internals. Gone.',
+    '/test-ai-engines — exposed boolean presence of all 5 AI keys. Gone.',
+    '/test-anthropic-key — made live API calls with production key on every unauthenticated GET. Gone.',
+    'Private profiles: now return { isPrivate: true } only. Name, tags, and privacy settings no longer leak.',
+    '404 and 500 responses: debug fields stripped. Error internals stay in server logs.',
+    'NET: 241 lines removed, 3 added. Build time: 7.22s. GREEN.',
+    'Next: BACKUP_DATABASE_URL must be set in Digital Ocean before next deploy. Live credential in source.',
+    'DEPLOYED. The system does not advertise its keys.',
   ],
 }
 
