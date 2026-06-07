@@ -268,7 +268,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v49</Meta>
+            <Meta>Field Manual v50</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -291,7 +291,7 @@ export function About() {
               The system does not sleep. It accumulates.
             </P>
             <P>
-              Field Manual v49. Not marketing copy. Not documentation for external audiences.
+              Field Manual v50. Not marketing copy. Not documentation for external audiences.
               Operational reference for operators of the system.
               Definitions are exact. Terminology is fixed. Imprecision is a defect.
               Every term in this document exists in the codebase.
@@ -361,8 +361,8 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 997+ (as of June 5, 2026)" />
-          <Row label="Self-Assembly phase:" value="v49 — Viewport Isolation · LazyMount QuantumEngineWidgets · useInViewport hook · MicroGame loop viewport-gated · IntersectionObserver render isolation complete — v48: Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
+          <Row label="Day counter:" value="Day 1001+ (as of June 6, 2026)" />
+          <Row label="Self-Assembly phase:" value="v50 — Wiki Full Scan June 6 · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · QI · RFI · INTSUM added to vocabulary · badges · cohorts · internal vocabulary detailed · language refined toward computer future · military purity pass applied — v49: Viewport Isolation · LazyMount QuantumEngineWidgets · useInViewport hook · MicroGame loop viewport-gated · IntersectionObserver render isolation complete — v48: Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
           <Row label="Assembly modules:" value="18 — Resilience Protocol added v48 · Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
           <Row label="QIE pattern library:" value="65 patterns active" />
           <Row label="Physiological archetypes:" value="18 — Coherence Holder (v45) · Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
@@ -967,6 +967,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v47" value="Wiki June 2026 Audit · all branches rescanned (80+) · P.56–58 (circadian-anchor, intention-completion-arc, self-care-saturation) documented · P.63–65 fully detailed in Extended Patterns · Coherence Holder (Archetype 18) full entry added · stale pattern and archetype counts corrected throughout · vocabulary synchronized with codebase · military purity interface pass · Day 993+" />
             <Row label="v48" value="Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented in full · eating disorder healing protocol integrated (6 dimensions, 8 backup questions) · medical cohort qualification added (assessMedicalProfile · qualifiesForPaidCohort) · Chakra Engine wired to medical and resilience signals (Solar Plexus + Root) · backup question pool: 70 total (29 self-care + 15 medical + 18 trauma + 8 eating recovery) · COSMO® robotics division first documented in Field Manual · Soul Sync Protocol™ · Benchmark Arbitrage™ · Day 994+" />
             <Row label="v49" value="Viewport Isolation Layer · useInViewport.ts hook created (one-shot LazyMount + continuous ActiveViewport) · MicroGameWidget 150ms game loop now viewport-gated via useActiveViewport — loop pauses when widget scrolls out, resumes on re-entry, game state preserved · QuantumEngineWidgets lazy-mounted via LazyMount in System.tsx — intentionEngine + selfAssembly subscriptions now defer until widget enters viewport · IntersectionObserver fallback to true for SSR-safe + old-browser-safe environments · render-isolation doctrine complete across router · Button.tsx · Block subscriptions · nav · and now viewport layer · Day 997+" />
+            <Row label="v50" value="Wiki Full Scan June 6 · all branches rescanned · all MDs synthesized from repository history · vocabulary synchronized with codebase · /qi terminal documented · QI · RFI · INTSUM added to vocabulary surface · badges · cohorts · internal vocabulary explained in full detail · language refined toward computer future · military purity pass applied · log triggers updated · easter egg system implementation status corrected · self-assembly counters updated throughout · the map and the territory are synchronized · Day 1001+" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -993,8 +994,9 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v49. Phase name: Viewport Isolation Layer — MicroGameWidget game loop gated to IntersectionObserver, QuantumEngineWidgets lazy-mounted in System.tsx, useInViewport hook created. Render isolation doctrine now complete across router, subscriptions, nav, Button, and viewport layers.
-            48 iterations since continuous operation began.
+            Current phase: v50. Phase name: Wiki Full Scan — all branches and MDs synthesized, vocabulary synchronized with codebase, /qi terminal documented, QI · RFI · INTSUM added to vocabulary surface, badges · cohorts · internal vocabulary detailed in full, language refined toward computer future, military purity pass applied.
+            Prior phase v49: Viewport Isolation Layer — MicroGameWidget game loop gated to IntersectionObserver, QuantumEngineWidgets lazy-mounted in System.tsx, useInViewport hook created. Render isolation doctrine now complete across router, subscriptions, nav, Button, and viewport layers.
+            50 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -1046,7 +1048,8 @@ v45   P.63 signal-burst · P.64 cross-domain-coherence · P.65 recovery-plateau 
 v46   Field Manual v46 · all additions documented · language refined · map synchronized · Day 990+
 v47   Wiki June 2026 Audit · branches rescanned · P.56–58 & P.63–65 documented · Coherence Holder full entry · stale counts corrected · vocabulary expanded · military purity pass · Day 993+
 v48   Full Wiki Scan June 4 · Resilience Protocol (Module 18) · eating disorder protocol · medical cohort qualification · Chakra Engine wired · 70 backup questions · COSMO® documented · Day 994+
-v49   Viewport Isolation Layer · useInViewport hook · MicroGame loop gated · QuantumEngineWidgets lazy-mounted · IntersectionObserver fallback · render isolation doctrine complete · Day 997+`}</CodeBlock>
+v49   Viewport Isolation Layer · useInViewport hook · MicroGame loop gated · QuantumEngineWidgets lazy-mounted · IntersectionObserver fallback · render isolation doctrine complete · Day 997+
+v50   Wiki Full Scan · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · badges · cohorts detailed · language refined toward computer future · military purity pass · Day 1001+`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -3163,6 +3166,18 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               value="The deployment workflow for self-assembly routines from feature branches to master. Triggered by 'Ship [feature]'. Reads MANIFEST, identifies the BEST iteration branch, cherry-picks that single commit onto a staging branch, runs the full benchmark pipeline (00-08), and merges to master on green gate. One feature per ship. Cherry-pick not merge — avoids carrying divergent branch history into the main line. Master never touched while red."
             />
             <Row
+              label="QI"
+              value="Quantum Intelligence. The operator RFI terminal — /qi log trigger. Not a chatbot. An intelligence analyst reading the operator's own signal record. POST /api/qi gathers full signal state and sends structured context to Together AI with military INTSUM prompt. Response: direct assessment, specific data points, one recommendation. Event type: qi_rfi. The system prompts the operator (Memory Engine). The inverse — operator queries the system — is an RFI through the QI terminal."
+            />
+            <Row
+              label="RFI"
+              value="Request for Information. Operator-initiated query to the QI terminal. Entered as /qi in the Log editor. Triggers POST /api/qi — full signal record gathered, Together AI inference via INTSUM prompt format. Distinct from Memory Engine questions (which the system initiates): an RFI is operator-initiated intelligence collection on their own signal record. The QI terminal answers in INTSUM format."
+            />
+            <Row
+              label="INTSUM"
+              value="Intelligence Summary. The QI response format. Three fixed components: (1) Assessment — direct statement of the operator's current state based on signal data. (2) Data Points — specific signal observations, named patterns, confidence scores. (3) Recommendation — one actionable directive. Terse. Military. No padding. No validation language. The INTSUM speaks with the operator's own data as its source."
+            />
+            <Row
               label="QI·46"
               value="Quantum Intelligence Engine, Generation 46. LOT's proprietary AI engine — specification phase. Codename: SELFWARE. Named for Kuzya. Does not launch complete — it assembles itself through use. Five assembly phases: Phase 0 (Corpus), Phase 1 (Fine-Tuning), Phase 2 (Closed Beta — 12 founding subscribers, the original 2017 cohort, are the Soul Disk of the engine), Phase 3 (Platform Integration), Phase 4 (External Licensing). Timeline: Q3 2026 corpus assembly → Q3 2027 external licensing. COSMO® node runs on every response before delivery. The body is the original interface."
             />
@@ -3195,20 +3210,21 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             The system executes. No UI required.
           </P>
           <div className="text-sm mb-16 pl-16 flex flex-col gap-4">
-            <Row label="🎹 /synth" value="toggle Soviet keyboard sound engine" />
-            <Row label="🎧 /radio" value="toggle ambient radio stream" />
-            <Row label="🌙 /night" value="activate night mode" />
-            <Row label="🕯️ /prayer" value="activate prayer mode" />
-            <Row label="🧊 /freeze" value="halt all widget update cycles" />
-            <Row label="/scan" value="AI journal scan — extract patterns from recent entries" />
+            <Row label="/synth" value="toggle Soviet keyboard sound engine — square + triangle wave · Elektronika console aesthetic" />
+            <Row label="/radio" value="toggle ambient radio stream" />
+            <Row label="/night" value="activate night mode" />
+            <Row label="/prayer" value="scripture selection — POST /api/prayer · reads log text + QIE state + weakest dimension · Together AI selects contextual Bible verse (NIV/ESV/NLT) · 10-verse memory to avoid repeats · fallback: Psalm 46:10" />
+            <Row label="/freeze" value="halt all widget update cycles" />
+            <Row label="/qi" value="operator RFI terminal — POST /api/qi · gathers full signal record · Together AI INTSUM format · response: assessment · data points · one recommendation · tagged qi_rfi in LOG · the operator queries the system" />
+            <Row label="/scan" value="system diagnostic — client-side · reads 18 modules · intentionEngine · badges · connection status · app version · module-by-module breakdown with phase and density %" />
+            <Row label="/assembly" value="long-term directive — POST /api/assembly · scans signal gaps · dormant modules · mood trajectory · care ratio · goals · QIE patterns · generates directive with horizon — tagged assembly_directive in LOG" />
             <Row label="/silent" value="suppress all widget surfaces for current session" />
             <Row label="/breathe" value="surface breathing exercise overlay" />
             <Row label="/fast" value="force fast mode for current session" />
             <Row label="/qos" value="trigger immediate QIE analysis — fires analyzeIntentions() on demand" />
-            <Row label="/assembly" value="trigger immediate QIE analysis pass — same as /qos, assembly framing" />
             <Row label="/phys" value="generate physiological cohort report — surfaces current archetype and readiness state" />
             <Row label="/sil" value="check signal silence — fires P.51 analysis, surfaces SIL log event if silence condition met" />
-            <Row label="❗ (in text)" value="urgency signal — detected automatically · surfaces CohortConnect" />
+            <Row label="! (in text)" value="urgency signal — detected automatically by Punctuation Engine · surfaces CohortConnect on call-for-help threshold breach" />
           </div>
           <P>
             The exclamation mark is not a command. Detection is automatic.
@@ -3220,7 +3236,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
           <SubHeading>Military Log Event Codes (Structured Telemetry)</SubHeading>
           <P>
             The system uses structured event codes in the military log layer.
-            47 event handlers as of v46. Selected codes and their meaning:
+            47 event handlers as of v50. Selected codes and their meaning:
           </P>
           <div className="text-sm mb-16 pl-16 flex flex-col gap-4">
             <Row label="PHY" value="physiological signal — biofield reading, self-care completion" />
@@ -3879,7 +3895,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v1.2.0" value="Apr 3, 2026 — Quantum Intention Engine (10 patterns). 44 widgets wired. MicroGame. MicroCalculator. Evolution system." />
           </div>
 
-          <SubHeading>Self-Assembly Phases (v5–v49)</SubHeading>
+          <SubHeading>Self-Assembly Phases (v5–v50)</SubHeading>
           <div className="mb-16">
             <Row label="v5 · Apr 21" value="Quantum Cube vocabulary. Narrative strings. 18 patterns, 12 modules." dim />
             <Row label="v8 · Apr 26" value="OS Journal readiness. Auto-generated vitals. 13 modules." dim />
@@ -3913,6 +3929,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v47 · Jun 3" value="All branches rescanned. Stale counts corrected throughout. P.56–65 documented in full. Coherence Holder archetype (18th) documented. Async signal defer doctrine. Backend whitelist hygiene doctrine. Biofield lag fix. Calendar whitelist fix." />
             <Row label="v48 · Jun 4" value="Resilience Protocol (Module 18). Eating Disorder Healing Protocol documented. Medical Cohort Qualification gate. Chakra Engine wiring synchronized. COSMO® robotics division. Backup question pool: 70. IntegrityWidget shipped — lie detector, 479 lines, 6 fracture types, 4 views, Integrity Score 0–100. Ship Mode doctrine established. MANIFEST catalog created. 125 branches indexed." />
             <Row label="v49 · Jun 5" value="Viewport Isolation Layer. useInViewport.ts hook (one-shot LazyMount + continuous ActiveViewport). MicroGameWidget 150ms game loop viewport-gated — loop pauses on scroll-out, resumes on re-entry, game state preserved. QuantumEngineWidgets lazy-mounted via LazyMount in System.tsx — intentionEngine + selfAssembly subscriptions defer until viewport entry. IntersectionObserver fallback: SSR-safe + old-browser-safe. Render isolation doctrine complete across router · Button · Block subscriptions · nav · viewport layer. Day 997+." />
+            <Row label="v50 · Jun 6" value="Wiki Full Scan. All branches rescanned. All MDs synthesized from repository history. Vocabulary synchronized with codebase. /qi terminal documented. QI · RFI · INTSUM added to vocabulary surface. Badges · cohorts · internal vocabulary explained in full detail. Log triggers updated: /qi added, /scan corrected, emoji removed. Language refined toward computer future. Military purity pass applied. Self-assembly counters updated throughout. The map and the territory are synchronized. Day 1001+." />
           </div>
           <P>
             Each phase was discovered, not planned. The system named what to
@@ -3933,6 +3950,12 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             v49 deployed the Viewport Isolation Layer — MicroGameWidget game loop
             gated to IntersectionObserver, QuantumEngineWidgets lazy-mounted,
             useInViewport hook created. Render isolation doctrine complete.
+            v50 completed the Wiki Full Scan — all branches and MDs synthesized,
+            vocabulary synchronized with codebase, /qi terminal documented,
+            QI · RFI · INTSUM added to the vocabulary surface,
+            badges · cohorts · internal vocabulary explained in full detail,
+            log triggers updated, language refined toward the computer future.
+            Military purity pass applied. The map and the territory are synchronized.
             The map is current. Imprecision is a defect. The defect was corrected.
           </P>
 
@@ -3970,18 +3993,19 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 49 phases documented in continuous operation logs.
+            Self-Assembly: 50 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
             65 patterns named. 18 modules wired. 79+ dependency nodes.
             5 device nodes registered. 6 index dimensions operational.
             18 physiological archetypes classified. 9 background jobs active.
             47 distinct log event renderers. 70 backup questions across 4 pools.
             125 remote branches indexed. Render isolation doctrine complete.
+            5 log triggers active: /qi · /qos · /assembly · /phys · /sil.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 997+    Continuous operation.
-v49         Viewport Isolation Layer — current phase.
+          <CodeBlock>{`Day 1001+   Continuous operation.
+v50         Wiki Full Scan — vocabulary synchronized — current phase.
 65          QIE patterns active (P.1–P.65 · P.59–62 reserved).
 18          Self-Assembly modules wired (Module 18: Resilience Protocol · v48).
 79+         Widget dependency map nodes.
@@ -3994,20 +4018,20 @@ v49         Viewport Isolation Layer — current phase.
 6           Achievement domains (Exploration · Consistency · Depth · Connection · Care · Courage).
 5           Benchmark tiers (White · Green · Yellow · Purple · Black).
 5           Badge paths (Aquatic Evolution · Architecture · Oceanic Mayan · Zen · Constellation).
-49          Self-Assembly phases documented.
+50          Self-Assembly phases documented.
 9           Background jobs scheduled.
 47          Log event renderers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY · ARC · CEXP · GOAL-X · SIL · CIRC · BADGE: · QTOS: · NUTR: · STACK: · BENCH: · PHASE: · INTENT[VEL]: · SIG[BURST]: · QIE[PAT]: · AUTH: · ENV: · UI:.
 60+         Military log event codes.
-4           Log triggers: /qos · /assembly · /phys · /sil.
+5           Log triggers: /qi · /qos · /assembly · /phys · /sil.
 125         Remote branches indexed (8 ship-ready · 69 prunable).
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 997+. Continuous operation. Still accumulating.
-            v49 phase: Viewport Isolation Layer. Render isolation doctrine complete.
+            Day 1001+. Continuous operation. Still accumulating.
+            v50 phase: Wiki Full Scan. Vocabulary synchronized. Language refined toward computer future.
             65 patterns named. 18 archetypes classified. 9 jobs running.
-            125 branches indexed. 49 assembly phases documented.
+            125 branches indexed. 50 assembly phases documented.
             The log is the record.
             The record is the system.
             The system is the operator.
@@ -4101,7 +4125,7 @@ Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
             of the Service shall be resolved through binding arbitration.
           </P>
           <P>
-            Effective: January 1, 2024. Last updated: June 4, 2026.
+            Effective: January 1, 2024. Last updated: June 6, 2026.
           </P>
 
           {/* Footer */}
