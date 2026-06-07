@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev F
+# LOT-DOCTRINE  rev G
 
 ## Render Isolation
 
@@ -74,3 +74,19 @@ with no signal to the operator that anything is wrong.
 (SR-20260607-02: assembly phase catch set 'dormant' → QR disappeared;
 client defaulted undefined to 'dormant' → double block. Fix: server omits
 field on error, client skips gate when field absent.)
+
+## Security Surface Minimization
+
+Diagnostic endpoints are development tools, not production features. Any
+endpoint that reveals system internals — API key presence or fragments,
+admin email lists, error constructor names, internal search method names —
+must be behind authentication or removed entirely. "Masked" API key
+fragments (first-8 + last-4) are still a leak: they confirm the key is set,
+reveal its format, and narrow an attacker's search space. Debug endpoints
+that make live API calls with production credentials on every unauthenticated
+GET request are especially dangerous. Batch security rollbacks caused by
+deploying too many changes at once are preventable: apply one fix, verify,
+deploy, repeat. Error responses must never echo internal error.message or
+error.constructor.name to callers — those belong in server logs only.
+(SR-20260607-03: 5 public debug endpoints removed; private profile sealed
+to { isPrivate: true }; 404/500 debug fields stripped.)
