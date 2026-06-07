@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev F
+# LOT-DOCTRINE  rev E
 
 ## Render Isolation
 
@@ -61,20 +61,3 @@ New event types from RFI responses (qi_rfi) must appear in displayableEvents
 (Backend Whitelist Hygiene) so the write→read loop persists in the LOG.
 (SR-20260605-04: /qi trigger → POST /api/qi → Together AI → qi_rfi log;
 reuses QIE getUserState + getUserIndex from client side.)
-
-## Endpoint Hygiene
-
-Debug and diagnostic endpoints that expose credentials, API keys, admin
-emails, or make live third-party API calls must never exist on unauthenticated
-routes. The public API surface (/api/public/*) must return only data intended
-for anonymous consumption. Private profile responses must return only
-{ isPrivate: true } — no names, tags, or privacy settings. Error responses
-must never include error.message, constructor.name, or stack traces; log
-server-side, return generic message to client. Admin endpoints that access
-other users' data must enforce per-user authorization (own data or CEO).
-Global destructive operations (cross-user deletion) require CEO-level auth.
-Hardcoded credentials must never appear in source — use environment variables.
-(SR-20260607-01: removed 6 unauthenticated debug endpoints exposing API key
-fragments + admin emails; hardcoded backup DB password moved to env var;
-cleanup-all-empty-logs gated to CEO; 5 admin /users/:userId endpoints
-given per-user access control; private profile data leak sealed.)
