@@ -879,6 +879,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyPatternCoverageJob()) {
     await executeDailyPatternCoverageJob()
   }
+
+  // Check weekly archetype stability monitor (Thursday 05:00 UTC)
+  if (shouldRunWeeklyArchetypeStabilityJob()) {
+    await executeWeeklyArchetypeStabilityJob()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1320,6 +1325,149 @@ async function executeDailyPatternCoverageJob(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly Archetype Stability Monitor ─────────────────────────────────────
+
+let isWeeklyArchetypeStabilityRunning = false
+let lastWeeklyArchetypeStabilityRun: Date | null = null
+
+/**
+ * Runs on Thursdays at 05:00 UTC.
+ * Compares each active user's cohort determinations across the last 2 weeks.
+ * Computes archetype stability index (% week-over-week archetype match) and
+ * logs aggregate distribution. No individual data persisted — system telemetry only.
+ */
+function shouldRunWeeklyArchetypeStabilityJob(): boolean {
+  const now = dayjs()
+  const dayOfWeek = now.day() // 4 = Thursday
+  if (dayOfWeek !== 4) return false
+  if (now.hour() !== 5) return false
+  if (isWeeklyArchetypeStabilityRunning) return false
+  if (lastWeeklyArchetypeStabilityRun) {
+    const lastRun = dayjs(lastWeeklyArchetypeStabilityRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeWeeklyArchetypeStabilityJob(): Promise<JobResult> {
+  const jobName = 'weekly-archetype-stability-monitor'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Weekly Archetype Stability Monitor')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isWeeklyArchetypeStabilityRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const fourteenDaysAgo = dayjs().subtract(14, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: sevenDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 1000,
+    })
+
+    console.log(`  Active users (7d): ${activeUsers.length}`)
+
+    const archetypeCounts: Record<string, number> = {}
+    let stableUsers = 0       // same archetype both weeks
+    let shiftedUsers = 0      // different archetype week-over-week
+    let singleWeekUsers = 0   // only one week of data
+
+    for (const user of activeUsers) {
+      try {
+        const cohortLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: fourteenDaysAgo },
+            event: 'physiological_cohort' as any,
+          },
+          order: [['createdAt', 'DESC']],
+        })
+
+        if (cohortLogs.length === 0) continue
+
+        const priorWeekLogs = cohortLogs.filter(
+          (l: any) => new Date(l.createdAt) < sevenDaysAgo
+        )
+        const currentWeekLogs = cohortLogs.filter(
+          (l: any) => new Date(l.createdAt) >= sevenDaysAgo
+        )
+
+        // Track dominant archetype this week
+        const currentArchetype = (currentWeekLogs[0]?.metadata as any)?.archetype
+        if (currentArchetype) {
+          archetypeCounts[currentArchetype] = (archetypeCounts[currentArchetype] ?? 0) + 1
+        }
+
+        if (priorWeekLogs.length === 0 || currentWeekLogs.length === 0) {
+          singleWeekUsers++
+          continue
+        }
+
+        const priorArchetype = (priorWeekLogs[0]?.metadata as any)?.archetype
+        if (priorArchetype && currentArchetype) {
+          if (priorArchetype === currentArchetype) stableUsers++
+          else shiftedUsers++
+        }
+      } catch { /* skip user */ }
+    }
+
+    const compared = stableUsers + shiftedUsers
+    const stabilityRate = compared > 0
+      ? Math.round((stableUsers / compared) * 100)
+      : 0
+
+    const topArchetypes = Object.entries(archetypeCounts)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 5)
+
+    console.log(`  Archetype stability (week-over-week):`)
+    console.log(`    Stable: ${stableUsers} · Shifted: ${shiftedUsers} · Single-week: ${singleWeekUsers}`)
+    console.log(`    Stability rate: ${stabilityRate}%`)
+    console.log(`  Top archetypes this week:`)
+    topArchetypes.forEach(([name, count]) => {
+      console.log(`    ${name}: ${count} users`)
+    })
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('ARCHETYPE STABILITY MONITOR COMPLETE')
+    console.log(`   Stability: ${stabilityRate}% · Top: ${topArchetypes[0]?.[0] ?? 'none'}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyArchetypeStabilityRun = new Date()
+    isWeeklyArchetypeStabilityRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: {
+        scanned: activeUsers.length,
+        stableUsers,
+        shiftedUsers,
+        singleWeekUsers,
+        stabilityRate,
+        topArchetypes: topArchetypes.map(([name, count]) => ({ name, count })),
+      }
+    }
+  } catch (error: any) {
+    console.error('Weekly archetype stability job failed:', error.message)
+    isWeeklyArchetypeStabilityRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1338,6 +1486,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Monthly emails: 9 AM UTC on 1st of each month')
   console.log('   - Weekly physiological cohort digest: 6 AM UTC every Monday')
   console.log('   - Weekly QOS state digest: 4 AM UTC every Wednesday')
+  console.log('   - Weekly archetype stability monitor: 5 AM UTC every Thursday')
   console.log('   - Weekly intention completion audit: 8 PM UTC every Sunday')
   console.log('   - Daily QIE pattern analytics: 3 AM UTC every day')
   console.log('   - Daily intention audit: 6 AM UTC every day')
@@ -1353,8 +1502,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Monthly emails: 9 AM; cohort digest + intention audit: 6 AM; QOS: 4 AM; QIE: 3 AM; OS snapshot: 0 AM; intention completion: 20; morning biofield: 8 AM; pattern coverage: 23 PM
-    if (hour === 9 || hour === 8 || hour === 6 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 8=biofield, 9=monthly email, 20=intention completion, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

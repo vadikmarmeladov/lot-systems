@@ -10,6 +10,8 @@ import React from 'react'
 import { Block } from '#client/components/ui'
 import { ProgressBars } from '#client/utils/progressBars'
 import { useLogContext } from '#client/hooks/useLogContext'
+import { useStore } from '@nanostores/react'
+import { intentionEngine, classifyPhysiologicalCohort, getCircadianPhase, getUserState, getUserIndex } from '#client/stores/intentionEngine'
 
 interface PulseData {
   eventsPerMinute: number
@@ -19,7 +21,7 @@ interface PulseData {
   lastUpdate: number
 }
 
-type PulseView = 'metrics' | 'activity' | 'userload'
+type PulseView = 'metrics' | 'activity' | 'userload' | 'cohort'
 
 /**
  * SystemPulseWidget - Real-time system heartbeat + user activity telemetry
@@ -33,17 +35,32 @@ export function SystemPulseWidget() {
   const intervalRef = React.useRef<NodeJS.Timeout>()
   const lastFetchRef = React.useRef<number>(Date.now())
   const logCtx = useLogContext()
+  const engineState = useStore(intentionEngine)
 
   const cycleView = () => {
     setView(prev => {
       switch (prev) {
         case 'metrics': return 'activity'
         case 'activity': return 'userload'
-        case 'userload': return 'metrics'
+        case 'userload': return 'cohort'
+        case 'cohort': return 'metrics'
         default: return 'metrics'
       }
     })
   }
+
+  // Derive cohort from live engine state
+  const cohortClassification = React.useMemo(() => {
+    if (engineState.signals.length === 0) return null
+    return classifyPhysiologicalCohort(
+      engineState.signals,
+      engineState.userState,
+      engineState.recognizedPatterns
+    )
+  }, [engineState.signals.length, engineState.userState.energy])
+
+  const circadianPhase = React.useMemo(() => getCircadianPhase(), [])
+  const userIndex = React.useMemo(() => getUserIndex(), [engineState.userIndex?.overall])
 
   // Fetch pulse data
   const fetchPulse = React.useCallback(async () => {
@@ -77,9 +94,10 @@ export function SystemPulseWidget() {
   }, [fetchPulse])
 
   const label =
-    view === 'metrics' ? 'System Pulse:' :
+    view === 'metrics'  ? 'System Pulse:' :
     view === 'activity' ? 'System Load:' :
-    'User Telemetry:'
+    view === 'userload' ? 'User Telemetry:' :
+    'Biofield:'
 
   if (!pulse) {
     return (
@@ -192,6 +210,42 @@ export function SystemPulseWidget() {
                 </div>
               )}
             </>
+          )}
+        </div>
+      )}
+
+      {view === 'cohort' && (
+        <div className="flex flex-col gap-y-8 font-mono text-xs">
+          {cohortClassification ? (
+            <>
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Archetype</span>
+                <span>{cohortClassification.archetype}</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Conf</span>
+                <span className="tabular-nums">{Math.round(cohortClassification.confidence * 100)}%</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">ATP</span>
+                <span className="capitalize">{engineState.userState.energy}</span>
+              </div>
+              <div className="flex justify-between items-baseline">
+                <span className="opacity-30 uppercase tracking-widest">Circadian</span>
+                <span className="capitalize">{circadianPhase}</span>
+              </div>
+              {userIndex.overall > 0 && (
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Index</span>
+                  <span className="tabular-nums">{userIndex.overall}</span>
+                </div>
+              )}
+              <div className="border-t border-acc-400/20 pt-8 mt-4">
+                <div className="opacity-40">{cohortClassification.directive}</div>
+              </div>
+            </>
+          ) : (
+            <div className="opacity-30">Cohort pending. Engage widgets to surface archetype.</div>
           )}
         </div>
       )}

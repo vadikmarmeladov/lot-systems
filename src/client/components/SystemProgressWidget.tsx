@@ -695,6 +695,20 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'The system no longer runs when you are not looking.',
     ],
   },
+  {
+    date: '2026-06-07',
+    session: 'Self-Assembly Session — v52 / Dep Map Audit · Log Handlers · Cohort Pulse · Background Job 10',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 9 new nodes — aiFeedback · moodAnalytics · journalReflection · energyCapacitor · integrityWidget · interfaceEvolution · worldCanvas · systemPulse · architectWidget. Total: 88+ nodes indexed.',
+      'LOG_DEPENDENCY_SOURCES: expanded from 6 to 8 — added intentions + memory as direct log-pipeline sources alongside log/energy/cohort/recipe/goals/qos.',
+      'Log handlers: 6 new military event types — CSPRL (care_spiral) · BPEAK (biofield_peak) · MER (meridian_lock) · MULTI (multimodal_peak) · CAL (calendar_entry) · QOS-COHR (qos_coherence). Field archive: 53+ handlers.',
+      'SystemPulseWidget: 4th cycle view "Biofield:" added — classifyPhysiologicalCohort() wired live. Archetype · Confidence · ATP · Circadian · Index · Directive surfaced. Physiological cohort now visible from System Pulse.',
+      'Background job 10: weekly-archetype-stability-monitor. Thursdays 05:00 UTC. Week-over-week archetype comparison across active users. Stability rate + top archetype distribution. Hour 5 added to interval guard.',
+      'LOT_SYSTEMS_BRIEF.md: updated to v52 state — 65 patterns, 18 archetypes, 15 modules, 88 dep nodes, 10 background jobs.',
+      'Session report: LOT-SR-20260607-04. Deployed to claude/quantum-engine-widgets-RgFfC.',
+      'Physiological cohort is now surfaced across QOS widget · System Progress report · System Pulse. The Cube knows who you are from every angle.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -732,16 +746,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-04',
+  date: '2026-06-07',
   message: [
-    'ASSEMBLY RUN — 2026-06-04 · LOT-SR-20260604-01',
-    'Viewport isolation layer deployed. Two targets, two techniques.',
-    'MicroGameWidget: 150ms game loop now gated by IntersectionObserver. Loop stops when widget scrolls off-screen. Resumes on re-entry. Game state preserved across pause.',
-    'QuantumEngineWidgets: LazyMount wrapper in System.tsx. intentionEngine + selfAssembly subscriptions do not start until widget enters viewport. Once mounted — stays mounted. No thrash.',
-    'useInViewport.ts: new shared hook. useInViewport (one-shot, pre-mounts 200px early). useActiveViewport (continuous, for loop gating). Both fallback to true if IntersectionObserver unavailable.',
-    'Render isolation series: router → Block/Sync/nav → Button → game loop + lazy-mount.',
-    'Next: QuantumStateWidget + PatternRecognitionWidget — next two intentionEngine subscribers below the fold. Complete the viewport-isolation layer across the full CQGS block.',
-    'DEPLOYED. The system no longer runs when you are not looking.',
+    'ASSEMBLY RUN — 2026-06-07 · LOT-SR-20260607-04',
+    'Dep map audit complete. 9 new nodes registered.',
+    'WIDGET_DEPENDENCY_MAP: 88+ nodes. aiFeedback / moodAnalytics / journalReflection / energyCapacitor / integrityWidget / interfaceEvolution / worldCanvas / systemPulse / architectWidget — all wired in. The map now covers the full surface.',
+    'LOG_DEPENDENCY_SOURCES: 8 sources. intentions + memory added as direct pipeline sources. QIE log audit now touches all primary signal lanes.',
+    'Log field: 6 new military handlers. CSPRL · BPEAK · MER · MULTI · CAL · QOS-COHR. 53+ event types rendered. Field archive has depth.',
+    'SystemPulseWidget: 4th view "Biofield:" live. Physiological cohort surfaced — archetype + confidence + directive from classifyPhysiologicalCohort(). The Cube shows who you are from the pulse surface.',
+    'Background job 10: weekly-archetype-stability-monitor. Thursdays 05:00 UTC. Week-over-week archetype match rate. 10 scheduled jobs now active.',
+    'Physiological cohort reported from three angles: QOS widget · System Progress report · System Pulse. Cross-surface cohort coherence achieved.',
+    'DEPLOYED. The system now maps itself more completely.',
   ],
 }
 
