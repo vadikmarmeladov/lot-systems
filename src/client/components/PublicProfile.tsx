@@ -615,11 +615,12 @@ export const PublicProfile = () => {
           )
           if (!isUsership) return null
 
-          const PHASE_ORDER = ['dormant', 'awakening', 'forming', 'assembled', 'integrated']
-          const phase = profile.assemblyPhase || 'dormant'
-          const phaseRank = PHASE_ORDER.indexOf(phase)
-          const formingRank = PHASE_ORDER.indexOf('forming')
-          if (phaseRank < formingRank) return null
+          if (profile.assemblyPhase) {
+            const PHASE_ORDER = ['dormant', 'awakening', 'forming', 'assembled', 'integrated']
+            const phaseRank = PHASE_ORDER.indexOf(profile.assemblyPhase)
+            const formingRank = PHASE_ORDER.indexOf('forming')
+            if (phaseRank >= 0 && phaseRank < formingRank) return null
+          }
 
           const THEMES: Record<string, { base: string; acc: string }> = {
             light: { base: '#ffffff', acc: '#000000' },
