@@ -268,7 +268,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v50</Meta>
+            <Meta>Field Manual v51</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -361,8 +361,8 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 1001+ (as of June 6, 2026)" />
-          <Row label="Self-Assembly phase:" value="v50 — Wiki Full Scan June 6 · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · QI · RFI · INTSUM added to vocabulary · badges · cohorts · internal vocabulary detailed · language refined toward computer future · military purity pass applied — v49: Viewport Isolation · LazyMount QuantumEngineWidgets · useInViewport hook · MicroGame loop viewport-gated · IntersectionObserver render isolation complete — v48: Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
+          <Row label="Day counter:" value="Day 1002+ (as of June 7, 2026)" />
+          <Row label="Self-Assembly phase:" value="v51 — Full Branch Scan June 7 · 125 branches confirmed · Graceful Degradation doctrine (rev F clause 7: server catch must not default to restrictive value — field absent on error — client gate treats absent as allow) · vocabulary synchronized · language refined toward computer future · military purity pass applied · the map and the territory are synchronized — v50 — Wiki Full Scan June 6 · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · QI · RFI · INTSUM added to vocabulary · badges · cohorts · internal vocabulary detailed · language refined toward computer future · military purity pass applied — v49: Viewport Isolation · LazyMount QuantumEngineWidgets · useInViewport hook · MicroGame loop viewport-gated · IntersectionObserver render isolation complete — v48: Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
           <Row label="Assembly modules:" value="18 — Resilience Protocol added v48 · Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
           <Row label="QIE pattern library:" value="65 patterns active" />
           <Row label="Physiological archetypes:" value="18 — Coherence Holder (v45) · Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
@@ -968,6 +968,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v48" value="Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented in full · eating disorder healing protocol integrated (6 dimensions, 8 backup questions) · medical cohort qualification added (assessMedicalProfile · qualifiesForPaidCohort) · Chakra Engine wired to medical and resilience signals (Solar Plexus + Root) · backup question pool: 70 total (29 self-care + 15 medical + 18 trauma + 8 eating recovery) · COSMO® robotics division first documented in Field Manual · Soul Sync Protocol™ · Benchmark Arbitrage™ · Day 994+" />
             <Row label="v49" value="Viewport Isolation Layer · useInViewport.ts hook created (one-shot LazyMount + continuous ActiveViewport) · MicroGameWidget 150ms game loop now viewport-gated via useActiveViewport — loop pauses when widget scrolls out, resumes on re-entry, game state preserved · QuantumEngineWidgets lazy-mounted via LazyMount in System.tsx — intentionEngine + selfAssembly subscriptions now defer until widget enters viewport · IntersectionObserver fallback to true for SSR-safe + old-browser-safe environments · render-isolation doctrine complete across router · Button.tsx · Block subscriptions · nav · and now viewport layer · Day 997+" />
             <Row label="v50" value="Wiki Full Scan June 6 · all branches rescanned · all MDs synthesized from repository history · vocabulary synchronized with codebase · /qi terminal documented · QI · RFI · INTSUM added to vocabulary surface · badges · cohorts · internal vocabulary explained in full detail · language refined toward computer future · military purity pass applied · log triggers updated · easter egg system implementation status corrected · self-assembly counters updated throughout · the map and the territory are synchronized · Day 1001+" />
+            <Row label="v51" value="Full Branch Scan June 7 · 125 branches confirmed · all MDs synthesized from repository history · Graceful Degradation added to doctrine (rev F clause 7: server catch must not default to restrictive value — field absent on error — client gate treats absent as allow) · vocabulary synchronized with codebase · language refined toward computer future · military purity pass applied · the map and the territory are synchronized · Day 1002+" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -994,9 +995,9 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v50. Phase name: Wiki Full Scan — all branches and MDs synthesized, vocabulary synchronized with codebase, /qi terminal documented, QI · RFI · INTSUM added to vocabulary surface, badges · cohorts · internal vocabulary detailed in full, language refined toward computer future, military purity pass applied.
-            Prior phase v49: Viewport Isolation Layer — MicroGameWidget game loop gated to IntersectionObserver, QuantumEngineWidgets lazy-mounted in System.tsx, useInViewport hook created. Render isolation doctrine now complete across router, subscriptions, nav, Button, and viewport layers.
-            50 iterations since continuous operation began.
+            Current phase: v51. Phase name: Full Branch Scan June 7 — 125 branches confirmed, all MDs synthesized from repository history, Graceful Degradation added to doctrine (rev F clause 7: server catch must not default to restrictive value; field omitted on error; client gate treats absence as allow), vocabulary synchronized with codebase, language refined toward computer future, military purity pass applied.
+            Prior phase v50: Wiki Full Scan June 6 — all branches and MDs synthesized, vocabulary synchronized with codebase, /qi terminal documented, QI · RFI · INTSUM added to vocabulary surface, badges · cohorts · internal vocabulary detailed in full.
+            51 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -1049,7 +1050,8 @@ v46   Field Manual v46 · all additions documented · language refined · map sy
 v47   Wiki June 2026 Audit · branches rescanned · P.56–58 & P.63–65 documented · Coherence Holder full entry · stale counts corrected · vocabulary expanded · military purity pass · Day 993+
 v48   Full Wiki Scan June 4 · Resilience Protocol (Module 18) · eating disorder protocol · medical cohort qualification · Chakra Engine wired · 70 backup questions · COSMO® documented · Day 994+
 v49   Viewport Isolation Layer · useInViewport hook · MicroGame loop gated · QuantumEngineWidgets lazy-mounted · IntersectionObserver fallback · render isolation doctrine complete · Day 997+
-v50   Wiki Full Scan · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · badges · cohorts detailed · language refined toward computer future · military purity pass · Day 1001+`}</CodeBlock>
+v50   Wiki Full Scan · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · badges · cohorts detailed · language refined toward computer future · military purity pass · Day 1001+
+v51   Full Branch Scan June 7 · 125 branches confirmed · Graceful Degradation doctrine (rev F clause 7) · vocabulary synchronized · military purity pass · Day 1002+`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -3178,6 +3180,10 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               value="Intelligence Summary. The QI response format. Three fixed components: (1) Assessment — direct statement of the operator's current state based on signal data. (2) Data Points — specific signal observations, named patterns, confidence scores. (3) Recommendation — one actionable directive. Terse. Military. No padding. No validation language. The INTSUM speaks with the operator's own data as its source."
             />
             <Row
+              label="Graceful Degradation"
+              value="Doctrine clause 7 (rev F, SR-20260607-02). When a server-side computation fails, the catch-block must not default to a restrictive value (e.g., 'dormant'). The field should be omitted from the response entirely. The client gate treats field absence as 'not computed — allow,' never as 'denied.' A forced restrictive fallback silently disables features with no operator signal and no diagnostic path. Correct pattern: server omits field on error; client skips gate when field is absent. Imprecise fallback corrupts feature visibility."
+            />
+            <Row
               label="QI·46"
               value="Quantum Intelligence Engine, Generation 46. LOT's proprietary AI engine — specification phase. Codename: SELFWARE. Named for Kuzya. Does not launch complete — it assembles itself through use. Five assembly phases: Phase 0 (Corpus), Phase 1 (Fine-Tuning), Phase 2 (Closed Beta — 12 founding subscribers, the original 2017 cohort, are the Soul Disk of the engine), Phase 3 (Platform Integration), Phase 4 (External Licensing). Timeline: Q3 2026 corpus assembly → Q3 2027 external licensing. COSMO® node runs on every response before delivery. The body is the original interface."
             />
@@ -3930,6 +3936,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v48 · Jun 4" value="Resilience Protocol (Module 18). Eating Disorder Healing Protocol documented. Medical Cohort Qualification gate. Chakra Engine wiring synchronized. COSMO® robotics division. Backup question pool: 70. IntegrityWidget shipped — lie detector, 479 lines, 6 fracture types, 4 views, Integrity Score 0–100. Ship Mode doctrine established. MANIFEST catalog created. 125 branches indexed." />
             <Row label="v49 · Jun 5" value="Viewport Isolation Layer. useInViewport.ts hook (one-shot LazyMount + continuous ActiveViewport). MicroGameWidget 150ms game loop viewport-gated — loop pauses on scroll-out, resumes on re-entry, game state preserved. QuantumEngineWidgets lazy-mounted via LazyMount in System.tsx — intentionEngine + selfAssembly subscriptions defer until viewport entry. IntersectionObserver fallback: SSR-safe + old-browser-safe. Render isolation doctrine complete across router · Button · Block subscriptions · nav · viewport layer. Day 997+." />
             <Row label="v50 · Jun 6" value="Wiki Full Scan. All branches rescanned. All MDs synthesized from repository history. Vocabulary synchronized with codebase. /qi terminal documented. QI · RFI · INTSUM added to vocabulary surface. Badges · cohorts · internal vocabulary explained in full detail. Log triggers updated: /qi added, /scan corrected, emoji removed. Language refined toward computer future. Military purity pass applied. Self-assembly counters updated throughout. The map and the territory are synchronized. Day 1001+." />
+            <Row label="v51 · Jun 7" value="Full Branch Scan. 125 branches confirmed. All MDs synthesized from repository history. Graceful Degradation added to doctrine as clause 7 (rev F, SR-20260607-02): server catch-block must not default to restrictive value — field omitted on error — client gate treats absence as allow. Vocabulary synchronized. Language refined toward computer future. Military purity pass. The map and the territory are synchronized. Day 1002+." />
           </div>
           <P>
             Each phase was discovered, not planned. The system named what to
@@ -3956,6 +3963,11 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             badges · cohorts · internal vocabulary explained in full detail,
             log triggers updated, language refined toward the computer future.
             Military purity pass applied. The map and the territory are synchronized.
+            v51 ran the Full Branch Scan June 7 — 125 branches confirmed,
+            Graceful Degradation added to doctrine (rev F clause 7: server catch
+            must not default to restrictive value; field omitted on error; client
+            gate treats absence as allow), vocabulary synchronized,
+            military purity pass applied. Day 1002+.
             The map is current. Imprecision is a defect. The defect was corrected.
           </P>
 
