@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev E
+# LOT-DOCTRINE  rev F
 
 ## Render Isolation
 
@@ -61,3 +61,16 @@ New event types from RFI responses (qi_rfi) must appear in displayableEvents
 (Backend Whitelist Hygiene) so the write→read loop persists in the LOG.
 (SR-20260605-04: /qi trigger → POST /api/qi → Together AI → qi_rfi log;
 reuses QIE getUserState + getUserIndex from client side.)
+
+## Graceful Degradation
+
+When a server-side computation feeds a client-side gate (feature visibility,
+access control, UI rendering), the catch-block fallback must not be a value
+that blocks the feature. If the computation fails, the field should stay
+absent (undefined) and the client gate should treat absence as "not computed,
+allow" rather than "denied." A forced fallback to a restrictive default
+(e.g. 'dormant') silently disables features whenever the computation errors,
+with no signal to the operator that anything is wrong.
+(SR-20260607-02: assembly phase catch set 'dormant' → QR disappeared;
+client defaulted undefined to 'dormant' → double block. Fix: server omits
+field on error, client skips gate when field absent.)
