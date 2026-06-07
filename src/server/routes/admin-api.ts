@@ -322,6 +322,10 @@ export default async (fastify: FastifyInstance) => {
   fastify.get(
     '/users/:userId',
     async (req: FastifyRequest<{ Params: { userId: string } }>, reply) => {
+      if (req.params.userId !== req.user.id && !req.user.canEditTags()) {
+        reply.status(403)
+        throw new Error('Access denied: can only view own data')
+      }
       const user = await fastify.models.User.findByPk(req.params.userId)
       return user
     }
@@ -375,6 +379,10 @@ export default async (fastify: FastifyInstance) => {
   fastify.get(
     '/users/:userId/memory-prompt',
     async (req: FastifyRequest<{ Params: { userId: string } }>, reply) => {
+      if (req.params.userId !== req.user.id && !req.user.canEditTags()) {
+        reply.status(403)
+        throw new Error('Access denied: can only view own data')
+      }
       const user = await fastify.models.User.findByPk(req.params.userId)
       if (!user) return reply.throw.notFound()
 
@@ -406,6 +414,10 @@ export default async (fastify: FastifyInstance) => {
       }>,
       reply
     ) => {
+      if (req.params.userId !== req.user.id && !req.user.canEditTags()) {
+        reply.status(403)
+        throw new Error('Access denied: can only view own data')
+      }
       const user = await fastify.models.User.findByPk(req.params.userId)
       if (!user) return reply.throw.notFound()
       return await completeAndExtractQuestion(req.body.prompt, user)
@@ -415,6 +427,10 @@ export default async (fastify: FastifyInstance) => {
   fastify.get(
     '/users/:userId/summary',
     async (req: FastifyRequest<{ Params: { userId: string } }>, reply) => {
+      if (req.params.userId !== req.user.id && !req.user.canEditTags()) {
+        reply.status(403)
+        throw new Error('Access denied: can only view own data')
+      }
       const user = await fastify.models.User.findByPk(req.params.userId)
       if (!user) return reply.throw.notFound()
 
@@ -434,6 +450,10 @@ export default async (fastify: FastifyInstance) => {
   fastify.get(
     '/users/:userId/memory-story',
     async (req: FastifyRequest<{ Params: { userId: string } }>, reply) => {
+      if (req.params.userId !== req.user.id && !req.user.canEditTags()) {
+        reply.status(403)
+        throw new Error('Access denied: can only view own data')
+      }
       const user = await fastify.models.User.findByPk(req.params.userId)
       if (!user) return reply.throw.notFound()
 
@@ -451,8 +471,12 @@ export default async (fastify: FastifyInstance) => {
     }
   )
 
-  // Admin endpoint: Clean up ALL empty logs across all users
+  // Admin endpoint: Clean up ALL empty logs across all users (CEO only)
   fastify.post('/cleanup-all-empty-logs', async (req: FastifyRequest, reply) => {
+    if (!req.user.canEditTags()) {
+      reply.status(403)
+      throw new Error('Access denied: CEO authorization required for global operations')
+    }
     try {
       console.log(`🧹 [ADMIN] Starting global empty logs cleanup...`)
       console.log(`📝 [ADMIN] Request content-type: ${req.headers['content-type']}`)
@@ -768,9 +792,11 @@ export default async (fastify: FastifyInstance) => {
       const { Sequelize } = await import('sequelize')
 
       // Connect to backup database
-      const backupDb = new Sequelize('defaultdb', 'doadmin', 'AVNS_8V6Hqzuxwj0JkMxgNvR', {
-        host: 'db-postgresql-nyc3-92053-dec-24-backup-do-user-22640384-0.l.db.ondigitalocean.com',
-        port: 25060,
+      const backupDbUrl = process.env.BACKUP_DATABASE_URL
+      if (!backupDbUrl) {
+        return reply.status(500).send({ error: 'BACKUP_DATABASE_URL not configured' })
+      }
+      const backupDb = new Sequelize(backupDbUrl, {
         dialect: 'postgres',
         logging: false,
         dialectOptions: {
@@ -931,9 +957,11 @@ export default async (fastify: FastifyInstance) => {
       const { Sequelize } = await import('sequelize')
 
       // Connect to backup database
-      const backupDb = new Sequelize('defaultdb', 'doadmin', 'AVNS_8V6Hqzuxwj0JkMxgNvR', {
-        host: 'db-postgresql-nyc3-92053-dec-24-backup-do-user-22640384-0.l.db.ondigitalocean.com',
-        port: 25060,
+      const backupDbUrl = process.env.BACKUP_DATABASE_URL
+      if (!backupDbUrl) {
+        return reply.status(500).send({ error: 'BACKUP_DATABASE_URL not configured' })
+      }
+      const backupDb = new Sequelize(backupDbUrl, {
         dialect: 'postgres',
         logging: false,
         dialectOptions: {
