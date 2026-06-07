@@ -708,6 +708,9 @@ export default async (fastify: FastifyInstance) => {
     }
 
     try {
+      // Prioritize custom URL over ID to avoid conflicts
+      // First, try to find user by custom URL in metadata
+      console.log('[PUBLIC-PROFILE-API] Searching for custom URL:', userIdOrUsername)
       let user = await models.User.findOne({
         where: sequelize.where(
           sequelize.fn('jsonb_extract_path_text', sequelize.col('metadata'), 'privacy', 'customUrl'),
@@ -715,16 +718,45 @@ export default async (fastify: FastifyInstance) => {
         )
       }) as any
 
+      if (user) {
+        console.log('[PUBLIC-PROFILE-API] ✓ User found by custom URL')
+        console.log('[PUBLIC-PROFILE-API] User ID:', user.id)
+      }
+
+      // If not found by custom URL, try by user ID
       if (!user) {
+        console.log('[PUBLIC-PROFILE-API] Custom URL not found, trying by ID')
         user = await models.User.findOne({
           where: { id: userIdOrUsername }
         })
+        if (user) {
+          console.log('[PUBLIC-PROFILE-API] ✓ User found by ID:', user.id)
+        }
       }
 
       if (!user) {
-        return reply.code(404).send({ error: 'User not found' })
+        console.log('[PUBLIC-PROFILE-API] User not found for:', userIdOrUsername)
+        return reply.code(404).send({
+          error: 'User not found',
+          message: `No public profile exists for user: ${userIdOrUsername}`,
+          debug: {
+            searchedFor: userIdOrUsername,
+            searchMethods: ['By ID', 'By custom URL in metadata']
+          }
+        })
       }
 
+      console.log('[PUBLIC-PROFILE-API] ✓ User found!')
+      console.log('[PUBLIC-PROFILE-API] User details:', {
+        id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        hasMetadata: !!user.metadata,
+        metadata: user.metadata
+      })
+
+      // Get privacy settings from metadata (with defaults)
+      // All profiles are public by default
       const privacy: any = user.metadata?.privacy || {
         isPublicProfile: true,
         showWeather: true,
@@ -733,31 +765,44 @@ export default async (fastify: FastifyInstance) => {
         showSound: true,
         showMemoryStory: true,
       }
+      console.log('[PUBLIC-PROFILE-API] Privacy settings:', JSON.stringify(privacy, null, 2))
+      console.log('[PUBLIC-PROFILE-API] isPublicProfile:', privacy.isPublicProfile)
 
       if (!privacy.isPublicProfile) {
         return { isPrivate: true }
       }
 
-      // Atomic visit counter increment
+      console.log('[PUBLIC-PROFILE-API] ✓ Profile is public, building response')
+
+      // Increment profile visit counter
+      const currentVisits = user.metadata?.profileVisits || 0
+      const newVisits = currentVisits + 1
       await models.User.update(
-        { metadata: sequelize.literal(`metadata || '{"profileVisits": ${(user.metadata?.profileVisits || 0) + 1}}'::jsonb`) },
+        {
+          metadata: {
+            ...user.metadata,
+            profileVisits: newVisits
+          }
+        },
         { where: { id: user.id } }
       )
-      const profileVisits = (user.metadata?.profileVisits || 0) + 1
 
+      // Build public profile response
       const profile: any = {
         firstName: user.firstName,
         lastName: user.lastName,
         privacySettings: privacy,
-        tags: user.tags || [],
-        profileVisits,
+        tags: user.tags || [], // Add user tags
+        profileVisits: newVisits, // Add visit count
       }
 
+      // Add city/country if enabled
       if (privacy.showCity) {
         profile.city = user.city
         profile.country = user.country
       }
 
+      // Add local time if enabled
       if (privacy.showLocalTime && user.city) {
         try {
           const now = new Date()
@@ -772,8 +817,10 @@ export default async (fastify: FastifyInstance) => {
         }
       }
 
+      // Add weather if enabled
       if (privacy.showWeather && user.city) {
         try {
+          // Get latest weather for user's location
           const weatherResponse = await models.WeatherResponse.findOne({
             where: {
               city: user.city,
@@ -799,93 +846,100 @@ export default async (fastify: FastifyInstance) => {
         }
       }
 
+      // Add sound description if enabled (this would need to be stored in user metadata)
       if (privacy.showSound && user.metadata?.currentSound) {
         profile.soundDescription = user.metadata.currentSound
       }
 
+      // Add memory story if enabled (only for Usership users)
       const hasUsershipTag = user.tags?.some((tag: string) => tag.toLowerCase() === 'usership')
       if (privacy.showMemoryStory && hasUsershipTag) {
-        if (user.metadata?.memoryStory) {
-          profile.memoryStory = user.metadata.memoryStory
+        try {
+          // Get latest memory story from user metadata
+          if (user.metadata?.memoryStory) {
+            profile.memoryStory = user.metadata.memoryStory
+          }
+        } catch (error) {
+          // Story not available, skip
         }
       }
 
-      // Run all analytics queries in parallel (used by psych profile, board, assembly)
+      // Add psychological profile (for Usership users)
       if (hasUsershipTag) {
         try {
-          const [answerLogs, noteCount, answers, allUsership, totalUsers, totalLogs, answerEventCount, activeDaysResult, distinctEvents] = await Promise.all([
-            models.Log.findAll({
-              where: { userId: user.id, event: 'answer' },
-              order: [['createdAt', 'DESC']],
-              limit: 30,
-            }),
-            models.Log.count({ where: { userId: user.id, event: 'note' } }),
-            models.Answer.findAll({
+          // Get answer logs for psychological analysis
+          const logs = await models.Log.findAll({
+            where: {
+              userId: user.id,
+              event: 'answer',
+            },
+            order: [['createdAt', 'DESC']],
+            limit: 30,
+          })
+
+          // Get note/journal entry count separately
+          const noteCount = await models.Log.count({
+            where: {
+              userId: user.id,
+              event: 'note',
+            },
+          })
+
+          // Calculate streak (consecutive days with answers)
+          let streak = 0
+          try {
+            const answers = await models.Answer.findAll({
               where: { userId: user.id },
               order: [['createdAt', 'DESC']],
               attributes: ['createdAt'],
-            }),
-            models.User.findAll({
-              where: sequelize.literal(`tags::jsonb @> '"usership"'::jsonb OR tags::jsonb @> '"Usership"'::jsonb`),
-              attributes: ['id', 'joinedAt', 'createdAt'],
-              order: [['createdAt', 'ASC']],
-            }),
-            models.User.count(),
-            models.Log.count({ where: { userId: user.id } }),
-            models.Log.count({ where: { userId: user.id, event: 'answer' } }),
-            sequelize.query(
-              `SELECT COUNT(DISTINCT DATE("createdAt")) as count FROM "Logs" WHERE "userId" = :userId`,
-              { replacements: { userId: user.id }, type: 'SELECT' as any }
-            ),
-            models.Log.findAll({
-              attributes: [[sequelize.fn('DISTINCT', sequelize.col('event')), 'event']],
-              where: { userId: user.id },
-              raw: true,
-            }),
-          ])
+            })
 
-          const activeDays = (activeDaysResult as any[])[0]?.count ? Number((activeDaysResult as any[])[0].count) : 0
-          const eventTypeCount = distinctEvents.length
+            if (answers.length > 0) {
+              const today = dayjs().startOf('day')
+              let currentDate = today
+              const answerDays = new Set(
+                answers.map(a => dayjs(a.createdAt).startOf('day').format('YYYY-MM-DD'))
+              )
 
-          // Streak calculation
-          let streak = 0
-          if (answers.length > 0) {
-            const today = dayjs().startOf('day')
-            let currentDate = today
-            const answerDays = new Set(
-              answers.map(a => dayjs(a.createdAt).startOf('day').format('YYYY-MM-DD'))
-            )
-            if (!answerDays.has(today.format('YYYY-MM-DD'))) {
-              currentDate = today.subtract(1, 'day')
+              // Check consecutive days backwards from today or yesterday
+              if (!answerDays.has(today.format('YYYY-MM-DD'))) {
+                currentDate = today.subtract(1, 'day')
+              }
+
+              while (answerDays.has(currentDate.format('YYYY-MM-DD'))) {
+                streak++
+                currentDate = currentDate.subtract(1, 'day')
+              }
             }
-            while (answerDays.has(currentDate.format('YYYY-MM-DD'))) {
-              streak++
-              currentDate = currentDate.subtract(1, 'day')
-            }
+          } catch (streakError) {
+            console.warn('[PUBLIC-PROFILE-API] Streak calculation failed:', streakError)
           }
 
-          // Psychological profile
-          if (answerLogs.length === 0) {
+          if (logs.length === 0) {
             profile.psychologicalProfile = {
               hasUsership: true,
               message: 'Complete Memory questions to generate profile',
               answerCount: 0,
-              noteCount,
-              streak,
+              noteCount: noteCount,
+              streak: streak
             }
           } else {
-            const analysis = extractUserTraits(answerLogs)
+            // Extract traits and determine psychological archetype + behavioral cohort
+            const analysis = extractUserTraits(logs)
             const { traits, patterns, psychologicalDepth } = analysis
             const cohortResult = determineUserCohort(traits, patterns, psychologicalDepth)
 
+            // Calculate OS version (months since user joined)
             const monthsSinceJoined = dayjs().diff(dayjs(user.createdAt), 'month')
             const osVersion = String(monthsSinceJoined).padStart(3, '0')
 
+            // Calculate Pattern Strength Index with engagement weighting
             const totalPatternMatches = Object.values(patterns).reduce((sum, count) => sum + count, 0)
             const daysSinceJoined = dayjs().diff(dayjs(user.createdAt), 'day')
             const engagementFactor = Math.min(1.5, Math.max(0.5, daysSinceJoined / 30))
             const patternStrengthIndex = Math.round(totalPatternMatches * engagementFactor)
 
+            // Helper to format camelCase to Title Case
             const formatTrait = (str: string): string => {
               const formatted = str.replace(/([A-Z])/g, ' $1').trim()
               return formatted.charAt(0).toUpperCase() + formatted.slice(1)
@@ -894,36 +948,42 @@ export default async (fastify: FastifyInstance) => {
             profile.psychologicalProfile = {
               hasUsership: true,
               version: osVersion,
+              // Psychological depth (soul level)
               archetype: cohortResult.archetype,
               archetypeDescription: cohortResult.description,
               coreValues: psychologicalDepth.values.map((v: string) => v.toLowerCase()),
               emotionalPatterns: psychologicalDepth.emotionalPatterns.map((p: string) => formatTrait(p).toLowerCase()),
               selfAwarenessLevel: psychologicalDepth.selfAwareness,
-              streak,
+              // Level badge (Aquatic Evolution)
+              streak: streak,
+              // Behavioral patterns (surface level)
               behavioralCohort: cohortResult.behavioralCohort,
               behavioralTraits: traits.map((t: string) => formatTrait(t).toLowerCase()),
-              patternStrengthIndex,
+              patternStrengthIndex: patternStrengthIndex,
               patternStrength: Object.entries(patterns)
                 .filter(([_, v]) => v > 0)
                 .map(([k, v]) => ({ trait: formatTrait(k), count: v as number }))
                 .sort((a, b) => b.count - a.count),
-              answerCount: answerLogs.length,
-              noteCount,
+              // Meta
+              answerCount: logs.length,
+              noteCount: noteCount
             }
 
+            // Correlated indexes — four-dimensional long-term tracking
             const daysSinceJoinedForIndexes = dayjs().diff(dayjs(user.createdAt), 'day')
             profile.correlatedIndexes = {
-              ...calculateCorrelatedIndexes(answerLogs, {
+              ...calculateCorrelatedIndexes(logs, {
                 daysSinceStart: daysSinceJoinedForIndexes,
                 streak,
-                answerCount: answerLogs.length,
-                logCount: answerLogs.length + noteCount,
+                answerCount: logs.length,
+                logCount: logs.length + noteCount,
               }),
               timeline: [],
               trend: 'stable' as const,
               correlationStrength: 0,
             }
 
+            // Calculate correlation strength for public display
             const idxScores = [
               profile.correlatedIndexes.selfAwareness,
               profile.correlatedIndexes.userScore,
@@ -935,17 +995,43 @@ export default async (fastify: FastifyInstance) => {
             const idxCv = idxMean > 0 ? Math.sqrt(idxVariance) / idxMean : 1
             profile.correlatedIndexes.correlationStrength = Number(Math.max(0, Math.min(1, 1 - idxCv)).toFixed(2))
           }
+        } catch (error) {
+          console.error('[PUBLIC-PROFILE-API] Error generating psychological profile:', error)
+          // Profile generation failed, set basic response
+          profile.psychologicalProfile = {
+            hasUsership: true,
+            message: 'Profile temporarily unavailable'
+          }
+        }
+      } else {
+        // Non-Usership users don't get psychological profiles
+        profile.psychologicalProfile = {
+          hasUsership: false,
+          message: 'Subscribe to Usership to unlock profile analysis'
+        }
+      }
 
-          // Board profile (reuse data from parallel queries)
+      // Add board profile for Usership members
+      if (hasUsershipTag) {
+        try {
+          // Board member number: sequential ordering by joinedAt among Usership users
+          const allUsership = await models.User.findAll({
+            where: sequelize.literal(`tags::jsonb @> '"usership"'::jsonb OR tags::jsonb @> '"Usership"'::jsonb`),
+            attributes: ['id', 'joinedAt', 'createdAt'],
+            order: [['createdAt', 'ASC']],
+          })
           const boardMemberNumber = allUsership.findIndex(u => u.id === user.id) + 1
+          const totalUsers = await models.User.count()
           const usershipCount = allUsership.length
           const freeCitizens = Math.max(0, totalUsers - usershipCount)
           const poweringCitizens = usershipCount > 0 ? Math.round(freeCitizens / usershipCount) : 0
 
+          // Tenure and investment
           const joinDate = user.joinedAt || user.createdAt
           const boardTenureMonths = dayjs().diff(dayjs(joinDate), 'month')
           const totalInvested = Math.max(1, boardTenureMonths) * 99
 
+          // Biofield state from quantum intent metadata
           const meta = user.metadata as any
           const quantumState = meta?.quantumIntentState
           const biofieldState = quantumState?.energy && quantumState.energy !== 'unknown' ? {
@@ -954,6 +1040,17 @@ export default async (fastify: FastifyInstance) => {
             alignment: quantumState.alignment || 'searching',
           } : undefined
 
+          // Activity stats
+          const totalLogs = await models.Log.count({ where: { userId: user.id } })
+          const answerCount = await models.Log.count({ where: { userId: user.id, event: 'answer' } })
+          const noteCount = await models.Log.count({ where: { userId: user.id, event: 'note' } })
+          const [activeDaysResult] = await sequelize.query(
+            `SELECT COUNT(DISTINCT DATE("createdAt")) as count FROM "Logs" WHERE "userId" = :userId`,
+            { replacements: { userId: user.id }, type: 'SELECT' as any }
+          ) as any[]
+          const activeDays = activeDaysResult?.count ? Number(activeDaysResult.count) : 0
+
+          // Memory engine name
           let memoryEngineName = 'Standard'
           try {
             aiEngineManager.getEngine(AI_ENGINE_PREFERENCE)
@@ -970,7 +1067,7 @@ export default async (fastify: FastifyInstance) => {
             totalInvested,
             biofieldState,
             activity: {
-              memoriesCompiled: answerEventCount,
+              memoriesCompiled: answerCount,
               journalEntries: noteCount,
               activeDays,
             },
@@ -978,67 +1075,46 @@ export default async (fastify: FastifyInstance) => {
             clearanceLevel: 'Full',
             totalEntries: totalLogs,
           }
-
-          // Assembly phase (reuse data from parallel queries)
-          if (totalLogs === 0) {
-            profile.assemblyPhase = 'dormant'
-          } else if (eventTypeCount >= 8 && totalLogs >= 150 && activeDays >= 30) {
-            profile.assemblyPhase = 'integrated'
-          } else if (eventTypeCount >= 5 && totalLogs >= 50 && activeDays >= 14) {
-            profile.assemblyPhase = 'assembled'
-          } else if (eventTypeCount >= 3 && totalLogs >= 10 && activeDays >= 3) {
-            profile.assemblyPhase = 'forming'
-          } else {
-            profile.assemblyPhase = 'awakening'
-          }
-        } catch (error: any) {
-          console.error('[PUBLIC-PROFILE-API] Profile generation error:', error.message)
-          profile.psychologicalProfile = {
-            hasUsership: true,
-            message: 'Profile temporarily unavailable'
-          }
-          profile.assemblyPhase = 'dormant'
-        }
-      } else {
-        // Non-Usership: only compute assembly phase
-        profile.psychologicalProfile = {
-          hasUsership: false,
-          message: 'Subscribe to Usership to unlock profile analysis'
-        }
-
-        try {
-          const [distinctEvents, logCount, activeDaysResult] = await Promise.all([
-            models.Log.findAll({
-              attributes: [[sequelize.fn('DISTINCT', sequelize.col('event')), 'event']],
-              where: { userId: user.id },
-              raw: true,
-            }),
-            models.Log.count({ where: { userId: user.id } }),
-            sequelize.query(
-              `SELECT COUNT(DISTINCT DATE("createdAt")) as count FROM "Logs" WHERE "userId" = :userId`,
-              { replacements: { userId: user.id }, type: 'SELECT' as any }
-            ),
-          ])
-          const activeDays = (activeDaysResult as any[])[0]?.count ? Number((activeDaysResult as any[])[0].count) : 0
-          const eventTypeCount = distinctEvents.length
-
-          if (logCount === 0) {
-            profile.assemblyPhase = 'dormant'
-          } else if (eventTypeCount >= 8 && logCount >= 150 && activeDays >= 30) {
-            profile.assemblyPhase = 'integrated'
-          } else if (eventTypeCount >= 5 && logCount >= 50 && activeDays >= 14) {
-            profile.assemblyPhase = 'assembled'
-          } else if (eventTypeCount >= 3 && logCount >= 10 && activeDays >= 3) {
-            profile.assemblyPhase = 'forming'
-          } else {
-            profile.assemblyPhase = 'awakening'
-          }
-        } catch (asmError: any) {
-          console.error('[PUBLIC-PROFILE-API] Assembly phase error:', asmError.message)
-          profile.assemblyPhase = 'dormant'
+        } catch (boardError: any) {
+          console.error('[PUBLIC-PROFILE-API] Board profile error:', boardError.message)
         }
       }
 
+      // Compute assembly phase from server-side engagement data
+      try {
+        const distinctEvents = await models.Log.findAll({
+          attributes: [[sequelize.fn('DISTINCT', sequelize.col('event')), 'event']],
+          where: { userId: user.id },
+          raw: true,
+        })
+        const eventTypeCount = distinctEvents.length
+        const totalLogs = await models.Log.count({ where: { userId: user.id } })
+        const [activeDaysRow] = await sequelize.query(
+          `SELECT COUNT(DISTINCT DATE("createdAt")) as count FROM "Logs" WHERE "userId" = :userId`,
+          { replacements: { userId: user.id }, type: 'SELECT' as any }
+        ) as any[]
+        const activeDays = activeDaysRow?.count ? Number(activeDaysRow.count) : 0
+
+        let assemblyPhase: 'dormant' | 'awakening' | 'forming' | 'assembled' | 'integrated' = 'dormant'
+        if (totalLogs === 0) {
+          assemblyPhase = 'dormant'
+        } else if (eventTypeCount >= 8 && totalLogs >= 150 && activeDays >= 30) {
+          assemblyPhase = 'integrated'
+        } else if (eventTypeCount >= 5 && totalLogs >= 50 && activeDays >= 14) {
+          assemblyPhase = 'assembled'
+        } else if (eventTypeCount >= 3 && totalLogs >= 10 && activeDays >= 3) {
+          assemblyPhase = 'forming'
+        } else {
+          assemblyPhase = 'awakening'
+        }
+
+        profile.assemblyPhase = assemblyPhase
+      } catch (asmError: any) {
+        console.error('[PUBLIC-PROFILE-API] Assembly phase error:', asmError.message)
+        profile.assemblyPhase = 'dormant'
+      }
+
+      // Add theme settings if available
       if (user.metadata?.theme) {
         profile.theme = user.metadata.theme
       }

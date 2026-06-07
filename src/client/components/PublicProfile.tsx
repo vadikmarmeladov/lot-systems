@@ -19,6 +19,7 @@ export const PublicProfile = () => {
   const [profile, setProfile] = React.useState<PublicProfileType | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [error, setError] = React.useState<string | null>(null)
+  const [debugInfo, setDebugInfo] = React.useState<any>(null)
 
   // Get user ID or username from URL
   const userIdOrUsername = React.useMemo(() => {
@@ -43,8 +44,18 @@ export const PublicProfile = () => {
     fetch(`/api/public/profile/${userIdOrUsername}`)
       .then(async (res) => {
         if (!res.ok) {
-          const data = await res.json().catch(() => ({ error: `HTTP ${res.status}` }))
-          throw new Error(data.error || 'Failed to load profile')
+          const data = await res.json().catch(() => ({
+            message: `HTTP ${res.status}`,
+            error: `Server returned ${res.status}`
+          }))
+          console.error('[PublicProfile] Error response:', data)
+          // Capture debug info if available
+          if (data.debug) {
+            setDebugInfo(data.debug)
+          }
+          // Show more detailed error message
+          const errorMsg = data.error || data.message || 'Failed to load profile'
+          throw new Error(errorMsg)
         }
         return res.json()
       })
@@ -117,13 +128,35 @@ export const PublicProfile = () => {
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center max-w-2xl px-8">
           <div className="mb-4">{error || 'Profile not found'}</div>
-          <div className="mt-4">
-            <ul className="list-disc list-inside mt-2 text-left">
-              <li>Profile not enabled in Settings</li>
-              <li>Wrong user ID or custom URL</li>
-              <li>Check Settings for your correct link</li>
-            </ul>
+          <div className="mb-4">
+            Looking for: {userIdOrUsername}
           </div>
+          {debugInfo && (
+            <div className="mt-8 text-left bg-acc/5 p-4 rounded">
+              <div className="mb-2">Debug Information:</div>
+              <div className="mb-2">User ID: {debugInfo.userId}</div>
+              <div className="mb-2">Has Metadata: {debugInfo.hasMetadata ? 'Yes' : 'No'}</div>
+              <div className="mb-2">Has Privacy Settings: {debugInfo.hasPrivacy ? 'Yes' : 'No'}</div>
+              {debugInfo.privacySettings && (
+                <div className="mt-4">
+                  <div className="font-bold mb-1">Privacy Settings:</div>
+                  <pre className="text-xs overflow-auto">
+                    {JSON.stringify(debugInfo.privacySettings, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          )}
+          {!debugInfo && (
+            <div className="mt-4">
+              Possible issues:
+              <ul className="list-disc list-inside mt-2 text-left">
+                <li>↳ Profile not enabled in Settings</li>
+                <li>↳ Wrong user ID or custom URL</li>
+                <li>↳ Check Settings → Public Profile for your correct link</li>
+              </ul>
+            </div>
+          )}
           <div className="mt-8">
             <GhostButton href="/">← Back to home</GhostButton>
           </div>
@@ -156,16 +189,42 @@ export const PublicProfile = () => {
     return (
       <div className="max-w-2xl min-h-screen">
         <div className="flex flex-col gap-y-0">
+          {/* Name */}
           <div>
+            <div>{userName}</div>
             <div>{currentDate}</div>
           </div>
+
+          {/* Tags (show even in private mode, especially Suspended) */}
+          {profile.tags && profile.tags.length > 0 && (
+            <div>
+              <Block label="Team:" blockView>
+                <TagsContainer
+                  items={profile.tags
+                    .map((tagId: string) => {
+                      const tag = getUserTagByIdCaseInsensitive(tagId)
+                      return tag ? (
+                        <Tag key={tagId} color={tag.color}>
+                          {tag.name}
+                        </Tag>
+                      ) : null
+                    })
+                    .filter(Boolean)}
+                />
+              </Block>
+            </div>
+          )}
+
+          {/* Private mode message */}
           <div>
             <Block label="Profile:" blockView>
               Private
             </Block>
           </div>
+
+          {/* Footer */}
           <div>
-            System powered by{' '}
+            This is {userName}'s System powered by{' '}
             <GhostButton href="/">LOT</GhostButton>
           </div>
         </div>
@@ -556,13 +615,11 @@ export const PublicProfile = () => {
           )
           if (!isUsership) return null
 
-          // Gate: assembly phase must be 'forming' or higher (skip gate if phase not yet computed server-side)
-          if (profile.assemblyPhase) {
-            const PHASE_ORDER = ['dormant', 'awakening', 'forming', 'assembled', 'integrated']
-            const phaseRank = PHASE_ORDER.indexOf(profile.assemblyPhase)
-            const formingRank = PHASE_ORDER.indexOf('forming')
-            if (phaseRank >= 0 && phaseRank < formingRank) return null
-          }
+          const PHASE_ORDER = ['dormant', 'awakening', 'forming', 'assembled', 'integrated']
+          const phase = profile.assemblyPhase || 'dormant'
+          const phaseRank = PHASE_ORDER.indexOf(phase)
+          const formingRank = PHASE_ORDER.indexOf('forming')
+          if (phaseRank < formingRank) return null
 
           const THEMES: Record<string, { base: string; acc: string }> = {
             light: { base: '#ffffff', acc: '#000000' },
