@@ -19,5 +19,5 @@ ID             | CLASS        | SUMMARY                                         
 20260606-02    | SELF-ASSEMBLY| Week 23 ship report — 22 features, 11 GREEN benchmarks  | GREEN  | d5944acc | WORDS: 271 (median 388)
 20260606-03    | WIKI-BUILD   | Field Manual v50 — full branch/MD scan · vocab sync · QI/RFI/INTSUM · badges · military purity pass | GREEN  | 5d720be | WORDS: 312 (median 388)
 20260606-04    | SECURITY     | Emergency Rebuild Protocol — full disaster recovery doc  | GREEN  | a49ca026 | WORDS: 259 (median 382)
-20260607-01    | ENGINEERING  | Security hardening + LOT® API robot data integration     | GREEN  | f70ac564 | WORDS: 430 (median 339)
+20260607-01    | ENGINEERING  | Security hardening + LOT® API robot data integration     | GREEN  | pending  | WORDS: 430 (median 339)
 ```
