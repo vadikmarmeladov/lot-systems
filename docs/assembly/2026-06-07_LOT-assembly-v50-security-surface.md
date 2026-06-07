@@ -8,7 +8,7 @@ PHASE:    v50
 DATE:     2026-06-07
 TIME:     SESSION-1
 BUILD:    GREEN (7.22s)
-COMMIT:   (pending)
+COMMIT:   a046889
 ================================================================================
 
 --------------------------------------------------------------------------------
@@ -125,6 +125,7 @@ COMMIT:   (pending)
   Commit:   (pending)
   Message:  BENCHMARK: SECURITY — Remove debug endpoints + seal profile leak [VM]
   Tag:      benchmark-20260607-03
+  Hash:     a046889
   Status:   PUSHED
 
 --------------------------------------------------------------------------------
