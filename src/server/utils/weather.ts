@@ -21,23 +21,105 @@ export async function getWeather(
   lat: number,
   lon: number
 ): Promise<Omit<Weather, 'createdAt'>> {
-  const response = await axios.get<WeatherResponse>(
-    `https://api.openweathermap.org/data/2.5/weather`,
+  // Using Open-Meteo API (free, no API key required)
+  const response = await axios.get<OpenMeteoWeatherResponse>(
+    `https://api.open-meteo.com/v1/forecast`,
     {
       params: {
-        lat,
-        lon,
-        appid: config.openWeatherApiKey,
+        latitude: lat,
+        longitude: lon,
+        current: 'temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m,surface_pressure',
+        daily: 'sunrise,sunset',
+        timezone: 'auto', // Use location's actual timezone for correct sunrise/sunset times
       },
     }
   )
   const data = response.data
+  const current = data.current
+  const daily = data.daily
+
+  // Open-Meteo returns Celsius - convert to Kelvin for consistency with existing code
+  const tempCelsius = current.temperature_2m ?? null
+  const tempKelvin = tempCelsius !== null ? tempCelsius + 273.15 : null
+
+  // Parse sunrise/sunset times (API returns them in location's local timezone)
+  const sunriseStr = daily.sunrise?.[0]
+  const sunsetStr = daily.sunset?.[0]
+  const utcOffsetSeconds = data.utc_offset_seconds
+
+  // Convert to Unix timestamp (seconds)
+  // The API returns times in the location's local timezone (e.g., "2024-12-12T06:45")
+  // We need to convert to Unix timestamp (UTC)
+  //
+  // Process:
+  // 1. Parse the time string by treating it as UTC (add 'Z')
+  // 2. This gives us a timestamp as if it were that time in UTC
+  // 3. Subtract the UTC offset to get the actual UTC time
+  //
+  // Example for PST (UTC-8, offset=-28800):
+  // - API returns "06:45" (6:45 AM PST)
+  // - Real UTC time is 14:45 (2:45 PM)
+  // - Parse "06:45Z" = timestamp for 06:45 UTC
+  // - Subtract offset: 06:45 UTC - (-8 hours) = 06:45 UTC + 8 hours = 14:45 UTC ✓
+  const sunriseUnix = sunriseStr
+    ? (Date.parse(sunriseStr + 'Z') / 1000) - utcOffsetSeconds
+    : null
+  const sunsetUnix = sunsetStr
+    ? (Date.parse(sunsetStr + 'Z') / 1000) - utcOffsetSeconds
+    : null
+
+  console.log('[Weather API] Sunset debug:', {
+    timezone: data.timezone,
+    timezoneAbbr: data.timezone_abbreviation,
+    utcOffsetSeconds,
+    utcOffsetHours: utcOffsetSeconds / 3600,
+    sunsetStr,
+    sunsetUnix,
+    sunsetDateUTC: sunsetUnix ? new Date(sunsetUnix * 1000).toISOString() : null,
+    sunsetDateLocal: sunsetUnix ? new Date(sunsetUnix * 1000).toString() : null,
+    lat,
+    lon
+  })
+
   return {
-    humidity: data?.main?.humidity ?? null,
-    tempKelvin: data?.main?.temp ?? null,
-    sunrise: data?.sys?.sunrise ?? null,
-    sunset: data?.sys?.sunset ?? null,
+    temperature: tempCelsius,
+    humidity: current.relative_humidity_2m ?? null,
+    description: getWeatherDescription(current.weather_code) ?? null,
+    windSpeed: current.wind_speed_10m ?? null,
+    pressure: current.surface_pressure ?? null,
+    tempKelvin,
+    sunrise: sunriseUnix,
+    sunset: sunsetUnix,
   }
+}
+
+// Map Open-Meteo weather codes to descriptions
+function getWeatherDescription(code: number | null): string | null {
+  if (code === null) return null
+  const descriptions: Record<number, string> = {
+    0: 'Clear sky',
+    1: 'Mainly clear',
+    2: 'Partly cloudy',
+    3: 'Overcast',
+    45: 'Foggy',
+    48: 'Depositing rime fog',
+    51: 'Light drizzle',
+    53: 'Moderate drizzle',
+    55: 'Dense drizzle',
+    61: 'Slight rain',
+    63: 'Moderate rain',
+    65: 'Heavy rain',
+    71: 'Slight snow',
+    73: 'Moderate snow',
+    75: 'Heavy snow',
+    80: 'Slight rain showers',
+    81: 'Moderate rain showers',
+    82: 'Violent rain showers',
+    95: 'Thunderstorm',
+    96: 'Thunderstorm with slight hail',
+    99: 'Thunderstorm with heavy hail',
+  }
+  return descriptions[code] || 'Unknown'
 }
 
 export async function getCoordinates(
@@ -46,72 +128,73 @@ export async function getCoordinates(
 ): Promise<GeoResponse | null> {
   const country = COUNTRY_BY_ALPHA3[countryCode]
   if (!country) return null
-  const response = await axios(`http://api.openweathermap.org/geo/1.0/direct`, {
-    params: {
-      q: `${city},${country.alpha2}`,
-      limit: 1,
-      appid: config.openWeatherApiKey,
-    },
-  })
-  const data = response.data?.[0]
-  if (!data) return null
-  if (data.country !== country.alpha2) return null
-  return data
+
+  // Using Open-Meteo Geocoding API (free, no API key required)
+  const response = await axios.get<OpenMeteoGeocodingResponse>(
+    `https://geocoding-api.open-meteo.com/v1/search`,
+    {
+      params: {
+        name: city,
+        count: 10, // Get multiple results to filter by country
+        language: 'en',
+        format: 'json',
+      },
+    }
+  )
+
+  const results = response.data?.results
+  if (!results || results.length === 0) return null
+
+  // Find the first result matching the country code
+  const match = results.find(
+    (r) => r.country_code?.toLowerCase() === country.alpha2.toLowerCase()
+  )
+
+  if (!match) return null
+
+  return {
+    name: match.name,
+    lat: match.latitude,
+    lon: match.longitude,
+    country: match.country_code || country.alpha2,
+    state: match.admin1 || '',
+  }
 }
 
-interface WeatherResponse {
-  coord: {
-    lon: number
-    lat: number
+// Open-Meteo API response types
+interface OpenMeteoWeatherResponse {
+  latitude: number
+  longitude: number
+  timezone: string
+  timezone_abbreviation: string
+  utc_offset_seconds: number
+  current: {
+    temperature_2m: number
+    relative_humidity_2m: number
+    weather_code: number
+    wind_speed_10m: number
+    surface_pressure: number
   }
-  weather: {
-    id: number
-    main: string
-    description: string
-    icon: string
-  }[]
-  base: string
-  main: {
-    temp: number
-    feels_like: number
-    temp_min: number
-    temp_max: number
-    pressure: number
-    humidity: number
-    sea_level: number
-    grnd_level: number
+  daily: {
+    sunrise: string[]
+    sunset: string[]
   }
-  visibility: number
-  wind: {
-    speed: number
-    deg: number
-    gust: number
-  }
-  rain: {
-    '1h': number
-  }
-  clouds: {
-    all: number
-  }
-  dt: number
-  sys: {
-    type: number
-    id: number
+}
+
+interface OpenMeteoGeocodingResponse {
+  results?: Array<{
+    name: string
+    latitude: number
+    longitude: number
     country: string
-    sunrise: number
-    sunset: number
-  }
-  timezone: number
-  id: number
-  name: string
-  cod: number
+    country_code: string
+    admin1?: string
+    admin2?: string
+  }>
 }
 
 interface GeoResponse {
   name: string
-  local_names?: {
-    [key: string]: string
-  }
   lat: number
   lon: number
   country: string

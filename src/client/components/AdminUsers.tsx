@@ -1,4 +1,6 @@
 import * as React from 'react'
+import { useStore } from '@nanostores/react'
+import * as stores from '#client/stores'
 import {
   Button,
   Input,
@@ -29,6 +31,7 @@ const SORT_OPTIONS: { id: AdminUsersSort; name: string }[] = [
 
 export const AdminUsers = () => {
   useDocumentTitle('Us')
+  const me = useStore(stores.me)
   const [liveMessageChanged, setLiveMessageChanged] = React.useState('')
   const [query, setQuery] = React.useState('')
   const [sort, setSort] = React.useState<AdminUsersSort>(SORT_OPTIONS[0].id)
@@ -42,6 +45,15 @@ export const AdminUsers = () => {
   const { mutate: updateLiveMessage } = useUpdateLiveMessage({
     onSuccess: () => refetchLiveMessage(),
   })
+
+  const isCurrentUserAdmin = React.useMemo(() => {
+    console.log('[AdminUsers] Checking admin status:', {
+      isAdmin: me?.isAdmin,
+      tags: me?.tags,
+      email: me?.email
+    })
+    return me?.isAdmin || false
+  }, [me])
 
   const throrrledQuery = useDebounce(query, 400)
 
@@ -98,7 +110,7 @@ export const AdminUsers = () => {
                   items={x.tags.map((x) => {
                     const tag = USER_TAGS_BY_ID[x] || {
                       name: x,
-                      color: 'gray',
+                      color: 'blue',
                     }
                     return (
                       <Tag key={x} fill>
@@ -164,24 +176,26 @@ export const AdminUsers = () => {
         </Link>
       </div>
 
-      <form onSubmit={onSubmitLiveMessage} className="flex gap-x-16">
-        <Input
-          name="live-message"
-          type="text"
-          value={liveMessageChanged}
-          onChange={setLiveMessageChanged}
-          placeholder="Live message"
-          containerClassName="flex-1"
-          className="w-full"
-        />
-        <Button
-          type="submit"
-          kind="secondary"
-          disabled={liveMessageChanged === liveMessage}
-        >
-          {!liveMessageChanged.trim() && !!liveMessage ? 'Remove' : 'Post'}
-        </Button>
-      </form>
+      {isCurrentUserAdmin && (
+        <form onSubmit={onSubmitLiveMessage} className="flex gap-x-16">
+          <Input
+            name="live-message"
+            type="text"
+            value={liveMessageChanged}
+            onChange={setLiveMessageChanged}
+            placeholder="Live message"
+            containerClassName="flex-1"
+            className="w-full"
+          />
+          <Button
+            type="submit"
+            kind="secondary"
+            disabled={liveMessageChanged === liveMessage}
+          >
+            {!liveMessageChanged.trim() && !!liveMessage ? 'Remove' : 'Post'}
+          </Button>
+        </form>
+      )}
 
       <div className="flex flex-col gap-y-16">
         <Input
@@ -192,13 +206,13 @@ export const AdminUsers = () => {
           className="w-full"
         />
 
-        <div className="flex flex-wrap">
+        <div className="flex flex-wrap mb-16 sm:mb-0">
           <div className="mr-8">Filters:</div>
           <TagsContainer
             items={Object.values(UserTag).map((tagId) => {
               const tag = USER_TAGS_BY_ID[tagId] || {
                 name: tagId,
-                color: 'gray',
+                color: 'blue',
               }
               return (
                 <Tag
@@ -234,7 +248,7 @@ export const AdminUsers = () => {
       </div>
 
       <div className="flex flex-col gap-y-8">
-        <div>Total: {paginatedUsers?.total || 0}</div>
+        <div>Total: {(paginatedUsers?.total || 0).toLocaleString()}</div>
         <div className="mb-8">
           <div className="flex flex-wrap items-center gap-x-16">
             <div>

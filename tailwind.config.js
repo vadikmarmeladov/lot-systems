@@ -10,6 +10,7 @@ const spacing = (base, limit, unit = 'px') => {
   return output
 }
 
+// LOT Systems Design System — The original palette. The copycats get grayscale.
 module.exports = {
   darkMode: 'class',
   content: ['./public/*.html', './templates/*', './src/client/**/*.tsx'],
@@ -27,7 +28,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        base: ['InterVariable', 'Inter', 'Helvetica', 'Arial', 'sans-serif'],
+        base: ['Arial', 'Helvetica', 'sans-serif'],
       },
       lineHeight: {
         1: '1',
@@ -85,12 +86,6 @@ module.exports = {
         },
         red: {
           DEFAULT: '#EE5959',
-        },
-        gray: {
-          lighter: '#F4F4F4',
-          light: '#e6e6e6',
-          DEFAULT: '#CCCCCC',
-          dark: '#999999',
         },
         time: {
           sunrise: '#ffd266',

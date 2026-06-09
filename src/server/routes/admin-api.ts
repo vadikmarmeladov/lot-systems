@@ -3,11 +3,230 @@ import { Literal } from 'sequelize/types/utils'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import { AdminUsersSort, LogEvent, Paginated, User } from '#shared/types'
 import { fp } from '#shared/utils'
-import { buildPrompt, completeAndExtractQuestion } from '#server/utils/memory'
-import { sync } from '../sync'
-import dayjs from '../utils/dayjs'
+import { buildPrompt, completeAndExtractQuestion, generateUserSummary, generateMemoryStory } from '#server/utils/memory'
+import { sync } from '../sync.js'
+import dayjs from '../utils/dayjs.js'
+import { Umzug, SequelizeStorage } from 'umzug'
+import path from 'path'
+import { fileURLToPath } from 'url'
+import { escapeHtml } from '../utils/security.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
 export default async (fastify: FastifyInstance) => {
+  // Add parser for form-encoded data from HTML forms
+  // This allows the cleanup page's HTML form to POST without 415 errors
+  fastify.addContentTypeParser('application/x-www-form-urlencoded',
+    { parseAs: 'string' },
+    function (req, body, done) {
+      // We don't use the body data, so just pass empty object
+      done(null, {})
+    }
+  )
+
+  // Simple ping endpoint to verify admin-api routes are working
+  fastify.get('/ping', async (req, reply) => {
+    return reply.type('text/html').send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Admin API Ping</title>
+        <style>
+          body {
+            font-family: monospace;
+            padding: 40px;
+            text-align: center;
+          }
+          .info {
+            background: #e7f3ff;
+            border: 2px solid #0066cc;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 600px;
+            margin: 0 auto 30px auto;
+          }
+          .note {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-size: 14px;
+            text-align: left;
+          }
+          a {
+            display: inline-block;
+            background: #0066cc;
+            color: white;
+            padding: 12px 24px;
+            margin: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="info">
+          <h1 style="color: green; margin: 0 0 20px 0;">Admin API Routes Working!</h1>
+          <p>User: ${escapeHtml(req.user.email)}</p>
+          <p>Tags: ${escapeHtml(req.user.tags.join(', '))}</p>
+          <p>Timestamp: ${new Date().toISOString()}</p>
+
+          <div class="note">
+            <strong>Note:</strong> To access admin pages, you need to type the full URL in your browser's address bar.
+            The client-side router intercepts link clicks.
+          </div>
+        </div>
+
+        <div>
+          <p><strong>Available Admin Pages:</strong></p>
+          <code>/admin-api/status</code><br>
+          <code>/admin-api/memory-debug</code><br>
+          <code>/admin-api/ping</code>
+        </div>
+
+        <div style="margin-top: 30px;">
+          <button onclick="navigator.clipboard.writeText(window.location.origin + '/admin-api/status')" style="cursor: pointer;">
+            📋 Copy Status URL
+          </button>
+          <button onclick="navigator.clipboard.writeText(window.location.origin + '/admin-api/memory-debug')" style="cursor: pointer;">
+            📋 Copy Memory Debug URL
+          </button>
+        </div>
+      </body>
+      </html>
+    `)
+  })
+
+  // Diagnostic status page
+  fastify.get('/status', async (req, reply) => {
+    const diagnostics: string[] = []
+    const fs = await import('fs')
+
+    try {
+      const CWD = process.cwd()
+
+      diagnostics.push('📦 Deployment Info:')
+      diagnostics.push(`   Working Directory: ${CWD}`)
+      diagnostics.push(`   Node Version: ${process.version}`)
+      diagnostics.push('')
+
+      // Check migrations folder
+      const migrationsPath = path.join(CWD, 'migrations')
+      const migrationsExist = fs.existsSync(migrationsPath)
+      diagnostics.push('Migrations Folder:')
+      diagnostics.push(`   Exists: ${migrationsExist ? 'Yes' : 'No'}`)
+
+      if (migrationsExist) {
+        const files = fs.readdirSync(migrationsPath)
+        const cjsFiles = files.filter(f => f.endsWith('.cjs'))
+        diagnostics.push(`   .cjs files: ${cjsFiles.length}`)
+        if (cjsFiles.length > 0) {
+          diagnostics.push(`   Latest: ${cjsFiles[cjsFiles.length - 1]}`)
+        }
+      }
+      diagnostics.push('')
+
+      // Check database
+      diagnostics.push('🗄️ Database:')
+      try {
+        await fastify.sequelize.authenticate()
+        diagnostics.push('   Connection: OK')
+
+        const [records] = await fastify.sequelize.query(
+          "SELECT name FROM \"SequelizeMeta\" ORDER BY name"
+        ) as any[]
+
+        diagnostics.push(`   Migrations tracked: ${records.length}`)
+        const jsCount = records.filter((r: any) => r.name.endsWith('.js')).length
+        diagnostics.push(`   .js entries: ${jsCount} ${jsCount > 0 ? 'NEEDS FIX' : 'OK'}`)
+      } catch (dbError: any) {
+        diagnostics.push(`   ${dbError.message}`)
+      }
+      diagnostics.push('')
+
+      // Check timeChime column
+      diagnostics.push('⏰ TimeChime Column:')
+      try {
+        const [result] = await fastify.sequelize.query(
+          "SELECT column_name FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'timeChime'"
+        ) as any[]
+
+        diagnostics.push(`   ${result.length > 0 ? 'Exists' : 'Missing'}`)
+      } catch (e: any) {
+        diagnostics.push(`   ${e.message}`)
+      }
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Admin Status</title>
+          <style>
+            body {
+              font-family: -apple-system, monospace;
+              max-width: 800px;
+              margin: 20px auto;
+              padding: 20px;
+              font-size: 15px;
+            }
+            .box {
+              background: #e7f3ff;
+              border: 2px solid #0066cc;
+              padding: 25px;
+              border-radius: 8px;
+            }
+            h1 { color: #0066cc; margin: 0 0 20px 0; }
+            .log {
+              background: white;
+              padding: 15px;
+              border-radius: 4px;
+              margin: 15px 0;
+              border: 1px solid #ddd;
+              font-family: monospace;
+              font-size: 14px;
+              white-space: pre-wrap;
+              line-height: 1.8;
+            }
+            .btn {
+              display: inline-block;
+              background: #28a745;
+              color: white;
+              padding: 15px 25px;
+              border-radius: 5px;
+              text-decoration: none;
+              margin: 10px 5px;
+              font-size: 17px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <h1>System Status</h1>
+            <div class="log">${diagnostics.join('\n')}</div>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #0066cc;">
+              <a href="/admin-api/fix-and-run-migrations" class="btn">🔧 Fix & Run Migrations</a>
+              <a href="/" class="btn" style="background: #007bff;">← Home</a>
+            </div>
+          </div>
+        </body>
+        </html>
+      `)
+    } catch (error: any) {
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <body style="font-family: monospace; padding: 20px; max-width: 800px; margin: 20px auto;">
+          <h1 style="color: red;">Error</h1>
+          <pre style="background: #f5f5f5; padding: 15px;">${error.stack}</pre>
+        </body>
+        </html>
+      `)
+    }
+  })
+
   fastify.get(
     '/users',
     async (
@@ -29,6 +248,7 @@ export default async (fastify: FastifyInstance) => {
         .split(',')
         .map(fp.trim)
         .filter(Boolean)
+        .map((tag) => tag.toLowerCase()) // Normalize to lowercase for database lookup
       let order: [string, string] | Literal = ['createdAt', 'ASC']
       if (req.query.sort === 'newest') {
         order = ['createdAt', 'DESC']
@@ -47,7 +267,8 @@ export default async (fastify: FastifyInstance) => {
         where.tags = { [Op.overlap]: tags }
       }
       if (query) {
-        where[Op.or] = [
+        // FIX: Use type assertion for symbol-keyed property
+        (where as any)[Op.or] = [
           {
             email: {
               [Op.iLike]: `%${query}%`,
@@ -78,8 +299,11 @@ export default async (fastify: FastifyInstance) => {
         limit,
       })
       const result: Paginated<User> = {
+        items: rows,
         data: rows,
         total: count,
+        page: Math.floor(skip / limit),
+        pageSize: limit,
         skip: parseInt(req.query.skip) || 0,
         limit,
       }
@@ -126,7 +350,16 @@ export default async (fastify: FastifyInstance) => {
       if (!Object.keys(body).length) {
         return reply.throw.badParams()
       }
-      await user.set(req.body).save()
+      // Only vadikmarmeladov@gmail.com (CEO) can edit user tags
+      if (body.tags && !req.user.canEditTags()) {
+        reply.status(403)
+        throw new Error('Access denied: Only the CEO can edit user tags')
+      }
+      // Normalize tags to lowercase for database storage
+      if (body.tags) {
+        body.tags = body.tags.map((tag: string) => tag.toLowerCase())
+      }
+      await user.set(body).save()
       return user
     }
   )
@@ -167,7 +400,1790 @@ export default async (fastify: FastifyInstance) => {
     ) => {
       const user = await fastify.models.User.findByPk(req.params.userId)
       if (!user) return reply.throw.notFound()
-      return await completeAndExtractQuestion(req.body.prompt)
+      return await completeAndExtractQuestion(req.body.prompt, user)
     }
   )
+
+  fastify.get(
+    '/users/:userId/summary',
+    async (req: FastifyRequest<{ Params: { userId: string } }>, reply) => {
+      const user = await fastify.models.User.findByPk(req.params.userId)
+      if (!user) return reply.throw.notFound()
+
+      const logs = await fastify.models.Log.findAll({
+        where: {
+          userId: user.id,
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+
+      const summary = await generateUserSummary(user, logs)
+      return { summary }
+    }
+  )
+
+  fastify.get(
+    '/users/:userId/memory-story',
+    async (req: FastifyRequest<{ Params: { userId: string } }>, reply) => {
+      const user = await fastify.models.User.findByPk(req.params.userId)
+      if (!user) return reply.throw.notFound()
+
+      const logs = await fastify.models.Log.findAll({
+        where: {
+          userId: user.id,
+          event: 'answer',
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 100,
+      })
+
+      const story = await generateMemoryStory(user, logs)
+      return { story }
+    }
+  )
+
+  // Admin endpoint: Clean up ALL empty logs across all users
+  fastify.post('/cleanup-all-empty-logs', async (req: FastifyRequest, reply) => {
+    try {
+      console.log(`🧹 [ADMIN] Starting global empty logs cleanup...`)
+      console.log(`📝 [ADMIN] Request content-type: ${req.headers['content-type']}`)
+
+      // Find ALL empty logs from past 7 days across all users (any event type)
+      const sevenDaysAgo = dayjs().subtract(7, 'days').toDate()
+      const allLogs = await fastify.models.Log.findAll({
+        where: {
+          createdAt: {
+            [Op.gte]: sevenDaysAgo
+          }
+        },
+      })
+
+      // Filter to find truly empty logs (empty string or whitespace only)
+      // EXCLUDE 'answer' events - they store data in metadata, not text
+      const emptyLogs = allLogs.filter(log => {
+        // Skip answer events - they have empty text but data is in metadata
+        if (log.event === 'answer') return false
+
+        // Match logs with no text or only whitespace
+        return !log.text || log.text.trim() === ''
+      })
+
+      if (emptyLogs.length === 0) {
+        console.log('[ADMIN] No empty logs found from past 7 days - database is clean')
+
+        // If it's an HTML form submission (no Accept: application/json), return HTML
+        const acceptsJson = req.headers.accept?.includes('application/json')
+        if (!acceptsJson) {
+          return reply.type('text/html').send(generateResultPage(0, 0, {}))
+        }
+
+        return {
+          success: true,
+          deleted: 0,
+          message: 'No empty logs found across all users'
+        }
+      }
+
+      // Group by user for reporting
+      const byUser = emptyLogs.reduce((acc, log) => {
+        acc[log.userId] = (acc[log.userId] || 0) + 1
+        return acc
+      }, {} as { [userId: string]: number })
+
+      const userCount = Object.keys(byUser).length
+
+      console.log(`[ADMIN] Found ${emptyLogs.length} empty logs from past 7 days across ${userCount} users`)
+      console.log(`🗑️  [ADMIN] Deleting...`)
+
+      // Delete by IDs
+      const idsToDelete = emptyLogs.map(log => log.id)
+      await fastify.models.Log.destroy({
+        where: { id: idsToDelete },
+      })
+
+      console.log(`[ADMIN] Successfully deleted ${emptyLogs.length} empty logs from past 7 days (${userCount} users affected)`)
+
+      // If it's an HTML form submission, return HTML
+      const acceptsJson = req.headers.accept?.includes('application/json')
+      if (!acceptsJson) {
+        return reply.type('text/html').send(generateResultPage(emptyLogs.length, userCount, byUser))
+      }
+
+      return {
+        success: true,
+        deleted: emptyLogs.length,
+        affectedUsers: userCount,
+        message: `Deleted ${emptyLogs.length} empty logs across ${userCount} users`,
+        breakdown: byUser
+      }
+    } catch (error: any) {
+      console.error('[ADMIN] Cleanup failed:', error.message)
+      return reply.throw.internalError(error.message)
+    }
+  })
+
+  // Helper function to generate result page
+  function generateResultPage(deleted: number, userCount: number, breakdown: { [key: string]: number }) {
+    const breakdownHtml = Object.entries(breakdown)
+      .map(([userId, count]) => `${userId.substring(0, 8)}...: ${count} logs`)
+      .join('<br>')
+
+    return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cleanup Results</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .icon { font-size: 64px; margin-bottom: 20px; }
+    h1 { color: #28a745; margin: 0 0 20px 0; }
+    .stats {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 4px;
+      margin: 20px 0;
+      font-size: 18px;
+    }
+    .breakdown {
+      margin-top: 20px;
+      font-family: monospace;
+      font-size: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      text-align: left;
+    }
+    a {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 24px;
+      background: #007bff;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    a:hover { background: #0056b3; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    ${deleted === 0 ? `
+      <div class="icon">*</div>
+      <h1>Database is Clean!</h1>
+      <p>No empty logs found across all users.</p>
+    ` : `
+      <div class="icon">OK</div>
+      <h1>Cleanup Complete!</h1>
+      <div class="stats">
+        <strong>${deleted}</strong> empty logs deleted<br>
+        from <strong>${userCount}</strong> users
+      </div>
+      ${breakdownHtml ? `<div class="breakdown"><strong>Breakdown by user:</strong><br>${breakdownHtml}</div>` : ''}
+    `}
+    <a href="/admin-api/cleanup-all-empty-logs">← Back to Cleanup Page</a>
+  </div>
+</body>
+</html>`
+  }
+
+  // Admin endpoint: Get cleanup page (HTML interface)
+  fastify.get('/cleanup-all-empty-logs', async (req: FastifyRequest, reply) => {
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin: Cleanup All Empty Logs</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 { color: #dc3545; margin: 0 0 10px 0; }
+    .warning {
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 4px;
+      padding: 15px;
+      margin: 20px 0;
+      color: #856404;
+    }
+    form {
+      margin: 30px 0;
+    }
+    button {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      width: 100%;
+      max-width: 400px;
+    }
+    button:hover { background: #c82333; }
+    button:active { background: #bd2130; }
+    .info { color: #666; font-size: 14px; margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧹 Admin: Cleanup All Empty Logs</h1>
+    <p>This will delete empty log entries from the <strong>past 7 days</strong> across ALL users.</p>
+
+    <div class="warning">
+      <strong>Warning:</strong> This action affects all users. Only use this if you're sure empty logs are accumulating due to a bug.
+    </div>
+
+    <form method="POST" action="/admin-api/cleanup-all-empty-logs" onsubmit="return confirm('Are you sure you want to delete empty logs from the past 7 days from ALL users? This cannot be undone.');">
+      <button type="submit">Delete Empty Logs from Past 7 Days (All Users)</button>
+    </form>
+
+    <div class="info">
+      <strong>What gets deleted:</strong>
+      <ul>
+        <li>ANY logs from the past 7 days with empty text (null or empty string)</li>
+        <li>ANY logs from the past 7 days with only whitespace (spaces, tabs, newlines)</li>
+        <li>This includes notes, theme_change events, and any other event types</li>
+      </ul>
+      <strong>What's preserved:</strong>
+      <ul>
+        <li>All logs with actual content</li>
+        <li>All logs older than 4 days</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>`;
+
+    reply.type('text/html').send(html);
+  })
+
+  // Diagnostic endpoint to inspect what's in "empty" logs
+  fastify.get('/inspect-empty-logs', async (req: FastifyRequest, reply) => {
+    const fourDaysAgo = dayjs().subtract(4, 'days').toDate()
+    const allLogs = await fastify.models.Log.findAll({
+      where: {
+        userId: req.user.id,
+        createdAt: {
+          [Op.gte]: fourDaysAgo
+        }
+      },
+      order: [['createdAt', 'DESC']],
+    })
+
+    // Find logs that appear empty
+    const suspiciousLogs = allLogs.map(log => {
+      const text = log.text || ''
+      const trimmed = text.trim()
+      const charCodes = [...text].map(c => c.charCodeAt(0))
+
+      return {
+        id: log.id,
+        event: log.event,
+        length: text.length,
+        trimmedLength: trimmed.length,
+        isEmpty: !text || text.trim() === '',
+        text: text,
+        trimmedText: trimmed,
+        charCodes: charCodes,
+        hasOnlyWhitespace: text.length > 0 && trimmed.length === 0,
+        createdAt: log.createdAt,
+      }
+    }).filter(log => log.isEmpty || log.hasOnlyWhitespace)
+
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <title>Empty Logs Inspection</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #fff; }
+    .log { border: 1px solid #444; margin: 10px 0; padding: 10px; background: #2a2a2a; }
+    .empty { background: #3a2020; }
+    .whitespace { background: #3a3a20; }
+    pre { background: #1a1a1a; padding: 10px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Empty Logs Inspection (Past 4 Days)</h1>
+  <p>Found ${suspiciousLogs.length} empty logs from the past 4 days</p>
+  ${suspiciousLogs.map(log => `
+    <div class="log ${log.isEmpty ? 'empty' : 'whitespace'}">
+      <strong>ID:</strong> ${log.id}<br>
+      <strong>Event Type:</strong> ${log.event}<br>
+      <strong>Created:</strong> ${log.createdAt}<br>
+      <strong>Length:</strong> ${log.length} | <strong>Trimmed:</strong> ${log.trimmedLength}<br>
+      <strong>Is Empty:</strong> ${log.isEmpty}<br>
+      <strong>Has Only Whitespace:</strong> ${log.hasOnlyWhitespace}<br>
+      <strong>Text (raw):</strong> <pre>"${log.text.replace(/\n/g, '\\n').replace(/\r/g, '\\r').replace(/\t/g, '\\t')}"</pre>
+      <strong>Char codes:</strong> <pre>[${log.charCodes.join(', ')}]</pre>
+    </div>
+  `).join('')}
+</body>
+</html>`
+
+    reply.type('text/html').send(html)
+  })
+
+  // Restore Memory Answers from Backup
+  fastify.get('/restore-memory-answers', async (req: FastifyRequest, reply) => {
+    try {
+      const { Sequelize } = await import('sequelize')
+
+      // Connect to backup database
+      const backupDb = new Sequelize('defaultdb', 'doadmin', 'AVNS_8V6Hqzuxwj0JkMxgNvR', {
+        host: 'db-postgresql-nyc3-92053-dec-24-backup-do-user-22640384-0.l.db.ondigitalocean.com',
+        port: 25060,
+        dialect: 'postgres',
+        logging: false,
+        dialectOptions: {
+          ssl: { require: true, rejectUnauthorized: false }
+        }
+      })
+
+      const fourDaysAgo = dayjs().subtract(4, 'days').toDate()
+
+      // Get answer events from backup
+      const [backupAnswers] = await backupDb.query(`
+        SELECT id, "userId", metadata, "createdAt"
+        FROM logs
+        WHERE event = 'answer'
+          AND "createdAt" >= :fourDaysAgo
+        ORDER BY "createdAt" DESC
+      `, { replacements: { fourDaysAgo } })
+
+      // Get existing answer IDs from production
+      const prodAnswers = await fastify.models.Log.findAll({
+        where: { event: 'answer' },
+        attributes: ['id']
+      })
+
+      const existingIds = new Set(prodAnswers.map(r => r.id))
+      const missing = (backupAnswers as any[]).filter(r => !existingIds.has(r.id))
+
+      await backupDb.close()
+
+      // Generate HTML
+      const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restore Memory Answers</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 { color: #333; margin-top: 0; }
+    .stats {
+      background: #e3f2fd;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+    .stats strong { color: #1976d2; font-size: 24px; }
+    .warning {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    .success {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      padding: 15px;
+      margin: 20px 0;
+    }
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover { background: #218838; }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .sample {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Restore Memory Answers</h1>
+    <p>This will restore deleted Memory answer events from the backup database.</p>
+
+    <div class="stats">
+      <strong>${backupAnswers.length}</strong> answer events in backup (past 4 days)<br>
+      <strong>${existingIds.size}</strong> answer events currently in production<br>
+      <strong>${missing.length}</strong> missing (to restore)
+    </div>
+
+    ${missing.length === 0 ? `
+      <div class="success">
+        <strong>No missing answer events found!</strong><br>
+        Your database is complete. All Memory answers are present.
+      </div>
+    ` : `
+      <div class="warning">
+        <strong>${missing.length} Memory answer events are missing from production.</strong><br>
+        These can be safely restored without overwriting any existing data.
+      </div>
+
+      <h3>Sample of missing answers:</h3>
+      ${missing.slice(0, 3).map((a: any) => {
+        const meta = typeof a.metadata === 'string' ? JSON.parse(a.metadata) : a.metadata
+        const q = meta?.question || 'Unknown'
+        const ans = meta?.answer || 'Unknown'
+        return `<div class="sample">
+          <strong>Q:</strong> ${q.substring(0, 80)}${q.length > 80 ? '...' : ''}<br>
+          <strong>A:</strong> ${ans.substring(0, 80)}${ans.length > 80 ? '...' : ''}<br>
+          <small>${new Date(a.createdAt).toLocaleString()}</small>
+        </div>`
+      }).join('')}
+      ${missing.length > 3 ? `<p><em>... and ${missing.length - 3} more</em></p>` : ''}
+
+      <form method="POST" action="/admin-api/restore-memory-answers" onsubmit="return confirm('Restore ${missing.length} Memory answer events? This is safe and will not overwrite existing data.');">
+        <button type="submit">Restore ${missing.length} Memory Answers</button>
+      </form>
+    `}
+
+    <p style="margin-top: 20px; font-size: 14px; color: #666;">
+      <a href="/admin-api/cleanup-all-empty-logs">← Back to Admin Tools</a>
+    </p>
+  </div>
+</body>
+</html>`
+
+      reply.type('text/html').send(html)
+    } catch (error: any) {
+      console.error('Restore preview error:', error)
+      reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html><body style="font-family: sans-serif; padding: 20px;">
+        <h1>Error</h1>
+        <p>${error.message}</p>
+        <p><a href="/admin-api/restore-memory-answers">Try Again</a></p>
+        </body></html>
+      `)
+    }
+  })
+
+  fastify.post('/restore-memory-answers', async (req: FastifyRequest, reply) => {
+    try {
+      const { Sequelize } = await import('sequelize')
+
+      // Connect to backup database
+      const backupDb = new Sequelize('defaultdb', 'doadmin', 'AVNS_8V6Hqzuxwj0JkMxgNvR', {
+        host: 'db-postgresql-nyc3-92053-dec-24-backup-do-user-22640384-0.l.db.ondigitalocean.com',
+        port: 25060,
+        dialect: 'postgres',
+        logging: false,
+        dialectOptions: {
+          ssl: { require: true, rejectUnauthorized: false }
+        }
+      })
+
+      const fourDaysAgo = dayjs().subtract(4, 'days').toDate()
+
+      console.log('[RESTORE] Starting Memory answer restoration...')
+
+      // Get answer events from backup
+      const [backupAnswers] = await backupDb.query(`
+        SELECT id, "userId", event, text, metadata, context, "createdAt", "updatedAt"
+        FROM logs
+        WHERE event = 'answer'
+          AND "createdAt" >= :fourDaysAgo
+        ORDER BY "createdAt" DESC
+      `, { replacements: { fourDaysAgo } })
+
+      // Get existing answer IDs
+      const prodAnswers = await fastify.models.Log.findAll({
+        where: { event: 'answer' },
+        attributes: ['id']
+      })
+
+      const existingIds = new Set(prodAnswers.map(r => r.id))
+      const missing = (backupAnswers as any[]).filter(r => !existingIds.has(r.id))
+
+      console.log(`[RESTORE] Found ${missing.length} missing answer events`)
+
+      if (missing.length === 0) {
+        await backupDb.close()
+        return reply.type('text/html').send(`
+          <!DOCTYPE html>
+          <html><body style="font-family: sans-serif; padding: 20px; text-align: center;">
+          <h1>No Restoration Needed</h1>
+          <p>All Memory answers are already present in the database.</p>
+          <p><a href="/admin-api/restore-memory-answers">← Back</a></p>
+          </body></html>
+        `)
+      }
+
+      // Restore missing answers
+      let restored = 0
+      for (const answer of missing) {
+        await fastify.models.Log.create({
+          id: answer.id,
+          userId: answer.userId,
+          event: answer.event,
+          text: answer.text || '',
+          metadata: answer.metadata,
+          context: answer.context || {},
+          createdAt: answer.createdAt,
+          updatedAt: answer.updatedAt
+        })
+        restored++
+      }
+
+      await backupDb.close()
+
+      console.log(`[RESTORE] Successfully restored ${restored} Memory answer events`)
+
+      // Success page
+      reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Restoration Complete</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              max-width: 600px;
+              margin: 50px auto;
+              padding: 20px;
+              text-align: center;
+            }
+            .success {
+              background: #d4edda;
+              border: 2px solid #28a745;
+              padding: 30px;
+              border-radius: 8px;
+            }
+            h1 { color: #28a745; margin: 0 0 20px 0; }
+            .stats {
+              font-size: 48px;
+              font-weight: bold;
+              color: #28a745;
+              margin: 20px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="success">
+            <div style="font-size: 24px;">OK</div>
+            <h1>Restoration Complete!</h1>
+            <div class="stats">${restored}</div>
+            <p>Memory answer events have been successfully restored.</p>
+            <p style="margin-top: 30px;">
+              <a href="/admin-api/restore-memory-answers">← Back to Restore Page</a>
+            </p>
+          </div>
+        </body>
+        </html>
+      `)
+    } catch (error: any) {
+      console.error('[RESTORE] Restoration failed:', error)
+      reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html><body style="font-family: sans-serif; padding: 20px;">
+        <h1 style="color: red;">Restoration Failed</h1>
+        <p><strong>Error:</strong> ${error.message}</p>
+        <pre style="background: #f5f5f5; padding: 10px; overflow: auto;">${error.stack}</pre>
+        <p><a href="/admin-api/restore-memory-answers">← Try Again</a></p>
+        </body></html>
+      `)
+    }
+  })
+
+  // Run database migrations endpoint (mobile-friendly)
+  fastify.get('/run-migrations', async (req, reply) => {
+    try {
+      console.log('Running database migrations via admin endpoint...')
+
+      // Use CWD to find migrations folder (works in both dev and production)
+      const CWD = process.cwd()
+      const MIGRATIONS_PATH = path.join(CWD, 'migrations')
+
+      console.log('Migrations path:', MIGRATIONS_PATH)
+      console.log('CWD:', CWD)
+
+      // Create context with sequelize instance for migrations
+      const context = fastify.sequelize.getQueryInterface()
+      // Use Object.defineProperty to ensure the property is set correctly
+      Object.defineProperty(context, 'sequelize', {
+        value: fastify.sequelize,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      })
+
+      const umzug = new Umzug({
+        migrations: { glob: MIGRATIONS_PATH + '/*.cjs' },
+        context,
+        storage: new SequelizeStorage({ sequelize: fastify.sequelize }),
+        logger: console,
+      })
+
+      // Fix migration tracking: Update .js extensions to .cjs in SequelizeMeta table
+      // This is needed because we renamed migration files from .js to .cjs
+      console.log('🔧 Checking migration tracking table...')
+      try {
+        // Can't UPDATE primary key, so we need to INSERT new records and DELETE old ones
+        await fastify.sequelize.query(`
+          INSERT INTO "SequelizeMeta" (name)
+          SELECT REPLACE(name, '.js', '.cjs')
+          FROM "SequelizeMeta"
+          WHERE name LIKE '%.js'
+          ON CONFLICT (name) DO NOTHING
+        `)
+
+        const [results] = await fastify.sequelize.query(
+          "DELETE FROM \"SequelizeMeta\" WHERE name LIKE '%.js' RETURNING name"
+        )
+        if (results && results.length > 0) {
+          console.log(`Updated ${results.length} migration records from .js to .cjs`)
+        }
+      } catch (error: any) {
+        console.log('ℹ️ Migration tracking update skipped (table may not exist yet):', error.message)
+      }
+
+      const pendingMigrations = await umzug.pending()
+      const executedMigrations = await umzug.executed()
+
+      console.log('📋 Pending migrations:', pendingMigrations.length)
+      console.log('Executed migrations:', executedMigrations.length)
+
+      if (pendingMigrations.length === 0) {
+        return reply.type('text/html').send(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Migrations Up to Date</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                max-width: 600px;
+                margin: 50px auto;
+                padding: 20px;
+              }
+              .info {
+                background: #d1ecf1;
+                border: 2px solid #17a2b8;
+                padding: 30px;
+                border-radius: 8px;
+                text-align: center;
+              }
+              h1 { color: #17a2b8; margin: 0 0 20px 0; }
+              .list {
+                text-align: left;
+                margin: 20px 0;
+                background: white;
+                padding: 15px;
+                border-radius: 4px;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="info">
+              <div style="font-size: 24px;">OK</div>
+              <h1>Database Up to Date</h1>
+              <p>All migrations have been applied. No pending migrations found.</p>
+              <div class="list">
+                <strong>Executed migrations (${executedMigrations.length}):</strong>
+                <ul>
+                  ${executedMigrations.map(m => `<li>${m.name}</li>`).join('')}
+                </ul>
+              </div>
+              <p style="margin-top: 30px;">
+                <a href="/">← Back to Home</a>
+              </p>
+            </div>
+          </body>
+          </html>
+        `)
+      }
+
+      // Run pending migrations
+      await umzug.up()
+      const newExecuted = await umzug.executed()
+
+      console.log(`Successfully ran ${pendingMigrations.length} migration(s)`)
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Migrations Complete</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              max-width: 600px;
+              margin: 50px auto;
+              padding: 20px;
+            }
+            .success {
+              background: #d4edda;
+              border: 2px solid #28a745;
+              padding: 30px;
+              border-radius: 8px;
+              text-align: center;
+            }
+            h1 { color: #28a745; margin: 0 0 20px 0; }
+            .stats {
+              font-size: 48px;
+              font-weight: bold;
+              color: #28a745;
+              margin: 20px 0;
+            }
+            .list {
+              text-align: left;
+              margin: 20px 0;
+              background: white;
+              padding: 15px;
+              border-radius: 4px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="success">
+            <div style="font-size: 24px;">OK</div>
+            <h1>Migrations Complete!</h1>
+            <div class="stats">${pendingMigrations.length}</div>
+            <p>Database migrations have been successfully applied.</p>
+            <div class="list">
+              <strong>Applied migrations:</strong>
+              <ul>
+                ${pendingMigrations.map(m => `<li>${m.name}</li>`).join('')}
+              </ul>
+            </div>
+            <p style="margin-top: 30px;">
+              <a href="/">← Back to Home</a>
+            </p>
+          </div>
+        </body>
+        </html>
+      `)
+    } catch (error: any) {
+      console.error('Migration failed:', error)
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Migration Failed</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              max-width: 600px;
+              margin: 50px auto;
+              padding: 20px;
+            }
+            .error {
+              background: #f8d7da;
+              border: 2px solid #dc3545;
+              padding: 30px;
+              border-radius: 8px;
+            }
+            h1 { color: #dc3545; }
+            pre {
+              background: #f5f5f5;
+              padding: 15px;
+              border-radius: 4px;
+              overflow: auto;
+              font-size: 12px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="error">
+            <div style="font-size: 24px; text-align: center;">Error</div>
+            <h1>Migration Failed</h1>
+            <p><strong>Error:</strong> ${error.message}</p>
+            <pre>${error.stack}</pre>
+            <p style="margin-top: 30px;">
+              <a href="/admin-api/run-migrations">← Try Again</a>
+            </p>
+          </div>
+        </body>
+        </html>
+      `)
+    }
+  })
+
+  // Fix migration tracking table (separate endpoint for manual control)
+  fastify.get('/fix-migration-tracking', async (req, reply) => {
+    try {
+      // Get current state
+      const [oldRecords] = await fastify.sequelize.query(
+        "SELECT name FROM \"SequelizeMeta\" WHERE name LIKE '%.js' ORDER BY name"
+      )
+
+      const [allRecords] = await fastify.sequelize.query(
+        "SELECT name FROM \"SequelizeMeta\" ORDER BY name"
+      )
+
+      // Update if there are .js records
+      let updated: any[] = []
+      if (oldRecords && oldRecords.length > 0) {
+        // Can't UPDATE primary key, so we need to INSERT new records and DELETE old ones
+        await fastify.sequelize.query(`
+          INSERT INTO "SequelizeMeta" (name)
+          SELECT REPLACE(name, '.js', '.cjs')
+          FROM "SequelizeMeta"
+          WHERE name LIKE '%.js'
+          ON CONFLICT (name) DO NOTHING
+        `)
+
+        const [results] = await fastify.sequelize.query(
+          "DELETE FROM \"SequelizeMeta\" WHERE name LIKE '%.js' RETURNING name"
+        )
+        updated = results || []
+      }
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Migration Tracking Fixed</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              max-width: 700px;
+              margin: 50px auto;
+              padding: 20px;
+            }
+            .success {
+              background: #d4edda;
+              border: 2px solid #28a745;
+              padding: 30px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+            }
+            .info {
+              background: #d1ecf1;
+              border: 2px solid #17a2b8;
+              padding: 20px;
+              border-radius: 8px;
+              margin-bottom: 20px;
+            }
+            h1 { color: #28a745; margin: 0 0 20px 0; }
+            pre {
+              background: white;
+              padding: 15px;
+              border-radius: 4px;
+              overflow: auto;
+              font-size: 12px;
+              border: 1px solid #ddd;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="success">
+            <div style="font-size: 24px; text-align: center;">OK</div>
+            <h1 style="text-align: center;">Migration Tracking Fixed!</h1>
+            ${updated.length > 0 ? `
+              <p><strong>Updated ${updated.length} migration records from .js to .cjs:</strong></p>
+              <pre>${updated.map((r: any) => r.name).join('\n')}</pre>
+            ` : `
+              <p>No .js records found - tracking table is already up to date!</p>
+            `}
+          </div>
+
+          <div class="info">
+            <h2>Current Migration Tracking (${allRecords.length} total):</h2>
+            <pre>${allRecords.map((r: any) => r.name).join('\n')}</pre>
+          </div>
+
+          <p style="text-align: center; margin-top: 30px;">
+            <a href="/admin-api/run-migrations" style="font-size: 18px;">→ Now Run Migrations</a>
+          </p>
+        </body>
+        </html>
+      `)
+    } catch (error: any) {
+      console.error('Fix migration tracking failed:', error)
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family: sans-serif; padding: 20px; max-width: 600px; margin: 50px auto;">
+          <h1 style="color: red;">Error</h1>
+          <p><strong>Error:</strong> ${error.message}</p>
+          <pre style="background: #f5f5f5; padding: 10px; overflow: auto;">${error.stack}</pre>
+        </body>
+        </html>
+      `)
+    }
+  })
+  // One-step migration fix and execution (mobile-friendly)
+  fastify.get('/fix-and-run-migrations', async (req, reply) => {
+    const log: string[] = []
+
+    try {
+      log.push('🔧 Step 1: Fixing migration tracking table...')
+
+      const [oldRecords] = await fastify.sequelize.query(
+        "SELECT name FROM \"SequelizeMeta\" WHERE name LIKE '%.js' ORDER BY name"
+      ) as any[]
+
+      log.push(`   Found ${oldRecords.length} records with .js extension`)
+
+      if (oldRecords.length > 0) {
+        // Can't UPDATE primary key, so we need to INSERT new records and DELETE old ones
+        await fastify.sequelize.query(`
+          INSERT INTO "SequelizeMeta" (name)
+          SELECT REPLACE(name, '.js', '.cjs')
+          FROM "SequelizeMeta"
+          WHERE name LIKE '%.js'
+          ON CONFLICT (name) DO NOTHING
+        `)
+
+        await fastify.sequelize.query(
+          "DELETE FROM \"SequelizeMeta\" WHERE name LIKE '%.js'"
+        )
+        log.push(`   Updated ${oldRecords.length} records to .cjs`)
+      } else {
+        log.push('   Already up to date')
+      }
+
+      log.push('')
+      log.push('📋 Step 2: Checking pending migrations...')
+
+      const CWD = process.cwd()
+      const MIGRATIONS_PATH = path.join(CWD, 'migrations')
+
+      // Create context with sequelize instance for migrations
+      const context = fastify.sequelize.getQueryInterface()
+      // Use Object.defineProperty to ensure the property is set correctly
+      Object.defineProperty(context, 'sequelize', {
+        value: fastify.sequelize,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      })
+
+      const umzug = new Umzug({
+        migrations: { glob: MIGRATIONS_PATH + '/*.cjs' },
+        context,
+        storage: new SequelizeStorage({ sequelize: fastify.sequelize }),
+        logger: console,
+      })
+
+      const pending = await umzug.pending()
+      const executed = await umzug.executed()
+
+      log.push(`   Executed: ${executed.length} migrations`)
+      log.push(`   Pending: ${pending.length} migrations`)
+
+      if (pending.length === 0) {
+        log.push('')
+        log.push('All migrations up to date!')
+
+        return reply.type('text/html').send(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Migrations Complete</title>
+            <style>
+              body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                max-width: 800px;
+                margin: 20px auto;
+                padding: 20px;
+                font-size: 16px;
+              }
+              .box {
+                background: #d4edda;
+                border: 2px solid #28a745;
+                padding: 25px;
+                border-radius: 8px;
+              }
+              .log {
+                background: white;
+                padding: 15px;
+                border-radius: 4px;
+                margin: 15px 0;
+                border: 1px solid #ddd;
+                font-family: monospace;
+                font-size: 13px;
+                white-space: pre-wrap;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="box">
+              <h1 style="color: #28a745; margin: 0 0 20px 0;">Complete!</h1>
+              <div class="log">${log.join('\n')}</div>
+              <p style="margin-top: 20px;"><a href="/">← Back to Home</a></p>
+            </div>
+          </body>
+          </html>
+        `)
+      }
+
+      log.push('')
+      log.push(`⚙️ Step 3: Running ${pending.length} pending migration(s)...`)
+
+      for (const migration of pending) {
+        log.push(`   → ${migration.name}`)
+      }
+
+      await umzug.up()
+
+      log.push('')
+      log.push('SUCCESS! All migrations complete!')
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Migration Success</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              max-width: 800px;
+              margin: 20px auto;
+              padding: 20px;
+              font-size: 16px;
+            }
+            .box {
+              background: #d4edda;
+              border: 2px solid #28a745;
+              padding: 25px;
+              border-radius: 8px;
+            }
+            .log {
+              background: white;
+              padding: 15px;
+              border-radius: 4px;
+              margin: 15px 0;
+              border: 1px solid #ddd;
+              font-family: monospace;
+              font-size: 13px;
+              white-space: pre-wrap;
+            }
+            .btn {
+              display: inline-block;
+              background: #007bff;
+              color: white;
+              padding: 12px 24px;
+              border-radius: 5px;
+              text-decoration: none;
+              margin-top: 15px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <h1 style="color: #28a745; margin: 0 0 20px 0;">🎉 Migration Success!</h1>
+            <div class="log">${log.join('\n')}</div>
+            <p>
+              <strong>Next step:</strong> Uncomment the hourly chime code and redeploy.
+            </p>
+            <a href="/" class="btn">← Back to Home</a>
+          </div>
+        </body>
+        </html>
+      `)
+
+    } catch (error: any) {
+      log.push('')
+      log.push(`ERROR: ${error.message}`)
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Migration Error</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              max-width: 800px;
+              margin: 20px auto;
+              padding: 20px;
+              font-size: 16px;
+            }
+            .box {
+              background: #f8d7da;
+              border: 2px solid #dc3545;
+              padding: 25px;
+              border-radius: 8px;
+            }
+            .log {
+              background: white;
+              padding: 15px;
+              border-radius: 4px;
+              margin: 15px 0;
+              border: 1px solid #ddd;
+              font-family: monospace;
+              font-size: 13px;
+              white-space: pre-wrap;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <h1 style="color: #dc3545; margin: 0 0 20px 0;">Migration Failed</h1>
+            <div class="log">${log.join('\n')}</div>
+            <details style="margin-top: 15px;">
+              <summary style="cursor: pointer; font-weight: bold;">Show Error Details</summary>
+              <pre style="background: white; padding: 10px; margin-top: 10px; overflow: auto; font-size: 12px;">${error.stack}</pre>
+            </details>
+          </div>
+        </body>
+        </html>
+      `)
+    }
+  })
+
+  // Memory Engine diagnostic
+  fastify.get('/memory-debug', async (req, reply) => {
+    const log: string[] = []
+
+    try {
+      log.push('🧠 Memory Engine Diagnostics')
+      log.push('='.repeat(40))
+      log.push('')
+
+      // Check user
+      const user = req.user
+      log.push(`👤 User: ${user.id}`)
+      log.push(`   Email: ${user.email}`)
+      log.push(`   Tags: ${user.tags.join(', ')}`)
+      const hasUsership = user.tags.some(t => t.toLowerCase() === 'usership')
+      log.push(`   Has Usership: ${hasUsership ? 'Yes' : 'No'}`)
+      log.push('')
+
+      // Check API keys
+      log.push('🔑 AI API Keys:')
+      log.push(`   TOGETHER_API_KEY: ${!!process.env.TOGETHER_API_KEY ? 'Yes' : 'No'}`)
+      log.push(`   GOOGLE_API_KEY: ${!!process.env.GOOGLE_API_KEY ? 'Yes' : 'No'}`)
+      log.push(`   MISTRAL_API_KEY: ${!!process.env.MISTRAL_API_KEY ? 'Yes' : 'No'}`)
+      log.push(`   ANTHROPIC_API_KEY: ${!!process.env.ANTHROPIC_API_KEY ? 'Yes' : 'No'}`)
+      log.push(`   OPENAI_API_KEY: ${!!process.env.OPENAI_API_KEY ? 'Yes' : 'No'}`)
+      log.push('')
+
+      // Check intelligent pacing
+      log.push('Intelligent Pacing:')
+      const { calculateIntelligentPacing } = await import('#server/utils/memory')
+      const dayjs = (await import('#server/utils/dayjs')).default
+      const localDate = dayjs().tz(user.timeZone || 'America/New_York')
+
+      const pacing = await calculateIntelligentPacing(user.id, localDate, fastify.models)
+      log.push(`   Should show prompt: ${pacing.shouldShowPrompt ? 'Yes' : 'No'}`)
+      log.push(`   Is weekend: ${pacing.isWeekend}`)
+      log.push(`   Quota today: ${pacing.promptQuotaToday}`)
+      log.push(`   Prompts shown today: ${pacing.promptsShownToday}`)
+      log.push(`   Day number: ${pacing.dayNumber}`)
+      log.push('')
+
+      // Check recent answers
+      log.push('💬 Recent Answers (last 5):')
+      const answers = await fastify.models.Answer.findAll({
+        where: { userId: user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 5,
+        attributes: ['question', 'createdAt']
+      })
+
+      if (answers.length > 0) {
+        answers.forEach((a: any, i: number) => {
+          const timeAgo = dayjs().diff(dayjs(a.createdAt), 'hours')
+          log.push(`   ${i + 1}. "${a.question.substring(0, 50)}..." (${timeAgo}h ago)`)
+        })
+      } else {
+        log.push('   No answers found')
+      }
+      log.push('')
+
+      // Check recent logs count
+      log.push('📝 Recent Logs:')
+      const logsCount = await fastify.models.Log.count({
+        where: { userId: user.id }
+      })
+      log.push(`   Total logs: ${logsCount}`)
+      log.push('')
+
+      // Try generating a test question
+      log.push('🧪 Test Question Generation:')
+      try {
+        const logs = await fastify.models.Log.findAll({
+          where: { userId: user.id },
+          order: [['createdAt', 'DESC']],
+          limit: 40,
+        })
+
+        log.push(`   Loaded ${logs.length} logs for context`)
+        log.push(`   Attempting AI generation...`)
+
+        const { buildPrompt, completeAndExtractQuestion } = await import('#server/utils/memory')
+        const isWeekend = pacing.isWeekend
+
+        const prompt = await buildPrompt(user, logs, isWeekend, undefined)
+        log.push(`   Prompt built: ${prompt.length} characters`)
+
+        const question = await completeAndExtractQuestion(prompt, user)
+        log.push(`   SUCCESS! Generated question:`)
+        log.push(`   "${question.question}"`)
+        log.push(`   Options: ${question.options?.length || 0}`)
+      } catch (aiError: any) {
+        log.push(`   FAILED: ${aiError.message}`)
+        log.push(`   This is why you're getting default questions!`)
+      }
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Memory Engine Debug</title>
+          <style>
+            body {
+              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+              max-width: 900px;
+              margin: 20px auto;
+              padding: 20px;
+              font-size: 15px;
+            }
+            .box {
+              background: #fff3cd;
+              border: 2px solid #ffc107;
+              padding: 25px;
+              border-radius: 8px;
+            }
+            h1 { color: #856404; margin: 0 0 20px 0; }
+            .log {
+              background: white;
+              padding: 15px;
+              border-radius: 4px;
+              margin: 15px 0;
+              border: 1px solid #ddd;
+              font-family: monospace;
+              font-size: 13px;
+              white-space: pre-wrap;
+              line-height: 1.8;
+            }
+            .btn {
+              display: inline-block;
+              background: #007bff;
+              color: white;
+              padding: 12px 24px;
+              border-radius: 5px;
+              text-decoration: none;
+              margin: 5px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <h1>🧠 Memory Engine Diagnostics</h1>
+            <div class="log">${log.join('\n')}</div>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #ffc107;">
+              <a href="/" class="btn">← Home</a>
+              <a href="/admin-api/status" class="btn">System Status</a>
+            </div>
+          </div>
+        </body>
+        </html>
+      `)
+    } catch (error: any) {
+      log.push('')
+      log.push(`Diagnostic Error: ${error.message}`)
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family: monospace; padding: 20px; max-width: 900px; margin: 20px auto;">
+          <h1 style="color: red;">Diagnostic Failed</h1>
+          <pre style="background: #f5f5f5; padding: 15px;">${log.join('\n')}\n\n${error.stack}</pre>
+        </body>
+        </html>
+      `)
+    }
+  })
+
+  /**
+   * GET /admin-api/widget-diagnostic
+   * Diagnostic endpoint to check why community/stats widgets aren't showing
+   */
+  fastify.get('/widget-diagnostic', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    const log: string[] = []
+    log.push('LOT System Widget Diagnostic')
+    log.push('='.repeat(60))
+    log.push('')
+
+    try {
+      const now = dayjs()
+      const todayStart = now.startOf('day').toDate()
+      const sixHoursAgo = now.subtract(6, 'hours').toDate()
+      const fifteenMinutesAgo = now.subtract(15, 'minutes').toDate()
+
+      // Check IntentionPatterns data
+      log.push('IntentionPatterns Widget')
+      log.push('-'.repeat(60))
+      const intentionLogs = await fastify.models.Log.findAll({
+        where: {
+          event: 'intention',
+          createdAt: { [Op.gte]: sixHoursAgo }
+        }
+      })
+      log.push(`Intention logs (last 6 hours): ${intentionLogs.length}`)
+      if (intentionLogs.length === 0) {
+        log.push(' NO DATA - Widget will not appear')
+        log.push('   Reason: No intention events logged in last 6 hours')
+      } else {
+        log.push('Widget should appear')
+      }
+      log.push('')
+
+      // Check CollectiveConsciousness data
+      log.push('🌍 CollectiveConsciousness Widget')
+      log.push('-'.repeat(60))
+      const recentLogs = await fastify.models.Log.findAll({
+        where: {
+          createdAt: { [Op.gte]: fifteenMinutesAgo }
+        },
+        attributes: ['userId'],
+        group: ['userId']
+      })
+      const activeUsers = new Set(recentLogs.map((log: any) => log.userId))
+      log.push(`Active users (last 15 min): ${activeUsers.size}`)
+
+      const intentionsToday = await fastify.models.Log.count({
+        where: {
+          event: 'intention',
+          createdAt: { [Op.gte]: todayStart }
+        }
+      })
+      log.push(`Intentions today: ${intentionsToday}`)
+
+      const careMomentsToday = await fastify.models.Log.count({
+        where: {
+          event: 'self_care',
+          createdAt: { [Op.gte]: todayStart }
+        }
+      })
+      log.push(`Care moments today: ${careMomentsToday}`)
+      log.push('Widget should appear (uses simulated data + real counts)')
+      log.push('')
+
+      // Check WellnessPulse data
+      log.push('💚 WellnessPulse Widget')
+      log.push('-'.repeat(60))
+      const questionsToday = await fastify.models.Answer.count({
+        where: {
+          createdAt: { [Op.gte]: todayStart }
+        }
+      })
+      log.push(`Questions answered today: ${questionsToday}`)
+
+      // EmotionalCheckIn model not implemented yet
+      // const emotionalCheckinsToday = await fastify.models.EmotionalCheckIn.count({
+      //   where: {
+      //     createdAt: { [Op.gte]: todayStart }
+      //   }
+      // })
+      // log.push(`Emotional check-ins today: ${emotionalCheckinsToday}`)
+      log.push(`Active users now: ${activeUsers.size}`)
+      log.push('Widget should appear (uses simulated peak hours + real counts)')
+      log.push('')
+
+      // Check MemoryEngineStats data
+      log.push('🧠 MemoryEngineStats Widget')
+      log.push('-'.repeat(60))
+      const questionsGenerated = await fastify.models.Answer.count({
+        where: {
+          userId: req.user.id,
+          createdAt: { [Op.gte]: todayStart }
+        }
+      })
+      log.push(`Questions answered by you today: ${questionsGenerated}`)
+      log.push('Widget should appear (uses calculated metrics)')
+      log.push('')
+
+      // Summary
+      log.push('='.repeat(60))
+      log.push('📋 SUMMARY')
+      log.push('-'.repeat(60))
+
+      if (intentionLogs.length === 0) {
+        log.push(' IntentionPatterns will NOT show (no data)')
+        log.push('   → To fix: Record intention signals via System widgets')
+      } else {
+        log.push('All widgets should appear')
+      }
+
+      log.push('')
+      log.push('💡 TIP: Widgets return null if:')
+      log.push('   1. API is still loading')
+      log.push('   2. API returns error')
+      log.push('   3. No data exists for that widget')
+      log.push('')
+      log.push('🔗 Check these API endpoints directly:')
+      log.push('   • /api/stats/patterns')
+      log.push('   • /api/stats/collective')
+      log.push('   • /api/stats/wellness')
+      log.push('   • /api/stats/memory-engine')
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Widget Diagnostic</title>
+          <style>
+            body {
+              font-family: 'Courier New', monospace;
+              background: #1a1a1a;
+              color: #e0e0e0;
+              padding: 20px;
+              max-width: 900px;
+              margin: 20px auto;
+            }
+            .box {
+              background: #2a2a2a;
+              border: 2px solid #ffc107;
+              padding: 30px;
+              border-radius: 8px;
+            }
+            h1 {
+              color: #ffc107;
+              margin: 0 0 20px 0;
+            }
+            .log {
+              background: #1a1a1a;
+              padding: 20px;
+              border-radius: 4px;
+              white-space: pre-wrap;
+              font-size: 14px;
+              line-height: 1.6;
+            }
+            .btn {
+              display: inline-block;
+              background: #ffc107;
+              color: #1a1a1a;
+              padding: 10px 20px;
+              text-decoration: none;
+              border-radius: 4px;
+              margin-right: 10px;
+              font-weight: bold;
+            }
+            .btn:hover {
+              background: #ffca28;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <h1>Widget Diagnostic Results</h1>
+            <div class="log">${log.join('\n')}</div>
+            <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #ffc107;">
+              <a href="/" class="btn">← Home</a>
+              <a href="/admin-api/status" class="btn">System Status</a>
+              <a href="/admin-api/memory-diagnostic" class="btn">Memory Diagnostic</a>
+            </div>
+          </div>
+        </body>
+        </html>
+      `)
+    } catch (error: any) {
+      log.push('')
+      log.push(`Diagnostic Error: ${error.message}`)
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <body style="font-family: monospace; padding: 20px; max-width: 900px; margin: 20px auto;">
+          <h1 style="color: red;">Diagnostic Failed</h1>
+          <pre style="background: #f5f5f5; padding: 15px;">${log.join('\n')}\n\n${error.stack}</pre>
+        </body>
+        </html>
+      `)
+    }
+  })
+
+  // Send monthly review email to specific user (for testing)
+  fastify.post('/send-monthly-review/:userId', async (req: FastifyRequest<{
+    Params: { userId: string }
+  }>, reply) => {
+    try {
+      const { sendEmail } = await import('../utils/email.js')
+      const { generateMonthlySummary, generateMonthlyEmailBody } = await import('../utils/monthly-summary.js')
+
+      const userId = req.params.userId
+
+      // Fetch user
+      const user = await fastify.models.User.findByPk(userId)
+      if (!user) {
+        return reply.status(404).send({ error: 'User not found' })
+      }
+
+      // Fetch user's logs
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 1000 // Last 1000 logs should cover several months
+      })
+
+      // Generate monthly summary
+      const summary = await generateMonthlySummary(user.toPublic(), logs.map(l => l.toJSON()))
+
+      // Generate email body
+      const emailBody = generateMonthlyEmailBody(summary, user.firstName || '')
+
+      // Send email
+      const result = await sendEmail({
+        to: user.email,
+        subject: `${summary.period.month} ${summary.period.year} — Your LOT Review`,
+        text: emailBody
+      })
+
+      return reply.send({
+        success: result.success,
+        user: {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName
+        },
+        summary: {
+          period: summary.period,
+          presence: summary.presence,
+          growth: summary.growth
+        },
+        email: result.success ? {
+          sent: true,
+          messageId: result.messageId
+        } : {
+          sent: false,
+          error: result.error
+        }
+      })
+    } catch (error: any) {
+      console.error('Failed to send monthly review:', error)
+      return reply.status(500).send({
+        error: 'Failed to send monthly review',
+        details: error.message
+      })
+    }
+  })
+
+  // Send monthly review to all active users (for cron scheduling)
+  fastify.post('/send-monthly-reviews-all', async (req: FastifyRequest, reply) => {
+    try {
+      const { sendEmail } = await import('../utils/email.js')
+      const { generateMonthlySummary, generateMonthlyEmailBody, shouldShowMonthlySummary } = await import('../utils/monthly-summary.js')
+
+      // Find all users who have been active in the last 60 days
+      const sixtyDaysAgo = dayjs().subtract(60, 'day').toDate()
+
+      const activeUsers = await fastify.models.User.findAll({
+        where: {
+          lastSeenAt: {
+            [Op.gte]: sixtyDaysAgo
+          },
+          // Only send to users with Usership tag for now
+          tags: {
+            [Op.contains]: ['usership']
+          }
+        },
+        order: [['lastSeenAt', 'DESC']]
+      })
+
+      const results = {
+        total: activeUsers.length,
+        sent: 0,
+        skipped: 0,
+        failed: 0,
+        details: [] as any[]
+      }
+
+      // Process each user
+      for (const user of activeUsers) {
+        try {
+          // Check if user should receive monthly summary
+          const metadata = user.metadata as any || {}
+          const lastMonthlySummary = metadata.lastMonthlySummaryDate ? new Date(metadata.lastMonthlySummaryDate) : null
+
+          if (!shouldShowMonthlySummary(user.toPublic(), lastMonthlySummary)) {
+            results.skipped++
+            results.details.push({
+              userId: user.id,
+              email: user.email,
+              status: 'skipped',
+              reason: 'Too soon since last summary'
+            })
+            continue
+          }
+
+          // Fetch user's logs
+          const logs = await fastify.models.Log.findAll({
+            where: { userId: user.id },
+            order: [['createdAt', 'DESC']],
+            limit: 1000
+          })
+
+          // Need at least some activity to generate summary
+          if (logs.length < 5) {
+            results.skipped++
+            results.details.push({
+              userId: user.id,
+              email: user.email,
+              status: 'skipped',
+              reason: 'Insufficient activity'
+            })
+            continue
+          }
+
+          // Generate monthly summary
+          const summary = await generateMonthlySummary(user.toPublic(), logs.map(l => l.toJSON()))
+
+          // Generate email body
+          const emailBody = generateMonthlyEmailBody(summary, user.firstName || '')
+
+          // Send email
+          const result = await sendEmail({
+            to: user.email,
+            subject: `${summary.period.month} ${summary.period.year} — Your LOT Review`,
+            text: emailBody
+          })
+
+          if (result.success) {
+            // Update user metadata with last summary date
+            await user.set({
+              metadata: {
+                ...metadata,
+                lastMonthlySummaryDate: new Date().toISOString()
+              }
+            }).save()
+
+            results.sent++
+            results.details.push({
+              userId: user.id,
+              email: user.email,
+              status: 'sent',
+              messageId: result.messageId
+            })
+          } else {
+            results.failed++
+            results.details.push({
+              userId: user.id,
+              email: user.email,
+              status: 'failed',
+              error: result.error
+            })
+          }
+
+          // Small delay between emails to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        } catch (error: any) {
+          results.failed++
+          results.details.push({
+            userId: user.id,
+            email: user.email,
+            status: 'failed',
+            error: error.message
+          })
+        }
+      }
+
+      return reply.send(results)
+    } catch (error: any) {
+      console.error('Failed to send monthly reviews:', error)
+      return reply.status(500).send({
+        error: 'Failed to send monthly reviews',
+        details: error.message
+      })
+    }
+  })
+
+  // Manually trigger scheduled jobs (for testing)
+  fastify.post('/trigger-scheduled-jobs', async (req: FastifyRequest, reply) => {
+    try {
+      console.log('🔧 Manually triggering monthly email job...')
+      const { manuallyTriggerMonthlyEmails } = await import('../scheduled-jobs.js')
+
+      // Run job immediately (bypasses time checks)
+      const result = await manuallyTriggerMonthlyEmails()
+
+      return reply.send({
+        success: result.success,
+        message: 'Monthly email job executed',
+        triggeredAt: result.executedAt,
+        result: result.result,
+        error: result.error
+      })
+    } catch (error: any) {
+      console.error('Failed to trigger scheduled jobs:', error)
+      return reply.status(500).send({
+        error: 'Failed to trigger scheduled jobs',
+        details: error.message
+      })
+    }
+  })
 }

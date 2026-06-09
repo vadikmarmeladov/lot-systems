@@ -21,13 +21,298 @@ import {
   USER_SETTING_NAMES,
   WEATHER_STALE_TIME_MINUTES,
 } from '#shared/constants'
-import { sync } from '../sync'
+import { sync } from '../sync.js'
 import * as weather from '#server/utils/weather'
 import { getLogContext } from '#server/utils/logs'
 import { defaultQuestions, defaultReplies } from '#server/utils/questions'
+import { buildPrompt, completeAndExtractQuestion, generateMemoryStory, generateRecipeSuggestion, extractUserTraits, determineUserCohort, calculateIntelligentPacing } from '#server/utils/memory'
+import { analyzeUserPatterns, findCohortMatches, type PatternInsight } from '#server/utils/patterns'
+import { generateContextualPrompts, generatePatternAwareQuestion, analyzePatternEvolution } from '#server/utils/contextual-prompts'
+import { analyzeEnergyState, generateEnergySuggestions } from '#server/utils/energy'
+import { generateUserNarrative } from '#server/utils/rpg-narrative'
+import { generateChatCatalysts, generateConversationStarters, shouldShowChatCatalyst } from '#server/utils/cohort-chat-catalyst'
+import { generateCompassionateInterventions, shouldShowIntervention } from '#server/utils/compassionate-interventions'
 import dayjs from '#server/utils/dayjs'
+import { registerOSRoutes } from './os-api.js'
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * Generate compassionate response based on emotional state
+ */
+function generateCompassionateResponse(
+  emotionalState: string,
+  checkInType: 'morning' | 'evening' | 'moment'
+): string {
+  const responses: { [key: string]: { [key: string]: string } } = {
+    energized: {
+      morning: 'What a wonderful way to start the day. May this energy carry you forward.',
+      evening: "It's beautiful to have energy at day's end. Honor it wisely.",
+      moment: 'This vitality is a gift. Notice what created it.',
+    },
+    calm: {
+      morning: 'Beginning with calm is a precious thing. Carry this peace with you.',
+      evening: 'Ending the day in calm - this is self-care in action.',
+      moment: 'Calm is always available. You found your way back to it.',
+    },
+    tired: {
+      morning: 'Starting tired is hard. Be gentle with yourself today.',
+      evening: 'Your tiredness is valid. Rest is not weakness - it\'s wisdom.',
+      moment: 'Tiredness is your body\'s truth. Listen to what it needs.',
+    },
+    anxious: {
+      morning: 'Beginning with anxiety is challenging. You don\'t have to carry this alone.',
+      evening: 'Anxiety at day\'s end can feel heavy. You made it through today.',
+      moment: 'Anxiety is uncomfortable, but temporary. This feeling will shift.',
+    },
+    hopeful: {
+      morning: 'Hope in the morning light - may it guide your day.',
+      evening: 'Ending with hope is a beautiful thing. Tomorrow awaits.',
+      moment: 'Hope is always a choice. You chose it right now.',
+    },
+    fulfilled: {
+      morning: 'Starting fulfilled - what a gift to yourself.',
+      evening: 'Fulfillment at day\'s end means you lived well today.',
+      moment: 'This sense of fulfillment - remember what created it.',
+    },
+    exhausted: {
+      morning: 'Exhaustion in the morning is a sign. Your system needs deep rest.',
+      evening: 'Complete exhaustion. Rest isn\'t optional anymore - it\'s essential.',
+      moment: 'Exhaustion is your limit speaking clearly. Please listen.',
+    },
+    grateful: {
+      morning: 'Gratitude colors everything. What a way to begin.',
+      evening: 'Gratitude at day\'s end - you found the gifts in today.',
+      moment: 'Gratitude shifts everything. You just shifted your world.',
+    },
+    restless: {
+      morning: 'Restlessness has something to teach you. Listen closely.',
+      evening: 'Restless energy at day\'s end - what\'s unsettled in you?',
+      moment: 'Restlessness is energy seeking direction. What wants to move?',
+    },
+    content: {
+      morning: 'Contentment is underrated. This is peace found.',
+      evening: 'Contentment at sunset - you lived a day in alignment.',
+      moment: 'Content means enough. Right now, you have enough.',
+    },
+    overwhelmed: {
+      morning: 'Overwhelm this early is real. One breath, one step at a time.',
+      evening: 'The weight of today - you carried it. Now you can set it down.',
+      moment: 'Overwhelm means capacity reached. What can you release right now?',
+    },
+    peaceful: {
+      morning: 'Peace in the morning is sacred. Protect it gently today.',
+      evening: 'Peace at evening - you created sanctuary in your day.',
+      moment: 'Peace found. This is the ground of your being.',
+    },
+    excited: {
+      morning: 'Excitement for the day ahead - let it fuel you.',
+      evening: 'Still excited at day\'s end - that\'s rare and precious.',
+      moment: 'Excitement is life force moving. Ride this wave.',
+    },
+    uncertain: {
+      morning: 'Uncertainty can feel uncomfortable. It\'s also where growth lives.',
+      evening: 'Day ending in uncertainty - the path will reveal itself.',
+      moment: 'Not knowing is honest. You don\'t have to have all the answers.',
+    },
+  }
+
+  return responses[emotionalState]?.[checkInType] ||
+    'Thank you for checking in with yourself. This awareness is self-care.'
+}
 
 export default async (fastify: FastifyInstance) => {
+  // Register User Operating System API routes
+  registerOSRoutes(fastify)
+
+  // Admin diagnostic ping endpoint
+  fastify.get('/ping', async (req, reply) => {
+    const hasUsership = req.user.tags.some((t) => t.toLowerCase() === 'usership')
+
+    if (!hasUsership) {
+      return reply.code(403).send({
+        error: 'Access denied',
+        message: 'This endpoint requires usership tag',
+        yourTags: req.user.tags
+      })
+    }
+
+    // Check Memory Engine refactoring modules
+    const fs = await import('fs')
+    const path = await import('path')
+
+    let memoryModuleStatus = 'Phase 1 Complete'
+    let moduleDetails = ''
+
+    try {
+      const memoryDir = path.join(process.cwd(), 'dist/server/server/utils/memory')
+      const modules = [
+        'constants.js',
+        'types.js',
+        'trait-extraction.js',
+        'cohort-determination.js',
+        'pacing.js',
+        'recipe-suggestions.js',
+        'story-generator.js',
+        'question-generator.js',
+        'index.js'
+      ]
+
+      const moduleChecks = modules.map(mod => {
+        const exists = fs.existsSync(path.join(memoryDir, mod))
+        return `${exists ? 'Yes' : 'No'} ${mod}`
+      })
+
+      moduleDetails = moduleChecks.join('<br>')
+
+      // Check backward compatibility
+      const legacyMemory = fs.existsSync(path.join(process.cwd(), 'dist/server/server/utils/memory.js'))
+      moduleDetails += `<br><br><strong>Backward Compatibility:</strong><br>${legacyMemory ? 'Yes' : 'No'} memory.js (original)`
+    } catch (error: any) {
+      memoryModuleStatus = 'Check Failed'
+      moduleDetails = error.message
+    }
+
+    return reply.type('text/html').send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>API Ping - Working!</title>
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", monospace;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            background: #f5f5f5;
+          }
+          .success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            padding: 30px;
+            border-radius: 8px;
+          }
+          h1 {
+            color: #28a745;
+            margin: 0 0 20px 0;
+            font-size: 32px;
+          }
+          h2 {
+            color: #155724;
+            margin: 20px 0 10px 0;
+            font-size: 20px;
+          }
+          .info {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.8;
+          }
+          .module-info {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px 0;
+            text-align: left;
+            font-family: monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            border: 1px solid #dee2e6;
+          }
+          .links {
+            margin-top: 30px;
+          }
+          a {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            margin: 5px;
+            border-radius: 5px;
+            text-decoration: none;
+          }
+          code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #e83e8c;
+          }
+          .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+          }
+          .badge-success {
+            background: #28a745;
+            color: white;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="success">
+          <h1>February 2025 Deployment Live!</h1>
+
+          <div class="info">
+            <strong>User:</strong> ${req.user.email}<br>
+            <strong>Tags:</strong> ${req.user.tags.join(', ')}<br>
+            <strong>Timestamp:</strong> ${new Date().toISOString()}<br>
+            <strong>Route:</strong> /api/ping<br>
+            <strong>Branch:</strong> claude/february-2025-updates-HZZTF
+          </div>
+
+          <h2>🧠 Memory Engine Refactoring</h2>
+          <div class="module-info">
+            <strong>Status:</strong> ${memoryModuleStatus}<br>
+            <strong>Architecture:</strong> Modular (9 focused modules)<br><br>
+            ${moduleDetails}
+          </div>
+
+          <h2>🎮 RPG Quantum Badges System</h2>
+          <div class="module-info">
+            <strong>Water Badges (Oceanic Mayan):</strong> ○∿ ≋○≋ ≈○≈<br>
+            • Organic matter growth & healing<br>
+            • Memory Engine integration<br><br>
+            <strong>Architecture Badges:</strong> Coming soon<br>
+            • Intent manifestation & rendering<br>
+            • Quantum Intent Engine integration
+          </div>
+
+          <h2>February Features</h2>
+          <div class="module-info">
+            Monthly Email System<br>
+            Evolution Widget<br>
+            Cohort-Connect Widget<br>
+            Memory Engine Modularization (Phase 1)
+          </div>
+
+          <div class="links">
+            <p><strong>Diagnostic Endpoints:</strong></p>
+            <p>
+              <code>${req.protocol}://${req.hostname}/admin-api/ping</code><br>
+              <code>${req.protocol}://${req.hostname}/admin-api/status</code><br>
+              <code>${req.protocol}://${req.hostname}/admin-api/memory-debug</code>
+            </p>
+          </div>
+
+          <div style="margin-top: 30px;">
+            <a href="/">← Back to Home</a>
+            <a href="/admin-api/memory-debug">Memory Diagnostics</a>
+          </div>
+        </div>
+      </body>
+      </html>
+    `)
+  })
+
   fastify.get('/sync', async (req, reply) => {
     // const id = String(Math.ceil(Math.random() * 99)).padStart(2, '0')
     reply.raw.writeHead(200, {
@@ -57,7 +342,7 @@ export default async (fastify: FastifyInstance) => {
       }, 300)
     }, 300)
 
-    const { dispose } = sync.listen('*', async (data, event) => {
+    const { dispose } = sync.listen('*', async (data: any, event: any) => {
       // if (config.admins.includes(req.user.email)) {
       //   console.log(`~~> SSE ${id}: "${event}"`, data)
       // }
@@ -81,9 +366,11 @@ export default async (fastify: FastifyInstance) => {
           const updatedPayload: ChatMessageLikeEventPayload = {
             ...payload,
             likes: likes.length,
+            likesCount: likes.length,
             isLiked: likes.some(fp.propEq('userId', req.user.id)),
           }
           write({ event, data: updatedPayload })
+          break
         }
       }
     })
@@ -111,8 +398,169 @@ export default async (fastify: FastifyInstance) => {
   fastify.get('/me', async (req: FastifyRequest, reply) => {
     const profile = req.user.useProfileView()
     const isAdmin = req.user.isAdmin() || undefined
+    const metadata = req.user.metadata || {}
     req.user.deferredPing()
-    return { ...profile, isAdmin }
+    return { ...profile, isAdmin, metadata }
+  })
+
+  // Memory prompt status - debugging endpoint
+  fastify.get('/memory-status', async (req: FastifyRequest<{ Querystring: { d?: string } }>, reply) => {
+    try {
+      // Get user's local time from query parameter (like sync endpoint)
+      let localDate = dayjs()
+      if (req.query.d) {
+        try {
+          localDate = dayjs(atob(req.query.d), DATE_FORMAT)
+        } catch {
+          // Invalid date, use server time
+        }
+      }
+
+      const pacingInfo = await calculateIntelligentPacing(
+        req.user.id,
+        localDate,
+        fastify.models
+      )
+
+      const hour = localDate.hour()
+      const isWeekend = localDate.day() === 0 || localDate.day() === 6
+
+      // Time windows removed - prompts available 24/7
+      const timeWindow = 'All day (24/7)'
+
+      // Check if recently asked (last 2 hours)
+      const twoHoursAgo = dayjs().subtract(2, 'hour')
+      const recentAnswerCount = await fastify.models.Answer.count({
+        where: {
+          userId: req.user.id,
+          createdAt: {
+            [Op.gte]: twoHoursAgo.toDate(),
+          },
+        },
+      })
+
+      return {
+        currentTime: localDate.format('h:mm A'),
+        currentHour: hour,
+        isWeekend,
+        timeWindow,
+        shouldShowPrompt: pacingInfo.shouldShowPrompt,
+        promptsShownToday: pacingInfo.promptsShownToday,
+        promptQuotaToday: pacingInfo.promptQuotaToday,
+        remainingToday: pacingInfo.promptQuotaToday - pacingInfo.promptsShownToday,
+        dayNumber: pacingInfo.dayNumber,
+        answeredInLast2Hours: recentAnswerCount > 0,
+        nextPromptAvailable: pacingInfo.shouldShowPrompt && recentAnswerCount === 0,
+        blockReason: !pacingInfo.shouldShowPrompt
+          ? 'Daily quota reached'
+          : recentAnswerCount > 0
+            ? 'Answered within last 2 hours'
+            : null,
+      }
+    } catch (error: any) {
+      console.error('Memory status error:', error)
+      return {
+        error: error.message,
+      }
+    }
+  })
+
+  // Memory diagnostic endpoint - helps debug why questions aren't showing
+  fastify.get('/memory-debug', async (req: FastifyRequest<{ Querystring: { d?: string } }>, reply) => {
+    try {
+      const dateParam = req.query.d
+      if (!dateParam) {
+        return reply.status(400).send({
+          error: 'Missing date parameter',
+          usage: 'Add ?d=<base64-encoded-date>',
+          example: `/api/memory-debug?d=${btoa(dayjs().format(DATE_FORMAT))}`
+        })
+      }
+
+      const decoded = atob(dateParam)
+      const localDate = dayjs(decoded, DATE_FORMAT)
+
+      if (!localDate.isValid()) {
+        return reply.status(400).send({
+          error: 'Invalid date',
+          decoded,
+          expected: 'YYYY-MM-DD format'
+        })
+      }
+
+      // Check pacing
+      const pacingInfo = await calculateIntelligentPacing(req.user.id, localDate, fastify.models)
+
+      // Check 30-minute cooldown
+      const thirtyMinutesAgo = dayjs().subtract(30, 'minute')
+      const recentAnswerCount = await fastify.models.Answer.count({
+        where: {
+          userId: req.user.id,
+          createdAt: { [Op.gte]: thirtyMinutesAgo.toDate() }
+        }
+      })
+
+      // Check last answer ever
+      const lastAnswer = await fastify.models.Answer.findOne({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']]
+      })
+
+      return {
+        dateParam,
+        decoded,
+        localDateValid: localDate.isValid(),
+        userTags: req.user.tags,
+        hasUsership: req.user.tags.some(t => t.toLowerCase() === 'usership'),
+        pacing: {
+          shouldShowPrompt: pacingInfo.shouldShowPrompt,
+          promptsShownToday: pacingInfo.promptsShownToday,
+          promptQuotaToday: pacingInfo.promptQuotaToday,
+          dayNumber: pacingInfo.dayNumber,
+          isWeekend: pacingInfo.isWeekend
+        },
+        cooldown: {
+          recentAnswerCount,
+          isRecentlyAsked: recentAnswerCount > 0,
+          lastAnswerAt: lastAnswer?.createdAt || 'never'
+        },
+        expectedResult: pacingInfo.shouldShowPrompt && recentAnswerCount === 0 ? 'SHOULD SHOW QUESTION' : 'BLOCKED',
+        blockReason: !pacingInfo.shouldShowPrompt ? 'Quota reached' : recentAnswerCount > 0 ? 'Answered in last 30 min' : 'None - should work'
+      }
+    } catch (error: any) {
+      console.error('Memory debug error:', error)
+      return reply.status(500).send({
+        error: 'Failed to generate debug info',
+        message: error.message,
+        stack: error.stack
+      })
+    }
+  })
+
+  // Visitor statistics endpoint
+  fastify.get('/visitor-stats', async (req: FastifyRequest, reply) => {
+    try {
+      // Get total site visitors from a global counter
+      const globalStats = await fastify.models.User.findOne({
+        where: { email: 'system@lot' } // Special system user for global stats
+      })
+
+      const totalVisitors = globalStats?.metadata?.totalSiteVisitors || 0
+
+      // Get current user's profile visits
+      const userProfileVisits = req.user.metadata?.profileVisits || 0
+
+      return {
+        totalSiteVisitors: totalVisitors,
+        userProfileVisits: userProfileVisits
+      }
+    } catch (error) {
+      console.error('Error fetching visitor stats:', error)
+      return {
+        totalSiteVisitors: 0,
+        userProfileVisits: 0
+      }
+    }
   })
 
   fastify.post(
@@ -166,6 +614,136 @@ export default async (fastify: FastifyInstance) => {
     }
   )
 
+  fastify.post<{
+    Body: {
+      theme: string
+      baseColor?: string
+      accentColor?: string
+      customThemeEnabled: boolean
+    }
+  }>(
+    '/theme-change',
+    async (req: FastifyRequest<{
+      Body: {
+        theme: string
+        baseColor?: string
+        accentColor?: string
+        customThemeEnabled: boolean
+      }
+    }>, reply) => {
+      const { theme, baseColor, accentColor, customThemeEnabled } = req.body
+
+      // Store theme in user metadata for public profile
+      const currentMetadata = req.user.metadata || {}
+      const updatedMetadata = {
+        ...currentMetadata,
+        theme: {
+          theme,
+          baseColor: baseColor || null,
+          accentColor: accentColor || null,
+          customThemeEnabled,
+        },
+      }
+      await req.user.set({ metadata: updatedMetadata }).save()
+
+      reply.ok()
+    }
+  )
+
+  fastify.post<{
+    Body: { soundDescription: string | null }
+  }>(
+    '/update-current-sound',
+    async (req: FastifyRequest<{
+      Body: { soundDescription: string | null }
+    }>, reply) => {
+      const { soundDescription } = req.body
+
+      // Update user metadata with current sound description
+      const currentMetadata = req.user.metadata || {}
+      const updatedMetadata = {
+        ...currentMetadata,
+        currentSound: soundDescription,
+      }
+
+      await req.user.set({ metadata: updatedMetadata }).save()
+
+      reply.ok()
+    }
+  )
+
+  fastify.post<{
+    Body: {
+      privacy: {
+        isPublicProfile: boolean
+        showWeather: boolean
+        showLocalTime: boolean
+        showCity: boolean
+        showSound: boolean
+        showMemoryStory: boolean
+        customUrl?: string | null
+      }
+    }
+  }>(
+    '/update-privacy',
+    async (req: FastifyRequest<{
+      Body: {
+        privacy: {
+          isPublicProfile: boolean
+          showWeather: boolean
+          showLocalTime: boolean
+          showCity: boolean
+          showSound: boolean
+          showMemoryStory: boolean
+          customUrl?: string | null
+        }
+      }
+    }>, reply) => {
+      const { privacy } = req.body
+
+      // Validate custom URL if provided
+      if (privacy.customUrl) {
+        const urlPattern = /^[a-zA-Z0-9_-]{3,30}$/
+        if (!urlPattern.test(privacy.customUrl)) {
+          return reply.code(400).send({
+            error: 'Invalid custom URL',
+            message: 'Custom URL must be 3-30 characters (letters, numbers, dashes, underscores only)'
+          })
+        }
+
+        // Check if custom URL is already taken by another user
+        const existingUser = await fastify.models.User.findOne({
+          where: {
+            id: { [Op.ne]: req.user.id },
+            [Op.and]: [
+              fastify.sequelize.where(
+                fastify.sequelize.fn('jsonb_extract_path_text', fastify.sequelize.col('metadata'), 'privacy', 'customUrl'),
+                privacy.customUrl
+              )
+            ]
+          }
+        })
+        if (existingUser) {
+          return reply.code(400).send({
+            error: 'Custom URL taken',
+            message: 'This custom URL is already in use by another user'
+          })
+        }
+      }
+
+      // Update user metadata with privacy settings
+      const currentMetadata = req.user.metadata || {}
+      const updatedMetadata = {
+        ...currentMetadata,
+        privacy,
+      }
+
+      await req.user.set({ metadata: updatedMetadata }).save()
+
+      reply.ok()
+    }
+  )
+
   fastify.get('/live-message', async (req: FastifyRequest, reply) => {
     const record = await fastify.models.LiveMessage.findOne()
     const message = record?.message || ''
@@ -175,7 +753,7 @@ export default async (fastify: FastifyInstance) => {
   fastify.get('/chat-messages', async (req: FastifyRequest, reply) => {
     const messages = await fastify.models.ChatMessage.findAll({
       order: [['createdAt', 'DESC']],
-      limit: req.user.isAdmin() ? undefined : SYNC_CHAT_MESSAGES_TO_SHOW,
+      limit: req.user.canAccessUsSection() ? undefined : SYNC_CHAT_MESSAGES_TO_SHOW,
     })
 
     const userIds = messages.map((m) => m.authorUserId)
@@ -184,19 +762,32 @@ export default async (fastify: FastifyInstance) => {
     })
     const userById = users.reduce(fp.by('id'), {})
 
+    // Filter out messages from suspended users
+    const filteredMessages = messages.filter((msg) => {
+      const author = userById[msg.authorUserId]
+      if (!author) return false
+
+      // Check if user is suspended
+      const isSuspended = author.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      return !isSuspended
+    })
+
     const likes = await fastify.models.ChatMessageLike.findAll({
-      where: { messageId: messages.map(fp.prop('id')) },
+      where: { messageId: filteredMessages.map(fp.prop('id')) },
     })
     const likesByMessageId = likes.reduce(fp.groupBy('messageId'), {})
 
-    const result: PublicChatMessage[] = messages.map((x) => {
+    const result: PublicChatMessage[] = filteredMessages.map((x) => {
       const likes = likesByMessageId[x.id] || []
       return {
         id: x.id,
+        authorUserId: x.authorUserId,
         message: x.message,
         author: userById[x.authorUserId].firstName || null,
         createdAt: x.createdAt,
+        updatedAt: x.updatedAt,
         likes: likes.length,
+        likesCount: likes.length,
         isLiked: likes.some(fp.propEq('userId', req.user.id)),
       }
     })
@@ -206,6 +797,13 @@ export default async (fastify: FastifyInstance) => {
   fastify.post(
     '/chat-messages',
     async (req: FastifyRequest<{ Body: { message: string } }>, reply) => {
+      // Prevent suspended users from posting messages
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        console.log(`🚫 Suspended user ${req.user.id} attempted to post message`)
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+
       const message = req.body.message.slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
       const chatMessage = await fastify.models.ChatMessage.create({
         authorUserId: req.user.id,
@@ -219,18 +817,17 @@ export default async (fastify: FastifyInstance) => {
         likes: 0,
         isLiked: false,
       })
-      process.nextTick(async () => {
-        const context = await getLogContext(req.user)
-        await fastify.models.Log.create({
-          userId: req.user.id,
-          event: 'chat_message',
-          text: '',
-          metadata: {
-            chatMessageId: chatMessage.id,
-            message: chatMessage.message,
-          },
-          context,
-        })
+      // Log chat message synchronously with context for pattern analysis
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'chat_message',
+        text: '',
+        metadata: {
+          chatMessageId: chatMessage.id,
+          message: chatMessage.message,
+        },
+        context,
       })
       return reply.ok()
     }
@@ -259,10 +856,18 @@ export default async (fastify: FastifyInstance) => {
           messageId: req.body.messageId,
         })
       }
+
+      // Get updated likes count after the toggle
+      const allLikes = await fastify.models.ChatMessageLike.findAll({
+        where: { messageId: req.body.messageId },
+      })
+
       sync.emit('chat_message_like', {
         messageId: message.id,
-        likes: 0,
-        isLiked: false,
+        userId: req.user.id,
+        likes: allLikes.length,
+        likesCount: allLikes.length,
+        isLiked,
       })
       process.nextTick(async () => {
         if (isLiked) {
@@ -294,63 +899,78 @@ export default async (fastify: FastifyInstance) => {
   )
 
   fastify.get('/weather', async (req: FastifyRequest, reply) => {
-    const { city, country } = req.user
-    if (!city || !country) {
-      return null
-    }
-    const cachedRecord = await fastify.models.WeatherResponse.findOne({
-      where: {
-        city,
-        country,
-        createdAt: {
-          [Op.gt]: dayjs()
-            .subtract(WEATHER_STALE_TIME_MINUTES, 'minute')
-            .toDate(),
+    try {
+      const { city, country } = req.user
+      if (!city || !country) {
+        return null
+      }
+      const cachedRecord = await fastify.models.WeatherResponse.findOne({
+        where: {
+          city,
+          country,
+          createdAt: {
+            [Op.gt]: dayjs()
+              .subtract(WEATHER_STALE_TIME_MINUTES, 'minute')
+              .toDate(),
+          },
         },
-      },
-    })
-    if (cachedRecord) {
-      return cachedRecord.useRecordView()
-    }
-    const coordinates = await weather.getCoordinates(city, country)
-    if (!coordinates) {
-      await fastify.models.WeatherResponse.create({
+      })
+      if (cachedRecord) {
+        return cachedRecord.useRecordView()
+      }
+      const coordinates = await weather.getCoordinates(city, country)
+      if (!coordinates) {
+        await fastify.models.WeatherResponse.create({
+          city,
+          country,
+          weather: null,
+          // TODO: add "permanent: true"
+        })
+        return null
+      }
+      const data = await weather.getWeather(coordinates.lat, coordinates.lon)
+      const newCachedRecord = await fastify.models.WeatherResponse.create({
         city,
         country,
-        weather: null,
-        // TODO: add "permanent: true"
+        weather: data,
       })
+      return newCachedRecord.useRecordView()
+    } catch (error: any) {
+      // Weather API unavailable or misconfigured - return null so app still works
+      console.warn('Weather API error (API key may be missing):', error?.message || error)
       return null
     }
-    const data = await weather.getWeather(coordinates.lat, coordinates.lon)
-    const newCachedRecord = await fastify.models.WeatherResponse.create({
-      city,
-      country,
-      weather: data,
-    })
-    return newCachedRecord.useRecordView()
   })
 
   fastify.get('/logs', async (req: FastifyRequest, reply) => {
+    // Only return user-facing log events (exclude internal signal/system events)
+    const displayableEvents = [
+      'note', 'answer', 'chat_message', 'chat_message_like',
+      'emotional_checkin', 'settings_change', 'system_snapshot',
+      'weekly_summary_response',
+    ]
     const logs = await fastify.models.Log.findAll({
       where: {
         userId: req.user.id,
-        ...(req.user.hideActivityLogs ? { event: 'note' } : {}),
+        ...(req.user.hideActivityLogs
+          ? { event: 'note' }
+          : { event: { [Op.in]: displayableEvents } }),
       },
       order: [['createdAt', 'DESC']],
     }).then((xs) =>
-      xs.filter((x, i) => x.event !== 'note' || x.text.length || i === 0)
+      xs.filter((x, i) => x.event !== 'note' || (x.text && x.text.length) || i === 0)
     )
 
     const recentLog = logs[0]
-    const now = dayjs()
-    if (
-      !recentLog ||
-      recentLog.event !== 'note' ||
-      (recentLog.text &&
-        now.diff(recentLog.updatedAt, 'minute') >
-          LOG_MESSAGE_STALE_TIME_MINUTES)
-    ) {
+
+    // FIXED: Only create new empty log if there ISN'T already an empty one at the top
+    // This prevents creating endless empty logs on every page load
+    const hasEmptyLogAtTop = recentLog &&
+                             recentLog.event === 'note' &&
+                             (!recentLog.text || recentLog.text.trim().length === 0)
+
+    if (!hasEmptyLogAtTop) {
+      // No empty log at top, create one for user input
       const emptyLog = await fastify.models.Log.create({
         userId: req.user.id,
         text: '',
@@ -358,8 +978,347 @@ export default async (fastify: FastifyInstance) => {
       })
       return [emptyLog, ...logs]
     }
+
+    // Already have an empty log at top, just return existing logs
     return logs
   })
+
+  // Diagnostic endpoint to manually cleanup empty logs
+  fastify.post('/logs/cleanup', async (req: FastifyRequest, reply) => {
+    const allLogs = await fastify.models.Log.findAll({
+      where: {
+        userId: req.user.id,
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+
+    // Detailed analysis of each log
+    const analysis = allLogs.map((log, i) => ({
+      index: i,
+      id: log.id,
+      event: log.event,
+      text: log.text || '(empty)',
+      textLength: (log.text || '').length,
+      textTrimmed: (log.text || '').trim(),
+      isEmpty: !log.text || log.text.trim() === '',
+      hasPlaceholder: log.text ? (
+        log.text.toLowerCase().includes('will be deleted') ||
+        log.text.toLowerCase().includes('log record')
+      ) : false,
+      createdAt: log.createdAt,
+      isSystemSnapshot: log.event === 'system_snapshot',
+      metadata: log.metadata,
+      context: log.context,
+    }))
+
+    // Count different types
+    const emptyNotes = analysis.filter(x =>
+      x.event === 'note' && (x.isEmpty || x.hasPlaceholder)
+    )
+    const snapshots = analysis.filter(x => x.isSystemSnapshot)
+    const validNotes = analysis.filter(x =>
+      x.event === 'note' && !x.isEmpty && !x.hasPlaceholder
+    )
+
+    return {
+      timestamp: new Date().toISOString(),
+      totalLogs: allLogs.length,
+      counts: {
+        emptyNotes: emptyNotes.length,
+        systemSnapshots: snapshots.length,
+        validNotes: validNotes.length,
+        otherEvents: allLogs.length - emptyNotes.length - snapshots.length - validNotes.length,
+      },
+      emptyNotes: emptyNotes,
+      systemSnapshots: snapshots,
+      allLogs: analysis,
+    }
+  })
+
+  // Delete empty logs from past 3 days
+  fastify.post('/logs/delete-empty', async (req: FastifyRequest, reply) => {
+    // Find all empty logs from past 3 days
+    const threeDaysAgo = dayjs().subtract(3, 'days').toDate()
+
+    const emptyLogs = await fastify.models.Log.findAll({
+      where: {
+        userId: req.user.id,
+        event: 'note',
+        createdAt: {
+          [Op.gte]: threeDaysAgo,
+        },
+      },
+    })
+
+    // Filter to truly empty logs (empty text or placeholder text)
+    const logsToDelete = emptyLogs.filter(log => {
+      if (!log.text || log.text.trim() === '') return true
+      const text = log.text.trim().toLowerCase()
+      return text.includes('will be deleted') || text.includes('log record')
+    })
+
+    const idsToDelete = logsToDelete.map(log => log.id)
+
+    if (idsToDelete.length === 0) {
+      return {
+        deleted: 0,
+        message: 'No empty logs found from past 3 days',
+      }
+    }
+
+    // Delete them
+    await fastify.models.Log.destroy({
+      where: { id: idsToDelete },
+    })
+
+    return {
+      deleted: idsToDelete.length,
+      message: `Successfully deleted ${idsToDelete.length} empty logs from past 3 days`,
+    }
+  })
+
+  // HTML page for mobile cleanup (no console needed)
+  fastify.get('/logs/cleanup-page', async (req: FastifyRequest, reply) => {
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cleanup Empty Logs</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      margin: 0 0 20px 0;
+      font-size: 24px;
+    }
+    button {
+      background: #007AFF;
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 20px;
+    }
+    button:hover {
+      background: #0051D5;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #result {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 8px;
+      display: none;
+    }
+    .success {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #2e7d32;
+    }
+    .info {
+      background: #e3f2fd;
+      color: #1565c0;
+      border: 1px solid #1565c0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧹 Cleanup Empty Logs</h1>
+    <p>This will delete all empty log entries from the past 3 days.</p>
+    <button id="cleanupBtn" onclick="runCleanup()">Delete Empty Logs</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    async function runCleanup() {
+      const btn = document.getElementById('cleanupBtn');
+      const result = document.getElementById('result');
+
+      btn.disabled = true;
+      btn.textContent = 'Cleaning up...';
+
+      try {
+        const response = await fetch('/logs/delete-empty', { method: 'POST' });
+        const data = await response.json();
+
+        result.style.display = 'block';
+        if (data.deleted === 0) {
+          result.className = 'info';
+          result.innerHTML = '' + data.message;
+        } else {
+          result.className = 'success';
+          result.innerHTML = '' + data.message + '<br><br>Refresh your Logs page to see the results.';
+        }
+
+        btn.textContent = 'Cleanup Complete';
+      } catch (error) {
+        result.style.display = 'block';
+        result.className = 'error';
+        result.innerHTML = 'Error: ' + error.message;
+        btn.disabled = false;
+        btn.textContent = 'Try Again';
+      }
+    }
+  </script>
+</body>
+</html>`;
+
+    reply.type('text/html').send(html);
+  })
+
+  // Simple GET endpoint to delete empty logs - just visit the URL
+  fastify.get('/logs/cleanup-now', async (req: FastifyRequest, reply) => {
+    try {
+      // Find all empty logs from past 7 days (extended from 3 to catch more)
+      const sevenDaysAgo = dayjs().subtract(7, 'days').toDate()
+
+      const emptyLogs = await fastify.models.Log.findAll({
+        where: {
+          userId: req.user.id,
+          event: 'note',
+          createdAt: {
+            [Op.gte]: sevenDaysAgo,
+          },
+        },
+      })
+
+      // Filter to truly empty logs (empty text or placeholder text)
+      const logsToDelete = emptyLogs.filter(log => {
+        if (!log.text || log.text.trim() === '') return true
+        const text = log.text.trim().toLowerCase()
+        return text.includes('will be deleted') ||
+               text.includes('log record') ||
+               text.includes('type here')
+      })
+
+      const idsToDelete = logsToDelete.map(log => log.id)
+
+      if (idsToDelete.length === 0) {
+        return reply.type('text/html').send(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Cleanup Complete</title>
+            <style>
+              body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+              .success { color: #28a745; font-size: 48px; }
+              h1 { color: #333; }
+              p { color: #666; font-size: 18px; }
+              a { color: #007bff; text-decoration: none; }
+            </style>
+          </head>
+          <body>
+            <div class="success">OK</div>
+            <h1>Database is Clean!</h1>
+            <p>No empty logs found from the past 7 days.</p>
+            <p><a href="/logs">← Back to Logs</a></p>
+          </body>
+          </html>
+        `)
+      }
+
+      // Delete them
+      await fastify.models.Log.destroy({
+        where: { id: idsToDelete },
+      })
+
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Cleanup Complete</title>
+          <style>
+            body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+            .success { color: #28a745; font-size: 48px; }
+            h1 { color: #333; }
+            p { color: #666; font-size: 18px; }
+            .count { font-size: 36px; font-weight: bold; color: #007bff; }
+            a { color: #007bff; text-decoration: none; }
+          </style>
+        </head>
+        <body>
+          <div class="success">OK</div>
+          <h1>Cleanup Complete!</h1>
+          <div class="count">${idsToDelete.length}</div>
+          <p>empty logs deleted from the past 7 days</p>
+          <p><a href="/logs">← Back to Logs</a></p>
+        </body>
+        </html>
+      `)
+    } catch (error: any) {
+      return reply.type('text/html').send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Cleanup Error</title>
+          <style>
+            body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; }
+            .error { color: #dc3545; font-size: 48px; }
+            h1 { color: #333; }
+            p { color: #666; font-size: 18px; }
+          </style>
+        </head>
+        <body>
+          <div class="error">Error</div>
+          <h1>Cleanup Failed</h1>
+          <p>${error.message}</p>
+        </body>
+        </html>
+      `)
+    }
+  })
+
+  fastify.post(
+    '/logs',
+    async (
+      req: FastifyRequest<{
+        Body: { text: string; event?: string; metadata?: Record<string, any> }
+      }>,
+      reply
+    ) => {
+      const text = (req.body.text || '').trim().slice(0, MAX_LOG_TEXT_LENGTH)
+      if (!text) return reply.throw.badParams('Log text is required')
+
+      // Get context before creating log to ensure consistency
+      const context = await getLogContext(req.user)
+
+      const log = await fastify.models.Log.create({
+        userId: req.user.id,
+        text,
+        event: req.body.event || 'note',
+        metadata: req.body.metadata || {},
+        context,
+      })
+
+      return log
+    }
+  )
 
   fastify.put(
     '/logs/:id',
@@ -375,6 +1334,13 @@ export default async (fastify: FastifyInstance) => {
       if (!log) return reply.throw.notFound()
       if (log.event !== 'note') return log
 
+      // If user backspaced all content, delete the log instead of saving empty text
+      if (!text || text.length === 0) {
+        await log.destroy()
+        console.log(`🗑️  Deleted empty log ${log.id} for user ${req.user.id}`)
+        return { id: log.id, deleted: true }
+      }
+
       await log.set({ text }).save()
       process.nextTick(async () => {
         if (!Object.keys(log.context).length) {
@@ -386,102 +1352,789 @@ export default async (fastify: FastifyInstance) => {
     }
   )
 
-  fastify.get(
-    '/memory',
-    async (req: FastifyRequest<{ Querystring: { d: string } }>, reply) => {
-      const MORNING_HOUR = 7
-      const EVENING_HOUR = 19
-      function getPeriodEdges(
-        inputDate: dayjs.Dayjs
-      ): [dayjs.Dayjs, dayjs.Dayjs] {
-        const dayStart = inputDate
-          .set('hour', MORNING_HOUR)
-          .set('minute', 0)
-          .set('second', 0)
-        const dayEnd = inputDate
-          .set('hour', EVENING_HOUR)
-          .set('minute', 0)
-          .set('second', 0)
-        const nightStart = dayEnd
-        const nightEnd = dayStart.add(1, 'day')
-
-        if (inputDate.isAfter(dayStart) && inputDate.isBefore(dayEnd)) {
-          return [dayStart, dayEnd]
-        } else {
-          return [nightStart, nightEnd]
+  // ============================================================================
+  // EMOTIONAL CHECK-IN ENDPOINT
+  // ============================================================================
+  fastify.post(
+    '/emotional-checkin',
+    async (
+      req: FastifyRequest<{
+        Body: {
+          checkInType: 'morning' | 'evening' | 'moment'
+          emotionalState: string
+          intensity?: number
+          note?: string
         }
+      }>,
+      reply
+    ) => {
+      const { checkInType, emotionalState, intensity, note } = req.body
+
+      if (!checkInType || !emotionalState) {
+        return reply.throw.badParams('Check-in type and emotional state are required')
       }
 
-      const localDate = dayjs(atob(req.query.d), DATE_TIME_FORMAT)
-      if (!localDate.isValid()) {
-        return reply.throw.badParams()
-      }
-
-      const now = dayjs()
-      const localDateShift = now.diff(localDate, 'minute')
-      const periodEdges = getPeriodEdges(localDate)
-      const utcPeriodEdges = [
-        periodEdges[0].add(localDateShift, 'minute'),
-        periodEdges[1].add(localDateShift, 'minute'),
-      ]
-      const isNightPeriod = periodEdges[0].hour() === EVENING_HOUR
-      const isRecentlyAsked = await fastify.models.Answer.count({
+      // Get recent emotional check-ins to generate insights
+      const recentCheckIns = await fastify.models.Log.findAll({
         where: {
           userId: req.user.id,
-          createdAt: {
-            [Op.gte]: utcPeriodEdges[0].toDate(),
-            [Op.lte]: utcPeriodEdges[1].toDate(),
-          },
-        },
-      }).then(Boolean)
-      if (isRecentlyAsked) return null
-
-      const prevQuestionIds = await fastify.models.Answer.findAll({
-        where: {
-          userId: req.user.id,
+          event: 'emotional_checkin',
         },
         order: [['createdAt', 'DESC']],
-        attributes: ['id', 'metadata'],
-      }).then((xs) => Array.from(new Set(xs.map((x) => x.metadata.questionId))))
+        limit: 30,
+      })
 
-      let untouchedQuestions = defaultQuestions
-      if (prevQuestionIds.length) {
-        untouchedQuestions = defaultQuestions.filter(
-          fp.propNotIn('id', prevQuestionIds)
-        )
-        if (!untouchedQuestions.length) {
-          const longAgoAnsweredQuestionIds = prevQuestionIds.slice(
-            -1 * Math.floor(prevQuestionIds.length / 3)
-          )
-          untouchedQuestions = defaultQuestions.filter(
-            fp.propIn('id', longAgoAnsweredQuestionIds)
-          )
+      // Generate pattern insights
+      const insights: string[] = []
+
+      // Pattern: Same state multiple days in a row (only check PREVIOUS days, not today)
+      // Group check-ins by day to ensure we're counting consecutive days, not just consecutive check-ins
+      const checkInsByDay = new Map<string, string>()
+      recentCheckIns.forEach(log => {
+        const dayKey = new Date(log.createdAt).toDateString()
+        if (!checkInsByDay.has(dayKey)) {
+          checkInsByDay.set(dayKey, log.metadata?.emotionalState)
+        }
+      })
+
+      // Get unique days (excluding today) and check for consecutive pattern
+      const today = new Date().toDateString()
+      const previousDays = Array.from(checkInsByDay.entries())
+        .filter(([day]) => day !== today)
+        .sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime())
+        .slice(0, 3)
+
+      if (previousDays.length >= 3) {
+        const allSameAsToday = previousDays.every(([_, state]) => state === emotionalState)
+        if (allSameAsToday) {
+          insights.push(`You've felt ${emotionalState} for 3 days in a row`)
         }
       }
 
-      const rng = seedrandom(
-        `${req.user.id} ${localDate.format(DATE_FORMAT)} ${
-          isNightPeriod ? 'N' : 'D'
-        }`
-      )
-      const question =
-        untouchedQuestions[Math.floor(rng() * untouchedQuestions.length)]
-      return question
+      // Pattern: Morning vs evening energy
+      const morningCheckIns = recentCheckIns.filter(log => log.metadata?.checkInType === 'morning')
+      const eveningCheckIns = recentCheckIns.filter(log => log.metadata?.checkInType === 'evening')
+
+      if (checkInType === 'morning' && morningCheckIns.length >= 5) {
+        const energizedMornings = morningCheckIns.filter(log =>
+          ['energized', 'hopeful', 'excited'].includes(log.metadata?.emotionalState)
+        ).length
+        if (energizedMornings / morningCheckIns.length > 0.7) {
+          insights.push('Your mornings tend to be energizing')
+        }
+      }
+
+      if (checkInType === 'evening' && eveningCheckIns.length >= 5) {
+        const tiredEvenings = eveningCheckIns.filter(log =>
+          ['tired', 'exhausted'].includes(log.metadata?.emotionalState)
+        ).length
+        if (tiredEvenings / eveningCheckIns.length > 0.7) {
+          insights.push('Your evenings often feel depleting')
+        }
+      }
+
+      // Create the emotional check-in log
+      // Format text for visibility in Log view
+      const timeOfDay =
+        checkInType === 'morning' ? 'this morning' :
+        checkInType === 'evening' ? 'this evening' :
+        'right now'
+      const logText = note
+        ? `Feeling ${emotionalState} ${timeOfDay}: ${note}`
+        : `Feeling ${emotionalState} ${timeOfDay}`
+
+      // Get context BEFORE creating the log to ensure weather data is available for pattern analysis
+      const context = await getLogContext(req.user)
+
+      const checkIn = await fastify.models.Log.create({
+        userId: req.user.id,
+        text: logText,
+        event: 'emotional_checkin',
+        context, // Include context immediately
+        metadata: {
+          checkInType,
+          emotionalState,
+          intensity,
+          note,
+          insights,
+          timestamp: new Date().toISOString(),
+        },
+      })
+
+      return {
+        checkIn,
+        insights,
+        compassionateResponse: generateCompassionateResponse(emotionalState, checkInType),
+      }
+    }
+  )
+
+  // Get emotional check-in history and insights
+  fastify.get(
+    '/emotional-checkins',
+    async (req: FastifyRequest<{ Querystring: { days?: string } }>, reply) => {
+      const days = parseInt(req.query.days || '30')
+      const since = dayjs().subtract(days, 'day').toDate()
+
+      const checkIns = await fastify.models.Log.findAll({
+        where: {
+          userId: req.user.id,
+          event: 'emotional_checkin',
+          createdAt: {
+            [Op.gte]: since,
+          },
+        },
+        order: [['createdAt', 'DESC']],
+      })
+
+      // Calculate mood patterns
+      const moodCounts: { [key: string]: number } = {}
+      checkIns.forEach(checkIn => {
+        const state = checkIn.metadata?.emotionalState as string
+        if (state) {
+          moodCounts[state] = (moodCounts[state] || 0) + 1
+        }
+      })
+
+      const dominantMood = Object.entries(moodCounts)
+        .sort(([_, a], [__, b]) => b - a)[0]?.[0]
+
+      return {
+        checkIns,
+        stats: {
+          total: checkIns.length,
+          moodCounts,
+          dominantMood,
+          averageIntensity: checkIns.length > 0
+            ? checkIns.reduce((sum, c) => sum + (c.metadata?.intensity || 5), 0) / checkIns.length
+            : 0,
+        },
+      }
+    }
+  )
+
+  // Export emotional check-ins as CSV
+  fastify.get('/export/emotional-checkins', async (req, reply) => {
+    const checkIns = await fastify.models.Log.findAll({
+      where: {
+        userId: req.user.id,
+        event: 'emotional_checkin',
+      },
+      order: [['createdAt', 'ASC']],
+    })
+
+    // Generate CSV
+    const csvRows = ['Date,Time,Emotional State,Check-in Type,Intensity,Note']
+    checkIns.forEach((log: any) => {
+      const date = dayjs(log.createdAt).format('YYYY-MM-DD')
+      const time = dayjs(log.createdAt).format('HH:mm:ss')
+      const state = log.metadata?.emotionalState || ''
+      const type = log.metadata?.checkInType || ''
+      const intensity = log.metadata?.intensity || ''
+      const note = (log.metadata?.note || '').replace(/"/g, '""') // Escape quotes
+      csvRows.push(`${date},${time},"${state}","${type}",${intensity},"${note}"`)
+    })
+
+    const csv = csvRows.join('\n')
+    reply.header('Content-Type', 'text/csv')
+    reply.header('Content-Disposition', `attachment; filename="mood-checkins-${dayjs().format('YYYY-MM-DD')}.csv"`)
+    return csv
+  })
+
+  // Export self-care activities as CSV
+  fastify.get('/export/self-care', async (req, reply) => {
+    const activities = await fastify.models.Log.findAll({
+      where: {
+        userId: req.user.id,
+        event: {
+          [Op.in]: ['self_care_complete', 'self_care_skip']
+        },
+      },
+      order: [['createdAt', 'ASC']],
+    })
+
+    // Generate CSV
+    const csvRows = ['Date,Time,Event,Activity']
+    activities.forEach((log: any) => {
+      const date = dayjs(log.createdAt).format('YYYY-MM-DD')
+      const time = dayjs(log.createdAt).format('HH:mm:ss')
+      const event = log.event === 'self_care_complete' ? 'Completed' : 'Skipped'
+      const activity = (log.text || '').replace('Self-care completed: ', '').replace('Self-care skipped: ', '').replace(/"/g, '""')
+      csvRows.push(`${date},${time},"${event}","${activity}"`)
+    })
+
+    const csv = csvRows.join('\n')
+    reply.header('Content-Type', 'text/csv')
+    reply.header('Content-Disposition', `attachment; filename="self-care-${dayjs().format('YYYY-MM-DD')}.csv"`)
+    return csv
+  })
+
+  // Export complete training dataset for AI (humanoids, cars, personal AI)
+  fastify.get('/export/training-data', async (req, reply) => {
+    console.log(`📦 Training data export requested by user ${req.user.id}`)
+
+    try {
+      // Load all user data for training
+      const [logs, answers, emotionalCheckins] = await Promise.all([
+        fastify.models.Log.findAll({
+          where: { userId: req.user.id },
+          order: [['createdAt', 'DESC']],
+          limit: 1000, // Last 1000 logs
+        }),
+        fastify.models.Answer.findAll({
+          where: { userId: req.user.id },
+          order: [['createdAt', 'DESC']],
+          limit: 500, // Last 500 answers
+        }),
+        fastify.models.Log.findAll({
+          where: {
+            userId: req.user.id,
+            event: 'emotional_checkin'
+          },
+          order: [['createdAt', 'DESC']],
+          limit: 500,
+        })
+      ])
+
+      // Extract quantum states from logs
+      const quantumStates = logs
+        .filter(log => log.metadata?.quantumState)
+        .map(log => ({
+          timestamp: log.createdAt,
+          energy: log.metadata.quantumState.energy,
+          clarity: log.metadata.quantumState.clarity,
+          alignment: log.metadata.quantumState.alignment,
+          needsSupport: log.metadata.quantumState.needsSupport,
+        }))
+
+      // Extract emotional patterns
+      const emotionalPatterns = emotionalCheckins.map(log => ({
+        timestamp: log.createdAt,
+        emotion: log.metadata?.emotion || 'unknown',
+        intensity: log.metadata?.intensity || 5,
+        context: log.text || '',
+      }))
+
+      // Extract behavioral data (self-care activities)
+      const behaviors = logs
+        .filter(log => log.event === 'self_care_complete' || log.event === 'self_care_skip')
+        .map(log => ({
+          timestamp: log.createdAt,
+          activity: log.text?.replace('Self-care completed: ', '').replace('Self-care skipped: ', '') || '',
+          completed: log.event === 'self_care_complete',
+          notes: log.metadata?.notes || '',
+        }))
+
+      // Extract memory Q&A
+      const memoryQA = answers.map(answer => ({
+        question: answer.metadata?.questionText || '',
+        answer: answer.answer || '',
+        timestamp: answer.createdAt,
+        options: answer.metadata?.options || [],
+      }))
+
+      // Extract goals and intentions
+      const goals = logs
+        .filter(log => log.event === 'goal_set' || log.event === 'goal_complete')
+        .map(log => ({
+          goal: log.text || '',
+          status: log.event === 'goal_complete' ? 'completed' : 'active',
+          timestamp: log.createdAt,
+        }))
+
+      // Build complete training dataset
+      const trainingData = {
+        user: {
+          id: req.user.id,
+          metadata: {
+            timeZone: req.user.metadata?.timeZone || null,
+            tags: req.user.tags || [],
+          },
+          exportDate: new Date().toISOString(),
+        },
+        quantum_states: quantumStates,
+        emotional_patterns: emotionalPatterns,
+        behaviors: behaviors,
+        memory_qa: memoryQA,
+        goals: goals,
+        statistics: {
+          total_logs: logs.length,
+          total_answers: answers.length,
+          total_quantum_states: quantumStates.length,
+          total_emotional_checkins: emotionalPatterns.length,
+          total_behaviors: behaviors.length,
+          total_goals: goals.length,
+        },
+        metadata: {
+          format_version: '1.0',
+          exported_at: new Date().toISOString(),
+          data_range: {
+            oldest: logs[logs.length - 1]?.createdAt || null,
+            newest: logs[0]?.createdAt || null,
+          },
+          intended_use: 'AI training for humanoid companions, autonomous vehicles, personal assistants',
+        }
+      }
+
+      reply.header('Content-Type', 'application/json')
+      reply.header('Content-Disposition', `attachment; filename="lot-training-data-${dayjs().format('YYYY-MM-DD')}.json"`)
+      return trainingData
+    } catch (error: any) {
+      console.error('Training data export failed:', error)
+      return reply.status(500).send({
+        error: 'Export failed',
+        message: error.message
+      })
+    }
+  })
+
+  fastify.get(
+    '/memory',
+    async (req: FastifyRequest<{ Querystring: {
+      d: string
+      qe?: string // quantum energy
+      qc?: string // quantum clarity
+      qa?: string // quantum alignment
+      qn?: string // quantum needs support
+    } }>, reply) => {
+      try {
+        console.log(`Memory endpoint called for user ${req.user?.id || 'UNKNOWN'}`)
+
+        // Validate required parameters first
+        if (!req.query.d) {
+          console.error('Memory request missing date parameter')
+          return reply.status(400).send({
+            error: 'Missing date parameter',
+            hint: 'Date parameter (d) is required'
+          })
+        }
+
+        const MORNING_HOUR = 7
+        const EVENING_HOUR = 19
+        function getPeriodEdges(
+          inputDate: dayjs.Dayjs
+        ): [dayjs.Dayjs, dayjs.Dayjs] {
+          const dayStart = inputDate
+            .set('hour', MORNING_HOUR)
+            .set('minute', 0)
+            .set('second', 0)
+          const dayEnd = inputDate
+            .set('hour', EVENING_HOUR)
+            .set('minute', 0)
+            .set('second', 0)
+          const nightStart = dayEnd
+          const nightEnd = dayStart.add(1, 'day')
+
+          if (inputDate.isAfter(dayStart) && inputDate.isBefore(dayEnd)) {
+            return [dayStart, dayEnd]
+          } else {
+            return [nightStart, nightEnd]
+          }
+        }
+
+        let decodedDate
+        try {
+          decodedDate = atob(req.query.d)
+        } catch (e) {
+          console.error('Invalid date encoding:', {
+            encoded: req.query.d,
+            error: (e as Error).message
+          })
+          return reply.status(400).send({
+            error: 'Invalid date encoding',
+            hint: 'Date parameter must be valid base64'
+          })
+        }
+
+        const localDate = dayjs(decodedDate, DATE_FORMAT)
+
+        console.log(`Memory request:`, {
+          userId: req.user.id,
+          encodedDate: req.query.d,
+          decodedDate,
+          localDateParsed: localDate.format(),
+          isValid: localDate.isValid()
+        })
+
+        if (!localDate.isValid()) {
+          console.error(`Invalid date format:`, { decodedDate, expected: DATE_FORMAT })
+          return reply.throw.badParams()
+        }
+
+        const now = dayjs()
+        const localDateShift = now.diff(localDate, 'minute')
+        const periodEdges = getPeriodEdges(localDate)
+        const utcPeriodEdges = [
+          periodEdges[0].add(localDateShift, 'minute'),
+          periodEdges[1].add(localDateShift, 'minute'),
+        ]
+        const isNightPeriod = periodEdges[0].hour() === EVENING_HOUR
+
+        // INTELLIGENT PACING: Determine daily prompt quota and timing
+        let shouldShowPrompt, isWeekend, promptQuotaToday, promptsShownToday
+        try {
+          const pacingResult = await calculateIntelligentPacing(req.user.id, localDate, fastify.models)
+          shouldShowPrompt = pacingResult.shouldShowPrompt
+          isWeekend = pacingResult.isWeekend
+          promptQuotaToday = pacingResult.promptQuotaToday
+          promptsShownToday = pacingResult.promptsShownToday
+        } catch (pacingError: any) {
+          console.error('Intelligent pacing calculation failed:', {
+            error: pacingError.message,
+            stack: pacingError.stack,
+            userId: req.user.id
+          })
+          // Default to conservative values on error
+          shouldShowPrompt = true
+          isWeekend = false
+          promptQuotaToday = 10
+          promptsShownToday = 0
+        }
+
+        console.log(`Intelligent Pacing Analysis:`, {
+          userId: req.user.id,
+          shouldShowPrompt,
+          isWeekend,
+          promptQuotaToday,
+          promptsShownToday,
+          currentTime: localDate.format('HH:mm'),
+          dayOfWeek: localDate.format('dddd')
+        })
+
+        if (!shouldShowPrompt) {
+          console.log(`Pacing: quota reached (${promptsShownToday}/${promptQuotaToday}), no question for now`)
+          return null
+        }
+
+        // Check if user has Usership tag for AI-generated questions
+        const hasUsershipTag = req.user.tags.some(
+          (tag) => tag.toLowerCase() === 'usership'
+        )
+
+      console.log(`Memory question request:`, {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        userTags: req.user.tags,
+        hasUsershipTag,
+        intelligentPacing: {
+          shouldShowPrompt,
+          isWeekend,
+          promptQuotaToday,
+          promptsShownToday
+        }
+      })
+
+      // ============================================================================
+      // WEEKLY SUMMARY CHECK (Priority over regular questions)
+      // ============================================================================
+      // Check if it's time for weekly summary (Sunday or Monday, once per week)
+      let lastWeeklySummary = null
+      try {
+        lastWeeklySummary = await fastify.models.Answer.findOne({
+          where: {
+            userId: req.user.id,
+            metadata: {
+              questionId: 'weekly_summary'
+            }
+          },
+          order: [['createdAt', 'DESC']]
+        })
+      } catch (metadataError: any) {
+        console.warn('Weekly summary query failed, skipping:', metadataError.message)
+        // Continue without weekly summary check
+      }
+
+      let showWeeklySummary = false
+      let generateWeeklySummary: any = null
+      try {
+        const weeklySummaryModule = await import('#server/utils/weekly-summary')
+
+        const validLastWeeklySummary = lastWeeklySummary &&
+                                       typeof lastWeeklySummary === 'object' &&
+                                       lastWeeklySummary.createdAt instanceof Date
+
+        showWeeklySummary = !!(validLastWeeklySummary && lastWeeklySummary && weeklySummaryModule.shouldShowWeeklySummary(
+          req.user,
+          lastWeeklySummary.createdAt
+        ))
+        generateWeeklySummary = weeklySummaryModule.generateWeeklySummary
+      } catch (weeklyImportError: any) {
+        console.warn('Weekly summary module unavailable:', weeklyImportError.message)
+      }
+
+      if (showWeeklySummary) {
+        console.log(`Generating weekly summary for user ${req.user.id}`)
+        try {
+          // Load 200 logs to cover the week + historical context
+          let logs: any[] = []
+          try {
+            logs = await fastify.models.Log.findAll({
+              where: {
+                userId: req.user.id,
+              },
+              order: [['createdAt', 'DESC']],
+              limit: 200,
+            })
+          } catch (logsError: any) {
+            console.warn('Failed to load logs for weekly summary:', logsError.message)
+            // Continue with empty logs array
+          }
+
+          const weeklySummary = await generateWeeklySummary(req.user, logs as any)
+
+          console.log(` Returning weekly summary from Memory endpoint`)
+          // Return as a special memory "question" with reflection prompt
+          return {
+            id: 'weekly_summary',
+            question: weeklySummary.narrative,
+            options: [
+              'Continue forward',
+              'Pause and reflect',
+              'Acknowledge'
+            ],
+            metadata: {
+              type: 'weekly_summary',
+              period: weeklySummary.period,
+              reflectionPrompt: weeklySummary.reflectionPrompt
+            }
+          }
+        } catch (error: any) {
+          console.error('Weekly summary generation failed:', {
+            error: error.message,
+            userId: req.user.id,
+          })
+          // Fall through to regular questions on error
+        }
+      }
+
+      if (hasUsershipTag) {
+        // Usership users: Generate AI-based context-aware question using Claude
+        console.log(`Attempting to generate AI question for Usership user ${req.user.id}`)
+        try {
+          // Load recent logs for context - balanced amount for good context without overwhelming AI
+          const logs = await fastify.models.Log.findAll({
+            where: {
+              userId: req.user.id,
+            },
+            order: [['createdAt', 'DESC']],
+            limit: 40,
+          })
+
+          // Extract quantum state from client for context-aware question generation
+          // Validate enum values to prevent invalid states
+          const validEnergy = ['depleted', 'low', 'moderate', 'high', 'unknown']
+          const validClarity = ['confused', 'uncertain', 'clear', 'focused', 'unknown']
+          const validAlignment = ['disconnected', 'searching', 'aligned', 'flowing', 'unknown']
+          const validNeedsSupport = ['critical', 'moderate', 'low', 'none']
+
+          const quantumState = req.query.qe &&
+                              validEnergy.includes(req.query.qe as string) &&
+                              validClarity.includes(req.query.qc as string) &&
+                              validAlignment.includes(req.query.qa as string) &&
+                              validNeedsSupport.includes(req.query.qn as string) ? {
+            energy: req.query.qe as 'depleted' | 'low' | 'moderate' | 'high' | 'unknown',
+            clarity: req.query.qc as 'confused' | 'uncertain' | 'clear' | 'focused' | 'unknown',
+            alignment: req.query.qa as 'disconnected' | 'searching' | 'aligned' | 'flowing' | 'unknown',
+            needsSupport: req.query.qn as 'critical' | 'moderate' | 'low' | 'none'
+          } : undefined
+
+          // Get recently shown questions from client (even if unanswered)
+          let recentlyShownQuestions: string[] = []
+          const queryRecentShown = (req.query as any).recentShown
+          if (queryRecentShown && typeof queryRecentShown === 'string') {
+            try {
+              recentlyShownQuestions = JSON.parse(queryRecentShown) as string[]
+              if (recentlyShownQuestions.length > 0) {
+                console.log(`📋 Avoiding ${recentlyShownQuestions.length} recently shown questions`)
+              }
+            } catch (e) {
+              console.warn('Failed to parse recentShown parameter:', e)
+            }
+          }
+
+          // Build prompt with context - buildPrompt already handles duplicate detection
+          const prompt = await buildPrompt(req.user, logs, isWeekend, quantumState)
+
+          // Generate question - AI already has instructions to avoid duplicates from buildPrompt
+          const question = await completeAndExtractQuestion(prompt, req.user, promptsShownToday)
+
+          console.log(`Generated question for user ${req.user.id}:`, {
+            questionId: question.id,
+            questionPreview: question.question.substring(0, 60) + '...',
+            logsUsed: logs.length
+          })
+
+          return question
+        } catch (error: any) {
+          console.error('Memory question generation failed, falling back to default questions:', {
+            error: error.message,
+            stack: error.stack,
+            userId: req.user.id,
+            userTags: req.user.tags,
+            timestamp: new Date().toISOString(),
+            apiKeysConfigured: {
+              TOGETHER_API_KEY: !!process.env.TOGETHER_API_KEY,
+              GOOGLE_API_KEY: !!process.env.GOOGLE_API_KEY,
+              MISTRAL_API_KEY: !!process.env.MISTRAL_API_KEY,
+              ANTHROPIC_API_KEY: !!process.env.ANTHROPIC_API_KEY,
+              OPENAI_API_KEY: !!process.env.OPENAI_API_KEY,
+            },
+            note: 'At least ONE valid API key is required. Visit /api/public/test-ai-engines to diagnose.',
+          })
+          console.log(' Falling through to default questions after AI failure')
+          // Explicitly continue to default questions block below - do NOT return here
+        }
+      }
+
+      // ============================================================================
+      // DEFAULT QUESTIONS FALLBACK
+      // Used for non-Usership users OR when AI generation fails
+      // ============================================================================
+      console.log(`📋 Using default questions for user ${req.user.id}`, {
+        reason: hasUsershipTag ? 'AI generation failed' : 'Non-Usership user',
+        hasUsershipTag
+      })
+
+      {
+        // Default questions block (WRAPPED FOR SAFETY)
+        try {
+          let prevQuestionIds: string[] = []
+          try {
+            prevQuestionIds = await fastify.models.Answer.findAll({
+              where: {
+                userId: req.user.id,
+              },
+              order: [['createdAt', 'DESC']],
+              attributes: ['id', 'metadata'],
+            }).then((xs) => Array.from(new Set(xs.map((x) => x.metadata?.questionId).filter(Boolean))))
+          } catch (queryError: any) {
+            console.warn('Previous questions query failed, using all default questions:', queryError.message)
+            // Continue with empty array - will use all default questions
+          }
+
+          let untouchedQuestions = defaultQuestions
+          if (prevQuestionIds.length) {
+            untouchedQuestions = defaultQuestions.filter(
+              fp.propNotIn('id', prevQuestionIds)
+            )
+            if (!untouchedQuestions.length) {
+              const longAgoAnsweredQuestionIds = prevQuestionIds.slice(
+                -1 * Math.floor(prevQuestionIds.length / 3)
+              )
+              untouchedQuestions = defaultQuestions.filter(
+                fp.propIn('id', longAgoAnsweredQuestionIds)
+              )
+            }
+          }
+
+          // Ensure we have questions to choose from
+          if (!untouchedQuestions || untouchedQuestions.length === 0) {
+            console.log(`No untouched questions available, using first default question`)
+            untouchedQuestions = [defaultQuestions[0]]
+          }
+
+          const rng = seedrandom(
+            `${req.user.id} ${localDate.format(DATE_FORMAT)} ${
+              isNightPeriod ? 'N' : 'D'
+            } ${promptsShownToday}`
+          )
+          const question =
+            untouchedQuestions[Math.floor(rng() * untouchedQuestions.length)]
+
+          // Final safety check
+          if (!question) {
+            console.error(`No question selected, returning first default`)
+            return defaultQuestions[0]
+          }
+
+          console.log(`📋 Default question for user ${req.user.id}:`, {
+            questionId: question.id,
+            questionPreview: question.question.substring(0, 60) + '...',
+            totalUntouched: untouchedQuestions.length,
+            hasUsership: req.user.tags.some(t => t.toLowerCase() === 'usership'),
+            reason: 'Non-Usership user or AI generation failed'
+          })
+
+          console.log(` Returning default question from Memory endpoint`)
+          return question
+        } catch (defaultQuestionError: any) {
+          console.error('Default question selection failed:', defaultQuestionError.message)
+          console.error('Stack:', defaultQuestionError.stack)
+          console.log(` Returning absolute fallback hardcoded question from Memory endpoint`)
+          // ABSOLUTE FALLBACK - return first hardcoded question directly
+          return {
+            id: 'n6M42WKP',
+            question: 'How do you prefer to start your mornings?',
+            options: ['Tea', 'Coffee', 'Water', 'Light breakfast'],
+          }
+        }
+      }
+      } catch (error: any) {
+        console.error('/api/memory endpoint error:', {
+          message: error.message,
+          stack: error.stack,
+          userId: req.user?.id,
+          query: req.query,
+          errorType: error.constructor.name,
+          errorCode: error.code
+        })
+
+        // Return fallback question instead of error to improve UX
+        console.log('Returning emergency fallback question due to error')
+        return {
+          id: 'emergency_fallback',
+          question: 'What matters most to you today?',
+          options: ['Connection', 'Growth', 'Rest', 'Clarity'],
+          metadata: {
+            isEmergencyFallback: true,
+            error: error.message
+          }
+        }
+      }
     }
   )
 
   fastify.post(
     '/memory/answer',
     async (
-      req: FastifyRequest<{ Body: { questionId: string; option: string } }>,
+      req: FastifyRequest<{
+        Body: {
+          questionId: string
+          option: string
+          question?: string
+          options?: string[]
+        }
+      }>,
       reply
     ) => {
       const { questionId, option } = req.body
-      const question = defaultQuestions.find(fp.propEq('id', questionId))
-      if (!question) {
-        return reply.throw.badParams()
+
+      // Check if this is a weekly summary response
+      const isWeeklySummary = questionId === 'weekly_summary'
+
+      // Try to find in default questions first (backwards compatibility)
+      let question = defaultQuestions.find(fp.propEq('id', questionId))
+      let questionText: string
+      let questionOptions: string[]
+
+      if (question) {
+        // Default question
+        questionText = question.question
+        questionOptions = question.options
+      } else {
+        // AI-generated question or weekly summary - accept from request body
+        if (!req.body.question || !req.body.options) {
+          return reply.throw.badParams()
+        }
+        questionText = req.body.question
+        questionOptions = req.body.options
       }
-      if (!question.options.includes(option)) {
+
+      // Clean up badge formatting - remove period before [badge] marker
+      questionText = questionText.replace(/\.\s*\[badge\]/g, ' [badge]')
+
+      // Validate the selected option
+      if (!questionOptions.includes(option)) {
         return reply.throw.badParams()
       }
 
@@ -489,30 +2142,2428 @@ export default async (fastify: FastifyInstance) => {
 
       const answer = await fastify.models.Answer.create({
         userId: req.user.id,
-        question: question.question,
-        options: question.options,
+        question: questionText,
+        options: questionOptions,
         answer: option,
-        metadata: { questionId },
+        metadata: {
+          questionId,
+          type: isWeeklySummary ? 'weekly_summary' : 'regular'
+        }
       })
 
+      // Log answer synchronously with context for pattern analysis
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: isWeeklySummary ? 'weekly_summary_response' : 'answer',
+        text: '',
+        metadata: {
+          questionId,
+          answerId: answer.id,
+          question: questionText,
+          options: questionOptions,
+          answer: option,
+        },
+        context,
+      })
+
+      // ============================================================================
+      // ENHANCED INSIGHT RESPONSE SYSTEM
+      // ============================================================================
+
+      // Get user's recent answers and logs for psychological analysis
+      const recentLogs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+
+      const answerCount = await fastify.models.Answer.count({
+        where: { userId: req.user.id }
+      })
+
+      // Generate personalized insight response
+      let response: string
+      let insight: string | null = null
+
+      if (isWeeklySummary) {
+        // Weekly summary response
+        const reflectionResponses = [
+          'Week witnessed. Patterns held.',
+          'The week is complete. You showed up.',
+          'Summary acknowledged. Forward.',
+          'Your week, seen whole.'
+        ]
+        response = fp.randomElement(reflectionResponses)
+
+        // No additional insight for weekly summaries - the summary itself is the insight
+      } else if (answerCount === 1) {
+        response = "Thank you for starting your Memory story with LOT."
+      } else if (answerCount >= 10) {
+        // For users with 10+ answers, analyze psychological depth and generate insights
+        const analysis = extractUserTraits(recentLogs)
+        const { psychologicalDepth, traits } = analysis
+        const cohortResult = determineUserCohort(traits, {}, psychologicalDepth)
+
+        // Generate archetype-based response
+        if (cohortResult.archetype !== 'The Wanderer') {
+          const archetypeResponses: { [key: string]: string[] } = {
+            'The Seeker': [
+              `Your ${cohortResult.archetype} nature is showing in your choices. You're drawn to growth.`,
+              `This answer deepens your understanding of yourself - signature of ${cohortResult.archetype}.`,
+              `${cohortResult.archetype} energy: always moving toward more awareness.`
+            ],
+            'The Nurturer': [
+              `Your choices reflect ${cohortResult.archetype} - connection and care matter deeply to you.`,
+              `${cohortResult.archetype}: You consider how choices affect relationships.`,
+              `This reveals your nurturing nature - ${cohortResult.archetype} at heart.`
+            ],
+            'The Achiever': [
+              `${cohortResult.archetype} showing through: purposeful and intentional choices.`,
+              `Your answers reveal goal-oriented clarity - classic ${cohortResult.archetype}.`,
+              `Progress-focused choices align with your ${cohortResult.archetype} nature.`
+            ],
+            'The Philosopher': [
+              `${cohortResult.archetype}: You choose with meaning in mind.`,
+              `This choice reflects your search for deeper significance - ${cohortResult.archetype}.`,
+              `Meaning-making is your gift, ${cohortResult.archetype}.`
+            ],
+            'The Harmonizer': [
+              `Balance guides your choices - pure ${cohortResult.archetype}.`,
+              `${cohortResult.archetype}: Seeking equilibrium in all things.`,
+              `Your answer shows your gift for finding center - ${cohortResult.archetype}.`
+            ],
+            'The Creator': [
+              `${cohortResult.archetype} energy: Choosing what allows expression.`,
+              `Creative freedom matters to you - signature ${cohortResult.archetype}.`,
+              `This choice honors your need for authentic expression.`
+            ],
+            'The Protector': [
+              `${cohortResult.archetype}: Security and stability guide you.`,
+              `Grounded choice - this is ${cohortResult.archetype} wisdom.`,
+              `Your answers show you value safety - ${cohortResult.archetype} at core.`
+            ],
+            'The Authentic': [
+              `Truth-aligned choice - pure ${cohortResult.archetype}.`,
+              `${cohortResult.archetype}: You refuse to pretend.`,
+              `Honesty with self is your north star - ${cohortResult.archetype}.`
+            ],
+            'The Explorer': [
+              `${cohortResult.archetype}: Always curious, always expanding.`,
+              `Your choices show openness to new experiences - ${cohortResult.archetype}.`,
+              `Discovery-oriented choice - signature ${cohortResult.archetype}.`
+            ]
+          }
+
+          const archetypeResponseOptions = archetypeResponses[cohortResult.archetype] || []
+          if (archetypeResponseOptions.length > 0) {
+            response = fp.randomElement(archetypeResponseOptions)
+          } else {
+            response = `Your ${cohortResult.archetype} nature is revealing itself through your choices.`
+          }
+
+          // Add insight about dominant needs or values
+          if (psychologicalDepth.dominantNeeds.length > 0) {
+            const topNeed = psychologicalDepth.dominantNeeds[0]
+            insight = `Pattern: ${topNeed} appears in your choices consistently.`
+          } else if (psychologicalDepth.values.length > 0) {
+            const topValue = psychologicalDepth.values[0]
+            insight = `Your answers reveal ${topValue} as a core value.`
+          }
+        } else {
+          // Still discovering archetype
+          response = fp.randomElement([
+            "Your patterns are beginning to emerge.",
+            "Each answer reveals another layer of who you are.",
+            "Your story is taking shape beautifully."
+          ])
+        }
+
+        // Milestone celebrations
+        if (answerCount % 20 === 0) {
+          response = `${answerCount} moments captured. Your psychological profile is deepening.`
+          insight = `Growth trajectory: ${psychologicalDepth.growthTrajectory} • Awareness: ${(psychologicalDepth.selfAwareness / 10).toFixed(1)}%`
+        } else if (answerCount % 10 === 0) {
+          insight = `${answerCount} answers reveal your ${cohortResult.archetype} archetype is ${psychologicalDepth.growthTrajectory}.`
+        }
+      } else {
+        // For users with fewer answers, use encouraging responses
+        const earlyReplies = [
+          "Thank you. This helps me understand you better.",
+          "Every answer deepens your Memory.",
+          "Your preferences are taking shape.",
+          "This adds valuable context to your story.",
+          "Building your psychological profile."
+        ]
+        response = fp.randomElement(earlyReplies)
+
+        // After 5 answers, hint at emerging patterns
+        if (answerCount === 5) {
+          response = "Five answers in - your patterns are beginning to speak."
+        }
+      }
+
+      return {
+        response,
+        insight, // Optional additional insight about patterns
+        answerCount,
+      }
+    }
+  )
+
+  // Get user's own Memory story
+  fastify.get('/memory/story', async (req, reply) => {
+    try {
+      // Check if user has Usership tag
+      const hasUsershipTag = req.user.tags.some(
+        (tag) => tag.toLowerCase() === 'usership'
+      )
+
+      // Get user's answer logs
+      const logs = await fastify.models.Log.findAll({
+        where: {
+          userId: req.user.id,
+          event: 'answer',
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 100,
+      })
+
+      console.log(`Memory Story: User ${req.user.id} has ${logs.length} answers, hasUsership: ${hasUsershipTag}`)
+
+      // Check if user has any answers
+      if (logs.length === 0) {
+        if (hasUsershipTag) {
+          return {
+            story: null,
+            hasUsership: true,
+            message: 'Start answering Memory questions to build your story.'
+          }
+        } else {
+          return {
+            story: null,
+            hasUsership: false,
+            message: 'Subscribe to Usership to unlock Memory Story feature. Visit brand.lot-systems.com'
+          }
+        }
+      }
+
+      // Only generate story for Usership users
+      if (!hasUsershipTag) {
+        return {
+          story: null,
+          hasUsership: false,
+          answerCount: logs.length,
+          message: 'Subscribe to Usership to unlock Memory Story generation.'
+        }
+      }
+
+      // Generate story from answers
+      console.log(`Generating story for user ${req.user.id}...`)
+      const story = await generateMemoryStory(req.user, logs)
+      console.log(`Story generated successfully (${story?.length || 0} chars)`)
+
+      // Persist the generated story to user metadata
+      try {
+        const currentMetadata = req.user.metadata as any || {}
+        const storyVersion = (currentMetadata.memoryStoryVersion || 0) + 1
+
+        await req.user.set({
+          metadata: {
+            ...currentMetadata,
+            lastMemoryStory: story,
+            lastMemoryStoryDate: new Date().toISOString(),
+            memoryStoryVersion: storyVersion,
+            memoryStoryAnswerCount: logs.length
+          }
+        }).save()
+
+        console.log(`Memory Story v${storyVersion} saved to user metadata`)
+      } catch (saveError: any) {
+        console.error('Failed to save Memory Story to metadata:', saveError.message)
+        // Continue anyway - story generation succeeded
+      }
+
+      return {
+        story,
+        hasUsership: true,
+        answerCount: logs.length
+      }
+    } catch (error: any) {
+      console.error('Error generating memory story:', {
+        error: error.message,
+        stack: error.stack,
+        userId: req.user?.id
+      })
+      return {
+        story: null,
+        hasUsership: req.user?.tags.some((tag) => tag.toLowerCase() === 'usership') || false,
+        message: 'Unable to generate story at this time. Please try again later.',
+        error: error.message
+      }
+    }
+  })
+
+  // Get user's cohort profile based on their answers
+  fastify.get('/user-profile', async (req: FastifyRequest, reply) => {
+    try {
+      // Check if user has Usership tag
+      const hasUsershipTag = req.user.tags.some(
+        (tag) => tag.toLowerCase() === 'usership'
+      )
+
+      if (!hasUsershipTag) {
+        return {
+          hasUsership: false,
+          message: 'Subscribe to Usership to unlock profile analysis'
+        }
+      }
+
+      // Get answer logs (limit to 30 for analysis performance)
+      const logs = await fastify.models.Log.findAll({
+        where: {
+          userId: req.user.id,
+          event: 'answer',
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 30,
+      })
+
+      // Get full answer count for accurate display
+      const totalAnswerCount = await fastify.models.Answer.count({
+        where: { userId: req.user.id }
+      })
+
+      if (logs.length === 0) {
+        return {
+          hasUsership: true,
+          message: 'Complete Memory questions to generate your profile',
+          answerCount: 0
+        }
+      }
+
+      // Extract traits and determine psychological archetype + behavioral cohort
+      const analysis = extractUserTraits(logs)
+      const { traits, patterns, psychologicalDepth } = analysis
+      const cohortResult = determineUserCohort(traits, patterns, psychologicalDepth)
+
+      console.log(`🧠 Profile request for ${req.user.email}:`, {
+        archetype: cohortResult.archetype,
+        behavioralCohort: cohortResult.behavioralCohort,
+        traits,
+        values: psychologicalDepth.values,
+        selfAwareness: psychologicalDepth.selfAwareness,
+        answerCount: totalAnswerCount,
+        logsAnalyzed: logs.length
+      })
+
+      return {
+        hasUsership: true,
+        // Psychological depth (soul level)
+        archetype: cohortResult.archetype,
+        archetypeDescription: cohortResult.description,
+        coreValues: psychologicalDepth.values.map(v => v.charAt(0).toUpperCase() + v.slice(1)),
+        values: psychologicalDepth.values, // Also include raw values for compatibility
+        emotionalPatterns: psychologicalDepth.emotionalPatterns.map(p => {
+          const formatted = p.replace(/([A-Z])/g, ' $1').trim()
+          return formatted.charAt(0).toUpperCase() + formatted.slice(1)
+        }),
+        selfAwarenessLevel: psychologicalDepth.selfAwareness,
+        // Enhanced psychological depth metrics
+        emotionalRange: psychologicalDepth.emotionalRange,
+        reflectionQuality: psychologicalDepth.reflectionQuality,
+        growthTrajectory: psychologicalDepth.growthTrajectory,
+        dominantNeeds: psychologicalDepth.dominantNeeds,
+        journalSentiment: psychologicalDepth.journalSentiment,
+        // Behavioral patterns (surface level)
+        behavioralCohort: cohortResult.behavioralCohort,
+        behavioralTraits: traits.map(t => {
+          const formatted = t.replace(/([A-Z])/g, ' $1').trim()
+          return formatted.charAt(0).toUpperCase() + formatted.slice(1)
+        }),
+        patternStrength: Object.entries(patterns)
+          .filter(([_, v]) => v > 0)
+          .map(([k, v]) => ({
+            trait: k.replace(/([A-Z])/g, ' $1').trim().replace(/^./, c => c.toUpperCase()),
+            count: v
+          }))
+          .sort((a, b) => b.count - a.count),
+        // Meta
+        answerCount: totalAnswerCount,
+        logsAnalyzedForProfile: logs.length  // Number of recent logs used for analysis
+      }
+    } catch (error: any) {
+      console.error('Error generating user profile:', {
+        error: error.message,
+        userId: req.user?.id,
+      })
+      return {
+        hasUsership: false,
+        error: 'Unable to generate profile at this time'
+      }
+    }
+  })
+
+  // Generate contextual recipe suggestion
+  fastify.get(
+    '/recipe-suggestion',
+    async (
+      req: FastifyRequest<{
+        Querystring: { mealTime: 'breakfast' | 'lunch' | 'dinner' | 'snack' }
+      }>,
+      reply
+    ) => {
+      try {
+        const mealTime = req.query.mealTime
+        if (!mealTime || !['breakfast', 'lunch', 'dinner', 'snack'].includes(mealTime)) {
+          return reply.throw.badParams('Invalid mealTime. Must be breakfast, lunch, dinner, or snack')
+        }
+
+        console.log(`📋 Recipe suggestion request for ${mealTime} from user ${req.user.email}`)
+
+        // Get recent logs for personalization (if user has Usership tag)
+        const hasUsershipTag = req.user.tags.some(
+          (tag) => tag.toLowerCase() === 'usership'
+        )
+
+        let logs: any[] = []
+        if (hasUsershipTag) {
+          // Get ALL logs (answers + notes) for deeper psychological analysis
+          logs = await fastify.models.Log.findAll({
+            where: {
+              userId: req.user.id,
+            },
+            order: [['createdAt', 'DESC']],
+            limit: 50,  // Increased to capture more context including notes
+          })
+        }
+
+        const recipe = await generateRecipeSuggestion(req.user, mealTime, logs)
+
+        console.log(`Recipe suggestion generated: "${recipe}"`)
+
+        return {
+          recipe,
+          mealTime,
+          hasUsership: hasUsershipTag
+        }
+      } catch (error: any) {
+        console.error('Error generating recipe suggestion:', {
+          error: error.message,
+          stack: error.stack,
+          userId: req.user?.id,
+        })
+        // Return fallback recipe
+        return {
+          recipe: 'Simple fresh salad with seasonal ingredients',
+          mealTime: req.query.mealTime,
+          error: 'Using fallback suggestion',
+        }
+      }
+    }
+  )
+
+  // User stats for badge calculation
+  fastify.get(
+    '/user-stats',
+    async (req: FastifyRequest, reply) => {
+      try {
+        const userId = req.user.id
+
+        // Calculate streak (consecutive days with answers)
+        const answers = await fastify.models.Answer.findAll({
+          where: { userId },
+          order: [['createdAt', 'DESC']],
+          attributes: ['createdAt'],
+        })
+
+        let streak = 0
+        if (answers.length > 0) {
+          const today = dayjs().startOf('day')
+          let currentDate = today
+          const answerDays = new Set(
+            answers.map(a => dayjs(a.createdAt).startOf('day').format('YYYY-MM-DD'))
+          )
+
+          // Check consecutive days backwards from today or yesterday
+          if (!answerDays.has(today.format('YYYY-MM-DD'))) {
+            currentDate = today.subtract(1, 'day')
+          }
+
+          while (answerDays.has(currentDate.format('YYYY-MM-DD'))) {
+            streak++
+            currentDate = currentDate.subtract(1, 'day')
+          }
+        }
+
+        // Check balanced planner usage
+        const plannerLogs = await fastify.models.Log.findAll({
+          where: {
+            userId,
+            event: 'plan_set',
+          },
+          limit: 20,
+        })
+
+        let balancedPlanner = false
+        if (plannerLogs.length >= 10) {
+          // Check if all dimensions are used relatively evenly
+          const intentCount = plannerLogs.filter(l => l.text?.includes('Intent:')).length
+          const todayCount = plannerLogs.filter(l => l.text?.includes('Today:')).length
+          const howCount = plannerLogs.filter(l => l.text?.includes('How:')).length
+          const feelingCount = plannerLogs.filter(l => l.text?.includes('Feeling:')).length
+          const avg = (intentCount + todayCount + howCount + feelingCount) / 4
+          const variance = Math.abs(intentCount - avg) + Math.abs(todayCount - avg) +
+                          Math.abs(howCount - avg) + Math.abs(feelingCount - avg)
+          balancedPlanner = variance < avg * 0.5 // Low variance = balanced
+        }
+
+        // Check multi-widget sessions (multiple actions within 10 minutes)
+        const recentLogs = await fastify.models.Log.findAll({
+          where: { userId },
+          order: [['createdAt', 'DESC']],
+          limit: 200,
+        })
+
+        let multiWidgetSessions = 0
+        let lastTime = null
+        let sessionCount = 0
+        for (const log of recentLogs) {
+          const logTime = dayjs(log.createdAt)
+          if (lastTime && logTime.diff(lastTime, 'minute') <= 10) {
+            sessionCount++
+          } else {
+            if (sessionCount >= 2) multiWidgetSessions++
+            sessionCount = 1
+          }
+          lastTime = logTime
+        }
+
+        // Check consistent timing (similar hours of day)
+        const answerHours = answers.slice(0, 30).map(a => dayjs(a.createdAt).hour())
+        let consistentTiming = false
+        if (answerHours.length >= 10) {
+          const avg = answerHours.reduce((sum, h) => sum + h, 0) / answerHours.length
+          const variance = answerHours.reduce((sum, h) => sum + Math.abs(h - avg), 0) / answerHours.length
+          consistentTiming = variance < 3 // Within 3 hours on average
+        }
+
+        // Check deep reflection (longer answer patterns)
+        const memoryAnswers = await fastify.models.Answer.findAll({
+          where: { userId },
+          order: [['createdAt', 'DESC']],
+          limit: 50,
+        })
+        const deepReflection = memoryAnswers.length >= 20
+
+        // Check diverse choices (variety in options selected)
+        const uniqueOptions = new Set(memoryAnswers.map(a => a.metadata?.option).filter(Boolean))
+        const diverseChoices = uniqueOptions.size
+
+        return {
+          streak,
+          balancedPlanner,
+          multiWidgetSessions,
+          consistentTiming,
+          deepReflection,
+          diverseChoices,
+        }
+      } catch (error: any) {
+        console.error('User stats calculation error:', error)
+        return reply.status(500).send({ error: 'Failed to calculate stats' })
+      }
+    }
+  )
+
+  // Generate daily world element
+  fastify.post('/world/generate-element', async (req, reply) => {
+    try {
+      // Check for Usership tag
+      const hasUsership = req.user?.tags.some((tag) => tag.toLowerCase() === 'usership')
+      if (!hasUsership) {
+        return {
+          element: null,
+          message: 'Subscribe to Usership to unlock World Generation.'
+        }
+      }
+
+      // Get user's current metadata
+      const currentMetadata = req.user.metadata || {}
+      const userWorld = currentMetadata.world || { elements: [], lastGenerated: null, theme: '' }
+
+      // Check if already generated today
+      const now = new Date()
+      const lastGenerated = userWorld.lastGenerated ? new Date(userWorld.lastGenerated) : null
+      const today = now.toDateString()
+
+      if (lastGenerated && lastGenerated.toDateString() === today) {
+        return {
+          element: null,
+          world: userWorld,
+          message: 'Already generated an element today. Come back tomorrow!'
+        }
+      }
+
+      // Get user context for generation
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 90
+      })
+      const memoryStory = await generateMemoryStory(req.user, logs)
+
+      // Get weather context
+      let weatherContext = 'temperate climate'
+      try {
+        if (req.user.city && req.user.country) {
+          const coordinates = await weather.getCoordinates(req.user.city, req.user.country)
+          if (coordinates) {
+            const weatherData = await weather.getWeather(coordinates.lat, coordinates.lon)
+            if (weatherData && weatherData.tempKelvin !== null) {
+              weatherContext = `${weatherData.description}, ${Math.round(weatherData.tempKelvin - 273.15)}°C`
+            }
+          }
+        }
+      } catch (e) {
+        // Ignore weather errors
+      }
+
+      // Determine element type based on number of existing elements
+      const elementTypes: Array<'object' | 'creature' | 'plant' | 'structure' | 'weather-effect'> =
+        ['object', 'creature', 'plant', 'structure', 'weather-effect']
+      const elementType = elementTypes[userWorld.elements.length % elementTypes.length]
+
+      // Build image generation prompt from context
+      const { TogetherAIEngine } = await import('#server/utils/ai-engines')
+      const imageEngine = new TogetherAIEngine()
+
+      if (!imageEngine.isAvailable()) {
+        throw new Error('Image generation engine not available')
+      }
+
+      // Generate element description based on context
+      const contextPrompt = `Based on this user's context: ${memoryStory?.substring(0, 500) || 'A mindful journey'}, weather: ${weatherContext}, location: ${req.user.city}, ${req.user.country}.
+
+Create a short, vivid description (1-2 sentences) for a ${elementType} that would appear in their personal 3D world. The ${elementType} should reflect their current emotional state, environment, and story. Be poetic but specific.`
+
+      const elementDescription = await imageEngine.generateCompletion(contextPrompt, 100)
+
+      // Generate image with FLUX
+      const imagePrompt = `A beautiful, isometric 3D sprite art of a ${elementType}: ${elementDescription}. Clean background, soft lighting, pixel art style, game asset, centered, high quality`
+
+      const imageUrl = await imageEngine.generateImage!(imagePrompt, {
+        width: 512,
+        height: 512,
+        steps: 20,
+      })
+
+      // Create new element
+      const newElement = {
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        type: elementType,
+        imageUrl,
+        prompt: imagePrompt,
+        position: {
+          x: Math.random() * 10 - 5, // -5 to 5
+          y: 0,
+          z: Math.random() * 10 - 5
+        },
+        scale: 0.8 + Math.random() * 0.4, // 0.8 to 1.2
+        rotation: Math.random() * 360,
+        generatedAt: now,
+        context: elementDescription
+      }
+
+      // Update user world
+      const updatedWorld = {
+        elements: [...userWorld.elements, newElement],
+        lastGenerated: now,
+        theme: memoryStory?.substring(0, 200) || 'A personal journey'
+      }
+
+      // Save to metadata
+      await req.user.set({
+        metadata: {
+          ...currentMetadata,
+          world: updatedWorld
+        }
+      }).save()
+
+      console.log(`Generated world element for user ${req.user.id}: ${elementType}`)
+
+      return {
+        element: newElement,
+        world: updatedWorld,
+        message: `New ${elementType} generated!`
+      }
+
+    } catch (error: any) {
+      console.error('Error generating world element:', {
+        error: error.message,
+        stack: error.stack,
+        userId: req.user?.id
+      })
+      return {
+        element: null,
+        message: 'Unable to generate world element. Please try again later.',
+        error: error.message
+      }
+    }
+  })
+
+  // Get user's world
+  fastify.get('/world', async (req, reply) => {
+    const currentMetadata = req.user.metadata || {}
+    const userWorld = currentMetadata.world || { elements: [], lastGenerated: null, theme: '' }
+
+    return userWorld
+  })
+
+  // Get available radio tracks
+  fastify.get('/radio/tracks', async (req, reply) => {
+    try {
+      const fs = await import('fs/promises')
+      const path = await import('path')
+      const radioDir = path.join(process.cwd(), 'public', 'radio')
+
+      // Check if directory exists
+      try {
+        await fs.access(radioDir)
+      } catch {
+        return { tracks: [] }
+      }
+
+      // Read directory contents
+      const files = await fs.readdir(radioDir)
+
+      // Filter for audio files
+      const audioExtensions = ['.mp3', '.wav', '.ogg', '.m4a', '.flac']
+      const audioFiles = files.filter(file => {
+        const ext = path.extname(file).toLowerCase()
+        return audioExtensions.includes(ext)
+      })
+
+      // Map to track objects
+      const tracks = audioFiles.map(filename => {
+        const name = path.basename(filename, path.extname(filename))
+          .replace(/-/g, ' ')
+          .replace(/_/g, ' ')
+          // Capitalize first letter of each word
+          .split(' ')
+          .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+
+        return {
+          filename,
+          url: `/radio/${filename}`,
+          name
+        }
+      })
+
+      console.log(`📻 Found ${tracks.length} radio tracks`)
+
+      return { tracks }
+    } catch (error: any) {
+      console.error('Error reading radio tracks:', error)
+      return { tracks: [], error: error.message }
+    }
+  })
+
+  // Get user's pattern insights
+  fastify.get('/patterns', async (req, reply) => {
+    try {
+      const { Log } = await import('#server/models/log')
+
+      // Get last 100 logs for pattern analysis
+      const logs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100
+      })
+
+      if (logs.length < 5) {
+        return {
+          insights: [],
+          message: 'Keep checking in! Patterns emerge after 5+ entries.'
+        }
+      }
+
+      const insights = await analyzeUserPatterns(req.user, logs)
+
+      console.log(`Generated ${insights.length} pattern insights for user ${req.user.id}`)
+
+      return {
+        insights,
+        lastAnalyzedAt: new Date().toISOString(),
+        dataPointsAnalyzed: logs.length
+      }
+
+    } catch (error: any) {
+      console.error('Error analyzing patterns:', {
+        error: error.message,
+        userId: req.user?.id
+      })
+      return {
+        insights: [],
+        error: error.message
+      }
+    }
+  })
+
+  // Find cohort matches
+  fastify.get('/cohorts', async (req, reply) => {
+    try {
+      const { User } = await import('#server/models/user')
+      const { Log } = await import('#server/models/log')
+
+      // Get current user's patterns
+      const userLogs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100
+      })
+
+      if (userLogs.length < 10) {
+        return {
+          matches: [],
+          message: 'Keep building your journey! Cohort matching available after 10+ entries.'
+        }
+      }
+
+      const userPatterns = await analyzeUserPatterns(req.user, userLogs)
+
+      if (userPatterns.length === 0) {
+        return {
+          matches: [],
+          message: 'No clear patterns yet. Continue your practice!'
+        }
+      }
+
+      // Get all users with location data (for cohort matching)
+      const allUsers = await User.findAll({
+        where: {
+          city: { [Op.not]: null },
+          country: { [Op.not]: null },
+          id: { [Op.not]: req.user.id }
+        },
+        attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata']
+      })
+
+      // Cache for pattern lookups (to avoid re-analyzing same user)
+      const patternCache = new Map<string, PatternInsight[]>()
+
+      const getUserPatterns = async (userId: string): Promise<PatternInsight[]> => {
+        if (patternCache.has(userId)) {
+          return patternCache.get(userId)!
+        }
+
+        const logs = await Log.findAll({
+          where: { userId },
+          order: [['createdAt', 'DESC']],
+          limit: 100
+        })
+
+        const user = allUsers.find((u: any) => u.id === userId)
+        if (!user || logs.length < 5) {
+          return []
+        }
+
+        const patterns = await analyzeUserPatterns(user, logs)
+        patternCache.set(userId, patterns)
+        return patterns
+      }
+
+      const matches = await findCohortMatches(
+        req.user,
+        userPatterns,
+        allUsers,
+        getUserPatterns
+      )
+
+      console.log(`👥 Found ${matches.length} cohort matches for user ${req.user.id}`)
+
+      return {
+        matches,
+        yourPatterns: userPatterns.slice(0, 3), // Share top 3 patterns for context
+        lastAnalyzedAt: new Date().toISOString()
+      }
+
+    } catch (error: any) {
+      console.error('Error finding cohorts:', {
+        error: error.message,
+        stack: error.stack,
+        userId: req.user?.id
+      })
+      return {
+        matches: [],
+        error: error.message
+      }
+    }
+  })
+
+  // Get contextual prompts based on patterns and current context
+  fastify.get('/contextual-prompts', async (req, reply) => {
+    try {
+      const { Log } = await import('#server/models/log')
+
+      // Get user's patterns
+      const logs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100
+      })
+
+      if (logs.length < 5) {
+        return {
+          prompts: [],
+          message: 'Keep building your practice! Contextual prompts emerge after 5+ entries.'
+        }
+      }
+
+      const patterns = await analyzeUserPatterns(req.user, logs)
+
+      console.log(`Pattern Analysis for user ${req.user.id}:`, {
+        totalLogs: logs.length,
+        patternsFound: patterns.length,
+        patternTypes: patterns.map(p => p.type),
+        patternTitles: patterns.map(p => p.title),
+        hasWeatherContext: logs.filter(l => l.context?.temperature).length,
+        hasEmotionalState: logs.filter(l => l.metadata?.emotionalState).length
+      })
+
+      if (patterns.length === 0) {
+        console.log(`No patterns detected for user ${req.user.id}`, {
+          reason: 'Need more logs with weather context and emotional states',
+          logsWithWeather: logs.filter(l => l.context?.temperature).length,
+          logsWithEmotions: logs.filter(l => l.metadata?.emotionalState).length,
+          checkIns: logs.filter(l => l.event === 'emotional_checkin').length
+        })
+        return {
+          prompts: [],
+          message: 'No patterns detected yet. Keep building your practice!'
+        }
+      }
+
+      // Get current context
+      const now = new Date()
+      const hour = now.getHours()
+      const dayOfWeek = now.getDay()
+
+      // Get recent check-ins (last 12 hours)
+      const recentCheckIns = logs.filter(log => {
+        const logAge = Date.now() - new Date(log.createdAt).getTime()
+        const twelveHoursMs = 12 * 60 * 60 * 1000
+        return log.event === 'emotional_checkin' && logAge < twelveHoursMs
+      })
+
+      // Get current weather
+      let currentWeather: any = null
+      if (req.user.city && req.user.country) {
+        try {
+          const coordinates = await weather.getCoordinates(req.user.city, req.user.country)
+          if (coordinates) {
+            const weatherData = await weather.getWeather(coordinates.lat, coordinates.lon)
+            currentWeather = { ...weatherData, createdAt: new Date() }
+          }
+        } catch (error) {
+          console.warn('Failed to fetch weather for contextual prompts:', error)
+        }
+      }
+
+      const prompts = generateContextualPrompts(patterns, {
+        hour,
+        dayOfWeek,
+        weather: currentWeather || undefined,
+        recentCheckIns
+      })
+
+      console.log(`💡 Generated ${prompts.length} contextual prompts for user ${req.user.id}`, {
+        patternsUsed: patterns.length,
+        hasCurrentWeather: !!currentWeather,
+        currentHour: hour,
+        recentCheckInsCount: recentCheckIns.length,
+        promptTypes: prompts.map(p => p.type),
+        promptTitles: prompts.map(p => p.title),
+        promptPriorities: prompts.map(p => p.priority)
+      })
+
+      return {
+        prompts,
+        generatedAt: new Date().toISOString()
+      }
+
+    } catch (error: any) {
+      console.error('Error generating contextual prompts:', {
+        error: error.message,
+        userId: req.user?.id
+      })
+      return {
+        prompts: [],
+        error: error.message
+      }
+    }
+  })
+
+  // Get pattern evolution over time
+  fastify.get('/pattern-evolution', async (req, reply) => {
+    try {
+      const { Log } = await import('#server/models/log')
+
+      // Get all user logs (up to 500 for historical analysis)
+      const allLogs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 500
+      })
+
+      if (allLogs.length < 20) {
+        return {
+          evolution: [],
+          message: 'Need more data to track pattern evolution. Keep building your practice!'
+        }
+      }
+
+      // Analyze patterns from different time periods
+      const now = dayjs()
+      const timeWindows = [
+        { label: 'Current', weeks: 0, days: 14 },  // Last 2 weeks
+        { label: '2 weeks ago', weeks: 2, days: 14 },
+        { label: '4 weeks ago', weeks: 4, days: 14 },
+        { label: '8 weeks ago', weeks: 8, days: 14 }
+      ]
+
+      const historicalPatterns: { analyzedAt: string; patterns: PatternInsight[] }[] = []
+
+      for (const window of timeWindows) {
+        const endDate = now.subtract(window.weeks, 'week')
+        const startDate = endDate.subtract(window.days, 'day')
+
+        // Filter logs within this time window
+        const windowLogs = allLogs.filter(log => {
+          const logDate = dayjs(log.createdAt)
+          return logDate.isAfter(startDate) && logDate.isBefore(endDate)
+        })
+
+        if (windowLogs.length >= 5) {
+          const patterns = await analyzeUserPatterns(req.user, windowLogs)
+          if (patterns.length > 0) {
+            historicalPatterns.push({
+              analyzedAt: endDate.toISOString(),
+              patterns
+            })
+          }
+        }
+      }
+
+      if (historicalPatterns.length < 2) {
+        return {
+          evolution: [],
+          message: 'Need more historical data to track evolution. Check back in a few weeks!'
+        }
+      }
+
+      const evolution = analyzePatternEvolution(historicalPatterns)
+
+      console.log(`📈 Analyzed ${evolution.length} pattern evolutions for user ${req.user.id}`)
+
+      return {
+        evolution,
+        timeWindows: historicalPatterns.map(h => h.analyzedAt),
+        analyzedAt: new Date().toISOString()
+      }
+
+    } catch (error: any) {
+      console.error('Error analyzing pattern evolution:', {
+        error: error.message,
+        userId: req.user?.id
+      })
+      return {
+        evolution: [],
+        error: error.message
+      }
+    }
+  })
+
+  // Get user's energy state
+  fastify.get('/energy', async (req, reply) => {
+    try {
+      const { Log } = await import('#server/models/log')
+
+      const logs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100
+      })
+
+      if (logs.length < 3) {
+        return {
+          energyState: null,
+          message: 'Keep tracking! Energy analysis available after 3+ entries.'
+        }
+      }
+
+      const energyState = analyzeEnergyState(logs)
+      const suggestions = generateEnergySuggestions(energyState)
+
+      console.log(`Energy state for user ${req.user.id}: ${energyState.status} (${energyState.currentLevel}/100)`)
+
+      return {
+        energyState,
+        suggestions,
+        analyzedAt: new Date().toISOString()
+      }
+
+    } catch (error: any) {
+      console.error('Error analyzing energy:', {
+        error: error.message,
+        userId: req.user?.id
+      })
+      return {
+        energyState: null,
+        error: error.message
+      }
+    }
+  })
+
+  // Get user's RPG narrative and achievements
+  fastify.get('/narrative', async (req, reply) => {
+    try {
+      const { Log } = await import('#server/models/log')
+
+      const logs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 500
+      })
+
+      if (logs.length === 0) {
+        return {
+          narrative: null,
+          message: 'Your story begins with your first action.'
+        }
+      }
+
+      const narrative = generateUserNarrative(req.user, logs)
+
+      console.log(`📖 Generated narrative for user ${req.user.id}: Level ${narrative.currentLevel}, Chapter ${narrative.currentArc.chapter}`)
+
+      return {
+        narrative,
+        generatedAt: new Date().toISOString()
+      }
+
+    } catch (error: any) {
+      console.error('Error generating narrative:', {
+        error: error.message,
+        userId: req.user?.id
+      })
+      return {
+        narrative: null,
+        error: error.message
+      }
+    }
+  })
+
+  // Get user's goal progression and narrative arc
+  fastify.get('/goal-progression', async (req, reply) => {
+    try {
+      const { generateGoalProgression } = await import('#server/utils/goal-understanding')
+      const { Log } = await import('#server/models/log')
+
+      const logs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 500
+      })
+
+      if (logs.length < 5) {
+        return {
+          progression: null,
+          message: 'Your journey unfolds with each step. Keep practicing.'
+        }
+      }
+
+      const progression = generateGoalProgression(req.user, logs)
+
+      console.log(`Generated goal progression for user ${req.user.id}: ${progression.goals.length} goals, primary: ${progression.overallJourney.primaryGoal?.title || 'none'}`)
+
+      return {
+        progression,
+        generatedAt: new Date().toISOString()
+      }
+
+    } catch (error: any) {
+      console.error('Error generating goal progression:', {
+        error: error.message,
+        stack: error.stack,
+        userId: req.user?.id
+      })
+      return {
+        progression: null,
+        error: error.message
+      }
+    }
+  })
+
+  // Sync Quantum Intent Engine signals from client to server
+  fastify.post<{
+    Body: {
+      signals: Array<{
+        timestamp: number
+        source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal'
+        signal: string
+        metadata?: Record<string, any>
+      }>
+      userState?: {
+        energy: string
+        clarity: string
+        alignment: string
+        needsSupport: string
+        lastUpdated: number
+      }
+      recognizedPatterns?: Array<{
+        pattern: string
+        confidence: number
+        suggestedWidget: string
+        suggestedTiming: string
+        reason: string
+      }>
+    }
+  }>('/quantum-intent/sync', async (req, reply) => {
+    try {
+      const { signals, userState, recognizedPatterns } = req.body
+
+      if (!signals || !Array.isArray(signals) || signals.length === 0) {
+        return reply.status(400).send({ error: 'No signals provided' })
+      }
+
+      console.log(`Syncing ${signals.length} Quantum Intent signals for user ${req.user.id}`)
+
+      // Save each signal as a log entry for historical tracking
+      const savedSignals = []
+      for (const signal of signals) {
+        try {
+          const log = await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'quantum_intent_signal',
+            text: signal.signal,
+            metadata: {
+              source: signal.source,
+              signal: signal.signal,
+              signalMetadata: signal.metadata,
+              timestamp: signal.timestamp
+            },
+            context: await getLogContext(req.user)
+          })
+          savedSignals.push(log.id)
+        } catch (signalError: any) {
+          console.error('Failed to save individual signal:', signalError.message)
+          // Continue with other signals
+        }
+      }
+
+      // Save aggregated state to user metadata
+      if (userState || recognizedPatterns) {
+        try {
+          const currentMetadata = req.user.metadata as any || {}
+          await req.user.set({
+            metadata: {
+              ...currentMetadata,
+              quantumIntentState: userState,
+              quantumIntentPatterns: recognizedPatterns,
+              quantumIntentLastSync: new Date().toISOString(),
+              quantumIntentSignalCount: (currentMetadata.quantumIntentSignalCount || 0) + signals.length
+            }
+          }).save()
+          console.log(`Quantum Intent state saved to user metadata`)
+        } catch (metadataError: any) {
+          console.error('Failed to save Quantum Intent state to metadata:', metadataError.message)
+        }
+      }
+
+      return {
+        success: true,
+        savedSignals: savedSignals.length,
+        totalSignals: signals.length,
+        timestamp: new Date().toISOString()
+      }
+    } catch (error: any) {
+      console.error('Error syncing Quantum Intent signals:', {
+        error: error.message,
+        userId: req.user?.id
+      })
+      return reply.status(500).send({
+        success: false,
+        error: error.message
+      })
+    }
+  })
+
+  // Get chat catalysts (prompts to connect with cohort)
+  fastify.get('/chat-catalysts', async (req, reply) => {
+    try {
+      const { User } = await import('#server/models/user')
+      const { Log } = await import('#server/models/log')
+
+      // Get user's patterns and cohorts
+      const userLogs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100
+      })
+
+      if (userLogs.length < 10) {
+        return {
+          catalysts: [],
+          message: 'Keep building your practice! Chat suggestions available after 10+ entries.'
+        }
+      }
+
+      const userPatterns = await analyzeUserPatterns(req.user, userLogs)
+      if (userPatterns.length === 0) {
+        return { catalysts: [], message: 'No patterns yet to match with others.' }
+      }
+
+      // Get cohort matches
+      const allUsers = await User.findAll({
+        where: {
+          city: { [Op.not]: null },
+          country: { [Op.not]: null },
+          id: { [Op.not]: req.user.id }
+        },
+        attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata', 'lastSeenAt']
+      })
+
+      const patternCache = new Map<string, PatternInsight[]>()
+      const getUserPatterns = async (userId: string): Promise<PatternInsight[]> => {
+        if (patternCache.has(userId)) return patternCache.get(userId)!
+        const logs = await Log.findAll({
+          where: { userId },
+          order: [['createdAt', 'DESC']],
+          limit: 100
+        })
+        const user = allUsers.find((u: any) => u.id === userId)
+        if (!user || logs.length < 5) return []
+        const patterns = await analyzeUserPatterns(user, logs)
+        patternCache.set(userId, patterns)
+        return patterns
+      }
+
+      const cohortMatches = await findCohortMatches(
+        req.user,
+        userPatterns,
+        allUsers,
+        getUserPatterns
+      )
+
+      // Get current emotional state
+      const recentCheckIn = userLogs.find((l: any) => l.event === 'emotional_checkin')
+      const currentEmotionalState = recentCheckIn?.metadata?.emotionalState as string | undefined
+
+      // Get social energy needs
+      const energyState = analyzeEnergyState(userLogs)
+      const socialNeedRaw = energyState.needsReplenishment.find(n => n.category === 'social')
+      const socialNeed = socialNeedRaw && socialNeedRaw.daysSinceLastReplenishment != null ? {
+        urgency: socialNeedRaw.urgency,
+        daysSinceConnection: socialNeedRaw.daysSinceLastReplenishment
+      } : undefined
+
+      const catalysts = generateChatCatalysts(
+        req.user,
+        cohortMatches,
+        allUsers,
+        currentEmotionalState,
+        socialNeed
+      )
+
+      console.log(`💬 Generated ${catalysts.length} chat catalysts for user ${req.user.id}`)
+
+      return {
+        catalysts,
+        generatedAt: new Date().toISOString()
+      }
+
+    } catch (error: any) {
+      console.error('Error generating chat catalysts:', {
+        error: error.message,
+        userId: req.user?.id
+      })
+      return {
+        catalysts: [],
+        error: error.message
+      }
+    }
+  })
+
+  // Get compassionate interventions
+  fastify.get('/interventions', async (req, reply) => {
+    try {
+      const { Log } = await import('#server/models/log')
+
+      const logs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100
+      })
+
+      if (logs.length < 5) {
+        return {
+          interventions: [],
+          message: 'Keep going. Caring interventions emerge as patterns develop.'
+        }
+      }
+
+      // Analyze current state
+      const recentCheckIns = logs.filter((l: any) => l.event === 'emotional_checkin').slice(0, 10)
+      const emotionalCounts: Record<string, number> = {}
+      for (const checkIn of recentCheckIns) {
+        const state = checkIn.metadata?.emotionalState as string
+        if (state) {
+          emotionalCounts[state] = (emotionalCounts[state] || 0) + 1
+        }
+      }
+
+      const dominantMood = Object.entries(emotionalCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'unknown'
+      const daysInPattern = recentCheckIns.filter((c: any) => c.metadata?.emotionalState === dominantMood).length
+
+      const negativeStates = ['anxious', 'overwhelmed', 'exhausted', 'tired']
+      const isStrugglingPattern = negativeStates.includes(dominantMood)
+
+      const energyState = analyzeEnergyState(logs)
+
+      const userState = {
+        emotionalPattern: {
+          dominantMood,
+          daysInPattern,
+          isStrugglingPattern
+        },
+        energyState,
+        recentLogs: logs.slice(0, 20),
+        romanticConnectionState: {
+          daysDisconnected: energyState.romanticConnection.daysSinceConnection ?? 0,
+          qualityLevel: energyState.romanticConnection.connectionQuality
+        }
+      }
+
+      const interventions = generateCompassionateInterventions(userState)
+
+      console.log(`🫂 Generated ${interventions.length} interventions for user ${req.user.id}`)
+
+      return {
+        interventions,
+        generatedAt: new Date().toISOString()
+      }
+
+    } catch (error: any) {
+      console.error('Error generating interventions:', {
+        error: error.message,
+        userId: req.user?.id
+      })
+      return {
+        interventions: [],
+        error: error.message
+      }
+    }
+  })
+
+  /**
+   * GET /api/community-emotion
+   * Calculate shared community emotional state from recent check-ins
+   */
+  fastify.get('/community-emotion', async (req, reply) => {
+    try {
+      const userId = (req as any).session?.userId || req.user?.id
+      if (!userId) {
+        return reply.status(401).send({ error: 'Not authenticated' })
+      }
+
+      // Get emotional check-ins from the last 24 hours across all users
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+      const recentEmotions = await fastify.models.Log.findAll({
+        where: {
+          event: 'emotional_checkin',
+          createdAt: {
+            [Op.gte]: oneDayAgo
+          }
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 100, // Sample last 100 check-ins for performance
+        attributes: ['emotionalState', 'createdAt']
+      })
+
+      if (recentEmotions.length === 0) {
+        return reply.send({
+          sharedEmotion: null,
+          confidence: 0,
+          participantCount: 0,
+          message: 'Not enough data yet'
+        })
+      }
+
+      // Count emotional states
+      const emotionCounts: Record<string, number> = {}
+      recentEmotions.forEach((log: any) => {
+        const emotion = log.emotionalState
+        if (emotion) {
+          emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1
+        }
+      })
+
+      // Find the most common emotion
+      let dominantEmotion = ''
+      let maxCount = 0
+      Object.entries(emotionCounts).forEach(([emotion, count]) => {
+        if (count > maxCount) {
+          maxCount = count
+          dominantEmotion = emotion
+        }
+      })
+
+      // Calculate confidence (percentage of dominant emotion)
+      const confidence = Math.round((maxCount / recentEmotions.length) * 100)
+
+      // Get unique participant count (approximate)
+      const uniqueParticipants = recentEmotions.length
+
+      return reply.send({
+        sharedEmotion: dominantEmotion,
+        confidence,
+        participantCount: uniqueParticipants,
+        emotionBreakdown: emotionCounts,
+        calculatedAt: new Date().toISOString()
+      })
+    } catch (error) {
+      console.error('Error calculating community emotion:', error)
+      return reply.status(500).send({ error: 'Failed to calculate community emotion' })
+    }
+  })
+
+  // Get direct message thread with another user
+  fastify.get('/direct-messages/:userId', async (req: FastifyRequest<{
+    Params: { userId: string }
+  }>, reply) => {
+    try {
+      const otherUserId = req.params.userId
+
+      // Verify other user exists
+      const otherUser = await fastify.models.User.findByPk(otherUserId)
+      if (!otherUser) {
+        return reply.status(404).send({ error: 'User not found' })
+      }
+
+      // Get all messages between current user and other user
+      const messages = await fastify.models.DirectMessage.findAll({
+        where: {
+          [Op.or]: [
+            { senderId: req.user.id, receiverId: otherUserId },
+            { senderId: otherUserId, receiverId: req.user.id }
+          ]
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 100
+      })
+
+      return reply.send({
+        messages: messages.map(m => ({
+          id: m.id,
+          senderId: m.senderId,
+          receiverId: m.receiverId,
+          message: m.message,
+          createdAt: m.createdAt,
+          updatedAt: m.updatedAt,
+          isMine: m.senderId === req.user.id
+        })),
+        otherUser: {
+          id: otherUser.id,
+          firstName: otherUser.firstName,
+          lastName: otherUser.lastName
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching direct messages:', error)
+      return reply.status(500).send({ error: 'Failed to fetch messages' })
+    }
+  })
+
+  // Send direct message
+  fastify.post('/direct-messages', async (req: FastifyRequest<{
+    Body: { receiverId: string; message: string }
+  }>, reply) => {
+    try {
+      const { receiverId, message } = req.body
+
+      if (!receiverId || !message || !message.trim()) {
+        return reply.status(400).send({ error: 'Receiver and message are required' })
+      }
+
+      // Verify receiver exists
+      const receiver = await fastify.models.User.findByPk(receiverId)
+      if (!receiver) {
+        return reply.status(404).send({ error: 'Receiver not found' })
+      }
+
+      // Create message
+      const directMessage = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId,
+        message: message.trim().slice(0, 2000) // Limit message length
+      })
+
+      // Emit SSE event to receiver
+      sync.emit('direct_message', {
+        id: directMessage.id,
+        senderId: req.user.id,
+        receiverId,
+        message: directMessage.message,
+        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        createdAt: directMessage.createdAt
+      })
+
+      // Log the sent message (for tracking social interactions)
       process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'direct_message_sent',
+            text: '',
+            metadata: {
+              directMessageId: directMessage.id,
+              receiverId,
+              message: directMessage.message,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging direct message:', logError)
+        }
+      })
+
+      return reply.send({
+        id: directMessage.id,
+        senderId: directMessage.senderId,
+        receiverId: directMessage.receiverId,
+        message: directMessage.message,
+        createdAt: directMessage.createdAt,
+        updatedAt: directMessage.updatedAt
+      })
+    } catch (error) {
+      console.error('Error sending direct message:', error)
+      return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // ============================================================================
+  // STATS API - Real-time metrics and community insights
+  // ============================================================================
+
+  // In-memory cache for hot endpoints (shared across all users)
+  const statsCache = new Map<string, { data: any; expiresAt: number }>()
+  function getCached(key: string, ttlMs: number, compute: () => Promise<any>): Promise<any> {
+    const entry = statsCache.get(key)
+    if (entry && Date.now() < entry.expiresAt) {
+      return Promise.resolve(entry.data)
+    }
+    return compute().then(data => {
+      statsCache.set(key, { data, expiresAt: Date.now() + ttlMs })
+      return data
+    })
+  }
+
+  /**
+   * GET /api/stats/collective
+   * Collective Consciousness Dashboard - Aggregate quantum states
+   * Cached for 30s — community-wide data identical for all users
+   */
+  fastify.get('/stats/collective', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      return await getCached('stats:collective', 30_000, async () => {
+        // Get active users (logged in within last 15 minutes)
+        const fifteenMinutesAgo = dayjs().subtract(15, 'minutes').toDate()
+
+        // Get recent logs to determine active users
+        const recentLogs = await fastify.models.Log.findAll({
+          where: {
+            createdAt: {
+              [Op.gte]: fifteenMinutesAgo
+            }
+          },
+          attributes: ['userId'],
+          group: ['userId'],
+          raw: true
+        })
+
+        const activeCount = recentLogs.length
+
+        // Get intentions set today
+        const todayStart = dayjs().startOf('day').toDate()
+        const [intentionsToday, careMomentsToday, todayLogs, todayMoodLogs, totalUsersCount] = await Promise.all([
+          fastify.models.Log.count({
+            where: { event: 'intention', createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { event: 'self_care', createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { event: 'emotional_checkin', createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.User.count()
+        ])
+
+        // Energy: ratio of today's activity to expected baseline (5 logs/user/day)
+        const expectedDailyLogs = Math.max(1, totalUsersCount * 5)
+        const energyLevel = Math.min(100, Math.round((todayLogs / expectedDailyLogs) * 100))
+
+        // Clarity: mood check-in coverage across active users
+        const clarityIndex = activeCount > 0
+          ? Math.min(100, Math.round((todayMoodLogs / Math.max(1, activeCount)) * 100))
+          : 0
+
+        // Alignment: intention-to-activity ratio (users with intentions vs active users)
+        const alignmentScore = activeCount > 0
+          ? Math.min(100, Math.round((intentionsToday / Math.max(1, activeCount)) * 100))
+          : 0
+
+        return {
+          energyLevel,
+          clarityIndex,
+          alignmentScore,
+          soulsInFlow: activeCount,
+          activeIntentions: intentionsToday,
+          careMoments: careMomentsToday,
+          lastUpdated: Date.now()
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching collective stats:', error)
+      return reply.status(500).send({ error: 'Failed to fetch stats' })
+    }
+  })
+
+  /**
+   * GET /api/stats/growth
+   * Personal + Community Growth Milestones
+   */
+  fastify.get('/stats/growth', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      // Personal stats
+      const firstLog = await fastify.models.Log.findOne({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'ASC']]
+      })
+
+      const daysSinceStart = firstLog
+        ? dayjs().diff(dayjs(firstLog.createdAt), 'days')
+        : 0
+
+      const questionsAnswered = await fastify.models.Answer.count({
+        where: { userId: req.user.id }
+      })
+
+      const insightsGained = await fastify.models.Log.count({
+        where: {
+          userId: req.user.id,
+          event: 'answer',
+          metadata: {
+            insight: { [Op.ne]: null }
+          }
+        }
+      })
+
+      // Badge level (get from localStorage on client side)
+      // For now, calculate from answers
+      const badgeLevel = questionsAnswered >= 30 ? '≋ Depth' :
+                        questionsAnswered >= 10 ? '≈ Flow' : '∘ Ripple'
+      const badgeCount = Math.floor(questionsAnswered / 10)
+
+      // Community stats
+      const totalUsers = await fastify.models.User.count()
+
+      const totalAnswers = await fastify.models.Answer.count()
+
+      // Days of operation from earliest system log
+      const earliestLog = await fastify.models.Log.findOne({
+        order: [['createdAt', 'ASC']],
+        attributes: ['createdAt']
+      })
+      const daysOfOperation = earliestLog
+        ? dayjs().diff(dayjs(earliestLog.createdAt), 'days')
+        : 0
+
+      const stats = {
+        personal: {
+          journeyDays: daysSinceStart,
+          questionsAnswered,
+          insightsGained,
+          badgeLevel,
+          badgeCount
+        },
+        community: {
+          totalSouls: totalUsers,
+          daysOfOperation,
+          collectiveWisdom: totalAnswers
+        },
+        lastUpdated: Date.now()
+      }
+
+      return stats
+    } catch (error) {
+      console.error('Error fetching growth stats:', error)
+      return reply.status(500).send({ error: 'Failed to fetch stats' })
+    }
+  })
+
+  /**
+   * GET /api/stats/patterns
+   * Live Intention Patterns - Anonymous real-time quantum pattern distribution
+   */
+  fastify.get('/stats/patterns', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      return await getCached('stats:patterns', 30_000, async () => {
+        const sixHoursAgo = dayjs().subtract(6, 'hours').toDate()
+
+        const recentIntentions = await fastify.models.Log.findAll({
+          where: {
+            event: 'intention',
+            createdAt: { [Op.gte]: sixHoursAgo }
+          },
+          attributes: ['metadata'],
+          raw: true
+        })
+
+        const patternCounts: { [key: string]: number } = {
+          'Flow State': 0,
+          'Precision Focus': 0,
+          'Exploration Mode': 0,
+          'Energy Surge': 0,
+          'Rest & Renewal': 0,
+          'Creative Expression': 0,
+          'Connection Seeking': 0
+        }
+
+        recentIntentions.forEach((log: any) => {
+          const pattern = log.metadata?.pattern || 'Exploration Mode'
+          if (patternCounts[pattern] !== undefined) {
+            patternCounts[pattern]++
+          }
+        })
+
+        const mostActive = Object.entries(patternCounts)
+          .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Exploration Mode'
+
+        return {
+          patterns: patternCounts,
+          mostActive,
+          lastUpdated: Date.now()
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching pattern stats:', error)
+      return reply.status(500).send({ error: 'Failed to fetch stats' })
+    }
+  })
+
+  /**
+   * GET /api/stats/wellness
+   * Community Wellness Pulse - Aggregated activity metrics
+   * Cached for 30s — community-wide data identical for all users
+   */
+  fastify.get('/stats/wellness', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      return await getCached('stats:wellness', 30_000, async () => {
+        const fifteenMinutesAgo = dayjs().subtract(15, 'minutes').toDate()
+        const todayStart = dayjs().startOf('day').toDate()
+
+        // Parallelize independent queries
+        const [recentLogs, questionsToday, reflectionsToday, careMomentsToday, weekLogs] = await Promise.all([
+          fastify.models.Log.findAll({
+            where: { createdAt: { [Op.gte]: fifteenMinutesAgo } },
+            attributes: ['userId'],
+            group: ['userId'],
+            raw: true
+          }),
+          fastify.models.Answer.count({
+            where: { createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { event: 'note', createdAt: { [Op.gte]: todayStart } }
+          }),
+          fastify.models.Log.count({
+            where: { event: 'self_care', createdAt: { [Op.gte]: todayStart } }
+          }),
+          // Only fetch createdAt, cap at 5000 rows to prevent unbounded reads
+          fastify.models.Log.findAll({
+            where: { createdAt: { [Op.gte]: dayjs().subtract(7, 'day').toDate() } },
+            attributes: ['createdAt'],
+            raw: true,
+            limit: 5000
+          })
+        ])
+
+        const activeNow = recentLogs.length
+
+        const hourCounts: Record<number, number> = {}
+        for (let h = 0; h < 24; h++) hourCounts[h] = 0
+        weekLogs.forEach((log: any) => {
+          const h = dayjs(log.createdAt).hour()
+          hourCounts[h] = (hourCounts[h] || 0) + 1
+        })
+
+        const sortedHours = Object.entries(hourCounts).sort(([, a], [, b]) => (b as number) - (a as number))
+        const peakH = Number(sortedHours[0]?.[0] ?? 9)
+        const quietH = Number(sortedHours[sortedHours.length - 1]?.[0] ?? 3)
+
+        const formatHour = (h: number) => {
+          const suffix = h >= 12 ? 'PM' : 'AM'
+          const display = h === 0 ? 12 : h > 12 ? h - 12 : h
+          return `${display}:00 ${suffix}`
+        }
+
+        return {
+          activeNow,
+          questionsToday,
+          reflectionsToday,
+          careMomentsToday,
+          peakEnergyHour: formatHour(peakH),
+          quietestHour: formatHour(quietH),
+          lastUpdated: Date.now()
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching wellness stats:', error)
+      return reply.status(500).send({ error: 'Failed to fetch stats' })
+    }
+  })
+
+  /**
+   * GET /api/stats/badges
+   * Recent Badge Unlocks Feed - Anonymous badge achievements
+   */
+  fastify.get('/stats/badges', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      return await getCached('stats:badges', 30_000, async () => {
+        const twentyFourHoursAgo = dayjs().subtract(24, 'hours').toDate()
+
+        const [recentUnlocks, badgesUnlockedToday] = await Promise.all([
+          fastify.models.Log.findAll({
+            where: {
+              event: 'badge_unlock',
+              createdAt: { [Op.gte]: twentyFourHoursAgo }
+            },
+            include: [{
+              model: fastify.models.User,
+              attributes: ['firstName']
+            }],
+            order: [['createdAt', 'DESC']],
+            limit: 10
+          }),
+          fastify.models.Log.count({
+            where: {
+              event: 'badge_unlock',
+              createdAt: { [Op.gte]: dayjs().startOf('day').toDate() }
+            }
+          })
+        ])
+
+        const unlocks = recentUnlocks.map((log: any) => ({
+          badge: log.metadata?.badge || '∘',
+          userName: log.User?.firstName || 'Someone',
+          timeAgo: dayjs().diff(dayjs(log.createdAt), 'minutes')
+        }))
+
+        return {
+          recentUnlocks: unlocks,
+          totalToday: badgesUnlockedToday,
+          lastUpdated: Date.now()
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching badge stats:', error)
+      return reply.status(500).send({ error: 'Failed to fetch stats' })
+    }
+  })
+
+  /**
+   * GET /api/stats/memory-engine
+   * Memory Engine Performance Stats - Usership/Admin only
+   */
+  fastify.get('/stats/memory-engine', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    // Only show to Usership/Admin users
+    const hasAccess = req.user.tags.some(
+      tag => ['usership', 'admin'].includes(tag.toLowerCase())
+    )
+    if (!hasAccess) {
+      return reply.status(403).send({ error: 'Usership required' })
+    }
+
+    try {
+      const todayStart = dayjs().startOf('day').toDate()
+
+      // Questions generated today
+      const questionsGenerated = await fastify.models.Answer.count({
+        where: {
+          createdAt: { [Op.gte]: todayStart },
+          metadata: {
+            questionId: { [Op.ne]: null }
+          }
+        }
+      })
+
+      // Context depth (actual user log count)
+      const contextDepth = await fastify.models.Log.count({
+        where: { userId: req.user.id }
+      })
+
+      // Total answers for this user
+      const totalUserAnswers = await fastify.models.Answer.count({
+        where: { userId: req.user.id }
+      })
+
+      // AI diversity: unique question topics / total questions
+      const totalQuestions = await fastify.models.Answer.count({
+        where: { createdAt: { [Op.gte]: todayStart } }
+      })
+      const uniqueQuestions = await fastify.models.Answer.count({
+        where: { createdAt: { [Op.gte]: todayStart } },
+        distinct: true,
+        col: 'questionId'
+      })
+      const aiDiversity = totalQuestions > 0
+        ? Math.min(100, Math.round((uniqueQuestions / totalQuestions) * 100))
+        : 0
+
+      // Response quality derived from user engagement depth
+      // Scale: context depth and answer frequency indicate quality
+      const responseQuality = totalUserAnswers > 0
+        ? Math.min(5.0, Math.round((3.0 + Math.min(2.0, (contextDepth / 100) + (totalUserAnswers / 50))) * 10) / 10)
+        : 0
+
+      // Average response time derived from answer creation patterns
+      const recentAnswers = await fastify.models.Answer.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 20,
+        attributes: ['createdAt']
+      })
+      let avgResponseTime = 0
+      if (recentAnswers.length >= 2) {
+        const intervals = recentAnswers.slice(0, -1).map((a: any, i: number) => {
+          const next = recentAnswers[i + 1] as any
+          return Math.abs(dayjs(a.createdAt).diff(dayjs(next.createdAt), 'millisecond'))
+        })
+        avgResponseTime = Math.round(intervals.reduce((s: number, v: number) => s + v, 0) / intervals.length)
+      }
+
+      const stats = {
+        questionsGenerated,
+        responseQuality,
+        avgResponseTime,
+        contextDepth,
+        aiDiversityScore: aiDiversity,
+        lastUpdated: Date.now()
+      }
+
+      return stats
+    } catch (error) {
+      console.error('Error fetching memory engine stats:', error)
+      return reply.status(500).send({ error: 'Failed to fetch stats' })
+    }
+  })
+
+  /**
+   * GET /api/stats/ai-usage
+   * AI Engine Usage Stats - Non-monetary usage metrics
+   * Usership/Admin only
+   */
+  fastify.get('/stats/ai-usage', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    const hasAccess = req.user.tags.some(
+      tag => ['usership', 'admin'].includes(tag.toLowerCase())
+    )
+    if (!hasAccess) {
+      return reply.status(403).send({ error: 'Usership required' })
+    }
+
+    try {
+      const { aiUsageTracker } = await import('#server/utils/ai-engines')
+      return aiUsageTracker.getStats()
+    } catch (error) {
+      console.error('Error fetching AI usage stats:', error)
+      return reply.status(500).send({ error: 'Failed to fetch AI usage stats' })
+    }
+  })
+
+  /**
+   * GET /api/system/deployment-status
+   * System Progress - Latest deployment info with sci-fi terminology
+   */
+  fastify.get('/system/deployment-status', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      // Get current version from package.json or env
+      const version = process.env.APP_VERSION || 'v1.2.1-stable'
+
+      // Determine program name based on version features
+      const getProgramName = (ver: string) => {
+        if (ver.includes('1.3')) return 'Assembly Transmission Protocol'
+        if (ver.includes('1.2.1')) return 'Quantum Intent Calibration'
+        if (ver.includes('1.2.0')) return 'Memory Engine Synthesis'
+        return 'Neural Pathway Integration'
+      }
+
+      // Deployment timestamp from last system snapshot or settings change
+      const lastSystemLog = await fastify.models.Log.findOne({
+        where: { event: { [Op.in]: ['system_snapshot', 'settings_change'] } },
+        order: [['createdAt', 'DESC']],
+        attributes: ['createdAt']
+      })
+      const deploymentTime = lastSystemLog
+        ? dayjs(lastSystemLog.createdAt).toISOString()
+        : dayjs().subtract(1, 'day').toISOString()
+
+      // Get status based on deployment time
+      const getStatus = () => {
+        const hoursSinceDeploy = dayjs().diff(dayjs(deploymentTime), 'hours')
+        if (hoursSinceDeploy < 1) return 'integrating'
+        if (hoursSinceDeploy < 24) return 'synchronized'
+        return 'activated'
+      }
+
+      // Features assembled and live in current version
+      const features = [
+        'Quantum Intention Engine v5 — 18 patterns, flow-state + social-void detection',
+        'Self-Assembly Engine v2 — 12 modules, signal-derived progression',
+        'Physiological Cohort Classification — 10 archetypes, weekly digest',
+        'Physiological Readiness Score — 0-100 composite, surfaced each session',
+        'Military Log Interface — 25 event types, full telemetry coverage',
+        'Weekly OS Signal Diversity Audit — 05:00 UTC Sunday, mono-loop detection',
+        'Daily OS Vitals Snapshot — 02:00 UTC, cross-device OS continuity',
+        'OS Journal View — persisted vitals timeline in System Progress widget',
+        'Soviet Synth Keyboard — keystroke click, /synth + secret emoji triggers',
+        'Christian Fasting Calendar — Orthodox + Catholic, gradual strictness algorithm',
+        'Layout Density Progression — breathable → instrument (5 levels, earned)',
+        'Punctuation Context Engine — tone/intent derived from typing patterns',
+      ]
+
+      const deployment = {
+        version,
+        timestamp: deploymentTime,
+        program: getProgramName(version),
+        status: getStatus(),
+        features
+      }
+
+      return deployment
+    } catch (error) {
+      console.error('Error fetching deployment status:', error)
+      return reply.status(500).send({ error: 'Failed to fetch deployment status' })
+    }
+  })
+
+  /**
+   * GET /api/system/my-feedback
+   * Get current user's feedback for the active deployment
+   */
+  fastify.get('/system/my-feedback', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      const version = process.env.APP_VERSION || 'v1.2.1-stable'
+
+      // Find user's latest feedback log for this version
+      const feedbackLog = await fastify.models.Log.findOne({
+        where: {
+          userId: req.user.id,
+          event: 'system_feedback',
+          metadata: {
+            version: version
+          }
+        },
+        order: [['createdAt', 'DESC']]
+      })
+
+      if (!feedbackLog || !feedbackLog.metadata?.feedback) {
+        return { feedback: null }
+      }
+
+      return {
+        feedback: feedbackLog.metadata.feedback,
+        timestamp: feedbackLog.createdAt
+      }
+    } catch (error) {
+      console.error('Error fetching feedback:', error)
+      return reply.status(500).send({ error: 'Failed to fetch feedback' })
+    }
+  })
+
+  /**
+   * POST /api/system/submit-feedback
+   * Submit system feedback for current deployment
+   */
+  fastify.post<{
+    Body: {
+      version: string
+      feedback: 'operational' | 'resonating' | 'needs-calibration' | 'evolving'
+    }
+  }>('/system/submit-feedback', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    const { version, feedback } = req.body
+
+    if (!version || !feedback) {
+      return reply.status(400).send({ error: 'Missing version or feedback' })
+    }
+
+    try {
+      // Log feedback
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'system_feedback',
+        text: `System feedback: ${feedback}`,
+        metadata: {
+          version,
+          feedback,
+          timestamp: Date.now()
+        }
+      })
+
+      return { success: true }
+    } catch (error) {
+      console.error('Error submitting feedback:', error)
+      return reply.status(500).send({ error: 'Failed to submit feedback' })
+    }
+  })
+
+  /**
+   * GET /api/system/feedback-analytics
+   * Aggregated community feedback for system self-evolution
+   * Shows patterns in user feedback to guide development priorities
+   */
+  fastify.get('/system/feedback-analytics', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      const version = process.env.APP_VERSION || 'v1.2.1-stable'
+      const sevenDaysAgo = dayjs().subtract(7, 'days').toDate()
+
+      // Get all feedback logs for current version in last 7 days
+      const feedbackLogs = await fastify.models.Log.findAll({
+        where: {
+          event: 'system_feedback',
+          metadata: {
+            version: version
+          },
+          createdAt: { [Op.gte]: sevenDaysAgo }
+        },
+        attributes: ['metadata', 'createdAt']
+      })
+
+      // Aggregate feedback counts
+      const feedbackCounts = {
+        operational: 0,
+        resonating: 0,
+        'needs-calibration': 0,
+        evolving: 0
+      }
+
+      feedbackLogs.forEach(log => {
+        const feedback = log.metadata?.feedback
+        if (feedback && feedback in feedbackCounts) {
+          feedbackCounts[feedback as keyof typeof feedbackCounts]++
+        }
+      })
+
+      const total = Object.values(feedbackCounts).reduce((sum, count) => sum + count, 0)
+
+      // Calculate percentages
+      const feedbackPercentages = {
+        operational: total > 0 ? Math.round((feedbackCounts.operational / total) * 100) : 0,
+        resonating: total > 0 ? Math.round((feedbackCounts.resonating / total) * 100) : 0,
+        'needs-calibration': total > 0 ? Math.round((feedbackCounts['needs-calibration'] / total) * 100) : 0,
+        evolving: total > 0 ? Math.round((feedbackCounts.evolving / total) * 100) : 0
+      }
+
+      // Determine system health status
+      const getSystemHealth = () => {
+        if (feedbackPercentages['needs-calibration'] > 40) {
+          return {
+            status: 'attention-needed',
+            message: 'Community signals calibration needed',
+            priority: 'high'
+          }
+        }
+        if (feedbackPercentages.resonating > 50) {
+          return {
+            status: 'resonant',
+            message: 'System resonating with community',
+            priority: 'healthy'
+          }
+        }
+        if (feedbackPercentages.evolving > 30) {
+          return {
+            status: 'transforming',
+            message: 'Active evolution in progress',
+            priority: 'medium'
+          }
+        }
+        return {
+          status: 'stable',
+          message: 'System operating normally',
+          priority: 'normal'
+        }
+      }
+
+      // Generate evolution insights based on patterns
+      const insights = []
+      if (feedbackPercentages.resonating > 40) {
+        insights.push('High resonance: Current features are well-received')
+      }
+      if (feedbackPercentages['needs-calibration'] > 25) {
+        insights.push('Calibration needed: User experience improvements required')
+      }
+      if (feedbackPercentages.evolving > 25) {
+        insights.push('Evolution active: Users are experiencing growth')
+      }
+      if (feedbackPercentages.operational > 50) {
+        insights.push('Stable foundation: Core systems functioning well')
+      }
+
+      return {
+        version,
+        period: '7 days',
+        totalResponses: total,
+        feedbackCounts,
+        feedbackPercentages,
+        systemHealth: getSystemHealth(),
+        insights,
+        timestamp: Date.now()
+      }
+    } catch (error) {
+      console.error('Error fetching feedback analytics:', error)
+      return reply.status(500).send({ error: 'Failed to fetch feedback analytics' })
+    }
+  })
+
+  /**
+   * GET /api/system/pulse
+   * Ultra-fast real-time system activity metrics
+   * Updates every second with live stats
+   */
+  fastify.get('/system/pulse', async (req, reply) => {
+    if (!req.user) return reply.throw.authException()
+
+    try {
+      // Cached for 5s — global metric, identical for all users, client polls every 10s
+      return await getCached('system:pulse', 5_000, async () => {
+        const now = dayjs()
+        const oneMinuteAgo = now.subtract(1, 'minute').toDate()
+        const fiveMinutesAgo = now.subtract(5, 'minutes').toDate()
+
+        // Parallelize all DB queries
+        const [recentEvents, recentEventsSmoothed, activeUsers] = await Promise.all([
+          fastify.models.Log.count({
+            where: { createdAt: { [Op.gte]: oneMinuteAgo } }
+          }),
+          fastify.models.Log.count({
+            where: { createdAt: { [Op.gte]: fiveMinutesAgo } }
+          }),
+          fastify.models.Log.findAll({
+            where: { createdAt: { [Op.gte]: oneMinuteAgo } },
+            attributes: ['userId'],
+            group: ['userId'],
+            raw: true
+          })
+        ])
+
+        const eventsPerMinute = recentEvents + Math.floor(recentEventsSmoothed / 5)
+        const neuralActivity = activeUsers.length
+
+        const fiveMinRate = recentEventsSmoothed / 5
+        const activityDelta = Math.abs(recentEvents - fiveMinRate)
+        const quantumFlux = Math.min(100, Math.round(
+          (eventsPerMinute * 2) + (activityDelta * 10) + (neuralActivity * 5)
+        ))
+
+        const baseResonance = 432.0
+        const engagementDepth = neuralActivity > 0 ? (eventsPerMinute / neuralActivity) : 0
+        const resonanceHz = baseResonance + (neuralActivity * 2) + (engagementDepth * 0.5)
+
+        return {
+          eventsPerMinute,
+          quantumFlux,
+          neuralActivity,
+          resonanceHz,
+          lastUpdate: Date.now()
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching system pulse:', error)
+      return reply.status(500).send({ error: 'Failed to fetch pulse' })
+    }
+  })
+
+  // ============================================================================
+  // Cosmic Update — Together AI image generation
+  // ============================================================================
+  fastify.post(
+    '/cosmic-update',
+    async (req: FastifyRequest<{ Body: { prompt?: string } }>, reply) => {
+      try {
+        const { TogetherAIEngine } = await import('#server/utils/ai-engines')
+        const engine = new TogetherAIEngine()
+
+        if (!engine.isAvailable() || !engine.generateImage) {
+          return reply.status(503).send({ error: 'Image generation engine not available' })
+        }
+
+        // Use the user-provided prompt or a default cosmic prompt
+        const basePrompt = req.body?.prompt ||
+          'Void black deep space, a single 15mm ceramic cube suspended in zero gravity, glowing acid yellow bioelectric field lines emanating outward, Orthodox cross faintly encoded in the geometry, Detroit techno grid overlay, minimal, sacred, cinematic'
+
+        const imageUrl = await engine.generateImage(basePrompt, {
+          width: 1024,
+          height: 1024,
+          steps: 20,
+          model: 'black-forest-labs/FLUX.1-schnell-Free',
+        })
+
+        // Log the cosmic update generation
         const context = await getLogContext(req.user)
         await fastify.models.Log.create({
           userId: req.user.id,
-          event: 'answer',
-          text: '',
+          event: 'other',
+          text: 'Cosmic Update generated',
           metadata: {
-            questionId,
-            answerId: answer.id,
-            question: question.question,
-            options: question.options,
-            answer: option,
+            type: 'cosmic_update',
+            prompt: basePrompt.substring(0, 500),
+            imageUrl,
           },
           context,
         })
-      })
 
-      return { response: fp.randomElement(defaultReplies) }
+        return { imageUrl, prompt: basePrompt }
+      } catch (error: any) {
+        console.error('Cosmic Update generation failed:', error)
+        return reply.status(500).send({ error: 'Cosmic Update generation failed' })
+      }
     }
   )
 }

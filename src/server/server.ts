@@ -16,6 +16,10 @@ import {
 } from '#server/utils'
 import { models, SessionWithUser } from '#server/models'
 import config from '#server/config'
+import authRoutes from './routes/auth.js'
+import apiRoutes from './routes/api.js'
+import adminApiRoutes from './routes/admin-api.js'
+import publicApiRoutes from './routes/public-api.js'
 
 const CWD = process.cwd()
 
@@ -23,7 +27,7 @@ const fastify = Fastify({
   logger: false  // Temporarily disable logging for development
 })
 
-const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/sync', '/log']
+const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/api', '/sync', '/log']
 
 // Plugins
 fastify.register(fastifyCookie)
@@ -33,7 +37,7 @@ fastify.register(fastifyHelmet, {
     useDefaults: config.env === 'production',
     directives: {
       'default-src': ["'self'"],
-      'connect-src': ["'self'", 'http://127.0.0.1:*'],
+      'connect-src': ["'self'", 'http://127.0.0.1:*', 'https://unpkg.com', 'https://cdnjs.cloudflare.com'],
       'font-src': ["'self'", 'https://rsms.me'],
       'form-action': ["'self'"],
       'frame-src': [
@@ -46,7 +50,8 @@ fastify.register(fastifyHelmet, {
         "'unsafe-inline'",
         'https://www.youtube.com/iframe_api',
         'https://www.youtube.com',
-        'https://unpkg.com/tone',
+        'https://unpkg.com',
+        'https://cdnjs.cloudflare.com',
       ],
       'style-src': ["'self'", 'https://rsms.me'],
       'img-src': ['*', 'data:'],
@@ -108,8 +113,78 @@ if (config.env === 'production') {
   })
 }
 
+// Global request logger for debugging
+fastify.addHook('onRequest', async (req, reply) => {
+  if (req.url.startsWith('/u/')) {
+    console.log('[GLOBAL] Request to:', req.method, req.url)
+  }
+})
+
+// Prevent HTML caching to ensure fresh CSP headers on every load
+fastify.addHook('onSend', async (req, reply, payload) => {
+  const contentType = reply.getHeader('content-type')
+  if (contentType && contentType.toString().includes('text/html')) {
+    reply.header('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    reply.header('Pragma', 'no-cache')
+    reply.header('Expires', '0')
+  }
+  return payload
+})
+
 // Database
 fastify.addHook('onClose', () => sequelize.close())
+
+// ==============================================================================
+// PUBLIC PROFILE ROUTES - ABSOLUTE TOP LEVEL - HIGHEST PRIORITY
+// These MUST be registered before ANY other routes to avoid conflicts
+// ==============================================================================
+
+console.log('[SERVER-STARTUP] Registering /u/ routes at top level!')
+
+// Diagnostic test route
+fastify.get('/u/test-route-works', async function (req, reply) {
+  console.log('🟢 [DIAGNOSTIC] Test route hit!')
+  reply.type('text/html')
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head><title>Route Test</title></head>
+      <body style="font-family: monospace; padding: 40px;">
+        <h1 style="color: green;">✓ Route is working!</h1>
+        <p>Timestamp: ${new Date().toISOString()}</p>
+        <p>The /u/ route is being matched correctly.</p>
+      </body>
+    </html>
+  `
+})
+
+// Alternative diagnostic at /api/diagnostic
+fastify.get('/api/diagnostic', async function (req, reply) {
+  console.log('🟢 [API-DIAGNOSTIC] Route hit!')
+  return {
+    success: true,
+    message: 'Server code is running with latest changes',
+    timestamp: new Date().toISOString(),
+    commit: '0e839b6e',
+    uRoutesRegistered: true
+  }
+})
+
+// Public profile route - serve the React app
+fastify.get('/u/:userIdOrUsername', async function (req, reply) {
+  const { userIdOrUsername } = req.params as { userIdOrUsername: string }
+  console.log('🟢 [PUBLIC-PROFILE-ROUTE] Serving profile page for:', userIdOrUsername)
+
+  return reply.view('generic-spa', {
+    scriptName: 'public-profile',
+    scriptNonce: reply.cspNonce.script,
+    styleNonce: reply.cspNonce.style,
+  })
+})
+
+// ==============================================================================
+// END PUBLIC PROFILE ROUTES
+// ==============================================================================
 
 // Routes
 fastify.register(async (fastify: FastifyInstance) => {
@@ -144,8 +219,9 @@ fastify.register(async (fastify: FastifyInstance) => {
       }
     })
 
-    // Public API
-    fastify.register(require('./routes/auth'), { prefix: '/auth' })
+    // Public API (no authentication required)
+    fastify.register(authRoutes, { prefix: '/auth' })
+    fastify.register(publicApiRoutes, { prefix: '/api/public' })
 
     // User API
     fastify.register(async (fastify) => {
@@ -155,7 +231,7 @@ fastify.register(async (fastify: FastifyInstance) => {
           throw new Error('Access denied')
         }
       })
-      fastify.register(require('./routes/api'), { prefix: '/api' })
+      fastify.register(apiRoutes, { prefix: '/api' })
     })
 
     // Admin API
@@ -166,11 +242,13 @@ fastify.register(async (fastify: FastifyInstance) => {
           throw new Error('Access denied')
         }
       })
-      fastify.register(require('./routes/admin-api'), { prefix: '/admin-api' })
+      fastify.register(adminApiRoutes, { prefix: '/admin-api' })
     })
 
     // Client app / index page
     fastify.register(async (fastify) => {
+      // Note: /u/ routes are registered at top level (lines 131-191)
+
       KNOWN_CLIENT_ROUTES.forEach((route) => {
         fastify.get(route, async function (req, reply) {
           if (req.user) {
@@ -189,10 +267,10 @@ fastify.register(async (fastify: FastifyInstance) => {
       })
     })
 
-    // Admin app
+    // Admin app (accessible by Admin, Usership, and R&D users)
     fastify.register(async (fastify) => {
       fastify.addHook('onRequest', async (req, reply) => {
-        if (!req.user || !req.user.isAdmin()) {
+        if (!req.user || !req.user.canAccessUsSection()) {
           return reply.redirect('/')
         }
       })
@@ -242,17 +320,31 @@ fastify.setErrorHandler((error, req, reply) => {
 })
 
 fastify.setNotFoundHandler(async (req, res) => {
+  console.log('[NOT-FOUND] URL:', req.url)
+  console.log('[NOT-FOUND] Method:', req.method)
+  console.log('[NOT-FOUND] Headers Accept:', req.headers.accept)
+  console.log('[NOT-FOUND] Is HTML request:', req.headers.accept?.includes('text/html'))
+
+  // Don't redirect API routes - let them return proper 404 or handle authentication
+  if (req.url.startsWith('/api/') || req.url.startsWith('/admin-api/')) {
+    console.log('[NOT-FOUND] API route not found, returning 404')
+    return res.code(404).send('API endpoint not found: ' + req.url)
+  }
+
   if (req.headers.accept?.includes('text/html')) {
+    console.log('[NOT-FOUND] Redirecting HTML request to /')
     return res.redirect('/')
   }
+  console.log('[NOT-FOUND] Returning 404')
   res.code(404).send('Not found')
 })
 
 // Start server
-fastify.listen({ port: config.port, host: '0.0.0.0' }, function (err, address) {
-  if (err) {
-    console.error(err)
-    process.exit(1)
-  }
-  console.log(`🚀 App launched: ${config.appHost}`)
-})
+try {
+  await fastify.ready()
+  const address = await fastify.listen({ port: config.port, host: '0.0.0.0' })
+  console.log(`App launched: ${config.appHost}`)
+} catch (err) {
+  console.error(err)
+  process.exit(1)
+}

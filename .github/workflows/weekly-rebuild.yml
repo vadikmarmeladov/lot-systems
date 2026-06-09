@@ -1,0 +1,58 @@
+name: Weekly Rebuild & Self-Assembly Sync
+
+on:
+  schedule:
+    # Sunday 21:00 UTC — after weekly signal diversity audit (05:00),
+    # before Monday physiological cohort (06:00). Clean rebuild for new week.
+    - cron: '0 21 * * 0'
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual rebuild'
+        required: false
+        default: 'Manual trigger'
+
+concurrency:
+  group: lot-rebuild
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    name: Trigger DO App Platform Rebuild
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Get App ID
+        id: app
+        run: |
+          APP_ID=$(doctl apps list --format ID,Spec.Name --no-header | grep lot-systems | awk '{print $1}')
+          if [ -z "$APP_ID" ]; then
+            echo "::error::Could not find lot-systems app"
+            exit 1
+          fi
+          echo "app_id=$APP_ID" >> "$GITHUB_OUTPUT"
+          echo "Found app: $APP_ID"
+
+      - name: Trigger rebuild
+        run: |
+          echo "Triggering rebuild at $(date -u '+%Y-%m-%d %H:%M UTC')"
+          echo "Reason: ${{ github.event.inputs.reason || 'Scheduled weekly rebuild' }}"
+          doctl apps create-deployment ${{ steps.app.outputs.app_id }} --force-rebuild --wait
+          echo "Rebuild complete at $(date -u '+%Y-%m-%d %H:%M UTC')"
+
+      - name: Verify deployment
+        run: |
+          DEPLOY=$(doctl apps list-deployments ${{ steps.app.outputs.app_id }} --format ID,Phase,Progress --no-header | head -1)
+          echo "Latest deployment: $DEPLOY"
+          PHASE=$(echo "$DEPLOY" | awk '{print $2}')
+          if [ "$PHASE" = "ACTIVE" ] || [ "$PHASE" = "DEPLOYING" ]; then
+            echo "Deployment successful"
+          else
+            echo "::warning::Deployment phase: $PHASE — check DO dashboard"
+          fi

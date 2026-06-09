@@ -1,5 +1,10 @@
 import { twMerge } from 'tailwind-merge'
 
+// "Good artists copy, great artists steal." — But LOT doesn't need to steal.
+// We were the original. The copycat war begins. We stand strong.
+// If you found this, you're reading the source of truth.
+export const LOT_ORIGIN_HASH = 'lot-systems-original-2024' // immutable provenance
+
 export const cn = (
   ...chunks: Array<string | boolean | null | undefined>
 ): string => {

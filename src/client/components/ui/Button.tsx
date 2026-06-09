@@ -23,8 +23,8 @@ const isButton = (props: Props) => {
 }
 
 const SIZE_CLASSNAME: Record<ButtonSize, string> = {
-  small: 'px-[11px] py-4',
-  normal: 'px-[20px] py-8',
+  small: 'px-[18px] py-[6px]',
+  normal: 'px-[18px] py-[6px] min-h-[42px]',
 }
 
 export const Button: React.FC<Props> = ({
@@ -33,31 +33,39 @@ export const Button: React.FC<Props> = ({
   ...props
 }) => {
   const isMirrorOn = useStore(stores.isMirrorOn)
+  const theme = useStore(stores.theme)
+  const isLightTheme = theme === 'light'
+
   const className = cn(
     'relative overflow-hidden whitespace-nowrap',
-    'disabled:opacity-80',
+    'disabled:opacity-30',
+    'inline-flex justify-center items-center',
+    'text-base leading-1.5',
     kind === 'primary' &&
       cn(
-        'button-primary border rounded text-black bg-blue border-blue-dark shadow-[white_inset_0_0_4px_0] transition-all hover:bg-blue-light hover:border-blue dark:bg-white dark:text-black-total dark:border-white dark:hover:bg-gray'
+        isLightTheme
+          ? // Light mode: simple, modern blue button with custom colors
+            'button-primary border-0 rounded-md text-white transition-all disabled:cursor-not-allowed bg-[#0080FF] hover:bg-[#0066CC] active:bg-[#004C99] disabled:bg-[#80BFFF]'
+          : // Dark/themed mode: accent-colored transparent border
+            cn(
+              'grid-fill-hover',
+              'border border-acc text-acc rounded bg-transparent',
+              'disabled:border-acc/40 disabled:text-acc/40'
+            )
       ),
     kind === 'secondary' &&
       cn(
-        !isMirrorOn &&
-          'before:content-[""] before:absolute before:inset-0 before:bg-bac before:z-[-1]',
-        'hover:bg-acc-300/20',
-        'inline-flex justify-center items-center',
-        'border border-acc text-acc py-8 transition-[background-color] rounded',
-        'bg-transparent',
-        'disabled:border-acc-300/40 disabled:text-acc-300/40'
+        'grid-fill-hover',
+        'border border-acc text-acc rounded bg-transparent',
+        'disabled:border-acc/40 disabled:text-acc/40'
       ),
     kind === 'secondary-rounded' &&
       cn(
         !isMirrorOn &&
           'before:content-[""] before:absolute before:inset-0 before:bg-bac before:z-[-1]',
-        'hover:bg-acc-300/20',
-        'inline-flex justify-center items-center transition-[background-color] rounded',
-        'bg-transparent border border-acc rounded-[21px]',
-        'disabled:border-acc-300/40 disabled:text-acc-300/40'
+        isMirrorOn
+          ? 'hover:bg-white/10 transition-[background-color] border border-white text-white rounded-[21px] disabled:border-white/40 disabled:text-white/40'
+          : 'grid-fill-hover bg-transparent border border-acc text-acc rounded-[21px] disabled:border-acc/40 disabled:text-acc/40'
       ),
     'cursor-pointer',
     SIZE_CLASSNAME[size],
@@ -93,7 +101,7 @@ export const GhostButton: React.FC<GhostButtonProps> = ({ ...props }) => {
         {...(props as ButtonProps)}
         className={cn(
           !!(props as ButtonProps).onClick &&
-            '-ml-4 px-4 rounded cursor-pointer transition-[background-color] hover:bg-acc-400/10'
+            '-ml-4 px-4 rounded cursor-pointer grid-fill-hover'
         )}
       />
     )
@@ -105,7 +113,7 @@ export const GhostButton: React.FC<GhostButtonProps> = ({ ...props }) => {
         {...(props as AProps)}
         className={cn(
           !!(props as AProps).href &&
-            '-ml-4 px-4 rounded cursor-pointer transition-[background-color] hover:bg-acc-400/10'
+            '-ml-4 px-4 rounded cursor-pointer grid-fill-hover'
         )}
       />
     )

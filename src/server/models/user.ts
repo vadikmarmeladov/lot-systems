@@ -24,14 +24,19 @@ export class User
   declare phone: UserModel['phone']
   declare timeZone: UserModel['timeZone']
   declare hideActivityLogs: UserModel['hideActivityLogs']
+  declare timeChime?: UserModel['timeChime']
   declare tags: UserModel['tags']
   declare lastSeenAt: UserModel['lastSeenAt']
   declare joinedAt: UserModel['joinedAt']
   declare stripeCustomerId: UserModel['stripeCustomerId']
   declare metadata: UserModel['metadata']
 
+  toPublic(): UserModel {
+    return this.toJSON() as UserModel
+  }
+
   useProfileView(): UserProfile {
-    return fp.pick([
+    const profile = fp.pick([
       'id',
       'email',
       'firstName',
@@ -42,13 +47,47 @@ export class User
       'phone',
       'tags',
       'hideActivityLogs',
+      'timeChime',
     ])(this.toJSON())
+
+    // Add memory engine status based on tags
+    const hasUsershipTag = this.tags.some(
+      (tag) => tag.toLowerCase() === 'usership'
+    )
+    // Check if ANY AI engine is available (Together AI, Gemini, Mistral, Claude, OpenAI)
+    const hasAIEngine = !!(
+      process.env.TOGETHER_API_KEY ||
+      process.env.GOOGLE_API_KEY ||
+      process.env.MISTRAL_API_KEY ||
+      config.anthropic?.apiKey ||
+      process.env.OPENAI_API_KEY
+    )
+
+    return {
+      ...profile,
+      memoryEngine: hasUsershipTag && hasAIEngine ? 'ai' : 'standard',
+    }
   }
 
   isAdmin(): boolean {
     return (
       config.admins.includes(this.email) || this.tags.includes(UserTag.Admin)
     )
+  }
+
+  canAccessUsSection(): boolean {
+    // Admin and Usership users can access /us section and admin API
+    return (
+      this.isAdmin() ||
+      this.tags.some((tag) =>
+        tag.toLowerCase() === 'usership'
+      )
+    )
+  }
+
+  canEditTags(): boolean {
+    // Only vadikmarmeladov@gmail.com (CEO) can edit user tags
+    return this.email === 'vadikmarmeladov@gmail.com'
   }
 
   async ping() {
@@ -108,6 +147,10 @@ User.init(
     phone: DataTypes.STRING,
     timeZone: DataTypes.STRING,
     hideActivityLogs: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    timeChime: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },

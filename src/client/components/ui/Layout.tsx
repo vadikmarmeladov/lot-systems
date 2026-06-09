@@ -14,7 +14,9 @@ type Props = {
 export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
   const me = useStore(stores.me)
   const layoutView = useStore(stores.layoutView)
+  const isMirrorOn = useStore(stores.isMirrorOn)
   const none = React.useMemo(() => () => {}, [])
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
   const navLinks = React.useMemo<NavItem[]>(() => {
     const result: NavItem[] = me
       ? [
@@ -26,12 +28,13 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
           { href: null, label: 'Kids' },
           { href: null, label: 'Home' },
           { href: null, label: null, spacer: true },
+          { href: '/api', label: 'API' },
           { href: '/settings', label: 'Settings' },
         ]
       : [
           { href: null, label: 'Sync' },
           { href: null, label: 'Logs' },
-          { href: null, label: 'System' },
+          { href: '/', label: 'System' },
           { href: null, label: 'Basics' },
           { href: null, label: 'Self-care' },
           { href: null, label: 'Kids' },
@@ -43,24 +46,25 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
   }, [layoutView, me])
 
   return (
-    <div className="min-h-[100dvh] grid leading-[1.5rem]">
+    <div className="min-h-[100dvh] grid leading-[1.5rem]" data-lot-genesis="true">
       <Page>{children}</Page>
       {!hideNav && (
         <div
           id="nav"
           className="sticky bottom-0 left-0 right-0 self-end transition-opacity"
         >
-          <div className="desktop:px-64 tablet:px-48 phone:px-32 px-16 desktop:mb-64 tablet:mb-48 phone:mb-32 mb-16">
+          <div className="px-16 phone:px-32 tablet:px-48 desktop:px-64 mb-16 phone:mb-32 tablet:mb-48 desktop:mb-64">
             <nav
               className={cn(
-                'flex gap-x-8 -mb-8',
+                'flex gap-8 phone:gap-6 -mb-4',
                 'flex-wrap-reverse tablet:flex-wrap',
                 'flex-row-reverse tablet:flex-row',
                 'justify-end tablet:justify-start'
               )}
             >
-              {navLinks.map((link, i) =>
-                link.spacer ? (
+              {navLinks.map((link, i) => {
+                const isActive = link.href === currentPath
+                return link.spacer ? (
                   <div
                     key={link.label ?? i}
                     className="flex-grow tablet:block hidden"
@@ -70,14 +74,19 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
                     key={link.label}
                     href={link.href ?? undefined}
                     kind="secondary-rounded"
-                    className="mb-8"
+                    className={cn(
+                      'mb-4 flex-shrink-0',
+                      isActive && (isMirrorOn
+                        ? 'bg-white/20 hover:bg-white/30'
+                        : 'bg-acc text-bac hover:bg-acc/90')
+                    )}
                     onClick={!link.href ? none : undefined}
                     disabled={!link.href}
                   >
                     {link.label}
                   </Button>
                 )
-              )}
+              })}
             </nav>
           </div>
         </div>

@@ -1,85 +1,64 @@
 import dotenv from 'dotenv'
-
 dotenv.config()
 
-type Config = {
-  debug: boolean
-  port: number
-  appHost: string
-  appName: string
-  appDescription: string
-  proxyHost: string
-  env: string
-  databaseUri: string
-  googleOAuth2: {
-    clientId: string
-    clientSecret: string
+function requireEnv(key: string, fallback?: string): string {
+  const value = process.env[key] || fallback
+  if (!value) {
+    console.error(`Missing required environment variable: ${key}`)
+    process.exit(1)
   }
-  jwt: {
-    secret: string
-    cookieKey: string
-  }
-  mailchimp: {
-    fromEmail: string
-    fromName: string
-    mandrillApiKey: string
-  }
-  // shopify: {
-  //   shopId: string
-  //   apiToken: string
-  // }
-  // openai: {
-  //   apiKey: string
-  // }
-  openWeatherApiKey: string
-  geonamesUsername: string
-  admins: string[]
+  return value
 }
 
-const config: Config = {
-  debug: process.env.DEBUG === 'true',
-  port: tryParseNumber(process.env.PORT || '0') || 3000,
-  appHost: process.env.APP_HOST || '',
-  appName: process.env.APP_NAME || '',
-  appDescription: process.env.APP_DESCRIPTION || '',
-  proxyHost: process.env.PROXY_HOST || '',
+const config = {
   env: process.env.NODE_ENV || 'development',
-  databaseUri: process.env.DATABASE_URL || '',
-  googleOAuth2: {
-    clientId: process.env.GOOGLE_OAUTH2_CLIENT_ID || '',
-    clientSecret: process.env.GOOGLE_OAUTH2_CLIENT_SECRET || '',
+  port: parseInt(process.env.PORT || '4400', 10),
+  appName: process.env.APP_NAME || 'Your App',
+  appHost: process.env.APP_HOST || 'http://localhost:4400',
+  appDescription: process.env.APP_DESCRIPTION || 'Your App Description',
+
+  admins: process.env.ADMIN_EMAILS?.split(',').map(e => e.trim()) || [],
+
+  email: {
+    resendApiKey: process.env.RESEND_API_KEY,
+    fromEmail: process.env.RESEND_FROM_EMAIL || 'support@lot-systems.com',
+    fromName: process.env.RESEND_FROM_NAME || 'Your App',
   },
+
+  db: {
+    host: requireEnv('DB_HOST'),
+    port: parseInt(requireEnv('DB_PORT', '25060'), 10),
+    database: requireEnv('DB_NAME', 'defaultdb'),
+    username: requireEnv('DB_USER'),
+    password: requireEnv('DB_PASSWORD'),
+  },
+
   jwt: {
-    secret: process.env.JWT_SECRET || '',
-    cookieKey: process.env.JWT_COOKIE_KEY || '',
+    secret: requireEnv('JWT_SECRET'),
+    cookieKey: 'auth_token',
+    expiresIn: '30d',
   },
-  mailchimp: {
-    fromEmail: process.env.MAILCHIMP_FROM_EMAIL || '',
-    fromName: process.env.MAILCHIMP_FROM_NAME || '',
-    mandrillApiKey: process.env.MAILCHIMP_MANDRILL_API_KEY || '',
-  },
-  // shopify: {
-  //   shopId: process.env.SHOPIFY_SHOP_ID || '',
-  //   apiToken: process.env.SHOPIFY_API_TOKEN || '',
-  // },
-  // openai: {
-  //   apiKey: process.env.OPENAI_API_KEY || '',
-  // },
-  openWeatherApiKey: process.env.OPEN_WEATHER_API_KEY || '',
+
   geonamesUsername: process.env.GEONAMES_USERNAME || '',
-  admins: tryParseJSON(process.env.ADMINS || '[]'),
+  // Note: Weather now uses Open-Meteo (free, no API key required)
+
+  anthropic: {
+    apiKey: process.env.ANTHROPIC_API_KEY || '',
+  },
 }
 
-function tryParseJSON(json: string, defaultValue = {}) {
-  try {
-    return JSON.parse(json)
-  } catch (e) {
-    return defaultValue
+validateConfig()
+
+function validateConfig() {
+  // Warn if JWT secret is weak (less than 32 characters)
+  if (config.jwt.secret.length < 32) {
+    console.warn('WARNING: JWT_SECRET is too short. Use at least 32 characters. Generate one with: openssl rand -hex 32')
   }
-}
-function tryParseNumber(value: string, fallback = undefined) {
-  const parsed = value && !isNaN(Number(value)) && Number(value)
-  return parsed || fallback
+
+  // Warn if running production without HTTPS
+  if (config.env === 'production' && !config.appHost.startsWith('https://')) {
+    console.warn('WARNING: Production should use HTTPS. Set APP_HOST to an https:// URL')
+  }
 }
 
 export default config

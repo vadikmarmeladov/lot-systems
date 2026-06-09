@@ -15,32 +15,72 @@ type Props = {
   containsButton?: boolean
   containsSmallButton?: boolean
   onClick?: () => void
+  inProgress?: boolean
 }
 
 export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
   const theme = useStore(stores.theme)
+  const isMirrorOn = useStore(stores.isMirrorOn)
+  const baseColor = useStore(stores.baseColor)
+  const accentColor = useStore(stores.accentColor)
 
-  const hoverClassName = React.useMemo(() => {
-    if (theme === 'dark') {
-      return 'hover:bg-acc-400/20 group-hover:bg-acc-400/20'
+  const hoverClassName = isMirrorOn
+    ? 'hover:bg-white/10 group-hover:bg-white/10'
+    : 'grid-fill-hover'
+
+  const progressStyle = React.useMemo(() => {
+    if (!props.inProgress) return undefined
+    let color: string
+    if (theme === 'dark' || isMirrorOn) {
+      color = 'rgba(255, 255, 255, 0.18)'
+    } else if (theme === 'light') {
+      color = '#E8C547'
     } else {
-      return 'hover:bg-acc-400/10 group-hover:bg-acc-400/10'
+      color = `rgb(var(--acc-color-300) / 0.5)`
     }
-  }, [theme])
+    return { '--widget-progress-color': color } as React.CSSProperties
+  }, [props.inProgress, theme, isMirrorOn, baseColor, accentColor])
 
   return (
-    <div className={props.className}>
+    <div
+      className={cn(props.className, props.inProgress && 'widget-in-progress')}
+      style={progressStyle}
+    >
       <div className="flex">
         <div
           className={cn(
             'flex items-start w-full',
             !!props.onClick && 'group cursor-pointer'
           )}
-          onClick={props.onClick}
+          onClick={(e) => {
+            if (!props.onClick) return
+
+            // Don't trigger parent onClick if click came from an interactive element
+            // (buttons, links, or elements with their own onClick handlers)
+            let target = e.target as HTMLElement
+            const currentEl = e.currentTarget as HTMLElement
+
+            while (target && target !== currentEl) {
+              // Check if this element is interactive
+              if (
+                target.tagName === 'BUTTON' ||
+                target.tagName === 'A' ||
+                target.tagName === 'INPUT' ||
+                target.onclick !== null ||
+                target.getAttribute('role') === 'button'
+              ) {
+                return // Don't trigger parent onClick
+              }
+              target = target.parentElement as HTMLElement
+            }
+
+            // Safe to trigger parent onClick
+            props.onClick()
+          }}
         >
           <div
             className={cn(
-              'w-[150px] mr-8 -ml-4',
+              'w-[150px] phone:w-[170px] mr-12 phone:mr-24 -ml-4 flex-shrink-0',
               props.containsButton && 'translate-y-8',
               props.containsSmallButton && 'translate-y-4'
             )}
@@ -55,7 +95,15 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
                   ),
                 props.labelClassName
               )}
-              onClick={props.onLabelClick}
+              onClick={(e) => {
+                if (props.onLabelClick) {
+                  // Prevent parent onClick from firing if both handlers exist
+                  if (props.onClick) {
+                    e.stopPropagation()
+                  }
+                  props.onLabelClick()
+                }
+              }}
             >
               {props.label}
             </span>
@@ -63,7 +111,6 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
           <div
             className={cn(
               'flex-1',
-              blockView && 'pl-4',
               props.contentClassName
             )}
           >
@@ -72,15 +119,25 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
             ) : (
               <span
                 className={cn(
-                  'px-4 rounded',
-                  (!!props.onClick || !!props.onChildrenClick) &&
-                    cn(
-                      'cursor-pointer transition-[background-color]',
-                      hoverClassName
-                    ),
+                  'rounded',
+                  (!!props.onClick || !!props.onChildrenClick)
+                    ? '-ml-4 pl-4 pr-4 cursor-pointer transition-[background-color] ' + hoverClassName
+                    : '',
                   props.labelClassName
                 )}
-                onClick={props.onChildrenClick}
+                onClick={(e) => {
+                  if (props.onChildrenClick) {
+                    // Prevent parent onClick from firing if both handlers exist
+                    if (props.onClick) {
+                      e.stopPropagation()
+                    }
+                    props.onChildrenClick()
+                  } else if (props.onClick) {
+                    // Stop propagation to prevent parent div from also calling onClick
+                    e.stopPropagation()
+                    props.onClick()
+                  }
+                }}
               >
                 {props.children}
               </span>

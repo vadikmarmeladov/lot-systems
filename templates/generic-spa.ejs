@@ -1,5 +1,61 @@
-<%- include('header'); -%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><%= appName %></title>
+    <meta name="description" content="<%= appDescription %>">
+    <link rel="stylesheet" href="/css/index.css?v=20241213-002">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon/icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/icon/icon-512.png">
+</head>
+<body>
+    <div id="root"></div>
+    <script type="module" nonce="<%= scriptNonce %>" src="/js/<%= scriptName %>.js"></script>
+    <script nonce="<%= scriptNonce %>">
+      // Register service worker with auto-update
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => {
+              console.log('[PWA] Service worker registered:', registration.scope);
 
-<script src="/js/<%= scriptName %>.js"></script>
+              // Only check for updates if we already have a controlling SW
+              // (skip on first install to avoid immediate reload)
+              if (navigator.serviceWorker.controller) {
+                registration.update();
+              }
 
-<%- include('footer'); -%>
+              // Auto-update service worker when new version available
+              registration.addEventListener('updatefound', () => {
+                const newWorker = registration.installing;
+                newWorker.addEventListener('statechange', () => {
+                  if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    console.log('[PWA] New version available, activating immediately');
+                    newWorker.postMessage({ type: 'SKIP_WAITING' });
+                  }
+                });
+              });
+
+              // Reload page when new service worker takes control
+              // Only reload if the page has been interactive (not during initial load)
+              let refreshing = false;
+              let pageReady = false;
+              setTimeout(() => { pageReady = true; }, 5000);
+              navigator.serviceWorker.addEventListener('controllerchange', () => {
+                if (!refreshing && pageReady) {
+                  refreshing = true;
+                  console.log('[PWA] Service worker updated, reloading page');
+                  window.location.reload();
+                }
+              });
+            })
+            .catch(err => {
+              console.error('[PWA] Service worker registration failed:', err);
+            });
+        });
+      }
+    </script>
+</body>
+</html>

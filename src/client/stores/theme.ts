@@ -4,7 +4,7 @@ import { ClientTheme, ClientThemeMode } from '#client/types'
 import { generatePalette, hexToRgb } from '#client/utils/color'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
-import * as state from './state'
+import * as state from './state.js'
 
 const CUSTOM_THEME_RE = /^#([A-Fa-f0-9]{6})_#([A-Fa-f0-9]{6})$/
 
@@ -133,6 +133,7 @@ theme.subscribe((value) => {
 function handleColorsChange() {
   const base = baseColor.get()
   const acc = accentColor.get()
+  const currentTheme = theme.get()
 
   let _theme: ClientTheme | null = null
   for (const [key, value] of Object.entries(THEMES)) {
@@ -141,11 +142,16 @@ function handleColorsChange() {
       break
     }
   }
-  if (_theme) {
+
+  // Prevent circular updates: only set theme if it's actually changing
+  if (_theme && _theme !== currentTheme) {
     theme.set(_theme)
-  } else {
+  } else if (!_theme && currentTheme !== 'custom') {
     customTheme.set({ base, acc })
     theme.set('custom')
+  } else if (!_theme && currentTheme === 'custom') {
+    // Already custom theme, just update colors without triggering theme change
+    customTheme.set({ base, acc })
   }
 }
 const handleColorsChangeDebounced = fp.debounce(handleColorsChange, 400)
@@ -185,23 +191,103 @@ state.isMirrorOn.subscribe((value) => {
     // NOTE: the following logic is duplicated in src/client/utils/sun.ts
     const _theme = theme.get()
     const _isCustomThemeEnabled = isCustomThemeEnabled.get()
-    if (_isCustomThemeEnabled && _theme !== 'custom') {
-      theme.set('custom')
+
+    // If custom theme is enabled, don't auto-switch themes
+    if (_isCustomThemeEnabled) {
+      if (_theme !== 'custom') {
+        theme.set('custom')
+      }
       return
     }
+
+    // Otherwise, do automatic theme switching based on time
     const weather = state.weather.get()
     if (!weather) {
       theme.set('light')
       return
     }
     const now = dayjs()
+    if (weather.sunrise == null || weather.sunset == null) {
+      theme.set('light')
+      return
+    }
     const sunrise = dayjs.utc(weather.sunrise * 1000).local()
     const sunset = dayjs.utc(weather.sunset * 1000).local()
     const isDark = now.isAfter(sunset) || now.isBefore(sunrise)
-    if (isDark && ['light', 'sunset', 'sunrise'].includes(_theme)) {
+
+    // Set theme based on time of day
+    if (isDark) {
       theme.set('dark')
-      return
+    } else {
+      theme.set('light')
     }
-    theme.set('light')
   }
 })
+
+// Initialize CSS custom properties on module load
+// This ensures theme colors are available immediately for Tailwind utilities
+if (typeof document !== 'undefined') {
+  const initialBase = baseColor.get()
+  const initialAcc = accentColor.get()
+  const initialPalette = accentPalette.get()
+
+  document.documentElement.style.setProperty('--base-color', initialBase)
+  const initialAccRgb = hexToRgb(initialAcc) || hexToRgb(THEMES.light.acc)!
+  document.documentElement.style.setProperty(
+    '--acc-color-default',
+    initialAccRgb.join(' ')
+  )
+  initialPalette.forEach((x) => {
+    document.documentElement.style.setProperty(
+      `--acc-color-${x.index}`,
+      x.colorRgb.join(' ')
+    )
+  })
+
+  // Save theme changes to backend for public profile
+  let saveThemeTimeout: NodeJS.Timeout | null = null
+  let isInitialLoad = true
+
+  const saveThemeToBackend = () => {
+    // Skip the very first call (happens when subscriptions are set up)
+    if (isInitialLoad) {
+      isInitialLoad = false
+      return
+    }
+
+    // Don't save on public profile pages
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/u/')) {
+      return
+    }
+
+    const currentTheme = theme.get()
+    const currentBase = baseColor.get()
+    const currentAcc = accentColor.get()
+    const currentCustomEnabled = isCustomThemeEnabled.get()
+
+    if (saveThemeTimeout) clearTimeout(saveThemeTimeout)
+    saveThemeTimeout = setTimeout(() => {
+      // Only save if fetch API is available
+      if (typeof fetch === 'undefined') return
+
+      fetch('/api/theme-change', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          theme: currentTheme,
+          baseColor: currentBase,
+          accentColor: currentAcc,
+          customThemeEnabled: currentCustomEnabled,
+        }),
+      }).catch(err => {
+        // Silent fail - theme will still work locally
+        console.debug('Theme save skipped:', err.message)
+      })
+    }, 1000) // Debounce 1 second
+  }
+
+  // Subscribe to theme changes and save to backend
+  theme.subscribe(saveThemeToBackend)
+  baseColor.subscribe(saveThemeToBackend)
+  accentColor.subscribe(saveThemeToBackend)
+}

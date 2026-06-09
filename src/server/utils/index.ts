@@ -1,3 +1,4 @@
+import fastify from 'fastify';
 import fs from 'fs'
 import zlib from 'zlib'
 import axios from 'axios'
@@ -5,6 +6,8 @@ import { FastifyReply } from 'fastify'
 import jwtLib, { JwtPayload } from 'jsonwebtoken'
 import config from '#server/config'
 import { SafeResponse } from '#server/types'
+
+const app = fastify();
 
 export const throwReplyDecorator = {
   getter() {
@@ -75,7 +78,7 @@ export const jwt = {
     expiresIn: number | string = '20d'
   ): Promise<SafeResponse<string>> {
     return new Promise((resolve) => {
-      jwtLib.sign(payload, config.jwt.secret, { expiresIn }, (error, token) => {
+      jwtLib.sign(payload, config.jwt.secret, { expiresIn: expiresIn as any }, (error, token) => {
         if (error) {
           resolve({ success: false, error })
         }

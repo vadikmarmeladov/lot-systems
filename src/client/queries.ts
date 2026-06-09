@@ -20,7 +20,10 @@ import {
 import dayjs from '#client/utils/dayjs'
 import { DATE_TIME_FORMAT } from '#shared/constants'
 
-const api = axios.create({ baseURL: '/' })
+const api = axios.create({
+  baseURL: '/',
+  withCredentials: true  // Send cookies with requests
+})
 
 // Utils
 function createQuery<T>(
@@ -82,11 +85,53 @@ export const useLikeChatMessage = createMutation<ChatMessageLikePayload, void>(
   '/api/chat-messages/like'
 )
 
+export interface DirectMessageRecord {
+  id: string
+  senderId: string
+  receiverId: string
+  message: string
+  createdAt: string
+  updatedAt: string
+  isMine: boolean
+}
+
+export const useDirectMessages = (userId: string) =>
+  createQuery<{
+    messages: DirectMessageRecord[]
+    otherUser: {
+      id: string
+      firstName: string | null
+      lastName: string | null
+    }
+  }>(`/api/direct-messages/${userId}`, {
+    refetchOnWindowFocus: false,
+  })()
+
+export const useSendDirectMessage = createMutation<
+  { receiverId: string; message: string },
+  void
+>('post', '/api/direct-messages')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })
 
-export const useLogs = createQuery<Log[]>('/api/logs')
+export const useVisitorStats = createQuery<{
+  totalSiteVisitors: number
+  userProfileVisits: number
+}>('/api/visitor-stats', {
+  refetchOnWindowFocus: false,
+})
+
+export const useLogs = createQuery<Log[]>('/api/logs', {
+  refetchOnWindowFocus: false, // Prevent refetching on tab switch (was creating duplicate empty logs)
+  staleTime: 30 * 1000, // Cache for 30 seconds to prevent excessive refetching
+})
+
+export const useCreateLog = createMutation<{ text: string; event?: string; metadata?: Record<string, any> }, Log>(
+  'post',
+  '/api/logs'
+)
 
 export const useUpdateLog = createMutation<{ id: string; text: string }, Log>(
   'put',
@@ -94,17 +139,74 @@ export const useUpdateLog = createMutation<{ id: string; text: string }, Log>(
 )
 
 export const useMemory = () => {
-  const date = btoa(dayjs().format(DATE_TIME_FORMAT))
+  const date = btoa(dayjs().format('YYYY-MM-DD'))
   const path = '/api/memory'
-  return useQuery<DefaultQuestion>(
-    [path],
-    async () =>
-      (await api.get<DefaultQuestion>(path, { params: { d: date } })).data
+
+  return useQuery<any>(
+    [path, date],
+    async () => {
+      let quantumParams = {}
+      if (typeof window !== 'undefined') {
+        try {
+          const { getUserState } = await import('#client/stores/intentionEngine')
+          const state = getUserState()
+          if (state && state.energy !== 'unknown') {
+            quantumParams = {
+              qe: state.energy,
+              qc: state.clarity,
+              qa: state.alignment,
+              qn: state.needsSupport
+            }
+          }
+        } catch (e) {
+          // Quantum state optional
+        }
+      }
+
+      // Send recently shown questions for duplicate avoidance
+      let recentlyShownQuestions: string[] = []
+      if (typeof window !== 'undefined') {
+        try {
+          const recentQuestionsData = localStorage.getItem('recentMemoryQuestions')
+          if (recentQuestionsData) {
+            const recentQuestions = JSON.parse(recentQuestionsData) as Array<{
+              question: string
+              timestamp: number
+            }>
+            recentlyShownQuestions = recentQuestions
+              .map(q => q.question.toLowerCase().trim().replace(/[?.!,]/g, ''))
+              .slice(0, 10)
+          }
+        } catch (e) {
+          // Non-critical
+        }
+      }
+
+      const response = await api.get<any>(path, {
+        params: {
+          d: date,
+          ...(Object.keys(quantumParams).length > 0 ? quantumParams : {}),
+          ...(recentlyShownQuestions.length > 0 ? { recentShown: JSON.stringify(recentlyShownQuestions) } : {})
+        }
+      })
+
+      return response.data
+    },
+    {
+      staleTime: 10 * 60 * 1000, // 10 minutes
+      cacheTime: 30 * 60 * 1000, // 30 minutes
+      retry: 1,
+    }
   )
 }
 
 export const useCreateMemory = createMutation<
-  { questionId: string; option: string },
+  {
+    questionId: string
+    option: string
+    question?: string
+    options?: string[]
+  },
   { response: string }
 >('post', '/api/memory/answer')
 
@@ -119,7 +221,7 @@ export const usePaginatedUsers = (params: {
   const usp = new URLSearchParams({
     ...params,
     skip: String(params.skip),
-    limit: String(params.skip),
+    limit: String(params.limit),
     tags: params.tags.join(','),
   })
   usp.sort()
@@ -155,3 +257,535 @@ export const useCompleteMemoryPrompt = createMutation<
   { userId: string; prompt: string },
   DefaultQuestion
 >('post', (data) => `/admin-api/users/${data.userId}/memory-prompt`)
+
+export const useUserSummary = (userId: string) =>
+  createQuery<{ summary: string }>(`/admin-api/users/${userId}/summary`, {
+    enabled: !!userId,
+  })()
+
+export const useUserMemoryStory = (userId: string) =>
+  createQuery<{ story: string }>(`/admin-api/users/${userId}/memory-story`, {
+    enabled: !!userId,
+  })()
+
+export const useMyMemoryStory = () =>
+  createQuery<{
+    story: string | null
+    hasUsership: boolean
+    answerCount?: number
+    message?: string
+  }>('/api/memory/story', {
+    refetchOnWindowFocus: false,
+  })()
+
+// Get user's psychological profile (archetypes, values, patterns)
+export const useProfile = () =>
+  createQuery<{
+    hasUsership: boolean
+    archetype?: string
+    archetypeDescription?: string
+    coreValues?: string[]
+    values?: string[] // Also support 'values' field
+    emotionalPatterns?: string[]
+    selfAwarenessLevel?: number  // 0-10 scale
+    emotionalRange?: number // 0-10 scale
+    reflectionQuality?: number // 0-10 scale
+    growthTrajectory?: 'emerging' | 'developing' | 'deepening' | 'integrated'
+    dominantNeeds?: string[]
+    journalSentiment?: {
+      positive: number
+      neutral: number
+      challenging: number
+    }
+    behavioralCohort?: string
+    behavioralTraits?: string[]
+    patternStrength?: { trait: string; count: number }[]
+    answerCount?: number
+    noteCount?: number
+    message?: string
+  }>('/api/user-profile', {
+    staleTime: 2 * 60 * 1000, // 2 minutes — awareness index doesn't change faster than this
+    refetchOnWindowFocus: false,
+  })()
+
+// ============================================================================
+// PATTERN & COHORT QUERIES
+// ============================================================================
+
+export interface PatternInsight {
+  type: 'weather-mood' | 'temporal' | 'social-emotional' | 'streak' | 'behavioral'
+  title: string
+  description: string
+  confidence: number
+  dataPoints: number
+  metadata?: Record<string, any>
+}
+
+export interface CohortMatch {
+  user: {
+    id: string
+    firstName: string
+    lastName: string
+    city: string
+    country: string
+    archetype?: string
+  }
+  similarity: number
+  sharedPatterns: string[]
+}
+
+export const usePatterns = () =>
+  createQuery<{
+    insights: PatternInsight[]
+    lastAnalyzedAt: string
+    dataPointsAnalyzed: number
+    message?: string
+  }>('/api/patterns', {
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  })()
+
+export const useCohorts = () =>
+  createQuery<{
+    matches: CohortMatch[]
+    yourPatterns: PatternInsight[]
+    lastAnalyzedAt: string
+    message?: string
+  }>('/api/cohorts', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes (cohorts don't change frequently)
+  })()
+
+export interface ContextualPrompt {
+  type: 'check-in' | 'suggestion' | 'insight' | 'connection'
+  title: string
+  message: string
+  action?: {
+    label: string
+    target: 'mood' | 'memory' | 'sync' | 'log'
+  }
+  priority: number
+  triggeredBy: string
+}
+
+export const useContextualPrompts = () =>
+  createQuery<{
+    prompts: ContextualPrompt[]
+    generatedAt: string
+    message?: string
+  }>('/api/contextual-prompts', {
+    refetchOnWindowFocus: false,
+    staleTime: 15 * 60 * 1000, // Cache for 15 minutes (context changes slowly)
+  })()
+
+export interface PatternEvolution {
+  patternType: string
+  patternTitle: string
+  timeline: {
+    week: string
+    confidence: number
+    dataPoints: number
+    value?: any
+  }[]
+  trend: 'strengthening' | 'stable' | 'weakening' | 'emerging'
+  firstSeen: string
+  lastSeen: string
+}
+
+export const usePatternEvolution = () =>
+  createQuery<{
+    evolution: PatternEvolution[]
+    timeWindows: string[]
+    analyzedAt: string
+    message?: string
+  }>('/api/pattern-evolution', {
+    refetchOnWindowFocus: false,
+    staleTime: 60 * 60 * 1000, // Cache for 1 hour (evolution is slow)
+  })()
+
+// ============================================================================
+// SELF-CARE ENGINE QUERIES
+// ============================================================================
+
+export interface EnergyState {
+  currentLevel: number
+  maxCapacity: 100
+  status: 'depleted' | 'low' | 'moderate' | 'good' | 'full'
+  trajectory: 'improving' | 'stable' | 'declining' | 'critical'
+  daysUntilBurnout: number | null
+  romanticConnection: {
+    lastIntimacyMoment: string | null
+    daysSinceConnection: number
+    connectionQuality: 'disconnected' | 'distant' | 'present' | 'deep'
+    needsAttention: boolean
+  }
+  needsReplenishment: {
+    category: string
+    urgency: number
+    daysSinceLastReplenishment: number
+  }[]
+}
+
+export const useEnergy = () =>
+  createQuery<{
+    energyState: EnergyState | null
+    suggestions: string[]
+    analyzedAt: string
+    message?: string
+  }>('/api/energy', {
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  })()
+
+export interface Achievement {
+  id: string
+  title: string
+  description: string
+  unlocked: boolean
+  unlockedAt: string | null
+  category: string
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+  icon: string
+}
+
+export interface UserNarrative {
+  archetype: string
+  currentLevel: number
+  storyline: string
+  achievements: Achievement[]
+  currentArc: {
+    chapter: number
+    title: string
+    narrative: string
+    activeQuests: any[]
+    milestones: any[]
+  }
+  totalXP: number
+  nextMilestone: any | null
+}
+
+export const useNarrative = () =>
+  createQuery<{
+    narrative: UserNarrative | null
+    generatedAt: string
+    message?: string
+  }>('/api/narrative', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  })()
+
+export const useGoalProgression = () =>
+  createQuery<{
+    progression: any | null // TODO: Type this properly
+    generatedAt: string
+    message?: string
+  }>('/api/goal-progression', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  })()
+
+export interface ChatCatalyst {
+  type: string
+  priority: number
+  title: string
+  message: string
+  action: {
+    label: string
+    cohortMember?: {
+      id: string
+      name: string
+    }
+  }
+  triggeredBy: string
+  conversationStarters?: string[]
+}
+
+export const useChatCatalysts = () =>
+  createQuery<{
+    catalysts: ChatCatalyst[]
+    generatedAt: string
+    message?: string
+  }>('/api/chat-catalysts', {
+    refetchOnWindowFocus: false,
+    staleTime: 15 * 60 * 1000, // Cache for 15 minutes
+  })()
+
+export interface Intervention {
+  type: string
+  severity: 'low' | 'medium' | 'high' | 'critical'
+  title: string
+  message: string
+  suggestion?: string
+  action?: {
+    label: string
+    target: string
+  }
+}
+
+export const useInterventions = () =>
+  createQuery<{
+    interventions: Intervention[]
+    generatedAt: string
+    message?: string
+  }>('/api/interventions', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+  })()
+
+export const useCommunityEmotion = () =>
+  createQuery<{
+    sharedEmotion: string | null
+    confidence: number
+    participantCount: number
+    emotionBreakdown?: Record<string, number>
+    calculatedAt: string
+    message?: string
+  }>('/api/community-emotion', {
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes (more volatile than other data)
+  })()
+
+// ============================================================================
+// EMOTIONAL CHECK-IN QUERIES
+// ============================================================================
+
+export const useCreateEmotionalCheckIn = createMutation<
+  {
+    checkInType: 'morning' | 'evening' | 'moment'
+    emotionalState: string
+    intensity?: number
+    note?: string
+  },
+  {
+    checkIn: any
+    insights: string[]
+    compassionateResponse: string
+  }
+>('post', '/api/emotional-checkin')
+
+export const useEmotionalCheckIns = (days: number = 30) =>
+  createQuery<{
+    checkIns: any[]
+    stats: {
+      total: number
+      moodCounts: { [key: string]: number }
+      dominantMood: string
+      averageIntensity: number
+    }
+  }>(`/api/emotional-checkins?days=${days}`, {
+    refetchOnWindowFocus: false,
+  })()
+
+// ============================================================================
+// Stats API - Real-time metrics and community insights
+// ============================================================================
+
+export const useCollectiveStats = () =>
+  createQuery<{
+    energyLevel: number
+    clarityIndex: number
+    alignmentScore: number
+    soulsInFlow: number
+    activeIntentions: number
+    careMoments: number
+    lastUpdated: number
+  }>('/api/stats/collective', {
+    refetchInterval: 30000, // Refetch every 30 seconds
+  })()
+
+export const useGrowthStats = () =>
+  createQuery<{
+    personal: {
+      journeyDays: number
+      questionsAnswered: number
+      insightsGained: number
+      badgeLevel: string
+      badgeCount: number
+    }
+    community: {
+      totalSouls: number
+      daysOfOperation: number
+      collectiveWisdom: number
+    }
+    lastUpdated: number
+  }>('/api/stats/growth', {
+    refetchInterval: 60000, // Refetch every minute
+  })()
+
+export const usePatternStats = () =>
+  createQuery<{
+    patterns: { [key: string]: number }
+    mostActive: string
+    lastUpdated: number
+  }>('/api/stats/patterns', {
+    refetchInterval: 30000, // Refetch every 30 seconds
+  })()
+
+export const useWellnessStats = () =>
+  createQuery<{
+    activeNow: number
+    questionsToday: number
+    reflectionsToday: number
+    careMomentsToday: number
+    peakEnergyHour: string
+    quietestHour: string
+    lastUpdated: number
+  }>('/api/stats/wellness', {
+    refetchInterval: 30000, // Refetch every 30 seconds
+  })()
+
+export const useBadgeStats = () =>
+  createQuery<{
+    recentUnlocks: Array<{
+      badge: string
+      userName: string
+      timeAgo: number
+    }>
+    totalToday: number
+    lastUpdated: number
+  }>('/api/stats/badges', {
+    refetchInterval: 60000, // Refetch every minute
+  })()
+
+export const useMemoryEngineStats = () =>
+  createQuery<{
+    questionsGenerated: number
+    responseQuality: number
+    avgResponseTime: number
+    contextDepth: number
+    aiDiversityScore: number
+    lastUpdated: number
+  }>('/api/stats/memory-engine', {
+    refetchInterval: 60000, // Refetch every minute
+    retry: false, // Don't retry if user doesn't have access
+  })()
+
+export const useAIUsageStats = () =>
+  createQuery<{
+    today: {
+      totalCalls: number
+      totalTokens: number
+      totalImageGenerations: number
+      byEngine: Record<string, { calls: number; estimatedTokens: number; imageGenerations: number }>
+      callsPerHour: number
+    }
+    session: {
+      totalCalls: number
+      totalTokens: number
+      totalImageGenerations: number
+      startedAt: number
+    }
+  }>('/api/stats/ai-usage', {
+    refetchInterval: 30000, // Refetch every 30 seconds
+    retry: false,
+  })()
+
+// ============================================================================
+// OS API - User Operating System metrics
+// ============================================================================
+
+export const useOSStatus = () =>
+  createQuery<{
+    health: number
+    state: 'initializing' | 'active' | 'engaged' | 'optimized' | 'dormant'
+    uptime: number
+    streak: number
+    lastActivity: string | null
+    metrics: {
+      totalInteractions: number
+      memoryQuestions: number
+      journalEntries: number
+      engagementRate: number
+    }
+  }>('/api/os/status', {
+    refetchOnWindowFocus: false,
+    staleTime: 5 * 60 * 1000,
+  })()
+
+export const useOSVersion = () =>
+  createQuery<{
+    version: string
+    name: string
+    description: string
+    progression: number
+    nextVersion: string | null
+    requirements: { answers: number; days: number }
+    unlocked: string[]
+    milestones: string[]
+  }>('/api/os/version', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
+  })()
+
+export const useOSPerformance = () =>
+  createQuery<{
+    overall: {
+      consistency: number
+      velocity: number
+      depth: number
+      balance: number
+    }
+    trends: {
+      weekly: Array<{ week: string; count: number }>
+      trajectory: 'increasing' | 'stable' | 'decreasing'
+    }
+    benchmarks: {
+      answers: number
+      logs: number
+      avgPerWeek: number
+    }
+  }>('/api/os/performance', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
+  })()
+
+export const useOSDiagnostics = () =>
+  createQuery<{
+    status: 'optimal' | 'good' | 'needs_attention'
+    optimizationScore: number
+    issues: Array<{
+      type: string
+      severity: 'low' | 'medium' | 'high'
+      description: string
+      suggestion: string
+    }>
+    lastActivity: {
+      memory: string | null
+      mood: string | null
+      planner: string | null
+    }
+    recommendations: string[]
+  }>('/api/os/diagnostics', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
+  })()
+
+export const useOSIndexes = () =>
+  createQuery<{
+    selfAwareness: number
+    userScore: number
+    personScore: number
+    longevityScore: number
+    composite: number
+    timeline: Array<{
+      week: string
+      selfAwareness: number
+      userScore: number
+      personScore: number
+      longevityScore: number
+      composite: number
+    }>
+    trend: 'ascending' | 'stable' | 'descending'
+    correlationStrength: number
+  }>('/api/os/indexes', {
+    refetchOnWindowFocus: false,
+    staleTime: 10 * 60 * 1000,
+  })()
+
+// ============================================================================
+// COSMIC UPDATE
+// ============================================================================
+export const useCosmicUpdate = createMutation<
+  { prompt?: string },
+  { imageUrl: string; prompt: string }
+>('post', '/api/cosmic-update')

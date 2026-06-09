@@ -1,4 +1,6 @@
 import React, { useMemo } from 'react'
+import { useStore } from '@nanostores/react'
+import * as stores from '#client/stores'
 import { cn } from '#client/utils'
 import { Color } from '#shared/types'
 
@@ -10,22 +12,35 @@ type Props = React.HTMLAttributes<HTMLSpanElement> & {
 }
 
 export const Tag: React.FC<Props> = ({
-  color = 'gray',
+  color = 'blue',
   fill = false,
   href = null,
   className,
   ...rest
 }) => {
+  const isMirrorOn = useStore(stores.isMirrorOn)
+
   const resultClassName = useMemo(() => {
+    // For red color (Suspended tag), use red regardless of theme
+    const isRed = color === 'red'
+
     return cn(
-      'rounded px-[6px]',
+      'rounded px-[6px] py-[2px]',
       'border border-transparent',
-      fill ? 'bg-acc text-bac' : 'border-acc text-acc',
+      isRed
+        ? fill
+          ? 'bg-red-600 text-white border-red-600'
+          : 'border-red-600 text-red-600'
+        : fill
+        ? 'bg-acc text-bac'
+        : 'border-acc text-acc',
+      // Mirror mode: use white for text and border
+      isMirrorOn && !isRed && 'text-white border-white',
       !!(href || rest.onClick) ? 'cursor-pointer' : '',
       !!rest.onClick && 'select-none',
       className
     )
-  }, [color, className, href, rest.onClick])
+  }, [color, fill, className, href, rest.onClick, isMirrorOn])
   return href ? (
     <a href={href} className={resultClassName} {...rest} />
   ) : (
@@ -37,7 +52,7 @@ export const TagsContainer: React.FC<{
   className?: string
   items: React.ReactNode[]
 }> = ({ className, items }) => (
-  <div className={cn('flex flex-wrap gap-x-4', className)}>
+  <div className={cn('flex flex-wrap gap-x-4 gap-y-4', className)}>
     {items.map((x, i) => (
       <div key={i}>{x}</div>
     ))}

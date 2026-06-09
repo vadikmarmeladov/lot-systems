@@ -13,8 +13,16 @@ export const liveMessage = atom<string>('')
 
 export const isMirrorOn = atom<boolean>(false)
 export const isSoundOn = atom<boolean>(false)
+export const soundDescription = atom<string>('')
+export const isRadioOn = atom<boolean>(false)
+export const radioTrackName = atom<string>('')
 
 export const weather = atom<WeatherRecord | null>(null)
+
+// connection status
+export const isConnected = atom<boolean>(true)
+export const lastUpdate = atom<Date | null>(null)
+export const appVersion = atom<string>('')
 
 // static + localStorage
 export const isTimeFormat12h = persistentAtom<boolean>(
@@ -31,6 +39,39 @@ export const isTempFahrenheit = persistentAtom<boolean>(
   {
     encode: (value) => value.toString(),
     decode: (value) => value === 'true',
+  }
+)
+export const isTimeChimeEnabled = persistentAtom<boolean>(
+  'isTimeChimeEnabled',
+  false,
+  {
+    encode: (value) => value.toString(),
+    decode: (value) => value === 'true',
+  }
+)
+
+/**
+ * Soviet synth keyboard click on every keystroke in the Log. Off by
+ * default so the System stays quiet unless the user asks for it.
+ * Can be toggled from Settings, from the 🎹 emoji inside any log, or
+ * via the `/synth` slash command.
+ */
+export const isKeyboardSoundOn = persistentAtom<boolean>(
+  'isKeyboardSoundOn',
+  false,
+  {
+    encode: (value) => value.toString(),
+    decode: (value) => value === 'true',
+  }
+)
+
+// Track last answered Memory question to prevent re-showing after tab switches
+export const lastAnsweredMemoryQuestionId = persistentAtom<string | null>(
+  'lastAnsweredMemoryQuestionId',
+  null,
+  {
+    encode: (value) => value || '',
+    decode: (value) => value || null,
   }
 )
 

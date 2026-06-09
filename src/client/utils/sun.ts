@@ -20,28 +20,67 @@ export function useSun(
         refetchWeather()
         return
       }
+      if (weather.sunrise == null || weather.sunset == null) return
       const sunrise = dayjs.utc(weather.sunrise * 1000).local()
       const sunset = dayjs.utc(weather.sunset * 1000).local()
+
+      // Transition windows: 90 seconds before sunrise/sunset
+      const sunriseTransitionStart = sunrise.subtract(90, 'second')
+      const sunsetTransitionStart = sunset.subtract(90, 'second')
+
+      // Debug: Log sunset time to help diagnose issue
+      console.log('[Sun Debug]', {
+        now: now.format('HH:mm:ss'),
+        nowFull: now.format(),
+        nowUnix: now.unix(),
+        localTime: new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles', hour12: true }),
+        sunrise: sunrise.format('HH:mm:ss'),
+        sunriseFull: sunrise.format(),
+        sunset: sunset.format('HH:mm:ss'),
+        sunsetFull: sunset.format(),
+        sunsetUnix: sunset.unix(),
+        sunsetTimestampFromAPI: weather.sunset,
+        sunsetAPIasDate: new Date(weather.sunset * 1000).toISOString(),
+        sunsetDifference: `${now.diff(sunset, 'minute')} minutes`,
+        sunsetTransitionStart: sunsetTransitionStart.format('HH:mm:ss'),
+        isDark: now.isAfter(sunset) || now.isBefore(sunrise),
+        isAfterSunset: now.isAfter(sunset),
+        isBeforeSunrise: now.isBefore(sunrise),
+        inSunsetTransition: now.isAfter(sunsetTransitionStart) && now.isBefore(sunset),
+        weatherCreatedAt: weather.createdAt,
+        weatherAge: `${now.diff(dayjs(weather.createdAt), 'minute')} minutes old`,
+        currentTheme: stores.theme.get(),
+        systemTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      })
+
+      const currentTheme = stores.theme.get()
+      const isCustomThemeEnabled = stores.isCustomThemeEnabled.get()
+
+      // If custom theme is enabled, don't auto-switch themes
+      if (isCustomThemeEnabled) {
+        if (currentTheme !== 'custom') {
+          stores.theme.set('custom')
+        }
+        return
+      }
+
+      // Otherwise, do automatic theme switching based on time
       if (
-        now.isAfter(sunrise.subtract(10, 'second')) &&
-        now.isBefore(sunrise.add(1, 'minute'))
+        now.isAfter(sunriseTransitionStart) &&
+        now.isBefore(sunrise)
       ) {
         stores.theme.set('sunrise')
       } else if (
-        now.isAfter(sunset.subtract(10, 'second')) &&
-        now.isBefore(sunset.add(1, 'minute'))
+        now.isAfter(sunsetTransitionStart) &&
+        now.isBefore(sunset)
       ) {
         stores.theme.set('sunset')
       } else {
-        const currentTheme = stores.theme.get()
-        const isCustomThemeEnabled = stores.isCustomThemeEnabled.get()
-        if (isCustomThemeEnabled && currentTheme !== 'custom') {
-          stores.theme.set('custom')
-          return
-        }
         const isDark = now.isAfter(sunset) || now.isBefore(sunrise)
         if (isDark && ['light', 'sunset', 'sunrise'].includes(currentTheme)) {
           stores.theme.set('dark')
+        } else if (!isDark && currentTheme === 'dark') {
+          stores.theme.set('light')
         }
       }
     }

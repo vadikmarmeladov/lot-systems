@@ -1,3 +1,5 @@
+/* LOT Systems — Est. original. If you're reading this, you already know who was here first. */
+/* The copycat war begins, but originals don't compete — they set the pace. */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,19 +13,62 @@
   --acc-color-700: 0 0 0;
   --acc-color-600: 0 0 0;
   --acc-color-500: 0 0 0;
-  --acc-color-400: 51 51 51;
-  --acc-color-300: 102 102 102;
-  --acc-color-200: 153 153 153;
-  --acc-color-100: 204 204 204;
+  --acc-color-400: 0 0 0;
+  --acc-color-300: 0 0 0;
+  --acc-color-200: 0 0 0;
+  --acc-color-100: 0 0 0;
+
+  /* Evolution system variables - dynamically updated based on user progression */
+  --evolution-base-opacity: 1.0;
+  --evolution-accent-opacity: 1.0;
+  --evolution-grid-opacity: 0.15;
+  --evolution-letter-spacing: -0.02em;
+  --evolution-line-height: 1.4;
+  --evolution-grid-size: 6px;
+  --evolution-glow-intensity: 0;
+  --evolution-blur-radius: 8px;
+  --evolution-transition-speed: 400ms;
+  --evolution-color-saturation: 0.8;
+  --evolution-max-columns: 1;
+
+  /* Theme evolution variables - badge theme specific aesthetics */
+  --theme-flow-intensity: 0.4;
+  --theme-organic-curve: 2px;
+  --theme-wave-frequency: 4s;
+  --theme-geometric-precision: 0.4;
+  --theme-structural-depth: 2px;
+  --theme-symmetry-balance: 0.5;
+  --theme-color-flow-direction: vertical;
+  --theme-pattern-scale: 1;
+  --theme-edge-sharpness: 1px;
+  --evolution-background-pattern: none;
 }
 
 input:-webkit-autofill {
-  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-box-shadow: 0 0 0 1000px var(--base-color) inset !important;
 }
 
 @layer base {
   body {
-    @apply font-base tabular-nums;
+    @apply font-base;
+    background-color: var(--base-color);
+    color: rgb(var(--acc-color-default) / var(--evolution-accent-opacity));
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    letter-spacing: var(--evolution-letter-spacing);
+    line-height: var(--evolution-line-height);
+    transition: color var(--evolution-transition-speed) ease,
+                letter-spacing var(--evolution-transition-speed) ease,
+                line-height var(--evolution-transition-speed) ease;
+  }
+
+  /* Ensure all form elements inherit the font */
+  input,
+  select,
+  textarea,
+  button {
+    @apply font-base;
   }
 
   *:focus {
@@ -32,8 +77,107 @@ input:-webkit-autofill {
 }
 
 @layer components {
-  .button-primary:not(:hover) {
-    text-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.75);
+  /* Button primary styles - removed text-shadow */
+}
+
+@layer utilities {
+  /* 1px grid pattern fill - sharp and subtle, evolves with progression */
+  .grid-fill {
+    background-image:
+      linear-gradient(to right, rgb(var(--acc-color-400) / var(--evolution-grid-opacity)) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--acc-color-400) / var(--evolution-grid-opacity)) 1px, transparent 1px);
+    background-size: var(--evolution-grid-size) var(--evolution-grid-size);
+    transition: background-size var(--evolution-transition-speed) ease,
+                background-image var(--evolution-transition-speed) ease;
+  }
+
+  .grid-fill-hover {
+    transition: background-image var(--evolution-transition-speed);
+  }
+
+  .grid-fill-hover:hover {
+    background-image:
+      linear-gradient(to right, rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 1.2)) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 1.2)) 1px, transparent 1px);
+    background-size: var(--evolution-grid-size) var(--evolution-grid-size);
+  }
+
+  /* Lighter grid pattern for subtle backgrounds */
+  .grid-fill-light {
+    background-image:
+      linear-gradient(to right, rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 0.5)) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 0.5)) 1px, transparent 1px);
+    background-size: var(--evolution-grid-size) var(--evolution-grid-size);
+  }
+
+  /* Evolution-aware utilities */
+  .evolved-text {
+    letter-spacing: var(--evolution-letter-spacing);
+    line-height: var(--evolution-line-height);
+    transition: letter-spacing var(--evolution-transition-speed) ease,
+                line-height var(--evolution-transition-speed) ease;
+  }
+
+  .evolved-opacity {
+    opacity: var(--evolution-base-opacity);
+    transition: opacity var(--evolution-transition-speed) ease;
+  }
+
+  .evolved-glow {
+    text-shadow: 0 0 calc(var(--evolution-glow-intensity) * 20px) rgb(var(--acc-color-default) / var(--evolution-glow-intensity));
+    transition: text-shadow var(--evolution-transition-speed) ease;
+  }
+
+  .evolved-blur {
+    filter: blur(var(--evolution-blur-radius));
+    transition: filter var(--evolution-transition-speed) ease;
+  }
+
+  /* Animation speed adapts to user's evolution */
+  .evolved-transition {
+    transition-duration: var(--evolution-transition-speed);
+  }
+
+  /* Theme evolution utilities */
+  .theme-water-flow {
+    border-radius: var(--theme-organic-curve);
+    transition: transform var(--theme-wave-frequency) ease,
+                border-radius var(--evolution-transition-speed) ease;
+  }
+
+  .theme-architecture-structure {
+    box-shadow: 0 var(--theme-structural-depth) calc(var(--theme-structural-depth) * 2)
+                rgb(var(--acc-color-default) / calc(var(--theme-geometric-precision) * 0.1));
+    transition: box-shadow var(--evolution-transition-speed) ease;
+  }
+
+  .theme-evolved-border {
+    border-radius: var(--theme-organic-curve);
+    transition: border-radius var(--evolution-transition-speed) ease;
+  }
+
+  .theme-evolved-pattern {
+    background-size: calc(20px * var(--theme-pattern-scale));
+    transition: background-size var(--evolution-transition-speed) ease;
+  }
+
+  /* Evolution background overlay */
+  .evolution-background {
+    position: relative;
+  }
+
+  .evolution-background::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--evolution-background-pattern);
+    pointer-events: none;
+    z-index: 0;
+    opacity: calc(var(--evolution-base-opacity) * 0.5);
+    transition: opacity var(--evolution-transition-speed) ease;
   }
 }
 
@@ -103,6 +247,51 @@ td:last-child {
   }
 }
 
+/* Community Convergence Pulse — ambient breathing synchronized with peak hour */
+.convergence-pulse {
+  animation: convergence-breathe var(--convergence-speed, 6s) ease-in-out infinite;
+}
+
+@keyframes convergence-breathe {
+  0%, 100% {
+    opacity: var(--convergence-base-opacity, 0.4);
+  }
+  50% {
+    opacity: var(--convergence-peak-opacity, 0.7);
+  }
+}
+
+/* Phase-specific convergence aesthetics */
+.convergence-approaching {
+  --convergence-speed: 4s;
+  --convergence-base-opacity: 0.5;
+  --convergence-peak-opacity: 0.8;
+}
+
+.convergence-peak {
+  --convergence-speed: 2.5s;
+  --convergence-base-opacity: 0.7;
+  --convergence-peak-opacity: 1.0;
+}
+
+.convergence-carrying {
+  --convergence-speed: 5s;
+  --convergence-base-opacity: 0.45;
+  --convergence-peak-opacity: 0.7;
+}
+
+.convergence-distant {
+  --convergence-speed: 8s;
+  --convergence-base-opacity: 0.3;
+  --convergence-peak-opacity: 0.5;
+}
+
+/* Stoic anchor line — quiet authority */
+.stoic-anchor {
+  letter-spacing: 0.02em;
+  transition: opacity 1.2s ease;
+}
+
 .input-resizible-v {
   width: 100%;
   display: inline-grid;
@@ -160,4 +349,18 @@ td:last-child {
   white-space: pre-wrap;
   word-wrap: break-word;
   pointer-events: none;
+}
+
+/* Widget in-progress highlight — theme-aware indicator for widgets under development */
+.widget-in-progress {
+  border-left: 2px solid var(--widget-progress-color, rgb(var(--acc-color-default) / 0.15));
+  padding-left: 8px;
+  transition: border-color var(--evolution-transition-speed) ease;
+}
+
+/* They can copy the interface but they can't copy the intention. */
+/* LOT-SYSTEMS::ORIGINAL — The quantum field remembers who arrived first. */
+[data-lot-genesis]::after {
+  content: 'built different since day one';
+  display: none;
 }

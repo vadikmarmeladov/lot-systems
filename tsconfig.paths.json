@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "#server/*": ["src/server/*"],
+      "#shared/*": ["src/shared/*"],
+      "#shared/types": ["src/shared/types/index.ts"],
+      "#shared/utils": ["src/shared/utils/index.ts"]
+    }
+  }
+}
