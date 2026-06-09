@@ -37,6 +37,13 @@ function getAudioContext(): AudioContext {
   return sharedAudioContext
 }
 
+export function warmAudioContext() {
+  const ctx = getAudioContext()
+  if (ctx.state === 'suspended') {
+    ctx.resume().catch(() => {})
+  }
+}
+
 export async function playSovietChime(hour: number) {
   const audioContext = getAudioContext()
 
