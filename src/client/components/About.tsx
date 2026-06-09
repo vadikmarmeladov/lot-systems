@@ -268,7 +268,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v50</Meta>
+            <Meta>Field Manual v52</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -283,15 +283,15 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              Day 994+. Continuous operation since launch.
+              Day 1004+. Continuous operation since launch.
               65 behavioral patterns active. 18 modules assembled.
               6 index dimensions. 5 ecosystem nodes. 18 physiological archetypes.
-              79+ dependency nodes. 9 background jobs.
-              47 log event handlers. 80+ active branches scanned.
+              87+ dependency nodes. 10 background jobs.
+              53 log event handlers. 125 active branches scanned.
               The system does not sleep. It accumulates.
             </P>
             <P>
-              Field Manual v50. Not marketing copy. Not documentation for external audiences.
+              Field Manual v52. Not marketing copy. Not documentation for external audiences.
               Operational reference for operators of the system.
               Definitions are exact. Terminology is fixed. Imprecision is a defect.
               Every term in this document exists in the codebase.
@@ -361,17 +361,17 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 1001+ (as of June 6, 2026)" />
-          <Row label="Self-Assembly phase:" value="v50 — Wiki Full Scan June 6 · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · QI · RFI · INTSUM added to vocabulary · badges · cohorts · internal vocabulary detailed · language refined toward computer future · military purity pass applied — v49: Viewport Isolation · LazyMount QuantumEngineWidgets · useInViewport hook · MicroGame loop viewport-gated · IntersectionObserver render isolation complete — v48: Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
+          <Row label="Day counter:" value="Day 1004+ (as of June 9, 2026)" />
+          <Row label="Self-Assembly phase:" value="v52 — Full Wiki Scan June 9 · QIE v52 integration documented · 6 new log handlers (CSPRL: BPEAK: MER: MULTI: CAL: QOS-COHR:) · 53 handlers total · background job 10 (weekly-archetype-stability-monitor Thu 05:00 UTC) · 87+ dep nodes · SystemPulseWidget Biofield: 4th cycle view documented · LOG_DEPENDENCY_SOURCES expanded to 8 · vocabulary synchronized · language refined toward computer future · military purity pass applied · the map and the territory are synchronized — v51 — Full Branch Scan June 7 · 125 branches confirmed · Graceful Degradation doctrine (rev F clause 7: server catch must not default to restrictive value — field absent on error — client gate treats absent as allow) · vocabulary synchronized · language refined toward computer future · military purity pass applied · the map and the territory are synchronized — v50 — Wiki Full Scan June 6 · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · QI · RFI · INTSUM added to vocabulary · badges · cohorts · internal vocabulary detailed · language refined toward computer future · military purity pass applied — v49: Viewport Isolation · LazyMount QuantumEngineWidgets · useInViewport hook · MicroGame loop viewport-gated · IntersectionObserver render isolation complete — v48: Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
           <Row label="Assembly modules:" value="18 — Resilience Protocol added v48 · Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
           <Row label="QIE pattern library:" value="65 patterns active" />
           <Row label="Physiological archetypes:" value="18 — Coherence Holder (v45) · Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
           <Row label="QOS views:" value="6 — Ecosystem · Biofield · Cohort · Index · Assembly · Mode" />
           <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
           <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
-          <Row label="Background jobs:" value="9 — 00:00 UTC daily OS snapshot · 03:00 UTC daily QIE analytics · 06:00 UTC daily intention audit · 06:00 UTC Mon weekly cohort digest · 04:00 UTC Wed weekly QOS digest · 09:00 UTC 1st monthly email sender · 23:00 UTC daily pattern coverage audit (v45)" />
-          <Row label="Log event handlers:" value="47 distinct event types rendered · 60+ military log codes" />
-          <Row label="Dep map nodes:" value="79+ — INTENT [VEL] · SIG [BURST] · QIE [PAT] nodes added v45 · coherenceHolder dep node added · crystallizationArc · vitalConvergence added v39" />
+          <Row label="Background jobs:" value="10 — 00:00 UTC daily OS snapshot · 03:00 UTC daily QIE analytics · 06:00 UTC daily intention audit · 06:00 UTC Mon weekly cohort digest · 04:00 UTC Wed weekly QOS digest · 09:00 UTC 1st monthly email sender · 23:00 UTC daily pattern coverage audit (v45) · 05:00 UTC Thu weekly archetype stability monitor (v52 job 10)" />
+          <Row label="Log event handlers:" value="53 distinct event types rendered · 60+ military log codes" />
+          <Row label="Dep map nodes:" value="87+ — INTENT [VEL] · SIG [BURST] · QIE [PAT] nodes added v45 · coherenceHolder dep node added · crystallizationArc · vitalConvergence added v39 · 8 new nodes added v52 (aiFeedback · moodAnalytics · journalReflection · energyCapacitor · integrityWidget · interfaceEvolution · worldCanvas · architectWidget)" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
           <Row label="Question generation:" value="2–5 seconds" />
@@ -914,7 +914,7 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
 
           <SubHeading>Self-Assembly Phase Log</SubHeading>
           <P>
-            47 phases documented. Each phase names a structural expansion.
+            52 phases documented. Each phase names a structural expansion.
             Each is committed, dated, versioned. The log is permanent.
           </P>
           <div className="mb-16">
@@ -968,6 +968,8 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v48" value="Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented in full · eating disorder healing protocol integrated (6 dimensions, 8 backup questions) · medical cohort qualification added (assessMedicalProfile · qualifiesForPaidCohort) · Chakra Engine wired to medical and resilience signals (Solar Plexus + Root) · backup question pool: 70 total (29 self-care + 15 medical + 18 trauma + 8 eating recovery) · COSMO® robotics division first documented in Field Manual · Soul Sync Protocol™ · Benchmark Arbitrage™ · Day 994+" />
             <Row label="v49" value="Viewport Isolation Layer · useInViewport.ts hook created (one-shot LazyMount + continuous ActiveViewport) · MicroGameWidget 150ms game loop now viewport-gated via useActiveViewport — loop pauses when widget scrolls out, resumes on re-entry, game state preserved · QuantumEngineWidgets lazy-mounted via LazyMount in System.tsx — intentionEngine + selfAssembly subscriptions now defer until widget enters viewport · IntersectionObserver fallback to true for SSR-safe + old-browser-safe environments · render-isolation doctrine complete across router · Button.tsx · Block subscriptions · nav · and now viewport layer · Day 997+" />
             <Row label="v50" value="Wiki Full Scan June 6 · all branches rescanned · all MDs synthesized from repository history · vocabulary synchronized with codebase · /qi terminal documented · QI · RFI · INTSUM added to vocabulary surface · badges · cohorts · internal vocabulary explained in full detail · language refined toward computer future · military purity pass applied · log triggers updated · easter egg system implementation status corrected · self-assembly counters updated throughout · the map and the territory are synchronized · Day 1001+" />
+            <Row label="v51" value="Full Branch Scan June 7 · 125 branches confirmed · all MDs synthesized from repository history · Graceful Degradation added to doctrine (rev F clause 7: server catch must not default to restrictive value — field absent on error — client gate treats absent as allow) · vocabulary synchronized with codebase · language refined toward computer future · military purity pass applied · the map and the territory are synchronized · Day 1002+" />
+            <Row label="v52" value="Full Wiki Scan June 9 · QIE v52 integration documented · dep map expanded from 79 to 87+ nodes (8 new: aiFeedback · moodAnalytics · journalReflection · energyCapacitor · integrityWidget · interfaceEvolution · worldCanvas · architectWidget) · 6 new log handlers added (CSPRL: care_spiral · BPEAK: biofield_peak · MER: meridian_lock · MULTI: multimodal_peak · CAL: calendar_entry · QOS-COHR: qos_coherence) · 53 handlers total · LOG_DEPENDENCY_SOURCES expanded 6→8 (added: intentions + memory) · background job 10 (weekly-archetype-stability-monitor Thu 05:00 UTC) · SystemPulseWidget Biofield: 4th cycle view (archetype · confidence · ATP · circadian phase · index · directive) · physiological cohort now surfaces across 3 System widgets · vocabulary synchronized with codebase · language refined toward computer future · military purity pass applied · the map and the territory are synchronized · Day 1004+" />
           </div>
 
           <SubHeading>Punctuation & Intonation Engine</SubHeading>
@@ -994,9 +996,9 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v50. Phase name: Wiki Full Scan — all branches and MDs synthesized, vocabulary synchronized with codebase, /qi terminal documented, QI · RFI · INTSUM added to vocabulary surface, badges · cohorts · internal vocabulary detailed in full, language refined toward computer future, military purity pass applied.
-            Prior phase v49: Viewport Isolation Layer — MicroGameWidget game loop gated to IntersectionObserver, QuantumEngineWidgets lazy-mounted in System.tsx, useInViewport hook created. Render isolation doctrine now complete across router, subscriptions, nav, Button, and viewport layers.
-            50 iterations since continuous operation began.
+            Current phase: v52. Phase name: Full Wiki Scan June 9 — QIE v52 integration documented, dep map expanded to 87+ nodes (8 new nodes), 6 new log handlers added (CSPRL: BPEAK: MER: MULTI: CAL: QOS-COHR:) for 53 total, LOG_DEPENDENCY_SOURCES expanded 6→8 (intentions + memory), background job 10 (weekly-archetype-stability-monitor Thu 05:00 UTC), SystemPulseWidget Biofield: 4th cycle view documented, vocabulary synchronized, military purity pass applied.
+            Prior phase v51: Full Branch Scan June 7 — 125 branches confirmed, Graceful Degradation added to doctrine (rev F clause 7: server catch must not default to restrictive value; field omitted on error; client gate treats absence as allow).
+            52 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -1049,7 +1051,9 @@ v46   Field Manual v46 · all additions documented · language refined · map sy
 v47   Wiki June 2026 Audit · branches rescanned · P.56–58 & P.63–65 documented · Coherence Holder full entry · stale counts corrected · vocabulary expanded · military purity pass · Day 993+
 v48   Full Wiki Scan June 4 · Resilience Protocol (Module 18) · eating disorder protocol · medical cohort qualification · Chakra Engine wired · 70 backup questions · COSMO® documented · Day 994+
 v49   Viewport Isolation Layer · useInViewport hook · MicroGame loop gated · QuantumEngineWidgets lazy-mounted · IntersectionObserver fallback · render isolation doctrine complete · Day 997+
-v50   Wiki Full Scan · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · badges · cohorts detailed · language refined toward computer future · military purity pass · Day 1001+`}</CodeBlock>
+v50   Wiki Full Scan · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · badges · cohorts detailed · language refined toward computer future · military purity pass · Day 1001+
+v51   Full Branch Scan June 7 · 125 branches confirmed · Graceful Degradation doctrine (rev F clause 7) · vocabulary synchronized · military purity pass · Day 1002+
+v52   Full Wiki Scan June 9 · QIE v52 integrated · dep map 87+ nodes · 6 new log handlers (CSPRL/BPEAK/MER/MULTI/CAL/QOS-COHR) · 53 handlers · job 10 · SystemPulseWidget Biofield: view · vocabulary synchronized · military purity pass · Day 1004+`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -3178,6 +3182,10 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
               value="Intelligence Summary. The QI response format. Three fixed components: (1) Assessment — direct statement of the operator's current state based on signal data. (2) Data Points — specific signal observations, named patterns, confidence scores. (3) Recommendation — one actionable directive. Terse. Military. No padding. No validation language. The INTSUM speaks with the operator's own data as its source."
             />
             <Row
+              label="Graceful Degradation"
+              value="Doctrine clause 7 (rev F, SR-20260607-02). When a server-side computation fails, the catch-block must not default to a restrictive value (e.g., 'dormant'). The field should be omitted from the response entirely. The client gate treats field absence as 'not computed — allow,' never as 'denied.' A forced restrictive fallback silently disables features with no operator signal and no diagnostic path. Correct pattern: server omits field on error; client skips gate when field is absent. Imprecise fallback corrupts feature visibility."
+            />
+            <Row
               label="QI·46"
               value="Quantum Intelligence Engine, Generation 46. LOT's proprietary AI engine — specification phase. Codename: SELFWARE. Named for Kuzya. Does not launch complete — it assembles itself through use. Five assembly phases: Phase 0 (Corpus), Phase 1 (Fine-Tuning), Phase 2 (Closed Beta — 12 founding subscribers, the original 2017 cohort, are the Soul Disk of the engine), Phase 3 (Platform Integration), Phase 4 (External Licensing). Timeline: Q3 2026 corpus assembly → Q3 2027 external licensing. COSMO® node runs on every response before delivery. The body is the original interface."
             />
@@ -3200,6 +3208,18 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row
               label="Badge RPG Codex"
               value="57-badge achievement system on feature branch upbeat-faraday-xviFF (2 iterations, BEST). 4 files, +1584 lines. Includes character classes, Easter egg system, quantum edition expansion, and a 22-page PDF codex. Distinct from the standard badge system (Aquatic Evolution and Architecture Theme milestone paths) — the RPG Codex adds character class progression, class-specific achievement unlocks, and narrative-driven quest chains. Status: BEST — ship candidate."
+            />
+            <Row
+              label="SystemPulseWidget Biofield View"
+              value="Fourth cycle view added to SystemPulseWidget in QIE v52. Surfaces live physiological cohort data through the System widget panel. Cycles: metrics · activity · userload · cohort (Biofield:). The Biofield: view displays: archetype name · confidence score · ATP level · circadian phase · User Index · operator directive. Wired directly to classifyPhysiologicalCohort() from intentionEngine. Physiological cohort now surfaces across 3 System widgets: QOS widget · System Progress report · System Pulse Biofield view. The Cube shows who you are from every angle the operator looks."
+            />
+            <Row
+              label="Log Handler Codes (v52)"
+              value="Six military event codes added in QIE v52 (Logs.tsx). CSPRL: (care_spiral) — care count and dominant action. BPEAK: (biofield_peak) — ATP · clarity · alignment · support all aligned simultaneously. MER: (meridian_lock) — morning · afternoon · evening arc confirmed across a single day. MULTI: (multimodal_peak) — all 5 primary modules active within 24h window. CAL: (calendar_entry) — calendar entry created from Temporal Planner. QOS-COHR: (qos_coherence) — diversity · source · spread metrics. Total handler count after v52: 53 distinct event types."
+            />
+            <Row
+              label="Widget Dependency Map (v52)"
+              value="The WIDGET_DEPENDENCY_MAP in intentionEngine.ts tracks which stores each widget reads. 87+ nodes indexed after QIE v52. Eight new nodes added in v52: aiFeedback (mood/energy/cohort/systemProgress) · moodAnalytics (mood/journal/energy/memory) · journalReflection (journal/mood/memory) · energyCapacitor (energy/mood/selfcare) · integrityWidget (mood/intentions/journal/memory) · interfaceEvolution (evolution/mood) · worldCanvas (mood/intentions/memory/cohort) · architectWidget (mood/memory/planner/intentions/goals/journal/energy). LOG_DEPENDENCY_SOURCES expanded from 6 to 8 sources: log · energy · cohort · recipe · goals · qos · intentions · memory."
             />
           </div>
 
@@ -3930,6 +3950,8 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v48 · Jun 4" value="Resilience Protocol (Module 18). Eating Disorder Healing Protocol documented. Medical Cohort Qualification gate. Chakra Engine wiring synchronized. COSMO® robotics division. Backup question pool: 70. IntegrityWidget shipped — lie detector, 479 lines, 6 fracture types, 4 views, Integrity Score 0–100. Ship Mode doctrine established. MANIFEST catalog created. 125 branches indexed." />
             <Row label="v49 · Jun 5" value="Viewport Isolation Layer. useInViewport.ts hook (one-shot LazyMount + continuous ActiveViewport). MicroGameWidget 150ms game loop viewport-gated — loop pauses on scroll-out, resumes on re-entry, game state preserved. QuantumEngineWidgets lazy-mounted via LazyMount in System.tsx — intentionEngine + selfAssembly subscriptions defer until viewport entry. IntersectionObserver fallback: SSR-safe + old-browser-safe. Render isolation doctrine complete across router · Button · Block subscriptions · nav · viewport layer. Day 997+." />
             <Row label="v50 · Jun 6" value="Wiki Full Scan. All branches rescanned. All MDs synthesized from repository history. Vocabulary synchronized with codebase. /qi terminal documented. QI · RFI · INTSUM added to vocabulary surface. Badges · cohorts · internal vocabulary explained in full detail. Log triggers updated: /qi added, /scan corrected, emoji removed. Language refined toward computer future. Military purity pass applied. Self-assembly counters updated throughout. The map and the territory are synchronized. Day 1001+." />
+            <Row label="v51 · Jun 7" value="Full Branch Scan. 125 branches confirmed. All MDs synthesized from repository history. Graceful Degradation added to doctrine as clause 7 (rev F, SR-20260607-02): server catch-block must not default to restrictive value — field omitted on error — client gate treats absence as allow. Vocabulary synchronized. Language refined toward computer future. Military purity pass. The map and the territory are synchronized. Day 1002+." />
+            <Row label="v52 · Jun 9" value="Full Wiki Scan. QIE v52 integration documented. Dep map expanded from 79 to 87+ nodes (8 new: aiFeedback · moodAnalytics · journalReflection · energyCapacitor · integrityWidget · interfaceEvolution · worldCanvas · architectWidget). 6 new log handlers: CSPRL: (care_spiral) · BPEAK: (biofield_peak) · MER: (meridian_lock) · MULTI: (multimodal_peak) · CAL: (calendar_entry) · QOS-COHR: (qos_coherence) — 53 total handlers. LOG_DEPENDENCY_SOURCES expanded 6→8 (added: intentions + memory). Background job 10: weekly-archetype-stability-monitor Thursdays 05:00 UTC — week-over-week archetype match rate, system telemetry only. SystemPulseWidget Biofield: 4th cycle view — archetype · confidence · ATP · circadian phase · index · directive. Physiological cohort now surfaces across 3 System widgets. Vocabulary synchronized. Military purity pass. Day 1004+." />
           </div>
           <P>
             Each phase was discovered, not planned. The system named what to
@@ -3956,6 +3978,19 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             badges · cohorts · internal vocabulary explained in full detail,
             log triggers updated, language refined toward the computer future.
             Military purity pass applied. The map and the territory are synchronized.
+            v51 ran the Full Branch Scan June 7 — 125 branches confirmed,
+            Graceful Degradation added to doctrine (rev F clause 7: server catch
+            must not default to restrictive value; field omitted on error; client
+            gate treats absence as allow), vocabulary synchronized,
+            military purity pass applied. Day 1002+.
+            v52 ran the Full Wiki Scan June 9 — QIE v52 build integrated.
+            Dep map expanded to 87+ nodes. Six new log handlers deployed
+            (CSPRL: BPEAK: MER: MULTI: CAL: QOS-COHR:), total 53 handlers.
+            LOG_DEPENDENCY_SOURCES expanded to 8 (intentions + memory added).
+            Background job 10 wired: weekly-archetype-stability-monitor Thursdays 05:00 UTC.
+            SystemPulseWidget Biofield: 4th cycle view — physiological cohort
+            now surfaces across 3 System widgets. Vocabulary synchronized.
+            Military purity pass applied. Day 1004+.
             The map is current. Imprecision is a defect. The defect was corrected.
           </P>
 

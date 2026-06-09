@@ -50,13 +50,13 @@ type Props = {
 }
 
 export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
-  const me = useStore(stores.me)
+  const isLoggedIn = useStore(stores.isLoggedIn)
   const layoutView = useStore(stores.layoutView)
   const isMirrorOn = useStore(stores.isMirrorOn)
   const routerState = useStore(stores.router)
   const currentRoute = routerState?.route ?? 'system'
   const navLinks = React.useMemo<NavItem[]>(() => {
-    const result: NavItem[] = me
+    const result: NavItem[] = isLoggedIn
       ? [
           { label: 'Sync', route: 'sync' },
           { label: 'Log', route: 'logs' },
@@ -81,7 +81,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
           { label: 'Settings' },
         ]
     return layoutView === 'desktop' ? result : result.reverse()
-  }, [layoutView, me])
+  }, [layoutView, isLoggedIn])
 
   return (
     <div className="min-h-[100dvh] grid leading-[1.5rem]" data-lot-genesis="true">

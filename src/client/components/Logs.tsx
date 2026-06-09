@@ -1077,6 +1077,106 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'care_spiral') {
+          const careCount = log.metadata?.careCount as number | undefined
+          const dominantAction = log.metadata?.dominantAction as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CSPRL:" blockView>
+                <div className="opacity-60 uppercase tracking-widest mb-8">CARE SPIRAL ACTIVE</div>
+                {careCount !== undefined && (
+                  <div className="opacity-60">ACTS: {careCount}</div>
+                )}
+                {dominantAction && (
+                  <div className="opacity-40">{dominantAction}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biofield_peak') {
+          const energy = log.metadata?.energy as string | undefined
+          const clarity = log.metadata?.clarity as string | undefined
+          const alignment = log.metadata?.alignment as string | undefined
+          const support = log.metadata?.support as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BPEAK:" blockView>
+                <div className="opacity-60 uppercase tracking-widest mb-8">BIOFIELD PEAK DETECTED</div>
+                {energy && <div className="opacity-60">ATP: {energy}</div>}
+                {clarity && <div className="opacity-60">CLARITY: {clarity}</div>}
+                {alignment && <div className="opacity-60">ALIGN: {alignment}</div>}
+                {support && support !== 'none' && <div className="opacity-40">SUPPORT: {support}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'meridian_lock') {
+          const signalCount = log.metadata?.signalCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MER:" blockView>
+                <div className="opacity-60 uppercase tracking-widest mb-8">MERIDIAN LOCK</div>
+                <div className="opacity-40">MRN · AFT · EVN</div>
+                {signalCount !== undefined && (
+                  <div className="opacity-60 mt-8">SIG: {signalCount}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'multimodal_peak') {
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MULTI:" blockView>
+                <div className="opacity-60 uppercase tracking-widest mb-8">MULTIMODAL PEAK</div>
+                {sourceCount !== undefined && (
+                  <div className="opacity-60">MODULES: {sourceCount}/5</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_entry') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const date = log.metadata?.date as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL:" blockView>
+                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
+                {date && <div className="opacity-40 mt-8">{date}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'qos_coherence') {
+          const diversityScore = log.metadata?.diversityScore as number | undefined
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const temporalSpread = log.metadata?.temporalSpread as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QOS-COHR:" blockView>
+                {diversityScore !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">COHR</span>
+                    <span className="tabular-nums">{Math.round(diversityScore * 100)}%</span>
+                  </div>
+                )}
+                {sourceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">SRC</span>
+                    <span className="tabular-nums">{sourceCount}</span>
+                  </div>
+                )}
+                {temporalSpread !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">SPREAD</span>
+                    <span className="tabular-nums">{Math.round(temporalSpread * 100)}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

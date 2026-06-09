@@ -20,4 +20,8 @@ ID             | CLASS        | SUMMARY                                         
 20260606-03    | WIKI-BUILD   | Field Manual v50 — full branch/MD scan · vocab sync · QI/RFI/INTSUM · badges · military purity pass | GREEN  | 5d720be | WORDS: 312 (median 388)
 20260606-04    | SECURITY     | Emergency Rebuild Protocol — full disaster recovery doc  | GREEN  | a49ca026 | WORDS: 259 (median 382)
 20260607-02    | ENGINEERING  | QR code assembly gate fix + security audit (deferred)    | GREEN  | c0895b8b | WORDS: 345 (median 345)
+20260607-03    | SELF-ASSEMBLY| Wiki v51 — Full Branch Scan · Graceful Degradation doctrine surface · vocab sync · military purity | GREEN  | b23482e  | WORDS: 420 (median 345)
+20260607-04    | SELF-ASSEMBLY| QIE v52 — dep map 8 nodes · log handlers 6 · cohort pulse · background job 10 · LOT_SYSTEMS_BRIEF v3.1 | GREEN  | cc4dbdd  | WORDS: 540 (median 380)
+20260609-01    | WIKI-BUILD   | Wiki v52 — QIE v52 integration · dep map 87+ · 53 handlers · job 10 · Biofield view · 4 vocab entries · Day 1004+ | GREEN  | (post-commit) | WORDS: 620 (median 450)
+20260609-02    | ENGINEERING  | Nav lag fix + chime toggle fix + all systems check        | GREEN  | f07da921 | WORDS: 370 (median 379)
 ```

@@ -2042,6 +2042,16 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   architectPhase:    ['planner', 'goals', 'intentions'],
   multimodalSurface: ['mood', 'memory', 'planner', 'selfcare', 'journal'],
   intentionSeed:     ['intentions'],
+
+  // ── Surface-layer widgets: biofield consumers (2026-06-07 audit)
+  aiFeedback:        ['mood', 'energy', 'cohort', 'systemProgress'],
+  moodAnalytics:     ['mood', 'journal', 'energy', 'memory'],
+  journalReflection: ['journal', 'mood', 'memory'],
+  energyCapacitor:   ['energy', 'mood', 'selfcare'],
+  integrityWidget:   ['mood', 'intentions', 'journal', 'memory'],
+  interfaceEvolution:['evolution', 'mood'],
+  worldCanvas:       ['mood', 'intentions', 'memory', 'cohort'],
+  architectWidget:   ['mood', 'memory', 'planner', 'intentions', 'goals', 'journal', 'energy'],
 }
 
 /**
@@ -2049,7 +2059,9 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * These feed the QIE independently of the widget dependency graph and are
  * tracked separately in the physiological report log-dependency audit.
  */
-export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = ['log', 'energy', 'cohort', 'recipe', 'goals', 'qos']
+export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = [
+  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory',
+]
 
 /** Returns which signal sources a given widget depends on. */
 export function getWidgetDependencies(widget: string): string[] {

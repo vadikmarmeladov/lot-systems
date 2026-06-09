@@ -18,15 +18,11 @@ import {
   USER_SETTING_NAME_BY_ID,
 } from '#shared/constants'
 import { cn } from '#client/utils'
+import { warmAudioContext } from '#client/utils/sovietChime'
 import { WorldCanvas } from './WorldCanvas'
 import { GrowthMilestones, BadgeUnlockFeed } from './stats'
 import { InvestmentSwitch } from './InvestmentSwitch'
 import { ProfileQRCode } from './ProfileQRCode'
-
-interface StatusData {
-  version: string
-  overall: 'ok' | 'degraded' | 'error'
-}
 
 export const Settings = () => {
   const me = useStore(stores.me)
@@ -35,6 +31,7 @@ export const Settings = () => {
   const isCustomThemeEnabled = useStore(stores.isCustomThemeEnabled)
   const isTimeChimeEnabled = useStore(stores.isTimeChimeEnabled)
   const isKeyboardSoundOn = useStore(stores.isKeyboardSoundOn)
+  const appVersion = useStore(stores.appVersion)
   const { data: storyData } = useMyMemoryStory()
 
   const { mutate: updateSettings } = useUpdateSettings({
@@ -55,7 +52,6 @@ export const Settings = () => {
   })
 
   const [changed, setChanged] = React.useState(false)
-  const [statusData, setStatusData] = React.useState<StatusData | null>(null)
   const [state, setState] = React.useState<UserSettings>({
     firstName: me?.firstName || '',
     lastName: me?.lastName || '',
@@ -153,6 +149,10 @@ export const Settings = () => {
       timeChime: newValue,
     }))
     stores.isTimeChimeEnabled.set(newValue)
+
+    if (newValue) {
+      warmAudioContext()
+    }
 
     // Save immediately to database
     try {
@@ -279,28 +279,8 @@ export const Settings = () => {
     [state]
   )
 
-  // Fetch live status data from the API
-  React.useEffect(() => {
-    fetch('/api/public/status')
-      .then(res => res.json())
-      .then(data => {
-        setStatusData({
-          version: data.version || '1.2.0',
-          overall: data.overall || 'ok',
-        })
-      })
-      .catch(() => {
-        setStatusData({
-          version: '1.2.0',
-          overall: 'error',
-        })
-      })
-  }, [])
-
-  const statusText = statusData
-    ? statusData.overall === 'ok'
-      ? `Status page (v${statusData.version})`
-      : `Status page (v${statusData.version}) - System issues detected`
+  const statusText = appVersion
+    ? `Status page (v${appVersion})`
     : 'Status page'
 
   return (
@@ -428,7 +408,7 @@ export const Settings = () => {
           <Block label="Activity log:" onChildrenClick={onToggleActivityLogs}>
             {state.hideActivityLogs ? 'Off' : 'On'}
           </Block>
-          <Block label="Hourly chime:" onChildrenClick={onToggleTimeChime}>
+          <Block label="Hourly chime:" onClick={onToggleTimeChime}>
             {state.timeChime ? 'On' : 'Off'}
           </Block>
           <Block
