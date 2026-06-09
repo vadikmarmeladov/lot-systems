@@ -880,3 +880,39 @@ export const usePrayerScripture = createMutation<
     logId: string | null
   }
 >('post', '/api/prayer')
+
+
+// ============================================================================
+// LOT MAIL — Internal community messaging
+// ============================================================================
+
+export const useSendLotMail = createMutation<
+  { recipientName: string; body: string },
+  { ok: boolean; mailId: string }
+>('post', '/api/lot-mail')
+
+export const useLotMailInbox = createQuery<
+  Array<{
+    id: string
+    senderId: string
+    receiverId: string
+    body: string
+    readAt: string | null
+    createdAt: string
+    senderName: string | null
+    isMine: boolean
+  }>
+>('/api/lot-mail/inbox', {
+  refetchOnWindowFocus: false,
+  staleTime: 30 * 1000,
+})
+
+export const useUnreadLotMailCount = createQuery<{ count: number }>(
+  '/api/lot-mail/unread-count',
+  { staleTime: 60 * 1000 }
+)
+
+export const useMarkLotMailRead = createMutation<{ id: string }, { ok: boolean }>(
+  'put',
+  (data) => `/api/lot-mail/${data.id}/read`
+)

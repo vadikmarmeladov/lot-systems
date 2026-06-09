@@ -10,7 +10,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button, ResizibleGhostInput, Unknown } from '#client/components/ui'
-import { useLogs, useUpdateLog } from '#client/queries'
+import { useLogs, useUpdateLog, useSendLotMail } from '#client/queries'
 import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
@@ -904,6 +904,21 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'lot_mail_sent') {
+          const recipientName = log.metadata?.recipientName as string | undefined
+          const preview = log.metadata?.preview as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                {recipientName && (
+                  <div className="uppercase tracking-widest mb-4">TO: {recipientName}</div>
+                )}
+                {preview && (
+                  <div className="opacity-60">{preview}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'user_login' || log.event === 'user_logout') {
           const isLogin = log.event === 'user_login'
           return (
@@ -1150,6 +1165,19 @@ const NoteEditor = ({
       setAsmLoading(false)
     },
   })
+  const [emailStatus, setEmailStatus] = React.useState<string | null>(null)
+  const { mutate: sendLotMail } = useSendLotMail({
+    onSuccess: (data, vars) => {
+      setEmailStatus(`Sent to ${vars.recipientName}.`)
+      setTimeout(() => setEmailStatus(null), 4000)
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.error || 'Send failed.'
+      setEmailStatus(msg)
+      setTimeout(() => setEmailStatus(null), 5000)
+    },
+  })
+
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const { mutate: submitPrayer } = usePrayerScripture({
@@ -1435,6 +1463,17 @@ const NoteEditor = ({
             submitQi({ query })
           }
         }
+      } else if (trigger === 'email-send') {
+        const emailMatch = value.match(/\/email\s+to\s+(\S+)\s+(.+)/is)
+        if (emailMatch) {
+          const recipientName = emailMatch[1].trim()
+          const body = emailMatch[2].trim()
+          if (recipientName.length >= 1 && body.length >= 1) {
+            sendLotMail({ recipientName, body })
+            setValue('')
+            onChange('')
+          }
+        }
       }
     }
   }, [value])
@@ -1597,6 +1636,13 @@ const NoteEditor = ({
                   {prayerResponse}
                 </div>
               )}
+            </Block>
+          </div>
+        )}
+        {emailStatus && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              <div className="opacity-60 uppercase tracking-widest">{emailStatus}</div>
             </Block>
           </div>
         )}

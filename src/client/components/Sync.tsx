@@ -25,7 +25,8 @@ import {
   useLikeChatMessage,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { goTo } from '#client/stores/router'
+import { PublicChatMessage, LotMailNotification, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -40,6 +41,7 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [mailAlert, setMailAlert] = React.useState<LotMailNotification | null>(null)
   const hasInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
@@ -120,9 +122,16 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeMailListener } = sync.listen(
+      'lot_mail',
+      (data: LotMailNotification) => {
+        setMailAlert(data)
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeMailListener()
     }
   }, [me?.id])
 
@@ -186,6 +195,18 @@ export const Sync = () => {
 
   return (
     <div className="max-w-[700px]">
+      {mailAlert && (
+        <div
+          className="mb-16 cursor-pointer grid-fill-hover -mx-4 px-4 py-8 rounded"
+          onClick={() => { setMailAlert(null); goTo('mail') }}
+        >
+          <div className="uppercase tracking-widest opacity-60">New mail</div>
+          <div className="opacity-90">{mailAlert.senderName || 'Someone'}</div>
+          {mailAlert.preview && (
+            <div className="opacity-40 truncate">{mailAlert.preview}</div>
+          )}
+        </div>
+      )}
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}

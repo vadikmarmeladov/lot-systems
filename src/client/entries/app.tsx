@@ -16,6 +16,7 @@ import { System } from '#client/components/System'
 import { Settings } from '#client/components/Settings'
 import { Logs } from '#client/components/Logs'
 import { Sync } from '#client/components/Sync'
+import { LotMail } from '#client/components/LotMail'
 import { DirectMessageThread } from '#client/components/DirectMessageThread'
 import { StatusPage } from '#client/components/StatusPage'
 import { ApiPage } from '#client/components/ApiPage'
@@ -281,6 +282,9 @@ const App = () => {
         </TabPanel>
         <TabPanel route="sync">
           <Sync />
+        </TabPanel>
+        <TabPanel route="mail">
+          <LotMail />
         </TabPanel>
         <TabPanel route="settings">
           <Settings />
