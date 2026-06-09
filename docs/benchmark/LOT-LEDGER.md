@@ -20,4 +20,5 @@ ID             | CLASS        | SUMMARY                                         
 20260606-03    | WIKI-BUILD   | Field Manual v50 — full branch/MD scan · vocab sync · QI/RFI/INTSUM · badges · military purity pass | GREEN  | 5d720be | WORDS: 312 (median 388)
 20260606-04    | SECURITY     | Emergency Rebuild Protocol — full disaster recovery doc  | GREEN  | a49ca026 | WORDS: 259 (median 382)
 20260607-02    | ENGINEERING  | QR code assembly gate fix + security audit (deferred)    | GREEN  | c0895b8b | WORDS: 345 (median 345)
+20260609-01    | ENGINEERING  | Viewport isolation complete: LazyMount QuantumState + PatternRecognition | GREEN | — | WORDS: 298 (median 345) trend ↓
 ```

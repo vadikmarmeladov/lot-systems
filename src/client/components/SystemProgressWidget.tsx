@@ -695,6 +695,17 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'The system no longer runs when you are not looking.',
     ],
   },
+  {
+    date: '2026-06-09',
+    session: 'Self-Assembly Session — v50 / Viewport Isolation Layer Complete',
+    assembled: [
+      'System.tsx: QuantumStateWidget wrapped in LazyMount. intentionEngine subscription now deferred until widget enters viewport. Fires only when user scrolls to the CQGS Biofield Engine block.',
+      'System.tsx: PatternRecognitionWidget wrapped in LazyMount. intentionEngine subscription deferred identically. Both widgets use existing useInViewport hook from v49 — no new files required.',
+      'Viewport-isolation layer now complete across the full CQGS block: QuantumEngineWidgets (v49) + QuantumStateWidget + PatternRecognitionWidget (v50). Three intentionEngine subscribers now lazy-mounted.',
+      'BUILD: GREEN. Commit: LOT-SR-20260609-01. Deployed to claude/quantum-engine-widgets-RgFfC.',
+      'The CQGS block does not subscribe until you are there.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -732,16 +743,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-04',
+  date: '2026-06-09',
   message: [
-    'ASSEMBLY RUN — 2026-06-04 · LOT-SR-20260604-01',
-    'Viewport isolation layer deployed. Two targets, two techniques.',
-    'MicroGameWidget: 150ms game loop now gated by IntersectionObserver. Loop stops when widget scrolls off-screen. Resumes on re-entry. Game state preserved across pause.',
-    'QuantumEngineWidgets: LazyMount wrapper in System.tsx. intentionEngine + selfAssembly subscriptions do not start until widget enters viewport. Once mounted — stays mounted. No thrash.',
-    'useInViewport.ts: new shared hook. useInViewport (one-shot, pre-mounts 200px early). useActiveViewport (continuous, for loop gating). Both fallback to true if IntersectionObserver unavailable.',
-    'Render isolation series: router → Block/Sync/nav → Button → game loop + lazy-mount.',
-    'Next: QuantumStateWidget + PatternRecognitionWidget — next two intentionEngine subscribers below the fold. Complete the viewport-isolation layer across the full CQGS block.',
-    'DEPLOYED. The system no longer runs when you are not looking.',
+    'ASSEMBLY RUN — 2026-06-09 · LOT-SR-20260609-01',
+    'Viewport isolation layer complete. CQGS block fully gated.',
+    'QuantumStateWidget: LazyMount applied. intentionEngine subscription now deferred until widget enters the viewport. Was subscribing on app load — firing on every QIE signal regardless of scroll position.',
+    'PatternRecognitionWidget: LazyMount applied. Same gate, same hook, same behavior. intentionEngine subscription deferred until widget is near viewport.',
+    'Three intentionEngine subscribers in the CQGS block now lazy-mounted: QuantumEngineWidgets (v49) + QuantumStateWidget + PatternRecognitionWidget (v50).',
+    'No new files. useInViewport hook from v49 reused without modification. Two lines changed in System.tsx. The pattern is stable.',
+    'Next: PatternInsightsWidget + UserMetricsWidget — remaining below-fold intentionEngine subscribers in the Dashboard block.',
+    'DEPLOYED. The CQGS block does not subscribe until you are there.',
   ],
 }
 

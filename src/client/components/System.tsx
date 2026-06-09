@@ -974,11 +974,15 @@ export const System = () => {
         </LazyMount>
       </WidgetErrorBoundary>
 
-      {/* CQGS Biofield Engine Widgets */}
+      {/* CQGS Biofield Engine Widgets — QuantumState + PatternRecognition lazy-mounted: intentionEngine subscriptions start only when widget enters viewport */}
       <WidgetErrorBoundary name="Biofield Engine">
         <div className={cn('flex flex-col', density.sectionGap)}>
-          <QuantumStateWidget />
-          <PatternRecognitionWidget />
+          <LazyMount>
+            <QuantumStateWidget />
+          </LazyMount>
+          <LazyMount>
+            <PatternRecognitionWidget />
+          </LazyMount>
           <AIFeedbackWidget />
           <SignalStreamWidget />
           <IntegrityWidget />
