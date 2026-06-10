@@ -24,4 +24,5 @@ ID             | CLASS        | SUMMARY                                         
 20260607-04    | SELF-ASSEMBLY| QIE v52 — dep map 8 nodes · log handlers 6 · cohort pulse · background job 10 · LOT_SYSTEMS_BRIEF v3.1 | GREEN  | cc4dbdd  | WORDS: 540 (median 380)
 20260609-01    | WIKI-BUILD   | Wiki v52 — QIE v52 integration · dep map 87+ · 53 handlers · job 10 · Biofield view · 4 vocab entries · Day 1004+ | GREEN  | (post-commit) | WORDS: 620 (median 450)
 20260609-02    | ENGINEERING  | Nav lag fix + chime toggle fix + all systems check        | GREEN  | f07da921 | WORDS: 370 (median 379)
+20260610-01    | SECURITY     | 5 debug endpoints removed · profile privacy fixed · error leakage closed | GREEN  | (post-commit) | WORDS: 378 (median 370)
 ```

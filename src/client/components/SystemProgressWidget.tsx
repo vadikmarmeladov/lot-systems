@@ -709,6 +709,20 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Physiological cohort is now surfaced across QOS widget · System Progress report · System Pulse. The Cube knows who you are from every angle.',
     ],
   },
+  {
+    date: '2026-06-10',
+    session: 'Security Hardening — 5 debug endpoints removed · Profile privacy closed · Error leakage fixed',
+    assembled: [
+      'Removed /api/public/verify-admin-config — exposed admin email list to unauthenticated callers.',
+      'Removed /api/public/verify-api-keys — exposed ANTHROPIC, RESEND, OPENAI key fragments (first 8 + last 4 chars) with no auth.',
+      'Removed /api/public/debug-memory-engine — exposed ANTHROPIC_API_KEY preview + client initialization status.',
+      'Removed /api/public/test-ai-engines — revealed which AI APIs are configured to any internet user.',
+      'Removed /api/public/test-anthropic-key — made real API calls (incurring token cost) with no authentication.',
+      'Fixed private profile data leak: isPublicProfile === false now returns HTTP 404 instead of firstName/lastName/tags/privacySettings.',
+      'Fixed 404 and 500 error responses in profile endpoint: removed debug, error.message, error.constructor.name from response bodies.',
+      'Session report: LOT-SR-20260610-01. Build GREEN. Zero new TypeScript errors. Deployed to claude/exciting-ritchie-3wyqgs.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -746,17 +760,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-07',
+  date: '2026-06-10',
   message: [
-    'ASSEMBLY RUN — 2026-06-07 · LOT-SR-20260607-04',
-    'Dep map audit complete. 9 new nodes registered.',
-    'WIDGET_DEPENDENCY_MAP: 88+ nodes. aiFeedback / moodAnalytics / journalReflection / energyCapacitor / integrityWidget / interfaceEvolution / worldCanvas / systemPulse / architectWidget — all wired in. The map now covers the full surface.',
-    'LOG_DEPENDENCY_SOURCES: 8 sources. intentions + memory added as direct pipeline sources. QIE log audit now touches all primary signal lanes.',
-    'Log field: 6 new military handlers. CSPRL · BPEAK · MER · MULTI · CAL · QOS-COHR. 53+ event types rendered. Field archive has depth.',
-    'SystemPulseWidget: 4th view "Biofield:" live. Physiological cohort surfaced — archetype + confidence + directive from classifyPhysiologicalCohort(). The Cube shows who you are from the pulse surface.',
-    'Background job 10: weekly-archetype-stability-monitor. Thursdays 05:00 UTC. Week-over-week archetype match rate. 10 scheduled jobs now active.',
-    'Physiological cohort reported from three angles: QOS widget · System Progress report · System Pulse. Cross-surface cohort coherence achieved.',
-    'DEPLOYED. The system now maps itself more completely.',
+    'ASSEMBLY RUN — 2026-06-10 · LOT-SR-20260610-01',
+    'Security hardening pass. 5 debug endpoints removed from public surface.',
+    '/verify-admin-config · /verify-api-keys · /debug-memory-engine · /test-ai-engines · /test-anthropic-key — all gone. The outside cannot see the inside.',
+    'Profile privacy closed. isPublicProfile === false now returns 404. No name. No tags. No settings. A private profile is a wall, not a window.',
+    'Error responses cleaned. 404 and 500 no longer leak error.message or constructor names. The system speaks terse: error only.',
+    'These fixes were deferred twice. Now they are done. LOT-SR-20260607-02 priority list partially resolved.',
+    'Next: admin per-user auth audit. The admin-api surface has endpoints reachable by any Usership member that should require owner verification.',
+    'DEPLOYED GREEN. The public surface is smaller. The system is tighter.',
   ],
 }
 
