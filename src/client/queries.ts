@@ -27,6 +27,7 @@ import {
 } from '#shared/types'
 import dayjs from '#client/utils/dayjs'
 import { DATE_TIME_FORMAT } from '#shared/constants'
+import { BasicsMetadata, BasicsRoster, BasicsIssue } from '#shared/constants/basics'
 
 const api = axios.create({
   baseURL: '/',
@@ -880,3 +881,44 @@ export const usePrayerScripture = createMutation<
     logId: string | null
   }
 >('post', '/api/prayer')
+
+// ============================================================================
+// BASICS — LOT-FM-001 Ration Subscription
+// ============================================================================
+
+export const useBasicsStrength = createQuery<{ count: number }>(
+  '/api/basics/strength',
+  { refetchInterval: 60_000 }
+)
+
+export const useBasicsStatus = createQuery<{ basics: BasicsMetadata | null }>(
+  '/api/basics/status'
+)
+
+export const useBasicsIssues = createQuery<{
+  issues: BasicsIssue[]
+  nextIssue: {
+    issueNumber: number
+    month: number
+    year: number
+    monthName: string
+    date: string
+    itemIds: number[]
+    itemCount: number
+  } | null
+}>('/api/basics/issues')
+
+export const useBasicsUpgrade = createMutation<void, { basics: BasicsMetadata }>(
+  'post',
+  '/api/basics/upgrade'
+)
+
+export const useBasicsRoster = createMutation<BasicsRoster, { basics: BasicsMetadata }>(
+  'post',
+  '/api/basics/roster'
+)
+
+export const useBasicsStandDown = createMutation<void, { basics: BasicsMetadata }>(
+  'post',
+  '/api/basics/standdown'
+)
