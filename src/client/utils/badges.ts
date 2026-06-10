@@ -38,11 +38,16 @@ export type BadgeType =
   | 'milestone_90'      // ≋∘ Deep Reach→ ║═ Inner Wall
   | 'milestone_180'     // ≋≋ Voyager   → ║╞║ Wing
   | 'milestone_365'     // ≋≋≋ Long Count→ ╔═╗ Citadel (LEGENDARY)
-  // ── Easter egg — time-based ─────────────────────────────────────────────
+  // ── Easter egg — time-based v1 ──────────────────────────────────────────
   | 'night_owl'         // ◉  Check in 01:00–04:00 AM
   | 'early_bird'        // ∴  Check in 05:00–06:00 AM
   | 'mirror_hour'       // ⊡  Check in at 11:11
   | 'midnight_sigil'    // ◉  Answer at exactly 00:00
+  // ── Easter egg — time-based v2 (Sci-Fi Arcade) ──────────────────────────
+  | 'pi_hour'           // ∞∘  Check in at 3:14 AM
+  | 'error_hour'        // □·□  Check in at 4:04 AM
+  | 'sequence_time'     // →∘→  Check in at 12:34
+  | 'lot_hour'          // ≋◉  Check in at 04:07 (LOT founding hour)
   // ── Easter egg — calendar ───────────────────────────────────────────────
   | 'solstice'          // ❋  June 21 or Dec 21
   | 'equinox'           // ○  March 20 or Sept 22
@@ -58,7 +63,7 @@ export type BadgeType =
   | 'anniversary'       // ≋  Account signup anniversary
   | 'overclock'         // ▒▒▒ 20+ activities in one day
   | 'perfect_day'       // ✦·✦ All combos in one day
-  // ── Word turn badges ────────────────────────────────────────────────────
+  // ── Word turn badges v1 ─────────────────────────────────────────────────
   | 'ritual_keeper'     // ≈·≈  "ritual" detected in text
   | 'breath_anchor'     // ∿·∿  "breathe" / "breathing"
   | 'gratitude_node'    // ○·○  "grateful" / "gratitude"
@@ -71,6 +76,31 @@ export type BadgeType =
   | 'the_quiet'         // ·—·  "silence" / "quiet"
   | 'horizon_seeker'    // →·→  "future" / "tomorrow"
   | 'meta_signal'       // ◉·◉  "LOT" in answer (MYTHIC)
+  // ── Word turn badges v2 — Sci-Fi Arcade Expansion ────────────────────────
+  | 'reboot_sequence'   // ↺·↺  "reboot" / "restart"
+  | 'not_lost_404'      // □□□  "404"
+  | 'signal_glitch'     // ▓░▓  "glitch"
+  | 'cosmic_twin'       // ✦◉✦  "COSMO" in answer (ULTRA-RARE)
+  | 'quantum_observer'  // ◈·◈  "quantum"
+  | 'neural_architect'  // ≋≈≋  "neural"
+  | 'code_witch'        // ┤·├  "code"
+  | 'recharge_mode'     // ∼∼∼  "sleep" / "rest"
+  | 'fuel_protocol'     // ■·■  "coffee" / "tea"
+  | 'frequency'         // ≈~≈  "music"
+  | 'kinetic_protocol'  // →→→  "run" / "walk"
+  | 'solar_charge'      // ○∘○  "sun" / "light"
+  | 'shadow_protocol'   // ▪▪▪  "fear" / "scared"
+  | 'phase_shift'       // ≈→≋  "change"
+  | 'acceptance_node'   // ○—○  "accept" / "let go"
+  | 'present_moment'    // ·∘·  "now" / "moment"
+  | 'cosmic_scale'      // ∞·∞  "universe" / "cosmos"
+  | 'vital_signal'      // ∘·∘  "alive"
+  // ── Mastery tier achievements (Sci-Fi Arcade) ────────────────────────────
+  | 'quantum_leap'      // ◈  First check-in after 30+ day gap
+  | 'speedrun'          // ▒▒▒  5 check-ins within 60 min
+  | 'system_op'         // ≋◉  All 7 CQGS modules used in 7 days
+  | 'commander_data'    // ◉  500 memory questions answered
+  | 'sage_mode'         // ∞  Reach Level 90+
   // ── Oceanic Mayan pattern badges ────────────────────────────────────────
   | 'pattern_balanced'  // ∿—∿  All planner dimensions used evenly
   | 'pattern_flow'      // ≈○≈  4+ widgets in one session
@@ -547,6 +577,282 @@ export const BADGES: Record<BadgeType, Badge> = {
     hidden: true,
   },
 
+  // ── Word turn badges v2 — Sci-Fi Arcade Expansion ─────────────────────────
+  reboot_sequence: {
+    id: 'reboot_sequence',
+    symbol: '↺·↺',
+    name: 'Reboot Sequence',
+    description: '"reboot" or "restart" detected in text',
+    unlockMessage: '↳ System restart acknowledged. ↺·↺',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  not_lost_404: {
+    id: 'not_lost_404',
+    symbol: '□□□',
+    name: '404: Not Lost',
+    description: '"404" detected in text',
+    unlockMessage: '↳ Error noted. You are found. □□□',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  signal_glitch: {
+    id: 'signal_glitch',
+    symbol: '▓░▓',
+    name: 'Signal Glitch',
+    description: '"glitch" detected in text',
+    unlockMessage: '↳ Glitch logged. Pattern persists. ▓░▓',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  cosmic_twin: {
+    id: 'cosmic_twin',
+    symbol: '✦◉✦',
+    name: 'Cosmic Twin',
+    description: '"COSMO" written in a memory answer (LOT® × COSMO® crossover)',
+    unlockMessage: '↳ The other system heard you. ✦◉✦',
+    rarity: 'mythic',
+    category: 'word_turn',
+    hidden: true,
+  },
+  quantum_observer: {
+    id: 'quantum_observer',
+    symbol: '◈·◈',
+    name: 'Quantum Observer',
+    description: '"quantum" detected in text',
+    unlockMessage: '↳ You collapsed the waveform. ◈·◈',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  neural_architect: {
+    id: 'neural_architect',
+    symbol: '≋≈≋',
+    name: 'Neural Architect',
+    description: '"neural" detected in text',
+    unlockMessage: '↳ Pattern recognized. ≋≈≋',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  code_witch: {
+    id: 'code_witch',
+    symbol: '┤·├',
+    name: 'Code Witch',
+    description: '"code" detected in text',
+    unlockMessage: '↳ The coder and the feeler meet. ┤·├',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  recharge_mode: {
+    id: 'recharge_mode',
+    symbol: '∼∼∼',
+    name: 'Recharge Mode',
+    description: '"sleep" or "rest" detected in text',
+    unlockMessage: '↳ Power-down confirmed. ∼∼∼',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  fuel_protocol: {
+    id: 'fuel_protocol',
+    symbol: '■·■',
+    name: 'Fuel Protocol',
+    description: '"coffee" or "tea" detected in text',
+    unlockMessage: '↳ Chemical fuel logged. ■·■',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  frequency: {
+    id: 'frequency',
+    symbol: '≈~≈',
+    name: 'Frequency',
+    description: '"music" detected in text',
+    unlockMessage: '↳ Signal tuned. Frequency locked. ≈~≈',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  kinetic_protocol: {
+    id: 'kinetic_protocol',
+    symbol: '→→→',
+    name: 'Kinetic Protocol',
+    description: '"run" or "walk" detected in text',
+    unlockMessage: '↳ Body in motion. Protocol active. →→→',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  solar_charge: {
+    id: 'solar_charge',
+    symbol: '○∘○',
+    name: 'Solar Charge',
+    description: '"sun" or "light" detected in text',
+    unlockMessage: '↳ Photon intake noted. ○∘○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  shadow_protocol: {
+    id: 'shadow_protocol',
+    symbol: '▪▪▪',
+    name: 'Shadow Protocol',
+    description: '"fear" or "scared" detected in text',
+    unlockMessage: '↳ Fear named. Shadow protocol on. ▪▪▪',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  phase_shift: {
+    id: 'phase_shift',
+    symbol: '≈→≋',
+    name: 'Phase Shift',
+    description: '"change" detected in text',
+    unlockMessage: '↳ Transformation detected. ≈→≋',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  acceptance_node: {
+    id: 'acceptance_node',
+    symbol: '○—○',
+    name: 'Acceptance Node',
+    description: '"accept" or "let go" detected in text',
+    unlockMessage: '↳ Release logged. ○—○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  present_moment: {
+    id: 'present_moment',
+    symbol: '·∘·',
+    name: 'Present Moment',
+    description: '"now" or "moment" detected in text',
+    unlockMessage: '↳ You are here. ·∘·',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  cosmic_scale: {
+    id: 'cosmic_scale',
+    symbol: '∞·∞',
+    name: 'Cosmic Scale',
+    description: '"universe" or "cosmos" detected in text',
+    unlockMessage: '↳ You zoomed out. Signal received. ∞·∞',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  vital_signal: {
+    id: 'vital_signal',
+    symbol: '∘·∘',
+    name: 'Vital Signal',
+    description: '"alive" detected in text',
+    unlockMessage: '↳ Life acknowledged. ∘·∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+
+  // ── Easter egg — time-based v2 ────────────────────────────────────────────
+  pi_hour: {
+    id: 'pi_hour',
+    symbol: '∞∘',
+    name: 'Pi Hour',
+    description: 'Check in at 3:14 AM',
+    unlockMessage: '↳ Pi in the small hours. ∞∘',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  error_hour: {
+    id: 'error_hour',
+    symbol: '□·□',
+    name: '404 AM',
+    description: 'Check in at 4:04 AM',
+    unlockMessage: '↳ 404 AM — you were found. □·□',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  sequence_time: {
+    id: 'sequence_time',
+    symbol: '→∘→',
+    name: 'Sequence Time',
+    description: 'Check in at 12:34',
+    unlockMessage: '↳ Sequential time. In order. →∘→',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  lot_hour: {
+    id: 'lot_hour',
+    symbol: '≋◉',
+    name: 'The Founding Hour',
+    description: 'Check in at 04:07 (LOT founding: April 7)',
+    unlockMessage: '↳ The founding hour. ≋◉',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Mastery tier achievements — Sci-Fi Arcade ─────────────────────────────
+  quantum_leap: {
+    id: 'quantum_leap',
+    symbol: '◈',
+    name: 'Quantum Leap',
+    description: 'First check-in after a 30+ day gap',
+    unlockMessage: '↳ Quantum leap. The system bridges the gap. ◈',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  speedrun: {
+    id: 'speedrun',
+    symbol: '▒▒▒',
+    name: 'Speedrun',
+    description: '5 check-ins within 60 minutes',
+    unlockMessage: '↳ BURST MODE ACTIVE. ▒▒▒',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  system_op: {
+    id: 'system_op',
+    symbol: '≋◉',
+    name: 'System Op',
+    description: 'All 7 CQGS modules used within 7 days',
+    unlockMessage: '↳ All modules online. System operator status. ≋◉',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  commander_data: {
+    id: 'commander_data',
+    symbol: '◉',
+    name: 'Commander Data',
+    description: '500 memory questions answered',
+    unlockMessage: '↳ 500 questions. The archive has become a being. ◉',
+    rarity: 'legendary',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  sage_mode: {
+    id: 'sage_mode',
+    symbol: '∞',
+    name: 'Sage Mode',
+    description: 'Reach Level 90+',
+    unlockMessage: '↳ Level 90. The system and you are indistinguishable. ∞',
+    rarity: 'legendary',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
   // ── Oceanic Mayan pattern badges ──────────────────────────────────────────
   pattern_balanced: {
     id: 'pattern_balanced',
@@ -893,6 +1199,20 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     for (const [days, id] of streakMilestones) {
       if (stats.streak >= days && !hasBadge(id)) {
         if (awardBadge(id)) newBadges.push(id)
+      }
+    }
+
+    // Mastery tier: memory answer milestones
+    if (typeof stats.totalAnswers === 'number') {
+      if (stats.totalAnswers >= 500 && !hasBadge('commander_data')) {
+        if (awardBadge('commander_data')) newBadges.push('commander_data')
+      }
+    }
+
+    // Mastery tier: level milestone
+    if (typeof stats.level === 'number') {
+      if (stats.level >= 90 && !hasBadge('sage_mode')) {
+        if (awardBadge('sage_mode')) newBadges.push('sage_mode')
       }
     }
 

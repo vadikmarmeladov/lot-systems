@@ -13,10 +13,13 @@
  * Called from MemoryWidget, JournalWidget, and at check-in time.
  *
  * Categories:
- *   TIME   — hour-of-day triggers (Night Owl, Early Bird, Mirror Hour, Midnight Sigil)
+ *   TIME   — hour-of-day triggers (Night Owl, Early Bird, Mirror Hour, Midnight Sigil,
+ *             Pi Hour, 404 AM, Sequence Time, Founding Hour)
  *   DATE   — calendar triggers (Solstice, Equinox, LOT Birthday, Palindrome Day, etc.)
- *   TEXT   — word-turn detection (ritual, breathe, ocean, LOT, etc.)
- *   BEHAV  — behavioral pattern triggers (overclock, ghost protocol, friday ritual)
+ *   TEXT   — word-turn detection v1 (ritual, breathe, ocean, LOT, etc.)
+ *             word-turn detection v2 (reboot, 404, glitch, COSMO, quantum, neural, etc.)
+ *   BEHAV  — behavioral pattern triggers (overclock, ghost protocol, friday ritual,
+ *             quantum leap, speedrun)
  */
 
 import { awardBadge, hasBadge, type BadgeType } from './badges'
@@ -67,13 +70,60 @@ export function checkMidnightSigil(): BadgeType | null {
   return null
 }
 
+/** Award Pi Hour badge if current time is 3:14 AM */
+export function checkPiHour(): BadgeType | null {
+  if (hasBadge('pi_hour')) return null
+  const now = new Date()
+  if (now.getHours() === 3 && now.getMinutes() === 14) {
+    awardBadge('pi_hour')
+    return 'pi_hour'
+  }
+  return null
+}
+
+/** Award 404 AM badge if current time is 4:04 AM */
+export function checkErrorHour(): BadgeType | null {
+  if (hasBadge('error_hour')) return null
+  const now = new Date()
+  if (now.getHours() === 4 && now.getMinutes() === 4) {
+    awardBadge('error_hour')
+    return 'error_hour'
+  }
+  return null
+}
+
+/** Award Sequence Time badge if current time is 12:34 */
+export function checkSequenceTime(): BadgeType | null {
+  if (hasBadge('sequence_time')) return null
+  const now = new Date()
+  if (now.getHours() === 12 && now.getMinutes() === 34) {
+    awardBadge('sequence_time')
+    return 'sequence_time'
+  }
+  return null
+}
+
+/** Award Founding Hour badge if current time is 04:07 */
+export function checkLotHour(): BadgeType | null {
+  if (hasBadge('lot_hour')) return null
+  const now = new Date()
+  if (now.getHours() === 4 && now.getMinutes() === 7) {
+    awardBadge('lot_hour')
+    return 'lot_hour'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
  */
 export function checkTimeEasterEggs(): BadgeType[] {
   const awarded: BadgeType[] = []
-  const checks = [checkNightOwl, checkEarlyBird, checkMirrorHour]
+  const checks = [
+    checkNightOwl, checkEarlyBird, checkMirrorHour,
+    checkPiHour, checkErrorHour, checkSequenceTime, checkLotHour,
+  ]
   for (const check of checks) {
     const result = check()
     if (result) awarded.push(result)
@@ -255,15 +305,62 @@ export function checkOverclock(activityCount: number): BadgeType | null {
   return null
 }
 
+/**
+ * Check Quantum Leap badge: first check-in after a 30+ day gap.
+ * Distinct from Ghost Protocol (7 days) — this is the longer return.
+ */
+export function checkQuantumLeap(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('quantum_leap')) return null
+
+  try {
+    const lastActivity = localStorage.getItem('last_activity_date')
+    if (!lastActivity) return null
+
+    const daysSince = Math.floor(
+      (Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24)
+    )
+
+    if (daysSince >= 30) {
+      awardBadge('quantum_leap')
+      return 'quantum_leap'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Speedrun badge: 5 check-ins within 60 minutes.
+ * activityTimestamps should be ISO strings of today's check-ins.
+ */
+export function checkSpeedrun(activityTimestamps: string[]): BadgeType | null {
+  if (hasBadge('speedrun')) return null
+  if (activityTimestamps.length < 5) return null
+
+  const sorted = [...activityTimestamps].sort()
+  // Check any window of 5 consecutive events fits within 60 min
+  for (let i = 0; i <= sorted.length - 5; i++) {
+    const window = sorted.slice(i, i + 5)
+    const span = new Date(window[4]).getTime() - new Date(window[0]).getTime()
+    if (span <= 60 * 60 * 1000) {
+      awardBadge('speedrun')
+      return 'speedrun'
+    }
+  }
+  return null
+}
+
 // ── Word turn detection ───────────────────────────────────────────────────────
 
 /** Word turn map: phrase patterns → badge IDs */
 const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
+  // ── v1 — Core word turns ──────────────────────────────────────────────────
   { patterns: /\b(ritual|rituals)\b/i,             badge: 'ritual_keeper' },
   { patterns: /\b(breathe|breathing|breath)\b/i,   badge: 'breath_anchor' },
   { patterns: /\b(grateful|gratitude|thankful)\b/i,badge: 'gratitude_node' },
   { patterns: /\b(ocean|water|sea|tide|wave)\b/i,  badge: 'aquatic_resonance' },
-  { patterns: /\b(stars?|cosmos|cosmic|galaxy|universe|constellation)\b/i, badge: 'stargazer' },
+  { patterns: /\b(stars?|galaxy|constellation)\b/i,badge: 'stargazer' },
   { patterns: /\bhome\b/i,                          badge: 'grounded_signal' },
   { patterns: /\b(dream|dreaming|dreamed|dreamt)\b/i, badge: 'dream_log' },
   { patterns: /\b(pain|painful|difficult|struggle|hard|suffering)\b/i, badge: 'courage_pulse' },
@@ -271,6 +368,25 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\b(silence|quiet|still|stillness)\b/i, badge: 'the_quiet' },
   { patterns: /\b(future|tomorrow|ahead|forward)\b/i, badge: 'horizon_seeker' },
   { patterns: /\bLOT\b/,                            badge: 'meta_signal' },
+  // ── v2 — Sci-Fi Arcade Expansion ─────────────────────────────────────────
+  { patterns: /\b(reboot|restart)\b/i,             badge: 'reboot_sequence' },
+  { patterns: /\b404\b/,                            badge: 'not_lost_404' },
+  { patterns: /\bglitch(ed|ing)?\b/i,              badge: 'signal_glitch' },
+  { patterns: /\bCOSMO\b/,                          badge: 'cosmic_twin' },
+  { patterns: /\bquantum\b/i,                       badge: 'quantum_observer' },
+  { patterns: /\bneural\b/i,                        badge: 'neural_architect' },
+  { patterns: /\bcode\b/i,                          badge: 'code_witch' },
+  { patterns: /\b(sleep|resting|rest)\b/i,          badge: 'recharge_mode' },
+  { patterns: /\b(coffee|tea|espresso)\b/i,         badge: 'fuel_protocol' },
+  { patterns: /\bmusic\b/i,                          badge: 'frequency' },
+  { patterns: /\b(run|running|walk|walking|jog|jogging)\b/i, badge: 'kinetic_protocol' },
+  { patterns: /\b(sun|sunlight|sunbeam|light)\b/i, badge: 'solar_charge' },
+  { patterns: /\b(fear|afraid|scared|frightened)\b/i, badge: 'shadow_protocol' },
+  { patterns: /\b(change|changing|changed)\b/i,    badge: 'phase_shift' },
+  { patterns: /\b(accept|acceptance|let go|letting go|release)\b/i, badge: 'acceptance_node' },
+  { patterns: /\b(now|moment|present)\b/i,         badge: 'present_moment' },
+  { patterns: /\b(universe|cosmos|cosmic)\b/i,     badge: 'cosmic_scale' },
+  { patterns: /\b(alive|living|life)\b/i,          badge: 'vital_signal' },
 ]
 
 /**
@@ -376,10 +492,13 @@ export function checkAnniversary(signupDate: string): BadgeType | null {
  * Call this when user performs any check-in action.
  * Returns all newly awarded badge IDs.
  */
-export function runCheckInEasterEggs(activityCount?: number): BadgeType[] {
+export function runCheckInEasterEggs(
+  activityCount?: number,
+  activityTimestamps?: string[],
+): BadgeType[] {
   const awarded: BadgeType[] = []
 
-  // Time-based
+  // Time-based (v1 + v2)
   const timeResults = checkTimeEasterEggs()
   awarded.push(...timeResults)
 
@@ -387,7 +506,10 @@ export function runCheckInEasterEggs(activityCount?: number): BadgeType[] {
   const calResults = checkCalendarEasterEggs()
   awarded.push(...calResults)
 
-  // Behavioral
+  // Behavioral — gap detection (must run before recordActivity)
+  const quantumLeap = checkQuantumLeap()
+  if (quantumLeap) awarded.push(quantumLeap)
+
   const ghost = checkGhostProtocol()
   if (ghost) awarded.push(ghost)
 
@@ -400,6 +522,11 @@ export function runCheckInEasterEggs(activityCount?: number): BadgeType[] {
   if (activityCount !== undefined) {
     const overclock = checkOverclock(activityCount)
     if (overclock) awarded.push(overclock)
+  }
+
+  if (activityTimestamps !== undefined) {
+    const speedrun = checkSpeedrun(activityTimestamps)
+    if (speedrun) awarded.push(speedrun)
   }
 
   // Record activity after all checks (so gap detection works next time)
