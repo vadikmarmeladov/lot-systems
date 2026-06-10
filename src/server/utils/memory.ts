@@ -995,7 +995,35 @@ Key insights into their daily routines and preferences include:
         hasApiKey: !!config.anthropic?.apiKey,
         apiKeyLength: config.anthropic?.apiKey?.length || 0
       })
-      return 'Unable to generate story at this time. Please try again later.'
+      console.log('Using local story composition fallback')
+      const name = user.firstName || 'This person'
+      const answers = answerLogs
+        .slice(0, 20)
+        .map((log) => ({
+          question: (log.metadata.question as string) || '',
+          answer: (log.metadata.answer as string) || '',
+          date: log.context.timeZone
+            ? dayjs(log.createdAt).tz(log.context.timeZone).format('D MMM YYYY')
+            : dayjs(log.createdAt).format('D MMM YYYY'),
+        }))
+        .filter((a) => a.question && a.answer)
+
+      if (answers.length === 0) return `${name} has begun their journey. The first questions await.`
+
+      const first = answers[answers.length - 1]
+      const lines: string[] = []
+      lines.push(`${name} — a portrait in ${answers.length} answer${answers.length !== 1 ? 's' : ''}.`)
+      lines.push('')
+      for (const a of answers.slice(0, 6)) {
+        lines.push(`– "${a.question}" — ${a.answer}.`)
+      }
+      if (answers.length > 6) {
+        lines.push('')
+        lines.push(`…and ${answers.length - 6} more, woven in since ${first.date}.`)
+      }
+      lines.push('')
+      lines.push('Each answer sharpens the portrait. The story continues.')
+      return lines.join('\n')
     }
   }
 }

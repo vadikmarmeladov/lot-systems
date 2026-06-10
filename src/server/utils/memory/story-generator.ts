@@ -205,9 +205,48 @@ Key insights into their daily routines and preferences include:
         hasApiKey: !!config.anthropic?.apiKey,
         apiKeyLength: config.anthropic?.apiKey?.length || 0
       })
-      return 'Unable to generate story at this time. Please try again later.'
+      console.log('Using local story composition fallback')
+      return composeLocalStory(user, answerLogs)
     }
   }
+}
+
+function composeLocalStory(user: User, answerLogs: Log[]): string {
+  const name = user.firstName || 'This person'
+  const answers = answerLogs
+    .slice(0, 20)
+    .map((log) => ({
+      question: (log.metadata.question as string) || '',
+      answer: (log.metadata.answer as string) || '',
+      date: log.context.timeZone
+        ? dayjs(log.createdAt).tz(log.context.timeZone).format('D MMM YYYY')
+        : dayjs(log.createdAt).format('D MMM YYYY'),
+    }))
+    .filter((a) => a.question && a.answer)
+
+  const count = answers.length
+  if (count === 0) return `${name} has begun their journey. The first questions await.`
+
+  const first = answers[answers.length - 1]
+  const lines: string[] = []
+
+  lines.push(`${name} — a portrait in ${count} answer${count !== 1 ? 's' : ''}.`)
+  lines.push('')
+
+  const sample = answers.slice(0, 6)
+  for (const a of sample) {
+    lines.push(`– "${a.question}" — ${a.answer}.`)
+  }
+
+  if (count > 6) {
+    lines.push('')
+    lines.push(`…and ${count - 6} more, woven in since ${first.date}.`)
+  }
+
+  lines.push('')
+  lines.push('Each answer sharpens the portrait. The story continues.')
+
+  return lines.join('\n')
 }
 
 export async function generateUserSummary(user: User, logs: Log[]): Promise<string> {

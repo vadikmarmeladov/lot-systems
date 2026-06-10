@@ -2439,7 +2439,18 @@ export default async (fastify: FastifyInstance) => {
           story: null,
           hasUsership: false,
           answerCount: logs.length,
-          message: 'Subscribe to Usership to unlock Memory Story generation.'
+          message: 'Subscribe to start building your profile and generate your story.'
+        }
+      }
+
+      // Check for cached story in user metadata
+      const cachedMetadata = req.user.metadata as any || {}
+      if (cachedMetadata.lastMemoryStory && cachedMetadata.memoryStoryAnswerCount === logs.length) {
+        console.log(`Returning cached Memory Story (v${cachedMetadata.memoryStoryVersion}, ${cachedMetadata.memoryStoryAnswerCount} answers)`)
+        return {
+          story: cachedMetadata.lastMemoryStory,
+          hasUsership: true,
+          answerCount: logs.length
         }
       }
 
