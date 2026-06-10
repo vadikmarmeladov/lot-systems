@@ -380,6 +380,12 @@ export default async (fastify: FastifyInstance) => {
           write({ event, data: updatedPayload })
           break
         }
+        case 'settings_updated': {
+          if (data.userId === req.user.id) {
+            write({ event, data: {} })
+          }
+          break
+        }
       }
     })
 
@@ -584,6 +590,7 @@ export default async (fastify: FastifyInstance) => {
         }
       }
       await req.user.set(body).save()
+      sync.emit('settings_updated', { userId: req.user.id })
       process.nextTick(async () => {
         let newTimeZone = null
         if (body.city && body.country) {
@@ -653,6 +660,7 @@ export default async (fastify: FastifyInstance) => {
         },
       }
       await req.user.set({ metadata: updatedMetadata }).save()
+      sync.emit('settings_updated', { userId: req.user.id })
 
       reply.ok()
     }
@@ -805,6 +813,7 @@ export default async (fastify: FastifyInstance) => {
       }
 
       await req.user.set({ metadata: updatedMetadata }).save()
+      sync.emit('settings_updated', { userId: req.user.id })
 
       reply.ok()
     }
@@ -2205,7 +2214,18 @@ export default async (fastify: FastifyInstance) => {
         return reply.throw.badParams()
       }
 
-      // TODO: check if user is allowed to answer
+      // Dedup guard: prevent duplicate answers to the same question within 30 seconds
+      const recentDuplicate = await fastify.models.Answer.findOne({
+        where: {
+          userId: req.user.id,
+          question: questionText,
+          answer: option,
+          createdAt: { [Op.gte]: new Date(Date.now() - 30_000) },
+        },
+      })
+      if (recentDuplicate) {
+        return { ok: true, duplicate: true }
+      }
 
       const answer = await fastify.models.Answer.create({
         userId: req.user.id,
