@@ -63,50 +63,62 @@ async function checkDatabase(): Promise<SystemCheck> {
 async function checkWeatherAPI(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check Weather API
     const data = await weather.getWeather(40.7128, -74.0060)
     if (!data) {
       return {
-        name: 'Engine stack',
+        name: 'Weather API',
         status: 'error',
         message: 'Weather API returned no data',
         duration: Date.now() - start,
       }
     }
-
-    // Check React bundle exists
-    const reactBundlePath = path.join(process.cwd(), 'dist/client/js/app.js')
-    if (!fs.existsSync(reactBundlePath)) {
-      return {
-        name: 'Engine stack',
-        status: 'error',
-        message: 'React bundle not found',
-        duration: Date.now() - start,
-      }
-    }
-
-    // Check Node.js version is compatible
-    const nodeVersion = process.version
-    const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
-    if (majorVersion < 18) {
-      return {
-        name: 'Engine stack',
-        status: 'error',
-        message: `Node.js version ${nodeVersion} is too old (requires 18+)`,
-        duration: Date.now() - start,
-      }
-    }
-
     return {
-      name: 'Engine stack',
+      name: 'Weather API',
       status: 'ok',
       duration: Date.now() - start,
     }
   } catch (error: any) {
     return {
-      name: 'Engine stack',
+      name: 'Weather API',
       status: 'error',
-      message: error?.message || 'Engine stack check failed',
+      message: error?.message || 'Weather API check failed',
+      duration: Date.now() - start,
+    }
+  }
+}
+
+async function checkClientBundle(): Promise<SystemCheck> {
+  const start = Date.now()
+  try {
+    const reactBundlePath = path.join(process.cwd(), 'dist/client/js/app.js')
+    if (!fs.existsSync(reactBundlePath)) {
+      return {
+        name: 'Client bundle',
+        status: 'error',
+        message: 'React bundle not found — rebuild required',
+        duration: Date.now() - start,
+      }
+    }
+    const nodeVersion = process.version
+    const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
+    if (majorVersion < 18) {
+      return {
+        name: 'Client bundle',
+        status: 'error',
+        message: `Node.js ${nodeVersion} too old (requires 18+)`,
+        duration: Date.now() - start,
+      }
+    }
+    return {
+      name: 'Client bundle',
+      status: 'ok',
+      duration: Date.now() - start,
+    }
+  } catch (error: any) {
+    return {
+      name: 'Client bundle',
+      status: 'error',
+      message: error?.message || 'Client bundle check failed',
       duration: Date.now() - start,
     }
   }
@@ -335,6 +347,13 @@ async function checkSystems(): Promise<SystemCheck> {
   }
 }
 
+const CRITICAL_CHECK_NAMES = new Set([
+  'Database stack',
+  'Authentication engine',
+  'Systems',
+  'Client bundle',
+])
+
 async function performHealthChecks(): Promise<{
   version: string
   timestamp: string
@@ -350,13 +369,20 @@ async function performHealthChecks(): Promise<{
     checkUsers(),
     checkSystems(),
     checkWeatherAPI(),
+    checkClientBundle(),
     checkDatabase(),
     checkMemory(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  const hasCriticalError = checks.some(
+    (c) => c.status === 'error' && CRITICAL_CHECK_NAMES.has(c.name)
+  )
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalError
+    ? 'error'
+    : hasAnyError
+    ? 'degraded'
+    : 'ok'
 
   return {
     version: VERSION,
@@ -538,6 +564,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Admin configuration diagnostic endpoint
   fastify.get('/verify-admin-config', async (req, reply) => {
+    if (!req.user?.isAdmin()) return reply.code(401).send({ error: 'Unauthorized' })
     const adminEmailsEnv = process.env.ADMIN_EMAILS
     const adminsList = config.admins
 
@@ -562,6 +589,7 @@ export default async (fastify: FastifyInstance) => {
 
   // API key verification endpoint - shows masked API key for verification
   fastify.get('/verify-api-keys', async (req, reply) => {
+    if (!req.user?.isAdmin()) return reply.code(401).send({ error: 'Unauthorized' })
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
     const resendKey = process.env.RESEND_API_KEY
     const openaiKey = process.env.OPENAI_API_KEY
@@ -599,6 +627,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Memory Engine diagnostic endpoint - shows why Claude might not be working
   fastify.get('/debug-memory-engine', async (req, reply) => {
+    if (!req.user?.isAdmin()) return reply.code(401).send({ error: 'Unauthorized' })
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     // Test if we can initialize Anthropic client
@@ -645,6 +674,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test all AI engines to see which are available
   fastify.get('/test-ai-engines', async (req, reply) => {
+    if (!req.user?.isAdmin()) return reply.code(401).send({ error: 'Unauthorized' })
     const { aiEngineManager } = await import('#server/utils/ai-engines.js')
 
     const status = aiEngineManager.getStatus()
@@ -694,6 +724,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test Anthropic API key with actual API call
   fastify.get('/test-anthropic-key', async (req, reply) => {
+    if (!req.user?.isAdmin()) return reply.code(401).send({ error: 'Unauthorized' })
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     if (!anthropicKey) {
