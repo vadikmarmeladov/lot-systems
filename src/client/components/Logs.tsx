@@ -9,7 +9,7 @@
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
-import { Block, Button, ResizibleGhostInput, Unknown } from '#client/components/ui'
+import { Block, Button, GhostButton, ResizibleGhostInput, Unknown } from '#client/components/ui'
 import { useLogs, useUpdateLog } from '#client/queries'
 import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useSendLotEmail } from '#client/queries'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -215,6 +215,21 @@ export const Logs: React.FC = () => {
               </Block>
               <Block label="OUT:" blockView>
                 {log.metadata.answer as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'email_sent') {
+          const toName = log.metadata?.toName as string | undefined
+          const preview = log.metadata?.preview as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                {toName && (
+                  <div className="uppercase tracking-widest mb-4">→ {toName}</div>
+                )}
+                {preview && (
+                  <div className="opacity-40">{preview}{preview.length >= 80 ? '…' : ''}</div>
+                )}
               </Block>
             </LogContainer>
           )
@@ -1250,6 +1265,17 @@ const NoteEditor = ({
       setAsmLoading(false)
     },
   })
+  const [emailComposeTo, setEmailComposeTo] = React.useState<string | null>(null)
+  const [emailBody, setEmailBody] = React.useState('')
+  const [emailSent, setEmailSent] = React.useState(false)
+  const { mutate: sendEmail, isLoading: emailSending } = useSendLotEmail({
+    onSuccess: () => {
+      setEmailSent(true)
+      setEmailBody('')
+      setTimeout(() => setEmailSent(false), 4000)
+    },
+  })
+
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const { mutate: submitPrayer } = usePrayerScripture({
@@ -1535,6 +1561,16 @@ const NoteEditor = ({
             submitQi({ query })
           }
         }
+      } else if (trigger === 'email-compose') {
+        const emailMatch = value.match(/\/email\s+to\s+([^\n/]+)/i)
+        if (emailMatch) {
+          const toName = emailMatch[1].trim()
+          if (toName.length > 0) {
+            setEmailComposeTo(toName)
+            setEmailBody('')
+            setEmailSent(false)
+          }
+        }
       }
     }
   }, [value])
@@ -1696,6 +1732,52 @@ const NoteEditor = ({
                 <div className="opacity-60 italic">
                   {prayerResponse}
                 </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {emailComposeTo && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              <div className="mb-8">
+                <span className="opacity-40 uppercase tracking-widest text-xs">TO</span>
+                {' '}
+                <span className="uppercase">{emailComposeTo}</span>
+              </div>
+              {emailSent ? (
+                <div className="opacity-60 uppercase tracking-widest">SENT.</div>
+              ) : (
+                <>
+                  <ResizibleGhostInput
+                    direction="v"
+                    value={emailBody}
+                    onChange={setEmailBody}
+                    placeholder="[ compose message ]"
+                    rows={4}
+                    className="opacity-80 mb-8"
+                  />
+                  <div className="flex items-center gap-x-8">
+                    <Button
+                      kind="secondary"
+                      size="small"
+                      disabled={!emailBody.trim() || emailSending}
+                      onClick={() => {
+                        if (!emailBody.trim() || emailSending) return
+                        sendEmail({ toName: emailComposeTo, body: emailBody.trim() })
+                      }}
+                    >
+                      {emailSending ? '...' : 'SEND'}
+                    </Button>
+                    <GhostButton
+                      onClick={() => {
+                        setEmailComposeTo(null)
+                        setEmailBody('')
+                      }}
+                    >
+                      CANCEL
+                    </GhostButton>
+                  </div>
+                </>
               )}
             </Block>
           </div>

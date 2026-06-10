@@ -5210,4 +5210,126 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       }
     }
   )
+
+  // ============================================================================
+  // LOT EMAIL — internal messaging system
+  // ============================================================================
+
+  // POST /api/email/send
+  fastify.post(
+    '/email/send',
+    async (
+      req: FastifyRequest<{
+        Body: { toName: string; body: string; subject?: string }
+      }>,
+      reply
+    ) => {
+      try {
+        const { toName, body, subject } = req.body
+
+        if (!toName?.trim() || !body?.trim()) {
+          return reply.status(400).send({ error: 'toName and body are required' })
+        }
+
+        const sender = await fastify.models.User.findByPk(req.user.id)
+        const fromName =
+          [sender?.firstName, sender?.lastName].filter(Boolean).join(' ') ||
+          req.user.email
+
+        // Fuzzy lookup by first name (case-insensitive)
+        const nameLower = toName.trim().toLowerCase()
+        const allUsers = await fastify.models.User.findAll({
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+        const recipient = allUsers.find(
+          (u) => (u.firstName || '').toLowerCase() === nameLower
+        )
+
+        const email = await fastify.models.LotEmail.create({
+          fromUserId: req.user.id,
+          toUserId: recipient?.id || null,
+          fromName,
+          toName: toName.trim(),
+          subject: subject?.trim() || null,
+          body: body.trim(),
+          status: 'sent',
+        })
+
+        // Log the send event
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          text: null,
+          event: 'email_sent',
+          metadata: {
+            toName: toName.trim(),
+            preview: body.slice(0, 80),
+            emailId: email.id,
+          },
+          context: await getLogContext(req.user),
+        })
+
+        // Broadcast to Sync feed (sender/recipient names only — no body)
+        sync.emit('lot_email', {
+          id: email.id,
+          fromName,
+          toName: toName.trim(),
+          preview: body.slice(0, 60) + (body.length > 60 ? '...' : ''),
+          createdAt: email.createdAt,
+        })
+
+        return reply.send({ id: email.id, status: 'sent' })
+      } catch (error) {
+        console.error('Error sending LOT email:', error)
+        return reply.status(500).send({ error: 'Failed to send email' })
+      }
+    }
+  )
+
+  // GET /api/email/inbox
+  fastify.get('/email/inbox', async (req, reply) => {
+    try {
+      const emails = await fastify.models.LotEmail.findAll({
+        where: { toUserId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+      return reply.send(emails)
+    } catch (error) {
+      console.error('Error fetching inbox:', error)
+      return reply.status(500).send({ error: 'Failed to fetch inbox' })
+    }
+  })
+
+  // GET /api/email/sent
+  fastify.get('/email/sent', async (req, reply) => {
+    try {
+      const emails = await fastify.models.LotEmail.findAll({
+        where: { fromUserId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+      return reply.send(emails)
+    } catch (error) {
+      console.error('Error fetching sent emails:', error)
+      return reply.status(500).send({ error: 'Failed to fetch sent' })
+    }
+  })
+
+  // POST /api/email/:id/read
+  fastify.post(
+    '/email/:id/read',
+    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
+      try {
+        const { id } = req.params
+        await fastify.models.LotEmail.update(
+          { status: 'read' },
+          { where: { id, toUserId: req.user.id } }
+        )
+        return reply.send({ ok: true })
+      } catch (error) {
+        console.error('Error marking email read:', error)
+        return reply.status(500).send({ error: 'Failed to update email' })
+      }
+    }
+  )
 }

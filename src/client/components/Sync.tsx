@@ -25,7 +25,7 @@ import {
   useLikeChatMessage,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { LotEmailSyncEvent, PublicChatMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -40,6 +40,7 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [emailEvents, setEmailEvents] = React.useState<LotEmailSyncEvent[]>([])
   const hasInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
@@ -120,9 +121,16 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeEmailListener } = sync.listen('lot_email', (data) => {
+      setEmailEvents((prev) => {
+        if (prev.some((x) => x.id === data.id)) return prev
+        return [data, ...prev].slice(0, 5)
+      })
+    })
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeEmailListener()
     }
   }, [me?.id])
 
@@ -219,6 +227,34 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {emailEvents.length > 0 && (
+        <div className="mb-80">
+          {emailEvents.map((e) => (
+            <div
+              key={e.id}
+              className="flex items-start gap-x-8 opacity-40 -mx-4 px-4 py-2"
+            >
+              <span className="whitespace-nowrap select-none">✉</span>
+              <div className="text-acc/60">
+                <span className="uppercase tracking-widest text-xs">
+                  {e.fromName}
+                </span>
+                <span className="opacity-40 mx-4">→</span>
+                <span className="uppercase tracking-widest text-xs">
+                  {e.toName}
+                </span>
+              </div>
+              <div className="opacity-30 text-xs ml-auto whitespace-nowrap">
+                <MessageTimeLabel
+                  dateString={e.createdAt}
+                  isTimeFormat12h={isTimeFormat12h}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {
