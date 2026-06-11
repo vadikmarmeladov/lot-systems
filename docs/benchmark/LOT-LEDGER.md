@@ -27,5 +27,5 @@ ID             | CLASS        | SUMMARY                                         
 20260610-01    | CORPORATE    | W3C appeal + Design Lab + FMCG plan + About.tsx credit    | GREEN  | 108b2a05 | WORDS: 278 (median 370)
 20260610-02    | ENGINEERING  | Badge Codex v11 — +29 badges · Sci-Fi Arcade · word turns v2 · PDF 10pp | GREEN  | 2312e43 | WORDS: 581 (median 388)
 20260611-01    | ENGINEERING  | Cross-device sync + Settings crash fix + v1.3.0 version sync + Field Manual snapshot | GREEN  | bea4cefb | WORDS: 393 (median 388)
-20260611-02    | SELF-ASSEMBLY| QIE v54 — dep map 93+ nodes · log military pass · job 11 · archetype 19 · brief v3.2 | GREEN  | (post-commit) | WORDS: 620 (median 400)
+20260611-02    | SELF-ASSEMBLY| QIE v54 — dep map 93+ nodes · log military pass · job 11 · archetype 19 · brief v3.2 | GREEN  | 44b3f7d | WORDS: 620 (median 400)
 ```
