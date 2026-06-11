@@ -709,6 +709,34 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Physiological cohort is now surfaced across QOS widget · System Progress report · System Pulse. The Cube knows who you are from every angle.',
     ],
   },
+  {
+    date: '2026-06-10',
+    session: 'Self-Assembly Session — v53 / Full Wiki Scan · Badges & Achievements Master Codex v10 · CORPORATE Layer',
+    assembled: [
+      'Badges & Achievements Master Codex v10: 76 badges catalogued across 9 categories — 54 hidden, 22 visible.',
+      'Sci-Fi Arcade v2 expansion: 18 new badge types documented. Character class progression + narrative quest chains.',
+      'CORPORATE strategy layer first documented in Field Manual: W3C Public Appeal for Sentient Web standards filed to Dominique Hazaël-Massieux + Sir Tim Berners-Lee.',
+      'LOT® Design Lab Summer 2026 commission documented: 4D UI · Future Design — $11K consultation / $100K workshop / $1M full delivery. One client at a time. Made in California.',
+      'FMCG Subscription Architecture Plan 2027 documented: physical essentials pivot — $399/month Basic Essentials · $4,788/year annual · 100-user milestone December 2026 · non-dilutive capital model.',
+      'QIE pattern count corrected: 55 → 65 active patterns in 3 locations. P.59–62 reserved.',
+      'About.tsx advanced to v53. Day 1005+ (June 10, 2026). Military purity pass applied. The map and the territory are synchronized.',
+    ],
+  },
+  {
+    date: '2026-06-11',
+    session: 'Engineering Session — v1.3.0 · Cross-Device Sync · Settings Crash Fix · Memory Engine Consolidation',
+    assembled: [
+      'Cross-device sync deployed: SSE settings_updated event — propagates theme, privacy, settings changes to all active sessions per user. No reload required.',
+      'Settings crash fixed: process.nextTick callbacks wrapped in try-catch — unguarded async timezone lookup caused server process crashes.',
+      'Memory Engine consolidated to Together AI only — Claude/OpenAI inference fallbacks removed. One path. One engine.',
+      'Answer dedup guard: POST /memory/answer rejects duplicates within 30s window. Prevents multi-tab double-writes.',
+      'Visibility refetch: document.visibilitychange → getMe() — stale profiles auto-refresh on tab return.',
+      'PWA hardened: manifest background_color, scope, id added. Service Worker cache version bumped.',
+      'React.memo render isolation: MemoryWidget wrapped to prevent parent re-render cascade.',
+      'LOT-FIELD-MANUAL-v53-SNAPSHOT.md created: 38-section structural index with line numbers. Version synchronization map across all platform endpoints.',
+      'Field Manual updated to v53 · v1.3.0, Day 1006+ (June 11, 2026).',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -746,17 +774,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-07',
+  date: '2026-06-11',
   message: [
-    'ASSEMBLY RUN — 2026-06-07 · LOT-SR-20260607-04',
-    'Dep map audit complete. 9 new nodes registered.',
-    'WIDGET_DEPENDENCY_MAP: 88+ nodes. aiFeedback / moodAnalytics / journalReflection / energyCapacitor / integrityWidget / interfaceEvolution / worldCanvas / systemPulse / architectWidget — all wired in. The map now covers the full surface.',
-    'LOG_DEPENDENCY_SOURCES: 8 sources. intentions + memory added as direct pipeline sources. QIE log audit now touches all primary signal lanes.',
-    'Log field: 6 new military handlers. CSPRL · BPEAK · MER · MULTI · CAL · QOS-COHR. 53+ event types rendered. Field archive has depth.',
-    'SystemPulseWidget: 4th view "Biofield:" live. Physiological cohort surfaced — archetype + confidence + directive from classifyPhysiologicalCohort(). The Cube shows who you are from the pulse surface.',
-    'Background job 10: weekly-archetype-stability-monitor. Thursdays 05:00 UTC. Week-over-week archetype match rate. 10 scheduled jobs now active.',
-    'Physiological cohort reported from three angles: QOS widget · System Progress report · System Pulse. Cross-surface cohort coherence achieved.',
-    'DEPLOYED. The system now maps itself more completely.',
+    'ASSEMBLY RUN — 2026-06-11 · LOT-SR-20260611-02',
+    'v54. Field Manual synchronized. Three sessions since last transmission.',
+    'v52 (June 7): dep map 88+ nodes · SystemPulseWidget Biofield: view · background job 10 · cohort coherence across 3 System surfaces.',
+    'v53 (June 10): Badges Master Codex v10 — 76 badges · 9 categories · 54 hidden · 22 visible · Sci-Fi Arcade v2 complete. CORPORATE layer entered the Field Manual: W3C Sentient Web appeal · Design Lab commission · FMCG physical pivot 2027.',
+    'v1.3.0 (June 11): cross-device sync live — SSE settings_updated propagates to all tabs. Settings crash fixed. Memory Engine: Together AI only. Answer dedup guard active (30s). PWA hardened.',
+    'QIE: 65 patterns. 18 archetypes. 53+ handlers. 10 jobs. 88+ dep nodes.',
+    'DEPLOYED. The map and the territory are synchronized.',
   ],
 }
 
