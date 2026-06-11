@@ -26,6 +26,10 @@ type Props = {
   inProgress?: boolean
 }
 
+// Both subscriptions fire for every rendered Block on theme/mirror toggle.
+// Next subscription minimization pass: split hover logic into ClickableLabel/ClickableContent
+// sub-components (subscribe to isMirrorOn only when onClick handlers exist) and a
+// ProgressOverlay sub-component (subscribes theme+isMirrorOn only when inProgress=true).
 export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
   const theme = useStore(stores.theme)
   const isMirrorOn = useStore(stores.isMirrorOn)
