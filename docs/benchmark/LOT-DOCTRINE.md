@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev G
+# LOT-DOCTRINE  rev H
 
 ## Render Isolation
 
@@ -92,3 +92,11 @@ callback crashes the server process.
 process.nextTick; answer dedup guard on POST /memory/answer; SSE
 settings_updated event on /settings, /theme-change, /update-privacy;
 visibility refetch on document.visibilitychange.)
+
+
+## Log Military Style (COCKPIT-RULE)
+The log event body contains instrument readings only — codes, metrics, tabular
+key-value pairs. The Block label names the event (CIRC:, SIL:, CASCADE:, etc.).
+Prose narration does not belong in the body. "Biofield coherence cascade detected"
+is the label's job (done), not the body's job. Body = data.
+(SR-20260611-02: 8 handlers compressed; COCKPIT-RULE minted in LEXICON rev C.)

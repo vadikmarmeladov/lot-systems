@@ -709,6 +709,20 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Physiological cohort is now surfaced across QOS widget · System Progress report · System Pulse. The Cube knows who you are from every angle.',
     ],
   },
+  {
+    date: '2026-06-11',
+    session: 'Self-Assembly Session — v54 / Dep Map Audit · Log Military Pass · Job 11 · Archetype 19',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 5 new nodes — benchmarkWidget · fourDimensionalUI · angelInvestor · demoDay · subscribeWidget. Total: 93+ nodes indexed.',
+      'LOG_DEPENDENCY_SOURCES: expanded from 8 to 11 — added planner · selfcare · journal as direct log-pipeline sources. Full primary signal pipeline now covered.',
+      'Log military style pass: CASCADE / SYNTH / DWRK / SOCR / RLSE / SIL / CIRC handlers compressed — verbose prose removed, pure code+metric format applied.',
+      'Log handlers: 3 new military event types — ARCH-SHIFT (archetype_shift) · INTENT-X (intention_completion) · DIV-PULSE (source_diversity_pulse). Field archive: 56+ handlers.',
+      'Background job 11: daily-source-diversity-pulse. 07:00 UTC daily. System-wide source diversity monitoring (unique sources / 11 possible). Hour 7 added to interval guard.',
+      'Archetype 19: Signal Architect — planner · intentions · log dominant · signal-coherence · temporal-coherence · intention-velocity. Directive: "Signal diversity high. The map is building. Keep all channels open."',
+      'Session report: LOT-SR-20260611-02. Deployed to claude/quantum-engine-widgets-RgFfC.',
+      'Dep map now covers all resident component types including investor, display, and subscription-layer widgets.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -746,17 +760,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-07',
+  date: '2026-06-11',
   message: [
-    'ASSEMBLY RUN — 2026-06-07 · LOT-SR-20260607-04',
-    'Dep map audit complete. 9 new nodes registered.',
-    'WIDGET_DEPENDENCY_MAP: 88+ nodes. aiFeedback / moodAnalytics / journalReflection / energyCapacitor / integrityWidget / interfaceEvolution / worldCanvas / systemPulse / architectWidget — all wired in. The map now covers the full surface.',
-    'LOG_DEPENDENCY_SOURCES: 8 sources. intentions + memory added as direct pipeline sources. QIE log audit now touches all primary signal lanes.',
-    'Log field: 6 new military handlers. CSPRL · BPEAK · MER · MULTI · CAL · QOS-COHR. 53+ event types rendered. Field archive has depth.',
-    'SystemPulseWidget: 4th view "Biofield:" live. Physiological cohort surfaced — archetype + confidence + directive from classifyPhysiologicalCohort(). The Cube shows who you are from the pulse surface.',
-    'Background job 10: weekly-archetype-stability-monitor. Thursdays 05:00 UTC. Week-over-week archetype match rate. 10 scheduled jobs now active.',
-    'Physiological cohort reported from three angles: QOS widget · System Progress report · System Pulse. Cross-surface cohort coherence achieved.',
-    'DEPLOYED. The system now maps itself more completely.',
+    'ASSEMBLY RUN — 2026-06-11 · LOT-SR-20260611-02',
+    'Dep map audit complete. 5 new nodes registered. 93+ total.',
+    'WIDGET_DEPENDENCY_MAP: benchmarkWidget · fourDimensionalUI · angelInvestor · demoDay · subscribeWidget — wired in. Investor and display layer now mapped.',
+    'LOG_DEPENDENCY_SOURCES: 11 sources. planner · selfcare · journal added. Full signal pipeline covered — all 11 primary sources now audited.',
+    'Log military pass: CASCADE / SYNTH / DWRK / SOCR / RLSE / SIL / CIRC — verbose prose removed. Pure code + metric. The field reads clean.',
+    'Log field: 3 new handlers. ARCH-SHIFT · INTENT-X · DIV-PULSE. 56+ event types. The archive grows.',
+    'Background job 11: daily-source-diversity-pulse. 07:00 UTC daily. Signal diversity across all active users. 11 sources tracked. Hour 7 live.',
+    'Archetype 19: Signal Architect — signal-coherence + temporal-coherence + intention-velocity. The builder of the map is now named.',
+    'DEPLOYED. The system knows its own surface.',
   ],
 }
 

@@ -2052,6 +2052,13 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   interfaceEvolution:['evolution', 'mood'],
   worldCanvas:       ['mood', 'intentions', 'memory', 'cohort'],
   architectWidget:   ['mood', 'memory', 'planner', 'intentions', 'goals', 'journal', 'energy'],
+
+  // ── Investor + display layer widgets (2026-06-11 audit)
+  benchmarkWidget:   ['memory', 'mood', 'intentions', 'energy', 'goals', 'journal'],
+  fourDimensionalUI: ['mood', 'intentions', 'energy', 'memory'],
+  angelInvestor:     ['goals', 'intentions'],
+  demoDay:           ['goals', 'intentions', 'memory'],
+  subscribeWidget:   ['cohort', 'memory'],
 }
 
 /**
@@ -2060,7 +2067,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * tracked separately in the physiological report log-dependency audit.
  */
 export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = [
-  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory',
+  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal',
 ]
 
 /** Returns which signal sources a given widget depends on. */
@@ -2245,6 +2252,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['mood', 'journal', 'selfcare', 'memory'],
     patternConditions: ['cross-domain-coherence', 'intention-completion-arc', 'biofield-recovery-arc'],
     directive: 'All layers present. Mood, body, reflection, memory — the full inner stack is alive. Hold this state.',
+  },
+  {
+    archetype: 'Signal Architect',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['planner', 'intentions', 'log'],
+    patternConditions: ['signal-coherence-window', 'temporal-coherence-window', 'intention-velocity'],
+    directive: 'Signal diversity high. The map is building. Keep all channels open.',
   },
 ]
 
