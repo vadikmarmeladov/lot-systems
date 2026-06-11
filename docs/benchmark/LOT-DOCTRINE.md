@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev F
+# LOT-DOCTRINE  rev G
 
 ## Render Isolation
 
@@ -74,3 +74,21 @@ with no signal to the operator that anything is wrong.
 (SR-20260607-02: assembly phase catch set 'dormant' → QR disappeared;
 client defaulted undefined to 'dormant' → double block. Fix: server omits
 field on error, client skips gate when field absent.)
+
+## Cross-Device Sync
+
+When a user modifies state on one device (settings, theme, privacy), all
+other active sessions for the same user must converge without full page
+reload. The mechanism is SSE event emission scoped to the owning userId —
+never broadcast to all clients. The receiving client refetches the full
+user profile (getMe) to re-hydrate stores. Visibility change (tab return)
+is the fallback path for sessions where SSE was disconnected. Server-side
+dedup guards prevent duplicate writes when the same action arrives from
+multiple open tabs within a short window (30 seconds for memory answers).
+Process.nextTick callbacks that perform async work (geocoding, logging)
+must be try-catch wrapped — an unhandled rejection in a fire-and-forget
+callback crashes the server process.
+(SR-20260611-01: Settings crash from unguarded timezone lookup in
+process.nextTick; answer dedup guard on POST /memory/answer; SSE
+settings_updated event on /settings, /theme-change, /update-privacy;
+visibility refetch on document.visibilitychange.)
