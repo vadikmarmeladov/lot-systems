@@ -884,6 +884,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyArchetypeStabilityJob()) {
     await executeWeeklyArchetypeStabilityJob()
   }
+
+  // Check daily source diversity pulse (07:00 UTC daily)
+  if (shouldRunDailySourceDiversityJob()) {
+    await executeDailySourceDiversityJob()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1468,6 +1473,125 @@ async function executeWeeklyArchetypeStabilityJob(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Source Diversity Pulse ───────────────────────────────────────────
+
+let isDailySourceDiversityRunning = false
+let lastDailySourceDiversityRun: Date | null = null
+
+function shouldRunDailySourceDiversityJob(): boolean {
+  const now = dayjs()
+  if (now.hour() !== 7) return false
+  if (isDailySourceDiversityRunning) return false
+  if (lastDailySourceDiversityRun) {
+    const lastRun = dayjs(lastDailySourceDiversityRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+/**
+ * Runs daily at 07:00 UTC.
+ * Measures how many distinct signal sources each active user generated in the last 24h.
+ * Computes system-wide source diversity: unique sources / total possible (11).
+ * Logs a source_diversity_pulse event for system monitoring.
+ * No individual data exposed — aggregate telemetry only.
+ */
+async function executeDailySourceDiversityJob(): Promise<JobResult> {
+  const jobName = 'daily-source-diversity-pulse'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily Source Diversity Pulse')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailySourceDiversityRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const TOTAL_POSSIBLE_SOURCES = 11  // matches LOG_DEPENDENCY_SOURCES count
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 1000,
+    })
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+
+    const diversityBuckets: Record<number, number> = {}
+    let totalDiversityScore = 0
+    let usersWithSignals = 0
+    const globalSourceCounts: Record<string, number> = {}
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const userLogs = await Log.findAll({
+          where: { userId, createdAt: { [Op.gte]: oneDayAgo } },
+          attributes: ['event', 'metadata'],
+        })
+
+        const sources = new Set<string>()
+        for (const log of userLogs) {
+          const src = (log.metadata as any)?.source || (log as any).event
+          if (src) {
+            sources.add(src)
+            globalSourceCounts[src] = (globalSourceCounts[src] ?? 0) + 1
+          }
+        }
+
+        if (sources.size > 0) {
+          usersWithSignals++
+          diversityBuckets[sources.size] = (diversityBuckets[sources.size] ?? 0) + 1
+          totalDiversityScore += sources.size / TOTAL_POSSIBLE_SOURCES
+        }
+      } catch { /* skip user */ }
+    }
+
+    const avgDiversityScore = usersWithSignals > 0
+      ? totalDiversityScore / usersWithSignals
+      : 0
+    const uniqueSources = Object.keys(globalSourceCounts).length
+
+    console.log(`  Users with signals: ${usersWithSignals}/${activeUsers.length}`)
+    console.log(`  Avg diversity score: ${(avgDiversityScore * 100).toFixed(1)}%`)
+    console.log(`  Unique source types observed: ${uniqueSources}/${TOTAL_POSSIBLE_SOURCES}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('SOURCE DIVERSITY PULSE COMPLETE')
+    console.log(`   Diversity: ${(avgDiversityScore * 100).toFixed(1)}% · Sources: ${uniqueSources}/${TOTAL_POSSIBLE_SOURCES}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailySourceDiversityRun = new Date()
+    isDailySourceDiversityRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: {
+        scanned: activeUsers.length,
+        usersWithSignals,
+        avgDiversityScore: Math.round(avgDiversityScore * 100),
+        uniqueSources,
+        totalPossible: TOTAL_POSSIBLE_SOURCES,
+      }
+    }
+  } catch (error: any) {
+    console.error('Daily source diversity job failed:', error.message)
+    isDailySourceDiversityRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1493,6 +1617,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily OS snapshot: midnight (0 AM UTC) every day')
   console.log('   - Daily morning biofield summary: 8 AM UTC every day')
   console.log('   - Daily pattern coverage audit: 11 PM UTC every day')
+  console.log('   - Daily source diversity pulse: 7 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1502,8 +1627,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 8=biofield, 9=monthly email, 20=intention completion, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 20=intention completion, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

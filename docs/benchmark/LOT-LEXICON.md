@@ -31,4 +31,6 @@ QI                 Quantum Intelligence — operator RFI terminal querying own s
 RFI                Request for Information — operator-initiated query to the QI terminal            A  20260605
 INTSUM             Intelligence Summary — QI response format: assessment, data points, recommendation A  20260605
 CROSS-DEVICE-SYNC  SSE broadcast of settings_updated + visibility refetch + answer dedup guard     A  20260611
+SIGNAL ARCHITECT   Physiological Archetype 19 — building phase; signal diversity high, map forming A  20260611
+COCKPIT-RULE       Log body = instrument readings only; label names the event; no narration        A  20260611
 ```
