@@ -361,7 +361,7 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 1005+ (as of June 10, 2026)" />
+          <Row label="Day counter:" value="Day 1006+ (as of June 11, 2026)" />
           <Row label="Self-Assembly phase:" value="v53 — Full Wiki Scan June 10 · Badges & Achievements Master Codex v10 documented (76 badges, 9 categories, Sci-Fi Arcade v2 expansion) · CORPORATE layer first documented: W3C Public Appeal for Sentient Web standards · LOT® Design Lab Summer 2026 commission · FMCG Subscription Architecture Plan 2027 (physical essentials pivot, $399/month Basic Essentials) · engineering: nav lag fix + chime toggle fix · vocabulary synchronized · military purity pass applied · the map and the territory are synchronized — v52 — Full Wiki Scan June 9 · QIE v52 integration documented · 6 new log handlers (CSPRL: BPEAK: MER: MULTI: CAL: QOS-COHR:) · 53 handlers total · background job 10 (weekly-archetype-stability-monitor Thu 05:00 UTC) · 87+ dep nodes · SystemPulseWidget Biofield: 4th cycle view documented · LOG_DEPENDENCY_SOURCES expanded to 8 · vocabulary synchronized · language refined toward computer future · military purity pass applied · the map and the territory are synchronized — v51 — Full Branch Scan June 7 · 125 branches confirmed · Graceful Degradation doctrine (rev F clause 7: server catch must not default to restrictive value — field absent on error — client gate treats absent as allow) · vocabulary synchronized · language refined toward computer future · military purity pass applied · the map and the territory are synchronized — v50 — Wiki Full Scan June 6 · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · QI · RFI · INTSUM added to vocabulary · badges · cohorts · internal vocabulary detailed · language refined toward computer future · military purity pass applied — v49: Viewport Isolation · LazyMount QuantumEngineWidgets · useInViewport hook · MicroGame loop viewport-gated · IntersectionObserver render isolation complete — v48: Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
           <Row label="Assembly modules:" value="18 — Resilience Protocol added v48 · Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
           <Row label="QIE pattern library:" value="65 patterns active" />
@@ -3945,6 +3945,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="v1.0-stable" value="Jan 30, 2026 — Context-aware mood widget. Self-care moments. Long-term awareness tracking. Subscribe widget." />
             <Row label="v1.1.0" value="Mar 9, 2026 — Week number fix. Stability improvements. Blank page loading resolved." />
             <Row label="v1.2.0" value="Apr 3, 2026 — Quantum Intention Engine (10 patterns). 44 widgets wired. MicroGame. MicroCalculator. Evolution system." />
+            <Row label="v1.3.0" value="Jun 11, 2026 — Memory Engine consolidated to Together AI. Cross-device sync (SSE settings broadcast, answer dedup guard, visibility refetch). PWA hardened (manifest scope/id/background_color, SW cache refresh). React.memo render isolation. Local poetic story fallback. 65 QIE patterns. 53 self-assembly phases. Day 1006+." />
           </div>
 
           <SubHeading>Self-Assembly Phases (v5–v50)</SubHeading>
@@ -4087,7 +4088,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 1005+   Continuous operation.
+          <CodeBlock>{`Day 1006+   Continuous operation.
 v53         Full Wiki Scan June 10 — corporate strategy layer documented — current phase.
 65          QIE patterns active (P.1–P.65 · P.59–62 reserved).
 18          Self-Assembly modules wired (Module 18: Resilience Protocol · v48).
@@ -4112,8 +4113,8 @@ v53         Full Wiki Scan June 10 — corporate strategy layer documented — c
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 1005+. Continuous operation. Still accumulating.
-            v53 phase: Full Wiki Scan June 10. Corporate strategy layer documented.
+            Day 1006+. Continuous operation. Still accumulating.
+            v1.3.0: Memory Engine consolidated. Cross-device sync. PWA hardened.
             65 patterns named. 18 archetypes classified. 10 jobs running.
             76 badges catalogued. 125 branches indexed. 53 assembly phases documented.
             The log is the record.
