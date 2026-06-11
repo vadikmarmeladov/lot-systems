@@ -24,6 +24,7 @@ import {
   DATE_TIME_FORMAT,
   LOG_MESSAGE_STALE_TIME_MINUTES,
   MAX_LOG_TEXT_LENGTH,
+  MAX_LOT_MAIL_LENGTH,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
   SYNC_CHAT_MESSAGES_TO_SHOW,
   USER_SETTING_NAMES,
@@ -383,6 +384,12 @@ export default async (fastify: FastifyInstance) => {
         case 'settings_updated': {
           if (data.userId === req.user.id) {
             write({ event, data: {} })
+          }
+          break
+        }
+        case 'lot_mail': {
+          if (data.receiverId === req.user.id || data.senderId === req.user.id) {
+            write({ event, data })
           }
           break
         }
@@ -5247,6 +5254,146 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
           logId: null,
         }
       }
+    }
+  )
+
+  // ============================================================================
+  // LOT MAIL — In-system messaging between operators
+  // Compose with /email to <name> in Log. Arrives in Sync.
+  // ============================================================================
+
+  fastify.get('/lot-mail/inbox', async (req, reply) => {
+    const mails = await fastify.models.LotMail.findAll({
+      where: { receiverId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+
+    const senderIds = [...new Set(mails.map((m) => m.senderId))]
+    const senders = senderIds.length
+      ? await fastify.models.User.findAll({ where: { id: senderIds } })
+      : []
+    const senderById: Record<string, { firstName: string | null; lastName: string | null }> = {}
+    for (const s of senders) {
+      senderById[s.id] = { firstName: s.firstName, lastName: s.lastName }
+    }
+
+    const items = mails.map((m) => {
+      const sender = senderById[m.senderId]
+      const senderName = sender
+        ? `${sender.firstName || ''} ${sender.lastName || ''}`.trim() || 'Unknown'
+        : 'Unknown'
+      return {
+        id: m.id,
+        senderId: m.senderId,
+        senderName,
+        message: m.message,
+        readAt: m.readAt,
+        createdAt: m.createdAt,
+      }
+    })
+
+    return reply.send({ items, unread: items.filter((m) => !m.readAt).length })
+  })
+
+  fastify.post<{ Body: { recipientName: string; message: string } }>(
+    '/lot-mail/send',
+    async (req, reply) => {
+      const { recipientName, message } = req.body
+
+      if (!recipientName?.trim() || !message?.trim()) {
+        return reply.status(400).send({ error: 'Recipient and message are required.' })
+      }
+
+      const trimmedMessage = message.trim().slice(0, MAX_LOT_MAIL_LENGTH)
+
+      // Resolve recipient by firstName (case-insensitive) — exclude self
+      const { Op: SeqOp } = await import('sequelize')
+      const name = recipientName.trim()
+      const receiver = await fastify.models.User.findOne({
+        where: {
+          id: { [SeqOp.ne]: req.user.id },
+          firstName: { [SeqOp.iLike]: name },
+        },
+      })
+
+      if (!receiver) {
+        return reply.status(404).send({
+          error: `Operator "${name}" not found. Check the name and try again.`,
+        })
+      }
+
+      const mail = await fastify.models.LotMail.create({
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        message: trimmedMessage,
+      })
+
+      const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || req.user.email
+      const receiverName = `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim() || receiver.email
+
+      sync.emit('lot_mail', {
+        id: mail.id,
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        senderName,
+        receiverName,
+        message: trimmedMessage,
+        createdAt: mail.createdAt,
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'lot_mail_sent',
+            text: '',
+            metadata: {
+              mailId: mail.id,
+              receiverId: receiver.id,
+              receiverName,
+              message: trimmedMessage,
+            },
+            context,
+          })
+          await fastify.models.Log.create({
+            userId: receiver.id,
+            event: 'lot_mail_received',
+            text: '',
+            metadata: {
+              mailId: mail.id,
+              senderId: req.user.id,
+              senderName,
+              message: trimmedMessage,
+            },
+            context: {},
+          })
+        } catch (logErr) {
+          console.error('LOT Mail log creation failed:', logErr)
+        }
+      })
+
+      return reply.send({
+        ok: true,
+        mailId: mail.id,
+        receiverName,
+        message: trimmedMessage,
+      })
+    }
+  )
+
+  fastify.put<{ Params: { id: string } }>(
+    '/lot-mail/:id/read',
+    async (req, reply) => {
+      const mail = await fastify.models.LotMail.findOne({
+        where: { id: req.params.id, receiverId: req.user.id },
+      })
+      if (!mail) return reply.status(404).send({ error: 'Not found.' })
+      if (!mail.readAt) {
+        await mail.set({ readAt: new Date() }).save()
+      }
+      return reply.send({ ok: true })
     }
   )
 }

@@ -25,11 +25,20 @@ import {
   useLikeChatMessage,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { LotMailSyncPayload, PublicChatMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+
+type SyncNotification = {
+  id: string
+  kind: 'lot_mail'
+  senderName: string
+  receiverName: string
+  message: string
+  createdAt: Date
+}
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -40,6 +49,7 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [mailNotifications, setMailNotifications] = React.useState<SyncNotification[]>([])
   const hasInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
@@ -120,9 +130,30 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeLotMailListener } = sync.listen(
+      'lot_mail',
+      (data: LotMailSyncPayload) => {
+        setMailNotifications((prev) => {
+          if (prev.some((n) => n.id === data.id)) return prev
+          return [
+            {
+              id: data.id,
+              kind: 'lot_mail',
+              senderName: data.senderName,
+              receiverName: data.receiverName,
+              message: data.message,
+              createdAt: new Date(data.createdAt),
+            },
+            ...prev,
+          ]
+        })
+      }
+    )
+
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotMailListener()
     }
   }, [me?.id])
 
@@ -219,6 +250,30 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {mailNotifications.length > 0 && (
+        <div className="mb-40">
+          {mailNotifications.map((n) => (
+            <div
+              key={n.id}
+              className="flex items-start gap-x-8 -mx-4 px-4 py-2 opacity-60"
+            >
+              <span className="whitespace-nowrap select-none uppercase tracking-widest text-acc/40">
+                MAIL
+              </span>
+              <div className="whitespace-breakspaces" style={{ wordBreak: 'break-word' }}>
+                <span className="text-acc/60">{n.senderName}</span>
+                <span className="text-acc/30 mx-4">→</span>
+                <span className="text-acc/60">{n.receiverName}</span>
+                <span className="text-acc/30 mx-8">·</span>
+                <span className="text-acc/50">
+                  {n.message.length > 80 ? n.message.slice(0, 80) + '…' : n.message}
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

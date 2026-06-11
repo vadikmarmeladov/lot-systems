@@ -28,6 +28,15 @@ import {
 import dayjs from '#client/utils/dayjs'
 import { DATE_TIME_FORMAT } from '#shared/constants'
 
+export type LotMailInboxItem = {
+  id: string
+  senderId: string
+  senderName: string
+  message: string
+  readAt: string | null
+  createdAt: string
+}
+
 const api = axios.create({
   baseURL: '/',
   withCredentials: true  // Send cookies with requests
@@ -880,3 +889,26 @@ export const usePrayerScripture = createMutation<
     logId: string | null
   }
 >('post', '/api/prayer')
+
+
+// ============================================================================
+// LOT MAIL — In-system mail between operators
+// ============================================================================
+
+export const useLotMailInbox = createQuery<{
+  items: LotMailInboxItem[]
+  unread: number
+}>('/api/lot-mail/inbox', {
+  refetchOnWindowFocus: true,
+  staleTime: 30 * 1000,
+})
+
+export const useSendLotMail = createMutation<
+  { recipientName: string; message: string },
+  { ok: boolean; mailId: string; receiverName: string; message: string }
+>('post', '/api/lot-mail/send')
+
+export const useMarkLotMailRead = createMutation<{ id: string }, { ok: boolean }>(
+  'put',
+  (data) => `/api/lot-mail/${data.id}/read`
+)

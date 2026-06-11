@@ -194,6 +194,23 @@ export type DirectMessage = {
   updatedAt: Date;
 };
 
+// LOT Mail Type — in-system mail between LOT operators
+export type LotMail = {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  readAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type LotMailRecord = LotMail & {
+  senderName: string;
+  receiverName: string;
+  isMine: boolean;
+};
+
 // Chat Message Types
 export type ChatMessage = {
   id: string;
@@ -440,8 +457,19 @@ export type ChatMessageLikeEventPayload = {
 };
 
 // Sync Events
+export type LotMailSyncPayload = {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  senderName: string;
+  receiverName: string;
+  message: string;
+  createdAt: Date;
+};
+
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
   settings_updated: Record<string, never>;
+  lot_mail: LotMailSyncPayload;
 };

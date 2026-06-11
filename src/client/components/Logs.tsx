@@ -9,7 +9,7 @@
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
-import { Block, Button, ResizibleGhostInput, Unknown } from '#client/components/ui'
+import { Block, Button, GhostButton, ResizibleGhostInput, Unknown } from '#client/components/ui'
 import { useLogs, useUpdateLog } from '#client/queries'
 import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useSendLotMail } from '#client/queries'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -1177,6 +1177,32 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'lot_mail_sent') {
+          const receiverName = log.metadata?.receiverName as string | undefined
+          const message = log.metadata?.message as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL [OUT]:" blockView>
+                {receiverName && (
+                  <div className="uppercase tracking-widest mb-4">TO: {receiverName}</div>
+                )}
+                {message && <div className="opacity-60">{message}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'lot_mail_received') {
+          const senderName = log.metadata?.senderName as string | undefined
+          const message = log.metadata?.message as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL [IN]:" blockView>
+                {senderName && (
+                  <div className="uppercase tracking-widest mb-4">FROM: {senderName}</div>
+                )}
+                {message && <div className="opacity-60">{message}</div>}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1252,6 +1278,25 @@ const NoteEditor = ({
   })
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
+
+  const [emailCompose, setEmailCompose] = React.useState<{ recipientName: string } | null>(null)
+  const [emailBody, setEmailBody] = React.useState('')
+  const [emailSent, setEmailSent] = React.useState<{ receiverName: string; message: string } | null>(null)
+  const [emailError, setEmailError] = React.useState<string | null>(null)
+  const [emailSending, setEmailSending] = React.useState(false)
+  const { mutate: sendLotMail } = useSendLotMail({
+    onSuccess: (data) => {
+      setEmailSent({ receiverName: data.receiverName, message: data.message })
+      setEmailSending(false)
+      setEmailBody('')
+      setEmailCompose(null)
+    },
+    onError: (err: any) => {
+      setEmailError(err?.response?.data?.error || 'Transmission failed.')
+      setEmailSending(false)
+    },
+  })
+
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1535,6 +1580,17 @@ const NoteEditor = ({
             submitQi({ query })
           }
         }
+      } else if (trigger === 'email-compose') {
+        const emailMatch = value.match(/\/(?:email|mail)\s+to\s+([^\n,]+)/i)
+        if (emailMatch) {
+          const recipientName = emailMatch[1].trim()
+          if (recipientName.length >= 2) {
+            setEmailCompose({ recipientName })
+            setEmailSent(null)
+            setEmailError(null)
+            setEmailBody('')
+          }
+        }
       }
     }
   }, [value])
@@ -1683,6 +1739,59 @@ const NoteEditor = ({
               <div className="opacity-60 font-mono whitespace-pre">
                 {scanResult}
               </div>
+            </Block>
+          </div>
+        )}
+        {emailCompose && (
+          <div className="mt-8">
+            <Block label="MAIL [COMPOSE]:" blockView>
+              <div className="uppercase tracking-widest mb-8 opacity-60">
+                TO: {emailCompose.recipientName}
+              </div>
+              <ResizibleGhostInput
+                direction="v"
+                value={emailBody}
+                onChange={setEmailBody}
+                placeholder="Type your message..."
+                rows={3}
+                className="opacity-80 focus:opacity-100"
+              />
+              <div className="flex items-center gap-x-8 mt-8">
+                <Button
+                  kind="secondary"
+                  size="small"
+                  disabled={!emailBody.trim() || emailSending}
+                  onClick={() => {
+                    if (!emailBody.trim() || emailSending) return
+                    setEmailSending(true)
+                    setEmailError(null)
+                    sendLotMail({ recipientName: emailCompose.recipientName, message: emailBody.trim() })
+                  }}
+                >
+                  {emailSending ? '...' : 'Send'}
+                </Button>
+                <GhostButton
+                  onClick={() => {
+                    setEmailCompose(null)
+                    setEmailBody('')
+                    setEmailError(null)
+                  }}
+                >
+                  Cancel
+                </GhostButton>
+              </div>
+              {emailError && (
+                <div className="mt-8 opacity-60 uppercase tracking-widest">{emailError}</div>
+              )}
+            </Block>
+          </div>
+        )}
+        {emailSent && (
+          <div className="mt-8">
+            <Block label="MAIL [SENT]:" blockView>
+              <div className="uppercase tracking-widest mb-4">TO: {emailSent.receiverName}</div>
+              <div className="opacity-60">{emailSent.message}</div>
+              <div className="opacity-40 mt-8 uppercase tracking-widest">Transmitted.</div>
             </Block>
           </div>
         )}
