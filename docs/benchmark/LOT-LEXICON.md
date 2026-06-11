@@ -30,4 +30,5 @@ SHIP MODE          Cherry-pick BEST iteration from MANIFEST → staging → gree
 QI                 Quantum Intelligence — operator RFI terminal querying own signal record via /qi  A  20260605
 RFI                Request for Information — operator-initiated query to the QI terminal            A  20260605
 INTSUM             Intelligence Summary — QI response format: assessment, data points, recommendation A  20260605
+CROSS-DEVICE-SYNC  SSE broadcast of settings_updated + visibility refetch + answer dedup guard     A  20260611
 ```

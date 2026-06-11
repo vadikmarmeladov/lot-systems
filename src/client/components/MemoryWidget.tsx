@@ -19,7 +19,7 @@ import { getMemoryReflectionPrompt, getStoicReflection } from '#client/utils/nar
 import dayjs from '#client/utils/dayjs'
 import { getNextBadgeUnlock, checkAndAwardBadges } from '#client/utils/badges'
 
-export function MemoryWidget() {
+export const MemoryWidget = React.memo(function MemoryWidget() {
   const [isDisplayed, setIsDisplayed] = React.useState(false)
   const [isShown, setIsShown] = React.useState(false)
   const [isQuestionShown, setIsQuestionShown] = React.useState(false)
@@ -371,4 +371,4 @@ export function MemoryWidget() {
       )}
     </Block>
   )
-}
+})

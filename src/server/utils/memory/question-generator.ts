@@ -8,7 +8,7 @@
 
 import { randomUUID } from 'crypto'
 import dayjs from '#server/utils/dayjs'
-import config from '#server/config'
+
 import {
   COUNTRY_BY_ALPHA3,
   DATE_TIME_FORMAT,
@@ -33,9 +33,6 @@ import {
   BACKUP_TRAUMA_INFORMED_QUESTIONS,
   BACKUP_EATING_RECOVERY_QUESTIONS,
   questionSchema,
-  oaiClient,
-  anthropic,
-  AI_ENGINE_PREFERENCE,
 } from './constants.js'
 import { detectTraumaIndicators } from './trait-extraction.js'
 import type { QuantumState } from './types.js'
@@ -65,14 +62,7 @@ export function getMemoryEngine(user: User): 'ai' | 'standard' {
   const hasUsershipTag = user.tags.some(
     (tag) => tag.toLowerCase() === UserTag.Usership.toLowerCase()
   )
-  // Check if ANY AI engine is available (Together AI, Gemini, Mistral, Claude, OpenAI)
-  const hasAIEngine = !!(
-    process.env.TOGETHER_API_KEY ||
-    process.env.GOOGLE_API_KEY ||
-    process.env.MISTRAL_API_KEY ||
-    config.anthropic?.apiKey ||
-    process.env.OPENAI_API_KEY
-  )
+  const hasAIEngine = !!process.env.TOGETHER_API_KEY
   return hasUsershipTag && hasAIEngine ? 'ai' : 'standard'
 }
 
@@ -87,13 +77,10 @@ export async function completeAndExtractQuestion(
   // ============================================================================
 
   try {
-    // Get the best available AI engine (Claude, then OpenAI, configurable)
-    console.log(`Attempting to get AI engine with preference: ${AI_ENGINE_PREFERENCE}`)
-    const engine = aiEngineManager.getEngine(AI_ENGINE_PREFERENCE)
-
+    console.log('Attempting Together AI for Memory question generation')
+    const engine = aiEngineManager.getEngine('together')
     console.log(`🤖 Using ${engine.name} for Memory question generation (user: ${user.email})`)
 
-    // LOT's prompt stays on LOT's side - engine just executes it
     const fullPrompt = `${prompt}
 
 Please respond with ONLY a valid JSON object in this exact format:
@@ -104,11 +91,9 @@ Please respond with ONLY a valid JSON object in this exact format:
 
 Make sure the question is personalized, relevant to self-care habits, and the options are 3-4 concise choices.`
 
-    // Execute using whichever engine is available
     const completion = await engine.generateCompletion(fullPrompt, 1024)
     console.log(`Got completion from ${engine.name} (length: ${completion?.length || 0})`)
 
-    // Parse JSON from response (works for both Claude and OpenAI)
     const jsonMatch = completion.match(/\{[\s\S]*\}/)
     if (!jsonMatch) {
       console.error(`No JSON found in ${engine.name} response:`, completion?.substring(0, 200))
@@ -124,41 +109,14 @@ Make sure the question is personalized, relevant to self-care habits, and the op
       ...validatedQuestion,
     }
   } catch (error: any) {
-    console.error('AI Engine failed, falling back to legacy OpenAI:', {
+    console.error('Together AI failed for question generation, using backup questions:', {
       message: error.message,
-      stack: error.stack,
       user: user.email,
     })
 
-    try {
-      // FALLBACK 1: Use legacy OpenAI with Instructor if new system fails
-      if (!oaiClient) throw new Error('OpenAI client not initialized')
-      const extractedQuestion = await oaiClient.chat.completions.create({
-        messages: [{ role: 'user', content: prompt }],
-        model: 'gpt-4o-mini',
-        response_model: {
-          schema: questionSchema,
-          name: 'Question',
-        },
-      })
-      const validatedQuestion = questionSchema.parse(extractedQuestion)
-      return {
-        id: randomUUID(),
-        ...validatedQuestion,
-      }
-    } catch (openaiError: any) {
-      // FALLBACK 2: All AI engines failed - use hardcoded backup questions
-      console.error('OpenAI fallback also failed, using backup questions:', {
-        message: openaiError.message,
-        user: user.email,
-      })
-
-      // Use day of year to rotate through backup questions (provides variety without DB dependency)
-      const dayOfYear = dayjs().dayOfYear()
-
-      console.log(`🆘 EMERGENCY FALLBACK: Using backup question bank (day ${dayOfYear})`)
-      return getBackupQuestion(dayOfYear, promptsShownToday)
-    }
+    const dayOfYear = dayjs().dayOfYear()
+    console.log(`Using backup question bank (day ${dayOfYear})`)
+    return getBackupQuestion(dayOfYear, promptsShownToday)
   }
 }
 

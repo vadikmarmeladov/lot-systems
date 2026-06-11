@@ -24,4 +24,7 @@ ID             | CLASS        | SUMMARY                                         
 20260607-04    | SELF-ASSEMBLY| QIE v52 — dep map 8 nodes · log handlers 6 · cohort pulse · background job 10 · LOT_SYSTEMS_BRIEF v3.1 | GREEN  | cc4dbdd  | WORDS: 540 (median 380)
 20260609-01    | WIKI-BUILD   | Wiki v52 — QIE v52 integration · dep map 87+ · 53 handlers · job 10 · Biofield view · 4 vocab entries · Day 1004+ | GREEN  | (post-commit) | WORDS: 620 (median 450)
 20260609-02    | ENGINEERING  | Nav lag fix + chime toggle fix + all systems check        | GREEN  | f07da921 | WORDS: 370 (median 379)
+20260610-01    | CORPORATE    | W3C appeal + Design Lab + FMCG plan + About.tsx credit    | GREEN  | 108b2a05 | WORDS: 278 (median 370)
+20260610-02    | ENGINEERING  | Badge Codex v11 — +29 badges · Sci-Fi Arcade · word turns v2 · PDF 10pp | GREEN  | 2312e43 | WORDS: 581 (median 388)
+20260611-01    | ENGINEERING  | Cross-device sync + Settings crash fix + v1.3.0 version sync + Field Manual snapshot | GREEN  | bea4cefb | WORDS: 393 (median 388)
 ```

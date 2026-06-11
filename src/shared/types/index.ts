@@ -443,4 +443,5 @@ export type ChatMessageLikeEventPayload = {
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
+  settings_updated: Record<string, never>;
 };

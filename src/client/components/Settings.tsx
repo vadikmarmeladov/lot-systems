@@ -614,7 +614,7 @@ export const Settings = () => {
             ) : (
               <>
                 <div className="mb-8">
-                  Subscribe to Usership to unlock generative Memory Story feature.
+                  Subscribe to start building your profile and generate your story.
                 </div>
                 <Link
                   href="https://brand.lot-systems.com"

@@ -1,13 +1,15 @@
 // Service Worker for LOT Systems PWA
-// Version: 2026-01-26-002 - February updates: monthly emails, evolution widget, cohort-connect, UI improvements
+// Version: 2026-06-10-001
 
-const CACHE_VERSION = 'v2026-01-26-002';
+const CACHE_VERSION = 'v2026-06-10-001';
 const CACHE_NAME = `lot-cache-${CACHE_VERSION}`;
 
 // Files to cache initially (only static assets)
 const STATIC_CACHE = [
   '/icon/icon-192.png',
   '/icon/icon-512.png',
+  '/icon/apple-touch-icon.png',
+  '/manifest.webmanifest',
   '/og.jpg'
 ];
 

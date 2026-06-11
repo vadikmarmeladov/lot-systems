@@ -380,6 +380,12 @@ export default async (fastify: FastifyInstance) => {
           write({ event, data: updatedPayload })
           break
         }
+        case 'settings_updated': {
+          if (data.userId === req.user.id) {
+            write({ event, data: {} })
+          }
+          break
+        }
       }
     })
 
@@ -584,39 +590,48 @@ export default async (fastify: FastifyInstance) => {
         }
       }
       await req.user.set(body).save()
+      sync.emit('settings_updated', { userId: req.user.id })
       process.nextTick(async () => {
-        let newTimeZone = null
-        if (body.city && body.country) {
-          const coordinates = await weather.getCoordinates(
-            body.city,
-            body.country
-          )
-          if (coordinates) {
-            newTimeZone = await weather.getTimeZone(
-              coordinates.lat,
-              coordinates.lon
+        try {
+          let newTimeZone = null
+          if (body.city && body.country) {
+            const coordinates = await weather.getCoordinates(
+              body.city,
+              body.country
             )
+            if (coordinates) {
+              newTimeZone = await weather.getTimeZone(
+                coordinates.lat,
+                coordinates.lon
+              )
+            }
           }
+          await req.user.set({ timeZone: newTimeZone }).save()
+        } catch (err) {
+          console.error('Error updating timezone:', err)
         }
-        await req.user.set({ timeZone: newTimeZone }).save()
       })
       process.nextTick(async () => {
-        const changes = USER_SETTING_NAMES.reduce((acc, x) => {
-          if (prevValues[x] !== body[x]) {
-            return { ...acc, [x]: [prevValues[x], body[x]] }
-          }
-          return acc
-        }, {} as Record<keyof UserSettings, [string, string]>)
-        const context = await getLogContext(req.user)
-        await fastify.models.Log.create({
-          userId: req.user.id,
-          event: 'settings_change',
-          text: '',
-          metadata: {
-            changes,
-          },
-          context,
-        })
+        try {
+          const changes = USER_SETTING_NAMES.reduce((acc, x) => {
+            if (prevValues[x] !== body[x]) {
+              return { ...acc, [x]: [prevValues[x], body[x]] }
+            }
+            return acc
+          }, {} as Record<keyof UserSettings, [string, string]>)
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'settings_change',
+            text: '',
+            metadata: {
+              changes,
+            },
+            context,
+          })
+        } catch (err) {
+          console.error('Error logging settings change:', err)
+        }
       })
       reply.ok()
     }
@@ -653,6 +668,7 @@ export default async (fastify: FastifyInstance) => {
         },
       }
       await req.user.set({ metadata: updatedMetadata }).save()
+      sync.emit('settings_updated', { userId: req.user.id })
 
       reply.ok()
     }
@@ -805,6 +821,7 @@ export default async (fastify: FastifyInstance) => {
       }
 
       await req.user.set({ metadata: updatedMetadata }).save()
+      sync.emit('settings_updated', { userId: req.user.id })
 
       reply.ok()
     }
@@ -2205,7 +2222,18 @@ export default async (fastify: FastifyInstance) => {
         return reply.throw.badParams()
       }
 
-      // TODO: check if user is allowed to answer
+      // Dedup guard: prevent duplicate answers to the same question within 30 seconds
+      const recentDuplicate = await fastify.models.Answer.findOne({
+        where: {
+          userId: req.user.id,
+          question: questionText,
+          answer: option,
+          createdAt: { [Op.gte]: new Date(Date.now() - 30_000) },
+        },
+      })
+      if (recentDuplicate) {
+        return { ok: true, duplicate: true }
+      }
 
       const answer = await fastify.models.Answer.create({
         userId: req.user.id,
@@ -2439,7 +2467,18 @@ export default async (fastify: FastifyInstance) => {
           story: null,
           hasUsership: false,
           answerCount: logs.length,
-          message: 'Subscribe to Usership to unlock Memory Story generation.'
+          message: 'Subscribe to start building your profile and generate your story.'
+        }
+      }
+
+      // Check for cached story in user metadata
+      const cachedMetadata = req.user.metadata as any || {}
+      if (cachedMetadata.lastMemoryStory && cachedMetadata.memoryStoryAnswerCount === logs.length) {
+        console.log(`Returning cached Memory Story (v${cachedMetadata.memoryStoryVersion}, ${cachedMetadata.memoryStoryAnswerCount} answers)`)
+        return {
+          story: cachedMetadata.lastMemoryStory,
+          hasUsership: true,
+          answerCount: logs.length
         }
       }
 

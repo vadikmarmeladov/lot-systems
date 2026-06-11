@@ -104,6 +104,9 @@ sync.listen('users_online', (data) => {
 sync.listen('live_message', (data) => {
   stores.liveMessage.set(data.message)
 })
+sync.listen('settings_updated', () => {
+  getMe().then((user) => stores.me.set(user)).catch(() => {})
+})
 
 const queryClient = new QueryClient()
 
@@ -246,8 +249,17 @@ const App = () => {
     // Initialize interaction latency observer
     initPerfObserver()
 
+    // Refetch profile when tab becomes visible (cross-device sync fallback)
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        getMe().then((user) => stores.me.set(user)).catch(() => {})
+      }
+    }
+    document.addEventListener('visibilitychange', onVisibilityChange)
+
     return () => {
       unbindRouter()
+      document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [])
 
