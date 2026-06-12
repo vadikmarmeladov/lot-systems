@@ -479,13 +479,12 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CARM:" blockView>
-                <div className="uppercase tracking-widest mb-4">Care momentum</div>
                 {careCount !== undefined && (
-                  <div className="opacity-60">Self-care 24h: {careCount}</div>
+                  <div className="opacity-60 tabular-nums">ACTS 24H: {careCount}</div>
                 )}
-                <div className="opacity-40">No depleting signals. Proactive cycle active.</div>
+                <div className="opacity-40">DEP-SIG: 0</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
                 )}
               </Block>
             </LogContainer>
@@ -1116,12 +1115,11 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CSPRL:" blockView>
-                <div className="opacity-60 uppercase tracking-widest mb-8">CARE SPIRAL ACTIVE</div>
                 {careCount !== undefined && (
-                  <div className="opacity-60">ACTS: {careCount}</div>
+                  <div className="opacity-60 tabular-nums">ACTS: {careCount}</div>
                 )}
                 {dominantAction && (
-                  <div className="opacity-40">{dominantAction}</div>
+                  <div className="opacity-40 uppercase tracking-widest">{dominantAction}</div>
                 )}
               </Block>
             </LogContainer>
@@ -1134,11 +1132,10 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="BPEAK:" blockView>
-                <div className="opacity-60 uppercase tracking-widest mb-8">BIOFIELD PEAK DETECTED</div>
-                {energy && <div className="opacity-60">ATP: {energy}</div>}
-                {clarity && <div className="opacity-60">CLARITY: {clarity}</div>}
-                {alignment && <div className="opacity-60">ALIGN: {alignment}</div>}
-                {support && support !== 'none' && <div className="opacity-40">SUPPORT: {support}</div>}
+                {energy && <div className="opacity-60 uppercase">ATP: {energy}</div>}
+                {clarity && <div className="opacity-60 uppercase">CLR: {clarity}</div>}
+                {alignment && <div className="opacity-60 uppercase">ALN: {alignment}</div>}
+                {support && support !== 'none' && <div className="opacity-40 uppercase">SUP: {support}</div>}
               </Block>
             </LogContainer>
           )
@@ -1147,10 +1144,9 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="MER:" blockView>
-                <div className="opacity-60 uppercase tracking-widest mb-8">MERIDIAN LOCK</div>
-                <div className="opacity-40">MRN · AFT · EVN</div>
+                <div className="opacity-40 tracking-widest">MRN · AFT · EVN</div>
                 {signalCount !== undefined && (
-                  <div className="opacity-60 mt-8">SIG: {signalCount}</div>
+                  <div className="opacity-60 mt-8 tabular-nums">SIG: {signalCount}</div>
                 )}
               </Block>
             </LogContainer>
@@ -1161,12 +1157,11 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="MULTI:" blockView>
-                <div className="opacity-60 uppercase tracking-widest mb-8">MULTIMODAL PEAK</div>
                 {sourceCount !== undefined && (
-                  <div className="opacity-60">MODULES: {sourceCount}/5</div>
+                  <div className="opacity-60 tabular-nums">MOD: {sourceCount}/5</div>
                 )}
                 {confidence !== undefined && (
-                  <div className="opacity-40">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
                 )}
               </Block>
             </LogContainer>

@@ -2059,6 +2059,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   angelInvestor:     ['goals', 'intentions'],
   demoDay:           ['goals', 'intentions', 'memory'],
   subscribeWidget:   ['cohort', 'memory'],
+
+  // ── Stats + display widgets (2026-06-12 audit)
+  corporatePlan:     ['goals', 'intentions'],
+  memoryEngineStats: ['memory', 'journal', 'mood'],
+  intentionPatterns: ['intentions', 'mood', 'memory'],
 }
 
 /**
