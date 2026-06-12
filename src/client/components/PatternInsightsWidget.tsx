@@ -7,18 +7,32 @@
  */
 
 import * as React from 'react'
+import { useStore } from '@nanostores/react'
 import { Block, GhostButton, Button } from '#client/components/ui'
 import { usePatterns, useCohorts, usePatternEvolution } from '#client/queries'
 import { recordSignal } from '#client/stores/intentionEngine'
+import { $featureUnlocks } from '#client/stores/evolution'
 import * as stores from '#client/stores'
 import dayjs from '#client/utils/dayjs'
 
 export const PatternInsightsWidget = () => {
+  const featureUnlocks = useStore($featureUnlocks)
   const { data: patternsData } = usePatterns()
   const { data: cohortsData } = useCohorts()
   const { data: evolutionData } = usePatternEvolution()
   const [view, setView] = React.useState<'patterns' | 'cohorts' | 'evolution'>('patterns')
   const [selectedInsight, setSelectedInsight] = React.useState<number | null>(null)
+
+  // Gate: patternInsights must be unlocked to see full analysis
+  if (!featureUnlocks?.patternInsights) {
+    return (
+      <Block label="Pattern Compiler:" blockView>
+        <div className="opacity-30">
+          Pattern recognition is compiling. Continue building your streak to unlock full insights.
+        </div>
+      </Block>
+    )
+  }
 
   // Don't show if no data
   if (!patternsData && !cohortsData && !evolutionData) return null

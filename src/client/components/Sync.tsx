@@ -10,6 +10,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import { useQueryClient } from 'react-query'
 import * as stores from '#client/stores'
+import { $featureUnlocks } from '#client/stores/evolution'
 import {
   Button,
   Clock,
@@ -36,6 +37,7 @@ export const Sync = () => {
   const me = useStore(stores.me)
   const isTouchDevice = useStore(stores.isTouchDevice)
   const isTimeFormat12h = useStore(stores.isTimeFormat12h)
+  const featureUnlocks = useStore($featureUnlocks)
   const queryClient = useQueryClient()
 
   const [message, setMessage] = React.useState('')
@@ -237,9 +239,9 @@ export const Sync = () => {
                 'group flex items-start gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded',
                 i >= SYNC_CHAT_MESSAGES_TO_SHOW && 'text-acc/20'
               )}
-              onClick={onToggleLike(x.id)}
+              onClick={featureUnlocks?.communityRich ? onToggleLike(x.id) : undefined}
             >
-              {authorId ? (
+              {authorId && (featureUnlocks?.socialMentions || canAccessUserProfiles) ? (
                 <GhostButton
                   className="whitespace-nowrap pr-4"
                   onClick={onNavigateToUserProfile(authorId)}
@@ -260,7 +262,7 @@ export const Sync = () => {
                 {x.message}
               </div>
 
-              {!!x.likes && (
+              {!!x.likes && featureUnlocks?.communityRich && (
                 <Tag
                   className={cn(
                     'text-acc/40 select-none -mt-[2px]',

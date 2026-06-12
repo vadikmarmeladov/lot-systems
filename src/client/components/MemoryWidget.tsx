@@ -7,6 +7,7 @@
  */
 
 import React from 'react'
+import { useStore } from '@nanostores/react'
 import { useQueryClient } from 'react-query'
 import { Block, Button } from '#client/components/ui'
 import { useMemory, useCreateMemory } from '#client/queries'
@@ -14,12 +15,14 @@ import { cn } from '#client/utils'
 import { fp } from '#shared/utils'
 import { MemoryQuestion } from '#shared/types'
 import * as stores from '#client/stores'
+import { $featureUnlocks } from '#client/stores/evolution'
 import { recordSignal, getUserState, analyzeIntentions } from '#client/stores/intentionEngine'
 import { getMemoryReflectionPrompt, getStoicReflection } from '#client/utils/narrative'
 import dayjs from '#client/utils/dayjs'
 import { getNextBadgeUnlock, checkAndAwardBadges } from '#client/utils/badges'
 
 export const MemoryWidget = React.memo(function MemoryWidget() {
+  const featureUnlocks = useStore($featureUnlocks)
   const [isDisplayed, setIsDisplayed] = React.useState(false)
   const [isShown, setIsShown] = React.useState(false)
   const [isQuestionShown, setIsQuestionShown] = React.useState(false)
@@ -78,7 +81,7 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
         })
 
         let fullResponse = response
-        if (insight) {
+        if (insight && featureUnlocks?.advancedMemory) {
           fullResponse += `\n\n${insight}`
         }
         fullResponse += `\n\n${stoicReflection}`
