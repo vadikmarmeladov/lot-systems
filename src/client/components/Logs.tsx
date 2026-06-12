@@ -1169,11 +1169,46 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const entryText = log.metadata?.text as string | undefined
+          const entryTime = log.metadata?.time as string | undefined
+          const todayStr = dayjs().format('YYYY-MM-DD')
+          const tLabel = (() => {
+            if (!date) return null
+            if (date < todayStr) return 'ELAPSED'
+            if (date === todayStr) {
+              if (entryTime) {
+                const [h, m] = entryTime.split(':').map(Number)
+                const diffMs = dayjs().startOf('day').add(h, 'hour').add(m, 'minute').diff(dayjs())
+                if (diffMs < -5 * 60_000) return 'ELAPSED'
+                if (diffMs < 0) return 'NOW'
+                const hh = Math.floor(diffMs / 3_600_000)
+                const mm = Math.floor((diffMs % 3_600_000) / 60_000)
+                if (hh > 0) return `T−${String(hh).padStart(2,'0')}H${String(mm).padStart(2,'0')}M`
+                return `T−${String(mm).padStart(2,'0')}M`
+              }
+              return 'TODAY'
+            }
+            const days = dayjs(date).diff(dayjs().startOf('day'), 'day')
+            return `+${days}D`
+          })()
+          const isHot = tLabel === 'NOW' || tLabel === 'TODAY'
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex items-baseline justify-between gap-8 mb-4">
+                  <div className="uppercase tracking-widest text-[11px]">{entryType || 'ENTRY'}</div>
+                  {tLabel && (
+                    <div className={`tabular-nums tracking-widest text-[11px] ${isHot ? 'opacity-100' : 'opacity-40'}`}>
+                      {tLabel}
+                    </div>
+                  )}
+                </div>
+                {entryText && <div className="mt-2 mb-4">{entryText}</div>}
+                {date && (
+                  <div className="opacity-40 text-xs tracking-wide">
+                    {date}{entryTime && ` @ ${entryTime}`}
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )

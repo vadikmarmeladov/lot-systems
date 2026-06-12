@@ -20,6 +20,7 @@ import { DirectMessageThread } from '#client/components/DirectMessageThread'
 import { StatusPage } from '#client/components/StatusPage'
 import { ApiPage } from '#client/components/ApiPage'
 import { ConnectionStatus } from '#client/components/ConnectionStatus'
+import { CalendarAlert } from '#client/components/CalendarAlert'
 import { render } from '#client/utils/render'
 import { listenSSE } from '#client/utils/sse'
 import { useSun } from '#client/utils/sun'
@@ -284,6 +285,7 @@ const App = () => {
   return (
     <>
       <ConnectionStatus />
+      <CalendarAlert />
       <Layout>
         <TabPanel route="system">
           <System />
