@@ -123,6 +123,39 @@ input:-webkit-autofill {
     opacity: 1;
   }
 
+  /* Density-evolved pattern fills — progression from sparse to dense */
+  [data-density="breathable"] .grid-fill-hover::before {
+    background-image:
+      radial-gradient(circle, rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 1.2)) 0.5px, transparent 0.5px);
+    background-size: 12px 12px;
+  }
+
+  [data-density="comfortable"] .grid-fill-hover::before {
+    background-image:
+      linear-gradient(to bottom, rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 1.2)) 1px, transparent 1px);
+    background-size: 100% 8px;
+  }
+
+  [data-density="dense"] .grid-fill-hover::before {
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 1.2)) 0px,
+        rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 1.2)) 1px,
+        transparent 1px,
+        transparent 5px
+      );
+    background-size: 7px 7px;
+  }
+
+  [data-density="instrument"] .grid-fill-hover::before {
+    background-image:
+      linear-gradient(to right, rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 1.2)) 1px, transparent 1px),
+      linear-gradient(to bottom, rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 1.2)) 1px, transparent 1px),
+      linear-gradient(45deg, rgb(var(--acc-color-400) / calc(var(--evolution-grid-opacity) * 0.6)) 1px, transparent 1px);
+    background-size: 4px 4px, 4px 4px, 5.66px 5.66px;
+  }
+
   /* Lighter grid pattern for subtle backgrounds */
   .grid-fill-light {
     background-image:

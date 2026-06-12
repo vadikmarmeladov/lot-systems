@@ -101,6 +101,10 @@ export function updateEvolutionState(params: {
     document.documentElement.style.setProperty(key, value);
   });
 
+  // Set density level as data attribute for CSS pattern selection
+  const density = getLayoutDensity(newState);
+  document.documentElement.dataset.density = density.level;
+
   // Apply theme evolution CSS properties
   const themeEffects = getThemeEvolutionEffects(newState);
   const themeCssProps = getThemeEvolutionCSS(themeEffects);

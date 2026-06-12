@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev H
+# LOT-DOCTRINE  rev I
 
 ## Render Isolation
 
@@ -100,3 +100,14 @@ key-value pairs. The Block label names the event (CIRC:, SIL:, CASCADE:, etc.).
 Prose narration does not belong in the body. "Biofield coherence cascade detected"
 is the label's job (done), not the body's job. Body = data.
 (SR-20260611-02: 8 handlers compressed; COCKPIT-RULE minted in LEXICON rev C.)
+
+## CSS-Only Progression
+
+When a visual property varies by user progression tier, prefer a data attribute
+on the document root (`data-density`, `data-theme`, etc.) with CSS descendant
+selectors over per-component store subscriptions. The store sets the attribute
+once on state change; CSS resolves the correct visual without any component
+knowing its own tier. This extends RENDER-ISOLATION from "narrow scope" to
+"zero scope" — the component subscribes to nothing, yet its appearance evolves.
+(SR-20260612-04: 5 density tiers override grid-fill-hover::before pattern via
+[data-density] selectors. Zero new subscriptions in Button.tsx.)
