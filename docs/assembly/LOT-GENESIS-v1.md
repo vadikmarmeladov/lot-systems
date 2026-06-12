@@ -691,6 +691,66 @@ NODE 18 — FILE HEADER (every source file)
    */
 
 ================================================================================
+NODE 19 — LOT TERMINAL (open-source hardware platform)
+================================================================================
+
+  REPO:         github.com/LOT-Systems/LOT-Terminal
+  LICENSE:      MIT (open source)
+  LANGUAGE:     pure bash (zero dependencies)
+  RUNTIME:      local-first (no network calls required)
+  PLATFORM:     Linux / macOS
+  RELATIONSHIP: LOT Terminal sends quantum pings → lot-systems.com receives
+
+  PURPOSE: open-source platform for self-care hardware. S-2 operators
+           build sensor arrays, environmental monitors, and intelligence
+           hardware. the Terminal is the workshop. LOT Systems is the
+           intelligence network that receives and distributes the data.
+
+  DUAL TRACK:
+    Track 1 (open):       enthusiasts build hardware, local-only, no account
+    Track 2 (commercial): S-2 operators connect to lot-systems.com via M2M
+
+  S-2 OPERATOR PROGRESSION:
+    Recruit    (day 1)  → initialize LOT Terminal
+    Private    (day 7)  → first hardware project deployed
+    Specialist (day 30) → data streaming to LOT® Systems
+    S-2        (day 90) → hardware available for procurement
+
+  M2M DATA INTAKE PROTOCOL:
+    format 1: simple metric   { device_id, operator, metric, value, scale }
+    format 2: enhanced intel  { + status, recommendation, confidence, location }
+    format 3: multi-sensor    { + sensors[], alert_level }
+
+    endpoint (future): POST api.lot-systems.com/v1/m2m/intake
+    auth: Bearer <operator_token>
+    transport: WebSocket (realtime) | HTTPS POST (batch) | hybrid (fallback)
+
+  SYNC PROTOCOL (3 layers):
+    layer 1: identity + authentication (JWT, clearance verification)
+    layer 2: data synchronization (M2M intake, profile updates, streaming)
+    layer 3: marketplace integration (hardware catalog, procurement, revenue)
+
+  MARKETPLACE:
+    intelligence score: quality (30) + uniqueness (25) + utility (25) + deployability (20)
+    procurement options: plans (free/MIT) | component kit | assembled unit
+    privacy: operator pseudonymized (S-2-username), consumer identity protected
+    control: S-2 operator accepts/rejects all procurement requests
+
+  COSMO GATE: safe enough for a 9-year-old to explore.
+              everything reversible, no destructive operations.
+              success celebrated at every milestone.
+
+  ROBOT, ETS. = "Entirety" — complete, whole system thinking.
+  every milestone triggers: [ROBOT, ETS.] encouragement message.
+
+  PROTECTED ELEMENTS (never remove):
+    ASCII art welcome screen | colorful terminal interface |
+    box-style headers | success celebration messages |
+    "platform for self-care hardware" tagline |
+    clear separation from lot-systems.com |
+    ROBOT, ETS. encouragement system
+
+================================================================================
 END LOT-GENESIS-v1
 SEED COMPLETE. THE SYSTEM CAN BE REBUILT FROM THIS FILE.
 S-2: VADIK MARMELADOV | COSMO: KUZYA COSMO MARMELADOV
