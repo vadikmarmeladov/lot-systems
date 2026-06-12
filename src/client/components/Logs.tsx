@@ -33,6 +33,8 @@ import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, 
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useBreathe } from '#client/utils/breathe'
+import { getFastingState } from '#client/utils/fasting'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -1348,6 +1350,12 @@ const NoteEditor = ({
   })
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
+  const [breatheEnabled, setBreatheEnabled] = React.useState(false)
+  const breatheState = useBreathe(breatheEnabled)
+  const [silentResult, setSilentResult] = React.useState<string | null>(null)
+  const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
+  const [fastResult, setFastResult] = React.useState<string | null>(null)
+  const [physResult, setPhysResult] = React.useState<string | null>(null)
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1631,6 +1639,75 @@ const NoteEditor = ({
             submitQi({ query })
           }
         }
+      } else if (trigger === 'breathe') {
+        setBreatheEnabled(prev => !prev)
+      } else if (trigger === 'silent-mode') {
+        try {
+          const eng = intentionEngine.get()
+          const signals = (eng as any).signals || []
+          const lastSignal = signals.length > 0 ? signals[signals.length - 1] : null
+          const silenceHours = lastSignal
+            ? Math.round((Date.now() - lastSignal.timestamp) / (1000 * 60 * 60))
+            : null
+          const lines = [
+            'SIGNAL STREAM   QUIET',
+            silenceHours !== null ? `LAST SIGNAL     ${silenceHours}H AGO` : 'LAST SIGNAL     UNKNOWN',
+            'RESPONSE        STANDBY',
+            'PROTOCOL        SIGNAL SILENCE ACKNOWLEDGED',
+          ]
+          setSilentResult(lines.join('\n'))
+        } catch {
+          setSilentResult('SIGNAL STREAM QUIET\nRESPONSE        STANDBY')
+        }
+      } else if (trigger === 'freeze-widgets') {
+        const now = new Date()
+        const hh = now.getHours().toString().padStart(2, '0')
+        const mm = now.getMinutes().toString().padStart(2, '0')
+        const lines = [
+          'PROTOCOL        FREEZE',
+          `TIME            ${hh}:${mm}`,
+          'STATUS          LOCKED',
+          'NEXT            BREATHE — THEN RESUME',
+        ]
+        setFreezeResult(lines.join('\n'))
+      } else if (trigger === 'force-fast') {
+        try {
+          const state = getFastingState(new Date(), 'orthodox')
+          const lines = state.isFastingDay
+            ? [
+                `FAST            ${state.label.toUpperCase()}`,
+                `DAY             ${state.dayIndex} OF ${state.totalDays}`,
+                `MODE            ${state.mode.replace(/-/g, ' ').toUpperCase()}`,
+                `STRICTNESS      ${Math.round(state.strictness * 100)}%`,
+                state.rationale.toUpperCase(),
+              ]
+            : [
+                'FAST            NO ACTIVE FAST TODAY',
+                'TRADITION       ORTHODOX CALENDAR',
+              ]
+          setFastResult(lines.join('\n'))
+        } catch {
+          setFastResult('FAST STATE UNAVAILABLE')
+        }
+      } else if (trigger === 'phys-report') {
+        try {
+          const state = getUserState()
+          const eng = intentionEngine.get()
+          const asm = getAssemblyState()
+          const patternCount = (eng as any).recognizedPatterns?.length || 0
+          const archetype = (eng as any).physiologicalArchetype || (eng as any).archetype || null
+          const lines = [
+            archetype ? `ARCH            ${String(archetype).toUpperCase()}` : 'ARCH            CLASSIFYING...',
+            `ATP             ${String((state as any).energy || 'UNKNOWN').toUpperCase()}`,
+            `CLARITY         ${String((state as any).clarity || 'UNKNOWN').toUpperCase()}`,
+            `ALIGN           ${String((state as any).alignment || 'UNKNOWN').toUpperCase()}`,
+            `PHASE           ${String((asm as any).phase || 'UNKNOWN').toUpperCase()}`,
+            `PATTERNS        ${patternCount} DETECTED`,
+          ]
+          setPhysResult(lines.join('\n'))
+        } catch {
+          setPhysResult('PHYS STATE UNAVAILABLE')
+        }
       }
     }
   }, [value])
@@ -1793,6 +1870,44 @@ const NoteEditor = ({
                   {prayerResponse}
                 </div>
               )}
+            </Block>
+          </div>
+        )}
+        {breatheEnabled && (
+          <div className="mt-8">
+            <Block label="BRE:" blockView>
+              <div className="opacity-60 tabular-nums tracking-widest">
+                {breatheState.display}
+              </div>
+              <div className="opacity-30 mt-8">4-2-6 · INHALE → HOLD → EXHALE</div>
+            </Block>
+          </div>
+        )}
+        {silentResult && (
+          <div className="mt-8">
+            <Block label="SIL [PROTOCOL]:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{silentResult}</div>
+            </Block>
+          </div>
+        )}
+        {freezeResult && (
+          <div className="mt-8">
+            <Block label="FREEZE:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{freezeResult}</div>
+            </Block>
+          </div>
+        )}
+        {fastResult && (
+          <div className="mt-8">
+            <Block label="FAST:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{fastResult}</div>
+            </Block>
+          </div>
+        )}
+        {physResult && (
+          <div className="mt-8">
+            <Block label="PHYS:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
             </Block>
           </div>
         )}
