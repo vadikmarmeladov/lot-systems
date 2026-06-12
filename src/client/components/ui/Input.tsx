@@ -143,7 +143,7 @@ export const ResizibleGhostInput: React.FC<ResizibleGhostInputProps> = ({
         containerRef.current.dataset.value = ev.target.value
       }
     },
-    []
+    [onChange]
   )
   React.useEffect(() => {
     if (containerRef.current) {

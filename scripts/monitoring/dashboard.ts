@@ -1,10 +1,12 @@
 import { checkHealth } from './health-check'
 import { monitorPool } from './pool-monitor'
+// blessed and blessed-contrib must be installed: yarn add --dev blessed blessed-contrib @types/blessed
 import blessed from 'blessed'
-import { create as createScreen } from 'blessed-contrib'
+// @ts-expect-error — no published types for blessed-contrib
+import contrib from 'blessed-contrib'
 
-const screen = blessed.screen()
-const grid = createScreen({
+const screen = blessed.screen({ smartCSR: true })
+const grid = new contrib.grid({
   rows: 12,
   cols: 12,
   screen: screen
