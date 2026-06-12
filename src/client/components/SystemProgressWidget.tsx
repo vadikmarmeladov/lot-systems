@@ -723,6 +723,21 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Dep map now covers all resident component types including investor, display, and subscription-layer widgets.',
     ],
   },
+  {
+    date: '2026-06-12',
+    session: 'Self-Assembly Session — v56 / LOG Terminal Wiring · /breathe /fast /silent /freeze /phys',
+    assembled: [
+      'Logs.tsx: 5 LOG terminal commands wired — /breathe · /fast · /silent · /freeze · /phys. All triggers were defined in logTriggers.ts; handlers and JSX blocks now live.',
+      '/breathe: toggles useBreathe() hook inline. BRE: block renders live ASCII animation (. o O ◯ ◉) + 4-2-6 countdown. 12s cycle, 100ms tick.',
+      '/fast: reads getFastingState(orthodox). FAST: block shows active fast name, day index, strictness %, mode. Falls back to "NO ACTIVE FAST TODAY" on clean calendar.',
+      '/silent: reads intentionEngine signal stream. SIL [PROTOCOL]: block shows last signal timestamp delta, STANDBY status.',
+      '/freeze: timestamp-stamps the pause event. FREEZE: block shows protocol status + NEXT action directive.',
+      '/phys: reads getUserState() + intentionEngine + getAssemblyState(). PHYS: block shows ARCH / ATP / CLARITY / ALIGN / PHASE / PATTERNS.',
+      'Imports: useBreathe (breathe.ts) and getFastingState (fasting.ts) now imported into Logs.tsx. Both utilities pre-existed; wiring was the only gap.',
+      'TypeScript: tsc --noEmit clean on Logs.tsx, breathe.ts, fasting.ts. Pre-existing env errors unchanged.',
+      'Session report: LOT-SR-20260612-03. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -760,17 +775,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-11',
+  date: '2026-06-12',
   message: [
-    'ASSEMBLY RUN — 2026-06-11 · LOT-SR-20260611-02',
-    'Dep map audit complete. 5 new nodes registered. 93+ total.',
-    'WIDGET_DEPENDENCY_MAP: benchmarkWidget · fourDimensionalUI · angelInvestor · demoDay · subscribeWidget — wired in. Investor and display layer now mapped.',
-    'LOG_DEPENDENCY_SOURCES: 11 sources. planner · selfcare · journal added. Full signal pipeline covered — all 11 primary sources now audited.',
-    'Log military pass: CASCADE / SYNTH / DWRK / SOCR / RLSE / SIL / CIRC — verbose prose removed. Pure code + metric. The field reads clean.',
-    'Log field: 3 new handlers. ARCH-SHIFT · INTENT-X · DIV-PULSE. 56+ event types. The archive grows.',
-    'Background job 11: daily-source-diversity-pulse. 07:00 UTC daily. Signal diversity across all active users. 11 sources tracked. Hour 7 live.',
-    'Archetype 19: Signal Architect — signal-coherence + temporal-coherence + intention-velocity. The builder of the map is now named.',
-    'DEPLOYED. The system knows its own surface.',
+    'ASSEMBLY RUN — 2026-06-12 · LOT-SR-20260612-03',
+    'LOG terminal: 5 commands now live — /breathe · /fast · /silent · /freeze · /phys.',
+    '/breathe: 4-2-6 Pilates rhythm. ASCII animation inline. Type /breathe to toggle.',
+    '/fast: Orthodox calendar query. Active fast name, day, strictness, mode — returned on demand.',
+    '/silent: Signal stream audit. Last timestamp delta, standby status — protocol acknowledged.',
+    '/freeze: Widget pause event. Timestamp-stamped. NEXT action directive shown.',
+    '/phys: Full physiological readout — archetype, ATP, clarity, alignment, phase, pattern count.',
+    'Infrastructure was complete. The gap was wiring. Now closed.',
+    'DEPLOYED. The LOG now speaks in all five registers.',
   ],
 }
 
