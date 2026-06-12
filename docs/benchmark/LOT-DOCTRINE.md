@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev G
+# LOT-DOCTRINE  rev J
 
 ## Render Isolation
 
@@ -92,3 +92,35 @@ callback crashes the server process.
 process.nextTick; answer dedup guard on POST /memory/answer; SSE
 settings_updated event on /settings, /theme-change, /update-privacy;
 visibility refetch on document.visibilitychange.)
+
+
+## Log Military Style (COCKPIT-RULE)
+The log event body contains instrument readings only — codes, metrics, tabular
+key-value pairs. The Block label names the event (CIRC:, SIL:, CASCADE:, etc.).
+Prose narration does not belong in the body. "Biofield coherence cascade detected"
+is the label's job (done), not the body's job. Body = data.
+(SR-20260611-02: 8 handlers compressed; COCKPIT-RULE minted in LEXICON rev C.)
+
+## CSS-Only Progression
+
+When a visual property varies by user progression tier, prefer a data attribute
+on the document root (`data-density`, `data-theme`, etc.) with CSS descendant
+selectors over per-component store subscriptions. The store sets the attribute
+once on state change; CSS resolves the correct visual without any component
+knowing its own tier. This extends RENDER-ISOLATION from "narrow scope" to
+"zero scope" — the component subscribes to nothing, yet its appearance evolves.
+(SR-20260612-04: 5 density tiers override grid-fill-hover::before pattern via
+[data-density] selectors. Zero new subscriptions in Button.tsx.)
+
+## Manifest Hygiene
+
+When competing branches accumulate (N iterations of the same feature), the
+MANIFEST must track which iteration is BEST and which are SUPERSEDED. On each
+self-assembly audit, re-evaluate BEST by checking: (1) most recent iteration,
+(2) freshest base (forked from latest master merge), (3) fewest file conflicts
+with other BEST branches. Superseded clusters are prunable but never deleted
+without S-2 confirmation — they are provenance records. The MANIFEST date field
+updates on every audit; feature rows update when a new iteration supersedes.
+(SR-20260605-01: MANIFEST created, 115 branches cataloged, 8 BEST identified.
+SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
+SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)

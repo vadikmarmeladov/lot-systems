@@ -52,7 +52,7 @@ import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
@@ -222,6 +222,13 @@ export const System = () => {
     recomputeAssembly() // Recompute self-assembly state from signals
     return getUserState()
   }, [logs]) // Recompute when logs change (new signals recorded)
+
+  // Physiological cohort — live archetype classification from signal state
+  const physiologicalCohort = React.useMemo(() => {
+    const eng = intentionEngine.get()
+    if (!eng.signals || eng.signals.length === 0) return null
+    return classifyPhysiologicalCohort(eng.signals, quantumState, eng.recognizedPatterns ?? [])
+  }, [quantumState])
 
   // Accumulative User Index - holistic score from all widget signals
   const userIndex = React.useMemo(() => {
@@ -654,6 +661,7 @@ export const System = () => {
           ) : (
             <Table
               data={[
+                { metric: 'Archetype', value: physiologicalCohort?.archetype ?? '—' },
                 { metric: 'ATP', value: quantumState.energy },
                 { metric: 'Clarity', value: quantumState.clarity },
                 { metric: 'Alignment', value: quantumState.alignment },

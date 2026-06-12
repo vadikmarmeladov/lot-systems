@@ -22,7 +22,7 @@ COHERENCE HOLDER   Physiological Archetype 18 — all 4 inner domains active    
 SIGNAL BURST       QIE P.63 — 10+ signals in any 2h window within 24h        A     20260603
 RECOVERY PLATEAU   QIE P.65 — energy low 5+ consecutive days, same protocol   A     20260603
 QOS MODE VIEW      6th QOS block — MAINTENANCE/RECOVERY/GROWTH/PEAK           A     20260603
-CQGS               Coherent Quantum Ground State — theoretical system ceiling  A     20260603
+CQGS               Coherent Quantum Ground State — founding white paper + theoretical system ceiling: all 18 modules active, 19 archetypes classified, P.34 confidence, peak User Index  B     20260612
 VIRTUOUS CYCLE     More use → deeper profile → more resonant questions → more use A  20260603
 RENDER-ISOLATION   Subscriptions at narrowest scope; default variants subscribe 0   B  20260603
 MANIFEST           Central catalog of all feature branches + status tracking         A  20260605
@@ -31,4 +31,7 @@ QI                 Quantum Intelligence — operator RFI terminal querying own s
 RFI                Request for Information — operator-initiated query to the QI terminal            A  20260605
 INTSUM             Intelligence Summary — QI response format: assessment, data points, recommendation A  20260605
 CROSS-DEVICE-SYNC  SSE broadcast of settings_updated + visibility refetch + answer dedup guard     A  20260611
+SIGNAL ARCHITECT   Physiological Archetype 19 — building phase; signal diversity high, map forming A  20260611
+COCKPIT-RULE       Log body = instrument readings only; label names the event; no narration        A  20260611
+DENSITY-TIER       5-level visual progression: breathable/comfortable/compact/dense/instrument via data-density  A  20260612
 ```

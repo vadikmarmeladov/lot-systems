@@ -7,9 +7,11 @@
  */
 
 import React from 'react'
+import { useStore } from '@nanostores/react'
 import { Block, Button } from '#client/components/ui'
 import { recordSignal } from '#client/stores/intentionEngine'
 import { useLogContext } from '#client/hooks/useLogContext'
+import { $featureUnlocks } from '#client/stores/evolution'
 
 type IntentionView = 'set' | 'current' | 'reflection' | 'alignment'
 
@@ -30,6 +32,8 @@ export function IntentionsWidget() {
   const [isSettingIntention, setIsSettingIntention] = React.useState(false)
   const [inputValue, setInputValue] = React.useState('')
   const logCtx = useLogContext()
+  const featureUnlocks = useStore($featureUnlocks)
+  const hasIntentionHistory = featureUnlocks?.intentionHistory ?? false
 
   // Load intention from localStorage
   React.useEffect(() => {
@@ -58,7 +62,7 @@ export function IntentionsWidget() {
     setView(prev => {
       switch (prev) {
         case 'set': return intention ? 'current' : 'set'
-        case 'current': return 'alignment'
+        case 'current': return hasIntentionHistory ? 'alignment' : 'set'
         case 'alignment': return 'reflection'
         case 'reflection': return 'set'
         default: return 'current'

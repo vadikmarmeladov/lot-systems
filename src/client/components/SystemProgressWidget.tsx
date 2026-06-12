@@ -709,6 +709,48 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Physiological cohort is now surfaced across QOS widget · System Progress report · System Pulse. The Cube knows who you are from every angle.',
     ],
   },
+  {
+    date: '2026-06-11',
+    session: 'Self-Assembly Session — v54 / Dep Map Audit · Log Military Pass · Job 11 · Archetype 19',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 5 new nodes — benchmarkWidget · fourDimensionalUI · angelInvestor · demoDay · subscribeWidget. Total: 93+ nodes indexed.',
+      'LOG_DEPENDENCY_SOURCES: expanded from 8 to 11 — added planner · selfcare · journal as direct log-pipeline sources. Full primary signal pipeline now covered.',
+      'Log military style pass: CASCADE / SYNTH / DWRK / SOCR / RLSE / SIL / CIRC handlers compressed — verbose prose removed, pure code+metric format applied.',
+      'Log handlers: 3 new military event types — ARCH-SHIFT (archetype_shift) · INTENT-X (intention_completion) · DIV-PULSE (source_diversity_pulse). Field archive: 56+ handlers.',
+      'Background job 11: daily-source-diversity-pulse. 07:00 UTC daily. System-wide source diversity monitoring (unique sources / 11 possible). Hour 7 added to interval guard.',
+      'Archetype 19: Signal Architect — planner · intentions · log dominant · signal-coherence · temporal-coherence · intention-velocity. Directive: "Signal diversity high. The map is building. Keep all channels open."',
+      'Session report: LOT-SR-20260611-02. Deployed to claude/quantum-engine-widgets-RgFfC.',
+      'Dep map now covers all resident component types including investor, display, and subscription-layer widgets.',
+    ],
+  },
+  {
+    date: '2026-06-12',
+    session: 'Self-Assembly Session — v56 / LOG Terminal Wiring · /breathe /fast /silent /freeze /phys',
+    assembled: [
+      'Logs.tsx: 5 LOG terminal commands wired — /breathe · /fast · /silent · /freeze · /phys. All triggers were defined in logTriggers.ts; handlers and JSX blocks now live.',
+      '/breathe: toggles useBreathe() hook inline. BRE: block renders live ASCII animation (. o O ◯ ◉) + 4-2-6 countdown. 12s cycle, 100ms tick.',
+      '/fast: reads getFastingState(orthodox). FAST: block shows active fast name, day index, strictness %, mode. Falls back to "NO ACTIVE FAST TODAY" on clean calendar.',
+      '/silent: reads intentionEngine signal stream. SIL [PROTOCOL]: block shows last signal timestamp delta, STANDBY status.',
+      '/freeze: timestamp-stamps the pause event. FREEZE: block shows protocol status + NEXT action directive.',
+      '/phys: reads getUserState() + intentionEngine + getAssemblyState(). PHYS: block shows ARCH / ATP / CLARITY / ALIGN / PHASE / PATTERNS.',
+      'Imports: useBreathe (breathe.ts) and getFastingState (fasting.ts) now imported into Logs.tsx. Both utilities pre-existed; wiring was the only gap.',
+      'TypeScript: tsc --noEmit clean on Logs.tsx, breathe.ts, fasting.ts. Pre-existing env errors unchanged.',
+      'Session report: LOT-SR-20260612-03. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
+  {
+    date: '2026-06-12',
+    session: 'Self-Assembly Session — v57 / Cohort Surface · Log Military Pass · Job 12 · Dep Map 96+',
+    assembled: [
+      'System.tsx: physiological cohort archetype surfaced in Biofield: quantum table view. Archetype row added as first row — shows live classifyPhysiologicalCohort() result. intentionEngine + classifyPhysiologicalCohort imported.',
+      'Logs.tsx: COCKPIT-RULE military pass — 5 handlers compressed. CARM: body narration removed ("Care momentum" label → ACTS 24H / DEP-SIG: 0 / CONF). CSPRL: "CARE SPIRAL ACTIVE" removed from body. BPEAK: "BIOFIELD PEAK DETECTED" removed — ATP/CLR/ALN/SUP codes only. MER: "MERIDIAN LOCK" removed — MRN·AFT·EVN + SIG: only. MULTI: "MULTIMODAL PEAK" removed — MOD:/CONF: only.',
+      'intentionEngine.ts: 3 new WIDGET_DEPENDENCY_MAP nodes — corporatePlan (goals · intentions) · memoryEngineStats (memory · journal · mood) · intentionPatterns (intentions · mood · memory). Total: 96+ nodes.',
+      'Background job 12: daily-archetype-shift-monitor at 10:00 UTC. Reads last 2 physiological_cohort logs per active user. If archetype changed, writes archetype_shift event with fromArchetype / toArchetype / stabilityRate. Hour 10 added to interval guard.',
+      'Server API: displayableEvents whitelist expanded from 12 to 29 event types. Closes Backend Whitelist Hygiene gap across all log handlers. 17 new types: physiological_cohort · archetype_shift · scheduled_job · badge_unlock · goal_set/update/journey/complete · medical_record · self_care_complete/completed/skip · plan_set · intention · user_login/logout · theme_change · weather_update · recipe_viewed · benchmark_read.',
+      'About.tsx: Field Manual v55→v57. Counters: 93+→96+ nodes · 11→12 jobs · 10→19 archetypes. v56+v57 rows added to phase table. Current phase paragraph updated.',
+      'Session report: LOT-SR-20260612-05. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -746,17 +788,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-07',
+  date: '2026-06-12',
   message: [
-    'ASSEMBLY RUN — 2026-06-07 · LOT-SR-20260607-04',
-    'Dep map audit complete. 9 new nodes registered.',
-    'WIDGET_DEPENDENCY_MAP: 88+ nodes. aiFeedback / moodAnalytics / journalReflection / energyCapacitor / integrityWidget / interfaceEvolution / worldCanvas / systemPulse / architectWidget — all wired in. The map now covers the full surface.',
-    'LOG_DEPENDENCY_SOURCES: 8 sources. intentions + memory added as direct pipeline sources. QIE log audit now touches all primary signal lanes.',
-    'Log field: 6 new military handlers. CSPRL · BPEAK · MER · MULTI · CAL · QOS-COHR. 53+ event types rendered. Field archive has depth.',
-    'SystemPulseWidget: 4th view "Biofield:" live. Physiological cohort surfaced — archetype + confidence + directive from classifyPhysiologicalCohort(). The Cube shows who you are from the pulse surface.',
-    'Background job 10: weekly-archetype-stability-monitor. Thursdays 05:00 UTC. Week-over-week archetype match rate. 10 scheduled jobs now active.',
-    'Physiological cohort reported from three angles: QOS widget · System Progress report · System Pulse. Cross-surface cohort coherence achieved.',
-    'DEPLOYED. The system now maps itself more completely.',
+    'ASSEMBLY RUN — 2026-06-12 · LOT-SR-20260612-05',
+    'System Biofield view: physiological archetype now visible. Click label to cycle to Biofield — archetype row is first.',
+    'LOG military pass: 5 handlers compressed. Body = instrument readings. No narration.',
+    'Dep map: 96+ nodes. corporatePlan · memoryEngineStats · intentionPatterns indexed.',
+    'Background job 12: daily archetype shift monitor. 10:00 UTC. Detects transitions, writes ARCH-SHIFT:.',
+    'Server whitelist: 17 new event types visible in field log. Cohort, badge, goal, medical, care, session, recipe, benchmark.',
+    'The Cube now shows you who you are — at a glance. Every surface is coherent.',
+    'DEPLOYED.',
   ],
 }
 

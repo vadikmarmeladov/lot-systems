@@ -33,6 +33,8 @@ import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, 
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useBreathe } from '#client/utils/breathe'
+import { getFastingState } from '#client/utils/fasting'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -477,13 +479,12 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CARM:" blockView>
-                <div className="uppercase tracking-widest mb-4">Care momentum</div>
                 {careCount !== undefined && (
-                  <div className="opacity-60">Self-care 24h: {careCount}</div>
+                  <div className="opacity-60 tabular-nums">ACTS 24H: {careCount}</div>
                 )}
-                <div className="opacity-40">No depleting signals. Proactive cycle active.</div>
+                <div className="opacity-40">DEP-SIG: 0</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
                 )}
               </Block>
             </LogContainer>
@@ -605,9 +606,8 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="GOAL-X:" blockView>
-                <div className="uppercase tracking-widest mb-4">Goal complete</div>
-                {goalTitle && <div className="opacity-60">&gt; {goalTitle}</div>}
-                {category && <div className="opacity-40">CAT: {category.toUpperCase()}</div>}
+                {goalTitle && <div className="opacity-60 uppercase tracking-widest">{goalTitle}</div>}
+                {category && <div className="opacity-40 tabular-nums">CAT: {category.toUpperCase()}</div>}
               </Block>
             </LogContainer>
           )
@@ -617,13 +617,17 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CASCADE:" blockView>
-                <div className="uppercase tracking-widest mb-4">Biofield coherence cascade</div>
                 {moduleCount !== undefined && (
-                  <div className="opacity-60">PRIMARY MODULES: {moduleCount}</div>
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">MOD</span>
+                    <span className="tabular-nums">{moduleCount}</span>
+                  </div>
                 )}
-                <div className="opacity-40">Recovery arc + cognitive expansion converging.</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -634,13 +638,17 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="SYNTH:" blockView>
-                <div className="uppercase tracking-widest mb-4">Resonant synthesis</div>
                 {sourcesActive !== undefined && (
-                  <div className="opacity-60">SOURCES 7d: {sourcesActive}</div>
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">SRC 7D</span>
+                    <span className="tabular-nums">{sourcesActive}</span>
+                  </div>
                 )}
-                <div className="opacity-40">Full cascade + reflection + cognition advancing.</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -651,13 +659,17 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="DWRK:" blockView>
-                <div className="uppercase tracking-widest mb-4">Deep work cascade</div>
                 {signalCount !== undefined && (
-                  <div className="opacity-60">SIGNALS 3h: {signalCount}</div>
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">SIG 3H</span>
+                    <span className="tabular-nums">{signalCount}</span>
+                  </div>
                 )}
-                <div className="opacity-40">Memory + planner + journal + goals. No interruption.</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -668,13 +680,17 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="SOCR:" blockView>
-                <div className="uppercase tracking-widest mb-4">Connection loop closed</div>
                 {signalCount !== undefined && (
-                  <div className="opacity-60">SIGNALS 48h: {signalCount}</div>
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">SIG 48H</span>
+                    <span className="tabular-nums">{signalCount}</span>
+                  </div>
                 )}
-                <div className="opacity-40">Community → outreach → reflection.</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -686,16 +702,23 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="RLSE:" blockView>
-                <div className="uppercase tracking-widest mb-4">Decompression loop closed</div>
                 {plannerCount !== undefined && (
-                  <div className="opacity-60">PLAN 24h: {plannerCount}</div>
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">PLAN 24H</span>
+                    <span className="tabular-nums">{plannerCount}</span>
+                  </div>
                 )}
                 {journalCount !== undefined && (
-                  <div className="opacity-60">JRN 24h: {journalCount}</div>
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">JRN 24H</span>
+                    <span className="tabular-nums">{journalCount}</span>
+                  </div>
                 )}
-                <div className="opacity-40">Structure → reflection → care. Load released.</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -755,14 +778,18 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="SIL:" blockView>
-                <div className="uppercase tracking-widest mb-4">Signal silence detected</div>
                 {priorSources !== undefined && (
-                  <div className="opacity-60">PRIOR SOURCES: {priorSources}</div>
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">PRIOR SRC</span>
+                    <span className="tabular-nums">{priorSources}</span>
+                  </div>
                 )}
                 {silenceHours !== undefined && (
-                  <div className="opacity-60">QUIET: {silenceHours}h</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">QUIET</span>
+                    <span className="tabular-nums">{silenceHours}h</span>
+                  </div>
                 )}
-                <div className="opacity-40">The field went still. Check in.</div>
               </Block>
             </LogContainer>
           )
@@ -772,14 +799,19 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CIRC:" blockView>
-                <div className="uppercase tracking-widest mb-4">Circadian anchor lost</div>
+                <div className="opacity-60 uppercase tracking-widest mb-8">DRIFT</div>
                 {consecutiveNights !== undefined && (
-                  <div className="opacity-60">LATE-NIGHT RUN: {consecutiveNights} consecutive nights</div>
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">LATE-NIGHT</span>
+                    <span className="tabular-nums">{consecutiveNights}N</span>
+                  </div>
                 )}
                 {depletedMornings !== undefined && (
-                  <div className="opacity-60">MORNING DEPLETION: {depletedMornings} day{depletedMornings === 1 ? '' : 's'}</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">MRN-DEP</span>
+                    <span className="tabular-nums">{depletedMornings}D</span>
+                  </div>
                 )}
-                <div className="opacity-40">Sleep architecture destabilizing. Rest protocol now.</div>
               </Block>
             </LogContainer>
           )
@@ -1083,12 +1115,11 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CSPRL:" blockView>
-                <div className="opacity-60 uppercase tracking-widest mb-8">CARE SPIRAL ACTIVE</div>
                 {careCount !== undefined && (
-                  <div className="opacity-60">ACTS: {careCount}</div>
+                  <div className="opacity-60 tabular-nums">ACTS: {careCount}</div>
                 )}
                 {dominantAction && (
-                  <div className="opacity-40">{dominantAction}</div>
+                  <div className="opacity-40 uppercase tracking-widest">{dominantAction}</div>
                 )}
               </Block>
             </LogContainer>
@@ -1101,11 +1132,10 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="BPEAK:" blockView>
-                <div className="opacity-60 uppercase tracking-widest mb-8">BIOFIELD PEAK DETECTED</div>
-                {energy && <div className="opacity-60">ATP: {energy}</div>}
-                {clarity && <div className="opacity-60">CLARITY: {clarity}</div>}
-                {alignment && <div className="opacity-60">ALIGN: {alignment}</div>}
-                {support && support !== 'none' && <div className="opacity-40">SUPPORT: {support}</div>}
+                {energy && <div className="opacity-60 uppercase">ATP: {energy}</div>}
+                {clarity && <div className="opacity-60 uppercase">CLR: {clarity}</div>}
+                {alignment && <div className="opacity-60 uppercase">ALN: {alignment}</div>}
+                {support && support !== 'none' && <div className="opacity-40 uppercase">SUP: {support}</div>}
               </Block>
             </LogContainer>
           )
@@ -1114,10 +1144,9 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="MER:" blockView>
-                <div className="opacity-60 uppercase tracking-widest mb-8">MERIDIAN LOCK</div>
-                <div className="opacity-40">MRN · AFT · EVN</div>
+                <div className="opacity-40 tracking-widest">MRN · AFT · EVN</div>
                 {signalCount !== undefined && (
-                  <div className="opacity-60 mt-8">SIG: {signalCount}</div>
+                  <div className="opacity-60 mt-8 tabular-nums">SIG: {signalCount}</div>
                 )}
               </Block>
             </LogContainer>
@@ -1128,12 +1157,11 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="MULTI:" blockView>
-                <div className="opacity-60 uppercase tracking-widest mb-8">MULTIMODAL PEAK</div>
                 {sourceCount !== undefined && (
-                  <div className="opacity-60">MODULES: {sourceCount}/5</div>
+                  <div className="opacity-60 tabular-nums">MOD: {sourceCount}/5</div>
                 )}
                 {confidence !== undefined && (
-                  <div className="opacity-40">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
                 )}
               </Block>
             </LogContainer>
@@ -1172,6 +1200,71 @@ export const Logs: React.FC = () => {
                   <div className="flex justify-between items-baseline">
                     <span className="opacity-30">SPREAD</span>
                     <span className="tabular-nums">{Math.round(temporalSpread * 100)}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'archetype_shift') {
+          const fromArchetype = log.metadata?.fromArchetype as string | undefined
+          const toArchetype = log.metadata?.toArchetype as string | undefined
+          const stabilityRate = log.metadata?.stabilityRate as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ARCH-SHIFT:" blockView>
+                {fromArchetype && toArchetype && (
+                  <div className="opacity-60 uppercase tracking-widest mb-8">
+                    {fromArchetype} → {toArchetype}
+                  </div>
+                )}
+                {stabilityRate !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">STABILITY</span>
+                    <span className="tabular-nums">{Math.round(stabilityRate * 100)}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'intention_completion') {
+          const completed = log.metadata?.completed as number | undefined
+          const total = log.metadata?.total as number | undefined
+          const completionRate = log.metadata?.completionRate as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTENT-X:" blockView>
+                {completed !== undefined && total !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">DONE</span>
+                    <span className="tabular-nums">{completed}/{total}</span>
+                  </div>
+                )}
+                {completionRate !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">RATE</span>
+                    <span className="tabular-nums">{Math.round(completionRate * 100)}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'source_diversity_pulse') {
+          const uniqueSources = log.metadata?.uniqueSources as number | undefined
+          const totalPossible = log.metadata?.totalPossible as number | undefined
+          const diversityScore = log.metadata?.diversityScore as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DIV-PULSE:" blockView>
+                {uniqueSources !== undefined && totalPossible !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">SRC</span>
+                    <span className="tabular-nums">{uniqueSources}/{totalPossible}</span>
+                  </div>
+                )}
+                {diversityScore !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">DIV</span>
+                    <span className="tabular-nums">{Math.round(diversityScore * 100)}%</span>
                   </div>
                 )}
               </Block>
@@ -1252,6 +1345,12 @@ const NoteEditor = ({
   })
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
+  const [breatheEnabled, setBreatheEnabled] = React.useState(false)
+  const breatheState = useBreathe(breatheEnabled)
+  const [silentResult, setSilentResult] = React.useState<string | null>(null)
+  const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
+  const [fastResult, setFastResult] = React.useState<string | null>(null)
+  const [physResult, setPhysResult] = React.useState<string | null>(null)
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1535,6 +1634,75 @@ const NoteEditor = ({
             submitQi({ query })
           }
         }
+      } else if (trigger === 'breathe') {
+        setBreatheEnabled(prev => !prev)
+      } else if (trigger === 'silent-mode') {
+        try {
+          const eng = intentionEngine.get()
+          const signals = (eng as any).signals || []
+          const lastSignal = signals.length > 0 ? signals[signals.length - 1] : null
+          const silenceHours = lastSignal
+            ? Math.round((Date.now() - lastSignal.timestamp) / (1000 * 60 * 60))
+            : null
+          const lines = [
+            'SIGNAL STREAM   QUIET',
+            silenceHours !== null ? `LAST SIGNAL     ${silenceHours}H AGO` : 'LAST SIGNAL     UNKNOWN',
+            'RESPONSE        STANDBY',
+            'PROTOCOL        SIGNAL SILENCE ACKNOWLEDGED',
+          ]
+          setSilentResult(lines.join('\n'))
+        } catch {
+          setSilentResult('SIGNAL STREAM QUIET\nRESPONSE        STANDBY')
+        }
+      } else if (trigger === 'freeze-widgets') {
+        const now = new Date()
+        const hh = now.getHours().toString().padStart(2, '0')
+        const mm = now.getMinutes().toString().padStart(2, '0')
+        const lines = [
+          'PROTOCOL        FREEZE',
+          `TIME            ${hh}:${mm}`,
+          'STATUS          LOCKED',
+          'NEXT            BREATHE — THEN RESUME',
+        ]
+        setFreezeResult(lines.join('\n'))
+      } else if (trigger === 'force-fast') {
+        try {
+          const state = getFastingState(new Date(), 'orthodox')
+          const lines = state.isFastingDay
+            ? [
+                `FAST            ${state.label.toUpperCase()}`,
+                `DAY             ${state.dayIndex} OF ${state.totalDays}`,
+                `MODE            ${state.mode.replace(/-/g, ' ').toUpperCase()}`,
+                `STRICTNESS      ${Math.round(state.strictness * 100)}%`,
+                state.rationale.toUpperCase(),
+              ]
+            : [
+                'FAST            NO ACTIVE FAST TODAY',
+                'TRADITION       ORTHODOX CALENDAR',
+              ]
+          setFastResult(lines.join('\n'))
+        } catch {
+          setFastResult('FAST STATE UNAVAILABLE')
+        }
+      } else if (trigger === 'phys-report') {
+        try {
+          const state = getUserState()
+          const eng = intentionEngine.get()
+          const asm = getAssemblyState()
+          const patternCount = (eng as any).recognizedPatterns?.length || 0
+          const archetype = (eng as any).physiologicalArchetype || (eng as any).archetype || null
+          const lines = [
+            archetype ? `ARCH            ${String(archetype).toUpperCase()}` : 'ARCH            CLASSIFYING...',
+            `ATP             ${String((state as any).energy || 'UNKNOWN').toUpperCase()}`,
+            `CLARITY         ${String((state as any).clarity || 'UNKNOWN').toUpperCase()}`,
+            `ALIGN           ${String((state as any).alignment || 'UNKNOWN').toUpperCase()}`,
+            `PHASE           ${String((asm as any).phase || 'UNKNOWN').toUpperCase()}`,
+            `PATTERNS        ${patternCount} DETECTED`,
+          ]
+          setPhysResult(lines.join('\n'))
+        } catch {
+          setPhysResult('PHYS STATE UNAVAILABLE')
+        }
       }
     }
   }, [value])
@@ -1697,6 +1865,44 @@ const NoteEditor = ({
                   {prayerResponse}
                 </div>
               )}
+            </Block>
+          </div>
+        )}
+        {breatheEnabled && (
+          <div className="mt-8">
+            <Block label="BRE:" blockView>
+              <div className="opacity-60 tabular-nums tracking-widest">
+                {breatheState.display}
+              </div>
+              <div className="opacity-30 mt-8">4-2-6 · INHALE → HOLD → EXHALE</div>
+            </Block>
+          </div>
+        )}
+        {silentResult && (
+          <div className="mt-8">
+            <Block label="SIL [PROTOCOL]:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{silentResult}</div>
+            </Block>
+          </div>
+        )}
+        {freezeResult && (
+          <div className="mt-8">
+            <Block label="FREEZE:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{freezeResult}</div>
+            </Block>
+          </div>
+        )}
+        {fastResult && (
+          <div className="mt-8">
+            <Block label="FAST:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{fastResult}</div>
+            </Block>
+          </div>
+        )}
+        {physResult && (
+          <div className="mt-8">
+            <Block label="PHYS:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
             </Block>
           </div>
         )}

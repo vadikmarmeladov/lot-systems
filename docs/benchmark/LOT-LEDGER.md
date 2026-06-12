@@ -27,4 +27,12 @@ ID             | CLASS        | SUMMARY                                         
 20260610-01    | CORPORATE    | W3C appeal + Design Lab + FMCG plan + About.tsx credit    | GREEN  | 108b2a05 | WORDS: 278 (median 370)
 20260610-02    | ENGINEERING  | Badge Codex v11 — +29 badges · Sci-Fi Arcade · word turns v2 · PDF 10pp | GREEN  | 2312e43 | WORDS: 581 (median 388)
 20260611-01    | ENGINEERING  | Cross-device sync + Settings crash fix + v1.3.0 version sync + Field Manual snapshot | GREEN  | bea4cefb | WORDS: 393 (median 388)
+20260611-02    | SELF-ASSEMBLY| QIE v54 — dep map 93+ nodes · log military pass · job 11 · archetype 19 · brief v3.2 | GREEN  | 44b3f7d | WORDS: 620 (median 400)
+20260612-01    | CORPORATE    | CQGS white paper intake + durable markdown snapshot + platform mapping              | GREEN  | d5132691 | WORDS: 278 (median 370)
+20260612-02    | WIKI-BUILD   | Field Manual v55 — CQGS white paper section · Signal Architect (Archetype 19) · standalone LOT-WIKI-v55.md · CQGS lexicon rev B · 18 edits applied | GREEN  | 1b3f152 | WORDS: 680 (median 400)
+20260612-03    | ENGINEERING  | LOG terminal v56 — wire /breathe /fast /silent /freeze /phys · 5 triggers · useBreathe + getFastingState imports · 115 lines added | GREEN  | d7535a1 | LINES: 115 (median 400)
+20260612-04    | ENGINEERING  | Density-evolved ASCII pattern fills · 5 tiers · data-density attr · CSS-only progression | GREEN  | 0567b2eb | WORDS: 190 (median 388)
+20260612-05    | ENGINEERING  | QIE v57 — cohort in System Biofield · log military pass 5 handlers · dep map 96+ · job 12 (archetype shift) · displayableEvents +17 | GREEN  | 4507531 | WORDS: 680 (median 400)
+20260612-06    | SELF-ASSEMBLY| All-systems check + branch audit v2 · 144 branches · MANIFEST v2 · 10 BEST · 90 prunable | GREEN  | 766de5a2 | WORDS: 365 (median 388)
+20260612-07    | CORPORATE    | LOT Terminal data intake — SYNC + M2M + VISION · GENESIS Node 19 · dual-platform seed | GREEN  | f527dcc8 | WORDS: 250 (median 388)
 ```

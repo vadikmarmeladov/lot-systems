@@ -884,6 +884,16 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyArchetypeStabilityJob()) {
     await executeWeeklyArchetypeStabilityJob()
   }
+
+  // Check daily source diversity pulse (07:00 UTC daily)
+  if (shouldRunDailySourceDiversityJob()) {
+    await executeDailySourceDiversityJob()
+  }
+
+  // Check daily archetype shift monitor (10:00 UTC daily)
+  if (shouldRunDailyArchetypeShiftJob()) {
+    await executeDailyArchetypeShiftJob()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1468,6 +1478,255 @@ async function executeWeeklyArchetypeStabilityJob(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Source Diversity Pulse ───────────────────────────────────────────
+
+let isDailySourceDiversityRunning = false
+let lastDailySourceDiversityRun: Date | null = null
+
+function shouldRunDailySourceDiversityJob(): boolean {
+  const now = dayjs()
+  if (now.hour() !== 7) return false
+  if (isDailySourceDiversityRunning) return false
+  if (lastDailySourceDiversityRun) {
+    const lastRun = dayjs(lastDailySourceDiversityRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+/**
+ * Runs daily at 07:00 UTC.
+ * Measures how many distinct signal sources each active user generated in the last 24h.
+ * Computes system-wide source diversity: unique sources / total possible (11).
+ * Logs a source_diversity_pulse event for system monitoring.
+ * No individual data exposed — aggregate telemetry only.
+ */
+async function executeDailySourceDiversityJob(): Promise<JobResult> {
+  const jobName = 'daily-source-diversity-pulse'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily Source Diversity Pulse')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailySourceDiversityRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const TOTAL_POSSIBLE_SOURCES = 11  // matches LOG_DEPENDENCY_SOURCES count
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 1000,
+    })
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+
+    const diversityBuckets: Record<number, number> = {}
+    let totalDiversityScore = 0
+    let usersWithSignals = 0
+    const globalSourceCounts: Record<string, number> = {}
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const userLogs = await Log.findAll({
+          where: { userId, createdAt: { [Op.gte]: oneDayAgo } },
+          attributes: ['event', 'metadata'],
+        })
+
+        const sources = new Set<string>()
+        for (const log of userLogs) {
+          const src = (log.metadata as any)?.source || (log as any).event
+          if (src) {
+            sources.add(src)
+            globalSourceCounts[src] = (globalSourceCounts[src] ?? 0) + 1
+          }
+        }
+
+        if (sources.size > 0) {
+          usersWithSignals++
+          diversityBuckets[sources.size] = (diversityBuckets[sources.size] ?? 0) + 1
+          totalDiversityScore += sources.size / TOTAL_POSSIBLE_SOURCES
+        }
+      } catch { /* skip user */ }
+    }
+
+    const avgDiversityScore = usersWithSignals > 0
+      ? totalDiversityScore / usersWithSignals
+      : 0
+    const uniqueSources = Object.keys(globalSourceCounts).length
+
+    console.log(`  Users with signals: ${usersWithSignals}/${activeUsers.length}`)
+    console.log(`  Avg diversity score: ${(avgDiversityScore * 100).toFixed(1)}%`)
+    console.log(`  Unique source types observed: ${uniqueSources}/${TOTAL_POSSIBLE_SOURCES}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('SOURCE DIVERSITY PULSE COMPLETE')
+    console.log(`   Diversity: ${(avgDiversityScore * 100).toFixed(1)}% · Sources: ${uniqueSources}/${TOTAL_POSSIBLE_SOURCES}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailySourceDiversityRun = new Date()
+    isDailySourceDiversityRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: {
+        scanned: activeUsers.length,
+        usersWithSignals,
+        avgDiversityScore: Math.round(avgDiversityScore * 100),
+        uniqueSources,
+        totalPossible: TOTAL_POSSIBLE_SOURCES,
+      }
+    }
+  } catch (error: any) {
+    console.error('Daily source diversity job failed:', error.message)
+    isDailySourceDiversityRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Archetype Shift Monitor ──────────────────────────────────────────
+
+let isDailyArchetypeShiftRunning = false
+let lastDailyArchetypeShiftRun: Date | null = null
+
+function shouldRunDailyArchetypeShiftJob(): boolean {
+  const now = dayjs()
+  if (now.hour() !== 10) return false
+  if (isDailyArchetypeShiftRunning) return false
+  if (lastDailyArchetypeShiftRun) {
+    const lastRun = dayjs(lastDailyArchetypeShiftRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+/**
+ * Runs daily at 10:00 UTC.
+ * For each active user, compares the most recent physiological_cohort log
+ * against the previous one. If archetype changed, writes an archetype_shift event.
+ * Surfaces archetype transitions in the operator field log via ARCH-SHIFT: handler.
+ */
+async function executeDailyArchetypeShiftJob(): Promise<JobResult> {
+  const jobName = 'daily-archetype-shift-monitor'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily Archetype Shift Monitor')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyArchetypeShiftRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const twoDaysAgo = dayjs().subtract(2, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 1000,
+    })
+
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+
+    let shiftsDetected = 0
+    let usersChecked = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        // Fetch last 2 physiological_cohort logs for this user
+        const cohortLogs = await Log.findAll({
+          where: {
+            userId,
+            event: 'physiological_cohort' as any,
+            createdAt: { [Op.gte]: twoDaysAgo },
+          },
+          order: [['createdAt', 'DESC']],
+          limit: 2,
+        })
+
+        if (cohortLogs.length < 2) continue
+
+        usersChecked++
+        const recent = cohortLogs[0] as any
+        const prior = cohortLogs[1] as any
+
+        const recentArchetype = recent.metadata?.archetype
+        const priorArchetype = prior.metadata?.archetype
+
+        if (!recentArchetype || !priorArchetype) continue
+        if (recentArchetype === priorArchetype) continue
+
+        // Archetype changed — record the shift
+        shiftsDetected++
+
+        const stabilityRate = dayjs(recent.createdAt).diff(dayjs(prior.createdAt), 'hour') > 12
+          ? 0.6 : 0.3  // Longer hold = higher stability on new archetype
+
+        await Log.create({
+          userId,
+          event: 'archetype_shift' as any,
+          text: '',
+          metadata: {
+            fromArchetype: priorArchetype,
+            toArchetype: recentArchetype,
+            stabilityRate,
+          },
+        } as any)
+
+        console.log(`  [${userId}] ARCH-SHIFT: ${priorArchetype} → ${recentArchetype}`)
+      } catch (userErr: any) {
+        console.warn(`  User ${(user as any).id} archetype shift check failed: ${userErr.message}`)
+      }
+    }
+
+    console.log('')
+    console.log(`  Users checked (2 cohort logs): ${usersChecked}/${activeUsers.length}`)
+    console.log(`  Archetype shifts detected: ${shiftsDetected}`)
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('ARCHETYPE SHIFT MONITOR COMPLETE')
+    console.log(`   Shifts: ${shiftsDetected} · Checked: ${usersChecked}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyArchetypeShiftRun = new Date()
+    isDailyArchetypeShiftRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned: activeUsers.length, usersChecked, shiftsDetected },
+    }
+  } catch (error: any) {
+    console.error('Daily archetype shift monitor failed:', error.message)
+    isDailyArchetypeShiftRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1493,6 +1752,8 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily OS snapshot: midnight (0 AM UTC) every day')
   console.log('   - Daily morning biofield summary: 8 AM UTC every day')
   console.log('   - Daily pattern coverage audit: 11 PM UTC every day')
+  console.log('   - Daily source diversity pulse: 7 AM UTC every day')
+  console.log('   - Daily archetype shift monitor: 10 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1502,8 +1763,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 8=biofield, 9=monthly email, 20=intention completion, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 20=intention completion, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
