@@ -33,4 +33,5 @@ INTSUM             Intelligence Summary — QI response format: assessment, data
 CROSS-DEVICE-SYNC  SSE broadcast of settings_updated + visibility refetch + answer dedup guard     A  20260611
 SIGNAL ARCHITECT   Physiological Archetype 19 — building phase; signal diversity high, map forming A  20260611
 COCKPIT-RULE       Log body = instrument readings only; label names the event; no narration        A  20260611
+DENSITY-TIER       5-level visual progression: breathable/comfortable/compact/dense/instrument via data-density  A  20260612
 ```

@@ -3,7 +3,7 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-05
+DATE:     2026-06-12 (updated)
 ================================================================================
 
 Central catalog of all self-assembly routines across all branches.
@@ -24,17 +24,24 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | relaxed-hamilton-eRBVA        | 5bdd004  | 8/8   | BEST   | 12    | +619   | In-app email: /email trigger, Sync inbox, reply, MailWidget, SSE delivery
-Basics Tab       | nifty-allen-jWyOe            | 8b07ca9  | 6/6   | BEST   | 24    | +1725  | LOT-FM-001 ration subscription: 3-month build, ledger, roster, fulfillment
+LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
+Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
-QI-46 Engine     | gracious-gauss-WnL0k         | a8a48c6  | 7/7   | BEST   | 6     | +1218  | Soul engine + vocabulary extractor, COSMO safety, Claude inference
-COSMO Hardware   | dazzling-shannon-ykKT5        | 9da5f7a  | 9/9   | BEST   | 14    | +4099  | Full hardware spec, BOM, firmware, device API, PDF manual
-Health/Security  | gallant-mayer-GqGA0           | 4559e48  | 35/35 | BEST   | 4     | +148   | Model upgrade, debug endpoint removal, degraded status fix
-Badge RPG        | upbeat-faraday-xviFF          | 5fd4a8c  | 2/2   | BEST   | 4     | +1584  | 57 badges, Easter eggs, character classes, codex markdown
+QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
+COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
+Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
+Badge RPG        | cool-hypatia-aqj7dg          | (head)   | 3/3   | BEST   | 4     | +1832  | Badge Codex v12 — 156 badges, character classes, codex markdown
 Self-Assembly v45| pensive-rubin-4jhgF           | 95d47fa  | 5/5   | BEST   | 8     | +677   | Patterns 63-66, Archetype 18, QOS Mode, Background Job 9
+Viewport Isolate | exciting-ritchie-7dsvkw       | aaaeca18 | 1/1   | READY  | 2     | +27    | LazyMount QuantumState + PatternRecognition viewport isolation
 IntegrityWidget  | quantum-engine-widgets-RgFfC  | 696741a  | 1/1   | READY  | 3     | +479   | Lie detector: 6 fracture types, 4 views, intent contradiction analysis
+Evolution Gates  | quantum-engine-widgets-RgFfC  | aff885eb | 1/1   | READY  | 8     | +48    | Feature unlock gates wired to 6 widgets, progressive disclosure
+Density Patterns | quantum-engine-widgets-RgFfC  | 0567b2eb | 1/1   | READY  | 2     | +37    | 5 density-evolved ASCII pattern fills, CSS-only progression
+Button Perf      | quantum-engine-widgets-RgFfC  | 2c0da2ff | 1/1   | READY  | 1     | +17    | GPU-composited ::before opacity hover replacing background-image
+CQGS White Paper | quantum-engine-widgets-RgFfC  | c9a7b170 | 1/1   | READY  | 2     | +190   | Founding white paper snapshot + platform mapping
+LOG Terminals v56| quantum-engine-widgets-RgFfC  | d7535a1d | 1/1   | READY  | 1     | +115   | Wire /breathe /fast /silent /freeze /phys LOG commands
 Perf Optimization| quantum-engine-widgets-RgFfC  | 5126e09  | 1/1   | SHIPPED| 4     | +200   | Router isolation, subscription reduction, memoization
 Bug Fixes        | quantum-engine-widgets-RgFfC  | d609978  | 1/1   | SHIPPED| 3     | +30    | Biofield lag fix, calendar whitelist fix, sync type widening
+Cross-Device Sync| quantum-engine-widgets-RgFfC  | bea4cefb | 1/1   | SHIPPED| 6     | +393   | SSE sync + Settings crash fix + v1.3.0 version sync
 
 ================================================================================
 02 // SELF-ASSEMBLY ENGINE (loving-goldberg progression)
@@ -76,14 +83,19 @@ CLUSTER          | COUNT | KEEP              | PRUNE | REASON
 ──────────────     ─────   ─────────────────   ─────   ────────────────────────
 gallant-mayer    | 35    | GqGA0             | 34    | Same health check fix iterated 35 times
 pensive-rubin    | 5     | 4jhgF             | 4     | Strict superset progression
-relaxed-hamilton | 8     | eRBVA             | 7     | LOT Mail iterations
-dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations
+relaxed-hamilton | 8     | eRBVA             | 7     | LOT Mail iterations (SUPERSEDED by determined-turing)
+determined-turing| 6     | f6bw7r            | 5     | LOT Mail iterations (latest series)
+dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations (SUPERSEDED by brave-lamport)
+brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
 gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
-nifty-allen      | 5     | jWyOe             | 4     | Basics Tab iterations
-gracious-gauss   | 7     | WnL0k             | 6     | QI-46 Engine iterations
-upbeat-faraday   | 2     | xviFF             | 1     | Badge RPG iterations
+nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson)
+beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (latest series)
+gracious-gauss   | 7     | WnL0k             | 6     | QI-46 Engine iterations (SUPERSEDED by cool-tesla)
+upbeat-faraday   | 2     | xviFF             | 1     | Badge RPG iterations (SUPERSEDED by cool-hypatia)
+inspiring-volta  | 6     | 2hmidy            | 5     | Health check iterations
+exciting-ritchie | 6     | 7dsvkw            | 5     | Mixed: viewport isolation + benchmarks
 ──────────────────────────────────────────────────────────────────────
-TOTAL PRUNABLE:  | 77    |                   | 69    |
+TOTAL PRUNABLE:  | 103   |                   | 90    |
 
 ================================================================================
 04 // STANDALONE BRANCHES
@@ -102,23 +114,32 @@ review-master-commits               | DRAFT      | Profile debug guide, PWA cach
 starting-n                          | MERGED     | Deployment branch + AM/PM fix (PR #10)
 together-ai-update                  | DRAFT      | Critical: mobile boot, auth email, sound
 eager-clarke-wTEM6                  | DRAFT      | Basics Tab alt design (Settings enrollment)
+cool-tesla-f8j0mr                  | BEST       | QI·46 Node 3 engine integration + Soul Upload
+cool-hypatia-aqj7dg                | BEST       | Badge Codex v12 — 156 total badges
+dreamy-babbage-3k2zhm              | READY      | Calendar Widget: alert engine, command board, live clock
+upbeat-curie-1s8bgb                | DRAFT      | QIE v54 self-assembly session (docs only)
 
 ================================================================================
 05 // STATISTICS
 ================================================================================
 
-TOTAL REMOTE BRANCHES:     125
-CLAUDE FEATURE BRANCHES:   115
-SESSION CLUSTERS:          23
-SHIP-READY FEATURES:       8
-ALREADY SHIPPED:           3 (on quantum-engine-widgets-RgFfC → master)
-PRUNABLE BRANCHES:         ~69
+TOTAL REMOTE BRANCHES:     144
+CLAUDE FEATURE BRANCHES:   144
+SESSION CLUSTERS:          32
+SHIP-READY FEATURES:       10 (BEST)
+READY ON CURRENT BRANCH:   7 (evolution gates, density, button perf, CQGS, LOG v56, integrity, viewport)
+ALREADY SHIPPED:           3 (on quantum-engine-widgets-RgFfC → master via PR #63)
+PRUNABLE BRANCHES:         ~90
 DEAD BRANCHES:             2 (January-2026, deploy-status-page already merged)
 
-TOTAL LINES ACROSS BEST ITERATIONS:  ~11,000+
-TOTAL ASSEMBLY LOG VERSIONS:         v5 → v49 (34 sessions)
+TOTAL LINES ACROSS BEST ITERATIONS:  ~12,500+
+TOTAL ASSEMBLY LOG VERSIONS:         v5 → v56 (40 sessions)
 QIE PATTERNS IMPLEMENTED:            65
-PHYSIOLOGICAL ARCHETYPES:            18
+PHYSIOLOGICAL ARCHETYPES:            19
+GREEN BENCHMARKS (all-time):         28
+BENCHMARK TAGS:                      28
+DOCTRINE CLAUSES:                    10 (rev I)
+LEXICON TOKENS:                      27
 
 ================================================================================
 AUTHORIZED BY: S-2 // VADIK MARMELADOV
