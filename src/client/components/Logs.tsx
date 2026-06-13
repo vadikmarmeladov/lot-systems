@@ -1169,11 +1169,45 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const priority = log.metadata?.priority as string | undefined
+          const text = log.metadata?.text as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+              <Block label="CAL [ENTRY]:" blockView>
+                <div className="uppercase tracking-widest">
+                  {entryType || 'ENTRY'}{priority ? ` · ${priority}` : ''}
+                </div>
+                {text && <div className="opacity-80 mt-4">{text}</div>}
+                {(date || time) && (
+                  <div className="opacity-40 mt-8 tabular-nums">
+                    {date}{time ? ` · ${time}` : ''}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_notification') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const priority = log.metadata?.priority as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const urgency = log.metadata?.urgency as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL [ALERT]:" blockView>
+                <div className="uppercase tracking-widest">
+                  {urgency || 'ALERT'}
+                  {entryType ? ` · ${entryType.toUpperCase()}` : ''}
+                  {priority ? ` · ${priority}` : ''}
+                </div>
+                {text && <div className="opacity-80 mt-4">{text}</div>}
+                {(date || time) && (
+                  <div className="opacity-40 mt-8 tabular-nums">
+                    {date}{time ? ` · ${time}` : ''}
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )
