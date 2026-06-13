@@ -37,4 +37,5 @@ ID             | CLASS        | SUMMARY                                         
 20260612-07    | CORPORATE    | LOT Terminal data intake — SYNC + M2M + VISION · GENESIS Node 19 · dual-platform seed | GREEN  | f527dcc8 | WORDS: 250 (median 388)
 20260612-08    | SELF-ASSEMBLY| End-of-day close — 8 GREEN · GENESIS 19 nodes · Terminal intake · 44 files · 7027 lines | GREEN  | c85336e4 | WORDS: 365 (median 388)
 20260613-01    | SELF-ASSEMBLY| QIE v58 — P66 qos-sig-lock · P67 operator-sig · Archetype 20 · Job 13 · Directive surface · dep map 99+ | GREEN  | ea24bed | WORDS: 620 (median 388)
+20260613-02    | SECURITY     | Production state lock — rate-limit + helmet confirmed live · 3 gaps identified | GREEN  | (pending) | WORDS: 290 (median 383)
 ```
