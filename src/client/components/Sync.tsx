@@ -12,6 +12,7 @@ import { useQueryClient } from 'react-query'
 import * as stores from '#client/stores'
 import { $featureUnlocks } from '#client/stores/evolution'
 import {
+  Block,
   Button,
   Clock,
   GhostButton,
@@ -26,7 +27,7 @@ import {
   useLikeChatMessage,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { LotMailDirectMessage, PublicChatMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -42,6 +43,7 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [mailMessages, setMailMessages] = React.useState<LotMailDirectMessage[]>([])
   const hasInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
@@ -122,9 +124,23 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeMailListener } = sync.listen(
+      'direct_message',
+      (data: LotMailDirectMessage) => {
+        // Show incoming DMs (received by this user) in the Sync mail inbox
+        if (data.receiverId === me?.id) {
+          setMailMessages((prev) => {
+            if (prev.some((x) => x.id === data.id)) return prev
+            return [data, ...prev]
+          })
+        }
+      }
+    )
+
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeMailListener()
     }
   }, [me?.id])
 
@@ -221,6 +237,22 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {mailMessages.length > 0 && (
+        <div className="mb-40">
+          {mailMessages.map((mail) => (
+            <div key={mail.id} className="mb-8">
+              <Block label="MAIL [RECV]:" blockView>
+                <div className="uppercase tracking-widest mb-4">FROM: {mail.senderName.toUpperCase()}</div>
+                <div className="opacity-60">{mail.message}</div>
+                <div className="opacity-30 mt-8 text-xs">
+                  <MessageTimeLabel dateString={mail.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                </div>
+              </Block>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

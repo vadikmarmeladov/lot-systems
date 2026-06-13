@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useSendDirectMessage, searchUsers } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -217,6 +217,32 @@ export const Logs: React.FC = () => {
               </Block>
               <Block label="OUT:" blockView>
                 {log.metadata.answer as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'direct_message_sent') {
+          const receiverName = log.metadata?.receiverName as string | undefined
+          const msg = log.metadata?.message as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL [SENT]:" blockView>
+                {receiverName && (
+                  <div className="uppercase tracking-widest mb-4">TO: {receiverName}</div>
+                )}
+                {msg && <div className="opacity-60">{msg}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'direct_message_received') {
+          const senderName = log.metadata?.senderName as string | undefined
+          const msg = log.metadata?.message as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL [RECV]:" blockView>
+                {senderName && (
+                  <div className="uppercase tracking-widest mb-4">FROM: {senderName}</div>
+                )}
+                {msg && <div className="opacity-60">{msg}</div>}
               </Block>
             </LogContainer>
           )
@@ -1351,6 +1377,35 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [mailCompose, setMailCompose] = React.useState<{
+    query: string
+    toId: string | null
+    toName: string | null
+    body: string
+    status: 'searching' | 'compose' | 'sending' | 'sent' | 'error'
+    error?: string
+  } | null>(null)
+  const { mutate: sendDirectMessage } = useSendDirectMessage()
+
+  // Resolve recipient name → user ID when mail compose opens
+  React.useEffect(() => {
+    if (!mailCompose || mailCompose.status !== 'searching') return
+    let cancelled = false
+    searchUsers(mailCompose.query).then((results) => {
+      if (cancelled) return
+      if (results.length > 0) {
+        const u = results[0]
+        const name = `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.firstName || 'Unknown'
+        setMailCompose(prev => prev ? { ...prev, toId: u.id, toName: name, status: 'compose' } : null)
+      } else {
+        setMailCompose(prev => prev ? { ...prev, toId: null, toName: null, status: 'compose', error: `No user found for "${mailCompose.query}"` } : null)
+      }
+    }).catch(() => {
+      if (!cancelled) setMailCompose(prev => prev ? { ...prev, status: 'compose', error: 'Search failed.' } : null)
+    })
+    return () => { cancelled = true }
+  }, [mailCompose?.query, mailCompose?.status])
+
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1703,6 +1758,13 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'lot-email') {
+        // Parse recipient from "/email to [name] [body...]"
+        const m = value.match(/\/email\s+to\s+(\S+)/i)
+        const recipientQuery = m ? m[1].replace(/[.,!?]$/, '') : ''
+        if (recipientQuery && !mailCompose) {
+          setMailCompose({ query: recipientQuery, toId: null, toName: null, body: '', status: 'searching' })
+        }
       }
     }
   }, [value])
@@ -1903,6 +1965,68 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {mailCompose && (
+          <div className="mt-8">
+            <Block label="MAIL [COMPOSE]:" blockView>
+              {mailCompose.status === 'searching' && (
+                <div className="opacity-40 uppercase tracking-widest">Resolving recipient...</div>
+              )}
+              {mailCompose.status === 'sent' && (
+                <div className="opacity-60 uppercase tracking-widest">
+                  TRANSMITTED → {mailCompose.toName?.toUpperCase() || 'RECIPIENT'}
+                </div>
+              )}
+              {(mailCompose.status === 'compose' || mailCompose.status === 'sending' || mailCompose.status === 'error') && (
+                <div className="flex flex-col gap-y-8">
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase tracking-widest">TO</span>
+                    <span className={mailCompose.toName ? 'uppercase tracking-widest' : 'opacity-40 uppercase tracking-widest'}>
+                      {mailCompose.toName || mailCompose.error || mailCompose.query.toUpperCase()}
+                    </span>
+                  </div>
+                  {mailCompose.toId && (
+                    <>
+                      <ResizibleGhostInput
+                        direction="v"
+                        value={mailCompose.body}
+                        onChange={(v: string) => setMailCompose(prev => prev ? { ...prev, body: v } : null)}
+                        placeholder="[ message body ]"
+                        className="opacity-60 focus:opacity-100"
+                        rows={3}
+                      />
+                      <div className="flex items-center gap-x-8 mt-4">
+                        <Button
+                          kind="secondary"
+                          size="small"
+                          disabled={!mailCompose.body.trim() || mailCompose.status === 'sending'}
+                          onClick={() => {
+                            if (!mailCompose.toId || !mailCompose.body.trim()) return
+                            setMailCompose(prev => prev ? { ...prev, status: 'sending' } : null)
+                            sendDirectMessage(
+                              { receiverId: mailCompose.toId!, message: mailCompose.body.trim() },
+                              {
+                                onSuccess: () => setMailCompose(prev => prev ? { ...prev, status: 'sent' } : null),
+                                onError: () => setMailCompose(prev => prev ? { ...prev, status: 'error', error: 'TRANSMISSION FAILED' } : null),
+                              }
+                            )
+                          }}
+                        >
+                          {mailCompose.status === 'sending' ? 'Sending...' : 'Send'}
+                        </Button>
+                        <button
+                          className="opacity-30 hover:opacity-60 uppercase tracking-widest text-xs"
+                          onClick={() => setMailCompose(null)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
             </Block>
           </div>
         )}

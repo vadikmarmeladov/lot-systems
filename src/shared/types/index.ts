@@ -439,9 +439,21 @@ export type ChatMessageLikeEventPayload = {
   isLiked?: boolean;
 };
 
+// LOT Mail — direct message payload (SSE + compose result)
+export type LotMailDirectMessage = {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  senderName: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
 // Sync Events
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
   settings_updated: Record<string, never>;
+  direct_message: LotMailDirectMessage;
 };

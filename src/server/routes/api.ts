@@ -380,6 +380,13 @@ export default async (fastify: FastifyInstance) => {
           write({ event, data: updatedPayload })
           break
         }
+        case 'direct_message': {
+          // Forward only to the sender or the receiver — never broadcast
+          if (data.receiverId === req.user.id || data.senderId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
         case 'settings_updated': {
           if (data.userId === req.user.id) {
             write({ event, data: {} })
@@ -1044,6 +1051,8 @@ export default async (fastify: FastifyInstance) => {
       'user_login', 'user_logout', 'theme_change', 'weather_update',
       // Recipe + benchmark
       'recipe_viewed', 'benchmark_read',
+      // LOT® Mail — direct message events
+      'direct_message_sent', 'direct_message_received',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -3775,6 +3784,30 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     }
   })
 
+  // LOT® Mail — search users by name (for /email to [name] compose trigger)
+  fastify.get('/users/search', async (req: FastifyRequest<{
+    Querystring: { q?: string }
+  }>, reply) => {
+    const q = (req.query.q || '').trim()
+    if (q.length < 1) return reply.send([])
+    const users = await fastify.models.User.findAll({
+      where: {
+        [Op.and]: [
+          {
+            [Op.or]: [
+              { firstName: { [Op.iLike]: `%${q}%` } },
+              { lastName: { [Op.iLike]: `%${q}%` } },
+            ],
+          },
+          { id: { [Op.ne]: req.user.id } },
+        ],
+      },
+      attributes: ['id', 'firstName', 'lastName'],
+      limit: 5,
+    })
+    return reply.send(users.map(u => ({ id: u.id, firstName: u.firstName, lastName: u.lastName })))
+  })
+
   // Get direct message thread with another user
   fastify.get('/direct-messages/:userId', async (req: FastifyRequest<{
     Params: { userId: string }
@@ -3846,17 +3879,20 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         message: message.trim().slice(0, 2000) // Limit message length
       })
 
-      // Emit SSE event to receiver
+      const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'Someone'
+
+      // Emit SSE event to both sender and receiver for real-time delivery
       sync.emit('direct_message', {
         id: directMessage.id,
         senderId: req.user.id,
         receiverId,
         message: directMessage.message,
-        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
-        createdAt: directMessage.createdAt
+        senderName,
+        createdAt: directMessage.createdAt,
+        updatedAt: directMessage.updatedAt,
       })
 
-      // Log the sent message (for tracking social interactions)
+      // Log the sent message for sender + received message for receiver
       process.nextTick(async () => {
         try {
           const context = await getLogContext(req.user)
@@ -3867,9 +3903,23 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
             metadata: {
               directMessageId: directMessage.id,
               receiverId,
+              receiverName: `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim(),
               message: directMessage.message,
             },
             context,
+          })
+          // Create a received log entry for the receiver
+          await fastify.models.Log.create({
+            userId: receiverId,
+            event: 'direct_message_received',
+            text: '',
+            metadata: {
+              directMessageId: directMessage.id,
+              senderId: req.user.id,
+              senderName,
+              message: directMessage.message,
+            },
+            context: {},
           })
         } catch (logError) {
           console.error('Error logging direct message:', logError)
