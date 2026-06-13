@@ -2814,7 +2814,7 @@ export default async (fastify: FastifyInstance) => {
   )
 
   // Generate daily world element
-  fastify.post('/world/generate-element', async (req, reply) => {
+  fastify.post('/world/generate-element', { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } }, async (req, reply) => {
     try {
       // Check for Usership tag
       const hasUsership = req.user?.tags.some((tag) => tag.toLowerCase() === 'usership')
@@ -4663,6 +4663,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   // ============================================================================
   fastify.post(
     '/cosmic-update',
+    { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
     async (req: FastifyRequest<{ Body: { prompt?: string } }>, reply) => {
       try {
         const { TogetherAIEngine } = await import('#server/utils/ai-engines')
@@ -4712,6 +4713,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   // ============================================================================
   fastify.post(
     '/qi',
+    { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
     async (
       req: FastifyRequest<{
         Body: {
@@ -4919,6 +4921,7 @@ OPERATOR RFI: ${query.trim()}`
   // ============================================================================
   fastify.post(
     '/assembly',
+    { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
     async (
       req: FastifyRequest<{
         Body: {
@@ -5135,6 +5138,7 @@ ${qieLogs.length > 0 ? qieLogs.map(l => `${(l.metadata?.pattern as string || '')
   // ============================================================================
   fastify.post(
     '/prayer',
+    { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
     async (
       req: FastifyRequest<{
         Body: {
