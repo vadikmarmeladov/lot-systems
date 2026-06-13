@@ -546,7 +546,6 @@ export default async (fastify: FastifyInstance) => {
       return reply.status(500).send({
         error: 'Failed to generate debug info',
         message: error.message,
-        stack: error.stack
       })
     }
   })
