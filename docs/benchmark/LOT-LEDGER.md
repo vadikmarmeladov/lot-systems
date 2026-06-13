@@ -36,5 +36,5 @@ ID             | CLASS        | SUMMARY                                         
 20260612-06    | SELF-ASSEMBLY| All-systems check + branch audit v2 · 144 branches · MANIFEST v2 · 10 BEST · 90 prunable | GREEN  | 766de5a2 | WORDS: 365 (median 388)
 20260612-07    | CORPORATE    | LOT Terminal data intake — SYNC + M2M + VISION · GENESIS Node 19 · dual-platform seed | GREEN  | f527dcc8 | WORDS: 250 (median 388)
 20260612-08    | SELF-ASSEMBLY| End-of-day close — 8 GREEN · GENESIS 19 nodes · Terminal intake · 44 files · 7027 lines | GREEN  | c85336e4 | WORDS: 365 (median 388)
-20260613-01    | SECURITY     | Remove 5 public debug endpoints · profile leak fix · stack trace hardening                 | GREEN  | (pending) | WORDS: 312 (median 388)
+20260613-01    | SECURITY     | Remove 5 public debug endpoints · profile leak fix · stack trace hardening                 | GREEN  | 338eccb   | WORDS: 312 (median 388)
 ```

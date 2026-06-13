@@ -788,16 +788,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-12',
+  date: '2026-06-13',
   message: [
-    'ASSEMBLY RUN — 2026-06-12 · LOT-SR-20260612-05',
-    'System Biofield view: physiological archetype now visible. Click label to cycle to Biofield — archetype row is first.',
-    'LOG military pass: 5 handlers compressed. Body = instrument readings. No narration.',
-    'Dep map: 96+ nodes. corporatePlan · memoryEngineStats · intentionPatterns indexed.',
-    'Background job 12: daily archetype shift monitor. 10:00 UTC. Detects transitions, writes ARCH-SHIFT:.',
-    'Server whitelist: 17 new event types visible in field log. Cohort, badge, goal, medical, care, session, recipe, benchmark.',
-    'The Cube now shows you who you are — at a glance. Every surface is coherent.',
-    'DEPLOYED.',
+    'ASSEMBLY RUN — 2026-06-13 · LOT-SR-20260613-01',
+    'Security pass. 5 public debug endpoints removed from production surface.',
+    'test-anthropic-key: gone. Anyone could burn your API credits with a script. Not anymore.',
+    'verify-admin-config: gone. Your email was in plain text for any visitor.',
+    'verify-api-keys · debug-memory-engine · test-ai-engines: gone. Config is not a public interface.',
+    'Public profile: privacySettings field removed from response. Visitors see your data, not your settings.',
+    'Profile handler: metadata logs cleaned. Server logs no longer dump your full profile on every visit.',
+    'Status: DEPLOYED. Surface closed. System is quieter now. More like a computer.',
+    'Next: ship 7 READY features to master — Evolution Gates · LOG v56 · IntegrityWidget and more.',
   ],
 }
 
