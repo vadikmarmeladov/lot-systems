@@ -473,6 +473,40 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'qos_signature_lock') {
+          const confidence = log.metadata?.confidence as number | undefined
+          const triggers = log.metadata?.triggers as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QOS-SIG:" blockView>
+                {confidence !== undefined && (
+                  <div className="opacity-60 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+                {triggers && triggers.length > 0 && (
+                  <div className="opacity-40 mt-4">{triggers.join(' · ')}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'operator_signature') {
+          const quadrants = log.metadata?.quadrants as string[] | undefined
+          const index = log.metadata?.index as number | undefined
+          const signals = log.metadata?.signals as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="OP-SIG:" blockView>
+                {quadrants && quadrants.length > 0 && (
+                  <div className="opacity-60">{quadrants.join(' · ')}</div>
+                )}
+                {index !== undefined && (
+                  <div className="opacity-40 tabular-nums mt-4">IDX: {index}/100</div>
+                )}
+                {signals !== undefined && (
+                  <div className="opacity-30 tabular-nums">SIG 7D: {signals}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

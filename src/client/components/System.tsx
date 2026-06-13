@@ -665,7 +665,8 @@ export const System = () => {
                 { metric: 'ATP', value: quantumState.energy },
                 { metric: 'Clarity', value: quantumState.clarity },
                 { metric: 'Alignment', value: quantumState.alignment },
-                { metric: 'Index', value: `${userIndex.overall}%` }
+                { metric: 'Index', value: `${userIndex.overall}%` },
+                { metric: 'Directive', value: physiologicalCohort?.directive ?? '—' }
               ]}
               columns={[
                 {

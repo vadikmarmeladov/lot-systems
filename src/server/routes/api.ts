@@ -1044,6 +1044,8 @@ export default async (fastify: FastifyInstance) => {
       'user_login', 'user_logout', 'theme_change', 'weather_update',
       // Recipe + benchmark
       'recipe_viewed', 'benchmark_read',
+      // QOS signature + operator pattern events
+      'qos_signature_lock', 'operator_signature',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

@@ -104,7 +104,9 @@ export function PatternRecognitionWidget() {
       'recovery-velocity':          'Recovery arc accelerating',
       'care-momentum':              'Proactive care spiral',
       'intention-follow-through':   'Execution arc complete',
-      'circadian-anchor-loss':      'Circadian anchor lost'
+      'circadian-anchor-loss':      'Circadian anchor lost',
+      'qos-signature-lock':         'QOS signature locked',
+      'operator-signature':         'Operator signature complete'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
