@@ -41,4 +41,5 @@ ID             | CLASS        | SUMMARY                                         
 20260613-03    | SECURITY     | Per-route AI rate limiting — 5 Together AI endpoints capped · budget protection | GREEN  | 42066ddc | WORDS: 300 (median 380)
 20260614-01    | SECURITY     | Production hardening + 503 incident close · audit + AI rate limits · site recovered | GREEN  | 9cbd1fe5 | WORDS: 280 (median 375)
 20260614-02    | SELF-ASSEMBLY| QIE v60 — P68 integration-arc-peak · P69 adaptive-resonance · Archetype 21 · Job 14 · dep map 104+ | GREEN  | 89e4e57 | WORDS: 620 (median 380)
+20260614-03    | ENGINEERING  | Query batching + client deduplication · 5 endpoints · 3 widgets · N+1 eliminated | GREEN  | (post-rebase) | WORDS: 310 (median 375)
 ```

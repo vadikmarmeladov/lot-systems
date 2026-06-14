@@ -836,28 +836,29 @@ export default async (fastify: FastifyInstance) => {
   fastify.get('/chat-messages', async (req: FastifyRequest, reply) => {
     const messages = await fastify.models.ChatMessage.findAll({
       order: [['createdAt', 'DESC']],
-      limit: req.user.canAccessUsSection() ? undefined : SYNC_CHAT_MESSAGES_TO_SHOW,
+      limit: req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW,
     })
 
     const userIds = messages.map((m) => m.authorUserId)
-    const users = await fastify.models.User.findAll({
-      where: { id: userIds },
-    })
+    const [users, allLikes] = await Promise.all([
+      fastify.models.User.findAll({
+        where: { id: userIds },
+      }),
+      fastify.models.ChatMessageLike.findAll({
+        where: { messageId: messages.map(fp.prop('id')) },
+      }),
+    ])
     const userById = users.reduce(fp.by('id'), {})
 
     // Filter out messages from suspended users
     const filteredMessages = messages.filter((msg) => {
       const author = userById[msg.authorUserId]
       if (!author) return false
-
-      // Check if user is suspended
       const isSuspended = author.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
       return !isSuspended
     })
 
-    const likes = await fastify.models.ChatMessageLike.findAll({
-      where: { messageId: filteredMessages.map(fp.prop('id')) },
-    })
+    const likes = allLikes.filter(l => filteredMessages.some(m => m.id === l.messageId))
     const likesByMessageId = likes.reduce(fp.groupBy('messageId'), {})
 
     const result: PublicChatMessage[] = filteredMessages.map((x) => {
@@ -2710,13 +2711,30 @@ export default async (fastify: FastifyInstance) => {
       try {
         const userId = req.user.id
 
-        // Calculate streak (consecutive days with answers)
-        const answers = await fastify.models.Answer.findAll({
-          where: { userId },
-          order: [['createdAt', 'DESC']],
-          attributes: ['createdAt'],
-        })
+        const [answers, plannerLogs, recentLogs, memoryAnswers] = await Promise.all([
+          fastify.models.Answer.findAll({
+            where: { userId },
+            order: [['createdAt', 'DESC']],
+            attributes: ['createdAt'],
+            limit: 365,
+          }),
+          fastify.models.Log.findAll({
+            where: { userId, event: 'plan_set' },
+            limit: 20,
+          }),
+          fastify.models.Log.findAll({
+            where: { userId },
+            order: [['createdAt', 'DESC']],
+            limit: 200,
+          }),
+          fastify.models.Answer.findAll({
+            where: { userId },
+            order: [['createdAt', 'DESC']],
+            limit: 50,
+          }),
+        ])
 
+        // Calculate streak (consecutive days with answers)
         let streak = 0
         if (answers.length > 0) {
           const today = dayjs().startOf('day')
@@ -2725,7 +2743,6 @@ export default async (fastify: FastifyInstance) => {
             answers.map(a => dayjs(a.createdAt).startOf('day').format('YYYY-MM-DD'))
           )
 
-          // Check consecutive days backwards from today or yesterday
           if (!answerDays.has(today.format('YYYY-MM-DD'))) {
             currentDate = today.subtract(1, 'day')
           }
@@ -2737,17 +2754,8 @@ export default async (fastify: FastifyInstance) => {
         }
 
         // Check balanced planner usage
-        const plannerLogs = await fastify.models.Log.findAll({
-          where: {
-            userId,
-            event: 'plan_set',
-          },
-          limit: 20,
-        })
-
         let balancedPlanner = false
         if (plannerLogs.length >= 10) {
-          // Check if all dimensions are used relatively evenly
           const intentCount = plannerLogs.filter(l => l.text?.includes('Intent:')).length
           const todayCount = plannerLogs.filter(l => l.text?.includes('Today:')).length
           const howCount = plannerLogs.filter(l => l.text?.includes('How:')).length
@@ -2755,16 +2763,10 @@ export default async (fastify: FastifyInstance) => {
           const avg = (intentCount + todayCount + howCount + feelingCount) / 4
           const variance = Math.abs(intentCount - avg) + Math.abs(todayCount - avg) +
                           Math.abs(howCount - avg) + Math.abs(feelingCount - avg)
-          balancedPlanner = variance < avg * 0.5 // Low variance = balanced
+          balancedPlanner = variance < avg * 0.5
         }
 
         // Check multi-widget sessions (multiple actions within 10 minutes)
-        const recentLogs = await fastify.models.Log.findAll({
-          where: { userId },
-          order: [['createdAt', 'DESC']],
-          limit: 200,
-        })
-
         let multiWidgetSessions = 0
         let lastTime = null
         let sessionCount = 0
@@ -2785,15 +2787,10 @@ export default async (fastify: FastifyInstance) => {
         if (answerHours.length >= 10) {
           const avg = answerHours.reduce((sum, h) => sum + h, 0) / answerHours.length
           const variance = answerHours.reduce((sum, h) => sum + Math.abs(h - avg), 0) / answerHours.length
-          consistentTiming = variance < 3 // Within 3 hours on average
+          consistentTiming = variance < 3
         }
 
         // Check deep reflection (longer answer patterns)
-        const memoryAnswers = await fastify.models.Answer.findAll({
-          where: { userId },
-          order: [['createdAt', 'DESC']],
-          limit: 50,
-        })
         const deepReflection = memoryAnswers.length >= 20
 
         // Check diverse choices (variety in options selected)
@@ -3079,14 +3076,16 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         }
       }
 
-      // Get all users with location data (for cohort matching)
+      // Get recent active users with location data (for cohort matching)
       const allUsers = await User.findAll({
         where: {
           city: { [Op.not]: null },
           country: { [Op.not]: null },
           id: { [Op.not]: req.user.id }
         },
-        attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata']
+        attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata'],
+        order: [['lastSeenAt', 'DESC']],
+        limit: 200,
       })
 
       // Cache for pattern lookups (to avoid re-analyzing same user)

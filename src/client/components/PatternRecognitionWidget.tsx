@@ -11,7 +11,6 @@ import { Block, Button } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import {
   intentionEngine,
-  analyzeIntentions,
   getOptimalWidget,
   getQOSHistory,
   getCircadianPhase,
@@ -50,11 +49,6 @@ export function PatternRecognitionWidget() {
   const engine = useStore(intentionEngine)
   const { data: logs = [] } = useLogs()
   const logCtx = useLogContext()
-
-  // Trigger analysis
-  React.useEffect(() => {
-    analyzeIntentions()
-  }, [logs])
 
   const qosHistory = React.useMemo(() => getQOSHistory(), [engine])
 
