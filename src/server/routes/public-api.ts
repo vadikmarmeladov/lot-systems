@@ -12,6 +12,7 @@ import { sequelize } from '#server/utils/db'
 import { models } from '#server/models'
 import * as weather from '#server/utils/weather'
 import { extractUserTraits, determineUserCohort, calculateCorrelatedIndexes } from '#server/utils/memory'
+import { generateMemoryStory } from '#server/utils/memory/story-generator'
 import { aiEngineManager } from '#server/utils/ai-engines'
 import { AI_ENGINE_PREFERENCE } from '#server/utils/memory/constants'
 import config from '#server/config'
@@ -1065,12 +1066,26 @@ export default async (fastify: FastifyInstance) => {
       const hasUsershipTag = user.tags?.some((tag: string) => tag.toLowerCase() === 'usership')
       if (privacy.showMemoryStory && hasUsershipTag) {
         try {
-          // Get latest memory story from user metadata
-          if (user.metadata?.memoryStory) {
-            profile.memoryStory = user.metadata.memoryStory
+          const meta = user.metadata as any || {}
+          if (meta.lastMemoryStory) {
+            profile.memoryStory = meta.lastMemoryStory
+          } else {
+            const answerLogs = await models.Log.findAll({
+              where: { userId: user.id, event: 'answer' },
+              order: [['createdAt', 'DESC']],
+              limit: 30,
+            })
+            if (answerLogs.length >= 3) {
+              const story = await generateMemoryStory(user, answerLogs)
+              profile.memoryStory = story
+              await models.User.update(
+                { metadata: { ...meta, lastMemoryStory: story, lastMemoryStoryDate: new Date().toISOString(), memoryStoryVersion: (meta.memoryStoryVersion || 0) + 1, memoryStoryAnswerCount: answerLogs.length } },
+                { where: { id: user.id } }
+              )
+            }
           }
-        } catch (error) {
-          // Story not available, skip
+        } catch (error: any) {
+          console.error('[PUBLIC-PROFILE-API] Memory story generation failed:', error.message)
         }
       }
 
