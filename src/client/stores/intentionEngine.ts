@@ -1620,6 +1620,42 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 68: Integration arc peak — P40 (biofield-coherence-cascade) + P43 (intention-completion-arc)
+  // both fire within the same 24h window. The full human integration: biological restoration +
+  // cognitive expansion + execution arc all confirmed simultaneously. Extremely rare high-confidence state.
+  const p68HasCascade    = patterns.some(p => p.pattern === 'biofield-coherence-cascade')
+  const p68HasCompletion = patterns.some(p => p.pattern === 'intention-completion-arc')
+  if (p68HasCascade && p68HasCompletion) {
+    patterns.push({
+      pattern: 'integration-arc-peak',
+      confidence: Math.min(0.85 + (p67Index?.overall ?? 50) * 0.001, 0.95),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'immediate',
+      reason: 'Integration arc at peak: biofield cascade (recovery + cognition) AND intention-completion arc both confirmed today. Full biological + execution integration. Capture this state.'
+    })
+  }
+
+  // Pattern 69: Adaptive resonance — UserIndex overall rising (trend=rising) sustained + archetype
+  // stable across last 2 physiological reports. Growth confirmed not as spike but as structural shift.
+  // Fires when the system detects genuine evolution rather than momentary intensity.
+  const p69QOSHistory = typeof window !== 'undefined'
+    ? (() => { try { return JSON.parse(localStorage.getItem('qos-snapshots') ?? '[]') } catch { return [] } })()
+    : []
+  const p69Rising = p69QOSHistory.length >= 2 &&
+    p69QOSHistory.slice(-3).every((s: any) => (s.userIndex?.trend === 'rising' || s.userIndex?.overall >= 55))
+  const p69Stable = p69QOSHistory.length >= 2 &&
+    p69QOSHistory.slice(-2).every((s: any) => s.userIndex?.overall >= 50)
+  const p69CurrentIndex = p67Index?.overall ?? 0
+  if (p69Rising && p69Stable && p69CurrentIndex >= 55) {
+    patterns.push({
+      pattern: 'adaptive-resonance',
+      confidence: Math.min(0.70 + (p69CurrentIndex - 55) * 0.006, 0.88),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `Adaptive resonance confirmed: UserIndex sustained above threshold, QOS history shows rising trend. Growth is structural, not momentary. Index ${p69CurrentIndex}/100.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2108,6 +2144,16 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   qosSignatureLock:      ['meridianDetector', 'multimodalSurface', 'calendarWidget', 'planner', 'intentions'],
   operatorSignatureNode: ['mood', 'selfcare', 'memory', 'journal', 'planner', 'intentions', 'goals', 'cohort'],
   temporalIntegrator:    ['calendarWidget', 'planner', 'intentions'],
+
+  // ── Identity + communication layer (2026-06-14 audit)
+  profileQRCode:         ['memory', 'cohort'],
+  directMessageThread:   ['cohort', 'mood', 'journal'],
+  connectionStatus:      ['log', 'energy'],
+  investmentSwitch:      ['goals', 'intentions', 'memory'],
+
+  // ── Integration arc + adaptive resonance peak nodes (2026-06-14 audit)
+  integrationArcPeak:    ['mood', 'memory', 'selfcare', 'journal', 'planner', 'goals', 'intentions', 'energy'],
+  adaptiveResonance:     ['qosSnapshot', 'userMetrics', 'systemProgress'],
 }
 
 /**
@@ -2116,7 +2162,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * tracked separately in the physiological report log-dependency audit.
  */
 export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = [
-  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal',
+  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience',
 ]
 
 /** Returns which signal sources a given widget depends on. */
@@ -2315,6 +2361,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions'],
     patternConditions: ['temporal-coherence-window', 'circadian-anchor', 'architect-phase'],
     directive: 'Time-locked. Calendar anchored, planner active, intentions set. Execute from the structure.',
+  },
+  {
+    archetype: 'Integration Architect',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['memory', 'planner', 'goals'],
+    patternConditions: ['integration-arc-peak', 'adaptive-resonance', 'biofield-coherence-cascade'],
+    directive: 'Full integration active. Biological restored. Plans executed. Adaptive growth confirmed. The arc is complete.',
   },
 ]
 

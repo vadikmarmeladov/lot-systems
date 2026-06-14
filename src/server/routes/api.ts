@@ -1046,6 +1046,8 @@ export default async (fastify: FastifyInstance) => {
       'recipe_viewed', 'benchmark_read',
       // QOS signature + operator pattern events
       'qos_signature_lock', 'operator_signature',
+      // Integration arc + adaptive resonance + community coherence (v60)
+      'integration_arc_peak', 'adaptive_resonance', 'community_coherence_pulse',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
