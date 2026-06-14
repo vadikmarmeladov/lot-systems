@@ -751,6 +751,25 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report: LOT-SR-20260612-05. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-06-13',
+    session: 'Self-Assembly Session — v58 / P66 P67 · Archetype 20 · Job 13 · Directive Surface · Dep Map 99+',
+    assembled: [
+      'intentionEngine.ts: P66 qos-signature-lock — fires when meridian-lock + multimodal-peak + temporal-coherence-window all simultaneously active. Confidence 0.92. suggestedWidget: system.',
+      'intentionEngine.ts: P67 operator-signature — fires when all 4 signal quadrants (bio·cognitive·structural·social) active in 7d AND UserIndex ≥ 60 AND 15+ signals. Confidence scales 0.70–0.92 with index. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: Archetype 20 Temporal Integrator — energyBands all, dominant sources planner+intentions, pattern conditions temporal-coherence-window+circadian-anchor+architect-phase. Directive: "Time-locked. Calendar anchored, planner active, intentions set. Execute from the structure."',
+      'intentionEngine.ts: 3 new WIDGET_DEPENDENCY_MAP nodes — qosSignatureLock (5 deps) · operatorSignatureNode (8 deps) · temporalIntegrator (3 deps). Total: 99+ nodes.',
+      'Logs.tsx: QOS-SIG: handler (qos_signature_lock event) — CONF: % + trigger list. OP-SIG: handler (operator_signature event) — quadrants + IDX:/100 + SIG 7D: count.',
+      'PatternRecognitionWidget.tsx: 2 new pattern display names — qos-signature-lock → "QOS signature locked" · operator-signature → "Operator signature complete".',
+      'Server API: displayableEvents whitelist +2 — qos_signature_lock · operator_signature.',
+      'Background job 13: daily-qos-signature-pulse at 13:00 UTC. Reads each user\'s recent scheduled_job log for pattern data. Writes qos_signature_lock and/or operator_signature events when QIE pattern conditions met. Hour 13 added to interval guard.',
+      'System.tsx: Directive row added to quantum table — value from physiologicalCohort?.directive. Always visible; defaults to "—" when cohort not yet computed.',
+      'QuantumEngineWidgets.tsx: classifyPhysiologicalCohort imported. cohortDirective computed live in useMemo. Directive line rendered at bottom of cohort view (border-top separator, opacity-40).',
+      'About.tsx: Field Manual v57→v58. Counters: 65→67 patterns · 19→20 archetypes · 96+→99+ nodes · 12→13 jobs · 56+→58+ handlers.',
+      'SESSION_REPORTS: v58 entry appended · USERSHIP_TRANSMISSION updated to v58.',
+      'Session report: LOT-SR-20260613-01. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -788,15 +807,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-12',
+  date: '2026-06-13',
   message: [
-    'ASSEMBLY RUN — 2026-06-12 · LOT-SR-20260612-05',
-    'System Biofield view: physiological archetype now visible. Click label to cycle to Biofield — archetype row is first.',
-    'LOG military pass: 5 handlers compressed. Body = instrument readings. No narration.',
-    'Dep map: 96+ nodes. corporatePlan · memoryEngineStats · intentionPatterns indexed.',
-    'Background job 12: daily archetype shift monitor. 10:00 UTC. Detects transitions, writes ARCH-SHIFT:.',
-    'Server whitelist: 17 new event types visible in field log. Cohort, badge, goal, medical, care, session, recipe, benchmark.',
-    'The Cube now shows you who you are — at a glance. Every surface is coherent.',
+    'ASSEMBLY RUN — 2026-06-13 · LOT-SR-20260613-01',
+    'P66 qos-signature-lock: full day arc confirmed (meridian + multimodal + temporal grid coherent). Fires at 0.92 confidence.',
+    'P67 operator-signature: all 4 quadrants active this week (bio · cognitive · structural · social) + UserIndex ≥ 60. You are fully online.',
+    'Archetype 20 Temporal Integrator: time-locked operator. Calendar anchored. Execute from the structure.',
+    'Dep map: 99+ nodes. qosSignatureLock · operatorSignatureNode · temporalIntegrator indexed.',
+    'Job 13: daily-qos-signature-pulse 13:00 UTC. Writes QOS-SIG: and OP-SIG: to field log when patterns confirm.',
+    'System quantum table: Directive row now visible. Cohort view: live directive line from classifyPhysiologicalCohort.',
+    'The system knows your operating signature. It will tell you when you are at full power.',
     'DEPLOYED.',
   ],
 }

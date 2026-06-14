@@ -16,6 +16,7 @@ import {
   getUserState,
   getUserIndex,
   getWidgetDependencies,
+  classifyPhysiologicalCohort,
 } from '#client/stores/intentionEngine'
 import { getEcosystemNarrative } from '#client/utils/narrative'
 import { useEnergy } from '#client/queries'
@@ -123,6 +124,13 @@ export const QuantumEngineWidgets: React.FC = () => {
   // Live user state + index for Index view
   const userState = React.useMemo(() => getUserState(), [view])
   const userIndex = React.useMemo(() => getUserIndex(), [view])
+
+  // Live physiological cohort directive for cohort view
+  const cohortDirective = React.useMemo(() => {
+    if (engineState.signals.length === 0) return null
+    const result = classifyPhysiologicalCohort(engineState.signals, getUserState(), engineState.recognizedPatterns ?? [])
+    return result?.directive ?? null
+  }, [engineState.signals.length, engineState.recognizedPatterns?.length])
 
   const handleCarConnect = () => {
     setCarConnected((prev) => {
@@ -317,6 +325,11 @@ export const QuantumEngineWidgets: React.FC = () => {
                       <span className="capitalize">
                         {energyData.energyState.needsReplenishment[0].category}
                       </span>
+                    </div>
+                  )}
+                  {cohortDirective && (
+                    <div className="border-t border-acc-400/20 pt-8 mt-4">
+                      <div className="opacity-40">{cohortDirective}</div>
                     </div>
                   )}
                 </>

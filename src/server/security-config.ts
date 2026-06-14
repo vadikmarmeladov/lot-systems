@@ -32,6 +32,10 @@ export const SECURITY = {
     global: { max: 100, timeWindow: '1 minute' },
     /** Auth route rate limit per IP */
     auth: { max: 10, timeWindow: '1 minute' },
+    /** AI-calling endpoints (Together AI budget protection) */
+    ai: { max: 10, timeWindow: '1 minute' },
+    /** Image/heavy AI endpoints */
+    aiHeavy: { max: 5, timeWindow: '1 minute' },
   },
 
   /** Brute force protection */

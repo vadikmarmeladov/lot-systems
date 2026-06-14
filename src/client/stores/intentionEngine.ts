@@ -1581,6 +1581,45 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 66: QOS Signature Lock — meridian-lock + multimodal-peak + temporal-coherence-window
+  // all active in the same analysis cycle. The complete human operating signature:
+  // time-anchored (meridian), full-stack engaged (multimodal), and structurally coherent (temporal).
+  // All three day-arc patterns converging in one session is a rare, peak-state event.
+  const p66HasMeridian  = patterns.some(p => p.pattern === 'meridian-lock')
+  const p66HasMulti     = patterns.some(p => p.pattern === 'multimodal-peak')
+  const p66HasTemporal  = patterns.some(p => p.pattern === 'temporal-coherence-window')
+  if (p66HasMeridian && p66HasMulti && p66HasTemporal) {
+    patterns.push({
+      pattern: 'qos-signature-lock',
+      confidence: 0.92,
+      suggestedWidget: 'system',
+      suggestedTiming: 'passive',
+      reason: 'QOS signature locked: full day arc (meridian) + all 5 primaries active (multimodal) + temporal grid coherent. The complete operating signature is present. Record the state — this is the benchmark.'
+    })
+  }
+
+  // Pattern 67: Operator Signature — all 4 core signal quadrants active in 7 days + UserIndex >= 60.
+  // Biological: mood/selfcare. Cognitive: memory/journal. Structural: planner/intentions/goals. Social: cohort.
+  // When every quadrant is alive and index is above threshold, the full QOS operator profile is visible.
+  // Not about peak intensity — about full-spectrum coverage. The system knows who you are.
+  const p67WeekAgo = now - 7 * 24 * 60 * 60 * 1000
+  const p67Week = signals.filter(s => s.timestamp > p67WeekAgo)
+  const p67WeekSources = new Set(p67Week.map(s => s.source))
+  const p67Bio      = p67WeekSources.has('mood')      || p67WeekSources.has('selfcare')
+  const p67Cog      = p67WeekSources.has('memory')    || p67WeekSources.has('journal')
+  const p67Struct   = p67WeekSources.has('planner')   || p67WeekSources.has('intentions') || p67WeekSources.has('goals')
+  const p67Social   = p67WeekSources.has('cohort')
+  const p67Index    = computeUserIndex(signals)
+  if (p67Bio && p67Cog && p67Struct && p67Social && p67Index.overall >= 60 && p67Week.length >= 15) {
+    patterns.push({
+      pattern: 'operator-signature',
+      confidence: Math.min(0.70 + (p67Index.overall - 60) * 0.008, 0.92),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `Operator signature complete: biological · cognitive · structural · social quadrants all active this week. Index ${p67Index.overall}/100. The Cube has a full read. Review your OS Journal.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2064,6 +2103,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   corporatePlan:     ['goals', 'intentions'],
   memoryEngineStats: ['memory', 'journal', 'mood'],
   intentionPatterns: ['intentions', 'mood', 'memory'],
+
+  // ── QOS Signature + Operator profile nodes (2026-06-13 audit)
+  qosSignatureLock:      ['meridianDetector', 'multimodalSurface', 'calendarWidget', 'planner', 'intentions'],
+  operatorSignatureNode: ['mood', 'selfcare', 'memory', 'journal', 'planner', 'intentions', 'goals', 'cohort'],
+  temporalIntegrator:    ['calendarWidget', 'planner', 'intentions'],
 }
 
 /**
@@ -2264,6 +2308,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'log'],
     patternConditions: ['signal-coherence-window', 'temporal-coherence-window', 'intention-velocity'],
     directive: 'Signal diversity high. The map is building. Keep all channels open.',
+  },
+  {
+    archetype: 'Temporal Integrator',
+    energyBands: ['low', 'moderate', 'high'],
+    dominantSources: ['planner', 'intentions'],
+    patternConditions: ['temporal-coherence-window', 'circadian-anchor', 'architect-phase'],
+    directive: 'Time-locked. Calendar anchored, planner active, intentions set. Execute from the structure.',
   },
 ]
 

@@ -894,6 +894,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyArchetypeShiftJob()) {
     await executeDailyArchetypeShiftJob()
   }
+
+  // Check daily QOS signature pulse (13:00 UTC daily)
+  if (shouldRunDailyQOSSignaturePulse()) {
+    await executeDailyQOSSignaturePulse()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1727,6 +1732,135 @@ async function executeDailyArchetypeShiftJob(): Promise<JobResult> {
   }
 }
 
+// ─── Daily QOS Signature Pulse ───────────────────────────────────────────────
+
+let isDailyQOSSignatureRunning = false
+let lastDailyQOSSignatureRun: Date | null = null
+
+function shouldRunDailyQOSSignaturePulse(): boolean {
+  const now = dayjs()
+  if (now.hour() !== 13) return false
+  if (isDailyQOSSignatureRunning) return false
+  if (lastDailyQOSSignatureRun) {
+    const lastRun = dayjs(lastDailyQOSSignatureRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+/**
+ * Runs daily at 13:00 UTC.
+ * Reads each active user's recent logs from the last 24h.
+ * Detects qos_signature_lock and operator_signature conditions
+ * from pattern metadata and writes log events for operator-visible readout.
+ */
+async function executeDailyQOSSignaturePulse(): Promise<JobResult> {
+  const jobName = 'daily-qos-signature-pulse'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily QOS Signature Pulse')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyQOSSignatureRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const cutoff = dayjs().subtract(30, 'day').toDate()
+    const activeUsers = await (User as any).findAll({
+      where: { updatedAt: { [Op.gt]: cutoff } },
+      attributes: ['id'],
+    })
+
+    let sigLockCount = 0
+    let opSigCount = 0
+
+    for (const user of activeUsers) {
+      const userId = (user as any).id
+      try {
+        const window24h = dayjs().subtract(24, 'hour').toDate()
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            event: { [Op.in]: ['qos_state', 'physiological_cohort', 'scheduled_job'] },
+            createdAt: { [Op.gt]: window24h },
+          },
+          order: [['createdAt', 'DESC']],
+          limit: 20,
+        })
+
+        const patternLog = recentLogs.find((l: any) =>
+          l.event === 'scheduled_job' && l.metadata?.patterns
+        )
+        if (!patternLog) continue
+
+        const patterns: string[] = patternLog.metadata?.patterns ?? []
+
+        if (patterns.includes('qos-signature-lock')) {
+          await (Log as any).create({
+            userId,
+            event: 'qos_signature_lock',
+            text: '',
+            metadata: {
+              confidence: 0.92,
+              triggers: ['meridian-lock', 'multimodal-peak', 'temporal-coherence-window'],
+            },
+          })
+          sigLockCount++
+          console.log(`  [${userId}] QOS-SIG: signature lock detected`)
+        }
+
+        if (patterns.includes('operator-signature')) {
+          const qosLog = recentLogs.find((l: any) => l.event === 'qos_state')
+          const index = qosLog?.metadata?.userIndex ?? 0
+          await (Log as any).create({
+            userId,
+            event: 'operator_signature',
+            text: '',
+            metadata: {
+              quadrants: ['bio', 'cognitive', 'structural', 'social'],
+              index,
+              signals: patternLog.metadata?.signalCount ?? 0,
+            },
+          })
+          opSigCount++
+          console.log(`  [${userId}] OP-SIG: operator signature complete`)
+        }
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} QOS signature pulse failed: ${userErr.message}`)
+      }
+    }
+
+    console.log('')
+    console.log(`  QOS signature locks written: ${sigLockCount}`)
+    console.log(`  Operator signatures written: ${opSigCount}`)
+    console.log('─'.repeat(60))
+    console.log('QOS SIGNATURE PULSE COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyQOSSignatureRun = new Date()
+    isDailyQOSSignatureRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned: activeUsers.length, sigLockCount, opSigCount },
+    }
+  } catch (error: any) {
+    console.error('Daily QOS signature pulse failed:', error.message)
+    isDailyQOSSignatureRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1754,6 +1888,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily pattern coverage audit: 11 PM UTC every day')
   console.log('   - Daily source diversity pulse: 7 AM UTC every day')
   console.log('   - Daily archetype shift monitor: 10 AM UTC every day')
+  console.log('   - Daily QOS signature pulse: 1 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1763,8 +1898,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 20=intention completion, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 13=QOS sig pulse, 20=intention completion, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 13) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
