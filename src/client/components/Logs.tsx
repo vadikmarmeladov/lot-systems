@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useSendLotMail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -233,6 +233,14 @@ export const Logs: React.FC = () => {
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COMM:" blockView>
                 ACK{'\n'}{log.metadata.message as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'lot_mail_sent') {
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="✉ MAIL:" blockView>
+                TO {String(log.metadata.toName || '').toUpperCase()}{'\n'}{log.metadata.body as string}
               </Block>
             </LogContainer>
           )
@@ -1385,6 +1393,15 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const { mutate: sendLotMail } = useSendLotMail({
+    onSuccess: (data) => {
+      setEmailResult(`MAIL SENT → ${data.toName.toUpperCase()}\nDELIVERED TO SYNC`)
+    },
+    onError: () => {
+      setEmailResult('MAIL FAILED — check network and try again')
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1737,6 +1754,19 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'send-email') {
+        // Parse: /email to Name. Body text
+        const match = value.match(/\/email\s+to\s+([^.。!?\n,]+)[.。!?,]?\s*([\s\S]*)/i)
+        if (match) {
+          const toName = match[1].trim()
+          const body = match[2]?.trim() || value.replace(/\/email\s+to\s+[^.。!?\n,]+[.。!?,]?/i, '').trim()
+          if (toName) {
+            setEmailResult(`COMPOSING MAIL → ${toName.toUpperCase()}...`)
+            sendLotMail({ toName, body: body || `Message from Log` })
+          }
+        } else {
+          setEmailResult('USAGE: /email to Name. Your message here')
+        }
       }
     }
   }, [value])
@@ -1937,6 +1967,14 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {emailResult && (
+          <div className="mt-8">
+            <Block label="✉ MAIL:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{emailResult}</div>
+              <div className="opacity-30 mt-8">→ SYNC · LOT COMMUNITY</div>
             </Block>
           </div>
         )}

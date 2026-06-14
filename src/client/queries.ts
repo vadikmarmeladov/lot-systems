@@ -18,6 +18,9 @@ import {
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
+  LotMailInboxItem,
+  LotMailPayload,
+  LotMail,
   Paginated,
   PublicChatMessage,
   User,
@@ -119,6 +122,19 @@ export const useSendDirectMessage = createMutation<
   { receiverId: string; message: string },
   void
 >('post', '/api/direct-messages')
+
+// LOT Mail
+export const useSendLotMail = createMutation<
+  LotMailPayload,
+  { id: string; toName: string; body: string; createdAt: string }
+>('post', '/api/lot-mail')
+
+export const useLotMailInbox = createQuery<{
+  sent: LotMail[]
+  inbox: LotMailInboxItem[]
+}>('/api/lot-mail', {
+  refetchOnWindowFocus: false,
+})
 
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,

@@ -231,13 +231,15 @@ export const Sync = () => {
               ? `${authorObj.firstName || ''} ${authorObj.lastName || ''}`.trim() || 'Unknown'
               : 'Unknown'
           const authorId = authorObj?.id || x.authorUserId
+          const isLotMail = x.message.startsWith('✉')
 
           return (
             <div
               key={x.id}
               className={cn(
                 'group flex items-start gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded',
-                i >= SYNC_CHAT_MESSAGES_TO_SHOW && 'text-acc/20'
+                i >= SYNC_CHAT_MESSAGES_TO_SHOW && 'text-acc/20',
+                isLotMail && 'border-l-2 border-acc/20 ml-0 pl-8'
               )}
               onClick={featureUnlocks?.communityRich ? onToggleLike(x.id) : undefined}
             >
@@ -253,7 +255,10 @@ export const Sync = () => {
                 <span className="whitespace-nowrap -ml-4 px-4 pr-8">{authorName}</span>
               )}
               <div
-                className="whitespace-breakspaces"
+                className={cn(
+                  'whitespace-breakspaces',
+                  isLotMail && 'opacity-80'
+                )}
                 style={{
                   wordWrap: 'break-word',
                   wordBreak: 'break-word',

@@ -1046,6 +1046,8 @@ export default async (fastify: FastifyInstance) => {
       'recipe_viewed', 'benchmark_read',
       // QOS signature + operator pattern events
       'qos_signature_lock', 'operator_signature',
+      // LOT Mail
+      'lot_mail_sent',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -3890,6 +3892,97 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
     }
+  })
+
+  // ============================================================================
+  // LOT MAIL — /email command from Log, delivered to Sync
+  // ============================================================================
+
+  fastify.post(
+    '/lot-mail',
+    async (req: FastifyRequest<{ Body: { toName: string; body: string } }>, reply) => {
+      const isSuspended = req.user.tags?.some((t: string) => t.toLowerCase() === 'suspended')
+      if (isSuspended) return reply.status(403).send({ error: 'Account suspended' })
+
+      const toName = (req.body.toName || '').slice(0, 128).trim()
+      const body = (req.body.body || '').slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH).trim()
+      if (!toName || !body) return reply.status(400).send({ error: 'toName and body required' })
+
+      const mail = await fastify.models.LotMail.create({
+        fromUserId: req.user.id,
+        toName,
+        body,
+      })
+
+      // Deliver to Sync as a chat_message with mail prefix
+      const syncMessage = `✉ TO ${toName.toUpperCase()} · ${body}`.slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
+      const chatMessage = await fastify.models.ChatMessage.create({
+        authorUserId: req.user.id,
+        message: syncMessage,
+      })
+      sync.emit('chat_message', {
+        id: chatMessage.id,
+        message: syncMessage,
+        author: { id: req.user.id, firstName: req.user.firstName, lastName: req.user.lastName },
+        authorUserId: req.user.id,
+        createdAt: chatMessage.createdAt,
+        likes: 0,
+        likesCount: 0,
+        isLiked: false,
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'lot_mail_sent',
+            text: '',
+            metadata: { lotMailId: mail.id, toName, body },
+            context,
+          })
+        } catch {}
+      })
+
+      return reply.send({ id: mail.id, toName, body, createdAt: mail.createdAt })
+    }
+  )
+
+  fastify.get('/lot-mail', async (req: FastifyRequest, reply) => {
+    const firstName = req.user.firstName || ''
+    const [sent, inbox] = await Promise.all([
+      fastify.models.LotMail.findAll({
+        where: { fromUserId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      }),
+      firstName
+        ? fastify.models.LotMail.findAll({
+            where: { toName: { [Op.iLike]: `%${firstName}%` } },
+            order: [['createdAt', 'DESC']],
+            limit: 50,
+          })
+        : Promise.resolve([]),
+    ])
+
+    const inboxWithSender = await Promise.all(
+      inbox.map(async (m) => {
+        const sender = await fastify.models.User.findByPk(m.fromUserId, {
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+        return {
+          id: m.id,
+          fromUserId: m.fromUserId,
+          fromFirstName: sender?.firstName || null,
+          fromLastName: sender?.lastName || null,
+          toName: m.toName,
+          body: m.body,
+          createdAt: m.createdAt,
+        }
+      })
+    )
+
+    return reply.send({ sent, inbox: inboxWithSender })
   })
 
   // ============================================================================
