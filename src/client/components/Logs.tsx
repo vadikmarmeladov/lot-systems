@@ -1203,11 +1203,49 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const entryText = log.metadata?.text as string | undefined
+          const time = log.metadata?.time as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex gap-8 items-baseline">
+                  <span className="uppercase tracking-widest">{entryType || 'ENTRY'}</span>
+                  {time && <span className="opacity-40 tabular-nums text-xs">{time}</span>}
+                </div>
+                {date && <div className="opacity-40 mt-4 text-xs tabular-nums">{date}</div>}
+                {entryText && <div className="mt-4 opacity-80">{entryText}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_alert') {
+          const alertLevel = log.metadata?.alertLevel as string | undefined
+          const entryType = log.metadata?.entryType as string | undefined
+          const minutesUntil = log.metadata?.minutesUntil as number | undefined
+          const time = log.metadata?.time as string | undefined
+          const entryText = log.metadata?.entryText as string | undefined
+          const isCritical = alertLevel === 'critical'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                <div className={cn('uppercase tracking-widest', isCritical ? '' : 'opacity-60')}>
+                  {isCritical ? '▲ ALERT' : '◈ NOTICE'}
+                </div>
+                {entryText && (
+                  <div className="mt-4">
+                    {entryType && (
+                      <span className="opacity-40 uppercase text-xs mr-8">{entryType}</span>
+                    )}
+                    {entryText}
+                  </div>
+                )}
+                {minutesUntil !== undefined && (
+                  <div className="opacity-40 mt-4 tabular-nums text-xs">
+                    {minutesUntil <= 0
+                      ? `T+${Math.abs(Math.round(minutesUntil))}min`
+                      : `T-${Math.round(minutesUntil)}min`}
+                    {time ? ` @ ${time}` : ''}
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )

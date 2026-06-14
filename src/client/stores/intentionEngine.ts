@@ -2675,6 +2675,14 @@ export function recordCalendarSignal(entryType: string, date: string) {
 }
 
 /**
+ * Record a calendar alert signal when an upcoming event crosses a time threshold.
+ * Feeds temporal urgency awareness and biofield load estimation.
+ */
+export function recordCalendarAlertSignal(entryType: string, alertLevel: string, minutesUntil: number) {
+  recordSignal('log', 'calendar_alert', { entryType, alertLevel, minutesUntil, hour: new Date().getHours() })
+}
+
+/**
  * Record a journal depth signal when a field entry is saved with word count.
  * Feeds Reflection Layer (journal module) density in self-assembly.
  * Deep entries (>100 words) awaken and advance the Reflection Layer faster.
