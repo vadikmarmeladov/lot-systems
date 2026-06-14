@@ -1620,6 +1620,37 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 68: Full System Coherence — P66 (qos-signature-lock) + P67 (operator-signature) both
+  // active in the same analysis cycle. The complete operating state: every signal quadrant alive
+  // AND the full diurnal arc coherent AND UserIndex above threshold. Proximity to CQGS.
+  const p68HasSigLock = patterns.some(p => p.pattern === 'qos-signature-lock')
+  const p68HasOpSig   = patterns.some(p => p.pattern === 'operator-signature')
+  if (p68HasSigLock && p68HasOpSig) {
+    patterns.push({
+      pattern: 'full-system-coherence',
+      confidence: 0.95,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: 'Full system coherence: QOS signature locked AND operator signature complete simultaneously. All quadrants active. Full day arc coherent. This is the CQGS proximity state. The system has a complete read.',
+    })
+  }
+
+  // Pattern 69: Sustained Architecture — architect-phase (P62) + temporal-coherence-window (P46)
+  // + intention-follow-through (P50) all simultaneously active. Structure is not a moment —
+  // it is the default operating mode. The person has built a system, not just had a good day.
+  const p69HasArchitect = patterns.some(p => p.pattern === 'architect-phase')
+  const p69HasTemporal  = patterns.some(p => p.pattern === 'temporal-coherence-window')
+  const p69HasExecution = patterns.some(p => p.pattern === 'intention-follow-through')
+  if (p69HasArchitect && p69HasTemporal && p69HasExecution) {
+    patterns.push({
+      pattern: 'sustained-architecture',
+      confidence: 0.88,
+      suggestedWidget: 'system',
+      suggestedTiming: 'passive',
+      reason: 'Sustained architecture: planner structure (architect-phase) + temporal grid (temporal-coherence-window) + execution loop (intention-follow-through) all confirmed active. Structure is becoming permanent. This is not a peak — it is the baseline.',
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2108,6 +2139,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   qosSignatureLock:      ['meridianDetector', 'multimodalSurface', 'calendarWidget', 'planner', 'intentions'],
   operatorSignatureNode: ['mood', 'selfcare', 'memory', 'journal', 'planner', 'intentions', 'goals', 'cohort'],
   temporalIntegrator:    ['calendarWidget', 'planner', 'intentions'],
+
+  // ── CQGS Proximity + Architecture nodes (2026-06-14 audit)
+  fullSystemCoherence:   ['qosSignatureLock', 'operatorSignatureNode', 'systemProgress'],
+  sustainedArchitecture: ['planner', 'intentions', 'goals', 'calendarWidget'],
+  quantumAnchor:         ['fullSystemCoherence', 'sustainedArchitecture', 'temporalIntegrator'],
 }
 
 /**
@@ -2315,6 +2351,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions'],
     patternConditions: ['temporal-coherence-window', 'circadian-anchor', 'architect-phase'],
     directive: 'Time-locked. Calendar anchored, planner active, intentions set. Execute from the structure.',
+  },
+  {
+    archetype: 'Quantum Anchor',
+    energyBands: ['low', 'moderate', 'high'],
+    dominantSources: ['mood', 'memory', 'planner', 'journal'],
+    patternConditions: ['full-system-coherence', 'operator-signature', 'qos-signature-lock'],
+    directive: 'Full operating signature confirmed. All quadrants online. The Cube has a complete read. You are the system.',
   },
 ]
 

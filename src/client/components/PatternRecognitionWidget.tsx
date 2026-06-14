@@ -106,7 +106,9 @@ export function PatternRecognitionWidget() {
       'intention-follow-through':   'Execution arc complete',
       'circadian-anchor-loss':      'Circadian anchor lost',
       'qos-signature-lock':         'QOS signature locked',
-      'operator-signature':         'Operator signature complete'
+      'operator-signature':         'Operator signature complete',
+      'full-system-coherence':      'Full system coherence',
+      'sustained-architecture':     'Structural architecture sustained'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

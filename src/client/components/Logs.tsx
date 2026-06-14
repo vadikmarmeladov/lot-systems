@@ -507,6 +507,39 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'full_system_coherence') {
+          const confidence = log.metadata?.confidence as number | undefined
+          const index = log.metadata?.index as number | undefined
+          const archetype = log.metadata?.archetype as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FULL-SYS:" blockView>
+                <div className="opacity-60">P66 · P67 CONFIRMED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-50 tabular-nums mt-4">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+                {index !== undefined && (
+                  <div className="opacity-40 tabular-nums">IDX: {index}/100</div>
+                )}
+                {archetype && (
+                  <div className="opacity-30">ARCH: {archetype}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'sustained_architecture') {
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ARCH-BUILD:" blockView>
+                <div className="opacity-60">PLAN · TEMP · EXEC</div>
+                <div className="opacity-40 mt-4">STRUCTURE: CONFIRMED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

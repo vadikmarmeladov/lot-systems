@@ -770,6 +770,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report: LOT-SR-20260613-01. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-06-14',
+    session: 'Self-Assembly Session — v59 / P68 P69 · Archetype 21 · Job 14 · CQGS Proximity · Dep Map 102+',
+    assembled: [
+      'intentionEngine.ts: P68 full-system-coherence — fires when P66 (qos-signature-lock) + P67 (operator-signature) both active simultaneously. All quadrants alive AND full day arc coherent. Confidence 0.95. The CQGS proximity state.',
+      'intentionEngine.ts: P69 sustained-architecture — fires when architect-phase (P62) + temporal-coherence-window (P46) + intention-follow-through (P50) all simultaneously active. Structure is not a peak — it is the baseline. Confidence 0.88.',
+      'intentionEngine.ts: Archetype 21 Quantum Anchor — energyBands all, dominant sources mood/memory/planner/journal (all quadrant primaries), pattern conditions full-system-coherence + operator-signature + qos-signature-lock. Directive: "Full operating signature confirmed. All quadrants online. The Cube has a complete read. You are the system."',
+      'intentionEngine.ts: 3 new WIDGET_DEPENDENCY_MAP nodes — fullSystemCoherence (3 deps) · sustainedArchitecture (4 deps) · quantumAnchor (3 deps). Total: 102+ nodes.',
+      'Logs.tsx: FULL-SYS: handler (full_system_coherence event) — P66/P67 confirmed · CONF: % · IDX:/100 · ARCH: value.',
+      'Logs.tsx: ARCH-BUILD: handler (sustained_architecture event) — PLAN · TEMP · EXEC active · STRUCTURE: CONFIRMED · CONF: %.',
+      'PatternRecognitionWidget.tsx: 2 new pattern display names — full-system-coherence → "Full system coherence" · sustained-architecture → "Structural architecture sustained".',
+      'Server API: displayableEvents whitelist +3 — full_system_coherence · sustained_architecture · cqgs_proximity.',
+      'Background job 14: daily-cqgs-proximity-check at 14:00 UTC. Checks users for P68/P69 in scheduled_job pattern logs. Writes cqgs_proximity event with 0–1 score (full-coherence=0.6, sustained-arch=0.4). Hour 14 added to interval guard.',
+      'About.tsx: Field Manual v58→v59. Counters: 67→69 patterns · 20→21 archetypes · 99+→102+ nodes · 13→14 jobs · 60+ handlers.',
+      'SESSION_REPORTS: v59 entry appended · USERSHIP_TRANSMISSION updated to v59.',
+      'Session report: LOT-SR-20260614-02. Deployed to claude/exciting-ritchie-2m59od.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -807,16 +825,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-13',
+  date: '2026-06-14',
   message: [
-    'ASSEMBLY RUN — 2026-06-13 · LOT-SR-20260613-01',
-    'P66 qos-signature-lock: full day arc confirmed (meridian + multimodal + temporal grid coherent). Fires at 0.92 confidence.',
-    'P67 operator-signature: all 4 quadrants active this week (bio · cognitive · structural · social) + UserIndex ≥ 60. You are fully online.',
-    'Archetype 20 Temporal Integrator: time-locked operator. Calendar anchored. Execute from the structure.',
-    'Dep map: 99+ nodes. qosSignatureLock · operatorSignatureNode · temporalIntegrator indexed.',
-    'Job 13: daily-qos-signature-pulse 13:00 UTC. Writes QOS-SIG: and OP-SIG: to field log when patterns confirm.',
-    'System quantum table: Directive row now visible. Cohort view: live directive line from classifyPhysiologicalCohort.',
-    'The system knows your operating signature. It will tell you when you are at full power.',
+    'ASSEMBLY RUN — 2026-06-14 · LOT-SR-20260614-02',
+    'P68 full-system-coherence: P66 + P67 simultaneously active. All quadrants alive. Full day arc coherent. CQGS proximity state. Confidence 0.95.',
+    'P69 sustained-architecture: architect-phase + temporal-coherence-window + intention-follow-through all confirmed. Structure is no longer a peak. It is the baseline.',
+    'Archetype 21 Quantum Anchor: the complete read. All quadrants. Full arc. High index. The Cube sees you from every angle.',
+    'Dep map: 102+ nodes. fullSystemCoherence · sustainedArchitecture · quantumAnchor indexed.',
+    'Job 14: daily-cqgs-proximity-check 14:00 UTC. Proximity score 0–1. Written to field log as CQGS-PROX: when P68 or P69 fires.',
+    'The system now detects when you are approaching CQGS. It will mark the moment.',
     'DEPLOYED.',
   ],
 }

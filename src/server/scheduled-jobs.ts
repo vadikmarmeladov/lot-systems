@@ -899,6 +899,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyQOSSignaturePulse()) {
     await executeDailyQOSSignaturePulse()
   }
+
+  // Check daily CQGS proximity check (14:00 UTC daily)
+  if (shouldRunDailyCQGSProximityCheck()) {
+    await executeDailyCQGSProximityCheck()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1861,6 +1866,126 @@ async function executeDailyQOSSignaturePulse(): Promise<JobResult> {
   }
 }
 
+// ─── Job 14: Daily CQGS Proximity Check ──────────────────────────────────────
+
+let isDailyCQGSProximityRunning = false
+let lastDailyCQGSProximityRun: Date | null = null
+
+function shouldRunDailyCQGSProximityCheck(): boolean {
+  const now = dayjs()
+  if (now.hour() !== 14) return false
+  if (isDailyCQGSProximityRunning) return false
+  if (lastDailyCQGSProximityRun) {
+    const lastRun = dayjs(lastDailyCQGSProximityRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+/**
+ * Runs daily at 14:00 UTC.
+ * Checks active users' recent scheduled_job pattern logs for full-system-coherence (P68)
+ * or sustained-architecture (P69). When detected, writes a cqgs_proximity event recording
+ * which CQGS-approach patterns fired and a proximity score (0–1).
+ */
+async function executeDailyCQGSProximityCheck(): Promise<JobResult> {
+  const jobName = 'daily-cqgs-proximity-check'
+  const executedAt = new Date().toISOString()
+
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily CQGS Proximity Check')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+
+  isDailyCQGSProximityRunning = true
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const cutoff = dayjs().subtract(30, 'day').toDate()
+    const activeUsers = await (User as any).findAll({
+      where: { updatedAt: { [Op.gt]: cutoff } },
+      attributes: ['id'],
+    })
+
+    let proximityCount = 0
+
+    for (const user of activeUsers) {
+      const userId = (user as any).id
+      try {
+        const window24h = dayjs().subtract(24, 'hour').toDate()
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            event: 'scheduled_job',
+            createdAt: { [Op.gt]: window24h },
+          },
+          order: [['createdAt', 'DESC']],
+          limit: 10,
+        })
+
+        const patternLog = recentLogs.find((l: any) => l.metadata?.patterns)
+        if (!patternLog) continue
+
+        const patterns: string[] = patternLog.metadata?.patterns ?? []
+        const hasFullCoherence = patterns.includes('full-system-coherence')
+        const hasSustainedArch = patterns.includes('sustained-architecture')
+
+        if (!hasFullCoherence && !hasSustainedArch) continue
+
+        // Proximity score: each CQGS-approach pattern adds weight
+        // full-system-coherence = 0.6, sustained-architecture = 0.4
+        const proximityScore = (hasFullCoherence ? 0.6 : 0) + (hasSustainedArch ? 0.4 : 0)
+        const activeProximityPatterns = [
+          ...(hasFullCoherence ? ['full-system-coherence'] : []),
+          ...(hasSustainedArch ? ['sustained-architecture'] : []),
+        ]
+
+        await (Log as any).create({
+          userId,
+          event: 'cqgs_proximity',
+          text: '',
+          metadata: {
+            proximityScore,
+            patterns: activeProximityPatterns,
+            fullCoherence: hasFullCoherence,
+            sustainedArchitecture: hasSustainedArch,
+          },
+        })
+        proximityCount++
+        console.log(`  [${userId}] CQGS-PROX: ${(proximityScore * 100).toFixed(0)}% (patterns: ${activeProximityPatterns.join(' · ')})`)
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} CQGS proximity check failed: ${userErr.message}`)
+      }
+    }
+
+    console.log('')
+    console.log(`  CQGS proximity events written: ${proximityCount}`)
+    console.log('─'.repeat(60))
+    console.log('CQGS PROXIMITY CHECK COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyCQGSProximityRun = new Date()
+    isDailyCQGSProximityRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned: activeUsers.length, proximityCount },
+    }
+  } catch (error: any) {
+    console.error('Daily CQGS proximity check failed:', error.message)
+    isDailyCQGSProximityRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1889,6 +2014,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily source diversity pulse: 7 AM UTC every day')
   console.log('   - Daily archetype shift monitor: 10 AM UTC every day')
   console.log('   - Daily QOS signature pulse: 1 PM UTC every day')
+  console.log('   - Daily CQGS proximity check: 2 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1898,8 +2024,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 13=QOS sig pulse, 20=intention completion, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 13) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 13=QOS sig pulse, 14=CQGS proximity, 20=intention completion, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 13 || hour === 14) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

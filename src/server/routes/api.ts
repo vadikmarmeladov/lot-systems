@@ -1046,6 +1046,8 @@ export default async (fastify: FastifyInstance) => {
       'recipe_viewed', 'benchmark_read',
       // QOS signature + operator pattern events
       'qos_signature_lock', 'operator_signature',
+      // CQGS proximity + architecture events
+      'full_system_coherence', 'sustained_architecture', 'cqgs_proximity',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
