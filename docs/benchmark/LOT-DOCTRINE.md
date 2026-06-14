@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev J
+# LOT-DOCTRINE  rev K
 
 ## Render Isolation
 
@@ -124,3 +124,16 @@ updates on every audit; feature rows update when a new iteration supersedes.
 (SR-20260605-01: MANIFEST created, 115 branches cataloged, 8 BEST identified.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
 SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
+
+## Soul Gap Principle
+
+When an intelligence layer reads a subscriber's emotional state, the output
+must not echo the dominant frequency back at the person. The delta between
+what a person lives in (dominant_freq) and what they need to receive
+(needed_freq) is the instruction to the engine. Grief is not answered with
+language about grief — it is answered with love or presence. Fear is not
+answered with validation — it is answered with stability. The engine's job
+is to deliver what is missing, not confirm what is already there.
+The soul gap is the calibration target.
+(SR-20260614-02: QI·46 ENGINE-2 NODE-2 SOULWARE — mapping rule 1 enforces
+dominant_freq ≠ needed_freq; engine routes to the gap, not the state.)

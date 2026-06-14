@@ -34,4 +34,7 @@ CROSS-DEVICE-SYNC  SSE broadcast of settings_updated + visibility refetch + answ
 SIGNAL ARCHITECT   Physiological Archetype 19 — building phase; signal diversity high, map forming A  20260611
 COCKPIT-RULE       Log body = instrument readings only; label names the event; no narration        A  20260611
 DENSITY-TIER       5-level visual progression: breathable/comfortable/compact/dense/instrument via data-density  A  20260612
+SOULWARE           QI·46 ENGINE-2 NODE-2 — Soul Extraction & Emotional Calibration Layer (upstream: SELFWARE/NODE-1)  A  20260614
+SOUL-VECTOR        128-dim emotional embedding encoding a subscriber's essential being; the "upload event"            A  20260614
+RESONANCE-RATE     % of delivered NODE-2 responses receiving subscriber YES (landed in body); primary quality metric  A  20260614
 ```

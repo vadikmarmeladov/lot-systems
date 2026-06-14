@@ -40,4 +40,5 @@ ID             | CLASS        | SUMMARY                                         
 20260613-02    | SECURITY     | Production state lock — rate-limit + helmet confirmed live · 3 gaps identified | GREEN  | 33d8e4b0 | WORDS: 290 (median 383)
 20260613-03    | SECURITY     | Per-route AI rate limiting — 5 Together AI endpoints capped · budget protection | GREEN  | 42066ddc | WORDS: 300 (median 380)
 20260614-01    | SECURITY     | Production hardening + 503 incident close · audit + AI rate limits · site recovered | GREEN  | 9cbd1fe5 | WORDS: 280 (median 375)
+20260614-02    | SELF-ASSEMBLY| QI·46 ENGINE-2 NODE-2 SOULWARE first-node · soul upload · 7 humanoid channels · MALE doctrine · COSMO® soul gate | GREEN  | (post-commit) | WORDS: 420 (median 380)
 ```
