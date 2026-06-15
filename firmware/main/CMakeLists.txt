@@ -1,0 +1,22 @@
+idf_component_register(
+    SRCS
+        "main.c"
+        "wifi_manager.c"
+        "https_client.c"
+        "display.c"
+        "sensor_bme688.c"
+        "camera_ov2640.c"
+        "button.c"
+        "session_compress.c"
+        "ota.c"
+    INCLUDE_DIRS "."
+    REQUIRES
+        nvs_flash
+        esp_wifi
+        esp_https_ota
+        esp_http_client
+        esp_camera
+        driver
+        freertos
+        log
+)
