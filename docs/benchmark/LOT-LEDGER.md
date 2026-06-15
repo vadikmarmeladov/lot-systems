@@ -43,4 +43,4 @@ ID             | CLASS        | SUMMARY                                         
 20260614-02    | SELF-ASSEMBLY| QIE v60 — P68 integration-arc-peak · P69 adaptive-resonance · Archetype 21 · Job 14 · dep map 104+ | GREEN  | 89e4e57 | WORDS: 620 (median 380)
 20260614-03    | ENGINEERING  | Query batching + client deduplication · 5 endpoints · 3 widgets · N+1 eliminated | GREEN  | 27a16352 | WORDS: 310 (median 375)
 ```
-20260615-01    | SELF-ASSEMBLY| QIE v62 — P71-P73 + Arch22 + Job15 + dep map 111+ + 4 handlers + 5 nodes | GREEN  | (pre-push)  | WORDS: 585 (median 385)
+20260615-01    | SELF-ASSEMBLY| QIE v62 — P71-P73 + Arch22 + Job15 + dep map 111+ + 4 handlers + 5 nodes | GREEN  | 5195a8d  | WORDS: 585 (median 385)
