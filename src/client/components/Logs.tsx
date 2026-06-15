@@ -1196,13 +1196,68 @@ export const Logs: React.FC = () => {
             </LogContainer>
           )
         } else if (log.event === 'calendar_entry') {
-          const entryType = log.metadata?.entryType as string | undefined
+          const entryType = (log.metadata?.entryType as string | undefined) || 'note'
           const date = log.metadata?.date as string | undefined
+          const text = (log.metadata?.text as string | undefined) || log.text || ''
+          const typeCode = entryType === 'task' ? 'OBJ' : entryType === 'call' ? 'COMM' : 'MEMO'
+          const daysUntil = date ? dayjs(date).diff(dayjs().startOf('day'), 'day') : null
+          const countdown =
+            daysUntil === null ? null
+            : daysUntil === 0 ? 'TODAY'
+            : daysUntil > 0 ? `T+${daysUntil}d`
+            : `T-${Math.abs(daysUntil)}d`
+          const isOverdue = daysUntil !== null && daysUntil < 0
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex gap-8 items-baseline mb-4">
+                  <span className="uppercase tracking-widest opacity-60">{typeCode}</span>
+                  {countdown && (
+                    <span className={cn(
+                      'tabular-nums tracking-widest opacity-40',
+                      isOverdue && 'opacity-20',
+                      countdown === 'TODAY' && 'opacity-80'
+                    )}>
+                      {countdown}
+                    </span>
+                  )}
+                </div>
+                {text && (
+                  <div className={cn('opacity-80', isOverdue && 'opacity-20 line-through')}>
+                    {text}
+                  </div>
+                )}
+                {date && (
+                  <div className="opacity-30 mt-4 tabular-nums">
+                    {dayjs(date).format('ddd MMM D, YYYY')}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_notification') {
+          const count = log.metadata?.count as number | undefined
+          const briefEntries = log.metadata?.entries as Array<{ type: string; text: string }> | undefined
+          const date = log.metadata?.date as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-BRIEF:" blockView>
+                <div className="uppercase tracking-widest opacity-60 mb-4">STAND-TO</div>
+                {count !== undefined && (
+                  <div className="opacity-40 mb-6 tabular-nums">
+                    {count} event{count !== 1 ? 's' : ''} today
+                    {date && ` · ${dayjs(date).format('ddd MMM D')}`}
+                  </div>
+                )}
+                {briefEntries?.map((e, i) => {
+                  const code = e.type === 'task' ? 'OBJ' : e.type === 'call' ? 'COMM' : 'MEMO'
+                  return (
+                    <div key={i} className="flex gap-8 mb-1">
+                      <span className="opacity-40 uppercase tracking-widest w-12 flex-shrink-0">{code}</span>
+                      <span className="opacity-70">{e.text}</span>
+                    </div>
+                  )
+                })}
               </Block>
             </LogContainer>
           )
