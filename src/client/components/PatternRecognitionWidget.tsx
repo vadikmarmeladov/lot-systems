@@ -11,7 +11,6 @@ import { Block, Button } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import {
   intentionEngine,
-  analyzeIntentions,
   getOptimalWidget,
   getQOSHistory,
   getCircadianPhase,
@@ -50,11 +49,6 @@ export function PatternRecognitionWidget() {
   const engine = useStore(intentionEngine)
   const { data: logs = [] } = useLogs()
   const logCtx = useLogContext()
-
-  // Trigger analysis
-  React.useEffect(() => {
-    analyzeIntentions()
-  }, [logs])
 
   const qosHistory = React.useMemo(() => getQOSHistory(), [engine])
 
@@ -106,7 +100,9 @@ export function PatternRecognitionWidget() {
       'intention-follow-through':   'Execution arc complete',
       'circadian-anchor-loss':      'Circadian anchor lost',
       'qos-signature-lock':         'QOS signature locked',
-      'operator-signature':         'Operator signature complete'
+      'operator-signature':         'Operator signature complete',
+      'integration-arc-peak':       'Full integration arc confirmed',
+      'adaptive-resonance':         'Adaptive resonance detected'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

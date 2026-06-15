@@ -9,7 +9,7 @@
 import React from 'react'
 import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
-import { intentionEngine, analyzeIntentions, getUserState, type UserState } from '#client/stores/intentionEngine'
+import { intentionEngine, getUserState, type UserState } from '#client/stores/intentionEngine'
 import { useLogs } from '#client/queries'
 import { ProgressBars } from '#client/utils/progressBars'
 import { useLogContext } from '#client/hooks/useLogContext'
@@ -27,11 +27,6 @@ export function QuantumStateWidget() {
   const engine = useStore(intentionEngine)
   const { data: logs = [] } = useLogs()
   const logCtx = useLogContext()
-
-  // Trigger fresh analysis when logs change
-  React.useEffect(() => {
-    analyzeIntentions()
-  }, [logs])
 
   const userState = getUserState()
 

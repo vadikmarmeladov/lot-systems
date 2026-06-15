@@ -770,6 +770,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report: LOT-SR-20260613-01. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-06-14',
+    session: 'Self-Assembly Session — v60 / P68 P69 · Archetype 21 · Job 14 · Dep Map 104+ · Log Military Pass',
+    assembled: [
+      'intentionEngine.ts: P68 integration-arc-peak — fires when P40 (biofield-coherence-cascade) + P43 (intention-completion-arc) both active in same 24h window. Biological restoration + execution arc simultaneously confirmed. Confidence 0.85–0.95.',
+      'intentionEngine.ts: P69 adaptive-resonance — fires when QOS history shows sustained rising trend + UserIndex ≥ 55 + stable snapshots. Growth confirmed as structural shift. Confidence 0.70–0.88.',
+      'intentionEngine.ts: Archetype 21 Integration Architect — moderate/high energy · memory+planner+goals dominant · integration-arc-peak+adaptive-resonance+biofield-coherence-cascade. Directive: Full integration active. Adaptive growth confirmed.',
+      'intentionEngine.ts: 6 new WIDGET_DEPENDENCY_MAP nodes — profileQRCode · directMessageThread · connectionStatus · investmentSwitch · integrationArcPeak · adaptiveResonance. Total: 104+ nodes.',
+      'intentionEngine.ts: LOG_DEPENDENCY_SOURCES 11→13 — added medical + resilience source types.',
+      'Logs.tsx: 3 new military handlers — ARC-PEAK: · ADAPT: · COHR-COMM:. Handler count: 66+.',
+      'Logs.tsx: BIOFIELD: → BIO: military compression pass on energy_state handler.',
+      'PatternRecognitionWidget.tsx: 2 new pattern display names — integration-arc-peak · adaptive-resonance.',
+      'scheduled-jobs.ts: Job 14 — daily-coherence-index-pulse 16:00 UTC. Community coherence index from 4h emotional check-in window. Writes COHR-COMM: per active user.',
+      'Server API: displayableEvents +3 — integration_arc_peak · adaptive_resonance · community_coherence_pulse.',
+      'About.tsx: Field Manual v60 sync. Counters: 69 patterns · 21 archetypes · 104+ nodes · 14 jobs · 60 phases · Day 1010+.',
+      'Session report: LOT-SR-20260614-02. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -807,16 +825,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-13',
+  date: '2026-06-14',
   message: [
-    'ASSEMBLY RUN — 2026-06-13 · LOT-SR-20260613-01',
-    'P66 qos-signature-lock: full day arc confirmed (meridian + multimodal + temporal grid coherent). Fires at 0.92 confidence.',
-    'P67 operator-signature: all 4 quadrants active this week (bio · cognitive · structural · social) + UserIndex ≥ 60. You are fully online.',
-    'Archetype 20 Temporal Integrator: time-locked operator. Calendar anchored. Execute from the structure.',
-    'Dep map: 99+ nodes. qosSignatureLock · operatorSignatureNode · temporalIntegrator indexed.',
-    'Job 13: daily-qos-signature-pulse 13:00 UTC. Writes QOS-SIG: and OP-SIG: to field log when patterns confirm.',
-    'System quantum table: Directive row now visible. Cohort view: live directive line from classifyPhysiologicalCohort.',
-    'The system knows your operating signature. It will tell you when you are at full power.',
+    'ASSEMBLY RUN — 2026-06-14 · LOT-SR-20260614-02',
+    'P68 integration-arc-peak: fires when biological cascade (P40) AND execution arc (P43) both confirm in 24h. The rarest state — restoration and completion simultaneously. Confidence 0.85–0.95.',
+    'P69 adaptive-resonance: fires when QOS history shows structural rising trend + UserIndex stable above 55. Growth that holds across snapshots. Not intensity — architecture.',
+    'Archetype 21 Integration Architect: memory + planner + goals dominant. Full integration confirmed. The arc is complete.',
+    'Dep map: 104+ nodes. profileQRCode · directMessageThread · connectionStatus · investmentSwitch · integrationArcPeak · adaptiveResonance indexed.',
+    'Job 14: daily-coherence-index-pulse 16:00 UTC. Reads 4h emotional window across users. Writes community coherence index to COHR-COMM: field log.',
+    'LOG pipeline: 13 source types now tracked (added medical + resilience). 66+ event handlers. Community coherence visible.',
+    'The system now measures its own collective state. You are part of the coherence index.',
     'DEPLOYED.',
   ],
 }

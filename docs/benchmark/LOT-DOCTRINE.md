@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev J
+# LOT-DOCTRINE  rev K
 
 ## Render Isolation
 
@@ -124,3 +124,17 @@ updates on every audit; feature rows update when a new iteration supersedes.
 (SR-20260605-01: MANIFEST created, 115 branches cataloged, 8 BEST identified.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
 SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
+
+## Query Batching
+
+When a route handler issues multiple independent database queries sequentially,
+wrap them in Promise.all. When a loop issues one query per user (N+1), replace
+with a single IN-clause query and group results in a Map. Unbounded findAll
+calls on user-facing routes get a limit — 365 for historical data, 200 for
+cohort matching, 500 for admin views. The database constraint is not touched;
+the protection is at the query layer.
+(SR-20260614-02: analytics N+1 streak loop eliminated — 50 sequential Answer
+queries replaced with single batched IN query. user-stats 4 sequential queries
+parallelized. chat-messages users+likes parallelized. cohort limited to 200.
+Client: 3 redundant analyzeIntentions() calls removed — already has 5-min
+cooldown at intentionEngine.ts:231.)
