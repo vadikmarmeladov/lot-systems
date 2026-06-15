@@ -102,7 +102,8 @@ export function PatternRecognitionWidget() {
       'qos-signature-lock':         'QOS signature locked',
       'operator-signature':         'Operator signature complete',
       'integration-arc-peak':       'Full integration arc confirmed',
-      'adaptive-resonance':         'Adaptive resonance detected'
+      'adaptive-resonance':         'Adaptive resonance detected',
+      'operator-convergence':       'Operator convergence — all systems confirmed'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

@@ -1049,6 +1049,8 @@ export default async (fastify: FastifyInstance) => {
       'qos_signature_lock', 'operator_signature',
       // Integration arc + adaptive resonance + community coherence (v60)
       'integration_arc_peak', 'adaptive_resonance', 'community_coherence_pulse',
+      // Operator convergence (v61) — all 3 signature gates open simultaneously
+      'operator_convergence',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -4617,7 +4619,8 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         const fiveMinutesAgo = now.subtract(5, 'minutes').toDate()
 
         // Parallelize all DB queries
-        const [recentEvents, recentEventsSmoothed, activeUsers] = await Promise.all([
+        const twentyFiveHoursAgo = now.subtract(25, 'hours').toDate()
+        const [recentEvents, recentEventsSmoothed, activeUsers, latestCommunityPulse] = await Promise.all([
           fastify.models.Log.count({
             where: { createdAt: { [Op.gte]: oneMinuteAgo } }
           }),
@@ -4629,6 +4632,14 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
             attributes: ['userId'],
             group: ['userId'],
             raw: true
+          }),
+          fastify.models.Log.findOne({
+            where: {
+              event: 'community_coherence_pulse',
+              createdAt: { [Op.gte]: twentyFiveHoursAgo }
+            },
+            order: [['createdAt', 'DESC']],
+            attributes: ['metadata']
           })
         ])
 
@@ -4645,11 +4656,19 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         const engagementDepth = neuralActivity > 0 ? (eventsPerMinute / neuralActivity) : 0
         const resonanceHz = baseResonance + (neuralActivity * 2) + (engagementDepth * 0.5)
 
+        const communityMeta = latestCommunityPulse?.metadata as Record<string, any> | null
+        const community = communityMeta ? {
+          index: communityMeta.communityIndex ?? null,
+          topMood: communityMeta.topMood ?? null,
+          activeCount: communityMeta.activeUserCount ?? null
+        } : null
+
         return {
           eventsPerMinute,
           quantumFlux,
           neuralActivity,
           resonanceHz,
+          community,
           lastUpdate: Date.now()
         }
       })

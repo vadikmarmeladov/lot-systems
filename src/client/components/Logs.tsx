@@ -1348,6 +1348,19 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'operator_convergence') {
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CONV:" blockView>
+                {confidence !== undefined && (
+                  <div className="tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+                <div className="opacity-60 uppercase tracking-widest mt-4">P66 · P67 · P68</div>
+                <div className="opacity-40 mt-4">Full operator convergence confirmed.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

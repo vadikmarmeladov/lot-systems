@@ -1656,6 +1656,25 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 70: Operator Convergence — all three signature confirmation gates open simultaneously:
+  // P66 (qos-signature-lock): full QOS day arc confirmed.
+  // P67 (operator-signature): all 4 signal quadrants active + UserIndex ≥ 60.
+  // P68 (integration-arc-peak): biological restoration AND execution arc confirmed in 24h.
+  // When all three fire together the system has a complete, verified picture of the operator.
+  // Highest confidence in the QIE ecosystem. Fires immediately — capture this state.
+  const p70HasSignatureLock  = patterns.some(p => p.pattern === 'qos-signature-lock')
+  const p70HasOperatorSig    = patterns.some(p => p.pattern === 'operator-signature')
+  const p70HasIntegrationArc = patterns.some(p => p.pattern === 'integration-arc-peak')
+  if (p70HasSignatureLock && p70HasOperatorSig && p70HasIntegrationArc) {
+    patterns.push({
+      pattern: 'operator-convergence',
+      confidence: 0.97,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: 'OPERATOR CONVERGENCE: QOS signature locked · operator profile complete · integration arc at peak. All three confirmation gates open simultaneously. The system has a complete read. Record this state.'
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2154,6 +2173,8 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Integration arc + adaptive resonance peak nodes (2026-06-14 audit)
   integrationArcPeak:    ['mood', 'memory', 'selfcare', 'journal', 'planner', 'goals', 'intentions', 'energy'],
   adaptiveResonance:     ['qosSnapshot', 'userMetrics', 'systemProgress'],
+  operatorConvergence:   ['qosSignatureLock', 'operatorSignature', 'integrationArcPeak'],
+  communityBiofieldView: ['communityCoherencePulse', 'systemPulse'],
 }
 
 /**

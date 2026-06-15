@@ -788,6 +788,20 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report: LOT-SR-20260614-02. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-06-15',
+    session: 'Self-Assembly Session — v61 / P70 Operator Convergence · Community Biofield: · SystemPulse 5th View',
+    assembled: [
+      'intentionEngine.ts: P70 operator-convergence — fires when P66 (qos-signature-lock) + P67 (operator-signature) + P68 (integration-arc-peak) all active simultaneously. All three confirmation gates open. Confidence 0.97 — highest in QIE ecosystem. suggestedWidget: systemProgress · suggestedTiming: immediate.',
+      'Logs.tsx: CONV: handler — operator_convergence event. Renders CONF: % · P66 · P67 · P68 · "Full operator convergence confirmed." Military cockpit format.',
+      'SystemPulseWidget.tsx: Community Biofield: — 5th cycle view added. Surfaces community coherence index, top mood, active user count from Job 14\'s COHR-COMM: pulse. View cycle: metrics→activity→userload→cohort→community.',
+      'api.ts /system/pulse: community field added to response — latest community_coherence_pulse metadata (index, topMood, activeCount). Parallel DB query, 25h lookback, cached 5s.',
+      'api.ts displayableEvents: +1 — operator_convergence whitelisted for field log.',
+      'PatternRecognitionWidget.tsx: 1 new display name — operator-convergence → "Operator convergence — all systems confirmed".',
+      'intentionEngine.ts: dep map 104+→106+ nodes — operatorConvergence + communityBiofieldView added.',
+      'About.tsx: Field Manual v61 sync. Counters: 70 patterns · 21 archetypes · 106+ nodes · 14 jobs · 68+ handlers · 61 phases · Day 1011+.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -825,16 +839,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-14',
+  date: '2026-06-15',
   message: [
-    'ASSEMBLY RUN — 2026-06-14 · LOT-SR-20260614-02',
-    'P68 integration-arc-peak: fires when biological cascade (P40) AND execution arc (P43) both confirm in 24h. The rarest state — restoration and completion simultaneously. Confidence 0.85–0.95.',
-    'P69 adaptive-resonance: fires when QOS history shows structural rising trend + UserIndex stable above 55. Growth that holds across snapshots. Not intensity — architecture.',
-    'Archetype 21 Integration Architect: memory + planner + goals dominant. Full integration confirmed. The arc is complete.',
-    'Dep map: 104+ nodes. profileQRCode · directMessageThread · connectionStatus · investmentSwitch · integrationArcPeak · adaptiveResonance indexed.',
-    'Job 14: daily-coherence-index-pulse 16:00 UTC. Reads 4h emotional window across users. Writes community coherence index to COHR-COMM: field log.',
-    'LOG pipeline: 13 source types now tracked (added medical + resilience). 66+ event handlers. Community coherence visible.',
-    'The system now measures its own collective state. You are part of the coherence index.',
+    'ASSEMBLY RUN — 2026-06-15 · LOT-SR-20260615-01',
+    'P70 operator-convergence: all three confirmation gates open simultaneously — P66 (qos-signature-lock) + P67 (operator-signature) + P68 (integration-arc-peak). Confidence 0.97. The system has a complete read.',
+    'CONV: handler wired. Fires immediately. Record this state when it appears.',
+    'Community Biofield: — 5th view in System Pulse. Live community coherence index. Top mood. Active user count. From Job 14 — 16:00 UTC pulse.',
+    '/system/pulse now returns community field. COHR-COMM: data surfaces in real time.',
+    'Dep map: 106+ nodes. 70 patterns active. 68+ log handlers. 61 self-assembly phases committed.',
+    'The operator convergence gate is open. The system knows you completely.',
     'DEPLOYED.',
   ],
 }
