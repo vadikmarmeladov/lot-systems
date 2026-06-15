@@ -1361,6 +1361,72 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'signal_crystallization') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const goalCount      = log.metadata?.goalCount as number | undefined
+          const confidence     = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CRYSTAL:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="tabular-nums">INTENT: {intentionCount}</div>
+                )}
+                {goalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">GOAL: {goalCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biorhythm_lock') {
+          const anchoredDays = log.metadata?.anchoredDays as number | undefined
+          const confidence   = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BIO-LOCK:" blockView>
+                {anchoredDays !== undefined && (
+                  <div className="tabular-nums">DAYS: {anchoredDays}/7</div>
+                )}
+                <div className="opacity-60 uppercase tracking-widest mt-4">WINDOW: 7D</div>
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_coherence_summit') {
+          const userIndex  = log.metadata?.userIndex as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PEAK-SUMMIT:" blockView>
+                {userIndex !== undefined && (
+                  <div className="tabular-nums">IDX: {userIndex}/100</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-60 tabular-nums">CONF: {Math.round((confidence as number) * 100)}%</div>
+                )}
+                <div className="opacity-40 uppercase tracking-widest mt-4">ALL GATES OPEN</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'convergence_audit') {
+          const frequency = log.metadata?.frequency as number | undefined
+          const peakDay   = log.metadata?.peakDay as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CONV-AUDIT:" blockView>
+                {frequency !== undefined && (
+                  <div className="tabular-nums">FREQ: {frequency}× / 7D</div>
+                )}
+                {peakDay && (
+                  <div className="opacity-60 uppercase tracking-widest mt-4">PEAK: {peakDay}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

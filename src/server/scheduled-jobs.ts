@@ -904,6 +904,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyCoherenceIndexJob()) {
     await executeDailyCoherenceIndexJob()
   }
+
+  // Check weekly QOS convergence audit (Sunday 15:00 UTC)
+  if (shouldRunWeeklyQOSConvergenceJob()) {
+    await executeWeeklyQOSConvergenceAudit()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1963,6 +1968,117 @@ async function executeDailyCoherenceIndexJob(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly QOS Convergence Audit (Job 15 — Sundays 15:00 UTC) ─────────────
+
+let isWeeklyQOSConvergenceRunning = false
+let lastWeeklyQOSConvergenceRun: Date | null = null
+
+function shouldRunWeeklyQOSConvergenceJob(): boolean {
+  const now = dayjs()
+  if (isWeeklyQOSConvergenceRunning) return false
+  if (lastWeeklyQOSConvergenceRun) {
+    const lastRun = dayjs(lastWeeklyQOSConvergenceRun)
+    if (lastRun.isSame(now, 'week')) return false
+  }
+  return now.day() === 0 && now.hour() === 15 // Sunday 15:00 UTC
+}
+
+async function executeWeeklyQOSConvergenceAudit(): Promise<JobResult> {
+  const jobName = 'weekly-qos-convergence-audit'
+  const executedAt = new Date().toISOString()
+  if (isWeeklyQOSConvergenceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isWeeklyQOSConvergenceRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('WEEKLY QOS CONVERGENCE AUDIT — Sunday 15:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { User } = await import('#server/models/user.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    // Find active users from the last 7 days
+    const recentLogs = await Log.findAll({
+      where: { createdAt: { [Op.gte]: sevenDaysAgo } },
+      attributes: ['userId'],
+    })
+    const activeUserIds = [...new Set(recentLogs.map((l: any) => String(l.userId)))]
+
+    let written = 0
+    let totalConvergences = 0
+
+    for (const userId of activeUserIds) {
+      try {
+        // Count operator_convergence events in the last 7 days for this user
+        const convergenceLogs = await Log.findAll({
+          where: {
+            userId: Number(userId),
+            event: { [Op.in]: ['operator_convergence', 'qos_signature_lock', 'quantum_coherence_summit'] },
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+        })
+
+        const frequency = convergenceLogs.filter((l: any) => l.event === 'operator_convergence').length
+        const hasSummit  = convergenceLogs.some((l: any) => l.event === 'quantum_coherence_summit')
+
+        // Only write for users who had at least 1 convergence event
+        if (frequency === 0 && !hasSummit) continue
+
+        // Find the peak day (day with most convergence events)
+        const dayMap: Record<string, number> = {}
+        for (const l of convergenceLogs) {
+          const dayKey = dayjs((l as any).createdAt).format('YYYY-MM-DD')
+          dayMap[dayKey] = (dayMap[dayKey] ?? 0) + 1
+        }
+        const peakDay = Object.entries(dayMap).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'unknown'
+
+        totalConvergences += frequency
+
+        await Log.create({
+          userId: Number(userId),
+          event: 'convergence_audit',
+          text: '',
+          metadata: {
+            frequency,
+            peakDay,
+            hasSummit,
+            window: '7d',
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} convergence audit failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Active users scanned: ${activeUserIds.length}`)
+    console.log(`  Convergence reports written: ${written}`)
+    console.log(`  Total convergence events: ${totalConvergences}`)
+    console.log('─'.repeat(60))
+    console.log('WEEKLY QOS CONVERGENCE AUDIT COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyQOSConvergenceRun = new Date()
+    isWeeklyQOSConvergenceRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned: activeUserIds.length, written, totalConvergences },
+    }
+  } catch (error: any) {
+    console.error('Weekly QOS convergence audit failed:', error.message)
+    isWeeklyQOSConvergenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1992,6 +2108,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily archetype shift monitor: 10 AM UTC every day')
   console.log('   - Daily QOS signature pulse: 1 PM UTC every day')
   console.log('   - Daily coherence index pulse: 4 PM UTC every day')
+  console.log('   - Weekly QOS convergence audit: 3 PM UTC every Sunday')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2001,8 +2118,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 13=QOS sig pulse, 16=coherence index, 20=intention completion, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 13 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 13 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

@@ -1051,6 +1051,8 @@ export default async (fastify: FastifyInstance) => {
       'integration_arc_peak', 'adaptive_resonance', 'community_coherence_pulse',
       // Operator convergence (v61) — all 3 signature gates open simultaneously
       'operator_convergence',
+      // v62: signal crystallization · biorhythm lock · quantum coherence summit · convergence audit
+      'signal_crystallization', 'biorhythm_lock', 'quantum_coherence_summit', 'convergence_audit',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
