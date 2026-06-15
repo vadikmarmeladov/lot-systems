@@ -899,6 +899,16 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyQOSSignaturePulse()) {
     await executeDailyQOSSignaturePulse()
   }
+
+  // Check daily coherence index pulse (16:00 UTC daily)
+  if (shouldRunDailyCoherenceIndexJob()) {
+    await executeDailyCoherenceIndexJob()
+  }
+
+  // Check weekly QOS convergence audit (Sunday 15:00 UTC)
+  if (shouldRunWeeklyQOSConvergenceJob()) {
+    await executeWeeklyQOSConvergenceAudit()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -1861,6 +1871,214 @@ async function executeDailyQOSSignaturePulse(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Coherence Index Pulse (Job 14 — 16:00 UTC) ────────────────────────
+
+let isDailyCoherenceIndexRunning = false
+let lastDailyCoherenceIndexRun: Date | null = null
+
+function shouldRunDailyCoherenceIndexJob(): boolean {
+  const now = dayjs()
+  if (isDailyCoherenceIndexRunning) return false
+  if (lastDailyCoherenceIndexRun) {
+    const lastRun = dayjs(lastDailyCoherenceIndexRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 16
+}
+
+async function executeDailyCoherenceIndexJob(): Promise<JobResult> {
+  const jobName = 'daily-coherence-index-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyCoherenceIndexRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCoherenceIndexRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY COHERENCE INDEX PULSE — 16:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const fourHoursAgo = dayjs().subtract(4, 'hour').toDate()
+
+    // Pull recent emotional check-ins across all users
+    const recentLogs = await Log.findAll({
+      where: {
+        event: 'emotional_checkin',
+        createdAt: { [Op.gte]: fourHoursAgo },
+      },
+    })
+
+    const activeUserIds = new Set(recentLogs.map((l: any) => String(l.userId)))
+    const activeUserCount = activeUserIds.size
+
+    const positiveMoods = new Set(['calm', 'peaceful', 'energized', 'hopeful', 'grateful', 'content', 'excited'])
+    const moodCounts: Record<string, number> = {}
+    let positiveCount = 0
+
+    for (const l of recentLogs) {
+      const mood = (l.metadata as any)?.emotionalState as string | undefined
+      if (!mood) continue
+      moodCounts[mood] = (moodCounts[mood] ?? 0) + 1
+      if (positiveMoods.has(mood)) positiveCount++
+    }
+
+    const topMood = Object.entries(moodCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'unknown'
+    const communityIndex = activeUserCount > 0 ? Math.round((positiveCount / recentLogs.length) * 100) : 0
+
+    console.log(`  Active users (4h): ${activeUserCount}`)
+    console.log(`  Top mood: ${topMood}`)
+    console.log(`  Community coherence index: ${communityIndex}%`)
+
+    // Write community_coherence_pulse log for each active user
+    let written = 0
+    for (const userId of activeUserIds) {
+      try {
+        await Log.create({
+          userId: Number(userId),
+          event: 'community_coherence_pulse',
+          text: '',
+          metadata: { communityIndex, topMood, activeUserCount },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} coherence pulse failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Coherence logs written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('COHERENCE INDEX PULSE COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyCoherenceIndexRun = new Date()
+    isDailyCoherenceIndexRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { activeUserCount, communityIndex, topMood, written },
+    }
+  } catch (error: any) {
+    console.error('Daily coherence index pulse failed:', error.message)
+    isDailyCoherenceIndexRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Weekly QOS Convergence Audit (Job 15 — Sundays 15:00 UTC) ─────────────
+
+let isWeeklyQOSConvergenceRunning = false
+let lastWeeklyQOSConvergenceRun: Date | null = null
+
+function shouldRunWeeklyQOSConvergenceJob(): boolean {
+  const now = dayjs()
+  if (isWeeklyQOSConvergenceRunning) return false
+  if (lastWeeklyQOSConvergenceRun) {
+    const lastRun = dayjs(lastWeeklyQOSConvergenceRun)
+    if (lastRun.isSame(now, 'week')) return false
+  }
+  return now.day() === 0 && now.hour() === 15 // Sunday 15:00 UTC
+}
+
+async function executeWeeklyQOSConvergenceAudit(): Promise<JobResult> {
+  const jobName = 'weekly-qos-convergence-audit'
+  const executedAt = new Date().toISOString()
+  if (isWeeklyQOSConvergenceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isWeeklyQOSConvergenceRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('WEEKLY QOS CONVERGENCE AUDIT — Sunday 15:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { User } = await import('#server/models/user.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    // Find active users from the last 7 days
+    const recentLogs = await Log.findAll({
+      where: { createdAt: { [Op.gte]: sevenDaysAgo } },
+      attributes: ['userId'],
+    })
+    const activeUserIds = [...new Set(recentLogs.map((l: any) => String(l.userId)))]
+
+    let written = 0
+    let totalConvergences = 0
+
+    for (const userId of activeUserIds) {
+      try {
+        // Count operator_convergence events in the last 7 days for this user
+        const convergenceLogs = await Log.findAll({
+          where: {
+            userId: Number(userId),
+            event: { [Op.in]: ['operator_convergence', 'qos_signature_lock', 'quantum_coherence_summit'] },
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+        })
+
+        const frequency = convergenceLogs.filter((l: any) => l.event === 'operator_convergence').length
+        const hasSummit  = convergenceLogs.some((l: any) => l.event === 'quantum_coherence_summit')
+
+        // Only write for users who had at least 1 convergence event
+        if (frequency === 0 && !hasSummit) continue
+
+        // Find the peak day (day with most convergence events)
+        const dayMap: Record<string, number> = {}
+        for (const l of convergenceLogs) {
+          const dayKey = dayjs((l as any).createdAt).format('YYYY-MM-DD')
+          dayMap[dayKey] = (dayMap[dayKey] ?? 0) + 1
+        }
+        const peakDay = Object.entries(dayMap).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'unknown'
+
+        totalConvergences += frequency
+
+        await Log.create({
+          userId: Number(userId),
+          event: 'convergence_audit',
+          text: '',
+          metadata: {
+            frequency,
+            peakDay,
+            hasSummit,
+            window: '7d',
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} convergence audit failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Active users scanned: ${activeUserIds.length}`)
+    console.log(`  Convergence reports written: ${written}`)
+    console.log(`  Total convergence events: ${totalConvergences}`)
+    console.log('─'.repeat(60))
+    console.log('WEEKLY QOS CONVERGENCE AUDIT COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyQOSConvergenceRun = new Date()
+    isWeeklyQOSConvergenceRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned: activeUserIds.length, written, totalConvergences },
+    }
+  } catch (error: any) {
+    console.error('Weekly QOS convergence audit failed:', error.message)
+    isWeeklyQOSConvergenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -1889,6 +2107,8 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily source diversity pulse: 7 AM UTC every day')
   console.log('   - Daily archetype shift monitor: 10 AM UTC every day')
   console.log('   - Daily QOS signature pulse: 1 PM UTC every day')
+  console.log('   - Daily coherence index pulse: 4 PM UTC every day')
+  console.log('   - Weekly QOS convergence audit: 3 PM UTC every Sunday')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -1898,8 +2118,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 13=QOS sig pulse, 20=intention completion, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 13) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 13 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

@@ -380,22 +380,17 @@ export const Logs: React.FC = () => {
           const needsReplenishment = log.metadata?.needsReplenishment as string[] | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="BIOFIELD:" blockView>
+              <Block label="BIO:" blockView>
                 {status && (
                   <div className="uppercase tracking-widest mb-4">{status}</div>
                 )}
                 {level !== undefined && (
-                  <div className="opacity-60">
-                    ATP: {level}%
-                    {trajectory && (
-                      <span className="ml-8 capitalize opacity-60">{trajectory}</span>
-                    )}
+                  <div className="opacity-60 tabular-nums">
+                    ATP: {level}%{trajectory && <span className="ml-8 capitalize opacity-60">{trajectory}</span>}
                   </div>
                 )}
                 {needsReplenishment && needsReplenishment.length > 0 && (
-                  <div className="opacity-40 mt-4">
-                    NEED: {needsReplenishment.slice(0, 2).join(', ')}
-                  </div>
+                  <div className="opacity-40 mt-4">NEED: {needsReplenishment.slice(0, 2).join(' · ')}</div>
                 )}
               </Block>
             </LogContainer>
@@ -1300,6 +1295,134 @@ export const Logs: React.FC = () => {
                     <span className="opacity-30">DIV</span>
                     <span className="tabular-nums">{Math.round(diversityScore * 100)}%</span>
                   </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'integration_arc_peak') {
+          const confidence = log.metadata?.confidence as number | undefined
+          const triggers = log.metadata?.triggers as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ARC-PEAK:" blockView>
+                {confidence !== undefined && (
+                  <div className="opacity-60 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+                {triggers && triggers.length > 0 && (
+                  <div className="opacity-40 mt-4">{triggers.join(' · ')}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'adaptive_resonance') {
+          const index = log.metadata?.index as number | undefined
+          const trend = log.metadata?.trend as string | undefined
+          const days = log.metadata?.days as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ADAPT:" blockView>
+                {index !== undefined && (
+                  <div className="tabular-nums">IDX: {index}/100</div>
+                )}
+                {trend && <div className="opacity-60 uppercase tracking-widest mt-4">TREND: {trend}</div>}
+                {days !== undefined && (
+                  <div className="opacity-40 tabular-nums">DAYS: {days}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'community_coherence_pulse') {
+          const communityIndex = log.metadata?.communityIndex as number | undefined
+          const topMood = log.metadata?.topMood as string | undefined
+          const activeCount = log.metadata?.activeUserCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COHR-COMM:" blockView>
+                {communityIndex !== undefined && (
+                  <div className="tabular-nums">IDX: {communityIndex}%</div>
+                )}
+                {topMood && <div className="opacity-60 uppercase tracking-widest mt-4">{topMood}</div>}
+                {activeCount !== undefined && (
+                  <div className="opacity-40 tabular-nums">ACTIVE: {activeCount}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'operator_convergence') {
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CONV:" blockView>
+                {confidence !== undefined && (
+                  <div className="tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+                <div className="opacity-60 uppercase tracking-widest mt-4">P66 · P67 · P68</div>
+                <div className="opacity-40 mt-4">Full operator convergence confirmed.</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_crystallization') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const goalCount      = log.metadata?.goalCount as number | undefined
+          const confidence     = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CRYSTAL:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="tabular-nums">INTENT: {intentionCount}</div>
+                )}
+                {goalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">GOAL: {goalCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biorhythm_lock') {
+          const anchoredDays = log.metadata?.anchoredDays as number | undefined
+          const confidence   = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BIO-LOCK:" blockView>
+                {anchoredDays !== undefined && (
+                  <div className="tabular-nums">DAYS: {anchoredDays}/7</div>
+                )}
+                <div className="opacity-60 uppercase tracking-widest mt-4">WINDOW: 7D</div>
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_coherence_summit') {
+          const userIndex  = log.metadata?.userIndex as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PEAK-SUMMIT:" blockView>
+                {userIndex !== undefined && (
+                  <div className="tabular-nums">IDX: {userIndex}/100</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-60 tabular-nums">CONF: {Math.round((confidence as number) * 100)}%</div>
+                )}
+                <div className="opacity-40 uppercase tracking-widest mt-4">ALL GATES OPEN</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'convergence_audit') {
+          const frequency = log.metadata?.frequency as number | undefined
+          const peakDay   = log.metadata?.peakDay as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CONV-AUDIT:" blockView>
+                {frequency !== undefined && (
+                  <div className="tabular-nums">FREQ: {frequency}× / 7D</div>
+                )}
+                {peakDay && (
+                  <div className="opacity-60 uppercase tracking-widest mt-4">PEAK: {peakDay}</div>
                 )}
               </Block>
             </LogContainer>

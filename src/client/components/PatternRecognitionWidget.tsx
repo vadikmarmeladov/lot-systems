@@ -11,7 +11,6 @@ import { Block, Button } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import {
   intentionEngine,
-  analyzeIntentions,
   getOptimalWidget,
   getQOSHistory,
   getCircadianPhase,
@@ -50,11 +49,6 @@ export function PatternRecognitionWidget() {
   const engine = useStore(intentionEngine)
   const { data: logs = [] } = useLogs()
   const logCtx = useLogContext()
-
-  // Trigger analysis
-  React.useEffect(() => {
-    analyzeIntentions()
-  }, [logs])
 
   const qosHistory = React.useMemo(() => getQOSHistory(), [engine])
 
@@ -106,7 +100,13 @@ export function PatternRecognitionWidget() {
       'intention-follow-through':   'Execution arc complete',
       'circadian-anchor-loss':      'Circadian anchor lost',
       'qos-signature-lock':         'QOS signature locked',
-      'operator-signature':         'Operator signature complete'
+      'operator-signature':         'Operator signature complete',
+      'integration-arc-peak':       'Full integration arc confirmed',
+      'adaptive-resonance':         'Adaptive resonance detected',
+      'operator-convergence':       'Operator convergence — all systems confirmed',
+      'signal-crystallization':     'Signal crystallized — intent to execution in 24h',
+      'biorhythm-lock':             'Biorhythm anchored — 5+ day morning/evening cadence',
+      'quantum-coherence-summit':   'QUANTUM COHERENCE SUMMIT — highest confirmed state'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -329,6 +329,27 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'circadian-anchor-loss') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Circadian anchor lost. Rest protocol.
+                </div>
+              )}
+
+              {/* Signal crystallization indicator — surfaces when pattern 71 is active */}
+              {patterns.some(p => p.pattern === 'signal-crystallization') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Signal crystallized. Intent became execution.
+                </div>
+              )}
+
+              {/* Biorhythm lock indicator — surfaces when pattern 72 is active */}
+              {patterns.some(p => p.pattern === 'biorhythm-lock') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Biorhythm anchored. 5+ day cadence locked.
+                </div>
+              )}
+
+              {/* Quantum coherence summit indicator — surfaces when pattern 73 is active */}
+              {patterns.some(p => p.pattern === 'quantum-coherence-summit') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  SUMMIT. All gates open. Peak state confirmed.
                 </div>
               )}
 

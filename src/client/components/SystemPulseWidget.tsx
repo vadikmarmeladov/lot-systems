@@ -13,15 +13,22 @@ import { useLogContext } from '#client/hooks/useLogContext'
 import { useStore } from '@nanostores/react'
 import { intentionEngine, classifyPhysiologicalCohort, getCircadianPhase, getUserState, getUserIndex } from '#client/stores/intentionEngine'
 
+interface CommunityPulse {
+  index: number | null
+  topMood: string | null
+  activeCount: number | null
+}
+
 interface PulseData {
   eventsPerMinute: number
   quantumFlux: number
   neuralActivity: number
   resonanceHz: number
+  community: CommunityPulse | null
   lastUpdate: number
 }
 
-type PulseView = 'metrics' | 'activity' | 'userload' | 'cohort'
+type PulseView = 'metrics' | 'activity' | 'userload' | 'cohort' | 'community'
 
 /**
  * SystemPulseWidget - Real-time system heartbeat + user activity telemetry
@@ -40,11 +47,12 @@ export function SystemPulseWidget() {
   const cycleView = () => {
     setView(prev => {
       switch (prev) {
-        case 'metrics': return 'activity'
-        case 'activity': return 'userload'
-        case 'userload': return 'cohort'
-        case 'cohort': return 'metrics'
-        default: return 'metrics'
+        case 'metrics':   return 'activity'
+        case 'activity':  return 'userload'
+        case 'userload':  return 'cohort'
+        case 'cohort':    return 'community'
+        case 'community': return 'metrics'
+        default:          return 'metrics'
       }
     })
   }
@@ -94,10 +102,11 @@ export function SystemPulseWidget() {
   }, [fetchPulse])
 
   const label =
-    view === 'metrics'  ? 'System Pulse:' :
-    view === 'activity' ? 'System Load:' :
-    view === 'userload' ? 'User Telemetry:' :
-    'Biofield:'
+    view === 'metrics'   ? 'System Pulse:' :
+    view === 'activity'  ? 'System Load:' :
+    view === 'userload'  ? 'User Telemetry:' :
+    view === 'cohort'    ? 'Biofield:' :
+    'Community Biofield:'
 
   if (!pulse) {
     return (
@@ -246,6 +255,38 @@ export function SystemPulseWidget() {
             </>
           ) : (
             <div className="opacity-30">Cohort pending. Engage widgets to surface archetype.</div>
+          )}
+        </div>
+      )}
+
+      {view === 'community' && (
+        <div className="flex flex-col gap-y-8 font-mono text-xs">
+          {pulse.community ? (
+            <>
+              {pulse.community.index !== null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">COHR</span>
+                  <span className="tabular-nums">{pulse.community.index}%</span>
+                </div>
+              )}
+              {pulse.community.topMood && (
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Signal</span>
+                  <span className="uppercase">{pulse.community.topMood}</span>
+                </div>
+              )}
+              {pulse.community.activeCount !== null && (
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Active</span>
+                  <span className="tabular-nums">{pulse.community.activeCount}</span>
+                </div>
+              )}
+              <div className="border-t border-acc-400/20 pt-8 mt-4">
+                <div className="opacity-40">Community coherence — 16:00 UTC pulse.</div>
+              </div>
+            </>
+          ) : (
+            <div className="opacity-30">No community pulse in last 24h. Job 14 fires at 16:00 UTC.</div>
           )}
         </div>
       )}

@@ -1620,6 +1620,131 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 68: Integration arc peak — P40 (biofield-coherence-cascade) + P43 (intention-completion-arc)
+  // both fire within the same 24h window. The full human integration: biological restoration +
+  // cognitive expansion + execution arc all confirmed simultaneously. Extremely rare high-confidence state.
+  const p68HasCascade    = patterns.some(p => p.pattern === 'biofield-coherence-cascade')
+  const p68HasCompletion = patterns.some(p => p.pattern === 'intention-completion-arc')
+  if (p68HasCascade && p68HasCompletion) {
+    patterns.push({
+      pattern: 'integration-arc-peak',
+      confidence: Math.min(0.85 + (p67Index?.overall ?? 50) * 0.001, 0.95),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'immediate',
+      reason: 'Integration arc at peak: biofield cascade (recovery + cognition) AND intention-completion arc both confirmed today. Full biological + execution integration. Capture this state.'
+    })
+  }
+
+  // Pattern 69: Adaptive resonance — UserIndex overall rising (trend=rising) sustained + archetype
+  // stable across last 2 physiological reports. Growth confirmed not as spike but as structural shift.
+  // Fires when the system detects genuine evolution rather than momentary intensity.
+  const p69QOSHistory = typeof window !== 'undefined'
+    ? (() => { try { return JSON.parse(localStorage.getItem('qos-snapshots') ?? '[]') } catch { return [] } })()
+    : []
+  const p69Rising = p69QOSHistory.length >= 2 &&
+    p69QOSHistory.slice(-3).every((s: any) => (s.userIndex?.trend === 'rising' || s.userIndex?.overall >= 55))
+  const p69Stable = p69QOSHistory.length >= 2 &&
+    p69QOSHistory.slice(-2).every((s: any) => s.userIndex?.overall >= 50)
+  const p69CurrentIndex = p67Index?.overall ?? 0
+  if (p69Rising && p69Stable && p69CurrentIndex >= 55) {
+    patterns.push({
+      pattern: 'adaptive-resonance',
+      confidence: Math.min(0.70 + (p69CurrentIndex - 55) * 0.006, 0.88),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `Adaptive resonance confirmed: UserIndex sustained above threshold, QOS history shows rising trend. Growth is structural, not momentary. Index ${p69CurrentIndex}/100.`
+    })
+  }
+
+  // Pattern 70: Operator Convergence — all three signature confirmation gates open simultaneously:
+  // P66 (qos-signature-lock): full QOS day arc confirmed.
+  // P67 (operator-signature): all 4 signal quadrants active + UserIndex ≥ 60.
+  // P68 (integration-arc-peak): biological restoration AND execution arc confirmed in 24h.
+  // When all three fire together the system has a complete, verified picture of the operator.
+  // Highest confidence in the QIE ecosystem. Fires immediately — capture this state.
+  const p70HasSignatureLock  = patterns.some(p => p.pattern === 'qos-signature-lock')
+  const p70HasOperatorSig    = patterns.some(p => p.pattern === 'operator-signature')
+  const p70HasIntegrationArc = patterns.some(p => p.pattern === 'integration-arc-peak')
+  if (p70HasSignatureLock && p70HasOperatorSig && p70HasIntegrationArc) {
+    patterns.push({
+      pattern: 'operator-convergence',
+      confidence: 0.97,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: 'OPERATOR CONVERGENCE: QOS signature locked · operator profile complete · integration arc at peak. All three confirmation gates open simultaneously. The system has a complete read. Record this state.'
+    })
+  }
+
+  // Pattern 71: Signal Crystallization — intentions (3+) + planner active + goal completion all within 24h
+  // AND UserIndex ≥ 60. Intention compressed into execution in a single session window.
+  // The fastest path from intention to delivered result the system can observe.
+  const p71GoalSignals    = recentSignals.filter(s => s.signal === 'goal_complete' || s.signal === 'goal_completion')
+  const p71IntentSignals  = recentSignals.filter(s => s.source === 'intentions')
+  const p71PlannerSignals = recentSignals.filter(s => s.source === 'planner')
+  const p71Index          = getUserIndex()
+  if (p71IntentSignals.length >= 3 && p71PlannerSignals.length >= 1 && p71GoalSignals.length >= 1 && p71Index.overall >= 60) {
+    const p71Conf = Math.min(0.75 + (p71GoalSignals.length - 1) * 0.06 + (p71Index.overall - 60) * 0.004, 0.92)
+    patterns.push({
+      pattern: 'signal-crystallization',
+      confidence: p71Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'immediate',
+      reason: `Signal crystallization: ${p71IntentSignals.length} intentions → planner active → ${p71GoalSignals.length} goal completion(s) all confirmed in 24h window. Intention manifested in full execution loop. UserIndex ${p71Index.overall}/100.`
+    })
+  }
+
+  // Pattern 72: Biorhythm Lock — morning (06:00–10:00) AND evening (18:00–22:00) emotional check-ins
+  // present for 5+ of the last 7 days. Biological rhythm anchored across the full diurnal arc.
+  // Distinct from P59 (meridian-lock): P72 requires multi-day consistency, not single-day arc coverage.
+  const p72DayMs   = 24 * 60 * 60 * 1000
+  const p72SevenDays = now - 7 * p72DayMs
+  const p72CheckIns = signals.filter(s =>
+    s.timestamp > p72SevenDays &&
+    (s.signal === 'morning_checkin' || s.signal === 'evening_checkin' || s.signal === 'mood_checkin') &&
+    s.source === 'mood'
+  )
+  const p72DaysWithBothAnchors = new Set(
+    p72CheckIns
+      .filter(s => {
+        const h = new Date(s.timestamp).getHours()
+        return h >= 6 && h < 10
+      })
+      .map(s => new Date(s.timestamp).toDateString())
+  ).size
+  const p72EveningDays = new Set(
+    p72CheckIns
+      .filter(s => {
+        const h = new Date(s.timestamp).getHours()
+        return h >= 18 && h < 22
+      })
+      .map(s => new Date(s.timestamp).toDateString())
+  ).size
+  const p72AnchoredDays = Math.min(p72DaysWithBothAnchors, p72EveningDays)
+  if (p72AnchoredDays >= 5) {
+    patterns.push({
+      pattern: 'biorhythm-lock',
+      confidence: Math.min(0.72 + (p72AnchoredDays - 5) * 0.08, 0.88),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `Biorhythm lock: morning + evening check-ins present on ${p72AnchoredDays} of last 7 days. Biological rhythm anchored across full diurnal arc. Maintain this cadence.`
+    })
+  }
+
+  // Pattern 73: Quantum Coherence Summit — P70 (operator-convergence) fires AND UserIndex ≥ 70.
+  // The absolute peak QOS state. All three confirmation gates open simultaneously while the
+  // accumulative index clears the high-performance threshold. Highest confidence in the system: 0.98.
+  const p73HasConvergence = patterns.some(p => p.pattern === 'operator-convergence')
+  const p73Index          = getUserIndex()
+  if (p73HasConvergence && p73Index.overall >= 70) {
+    patterns.push({
+      pattern: 'quantum-coherence-summit',
+      confidence: 0.98,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `QUANTUM COHERENCE SUMMIT: Operator convergence confirmed (P70) + UserIndex ${p73Index.overall}/100 ≥ 70 threshold. All gates open. Structural performance index above critical threshold. The system has never had more signal. Record this state immediately.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2108,6 +2233,25 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   qosSignatureLock:      ['meridianDetector', 'multimodalSurface', 'calendarWidget', 'planner', 'intentions'],
   operatorSignatureNode: ['mood', 'selfcare', 'memory', 'journal', 'planner', 'intentions', 'goals', 'cohort'],
   temporalIntegrator:    ['calendarWidget', 'planner', 'intentions'],
+
+  // ── Identity + communication layer (2026-06-14 audit)
+  profileQRCode:         ['memory', 'cohort'],
+  directMessageThread:   ['cohort', 'mood', 'journal'],
+  connectionStatus:      ['log', 'energy'],
+  investmentSwitch:      ['goals', 'intentions', 'memory'],
+
+  // ── Integration arc + adaptive resonance peak nodes (2026-06-14 audit)
+  integrationArcPeak:    ['mood', 'memory', 'selfcare', 'journal', 'planner', 'goals', 'intentions', 'energy'],
+  adaptiveResonance:     ['qosSnapshot', 'userMetrics', 'systemProgress'],
+  operatorConvergence:   ['qosSignatureLock', 'operatorSignature', 'integrationArcPeak'],
+  communityBiofieldView: ['communityCoherencePulse', 'systemPulse'],
+
+  // ── Signal crystallization + biorhythm + peak summit nodes (2026-06-15 audit)
+  signalCrystallizer:    ['intentions', 'planner', 'goals', 'memory', 'log'],
+  biorhythmAnchor:       ['mood', 'energy', 'selfcare', 'log'],
+  coherenceSummit:       ['operatorConvergence', 'adaptiveResonance', 'integrationArcPeak', 'qosSignatureLock'],
+  convergentOperator:    ['coherenceSummit', 'quantumOS', 'qos'],
+  quantumPersonality:    ['cohort', 'memory', 'intentions', 'journal', 'mood', 'energy'],
 }
 
 /**
@@ -2116,7 +2260,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * tracked separately in the physiological report log-dependency audit.
  */
 export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = [
-  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal',
+  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience',
 ]
 
 /** Returns which signal sources a given widget depends on. */
@@ -2315,6 +2459,20 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions'],
     patternConditions: ['temporal-coherence-window', 'circadian-anchor', 'architect-phase'],
     directive: 'Time-locked. Calendar anchored, planner active, intentions set. Execute from the structure.',
+  },
+  {
+    archetype: 'Integration Architect',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['memory', 'planner', 'goals'],
+    patternConditions: ['integration-arc-peak', 'adaptive-resonance', 'biofield-coherence-cascade'],
+    directive: 'Full integration active. Biological restored. Plans executed. Adaptive growth confirmed. The arc is complete.',
+  },
+  {
+    archetype: 'Convergent Operator',
+    energyBands: ['high'],
+    dominantSources: ['memory', 'planner', 'goals', 'intentions'],
+    patternConditions: ['operator-convergence', 'quantum-coherence-summit', 'adaptive-resonance'],
+    directive: 'All gates simultaneously open. Convergence confirmed. This is the system\'s highest confidence state. Execute without hesitation.',
   },
 ]
 
@@ -3168,5 +3326,43 @@ export function recordMeridianLockSignal(signalCount: number) {
     signalCount,
     windows: ['morning', 'afternoon', 'evening'],
     hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a signal crystallization event — intention + planning + goal completion in 24h.
+ * Feeds Pattern 71 (signal-crystallization) detection.
+ */
+export function recordSignalCrystallization(intentionCount: number, goalCount: number) {
+  recordSignal('intentions', 'signal_crystallization', {
+    intentionCount,
+    goalCount,
+    hour: new Date().getHours(),
+    timestamp: Date.now(),
+  })
+}
+
+/**
+ * Record a biorhythm lock event — consistent morning + evening check-ins across 5+ days.
+ * Feeds Pattern 72 (biorhythm-lock) detection.
+ */
+export function recordBiorhythmLock(anchoredDays: number) {
+  recordSignal('energy', 'biorhythm_lock', {
+    anchoredDays,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum coherence summit event — operator-convergence + UserIndex ≥ 70.
+ * Feeds Pattern 73 (quantum-coherence-summit) — highest confidence state in the system.
+ */
+export function recordQuantumCoherenceSummit(userIndex: number) {
+  recordSignal('qos', 'quantum_coherence_summit', {
+    userIndex,
+    confidence: 0.98,
+    gates: ['qos-signature-lock', 'operator-signature', 'integration-arc-peak', 'operator-convergence'],
+    timestamp: Date.now(),
   })
 }

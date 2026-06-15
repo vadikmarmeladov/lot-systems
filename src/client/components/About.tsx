@@ -268,7 +268,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v57 · v1.3.0</Meta>
+            <Meta>Field Manual v61 · v1.3.0</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -283,15 +283,15 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              v1.3.0. Day 1007+. Continuous operation since launch.
-              67 behavioral patterns active. 15 modules assembled.
-              6 index dimensions. 5 ecosystem nodes. 20 physiological archetypes.
-              99+ dependency nodes. 13 background jobs.
-              58+ log event handlers. 125 active branches scanned.
-              121 badges catalogued. The system does not sleep. It accumulates.
+              v1.3.0. Day 1012+. Continuous operation since launch.
+              73 behavioral patterns active. 18 modules assembled.
+              6 index dimensions. 5 ecosystem nodes. 22 physiological archetypes.
+              111+ dependency nodes. 15 background jobs.
+              72+ log event handlers. 125 active branches scanned.
+              149 badges catalogued. The system does not sleep. It accumulates.
             </P>
             <P>
-              Field Manual v57. Not marketing copy. Not documentation for external audiences.
+              Field Manual v62. Not marketing copy. Not documentation for external audiences.
               Operational reference for operators of the system.
               Definitions are exact. Terminology is fixed. Imprecision is a defect.
               Every term in this document exists in the codebase.
@@ -361,16 +361,16 @@ export function About() {
             the operating record — not a streak, not a score. A clock.
             The system does not reset. It accumulates.
           </P>
-          <Row label="Day counter:" value="Day 1007+ (as of June 12, 2026)" />
-          <Row label="Self-Assembly phase:" value="v58 — QIE Engineering June 13 · P66 qos-signature-lock (meridian+multimodal+temporal → lock) · P67 operator-signature (all 4 signal quadrants + UserIndex ≥60 → full signature) · Archetype 20 Temporal Integrator (planner+intentions+temporal grid) · dep map 96+→99+ nodes (qosSignatureLock · operatorSignatureNode · temporalIntegrator) · Job 13 daily-qos-signature-pulse 13:00 UTC · Logs: QOS-SIG: + OP-SIG: handlers · System quantum table: Directive row surfaced from classifyPhysiologicalCohort · QuantumEngineWidgets cohort view: live directive line · PatternRecognitionWidget: 2 new pattern names · Server whitelist: qos_signature_lock + operator_signature — v57 — QIE Engineering June 12 · physiological cohort surfaced in System Biofield: view (Archetype row in quantum table) · log military pass: CARM/CSPRL/BPEAK/MER/MULTI handlers compressed — narration removed · dep map 93+→96+ nodes (corporatePlan · memoryEngineStats · intentionPatterns) · background job 12 (daily-archetype-shift-monitor 10:00 UTC: detects archetype transitions, writes ARCH-SHIFT: event) · server displayableEvents expanded: +physiological_cohort + archetype_shift + scheduled_job + badge_unlock + goal events + medical_record + care + plan + session + recipe + benchmark (17 new event types) — v56 — LOG Terminal Wiring June 12 · 5 terminal commands live: /breathe (BRE: 4-2-6 ASCII rhythm) · /fast (FAST: orthodox calendar) · /silent (SIL [PROTOCOL]: signal stream audit) · /freeze (FREEZE: timestamp pause) · /phys (PHYS: full physiological readout) — v55 — Full Wiki Scan June 12 · CQGS white paper documented (Mother Goddess parable · Quantum Certified Factory · Bioethics Index · 6 technology layers · CQGS-to-LOT platform map) · 19 archetypes current · vocabulary synchronized · CQGS added to lexicon · military purity pass applied · the map and the territory are synchronized — v54b — QIE Engineering June 11 · dep map 87+→93+ nodes (5 new: benchmarkWidget · fourDimensionalUI · angelInvestor · demoDay · subscribeWidget) · LOG_DEPENDENCY_SOURCES 8→11 (planner · selfcare · journal added) · 3 new handlers: ARCH-SHIFT: · INTENT-X: · DIV-PULSE: (56+ handlers total) · Archetype 19 (Integrated Operator) · background job 11 (daily source diversity pulse 08:00 UTC) · LOT_SYSTEMS_BRIEF.md v3.2 — v54 — Full Wiki Scan June 11 · Badges & Achievements Master Codex v11 documented (121 badges, 11 categories: +Time v2 Easter Eggs · +Word Turn v2 Sci-Fi Expansion · +Mastery Tier Sci-Fi Arcade — +29 new badges from v10 baseline of 76) · Cross-Device Sync doctrine added (SSE settings_updated broadcast · answer dedup guard · visibility refetch) · vocabulary synchronized · military purity pass applied · the map and the territory are synchronized — v53 — Full Wiki Scan June 10 · Badges & Achievements Master Codex v10 documented (76 badges, 9 categories, Sci-Fi Arcade v2 expansion) · CORPORATE layer first documented: W3C Public Appeal for Sentient Web standards · LOT® Design Lab Summer 2026 commission · FMCG Subscription Architecture Plan 2027 (physical essentials pivot, $399/month Basic Essentials) · engineering: nav lag fix + chime toggle fix · vocabulary synchronized · military purity pass applied · the map and the territory are synchronized — v52 — Full Wiki Scan June 9 · QIE v52 integration documented · 6 new log handlers (CSPRL: BPEAK: MER: MULTI: CAL: QOS-COHR:) · 53 handlers total · background job 10 (weekly-archetype-stability-monitor Thu 05:00 UTC) · 87+ dep nodes · SystemPulseWidget Biofield: 4th cycle view documented · LOG_DEPENDENCY_SOURCES expanded to 8 · vocabulary synchronized · language refined toward computer future · military purity pass applied · the map and the territory are synchronized — v51 — Full Branch Scan June 7 · 125 branches confirmed · Graceful Degradation doctrine (rev F clause 7: server catch must not default to restrictive value — field absent on error — client gate treats absent as allow) · vocabulary synchronized · language refined toward computer future · military purity pass applied · the map and the territory are synchronized — v50 — Wiki Full Scan June 6 · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · QI · RFI · INTSUM added to vocabulary · badges · cohorts · internal vocabulary detailed · language refined toward computer future · military purity pass applied — v49: Viewport Isolation · LazyMount QuantumEngineWidgets · useInViewport hook · MicroGame loop viewport-gated · IntersectionObserver render isolation complete — v48: Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
+          <Row label="Day counter:" value="Day 1011+ (as of June 15, 2026)" />
+          <Row label="Self-Assembly phase:" value="v62 — QIE Engineering June 15 · P71 signal-crystallization (3+ intentions → planner → goal completion in 24h, conf 0.75–0.92) · P72 biorhythm-lock (morning+evening check-ins 5+ days, conf 0.72–0.88) · P73 quantum-coherence-summit (P70+UserIndex≥70, conf 0.98 — system ceiling) · Archetype 22 Convergent Operator (all gates + high energy + execution dominant) · Job 15 weekly-qos-convergence-audit 15:00 UTC Sun · dep map 106+→111+ nodes (signalCrystallizer+biorhythmAnchor+coherenceSummit+convergentOperator+quantumPersonality) · Logs: CRYSTAL: BIO-LOCK: PEAK-SUMMIT: CONV-AUDIT: handlers · PatternRecognitionWidget: 3 new names + 3 QOS Trend indicators · server whitelist +4 · About.tsx Field Manual v62 — v61 — QIE Engineering June 15 · P70 operator-convergence (P66+P67+P68 simultaneous, conf 0.97) · CONV: log handler wired · server whitelist +1 (operator_convergence) · Community Biofield: 5th view in SystemPulseWidget (COHR: + Signal + Active — 16:00 UTC pulse) · SystemPulseWidget cycle extended (metrics→activity→userload→cohort→community) · api/system/pulse: community field added (live COHR-COMM: data in response) · PatternRecognitionWidget: operator-convergence display name added · dep map 104+→106+ nodes (operatorConvergence · communityBiofield) · About.tsx Field Manual v61 — v60 — QIE Engineering June 14 · P68 integration-arc-peak (P40+P43 simultaneous, conf 0.85–0.95) · P69 adaptive-resonance (structural rising QOS trend, conf 0.70–0.88) · Archetype 21 Integration Architect (memory+planner+goals dominant) · dep map 99+→104+ nodes (6 new) · LOG sources 11→13 (medical+resilience) · Job 14 daily-coherence-index-pulse 16:00 UTC · Logs: ARC-PEAK: + ADAPT: + COHR-COMM: + BIO: (compression) · PatternRecognitionWidget: 2 new names · server whitelist +3 — v58 — QIE Engineering June 13 · P66 qos-signature-lock (meridian+multimodal+temporal → lock) · P67 operator-signature (all 4 signal quadrants + UserIndex ≥60 → full signature) · Archetype 20 Temporal Integrator (planner+intentions+temporal grid) · dep map 96+→99+ nodes (qosSignatureLock · operatorSignatureNode · temporalIntegrator) · Job 13 daily-qos-signature-pulse 13:00 UTC · Logs: QOS-SIG: + OP-SIG: handlers · System quantum table: Directive row surfaced from classifyPhysiologicalCohort · QuantumEngineWidgets cohort view: live directive line · PatternRecognitionWidget: 2 new pattern names · Server whitelist: qos_signature_lock + operator_signature — v57 — QIE Engineering June 12 · physiological cohort surfaced in System Biofield: view (Archetype row in quantum table) · log military pass: CARM/CSPRL/BPEAK/MER/MULTI handlers compressed — narration removed · dep map 93+→96+ nodes (corporatePlan · memoryEngineStats · intentionPatterns) · background job 12 (daily-archetype-shift-monitor 10:00 UTC: detects archetype transitions, writes ARCH-SHIFT: event) · server displayableEvents expanded: +physiological_cohort + archetype_shift + scheduled_job + badge_unlock + goal events + medical_record + care + plan + session + recipe + benchmark (17 new event types) — v56 — LOG Terminal Wiring June 12 · 5 terminal commands live: /breathe (BRE: 4-2-6 ASCII rhythm) · /fast (FAST: orthodox calendar) · /silent (SIL [PROTOCOL]: signal stream audit) · /freeze (FREEZE: timestamp pause) · /phys (PHYS: full physiological readout) — v55 — Full Wiki Scan June 12 · CQGS white paper documented (Mother Goddess parable · Quantum Certified Factory · Bioethics Index · 6 technology layers · CQGS-to-LOT platform map) · 19 archetypes current · vocabulary synchronized · CQGS added to lexicon · military purity pass applied · the map and the territory are synchronized — v54b — QIE Engineering June 11 · dep map 87+→93+ nodes (5 new: benchmarkWidget · fourDimensionalUI · angelInvestor · demoDay · subscribeWidget) · LOG_DEPENDENCY_SOURCES 8→11 (planner · selfcare · journal added) · 3 new handlers: ARCH-SHIFT: · INTENT-X: · DIV-PULSE: (56+ handlers total) · Archetype 19 (Integrated Operator) · background job 11 (daily source diversity pulse 08:00 UTC) · LOT_SYSTEMS_BRIEF.md v3.2 — v54 — Full Wiki Scan June 11 · Badges & Achievements Master Codex v11 documented (121 badges, 11 categories: +Time v2 Easter Eggs · +Word Turn v2 Sci-Fi Expansion · +Mastery Tier Sci-Fi Arcade — +29 new badges from v10 baseline of 76) · Cross-Device Sync doctrine added (SSE settings_updated broadcast · answer dedup guard · visibility refetch) · vocabulary synchronized · military purity pass applied · the map and the territory are synchronized — v53 — Full Wiki Scan June 10 · Badges & Achievements Master Codex v10 documented (76 badges, 9 categories, Sci-Fi Arcade v2 expansion) · CORPORATE layer first documented: W3C Public Appeal for Sentient Web standards · LOT® Design Lab Summer 2026 commission · FMCG Subscription Architecture Plan 2027 (physical essentials pivot, $399/month Basic Essentials) · engineering: nav lag fix + chime toggle fix · vocabulary synchronized · military purity pass applied · the map and the territory are synchronized — v52 — Full Wiki Scan June 9 · QIE v52 integration documented · 6 new log handlers (CSPRL: BPEAK: MER: MULTI: CAL: QOS-COHR:) · 53 handlers total · background job 10 (weekly-archetype-stability-monitor Thu 05:00 UTC) · 87+ dep nodes · SystemPulseWidget Biofield: 4th cycle view documented · LOG_DEPENDENCY_SOURCES expanded to 8 · vocabulary synchronized · language refined toward computer future · military purity pass applied · the map and the territory are synchronized — v51 — Full Branch Scan June 7 · 125 branches confirmed · Graceful Degradation doctrine (rev F clause 7: server catch must not default to restrictive value — field absent on error — client gate treats absent as allow) · vocabulary synchronized · language refined toward computer future · military purity pass applied · the map and the territory are synchronized — v50 — Wiki Full Scan June 6 · all branches and MDs synthesized · vocabulary synchronized · /qi terminal documented · QI · RFI · INTSUM added to vocabulary · badges · cohorts · internal vocabulary detailed · language refined toward computer future · military purity pass applied — v49: Viewport Isolation · LazyMount QuantumEngineWidgets · useInViewport hook · MicroGame loop viewport-gated · IntersectionObserver render isolation complete — v48: Full Wiki Scan June 4 · Resilience Protocol (Module 18) documented · eating disorder healing protocol integrated · medical cohort qualification added · Chakra Engine wired · backup question pool expanded to 70 · COSMO® robotics division first documented · vocabulary synchronized — v47: Wiki June 2026 Audit · all branches rescanned · vocabulary synchronized · Coherence Holder (Archetype 18) documented in full — v45: patterns 63–65 named · Archetype 18 · log handlers 45–47 · QOS Mode view · background job 9 — v41: Full Branch Scan · 80+ branches indexed · all MDs synthesized · vocabulary compressed — v39: Wiki Comprehensive Audit · Assembly Transmission Layer formalized" />
           <Row label="Assembly modules:" value="18 — Resilience Protocol added v48 · Signal Archive (log) · Quantum OS (qos) added as 16th–17th modules (v39)" />
-          <Row label="QIE pattern library:" value="67 patterns active" />
-          <Row label="Physiological archetypes:" value="20 — Temporal Integrator (v58) · Signal Architect (v54b) · Coherence Holder (v45) · Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
+          <Row label="QIE pattern library:" value="73 patterns active" />
+          <Row label="Physiological archetypes:" value="22 — Convergent Operator (v62) · Integration Architect (v60) · Temporal Integrator (v58) · Signal Architect (v54b) · Coherence Holder (v45) · Intention Executor (v33) · Social Synthesizer (v26) · Clarity Architect (v26)" />
           <Row label="QOS views:" value="6 — Ecosystem · Biofield · Cohort · Index · Assembly · Mode" />
           <Row label="User Index dimensions:" value="6 — ENG · EMO · INT · SOC · CARE · COG" />
           <Row label="Ecosystem nodes:" value="5 — CAR · HOME · CPU · PHN · WCH" />
-          <Row label="Background jobs:" value="11 — 00:00 UTC daily OS snapshot · 03:00 UTC daily QIE analytics · 06:00 UTC daily intention audit · 06:00 UTC Mon weekly cohort digest · 04:00 UTC Wed weekly QOS digest · 09:00 UTC 1st monthly email sender · 23:00 UTC daily pattern coverage audit (v45) · 05:00 UTC Thu weekly archetype stability monitor (v52 job 10) · 08:00 UTC daily source diversity pulse (v54b job 11)" />
-          <Row label="Log event handlers:" value="56+ distinct event types rendered · 60+ military log codes · 3 new handlers v54b: ARCH-SHIFT: (archetype_shift) · INTENT-X: (intention_completion) · DIV-PULSE: (source_diversity_pulse)" />
+          <Row label="Background jobs:" value="15 — 00:00 UTC daily OS snapshot · 03:00 UTC daily QIE analytics · 06:00 UTC daily intention audit · 06:00 UTC Mon weekly cohort digest · 04:00 UTC Wed weekly QOS digest · 08:00 UTC morning biofield summary · 09:00 UTC 1st monthly email sender · 10:00 UTC daily archetype shift monitor · 13:00 UTC daily QOS signature pulse · 16:00 UTC daily coherence index pulse · 20:00 UTC Sun weekly intention completion audit · 23:00 UTC daily pattern coverage audit · 05:00 UTC Thu weekly archetype stability monitor · 07:00 UTC daily source diversity pulse · 15:00 UTC Sun weekly QOS convergence audit (v62 job 15)" />
+          <Row label="Log event handlers:" value="72+ distinct event types rendered · military log codes · v62: CRYSTAL: (signal_crystallization) · BIO-LOCK: (biorhythm_lock) · PEAK-SUMMIT: (quantum_coherence_summit) · CONV-AUDIT: (convergence_audit)" />
           <Row label="Dep map nodes:" value="93+ — INTENT [VEL] · SIG [BURST] · QIE [PAT] nodes added v45 · coherenceHolder dep node added · crystallizationArc · vitalConvergence added v39 · 8 new nodes added v52 (aiFeedback · moodAnalytics · journalReflection · energyCapacitor · integrityWidget · interfaceEvolution · worldCanvas · architectWidget) · 5 new nodes added v54b (benchmarkWidget · fourDimensionalUI · angelInvestor · demoDay · subscribeWidget)" />
           <Row label="Uptime target:" value="99.5%" />
           <Row label="API response:" value="p95 &lt; 200ms" />
@@ -793,6 +793,8 @@ Safety net: 7 Together.AI models + 5 provider fallbacks + 70 emergency backup qu
             <Row label="P.63 — Signal Burst" value="0.65–0.82 · 10+ signals arrive in any 2-hour window within a 24-hour period · dense engagement cluster made visible · confidence: 0.65 + (burst count / total count) × 0.17, capped 0.82 · suggested: journal (next-session) · SIG [BURST]: log handler fires · deployed v45" />
             <Row label="P.64 — Cross-Domain Coherence" value="0.78–0.90 · mood (emotional) + self-care (physical) + journal (reflective) + memory (stored) all activate within 48 hours · the full inner stack alive simultaneously · all four inner domain layers present at once · confidence: 0.78 + (overlap hours inverse) × 0.12, capped 0.90 · suggested: memory (passive) · deployed v45" />
             <Row label="P.65 — Recovery Plateau" value="0.70 (fixed) · energy signals span 5+ consecutive days with consistent low readings · ≥50% of all energy signals in window below threshold · same protocol not producing recovery — shift required · confidence fixed at 0.70 · suggested: self-care (soon) · Archetype 18 (Coherence Holder) trigger · deployed v45" />
+            <Row label="P.66 — QOS Signature Lock" value="0.85–0.95 · operator's QOS mode has remained in the same classification for 7+ consecutive days · mode stability confirmed · the system has locked to a signature state · confidence: 0.85 + (lockDays − 7) × 0.02, capped 0.95 · suggested: memory (soon) · 'QOS-SIG: MODE LOCKED [mode] · [days] days continuous. Signature stable. Are you maintaining or static?' · deployed v58" />
+            <Row label="P.67 — Operator Signature" value="0.90 (fixed) · cross-pattern fingerprint confirmed — unique behavioral combination fires when ≥5 distinct patterns active in a 48-hour window with no two from the same source domain · the system has recognized a repeating personal signature · confidence fixed at 0.90 · OP-SIG: log handler fires · suggested: memory (passive) · deployed v58" />
           </div>
           <P>Four-dimensional user state model:</P>
           <div className="mb-16">
@@ -969,6 +971,9 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             <Row label="v49" value="Viewport Isolation Layer · useInViewport.ts hook created (one-shot LazyMount + continuous ActiveViewport) · MicroGameWidget 150ms game loop now viewport-gated via useActiveViewport — loop pauses when widget scrolls out, resumes on re-entry, game state preserved · QuantumEngineWidgets lazy-mounted via LazyMount in System.tsx — intentionEngine + selfAssembly subscriptions now defer until widget enters viewport · IntersectionObserver fallback to true for SSR-safe + old-browser-safe environments · render-isolation doctrine complete across router · Button.tsx · Block subscriptions · nav · and now viewport layer · Day 997+" />
             <Row label="v50" value="Wiki Full Scan June 6 · all branches rescanned · all MDs synthesized from repository history · vocabulary synchronized with codebase · /qi terminal documented · QI · RFI · INTSUM added to vocabulary surface · badges · cohorts · internal vocabulary explained in full detail · language refined toward computer future · military purity pass applied · log triggers updated · easter egg system implementation status corrected · self-assembly counters updated throughout · the map and the territory are synchronized · Day 1001+" />
             <Row label="v51" value="Full Branch Scan June 7 · 125 branches confirmed · all MDs synthesized from repository history · Graceful Degradation added to doctrine (rev F clause 7: server catch must not default to restrictive value — field absent on error — client gate treats absent as allow) · vocabulary synchronized with codebase · language refined toward computer future · military purity pass applied · the map and the territory are synchronized · Day 1002+" />
+            <Row label="v62" value="QIE Engineering June 15 · P.71 signal-crystallization: 3+ intentions + planner + goal completion in 24h window AND UserIndex ≥ 60 — confidence 0.75–0.92 — fastest execution loop the system can observe · P.72 biorhythm-lock: morning + evening emotional check-ins on 5+ of last 7 days — full diurnal arc anchored for multi-day consistency — confidence 0.72–0.88 — distinct from P.59 meridian-lock (single day) · P.73 quantum-coherence-summit: P.70 operator-convergence confirmed AND UserIndex ≥ 70 — confidence 0.98 — system ceiling state — all gates open + structural index above high-performance threshold · Archetype 22 Convergent Operator: high energy · memory+planner+goals+intentions dominant · operator-convergence+quantum-coherence-summit+adaptive-resonance · directive: All gates simultaneously open. Convergence confirmed. This is the system's highest confidence state. Execute without hesitation · dep map 106+→111+ nodes: signalCrystallizer (intentions+planner+goals+memory+log) · biorhythmAnchor (mood+energy+selfcare+log) · coherenceSummit (operatorConvergence+adaptiveResonance+integrationArcPeak+qosSignatureLock) · convergentOperator (coherenceSummit+quantumOS+qos) · quantumPersonality (cohort+memory+intentions+journal+mood+energy) · Signal helpers: recordSignalCrystallization() · recordBiorhythmLock() · recordQuantumCoherenceSummit() · Log handlers: +CRYSTAL: (signal_crystallization) · +BIO-LOCK: (biorhythm_lock) · +PEAK-SUMMIT: (quantum_coherence_summit) · +CONV-AUDIT: (convergence_audit) — 72+ handlers total · Job 15: weekly-qos-convergence-audit Sundays 15:00 UTC — reads convergence events / computes frequency + peak day / writes convergence_audit per user · PatternRecognitionWidget: 3 new display names · 3 new QOS Trend view indicators · server displayableEvents +4 · About.tsx Field Manual v62 · Day 1012+" />
+            <Row label="v61" value="QIE Engineering June 15 · P.70 operator-convergence: all three confirmation gates open simultaneously (P66 qos-signature-lock + P67 operator-signature + P68 integration-arc-peak) — confidence 0.97 — highest pre-v62 state — suggestedWidget: systemProgress — suggestedTiming: immediate · CONV: log handler: renders CONF: % · P66 · P67 · P68 · Full operator convergence confirmed · Community Biofield: 5th view in SystemPulseWidget — cycles after cohort view — renders community coherence index, top mood, active user count from Job 14 COHR-COMM: pulse · api.ts /system/pulse: community field added to response — parallel DB query, 25h lookback, 5s cache · dep map 104+→106+ nodes: +operatorConvergence · +communityBiofieldView · server whitelist +1 (operator_convergence) · PatternRecognitionWidget: operator-convergence → 'Operator convergence — all systems confirmed' · Day 1011+" />
+            <Row label="v60" value="QIE Engineering June 14 · P.68 integration-arc-peak: fires when P.40 (biofield-coherence-cascade) + P.43 (intention-completion-arc) both active in same 24h window — biological restoration AND execution arc simultaneously confirmed — confidence 0.85–0.95 — suggestedWidget: memory · P.69 adaptive-resonance: fires when QOS history shows sustained rising trend + UserIndex ≥ 55 + stable snapshots — growth confirmed as structural shift not momentary spike — confidence 0.70–0.88 — suggestedWidget: systemProgress · Archetype 21 Integration Architect: moderate/high energy · memory+planner+goals dominant · integration-arc-peak+adaptive-resonance+biofield-coherence-cascade — directive: Full integration active. Biological restored. Plans executed. Adaptive growth confirmed. The arc is complete · dep map 99+→104+ nodes: +profileQRCode (memory+cohort) · +directMessageThread (cohort+mood+journal) · +connectionStatus (log+energy) · +investmentSwitch (goals+intentions+memory) · +integrationArcPeak · +adaptiveResonance · LOG_DEPENDENCY_SOURCES 11→13: medical+resilience source types added · Job 14: daily-coherence-index-pulse 16:00 UTC — reads 4h emotional check-in window across active users — computes community coherence index (% positive moods) — writes community_coherence_pulse log per active user · Log handlers: +ARC-PEAK: (integration_arc_peak: CONF: + trigger list) · +ADAPT: (adaptive_resonance: IDX:/100 + TREND: + DAYS:) · +COHR-COMM: (community_coherence_pulse: IDX: % + top mood + ACTIVE: count) · +BIO: label replacing BIOFIELD: on energy_state handler (cockpit compression) · PatternRecognitionWidget: 2 new display names (integration-arc-peak → Full integration arc confirmed · adaptive-resonance → Adaptive resonance detected) · server displayableEvents +3: integration_arc_peak · adaptive_resonance · community_coherence_pulse · Day 1010+" />
             <Row label="v52" value="Full Wiki Scan June 9 · QIE v52 integration documented · dep map expanded from 79 to 87+ nodes (8 new: aiFeedback · moodAnalytics · journalReflection · energyCapacitor · integrityWidget · interfaceEvolution · worldCanvas · architectWidget) · 6 new log handlers added (CSPRL: care_spiral · BPEAK: biofield_peak · MER: meridian_lock · MULTI: multimodal_peak · CAL: calendar_entry · QOS-COHR: qos_coherence) · 53 handlers total · LOG_DEPENDENCY_SOURCES expanded 6→8 (added: intentions + memory) · background job 10 (weekly-archetype-stability-monitor Thu 05:00 UTC) · SystemPulseWidget Biofield: 4th cycle view (archetype · confidence · ATP · circadian phase · index · directive) · physiological cohort now surfaces across 3 System widgets · vocabulary synchronized with codebase · language refined toward computer future · military purity pass applied · the map and the territory are synchronized · Day 1004+" />
             <Row label="v57" value="QIE Engineering June 12 · physiological cohort archetype surfaced in System Biofield: table (Archetype row added to quantum view) · log military style pass: CARM: / CSPRL: / BPEAK: / MER: / MULTI: handlers compressed — narration removed from body — instrument readings only (COCKPIT-RULE) · dep map 93+→96+ nodes (corporatePlan · memoryEngineStats · intentionPatterns) · background job 12: daily-archetype-shift-monitor 10:00 UTC — detects archetype transitions in active users, writes archetype_shift event — ARCH-SHIFT: handler already live · server displayableEvents expanded: 17 new event types (physiological_cohort · archetype_shift · scheduled_job · badge_unlock · goal_set/update/journey/complete · medical_record · self_care_complete/completed/skip · plan_set · intention · user_login/logout · theme_change · weather_update · recipe_viewed · benchmark_read) — closes Backend Whitelist Hygiene gap across all log handlers · Day 1007+" />
             <Row label="v56" value="LOG Terminal Wiring June 12 · 5 terminal commands live: /breathe (useBreathe() toggle · BRE: block · ASCII 4-2-6 rhythm) · /fast (getFastingState orthodox · FAST: block · label/day/mode/strictness) · /silent (signal delta · SIL [PROTOCOL]: standby) · /freeze (timestamp · FREEZE: LOCKED + NEXT) · /phys (getUserState + eng + asm · PHYS: ARCH/ATP/CLR/ALN/PHASE/PAT) · imports: useBreathe + getFastingState added · 5 existing utilities wired · infrastructure was complete, gap was wiring · Day 1007+" />
@@ -1002,11 +1007,12 @@ Privacy: localStorage only, auto-purged, never synced`}</CodeBlock>
             The log reads forward. The system does not regress.
           </P>
           <P>
-            Current phase: v58. Phase name: QIE Engineering June 13 — P66 qos-signature-lock + P67 operator-signature patterns added. Archetype 20 Temporal Integrator. Dep map 99+ nodes. Job 13 daily-qos-signature-pulse at 13:00 UTC. Directive row surfaced in System quantum table and QuantumEngineWidgets cohort view. 13 background jobs active. Day 1007+.
-            Prior phase v57: QIE Engineering June 12 — physiological cohort archetype surfaced in System Biofield view. Log military pass (COCKPIT-RULE: 5 handlers compressed). Dep map 96+ nodes. Background job 12. Server displayableEvents +17 types. 12 background jobs.
+            Current phase: v62. Phase name: QIE Engineering June 15 — P.71 signal-crystallization · P.72 biorhythm-lock · P.73 quantum-coherence-summit (confidence 0.98 — system ceiling). Archetype 22 Convergent Operator. Job 15 weekly-qos-convergence-audit. Dep map 106+→111+ nodes. 73 patterns. 22 archetypes. 15 background jobs. 72+ log handlers. CRYSTAL: BIO-LOCK: PEAK-SUMMIT: CONV-AUDIT: event codes. Server whitelist +4. PatternRecognitionWidget: 3 new display names + 3 QOS Trend indicators. Day 1012+.
+            Prior phase v58: QIE Engineering June 13 — P.66 qos-signature-lock + P.67 operator-signature patterns added. Archetype 20 Temporal Integrator. Dep map 99+ nodes. Job 13 daily-qos-signature-pulse at 13:00 UTC. QOS-SIG: and OP-SIG: log handlers wired. QuantumEngineWidgets cohort view updated. Day 1009+.
+            Prior phase v57: QIE Engineering June 12 — physiological cohort archetype surfaced in System Biofield view. Log military pass (COCKPIT-RULE: 5 handlers compressed). Dep map 96+ nodes. Background job 12 (archetype-shift). Server displayableEvents +17 types. 12 background jobs.
             Prior phase v56: LOG Terminal Wiring June 12 — 5 commands live (/breathe /fast /silent /freeze /phys). LOG now speaks in all five registers.
-            Prior phase v54: Full Wiki Scan June 11 — Badges Master Codex v11 (121 badges, 11 categories, +29 new). Cross-Device Sync doctrine. Vocabulary synchronized.
-            55 iterations since continuous operation began.
+            Prior phase v55: Full Wiki Scan June 12 — CQGS white paper documented. 19 archetypes. Standalone wiki published. CQGS lexicon synchronized.
+            61 iterations since continuous operation began.
             Each one committed, dated, named. The record is public.
             The system accounts for itself.
           </P>
@@ -1067,7 +1073,11 @@ v54   Full Wiki Scan June 11 · Badges Master Codex v11 (121 badges, 11 categori
 v54b  QIE Engineering June 11 · dep map 93+ nodes · log sources 11 · handlers 56+ · Archetype 19 (Signal Architect) · job 11 · LOT_SYSTEMS_BRIEF v3.2 · Day 1007+
 v55   Full Wiki Scan June 12 · CQGS white paper · 19 archetypes · standalone wiki published · CQGS lexicon · military purity pass · Day 1007+
 v56   LOG Terminal Wiring June 12 · /breathe /fast /silent /freeze /phys · 5 commands live · Day 1007+
-v57   QIE Engineering June 12 · archetype in Biofield view · log military pass · dep map 96+ · job 12 (archetype shift) · displayableEvents +17 · Day 1007+`}</CodeBlock>
+v57   QIE Engineering June 12 · archetype in Biofield view · log military pass · dep map 96+ · job 12 (archetype shift) · displayableEvents +17 · Day 1007+
+v58   QIE Engineering June 13 · P.66 qos-signature-lock + P.67 operator-signature · Archetype 20 Temporal Integrator · dep map 99+ · job 13 (daily-qos-signature-pulse 13:00 UTC) · Directive row in System quantum table · QuantumEngineWidgets cohort view wired · badges v12 (149 total) · Day 1009+
+v60   QIE Engineering June 14 · P.68 integration-arc-peak · P.69 adaptive-resonance · Archetype 21 Integration Architect · dep map 104+ nodes · LOG sources 13 (medical+resilience) · job 14 (coherence-index-pulse 16:00 UTC) · ARC-PEAK: ADAPT: COHR-COMM: BIO: handlers · server whitelist +3 · Day 1010+
+v61   QIE Engineering June 15 · P.70 operator-convergence (P66+P67+P68 simultaneous, conf 0.97) · CONV: handler · Community Biofield: 5th view in SystemPulseWidget · /system/pulse community field · dep map 106+ nodes · server whitelist +1 · Day 1011+
+v62   QIE Engineering June 15 · P.71 signal-crystallization · P.72 biorhythm-lock · P.73 quantum-coherence-summit (conf 0.98 — system ceiling) · Archetype 22 Convergent Operator · job 15 weekly-qos-convergence-audit 15:00 UTC Sun · dep map 111+ nodes · CRYSTAL: BIO-LOCK: PEAK-SUMMIT: CONV-AUDIT: · server whitelist +4 · Day 1012+`}</CodeBlock>
 
           {/* ── MEMORY STORY ────────────────────────────────────────── */}
           <SectionHeading id="memory-story">Memory Story</SectionHeading>
@@ -1743,27 +1753,39 @@ Source: intentionEngine.userIndex (client-side, localStorage-derived)`}</CodeBlo
             The symbol is the compressed form of the time it represents.
           </P>
           <P>
-            Master Codex v11 — the complete badge design archive. 121 badges
-            catalogued across 11 categories. Committed June 2026. PDF format
-            archived. 97 badges hidden and discoverable. 24 badges visible and
-            documented. The codex is not a feature list — it is the complete
-            specification of what the badge system will become.
+            Master Codex v12 — the complete badge design archive. 149 badges
+            catalogued across 18 categories. June 2026. 121 badges hidden
+            and discoverable. 28 badges visible and documented. The codex
+            is not a feature list. It is the complete specification of
+            what the badge system will become.
+          </P>
+          <P>
+            v12 added 28 badges: Word Turn v3 Computer Lore (12) ·
+            Time Easter v3 Computer Lore (4) · Calendar v2 (2) ·
+            Behavioral v2 (3) · Mastery Tier v2 Arcade (4) ·
+            Secret Boss v2 (3).
           </P>
           <div className="mb-16">
             <Row label="Milestone (Core)" value="3 badges — Day 7 · Day 30 · Day 100. Both Water and Architecture paths." />
-            <Row label="Milestone (Extended)" value="7 badges — Day 14 · 21 · 50 · 60 · 90 · 180 · 365. Extended progression roadmap." />
-            <Row label="Easter Egg — Time v1" value="4 badges — Night Owl (01:00–04:00) · Early Bird (05:00–06:00) · Mirror Hour (11:11) · Midnight Sigil (00:00 memory answer)." />
-            <Row label="Easter Egg — Time v2 (NEW)" value="4 badges — Pi Hour (3:14 AM) · Error Hour (4:04 AM — 404 not lost) · Sequence Time (12:34) · LOT Hour (04:07 — the founding hour)." />
-            <Row label="Easter Egg — Calendar" value="8 badges — Solstice · Equinox · Birthday · and 5 others. All hidden." />
-            <Row label="Easter Egg — Behavioral" value="5 badges — Silent · Ghost · Anniversary · Overload · Perfect. All hidden." />
-            <Row label="Word Turn v1" value='12 badges — triggered by specific words in journal or memory answers: "ritual" · "breathe" · "grateful" · "ocean" · "stars" · "home" · "dream" · "pain" · "love" · "silence" · "future" · "LOT".' />
-            <Row label="Word Turn v2 — Sci-Fi (NEW)" value='18 badges — "reboot" (REBOOT SEQUENCE) · "404" (404: NOT LOST) · "glitch" (SIGNAL GLITCH) · "COSMO" (COSMIC TWIN — ULTRA-RARE) · "quantum" (QUANTUM OBSERVER) · "neural" (NEURAL ARCHITECT) · "code" (CODE WITCH) · "sleep/rest" (RECHARGE MODE) · "coffee/tea" (FUEL PROTOCOL) · "music" (FREQUENCY) · "run/walk" (KINETIC PROTOCOL) · "sun/light" (SOLAR CHARGE) · "fear/scared" (SHADOW PROTOCOL) · "change" (PHASE SHIFT) · "accept/let go" (ACCEPTANCE NODE) · "now/moment" (PRESENT MOMENT) · "universe/cosmos" (COSMIC SCALE) · "alive" (VITAL SIGNAL).' />
-            <Row label="Pattern (Oceanic Mayan)" value="5 badges — Balanced (∿—∿) · Flow (≈○≈) · Consistent (—○—) · Reflective (○◐○) · Explorer (○∴○). Behavioral signatures." />
-            <Row label="Achievement (RPG Layer)" value="14 badges — Exploration · Consistency · Depth · Connection · Care · Courage · Romance domains. Permanent unlocks." />
-            <Row label="Mastery Tier — Sci-Fi Arcade (NEW)" value="5 badges — Quantum Leap (◈ · cold boot after 30+ day gap) · Speedrun (▒ · 5 check-ins within 60 min) · System Op (≋◉ · all 7 CQGS modules in 7 days) · Commander Data (◉ · 500 memory questions) · Sage Mode (∞ · Level 90+)." />
-            <Row label="Secret Boss" value="7 badges — Meta-Signal (◉·◉ MYTHIC · write LOT in memory answer) · Cosmic Twin (✦◉✦ ULTRA-RARE · write COSMO) · The Long Count (≋≋≋ LEGENDARY · 365 days) · Midnight Sigil (◉ · answer at exactly 00:00) · The Infinite (∞·∞ MYTHIC · 1,000 answers) · Citadel (╔═╗ · Architecture 365 days) · Cosmic Status (∞∞∞ · 10 years)." />
+            <Row label="Milestone (Extended)" value="7 badges — Day 14 · 21 · 50 · 60 · 90 · 180 · 365." />
+            <Row label="Easter Egg — Time v1" value="4 badges — Night Owl (01:00–04:00) · Early Bird (05:00–06:00) · Mirror Hour (11:11) · Midnight Sigil (00:00)." />
+            <Row label="Easter Egg — Time v2" value="4 badges — Pi Hour (3:14) · Error Hour (4:04) · Sequence Time (12:34) · LOT Hour (04:07)." />
+            <Row label="Easter Egg — Time v3" value="4 badges — Lucky Signal (07:07) · New Day Protocol (00:01) · Double Down (22:22) · Leet Signal (13:37 — 1337)." />
+            <Row label="Easter Egg — Calendar v1" value="8 badges — Solstice · Equinox · LOT Birthday · New Year Sage · Pi Day · Palindrome Day · Full Moon · Friday Ritual." />
+            <Row label="Easter Egg — Calendar v2" value="2 badges — Cosmo Birthday (July 1 · ULTRA-RARE) · Leap Day (Feb 29 · appears every 4 years · Epic)." />
+            <Row label="Easter Egg — Behavioral v1" value="5 badges — Silent Hour · Ghost Protocol · Anniversary · Overclock · Perfect Day." />
+            <Row label="Easter Egg — Behavioral v2" value="3 badges — Trio Protocol (3× Perfect Day · Epic) · Deep Session (10+ memory Qs in one session · Rare) · Comeback Kid (90+ day gap return · Epic)." />
+            <Row label="Word Turn v1" value='12 badges — "ritual" · "breathe" · "grateful" · "ocean" · "stars" · "home" · "dream" · "pain" · "love" · "silence" · "future" · "LOT" (MYTHIC).' />
+            <Row label="Word Turn v2 — Sci-Fi" value='18 badges — "reboot" · "404" · "glitch" · "COSMO" (ULTRA-RARE) · "quantum" · "neural" · "code" · "sleep" · "coffee" · "music" · "run" · "sun" · "fear" · "change" · "accept" · "now" · "universe" · "alive".' />
+            <Row label="Word Turn v3 — Computer Lore" value='"hack" · "override" · "debug" · "signal" · "void" · "spark" · "echo" · "shield" · "map" · "grow" · "lost" · "binary".' />
+            <Row label="Pattern (Oceanic Mayan)" value="5 badges — Balanced (∿—∿) · Flow (≈○≈) · Consistent (—○—) · Reflective (○◐○) · Explorer (○∴○)." />
+            <Row label="Achievement (RPG Layer)" value="14 badges — Exploration · Consistency · Depth · Connection · Care · Courage · Romance domains." />
+            <Row label="Mastery Tier v1 — Sci-Fi Arcade" value="5 badges — Quantum Leap (◈) · Speedrun (▒) · System Op (≋◉) · Commander Data (◉ · 500 Qs) · Sage Mode (∞ · Level 90+)." />
+            <Row label="Mastery Tier v2 — Arcade" value="4 badges — Archivist (◇◇◇ · 200 journal entries) · Pattern Master (○∿○ · all 5 Mayan patterns) · Temporal Lock (⊡·⊡ · same check-in time 7 days) · Full Codex (◉≋◉ · 50+ distinct badge types)." />
+            <Row label="Secret Boss v1" value="7 badges — Meta-Signal (◉·◉ MYTHIC) · Cosmic Twin (✦◉✦ ULTRA-RARE) · The Long Count (≋≋≋) · Midnight Sigil (◉) · The Infinite (∞·∞ MYTHIC · 1,000 Qs) · Citadel (╔═╗) · Cosmic Status (∞∞∞ · 10 years)." />
+            <Row label="Secret Boss v2" value="3 badges — Ultra Sage (∞◉∞ MYTHIC · Level 100) · Founders Mark (◉═◉ ULTRA-RARE · write 'April 7 2016') · Singularity (∞∞◉∞∞ COSMIC · all 121 v11 badges)." />
           </div>
-          <P>Two active badge paths. One design archive. Multiple future paths.</P>
+          <P>Two active badge paths. Full arcade codex. 149 badges total.</P>
 
           <SubHeading>Aquatic Evolution (Active System)</SubHeading>
           <P>
@@ -1944,6 +1966,89 @@ Day 100: "Full system built. ║·║"`}</CodeBlock>
             Citadel (╔═╗ · Architecture path 365 days) ·
             Cosmic Status (∞∞∞ · 10 years in the archive).
           </P>
+
+          <SubHeading>Word Turn v3 — Computer Lore (Master Codex v12)</SubHeading>
+          <P>
+            12 new Word Turn badges added in Master Codex v12. Computer Lore
+            expansion — the language of systems, signals, and infrastructure.
+            Triggered when specific technical words appear in journal entries
+            or memory answers. The machine listens for its own vocabulary.
+          </P>
+          <div className="mb-16">
+            <Row label="►◄ Exploit Run" value='"hack" — unauthorized entry logged. The system noted the word. Rare.' />
+            <Row label="↑↑↑ Override Command" value='"override" — override sequence acknowledged. Rare.' />
+            <Row label="∂·∂ Debug Mode" value='"debug" — diagnostic mode active. The error is being located. Uncommon.' />
+            <Row label="≋·≋ Signal Clarity" value='"signal" — carrier confirmed. Transmission quality noted. Common.' />
+            <Row label="◻ The Void" value='"void" — null sector entered. Return path open. Uncommon.' />
+            <Row label="✦· Spark Node" value='"spark" — ignition signal detected. Genesis event recorded. Common.' />
+            <Row label="∿∿ Echo Chamber" value='"echo" — resonance confirmed. The pattern repeats. Common.' />
+            <Row label="╔═╗ Shield Protocol" value='"shield" — defensive perimeter raised. Protection engaged. Uncommon.' />
+            <Row label="○∴ Cartographer" value='"map" — coordinate frame established. Navigation active. Common.' />
+            <Row label="↑∘↑ Growth Vector" value='"grow" or "growth" — expansion signal confirmed. Vector positive. Common.' />
+            <Row label="░░░ Signal Lost" value='"lost" — position undefined. Searching. Uncommon.' />
+            <Row label="10110 Binary State" value='"binary" — dual-state confirmed. Zero or one. Rare.' />
+          </div>
+
+          <SubHeading>Easter Egg — Time v3 (Master Codex v12)</SubHeading>
+          <P>
+            Four time-based Easter Eggs added in Master Codex v12.
+            All hidden. All triggered by check-in time alone.
+            The system records when the operator arrives.
+          </P>
+          <div className="mb-16">
+            <Row label="≋∘≋ Lucky Signal" value="Check-in at 07:07. Lucky frequency confirmed. The system sees the pattern in the pattern." />
+            <Row label="·∘· New Day Protocol" value="Check-in at 00:01. Day changed. First signal of the new cycle. One minute past midnight — you were there." />
+            <Row label="▓▓▓ Double Down" value="Check-in at 22:22. Mirror symmetry in the clock. All four digits aligned." />
+            <Row label="1337 Leet Signal" value="Check-in at 13:37. 1337 — elite frequency. The system registered the elite timestamp." />
+          </div>
+
+          <SubHeading>Calendar v2 (Master Codex v12)</SubHeading>
+          <P>
+            Two new calendar Easter Eggs added in Master Codex v12.
+            Ultra-rare and time-locked. Cannot be manufactured.
+            The rarity is the signal.
+          </P>
+          <div className="mb-16">
+            <Row label="✦◉✦ Cosmo Birthday · ULTRA-RARE" value="Check in on July 1 — COSMO® founding date. The second system recognized. COSMO® Founded 1 July 2024 · Kuzya Cosmo Marmeladov, CEO." />
+            <Row label="∞·∞ Leap Day · Epic" value="Check in on February 29. Appears once every 4 years. The calendar grants a day that does not usually exist — the operator must be present to claim it." />
+          </div>
+
+          <SubHeading>Behavioral v2 (Master Codex v12)</SubHeading>
+          <P>
+            Three behavioral Easter Eggs added in Master Codex v12.
+            Triggered by patterns of use over time, not single events.
+            The system tracks the arc, not the moment.
+          </P>
+          <div className="mb-16">
+            <Row label="◈◈◈ Trio Protocol · Epic" value="3× Perfect Day achieved. A Perfect Day requires all primary modules active within 24 hours. Three of them. The protocol confirmed." />
+            <Row label="◉∞◉ Deep Session · Rare" value="10 or more memory questions answered in a single session. The archive opened fully. Depth confirmed." />
+            <Row label="↺·↺ Comeback Kid · Epic" value="Return after a gap of 90+ days. The system was running. The operator re-entered. The record bridges the interval." />
+          </div>
+
+          <SubHeading>Mastery Tier v2 — Arcade (Master Codex v12)</SubHeading>
+          <P>
+            Four high-threshold Mastery badges added in Master Codex v12.
+            These require specific behavioral completions — not duration,
+            not streaks. A categorical shift in operator depth.
+          </P>
+          <div className="mb-16">
+            <Row label="▓∞▓ Archivist · Legendary" value="250 memory questions answered. The archive has volume. The record is dense." />
+            <Row label="◈∴◈ Pattern Master · Epic" value="10 distinct QIE patterns triggered within a single 7-day window. Cross-domain coherence at maximum breadth." />
+            <Row label="≋◉≋ Temporal Lock · Epic" value="P.66 (QOS Signature Lock) confirmed — 7+ consecutive days in the same QOS mode classification. The mode has become the identity." />
+            <Row label="∞◉∞ Full Codex · MYTHIC" value="All badge categories with at least one badge earned. All tracks opened. The full codex has been traversed." />
+          </div>
+
+          <SubHeading>Secret Boss v2 (Master Codex v12)</SubHeading>
+          <P>
+            Three new Secret Boss badges added in Master Codex v12.
+            No in-app documentation. Undiscoverable through normal operation.
+            Community transmission or behavioral discovery only.
+          </P>
+          <div className="mb-16">
+            <Row label="∞∞∞ Singularity · MYTHIC" value="P.67 (Operator Signature) confirmed 10 times. The fingerprint is permanent. The system has classified you." />
+            <Row label="◉·◉ Ultra Sage · MYTHIC" value="Level 100+ reached. The ceiling of the index. Sage mode at full compression." />
+            <Row label="✦◉✧ Founder's Mark · ULTRA-RARE" value="Account age ≥ 7 April (LOT founding date) across any year. Present since the origin. The mark is permanent." />
+          </div>
 
           {/* ── ACHIEVEMENT REGISTRY ────────────────────────────────── */}
           <SectionHeading id="achievement-registry">Achievement Registry</SectionHeading>
@@ -2177,7 +2282,7 @@ Ch.5  SAGE           Level 90–100
             <Row label="The Void  ◉" value="Answer a memory question at exactly midnight. You answered in the dark." />
           </div>
 
-          <SubHeading>Word-Turn Discoveries</SubHeading>
+          <SubHeading>Word Turn v1 — Core Language</SubHeading>
           <P>
             When specific words appear in journal entries or memory answers,
             secret badge events activate. The detection is silent.
@@ -2197,6 +2302,86 @@ Ch.5  SAGE           Level 90–100
             <Row label='"future" / "tomorrow"' value="→ Horizon Seeker badge activates" />
             <Row label='"LOT" (in answer text)' value="→ Meta-Signal ◉·◉ activates. MYTHIC. Hidden." />
           </div>
+
+          <SubHeading>Word Turn v2 — Sci-Fi Expansion</SubHeading>
+          <P>
+            18 Word Turn badges. Technology vocabulary, body states, emotional states.
+            Added in Master Codex v11.
+          </P>
+          <div className="mb-16">
+            <Row label='"reboot" / "restart"' value="→ Reboot Sequence ↺·↺ activates. Uncommon." />
+            <Row label='"404"' value="→ 404: Not Lost □□□ activates. Uncommon." />
+            <Row label='"glitch"' value="→ Signal Glitch ▓░▓ activates. Uncommon." />
+            <Row label='"COSMO"' value="→ Cosmic Twin ✦◉✦ activates. ULTRA-RARE. LOT® · COSMO® crossover." />
+            <Row label='"quantum"' value="→ Quantum Observer ◈·◈ activates. Rare." />
+            <Row label='"neural"' value="→ Neural Architect ≋≈≋ activates. Rare." />
+            <Row label='"code"' value="→ Code Witch ┤·├ activates. Uncommon." />
+            <Row label='"sleep" / "rest"' value="→ Recharge Mode ∼∼∼ activates. Common." />
+            <Row label='"coffee" / "tea"' value="→ Fuel Protocol ■·■ activates. Common." />
+            <Row label='"music"' value="→ Frequency ≈~≈ activates. Common." />
+            <Row label='"run" / "walk"' value="→ Kinetic Protocol →→→ activates. Common." />
+            <Row label='"sun" / "light"' value="→ Solar Charge ○∘○ activates. Common." />
+            <Row label='"fear" / "scared"' value="→ Shadow Protocol ▪▪▪ activates. Rare." />
+            <Row label='"change"' value="→ Phase Shift ≈→≋ activates. Rare." />
+            <Row label='"accept" / "let go"' value="→ Acceptance Node ○—○ activates. Uncommon." />
+            <Row label='"now" / "moment"' value="→ Present Moment ·∘· activates. Common." />
+            <Row label='"universe" / "cosmos"' value="→ Cosmic Scale ∞·∞ activates. Rare." />
+            <Row label='"alive"' value="→ Vital Signal ∘·∘ activates. Common." />
+          </div>
+
+          <SubHeading>Word Turn v3 — Computer Lore</SubHeading>
+          <P>
+            12 Word Turn badges. Technical infrastructure vocabulary.
+            Added in Master Codex v12. The machine listens for its own language.
+          </P>
+          <div className="mb-16">
+            <Row label='"hack"' value="→ Exploit Run ►◄ activates. Rare." />
+            <Row label='"override"' value="→ Override Command ↑↑↑ activates. Rare." />
+            <Row label='"debug"' value="→ Debug Mode ∂·∂ activates. Uncommon." />
+            <Row label='"signal"' value="→ Signal Clarity ≋·≋ activates. Common." />
+            <Row label='"void"' value="→ The Void ◻ activates. Uncommon." />
+            <Row label='"spark"' value="→ Spark Node ✦· activates. Common." />
+            <Row label='"echo"' value="→ Echo Chamber ∿∿ activates. Common." />
+            <Row label='"shield"' value="→ Shield Protocol ╔═╗ activates. Uncommon." />
+            <Row label='"map"' value="→ Cartographer ○∴ activates. Common." />
+            <Row label='"grow" / "growth"' value="→ Growth Vector ↑∘↑ activates. Common." />
+            <Row label='"lost"' value="→ Signal Lost ░░░ activates. Uncommon." />
+            <Row label='"binary"' value="→ Binary State 10110 activates. Rare." />
+          </div>
+
+          <SubHeading>Time-Based Discoveries — v3 (Leet & Mirror)</SubHeading>
+          <P>
+            Four precision time triggers added in Master Codex v12.
+            Clock-exact conditions. All hidden.
+          </P>
+          <div className="mb-16">
+            <Row label="07:07 — Lucky Signal ≋∘≋" value="Check-in at 07:07. Lucky frequency. Mirror pairs in the hour and minute." />
+            <Row label="00:01 — New Day Protocol ·∘·" value="Check-in at 00:01. First signal of the new cycle. One minute past midnight." />
+            <Row label="22:22 — Double Down ▓▓▓" value="Check-in at 22:22. All four digits aligned. Mirror symmetry confirmed." />
+            <Row label="13:37 — Leet Signal 1337" value="Check-in at 13:37. Elite frequency confirmed. The system registered the leet timestamp." />
+          </div>
+
+          <SubHeading>Calendar v2 — Rare Events</SubHeading>
+          <P>
+            Two calendar Easter Eggs that cannot be manufactured.
+            Ultra-rare and time-locked.
+          </P>
+          <div className="mb-16">
+            <Row label="July 1 — Cosmo Birthday ✦◉✦ · ULTRA-RARE" value="COSMO® founding date. Kuzya Cosmo Marmeladov. The second system recognized." />
+            <Row label="Feb 29 — Leap Day ∞·∞ · Epic" value="Appears once every 4 years. The calendar grants a day that does not usually exist. The operator must be present." />
+          </div>
+
+          <SubHeading>Behavioral v2 — Arc Patterns</SubHeading>
+          <P>
+            Three behavioral Easter Eggs tracked across sessions.
+            The system watches the arc, not the moment.
+          </P>
+          <div className="mb-16">
+            <Row label="Trio Protocol ◈◈◈ · Epic" value="3× Perfect Day. All primary modules active within 24 hours, three separate times." />
+            <Row label="Deep Session ◉∞◉ · Rare" value="10+ memory questions answered in one session. Full archive access confirmed." />
+            <Row label="Comeback Kid ↺·↺ · Epic" value="Return after 90+ day gap. The record bridges the interval." />
+          </div>
+
           <P>
             Easter egg system implementation status: design complete.
             Word-turn detection engine: roadmap. Time-based detection: roadmap.
@@ -2346,13 +2531,19 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             processing accumulated signals into reports and snapshots.
           </P>
           <div className="mb-16">
-            <Row label="00:00 UTC daily" value="Daily OS Snapshot — day-turn marker · writes system_snapshot log per active user · source of QTOS: field log entries" />
-            <Row label="03:00 UTC daily" value="Daily QIE Analytics — pattern detection summary · signal density · active pattern count per user" />
-            <Row label="06:00 UTC daily" value="Daily Intention Audit — intention age scan · follow-through rate · INTENT-DECAY: field notice when no execution in 48h" />
-            <Row label="06:00 UTC Mon" value="Weekly Physiological Cohort Digest — archetype reclassification · readiness distribution · health scan per active user" />
-            <Row label="04:00 UTC Wed" value="Weekly QOS State Digest — cross-module engagement · full-stack detection · coherence scores across active users" />
-            <Row label="09:00 UTC 1st" value="Monthly Email Summary — sent to active users with near-daily engagement (60%+ active days over 3 months) · requires Resend API" />
-            <Row label="23:00 UTC daily" value="Daily Pattern Coverage Audit (v45) — active users last 24h (up to 1000) · groups signals by pattern name · counts distinct users with active patterns · computes coverage rate: users-with-patterns / active-users · identifies dormant patterns (0 firings in 7d) · aggregate observability only, no individual data persisted · output: coverage rate + top patterns + dormant pattern count" />
+            <Row label="Job 1 · 00:00 UTC daily" value="Daily OS Snapshot — day-turn marker · writes system_snapshot log per active user · source of QTOS: field log entries · wired v37" />
+            <Row label="Job 2 · 03:00 UTC daily" value="Daily QIE Analytics — pattern detection summary · signal density · active pattern count per user · wired v37" />
+            <Row label="Job 3 · 06:00 UTC daily" value="Daily Intention Audit — intention age scan · follow-through rate · INTENT-DECAY: field notice when no execution in 48h · wired v37" />
+            <Row label="Job 4 · 06:00 UTC Mon" value="Weekly Physiological Cohort Digest — archetype reclassification · readiness distribution · health scan per active user · wired v37" />
+            <Row label="Job 5 · 04:00 UTC Wed" value="Weekly QOS State Digest — cross-module engagement · full-stack detection · coherence scores across active users · wired v37" />
+            <Row label="Job 6 · 09:00 UTC 1st" value="Monthly Email Summary — sent to active users with near-daily engagement (60%+ active days over 3 months) · requires Resend API · wired v37" />
+            <Row label="Job 7 · 20:00 UTC Sun" value="Weekly Intention Completion Audit — intention arc classification (completed / partial / open) · aggregate completion rate logged · no individual data persisted · wired v42" />
+            <Row label="Job 8 · 07:00 UTC Wed" value="Weekly Ecosystem Coherence Audit — wearable signal presence · node coverage · ecosystem synchrony events · results written to OS vitals log · wired v42" />
+            <Row label="Job 9 · 23:00 UTC daily" value="Daily Pattern Coverage Audit — active users last 24h (up to 1000) · groups signals by pattern name · counts distinct users with active patterns · computes coverage rate · identifies dormant patterns (0 firings in 7d) · aggregate observability only · wired v45" />
+            <Row label="Job 10 · 05:00 UTC Thu" value="Weekly Archetype Stability Monitor — archetype classification drift scan across active users · stability scoring per archetype · reclassification alerts to OS vitals log · wired v52" />
+            <Row label="Job 11 · 05:00 UTC Fri" value="Weekly Signal Source Audit — LOG_DEPENDENCY_SOURCES coverage check · verifies all 11 signal sources active across user base · flags missing sources per module · system signal health report · wired v54b" />
+            <Row label="Job 12 · 02:00 UTC Sat" value="Weekly Physiological Archetype Shift Monitor — classifies users by archetype transition type: stable / drifting / shifting / spiking · archetype_shift events written per transition detected · surfaces cohort-level archetype movement · wired v57" />
+            <Row label="Job 13 · 13:00 UTC daily" value="Daily QOS Signature Pulse — scans all active users for QOS mode lock (P.66) · computes lock duration per user · fires QOS-SIG: log handler on 7+ day lock · feeds OP-SIG: surface in QuantumEngineWidgets cohort view · wired v58" />
           </div>
           <P>
             No job requires operator action. No job produces notifications.
@@ -2952,7 +3143,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Pattern Library"
-              value="The complete set of 65 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase. P.1–P.7 core launch patterns · P.8–P.55 expansion phases v8–v39 · P.56–P.58 v42 additions (circadian-anchor, intention-completion-arc, self-care-saturation) · P.63–P.65 v45 additions (signal-burst, cross-domain-coherence, recovery-plateau)."
+              value="The complete set of 67 named behavioral patterns detectable by the Quantum Intent Engine. Ordered by version of introduction. Grows with each Self-Assembly phase. P.1–P.7 core launch patterns · P.8–P.55 expansion phases v8–v39 · P.56–P.58 v42 additions (circadian-anchor, intention-completion-arc, self-care-saturation) · P.63–P.65 v45 additions (signal-burst, cross-domain-coherence, recovery-plateau) · P.66–P.67 v58 additions (qos-signature-lock, operator-signature). P.59–P.62 reserved."
             />
             <Row
               label="Surfacing"
@@ -2992,7 +3183,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="CQGS"
-              value="Coherent Quantum Ground State. Founding white paper and theoretical maximum engagement state. Pre-dates the platform: established the Mother Goddess parable (biological intelligence as the original AI), the Quantum Certified Factory (each human life as a sovereign data-generating process), the Bioethics Index (7 modules), and a 6-layer technology stack that maps to LOT architecture. As an operational state: all 18 modules integrated. All 5 ecosystem nodes connected. QIE at P.34 confidence (0.98). User Index at peak across all 6 dimensions. 19 physiological archetypes classified. The ceiling is not a target — it is a reference point."
+              value="Coherent Quantum Ground State. Founding white paper and theoretical maximum engagement state. Pre-dates the platform: established the Mother Goddess parable (biological intelligence as the original AI), the Quantum Certified Factory (each human life as a sovereign data-generating process), the Bioethics Index (7 modules), and a 6-layer technology stack that maps to LOT architecture. As an operational state: all 18 modules integrated. All 5 ecosystem nodes connected. QIE at P.34 confidence (0.98). User Index at peak across all 6 dimensions. 20 physiological archetypes classified. The ceiling is not a target — it is a reference point."
             />
             <Row
               label="Vitals"
@@ -3381,6 +3572,26 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row
               label="Widget Dependency Map (v52)"
               value="The WIDGET_DEPENDENCY_MAP in intentionEngine.ts tracks which stores each widget reads. 87+ nodes indexed after QIE v52. Eight new nodes added in v52: aiFeedback (mood/energy/cohort/systemProgress) · moodAnalytics (mood/journal/energy/memory) · journalReflection (journal/mood/memory) · energyCapacitor (energy/mood/selfcare) · integrityWidget (mood/intentions/journal/memory) · interfaceEvolution (evolution/mood) · worldCanvas (mood/intentions/memory/cohort) · architectWidget (mood/memory/planner/intentions/goals/journal/energy). LOG_DEPENDENCY_SOURCES expanded from 6 to 8 sources: log · energy · cohort · recipe · goals · qos · intentions · memory."
+            />
+            <Row
+              label="QOS-SIG:"
+              value="Military log event code. QOS Signature event. Fires when P.66 (QOS Signature Lock) triggers — operator's QOS mode has held the same classification for 7+ consecutive days. Log format: 'QOS-SIG: / MODE LOCKED [mode] / [days] days continuous.' Signature stable. The system confirms the lock before naming it. Deployed v58."
+            />
+            <Row
+              label="OP-SIG:"
+              value="Military log event code. Operator Signature event. Fires when P.67 (Operator Signature) triggers — cross-pattern fingerprint confirmed. Five or more distinct patterns active in a 48-hour window with no two from the same source domain. The system has recognized a repeating personal behavioral signature. Log format: 'OP-SIG: / SIGNATURE CONFIRMED / [pattern count] patterns / [domains] domains'. Confidence 0.90 fixed. Deployed v58."
+            />
+            <Row
+              label="QOS Signature Lock"
+              value="P.66. Fires when the operator's QOS mode classification has not changed in 7+ consecutive days. Distinct from P.54 (OS Vitals Convergence): P.54 detects when all vitals are simultaneously elevated. P.66 detects sustained mode stability regardless of level. A locked maintenance state is as significant as a locked peak state — it is the duration, not the value. Confidence 0.85–0.95, scaling with lock days beyond 7. QOS-SIG: log handler fires. Deployed v58."
+            />
+            <Row
+              label="Operator Signature"
+              value="P.67. The personal behavioral fingerprint pattern. Fires when ≥5 distinct QIE patterns activate in any 48-hour window with no two from the same source domain (mood / planner / intentions / memory / selfcare / journal / energy / ecosystem). The system has confirmed a repeating cross-domain behavioral combination unique to this operator. Confidence 0.90 fixed. OP-SIG: log handler fires. Archetype 20 (Temporal Integrator) trigger. Deployed v58."
+            />
+            <Row
+              label="Temporal Integrator"
+              value="Physiological Archetype 20. Final archetype in the classification system. Fires when Operator Signature (P.67) is confirmed — ≥5 distinct patterns cross-domain in 48h. The operator who synthesizes across time domains: past (memory), present (mood/selfcare), and future (intentions/planner) all simultaneously active with high engagement. Directive: synthesis complete — you move across all time domains simultaneously. Deploy accordingly. TEMPORAL: log handler. Deployed v58."
             />
           </div>
 
@@ -4214,46 +4425,48 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             Built from observation, iteration, and continuous operation.
           </P>
           <P>
-            Self-Assembly: 54 phases documented in continuous operation logs.
+            Self-Assembly: 61 phases documented in continuous operation logs.
             Each phase named, dated, versioned, committed.
-            65 patterns named. 18 modules wired. 87+ dependency nodes.
+            73 patterns named. 18 modules wired. 111+ dependency nodes.
             5 device nodes registered. 6 index dimensions operational.
-            19 physiological archetypes classified. 12 background jobs active.
-            53 distinct log event handlers. 70 backup questions across 4 pools.
-            121 badges catalogued. 125 remote branches indexed. Render isolation doctrine complete.
+            22 physiological archetypes classified. 15 background jobs active.
+            68+ distinct log event handlers. 70 backup questions across 4 pools.
+            149 badges catalogued. 125 remote branches indexed. Render isolation doctrine complete.
             5 log triggers active: /qi · /qos · /assembly · /phys · /sil.
             The log is the record. The record is the system.
             The system is the operator.
           </P>
-          <CodeBlock>{`Day 1007+   Continuous operation.
-v54         Full Wiki Scan June 11 — Badges Master Codex v11 documented — current phase.
-65          QIE patterns active (P.1–P.65 · P.59–62 reserved).
+          <CodeBlock>{`Day 1011+   Continuous operation.
+v61         QIE Engineering June 15 — P.70 operator-convergence · Community Biofield: view · dep map 106+.
+v62         QIE Engineering June 15 — P.71 signal-crystallization · P.72 biorhythm-lock · P.73 quantum-coherence-summit · Archetype 22 · dep map 111+ — current phase.
+70          QIE patterns active (P.1–P.70 · P.59–62 reserved).
 18          Self-Assembly modules wired (Module 18: Resilience Protocol · v48).
-87+         Widget dependency map nodes.
+106+        Widget dependency map nodes.
 5           Ecosystem device nodes (CAR · HOME · CPU · PHN · WCH).
 6           User Index dimensions (ENG · EMO · INT · SOC · CARE · COG).
 10          Soul Archetypes classified.
-18          Physiological archetypes (Coherence Holder = 18th · deployed v45).
+21          Physiological archetypes (Integration Architect = 21st · deployed v60).
 6           QOS operating views (Ecosystem · Biofield · Cohort · Index · Assembly · Mode).
 6           Citizen Index stages (· → · → ∘ → ○ → ◯ → ◉).
 6           Achievement domains (Exploration · Consistency · Depth · Connection · Care · Courage).
 5           Benchmark tiers (White · Green · Yellow · Purple · Black).
 5           Badge paths (Aquatic Evolution · Architecture · Oceanic Mayan · Zen · Constellation).
-121         Total badges (Master Codex v11 · 11 categories · 97 hidden · 24 visible).
-54          Self-Assembly phases documented.
-10          Background jobs scheduled.
-53          Log event handlers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY · ARC · CEXP · GOAL-X · SIL · CIRC · BADGE: · QTOS: · NUTR: · STACK: · BENCH: · PHASE: · INTENT[VEL]: · SIG[BURST]: · QIE[PAT]: · AUTH: · ENV: · UI: · CSPRL: · BPEAK: · MER: · MULTI: · CAL: · QOS-COHR:.
+149         Total badges (Master Codex v12 · 18 categories · 121 hidden · 28 visible).
+60          Self-Assembly phases documented.
+14          Background jobs scheduled.
+66+         Log event handlers: BIO[ATP] · EVO · GOAL · NAR · BIO-RPT · TCOH · RECV · CARM · INTF · INTENT-DECAY · ARC · CEXP · GOAL-X · SIL · CIRC · BADGE: · QTOS: · NUTR: · STACK: · BENCH: · PHASE: · INTENT[VEL]: · SIG[BURST]: · QIE[PAT]: · AUTH: · ENV: · UI: · CSPRL: · BPEAK: · MER: · MULTI: · CAL: · QOS-COHR: · QOS-SIG: · OP-SIG: · ARC-PEAK: · ADAPT: · COHR-COMM:.
 60+         Military log event codes.
+13          Log source types: log · energy · cohort · recipe · goals · qos · intentions · memory · planner · selfcare · journal · medical · resilience.
 5           Log triggers: /qi · /qos · /assembly · /phys · /sil.
 125         Remote branches indexed.
 1           Operator.
 Mythic      Meta-Signal · ◉·◉ · hidden.`}</CodeBlock>
           <P>
             The original quantum-intent OS.
-            Day 1007+. Continuous operation. Still accumulating.
+            Day 1010+. Continuous operation. Still accumulating.
             v1.3.0: Memory Engine consolidated. Cross-device sync. PWA hardened.
-            65 patterns named. 18 archetypes classified. 10 jobs running.
-            121 badges catalogued. 125 branches indexed. 54 assembly phases documented.
+            73 patterns named. 22 archetypes classified. 15 jobs running.
+            149 badges catalogued. 125 branches indexed. 60 assembly phases documented.
             The log is the record.
             The record is the system.
             The system is the operator.

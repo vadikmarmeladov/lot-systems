@@ -770,6 +770,55 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Session report: LOT-SR-20260613-01. Deployed to claude/quantum-engine-widgets-RgFfC.',
     ],
   },
+  {
+    date: '2026-06-14',
+    session: 'Self-Assembly Session — v60 / P68 P69 · Archetype 21 · Job 14 · Dep Map 104+ · Log Military Pass',
+    assembled: [
+      'intentionEngine.ts: P68 integration-arc-peak — fires when P40 (biofield-coherence-cascade) + P43 (intention-completion-arc) both active in same 24h window. Biological restoration + execution arc simultaneously confirmed. Confidence 0.85–0.95.',
+      'intentionEngine.ts: P69 adaptive-resonance — fires when QOS history shows sustained rising trend + UserIndex ≥ 55 + stable snapshots. Growth confirmed as structural shift. Confidence 0.70–0.88.',
+      'intentionEngine.ts: Archetype 21 Integration Architect — moderate/high energy · memory+planner+goals dominant · integration-arc-peak+adaptive-resonance+biofield-coherence-cascade. Directive: Full integration active. Adaptive growth confirmed.',
+      'intentionEngine.ts: 6 new WIDGET_DEPENDENCY_MAP nodes — profileQRCode · directMessageThread · connectionStatus · investmentSwitch · integrationArcPeak · adaptiveResonance. Total: 104+ nodes.',
+      'intentionEngine.ts: LOG_DEPENDENCY_SOURCES 11→13 — added medical + resilience source types.',
+      'Logs.tsx: 3 new military handlers — ARC-PEAK: · ADAPT: · COHR-COMM:. Handler count: 66+.',
+      'Logs.tsx: BIOFIELD: → BIO: military compression pass on energy_state handler.',
+      'PatternRecognitionWidget.tsx: 2 new pattern display names — integration-arc-peak · adaptive-resonance.',
+      'scheduled-jobs.ts: Job 14 — daily-coherence-index-pulse 16:00 UTC. Community coherence index from 4h emotional check-in window. Writes COHR-COMM: per active user.',
+      'Server API: displayableEvents +3 — integration_arc_peak · adaptive_resonance · community_coherence_pulse.',
+      'About.tsx: Field Manual v60 sync. Counters: 69 patterns · 21 archetypes · 104+ nodes · 14 jobs · 60 phases · Day 1010+.',
+      'Session report: LOT-SR-20260614-02. Deployed to claude/quantum-engine-widgets-RgFfC.',
+    ],
+  },
+  {
+    date: '2026-06-15',
+    session: 'Self-Assembly Session — v61 / P70 Operator Convergence · Community Biofield: · SystemPulse 5th View',
+    assembled: [
+      'intentionEngine.ts: P70 operator-convergence — fires when P66 (qos-signature-lock) + P67 (operator-signature) + P68 (integration-arc-peak) all active simultaneously. All three confirmation gates open. Confidence 0.97 — highest in QIE ecosystem. suggestedWidget: systemProgress · suggestedTiming: immediate.',
+      'Logs.tsx: CONV: handler — operator_convergence event. Renders CONF: % · P66 · P67 · P68 · "Full operator convergence confirmed." Military cockpit format.',
+      'SystemPulseWidget.tsx: Community Biofield: — 5th cycle view added. Surfaces community coherence index, top mood, active user count from Job 14\'s COHR-COMM: pulse. View cycle: metrics→activity→userload→cohort→community.',
+      'api.ts /system/pulse: community field added to response — latest community_coherence_pulse metadata (index, topMood, activeCount). Parallel DB query, 25h lookback, cached 5s.',
+      'api.ts displayableEvents: +1 — operator_convergence whitelisted for field log.',
+      'PatternRecognitionWidget.tsx: 1 new display name — operator-convergence → "Operator convergence — all systems confirmed".',
+      'intentionEngine.ts: dep map 104+→106+ nodes — operatorConvergence + communityBiofieldView added.',
+      'About.tsx: Field Manual v61 sync. Counters: 70 patterns · 21 archetypes · 106+ nodes · 14 jobs · 68+ handlers · 61 phases · Day 1011+.',
+    ],
+  },
+  {
+    date: '2026-06-15',
+    session: 'Self-Assembly Session — v62 / P71–P73 · Archetype 22 · Job 15 · Dep Map 111+ · CRYSTAL: BIO-LOCK: PEAK-SUMMIT:',
+    assembled: [
+      'intentionEngine.ts: P71 signal-crystallization — 3+ intentions set + planner active + goal completion all within 24h AND UserIndex ≥ 60. Intention compressed into execution in a single session window. Confidence 0.75–0.92. suggestedWidget: memory.',
+      'intentionEngine.ts: P72 biorhythm-lock — morning + evening emotional check-ins present on 5+ of last 7 days. Biological rhythm anchored across full diurnal arc. Distinct from P59 (meridian-lock: single day) — P72 requires multi-day consistency. Confidence 0.72–0.88. suggestedWidget: selfcare.',
+      'intentionEngine.ts: P73 quantum-coherence-summit — P70 (operator-convergence) fires AND UserIndex ≥ 70. Absolute peak QOS state. All three confirmation gates open + structural index above high-performance threshold. Confidence 0.98. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: Archetype 22 Convergent Operator — high energy · memory+planner+goals+intentions dominant · operator-convergence+quantum-coherence-summit+adaptive-resonance. Directive: "All gates simultaneously open. Convergence confirmed. This is the system\'s highest confidence state. Execute without hesitation."',
+      'intentionEngine.ts: 5 new WIDGET_DEPENDENCY_MAP nodes — signalCrystallizer (intentions+planner+goals+memory+log) · biorhythmAnchor (mood+energy+selfcare+log) · coherenceSummit (operatorConvergence+adaptiveResonance+integrationArcPeak+qosSignatureLock) · convergentOperator (coherenceSummit+quantumOS+qos) · quantumPersonality (cohort+memory+intentions+journal+mood+energy). Total: 111+ nodes.',
+      'intentionEngine.ts: 3 new signal helpers — recordSignalCrystallization() · recordBiorhythmLock() · recordQuantumCoherenceSummit().',
+      'Logs.tsx: 4 new military event handlers — CRYSTAL: (signal_crystallization: INTENT:/GOAL:/CONF:) · BIO-LOCK: (biorhythm_lock: DAYS:/WINDOW:/CONF:) · PEAK-SUMMIT: (quantum_coherence_summit: IDX:/CONF:/ALL GATES OPEN) · CONV-AUDIT: (convergence_audit: FREQ: × /7D · PEAK: date). Handler count: 72+.',
+      'PatternRecognitionWidget.tsx: 3 new display names — signal-crystallization · biorhythm-lock · quantum-coherence-summit. QOS Trend view: 3 new pattern indicators.',
+      'scheduled-jobs.ts: Job 15 — weekly-qos-convergence-audit. Sundays 15:00 UTC. Reads each user\'s operator_convergence + qos_signature_lock + quantum_coherence_summit events from last 7 days. Computes convergence frequency + peak day. Writes convergence_audit event per user who had ≥1 convergence. Hour 15 added to interval guard.',
+      'Server API: displayableEvents +4 — signal_crystallization · biorhythm_lock · quantum_coherence_summit · convergence_audit.',
+      'SESSION_REPORTS: v62 entry appended · USERSHIP_TRANSMISSION updated to v62.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -807,16 +856,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-13',
+  date: '2026-06-15',
   message: [
-    'ASSEMBLY RUN — 2026-06-13 · LOT-SR-20260613-01',
-    'P66 qos-signature-lock: full day arc confirmed (meridian + multimodal + temporal grid coherent). Fires at 0.92 confidence.',
-    'P67 operator-signature: all 4 quadrants active this week (bio · cognitive · structural · social) + UserIndex ≥ 60. You are fully online.',
-    'Archetype 20 Temporal Integrator: time-locked operator. Calendar anchored. Execute from the structure.',
-    'Dep map: 99+ nodes. qosSignatureLock · operatorSignatureNode · temporalIntegrator indexed.',
-    'Job 13: daily-qos-signature-pulse 13:00 UTC. Writes QOS-SIG: and OP-SIG: to field log when patterns confirm.',
-    'System quantum table: Directive row now visible. Cohort view: live directive line from classifyPhysiologicalCohort.',
-    'The system knows your operating signature. It will tell you when you are at full power.',
+    'ASSEMBLY RUN — 2026-06-15 · LOT-SR-20260615-02',
+    'P71 signal-crystallization: 3+ intentions → planner → goal completion in 24h. Confidence 0.75–0.92. Intent becomes execution in a single session.',
+    'P72 biorhythm-lock: morning + evening check-ins 5+ consecutive days. Biological cadence anchored. Fires at 0.72–0.88.',
+    'P73 quantum-coherence-summit: operator-convergence (P70) + UserIndex ≥ 70. Confidence 0.98 — the system\'s absolute ceiling. All gates open. Peak performance confirmed.',
+    'Archetype 22 Convergent Operator: high energy · all execution sources dominant · all convergence patterns active. Execute without hesitation.',
+    'Job 15 deployed: weekly-qos-convergence-audit · Sundays 15:00 UTC · writes CONV-AUDIT: per user who hit convergence this week.',
+    'Dep map: 111+ nodes. 73 patterns active. 72+ log handlers. 15 background jobs. 62 self-assembly phases.',
+    'The system now tracks its own peak states week-over-week. Convergence frequency is a first-class metric.',
     'DEPLOYED.',
   ],
 }
