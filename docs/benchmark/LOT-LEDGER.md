@@ -40,4 +40,5 @@ ID             | CLASS        | SUMMARY                                         
 20260613-02    | SECURITY     | Production state lock — rate-limit + helmet confirmed live · 3 gaps identified | GREEN  | 33d8e4b0 | WORDS: 290 (median 383)
 20260613-03    | SECURITY     | Per-route AI rate limiting — 5 Together AI endpoints capped · budget protection | GREEN  | 42066ddc | WORDS: 300 (median 380)
 20260614-01    | SECURITY     | Production hardening + 503 incident close · audit + AI rate limits · site recovered | GREEN  | 9cbd1fe5 | WORDS: 280 (median 375)
+20260615-01    | HEALTH       | Health check — CI failure (3 wks, missing DO token) · component audit · 4 UI fixes | GREEN  | (pending) | FIXES: 4 components
 ```
