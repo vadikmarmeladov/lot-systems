@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useSendLotMail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -1385,6 +1385,16 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [mailStatus, setMailStatus] = React.useState<string | null>(null)
+  const { mutate: sendLotMail } = useSendLotMail({
+    onSuccess: (data) => {
+      setMailStatus(`SENT            ✓ DELIVERED TO ${(data.recipientName || 'RECIPIENT').toUpperCase()}\nID              ${data.id.slice(0, 8).toUpperCase()}`)
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.error || 'TRANSMISSION FAILED'
+      setMailStatus(`ERROR           ${msg.toUpperCase()}`)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1737,6 +1747,22 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'email-compose') {
+        // /email to [name] — parse recipient and body, send LOT Mail
+        const toMatch = value.match(/\/(?:email|mail)\s+to\s+([^\n]+)/i)
+        if (toMatch) {
+          const recipientName = toMatch[1].trim()
+          // Body is everything after the command line
+          const bodyLines = value
+            .split('\n')
+            .filter((line) => !/\/(?:email|mail)\s+to\s+/i.test(line))
+            .join('\n')
+            .trim()
+          const body = bodyLines || value.trim()
+
+          setMailStatus(`COMPOSING       TO ${recipientName.toUpperCase()}...\nSTATUS          TRANSMITTING`)
+          sendLotMail({ recipientName, body })
+        }
       }
     }
   }, [value])
@@ -1937,6 +1963,13 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {mailStatus && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{mailStatus}</div>
             </Block>
           </div>
         )}

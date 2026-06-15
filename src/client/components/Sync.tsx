@@ -31,6 +31,7 @@ import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+import { MailWidget } from './MailWidget'
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -188,6 +189,7 @@ export const Sync = () => {
 
   return (
     <div className="max-w-[700px]">
+      <MailWidget />
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}

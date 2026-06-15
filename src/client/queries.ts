@@ -18,6 +18,7 @@ import {
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
+  LotMailRecord,
   Paginated,
   PublicChatMessage,
   User,
@@ -880,3 +881,18 @@ export const usePrayerScripture = createMutation<
     logId: string | null
   }
 >('post', '/api/prayer')
+
+// LOT Mail
+export const useLotMailInbox = createQuery<LotMailRecord[]>('/api/lot-mail/inbox', {
+  refetchOnWindowFocus: false,
+})
+
+export const useSendLotMail = createMutation<
+  { recipientName: string; body: string; subject?: string },
+  { id: string; recipientId: string; recipientName: string; subject: string | null; body: string; createdAt: string }
+>('post', '/api/lot-mail')
+
+export const useMarkLotMailRead = createMutation<{ id: string }, { ok: boolean }>(
+  'put',
+  (data) => `/api/lot-mail/${data.id}/read`
+)
