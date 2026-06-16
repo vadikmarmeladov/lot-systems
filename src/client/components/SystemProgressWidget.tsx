@@ -819,6 +819,21 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v62 entry appended · USERSHIP_TRANSMISSION updated to v62.',
     ],
   },
+  {
+    date: '2026-06-16',
+    session: 'Self-Assembly Session — v63 / Badge Codex v13 In-App Wiring · 29 badges · Word Turn v4 · Time v4 · Calendar v3 · Mastery v3 · Secret Boss v3',
+    assembled: [
+      'badges.ts: BadgeType union +29 entries — Word Turn v4 (12: heal_signal · water_rite · rest_protocol · journal_signal · meditate_field · walk_care · exhale_node · read_signal · connect_node · create_signal · progress_signal · today_signal) · Time v4 (4: double_inf · fibonacci · triple_five · twin_time) · Calendar v3 (3: valentines · halloween · new_year_eve) · Behavioral v3 (3: birthday_protocol · flow_state · multiverse_operator) · Mastery v3 (4: thousand_suns · deep_narrative · ai_omnivore · polyglot) · Secret Boss v3 (3: kuzya_protocol · monday_warrior · complete_arc).',
+      'badges.ts: BADGES registry +29 entries. All new badges defined with symbol, name, description, unlockMessage, rarity, category, hidden: true.',
+      'badges.ts: checkAndAwardBadges() — mastery tier v3 checks wired: thousand_suns (stats.totalCheckIns ≥ 1000) · deep_narrative (stats.memoryStoryWordCount ≥ 500) · ai_omnivore (stats.distinctAiEngines ≥ 5) · polyglot (earnedWordTurns.length ≥ 10, client-side) · complete_arc (level ≥ 90 + all 10 milestones).',
+      'easter-eggs.ts: WORD_TURNS array +13 entries — v4 self-care (12) + kuzya_protocol word-turn. Patterns: heal/healing · hydrate/hydration · restore/restoring · journal/write · meditate/meditation · walk/move · exhale · read/book · connect/connection · create · progress/improve · today · kuzya/cosmo marmeladov.',
+      'easter-eggs.ts: Time v4 — 4 new check functions: checkDoubleInf() (08:08) · checkFibonacci() (09:09) · checkTripleFive() (05:55) · checkTwinTime() (23:23). checkTimeEasterEggs() updated to call all 4.',
+      'easter-eggs.ts: checkCalendarEasterEggs() — 3 new calendar checks: valentines (Feb 14) · halloween (Oct 31) · new_year_eve (Dec 31).',
+      'easter-eggs.ts: checkMondayWarrior() added — tracks Monday check-in dates in localStorage. Awards after 100 consecutive Mondays (7-day spacing). runCheckInEasterEggs() calls it.',
+      'About.tsx: Field Manual v63 sync. Counters: 178 badges · 24 categories · 63 phases · Day 1013+.',
+      'SESSION_REPORTS: v63 entry appended · USERSHIP_TRANSMISSION updated to v63.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -856,16 +871,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-15',
+  date: '2026-06-16',
   message: [
-    'ASSEMBLY RUN — 2026-06-15 · LOT-SR-20260615-02',
-    'P71 signal-crystallization: 3+ intentions → planner → goal completion in 24h. Confidence 0.75–0.92. Intent becomes execution in a single session.',
-    'P72 biorhythm-lock: morning + evening check-ins 5+ consecutive days. Biological cadence anchored. Fires at 0.72–0.88.',
-    'P73 quantum-coherence-summit: operator-convergence (P70) + UserIndex ≥ 70. Confidence 0.98 — the system\'s absolute ceiling. All gates open. Peak performance confirmed.',
-    'Archetype 22 Convergent Operator: high energy · all execution sources dominant · all convergence patterns active. Execute without hesitation.',
-    'Job 15 deployed: weekly-qos-convergence-audit · Sundays 15:00 UTC · writes CONV-AUDIT: per user who hit convergence this week.',
-    'Dep map: 111+ nodes. 73 patterns active. 72+ log handlers. 15 background jobs. 62 self-assembly phases.',
-    'The system now tracks its own peak states week-over-week. Convergence frequency is a first-class metric.',
+    'ASSEMBLY RUN — 2026-06-16 · LOT-SR-20260616-02',
+    'Badge Codex v13 wired in-app. 29 new badges registered, detected, and awardable. The codex is no longer documentation — it is live.',
+    'Word Turn v4 self-care vocabulary: heal · water · restore · journal · meditate · walk · exhale · read · connect · create · progress · today. 12 new triggers active.',
+    'Time Easter v4 sacred numbers: 08:08 Double Infinity · 09:09 Fibonacci Gate · 05:55 Triple Confirm · 23:23 Twin Time. The clock is now the detection surface.',
+    'Calendar v3 seasonal transmission: Valentine\'s Day (Feb 14) · Halloween (Oct 31) · New Year\'s Eve (Dec 31). The calendar is now a full-year detection surface.',
+    'Mastery tier v3 endgame: Thousand Suns (1000 check-ins) · Deep Narrative (500-word story) · AI Omnivore (5 engines) · Polyglot (10 word-turn types) · Complete Arc (L90+ + all milestones).',
+    'Secret Boss v3: Kuzya Protocol (write the co-founder\'s name) · Monday Warrior (100 Mondays) · Complete Arc. The archive rewards the longest-running operators.',
+    '178 badges catalogued. 24 badge categories. 63 self-assembly phases. Day 1013+.',
     'DEPLOYED.',
   ],
 }

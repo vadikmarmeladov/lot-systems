@@ -114,6 +114,50 @@ export function checkLotHour(): BadgeType | null {
   return null
 }
 
+/** Award Double Infinity badge if current time is 08:08 */
+export function checkDoubleInf(): BadgeType | null {
+  if (hasBadge('double_inf')) return null
+  const now = new Date()
+  if (now.getHours() === 8 && now.getMinutes() === 8) {
+    awardBadge('double_inf')
+    return 'double_inf'
+  }
+  return null
+}
+
+/** Award Fibonacci Gate badge if current time is 09:09 */
+export function checkFibonacci(): BadgeType | null {
+  if (hasBadge('fibonacci')) return null
+  const now = new Date()
+  if (now.getHours() === 9 && now.getMinutes() === 9) {
+    awardBadge('fibonacci')
+    return 'fibonacci'
+  }
+  return null
+}
+
+/** Award Triple Confirm badge if current time is 05:55 */
+export function checkTripleFive(): BadgeType | null {
+  if (hasBadge('triple_five')) return null
+  const now = new Date()
+  if (now.getHours() === 5 && now.getMinutes() === 55) {
+    awardBadge('triple_five')
+    return 'triple_five'
+  }
+  return null
+}
+
+/** Award Twin Time badge if current time is 23:23 */
+export function checkTwinTime(): BadgeType | null {
+  if (hasBadge('twin_time')) return null
+  const now = new Date()
+  if (now.getHours() === 23 && now.getMinutes() === 23) {
+    awardBadge('twin_time')
+    return 'twin_time'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
@@ -123,6 +167,7 @@ export function checkTimeEasterEggs(): BadgeType[] {
   const checks = [
     checkNightOwl, checkEarlyBird, checkMirrorHour,
     checkPiHour, checkErrorHour, checkSequenceTime, checkLotHour,
+    checkDoubleInf, checkFibonacci, checkTripleFive, checkTwinTime,
   ]
   for (const check of checks) {
     const result = check()
@@ -181,6 +226,24 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('palindrome_day') && isPalindromeDate(dateStr)) {
     awardBadge('palindrome_day')
     awarded.push('palindrome_day')
+  }
+
+  // Valentine's Day: February 14
+  if (!hasBadge('valentines') && month === 2 && day === 14) {
+    awardBadge('valentines')
+    awarded.push('valentines')
+  }
+
+  // Halloween: October 31
+  if (!hasBadge('halloween') && month === 10 && day === 31) {
+    awardBadge('halloween')
+    awarded.push('halloween')
+  }
+
+  // New Year's Eve: December 31
+  if (!hasBadge('new_year_eve') && month === 12 && day === 31) {
+    awardBadge('new_year_eve')
+    awarded.push('new_year_eve')
   }
 
   return awarded
@@ -278,6 +341,50 @@ export function checkSilentHour(): BadgeType | null {
     if (hoursSince >= 24 && hoursSince < 168) { // 24h–7d (Ghost Protocol takes over at 7d)
       awardBadge('silent_hour')
       return 'silent_hour'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/** Check and award Monday Warrior badge (100 consecutive Mondays) */
+export function checkMondayWarrior(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('monday_warrior')) return null
+
+  const now = new Date()
+  if (now.getDay() !== 1) return null  // Not Monday
+
+  try {
+    const key = 'monday_warrior_dates'
+    const stored = localStorage.getItem(key)
+    const dates: string[] = stored ? JSON.parse(stored) : []
+    const todayStr = now.toISOString().slice(0, 10)
+
+    if (!dates.includes(todayStr)) {
+      dates.push(todayStr)
+      const recent = dates.slice(-110)
+      localStorage.setItem(key, JSON.stringify(recent))
+
+      if (recent.length >= 100) {
+        const sorted = [...recent].sort()
+        let consecutive = 1
+        for (let i = sorted.length - 1; i > 0; i--) {
+          const diff = Math.round(
+            (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime())
+            / (1000 * 60 * 60 * 24)
+          )
+          if (diff === 7) {
+            consecutive++
+            if (consecutive >= 100) {
+              awardBadge('monday_warrior')
+              return 'monday_warrior'
+            }
+          } else {
+            break
+          }
+        }
+      }
     }
   } catch { /* non-critical */ }
 
@@ -387,6 +494,21 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\b(now|moment|present)\b/i,         badge: 'present_moment' },
   { patterns: /\b(universe|cosmos|cosmic)\b/i,     badge: 'cosmic_scale' },
   { patterns: /\b(alive|living|life)\b/i,          badge: 'vital_signal' },
+  // ── v4 — Self-Care Lore ──────────────────────────────────────────────────
+  { patterns: /\b(heal|healing|healed)\b/i,                badge: 'heal_signal' },
+  { patterns: /\b(hydrate|hydration|hydrating)\b/i,        badge: 'water_rite' },
+  { patterns: /\b(restore|restoring|restored)\b/i,         badge: 'rest_protocol' },
+  { patterns: /\b(journal|journaling|journaled|wrote|writing)\b/i, badge: 'journal_signal' },
+  { patterns: /\b(meditate|meditation|meditating)\b/i,     badge: 'meditate_field' },
+  { patterns: /\b(walk|walked|walking|move|moving)\b/i,    badge: 'walk_care' },
+  { patterns: /\b(exhale|exhaled|exhaling)\b/i,            badge: 'exhale_node' },
+  { patterns: /\b(read|reading|book|books)\b/i,            badge: 'read_signal' },
+  { patterns: /\b(connect|connection|connecting|connected)\b/i, badge: 'connect_node' },
+  { patterns: /\b(create|creating|created|creation)\b/i,  badge: 'create_signal' },
+  { patterns: /\b(progress|improve|improving|improved)\b/i, badge: 'progress_signal' },
+  { patterns: /\btoday\b/i,                                badge: 'today_signal' },
+  // ── Secret Boss v3 — word-turn ───────────────────────────────────────────
+  { patterns: /\b(kuzya|cosmo marmeladov)\b/i,             badge: 'kuzya_protocol' },
 ]
 
 /**
@@ -518,6 +640,9 @@ export function runCheckInEasterEggs(
 
   const friday = checkFridayRitual()
   if (friday) awarded.push(friday)
+
+  const monday = checkMondayWarrior()
+  if (monday) awarded.push(monday)
 
   if (activityCount !== undefined) {
     const overclock = checkOverclock(activityCount)
