@@ -10,7 +10,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button, ResizibleGhostInput, Unknown } from '#client/components/ui'
-import { useLogs, useUpdateLog } from '#client/queries'
+import { useLogs, useUpdateLog, useSendLotEmail } from '#client/queries'
 import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
@@ -1427,6 +1427,26 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'lot_email_sent') {
+          const recipientName = log.metadata?.recipientName as string | undefined
+          const body = log.metadata?.body as string | undefined
+          const delivered = log.metadata?.delivered as boolean | undefined
+          const queued = log.metadata?.queued as boolean | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                <div className="uppercase tracking-widest mb-4">
+                  {delivered ? 'SENT' : queued ? 'QUEUED' : 'SENT'}
+                </div>
+                {recipientName && (
+                  <div className="opacity-60">TO: {recipientName}</div>
+                )}
+                {body && (
+                  <div className="opacity-30 mt-4">{body.slice(0, 120)}{body.length > 120 ? '...' : ''}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1508,6 +1528,18 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { mutate: sendLotEmail } = useSendLotEmail({
+    onSuccess: (data) => {
+      setEmailResult(data.message)
+      setEmailLoading(false)
+    },
+    onError: () => {
+      setEmailResult('MAIL ERROR — Transmission failed. Check network.')
+      setEmailLoading(false)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1860,6 +1892,22 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'email-send') {
+        // Parse: /email to Hitomi [message body]
+        const emailMatch = value.match(/\/email\s+to\s+([^\s]+(?:\s+[^\s]+)?)\s+([\s\S]+)/i)
+        if (emailMatch && !emailLoading) {
+          const recipientName = emailMatch[1].trim()
+          const body = emailMatch[2].trim()
+          if (recipientName && body) {
+            setEmailLoading(true)
+            setEmailResult(null)
+            sendLotEmail({ recipientName, body })
+          } else {
+            setEmailResult('MAIL SYNTAX — /email to [name] [message]')
+          }
+        } else if (!emailMatch) {
+          setEmailResult('MAIL SYNTAX — /email to [name] [message]')
+        }
       }
     }
   }, [value])
@@ -2060,6 +2108,20 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Transmitting...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60 uppercase tracking-widest">
+                  {emailResult}
+                </div>
+              )}
             </Block>
           </div>
         )}

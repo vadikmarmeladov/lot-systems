@@ -12,6 +12,7 @@ import { useQueryClient } from 'react-query'
 import * as stores from '#client/stores'
 import { $featureUnlocks } from '#client/stores/evolution'
 import {
+  Block,
   Button,
   Clock,
   GhostButton,
@@ -24,9 +25,12 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotEmails,
+  useMarkEmailRead,
+  type LotEmailRecord,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, UserTag, LotEmailEvent } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -42,6 +46,7 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [newEmails, setNewEmails] = React.useState<LotEmailEvent[]>([])
   const hasInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
@@ -55,6 +60,7 @@ export const Sync = () => {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: emailData, refetch: refetchEmails } = useLotEmails()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -64,6 +70,7 @@ export const Sync = () => {
       queryClient.invalidateQueries(['/api/chat-messages'])
     }
   })
+  const { mutate: markEmailRead } = useMarkEmailRead({})
 
   const onChangeMessage = React.useCallback((value: string) => {
     setMessage(
@@ -110,8 +117,6 @@ export const Sync = () => {
         setMessages((prev) => {
           return prev.map((x) => {
             if (x.id === data.messageId) {
-              // Update likes count for all users
-              // Update isLiked only if this user performed the action
               if (data.userId === me?.id) {
                 return { ...x, likes: data.likes, isLiked: data.isLiked }
               }
@@ -122,9 +127,22 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeLotEmailListener } = sync.listen(
+      'lot_email',
+      (data) => {
+        // Only show if this user is the recipient
+        if (data.receiverId === me?.id) {
+          setNewEmails((prev) => {
+            if (prev.some((e) => e.id === data.id)) return prev
+            return [data, ...prev]
+          })
+        }
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotEmailListener()
     }
   }, [me?.id])
 
@@ -221,6 +239,34 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {/* LOT® Mail — inbox preview in Sync */}
+      {((emailData?.unreadCount ?? 0) > 0 || newEmails.length > 0) && (
+        <div className="mb-24">
+          <Block label="Mail:" blockView>
+            <div
+              className="cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
+              onClick={() => stores.goTo('mail')}
+            >
+              {newEmails.length > 0 && newEmails.map((email) => (
+                <div key={email.id} className="mb-8">
+                  <div className="uppercase tracking-widest">
+                    {email.senderName} → you
+                  </div>
+                  <div className="opacity-60 mt-4">
+                    {email.body.slice(0, 100)}{email.body.length > 100 ? '...' : ''}
+                  </div>
+                </div>
+              ))}
+              {(emailData?.unreadCount ?? 0) > 0 && newEmails.length === 0 && (
+                <div className="opacity-60">
+                  {emailData!.unreadCount} unread {emailData!.unreadCount === 1 ? 'message' : 'messages'} — open Mail
+                </div>
+              )}
+            </div>
+          </Block>
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

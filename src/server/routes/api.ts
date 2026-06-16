@@ -386,6 +386,19 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'lot_email': {
+          // Only send to the intended recipient (or sender for confirmation)
+          if (data.receiverId === req.user.id || data.senderId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
+        case 'direct_message': {
+          if (data.receiverId === req.user.id || data.senderId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
       }
     })
 
@@ -5286,6 +5299,210 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
           reference: 'Psalm 46:10',
           logId: null,
         }
+      }
+    }
+  )
+
+  // ============================================================================
+  // LOT® MAIL — In-app email system
+  // Compose via /email to [name] in Log. Delivered to Sync + Mail inbox.
+  // ============================================================================
+
+  // GET /api/lot-emails — inbox (received) + sent
+  fastify.get('/lot-emails', async (req: FastifyRequest, reply) => {
+    try {
+      const inbox = await fastify.models.LotEmail.findAll({
+        where: { receiverId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+
+      const sent = await fastify.models.LotEmail.findAll({
+        where: { senderId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+
+      // Enrich with sender/receiver names
+      const senderIds = [...new Set([...inbox.map(e => e.senderId)])]
+      const senders = await fastify.models.User.findAll({
+        where: { id: senderIds as any },
+        attributes: ['id', 'firstName', 'lastName'],
+      })
+      const senderMap: Record<string, string> = {}
+      for (const s of senders) {
+        senderMap[s.id] = [s.firstName, s.lastName].filter(Boolean).join(' ') || s.id
+      }
+
+      const toRecord = (e: any, isMine: boolean) => ({
+        id: e.id,
+        senderId: e.senderId,
+        receiverId: e.receiverId,
+        recipientName: e.recipientName,
+        subject: e.subject,
+        body: e.body,
+        isRead: e.isRead,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+        senderName: isMine
+          ? [req.user.firstName, req.user.lastName].filter(Boolean).join(' ') || 'You'
+          : senderMap[e.senderId] || 'Unknown',
+        isMine,
+      })
+
+      return reply.send({
+        inbox: inbox.map(e => toRecord(e, false)),
+        sent: sent.map(e => toRecord(e, true)),
+        unreadCount: inbox.filter(e => !e.isRead).length,
+      })
+    } catch (error) {
+      console.error('[LOT Mail] Error fetching emails:', error)
+      return reply.status(500).send({ error: 'Failed to fetch emails' })
+    }
+  })
+
+  // POST /api/lot-emails — send email
+  fastify.post(
+    '/lot-emails',
+    async (
+      req: FastifyRequest<{
+        Body: { recipientName: string; body: string; subject?: string }
+      }>,
+      reply
+    ) => {
+      try {
+        const { recipientName, body, subject } = req.body
+
+        if (!recipientName?.trim() || !body?.trim()) {
+          return reply.status(400).send({ error: 'Recipient and body required' })
+        }
+
+        const trimmedBody = body.trim().slice(0, 2000)
+        const trimmedRecipient = recipientName.trim()
+
+        // Find recipient by first name (case-insensitive) — LOT Community members only
+        const [recipientFirst, ...rest] = trimmedRecipient.split(' ')
+        const candidates = await fastify.models.User.findAll({
+          attributes: ['id', 'firstName', 'lastName'],
+          limit: 10,
+        })
+
+        const recipient = candidates.find(u => {
+          if (!u.firstName) return false
+          return u.firstName.toLowerCase() === recipientFirst.toLowerCase()
+        })
+
+        if (!recipient) {
+          const senderName = [req.user.firstName, req.user.lastName].filter(Boolean).join(' ')
+          // Still create an email record even without a known recipient (queued)
+          const queued = await fastify.models.LotEmail.create({
+            senderId: req.user.id,
+            receiverId: req.user.id, // self-addressed until resolved
+            recipientName: trimmedRecipient,
+            body: trimmedBody,
+            subject: subject?.trim().slice(0, 500) || null,
+          })
+
+          // Log the attempt
+          process.nextTick(async () => {
+            try {
+              const context = await getLogContext(req.user)
+              await fastify.models.Log.create({
+                userId: req.user.id,
+                event: 'lot_email_sent',
+                text: '',
+                metadata: {
+                  emailId: queued.id,
+                  recipientName: trimmedRecipient,
+                  body: trimmedBody,
+                  delivered: false,
+                  queued: true,
+                },
+                context,
+              })
+            } catch {}
+          })
+
+          return reply.send({
+            id: queued.id,
+            status: 'queued',
+            message: `MAIL QUEUED — ${trimmedRecipient} not found in community. Transmitting when they join.`,
+            delivered: false,
+          })
+        }
+
+        const senderName = [req.user.firstName, req.user.lastName].filter(Boolean).join(' ') || 'Operator'
+
+        const email = await fastify.models.LotEmail.create({
+          senderId: req.user.id,
+          receiverId: recipient.id,
+          recipientName: [recipient.firstName, recipient.lastName].filter(Boolean).join(' ') || trimmedRecipient,
+          body: trimmedBody,
+          subject: subject?.trim().slice(0, 500) || null,
+        })
+
+        // Broadcast to Sync feed (SSE) so recipient sees it in their Sync tab
+        sync.emit('lot_email', {
+          id: email.id,
+          senderId: req.user.id,
+          receiverId: recipient.id,
+          recipientName: email.recipientName,
+          subject: email.subject,
+          body: email.body,
+          isRead: false,
+          senderName,
+          createdAt: email.createdAt,
+          updatedAt: email.updatedAt,
+        })
+
+        // Log for sender's journal
+        process.nextTick(async () => {
+          try {
+            const context = await getLogContext(req.user)
+            await fastify.models.Log.create({
+              userId: req.user.id,
+              event: 'lot_email_sent',
+              text: '',
+              metadata: {
+                emailId: email.id,
+                recipientName: email.recipientName,
+                receiverId: recipient.id,
+                body: trimmedBody,
+                delivered: true,
+              },
+              context,
+            })
+          } catch {}
+        })
+
+        return reply.send({
+          id: email.id,
+          status: 'sent',
+          message: `MAIL SENT — ${email.recipientName} will receive your message in Sync.`,
+          delivered: true,
+          recipientName: email.recipientName,
+        })
+      } catch (error) {
+        console.error('[LOT Mail] Error sending email:', error)
+        return reply.status(500).send({ error: 'Failed to send email' })
+      }
+    }
+  )
+
+  // PUT /api/lot-emails/:id/read — mark as read
+  fastify.put(
+    '/lot-emails/:id/read',
+    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
+      try {
+        const email = await fastify.models.LotEmail.findByPk(req.params.id)
+        if (!email || email.receiverId !== req.user.id) {
+          return reply.status(404).send({ error: 'Email not found' })
+        }
+        await email.update({ isRead: true })
+        return reply.send({ ok: true })
+      } catch (error) {
+        console.error('[LOT Mail] Error marking read:', error)
+        return reply.status(500).send({ error: 'Failed to mark email as read' })
       }
     }
   )

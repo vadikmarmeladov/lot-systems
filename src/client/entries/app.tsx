@@ -16,6 +16,7 @@ import { System } from '#client/components/System'
 import { Settings } from '#client/components/Settings'
 import { Logs } from '#client/components/Logs'
 import { Sync } from '#client/components/Sync'
+import { Mail } from '#client/components/Mail'
 import { DirectMessageThread } from '#client/components/DirectMessageThread'
 import { StatusPage } from '#client/components/StatusPage'
 import { ApiPage } from '#client/components/ApiPage'
@@ -132,7 +133,7 @@ if (typeof window !== 'undefined') {
   })
 }
 
-type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api'
+type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api' | 'mail'
 
 function TabPanel({ route, children }: { route: string; children: React.ReactNode }) {
   const router = useStore(stores.router)
@@ -299,6 +300,9 @@ const App = () => {
         </TabPanel>
         <TabPanel route="api">
           <ApiPage />
+        </TabPanel>
+        <TabPanel route="mail">
+          <Mail />
         </TabPanel>
         <DynamicRoutes />
         {isMirrorOn && (
