@@ -19,7 +19,7 @@ interface HealthStatus {
   };
 }
 
-async function checkHealth(): Promise<HealthStatus> {
+export async function checkHealth(): Promise<HealthStatus> {
   const startTime = Date.now()
   const sequelize = new Sequelize(process.env.DATABASE_URL!, {
     dialect: 'postgres',

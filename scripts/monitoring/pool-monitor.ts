@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-async function monitorPool() {
+export async function monitorPool() {
   const sequelize = new Sequelize(process.env.DATABASE_URL!, {
     dialect: 'postgres',
     logging: false,
