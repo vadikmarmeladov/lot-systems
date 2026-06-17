@@ -114,6 +114,98 @@ export function checkLotHour(): BadgeType | null {
   return null
 }
 
+// ── Time v3 ──────────────────────────────────────────────────────────────────
+
+/** Award Lucky Signal badge at 07:07 */
+export function checkLuckySignal(): BadgeType | null {
+  if (hasBadge('lucky_signal')) return null
+  const now = new Date()
+  if (now.getHours() === 7 && now.getMinutes() === 7) {
+    awardBadge('lucky_signal')
+    return 'lucky_signal'
+  }
+  return null
+}
+
+/** Award New Day Proto badge at 00:01 (first minute of day) */
+export function checkNewDayProto(): BadgeType | null {
+  if (hasBadge('new_day_proto')) return null
+  const now = new Date()
+  if (now.getHours() === 0 && now.getMinutes() === 1) {
+    awardBadge('new_day_proto')
+    return 'new_day_proto'
+  }
+  return null
+}
+
+/** Award Double Down badge at 22:22 */
+export function checkDoubleDown(): BadgeType | null {
+  if (hasBadge('double_down')) return null
+  const now = new Date()
+  if (now.getHours() === 22 && now.getMinutes() === 22) {
+    awardBadge('double_down')
+    return 'double_down'
+  }
+  return null
+}
+
+/** Award Leet Signal badge at 13:37 */
+export function checkLeetSignal(): BadgeType | null {
+  if (hasBadge('leet_signal')) return null
+  const now = new Date()
+  if (now.getHours() === 13 && now.getMinutes() === 37) {
+    awardBadge('leet_signal')
+    return 'leet_signal'
+  }
+  return null
+}
+
+// ── Time v4 ──────────────────────────────────────────────────────────────────
+
+/** Award Double Infinity badge at 08:08 */
+export function checkDoubleInf(): BadgeType | null {
+  if (hasBadge('double_inf')) return null
+  const now = new Date()
+  if (now.getHours() === 8 && now.getMinutes() === 8) {
+    awardBadge('double_inf')
+    return 'double_inf'
+  }
+  return null
+}
+
+/** Award Fibonacci badge at 09:09 */
+export function checkFibonacci(): BadgeType | null {
+  if (hasBadge('fibonacci')) return null
+  const now = new Date()
+  if (now.getHours() === 9 && now.getMinutes() === 9) {
+    awardBadge('fibonacci')
+    return 'fibonacci'
+  }
+  return null
+}
+
+/** Award Triple Five badge at 05:55 */
+export function checkTripleFive(): BadgeType | null {
+  if (hasBadge('triple_five')) return null
+  const now = new Date()
+  if (now.getHours() === 5 && now.getMinutes() === 55) {
+    awardBadge('triple_five')
+    return 'triple_five'
+  }
+  return null
+}
+
+/** Award Twin Time badge at 23:23 */
+export function checkTwinTime(): BadgeType | null {
+  if (hasBadge('twin_time')) return null
+  const now = new Date()
+  if (now.getHours() === 23 && now.getMinutes() === 23) {
+    awardBadge('twin_time')
+    return 'twin_time'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
@@ -121,8 +213,13 @@ export function checkLotHour(): BadgeType | null {
 export function checkTimeEasterEggs(): BadgeType[] {
   const awarded: BadgeType[] = []
   const checks = [
-    checkNightOwl, checkEarlyBird, checkMirrorHour,
+    // v1
+    checkNightOwl, checkEarlyBird, checkMirrorHour, checkMidnightSigil,
     checkPiHour, checkErrorHour, checkSequenceTime, checkLotHour,
+    // v3
+    checkLuckySignal, checkNewDayProto, checkDoubleDown, checkLeetSignal,
+    // v4
+    checkDoubleInf, checkFibonacci, checkTripleFive, checkTwinTime,
   ]
   for (const check of checks) {
     const result = check()
@@ -181,6 +278,40 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('palindrome_day') && isPalindromeDate(dateStr)) {
     awardBadge('palindrome_day')
     awarded.push('palindrome_day')
+  }
+
+  // ── Calendar v2 ────────────────────────────────────────────────────────────
+
+  // COSMO Birthday: July 1
+  if (!hasBadge('cosmo_bday') && month === 7 && day === 1) {
+    awardBadge('cosmo_bday')
+    awarded.push('cosmo_bday')
+  }
+
+  // Leap Day: February 29
+  if (!hasBadge('leap_day') && month === 2 && day === 29) {
+    awardBadge('leap_day')
+    awarded.push('leap_day')
+  }
+
+  // ── Calendar v3 ────────────────────────────────────────────────────────────
+
+  // Valentine's Day: February 14
+  if (!hasBadge('valentines') && month === 2 && day === 14) {
+    awardBadge('valentines')
+    awarded.push('valentines')
+  }
+
+  // Halloween: October 31
+  if (!hasBadge('halloween') && month === 10 && day === 31) {
+    awardBadge('halloween')
+    awarded.push('halloween')
+  }
+
+  // New Year's Eve: December 31
+  if (!hasBadge('new_year_eve') && month === 12 && day === 31) {
+    awardBadge('new_year_eve')
+    awarded.push('new_year_eve')
   }
 
   return awarded
@@ -351,6 +482,129 @@ export function checkSpeedrun(activityTimestamps: string[]): BadgeType | null {
   return null
 }
 
+// ── Behavioral v2+v3 ─────────────────────────────────────────────────────────
+
+/**
+ * Check Trio Protocol: 3 consecutive daily check-ins.
+ * Reads/writes check-in dates to localStorage.
+ */
+export function checkTrioProtocol(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('trio_protocol')) return null
+
+  try {
+    const key = 'daily_checkin_dates'
+    const stored = localStorage.getItem(key)
+    const dates: string[] = stored ? JSON.parse(stored) : []
+    const todayStr = new Date().toISOString().slice(0, 10)
+
+    if (!dates.includes(todayStr)) {
+      dates.push(todayStr)
+      localStorage.setItem(key, JSON.stringify(dates.slice(-10)))
+    }
+
+    if (dates.length >= 3) {
+      const sorted = [...dates].sort()
+      for (let i = sorted.length - 1; i >= 2; i--) {
+        const d2 = new Date(sorted[i]).getTime()
+        const d1 = new Date(sorted[i - 1]).getTime()
+        const d0 = new Date(sorted[i - 2]).getTime()
+        const day = 86400000
+        if (d2 - d1 === day && d1 - d0 === day) {
+          awardBadge('trio_protocol')
+          return 'trio_protocol'
+        }
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Deep Session badge: 10+ answers in a single session.
+ * sessionAnswerCount is the number of questions answered this session.
+ */
+export function checkDeepSession(sessionAnswerCount: number): BadgeType | null {
+  if (hasBadge('deep_session')) return null
+  if (sessionAnswerCount >= 10) {
+    awardBadge('deep_session')
+    return 'deep_session'
+  }
+  return null
+}
+
+/**
+ * Check Comeback Kid badge: return after 90+ day gap.
+ * More extreme than Quantum Leap (30d) and Ghost Protocol (7d).
+ */
+export function checkComebackKid(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('comeback_kid')) return null
+
+  try {
+    const lastActivity = localStorage.getItem('last_activity_date')
+    if (!lastActivity) return null
+
+    const daysSince = Math.floor(
+      (Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24)
+    )
+
+    if (daysSince >= 90) {
+      awardBadge('comeback_kid')
+      return 'comeback_kid'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Birthday Protocol: check-in on user's own birthday.
+ * userBirthdate should be ISO string (YYYY-MM-DD) from profile.
+ */
+export function checkBirthdayProtocol(userBirthdate: string | null | undefined): BadgeType | null {
+  if (!userBirthdate) return null
+  if (hasBadge('birthday_protocol')) return null
+
+  try {
+    const bday = new Date(userBirthdate)
+    const now = new Date()
+    if (bday.getMonth() === now.getMonth() && bday.getDate() === now.getDate()) {
+      awardBadge('birthday_protocol')
+      return 'birthday_protocol'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Flow State badge: 5+ consecutive answers without interruption.
+ * consecutiveAnswers tracks unbroken answer chains this session.
+ */
+export function checkFlowStateBadge(consecutiveAnswers: number): BadgeType | null {
+  if (hasBadge('flow_state_badge')) return null
+  if (consecutiveAnswers >= 5) {
+    awardBadge('flow_state_badge')
+    return 'flow_state_badge'
+  }
+  return null
+}
+
+/**
+ * Check Multiverse Operator badge: 5+ active CQGS modules logged today.
+ * activeModules should be an array of distinct module keys used today.
+ */
+export function checkMultiverseOperator(activeModules: string[]): BadgeType | null {
+  if (hasBadge('multiverse_operator')) return null
+  if (activeModules.length >= 5) {
+    awardBadge('multiverse_operator')
+    return 'multiverse_operator'
+  }
+  return null
+}
+
 // ── Word turn detection ───────────────────────────────────────────────────────
 
 /** Word turn map: phrase patterns → badge IDs */
@@ -387,6 +641,35 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\b(now|moment|present)\b/i,         badge: 'present_moment' },
   { patterns: /\b(universe|cosmos|cosmic)\b/i,     badge: 'cosmic_scale' },
   { patterns: /\b(alive|living|life)\b/i,          badge: 'vital_signal' },
+  // ── v3 — Computer Lore ───────────────────────────────────────────────────
+  { patterns: /\b(hack|hacker|hacking)\b/i,         badge: 'hacker_mode' },
+  { patterns: /\boverride\b/i,                       badge: 'override_protocol' },
+  { patterns: /\bdebug(ging|ged)?\b/i,               badge: 'debug_mode' },
+  { patterns: /\b(signal|frequency|freq)\b/i,        badge: 'signal_boost' },
+  { patterns: /\b(void|empty|emptiness|nothingness)\b/i, badge: 'into_the_void' },
+  { patterns: /\b(spark|ignite|ignition|ignited)\b/i, badge: 'ignition' },
+  { patterns: /\b(echo|resonance|resonate)\b/i,      badge: 'echo_chamber' },
+  { patterns: /\b(shield|protect|protection|defend)\b/i, badge: 'defense_protocol' },
+  { patterns: /\b(navigate|navigation|compass|waypoint)\b/i, badge: 'navigator' },
+  { patterns: /\b(grow|growth|growing|expand)\b/i,   badge: 'growth_module' },
+  { patterns: /\b(lost|adrift|untethered)\b/i,       badge: 'lost_signal' },
+  { patterns: /\b(binary|zero|ones?|zeros?)\b/i,     badge: 'binary_state' },
+  // ── v4 — Self-Care Lore ──────────────────────────────────────────────────
+  { patterns: /\b(heal|healing|healed|healer)\b/i,   badge: 'healing_protocol' },
+  { patterns: /\b(hydrate|hydration|drink water)\b/i,badge: 'hydration_core' },
+  { patterns: /\b(restore|restoration|recover)\b/i,  badge: 'restore_point' },
+  { patterns: /\b(journal|journaling|write|writing)\b/i, badge: 'scribe_module' },
+  { patterns: /\b(meditate|meditation|mindful)\b/i,  badge: 'zen_mode' },
+  { patterns: /\b(exercise|workout|gym|training)\b/i,badge: 'motion_detected' },
+  { patterns: /\bexhale\b/i,                          badge: 'exhale_protocol' },
+  { patterns: /\b(read|reading|book|books|library)\b/i, badge: 'library_access' },
+  { patterns: /\b(connect|connection|together|bond)\b/i, badge: 'handshake' },
+  { patterns: /\bcreate\b/i,                          badge: 'create_mode' },
+  { patterns: /\b(progress|improve|improving)\b/i,   badge: 'progress_bar' },
+  { patterns: /\btoday\b/i,                           badge: 'present_node' },
+  // ── Secret Boss ──────────────────────────────────────────────────────────
+  { patterns: /April\s+7(?:th)?,?\s*2016/,            badge: 'founders_mark' },
+  { patterns: /\bKuzya\b/,                             badge: 'kuzya_protocol' },
 ]
 
 /**
@@ -495,18 +778,24 @@ export function checkAnniversary(signupDate: string): BadgeType | null {
 export function runCheckInEasterEggs(
   activityCount?: number,
   activityTimestamps?: string[],
+  sessionAnswerCount?: number,
+  userBirthdate?: string | null,
+  activeModules?: string[],
 ): BadgeType[] {
   const awarded: BadgeType[] = []
 
-  // Time-based (v1 + v2)
+  // Time-based (v1 + v3 + v4)
   const timeResults = checkTimeEasterEggs()
   awarded.push(...timeResults)
 
-  // Calendar-based
+  // Calendar-based (v1 + v2 + v3)
   const calResults = checkCalendarEasterEggs()
   awarded.push(...calResults)
 
   // Behavioral — gap detection (must run before recordActivity)
+  const comebackKid = checkComebackKid()
+  if (comebackKid) awarded.push(comebackKid)
+
   const quantumLeap = checkQuantumLeap()
   if (quantumLeap) awarded.push(quantumLeap)
 
@@ -516,8 +805,13 @@ export function runCheckInEasterEggs(
   const silent = checkSilentHour()
   if (silent) awarded.push(silent)
 
+  // Behavioral v1
   const friday = checkFridayRitual()
   if (friday) awarded.push(friday)
+
+  // Behavioral v2
+  const trio = checkTrioProtocol()
+  if (trio) awarded.push(trio)
 
   if (activityCount !== undefined) {
     const overclock = checkOverclock(activityCount)
@@ -527,6 +821,22 @@ export function runCheckInEasterEggs(
   if (activityTimestamps !== undefined) {
     const speedrun = checkSpeedrun(activityTimestamps)
     if (speedrun) awarded.push(speedrun)
+  }
+
+  if (sessionAnswerCount !== undefined) {
+    const deep = checkDeepSession(sessionAnswerCount)
+    if (deep) awarded.push(deep)
+  }
+
+  // Behavioral v3
+  if (userBirthdate !== undefined) {
+    const bday = checkBirthdayProtocol(userBirthdate)
+    if (bday) awarded.push(bday)
+  }
+
+  if (activeModules !== undefined) {
+    const multiverse = checkMultiverseOperator(activeModules)
+    if (multiverse) awarded.push(multiverse)
   }
 
   // Record activity after all checks (so gap detection works next time)

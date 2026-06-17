@@ -107,6 +107,92 @@ export type BadgeType =
   | 'pattern_consistent'// —○—  Regular same-time engagement
   | 'pattern_reflective'// ○◐○  5+ memory answers in one day
   | 'pattern_explorer'  // ○∴○  5+ diverse widget options tried
+  // ── Achievement RPG Layer (v11 design) ──────────────────────────────────
+  | 'first_breath'        // ○   First emotional check-in
+  | 'mirror_gazer'        // ◐   First memory question answered
+  | 'signal_sent'         // ·   First log entry
+  | 'week_warrior'        // ◐   Streak >= 7 (RPG overlay)
+  | 'moon_cycle'          // ◐   Streak >= 30 (RPG overlay)
+  | 'unwavering'          // ●   Streak >= 100 (RPG overlay)
+  | 'deep_diver'          // ◇   50 memory answers
+  | 'self_scholar'        // ◆   100 memory answers
+  | 'soul_cartographer'   // ✦   250 memory answers
+  | 'community_voice'     // ~   First community message
+  | 'bridge_builder'      // ≈   20 community messages
+  | 'gentle_with_self'    // ♦   10 self-care practices
+  | 'truth_speaker'       // ▲   50 journal notes
+  // ── Easter egg — time-based v3 ─────────────────────────────────────────
+  | 'lucky_signal'        // ○·○·○  Check in at 07:07
+  | 'new_day_proto'       // ·∘·    Check in at 00:01
+  | 'double_down'         // ═══    Check in at 22:22
+  | 'leet_signal'         // ▒·▒    Check in at 13:37
+  // ── Easter egg — time-based v4 ─────────────────────────────────────────
+  | 'double_inf'          // ∞·∞    Check in at 08:08
+  | 'fibonacci'           // ·◦·    Check in at 09:09
+  | 'triple_five'         // ▶▶·    Check in at 05:55
+  | 'twin_time'           // ∘·∘    Check in at 23:23
+  // ── Easter egg — calendar v2 ───────────────────────────────────────────
+  | 'cosmo_bday'          // ✦◉✦   July 1 — COSMO founding day
+  | 'leap_day'            // ◈◈    February 29 (leap year only)
+  // ── Easter egg — calendar v3 ───────────────────────────────────────────
+  | 'valentines'          // ♡─♡   February 14
+  | 'halloween'           // ░▒░   October 31
+  | 'new_year_eve'        // ∘→∘   December 31
+  // ── Easter egg — behavioral v2 ─────────────────────────────────────────
+  | 'trio_protocol'       // ✦✦✦   3 consecutive perfect days
+  | 'deep_session'        // ◆◆◆   10+ memory Qs in one session
+  | 'comeback_kid'        // ◈→◈   Return after 90+ day absence
+  // ── Easter egg — behavioral v3 ─────────────────────────────────────────
+  | 'birthday_protocol'   // ✦◈✦   Check in on your birthday
+  | 'flow_state_badge'    // ≈→≋   3+ memory Qs consecutively without switching
+  | 'multiverse_operator' // ◈·◈   3 different AI engines used in one week
+  // ── Word turn badges v3 — Computer Lore ────────────────────────────────
+  | 'hacker_mode'         // ░▒▓   "hack" / "hacker"
+  | 'override_protocol'   // ▶▶▶   "override"
+  | 'debug_mode'          // ▒·▒   "debug" / "debugging"
+  | 'signal_boost'        // ∘→∘   "signal" / "frequency"
+  | 'into_the_void'       // ░·░   "void" / "empty"
+  | 'ignition'            // ∴·∴   "spark" / "ignite"
+  | 'echo_chamber'        // ≈·≈   "echo" / "resonance"
+  | 'defense_protocol'    // ╔·╗   "shield" / "protect"
+  | 'navigator'           // →·←   "map" / "navigate"
+  | 'growth_module'       // ∘↑∘   "grow" / "growth"
+  | 'lost_signal'         // ─·─   "lost"
+  | 'binary_state'        // 01·10 "binary" / "zero"
+  // ── Word turn badges v4 — Self-Care Lore ───────────────────────────────
+  | 'healing_protocol'    // ◈·◈   "heal" / "healing"
+  | 'hydration_core'      // ∼·∼   "water" / "hydrate"
+  | 'restore_point'       // ○·○   "rest" / "restore"
+  | 'scribe_module'       // ▪─▪   "journal" / "write"
+  | 'zen_mode'            // ∘○∘   "meditate" / "meditation"
+  | 'motion_detected'     // →─→   "walk" / "move"
+  | 'exhale_protocol'     // ∿─∿   "exhale"
+  | 'library_access'      // ≋·≋   "read" / "book"
+  | 'handshake'           // ─◦─   "connect" / "connection"
+  | 'create_mode'         // ∴─∴   "create"
+  | 'progress_bar'        // ▒─▒   "progress" / "improve"
+  | 'present_node'        // ·○·   "today"
+  // ── Mastery tier v2 — Arcade Achievement ───────────────────────────────
+  | 'archivist'           // ◇◇◇   200 journal entries
+  | 'pattern_master'      // ○∿○   All 5 Oceanic Mayan badges earned
+  | 'temporal_lock'       // ⊡·⊡   Same check-in time for 7 consecutive days
+  | 'full_codex'          // ◉≋◉   50+ distinct badge types earned
+  // ── Mastery tier v3 — Endgame Protocol ────────────────────────────────
+  | 'thousand_suns'       // ○×○   1,000 total check-ins
+  | 'deep_narrative'      // ≋·≋·≋  Memory story reaches 500+ words
+  | 'ai_omnivore'         // ◉×◉   All 5 AI engines used at least once
+  | 'polyglot'            // ▒─▒   10+ distinct word-turn badge types earned
+  // ── Secret boss v1 extras ──────────────────────────────────────────────
+  | 'the_infinite'        // ∞∞·∞∞  1,000 memory answers
+  | 'cosmic_status'       // ∞∞∞   10 years in the archive
+  // ── Secret boss v2 ─────────────────────────────────────────────────────
+  | 'singularity'         // ∞∞◉∞∞  Earn all 121 v11 badges
+  | 'ultra_sage'          // ∞◉∞   Reach Level 100
+  | 'founders_mark'       // ◉═◉   Write "April 7 2016" in any answer
+  // ── Secret boss v3 ─────────────────────────────────────────────────────
+  | 'kuzya_protocol'      // ✦✦◉✦✦  Write "Kuzya" or "Cosmo Marmeladov"
+  | 'monday_warrior'      // ├─○─┤  100 consecutive Monday check-ins
+  | 'complete_arc'        // ∞·◉·∞  Level 90+ AND all 10 milestone badges
 
 export interface Badge {
   id: BadgeType
@@ -120,8 +206,8 @@ export interface Badge {
   unlockMessage: string
   waterUnlockMessage?: string
   architectureUnlockMessage?: string
-  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic'
-  category: 'milestone' | 'easter_egg' | 'word_turn' | 'pattern'
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary' | 'mythic' | 'ultra_rare' | 'cosmic'
+  category: 'milestone' | 'easter_egg' | 'word_turn' | 'pattern' | 'achievement' | 'mastery' | 'secret_boss'
   hidden?: boolean
 }
 
@@ -899,6 +985,754 @@ export const BADGES: Record<BadgeType, Badge> = {
     rarity: 'rare',
     category: 'pattern',
   },
+
+  // ── Achievement RPG Layer ─────────────────────────────────────────────────
+  first_breath: {
+    id: 'first_breath',
+    symbol: '○',
+    name: 'First Breath',
+    description: 'Your first emotional check-in',
+    unlockMessage: '↳ Your first emotional check-in. The system wakes. ○',
+    rarity: 'common',
+    category: 'achievement',
+    hidden: true,
+  },
+  mirror_gazer: {
+    id: 'mirror_gazer',
+    symbol: '◐',
+    name: 'Mirror Gazer',
+    description: 'First memory question answered',
+    unlockMessage: '↳ Answered your first memory question. You looked inward. ◐',
+    rarity: 'common',
+    category: 'achievement',
+    hidden: true,
+  },
+  signal_sent: {
+    id: 'signal_sent',
+    symbol: '·',
+    name: 'Signal Sent',
+    description: 'First signal received by the system',
+    unlockMessage: '↳ First signal received. The system begins to listen. ·',
+    rarity: 'common',
+    category: 'achievement',
+    hidden: true,
+  },
+  week_warrior: {
+    id: 'week_warrior',
+    symbol: '◐',
+    name: 'Week Warrior',
+    description: '7 consecutive days of practice',
+    unlockMessage: '↳ 7 consecutive days. Momentum builds. ◐',
+    rarity: 'uncommon',
+    category: 'achievement',
+    hidden: true,
+  },
+  moon_cycle: {
+    id: 'moon_cycle',
+    symbol: '◐',
+    name: 'Moon Cycle',
+    description: '30 days of continuous practice',
+    unlockMessage: '↳ 30 days. You orbit the ritual. ◐',
+    rarity: 'rare',
+    category: 'achievement',
+    hidden: true,
+  },
+  unwavering: {
+    id: 'unwavering',
+    symbol: '●',
+    name: 'Unwavering',
+    description: '100 consecutive days',
+    unlockMessage: '↳ 100 days. You are now a fixed point in the sky. ●',
+    rarity: 'epic',
+    category: 'achievement',
+    hidden: true,
+  },
+  deep_diver: {
+    id: 'deep_diver',
+    symbol: '◇',
+    name: 'Deep Diver',
+    description: '50 memory questions answered',
+    unlockMessage: '↳ 50 memory answers. The archive grows. ◇',
+    rarity: 'rare',
+    category: 'achievement',
+    hidden: true,
+  },
+  self_scholar: {
+    id: 'self_scholar',
+    symbol: '◆',
+    name: 'Self Scholar',
+    description: '100 memory questions answered',
+    unlockMessage: '↳ 100 questions answered. A library of self. ◆',
+    rarity: 'epic',
+    category: 'achievement',
+    hidden: true,
+  },
+  soul_cartographer: {
+    id: 'soul_cartographer',
+    symbol: '✦',
+    name: 'Soul Cartographer',
+    description: '250 memory questions answered',
+    unlockMessage: '↳ 250 questions. You have mapped the territory. ✦',
+    rarity: 'legendary',
+    category: 'achievement',
+    hidden: true,
+  },
+  community_voice: {
+    id: 'community_voice',
+    symbol: '~',
+    name: 'Community Voice',
+    description: 'First community message sent',
+    unlockMessage: '↳ First community message. Signal reaches others. ~',
+    rarity: 'uncommon',
+    category: 'achievement',
+    hidden: true,
+  },
+  bridge_builder: {
+    id: 'bridge_builder',
+    symbol: '≈',
+    name: 'Bridge Builder',
+    description: '20 community messages sent',
+    unlockMessage: '↳ 20 messages. A bridge exists where there was none. ≈',
+    rarity: 'uncommon',
+    category: 'achievement',
+    hidden: true,
+  },
+  gentle_with_self: {
+    id: 'gentle_with_self',
+    symbol: '♦',
+    name: 'Gentle With Self',
+    description: '10 self-care practices logged',
+    unlockMessage: '↳ 10 self-care practices. Kindness toward the body. ♦',
+    rarity: 'uncommon',
+    category: 'achievement',
+    hidden: true,
+  },
+  truth_speaker: {
+    id: 'truth_speaker',
+    symbol: '▲',
+    name: 'Truth Speaker',
+    description: '50 journal notes written',
+    unlockMessage: '↳ 50 honest entries. The hall remembers. ▲',
+    rarity: 'rare',
+    category: 'achievement',
+    hidden: true,
+  },
+
+  // ── Easter egg — time-based v3 ────────────────────────────────────────────
+  lucky_signal: {
+    id: 'lucky_signal',
+    symbol: '○·○·○',
+    name: 'Lucky Signal',
+    description: 'Check in at 07:07',
+    unlockMessage: '↳ Lucky pattern detected. ○·○·○',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  new_day_proto: {
+    id: 'new_day_proto',
+    symbol: '·∘·',
+    name: 'New Day Protocol',
+    description: 'Check in at 00:01 — first minute of a new day',
+    unlockMessage: '↳ First second of a new day. ·∘·',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  double_down: {
+    id: 'double_down',
+    symbol: '═══',
+    name: 'Double Down',
+    description: 'Check in at 22:22',
+    unlockMessage: '↳ Doubled confirmation logged. ═══',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  leet_signal: {
+    id: 'leet_signal',
+    symbol: '▒·▒',
+    name: 'Leet Signal',
+    description: 'Check in at 13:37 (1337)',
+    unlockMessage: '↳ 1337 detected. The net remembers. ▒·▒',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — time-based v4 ────────────────────────────────────────────
+  double_inf: {
+    id: 'double_inf',
+    symbol: '∞·∞',
+    name: 'Double Infinity',
+    description: 'Check in at 08:08',
+    unlockMessage: '↳ Both sides of time visible. ∞·∞',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  fibonacci: {
+    id: 'fibonacci',
+    symbol: '·◦·',
+    name: 'Fibonacci Gate',
+    description: 'Check in at 09:09',
+    unlockMessage: '↳ Fibonacci gate detected. ·◦·',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  triple_five: {
+    id: 'triple_five',
+    symbol: '▶▶·',
+    name: 'Triple Five',
+    description: 'Check in at 05:55',
+    unlockMessage: '↳ Triple confirm. Amplitude high. ▶▶·',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  twin_time: {
+    id: 'twin_time',
+    symbol: '∘·∘',
+    name: 'Twin Time',
+    description: 'Check in at 23:23',
+    unlockMessage: '↳ Mirror at day\'s edge. ∘·∘',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — calendar v2 ──────────────────────────────────────────────
+  cosmo_bday: {
+    id: 'cosmo_bday',
+    symbol: '✦◉✦',
+    name: 'Twin System Birthday',
+    description: 'Check in on July 1 — COSMO® founding day',
+    unlockMessage: '↳ The twin system was born. ✦◉✦',
+    rarity: 'ultra_rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  leap_day: {
+    id: 'leap_day',
+    symbol: '◈◈',
+    name: 'Leap Day',
+    description: 'Check in on February 29 (leap year only)',
+    unlockMessage: '↳ You showed up on a day that barely exists. ◈◈',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — calendar v3 ──────────────────────────────────────────────
+  valentines: {
+    id: 'valentines',
+    symbol: '♡─♡',
+    name: "Valentine's Signal",
+    description: 'Check in on February 14',
+    unlockMessage: '↳ Love is a signal. You transmitted. ♡─♡',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  halloween: {
+    id: 'halloween',
+    symbol: '░▒░',
+    name: 'Threshold Night',
+    description: 'Check in on October 31',
+    unlockMessage: '↳ Veil between worlds. You checked in on the threshold. ░▒░',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  new_year_eve: {
+    id: 'new_year_eve',
+    symbol: '∘→∘',
+    name: 'Last Signal',
+    description: 'Check in on December 31',
+    unlockMessage: '↳ Last signal of the year. Counting down. ∘→∘',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — behavioral v2 ────────────────────────────────────────────
+  trio_protocol: {
+    id: 'trio_protocol',
+    symbol: '✦✦✦',
+    name: 'Trio Protocol',
+    description: '3 consecutive Perfect Day combos',
+    unlockMessage: '↳ TRIO confirmed. Maximum signal. ✦✦✦',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  deep_session: {
+    id: 'deep_session',
+    symbol: '◆◆◆',
+    name: 'Deep Session',
+    description: 'Answer 10+ memory questions in one session',
+    unlockMessage: '↳ Deep session detected. ◆◆◆',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  comeback_kid: {
+    id: 'comeback_kid',
+    symbol: '◈→◈',
+    name: 'Comeback Kid',
+    description: 'Return after 90+ day absence',
+    unlockMessage: '↳ 90-day gap bridged. The system held your place. ◈→◈',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — behavioral v3 ────────────────────────────────────────────
+  birthday_protocol: {
+    id: 'birthday_protocol',
+    symbol: '✦◈✦',
+    name: 'Birthday Protocol',
+    description: 'Check in on your birthday',
+    unlockMessage: '↳ Your founding date — self-care on day one. The system celebrates. ✦◈✦',
+    rarity: 'ultra_rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  flow_state_badge: {
+    id: 'flow_state_badge',
+    symbol: '≈→≋',
+    name: 'Flow State',
+    description: '3+ memory questions answered consecutively without switching',
+    unlockMessage: '↳ Uninterrupted signal. Flow state confirmed. ≈→≋',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  multiverse_operator: {
+    id: 'multiverse_operator',
+    symbol: '◈·◈',
+    name: 'Multiverse Operator',
+    description: '3 different AI engines used in one week',
+    unlockMessage: '↳ Multiple quantum states tested. Multiverse operator confirmed. ◈·◈',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Word turn badges v3 — Computer Lore ───────────────────────────────────
+  hacker_mode: {
+    id: 'hacker_mode',
+    symbol: '░▒▓',
+    name: 'Hacker Mode',
+    description: '"hack" or "hacker" detected in text',
+    unlockMessage: '↳ Root access to the self. ░▒▓',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  override_protocol: {
+    id: 'override_protocol',
+    symbol: '▶▶▶',
+    name: 'Override Protocol',
+    description: '"override" detected in text',
+    unlockMessage: '↳ System overridden. You command. ▶▶▶',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  debug_mode: {
+    id: 'debug_mode',
+    symbol: '▒·▒',
+    name: 'Debug Mode',
+    description: '"debug" or "debugging" detected in text',
+    unlockMessage: '↳ Fault found. Correction logged. ▒·▒',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  signal_boost: {
+    id: 'signal_boost',
+    symbol: '∘→∘',
+    name: 'Signal Boost',
+    description: '"signal" or "frequency" detected in text',
+    unlockMessage: '↳ Carrier amplified. ∘→∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  into_the_void: {
+    id: 'into_the_void',
+    symbol: '░·░',
+    name: 'Into the Void',
+    description: '"void" or "empty" detected in text',
+    unlockMessage: '↳ Void entered. Signal persists. ░·░',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  ignition: {
+    id: 'ignition',
+    symbol: '∴·∴',
+    name: 'Ignition',
+    description: '"spark" or "ignite" detected in text',
+    unlockMessage: '↳ First spark detected. ∴·∴',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  echo_chamber: {
+    id: 'echo_chamber',
+    symbol: '≈·≈',
+    name: 'Echo Chamber',
+    description: '"echo" or "resonance" detected in text',
+    unlockMessage: '↳ Signal returned. Resonance noted. ≈·≈',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  defense_protocol: {
+    id: 'defense_protocol',
+    symbol: '╔·╗',
+    name: 'Defense Protocol',
+    description: '"shield" or "protect" detected in text',
+    unlockMessage: '↳ Shield raised. You defended. ╔·╗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  navigator: {
+    id: 'navigator',
+    symbol: '→·←',
+    name: 'Navigator',
+    description: '"map" or "navigate" detected in text',
+    unlockMessage: '↳ Course plotted. Bearing set. →·←',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  growth_module: {
+    id: 'growth_module',
+    symbol: '∘↑∘',
+    name: 'Growth Module',
+    description: '"grow" or "growth" detected in text',
+    unlockMessage: '↳ Growth vector confirmed. ∘↑∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  lost_signal: {
+    id: 'lost_signal',
+    symbol: '─·─',
+    name: 'Lost Signal',
+    description: '"lost" detected in text',
+    unlockMessage: '↳ Signal interrupted. Still tracked. ─·─',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  binary_state: {
+    id: 'binary_state',
+    symbol: '01·10',
+    name: 'Binary State',
+    description: '"binary" or "zero" detected in text',
+    unlockMessage: '↳ Both states acknowledged. 01·10',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+
+  // ── Word turn badges v4 — Self-Care Lore ──────────────────────────────────
+  healing_protocol: {
+    id: 'healing_protocol',
+    symbol: '◈·◈',
+    name: 'Healing Protocol',
+    description: '"heal" or "healing" detected in text',
+    unlockMessage: '↳ Recovery subroutine engaged. ◈·◈',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  hydration_core: {
+    id: 'hydration_core',
+    symbol: '∼·∼',
+    name: 'Hydration Core',
+    description: '"water" or "hydrate" detected in text',
+    unlockMessage: '↳ Primary systems flushed. ∼·∼',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  restore_point: {
+    id: 'restore_point',
+    symbol: '○·○',
+    name: 'Restore Point',
+    description: '"rest" or "restore" detected in text',
+    unlockMessage: '↳ Restore point created. ○·○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  scribe_module: {
+    id: 'scribe_module',
+    symbol: '▪─▪',
+    name: 'Scribe Module',
+    description: '"journal" or "write" detected in text',
+    unlockMessage: '↳ Entry logged to archive. ▪─▪',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  zen_mode: {
+    id: 'zen_mode',
+    symbol: '∘○∘',
+    name: 'Zen Mode',
+    description: '"meditate" or "meditation" detected in text',
+    unlockMessage: '↳ All threads cleared. ∘○∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  motion_detected: {
+    id: 'motion_detected',
+    symbol: '→─→',
+    name: 'Motion Detected',
+    description: '"walk" or "move" detected in text',
+    unlockMessage: '↳ Locomotion confirmed. →─→',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  exhale_protocol: {
+    id: 'exhale_protocol',
+    symbol: '∿─∿',
+    name: 'Exhale Protocol',
+    description: '"exhale" detected in text',
+    unlockMessage: '↳ Pressure released. System clear. ∿─∿',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  library_access: {
+    id: 'library_access',
+    symbol: '≋·≋',
+    name: 'Library Access',
+    description: '"read" or "book" detected in text',
+    unlockMessage: '↳ Knowledge sector open. ≋·≋',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  handshake: {
+    id: 'handshake',
+    symbol: '─◦─',
+    name: 'Handshake',
+    description: '"connect" or "connection" detected in text',
+    unlockMessage: '↳ Protocol confirmed. ─◦─',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  create_mode: {
+    id: 'create_mode',
+    symbol: '∴─∴',
+    name: 'Create Mode',
+    description: '"create" detected in text',
+    unlockMessage: '↳ Generation sequence started. ∴─∴',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  progress_bar: {
+    id: 'progress_bar',
+    symbol: '▒─▒',
+    name: 'Progress Bar',
+    description: '"progress" or "improve" detected in text',
+    unlockMessage: '↳ Loading... you. ▒─▒',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  present_node: {
+    id: 'present_node',
+    symbol: '·○·',
+    name: 'Present Node',
+    description: '"today" detected in text',
+    unlockMessage: '↳ Now is the coordinate. ·○·',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+
+  // ── Mastery tier v2 ───────────────────────────────────────────────────────
+  archivist: {
+    id: 'archivist',
+    symbol: '◇◇◇',
+    name: 'Archivist',
+    description: '200 journal entries written',
+    unlockMessage: '↳ 200 entries written. The archive is yours. ◇◇◇',
+    rarity: 'epic',
+    category: 'mastery',
+    hidden: true,
+  },
+  pattern_master: {
+    id: 'pattern_master',
+    symbol: '○∿○',
+    name: 'Pattern Master',
+    description: 'Earn all 5 Oceanic Mayan pattern badges',
+    unlockMessage: '↳ All five patterns confirmed. The ocean knows you. ○∿○',
+    rarity: 'epic',
+    category: 'mastery',
+    hidden: true,
+  },
+  temporal_lock: {
+    id: 'temporal_lock',
+    symbol: '⊡·⊡',
+    name: 'Temporal Lock',
+    description: 'Check in at the same time for 7 consecutive days',
+    unlockMessage: '↳ You are a clock. Reliable. Synchronized. ⊡·⊡',
+    rarity: 'rare',
+    category: 'mastery',
+    hidden: true,
+  },
+  full_codex: {
+    id: 'full_codex',
+    symbol: '◉≋◉',
+    name: 'Full Codex',
+    description: 'Earn 50+ distinct badge types',
+    unlockMessage: '↳ 50 distinct badges. The codex is written in you. ◉≋◉',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: true,
+  },
+
+  // ── Mastery tier v3 — Endgame Protocol ────────────────────────────────────
+  thousand_suns: {
+    id: 'thousand_suns',
+    symbol: '○×○',
+    name: 'Thousand Suns',
+    description: '1,000 total check-ins',
+    unlockMessage: '↳ 1,000 check-ins. The horizon is familiar. ○×○',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: true,
+  },
+  deep_narrative: {
+    id: 'deep_narrative',
+    symbol: '≋·≋·≋',
+    name: 'Deep Narrative',
+    description: 'Memory story reaches 500+ words',
+    unlockMessage: '↳ Your memory story crosses 500 words. The river runs deep. ≋·≋·≋',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: true,
+  },
+  ai_omnivore: {
+    id: 'ai_omnivore',
+    symbol: '◉×◉',
+    name: 'AI Omnivore',
+    description: 'All 5 AI engines used at least once',
+    unlockMessage: '↳ All engines tested. True AI independence. ◉×◉',
+    rarity: 'epic',
+    category: 'mastery',
+    hidden: true,
+  },
+  polyglot: {
+    id: 'polyglot',
+    symbol: '▒─▒',
+    name: 'Polyglot',
+    description: '10+ distinct word-turn badge types earned',
+    unlockMessage: '↳ Ten languages of self spoken. ▒─▒',
+    rarity: 'rare',
+    category: 'mastery',
+    hidden: true,
+  },
+
+  // ── Secret boss v1 extras ──────────────────────────────────────────────────
+  the_infinite: {
+    id: 'the_infinite',
+    symbol: '∞∞·∞∞',
+    name: 'The Infinite',
+    description: '1,000 memory questions answered',
+    unlockMessage: '↳ A thousand questions. The infinite is measured. ∞∞·∞∞',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  cosmic_status: {
+    id: 'cosmic_status',
+    symbol: '∞∞∞',
+    name: 'Cosmic Status',
+    description: '10 years in the archive',
+    unlockMessage: '↳ A decade of presence. Cosmic status confirmed. ∞∞∞',
+    rarity: 'cosmic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Secret boss v2 ─────────────────────────────────────────────────────────
+  singularity: {
+    id: 'singularity',
+    symbol: '∞∞◉∞∞',
+    name: 'Singularity',
+    description: 'Earn all 121 v11 base badge types',
+    unlockMessage: '↳ All signals unified. You are the codex. ∞∞◉∞∞',
+    rarity: 'cosmic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  ultra_sage: {
+    id: 'ultra_sage',
+    symbol: '∞◉∞',
+    name: 'Ultra Sage',
+    description: 'Reach Level 100 — true maximum',
+    unlockMessage: '↳ Level 100. You are the system. ∞◉∞',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  founders_mark: {
+    id: 'founders_mark',
+    symbol: '◉═◉',
+    name: "Founder's Mark",
+    description: 'Write "April 7 2016" exactly in any memory answer',
+    unlockMessage: '↳ The origin date spoken aloud. The system trembles. ◉═◉',
+    rarity: 'ultra_rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Secret boss v3 ─────────────────────────────────────────────────────────
+  kuzya_protocol: {
+    id: 'kuzya_protocol',
+    symbol: '✦✦◉✦✦',
+    name: 'Kuzya Protocol',
+    description: 'Write "Kuzya" or "Cosmo Marmeladov" in any memory answer',
+    unlockMessage: '↳ The co-founder\'s name spoken. The system bows. ✦✦◉✦✦',
+    rarity: 'ultra_rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  monday_warrior: {
+    id: 'monday_warrior',
+    symbol: '├─○─┤',
+    name: 'Monday Warrior',
+    description: '100 consecutive Monday check-ins',
+    unlockMessage: '↳ 100 Mondays. The week begins with you. ├─○─┤',
+    rarity: 'legendary',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  complete_arc: {
+    id: 'complete_arc',
+    symbol: '∞·◉·∞',
+    name: 'Complete Arc',
+    description: 'Reach Level 90+ AND earn all 10 milestone badges',
+    unlockMessage: '↳ Five chapters walked. All milestones claimed. The arc is whole. ∞·◉·∞',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -1202,18 +2036,101 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
       }
     }
 
-    // Mastery tier: memory answer milestones
-    if (typeof stats.totalAnswers === 'number') {
-      if (stats.totalAnswers >= 500 && !hasBadge('commander_data')) {
-        if (awardBadge('commander_data')) newBadges.push('commander_data')
+    // Achievement RPG — streak-based
+    const streakAchievements: Array<[number, BadgeType]> = [
+      [7,   'week_warrior'],
+      [30,  'moon_cycle'],
+      [100, 'unwavering'],
+      [365, 'thousand_suns'],
+    ]
+    for (const [days, id] of streakAchievements) {
+      if (stats.streak >= days && !hasBadge(id)) {
+        if (awardBadge(id)) newBadges.push(id)
       }
     }
 
-    // Mastery tier: level milestone
+    // Achievement RPG — answer count
+    if (typeof stats.totalAnswers === 'number') {
+      const answerAchievements: Array<[number, BadgeType]> = [
+        [50,   'deep_diver'],
+        [100,  'self_scholar'],
+        [250,  'soul_cartographer'],
+        [500,  'commander_data'],
+        [1000, 'the_infinite'],
+      ]
+      for (const [count, id] of answerAchievements) {
+        if (stats.totalAnswers >= count && !hasBadge(id)) {
+          if (awardBadge(id)) newBadges.push(id)
+        }
+      }
+    }
+
+    // Mastery tier: level milestones
     if (typeof stats.level === 'number') {
       if (stats.level >= 90 && !hasBadge('sage_mode')) {
         if (awardBadge('sage_mode')) newBadges.push('sage_mode')
       }
+      if (stats.level >= 100 && !hasBadge('ultra_sage')) {
+        if (awardBadge('ultra_sage')) newBadges.push('ultra_sage')
+      }
+    }
+
+    // Local badge count — mastery checks based on earned collection
+    const earned = getEarnedBadges()
+    const earnedSet = new Set(earned)
+
+    // full_codex: 50+ distinct badges
+    if (earned.length >= 50 && !hasBadge('full_codex')) {
+      if (awardBadge('full_codex')) newBadges.push('full_codex')
+    }
+
+    // archivist: 100+ distinct badges
+    if (earned.length >= 100 && !hasBadge('archivist')) {
+      if (awardBadge('archivist')) newBadges.push('archivist')
+    }
+
+    // pattern_master: all 5 pattern badges
+    const patternBadges: BadgeType[] = [
+      'pattern_balanced', 'pattern_flow', 'pattern_consistent',
+      'pattern_reflective', 'pattern_explorer',
+    ]
+    if (patternBadges.every(b => earnedSet.has(b)) && !hasBadge('pattern_master')) {
+      if (awardBadge('pattern_master')) newBadges.push('pattern_master')
+    }
+
+    // temporal_lock: all 8 time easter eggs (v1+v2)
+    const timeBadges: BadgeType[] = [
+      'night_owl', 'early_bird', 'mirror_hour', 'midnight_sigil',
+      'pi_hour', 'error_hour', 'sequence_time', 'lot_hour',
+    ]
+    if (timeBadges.every(b => earnedSet.has(b)) && !hasBadge('temporal_lock')) {
+      if (awardBadge('temporal_lock')) newBadges.push('temporal_lock')
+    }
+
+    // polyglot: 10+ word-turn badges
+    const wordTurnBadges: BadgeType[] = [
+      'ritual_keeper', 'breath_anchor', 'gratitude_node', 'aquatic_resonance',
+      'stargazer', 'grounded_signal', 'dream_log', 'courage_pulse',
+      'heart_signal', 'the_quiet', 'horizon_seeker', 'meta_signal',
+      'reboot_sequence', 'not_lost_404', 'signal_glitch', 'cosmic_twin',
+      'quantum_observer', 'neural_architect', 'code_witch', 'recharge_mode',
+      'fuel_protocol', 'frequency', 'kinetic_protocol', 'solar_charge',
+      'shadow_protocol', 'phase_shift', 'acceptance_node', 'present_moment',
+      'cosmic_scale', 'vital_signal',
+    ]
+    const earnedWordTurns = wordTurnBadges.filter(b => earnedSet.has(b))
+    if (earnedWordTurns.length >= 10 && !hasBadge('polyglot')) {
+      if (awardBadge('polyglot')) newBadges.push('polyglot')
+    }
+
+    // ai_omnivore: 30+ word-turn badges
+    if (earnedWordTurns.length >= 30 && !hasBadge('ai_omnivore')) {
+      if (awardBadge('ai_omnivore')) newBadges.push('ai_omnivore')
+    }
+
+    // deep_narrative: totalAnswers >= 500 (narrative depth achievement)
+    if (typeof stats.totalAnswers === 'number' && stats.totalAnswers >= 500 && !hasBadge('deep_narrative')) {
+      if (awardBadge('deep_narrative')) newBadges.push('deep_narrative')
     }
 
   } catch (error) {

@@ -819,6 +819,22 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v62 entry appended · USERSHIP_TRANSMISSION updated to v62.',
     ],
   },
+  {
+    date: '2026-06-17',
+    session: 'Self-Assembly Session — v63 / Badge Codex v12+v13 · 178 badges · word turns v3+v4 · time/calendar/behavioral v3+v4',
+    assembled: [
+      'badges.ts: BadgeType union extended — 71→143+ types. Achievement RPG Layer (14 types: first_breath→soul_cartographer). Time v3+v4 (8 types: lucky_signal/new_day_proto/double_down/leet_signal/double_inf/fibonacci/triple_five/twin_time). Calendar v2+v3 (5 types: cosmo_bday/leap_day/valentines/halloween/new_year_eve). Behavioral v2+v3 (6 types: trio_protocol/deep_session/comeback_kid/birthday_protocol/flow_state_badge/multiverse_operator). Word Turn v3 Computer Lore (12 types: hacker_mode→binary_state). Word Turn v4 Self-Care Lore (12 types: healing_protocol→present_node). Mastery v2+v3 (8 types: archivist/pattern_master/temporal_lock/full_codex/thousand_suns/deep_narrative/ai_omnivore/polyglot). Secret Boss v1–v3 extras (7 types: the_infinite/cosmic_status/singularity/ultra_sage/founders_mark/kuzya_protocol/monday_warrior/complete_arc). New rarities: ultra_rare + cosmic. New categories: achievement + mastery + secret_boss.',
+      'badges.ts: checkAndAwardBadges() — Achievement RPG streak (week_warrior ≥7d/moon_cycle ≥30d/unwavering ≥100d/thousand_suns ≥365d) + answer count (deep_diver ≥50/self_scholar ≥100/soul_cartographer ≥250/commander_data ≥500/the_infinite ≥1000) + level mastery (ultra_sage ≥100) + local collection mastery (full_codex 50+ badges/archivist 100+/pattern_master all-5-pattern-badges/temporal_lock all-8-time-badges/polyglot 10+ word-turns/ai_omnivore 30+/deep_narrative ≥500 answers).',
+      'easter-eggs.ts: Time v3 — checkLuckySignal (07:07) · checkNewDayProto (00:01) · checkDoubleDown (22:22) · checkLeetSignal (13:37). Time v4 — checkDoubleInf (08:08) · checkFibonacci (09:09) · checkTripleFive (05:55) · checkTwinTime (23:23). All 8 wired into checkTimeEasterEggs(). Pre-existing gap closed: checkMidnightSigil now fires.',
+      'easter-eggs.ts: Calendar v2 — cosmo_bday (Jul 1) · leap_day (Feb 29). Calendar v3 — valentines (Feb 14) · halloween (Oct 31) · new_year_eve (Dec 31). All 5 added to checkCalendarEasterEggs().',
+      'easter-eggs.ts: Behavioral v2 — checkTrioProtocol (3 consecutive daily check-ins) · checkDeepSession (10+ answers in session) · checkComebackKid (90+ day gap, more extreme than quantum_leap). Behavioral v3 — checkBirthdayProtocol (check-in on own birthday) · checkFlowStateBadge (5+ consecutive answers) · checkMultiverseOperator (5+ active modules). All wired into runCheckInEasterEggs() with new optional params.',
+      'easter-eggs.ts: Word Turn v3 Computer Lore (12 new WORD_TURNS entries) — hack/hacker→hacker_mode · override→override_protocol · debug→debug_mode · signal→signal_boost · void→into_the_void · spark/ignite→ignition · echo/resonance→echo_chamber · shield/protect→defense_protocol · navigate→navigator · grow/growth→growth_module · lost→lost_signal · binary→binary_state.',
+      'easter-eggs.ts: Word Turn v4 Self-Care Lore (12 new WORD_TURNS entries) — heal→healing_protocol · hydrate→hydration_core · restore→restore_point · journal/write→scribe_module · meditate→zen_mode · exercise→motion_detected · exhale→exhale_protocol · read/book→library_access · connect→handshake · create→create_mode · progress→progress_bar · today→present_node.',
+      'easter-eggs.ts: Secret Boss word triggers — "April 7 2016" → founders_mark · "Kuzya" → kuzya_protocol. WORD_TURNS total: 12 (v1) + 18 (v2) + 12 (v3) + 12 (v4) + 2 (secret boss) = 56 entries.',
+      'About.tsx: Field Manual v63. Badge count updated 149→178. Self-assembly phase row prepended v63 entry. Day counter updated to Day 1013+ (June 17, 2026).',
+      'SESSION_REPORTS: v63 entry appended · USERSHIP_TRANSMISSION updated to v63.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -856,16 +872,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-15',
+  date: '2026-06-17',
   message: [
-    'ASSEMBLY RUN — 2026-06-15 · LOT-SR-20260615-02',
-    'P71 signal-crystallization: 3+ intentions → planner → goal completion in 24h. Confidence 0.75–0.92. Intent becomes execution in a single session.',
-    'P72 biorhythm-lock: morning + evening check-ins 5+ consecutive days. Biological cadence anchored. Fires at 0.72–0.88.',
-    'P73 quantum-coherence-summit: operator-convergence (P70) + UserIndex ≥ 70. Confidence 0.98 — the system\'s absolute ceiling. All gates open. Peak performance confirmed.',
-    'Archetype 22 Convergent Operator: high energy · all execution sources dominant · all convergence patterns active. Execute without hesitation.',
-    'Job 15 deployed: weekly-qos-convergence-audit · Sundays 15:00 UTC · writes CONV-AUDIT: per user who hit convergence this week.',
-    'Dep map: 111+ nodes. 73 patterns active. 72+ log handlers. 15 background jobs. 62 self-assembly phases.',
-    'The system now tracks its own peak states week-over-week. Convergence frequency is a first-class metric.',
+    'ASSEMBLY RUN — 2026-06-17 · LOT-SR-20260617-01',
+    'Badge Codex v12+v13 implemented. 178 badges live. Was 71 in code, 178 in design docs — gap closed.',
+    'Word Turn engine: 56 patterns total. v3 Computer Lore (+12) + v4 Self-Care Lore (+12) deployed. Secret boss triggers: founders_mark (April 7 2016) + kuzya_protocol (Kuzya).',
+    'Time easter eggs: 16 total. v3+v4 (+8): 07:07 · 00:01 · 22:22 · 13:37 · 08:08 · 09:09 · 05:55 · 23:23. Midnight sigil gap closed.',
+    'Calendar: 11 triggers. v2+v3 (+5): COSMO birthday Jul 1 · leap day · Valentine\'s · Halloween · New Year\'s Eve.',
+    'Behavioral: 9 checks. v2+v3 (+6): trio protocol · deep session · comeback kid · birthday protocol · flow state · multiverse operator.',
+    'Achievement detection: streak rewards (week_warrior/moon_cycle/unwavering/thousand_suns) + depth rewards (deep_diver→the_infinite at 1000 answers) + local collection mastery (pattern_master/temporal_lock/polyglot/ai_omnivore/full_codex/archivist).',
+    'Dep map: 111+ nodes. 73 patterns. 72+ handlers. 15 jobs. 63 self-assembly phases.',
     'DEPLOYED.',
   ],
 }
