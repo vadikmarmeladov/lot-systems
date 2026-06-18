@@ -26,7 +26,7 @@ import { atom } from 'nanostores'
 // Intention signals collected from all widgets and background monitors
 export type IntentionSignal = {
   timestamp: number
-  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals' | 'qos' | 'medical' | 'resilience'
+  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals' | 'qos' | 'medical' | 'resilience' | 'badges'
   signal: string
   metadata?: Record<string, any>
 }
@@ -1745,6 +1745,36 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 74: Badge Momentum — 3+ distinct badge types unlocked within a 7-day window.
+  // Achievement acquisition velocity signal: the person is actively exploring the system
+  // and discovering easter eggs / word turns / milestones in a concentrated burst.
+  const p74BadgeSignals = signals.filter(s => s.source === 'badges' && s.timestamp > now - 7 * 86400000)
+  const p74DistinctTypes = new Set(p74BadgeSignals.map(s => s.metadata?.badgeType).filter(Boolean))
+  if (p74DistinctTypes.size >= 3) {
+    patterns.push({
+      pattern: 'badge-momentum',
+      confidence: Math.min(0.95, 0.65 + (p74DistinctTypes.size - 3) * 0.06),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `BADGE MOMENTUM: ${p74DistinctTypes.size} distinct badge types unlocked in last 7 days. Achievement acquisition at velocity. The person is actively discovering the system.`
+    })
+  }
+
+  // Pattern 75: Word-Turn Depth — 5+ distinct word-turn badge types ever earned.
+  // Vocabulary expansion signal: the person's self-care language is broadening.
+  // Word turns are triggered by speaking specific words in memory/journal/chat answers.
+  const p75WordTurnSignals = signals.filter(s => s.source === 'badges' && s.metadata?.category === 'word_turn')
+  const p75DistinctWords = new Set(p75WordTurnSignals.map(s => s.metadata?.badgeType).filter(Boolean))
+  if (p75DistinctWords.size >= 5) {
+    patterns.push({
+      pattern: 'word-turn-depth',
+      confidence: Math.min(0.92, 0.60 + (p75DistinctWords.size - 5) * 0.04),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `WORD-TURN DEPTH: ${p75DistinctWords.size} distinct word-turn badge types earned. Self-care vocabulary expanding. Language is signal. The person speaks in the system's vocabulary.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2252,6 +2282,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   coherenceSummit:       ['operatorConvergence', 'adaptiveResonance', 'integrationArcPeak', 'qosSignatureLock'],
   convergentOperator:    ['coherenceSummit', 'quantumOS', 'qos'],
   quantumPersonality:    ['cohort', 'memory', 'intentions', 'journal', 'mood', 'energy'],
+
+  // ── Badge + achievement ecosystem nodes (2026-06-17 audit)
+  badgeSystem:           ['log', 'journal', 'memory', 'selfcare', 'goals', 'intentions'],
+  easterEggsDetector:    ['log', 'journal', 'memory'],
+  wordTurnDetector:      ['journal', 'memory', 'log'],
+  achievementCatalyst:   ['badgeSystem', 'easterEggsDetector', 'wordTurnDetector'],
 }
 
 /**
@@ -2260,7 +2296,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * tracked separately in the physiological report log-dependency audit.
  */
 export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = [
-  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience',
+  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience', 'badges',
 ]
 
 /** Returns which signal sources a given widget depends on. */
@@ -2473,6 +2509,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['memory', 'planner', 'goals', 'intentions'],
     patternConditions: ['operator-convergence', 'quantum-coherence-summit', 'adaptive-resonance'],
     directive: 'All gates simultaneously open. Convergence confirmed. This is the system\'s highest confidence state. Execute without hesitation.',
+  },
+  {
+    archetype: 'Achievement Catalyst',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['badges', 'log', 'journal'],
+    patternConditions: ['badge-momentum', 'word-turn-depth'],
+    directive: 'Discovery mode active. Badge momentum detected. The system rewards the curious. Keep exploring — every word is a door.',
   },
 ]
 
@@ -3364,5 +3407,31 @@ export function recordQuantumCoherenceSummit(userIndex: number) {
     confidence: 0.98,
     gates: ['qos-signature-lock', 'operator-signature', 'integration-arc-peak', 'operator-convergence'],
     timestamp: Date.now(),
+  })
+}
+
+/**
+ * Record a badge unlock signal. Feeds P74 (badge-momentum) and P75 (word-turn-depth).
+ * Call when any badge_unlock event is received from the server.
+ */
+export function recordBadgeSignal(badgeType: string, category: string) {
+  recordSignal('badges', 'badge_unlock', {
+    badgeType,
+    category,
+    hour: new Date().getHours(),
+    timestamp: Date.now(),
+  })
+}
+
+/**
+ * Record a badge progress scan signal — weekly background job output.
+ * Feeds P74 (badge-momentum) detection with aggregate unlock data.
+ */
+export function recordBadgeProgressScan(unlocksThisWeek: number, distinctTypes: number) {
+  recordSignal('badges', 'badge_progress_scan', {
+    unlocksThisWeek,
+    distinctTypes,
+    window: '7d',
+    hour: new Date().getHours(),
   })
 }

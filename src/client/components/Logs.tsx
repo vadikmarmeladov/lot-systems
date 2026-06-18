@@ -29,7 +29,7 @@ import {
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
-import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
+import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
@@ -1423,6 +1423,43 @@ export const Logs: React.FC = () => {
                 )}
                 {peakDay && (
                   <div className="opacity-60 uppercase tracking-widest mt-4">PEAK: {peakDay}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'badge_unlock') {
+          const badge    = log.metadata?.badge as string | undefined
+          const category = log.metadata?.category as string | undefined
+          const symbol   = log.metadata?.symbol as string | undefined
+          if (badge) {
+            recordBadgeSignal(badge, category ?? 'unknown')
+          }
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BADGE:" blockView>
+                {symbol && <div className="font-mono opacity-80">{symbol}</div>}
+                {badge && <div className="uppercase tracking-widest mt-4">{badge.replace(/_/g, ' ')}</div>}
+                {category && (
+                  <div className="opacity-40 uppercase tracking-widest mt-4">CAT: {category.replace(/_/g, ' ')}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'badge_progress_scan') {
+          const unlocksThisWeek = log.metadata?.unlocksThisWeek as number | undefined
+          const distinctTypes   = log.metadata?.distinctTypes as number | undefined
+          const momentum        = log.metadata?.momentum as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BADGE-SCAN:" blockView>
+                {unlocksThisWeek !== undefined && (
+                  <div className="tabular-nums">UNLOCKS: {unlocksThisWeek} / 7D</div>
+                )}
+                {distinctTypes !== undefined && (
+                  <div className="tabular-nums opacity-60 mt-4">TYPES: {distinctTypes}</div>
+                )}
+                {momentum && (
+                  <div className="opacity-40 uppercase tracking-widest mt-4">MOMENTUM: {momentum}</div>
                 )}
               </Block>
             </LogContainer>

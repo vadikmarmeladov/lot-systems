@@ -1053,6 +1053,8 @@ export default async (fastify: FastifyInstance) => {
       'operator_convergence',
       // v62: signal crystallization · biorhythm lock · quantum coherence summit · convergence audit
       'signal_crystallization', 'biorhythm_lock', 'quantum_coherence_summit', 'convergence_audit',
+      // v63: badge progress scan (weekly badge momentum output)
+      'badge_progress_scan',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

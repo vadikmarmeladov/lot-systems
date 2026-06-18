@@ -45,3 +45,4 @@ ID             | CLASS        | SUMMARY                                         
 ```
 20260615-01    | SELF-ASSEMBLY| QIE v62 — P71-P73 + Arch22 + Job15 + dep map 111+ + 4 handlers + 5 nodes | GREEN  | 5195a8d  | WORDS: 585 (median 385)
 20260615-02    | ENGINEERING  | NODE-0 RIG-SPEC + WebAuthn deployment + memory story fix · 3 docs · 1 bugfix | GREEN  | cde91b27 | WORDS: 318 (median 385)
+20260617-02    | SELF-ASSEMBLY| QIE v64 — P74 badge-momentum · P75 word-turn-depth · Arch23 Achievement Catalyst · Job16 badge-scan · dep map 115+ · 14 log sources · 74+ handlers | GREEN  | (push)   | WORDS: 540 (median 385)

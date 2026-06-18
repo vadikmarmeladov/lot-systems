@@ -909,6 +909,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyQOSConvergenceJob()) {
     await executeWeeklyQOSConvergenceAudit()
   }
+
+  // Check weekly badge progress scan (Tuesday 09:00 UTC)
+  if (shouldRunWeeklyBadgeScanJob()) {
+    await executeWeeklyBadgeScan()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -2079,6 +2084,99 @@ async function executeWeeklyQOSConvergenceAudit(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly Badge Progress Scan (Job 16 — Tuesdays 09:00 UTC) ───────────────
+
+let isWeeklyBadgeScanRunning = false
+let lastWeeklyBadgeScanRun: Date | null = null
+
+function shouldRunWeeklyBadgeScanJob(): boolean {
+  const now = dayjs()
+  if (isWeeklyBadgeScanRunning) return false
+  if (lastWeeklyBadgeScanRun) {
+    const lastRun = dayjs(lastWeeklyBadgeScanRun)
+    if (lastRun.isSame(now, 'week')) return false
+  }
+  return now.day() === 2 && now.hour() === 9 // Tuesday 09:00 UTC
+}
+
+async function executeWeeklyBadgeScan(): Promise<JobResult> {
+  const jobName = 'weekly-badge-progress-scan'
+  const executedAt = new Date().toISOString()
+  if (isWeeklyBadgeScanRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isWeeklyBadgeScanRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('WEEKLY BADGE PROGRESS SCAN — Tuesday 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    // Find users who unlocked badges in the last 7 days
+    const recentBadgeLogs = await Log.findAll({
+      where: { event: 'badge_unlock', createdAt: { [Op.gte]: sevenDaysAgo } },
+      attributes: ['userId', 'metadata'],
+    })
+
+    const userBadgeMap: Record<string, { unlocks: number; types: Set<string> }> = {}
+    for (const l of recentBadgeLogs) {
+      const uid = String((l as any).userId)
+      if (!userBadgeMap[uid]) userBadgeMap[uid] = { unlocks: 0, types: new Set() }
+      userBadgeMap[uid].unlocks++
+      const badge = (l as any).metadata?.badge as string | undefined
+      if (badge) userBadgeMap[uid].types.add(badge)
+    }
+
+    let written = 0
+    for (const [userId, data] of Object.entries(userBadgeMap)) {
+      try {
+        const distinctTypes = data.types.size
+        const momentum = data.unlocks >= 5 ? 'HIGH' : data.unlocks >= 2 ? 'MODERATE' : 'LOW'
+
+        await Log.create({
+          userId: Number(userId),
+          event: 'badge_progress_scan',
+          text: '',
+          metadata: {
+            unlocksThisWeek: data.unlocks,
+            distinctTypes,
+            momentum,
+            window: '7d',
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} badge scan failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users with badge activity: ${Object.keys(userBadgeMap).length}`)
+    console.log(`  Badge scan reports written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('WEEKLY BADGE PROGRESS SCAN COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyBadgeScanRun = new Date()
+    isWeeklyBadgeScanRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned: Object.keys(userBadgeMap).length, written },
+    }
+  } catch (error: any) {
+    console.error('Weekly badge scan failed:', error.message)
+    isWeeklyBadgeScanRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -2109,6 +2207,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily QOS signature pulse: 1 PM UTC every day')
   console.log('   - Daily coherence index pulse: 4 PM UTC every day')
   console.log('   - Weekly QOS convergence audit: 3 PM UTC every Sunday')
+  console.log('   - Weekly badge progress scan: 9 AM UTC every Tuesday')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2118,7 +2217,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion, 23=pattern coverage
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 13 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

@@ -819,6 +819,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v62 entry appended · USERSHIP_TRANSMISSION updated to v62.',
     ],
   },
+  {
+    date: '2026-06-17',
+    session: 'Self-Assembly Session — v63 / P74–P75 · Archetype 23 · Job 16 · Badge Ecosystem · BADGE: BADGE-SCAN:',
+    assembled: [
+      'intentionEngine.ts: IntentionSignal source union expanded — \'badges\' added as 16th signal source. Badge events now flow through the QIE pipeline.',
+      'intentionEngine.ts: P74 badge-momentum — 3+ distinct badge types unlocked within 7d window. Achievement acquisition velocity signal. Confidence 0.65–0.95. suggestedWidget: systemProgress · suggestedTiming: immediate.',
+      'intentionEngine.ts: P75 word-turn-depth — 5+ distinct word-turn badge types ever earned. Vocabulary expansion signal. Person speaks in the system\'s vocabulary. Confidence 0.60–0.92. suggestedWidget: memory · suggestedTiming: soon.',
+      'intentionEngine.ts: Archetype 23 Achievement Catalyst — moderate/high energy · badges+log+journal dominant · badge-momentum+word-turn-depth. Directive: "Discovery mode active. Badge momentum detected. The system rewards the curious. Keep exploring — every word is a door."',
+      'intentionEngine.ts: 4 new WIDGET_DEPENDENCY_MAP nodes — badgeSystem (log+journal+memory+selfcare+goals+intentions) · easterEggsDetector (log+journal+memory) · wordTurnDetector (journal+memory+log) · achievementCatalyst (badgeSystem+easterEggsDetector+wordTurnDetector). Total: 115+ nodes.',
+      'intentionEngine.ts: \'badges\' added to LOG_DEPENDENCY_SOURCES — now 14 sources total.',
+      'intentionEngine.ts: 2 new signal helpers — recordBadgeSignal(badgeType, category) · recordBadgeProgressScan(unlocksThisWeek, distinctTypes).',
+      'Logs.tsx: 2 new military event handlers — BADGE: (badge_unlock: symbol · badge name · CAT:) · BADGE-SCAN: (badge_progress_scan: UNLOCKS:/7D · TYPES: · MOMENTUM:). Handler count: 74+. recordBadgeSignal() imported and called on render.',
+      'scheduled-jobs.ts: Job 16 — weekly-badge-progress-scan. Tuesdays 09:00 UTC. Scans badge_unlock events per user over last 7 days. Computes unlocksThisWeek + distinctTypes + momentum (LOW/MODERATE/HIGH). Writes badge_progress_scan event per user with ≥1 unlock.',
+      'Server API: displayableEvents +1 — badge_progress_scan.',
+      'SESSION_REPORTS: v63 entry appended · USERSHIP_TRANSMISSION updated to v63.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -856,16 +873,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-15',
+  date: '2026-06-17',
   message: [
-    'ASSEMBLY RUN — 2026-06-15 · LOT-SR-20260615-02',
-    'P71 signal-crystallization: 3+ intentions → planner → goal completion in 24h. Confidence 0.75–0.92. Intent becomes execution in a single session.',
-    'P72 biorhythm-lock: morning + evening check-ins 5+ consecutive days. Biological cadence anchored. Fires at 0.72–0.88.',
-    'P73 quantum-coherence-summit: operator-convergence (P70) + UserIndex ≥ 70. Confidence 0.98 — the system\'s absolute ceiling. All gates open. Peak performance confirmed.',
-    'Archetype 22 Convergent Operator: high energy · all execution sources dominant · all convergence patterns active. Execute without hesitation.',
-    'Job 15 deployed: weekly-qos-convergence-audit · Sundays 15:00 UTC · writes CONV-AUDIT: per user who hit convergence this week.',
-    'Dep map: 111+ nodes. 73 patterns active. 72+ log handlers. 15 background jobs. 62 self-assembly phases.',
-    'The system now tracks its own peak states week-over-week. Convergence frequency is a first-class metric.',
+    'ASSEMBLY RUN — 2026-06-17 · LOT-SR-20260617-02',
+    'P74 badge-momentum: 3+ distinct badge types in 7d window. Achievement acquisition velocity detected. The system rewards explorers.',
+    'P75 word-turn-depth: 5+ word-turn badge types earned. Vocabulary expanding. Every word spoken is a signal. Every signal is a door.',
+    'Archetype 23 Achievement Catalyst: badges+log+journal dominant · badge-momentum+word-turn-depth active. Discovery mode. Keep exploring.',
+    'Job 16 deployed: weekly-badge-progress-scan · Tuesdays 09:00 UTC · BADGE-SCAN: per user with unlocks this week.',
+    'Dep map: 115+ nodes. 75 patterns active. 74+ log handlers. 16 background jobs. 63 self-assembly phases.',
+    'Badge ecosystem fully wired into QIE. Achievements are now a signal source. The Codex is alive.',
     'DEPLOYED.',
   ],
 }
