@@ -46,4 +46,4 @@ ID             | CLASS        | SUMMARY                                         
 20260615-01    | SELF-ASSEMBLY| QIE v62 — P71-P73 + Arch22 + Job15 + dep map 111+ + 4 handlers + 5 nodes | GREEN  | 5195a8d  | WORDS: 585 (median 385)
 20260615-02    | ENGINEERING  | NODE-0 RIG-SPEC + WebAuthn deployment + memory story fix · 3 docs · 1 bugfix | GREEN  | cde91b27 | WORDS: 318 (median 385)
 20260617-02    | SELF-ASSEMBLY| QIE v64 — P74 badge-momentum · P75 word-turn-depth · Arch23 Achievement Catalyst · Job16 badge-scan · dep map 115+ · 14 log sources · 74+ handlers | GREEN  | 4de3477  | WORDS: 540 (median 385)
-20260618-01    | SELF-ASSEMBLY| LOT-WIKI-v59 Field Manual v64 · Badge Codex v15 (249 badges) · About.tsx v64 sync · 75 patterns · 23 archetypes · 16 jobs · 6 nodes | GREEN  | (pending)  | WORDS: 650 (median 390)
+20260618-01    | SELF-ASSEMBLY| LOT-WIKI-v59 Field Manual v64 · Badge Codex v15 (249 badges) · About.tsx v64 sync · 75 patterns · 23 archetypes · 16 jobs · 6 nodes | GREEN  | 9db438d  | WORDS: 650 (median 390)
