@@ -366,8 +366,6 @@ td:last-child {
   &::after {
     content: attr(data-value) ' ';
     visibility: hidden;
-    outline: 1px dashed red;
-    color: red;
     white-space: pre-wrap;
     word-wrap: break-word;
     pointer-events: none;
