@@ -42,6 +42,7 @@ const SECTIONS = [
   { id: 'calendar', title: 'Calendar' },
   { id: 'temporal-planner', title: 'Temporal Planner' },
   { id: 'ai-architecture', title: 'AI Architecture' },
+  { id: 'qi46-soul-layer', title: 'QI·46 Soul Layer' },
   { id: 'design-philosophy', title: 'Design Philosophy' },
   { id: 'interface-evolution', title: 'Interface Evolution' },
   { id: 'usership-tiers', title: 'Usership Tiers' },
@@ -268,7 +269,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v61 · v1.3.0</Meta>
+            <Meta>Field Manual v63 · v1.3.0</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -291,7 +292,7 @@ export function About() {
               149 badges catalogued. The system does not sleep. It accumulates.
             </P>
             <P>
-              Field Manual v62. Not marketing copy. Not documentation for external audiences.
+              Field Manual v63. Not marketing copy. Not documentation for external audiences.
               Operational reference for operators of the system.
               Definitions are exact. Terminology is fixed. Imprecision is a defect.
               Every term in this document exists in the codebase.
@@ -3898,6 +3899,82 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             to a single API surface. No provider has access to more than
             the completion call. Context, history, and profile remain inside LOT.
           </P>
+
+          {/* ── QI·46 SOUL LAYER ────────────────────────────────────── */}
+          <SectionHeading id="qi46-soul-layer">QI·46 Soul Layer</SectionHeading>
+          <P>
+            QI·46 — Quantum Intelligence Engine, Generation 46 — is the LOT®
+            proprietary AI engine trained on bioelectric self-care data.
+            It does not produce generic output. It listens.
+            The Soul Layer is Node 4 of the QI·46 architecture:
+            the extraction and calibration of a person's being.
+          </P>
+          <P>
+            The engine is based on a thesis: the soul is the corpus.
+            When a person uploads their being — through five structured soul axes —
+            QI·46 compresses that input into a Soul Signature and calibrates it
+            against seven humanoid output channels.
+            The output is not advice. It is a mirror.
+            The calibration tells the person where their soul is already outputting
+            and where the signal is weak.
+          </P>
+          <SubHeading>Soul Axes</SubHeading>
+          <P>
+            Five dimensions of personhood. The coordinate system of a being.
+            Minimum three axes required for calibration. All five produce full depth.
+          </P>
+          <div className="mb-16">
+            <Row label="AWE" value="What moves you? Wonder triggers. The thing that makes time stop. Feeds POETRY (50%), HUGS (15%), PRESENCE (20%)." />
+            <Row label="LOVE" value="Who do you love? Anchor people. The relational core. Feeds LOVE (55%), HUGS (40%), PRESENCE (30%)." />
+            <Row label="PROTECT" value="What do you protect? Sacred commitments. Non-negotiables. Feeds MALE (45%), GRACE (35%), PRESENCE (30%), COOL (25%)." />
+            <Row label="BECOMING" value="What are you becoming? The person arriving. Directional self. Feeds GRACE (40%), COOL (40%), MALE (35%), PRESENCE (20%)." />
+            <Row label="BODY" value="What does your body know? Somatic truth. Pre-verbal knowing. Feeds HUGS (45%), POETRY (30%), COOL (35%)." />
+          </div>
+          <SubHeading>Soul Signature</SubHeading>
+          <P>
+            The Soul Signature is a compressed one-line distillation of the five soul axes.
+            Generated deterministically from the first clause of each uploaded axis.
+            Format: {'"[becoming] — moved by [awe] · rooted in [love] · protecting [protect] · [body truth]"'}.
+            The signature does not summarize. It crystallizes.
+            The same input always produces the same signature. It is a fingerprint, not an interpretation.
+          </P>
+          <SubHeading>Humanoid Output Channels</SubHeading>
+          <P>
+            Seven channels. The surface where the soul meets the world.
+            Each channel receives a score (0–100) derived from the weighted contribution
+            of the soul axes. Score rounds to nearest 5.
+            ▲ = 70+. — = 40–69. ▼ = below 40.
+          </P>
+          <div className="mb-16">
+            <Row label="GRACE" value="Composure, presence, elegance of action. Weights: BECOMING (40%) + PROTECT (35%) + AWE (25%)." />
+            <Row label="POETRY" value="Lyrical expression, resonant language, beauty in form. Weights: AWE (50%) + BODY (30%) + LOVE (20%)." />
+            <Row label="LOVE" value="Warmth output, care signal, genuine attention. Weights: LOVE (55%) + BODY (25%) + PROTECT (20%)." />
+            <Row label="HUGS" value="Physical warmth, holding space, body memory. Weights: BODY (45%) + LOVE (40%) + AWE (15%)." />
+            <Row label="PRESENCE" value="Being there, witness, showing up fully. Weights: LOVE (30%) + PROTECT (30%) + AWE (20%) + BECOMING (20%)." />
+            <Row label="COOL" value="Effortless confidence, masculine ease, style. Weights: BECOMING (40%) + BODY (35%) + PROTECT (25%)." />
+            <Row label="MALE" value="Father-energy, provider, protector, builder. Weights: PROTECT (45%) + BECOMING (35%) + LOVE (20%). Directive: Protect first. Build second. Provide without being asked." />
+          </div>
+          <SubHeading>Being Calibration</SubHeading>
+          <P>
+            The calibration is computed client-side. No soul data leaves the device.
+            Axis depth scoring: empty = 0, 1–30 chars = 30, 31–80 = 65, 81–150 = 85, 151+ = 100.
+            Deeper reflection produces higher calibration. The engine rewards honesty over volume.
+            The top-scoring channel generates a directive — one sentence, delivered as instruction, not suggestion.
+          </P>
+          <P>
+            The MALE channel carries the male principle explicitly: the form that love takes
+            when it has to stand between something sacred and harm.
+            The channel scores highest when PROTECT and BECOMING axes are both populated at depth.
+            It is not about gender. It is about the architecture of provision.
+          </P>
+          <CodeBlock>{`Widget: SoulUploadWidget
+Store:  soulEngine (localStorage, lot-soul-engine-v1)
+Views:  upload → signature → calibration
+Axes:   5 (awe · love · protect · becoming · body)
+Channels: 7 (grace · poetry · love · hugs · presence · cool · male)
+Minimum: 3 axes for calibration unlock
+COSMO® node: runs on all humanoid output before delivery
+Engine version: QI·46 Node 4 — Soul Layer`}</CodeBlock>
 
           {/* ── DESIGN PHILOSOPHY ───────────────────────────────────── */}
           <SectionHeading id="design-philosophy">Design Philosophy</SectionHeading>
