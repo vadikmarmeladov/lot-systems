@@ -128,6 +128,35 @@ export function checkTimeEasterEggs(): BadgeType[] {
     const result = check()
     if (result) awarded.push(result)
   }
+
+  // v3 — Computer Lore
+  const now3 = new Date()
+  const h3 = now3.getHours(), m3 = now3.getMinutes()
+  if (h3 === 7 && m3 === 7 && !hasBadge('lucky_signal')) { awardBadge('lucky_signal'); awarded.push('lucky_signal') }
+  if (h3 === 0 && m3 === 1 && !hasBadge('new_day_proto')) { awardBadge('new_day_proto'); awarded.push('new_day_proto') }
+  if (h3 === 22 && m3 === 22 && !hasBadge('double_down')) { awardBadge('double_down'); awarded.push('double_down') }
+  if (h3 === 13 && m3 === 37 && !hasBadge('leet_signal')) { awardBadge('leet_signal'); awarded.push('leet_signal') }
+  // v4
+  if (h3 === 1 && m3 === 12 && !hasBadge('fib_hour')) { awardBadge('fib_hour'); awarded.push('fib_hour') }
+  if (h3 === 1 && m3 === 37 && !hasBadge('golden_hour')) { awardBadge('golden_hour'); awarded.push('golden_hour') }
+  if (h3 === 8 && m3 === 0 && !hasBadge('cube_hour')) { awardBadge('cube_hour'); awarded.push('cube_hour') }
+  if (h3 === 18 && m3 === 0 && !hasBadge('tau2_signal')) { awardBadge('tau2_signal'); awarded.push('tau2_signal') }
+  // v5
+  if (h3 === 10 && m3 === 10 && !hasBadge('digital_symmetry')) { awardBadge('digital_symmetry'); awarded.push('digital_symmetry') }
+  if (h3 === 1 && m3 === 23 && !hasBadge('seq_boot')) { awardBadge('seq_boot'); awarded.push('seq_boot') }
+  if (h3 === 21 && m3 === 12 && !hasBadge('palindrome_time')) { awardBadge('palindrome_time'); awarded.push('palindrome_time') }
+  if (h3 === 6 && m3 === 28 && !hasBadge('tau_signal')) { awardBadge('tau_signal'); awarded.push('tau_signal') }
+  // v6
+  if (h3 === 9 && m3 === 9 && !hasBadge('nine_lives')) { awardBadge('nine_lives'); awarded.push('nine_lives') }
+  if (h3 === 16 && m3 === 16 && !hasBadge('hex_hour')) { awardBadge('hex_hour'); awarded.push('hex_hour') }
+  if (h3 === 23 && m3 === 59 && !hasBadge('final_frame')) { awardBadge('final_frame'); awarded.push('final_frame') }
+  if (h3 === 20 && m3 === 26 && !hasBadge('year_signal')) { awardBadge('year_signal'); awarded.push('year_signal') }
+  // v7
+  if (h3 === 0 && m3 === 42 && !hasBadge('the_answer')) { awardBadge('the_answer'); awarded.push('the_answer') }
+  if (h3 === 12 && m3 === 0 && !hasBadge('high_noon')) { awardBadge('high_noon'); awarded.push('high_noon') }
+  if (h3 === 3 && m3 === 33 && !hasBadge('devils_hour')) { awardBadge('devils_hour'); awarded.push('devils_hour') }
+  if (h3 === 8 && m3 === 8 && !hasBadge('infinity_gate')) { awardBadge('infinity_gate'); awarded.push('infinity_gate') }
+
   return awarded
 }
 
@@ -182,6 +211,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awardBadge('palindrome_day')
     awarded.push('palindrome_day')
   }
+
+  // v2
+  if (!hasBadge('cosmo_bday') && month === 7 && day === 1) { awardBadge('cosmo_bday'); awarded.push('cosmo_bday') }
+  if (!hasBadge('leap_day') && month === 2 && day === 29) { awardBadge('leap_day'); awarded.push('leap_day') }
+  // v3
+  if (!hasBadge('valentine') && month === 2 && day === 14) { awardBadge('valentine'); awarded.push('valentine') }
+  if (!hasBadge('halloween') && month === 10 && day === 31) { awardBadge('halloween'); awarded.push('halloween') }
+  if (!hasBadge('nye_signal') && month === 12 && day === 31) { awardBadge('nye_signal'); awarded.push('nye_signal') }
+  // v4
+  if (!hasBadge('signal_wars') && month === 5 && day === 4) { awardBadge('signal_wars'); awarded.push('signal_wars') }
+  if (!hasBadge('prog_day') && month === 9 && (day === 12 || day === 13)) { awardBadge('prog_day'); awarded.push('prog_day') }
+  if (!hasBadge('ada_protocol') && month === 12 && day === 9) { awardBadge('ada_protocol'); awarded.push('ada_protocol') }
+  // v5
+  if (!hasBadge('groundhog_loop') && month === 2 && day === 2) { awardBadge('groundhog_loop'); awarded.push('groundhog_loop') }
+  if (!hasBadge('binary_day') && month === 10 && day === 10) { awardBadge('binary_day'); awarded.push('binary_day') }
+  if (!hasBadge('fibonacci_day') && month === 11 && day === 23) { awardBadge('fibonacci_day'); awarded.push('fibonacci_day') }
+  // v6
+  if (!hasBadge('towel_day') && month === 5 && day === 25) { awardBadge('towel_day'); awarded.push('towel_day') }
+  if (!hasBadge('space_signal') && month === 10 && day === 4) { awardBadge('space_signal'); awarded.push('space_signal') }
+  if (!hasBadge('bug_day') && month === 9 && day === 9) { awardBadge('bug_day'); awarded.push('bug_day') }
 
   return awarded
 }
@@ -387,6 +436,71 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\b(now|moment|present)\b/i,         badge: 'present_moment' },
   { patterns: /\b(universe|cosmos|cosmic)\b/i,     badge: 'cosmic_scale' },
   { patterns: /\b(alive|living|life)\b/i,          badge: 'vital_signal' },
+  // ── v3 — Computer Lore ───────────────────────────────────────────────────────
+  { patterns: /\b(hack|hacker|hacking)\b/i,         badge: 'hacker_mode' },
+  { patterns: /\b(override)\b/i,                     badge: 'override_protocol' },
+  { patterns: /\b(debug|debugging)\b/i,              badge: 'debug_mode' },
+  { patterns: /\bsignal\b/i,                         badge: 'signal_boost' },
+  { patterns: /\b(void|empty|nothing|nothingness)\b/i, badge: 'into_the_void' },
+  { patterns: /\b(spark|ignite|ignition|fire)\b/i,  badge: 'ignition' },
+  { patterns: /\b(echo)\b/i,                         badge: 'echo_chamber' },
+  { patterns: /\b(shield|protect|defense)\b/i,       badge: 'defense_protocol' },
+  { patterns: /\b(map|navigate|navigation)\b/i,      badge: 'navigator' },
+  { patterns: /\b(grow|growth|growing|expand)\b/i,  badge: 'growth_module' },
+  { patterns: /\b(lost|losing|adrift)\b/i,           badge: 'lost_signal' },
+  { patterns: /\b(binary|zero|ones?)\b/i,            badge: 'binary_state' },
+  // ── v4 — Self-Care ───────────────────────────────────────────────────────────
+  { patterns: /\b(hydrat|drink water|water intake)\b/i, badge: 'hydration_signal' },
+  { patterns: /\b(walked|walking|walk today)\b/i,    badge: 'kinetic_trace' },
+  { patterns: /\b(heal|healing|healed|recovery)\b/i, badge: 'healing_mode' },
+  { patterns: /\b(read|reading|finished reading)\b/i, badge: 'reader_protocol' },
+  { patterns: /\b(writing|wrote|journaling)\b/i,     badge: 'scribe_mode' },
+  { patterns: /\b(creat(e|ing|ed|ive)|made)\b/i,    badge: 'creation_node' },
+  { patterns: /\b(my body|body aches?|body feels?)\b/i, badge: 'body_signal' },
+  { patterns: /\b(breathing exercise|breath work|breathwork)\b/i, badge: 'breath_loop' },
+  { patterns: /\b(resting|took a rest|rest day)\b/i, badge: 'rest_state' },
+  { patterns: /\b(mov(e|ing)|motion|movement)\b/i,  badge: 'motion_protocol' },
+  { patterns: /\b(ate|eating|food|meal|dinner|lunch|breakfast)\b/i, badge: 'fuel_intake' },
+  { patterns: /\b(slept|sleep quality|fell asleep|sleeping)\b/i, badge: 'sleep_cycle' },
+  // ── v5 — Signal Codex ────────────────────────────────────────────────────────
+  { patterns: /\b(solitude|alone|by myself)\b/i,    badge: 'solitude_mode' },
+  { patterns: /\b(wonder|wondering|in awe)\b/i,     badge: 'wonder_protocol' },
+  { patterns: /\b(phoenix|rise from|rising from)\b/i, badge: 'phoenix_sequence' },
+  { patterns: /\b(align(ed|ment)?)\b/i,             badge: 'alignment_lock' },
+  { patterns: /\b(witness|witnessing|observed)\b/i,  badge: 'witness_log' },
+  { patterns: /\b(orbit|circling|cycle)\b/i,         badge: 'orbital_pattern' },
+  { patterns: /\b(forge|forged|built myself)\b/i,   badge: 'forge_protocol' },
+  { patterns: /\b(mindful|mindfulness|mind)\b/i,    badge: 'neuro_link' },
+  { patterns: /\b(the light|inner light|bright)\b/i, badge: 'photon_signal' },
+  { patterns: /\b(my energy|feeling energized|energy today)\b/i, badge: 'field_charge' },
+  { patterns: /\b(voyage|voyaging|this journey|the path)\b/i, badge: 'voyage_mode' },
+  { patterns: /\b(gravity|grounded|weight of)\b/i,  badge: 'gravity_lock' },
+  // ── v6 — Becoming Lexicon ────────────────────────────────────────────────────
+  { patterns: /\b(surrender|surrendered|let it go)\b/i, badge: 'surrender_protocol' },
+  { patterns: /\b(restor(e|ed|ing)|came back to myself)\b/i, badge: 'restore_point' },
+  { patterns: /\b(anchor(ed)?|my anchor)\b/i,        badge: 'anchor_down' },
+  { patterns: /\b(threshold|crossroads|edge)\b/i,   badge: 'threshold_mark' },
+  { patterns: /\b(emerg(e|ing|ed)|surfacing)\b/i,   badge: 'emergence_signal' },
+  { patterns: /\b(exhale|exhaled|breathed out)\b/i, badge: 'exhale_protocol' },
+  { patterns: /\b(clear(ed)?|cleared my head|cleared my mind)\b/i, badge: 'clear_cache' },
+  { patterns: /\b(rising|I rose|chose to rise)\b/i, badge: 'rise_protocol' },
+  { patterns: /\b(I am here|my presence|present|showing up)\b/i, badge: 'presence_confirmed' },
+  { patterns: /\b(bold(ly)?|I was bold|chose boldly)\b/i, badge: 'bold_mode' },
+  { patterns: /\b(I trust|learning to trust|trusting)\b/i, badge: 'trust_protocol' },
+  { patterns: /\b(shift(ed|ing)?|something shifted)\b/i, badge: 'phase_shift_ii' },
+  // ── v7 — The Book Lexicon ─────────────────────────────────────────────────────
+  { patterns: /\b(chapter|new chapter)\b/i,          badge: 'chapter_signal' },
+  { patterns: /\b(my story|this story|a new story)\b/i, badge: 'story_mode' },
+  { patterns: /\b(villain|the enemy|what opposes)\b/i, badge: 'villain_detected' },
+  { patterns: /\b(hero|my hero|be the hero)\b/i,    badge: 'hero_protocol' },
+  { patterns: /\b(quest|on a quest|my mission)\b/i, badge: 'quest_active' },
+  { patterns: /\b(pages?|turning page)\b/i,          badge: 'page_turner' },
+  { patterns: /\b(author|I am the author|wrote my)\b/i, badge: 'author_mode' },
+  { patterns: /\b(forgotten|I forgot|long forgotten)\b/i, badge: 'forgotten_archive' },
+  { patterns: /\b(written|I have written|it is written)\b/i, badge: 'written_signal' },
+  { patterns: /\b(plot|the plot|plot twist)\b/i,    badge: 'plot_detected' },
+  { patterns: /\b(ending|the end|how it ends)\b/i,  badge: 'ending_protocol' },
+  { patterns: /\b(journey|on this journey|long journey)\b/i, badge: 'journey_mode' },
 ]
 
 /**
@@ -483,6 +597,48 @@ export function checkAnniversary(signupDate: string): BadgeType | null {
   } catch { /* non-critical */ }
 
   return null
+}
+
+/**
+ * Detect secret boss badges from text input.
+ * Call this when a memory answer or journal entry is submitted.
+ */
+export function detectSecretBosses(text: string): BadgeType[] {
+  if (!text || text.length < 2) return []
+  const awarded: BadgeType[] = []
+
+  // kuzya_knows / the_cat_knows — "Kuzya" in text
+  if (/\bKuzya\b/.test(text)) {
+    if (!hasBadge('kuzya_knows') && awardBadge('kuzya_knows')) awarded.push('kuzya_knows')
+    if (!hasBadge('the_cat_knows') && awardBadge('the_cat_knows')) awarded.push('the_cat_knows')
+  }
+
+  // founders_mark — exact "April 7 2016"
+  if (/April 7 2016/.test(text) && !hasBadge('founders_mark') && awardBadge('founders_mark')) {
+    awarded.push('founders_mark')
+  }
+
+  // i_am_lot — exact "I am LOT"
+  if (/I am LOT/.test(text) && !hasBadge('i_am_lot') && awardBadge('i_am_lot')) {
+    awarded.push('i_am_lot')
+  }
+
+  // malibu_protocol — "Malibu" in text
+  if (/\bMalibu\b/.test(text) && !hasBadge('malibu_protocol') && awardBadge('malibu_protocol')) {
+    awarded.push('malibu_protocol')
+  }
+
+  // key_code — "0451" in text
+  if (/0451/.test(text) && !hasBadge('key_code') && awardBadge('key_code')) {
+    awarded.push('key_code')
+  }
+
+  // forty_two — "42" in text (as word or number)
+  if (/\b42\b/.test(text) && !hasBadge('forty_two') && awardBadge('forty_two')) {
+    awarded.push('forty_two')
+  }
+
+  return awarded
 }
 
 // ── Master check-in scanner ──────────────────────────────────────────────────
