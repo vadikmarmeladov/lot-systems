@@ -21,9 +21,12 @@ type CalendarEntry = {
   date: string
   text: string
   type: EntryType
+  time?: string
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+const ALERT_STORAGE_KEY = 'cal_alert_last_date'
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -48,10 +51,30 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
   return weeks
 }
 
+function getStatusLabel(date: string): string {
+  const d = dayjs(date).startOf('day')
+  const today = dayjs().startOf('day')
+  const diff = d.diff(today, 'day')
+  if (diff === 0) return 'TODAY'
+  if (diff === 1) return 'TOMORROW'
+  if (diff > 1) return `T-${diff}D`
+  return `T+${Math.abs(diff)}D`
+}
+
+function useClock(): string {
+  const [tick, setTick] = React.useState(() => dayjs().format('HH:mm:ss'))
+  React.useEffect(() => {
+    const id = setInterval(() => setTick(dayjs().format('HH:mm:ss')), 1000)
+    return () => clearInterval(id)
+  }, [])
+  return tick
+}
+
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
+  const clock = useClock()
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
@@ -59,6 +82,7 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [entryTime, setEntryTime] = React.useState('')
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -67,9 +91,14 @@ export function CalendarWidget() {
         date: log.metadata?.date as string,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
+        time: log.metadata?.time as string | undefined,
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => {
+        const dateCmp = a.date.localeCompare(b.date)
+        if (dateCmp !== 0) return dateCmp
+        return (a.time || '').localeCompare(b.time || '')
+      })
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
@@ -96,6 +125,38 @@ export function CalendarWidget() {
     [viewMonth]
   )
 
+  // Fire daily alert once per day if today has calendar events
+  React.useEffect(() => {
+    if (!entries.length) return
+    const lastAlertDate = localStorage.getItem(ALERT_STORAGE_KEY)
+    if (lastAlertDate === today) return
+
+    const todayEntries = entries.filter(e => e.date === today)
+    if (!todayEntries.length) return
+
+    localStorage.setItem(ALERT_STORAGE_KEY, today)
+
+    const lines = todayEntries.map(e => {
+      const prefix = `[${e.type.toUpperCase()}]`
+      const timeStr = e.time ? ` @ ${e.time}` : ''
+      return `${prefix} ${e.text}${timeStr}`
+    })
+
+    createLog({
+      text: `[CAL-ALERT] ${todayEntries.length} event(s) today — ${dayjs().format('DD MMM YYYY').toUpperCase()}`,
+      event: 'calendar_alert',
+      metadata: {
+        date: today,
+        count: todayEntries.length,
+        entries: todayEntries.map(e => ({ type: e.type, text: e.text, time: e.time })),
+        lines,
+      },
+    }, {
+      onSuccess: () => queryClient.invalidateQueries(['/api/logs']),
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entries])
+
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
     if (selectedDate === key) {
@@ -109,14 +170,16 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeStr = entryTime.trim() || undefined
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()}${timeStr ? ` @ ${timeStr}` : ''} (${dateLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
         text: entryText.trim(),
         entryType,
+        ...(timeStr ? { time: timeStr } : {}),
       },
     }, {
       onSuccess: () => {
@@ -126,6 +189,7 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
   }
 
@@ -139,10 +203,13 @@ export function CalendarWidget() {
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
-        <div className="mb-16">
+        <div className="mb-16 flex items-center gap-16">
           <Button onClick={handleToggleCalendar}>
             Add date
           </Button>
+          <span className="text-acc/30 tabular-nums font-mono text-sm tracking-widest">
+            {clock}
+          </span>
         </div>
 
         {isCalendarOpen && (
@@ -227,7 +294,7 @@ export function CalendarWidget() {
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-8 items-center">
+                <div className="flex gap-8 items-center mb-8">
                   <input
                     type="text"
                     value={entryText}
@@ -237,6 +304,13 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    className="bg-transparent border border-acc/20 text-acc/60 px-4 py-2 outline-none focus:border-acc/40 w-28 tabular-nums"
+                    title="Optional time"
+                  />
                   <Button onClick={handleAddEntry}>Add</Button>
                 </div>
               </div>
@@ -244,12 +318,20 @@ export function CalendarWidget() {
 
             {selectedDate && entriesOnDate.length > 0 && (
               <div className="mt-8">
-                <div className="text-acc/40 mb-4">
-                  {dayjs(selectedDate).format('dddd, MMMM D')}
+                <div className="text-acc/40 mb-4 uppercase tracking-widest text-sm">
+                  {dayjs(selectedDate).format('DD MMM YYYY')}
                 </div>
                 {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                  <div key={i} className="flex gap-8 items-baseline mb-2">
+                    <span className="text-acc/30 uppercase text-sm tracking-widest whitespace-nowrap">
+                      [{e.type}]
+                    </span>
+                    {e.time && (
+                      <span className="text-acc/40 tabular-nums text-sm whitespace-nowrap">
+                        {e.time}
+                      </span>
+                    )}
+                    <span className="text-acc/80">{e.text}</span>
                   </div>
                 ))}
               </div>
@@ -258,17 +340,36 @@ export function CalendarWidget() {
         )}
 
         {upcomingEntries.length > 0 && (
-          <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+          <div className="space-y-2">
+            {upcomingEntries.map((entry, i) => {
+              const status = getStatusLabel(entry.date)
+              const isToday = status === 'TODAY'
+              const isTomorrow = status === 'TOMORROW'
+              return (
+                <div key={i} className="flex items-baseline gap-8">
+                  <span className={cn(
+                    'tabular-nums uppercase text-sm tracking-widest whitespace-nowrap w-20',
+                    isToday ? 'text-acc' : isTomorrow ? 'text-acc/60' : 'text-acc/30'
+                  )}>
+                    {status}
+                  </span>
+                  <span className="text-acc/30 uppercase text-sm tracking-widest whitespace-nowrap">
+                    [{entry.type}]
+                  </span>
+                  {entry.time && (
+                    <span className="text-acc/40 tabular-nums text-sm whitespace-nowrap">
+                      {entry.time}
+                    </span>
+                  )}
+                  <span className={cn(
+                    'text-right flex-1',
+                    isToday ? 'text-acc' : 'text-acc/60'
+                  )}>
+                    {entry.text}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 

@@ -1195,14 +1195,62 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'calendar_alert') {
+          const count = log.metadata?.count as number | undefined
+          const alertDate = log.metadata?.date as string | undefined
+          const lines = log.metadata?.lines as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                <div className="flex items-baseline gap-8 mb-8">
+                  <span className="uppercase tracking-widest">TODAY</span>
+                  {count !== undefined && (
+                    <span className="opacity-40 tabular-nums text-sm">{count} EVENT{count !== 1 ? 'S' : ''}</span>
+                  )}
+                </div>
+                {alertDate && (
+                  <div className="opacity-30 tabular-nums text-sm mb-8 uppercase tracking-widest">
+                    {dayjs(alertDate).format('DD MMM YYYY')}
+                  </div>
+                )}
+                {lines && lines.map((line, i) => (
+                  <div key={i} className="opacity-60 text-sm mb-2">{line}</div>
+                ))}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const daysUntil = date ? dayjs(date).startOf('day').diff(dayjs().startOf('day'), 'day') : null
+          const statusLabel = daysUntil === null ? null
+            : daysUntil === 0 ? 'TODAY'
+            : daysUntil === 1 ? 'TOMORROW'
+            : daysUntil > 0 ? `T-${daysUntil}D`
+            : `T+${Math.abs(daysUntil)}D`
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex items-baseline gap-8 mb-4">
+                  <span className="uppercase tracking-widest">{entryType || 'ENTRY'}</span>
+                  {statusLabel && (
+                    <span className={cn(
+                      'tabular-nums text-sm uppercase tracking-widest',
+                      daysUntil === 0 ? 'opacity-100' : 'opacity-40'
+                    )}>
+                      {statusLabel}
+                    </span>
+                  )}
+                </div>
+                {text && <div className="opacity-80 mt-4">{text}</div>}
+                {date && (
+                  <div className="flex gap-8 mt-8 opacity-30 tabular-nums text-sm uppercase tracking-widest">
+                    <span>{dayjs(date).format('DD MMM YYYY')}</span>
+                    {time && <span>{time}</span>}
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )
