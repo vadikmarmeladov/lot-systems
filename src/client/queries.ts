@@ -20,6 +20,7 @@ import {
   Log,
   Paginated,
   PublicChatMessage,
+  PublicLotMail,
   User,
   UserProfile,
   UserSettings,
@@ -119,6 +120,21 @@ export const useSendDirectMessage = createMutation<
   { receiverId: string; message: string },
   void
 >('post', '/api/direct-messages')
+
+export const useSendLotMail = createMutation<
+  { recipientName: string; message: string },
+  PublicLotMail
+>('post', '/api/mail')
+
+export const useLotMailInbox = createQuery<PublicLotMail[]>('/api/mail/inbox', {
+  refetchOnWindowFocus: false,
+  staleTime: 30 * 1000,
+})
+
+export const useMarkMailRead = createMutation<{ mailId: string }, void>(
+  'put',
+  (data) => `/api/mail/${data.mailId}/read`
+)
 
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,

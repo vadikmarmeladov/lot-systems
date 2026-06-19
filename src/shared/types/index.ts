@@ -117,6 +117,7 @@ export type LogEvent =
   | 'note'
   | 'emotional_checkin'
   | 'system_feedback'
+  | 'lot_mail_sent'
   | 'other';
 
 // Emotional Check-in Types
@@ -439,9 +440,31 @@ export type ChatMessageLikeEventPayload = {
   isLiked?: boolean;
 };
 
+// LOT Mail Types
+export type LotMail = {
+  id: string;
+  senderId: string;
+  senderName: string;
+  recipientName: string;
+  message: string;
+  isRead: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type PublicLotMail = {
+  id: string;
+  senderName: string;
+  recipientName: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+};
+
 // Sync Events
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
   settings_updated: Record<string, never>;
+  lot_mail: PublicLotMail;
 };

@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev K
+# LOT-DOCTRINE  rev L
 
 ## Render Isolation
 
@@ -124,6 +124,21 @@ updates on every audit; feature rows update when a new iteration supersedes.
 (SR-20260605-01: MANIFEST created, 115 branches cataloged, 8 BEST identified.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
 SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
+
+## LOT Mail Layer
+
+When an operator needs to message another operator, the path is /email to
+<firstName> typed in the Log. The Log trigger (email-compose) parses the
+recipient name and message body, auto-sends via POST /api/mail, and shows a
+MAIL: status block in-line. New mails appear in Sync above the community chat
+feed under "MAIL · LOT COMMUNITY." Recipient matching is a case-insensitive
+firstName ILIKE — no user search, no UUID lookup, no address book. The
+simplest layer that connects operators without a separate app.
+For Cohort Dating: COHORT classification produces a match; that match
+communicates via LOT Mail — same infrastructure, zero additional plumbing.
+(SR-20260619-01: LOT-MAIL minted in LEXICON rev B; 11 files modified; migration
+20260619120000 creates lot_mails table with senderId, senderName,
+recipientName, message, isRead.)
 
 ## Query Batching
 

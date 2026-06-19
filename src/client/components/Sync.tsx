@@ -24,9 +24,11 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotMailInbox,
+  useMarkMailRead,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, PublicLotMail, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -53,6 +55,34 @@ export const Sync = () => {
       tag.toLowerCase() === UserTag.RND.toLowerCase()
     )
   }, [me])
+
+  const [mailInbox, setMailInbox] = React.useState<PublicLotMail[]>([])
+  const { data: fetchedMails } = useLotMailInbox()
+  const { mutate: markMailRead } = useMarkMailRead()
+
+  React.useEffect(() => {
+    if (fetchedMails) setMailInbox(fetchedMails)
+  }, [fetchedMails])
+
+  React.useEffect(() => {
+    const { dispose } = sync.listen('lot_mail', (mail: PublicLotMail) => {
+      const myName = (me?.firstName || '').toLowerCase()
+      if (mail.recipientName.toLowerCase() === myName) {
+        setMailInbox((prev) => [mail, ...prev])
+      }
+    })
+    return dispose
+  }, [me?.firstName])
+
+  const onMarkMailRead = React.useCallback(
+    (mailId: string) => () => {
+      markMailRead({ mailId })
+      setMailInbox((prev) =>
+        prev.map((m) => (m.id === mailId ? { ...m, isRead: true } : m))
+      )
+    },
+    [markMailRead]
+  )
 
   const { data: fetchedMessages } = useChatMessages()
   const { mutate: createChatMessage } = useCreateChatMessage({
@@ -221,6 +251,39 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {mailInbox.length > 0 && (
+        <div className="mb-40">
+          <div className="opacity-30 uppercase tracking-widest text-[0.7em] mb-8">
+            MAIL · LOT COMMUNITY
+          </div>
+          {mailInbox.map((mail) => (
+            <div
+              key={mail.id}
+              className={cn(
+                'group flex items-start gap-x-8 -mx-4 px-4 py-2 rounded cursor-pointer grid-fill-hover',
+                mail.isRead ? 'opacity-30' : 'opacity-100'
+              )}
+              onClick={!mail.isRead ? onMarkMailRead(mail.id) : undefined}
+            >
+              <span className="whitespace-nowrap -ml-4 px-4 pr-8 uppercase tracking-widest text-[0.85em]">
+                {mail.senderName.split(' ')[0]}
+              </span>
+              <div
+                className="whitespace-breakspaces flex-1"
+                style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+              >
+                {mail.message}
+              </div>
+              {!isTouchDevice && (
+                <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40">
+                  <MessageTimeLabel dateString={mail.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

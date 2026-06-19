@@ -10,7 +10,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button, ResizibleGhostInput, Unknown } from '#client/components/ui'
-import { useLogs, useUpdateLog } from '#client/queries'
+import { useLogs, useUpdateLog, useSendLotMail } from '#client/queries'
 import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
@@ -1505,6 +1505,19 @@ const NoteEditor = ({
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
   const [silentResult, setSilentResult] = React.useState<string | null>(null)
+  const [emailCompose, setEmailCompose] = React.useState<{ recipientName: string; message: string } | null>(null)
+  const [emailSending, setEmailSending] = React.useState(false)
+  const [emailResult, setEmailResult] = React.useState<'sent' | 'err' | null>(null)
+  const { mutate: sendMail } = useSendLotMail({
+    onSuccess: () => {
+      setEmailResult('sent')
+      setEmailSending(false)
+    },
+    onError: () => {
+      setEmailResult('err')
+      setEmailSending(false)
+    },
+  })
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
@@ -1860,6 +1873,22 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'email-compose') {
+        const match = value.match(/\/email\s+to\s+([^\n]+)/i)
+        if (match && !emailSending) {
+          const recipientName = match[1].trim()
+          const afterCmd = value.slice(value.indexOf(match[0]) + match[0].length).trim()
+          if (recipientName) {
+            const compose = {
+              recipientName,
+              message: afterCmd || `— from ${stores.me.get()?.firstName || 'LOT'}`,
+            }
+            setEmailCompose(compose)
+            setEmailResult(null)
+            setEmailSending(true)
+            sendMail(compose)
+          }
+        }
       }
     }
   }, [value])
@@ -2060,6 +2089,31 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailCompose || emailSending || emailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              {emailCompose && (
+                <>
+                  <div className="opacity-60 uppercase tracking-widest mb-4">
+                    TO: {emailCompose.recipientName}
+                  </div>
+                  {emailCompose.message && (
+                    <div className="opacity-40 mb-4">{emailCompose.message}</div>
+                  )}
+                </>
+              )}
+              {emailSending && !emailResult && (
+                <div className="opacity-30 uppercase tracking-widest">Transmitting...</div>
+              )}
+              {emailResult === 'sent' && (
+                <div className="opacity-60 uppercase tracking-widest">SENT ✓</div>
+              )}
+              {emailResult === 'err' && (
+                <div className="opacity-40 uppercase tracking-widest">ERR — Not delivered.</div>
+              )}
             </Block>
           </div>
         )}

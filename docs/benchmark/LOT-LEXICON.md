@@ -35,4 +35,5 @@ SIGNAL ARCHITECT   Physiological Archetype 19 — building phase; signal diversi
 COCKPIT-RULE       Log body = instrument readings only; label names the event; no narration        A  20260611
 DENSITY-TIER       5-level visual progression: breathable/comfortable/compact/dense/instrument via data-density  A  20260612
 QUERY-BATCHING     Replace N+1 sequential DB queries with Promise.all + batched IN-clause lookups              A  20260614
+LOT-MAIL           In-app messaging layer: /email to <name> in Log → Sync inbox · recipientName ILIKE match  B  20260619
 ```

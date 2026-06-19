@@ -22,6 +22,7 @@ const MODULE_BY_LOG_EVENT: Record<LogEvent, string> = {
   note: 'Note',
   emotional_checkin: 'Check-in',
   system_feedback: 'Feedback',
+  lot_mail_sent: 'Mail',
   other: 'Other',
 }
 
