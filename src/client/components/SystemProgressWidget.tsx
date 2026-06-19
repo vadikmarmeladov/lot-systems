@@ -820,6 +820,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
     ],
   },
   {
+    date: '2026-06-19',
+    session: 'Self-Assembly Session — v65 / P76–P78 · Archetype 24 · Job 17 · Dep Map 120+ · Log Military Pass',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 5 new nodes — publicProfile (cohort+memory) · plannerWidget (planner+intentions+memory+journal) · moodMomentum (mood+energy+selfcare+log) · breatheMonitor (mood+energy+selfcare) · fastingSignal (mood+energy+time+selfcare). Total: 120+ nodes.',
+      'LOG_DEPENDENCY_SOURCES: \'calculator\' added as 15th source — quantum substrate signals now fully tracked in physiological report audit.',
+      'Pattern 76 (morning-coherence-launch): first signal of day is intentions (before 09:00) + planner fires within 90 min. Confidence 0.72. The day starts from intention. Suggests planner.',
+      'Pattern 77 (signal-vault): journal depth >150w + memory capture + log field entry all within 6h. Full inner expression across 3 channels. Confidence 0.65–0.88. Suggests memory.',
+      'Pattern 78 (depletion-recovery-surge): depleted/low mood in 12h + 2+ selfcare in 6h + energy now high. Complete restoration arc with peak arrival. Confidence 0.72–0.90. Suggests systemProgress.',
+      'Archetype 24 (Signal Initiator): any energy · intentions+planner+log dominant · morning-coherence-launch+intention-seed+signal-crystallization. Directive: Day launched from intention. Structure followed signal. Coherent start confirmed. Build from here.',
+      'Background job 17: daily-morning-intention-launch at 11:00 UTC. Scans users with intention log before 09:00 followed by plan_set within 90 min. Writes morning_coherence_launch event. Hour 11 added to interval guard. 17 jobs now active.',
+      'Logs.tsx: prayer_scripture → PRAY: (COCKPIT-RULE military pass — emoji removed, italic removed). MCL: (morning_coherence_launch) · VAULT: (signal_vault) · SURGE: (depletion_recovery_surge) added. Handler count: 77+.',
+      'PatternRecognitionWidget: 3 new pattern display names + 3 QOS Trend indicators for P76/P77/P78.',
+      'Server API: displayableEvents +3 — morning_coherence_launch · signal_vault · depletion_recovery_surge.',
+      'Signal helpers: recordMorningCoherenceLaunch() · recordSignalVault() · recordDepletionRecoverySurge() added to intentionEngine.',
+      'Status: 78 patterns. 24 archetypes. 120+ dep nodes. 77+ log handlers. 17 background jobs.',
+    ],
+  },
+  {
     date: '2026-06-17',
     session: 'Self-Assembly Session — v63 / P74–P75 · Archetype 23 · Job 16 · Badge Ecosystem · BADGE: BADGE-SCAN:',
     assembled: [
@@ -873,15 +891,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-17',
+  date: '2026-06-19',
   message: [
-    'ASSEMBLY RUN — 2026-06-17 · LOT-SR-20260617-02',
-    'P74 badge-momentum: 3+ distinct badge types in 7d window. Achievement acquisition velocity detected. The system rewards explorers.',
-    'P75 word-turn-depth: 5+ word-turn badge types earned. Vocabulary expanding. Every word spoken is a signal. Every signal is a door.',
-    'Archetype 23 Achievement Catalyst: badges+log+journal dominant · badge-momentum+word-turn-depth active. Discovery mode. Keep exploring.',
-    'Job 16 deployed: weekly-badge-progress-scan · Tuesdays 09:00 UTC · BADGE-SCAN: per user with unlocks this week.',
-    'Dep map: 115+ nodes. 75 patterns active. 74+ log handlers. 16 background jobs. 63 self-assembly phases.',
-    'Badge ecosystem fully wired into QIE. Achievements are now a signal source. The Codex is alive.',
+    'ASSEMBLY RUN — 2026-06-19 · LOT-SR-20260619-01',
+    'P76 morning-coherence-launch: day started from intention before structure. Planner follows within 90 min. Coherent launch detected.',
+    'P77 signal-vault: journal depth >150w + memory + log all within 6h. Three channels open simultaneously. Inner expression at full volume.',
+    'P78 depletion-recovery-surge: depleted to peak. Restoration arc complete. Multi-care in 6h + energy confirmed high.',
+    'Archetype 24 Signal Initiator: any energy · intentions+planner+log dominant · morning-coherence-launch + intention-seed + signal-crystallization. Day launches from within.',
+    'Job 17 deployed: daily-morning-intention-launch · 11:00 UTC · MCL: per user with coherent start.',
+    'Dep map: 120+ nodes. 78 patterns active. 77+ log handlers. 17 background jobs. 65 self-assembly phases.',
+    'PRAY: handler updated (emoji removed — cockpit rule). Morning launch is now a named pattern. The day has a signal.',
     'DEPLOYED.',
   ],
 }
