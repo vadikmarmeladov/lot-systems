@@ -909,6 +909,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyQOSConvergenceJob()) {
     await executeWeeklyQOSConvergenceAudit()
   }
+
+  // Check daily signal momentum pulse (11:00 UTC daily)
+  if (shouldRunDailySignalMomentumJob()) {
+    await executeDailySignalMomentumJob()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -2079,6 +2084,111 @@ async function executeWeeklyQOSConvergenceAudit(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Signal Momentum Pulse (Job 16) ───────────────────────────────────
+
+let isDailySignalMomentumRunning = false
+let lastDailySignalMomentumRun: Date | null = null
+
+function shouldRunDailySignalMomentumJob(): boolean {
+  const now = dayjs()
+  if (isDailySignalMomentumRunning) return false
+  if (lastDailySignalMomentumRun) {
+    const lastRun = dayjs(lastDailySignalMomentumRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 11
+}
+
+async function executeDailySignalMomentumJob(): Promise<JobResult> {
+  const jobName = 'daily-signal-momentum-pulse'
+  const executedAt = new Date().toISOString()
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily Signal Momentum Pulse')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+  isDailySignalMomentumRunning = true
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const threeDaysAgo = dayjs().subtract(3, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: threeDaysAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+
+    let written = 0
+    let scanned = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        scanned++
+
+        const now = dayjs()
+        const d1Start = now.subtract(1, 'day').startOf('day').toDate()
+        const d1End   = now.subtract(1, 'day').endOf('day').toDate()
+        const d2Start = now.subtract(2, 'day').startOf('day').toDate()
+        const d2End   = now.subtract(2, 'day').endOf('day').toDate()
+        const d3Start = now.subtract(3, 'day').startOf('day').toDate()
+        const d3End   = now.subtract(3, 'day').endOf('day').toDate()
+
+        const [day1Logs, day2Logs, day3Logs] = await Promise.all([
+          Log.count({ where: { userId: Number(userId), createdAt: { [Op.between]: [d1Start, d1End] } } }),
+          Log.count({ where: { userId: Number(userId), createdAt: { [Op.between]: [d2Start, d2End] } } }),
+          Log.count({ where: { userId: Number(userId), createdAt: { [Op.between]: [d3Start, d3End] } } }),
+        ])
+
+        // Rising trajectory: each subsequent day has more activity
+        if (day1Logs > day2Logs && day2Logs > day3Logs && day3Logs >= 2) {
+          const slope = Math.round(((day1Logs - day3Logs) / Math.max(day3Logs, 1)) * 100) / 100
+          await Log.create({
+            userId: Number(userId),
+            event: 'signal_momentum_arc',
+            text: '',
+            metadata: {
+              day1: day1Logs,
+              day2: day2Logs,
+              day3: day3Logs,
+              slope,
+              window: '3d',
+              date: dayjs().format('YYYY-MM-DD'),
+            },
+          } as any)
+          written++
+        }
+      } catch (userErr: any) {
+        console.warn(`  User signal momentum check failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users scanned: ${scanned}`)
+    console.log(`  Momentum arcs written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('DAILY SIGNAL MOMENTUM PULSE COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailySignalMomentumRun = new Date()
+    isDailySignalMomentumRunning = false
+
+    return {
+      jobName,
+      executedAt,
+      success: true,
+      result: { scanned, written },
+    }
+  } catch (error: any) {
+    console.error('Daily signal momentum pulse failed:', error.message)
+    isDailySignalMomentumRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -2109,6 +2219,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily QOS signature pulse: 1 PM UTC every day')
   console.log('   - Daily coherence index pulse: 4 PM UTC every day')
   console.log('   - Weekly QOS convergence audit: 3 PM UTC every Sunday')
+  console.log('   - Daily signal momentum pulse: 11 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2118,8 +2229,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 13 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email, 10=archetype shift, 11=signal momentum, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 11 || hour === 13 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

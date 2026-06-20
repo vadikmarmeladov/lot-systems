@@ -106,7 +106,10 @@ export function PatternRecognitionWidget() {
       'operator-convergence':       'Operator convergence — all systems confirmed',
       'signal-crystallization':     'Signal crystallized — intent to execution in 24h',
       'biorhythm-lock':             'Biorhythm anchored — 5+ day morning/evening cadence',
-      'quantum-coherence-summit':   'QUANTUM COHERENCE SUMMIT — highest confirmed state'
+      'quantum-coherence-summit':   'QUANTUM COHERENCE SUMMIT — highest confirmed state',
+      'circadian-completion':       'Full day arc — morning, midday, evening captured',
+      'signal-momentum-arc':        'Momentum arc — 3-day rising trajectory confirmed',
+      'complete-field-awareness':   'Complete field — all 6 dimensions active'
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -350,6 +353,27 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'quantum-coherence-summit') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   SUMMIT. All gates open. Peak state confirmed.
+                </div>
+              )}
+
+              {/* Circadian completion indicator — surfaces when pattern 74 is active */}
+              {patterns.some(p => p.pattern === 'circadian-completion') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Full day arc. Morning, midday, evening captured.
+                </div>
+              )}
+
+              {/* Signal momentum arc indicator — surfaces when pattern 75 is active */}
+              {patterns.some(p => p.pattern === 'signal-momentum-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Momentum arc. 3-day rising trajectory confirmed.
+                </div>
+              )}
+
+              {/* Complete field awareness indicator — surfaces when pattern 76 is active */}
+              {patterns.some(p => p.pattern === 'complete-field-awareness') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Complete field. All 6 dimensions active. No blind spots.
                 </div>
               )}
 

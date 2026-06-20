@@ -38,6 +38,8 @@ export type LogTrigger =
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
   | 'qi-rfi'            // /qi — Quantum Intelligence RFI (Request for Information)
+  | 'index-report'      // /index — 6D UserIndex in military table format
+  | 'pattern-report'    // /pattern — top 3 active patterns with confidence
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -61,6 +63,8 @@ const RULES: TriggerRule[] = [
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
   { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'] },
+  { trigger: 'index-report',   emojis: [],        keywords: ['index', 'idx'] },
+  { trigger: 'pattern-report', emojis: [],        keywords: ['pattern', 'patterns'] },
 ]
 
 /**

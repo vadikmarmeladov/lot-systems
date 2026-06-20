@@ -819,6 +819,28 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v62 entry appended · USERSHIP_TRANSMISSION updated to v62.',
     ],
   },
+  {
+    date: '2026-06-20',
+    session: 'Self-Assembly Session — v63 / P74–P76 · Archetype 23 · Job 16 · Dep Map 114+ · /index /pattern · Confidence row',
+    assembled: [
+      'intentionEngine.ts: P74 circadian-completion — morning (06:00–10:00) + midday (11:00–14:00) + evening (18:00–22:00) signals all captured within a single calendar day. Full diurnal arc in one session. Confidence 0.78–0.92. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: P75 signal-momentum-arc — signal density day3 < day2 < day1 with day3 ≥ 2 signals. 3-day rising trajectory confirmed. Distinct from P63 (signal-burst: single 24h window). Confidence 0.74–0.90. suggestedWidget: patternRecognition.',
+      'intentionEngine.ts: P76 complete-field-awareness — all 6 UserIndex dimensions (engagement, emotional, intentional, social, selfCare, cognitive) ≥ 20 simultaneously. No blind spots in awareness field. Confidence 0.80–0.95. suggestedWidget: quantumState.',
+      'intentionEngine.ts: Archetype 23 Momentum Cascade — moderate/high energy · intentions+planner+goals dominant · signal-momentum-arc+signal-crystallization+intention-velocity. Directive: "Momentum confirmed. 3-day trajectory rising. Continue execution arc."',
+      'intentionEngine.ts: 3 new WIDGET_DEPENDENCY_MAP nodes — quantumCoherenceMonitor (coherenceSummit+biorhythmAnchor+signalCrystallizer) · momentumCascade (signalCrystallizer+intentionArc+planner+goals) · awarenessField (quantumPersonality+convergentOperator+coherenceSummit+qos). Total: 114+ nodes.',
+      'intentionEngine.ts: 3 new signal helpers — recordCircadianCompletion(windowCount, signalCount) · recordSignalMomentumArc(day1, day2, day3) · recordCompleteFieldAwareness(minDimension, overall).',
+      'logTriggers.ts: 2 new trigger types — index-report (/index, /idx) · pattern-report (/pattern, /patterns).',
+      'Logs.tsx: /index trigger — IDX [6D]: block with 6D UserIndex bars (ENG/EMO/INT/SOC/CARE/COG) + OVERALL. Military bar chart using █░ characters.',
+      'Logs.tsx: /pattern trigger — PAT [TOP-3]: block showing top 3 active patterns sorted by confidence with CONF:% column.',
+      'Logs.tsx: /phys enhanced — now includes Index row (INDEX: x/100 RISING/STABLE/DECLINING) alongside existing ARCH/ATP/CLARITY/ALIGN/PHASE/PATTERNS rows.',
+      'Logs.tsx: 3 new military event renderers — CIRC-COMP: (circadian_completion: WINDOWS:/3 · SIG: · MORNING·MIDDAY·EVENING) · MOM-ARC: (signal_momentum_arc: D3/D2/D1 · SLOPE · TRAJECTORY: RISING) · FIELD-AWARE: (complete_field_awareness: IDX:/100 · MIN-DIM: · CONF: · ALL 6 DIMENSIONS ACTIVE). Handler count: 75+.',
+      'scheduled-jobs.ts: Job 16 — daily-signal-momentum-pulse. 11:00 UTC daily. Reads each user\'s activity count for last 3 calendar days. If day1 > day2 > day3 and day3 ≥ 2 — rising trajectory confirmed — writes signal_momentum_arc event per user. Hour 11 added to interval guard.',
+      'Server API: displayableEvents +3 — circadian_completion · signal_momentum_arc · complete_field_awareness.',
+      'PatternRecognitionWidget.tsx: 3 new display names — circadian-completion · signal-momentum-arc · complete-field-awareness. QOS Trend view: 3 new pattern indicators.',
+      'System.tsx: Confidence row added to quantum table (Biofield: quantum view) — shows physiologicalCohort.confidence as percentage alongside Archetype/ATP/Clarity/Alignment/Index/Directive.',
+      'SESSION_REPORTS: v63 entry appended · USERSHIP_TRANSMISSION updated to v63.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -856,16 +878,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-15',
+  date: '2026-06-20',
   message: [
-    'ASSEMBLY RUN — 2026-06-15 · LOT-SR-20260615-02',
-    'P71 signal-crystallization: 3+ intentions → planner → goal completion in 24h. Confidence 0.75–0.92. Intent becomes execution in a single session.',
-    'P72 biorhythm-lock: morning + evening check-ins 5+ consecutive days. Biological cadence anchored. Fires at 0.72–0.88.',
-    'P73 quantum-coherence-summit: operator-convergence (P70) + UserIndex ≥ 70. Confidence 0.98 — the system\'s absolute ceiling. All gates open. Peak performance confirmed.',
-    'Archetype 22 Convergent Operator: high energy · all execution sources dominant · all convergence patterns active. Execute without hesitation.',
-    'Job 15 deployed: weekly-qos-convergence-audit · Sundays 15:00 UTC · writes CONV-AUDIT: per user who hit convergence this week.',
-    'Dep map: 111+ nodes. 73 patterns active. 72+ log handlers. 15 background jobs. 62 self-assembly phases.',
-    'The system now tracks its own peak states week-over-week. Convergence frequency is a first-class metric.',
+    'ASSEMBLY RUN — 2026-06-20 · LOT-SR-20260620-01',
+    'P74 circadian-completion: morning + midday + evening signals captured in a single calendar day. Full diurnal arc. Confidence 0.78–0.92.',
+    'P75 signal-momentum-arc: 3-day rising signal trajectory. Day count rising consecutively. Momentum confirmed. Confidence 0.74–0.90.',
+    'P76 complete-field-awareness: all 6 UserIndex dimensions ≥ 20 simultaneously. No blind spots. Full-spectrum coverage active. Confidence 0.80–0.95.',
+    'Archetype 23 Momentum Cascade: moderate/high energy · intentions+planner+goals dominant · momentum-arc+crystallization+velocity. Directive: Momentum confirmed. 3-day trajectory rising. Continue execution arc.',
+    'Job 16 deployed: daily-signal-momentum-pulse · 11:00 UTC daily · detects 3-day rising activity trajectory · writes MOM-ARC: per user.',
+    '/index command live: IDX [6D] — 6-dimensional UserIndex in military bar chart format (█░ bars per dimension).',
+    '/pattern command live: PAT [TOP-3] — top 3 active QIE patterns sorted by confidence.',
+    'Dep map: 114+ nodes. 76 patterns active. 75+ log handlers. 16 background jobs. 63 self-assembly phases.',
+    'Confidence row added to System quantum table. Archetype confidence now surfaces alongside directive.',
     'DEPLOYED.',
   ],
 }

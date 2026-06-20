@@ -1427,6 +1427,60 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'circadian_completion') {
+          const windowCount = log.metadata?.windowCount as number | undefined
+          const signalCount = log.metadata?.signalCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CIRC-COMP:" blockView>
+                {windowCount !== undefined && (
+                  <div className="tabular-nums">WINDOWS: {windowCount}/3</div>
+                )}
+                {signalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">SIG: {signalCount}</div>
+                )}
+                <div className="opacity-40 uppercase tracking-widest mt-4">MORNING · MIDDAY · EVENING</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_momentum_arc') {
+          const day1  = log.metadata?.day1 as number | undefined
+          const day2  = log.metadata?.day2 as number | undefined
+          const day3  = log.metadata?.day3 as number | undefined
+          const slope = log.metadata?.slope as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MOM-ARC:" blockView>
+                {day1 !== undefined && day2 !== undefined && day3 !== undefined && (
+                  <div className="tabular-nums">D3: {day3} → D2: {day2} → D1: {day1}</div>
+                )}
+                {slope !== undefined && (
+                  <div className="opacity-60 tabular-nums">SLOPE: +{slope}×</div>
+                )}
+                <div className="opacity-40 uppercase tracking-widest mt-4">TRAJECTORY: RISING</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'complete_field_awareness') {
+          const minDimension = log.metadata?.minDimension as number | undefined
+          const overall      = log.metadata?.overall as number | undefined
+          const confidence   = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FIELD-AWARE:" blockView>
+                {overall !== undefined && (
+                  <div className="tabular-nums">IDX: {overall}/100</div>
+                )}
+                {minDimension !== undefined && (
+                  <div className="opacity-60 tabular-nums">MIN-DIM: {minDimension}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+                <div className="opacity-40 uppercase tracking-widest mt-4">ALL 6 DIMENSIONS ACTIVE</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1508,6 +1562,8 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [indexResult, setIndexResult] = React.useState<string | null>(null)
+  const [patternResult, setPatternResult] = React.useState<string | null>(null)
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1848,6 +1904,7 @@ const NoteEditor = ({
           const asm = getAssemblyState()
           const patternCount = (eng as any).recognizedPatterns?.length || 0
           const archetype = (eng as any).physiologicalArchetype || (eng as any).archetype || null
+          const idx = getUserIndex()
           const lines = [
             archetype ? `ARCH            ${String(archetype).toUpperCase()}` : 'ARCH            CLASSIFYING...',
             `ATP             ${String((state as any).energy || 'UNKNOWN').toUpperCase()}`,
@@ -1855,10 +1912,44 @@ const NoteEditor = ({
             `ALIGN           ${String((state as any).alignment || 'UNKNOWN').toUpperCase()}`,
             `PHASE           ${String((asm as any).phase || 'UNKNOWN').toUpperCase()}`,
             `PATTERNS        ${patternCount} DETECTED`,
-          ]
+            idx.overall > 0 ? `INDEX           ${idx.overall}/100 (${idx.trend.toUpperCase()})` : '',
+          ].filter(Boolean)
           setPhysResult(lines.join('\n'))
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
+        }
+      } else if (trigger === 'index-report') {
+        try {
+          const idx = getUserIndex()
+          const bar = (n: number) => '█'.repeat(Math.round(n / 10)).padEnd(10, '░')
+          const lines = [
+            `OVERALL         ${String(idx.overall).padStart(3)}/100  ${bar(idx.overall)}  ${idx.trend.toUpperCase()}`,
+            `─────────────────────────────────────────`,
+            `ENG             ${String(Math.round(idx.dimensions.engagement)).padStart(3)}/100  ${bar(idx.dimensions.engagement)}`,
+            `EMO             ${String(Math.round(idx.dimensions.emotional)).padStart(3)}/100  ${bar(idx.dimensions.emotional)}`,
+            `INT             ${String(Math.round(idx.dimensions.intentional)).padStart(3)}/100  ${bar(idx.dimensions.intentional)}`,
+            `SOC             ${String(Math.round(idx.dimensions.social)).padStart(3)}/100  ${bar(idx.dimensions.social)}`,
+            `CARE            ${String(Math.round(idx.dimensions.selfCare)).padStart(3)}/100  ${bar(idx.dimensions.selfCare)}`,
+            `COG             ${String(Math.round(idx.dimensions.cognitive)).padStart(3)}/100  ${bar(idx.dimensions.cognitive)}`,
+          ]
+          setIndexResult(lines.join('\n'))
+        } catch {
+          setIndexResult('INDEX UNAVAILABLE')
+        }
+      } else if (trigger === 'pattern-report') {
+        try {
+          const eng = intentionEngine.get()
+          const active = (eng.recognizedPatterns ?? []).slice().sort((a, b) => b.confidence - a.confidence).slice(0, 3)
+          if (active.length === 0) {
+            setPatternResult('PAT             NO PATTERNS DETECTED')
+          } else {
+            const lines = active.map((p, i) =>
+              `PAT-${i + 1}          ${p.pattern.toUpperCase().padEnd(32)} CONF: ${Math.round(p.confidence * 100)}%`
+            )
+            setPatternResult(lines.join('\n'))
+          }
+        } catch {
+          setPatternResult('PATTERN READ FAILED')
         }
       }
     }
@@ -2060,6 +2151,20 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {indexResult && (
+          <div className="mt-8">
+            <Block label="IDX [6D]:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{indexResult}</div>
+            </Block>
+          </div>
+        )}
+        {patternResult && (
+          <div className="mt-8">
+            <Block label="PAT [TOP-3]:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{patternResult}</div>
             </Block>
           </div>
         )}

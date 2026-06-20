@@ -666,6 +666,7 @@ export const System = () => {
                 { metric: 'Clarity', value: quantumState.clarity },
                 { metric: 'Alignment', value: quantumState.alignment },
                 { metric: 'Index', value: `${userIndex.overall}%` },
+                { metric: 'Confidence', value: physiologicalCohort?.confidence ? `${physiologicalCohort.confidence}%` : '—' },
                 { metric: 'Directive', value: physiologicalCohort?.directive ?? '—' }
               ]}
               columns={[

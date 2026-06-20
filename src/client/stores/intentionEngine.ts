@@ -1745,6 +1745,63 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 74: Circadian Completion — morning (06:00–10:00) + midday (11:00–14:00) + evening (18:00–22:00)
+  // signals all recorded within the same calendar day. Full diurnal arc in a single day.
+  // Distinct from P72 (biorhythm-lock: multi-day cadence) and P59 (meridian-lock: single arc without midday).
+  const p74Today = new Date(now).toDateString()
+  const p74DaySignals = recentSignals.filter(s => new Date(s.timestamp).toDateString() === p74Today)
+  const p74Morning = p74DaySignals.some(s => { const h = new Date(s.timestamp).getHours(); return h >= 6 && h < 10 })
+  const p74Midday  = p74DaySignals.some(s => { const h = new Date(s.timestamp).getHours(); return h >= 11 && h < 14 })
+  const p74Evening = p74DaySignals.some(s => { const h = new Date(s.timestamp).getHours(); return h >= 18 && h < 22 })
+  const p74ActiveHours = [p74Morning, p74Midday, p74Evening].filter(Boolean).length
+  if (p74Morning && p74Midday && p74Evening) {
+    const p74Density = Math.min(p74DaySignals.length / 10, 1.0)
+    patterns.push({
+      pattern: 'circadian-completion',
+      confidence: Math.min(0.78 + p74Density * 0.14, 0.92),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `Circadian completion: morning + midday + evening signals all recorded today. Full diurnal arc captured in one session. ${p74DaySignals.length} signals across ${p74ActiveHours} windows.`
+    })
+  }
+
+  // Pattern 75: Signal Momentum Arc — signal density rising over 3 consecutive days.
+  // Confirms a building trajectory, not just a snapshot. Distinct from signal-burst (P63: single 24h window).
+  const p75DayMs = 24 * 60 * 60 * 1000
+  const p75Day1 = signals.filter(s => s.timestamp > now - 1 * p75DayMs).length
+  const p75Day2 = signals.filter(s => s.timestamp > now - 2 * p75DayMs && s.timestamp <= now - 1 * p75DayMs).length
+  const p75Day3 = signals.filter(s => s.timestamp > now - 3 * p75DayMs && s.timestamp <= now - 2 * p75DayMs).length
+  const p75Rising = p75Day1 > p75Day2 && p75Day2 > p75Day3 && p75Day3 >= 2
+  if (p75Rising) {
+    const p75Slope = (p75Day1 - p75Day3) / Math.max(p75Day3, 1)
+    patterns.push({
+      pattern: 'signal-momentum-arc',
+      confidence: Math.min(0.74 + Math.min(p75Slope, 2) * 0.08, 0.90),
+      suggestedWidget: 'patternRecognition',
+      suggestedTiming: 'passive',
+      reason: `Signal momentum arc: day-3 ${p75Day3} → day-2 ${p75Day2} → day-1 ${p75Day1} signals. Rising trajectory confirmed across 3 consecutive days. Execution has a tail wind.`
+    })
+  }
+
+  // Pattern 76: Complete Field Awareness — all 6 UserIndex dimensions (engagement, emotional,
+  // intentional, social, selfCare, cognitive) at or above 20 simultaneously.
+  // No blind spots in the awareness field. Distinct from P73 (which requires high overall index).
+  const p76Index = getUserIndex()
+  const p76Dims = p76Index.dimensions
+  const p76MinDim = Math.min(
+    p76Dims.engagement, p76Dims.emotional, p76Dims.intentional,
+    p76Dims.social, p76Dims.selfCare, p76Dims.cognitive
+  )
+  if (p76MinDim >= 20) {
+    patterns.push({
+      pattern: 'complete-field-awareness',
+      confidence: Math.min(0.80 + (p76MinDim - 20) * 0.005, 0.95),
+      suggestedWidget: 'quantumState',
+      suggestedTiming: 'passive',
+      reason: `Complete field awareness: all 6 UserIndex dimensions ≥ 20. Min dimension: ${Math.round(p76MinDim)}. No blind spots in the awareness field. Full-spectrum signal coverage active.`
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2252,6 +2309,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   coherenceSummit:       ['operatorConvergence', 'adaptiveResonance', 'integrationArcPeak', 'qosSignatureLock'],
   convergentOperator:    ['coherenceSummit', 'quantumOS', 'qos'],
   quantumPersonality:    ['cohort', 'memory', 'intentions', 'journal', 'mood', 'energy'],
+
+  // ── Momentum cascade + full-field awareness nodes (2026-06-20 audit)
+  quantumCoherenceMonitor: ['coherenceSummit', 'biorhythmAnchor', 'signalCrystallizer'],
+  momentumCascade:         ['signalCrystallizer', 'intentionArc', 'planner', 'goals'],
+  awarenessField:          ['quantumPersonality', 'convergentOperator', 'coherenceSummit', 'qos'],
 }
 
 /**
@@ -2473,6 +2535,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['memory', 'planner', 'goals', 'intentions'],
     patternConditions: ['operator-convergence', 'quantum-coherence-summit', 'adaptive-resonance'],
     directive: 'All gates simultaneously open. Convergence confirmed. This is the system\'s highest confidence state. Execute without hesitation.',
+  },
+  {
+    archetype: 'Momentum Cascade',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['intentions', 'planner', 'goals'],
+    patternConditions: ['signal-momentum-arc', 'signal-crystallization', 'intention-velocity'],
+    directive: 'Momentum confirmed. 3-day trajectory rising. Continue execution arc.',
   },
 ]
 
@@ -3363,6 +3432,39 @@ export function recordQuantumCoherenceSummit(userIndex: number) {
     userIndex,
     confidence: 0.98,
     gates: ['qos-signature-lock', 'operator-signature', 'integration-arc-peak', 'operator-convergence'],
+    timestamp: Date.now(),
+  })
+}
+
+export function recordCircadianCompletion(windowCount: number, signalCount: number) {
+  recordSignal('log', 'circadian_completion', {
+    windowCount,
+    signalCount,
+    windows: ['morning', 'midday', 'evening'],
+    timestamp: Date.now(),
+  })
+}
+
+export function recordSignalMomentumArc(day1: number, day2: number, day3: number) {
+  const slope = (day1 - day3) / Math.max(day3, 1)
+  const confidence = Math.min(0.74 + Math.min(slope, 2) * 0.08, 0.90)
+  recordSignal('qos', 'signal_momentum_arc', {
+    day1,
+    day2,
+    day3,
+    slope: Math.round(slope * 100) / 100,
+    confidence,
+    timestamp: Date.now(),
+  })
+}
+
+export function recordCompleteFieldAwareness(minDimension: number, overall: number) {
+  const confidence = Math.min(0.80 + (minDimension - 20) * 0.005, 0.95)
+  recordSignal('qos', 'complete_field_awareness', {
+    minDimension: Math.round(minDimension),
+    overall: Math.round(overall),
+    confidence,
+    dimensions: 6,
     timestamp: Date.now(),
   })
 }
