@@ -44,4 +44,4 @@ ID             | CLASS        | SUMMARY                                         
 20260614-03    | ENGINEERING  | Query batching + client deduplication · 5 endpoints · 3 widgets · N+1 eliminated | GREEN  | 27a16352 | WORDS: 310 (median 375)
 ```
 20260615-01    | SELF-ASSEMBLY| QIE v62 — P71-P73 + Arch22 + Job15 + dep map 111+ + 4 handlers + 5 nodes | GREEN  | 5195a8d  | WORDS: 585 (median 385)
-20260620-01    | SELF-ASSEMBLY| QIE v63 — P74-P76 + Arch23 + Job16 + dep map 114+ + /index /pattern + Confidence row | GREEN  | (post-commit) | WORDS: 620 (median 400)
+20260620-01    | SELF-ASSEMBLY| QIE v63 — P74-P76 + Arch23 + Job16 + dep map 114+ + /index /pattern + Confidence row | GREEN  | ef5c55f  | WORDS: 620 (median 400)
