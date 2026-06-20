@@ -1198,11 +1198,56 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const today = dayjs().startOf('day')
+          const eventDay = date ? dayjs(date).startOf('day') : null
+          const daysUntil = eventDay ? eventDay.diff(today, 'day') : null
+          const tMinusLabel =
+            daysUntil === null ? '' :
+            daysUntil < 0 ? 'PAST' :
+            daysUntil === 0 ? 'T-0 · TODAY' :
+            daysUntil === 1 ? 'T-1 · TOMORROW' :
+            `T-${daysUntil}D`
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex items-baseline gap-8 mb-4">
+                  <span className="uppercase tracking-widest">{entryType || 'ENTRY'}</span>
+                  {tMinusLabel && (
+                    <span className="opacity-40 tabular-nums">{tMinusLabel}</span>
+                  )}
+                </div>
+                {text && <div className="opacity-80 mb-4">{text}</div>}
+                {date && (
+                  <div className="opacity-30">{dayjs(date).format('dddd, MMMM D, YYYY')}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_alert') {
+          const alertType = log.metadata?.alertType as string | undefined
+          const entryType = log.metadata?.entryType as string | undefined
+          const entryText = log.metadata?.entryText as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const isPriority = entryType === 'task' || entryType === 'call'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                <div className="flex items-baseline gap-8 mb-4">
+                  {alertType && (
+                    <span className="uppercase tracking-widest tabular-nums">{alertType}</span>
+                  )}
+                  {entryType && (
+                    <span className="opacity-60 uppercase">{entryType}</span>
+                  )}
+                  {isPriority && (
+                    <span className="opacity-30 uppercase text-xs">PRIORITY</span>
+                  )}
+                </div>
+                {entryText && <div className="opacity-80 mb-4">{entryText}</div>}
+                {date && (
+                  <div className="opacity-30">{dayjs(date).format('dddd, MMMM D, YYYY')}</div>
+                )}
               </Block>
             </LogContainer>
           )

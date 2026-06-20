@@ -24,6 +24,7 @@ type CalendarEntry = {
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+const TYPE_SHORT: Record<EntryType, string> = { note: 'NOTE', task: 'TASK', call: 'CALL' }
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -48,6 +49,31 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
   return weeks
 }
 
+function simpleHash(s: string): string {
+  let h = 0
+  for (let i = 0; i < s.length; i++) {
+    h = (Math.imul(h, 31) + s.charCodeAt(i)) | 0
+  }
+  return (h >>> 0).toString(36)
+}
+
+function getAlertKey(date: string, text: string, alertType: string): string {
+  return `lot_cal_${date}_${simpleHash(text)}_${alertType}`
+}
+
+type TMinusResult = { label: string; urgency: string; daysUntil: number }
+
+function getTMinus(dateStr: string, now: Dayjs): TMinusResult {
+  const eventDay = dayjs(dateStr).startOf('day')
+  const today = now.startOf('day')
+  const daysUntil = eventDay.diff(today, 'day')
+
+  if (daysUntil < 0) return { label: 'PAST', urgency: '', daysUntil }
+  if (daysUntil === 0) return { label: 'T-0', urgency: '· TODAY', daysUntil: 0 }
+  if (daysUntil === 1) return { label: 'T-1', urgency: '· TOMORROW', daysUntil: 1 }
+  return { label: `T-${daysUntil}D`, urgency: '', daysUntil }
+}
+
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
@@ -59,6 +85,17 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [now, setNow] = React.useState(() => dayjs())
+
+  // Stable ref for createLog — safe to call inside intervals
+  const createLogRef = React.useRef(createLog)
+  React.useEffect(() => { createLogRef.current = createLog }, [createLog])
+
+  // Live tick: recompute T-minus labels every minute
+  React.useEffect(() => {
+    const tick = setInterval(() => setNow(dayjs()), 60_000)
+    return () => clearInterval(tick)
+  }, [])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -72,12 +109,11 @@ export function CalendarWidget() {
       .sort((a, b) => a.date.localeCompare(b.date))
   }, [logs])
 
+  // now-reactive so crossing midnight updates the list without reload
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
-    return entries
-      .filter(e => e.date >= today)
-      .slice(0, 10)
-  }, [entries])
+    const today = now.format('YYYY-MM-DD')
+    return entries.filter(e => e.date >= today).slice(0, 10)
+  }, [entries, now])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,7 +126,44 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
+  // Alert engine: fire calendar_alert logs at T-0 and T-1 thresholds.
+  // localStorage gates each alert to fire exactly once per entry per threshold.
+  React.useEffect(() => {
+    function checkAlerts() {
+      const todayDjs = dayjs().startOf('day')
+
+      upcomingEntries.forEach(entry => {
+        const eventDay = dayjs(entry.date).startOf('day')
+        const daysUntil = eventDay.diff(todayDjs, 'day')
+
+        const fire = (alertType: string, label: string, dateLabel: string) => {
+          const key = getAlertKey(entry.date, entry.text, alertType)
+          if (localStorage.getItem(key)) return
+          localStorage.setItem(key, '1')
+          createLogRef.current({
+            text: `[ALERT] ${label} · ${entry.type.toUpperCase()}: ${entry.text} — ${dateLabel}`,
+            event: 'calendar_alert',
+            metadata: {
+              alertType,
+              date: entry.date,
+              entryType: entry.type,
+              entryText: entry.text,
+              daysUntil,
+            },
+          })
+        }
+
+        if (daysUntil === 0) fire('T-0', 'T-0', 'today')
+        if (daysUntil === 1) fire('T-1', 'T-1', 'tomorrow')
+      })
+    }
+
+    checkAlerts()
+    const interval = setInterval(checkAlerts, 5 * 60_000)
+    return () => clearInterval(interval)
+  }, [upcomingEntries])
+
+  const today = now.format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
@@ -98,18 +171,13 @@ export function CalendarWidget() {
 
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
-    if (selectedDate === key) {
-      setSelectedDate(null)
-    } else {
-      setSelectedDate(key)
-    }
+    setSelectedDate(selectedDate === key ? null : key)
   }
 
   const handleAddEntry = () => {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
-
     createLog({
       text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
       event: 'calendar_entry',
@@ -130,9 +198,7 @@ export function CalendarWidget() {
   }
 
   const handleToggleCalendar = () => {
-    if (!isCalendarOpen) {
-      setViewMonth(dayjs())
-    }
+    if (!isCalendarOpen) setViewMonth(dayjs())
     setIsCalendarOpen(!isCalendarOpen)
   }
 
@@ -140,9 +206,7 @@ export function CalendarWidget() {
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
         <div className="mb-16">
-          <Button onClick={handleToggleCalendar}>
-            Add date
-          </Button>
+          <Button onClick={handleToggleCalendar}>Add date</Button>
         </div>
 
         {isCalendarOpen && (
@@ -248,8 +312,11 @@ export function CalendarWidget() {
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
                 {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                  <div key={i} className="flex gap-8 items-baseline mb-1">
+                    <span className="text-acc/30 uppercase text-xs min-w-[2.5em]">
+                      {TYPE_SHORT[e.type]}
+                    </span>
+                    <span className="text-acc/80">{e.text}</span>
                   </div>
                 ))}
               </div>
@@ -258,17 +325,38 @@ export function CalendarWidget() {
         )}
 
         {upcomingEntries.length > 0 && (
-          <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+          <div className="space-y-2">
+            {upcomingEntries.map((entry, i) => {
+              const tm = getTMinus(entry.date, now)
+              const isToday = tm.daysUntil === 0
+              return (
+                <div key={i} className="flex items-baseline gap-8">
+                  <span className={cn(
+                    'tabular-nums whitespace-nowrap min-w-[3em]',
+                    isToday ? 'text-acc' : 'text-acc/40',
+                  )}>
+                    {tm.label}
+                  </span>
+                  {tm.urgency && (
+                    <span className="text-acc/30 whitespace-nowrap text-xs">{tm.urgency}</span>
+                  )}
+                  <span className={cn(
+                    'uppercase text-xs whitespace-nowrap min-w-[2.5em]',
+                    entry.type === 'task' ? 'text-acc/60' :
+                    entry.type === 'call' ? 'text-acc/50' :
+                    'text-acc/30',
+                  )}>
+                    {TYPE_SHORT[entry.type]}
+                  </span>
+                  <span className={cn(
+                    'flex-1',
+                    isToday ? 'text-acc' : 'text-acc/80',
+                  )}>
+                    {entry.text}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 
