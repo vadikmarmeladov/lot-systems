@@ -11,6 +11,7 @@ import { Block, Button } from '#client/components/ui'
 import { useCreateEmotionalCheckIn, useEmotionalCheckIns, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import { recordSignal } from '#client/stores/intentionEngine'
+import { runCheckInEasterEggs } from '#client/utils/easter-eggs'
 
 type CheckInView = 'prompt' | 'history' | 'patterns' | 'graph'
 
@@ -137,6 +138,7 @@ export function EmotionalCheckIn() {
     setTimeout(() => {
       recordSignal('mood', emotionalState, { checkInType, hour })
     }, 0)
+    setTimeout(() => { try { runCheckInEasterEggs() } catch {} }, 0)
   }
 
   if (!shouldRender || !isDisplayed) return null
