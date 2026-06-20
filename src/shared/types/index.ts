@@ -194,6 +194,26 @@ export type DirectMessage = {
   updatedAt: Date;
 };
 
+// LOT Mail Types — peer-to-peer messaging; compose via /email to [name] in Log
+export type LotMail = {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  body: string;
+  isRead: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type PublicLotMail = {
+  id: string;
+  senderId: string;
+  senderName: string;
+  body: string;
+  isRead: boolean;
+  createdAt: Date;
+};
+
 // Chat Message Types
 export type ChatMessage = {
   id: string;

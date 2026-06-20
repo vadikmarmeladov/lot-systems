@@ -3898,6 +3898,118 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   })
 
   // ============================================================================
+  // LOT MAIL API — /email to [name] in Log → peer-to-peer LOT Community mail
+  // ============================================================================
+
+  // GET /api/lot-mail/inbox — recent mails for the current user
+  fastify.get('/lot-mail/inbox', async (req: FastifyRequest, reply) => {
+    try {
+      const mails = await fastify.models.LotMail.findAll({
+        where: { receiverId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 30,
+      })
+
+      const senderIds = [...new Set(mails.map((m) => m.senderId))]
+      const senders = await fastify.models.User.findAll({
+        where: { id: senderIds as any },
+        attributes: ['id', 'firstName', 'lastName'],
+      })
+      const senderMap = new Map(senders.map((u) => [u.id, u]))
+
+      return reply.send(
+        mails.map((m) => {
+          const sender = senderMap.get(m.senderId)
+          const senderName = sender
+            ? `${sender.firstName || ''} ${sender.lastName || ''}`.trim() || 'Unknown'
+            : 'Unknown'
+          return {
+            id: m.id,
+            senderId: m.senderId,
+            senderName,
+            body: m.body,
+            isRead: m.isRead,
+            createdAt: m.createdAt,
+          }
+        })
+      )
+    } catch (error) {
+      console.error('Error fetching lot-mail inbox:', error)
+      return reply.status(500).send({ error: 'Failed to fetch inbox' })
+    }
+  })
+
+  // POST /api/lot-mail — send a LOT Mail
+  fastify.post('/lot-mail', async (req: FastifyRequest<{
+    Body: { recipientName: string; body: string }
+  }>, reply) => {
+    try {
+      const { recipientName, body } = req.body
+      if (!recipientName?.trim() || !body?.trim()) {
+        return reply.status(400).send({ error: 'Recipient name and body are required' })
+      }
+
+      // Resolve recipient by first name (case-insensitive)
+      const { Op, fn, col, where: sequelizeWhere } = await import('sequelize')
+      const recipient = await fastify.models.User.findOne({
+        where: sequelizeWhere(fn('LOWER', col('firstName')), recipientName.trim().toLowerCase()),
+      })
+
+      if (!recipient) {
+        return reply.status(404).send({ error: `No user found with name "${recipientName}"` })
+      }
+
+      if (recipient.id === req.user.id) {
+        return reply.status(400).send({ error: 'Cannot send mail to yourself' })
+      }
+
+      const mail = await fastify.models.LotMail.create({
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        body: body.trim().slice(0, 3000),
+      })
+
+      const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'Unknown'
+
+      sync.emit('lot_mail', {
+        id: mail.id,
+        senderId: req.user.id,
+        senderName,
+        receiverId: recipient.id,
+        body: mail.body,
+        isRead: false,
+        createdAt: mail.createdAt,
+      })
+
+      return reply.send({
+        id: mail.id,
+        status: 'sent',
+        recipientName: `${recipient.firstName || ''} ${recipient.lastName || ''}`.trim() || recipientName,
+      })
+    } catch (error) {
+      console.error('Error sending lot-mail:', error)
+      return reply.status(500).send({ error: 'Failed to send mail' })
+    }
+  })
+
+  // PUT /api/lot-mail/:id/read — mark a mail as read
+  fastify.put('/lot-mail/:id/read', async (req: FastifyRequest<{
+    Params: { id: string }
+  }>, reply) => {
+    try {
+      const mail = await fastify.models.LotMail.findOne({
+        where: { id: req.params.id, receiverId: req.user.id },
+      })
+      if (!mail) return reply.status(404).send({ error: 'Mail not found' })
+      await mail.set({ isRead: true }).save()
+      return reply.send({ ok: true })
+    } catch (error) {
+      console.error('Error marking mail read:', error)
+      return reply.status(500).send({ error: 'Failed to mark as read' })
+    }
+  })
+
+  // ============================================================================
   // STATS API - Real-time metrics and community insights
   // ============================================================================
 

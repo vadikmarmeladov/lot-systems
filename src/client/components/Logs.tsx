@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useSendLotMail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -1508,6 +1508,20 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [mailResult, setMailResult] = React.useState<string | null>(null)
+  const [mailLoading, setMailLoading] = React.useState(false)
+  const mailSentRef = React.useRef(false)
+  const { mutate: sendLotMail } = useSendLotMail({
+    onSuccess: (data) => {
+      setMailResult(`SENT  →  ${data.recipientName.toUpperCase()}`)
+      setMailLoading(false)
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.error || 'TRANSMISSION FAILED'
+      setMailResult(`ERROR  ${msg.toUpperCase()}`)
+      setMailLoading(false)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1860,6 +1874,22 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'lot-mail') {
+        if (!mailSentRef.current && !mailLoading) {
+          const emailMatch = value.match(/\/email\s+to\s+([A-Za-z]+)[.,]?\s*([\s\S]+)/i)
+          if (emailMatch) {
+            const recipientName = emailMatch[1].trim()
+            const body = emailMatch[2].trim()
+            if (recipientName && body) {
+              mailSentRef.current = true
+              setMailLoading(true)
+              setMailResult(null)
+              sendLotMail({ recipientName, body })
+            } else {
+              setMailResult(`TO  ${(emailMatch[1] || '?').toUpperCase()}  — ADD BODY TO SEND`)
+            }
+          }
+        }
       }
     }
   }, [value])
@@ -2060,6 +2090,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(mailLoading || mailResult) && (
+          <div className="mt-8">
+            <Block label="LOT MAIL:" blockView>
+              {mailLoading && !mailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Transmitting...</div>
+              )}
+              {mailResult && (
+                <div className="opacity-60 font-mono whitespace-pre">{mailResult}</div>
+              )}
             </Block>
           </div>
         )}
