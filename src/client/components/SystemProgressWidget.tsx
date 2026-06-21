@@ -870,6 +870,22 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v66 entry appended · USERSHIP_TRANSMISSION updated to v66.',
     ],
   },
+  {
+    date: '2026-06-21',
+    session: 'Self-Assembly Session — v67 / P80 Signal Momentum Lock · Archetype 26 Momentum Architect · Job 19',
+    assembled: [
+      'intentionEngine.ts: P80 signal-momentum-lock — 5+ of last 7 days each had 3+ unique signal sources. Sustained multi-dimensional engagement. Rarest sustained pattern. Confidence 0.75–0.92. suggestedWidget: systemProgress · suggestedTiming: passive.',
+      'intentionEngine.ts: Archetype 26 Momentum Architect — moderate/high energy · intentions+journal+memory+planner+selfcare dominant · signal-momentum-lock+intention-velocity+signal-coherence-window. Directive: Sustained signal momentum confirmed. Five-day multi-source streak active. Every dimension engaged. Architecture in motion — do not interrupt.',
+      'intentionEngine.ts: recordSignalMomentum(qualifyingDays, streakSources) signal helper added.',
+      'Logs.tsx: MOM: handler added (signal_momentum: MOMENTUM LOCK · DAYS 7D: n/7 · SRC: n · Architecture in motion. Every dimension engaged.). Handler count: 79+.',
+      'scheduled-jobs.ts: Job 19 daily-signal-momentum-check at 20:00 UTC. Scans all logs for last 7 days per user. Counts days with 3+ unique signal sources. Writes signal_momentum event for users with 5+ qualifying days. 19 jobs now active.',
+      'Widget dependency scan completed: 120+ nodes verified active. Log-based dependencies: 79+ handlers, 15 sources, 38 displayable events.',
+      'Physiological cohort audit: 26 archetypes active, Momentum Architect (Arch26) added. All archetypes surface through QuantumEngineWidgets cohort view and SystemProgressWidget.',
+      'About.tsx: Field Manual v67. Counters: 80 patterns · 26 archetypes · 19 background jobs · 79+ handlers.',
+      'Status: 80 patterns. 26 archetypes. 120+ dep nodes. 79+ log handlers. 19 background jobs. Signal momentum architecture complete.',
+      'SESSION_REPORTS: v67 entry appended · USERSHIP_TRANSMISSION updated to v67.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -909,12 +925,12 @@ const ASSEMBLY_TRANSMISSIONS: {
 export const USERSHIP_TRANSMISSION = {
   date: '2026-06-21',
   message: [
-    'ASSEMBLY RUN — 2026-06-21 · LOT-SR-20260621-01',
-    'P79 evening-coherence-close: day opened with intention/planner signal. Evening reflection captured in 18:00–23:00 window. Arc complete. Conf 0.70–0.88.',
-    'Archetype 25 Diurnal Operator: any energy · intentions+planner+journal+memory dominant · morning-coherence-launch + evening-coherence-close. Full diurnal arc confirmed.',
-    'Job 18 deployed: daily-evening-coherence-close · 22:00 UTC · EVE: per user who opened with intention and closed in reflection. Mirrors Job 17.',
-    'Diurnal arc: morning launch (P76) → evening close (P79). The day now has a beginning and an end. Both named. Both tracked.',
-    'Dep map: 120+ nodes. 79 patterns active. 78+ log handlers. 18 background jobs. 66 self-assembly phases.',
+    'ASSEMBLY RUN — 2026-06-21 · LOT-SR-20260621-02',
+    'P80 signal-momentum-lock: 5+ of last 7 days each with 3+ unique signal sources. Rarest sustained pattern. Conf 0.75–0.92. Not a spike — a lock.',
+    'Archetype 26 Momentum Architect: moderate/high energy · 5 dominant sources · signal-momentum-lock + intention-velocity + signal-coherence-window. Every dimension engaged. Architecture in motion — do not interrupt.',
+    'Job 19 deployed: daily-signal-momentum-check · 20:00 UTC · MOM: per user with 5+ qualifying days of 3+ sources. Sustained engagement now tracked.',
+    'Dep map: 120+ nodes. 80 patterns active. 79+ log handlers. 19 background jobs. 26 archetypes.',
+    'Signal momentum architecture: P76 (morning launch) → P79 (evening close) → P80 (sustained lock). The complete engagement loop is named.',
     'DEPLOYED.',
   ],
 }

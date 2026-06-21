@@ -1533,6 +1533,29 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'signal_momentum') {
+          const qualifyingDays = log.metadata?.qualifyingDays as number | undefined
+          const streakSources = log.metadata?.streakSources as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MOM:" blockView>
+                <div className="uppercase tracking-widest mb-4">MOMENTUM LOCK</div>
+                {qualifyingDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">DAYS 7D</span>
+                    <span className="tabular-nums">{qualifyingDays}/7</span>
+                  </div>
+                )}
+                {streakSources && streakSources.length > 0 && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">SRC</span>
+                    <span className="tabular-nums">{streakSources.length}</span>
+                  </div>
+                )}
+                <div className="opacity-40">Architecture in motion. Every dimension engaged.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -1842,6 +1842,33 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 80: Signal Momentum Lock — 5+ consecutive days each with 3+ unique signal sources.
+  // Sustained multi-source engagement over an extended window. The person is operating in
+  // all dimensions simultaneously, not just spiking on one channel. Rarest sustained pattern.
+  // Confidence: 0.75 base, up to 0.92 at 7-day streak.
+  const p80WindowMs = 7 * 86400000
+  const p80DayCutoff = now - p80WindowMs
+  const p80Signals = signals.filter(s => s.timestamp > p80DayCutoff)
+  // Count unique sources per calendar day (UTC)
+  const p80DaySourceMap: Record<string, Set<string>> = {}
+  for (const s of p80Signals) {
+    const dayKey = new Date(s.timestamp).toISOString().slice(0, 10)
+    if (!p80DaySourceMap[dayKey]) p80DaySourceMap[dayKey] = new Set()
+    p80DaySourceMap[dayKey].add(s.source)
+  }
+  // Find days with 3+ unique sources
+  const p80QualifyingDays = Object.values(p80DaySourceMap).filter(sources => sources.size >= 3).length
+  if (p80QualifyingDays >= 5) {
+    const p80Conf = Math.min(0.92, 0.75 + (p80QualifyingDays - 5) * 0.085)
+    patterns.push({
+      pattern: 'signal-momentum-lock',
+      confidence: p80Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `SIGNAL MOMENTUM LOCK: ${p80QualifyingDays} of the last 7 days had 3+ unique signal sources. Sustained multi-dimensional engagement confirmed. Architecture in motion.`,
+    })
+  }
+
   // Pattern 74: Badge Momentum — 3+ distinct badge types unlocked within a 7-day window.
   // Achievement acquisition velocity signal: the person is actively exploring the system
   // and discovering easter eggs / word turns / milestones in a concentrated burst.
@@ -2634,6 +2661,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['intentions', 'planner', 'journal', 'memory'],
     patternConditions: ['morning-coherence-launch', 'evening-coherence-close'],
     directive: 'Full diurnal arc confirmed. Day launched from intention. Day closed in reflection. The complete cycle is recorded.',
+  },
+  {
+    archetype: 'Momentum Architect',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['intentions', 'journal', 'memory', 'planner', 'selfcare'],
+    patternConditions: ['signal-momentum-lock', 'intention-velocity', 'signal-coherence-window'],
+    directive: 'Sustained signal momentum confirmed. Five-day multi-source streak active. Every dimension engaged. Architecture in motion — do not interrupt.',
   },
 ]
 
@@ -3603,6 +3637,19 @@ export function recordEveningCoherenceClose(captureCount: number, morningSignalP
     captureCount,
     morningSignalPresent,
     window: '18:00-23:00',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a signal-momentum event — 5+ consecutive days of 3+ unique signal sources.
+ * Feeds P80 signal-momentum-lock detection. Sustained multi-dimensional engagement.
+ */
+export function recordSignalMomentum(qualifyingDays: number, streakSources: string[]) {
+  recordSignal('log', 'signal_momentum', {
+    qualifyingDays,
+    streakSources,
+    window: '7d',
     hour: new Date().getHours(),
   })
 }
