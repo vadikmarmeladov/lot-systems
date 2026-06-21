@@ -51,4 +51,4 @@ ID             | CLASS        | SUMMARY                                         
 20260619-01    | SELF-ASSEMBLY| QIE v65 — P76-P78 + Arch24 Signal Initiator + Job17 morning-launch + dep map 120+ + calc source + PRAY:/MCL:/VAULT:/SURGE: handlers | GREEN  | 05adb33  | WORDS: 412 (median 390)
 20260620-01    | SELF-ASSEMBLY| LOT-WIKI-v60 — complete operator reference rebuild at FM v65 · P1–P78 registry · 24 archetypes · 17 jobs | GREEN  | 4125781  | WORDS: 969 (median 412)
 20260621-01    | SELF-ASSEMBLY| QIE v66 — P79 evening-coherence-close · Arch25 Diurnal Operator · Job18 22:00 UTC · LOT-WIKI-v61 · EVE: handler | GREEN  | 1156cb2  | WORDS: 495 (median 425)
-20260621-02    | SELF-ASSEMBLY| QIE v67 — P80 signal-momentum-lock · Arch26 Momentum Architect · Job19 20:00 UTC · MOM: handler · LOT-WIKI-v62 · 5 tokens minted | GREEN  | (pending)  | WORDS: 552 (median 535)
+20260621-02    | SELF-ASSEMBLY| QIE v67 — P80 signal-momentum-lock · Arch26 Momentum Architect · Job19 20:00 UTC · MOM: handler · LOT-WIKI-v62 · 5 tokens minted | GREEN  | 015bcbd  | WORDS: 552 (median 535)
