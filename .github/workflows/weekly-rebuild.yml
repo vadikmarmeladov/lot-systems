@@ -23,6 +23,15 @@ jobs:
     timeout-minutes: 15
 
     steps:
+      - name: Check secret exists
+        run: |
+          if [ -z "${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}" ]; then
+            echo "::error::DIGITALOCEAN_ACCESS_TOKEN secret is missing."
+            echo "::error::Add it at: Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+          echo "Secret present. Proceeding."
+
       - name: Install doctl
         uses: digitalocean/action-doctl@v2
         with:
