@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev K
+# LOT-DOCTRINE  rev L
 
 ## Render Isolation
 
@@ -124,6 +124,20 @@ updates on every audit; feature rows update when a new iteration supersedes.
 (SR-20260605-01: MANIFEST created, 115 branches cataloged, 8 BEST identified.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
 SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
+
+## BASICS-TAB / OPEN-TAB Pattern (LOT-FM-001)
+
+Physical subscription surfaces follow Issue/Ledger doctrine: render the full
+manifest before any subscription commitment. The ledger is the marketing —
+no promotional layer between the operator and the itemized load. Price,
+cadence, COGS ceiling, and margin floor are stated in the UI, not hidden.
+New tabs that represent real-world products start with a read-only OPEN TAB
+(M1), add the UPGRADE state machine in M2, and wire fulfillment in M3.
+Each month is a demonstrable, shippable increment. The terminal aesthetic
+(monospace bold, white/black inversion, 2px rules, no radius, no icons) is
+the standard for any non-digital product surface in the LOT system.
+(SR-20260621-01: BASICS M1 OPEN TAB wired — 23-item ledger, doctrine block,
+status line, price line. Router /basics, TabPanel, nav button all activated.)
 
 ## Query Batching
 

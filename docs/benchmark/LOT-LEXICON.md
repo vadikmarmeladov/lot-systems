@@ -35,4 +35,7 @@ SIGNAL ARCHITECT   Physiological Archetype 19 — building phase; signal diversi
 COCKPIT-RULE       Log body = instrument readings only; label names the event; no narration        A  20260611
 DENSITY-TIER       5-level visual progression: breathable/comfortable/compact/dense/instrument via data-density  A  20260612
 QUERY-BATCHING     Replace N+1 sequential DB queries with Promise.all + batched IN-clause lookups              A  20260614
+BASICS-TAB         Ration subscription surface: 23-item ledger, doctrine, OPEN TAB, UPGRADE path (LOT-FM-001) A  20260621
+OPEN-TAB           Public read-only surface — manifest visible, terms readable, before subscription commitment A  20260621
+ON-STRENGTH        Subscriber state: BASIC ration active, billing running, monthly box shipping               A  20260621
 ```
