@@ -114,6 +114,98 @@ export function checkLotHour(): BadgeType | null {
   return null
 }
 
+// ── Time v5 — Mirror & Math ──────────────────────────────────────────────────
+
+/** Award Digital Symmetry badge if current time is 10:10 */
+export function checkDigitalSymmetry(): BadgeType | null {
+  if (hasBadge('digital_symmetry')) return null
+  const now = new Date()
+  if (now.getHours() === 10 && now.getMinutes() === 10) {
+    awardBadge('digital_symmetry')
+    return 'digital_symmetry'
+  }
+  return null
+}
+
+/** Award Sequential Boot badge if current time is 01:23 */
+export function checkSeqBoot(): BadgeType | null {
+  if (hasBadge('seq_boot')) return null
+  const now = new Date()
+  if (now.getHours() === 1 && now.getMinutes() === 23) {
+    awardBadge('seq_boot')
+    return 'seq_boot'
+  }
+  return null
+}
+
+/** Award Palindrome Time badge if current time is 21:12 */
+export function checkPalindromeTime(): BadgeType | null {
+  if (hasBadge('palindrome_time')) return null
+  const now = new Date()
+  if (now.getHours() === 21 && now.getMinutes() === 12) {
+    awardBadge('palindrome_time')
+    return 'palindrome_time'
+  }
+  return null
+}
+
+/** Award Tau Signal badge if current time is 06:28 (τ = 2π ≈ 6.28) */
+export function checkTauSignal(): BadgeType | null {
+  if (hasBadge('tau_signal')) return null
+  const now = new Date()
+  if (now.getHours() === 6 && now.getMinutes() === 28) {
+    awardBadge('tau_signal')
+    return 'tau_signal'
+  }
+  return null
+}
+
+// ── Time v6 — Infinite Loop ───────────────────────────────────────────────────
+
+/** Award Nine Lives badge if current time is 09:09 */
+export function checkNineLives(): BadgeType | null {
+  if (hasBadge('nine_lives')) return null
+  const now = new Date()
+  if (now.getHours() === 9 && now.getMinutes() === 9) {
+    awardBadge('nine_lives')
+    return 'nine_lives'
+  }
+  return null
+}
+
+/** Award Hex Hour badge if current time is 16:16 (0x10:0x10) */
+export function checkHexHour(): BadgeType | null {
+  if (hasBadge('hex_hour')) return null
+  const now = new Date()
+  if (now.getHours() === 16 && now.getMinutes() === 16) {
+    awardBadge('hex_hour')
+    return 'hex_hour'
+  }
+  return null
+}
+
+/** Award Final Frame badge if current time is 23:59 */
+export function checkFinalFrame(): BadgeType | null {
+  if (hasBadge('final_frame')) return null
+  const now = new Date()
+  if (now.getHours() === 23 && now.getMinutes() === 59) {
+    awardBadge('final_frame')
+    return 'final_frame'
+  }
+  return null
+}
+
+/** Award Year Signal badge if current time is 20:26 (LOT founding year) */
+export function checkYearSignal(): BadgeType | null {
+  if (hasBadge('year_signal')) return null
+  const now = new Date()
+  if (now.getHours() === 20 && now.getMinutes() === 26) {
+    awardBadge('year_signal')
+    return 'year_signal'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
@@ -123,6 +215,8 @@ export function checkTimeEasterEggs(): BadgeType[] {
   const checks = [
     checkNightOwl, checkEarlyBird, checkMirrorHour,
     checkPiHour, checkErrorHour, checkSequenceTime, checkLotHour,
+    checkDigitalSymmetry, checkSeqBoot, checkPalindromeTime, checkTauSignal,
+    checkNineLives, checkHexHour, checkFinalFrame, checkYearSignal,
   ]
   for (const check of checks) {
     const result = check()
@@ -181,6 +275,46 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('palindrome_day') && isPalindromeDate(dateStr)) {
     awardBadge('palindrome_day')
     awarded.push('palindrome_day')
+  }
+
+  // ── Calendar v4 — Nerd & Cosmic ────────────────────────────────────────────
+
+  // Signal Wars: May 4 — Star Wars Day
+  if (!hasBadge('signal_wars') && month === 5 && day === 4) {
+    awardBadge('signal_wars')
+    awarded.push('signal_wars')
+  }
+
+  // Programmer's Day: Sep 12 or 13 (day 256 in non-leap/leap years)
+  if (!hasBadge('prog_day') && month === 9 && (day === 12 || day === 13)) {
+    awardBadge('prog_day')
+    awarded.push('prog_day')
+  }
+
+  // Ada Protocol: December 9 — Ada Lovelace Day
+  if (!hasBadge('ada_protocol') && month === 12 && day === 9) {
+    awardBadge('ada_protocol')
+    awarded.push('ada_protocol')
+  }
+
+  // ── Calendar v5 ────────────────────────────────────────────────────────────
+
+  // Groundhog Loop: February 2
+  if (!hasBadge('groundhog_loop') && month === 2 && day === 2) {
+    awardBadge('groundhog_loop')
+    awarded.push('groundhog_loop')
+  }
+
+  // Binary Day: October 10
+  if (!hasBadge('binary_day') && month === 10 && day === 10) {
+    awardBadge('binary_day')
+    awarded.push('binary_day')
+  }
+
+  // Fibonacci Day: November 23 (1,1,2,3)
+  if (!hasBadge('fibonacci_day') && month === 11 && day === 23) {
+    awardBadge('fibonacci_day')
+    awarded.push('fibonacci_day')
   }
 
   return awarded
@@ -351,6 +485,144 @@ export function checkSpeedrun(activityTimestamps: string[]): BadgeType | null {
   return null
 }
 
+// ── Behavioral v4 — Deep Archive ─────────────────────────────────────────────
+
+/**
+ * Check Night Scribe badge: journal entry submitted after 23:30.
+ * Call this when a journal entry is saved.
+ */
+export function checkNightScribe(): BadgeType | null {
+  if (hasBadge('night_scribe')) return null
+  const now = new Date()
+  // After 23:30 or before 00:30 (deep night window)
+  if (now.getHours() === 23 && now.getMinutes() >= 30) {
+    awardBadge('night_scribe')
+    return 'night_scribe'
+  }
+  return null
+}
+
+/**
+ * Check Epic Transmission badge: memory answer ≥1,000 characters.
+ * Call this when a memory answer is submitted.
+ */
+export function checkEpicTransmission(answerText: string): BadgeType | null {
+  if (hasBadge('epic_transmission')) return null
+  if (answerText.length >= 1000) {
+    awardBadge('epic_transmission')
+    return 'epic_transmission'
+  }
+  return null
+}
+
+/**
+ * Check Analog Reboot badge: return after a 180+ day gap.
+ * Distinct from Ghost Protocol (7d) and Quantum Leap (30d).
+ */
+export function checkAnalogReboot(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('analog_reboot')) return null
+
+  try {
+    const lastActivity = localStorage.getItem('last_activity_date')
+    if (!lastActivity) return null
+
+    const daysSince = Math.floor(
+      (Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24)
+    )
+
+    if (daysSince >= 180) {
+      awardBadge('analog_reboot')
+      return 'analog_reboot'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Behavioral v5 ────────────────────────────────────────────────────────────
+
+/**
+ * Check Deep Scribe badge: journal entry ≥500 characters.
+ * Call this when a journal entry is saved.
+ */
+export function checkDeepScribe(journalText: string): BadgeType | null {
+  if (hasBadge('deep_scribe')) return null
+  if (journalText.length >= 500) {
+    awardBadge('deep_scribe')
+    return 'deep_scribe'
+  }
+  return null
+}
+
+/**
+ * Check Phoenix Streak badge: user rebuilt a streak after it broke.
+ * Call this when a streak is restored (previousStreak was 0, currentStreak > 0 again).
+ * streakBroke: was the streak at 0 recently (from stats)
+ */
+export function checkPhoenixStreak(previousStreakBroke: boolean, currentStreak: number): BadgeType | null {
+  if (hasBadge('phoenix_streak')) return null
+  if (previousStreakBroke && currentStreak >= 3) {
+    awardBadge('phoenix_streak')
+    return 'phoenix_streak'
+  }
+  return null
+}
+
+/**
+ * Check Time Anchor badge: check-in at the same clock hour 14 consecutive days.
+ * Stores hourly check-in history in localStorage.
+ * Call this on every check-in.
+ */
+export function checkTimeAnchor(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('time_anchor')) return null
+
+  try {
+    const now = new Date()
+    const hour = now.getHours()
+    const todayStr = now.toISOString().slice(0, 10)
+    const key = 'time_anchor_log'
+    const stored = localStorage.getItem(key)
+    const log: Array<{ date: string; hour: number }> = stored ? JSON.parse(stored) : []
+
+    // Only log once per day
+    const todayEntry = log.find(e => e.date === todayStr)
+    if (!todayEntry) {
+      log.push({ date: todayStr, hour })
+      // Keep only last 20 days
+      const recent = log.slice(-20)
+      localStorage.setItem(key, JSON.stringify(recent))
+
+      // Count consecutive days at the same hour
+      if (recent.length >= 14) {
+        const sorted = [...recent].sort((a, b) => a.date.localeCompare(b.date))
+        let consecutive = 1
+        const anchorHour = sorted[sorted.length - 1].hour
+        for (let i = sorted.length - 1; i > 0; i--) {
+          const prev = sorted[i - 1]
+          const curr = sorted[i]
+          const dayDiff = Math.round(
+            (new Date(curr.date).getTime() - new Date(prev.date).getTime())
+            / (1000 * 60 * 60 * 24)
+          )
+          if (dayDiff === 1 && prev.hour === anchorHour) {
+            consecutive++
+            if (consecutive >= 14) {
+              awardBadge('time_anchor')
+              return 'time_anchor'
+            }
+          } else {
+            break
+          }
+        }
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
 // ── Word turn detection ───────────────────────────────────────────────────────
 
 /** Word turn map: phrase patterns → badge IDs */
@@ -387,6 +659,37 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\b(now|moment|present)\b/i,         badge: 'present_moment' },
   { patterns: /\b(universe|cosmos|cosmic)\b/i,     badge: 'cosmic_scale' },
   { patterns: /\b(alive|living|life)\b/i,          badge: 'vital_signal' },
+  // ── v5 — Signal Codex ────────────────────────────────────────────────────
+  { patterns: /\bsolitude\b/i,                      badge: 'solitude_mode' },
+  { patterns: /\bwonder(ed|ing|s)?\b/i,             badge: 'wonder_protocol' },
+  { patterns: /\bphoenix\b/i,                       badge: 'phoenix_sequence' },
+  { patterns: /\b(align|aligned|aligning|alignment)\b/i, badge: 'alignment_lock' },
+  { patterns: /\b(witness|witnessed|witnessing)\b/i,badge: 'witness_log' },
+  { patterns: /\b(orbit|orbits|orbiting|orbital)\b/i, badge: 'orbital_pattern' },
+  { patterns: /\b(forge|forged|forging)\b/i,        badge: 'forge_protocol' },
+  { patterns: /\bmind\b/i,                           badge: 'neuro_link' },
+  { patterns: /\b(light|lights|lit)\b/i,             badge: 'photon_signal' },
+  { patterns: /\b(energy|energized|energetic)\b/i,  badge: 'field_charge' },
+  { patterns: /\b(voyage|voyaging)\b/i,              badge: 'voyage_mode' },
+  { patterns: /\bgravity\b/i,                        badge: 'gravity_lock' },
+  // ── v6 — The Becoming Lexicon ────────────────────────────────────────────
+  { patterns: /\b(surrender|surrendered|surrendering)\b/i, badge: 'surrender_signal' },
+  { patterns: /\b(restore|restored|restoring|restoration)\b/i, badge: 'restore_protocol' },
+  { patterns: /\b(anchor|anchored|anchoring)\b/i,   badge: 'anchor_lock' },
+  { patterns: /\bthreshold\b/i,                      badge: 'threshold_gate' },
+  { patterns: /\b(emerge|emerged|emerging|emergence)\b/i, badge: 'emergence_sequence' },
+  { patterns: /\b(exhale|exhaled|exhaling)\b/i,      badge: 'exhale_wave' },
+  { patterns: /\b(clear|cleared|clearing|clarity)\b/i, badge: 'clear_field' },
+  { patterns: /\b(rise|risen|rising|arose)\b/i,      badge: 'rise_signal' },
+  { patterns: /\b(presence|present)\b/i,             badge: 'presence_core' },
+  { patterns: /\bbold\b/i,                           badge: 'bold_protocol' },
+  { patterns: /\b(trust|trusted|trusting)\b/i,       badge: 'trust_lock' },
+  { patterns: /\b(shift|shifted|shifting)\b/i,       badge: 'shift_sequence' },
+  // ── Secret Boss word triggers ─────────────────────────────────────────────
+  { patterns: /\bi am lot\b/i,                       badge: 'i_am_lot' },
+  { patterns: /\bmalibu\b/i,                         badge: 'malibu' },
+  { patterns: /\bkuzya\b/i,                          badge: 'the_cat_knows' },
+  { patterns: /\b0451\b/,                            badge: 'key_code' },
 ]
 
 /**
@@ -498,11 +801,11 @@ export function runCheckInEasterEggs(
 ): BadgeType[] {
   const awarded: BadgeType[] = []
 
-  // Time-based (v1 + v2)
+  // Time-based (v1 + v2 + v5 + v6)
   const timeResults = checkTimeEasterEggs()
   awarded.push(...timeResults)
 
-  // Calendar-based
+  // Calendar-based (v1 + v4 + v5)
   const calResults = checkCalendarEasterEggs()
   awarded.push(...calResults)
 
@@ -515,6 +818,10 @@ export function runCheckInEasterEggs(
 
   const silent = checkSilentHour()
   if (silent) awarded.push(silent)
+
+  // Behavioral v4: analog reboot (180+ day gap)
+  const analogReboot = checkAnalogReboot()
+  if (analogReboot) awarded.push(analogReboot)
 
   const friday = checkFridayRitual()
   if (friday) awarded.push(friday)
@@ -529,8 +836,58 @@ export function runCheckInEasterEggs(
     if (speedrun) awarded.push(speedrun)
   }
 
+  // Behavioral v5: time anchor (same hour 14 consecutive days)
+  const timeAnchor = checkTimeAnchor()
+  if (timeAnchor) awarded.push(timeAnchor)
+
   // Record activity after all checks (so gap detection works next time)
   recordActivity()
+
+  return awarded
+}
+
+/**
+ * Run journal-submit easter egg checks.
+ * Call this when a journal entry is saved, passing the entry text.
+ * Returns all newly awarded badge IDs.
+ */
+export function runJournalEasterEggs(journalText: string): BadgeType[] {
+  const awarded: BadgeType[] = []
+
+  // Behavioral v4: night scribe
+  const nightScribe = checkNightScribe()
+  if (nightScribe) awarded.push(nightScribe)
+
+  // Behavioral v5: deep scribe (≥500 chars)
+  const deepScribe = checkDeepScribe(journalText)
+  if (deepScribe) awarded.push(deepScribe)
+
+  // Word turns from journal text
+  const wordTurns = detectWordTurns(journalText)
+  awarded.push(...wordTurns)
+
+  return awarded
+}
+
+/**
+ * Run memory-answer easter egg checks.
+ * Call this when a memory answer is submitted, passing the answer text.
+ * Returns all newly awarded badge IDs.
+ */
+export function runMemoryAnswerEasterEggs(answerText: string): BadgeType[] {
+  const awarded: BadgeType[] = []
+
+  // Behavioral v4: epic transmission (≥1,000 chars)
+  const epicTransmission = checkEpicTransmission(answerText)
+  if (epicTransmission) awarded.push(epicTransmission)
+
+  // Midnight sigil
+  const midnight = checkMidnightSigil()
+  if (midnight) awarded.push(midnight)
+
+  // Word turns from answer text
+  const wordTurns = detectWordTurns(answerText)
+  awarded.push(...wordTurns)
 
   return awarded
 }

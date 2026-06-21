@@ -29,7 +29,7 @@ import {
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
-import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
+import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
@@ -1115,9 +1115,9 @@ export const Logs: React.FC = () => {
           const scripture = log.metadata?.scripture as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="🕯️" blockView>
+              <Block label="PRAY:" blockView>
                 {scripture && (
-                  <div className="opacity-60 italic">{scripture}</div>
+                  <div className="opacity-60">{scripture}</div>
                 )}
               </Block>
             </LogContainer>
@@ -1424,6 +1424,96 @@ export const Logs: React.FC = () => {
                 {peakDay && (
                   <div className="opacity-60 uppercase tracking-widest mt-4">PEAK: {peakDay}</div>
                 )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'badge_unlock') {
+          const badge    = log.metadata?.badge as string | undefined
+          const category = log.metadata?.category as string | undefined
+          const symbol   = log.metadata?.symbol as string | undefined
+          if (badge) {
+            recordBadgeSignal(badge, category ?? 'unknown')
+          }
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BADGE:" blockView>
+                {symbol && <div className="font-mono opacity-80">{symbol}</div>}
+                {badge && <div className="uppercase tracking-widest mt-4">{badge.replace(/_/g, ' ')}</div>}
+                {category && (
+                  <div className="opacity-40 uppercase tracking-widest mt-4">CAT: {category.replace(/_/g, ' ')}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'badge_progress_scan') {
+          const unlocksThisWeek = log.metadata?.unlocksThisWeek as number | undefined
+          const distinctTypes   = log.metadata?.distinctTypes as number | undefined
+          const momentum        = log.metadata?.momentum as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BADGE-SCAN:" blockView>
+                {unlocksThisWeek !== undefined && (
+                  <div className="tabular-nums">UNLOCKS: {unlocksThisWeek} / 7D</div>
+                )}
+                {distinctTypes !== undefined && (
+                  <div className="tabular-nums opacity-60 mt-4">TYPES: {distinctTypes}</div>
+                )}
+                {momentum && (
+                  <div className="opacity-40 uppercase tracking-widest mt-4">MOMENTUM: {momentum}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'morning_coherence_launch') {
+          const intentionLabel = log.metadata?.intentionLabel as string | undefined
+          const plannerMinutes = log.metadata?.plannerMinutesAfter as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MCL:" blockView>
+                <div className="uppercase tracking-widest mb-4">MORNING LAUNCH</div>
+                {intentionLabel && (
+                  <div className="opacity-60">&gt; {intentionLabel}</div>
+                )}
+                {plannerMinutes !== undefined && (
+                  <div className="opacity-40 tabular-nums">PLAN: +{plannerMinutes}m</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_vault') {
+          const wordCount = log.metadata?.journalWordCount as number | undefined
+          const sources = log.metadata?.activeSources as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="VAULT:" blockView>
+                {wordCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">DEPTH</span>
+                    <span className="tabular-nums">{wordCount}w</span>
+                  </div>
+                )}
+                {sources !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">SRC</span>
+                    <span className="tabular-nums">{sources}/3</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'depletion_recovery_surge') {
+          const careCount = log.metadata?.careCount as number | undefined
+          const priorEnergy = log.metadata?.priorEnergy as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SURGE:" blockView>
+                <div className="uppercase tracking-widest mb-4">
+                  {priorEnergy ? priorEnergy.toUpperCase() : 'LOW'} → HIGH
+                </div>
+                {careCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 6H: {careCount}</div>
+                )}
+                <div className="opacity-40">Restoration arc complete. Peak confirmed.</div>
               </Block>
             </LogContainer>
           )

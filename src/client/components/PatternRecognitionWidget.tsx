@@ -106,7 +106,10 @@ export function PatternRecognitionWidget() {
       'operator-convergence':       'Operator convergence — all systems confirmed',
       'signal-crystallization':     'Signal crystallized — intent to execution in 24h',
       'biorhythm-lock':             'Biorhythm anchored — 5+ day morning/evening cadence',
-      'quantum-coherence-summit':   'QUANTUM COHERENCE SUMMIT — highest confirmed state'
+      'quantum-coherence-summit':   'QUANTUM COHERENCE SUMMIT — highest confirmed state',
+      'morning-coherence-launch':   'Morning coherence launch — intention before structure',
+      'signal-vault':               'Signal vault — deep journal + memory + log in 6h',
+      'depletion-recovery-surge':   'Depletion recovery surge — restored to peak',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -350,6 +353,27 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'quantum-coherence-summit') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   SUMMIT. All gates open. Peak state confirmed.
+                </div>
+              )}
+
+              {/* Morning coherence launch indicator — surfaces when pattern 76 is active */}
+              {patterns.some(p => p.pattern === 'morning-coherence-launch') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Morning launch confirmed. Intention before structure.
+                </div>
+              )}
+
+              {/* Signal vault indicator — surfaces when pattern 77 is active */}
+              {patterns.some(p => p.pattern === 'signal-vault') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Signal vault open. Three channels deep.
+                </div>
+              )}
+
+              {/* Depletion recovery surge indicator — surfaces when pattern 78 is active */}
+              {patterns.some(p => p.pattern === 'depletion-recovery-surge') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Recovery surge confirmed. Depleted to peak.
                 </div>
               )}
 

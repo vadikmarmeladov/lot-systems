@@ -819,6 +819,41 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v62 entry appended · USERSHIP_TRANSMISSION updated to v62.',
     ],
   },
+  {
+    date: '2026-06-19',
+    session: 'Self-Assembly Session — v65 / P76–P78 · Archetype 24 · Job 17 · Dep Map 120+ · Log Military Pass',
+    assembled: [
+      'WIDGET_DEPENDENCY_MAP: 5 new nodes — publicProfile (cohort+memory) · plannerWidget (planner+intentions+memory+journal) · moodMomentum (mood+energy+selfcare+log) · breatheMonitor (mood+energy+selfcare) · fastingSignal (mood+energy+time+selfcare). Total: 120+ nodes.',
+      'LOG_DEPENDENCY_SOURCES: \'calculator\' added as 15th source — quantum substrate signals now fully tracked in physiological report audit.',
+      'Pattern 76 (morning-coherence-launch): first signal of day is intentions (before 09:00) + planner fires within 90 min. Confidence 0.72. The day starts from intention. Suggests planner.',
+      'Pattern 77 (signal-vault): journal depth >150w + memory capture + log field entry all within 6h. Full inner expression across 3 channels. Confidence 0.65–0.88. Suggests memory.',
+      'Pattern 78 (depletion-recovery-surge): depleted/low mood in 12h + 2+ selfcare in 6h + energy now high. Complete restoration arc with peak arrival. Confidence 0.72–0.90. Suggests systemProgress.',
+      'Archetype 24 (Signal Initiator): any energy · intentions+planner+log dominant · morning-coherence-launch+intention-seed+signal-crystallization. Directive: Day launched from intention. Structure followed signal. Coherent start confirmed. Build from here.',
+      'Background job 17: daily-morning-intention-launch at 11:00 UTC. Scans users with intention log before 09:00 followed by plan_set within 90 min. Writes morning_coherence_launch event. Hour 11 added to interval guard. 17 jobs now active.',
+      'Logs.tsx: prayer_scripture → PRAY: (COCKPIT-RULE military pass — emoji removed, italic removed). MCL: (morning_coherence_launch) · VAULT: (signal_vault) · SURGE: (depletion_recovery_surge) added. Handler count: 77+.',
+      'PatternRecognitionWidget: 3 new pattern display names + 3 QOS Trend indicators for P76/P77/P78.',
+      'Server API: displayableEvents +3 — morning_coherence_launch · signal_vault · depletion_recovery_surge.',
+      'Signal helpers: recordMorningCoherenceLaunch() · recordSignalVault() · recordDepletionRecoverySurge() added to intentionEngine.',
+      'Status: 78 patterns. 24 archetypes. 120+ dep nodes. 77+ log handlers. 17 background jobs.',
+    ],
+  },
+  {
+    date: '2026-06-17',
+    session: 'Self-Assembly Session — v63 / P74–P75 · Archetype 23 · Job 16 · Badge Ecosystem · BADGE: BADGE-SCAN:',
+    assembled: [
+      'intentionEngine.ts: IntentionSignal source union expanded — \'badges\' added as 16th signal source. Badge events now flow through the QIE pipeline.',
+      'intentionEngine.ts: P74 badge-momentum — 3+ distinct badge types unlocked within 7d window. Achievement acquisition velocity signal. Confidence 0.65–0.95. suggestedWidget: systemProgress · suggestedTiming: immediate.',
+      'intentionEngine.ts: P75 word-turn-depth — 5+ distinct word-turn badge types ever earned. Vocabulary expansion signal. Person speaks in the system\'s vocabulary. Confidence 0.60–0.92. suggestedWidget: memory · suggestedTiming: soon.',
+      'intentionEngine.ts: Archetype 23 Achievement Catalyst — moderate/high energy · badges+log+journal dominant · badge-momentum+word-turn-depth. Directive: "Discovery mode active. Badge momentum detected. The system rewards the curious. Keep exploring — every word is a door."',
+      'intentionEngine.ts: 4 new WIDGET_DEPENDENCY_MAP nodes — badgeSystem (log+journal+memory+selfcare+goals+intentions) · easterEggsDetector (log+journal+memory) · wordTurnDetector (journal+memory+log) · achievementCatalyst (badgeSystem+easterEggsDetector+wordTurnDetector). Total: 115+ nodes.',
+      'intentionEngine.ts: \'badges\' added to LOG_DEPENDENCY_SOURCES — now 14 sources total.',
+      'intentionEngine.ts: 2 new signal helpers — recordBadgeSignal(badgeType, category) · recordBadgeProgressScan(unlocksThisWeek, distinctTypes).',
+      'Logs.tsx: 2 new military event handlers — BADGE: (badge_unlock: symbol · badge name · CAT:) · BADGE-SCAN: (badge_progress_scan: UNLOCKS:/7D · TYPES: · MOMENTUM:). Handler count: 74+. recordBadgeSignal() imported and called on render.',
+      'scheduled-jobs.ts: Job 16 — weekly-badge-progress-scan. Tuesdays 09:00 UTC. Scans badge_unlock events per user over last 7 days. Computes unlocksThisWeek + distinctTypes + momentum (LOW/MODERATE/HIGH). Writes badge_progress_scan event per user with ≥1 unlock.',
+      'Server API: displayableEvents +1 — badge_progress_scan.',
+      'SESSION_REPORTS: v63 entry appended · USERSHIP_TRANSMISSION updated to v63.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -856,16 +891,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-15',
+  date: '2026-06-19',
   message: [
-    'ASSEMBLY RUN — 2026-06-15 · LOT-SR-20260615-02',
-    'P71 signal-crystallization: 3+ intentions → planner → goal completion in 24h. Confidence 0.75–0.92. Intent becomes execution in a single session.',
-    'P72 biorhythm-lock: morning + evening check-ins 5+ consecutive days. Biological cadence anchored. Fires at 0.72–0.88.',
-    'P73 quantum-coherence-summit: operator-convergence (P70) + UserIndex ≥ 70. Confidence 0.98 — the system\'s absolute ceiling. All gates open. Peak performance confirmed.',
-    'Archetype 22 Convergent Operator: high energy · all execution sources dominant · all convergence patterns active. Execute without hesitation.',
-    'Job 15 deployed: weekly-qos-convergence-audit · Sundays 15:00 UTC · writes CONV-AUDIT: per user who hit convergence this week.',
-    'Dep map: 111+ nodes. 73 patterns active. 72+ log handlers. 15 background jobs. 62 self-assembly phases.',
-    'The system now tracks its own peak states week-over-week. Convergence frequency is a first-class metric.',
+    'ASSEMBLY RUN — 2026-06-19 · LOT-SR-20260619-01',
+    'P76 morning-coherence-launch: day started from intention before structure. Planner follows within 90 min. Coherent launch detected.',
+    'P77 signal-vault: journal depth >150w + memory + log all within 6h. Three channels open simultaneously. Inner expression at full volume.',
+    'P78 depletion-recovery-surge: depleted to peak. Restoration arc complete. Multi-care in 6h + energy confirmed high.',
+    'Archetype 24 Signal Initiator: any energy · intentions+planner+log dominant · morning-coherence-launch + intention-seed + signal-crystallization. Day launches from within.',
+    'Job 17 deployed: daily-morning-intention-launch · 11:00 UTC · MCL: per user with coherent start.',
+    'Dep map: 120+ nodes. 78 patterns active. 77+ log handlers. 17 background jobs. 65 self-assembly phases.',
+    'PRAY: handler updated (emoji removed — cockpit rule). Morning launch is now a named pattern. The day has a signal.',
     'DEPLOYED.',
   ],
 }
