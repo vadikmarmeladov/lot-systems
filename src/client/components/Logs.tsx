@@ -1517,6 +1517,22 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'evening_coherence_close') {
+          const captureCount = log.metadata?.captureCount as number | undefined
+          const morningSignal = log.metadata?.morningSignalPresent as boolean | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EVE:" blockView>
+                <div className="uppercase tracking-widest mb-4">EVENING CLOSE</div>
+                {morningSignal && (
+                  <div className="opacity-60">Arc confirmed. Morning launch + evening close.</div>
+                )}
+                {captureCount !== undefined && (
+                  <div className="opacity-40 tabular-nums">CAPTURE: {captureCount} channel{captureCount === 1 ? '' : 's'}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

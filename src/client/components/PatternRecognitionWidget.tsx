@@ -110,6 +110,7 @@ export function PatternRecognitionWidget() {
       'morning-coherence-launch':   'Morning coherence launch — intention before structure',
       'signal-vault':               'Signal vault — deep journal + memory + log in 6h',
       'depletion-recovery-surge':   'Depletion recovery surge — restored to peak',
+      'evening-coherence-close':    'Evening coherence close — day closed in reflection',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -374,6 +375,13 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'depletion-recovery-surge') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Recovery surge confirmed. Depleted to peak.
+                </div>
+              )}
+
+              {/* Evening coherence close indicator — surfaces when pattern 79 is active */}
+              {patterns.some(p => p.pattern === 'evening-coherence-close') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Evening close confirmed. The arc is complete.
                 </div>
               )}
 

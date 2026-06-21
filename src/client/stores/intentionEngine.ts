@@ -1812,6 +1812,36 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 79: Evening Coherence Close — journal/log/memory capture in the 18:00–23:00 window
+  // after an intentions or planner signal earlier in the same day.
+  // The day closes with the same intentionality it opened.
+  // Distinct from P72 (biorhythm-lock: multi-day cadence) and P59 (meridian-lock: three-window arc).
+  const p79EveningCutoff = new Date(todayStartMs)
+  p79EveningCutoff.setHours(18, 0, 0, 0)
+  const p79EveningCutoffMs = p79EveningCutoff.getTime()
+  const p79NightCutoff = new Date(todayStartMs)
+  p79NightCutoff.setHours(23, 0, 0, 0)
+  const p79NightCutoffMs = p79NightCutoff.getTime()
+  const p79MorningSignals = p76TodaySignals.filter(s =>
+    s.timestamp < p79EveningCutoffMs &&
+    (s.source === 'intentions' || s.source === 'planner')
+  )
+  const p79EveningCapture = p76TodaySignals.filter(s =>
+    s.timestamp >= p79EveningCutoffMs &&
+    s.timestamp < p79NightCutoffMs &&
+    (s.source === 'journal' || s.source === 'memory' || s.source === 'log')
+  )
+  if (p79MorningSignals.length >= 1 && p79EveningCapture.length >= 1) {
+    const p79Conf = Math.min(0.88, 0.70 + (p79EveningCapture.length - 1) * 0.06)
+    patterns.push({
+      pattern: 'evening-coherence-close',
+      confidence: p79Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `EVENING COHERENCE CLOSE: Day opened with ${p79MorningSignals.length} morning signal(s) · Evening reflection captured (${p79EveningCapture.length} channel(s)). The arc is complete. Conscious close confirmed.`,
+    })
+  }
+
   // Pattern 74: Badge Momentum — 3+ distinct badge types unlocked within a 7-day window.
   // Achievement acquisition velocity signal: the person is actively exploring the system
   // and discovering easter eggs / word turns / milestones in a concentrated burst.
@@ -2597,6 +2627,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['intentions', 'planner', 'log'],
     patternConditions: ['morning-coherence-launch', 'intention-seed', 'signal-crystallization'],
     directive: 'Day launched from intention. Structure followed signal. Coherent start confirmed. Build from here.',
+  },
+  {
+    archetype: 'Diurnal Operator',
+    energyBands: ['low', 'moderate', 'high'],
+    dominantSources: ['intentions', 'planner', 'journal', 'memory'],
+    patternConditions: ['morning-coherence-launch', 'evening-coherence-close'],
+    directive: 'Full diurnal arc confirmed. Day launched from intention. Day closed in reflection. The complete cycle is recorded.',
   },
 ]
 
@@ -3553,6 +3590,19 @@ export function recordDepletionRecoverySurge(careCount: number, priorEnergy: str
     priorEnergy,
     currentEnergy: 'high',
     window: '6h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an evening-coherence-close event — journal/log/memory capture in the 18:00–23:00 window
+ * after a morning intention/planner signal. Feeds P79 detection. Conscious close of the diurnal arc.
+ */
+export function recordEveningCoherenceClose(captureCount: number, morningSignalPresent: boolean) {
+  recordSignal('journal', 'evening_coherence_close', {
+    captureCount,
+    morningSignalPresent,
+    window: '18:00-23:00',
     hour: new Date().getHours(),
   })
 }

@@ -854,6 +854,22 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v63 entry appended · USERSHIP_TRANSMISSION updated to v63.',
     ],
   },
+  {
+    date: '2026-06-21',
+    session: 'Self-Assembly Session — v66 / P79 · Archetype 25 · Job 18 · Diurnal Arc Complete',
+    assembled: [
+      'intentionEngine.ts: P79 evening-coherence-close — day opened with intentions/planner + journal/memory/log captured in 18:00–23:00 window same day. Diurnal mirror to P76. Confidence 0.70–0.88. suggestedWidget: memory · suggestedTiming: soon.',
+      'intentionEngine.ts: Archetype 25 Diurnal Operator — any energy · intentions+planner+journal+memory dominant · morning-coherence-launch+evening-coherence-close. Directive: Full diurnal arc confirmed. Day launched from intention. Day closed in reflection. The complete cycle is recorded.',
+      'intentionEngine.ts: recordEveningCoherenceClose(captureCount, morningSignalPresent) signal helper added.',
+      'Logs.tsx: EVE: handler added (evening_coherence_close: EVENING CLOSE · Arc confirmed · CAPTURE: n channel(s)). Handler count: 78+.',
+      'PatternRecognitionWidget.tsx: evening-coherence-close display name + P79 indicator block added.',
+      'scheduled-jobs.ts: Job 18 daily-evening-coherence-close at 22:00 UTC. Scans morning intention/planner logs (00:00–18:00) + evening journal/memory/log (18:00–23:00) per user. Writes evening_coherence_close event. Hour 22 added to interval guard. 18 jobs now active.',
+      'Server API: displayableEvents +1 — evening_coherence_close. Total: 37 events.',
+      'About.tsx: Field Manual v66. Counters: 79 patterns · 25 archetypes · 18 background jobs · 78+ handlers.',
+      'Status: 79 patterns. 25 archetypes. 120+ dep nodes. 78+ log handlers. 18 background jobs. Diurnal arc closed.',
+      'SESSION_REPORTS: v66 entry appended · USERSHIP_TRANSMISSION updated to v66.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -891,16 +907,14 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-19',
+  date: '2026-06-21',
   message: [
-    'ASSEMBLY RUN — 2026-06-19 · LOT-SR-20260619-01',
-    'P76 morning-coherence-launch: day started from intention before structure. Planner follows within 90 min. Coherent launch detected.',
-    'P77 signal-vault: journal depth >150w + memory + log all within 6h. Three channels open simultaneously. Inner expression at full volume.',
-    'P78 depletion-recovery-surge: depleted to peak. Restoration arc complete. Multi-care in 6h + energy confirmed high.',
-    'Archetype 24 Signal Initiator: any energy · intentions+planner+log dominant · morning-coherence-launch + intention-seed + signal-crystallization. Day launches from within.',
-    'Job 17 deployed: daily-morning-intention-launch · 11:00 UTC · MCL: per user with coherent start.',
-    'Dep map: 120+ nodes. 78 patterns active. 77+ log handlers. 17 background jobs. 65 self-assembly phases.',
-    'PRAY: handler updated (emoji removed — cockpit rule). Morning launch is now a named pattern. The day has a signal.',
+    'ASSEMBLY RUN — 2026-06-21 · LOT-SR-20260621-01',
+    'P79 evening-coherence-close: day opened with intention/planner signal. Evening reflection captured in 18:00–23:00 window. Arc complete. Conf 0.70–0.88.',
+    'Archetype 25 Diurnal Operator: any energy · intentions+planner+journal+memory dominant · morning-coherence-launch + evening-coherence-close. Full diurnal arc confirmed.',
+    'Job 18 deployed: daily-evening-coherence-close · 22:00 UTC · EVE: per user who opened with intention and closed in reflection. Mirrors Job 17.',
+    'Diurnal arc: morning launch (P76) → evening close (P79). The day now has a beginning and an end. Both named. Both tracked.',
+    'Dep map: 120+ nodes. 79 patterns active. 78+ log handlers. 18 background jobs. 66 self-assembly phases.',
     'DEPLOYED.',
   ],
 }

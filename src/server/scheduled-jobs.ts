@@ -919,6 +919,9 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyMorningIntentionLaunch()) {
     await executeDailyMorningIntentionLaunch()
   }
+  if (shouldRunDailyEveningCoherenceClose()) {
+    await executeDailyEveningCoherenceClose()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -2283,6 +2286,107 @@ async function executeDailyMorningIntentionLaunch(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Evening Coherence Close (Job 18) ──────────────────────────────────
+// 22:00 UTC daily — detects users who had a morning intention/planner signal today
+// and then recorded journal/memory/log capture in the 18:00–23:00 window.
+// Records evening_coherence_close. Mirrors Job 17 (morning-intention-launch).
+
+let isDailyEveningCoherenceCloseRunning = false
+let lastDailyEveningCoherenceCloseRun: Date | null = null
+
+function shouldRunDailyEveningCoherenceClose(): boolean {
+  const now = dayjs()
+  if (isDailyEveningCoherenceCloseRunning) return false
+  if (lastDailyEveningCoherenceCloseRun) {
+    const lastRun = dayjs(lastDailyEveningCoherenceCloseRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 22
+}
+
+async function executeDailyEveningCoherenceClose(): Promise<JobResult> {
+  const jobName = 'daily-evening-coherence-close'
+  const executedAt = new Date().toISOString()
+  if (isDailyEveningCoherenceCloseRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyEveningCoherenceCloseRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY EVENING COHERENCE CLOSE — 22:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const todayStart = dayjs().startOf('day').toDate()
+    const eveningStart = dayjs().startOf('day').add(18, 'hour').toDate()
+    const eveningEnd = dayjs().startOf('day').add(23, 'hour').toDate()
+
+    // Morning intention/planner signals (00:00–18:00)
+    const morningLogs = await Log.findAll({
+      where: {
+        createdAt: { [Op.between]: [todayStart, eveningStart] },
+        event: { [Op.in]: ['intention', 'plan_set'] },
+      },
+      attributes: ['userId', 'event', 'createdAt'],
+    })
+
+    // Evening reflection signals (18:00–23:00)
+    const eveningLogs = await Log.findAll({
+      where: {
+        createdAt: { [Op.between]: [eveningStart, eveningEnd] },
+        event: { [Op.in]: ['memory', 'journal', 'note'] },
+      },
+      attributes: ['userId', 'event', 'createdAt'],
+    })
+
+    // Find users with both a morning signal and an evening capture
+    const morningUserIds = new Set(morningLogs.map(l => String((l as any).userId)))
+    const eveningByUser: Record<string, number> = {}
+    for (const l of eveningLogs) {
+      const uid = String((l as any).userId)
+      eveningByUser[uid] = (eveningByUser[uid] ?? 0) + 1
+    }
+
+    let written = 0
+    for (const [userId, captureCount] of Object.entries(eveningByUser)) {
+      if (!morningUserIds.has(userId)) continue
+      try {
+        await Log.create({
+          userId: Number(userId),
+          event: 'evening_coherence_close',
+          text: '',
+          metadata: {
+            captureCount,
+            morningSignalPresent: true,
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} EVE write failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users with morning signal: ${morningUserIds.size}`)
+    console.log(`  Users with evening capture: ${Object.keys(eveningByUser).length}`)
+    console.log(`  Evening coherence closes written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('DAILY EVENING COHERENCE CLOSE COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyEveningCoherenceCloseRun = new Date()
+    isDailyEveningCoherenceCloseRunning = false
+
+    return { jobName, executedAt, success: true, result: { morningUsers: morningUserIds.size, eveningUsers: Object.keys(eveningByUser).length, written } }
+  } catch (error: any) {
+    console.error('Daily evening coherence close failed:', error.message)
+    isDailyEveningCoherenceCloseRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -2315,6 +2419,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly QOS convergence audit: 3 PM UTC every Sunday')
   console.log('   - Weekly badge progress scan: 9 AM UTC every Tuesday')
   console.log('   - Daily morning intention launch: 11 AM UTC every day')
+  console.log('   - Daily evening coherence close: 10 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2324,8 +2429,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 11 || hour === 13 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 13 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
