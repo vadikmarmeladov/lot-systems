@@ -38,6 +38,8 @@ export type LogTrigger =
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
   | 'qi-rfi'            // /qi — Quantum Intelligence RFI (Request for Information)
+  | 'system-help'       // /system — list all available slash commands
+  | 'story-mode'        // /story — generate contextual story from recent data
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -61,6 +63,8 @@ const RULES: TriggerRule[] = [
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
   { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'] },
+  { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'] },
+  { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'] },
 ]
 
 /**

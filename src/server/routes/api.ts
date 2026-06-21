@@ -1059,6 +1059,8 @@ export default async (fastify: FastifyInstance) => {
       'morning_coherence_launch', 'signal_vault', 'depletion_recovery_surge',
       // v66: evening coherence close
       'evening_coherence_close',
+      // Story generation
+      'generated_story',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -5290,6 +5292,143 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         return {
           scripture: 'Psalm 46:10 — He says, "Be still, and know that I am God."',
           reference: 'Psalm 46:10',
+          logId: null,
+        }
+      }
+    }
+  )
+
+  // ============================================================================
+  // STORY — Contextual AI Story
+  // Generates a 1-2 paragraph story based on recent logs, self-care events,
+  // and widget data. The story reflects the operator's recent journey.
+  // ============================================================================
+  fastify.post(
+    '/story',
+    { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
+    async (
+      req: FastifyRequest<{
+        Body: {
+          logText: string
+          quantumState?: {
+            energy?: string
+            clarity?: string
+            alignment?: string
+            needsSupport?: string
+          }
+          userIndex?: {
+            overall?: number
+            dimensions?: Record<string, number>
+            trend?: string
+          }
+        }
+      }>,
+      reply
+    ) => {
+      const hasUsership = req.user.tags.some((t: string) => t.toLowerCase() === 'usership')
+      if (!hasUsership) {
+        return reply.code(403).send({
+          story: 'Story generation is available for Usership members.',
+          logId: null,
+        })
+      }
+
+      const { logText, quantumState, userIndex } = req.body
+
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 200,
+      })
+
+      const recentEntries = logs
+        .filter(l => l.event === 'log_entry' || l.event === 'journal')
+        .slice(0, 10)
+        .map(l => (l.text || '').substring(0, 200))
+        .filter(Boolean)
+
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
+
+      const selfCareLogs = logs.filter(l =>
+        l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
+      ).slice(0, 10)
+      const selfCareNotes = selfCareLogs.map(l => {
+        const q = (l.metadata?.question as string || '')
+        const a = (l.metadata?.option as string || l.metadata?.answer as string || '')
+        return q && a ? `${q}: ${a}` : ''
+      }).filter(Boolean)
+
+      let stateBlock = ''
+      if (quantumState && quantumState.energy) {
+        stateBlock = `OPERATOR STATE: ${quantumState.energy} energy, ${quantumState.clarity} clarity, ${quantumState.alignment} alignment`
+      }
+      if (userIndex && userIndex.overall !== undefined) {
+        stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
+      }
+
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+
+The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+
+RULES:
+- Write in second person ("You...")
+- Draw from their actual log entries, moods, and self-care answers below
+- Reference specific details from their data — make it feel like THEIR story
+- If they've been consistent with check-ins, acknowledge the discipline
+- If there are gaps or struggle, acknowledge that with compassion
+- The tone should match their current energy: reflective if low, energized if high
+- End with a single forward-looking sentence — not a pep talk, just a quiet truth
+- Return ONLY the story paragraphs. No title. No commentary. No preamble.
+- Keep it under 200 words.`
+
+      const dataBlock = `
+OPERATOR LOG ENTRY: "${logText || '(no text)'}"
+
+${stateBlock ? stateBlock : 'STATE: unknown'}
+
+RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+
+RECENT LOG ENTRIES:
+${recentEntries.slice(0, 5).map(e => `- ${e}`).join('\n') || '- (none)'}
+
+SELF-CARE DATA:
+${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
+
+      const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
+
+      try {
+        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+        const engine = aiEngineManager.getEngine('together')
+
+        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+
+        const story = await engine.generateCompletion(fullPrompt, 512)
+
+        const cleaned = story.trim().replace(/^["']|["']$/g, '')
+
+        const context = await getLogContext(req.user)
+        const storyLog = await fastify.models.Log.create({
+          userId: req.user.id,
+          text: cleaned,
+          event: 'generated_story',
+          context,
+          metadata: {
+            story: cleaned,
+            logText: (logText || '').substring(0, 500),
+            quantumState: quantumState || null,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        return {
+          story: cleaned,
+          logId: storyLog.id,
+        }
+      } catch (error: any) {
+        console.error('Story generation failed:', error)
+        return {
+          story: 'The system holds your data quietly. When the engine returns, your story will be here.',
           logId: null,
         }
       }
