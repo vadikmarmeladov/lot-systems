@@ -24,13 +24,15 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotMailInbox,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, PublicLotMail, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+import { LotMail, LotMailCompose } from '#client/components/LotMail'
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -43,6 +45,23 @@ export const Sync = () => {
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
   const hasInitiallyLoaded = React.useRef(false)
+
+  // LOT Mail state
+  const [mailTab, setMailTab] = React.useState(false)
+  const [composeOpen, setComposeOpen] = React.useState(false)
+  const { data: mailInbox = [], refetch: refetchMail } = useLotMailInbox()
+  const unreadMailCount = mailInbox.filter((m) => !m.readAt).length
+
+  // SSE: new lot_mail arrives → invalidate inbox and surface notification
+  React.useEffect(() => {
+    const { dispose } = sync.listen('lot_mail', (mail: PublicLotMail) => {
+      if (mail.receiverId === me?.id) {
+        queryClient.invalidateQueries(['/api/lot-mail'])
+        refetchMail()
+      }
+    })
+    return dispose
+  }, [me?.id, queryClient, refetchMail])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -221,6 +240,35 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {/* LOT Mail strip — always visible, expandable */}
+      <div className="mb-40">
+        <div className="flex items-center gap-12 mb-12">
+          <button
+            className={cn(
+              'text-sm',
+              mailTab ? 'text-acc' : 'text-acc/40 hover:text-acc/60'
+            )}
+            onClick={() => setMailTab((v) => !v)}
+          >
+            Mail{unreadMailCount > 0 && ` · ${unreadMailCount}`}
+          </button>
+          <button
+            className="text-acc/30 hover:text-acc/60 text-xs"
+            onClick={() => setComposeOpen(true)}
+          >
+            compose
+          </button>
+        </div>
+        {mailTab && <LotMail />}
+      </div>
+
+      {composeOpen && (
+        <LotMailCompose
+          onClose={() => setComposeOpen(false)}
+          onSent={() => { setComposeOpen(false); refetchMail() }}
+        />
+      )}
 
       <div>
         {messages.map((x, i) => {

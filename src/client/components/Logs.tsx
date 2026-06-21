@@ -28,7 +28,8 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, parseEmailComposeTrigger, type LogTrigger } from '#client/utils/logTriggers'
+import { LotMailCompose } from '#client/components/LotMail'
 import { recordLogSignal, recordJournalSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
@@ -1508,6 +1509,7 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailComposePrefill, setEmailComposePrefill] = React.useState<string | null>(null)
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -1860,6 +1862,9 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'email-compose') {
+        const recipientName = parseEmailComposeTrigger(value)
+        setEmailComposePrefill(recipientName ?? '')
       }
     }
   }, [value])
@@ -2064,6 +2069,13 @@ const NoteEditor = ({
           </div>
         )}
       </div>
+      {emailComposePrefill !== null && (
+        <LotMailCompose
+          prefillName={emailComposePrefill}
+          onClose={() => setEmailComposePrefill(null)}
+          onSent={() => setEmailComposePrefill(null)}
+        />
+      )}
     </div>
   )
 }

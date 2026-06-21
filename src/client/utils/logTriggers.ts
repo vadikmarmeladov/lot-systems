@@ -38,6 +38,7 @@ export type LogTrigger =
   | 'phys-report'       // /phys — generate physiological cohort report
   | 'sil-check'         // /sil — check for signal silence pattern
   | 'qi-rfi'            // /qi — Quantum Intelligence RFI (Request for Information)
+  | 'email-compose'     // /email to <name> — open LOT Mail compose modal
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -61,7 +62,16 @@ const RULES: TriggerRule[] = [
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
   { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'] },
+  // email-compose is handled separately — uses a regex, not a simple keyword match
 ]
+
+const EMAIL_COMPOSE_RE = /(?:^|\s)\/email\s+to\s+(\S+)/i
+
+/** Returns the recipient name fragment from an /email to <name> command, or null. */
+export function parseEmailComposeTrigger(text: string): string | null {
+  const m = EMAIL_COMPOSE_RE.exec(text)
+  return m ? m[1] : null
+}
 
 /**
  * Returns every trigger present in `text`. An empty array means the
@@ -88,6 +98,8 @@ export function detectTriggers(text: string): LogTrigger[] {
 
     if (hasEmoji || hasKeyword) hits.push(rule.trigger)
   }
+
+  if (EMAIL_COMPOSE_RE.test(text)) hits.push('email-compose')
 
   return hits
 }

@@ -20,6 +20,7 @@ import {
   Log,
   Paginated,
   PublicChatMessage,
+  PublicLotMail,
   User,
   UserProfile,
   UserSettings,
@@ -856,6 +857,44 @@ export const useAssemblyDirective = createMutation<
 >('post', '/api/assembly')
 
 // ============================================================================
+// LOT MAIL — in-app community email
+// ============================================================================
+
+export const useLotMailInbox = createQuery<PublicLotMail[]>('/api/lot-mail', {
+  refetchOnWindowFocus: false,
+})
+
+export const useLotMailSent = createQuery<PublicLotMail[]>('/api/lot-mail/sent', {
+  refetchOnWindowFocus: false,
+})
+
+export const useSendLotMail = createMutation<
+  { receiverId: string; subject?: string; body: string },
+  PublicLotMail
+>('post', '/api/lot-mail')
+
+export const useMarkLotMailRead = (
+  extraConfig?: Partial<UseMutationOptions<void, AxiosError, string>>
+) =>
+  useMutation<void, AxiosError, string>({
+    mutationFn: async (id: string) => {
+      await api.put(`/api/lot-mail/${id}/read`)
+    },
+    ...extraConfig,
+  })
+
+export const useSearchUsersForMail = (q: string) =>
+  useQuery<{ id: string; firstName: string | null; lastName: string | null }[]>(
+    ['/api/lot-mail/search-users', q],
+    async () => {
+      if (!q || q.length < 2) return []
+      const { data } = await api.get('/api/lot-mail/search-users', { params: { q } })
+      return data
+    },
+    { enabled: q.length >= 2, refetchOnWindowFocus: false }
+  )
+
+// ============================================================================
 // PRAYER — Contextual Scripture
 // ============================================================================
 
@@ -880,3 +919,4 @@ export const usePrayerScripture = createMutation<
     logId: string | null
   }
 >('post', '/api/prayer')
+

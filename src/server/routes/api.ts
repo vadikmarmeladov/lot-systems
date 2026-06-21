@@ -386,6 +386,13 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'lot_mail': {
+          // Only deliver to the intended recipient
+          if (data.receiverId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
       }
     })
 
@@ -3896,6 +3903,157 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       return reply.status(500).send({ error: 'Failed to send message' })
     }
   })
+
+  // ============================================================================
+  // LOT MAIL — in-app email between community members
+  // Compose via /email to <name> in Log. Inbox surfaces in Sync.
+  // ============================================================================
+
+  fastify.get('/lot-mail', async (req: FastifyRequest, reply) => {
+    const inbox = await fastify.models.LotMail.findAll({
+      where: { receiverId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+    const senderIds = [...new Set(inbox.map((m) => m.senderId))]
+    const senders = senderIds.length
+      ? await fastify.models.User.findAll({
+          where: { id: senderIds },
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+      : []
+    const senderMap = Object.fromEntries(senders.map((u) => [u.id, u]))
+    return reply.send(
+      inbox.map((m) => ({
+        id: m.id,
+        senderId: m.senderId,
+        receiverId: m.receiverId,
+        subject: m.subject,
+        body: m.body,
+        readAt: m.readAt,
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        sender: senderMap[m.senderId]
+          ? {
+              id: senderMap[m.senderId].id,
+              firstName: senderMap[m.senderId].firstName,
+              lastName: senderMap[m.senderId].lastName,
+            }
+          : null,
+        receiver: { id: req.user.id, firstName: req.user.firstName, lastName: req.user.lastName },
+      }))
+    )
+  })
+
+  fastify.get('/lot-mail/sent', async (req: FastifyRequest, reply) => {
+    const sent = await fastify.models.LotMail.findAll({
+      where: { senderId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+    const receiverIds = [...new Set(sent.map((m) => m.receiverId))]
+    const receivers = receiverIds.length
+      ? await fastify.models.User.findAll({
+          where: { id: receiverIds },
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+      : []
+    const receiverMap = Object.fromEntries(receivers.map((u) => [u.id, u]))
+    return reply.send(
+      sent.map((m) => ({
+        id: m.id,
+        senderId: m.senderId,
+        receiverId: m.receiverId,
+        subject: m.subject,
+        body: m.body,
+        readAt: m.readAt,
+        createdAt: m.createdAt,
+        updatedAt: m.updatedAt,
+        sender: { id: req.user.id, firstName: req.user.firstName, lastName: req.user.lastName },
+        receiver: receiverMap[m.receiverId]
+          ? {
+              id: receiverMap[m.receiverId].id,
+              firstName: receiverMap[m.receiverId].firstName,
+              lastName: receiverMap[m.receiverId].lastName,
+            }
+          : null,
+      }))
+    )
+  })
+
+  fastify.post(
+    '/lot-mail',
+    async (
+      req: FastifyRequest<{ Body: { receiverId: string; subject?: string; body: string } }>,
+      reply
+    ) => {
+      const { receiverId, subject, body } = req.body
+      if (!receiverId || !body?.trim()) {
+        return reply.status(400).send({ error: 'receiverId and body are required' })
+      }
+      const receiver = await fastify.models.User.findByPk(receiverId, {
+        attributes: ['id', 'firstName', 'lastName'],
+      })
+      if (!receiver) return reply.status(404).send({ error: 'Recipient not found' })
+
+      const mail = await fastify.models.LotMail.create({
+        senderId: req.user.id,
+        receiverId,
+        subject: subject?.trim().slice(0, 200) || null,
+        body: body.trim().slice(0, 4000),
+      })
+
+      const publicMail = {
+        id: mail.id,
+        senderId: mail.senderId,
+        receiverId: mail.receiverId,
+        subject: mail.subject,
+        body: mail.body,
+        readAt: mail.readAt,
+        createdAt: mail.createdAt,
+        updatedAt: mail.updatedAt,
+        sender: { id: req.user.id, firstName: req.user.firstName, lastName: req.user.lastName },
+        receiver: { id: receiver.id, firstName: receiver.firstName, lastName: receiver.lastName },
+      }
+
+      sync.emit('lot_mail', publicMail)
+
+      return reply.send(publicMail)
+    }
+  )
+
+  fastify.put(
+    '/lot-mail/:id/read',
+    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
+      const mail = await fastify.models.LotMail.findOne({
+        where: { id: req.params.id, receiverId: req.user.id },
+      })
+      if (!mail) return reply.status(404).send({ error: 'Not found' })
+      if (!mail.readAt) {
+        await mail.update({ readAt: new Date().toISOString() })
+      }
+      return reply.send({ ok: true })
+    }
+  )
+
+  // Lookup users by first name (for /email to <name> autocomplete)
+  fastify.get(
+    '/lot-mail/search-users',
+    async (req: FastifyRequest<{ Querystring: { q: string } }>, reply) => {
+      const q = (req.query.q || '').trim()
+      if (!q || q.length < 2) return reply.send([])
+      const { Op } = await import('sequelize')
+      const users = await fastify.models.User.findAll({
+        where: {
+          id: { [Op.ne]: req.user.id },
+          firstName: { [Op.iLike]: `${q}%` },
+        },
+        attributes: ['id', 'firstName', 'lastName'],
+        limit: 8,
+      })
+      return reply.send(users.map((u) => ({ id: u.id, firstName: u.firstName, lastName: u.lastName })))
+    }
+  )
 
   // ============================================================================
   // STATS API - Real-time metrics and community insights

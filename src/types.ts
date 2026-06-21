@@ -97,6 +97,7 @@ export interface WeatherResponse {
   createdAt: Date
 }
 
+
 export type LogEvent =
   | 'note'
   | 'settings_change'
