@@ -880,3 +880,28 @@ export const usePrayerScripture = createMutation<
     logId: string | null
   }
 >('post', '/api/prayer')
+
+// ============================================================================
+// STORY — Contextual AI Story
+// ============================================================================
+
+export const useStoryGeneration = createMutation<
+  {
+    logText: string
+    quantumState?: {
+      energy?: string
+      clarity?: string
+      alignment?: string
+      needsSupport?: string
+    }
+    userIndex?: {
+      overall?: number
+      dimensions?: Record<string, number>
+      trend?: string
+    }
+  },
+  {
+    story: string
+    logId: string | null
+  }
+>('post', '/api/story')

@@ -919,6 +919,13 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyMorningIntentionLaunch()) {
     await executeDailyMorningIntentionLaunch()
   }
+  if (shouldRunDailyEveningCoherenceClose()) {
+    await executeDailyEveningCoherenceClose()
+  }
+  // Check daily signal momentum check (20:00 UTC daily) — Job 19
+  if (shouldRunDailySignalMomentumCheck()) {
+    await executeDailySignalMomentumCheck()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -2283,6 +2290,212 @@ async function executeDailyMorningIntentionLaunch(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Evening Coherence Close (Job 18) ──────────────────────────────────
+// 22:00 UTC daily — detects users who had a morning intention/planner signal today
+// and then recorded journal/memory/log capture in the 18:00–23:00 window.
+// Records evening_coherence_close. Mirrors Job 17 (morning-intention-launch).
+
+let isDailyEveningCoherenceCloseRunning = false
+let lastDailyEveningCoherenceCloseRun: Date | null = null
+
+function shouldRunDailyEveningCoherenceClose(): boolean {
+  const now = dayjs()
+  if (isDailyEveningCoherenceCloseRunning) return false
+  if (lastDailyEveningCoherenceCloseRun) {
+    const lastRun = dayjs(lastDailyEveningCoherenceCloseRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 22
+}
+
+async function executeDailyEveningCoherenceClose(): Promise<JobResult> {
+  const jobName = 'daily-evening-coherence-close'
+  const executedAt = new Date().toISOString()
+  if (isDailyEveningCoherenceCloseRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyEveningCoherenceCloseRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY EVENING COHERENCE CLOSE — 22:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const todayStart = dayjs().startOf('day').toDate()
+    const eveningStart = dayjs().startOf('day').add(18, 'hour').toDate()
+    const eveningEnd = dayjs().startOf('day').add(23, 'hour').toDate()
+
+    // Morning intention/planner signals (00:00–18:00)
+    const morningLogs = await Log.findAll({
+      where: {
+        createdAt: { [Op.between]: [todayStart, eveningStart] },
+        event: { [Op.in]: ['intention', 'plan_set'] },
+      },
+      attributes: ['userId', 'event', 'createdAt'],
+    })
+
+    // Evening reflection signals (18:00–23:00)
+    const eveningLogs = await Log.findAll({
+      where: {
+        createdAt: { [Op.between]: [eveningStart, eveningEnd] },
+        event: { [Op.in]: ['memory', 'journal', 'note'] },
+      },
+      attributes: ['userId', 'event', 'createdAt'],
+    })
+
+    // Find users with both a morning signal and an evening capture
+    const morningUserIds = new Set(morningLogs.map(l => String((l as any).userId)))
+    const eveningByUser: Record<string, number> = {}
+    for (const l of eveningLogs) {
+      const uid = String((l as any).userId)
+      eveningByUser[uid] = (eveningByUser[uid] ?? 0) + 1
+    }
+
+    let written = 0
+    for (const [userId, captureCount] of Object.entries(eveningByUser)) {
+      if (!morningUserIds.has(userId)) continue
+      try {
+        await Log.create({
+          userId: Number(userId),
+          event: 'evening_coherence_close',
+          text: '',
+          metadata: {
+            captureCount,
+            morningSignalPresent: true,
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} EVE write failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users with morning signal: ${morningUserIds.size}`)
+    console.log(`  Users with evening capture: ${Object.keys(eveningByUser).length}`)
+    console.log(`  Evening coherence closes written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('DAILY EVENING COHERENCE CLOSE COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyEveningCoherenceCloseRun = new Date()
+    isDailyEveningCoherenceCloseRunning = false
+
+    return { jobName, executedAt, success: true, result: { morningUsers: morningUserIds.size, eveningUsers: Object.keys(eveningByUser).length, written } }
+  } catch (error: any) {
+    console.error('Daily evening coherence close failed:', error.message)
+    isDailyEveningCoherenceCloseRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Signal Momentum Check (Job 19 — 20:00 UTC) ───────────────────────
+// Detects users who had 3+ unique signal sources on each of the last 5+ days.
+// Sustained multi-dimensional engagement. Writes signal_momentum event. Feeds P80.
+
+let isDailySignalMomentumRunning = false
+let lastDailySignalMomentumRun: Date | null = null
+
+function shouldRunDailySignalMomentumCheck(): boolean {
+  const now = dayjs()
+  if (isDailySignalMomentumRunning) return false
+  if (lastDailySignalMomentumRun) {
+    const lastRun = dayjs(lastDailySignalMomentumRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 20
+}
+
+async function executeDailySignalMomentumCheck(): Promise<JobResult> {
+  const jobName = 'daily-signal-momentum-check'
+  const executedAt = new Date().toISOString()
+  if (isDailySignalMomentumRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailySignalMomentumRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY SIGNAL MOMENTUM CHECK — 20:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    // Pull all logs from the last 7 days
+    const recentLogs = await Log.findAll({
+      where: { createdAt: { [Op.gte]: sevenDaysAgo } },
+      attributes: ['userId', 'event', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    })
+
+    // Group by userId → day → set of event types (as source proxies)
+    const userDaySourceMap: Record<string, Record<string, Set<string>>> = {}
+    for (const l of recentLogs) {
+      const uid = String((l as any).userId)
+      const day = dayjs(l.createdAt as any).format('YYYY-MM-DD')
+      if (!userDaySourceMap[uid]) userDaySourceMap[uid] = {}
+      if (!userDaySourceMap[uid][day]) userDaySourceMap[uid][day] = new Set()
+      // Map event to signal source category
+      const ev = l.event
+      if (['intention', 'plan_set'].includes(ev)) userDaySourceMap[uid][day].add('intentions')
+      else if (['emotional_checkin', 'mood_checkin', 'energy_checkin'].includes(ev)) userDaySourceMap[uid][day].add('mood')
+      else if (['answer', 'memory'].includes(ev)) userDaySourceMap[uid][day].add('memory')
+      else if (['note', 'journal'].includes(ev)) userDaySourceMap[uid][day].add('journal')
+      else if (['self_care_complete', 'self_care_completed'].includes(ev)) userDaySourceMap[uid][day].add('selfcare')
+      else if (['goal_set', 'goal_update', 'goal_complete'].includes(ev)) userDaySourceMap[uid][day].add('goals')
+      else if (['recipe_viewed'].includes(ev)) userDaySourceMap[uid][day].add('recipe')
+      else if (['calendar_entry'].includes(ev)) userDaySourceMap[uid][day].add('planner')
+    }
+
+    let written = 0
+    for (const [userId, dayMap] of Object.entries(userDaySourceMap)) {
+      try {
+        // Count days with 3+ unique sources
+        const qualifyingDays = Object.values(dayMap).filter(sources => sources.size >= 3).length
+        if (qualifyingDays < 5) continue
+
+        // Gather all unique sources over the window
+        const allSources = new Set<string>()
+        Object.values(dayMap).forEach(sources => sources.forEach(s => allSources.add(s)))
+
+        await Log.create({
+          userId: Number(userId),
+          event: 'signal_momentum',
+          text: '',
+          metadata: {
+            qualifyingDays,
+            streakSources: Array.from(allSources),
+            window: '7d',
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} signal momentum check failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users scanned: ${Object.keys(userDaySourceMap).length}`)
+    console.log(`  Signal momentum records written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('DAILY SIGNAL MOMENTUM CHECK COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailySignalMomentumRun = new Date()
+    isDailySignalMomentumRunning = false
+
+    return { jobName, executedAt, success: true, result: { scanned: Object.keys(userDaySourceMap).length, written } }
+  } catch (error: any) {
+    console.error('Daily signal momentum check failed:', error.message)
+    isDailySignalMomentumRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -2315,6 +2528,8 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly QOS convergence audit: 3 PM UTC every Sunday')
   console.log('   - Weekly badge progress scan: 9 AM UTC every Tuesday')
   console.log('   - Daily morning intention launch: 11 AM UTC every day')
+  console.log('   - Daily evening coherence close: 10 PM UTC every day')
+  console.log('   - Daily signal momentum check: 8 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2324,8 +2539,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 23 || hour === 10 || hour === 11 || hour === 13 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 13 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

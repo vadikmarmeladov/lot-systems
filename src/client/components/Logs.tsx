@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -1517,6 +1517,45 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'evening_coherence_close') {
+          const captureCount = log.metadata?.captureCount as number | undefined
+          const morningSignal = log.metadata?.morningSignalPresent as boolean | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EVE:" blockView>
+                <div className="uppercase tracking-widest mb-4">EVENING CLOSE</div>
+                {morningSignal && (
+                  <div className="opacity-60">Arc confirmed. Morning launch + evening close.</div>
+                )}
+                {captureCount !== undefined && (
+                  <div className="opacity-40 tabular-nums">CAPTURE: {captureCount} channel{captureCount === 1 ? '' : 's'}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_momentum') {
+          const qualifyingDays = log.metadata?.qualifyingDays as number | undefined
+          const streakSources = log.metadata?.streakSources as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MOM:" blockView>
+                <div className="uppercase tracking-widest mb-4">MOMENTUM LOCK</div>
+                {qualifyingDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">DAYS 7D</span>
+                    <span className="tabular-nums">{qualifyingDays}/7</span>
+                  </div>
+                )}
+                {streakSources && streakSources.length > 0 && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">SRC</span>
+                    <span className="tabular-nums">{streakSources.length}</span>
+                  </div>
+                )}
+                <div className="opacity-40">Architecture in motion. Every dimension engaged.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1592,6 +1631,9 @@ const NoteEditor = ({
   })
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
+  const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
+  const [storyLoading, setStoryLoading] = React.useState(false)
+  const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
   const [silentResult, setSilentResult] = React.useState<string | null>(null)
@@ -1602,10 +1644,51 @@ const NoteEditor = ({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
       setPrayerLoading(false)
+      // Persist: append scripture to log text so it survives NoteEditor remount
+      const current = valueRef.current
+      const separator = current.trim() ? '\n\n' : ''
+      const updated = current + separator + '🕯️ ' + data.scripture
+      setValue(updated)
+      valueRef.current = updated
+      onChangeRef.current(updated)
+      setIsSaved(true)
     },
     onError: () => {
-      setPrayerResponse('Psalm 46:10 — He says, "Be still, and know that I am God."')
+      const fallback = 'Psalm 46:10 — He says, "Be still, and know that I am God."'
+      setPrayerResponse(fallback)
       setPrayerLoading(false)
+      const current = valueRef.current
+      const separator = current.trim() ? '\n\n' : ''
+      const updated = current + separator + '🕯️ ' + fallback
+      setValue(updated)
+      valueRef.current = updated
+      onChangeRef.current(updated)
+      setIsSaved(true)
+    },
+  })
+  const { mutate: submitStory } = useStoryGeneration({
+    onSuccess: (data) => {
+      setStoryResponse(data.story)
+      setStoryLoading(false)
+      const current = valueRef.current
+      const separator = current.trim() ? '\n\n' : ''
+      const updated = current + separator + '📖 ' + data.story
+      setValue(updated)
+      valueRef.current = updated
+      onChangeRef.current(updated)
+      setIsSaved(true)
+    },
+    onError: () => {
+      const fallback = 'The system holds your data quietly. When the engine returns, your story will be here.'
+      setStoryResponse(fallback)
+      setStoryLoading(false)
+      const current = valueRef.current
+      const separator = current.trim() ? '\n\n' : ''
+      const updated = current + separator + '📖 ' + fallback
+      setValue(updated)
+      valueRef.current = updated
+      onChangeRef.current(updated)
+      setIsSaved(true)
     },
   })
   const debounceTime = 7000  // 7s for all logs
@@ -1950,6 +2033,47 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'system-help') {
+        const lines = [
+          'AVAILABLE COMMANDS',
+          '',
+          '/prayer       Generate contextual scripture',
+          '/story        Generate a personal story from recent data',
+          '/scan         System status overview',
+          '/qi [query]   Ask the Quantum Intelligence engine',
+          '/assembly     Self-assembly module status',
+          '/phys         Physiological cohort report',
+          '/qos          Quantum OS state analysis',
+          '/fast         Orthodox fasting calendar',
+          '/breathe      4-2-6 breathing exercise',
+          '/freeze       Pause and reflect protocol',
+          '/silent       Signal silence check',
+          '/synth        Toggle keyboard sound',
+          '/radio        Toggle radio',
+          '/night        Dark mode',
+          '/system       This help screen',
+          '',
+          'SHORTCUTS',
+          'Ctrl+Enter    Save log immediately',
+        ]
+        setSystemHelp(lines.join('\n'))
+      } else if (trigger === 'story-mode') {
+        if (!storyLoading) {
+          setStoryLoading(true)
+          setStoryResponse(null)
+          try {
+            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const state = getUserState()
+            const index = getUserIndex()
+            submitStory({
+              logText,
+              quantumState: state,
+              userIndex: index,
+            })
+          } catch {
+            submitStory({ logText: value })
+          }
+        }
       }
     }
   }, [value])
@@ -2150,6 +2274,29 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {systemHelp && (
+          <div className="mt-8">
+            <Block label="SYSTEM:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{systemHelp}</div>
+            </Block>
+          </div>
+        )}
+        {(storyLoading || storyResponse) && (
+          <div className="mt-8">
+            <Block label="📖" blockView>
+              {storyLoading && !storyResponse && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {storyResponse && (
+                <div className="opacity-60">
+                  {storyResponse.split('\n').map((line, idx) => (
+                    <div key={idx}>{line || <br />}</div>
+                  ))}
+                </div>
+              )}
             </Block>
           </div>
         )}

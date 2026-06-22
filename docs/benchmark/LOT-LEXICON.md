@@ -35,4 +35,9 @@ SIGNAL ARCHITECT   Physiological Archetype 19 — building phase; signal diversi
 COCKPIT-RULE       Log body = instrument readings only; label names the event; no narration        A  20260611
 DENSITY-TIER       5-level visual progression: breathable/comfortable/compact/dense/instrument via data-density  A  20260612
 QUERY-BATCHING     Replace N+1 sequential DB queries with Promise.all + batched IN-clause lookups              A  20260614
+MCL:               Morning Coherence Launch — log block label for morning-intention-launch job output        B  20260619
+EVE:               Evening Coherence Close — log block label for evening-coherence-close job output          B  20260621
+DIURNAL ARC        P76→P79→P80 behavioral arc: morning launch → evening close → sustained momentum lock     B  20260621
+MOM:               Momentum Lock — log block label for signal_momentum events (5+ days, 3+ sources)         B  20260621
+MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
 ```

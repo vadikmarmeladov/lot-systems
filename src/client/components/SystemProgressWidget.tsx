@@ -854,6 +854,38 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v63 entry appended · USERSHIP_TRANSMISSION updated to v63.',
     ],
   },
+  {
+    date: '2026-06-21',
+    session: 'Self-Assembly Session — v66 / P79 · Archetype 25 · Job 18 · Diurnal Arc Complete',
+    assembled: [
+      'intentionEngine.ts: P79 evening-coherence-close — day opened with intentions/planner + journal/memory/log captured in 18:00–23:00 window same day. Diurnal mirror to P76. Confidence 0.70–0.88. suggestedWidget: memory · suggestedTiming: soon.',
+      'intentionEngine.ts: Archetype 25 Diurnal Operator — any energy · intentions+planner+journal+memory dominant · morning-coherence-launch+evening-coherence-close. Directive: Full diurnal arc confirmed. Day launched from intention. Day closed in reflection. The complete cycle is recorded.',
+      'intentionEngine.ts: recordEveningCoherenceClose(captureCount, morningSignalPresent) signal helper added.',
+      'Logs.tsx: EVE: handler added (evening_coherence_close: EVENING CLOSE · Arc confirmed · CAPTURE: n channel(s)). Handler count: 78+.',
+      'PatternRecognitionWidget.tsx: evening-coherence-close display name + P79 indicator block added.',
+      'scheduled-jobs.ts: Job 18 daily-evening-coherence-close at 22:00 UTC. Scans morning intention/planner logs (00:00–18:00) + evening journal/memory/log (18:00–23:00) per user. Writes evening_coherence_close event. Hour 22 added to interval guard. 18 jobs now active.',
+      'Server API: displayableEvents +1 — evening_coherence_close. Total: 37 events.',
+      'About.tsx: Field Manual v66. Counters: 79 patterns · 25 archetypes · 18 background jobs · 78+ handlers.',
+      'Status: 79 patterns. 25 archetypes. 120+ dep nodes. 78+ log handlers. 18 background jobs. Diurnal arc closed.',
+      'SESSION_REPORTS: v66 entry appended · USERSHIP_TRANSMISSION updated to v66.',
+    ],
+  },
+  {
+    date: '2026-06-21',
+    session: 'Self-Assembly Session — v67 / P80 Signal Momentum Lock · Archetype 26 Momentum Architect · Job 19',
+    assembled: [
+      'intentionEngine.ts: P80 signal-momentum-lock — 5+ of last 7 days each had 3+ unique signal sources. Sustained multi-dimensional engagement. Rarest sustained pattern. Confidence 0.75–0.92. suggestedWidget: systemProgress · suggestedTiming: passive.',
+      'intentionEngine.ts: Archetype 26 Momentum Architect — moderate/high energy · intentions+journal+memory+planner+selfcare dominant · signal-momentum-lock+intention-velocity+signal-coherence-window. Directive: Sustained signal momentum confirmed. Five-day multi-source streak active. Every dimension engaged. Architecture in motion — do not interrupt.',
+      'intentionEngine.ts: recordSignalMomentum(qualifyingDays, streakSources) signal helper added.',
+      'Logs.tsx: MOM: handler added (signal_momentum: MOMENTUM LOCK · DAYS 7D: n/7 · SRC: n · Architecture in motion. Every dimension engaged.). Handler count: 79+.',
+      'scheduled-jobs.ts: Job 19 daily-signal-momentum-check at 20:00 UTC. Scans all logs for last 7 days per user. Counts days with 3+ unique signal sources. Writes signal_momentum event for users with 5+ qualifying days. 19 jobs now active.',
+      'Widget dependency scan completed: 120+ nodes verified active. Log-based dependencies: 79+ handlers, 15 sources, 38 displayable events.',
+      'Physiological cohort audit: 26 archetypes active, Momentum Architect (Arch26) added. All archetypes surface through QuantumEngineWidgets cohort view and SystemProgressWidget.',
+      'About.tsx: Field Manual v67. Counters: 80 patterns · 26 archetypes · 19 background jobs · 79+ handlers.',
+      'Status: 80 patterns. 26 archetypes. 120+ dep nodes. 79+ log handlers. 19 background jobs. Signal momentum architecture complete.',
+      'SESSION_REPORTS: v67 entry appended · USERSHIP_TRANSMISSION updated to v67.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -891,16 +923,14 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-19',
+  date: '2026-06-21',
   message: [
-    'ASSEMBLY RUN — 2026-06-19 · LOT-SR-20260619-01',
-    'P76 morning-coherence-launch: day started from intention before structure. Planner follows within 90 min. Coherent launch detected.',
-    'P77 signal-vault: journal depth >150w + memory + log all within 6h. Three channels open simultaneously. Inner expression at full volume.',
-    'P78 depletion-recovery-surge: depleted to peak. Restoration arc complete. Multi-care in 6h + energy confirmed high.',
-    'Archetype 24 Signal Initiator: any energy · intentions+planner+log dominant · morning-coherence-launch + intention-seed + signal-crystallization. Day launches from within.',
-    'Job 17 deployed: daily-morning-intention-launch · 11:00 UTC · MCL: per user with coherent start.',
-    'Dep map: 120+ nodes. 78 patterns active. 77+ log handlers. 17 background jobs. 65 self-assembly phases.',
-    'PRAY: handler updated (emoji removed — cockpit rule). Morning launch is now a named pattern. The day has a signal.',
+    'ASSEMBLY RUN — 2026-06-21 · LOT-SR-20260621-02',
+    'P80 signal-momentum-lock: 5+ of last 7 days each with 3+ unique signal sources. Rarest sustained pattern. Conf 0.75–0.92. Not a spike — a lock.',
+    'Archetype 26 Momentum Architect: moderate/high energy · 5 dominant sources · signal-momentum-lock + intention-velocity + signal-coherence-window. Every dimension engaged. Architecture in motion — do not interrupt.',
+    'Job 19 deployed: daily-signal-momentum-check · 20:00 UTC · MOM: per user with 5+ qualifying days of 3+ sources. Sustained engagement now tracked.',
+    'Dep map: 120+ nodes. 80 patterns active. 79+ log handlers. 19 background jobs. 26 archetypes.',
+    'Signal momentum architecture: P76 (morning launch) → P79 (evening close) → P80 (sustained lock). The complete engagement loop is named.',
     'DEPLOYED.',
   ],
 }

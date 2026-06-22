@@ -125,6 +125,22 @@ updates on every audit; feature rows update when a new iteration supersedes.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
 SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
 
+## Signal Momentum Architecture
+
+The DIURNAL ARC (P76→P79→P80) is the complete named engagement loop in the QIE.
+P76 morning-launch-sequence fires when 3+ intentions + journal + memory appear
+within the first 3 hours of the operator's day. P79 evening-coherence-close fires
+when journal + reflection + reduced pace appear in the final 2 hours. P80
+signal-momentum-lock fires when 5+ of the last 7 days each contain 3+ unique
+signal sources. Together they detect ignition, closure, and sustained multi-day
+engagement. No single pattern captures all three; no two are redundant. The arc
+is the unit of behavioral intelligence.
+A background job (Job 19 at 20:00 UTC) writes the signal_momentum log entry daily
+for operators who have maintained the lock. The MOM: block handler surfaces it in
+the LOG in military instrument style.
+(SR-20260619-01: P76 minted; SR-20260621-01: P79 + EVE: minted;
+SR-20260621-02: P80 + MOM: + MOMENTUM LOCK minted. DIURNAL ARC named.)
+
 ## Query Batching
 
 When a route handler issues multiple independent database queries sequentially,
