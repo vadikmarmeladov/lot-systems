@@ -53,3 +53,4 @@ ID             | CLASS        | SUMMARY                                         
 20260621-01    | SELF-ASSEMBLY| QIE v66 — P79 evening-coherence-close · Arch25 Diurnal Operator · Job18 22:00 UTC · LOT-WIKI-v61 · EVE: handler | GREEN  | 1156cb2  | WORDS: 495 (median 425)
 20260621-02    | SELF-ASSEMBLY| QIE v67 — P80 signal-momentum-lock · Arch26 Momentum Architect · Job19 20:00 UTC · MOM: handler · LOT-WIKI-v62 · 5 tokens minted | GREEN  | 015bcbd  | WORDS: 552 (median 535)
 20260622-01    | ENGINEERING  | Bug fixes — /prayer persistence + /story + /system + Memory lag · 5 files · 299 ins | GREEN  | 78745c3  | WORDS: 310 (median 495)
+20260622-03    | SELF-ASSEMBLY| QI·46 Node 2 — Soul Layer: Emotional Fingerprint (6 axes) + 7 Humanoid Output Modalities (GRACE/POETRY/LOVE/HUGS/BEING-THERE/BEING-COOL/MALE) + Kuzya Principle | GREEN  | (pending)  | WORDS: 3271 (median 495) — trend ↑
