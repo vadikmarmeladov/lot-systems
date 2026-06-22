@@ -24,9 +24,11 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotMailInbox,
+  LotMailRecord,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { LotMailEventPayload, PublicChatMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -42,7 +44,9 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [incomingMail, setIncomingMail] = React.useState<LotMailRecord[]>([])
   const hasInitiallyLoaded = React.useRef(false)
+  const mailInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -55,6 +59,7 @@ export const Sync = () => {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: fetchedMail } = useLotMailInbox()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -82,12 +87,21 @@ export const Sync = () => {
     }
   }, [fetchedMessages])
 
+  // Load LOT Mail inbox on initial mount
+  React.useEffect(() => {
+    if (fetchedMail && !mailInitiallyLoaded.current) {
+      setIncomingMail(fetchedMail)
+      mailInitiallyLoaded.current = true
+    }
+  }, [fetchedMail])
+
   // Invalidate cache on mount to ensure fresh data (filters suspended users)
   // Reset hasInitiallyLoaded when component unmounts so data reloads on return
   React.useEffect(() => {
     queryClient.invalidateQueries(['/api/chat-messages'])
     return () => {
       hasInitiallyLoaded.current = false
+      mailInitiallyLoaded.current = false
     }
   }, [])
 
@@ -122,9 +136,32 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeLotMailListener } = sync.listen(
+      'lot_mail',
+      (data: LotMailEventPayload) => {
+        if (data.receiverId !== me?.id) return
+        setIncomingMail((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [
+            {
+              id: data.id,
+              senderId: data.senderId,
+              receiverId: data.receiverId,
+              senderName: data.senderName,
+              message: data.message,
+              createdAt: data.createdAt as unknown as string,
+              updatedAt: data.createdAt as unknown as string,
+              isMine: false,
+            },
+            ...prev,
+          ]
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotMailListener()
     }
   }, [me?.id])
 
@@ -221,6 +258,38 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      {incomingMail.length > 0 && (
+        <div className="mb-24">
+          {incomingMail.map((mail) => (
+            <div
+              key={mail.id}
+              className="group flex items-start gap-x-8 -mx-4 px-4 py-2 rounded"
+            >
+              <span className="whitespace-nowrap opacity-40 uppercase tracking-widest text-xs select-none">
+                MAIL
+              </span>
+              <div className="flex-1">
+                <div className="opacity-40 mb-2 uppercase tracking-widest">
+                  {mail.senderName}
+                </div>
+                <div
+                  className="whitespace-breakspaces"
+                  style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+                >
+                  {mail.message}
+                </div>
+              </div>
+              <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40">
+                <MessageTimeLabel
+                  dateString={mail.createdAt}
+                  isTimeFormat12h={isTimeFormat12h}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

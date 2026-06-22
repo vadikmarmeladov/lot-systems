@@ -49,3 +49,5 @@ ID             | CLASS        | SUMMARY                                         
 20260618-01    | SELF-ASSEMBLY| LOT-WIKI-v59 Field Manual v64 · Badge Codex v15 (249 badges) · About.tsx v64 sync · 75 patterns · 23 archetypes · 16 jobs · 6 nodes | GREEN  | 9db438d  | WORDS: 650 (median 390)
 20260618-02    | ENGINEERING  | Badge engine v15 — 71 new badges wired · v14+v15 live · WORD_TURNS 30→58 · 'cosmic' rarity · achievement_rpg/secret_boss categories | GREEN  | 2b1e1fe  | WORDS: 520 (median 390)
 20260619-01    | SELF-ASSEMBLY| QIE v65 — P76-P78 + Arch24 Signal Initiator + Job17 morning-launch + dep map 120+ + calc source + PRAY:/MCL:/VAULT:/SURGE: handlers | GREEN  | 05adb33  | WORDS: 412 (median 390)
+
+20260622-01    | ENGINEERING  | LOT Mail (/email to <name>) — Log cmd, Sync inbox, SSE delivery, API routes, no migration | GREEN  | 9014513  | WORDS: 480 (median 390)
