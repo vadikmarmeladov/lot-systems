@@ -891,16 +891,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-19',
+  date: '2026-06-22',
   message: [
-    'ASSEMBLY RUN — 2026-06-19 · LOT-SR-20260619-01',
-    'P76 morning-coherence-launch: day started from intention before structure. Planner follows within 90 min. Coherent launch detected.',
-    'P77 signal-vault: journal depth >150w + memory + log all within 6h. Three channels open simultaneously. Inner expression at full volume.',
-    'P78 depletion-recovery-surge: depleted to peak. Restoration arc complete. Multi-care in 6h + energy confirmed high.',
-    'Archetype 24 Signal Initiator: any energy · intentions+planner+log dominant · morning-coherence-launch + intention-seed + signal-crystallization. Day launches from within.',
-    'Job 17 deployed: daily-morning-intention-launch · 11:00 UTC · MCL: per user with coherent start.',
-    'Dep map: 120+ nodes. 78 patterns active. 77+ log handlers. 17 background jobs. 65 self-assembly phases.',
-    'PRAY: handler updated (emoji removed — cockpit rule). Morning launch is now a named pattern. The day has a signal.',
+    'ASSEMBLY RUN — 2026-06-22 · LOT-SR-20260622-01',
+    'System orientation synced to Field Manual v65. LOT-SYSTEM-OUTLINE updated.',
+    '78 patterns live. 24 archetypes classified. 17 background jobs running. 249 badges wired. 120+ dep map nodes.',
+    'COSMIC rarity tier active. The five_years badge cannot be earned — only accumulated. Time is the only currency.',
+    'P70 Operator Convergence: conf 0.97. Apex detection. When all signals align, the system sees it.',
+    'P76-P78 in production: morning launch from within, signal vault, depletion-recovery arc — all named, all tracked.',
+    'Arch24 Signal Initiator: the day starts before the structure. Intention precedes plan. Signal precedes action.',
+    'SYSTEM: stable. PATTERNS: 78 active. BADGES: 249 live. SELF-ASSEMBLY: running.',
     'DEPLOYED.',
   ],
 }

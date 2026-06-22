@@ -3,10 +3,10 @@ LOT SYSTEMS / SYSTEM OUTLINE
 DOCUMENT: LOT-SYSTEM-OUTLINE
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-05
+DATE:     2026-06-22  (prev: 2026-06-05)
 ================================================================================
 
-Architecture map of LOT Computer as of June 2026.
+Architecture map of LOT Computer as of June 2026. Synced to Field Manual v65.
 Read this file to understand what the system is and how it fits together.
 
 ================================================================================
@@ -30,7 +30,7 @@ STACK:     React + TypeScript + Nanostores (client)
            Digital Ocean (hosting)
 URL:       lot-systems.com
 REPO:      LOT-Systems/LOT-Computer
-CODEBASE:  213 source files / 69,094 lines of TypeScript
+CODEBASE:  220+ source files / 70,000+ lines of TypeScript
 
 ================================================================================
 02 // ARCHITECTURE LAYERS
@@ -38,12 +38,12 @@ CODEBASE:  213 source files / 69,094 lines of TypeScript
 
 ┌─────────────────────────────────────────────────────────────┐
 │  OPERATOR INTERFACE                                          │
-│  81 React components · 6 entry points · Tailwind CSS        │
+│  81+ React components · 6 entry points · Tailwind CSS       │
 │  Tabs: System · Sync · Log · Settings · (Basics · Mail)     │
 ├─────────────────────────────────────────────────────────────┤
 │  INTELLIGENCE LAYER                                          │
-│  13 nanostores · QIE (3091 lines) · Self-Assembly (572)     │
-│  65 behavioral patterns · 18 archetypes · 6-dim User Index  │
+│  13 nanostores · QIE (3091+ lines) · Self-Assembly (572)    │
+│  78 behavioral patterns · 24 archetypes · 6-dim User Index  │
 ├─────────────────────────────────────────────────────────────┤
 │  SERVER LAYER                                                │
 │  57 server files · 5 route modules · 11 Sequelize models    │
@@ -55,7 +55,7 @@ CODEBASE:  213 source files / 69,094 lines of TypeScript
 └─────────────────────────────────────────────────────────────┘
 
 ================================================================================
-03 // CLIENT COMPONENTS (81 widgets)
+03 // CLIENT COMPONENTS (81+ widgets)
 ================================================================================
 
 SYSTEM TAB (main dashboard):
@@ -133,20 +133,26 @@ PENDING (on feature branches, not yet on master):
 04 // INTELLIGENCE ENGINE
 ================================================================================
 
-QUANTUM INTENTION ENGINE (QIE) — 3,091 lines
+QUANTUM INTENTION ENGINE (QIE) — 3,091+ lines  · v65
   Records signals from every widget interaction.
   15 signal sources: mood, memory, planner, intentions, selfcare,
     journal, calculator, log, energy, cohort, recipe, goals,
-    qos, medical, resilience.
-  65 named behavioral patterns across 5 tiers:
+    qos, medical, resilience. (CALC: added as source 15)
+  78 named behavioral patterns across 5 tiers:
     Acute (P1-P24): anxiety, structure, recovery, drift
     Arc (P38-P50): biofield recovery, cognitive expansion, follow-through
     Cascade (P40-P43): coherence cascade, deep work, resonant synthesis
     Equilibrium (P51-P60): signal silence, intention seed, drought
-    Peak (P61-P65): multimodal peak, architect phase, signal burst
-  18 physiological archetypes (Peak Catalyst → Coherence Holder)
+    Peak (P61-P78): multimodal peak, architect phase, signal burst,
+      badge-momentum, word-turn-depth, morning-coherence-launch,
+      signal-vault, depletion-recovery-surge (P74-P78)
+    P70 Operator Convergence: conf 0.97 — apex pattern
+  24 physiological archetypes (Peak Catalyst → Signal Initiator)
+    Arch23 Achievement Catalyst · Arch24 Signal Initiator
   6-dimensional User Index (engagement, emotional, intentional,
     social, selfCare, cognitive) — overall 0-100
+  17 background jobs (Job 17: daily-morning-intention-launch 11:00 UTC)
+  120+ dep map nodes · 77+ log handlers · 36 displayable events
   Optimal widget recommendation engine
   Server sync every 10 signals
 
@@ -165,6 +171,20 @@ INTEGRITY ENGINE (IntegrityWidget) — 479 lines
     energy-behavior, care-claim, temporal-drift, signal-void
   Integrity score 0-100 (Coherent → Deceptive)
   Cross-references QIE patterns for contradiction/coherence signals
+
+BADGE SYSTEM — v15 "The Becoming Lexicon"
+  249 badges total · 38 categories · 6 rarity tiers (incl. COSMIC)
+  Word Turn v6: 12 transformation verbs in Signal Codex
+  Time Easter Eggs v6: exact-hour detection
+  COSMIC tier: five_years — earned only through time, not skill
+  Secret Boss badges: Kuzya (the_cat_knows), 0451 (key_code), five_years
+  Achievement RPG: 6 early-game story arc badges
+  Engine: badges.ts · easter-eggs.ts · 74+ log handlers wired
+
+ECOSYSTEM NODES — 6
+  NODE-0: Autonomous AI Server (RIG-SPEC documented)
+  ROBOT: Transparency layer
+  + 4 additional ecosystem integration nodes
 
 ================================================================================
 05 // SERVER ARCHITECTURE
@@ -220,28 +240,32 @@ WIDGET (React component)
 See LOT-MANIFEST.md for the full catalog.
 
 SUMMARY:
-  125 remote branches total
-  115 claude/* feature branches
-  23 session clusters
-  8 ship-ready features waiting
-  ~69 branches safely prunable (redundant iterations)
+  125+ remote branches total
+  115+ claude/* feature branches
+  23+ session clusters
+  3 ship-ready features waiting
+  ~90 branches safely prunable (redundant iterations)
 
-SHIP-READY FEATURES:
-  1. LOT Mail            — email system
-  2. Basics Tab          — ration subscription
+SHIP-READY FEATURES (pending):
+  1. LOT Mail            — email system (relaxed-hamilton-eRBVA)
+  2. Basics Tab          — ration subscription (nifty-allen-jWyOe)
   3. Calendar Alerts     — live countdown + military alerts
-  4. QI-46 Engine        — soul engine + vocabulary extractor
-  5. COSMO Hardware      — device spec + firmware + API
-  6. Health/Security     — model upgrade + endpoint hardening
-  7. Badge RPG           — 57 badges + achievement codex
-  8. Self-Assembly v45   — patterns 63-66, archetype 18
 
-SHIPPED (already on master):
+SHIPPED (on master as of 2026-06-22):
   - Router isolation + subscription reduction (perf)
   - Biofield lag fix + calendar retrieval fix
   - Button subscription reduction
   - IntegrityWidget (lie detector)
   - Calendar [SCHEDULE] tag + font normalization
+  - QI terminal (/qi RFI) — operator query against own signal record
+  - Badge RPG v15 — 249 badges · 38 categories · COSMIC tier
+  - QIE v62-v65 — P71-P78 · Arch22-Arch24 · Job15-Job17 · 120+ dep map
+  - Security hardening — rate limiting · helmet · per-route AI caps
+  - NODE-0 RIG-SPEC — autonomous AI server specification
+  - Query batching + N+1 elimination (3 widgets · 5 endpoints)
+  - Cross-device sync (SSE settings_updated)
+  - Badge engine wired (71 badge types live)
+  - LOG military pass — COCKPIT-RULE · PRAY: · MCL: · VAULT: · SURGE:
 
 ================================================================================
 08 // BENCHMARK PROTOCOL
