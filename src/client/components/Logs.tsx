@@ -1198,11 +1198,69 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const daysUntilEvt = date
+            ? dayjs(date).startOf('day').diff(dayjs().startOf('day'), 'day')
+            : null
+          const dateLabel = date
+            ? dayjs(date).format('ddd DD MMM YYYY').toUpperCase()
+            : null
+          let timeLabel: string | null = null
+          if (daysUntilEvt !== null) {
+            if (daysUntilEvt === 0) timeLabel = 'TODAY'
+            else if (daysUntilEvt === 1) timeLabel = 'T+1'
+            else if (daysUntilEvt < 0) timeLabel = `T${daysUntilEvt}D`
+            else timeLabel = `T+${daysUntilEvt}D`
+          }
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="uppercase tracking-widest">{(entryType || 'ENTRY').toUpperCase()}</span>
+                  {timeLabel && (
+                    <span className="opacity-60 tabular-nums text-xs">{timeLabel}</span>
+                  )}
+                </div>
+                {dateLabel && <div className="opacity-40 tabular-nums text-xs">{dateLabel}</div>}
+                {text && <div className="opacity-70 mt-4">{text}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_alert') {
+          const alertType = log.metadata?.alertType as string | undefined
+          const count = log.metadata?.count as number | undefined
+          const date = log.metadata?.date as string | undefined
+          const alertEntries = log.metadata?.entries as Array<{ date: string; text: string; entryType: string }> | undefined
+          const dateLabel = date
+            ? dayjs(date).format('ddd DD MMM YYYY').toUpperCase()
+            : null
+          const priorityLabel = alertType === 'today'
+            ? 'TODAY'
+            : alertType === 'tomorrow'
+            ? 'TOMORROW'
+            : (alertType || 'ALERT').toUpperCase()
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                <div className="flex justify-between items-baseline mb-8">
+                  <span className="uppercase tracking-widest font-bold">{priorityLabel}</span>
+                  {count !== undefined && (
+                    <span className="opacity-60 tabular-nums text-xs">
+                      {count} EVENT{count !== 1 ? 'S' : ''}
+                    </span>
+                  )}
+                </div>
+                {dateLabel && (
+                  <div className="opacity-40 tabular-nums text-xs mb-8">{dateLabel}</div>
+                )}
+                {alertEntries && alertEntries.map((e, i) => (
+                  <div key={i} className="flex gap-8 items-baseline mb-2">
+                    <span className="opacity-40 uppercase text-xs tracking-widest min-w-[2.5rem]">
+                      {(e.entryType || 'NOTE').toUpperCase()}
+                    </span>
+                    <span className="opacity-80">{e.text}</span>
+                  </div>
+                ))}
               </Block>
             </LogContainer>
           )

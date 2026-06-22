@@ -25,6 +25,12 @@ type CalendarEntry = {
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
+const TYPE_CODES: Record<EntryType, string> = {
+  task: 'TASK',
+  call: 'CALL',
+  note: 'NOTE',
+}
+
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
   const last = dayjs().year(year).month(month).endOf('month')
@@ -48,6 +54,38 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
   return weeks
 }
 
+function daysUntilDate(date: string): number {
+  return dayjs(date).startOf('day').diff(dayjs().startOf('day'), 'day')
+}
+
+function relativeLabel(date: string): string {
+  const d = daysUntilDate(date)
+  if (d === 0) return 'TODAY'
+  if (d === 1) return 'TOMRW'
+  if (d < 0) return 'PAST'
+  const dow = dayjs(date).format('ddd').toUpperCase()
+  return `+${d} ${dow}`
+}
+
+function getAlertKey(alertType: string, targetDate: string): string {
+  const today = dayjs().format('YYYY-MM-DD')
+  return `lot_cal_alert_${alertType}_${targetDate}_${today}`
+}
+
+function hasAlerted(alertType: string, targetDate: string): boolean {
+  try {
+    return localStorage.getItem(getAlertKey(alertType, targetDate)) === '1'
+  } catch {
+    return false
+  }
+}
+
+function markAlerted(alertType: string, targetDate: string): void {
+  try {
+    localStorage.setItem(getAlertKey(alertType, targetDate), '1')
+  } catch {}
+}
+
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
@@ -59,6 +97,13 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [clockStr, setClockStr] = React.useState(() => dayjs().format('HH:mm'))
+
+  // Live clock — 60s tick
+  React.useEffect(() => {
+    const id = setInterval(() => setClockStr(dayjs().format('HH:mm')), 60_000)
+    return () => clearInterval(id)
+  }, [])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -72,12 +117,14 @@ export function CalendarWidget() {
       .sort((a, b) => a.date.localeCompare(b.date))
   }, [logs])
 
+  const today = dayjs().format('YYYY-MM-DD')
+  const tomorrow = dayjs().add(1, 'day').format('YYYY-MM-DD')
+
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
     return entries
       .filter(e => e.date >= today)
       .slice(0, 10)
-  }, [entries])
+  }, [entries, today])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,19 +137,68 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
   )
 
+  // Alert system — fires batched calendar_alert entries once per day per target date
+  React.useEffect(() => {
+    if (entries.length === 0) return
+
+    const checkAlerts = () => {
+      const todayStr = dayjs().format('YYYY-MM-DD')
+      const tomorrowStr = dayjs().add(1, 'day').format('YYYY-MM-DD')
+
+      const todayEvts = entries.filter(e => e.date === todayStr)
+      if (todayEvts.length > 0 && !hasAlerted('today', todayStr)) {
+        markAlerted('today', todayStr)
+        const summary = todayEvts.map(e => `${TYPE_CODES[e.type]} ${e.text}`).join(' · ')
+        setTimeout(() => {
+          createLog({
+            text: `CAL-ALERT: TODAY | ${todayEvts.length} EVENT${todayEvts.length !== 1 ? 'S' : ''} | ${summary}`,
+            event: 'calendar_alert',
+            metadata: {
+              alertType: 'today',
+              date: todayStr,
+              count: todayEvts.length,
+              entries: todayEvts.map(e => ({ date: e.date, text: e.text, entryType: e.type })),
+            },
+          }, {
+            onSuccess: () => queryClient.invalidateQueries(['/api/logs']),
+          })
+        }, 0)
+      }
+
+      const tomorrowEvts = entries.filter(e => e.date === tomorrowStr)
+      if (tomorrowEvts.length > 0 && !hasAlerted('tomorrow', tomorrowStr)) {
+        markAlerted('tomorrow', tomorrowStr)
+        const summary = tomorrowEvts.map(e => `${TYPE_CODES[e.type]} ${e.text}`).join(' · ')
+        setTimeout(() => {
+          createLog({
+            text: `CAL-ALERT: TOMORROW | ${tomorrowEvts.length} EVENT${tomorrowEvts.length !== 1 ? 'S' : ''} | ${summary}`,
+            event: 'calendar_alert',
+            metadata: {
+              alertType: 'tomorrow',
+              date: tomorrowStr,
+              count: tomorrowEvts.length,
+              entries: tomorrowEvts.map(e => ({ date: e.date, text: e.text, entryType: e.type })),
+            },
+          }, {
+            onSuccess: () => queryClient.invalidateQueries(['/api/logs']),
+          })
+        }, 0)
+      }
+    }
+
+    checkAlerts()
+    const id = setInterval(checkAlerts, 60_000)
+    return () => clearInterval(id)
+  }, [entries, createLog, queryClient])
+
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
-    if (selectedDate === key) {
-      setSelectedDate(null)
-    } else {
-      setSelectedDate(key)
-    }
+    setSelectedDate(prev => prev === key ? null : key)
   }
 
   const handleAddEntry = () => {
@@ -121,7 +217,9 @@ export function CalendarWidget() {
     }, {
       onSuccess: () => {
         queryClient.invalidateQueries(['/api/logs'])
-        try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        setTimeout(() => {
+          try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        }, 0)
       },
     })
 
@@ -130,27 +228,27 @@ export function CalendarWidget() {
   }
 
   const handleToggleCalendar = () => {
-    if (!isCalendarOpen) {
-      setViewMonth(dayjs())
-    }
-    setIsCalendarOpen(!isCalendarOpen)
+    if (!isCalendarOpen) setViewMonth(dayjs())
+    setIsCalendarOpen(v => !v)
   }
 
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
-        <div className="mb-16">
-          <Button onClick={handleToggleCalendar}>
-            Add date
-          </Button>
+
+        {/* Clock + Add row */}
+        <div className="flex items-center justify-between mb-16">
+          <Button onClick={handleToggleCalendar}>Add date</Button>
+          <span className="text-acc/30 tabular-nums text-sm">{clockStr}</span>
         </div>
 
         {isCalendarOpen && (
           <div className="mb-16">
+            {/* Month nav */}
             <div className="flex items-center gap-8 mb-8">
               <button
                 className="text-acc/40 hover:text-acc transition-opacity"
-                onClick={() => setViewMonth(viewMonth.subtract(1, 'month'))}
+                onClick={() => setViewMonth(v => v.subtract(1, 'month'))}
               >
                 {'<—'}
               </button>
@@ -159,12 +257,13 @@ export function CalendarWidget() {
               </span>
               <button
                 className="text-acc/40 hover:text-acc transition-opacity"
-                onClick={() => setViewMonth(viewMonth.add(1, 'month'))}
+                onClick={() => setViewMonth(v => v.add(1, 'month'))}
               >
                 {'—>'}
               </button>
             </div>
 
+            {/* Calendar grid */}
             <div className="space-y-1">
               {weeks.map((week, wi) => (
                 <div key={wi} className="flex gap-0">
@@ -211,6 +310,7 @@ export function CalendarWidget() {
               ))}
             </div>
 
+            {/* Entry input */}
             {isAddingEntry && selectedDate && (
               <div className="mt-8">
                 <div className="flex gap-8 mb-8">
@@ -242,14 +342,18 @@ export function CalendarWidget() {
               </div>
             )}
 
+            {/* Entries on selected date */}
             {selectedDate && entriesOnDate.length > 0 && (
               <div className="mt-8">
-                <div className="text-acc/40 mb-4">
-                  {dayjs(selectedDate).format('dddd, MMMM D')}
+                <div className="text-acc/40 mb-4 uppercase tracking-widest text-xs">
+                  {dayjs(selectedDate).format('ddd DD MMM YYYY').toUpperCase()}
                 </div>
                 {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                  <div key={i} className="flex gap-8 items-baseline mb-2">
+                    <span className="text-acc/40 uppercase text-xs tracking-widest min-w-[2.5rem]">
+                      {TYPE_CODES[e.type]}
+                    </span>
+                    <span className="text-acc/80">{e.text}</span>
                   </div>
                 ))}
               </div>
@@ -257,18 +361,42 @@ export function CalendarWidget() {
           </div>
         )}
 
+        {/* Upcoming events list */}
         {upcomingEntries.length > 0 && (
-          <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+          <div className="space-y-2">
+            {upcomingEntries.map((entry, i) => {
+              const label = relativeLabel(entry.date)
+              const isToday = entry.date === today
+              const isTomorrow = entry.date === tomorrow
+              return (
+                <div key={i} className="flex gap-8 items-baseline">
+                  <span
+                    className={cn(
+                      'whitespace-nowrap tabular-nums min-w-[4.5rem] text-xs tracking-widest uppercase',
+                      isToday ? 'text-acc font-bold' : isTomorrow ? 'text-acc/60' : 'text-acc/30'
+                    )}
+                  >
+                    {label}
+                  </span>
+                  <span
+                    className={cn(
+                      'uppercase text-xs tracking-widest min-w-[2.5rem]',
+                      isToday ? 'text-acc/60' : 'text-acc/30'
+                    )}
+                  >
+                    {TYPE_CODES[entry.type]}
+                  </span>
+                  <span
+                    className={cn(
+                      'flex-1 truncate',
+                      isToday ? 'text-acc' : isTomorrow ? 'text-acc/60' : 'text-acc/40'
+                    )}
+                  >
+                    {entry.text}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 
