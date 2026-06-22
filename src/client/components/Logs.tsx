@@ -1556,6 +1556,36 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'cognitive_depth_arc') {
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const journalWords = log.metadata?.journalWords as number | undefined
+          const badgeCount   = log.metadata?.badgeCount   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COGN:" blockView>
+                <div className="uppercase tracking-widest mb-4">COGNITIVE DEPTH ARC</div>
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEM 7D</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {journalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WORDS</span>
+                    <span className="tabular-nums">{journalWords}w</span>
+                  </div>
+                )}
+                {badgeCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">BADGES</span>
+                    <span className="tabular-nums">{badgeCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40">Deep trace confirmed. The map is built from the inside.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -926,6 +926,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySignalMomentumCheck()) {
     await executeDailySignalMomentumCheck()
   }
+  // Check weekly cognitive depth check (Sunday 06:00 UTC) — Job 20
+  if (shouldRunWeeklyCognitiveDepthCheck()) {
+    await executeWeeklyCognitiveDepthCheck()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -2496,6 +2500,103 @@ async function executeDailySignalMomentumCheck(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly Cognitive Depth Check (Job 20 — Sundays 06:00 UTC) ──────────────
+// Detects users with 5+ memory entries AND 150+ journal words in the last 7 days
+// AND at least one badge discovery signal. All three inner channels active.
+// Writes cognitive_depth_arc log. Feeds P81 cognitive-depth-arc pattern.
+
+let isWeeklyCognitiveDepthRunning = false
+let lastWeeklyCognitiveDepthRun: Date | null = null
+
+function shouldRunWeeklyCognitiveDepthCheck(): boolean {
+  const now = dayjs()
+  if (isWeeklyCognitiveDepthRunning) return false
+  if (lastWeeklyCognitiveDepthRun) {
+    const lastRun = dayjs(lastWeeklyCognitiveDepthRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.day() === 0 && now.hour() === 6 // Sunday 06:00 UTC
+}
+
+async function executeWeeklyCognitiveDepthCheck(): Promise<JobResult> {
+  const jobName = 'weekly-cognitive-depth-check'
+  const executedAt = new Date().toISOString()
+  if (isWeeklyCognitiveDepthRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isWeeklyCognitiveDepthRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('WEEKLY COGNITIVE DEPTH CHECK — Sunday 06:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const recentLogs = await Log.findAll({
+      where: { createdAt: { [Op.gte]: sevenDaysAgo } },
+      attributes: ['userId', 'event', 'text', 'metadata', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    })
+
+    // Group by userId: count memories, sum journal words, count badge signals
+    const userCognitiveMap: Record<string, { memoryCount: number; journalWords: number; badgeCount: number }> = {}
+    for (const l of recentLogs) {
+      const uid = String((l as any).userId)
+      if (!userCognitiveMap[uid]) userCognitiveMap[uid] = { memoryCount: 0, journalWords: 0, badgeCount: 0 }
+
+      const ev = l.event
+      if (['answer', 'memory'].includes(ev)) {
+        userCognitiveMap[uid].memoryCount++
+      } else if (ev === 'note' && l.text && l.text.length > 0) {
+        const words = l.text.trim().split(/\s+/).filter(Boolean).length
+        userCognitiveMap[uid].journalWords += words
+      } else if (ev === 'badge_unlock') {
+        userCognitiveMap[uid].badgeCount++
+      }
+    }
+
+    let written = 0
+    for (const [userId, cognitive] of Object.entries(userCognitiveMap)) {
+      if (cognitive.memoryCount < 5 || cognitive.journalWords < 150 || cognitive.badgeCount < 1) continue
+      try {
+        await Log.create({
+          userId: Number(userId),
+          event: 'cognitive_depth_arc',
+          text: '',
+          metadata: {
+            memoryCount: cognitive.memoryCount,
+            journalWords: cognitive.journalWords,
+            badgeCount: cognitive.badgeCount,
+            window: '7d',
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} cognitive depth write failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users scanned: ${Object.keys(userCognitiveMap).length}`)
+    console.log(`  Cognitive depth records written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('WEEKLY COGNITIVE DEPTH CHECK COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyCognitiveDepthRun = new Date()
+    isWeeklyCognitiveDepthRunning = false
+
+    return { jobName, executedAt, success: true, result: { scanned: Object.keys(userCognitiveMap).length, written } }
+  } catch (error: any) {
+    console.error('Weekly cognitive depth check failed:', error.message)
+    isWeeklyCognitiveDepthRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -2530,6 +2631,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily morning intention launch: 11 AM UTC every day')
   console.log('   - Daily evening coherence close: 10 PM UTC every day')
   console.log('   - Daily signal momentum check: 8 PM UTC every day')
+  console.log('   - Weekly cognitive depth check: 6 AM UTC every Sunday')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2539,7 +2641,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 13 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

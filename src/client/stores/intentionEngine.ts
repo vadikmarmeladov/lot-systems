@@ -1869,6 +1869,27 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 81: Cognitive Depth Arc — memory depth (5+ entries) + journal depth (150+ words)
+  // + any badge discovery signal, all within a 7-day window. The three pillars of inner
+  // engagement: retention (memory), articulation (journal), discovery (badges). When all
+  // three are active the person is not just using the system — they are building inside it.
+  // Confidence: 0.68 base, up to 0.90 at saturation.
+  const p81Window = now - 7 * 86400000
+  const p81MemorySignals = signals.filter(s => s.source === 'memory' && s.timestamp > p81Window)
+  const p81JournalSignals = signals.filter(s => s.source === 'journal' && s.timestamp > p81Window)
+  const p81JournalWords = p81JournalSignals.reduce((sum, s) => sum + (s.metadata?.wordCount ?? 0), 0)
+  const p81BadgeSignals = signals.filter(s => s.source === 'badges' && s.timestamp > p81Window)
+  if (p81MemorySignals.length >= 5 && p81JournalWords >= 150 && p81BadgeSignals.length > 0) {
+    const p81Conf = Math.min(0.90, 0.68 + (p81MemorySignals.length - 5) * 0.03 + Math.min(0.09, (p81JournalWords - 150) / 1000))
+    patterns.push({
+      pattern: 'cognitive-depth-arc',
+      confidence: p81Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `COGNITIVE DEPTH ARC: ${p81MemorySignals.length} memories + ${p81JournalWords}w journal + discovery active in 7d. All three inner channels engaged. The map is being built from the inside.`,
+    })
+  }
+
   // Pattern 74: Badge Momentum — 3+ distinct badge types unlocked within a 7-day window.
   // Achievement acquisition velocity signal: the person is actively exploring the system
   // and discovering easter eggs / word turns / milestones in a concentrated burst.
@@ -2668,6 +2689,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['intentions', 'journal', 'memory', 'planner', 'selfcare'],
     patternConditions: ['signal-momentum-lock', 'intention-velocity', 'signal-coherence-window'],
     directive: 'Sustained signal momentum confirmed. Five-day multi-source streak active. Every dimension engaged. Architecture in motion — do not interrupt.',
+  },
+  {
+    archetype: 'Cognitive Cartographer',
+    energyBands: ['low', 'moderate', 'high'],
+    dominantSources: ['memory', 'journal', 'log'],
+    patternConditions: ['cognitive-depth-arc', 'word-turn-depth', 'signal-vault'],
+    directive: 'Deep trace confirmed. Memory bank filling. Journal vocabulary expanding. Discovery mode active. You are making the map from the inside.',
   },
 ]
 
@@ -3649,6 +3677,21 @@ export function recordSignalMomentum(qualifyingDays: number, streakSources: stri
   recordSignal('log', 'signal_momentum', {
     qualifyingDays,
     streakSources,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a cognitive-depth-arc event — memory depth + journal depth + badge discovery
+ * all within a 7-day window. Feeds P81 cognitive-depth-arc detection.
+ * The three pillars of inner engagement firing simultaneously.
+ */
+export function recordCognitiveDepthSignal(memoryCount: number, journalWords: number, badgeCount: number) {
+  recordSignal('memory', 'cognitive_depth_arc', {
+    memoryCount,
+    journalWords,
+    badgeCount,
     window: '7d',
     hour: new Date().getHours(),
   })

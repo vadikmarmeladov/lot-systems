@@ -886,6 +886,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v67 entry appended · USERSHIP_TRANSMISSION updated to v67.',
     ],
   },
+  {
+    date: '2026-06-22',
+    session: 'Self-Assembly Session — v68 / P81 Cognitive Depth Arc · Archetype 27 Cognitive Cartographer · Job 20',
+    assembled: [
+      'CRITICAL FIX: signal_momentum added to displayableEvents in api.ts. MOM: handler existed but logs never surfaced. Fixed — signal momentum events now stream into the log view.',
+      'CRITICAL FIX: cognitive_depth_arc added to displayableEvents. New COGN: handler ready to receive Job 20 output.',
+      'intentionEngine.ts: P81 cognitive-depth-arc — 5+ memory entries + 150+ journal words + 1+ badge discovery, all within 7 days. Three inner channels simultaneously engaged. Confidence 0.68–0.90.',
+      'intentionEngine.ts: Archetype 27 Cognitive Cartographer — all energy bands · memory+journal+log dominant · cognitive-depth-arc+word-turn-depth+signal-vault. Directive: Deep trace confirmed. Memory bank filling. Journal vocabulary expanding. Discovery mode active. You are making the map from the inside.',
+      'intentionEngine.ts: recordCognitiveDepthSignal(memoryCount, journalWords, badgeCount) signal helper added. Feeds P81.',
+      'Logs.tsx: COGN: handler added (cognitive_depth_arc: COGNITIVE DEPTH ARC · MEM 7D · WORDS · BADGES · Deep trace confirmed). Handler count: 80+.',
+      'scheduled-jobs.ts: Job 20 weekly-cognitive-depth-check at Sunday 06:00 UTC. Scans last 7 days per user: answer/memory count + journal word totals + badge_unlock count. Writes cognitive_depth_arc for qualifying users. 20 jobs now active.',
+      'QuantumEngineWidgets.tsx: cohort view now shows live QIE-derived archetype (confidence + energy + directive) when server archetype not yet loaded. Fallback → live classification.',
+      'Widget dep scan: 120+ nodes · 81 patterns · 27 archetypes · 20 background jobs · 80+ log handlers.',
+      'About.tsx: Field Manual v68. Counters updated to reflect v68 state.',
+      'SESSION_REPORTS: v68 entry appended · USERSHIP_TRANSMISSION updated to v68.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -923,14 +940,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-21',
+  date: '2026-06-22',
   message: [
-    'ASSEMBLY RUN — 2026-06-21 · LOT-SR-20260621-02',
-    'P80 signal-momentum-lock: 5+ of last 7 days each with 3+ unique signal sources. Rarest sustained pattern. Conf 0.75–0.92. Not a spike — a lock.',
-    'Archetype 26 Momentum Architect: moderate/high energy · 5 dominant sources · signal-momentum-lock + intention-velocity + signal-coherence-window. Every dimension engaged. Architecture in motion — do not interrupt.',
-    'Job 19 deployed: daily-signal-momentum-check · 20:00 UTC · MOM: per user with 5+ qualifying days of 3+ sources. Sustained engagement now tracked.',
-    'Dep map: 120+ nodes. 80 patterns active. 79+ log handlers. 19 background jobs. 26 archetypes.',
-    'Signal momentum architecture: P76 (morning launch) → P79 (evening close) → P80 (sustained lock). The complete engagement loop is named.',
+    'ASSEMBLY RUN — 2026-06-22 · LOT-SR-20260622-03',
+    'CRITICAL FIX: signal_momentum added to displayableEvents. MOM: handler was live but logs never surfaced. Fixed.',
+    'P81 cognitive-depth-arc: 5+ memories + 150+ journal words + badge discovery in 7d. Three inner channels simultaneously. Conf 0.68–0.90. The map is built from the inside.',
+    'Archetype 27 Cognitive Cartographer: all energy bands · memory+journal+log dominant · cognitive-depth-arc + word-turn-depth + signal-vault. The map is made from the inside.',
+    'Job 20 deployed: weekly-cognitive-depth-check · Sunday 06:00 UTC · COGN: per user with qualifying mem+journal+badge depth. 20 background jobs now active.',
+    'QuantumEngineWidgets cohort view: now shows live QIE archetype (confidence + energy + directive) when server profile not yet loaded.',
+    'Dep map: 120+ nodes. 81 patterns active. 80+ log handlers. 20 background jobs. 27 archetypes.',
     'DEPLOYED.',
   ],
 }
