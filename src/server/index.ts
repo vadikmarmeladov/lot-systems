@@ -216,7 +216,19 @@ setInterval(() => {
 
 // Health check endpoint (required for Digital Ocean)
 fastify.get('/health', async (request, reply) => {
-  return { status: 'ok', timestamp: new Date().toISOString() }
+  let dbStatus = 'ok'
+  try {
+    await sequelize.authenticate()
+  } catch {
+    dbStatus = 'error'
+  }
+  return {
+    status: dbStatus === 'ok' ? 'ok' : 'degraded',
+    version: '1.3.0',
+    uptime: Math.floor(process.uptime()),
+    db: dbStatus,
+    timestamp: new Date().toISOString(),
+  }
 })
 
 // Public API routes (no authentication required)

@@ -2165,7 +2165,6 @@ export function hydrateBadgesFromServer(serverBadges: {
       const merged = Array.from(new Set([...localBadges, ...serverBadges.earnedBadges]))
       if (merged.length > localBadges.length) {
         saveEarnedBadges(merged as BadgeType[])
-        console.log('[Badges] Hydrated from server:', merged)
       }
     }
 
@@ -2173,7 +2172,6 @@ export function hydrateBadgesFromServer(serverBadges: {
       const localTheme = localStorage.getItem('badge_theme')
       if (!localTheme) {
         localStorage.setItem('badge_theme', serverBadges.badgeTheme)
-        console.log('[Badges] Theme hydrated from server:', serverBadges.badgeTheme)
       }
     }
   } catch { /* non-critical */ }
