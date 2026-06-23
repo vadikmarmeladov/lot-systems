@@ -19,6 +19,7 @@
       "#shared/types": ["src/shared/types"],
       "#shared/constants": ["src/shared/constants"]
     },
+    "ignoreDeprecations": "6.0",
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noEmitOnError": false
