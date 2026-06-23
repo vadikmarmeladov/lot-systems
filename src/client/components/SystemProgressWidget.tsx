@@ -903,6 +903,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v68 entry appended · USERSHIP_TRANSMISSION updated to v68.',
     ],
   },
+  {
+    date: '2026-06-23',
+    session: 'Self-Assembly Session — v69 / P82 Circadian Vitality Peak · P83 Systemic Thinking Mode · Archetype 28 Vital Architect · Job 21',
+    assembled: [
+      'intentionEngine.ts: P82 circadian-vitality-peak — 2+ positive morning mood signals (before 10:00) + biorhythm-lock active + energy moderate/high + hour before 13. Biological prime window detector. Conf 0.70–0.90. Direct this state before it peaks.',
+      'intentionEngine.ts: P83 systemic-thinking-mode — planner 3+ + goals 3+ + intentions 3+ each in last 3 days, UserIndex ≥ 50, no depletion patterns. Strategic structural cognition state. Conf 0.68–0.92. Building the structure, not just executing tasks.',
+      'intentionEngine.ts: Archetype 28 Vital Architect — high/moderate energy · planner+intentions+mood dominant · circadian-vitality-peak+morning-coherence-launch+biorhythm-lock. Directive: Biological prime window open. Use this window — design, build, decide.',
+      'intentionEngine.ts: recordVitalityPeak() + recordSystemicThinkingMode() signal helpers added.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — vitalityMonitor + systemicThinker nodes added. 122+ nodes total.',
+      'Logs.tsx: VITAL: handler added (vitality_peak: CIRCADIAN VITALITY PEAK · MORNING MOOD · ENERGY · HOUR · BIORHYTHM). SYSTMK: handler added (systemic_thinking: SYSTEMIC THINKING MODE · PLANNER 3D · GOALS 3D · INTENTIONS 3D · STRUCT DEPTH · USER INDEX). Handler count: 82+.',
+      'PatternRecognitionWidget.tsx: circadian-vitality-peak + systemic-thinking-mode pattern names + QOS Trend indicator blocks added.',
+      'scheduled-jobs.ts: Job 21 daily-vitality-peak-check at 12:00 UTC daily. Scans morning window (06:00-10:00): 2+ positive mood + energy signal → writes vitality_peak. Hour 12 added to scheduler gate. 21 jobs now active.',
+      'api.ts: vitality_peak + systemic_thinking added to displayableEvents.',
+      'About.tsx: Field Manual v69. Counters: 83 patterns · 28 archetypes · 21 background jobs · 82+ log handlers · 122+ dep nodes.',
+      'SESSION_REPORTS: v69 entry appended · USERSHIP_TRANSMISSION updated to v69.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -940,15 +957,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-22',
+  date: '2026-06-23',
   message: [
-    'ASSEMBLY RUN — 2026-06-22 · LOT-SR-20260622-03',
-    'CRITICAL FIX: signal_momentum added to displayableEvents. MOM: handler was live but logs never surfaced. Fixed.',
-    'P81 cognitive-depth-arc: 5+ memories + 150+ journal words + badge discovery in 7d. Three inner channels simultaneously. Conf 0.68–0.90. The map is built from the inside.',
-    'Archetype 27 Cognitive Cartographer: all energy bands · memory+journal+log dominant · cognitive-depth-arc + word-turn-depth + signal-vault. The map is made from the inside.',
-    'Job 20 deployed: weekly-cognitive-depth-check · Sunday 06:00 UTC · COGN: per user with qualifying mem+journal+badge depth. 20 background jobs now active.',
-    'QuantumEngineWidgets cohort view: now shows live QIE archetype (confidence + energy + directive) when server profile not yet loaded.',
-    'Dep map: 120+ nodes. 81 patterns active. 80+ log handlers. 20 background jobs. 27 archetypes.',
+    'ASSEMBLY RUN — 2026-06-23 · LOT-SR-20260623-02',
+    'P82 circadian-vitality-peak: biological prime window detector. 2+ positive morning signals + biorhythm anchored + energy adequate + hour < 13. Conf 0.70–0.90. Direct this state before it peaks — 90-minute execution window.',
+    'P83 systemic-thinking-mode: strategic structural cognition. Planner+goals+intentions each 3+ in 3d, UserIndex ≥ 50, no depletion. Conf 0.68–0.92. You are building the structure, not just executing tasks.',
+    'Archetype 28 Vital Architect: high/moderate energy · planner+intentions+mood dominant · circadian-vitality-peak+morning-coherence-launch+biorhythm-lock. Biological prime window active.',
+    'Job 21 deployed: daily-vitality-peak-check · 12:00 UTC daily · scans morning window (06:00-10:00) · writes vitality_peak for qualifying users. 21 background jobs now active.',
+    'VITAL: + SYSTMK: log handlers live. vitality_peak + systemic_thinking surfaced in displayableEvents.',
+    'Dep map: 122+ nodes. 83 patterns active. 82+ log handlers. 21 background jobs. 28 archetypes.',
     'DEPLOYED.',
   ],
 }

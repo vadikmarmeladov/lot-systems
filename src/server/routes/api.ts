@@ -1063,6 +1063,9 @@ export default async (fastify: FastifyInstance) => {
       'signal_momentum',
       // v68: cognitive depth arc (Job 20 output)
       'cognitive_depth_arc',
+      // v69: vitality peak (Job 21 output) + systemic thinking mode
+      'vitality_peak',
+      'systemic_thinking',
       // Story generation
       'generated_story',
     ]

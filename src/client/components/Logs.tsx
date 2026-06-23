@@ -1586,6 +1586,87 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'vitality_peak') {
+          const morningMoodCount   = log.metadata?.morningMoodCount   as number | undefined
+          const energyLevel        = log.metadata?.energyLevel        as string | undefined
+          const biorhythmAnchored  = log.metadata?.biorhythmAnchored  as boolean | undefined
+          const hour               = log.metadata?.hour               as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="VITAL:" blockView>
+                <div className="uppercase tracking-widest mb-4">CIRCADIAN VITALITY PEAK</div>
+                {morningMoodCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MORNING MOOD</span>
+                    <span className="tabular-nums">{morningMoodCount}</span>
+                  </div>
+                )}
+                {energyLevel !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ENERGY</span>
+                    <span className="tabular-nums uppercase">{energyLevel}</span>
+                  </div>
+                )}
+                {hour !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">HOUR</span>
+                    <span className="tabular-nums">{String(hour).padStart(2, '0')}:00</span>
+                  </div>
+                )}
+                {biorhythmAnchored !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">BIORHYTHM</span>
+                    <span className="tabular-nums">{biorhythmAnchored ? 'ANCHORED' : 'UNANCHORED'}</span>
+                  </div>
+                )}
+                <div className="opacity-40">Biological prime window open. 90-minute execution window.</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'systemic_thinking') {
+          const plannerCount   = log.metadata?.plannerCount   as number | undefined
+          const goalsCount     = log.metadata?.goalsCount     as number | undefined
+          const intentionsCount = log.metadata?.intentionsCount as number | undefined
+          const userIndex      = log.metadata?.userIndex      as number | undefined
+          const structuralDepth = log.metadata?.structuralDepth as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SYSTMK:" blockView>
+                <div className="uppercase tracking-widest mb-4">SYSTEMIC THINKING MODE</div>
+                {plannerCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PLANNER 3D</span>
+                    <span className="tabular-nums">{plannerCount}</span>
+                  </div>
+                )}
+                {goalsCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GOALS 3D</span>
+                    <span className="tabular-nums">{goalsCount}</span>
+                  </div>
+                )}
+                {intentionsCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENTIONS 3D</span>
+                    <span className="tabular-nums">{intentionsCount}</span>
+                  </div>
+                )}
+                {structuralDepth !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">STRUCT DEPTH</span>
+                    <span className="tabular-nums">{structuralDepth}</span>
+                  </div>
+                )}
+                {userIndex !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">USER INDEX</span>
+                    <span className="tabular-nums">{userIndex}/100</span>
+                  </div>
+                )}
+                <div className="opacity-40">You are building the structure, not just executing tasks.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

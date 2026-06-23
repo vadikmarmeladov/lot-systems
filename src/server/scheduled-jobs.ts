@@ -930,6 +930,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyCognitiveDepthCheck()) {
     await executeWeeklyCognitiveDepthCheck()
   }
+
+  // Check daily vitality peak (12:00 UTC every day) — Job 21
+  if (shouldRunDailyVitalityPeakCheck()) {
+    await executeDailyVitalityPeakCheck()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -2597,6 +2602,109 @@ async function executeWeeklyCognitiveDepthCheck(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Vitality Peak Check (Job 21 — 12:00 UTC every day) ───────────────
+// Scans morning log entries (06:00-10:00) for 2+ positive mood signals
+// AND at least one energy signal. Writes vitality_peak log.
+// Feeds P82 circadian-vitality-peak pattern and Vital Architect archetype.
+
+let isDailyVitalityPeakRunning = false
+let lastDailyVitalityPeakRun: Date | null = null
+
+function shouldRunDailyVitalityPeakCheck(): boolean {
+  const now = dayjs()
+  if (isDailyVitalityPeakRunning) return false
+  if (lastDailyVitalityPeakRun) {
+    const lastRun = dayjs(lastDailyVitalityPeakRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 12 // 12:00 UTC every day
+}
+
+async function executeDailyVitalityPeakCheck(): Promise<JobResult> {
+  const jobName = 'daily-vitality-peak-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyVitalityPeakRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyVitalityPeakRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY VITALITY PEAK CHECK — 12:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const todayStart = dayjs().startOf('day').toDate()
+    const morningWindow = dayjs().startOf('day').hour(10).toDate() // 06:00-10:00
+
+    const morningLogs = await Log.findAll({
+      where: {
+        createdAt: { [Op.gte]: todayStart, [Op.lt]: morningWindow },
+      },
+      attributes: ['userId', 'event', 'text', 'metadata', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    })
+
+    const POSITIVE_MOODS = ['energized', 'hopeful', 'excited', 'calm', 'peaceful', 'content', 'grateful', 'fulfilled']
+
+    const userVitalityMap: Record<string, { morningMoodCount: number; energyLevel: string; hasBiorhythmSignal: boolean }> = {}
+    for (const l of morningLogs) {
+      const uid = String((l as any).userId)
+      if (!userVitalityMap[uid]) userVitalityMap[uid] = { morningMoodCount: 0, energyLevel: 'low', hasBiorhythmSignal: false }
+
+      const ev = l.event
+      const meta = l.metadata as Record<string, any> | null
+
+      if (ev === 'mood' && meta?.mood && POSITIVE_MOODS.includes(String(meta.mood))) {
+        userVitalityMap[uid].morningMoodCount++
+      } else if (ev === 'energy' && meta?.level) {
+        userVitalityMap[uid].energyLevel = String(meta.level)
+      } else if (ev === 'biorhythm_lock' || ev === 'morning_coherence_launch') {
+        userVitalityMap[uid].hasBiorhythmSignal = true
+      }
+    }
+
+    let written = 0
+    for (const [userId, vitality] of Object.entries(userVitalityMap)) {
+      if (vitality.morningMoodCount < 2) continue
+      try {
+        await Log.create({
+          userId: Number(userId),
+          event: 'vitality_peak',
+          text: '',
+          metadata: {
+            morningMoodCount: vitality.morningMoodCount,
+            energyLevel: vitality.energyLevel,
+            biorhythmAnchored: vitality.hasBiorhythmSignal,
+            hour: 12,
+            window: '1d',
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} vitality peak write failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users scanned: ${Object.keys(userVitalityMap).length}`)
+    console.log(`  Vitality peak records written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('DAILY VITALITY PEAK CHECK COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyVitalityPeakRun = new Date()
+    isDailyVitalityPeakRunning = false
+
+    return { jobName, executedAt, success: true, result: { scanned: Object.keys(userVitalityMap).length, written } }
+  } catch (error: any) {
+    console.error('Daily vitality peak check failed:', error.message)
+    isDailyVitalityPeakRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -2632,6 +2740,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily evening coherence close: 10 PM UTC every day')
   console.log('   - Daily signal momentum check: 8 PM UTC every day')
   console.log('   - Weekly cognitive depth check: 6 AM UTC every Sunday')
+  console.log('   - Daily vitality peak check: 12 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2641,8 +2750,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 13 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {
