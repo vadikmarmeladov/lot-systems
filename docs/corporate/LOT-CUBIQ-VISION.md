@@ -29,12 +29,12 @@ replaced not by willpower but by a better architecture.
 02 // PAID TIERS
 --------------------------------------------------------------------------------
 
-TIER           ROLE                       BADGE CLASS
-────           ────                       ───────────
-R&D            Contributors building      [R&D] contribution badges
-Usership       Operators running full OS  [Usership] engagement badges
-Legacy         Founders, long-term        [Legacy] tenure badges
-Admin          System governance          [Admin] operational badges
+TIER           ROLE                       BADGE CLASS          PRICING
+────           ────                       ───────────          ───────
+R&D            Contributors building      [R&D]                $15/month
+Usership       Operators running full OS  [Usership]           $99/month — $3,564/3 years
+Legacy         Founders, long-term        [Legacy]             $3,564/3 years
+Admin          System governance          [Admin]              $11,000/9 years
 
 Each tier carries its own badge class. Contributions earn badges, badges
 prove depth, depth trains the robot. The tiers are not access levels —
