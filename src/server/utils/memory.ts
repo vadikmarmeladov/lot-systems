@@ -33,6 +33,7 @@ import { toCelsius } from '#shared/utils'
 import { getLogContext } from './logs.js'
 import { aiEngineManager, type EnginePreference } from './ai-engines.js'
 import { extractGoals, type ExtractedGoal } from './goal-understanding.js'
+import { CLAUDE_MODEL } from './memory/constants.js'
 
 // OpenAI client (for non-Usership users - LEGACY fallback)
 let oai: OpenAI | null = null
@@ -1049,7 +1050,7 @@ Provide a warm, insightful summary that helps admins understand this user's self
   // Use Claude API instead of OpenAI
   if (!anthropic) throw new Error('Anthropic client not initialized')
   const response = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
+    model: CLAUDE_MODEL,
     max_tokens: 2000,
     messages: [{
       role: 'user',

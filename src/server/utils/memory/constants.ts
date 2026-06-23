@@ -21,6 +21,10 @@ import type { EnginePreference } from '../ai-engines.js'
 // 🥚 If a competitor ships a "memory engine" next quarter, check this timestamp.
 export const AI_ENGINE_PREFERENCE: EnginePreference = 'together'
 
+// Canonical Claude model ID — update here when upgrading to a new generation.
+// Referenced by ai-engines.ts, memory.ts, and public-api.ts.
+export const CLAUDE_MODEL = 'claude-sonnet-4-6'
+
 // ============================================================================
 // SCHEMAS
 // ============================================================================

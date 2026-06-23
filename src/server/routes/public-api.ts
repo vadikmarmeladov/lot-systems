@@ -16,6 +16,7 @@ import { generateMemoryStory } from '#server/utils/memory/story-generator'
 import { aiEngineManager } from '#server/utils/ai-engines'
 import { AI_ENGINE_PREFERENCE } from '#server/utils/memory/constants'
 import config from '#server/config'
+import { CLAUDE_MODEL } from '#server/utils/memory/constants.js'
 import { toCelsius } from '#shared/utils'
 import fs from 'fs'
 import path from 'path'
@@ -373,6 +374,14 @@ let analyticsCache: any = null
 let analyticsLastCheck = 0
 const ANALYTICS_CACHE_DURATION = 60 * 1000 // 1 minute
 
+function requireAdmin(req: any, reply: any): boolean {
+  if (!req.user || !req.user.isAdmin) {
+    reply.code(403).send({ error: 'Admin access required' })
+    return false
+  }
+  return true
+}
+
 export default async (fastify: FastifyInstance) => {
   fastify.get('/analytics', async (req, reply) => {
     const now = Date.now()
@@ -531,6 +540,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Admin configuration diagnostic endpoint
   fastify.get('/verify-admin-config', async (req, reply) => {
+    if (!requireAdmin(req, reply)) return
     const adminEmailsEnv = process.env.ADMIN_EMAILS
     const adminsList = config.admins
 
@@ -555,6 +565,7 @@ export default async (fastify: FastifyInstance) => {
 
   // API key verification endpoint - shows masked API key for verification
   fastify.get('/verify-api-keys', async (req, reply) => {
+    if (!requireAdmin(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
     const resendKey = process.env.RESEND_API_KEY
     const openaiKey = process.env.OPENAI_API_KEY
@@ -592,6 +603,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Memory Engine diagnostic endpoint - shows why Claude might not be working
   fastify.get('/debug-memory-engine', async (req, reply) => {
+    if (!requireAdmin(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     // Test if we can initialize Anthropic client
@@ -638,6 +650,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test all AI engines to see which are available
   fastify.get('/test-ai-engines', async (req, reply) => {
+    if (!requireAdmin(req, reply)) return
     const { aiEngineManager } = await import('#server/utils/ai-engines.js')
 
     const status = aiEngineManager.getStatus()
@@ -687,6 +700,7 @@ export default async (fastify: FastifyInstance) => {
 
   // Test Anthropic API key with actual API call
   fastify.get('/test-anthropic-key', async (req, reply) => {
+    if (!requireAdmin(req, reply)) return
     const anthropicKey = process.env.ANTHROPIC_API_KEY || config.anthropic?.apiKey
 
     if (!anthropicKey) {
@@ -703,7 +717,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: CLAUDE_MODEL,
         max_tokens: 10,
         messages: [
           {

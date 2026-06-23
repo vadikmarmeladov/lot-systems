@@ -18,6 +18,7 @@ import OpenAI from 'openai'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 import { Mistral } from '@mistralai/mistralai'
 import config from '#server/config'
+import { CLAUDE_MODEL } from '#server/utils/memory/constants.js'
 
 // ============================================================================
 // Core Interface - All AI engines must implement this
@@ -136,7 +137,7 @@ export class ClaudeEngine implements AIEngine {
     }
 
     const response = await this.client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: CLAUDE_MODEL,
       max_tokens: maxTokens,
       messages: [
         {
