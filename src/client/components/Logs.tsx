@@ -1198,11 +1198,48 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex gap-12 items-baseline mb-4">
+                  <span className="uppercase tracking-widest opacity-40 text-xs w-[3em]">
+                    {entryType ? entryType.slice(0, 4).toUpperCase() : 'ENTR'}
+                  </span>
+                  {text && <span>{text}</span>}
+                </div>
+                {date && (
+                  <div className="opacity-30 tabular-nums">
+                    {dayjs(date).format('ddd D MMM YYYY')}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_alert') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const countdown = log.metadata?.countdown as string | undefined
+          const daysUntil = log.metadata?.daysUntil as number | undefined
+          const label = `CAL [${countdown ?? 'ALERT'}]:`
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={label} blockView>
+                <div className="flex gap-12 items-baseline mb-4">
+                  <span className="uppercase tracking-widest opacity-40 text-xs w-[3em]">
+                    {entryType ? entryType.slice(0, 4).toUpperCase() : 'ENTR'}
+                  </span>
+                  {text && <span className="uppercase tracking-widest">{text}</span>}
+                </div>
+                {date && (
+                  <div className="opacity-30 tabular-nums">
+                    {dayjs(date).format('ddd D MMM YYYY')}
+                    {daysUntil !== undefined && daysUntil > 0 && (
+                      <span className="ml-8">· {daysUntil}D OUT</span>
+                    )}
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )
