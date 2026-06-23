@@ -28,7 +28,7 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, extractEmailTarget, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
@@ -2052,6 +2052,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/system       This help screen',
+          '/email to X   Compose a LOT® Mail to X',
           '',
           'SHORTCUTS',
           'Ctrl+Enter    Save log immediately',
@@ -2074,6 +2075,9 @@ const NoteEditor = ({
             submitStory({ logText: value })
           }
         }
+      } else if (trigger === 'email-compose') {
+        const recipient = extractEmailTarget(value)
+        stores.emailComposeTarget.set(recipient ?? '')
       }
     }
   }, [value])

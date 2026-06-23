@@ -386,6 +386,10 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'lot_email': {
+          write({ event, data })
+          break
+        }
       }
     })
 
@@ -3902,6 +3906,107 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // ============================================================================
+  // LOT® EMAIL — compose in Log, appear in Sync
+  // ============================================================================
+
+  // List emails (sent + received)
+  fastify.get('/lot-emails', async (req, reply) => {
+    try {
+      const emails = await fastify.models.LotEmail.findAll({
+        where: { senderId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+      const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || req.user.email
+      return reply.send(emails.map((e) => ({
+        ...e.toJSON(),
+        senderName,
+      })))
+    } catch (error) {
+      console.error('Error fetching lot emails:', error)
+      return reply.status(500).send({ error: 'Failed to fetch emails' })
+    }
+  })
+
+  // Compose + send email
+  fastify.post('/lot-emails', async (req: FastifyRequest<{
+    Body: { recipientName: string; recipientUserId?: string; subject: string; body: string }
+  }>, reply) => {
+    try {
+      const { recipientName, recipientUserId, subject, body } = req.body
+
+      if (!recipientName?.trim() || !body?.trim()) {
+        return reply.status(400).send({ error: 'Recipient name and body are required' })
+      }
+
+      const email = await fastify.models.LotEmail.create({
+        senderId: req.user.id,
+        recipientName: recipientName.trim(),
+        recipientUserId: recipientUserId || null,
+        subject: (subject || '').trim().slice(0, 512),
+        body: body.trim().slice(0, 5000),
+        status: 'sent',
+        sentAt: new Date(),
+      })
+
+      const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || req.user.email
+
+      sync.emit('lot_email', {
+        ...email.toJSON(),
+        senderName,
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'lot_email_sent',
+            text: '',
+            metadata: { emailId: email.id, recipientName, subject },
+            context,
+          })
+        } catch {}
+      })
+
+      return reply.send({ ...email.toJSON(), senderName })
+    } catch (error) {
+      console.error('Error sending lot email:', error)
+      return reply.status(500).send({ error: 'Failed to send email' })
+    }
+  })
+
+  // Search users by name (for recipient autocomplete)
+  fastify.get('/lot-emails/search-users', async (req: FastifyRequest<{
+    Querystring: { q: string }
+  }>, reply) => {
+    try {
+      const q = (req.query.q || '').trim()
+      if (!q || q.length < 2) return reply.send([])
+
+      const { Op } = await import('sequelize')
+      const users = await fastify.models.User.findAll({
+        where: {
+          [Op.or]: [
+            { firstName: { [Op.iLike]: `%${q}%` } },
+            { lastName: { [Op.iLike]: `%${q}%` } },
+          ],
+        },
+        attributes: ['id', 'firstName', 'lastName', 'email'],
+        limit: 8,
+      })
+      return reply.send(users.map((u) => ({
+        id: u.id,
+        name: `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email,
+        email: u.email,
+      })))
+    } catch (error) {
+      console.error('Error searching users:', error)
+      return reply.status(500).send({ error: 'Search failed' })
     }
   })
 

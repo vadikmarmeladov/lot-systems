@@ -20,6 +20,7 @@ import { DirectMessageThread } from '#client/components/DirectMessageThread'
 import { StatusPage } from '#client/components/StatusPage'
 import { ApiPage } from '#client/components/ApiPage'
 import { ConnectionStatus } from '#client/components/ConnectionStatus'
+import { EmailCompose } from '#client/components/EmailCompose'
 import { render } from '#client/utils/render'
 import { listenSSE } from '#client/utils/sse'
 import { useSun } from '#client/utils/sun'
@@ -301,6 +302,7 @@ const App = () => {
           <ApiPage />
         </TabPanel>
         <DynamicRoutes />
+        <EmailCompose />
         {isMirrorOn && (
           <video
             ref={mirrorRef}

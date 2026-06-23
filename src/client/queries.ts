@@ -120,6 +120,17 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+// LOT® Email
+export const useLotEmails = createQuery<import('#shared/types').PublicLotEmail[]>(
+  '/api/lot-emails',
+  { refetchOnWindowFocus: false }
+)
+
+export const useComposeLotEmail = createMutation<
+  { recipientName: string; recipientUserId?: string; subject: string; body: string },
+  import('#shared/types').PublicLotEmail
+>('post', '/api/lot-emails')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

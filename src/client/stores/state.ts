@@ -83,5 +83,8 @@ export const lastAnsweredMemoryQuestionId = persistentAtom<string | null>(
   }
 )
 
+// LOT® Email compose modal target (null = closed)
+export const emailComposeTarget = atom<string | null>(null)
+
 // computed
 export const isLoggedIn = computed(me, (m) => !!m)

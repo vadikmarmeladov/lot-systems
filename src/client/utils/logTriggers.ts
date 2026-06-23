@@ -40,6 +40,7 @@ export type LogTrigger =
   | 'qi-rfi'            // /qi — Quantum Intelligence RFI (Request for Information)
   | 'system-help'       // /system — list all available slash commands
   | 'story-mode'        // /story — generate contextual story from recent data
+  | 'email-compose'     // /email to <name> — open LOT® Email compose modal
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -65,6 +66,7 @@ const RULES: TriggerRule[] = [
   { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'] },
   { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'] },
   { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'] },
+  { trigger: 'email-compose',  emojis: ['📧'],    keywords: ['email', 'mail'] },
 ]
 
 /**
@@ -112,4 +114,19 @@ export function detectNewTriggers(
   const fresh: LogTrigger[] = []
   current.forEach(t => { if (!prior.has(t)) fresh.push(t) })
   return fresh
+}
+
+/**
+ * Extract the recipient name from an `/email to <name>` command.
+ * Returns null if the pattern is not found or the name is empty.
+ * Examples:
+ *   "/email to Hitomi"     → "Hitomi"
+ *   "/mail to Jane Smith"  → "Jane Smith"
+ *   "📧 to Vadim"          → "Vadim"
+ */
+export function extractEmailTarget(text: string): string | null {
+  const match = text.match(/(?:\/(?:email|mail)|📧)\s+to\s+([^\n,]+)/i)
+  if (!match) return null
+  const name = match[1].trim()
+  return name.length > 0 ? name : null
 }

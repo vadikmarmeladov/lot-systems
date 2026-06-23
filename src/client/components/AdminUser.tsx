@@ -29,6 +29,7 @@ import { getUserTagByIdCaseInsensitive, USER_TAGS_BY_ID, COUNTRY_BY_ALPHA3 } fro
 import { DefaultQuestion, UserTag } from '#shared/types'
 import * as stores from '#client/stores'
 import * as fp from '#shared/utils/fp'
+import { emailComposeTarget } from '#client/stores/state'
 import dayjs from '#client/utils/dayjs'
 import { cn } from '#client/utils'
 import { useDocumentTitle } from '#client/utils/hooks'
@@ -143,8 +144,15 @@ export const AdminUser = () => {
         <div>Loading...</div>
       ) : (
         <div className="grid gap-y-16">
-          <div className="mb-16">
-            LOT {user.firstName || user.email.split('@')[0]}
+          <div className="mb-16 flex items-center gap-x-16">
+            <span>LOT {user.firstName || user.email.split('@')[0]}</span>
+            <Button
+              kind="secondary"
+              size="small"
+              onClick={() => emailComposeTarget.set(`${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email)}
+            >
+              📧 Email
+            </Button>
           </div>
           <div>
             <Block label="Email:">

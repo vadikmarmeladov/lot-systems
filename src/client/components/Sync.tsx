@@ -24,9 +24,10 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotEmails,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, PublicLotEmail, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -42,6 +43,7 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [lotEmails, setLotEmails] = React.useState<PublicLotEmail[]>([])
   const hasInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
@@ -55,6 +57,7 @@ export const Sync = () => {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: fetchedEmails } = useLotEmails()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -81,6 +84,10 @@ export const Sync = () => {
       hasInitiallyLoaded.current = true
     }
   }, [fetchedMessages])
+
+  React.useEffect(() => {
+    if (fetchedEmails) setLotEmails(fetchedEmails)
+  }, [fetchedEmails])
 
   // Invalidate cache on mount to ensure fresh data (filters suspended users)
   // Reset hasInitiallyLoaded when component unmounts so data reloads on return
@@ -122,9 +129,19 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeLotEmailListener } = sync.listen(
+      'lot_email',
+      (data) => {
+        setLotEmails((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [data, ...prev]
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotEmailListener()
     }
   }, [me?.id])
 
@@ -188,6 +205,42 @@ export const Sync = () => {
 
   return (
     <div className="max-w-[700px]">
+      {lotEmails.length > 0 && (
+        <div className="mb-48">
+          <div className="text-acc/40 text-xs uppercase tracking-wider mb-16 select-none">
+            LOT® Mail
+          </div>
+          {lotEmails.slice(0, 5).map((email) => (
+            <div
+              key={email.id}
+              className="flex items-start gap-x-8 py-8 -mx-4 px-4 border-b border-acc/10 last:border-0"
+            >
+              <span className="text-acc/40 select-none shrink-0 mt-1">📧</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-x-8">
+                  <span className="text-acc text-sm">
+                    {email.senderName} → {email.recipientName}
+                  </span>
+                  {email.subject && (
+                    <span className="text-acc/40 text-xs truncate">
+                      {email.subject}
+                    </span>
+                  )}
+                </div>
+                <div className="text-acc/60 text-sm truncate mt-2">
+                  {email.body}
+                </div>
+              </div>
+              <span className="text-acc/20 text-xs shrink-0 whitespace-nowrap">
+                <MessageTimeLabel
+                  dateString={email.createdAt}
+                  isTimeFormat12h={isTimeFormat12h}
+                />
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}
