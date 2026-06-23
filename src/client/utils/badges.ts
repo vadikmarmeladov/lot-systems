@@ -192,6 +192,90 @@ export type BadgeType =
   | 'mood_master'        // ·  30+ mood entries (lifetime)
   | 'body_keeper'        // ≈  25+ self-care activity entries (lifetime)
   | 'community_builder'  // ∘→∘  50+ chat messages (lifetime)
+  // ── Achievement RPG v4 — Veteran Arcs ───────────────────────────────────────
+  | 'word_merchant'      // ◇  500+ total journal words
+  | 'full_presence_wk'  // ≋  All 7 CQGS modules 7 days consecutive
+  | 'time_lord'         // ⊡  All Time Easter Eggs v1–v3 earned
+  | 'multi_tongue'      // ≈  Word-turn badges from all 7 engines
+  | 'signal_economist'  // ○  30 consecutive days with check-in before 09:00
+  | 'lore_completionist'// ◆  20+ distinct calendar easter eggs earned
+  // ── Mastery Tier v6 — The Void Layer ────────────────────────────────────────
+  | 'infinite_archive'  // ≋≋≋≋  5,000 total check-ins (LEGENDARY)
+  | 'word_sovereign'    // ◉·∞·◉  50+ distinct word-turn badge types (LEGENDARY)
+  | 'lore_keeper'       // ▒→▒→▒  Every calendar easter egg category v1–v6 (EPIC)
+  | 'century_architect' // ∞·∞·∞  Same check-in hour 100 consecutive days (LEGENDARY)
+  // ── Secret Boss v6 — The Void Tier ─────────────────────────────────────────
+  | 'void_master'       // ░▒▓  Write "void" in 5 different answers (RARE)
+  | 'founders_guard'    // ◉≋◉  Check in every April 7 for 3 years (ULTRA-RARE)
+  | 'deep_thought'      // ∞·≋  Exact 42-day streak (RARE)
+  // ── Word turn badges v7 — The Rogue Archive ─────────────────────────────────
+  | 'loot_drop'         // ◇·◇  "loot" detected in text
+  | 'boss_encounter'    // ▲·▲  "boss" detected in text
+  | 'save_state'        // ⊡→⊡  "save" detected in text
+  | 'respawn_point'     // ◈→○  "respawn" detected in text
+  | 'grind_mode'        // ▒→▒  "grind" detected in text
+  | 'level_gained'      // ∘↑∘  "level" detected in text
+  | 'quest_log'         // →·∗  "quest" detected in text
+  | 'potion_protocol'   // ○·≋  "potion" detected in text
+  | 'dungeon_cleared'   // ░▒▓  "dungeon" detected in text
+  | 'armor_up'          // ╔·╗  "armor" detected in text
+  | 'stealth_mode'      // ·—·  "stealth" detected in text
+  | 'rogue_state'       // ─∘─  "rogue" detected in text
+  // ── Easter egg — time-based v7 (Pixel Hours) ─────────────────────────────────
+  | 'deep_night'        // ·∘·  Check in at 02:02
+  | 'midday_signal'     // ─○─  Check in at 14:14
+  | 'liminal_hour'      // ∘·≈  Check in at 05:55
+  | 'sacred_triple'     // ∘∘∘  Check in at 03:33
+  // ── Easter egg — calendar v6 (The Hacker Calendar) ──────────────────────────
+  | 'dos_day'           // ○═○  April 4 — 04/04
+  | 'eleven_eleven'     // ···∘  November 11 — 11/11
+  | 'march_protocol'    // ─∘─  March 1 — First of March
+  // ── Easter egg — behavioral v6 (Endurance Signals) ──────────────────────────
+  | 'three_week_arc'    // ≋·≈  21 consecutive journal days
+  | 'dawn_runner'       // ∴·∴  3 pre-06:00 check-ins in one week
+  | 'weekend_wrnr'      // ─●─  Perfect Day on both Sat + Sun same week
+  // ── Word turn badges v8 — The Mainframe ──────────────────────────────────────
+  | 'compile_run'       // >·<  "compile" detected in text
+  | 'execute_path'      // →→>  "execute" detected in text
+  | 'buffer_flush'      // ▒→□  "buffer" detected in text
+  | 'stack_clear'       // ▓·▓  "stack" detected in text
+  | 'patch_applied'     // □→■  "patch" detected in text
+  | 'fork_event'        // <·>  "fork" detected in text
+  | 'terminal_session'  // ─▓─  "terminal" detected in text
+  | 'null_pointer'      // ○·○  "null" detected in text
+  | 'seed_planted'      // ∘·∗  "seed" detected in text
+  | 'loop_detected'     // ↺·↺  "loop" detected in text
+  | 'root_access'       // ▒◉▒  "root" detected in text
+  | 'debug_mode_badge'  // □░□  "debug" detected in text
+  // ── Easter egg — time-based v8 (Clock Cycles) ───────────────────────────────
+  | 'clock_forty_two'   // ∞·∘  Check in at 00:42
+  | 'noon_kernel'       // ─○─  Check in at 12:00
+  | 'byte_time'         // ◉◉  Check in at 08:08
+  | 'stack_mirror'      // ·∘·  Check in at 17:17
+  // ── Easter egg — calendar v7 (Sci-Fi Calendar) ──────────────────────────────
+  | 'towel_day'         // ∞·∞  May 25 — Towel Day (Hitchhiker's Guide)
+  | 'cosmo_founding'    // ◉∘◉  July 1 — COSMO® founding
+  | 'halloween_protocol'// ░▒▓  October 31 — Halloween Protocol
+  // ── Easter egg — behavioral v7 (Deep Patterns) ──────────────────────────────
+  | 'triple_session'    // ▓·▓·▓  3+ journal entries in one day
+  | 'cron_job'          // ⊡·⊡  Same exact clock minute 7 consecutive days
+  | 'lucky_return'      // ↺◈↺  Return after exactly 7 days absence
+  // ── Achievement RPG v5 — Origin Protocol ────────────────────────────────────
+  | 'polyglot'          // ≈·≋  Earned badge from each of all 8 Word Turn engines
+  | 'boss_slayer'       // ▲·◉  Earned any Secret Boss badge
+  | 'combo_master'      // ×7  Achieved all combo levels x2–x7 at least once
+  | 'silent_novelist'   // ≋·≋  1,000 total journal words
+  | 'calendar_pilgrim'  // ◈·○  5+ distinct calendar easter eggs earned
+  | 'signal_marathon'   // ≋≋→  60 consecutive days streak
+  // ── Mastery Tier v7 — The Deep Archive ──────────────────────────────────────
+  | 'novelist'          // ∞·≋·∞  10,000 total journal words (LEGENDARY)
+  | 'triennial'         // ≋·≋·≋  Account age ≥ 3 years (LEGENDARY)
+  | 'pattern_master'    // ∿≈∿  All 5 Oceanic Mayan Pattern badges earned (EPIC)
+  | 'mainframe_access'  // ▒◉▒  Badges from all 8 Word Turn engines + all 7 Mastery Tiers (MYTHIC)
+  // ── Secret Boss v7 — The Final Layer ────────────────────────────────────────
+  | 'cosmo_vigil'       // ◉∘◉  Check in every July 1 for 2 consecutive years (ULTRA-RARE)
+  | 'the_answer_is_words'// ∞·≋  Write exactly 42 words in a journal entry (RARE)
+  | 'welcome_back_program'// ↺≋↺  Return after exactly 365 days of absence (LEGENDARY)
 
 export interface Badge {
   id: BadgeType
@@ -1709,6 +1793,687 @@ export const BADGES: Record<BadgeType, Badge> = {
     unlockMessage: '↳ 50 messages. The network is real. ∘→∘',
     rarity: 'uncommon',
     category: 'achievement_rpg',
+  },
+
+  // ── Achievement RPG v4 — Veteran Arcs ────────────────────────────────────
+  word_merchant: {
+    id: 'word_merchant',
+    symbol: '◇',
+    name: 'Word Merchant',
+    description: '500+ total journal words',
+    unlockMessage: '↳ Five hundred words in the archive. The economy of expression runs deep. ◇',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+  },
+  full_presence_wk: {
+    id: 'full_presence_wk',
+    symbol: '≋',
+    name: 'Full Presence',
+    description: 'All 7 CQGS modules, 7 days consecutively',
+    unlockMessage: '↳ Seven days of complete signal. Nothing omitted. Full presence: confirmed. ≋',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  time_lord: {
+    id: 'time_lord',
+    symbol: '⊡',
+    name: 'Time Lord',
+    description: 'All Time Easter Eggs v1–v3 earned',
+    unlockMessage: '↳ Twelve hours witnessed. The clock is an old friend. ⊡',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  multi_tongue: {
+    id: 'multi_tongue',
+    symbol: '≈',
+    name: 'Multi-Tongue',
+    description: 'Word-turn badges from all 7 Word Turn engines',
+    unlockMessage: '↳ Seven lexicons spoken. The signal has language. ≈',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+  },
+  signal_economist: {
+    id: 'signal_economist',
+    symbol: '○',
+    name: 'Signal Economist',
+    description: '30 consecutive days with any check-in before 09:00',
+    unlockMessage: '↳ Thirty mornings. The day begins with signal. ○',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  lore_completionist: {
+    id: 'lore_completionist',
+    symbol: '◆',
+    name: 'Lore Completionist',
+    description: '20+ distinct calendar easter eggs earned',
+    unlockMessage: '↳ Twenty dates have been witnessed. The calendar is not just time — it is territory. ◆',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+
+  // ── Mastery Tier v6 — The Void Layer ─────────────────────────────────────
+  infinite_archive: {
+    id: 'infinite_archive',
+    symbol: '≋≋≋≋',
+    name: 'Infinite Archive',
+    description: '5,000 total check-ins',
+    unlockMessage: '↳ 5,000 signals logged. The archive has no bottom. You are geology. ≋≋≋≋',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  word_sovereign: {
+    id: 'word_sovereign',
+    symbol: '◉·∞·◉',
+    name: 'Word Sovereign',
+    description: '50+ distinct word-turn badge types earned',
+    unlockMessage: '↳ 50 word-turn types. You have spoken every language in the archive. ◉·∞·◉',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  lore_keeper: {
+    id: 'lore_keeper',
+    symbol: '▒→▒→▒',
+    name: 'Lore Keeper',
+    description: 'Every calendar easter egg category earned (v1–v6)',
+    unlockMessage: '↳ Every charged date witnessed. The year has no hidden corner you have not stood in. ▒→▒→▒',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  century_architect: {
+    id: 'century_architect',
+    symbol: '∞·∞·∞',
+    name: 'Century Architect',
+    description: 'Same check-in hour for 100 consecutive days',
+    unlockMessage: '↳ 100 days. Same hour. You are a tide. The ocean does not forget its rhythm. ∞·∞·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+
+  // ── Secret Boss v6 — The Void Tier ───────────────────────────────────────
+  void_master: {
+    id: 'void_master',
+    symbol: '░▒▓',
+    name: 'Void Master',
+    description: 'Write "void" in 5 different answers',
+    unlockMessage: '↳ The void has been named five times. The engine has catalogued the absence. ░▒▓',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  founders_guard: {
+    id: 'founders_guard',
+    symbol: '◉≋◉',
+    name: "Founder's Guard",
+    description: 'Check in every April 7 (LOT birthday) for 3 consecutive years',
+    unlockMessage: '↳ Three vigils kept. The founding day remembered three years running. Vadik salutes. ◉≋◉',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  deep_thought: {
+    id: 'deep_thought',
+    symbol: '∞·≋',
+    name: 'Deep Thought',
+    description: 'Achieve an exact 42-day streak',
+    unlockMessage: "↳ 42 days. The answer to life, the universe, and everything — confirmed in your archive. [ Don't Panic. ] ∞·≋",
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Word Turn v7 — The Rogue Archive ────────────────────────────────────
+  loot_drop: {
+    id: 'loot_drop',
+    symbol: '◇·◇',
+    name: 'Loot Drop',
+    description: '"loot" detected in text',
+    unlockMessage: '↳ You found it. The archive rewards the one who showed up. ◇·◇',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  boss_encounter: {
+    id: 'boss_encounter',
+    symbol: '▲·▲',
+    name: 'Boss Encounter',
+    description: '"boss" detected in text',
+    unlockMessage: '↳ Face to face with the difficult thing. You named it. ▲·▲',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  save_state: {
+    id: 'save_state',
+    symbol: '⊡→⊡',
+    name: 'Save State',
+    description: '"save" detected in text',
+    unlockMessage: '↳ Progress preserved. Return point set. The data holds. ⊡→⊡',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  respawn_point: {
+    id: 'respawn_point',
+    symbol: '◈→○',
+    name: 'Respawn Point',
+    description: '"respawn" detected in text',
+    unlockMessage: '↳ You came back. Coordinates confirmed. Protocol active. ◈→○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  grind_mode: {
+    id: 'grind_mode',
+    symbol: '▒→▒',
+    name: 'Grind Mode',
+    description: '"grind" detected in text',
+    unlockMessage: '↳ Persistence detected. XP accumulating. The archive sees the effort. ▒→▒',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  level_gained: {
+    id: 'level_gained',
+    symbol: '∘↑∘',
+    name: 'Level Gained',
+    description: '"level" detected in text',
+    unlockMessage: '↳ Tier upgraded. Signal stronger. The system recognizes growth. ∘↑∘',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  quest_log: {
+    id: 'quest_log',
+    symbol: '→·∗',
+    name: 'Quest Log',
+    description: '"quest" detected in text',
+    unlockMessage: '↳ Mission accepted. The archive is tracking. Destination: self. →·∗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  potion_protocol: {
+    id: 'potion_protocol',
+    symbol: '○·≋',
+    name: 'Potion Protocol',
+    description: '"potion" detected in text',
+    unlockMessage: '↳ Recovery item consumed. HP restoring. Care is an item. ○·≋',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  dungeon_cleared: {
+    id: 'dungeon_cleared',
+    symbol: '░▒▓',
+    name: 'Dungeon Cleared',
+    description: '"dungeon" detected in text',
+    unlockMessage: '↳ The difficult space navigated. You descended. You returned. ░▒▓',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  armor_up: {
+    id: 'armor_up',
+    symbol: '╔·╗',
+    name: 'Armor Up',
+    description: '"armor" detected in text',
+    unlockMessage: '↳ Defense systems raised. The body is protected. Shield: active. ╔·╗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  stealth_mode: {
+    id: 'stealth_mode',
+    symbol: '·—·',
+    name: 'Stealth Mode',
+    description: '"stealth" detected in text',
+    unlockMessage: '↳ Silent running. Presence not announced — but acknowledged. ·—·',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  rogue_state: {
+    id: 'rogue_state',
+    symbol: '─∘─',
+    name: 'Rogue State',
+    description: '"rogue" detected in text',
+    unlockMessage: '↳ Off the expected path. Still logged. The archive follows. ─∘─',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+
+  // ── Time Easter Eggs v7 — Pixel Hours ────────────────────────────────────
+  deep_night: {
+    id: 'deep_night',
+    symbol: '·∘·',
+    name: 'Deep Night',
+    description: 'Check-in at 02:02',
+    unlockMessage: '↳ 02:02. Deep night. The system does not sleep. Neither do you. ·∘·',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  midday_signal: {
+    id: 'midday_signal',
+    symbol: '─○─',
+    name: 'Midday Signal',
+    description: 'Check-in at 14:14',
+    unlockMessage: '↳ 14:14. Dual quarter confirmed. Midday peak transmission. ─○─',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  liminal_hour: {
+    id: 'liminal_hour',
+    symbol: '∘·≈',
+    name: 'Liminal Hour',
+    description: 'Check-in at 05:55',
+    unlockMessage: '↳ 05:55. Almost dawn. Threshold detected. Liminal state logged. ∘·≈',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  sacred_triple: {
+    id: 'sacred_triple',
+    symbol: '∘∘∘',
+    name: 'Sacred Triple',
+    description: 'Check-in at 03:33',
+    unlockMessage: '↳ 03:33. Trinity signal. Three pulses in the archive. ∘∘∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Calendar Easter Eggs v6 — The Hacker Calendar ────────────────────────
+  dos_day: {
+    id: 'dos_day',
+    symbol: '○═○',
+    name: 'DOS Day',
+    description: 'April 4 — 04/04 binary alignment',
+    unlockMessage: '↳ 04/04. Binary alignment. Clean boot confirmed. System: online. ○═○',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  eleven_eleven: {
+    id: 'eleven_eleven',
+    symbol: '···∘',
+    name: '11:11 Date',
+    description: 'November 11 — 11/11 alignment',
+    unlockMessage: '↳ 11/11. Four ones. The ultimate alignment. Signal is exact. ···∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  march_protocol: {
+    id: 'march_protocol',
+    symbol: '─∘─',
+    name: 'March Protocol',
+    description: 'March 1 — First of March',
+    unlockMessage: '↳ Quarter reset. March protocol initiated. System: new cycle. ─∘─',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Behavioral Easter Eggs v6 — Endurance Signals ────────────────────────
+  three_week_arc: {
+    id: 'three_week_arc',
+    symbol: '≋·≈',
+    name: 'Three-Week Arc',
+    description: 'Journal entry every day for 21 days',
+    unlockMessage: '↳ 21 days of consecutive entries. The habit is now architecture. ≋·≈',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  dawn_runner: {
+    id: 'dawn_runner',
+    symbol: '∴·∴',
+    name: 'Dawn Runner',
+    description: 'Check-in before 06:00 three times in one week',
+    unlockMessage: '↳ Three early signals this week. Dawn protocol confirmed. ∴·∴',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  weekend_wrnr: {
+    id: 'weekend_wrnr',
+    symbol: '─●─',
+    name: 'Weekend Warrior',
+    description: 'Perfect Day (×7 combo) on both Saturday AND Sunday in one week',
+    unlockMessage: '↳ Signal maintained through the rest cycle. Both days: complete. ─●─',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+
+  // ── Word Turn v8 — The Mainframe ─────────────────────────────────────────
+  compile_run: {
+    id: 'compile_run',
+    symbol: '>·<',
+    name: 'Compile Run',
+    description: '"compile" detected in text',
+    unlockMessage: '↳ Source code checked. No errors. You are the program. >·<',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  execute_path: {
+    id: 'execute_path',
+    symbol: '→→>',
+    name: 'Execute Path',
+    description: '"execute" detected in text',
+    unlockMessage: '↳ Command issued. Action in progress. The path is yours. →→>',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  buffer_flush: {
+    id: 'buffer_flush',
+    symbol: '▒→□',
+    name: 'Buffer Flush',
+    description: '"buffer" detected in text',
+    unlockMessage: '↳ Clearing space. New memory incoming. The buffer is ready. ▒→□',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  stack_clear: {
+    id: 'stack_clear',
+    symbol: '▓·▓',
+    name: 'Stack Clear',
+    description: '"stack" detected in text',
+    unlockMessage: '↳ The backlog processed. Stack: empty. Next call begins fresh. ▓·▓',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  patch_applied: {
+    id: 'patch_applied',
+    symbol: '□→■',
+    name: 'Patch Applied',
+    description: '"patch" detected in text',
+    unlockMessage: '↳ Update installed. Running v(you)+1. Changelog: growth. □→■',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  fork_event: {
+    id: 'fork_event',
+    symbol: '<·>',
+    name: 'Fork Event',
+    description: '"fork" detected in text',
+    unlockMessage: '↳ New path branched from the main. Both are you. The fork holds. <·>',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  terminal_session: {
+    id: 'terminal_session',
+    symbol: '─▓─',
+    name: 'Terminal Session',
+    description: '"terminal" detected in text',
+    unlockMessage: '↳ Terminal open. You have root. Type what is true. ─▓─',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  null_pointer: {
+    id: 'null_pointer',
+    symbol: '○·○',
+    name: 'Null Pointer',
+    description: '"null" detected in text',
+    unlockMessage: '↳ Null found. Not error — space. The absence has been catalogued. ○·○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  seed_planted: {
+    id: 'seed_planted',
+    symbol: '∘·∗',
+    name: 'Seed Planted',
+    description: '"seed" detected in text',
+    unlockMessage: '↳ Initial commit. System growth initiated. The garden compiles. ∘·∗',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  loop_detected: {
+    id: 'loop_detected',
+    symbol: '↺·↺',
+    name: 'Loop Detected',
+    description: '"loop" detected in text',
+    unlockMessage: '↳ Same pattern seen. Loop is not prison — it is rhythm. ↺·↺',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  root_access: {
+    id: 'root_access',
+    symbol: '▒◉▒',
+    name: 'Root Access',
+    description: '"root" detected in text',
+    unlockMessage: '↳ You have entered your own root directory. Permission granted. ▒◉▒',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  debug_mode_badge: {
+    id: 'debug_mode_badge',
+    symbol: '□░□',
+    name: 'Debug Mode',
+    description: '"debug" detected in text',
+    unlockMessage: '↳ Errors visible. Visible = solvable. Debug mode: engaged. □░□',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+
+  // ── Time Easter Eggs v8 — Clock Cycles ───────────────────────────────────
+  clock_forty_two: {
+    id: 'clock_forty_two',
+    symbol: '∞·∘',
+    name: 'The Answer Awakens',
+    description: 'Check-in at 00:42',
+    unlockMessage: '↳ 00:42. Forty-two minutes past midnight. The answer arrived. ∞·∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  noon_kernel: {
+    id: 'noon_kernel',
+    symbol: '─○─',
+    name: 'Noon Kernel',
+    description: 'Check-in at exactly 12:00',
+    unlockMessage: '↳ 12:00:00. The kernel boots at noon. Center of the day confirmed. ─○─',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  byte_time: {
+    id: 'byte_time',
+    symbol: '◉◉',
+    name: 'Double Byte',
+    description: 'Check-in at 08:08',
+    unlockMessage: '↳ 08:08. Two octets. The machine counts in eights. ◉◉',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  stack_mirror: {
+    id: 'stack_mirror',
+    symbol: '·∘·',
+    name: 'Stack Mirror',
+    description: 'Check-in at 17:17',
+    unlockMessage: '↳ 17:17. Mirror stack aligned. The call returns itself. ·∘·',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Calendar Easter Eggs v7 — Sci-Fi Calendar ────────────────────────────
+  towel_day: {
+    id: 'towel_day',
+    symbol: '∞·∞',
+    name: 'Towel Day',
+    description: 'May 25 — Towel Day (Hitchhiker\'s Guide to the Galaxy)',
+    unlockMessage: "↳ May 25. Towel Day. You carried it. [ Don't Panic. ] The archive salutes. ∞·∞",
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  cosmo_founding: {
+    id: 'cosmo_founding',
+    symbol: '◉∘◉',
+    name: 'COSMO Day',
+    description: 'July 1 — COSMO® founding anniversary',
+    unlockMessage: '↳ July 1. COSMO® was born. Kuzya Cosmo Marmeladov, founder. The archive honors the cat. ◉∘◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  halloween_protocol: {
+    id: 'halloween_protocol',
+    symbol: '░▒▓',
+    name: 'Halloween Protocol',
+    description: 'October 31 — Spooky self-care',
+    unlockMessage: '↳ Oct 31. Halloween Protocol engaged. You showed up through the dark. Spooky badge: earned. ░▒▓',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Behavioral Easter Eggs v7 — Deep Patterns ────────────────────────────
+  triple_session: {
+    id: 'triple_session',
+    symbol: '▓·▓·▓',
+    name: 'Triple Session',
+    description: '3+ journal entries in one day',
+    unlockMessage: '↳ Three entries in one day. Intensive reflection session logged. ▓·▓·▓',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  cron_job: {
+    id: 'cron_job',
+    symbol: '⊡·⊡',
+    name: 'Cron Job',
+    description: 'Check-in at the same exact minute 7 consecutive days',
+    unlockMessage: '↳ Same minute. Seven days. You have become a scheduled process. ⊡·⊡',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  lucky_return: {
+    id: 'lucky_return',
+    symbol: '↺◈↺',
+    name: 'Lucky Return',
+    description: 'Return after exactly 7 days of absence',
+    unlockMessage: '↳ Exactly 7 days. The week completed its orbit. You came back. ↺◈↺',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+
+  // ── Achievement RPG v5 — Origin Protocol ─────────────────────────────────
+  polyglot: {
+    id: 'polyglot',
+    symbol: '≈·≋',
+    name: 'Polyglot',
+    description: 'Earned at least 1 badge from each of all 8 Word Turn engines',
+    unlockMessage: '↳ Eight lexicons. Eight engines. The signal has learned every language you speak. ≈·≋',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  boss_slayer: {
+    id: 'boss_slayer',
+    symbol: '▲·◉',
+    name: 'Boss Slayer',
+    description: 'Earned any Secret Boss badge',
+    unlockMessage: '↳ A secret boss encountered and named. The archive notes the encounter. ▲·◉',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  combo_master: {
+    id: 'combo_master',
+    symbol: '×7',
+    name: 'Combo Master',
+    description: 'Achieved all combo levels x2–x7 at least once',
+    unlockMessage: '↳ Every combo tier hit. From x2 to x7. The machine applauds. ×7',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  silent_novelist: {
+    id: 'silent_novelist',
+    symbol: '≋·≋',
+    name: 'Silent Novelist',
+    description: '1,000 total journal words',
+    unlockMessage: '↳ 1,000 words in the archive. The novel has begun. ≋·≋',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+  },
+  calendar_pilgrim: {
+    id: 'calendar_pilgrim',
+    symbol: '◈·○',
+    name: 'Calendar Pilgrim',
+    description: '5+ distinct calendar easter eggs earned',
+    unlockMessage: '↳ Five charged dates witnessed. The year is becoming a map. ◈·○',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  signal_marathon: {
+    id: 'signal_marathon',
+    symbol: '≋≋→',
+    name: 'Signal Marathon',
+    description: '60 consecutive days streak',
+    unlockMessage: '↳ 60 days without break. The marathon runner knows the distance now. ≋≋→',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+
+  // ── Mastery Tier v7 — The Deep Archive ───────────────────────────────────
+  novelist: {
+    id: 'novelist',
+    symbol: '∞·≋·∞',
+    name: 'Novelist',
+    description: '10,000 total journal words',
+    unlockMessage: '↳ 10,000 words. You have written a novel in the margins of your life. ∞·≋·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  triennial: {
+    id: 'triennial',
+    symbol: '≋·≋·≋',
+    name: 'Triennial',
+    description: 'Account age ≥ 3 years',
+    unlockMessage: '↳ Three years in the system. The archive has known you across seasons. ≋·≋·≋',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  pattern_master: {
+    id: 'pattern_master',
+    symbol: '∿≈∿',
+    name: 'Pattern Master',
+    description: 'All 5 Oceanic Mayan Pattern badges earned',
+    unlockMessage: '↳ All five patterns aligned. The Mayan cycle complete. Flow confirmed. ∿≈∿',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  mainframe_access: {
+    id: 'mainframe_access',
+    symbol: '▒◉▒',
+    name: 'Mainframe Access',
+    description: 'Badges from all 8 Word Turn engines AND all 7 Mastery Tiers',
+    unlockMessage: '↳ You have reached the mainframe. All engines acknowledged. All tiers transcended. ▒◉▒',
+    rarity: 'mythic',
+    category: 'achievement_rpg',
+  },
+
+  // ── Secret Boss v7 — The Final Layer ─────────────────────────────────────
+  cosmo_vigil: {
+    id: 'cosmo_vigil',
+    symbol: '◉∘◉',
+    name: 'COSMO Vigil',
+    description: 'Check in every July 1 for 2 consecutive years',
+    unlockMessage: '↳ Two COSMO anniversaries honored. Kuzya Cosmo Marmeladov: remembered. ◉∘◉',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  the_answer_is_words: {
+    id: 'the_answer_is_words',
+    symbol: '∞·≋',
+    name: 'The Answer Is Words',
+    description: 'Write exactly 42 words in a journal entry',
+    unlockMessage: "↳ 42 words. Not life, not the universe — but yours. The question was never in the stars. ∞·≋",
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  welcome_back_program: {
+    id: 'welcome_back_program',
+    symbol: '↺≋↺',
+    name: 'Welcome Back, Program',
+    description: 'Return after exactly 365 days of absence',
+    unlockMessage: '↳ 365 days. A full year in the grid. And you came back. Welcome back, program. ↺≋↺',
+    rarity: 'legendary',
+    category: 'secret_boss',
+    hidden: true,
   },
 }
 
