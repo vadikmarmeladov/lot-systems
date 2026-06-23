@@ -160,6 +160,52 @@ export function checkTauSignal(): BadgeType | null {
   return null
 }
 
+// ── Time v7 — Deep Signal ────────────────────────────────────────────────────
+
+/** Award Deep Night badge if current time is 02:02 */
+export function checkDeepNight(): BadgeType | null {
+  if (hasBadge('deep_night')) return null
+  const now = new Date()
+  if (now.getHours() === 2 && now.getMinutes() === 2) {
+    awardBadge('deep_night')
+    return 'deep_night'
+  }
+  return null
+}
+
+/** Award Midday Signal badge if current time is 14:14 */
+export function checkMiddaySignal(): BadgeType | null {
+  if (hasBadge('midday_signal')) return null
+  const now = new Date()
+  if (now.getHours() === 14 && now.getMinutes() === 14) {
+    awardBadge('midday_signal')
+    return 'midday_signal'
+  }
+  return null
+}
+
+/** Award Liminal Hour badge if current time is 05:55 */
+export function checkLiminalHour(): BadgeType | null {
+  if (hasBadge('liminal_hour')) return null
+  const now = new Date()
+  if (now.getHours() === 5 && now.getMinutes() === 55) {
+    awardBadge('liminal_hour')
+    return 'liminal_hour'
+  }
+  return null
+}
+
+/** Award Sacred Triple badge if current time is 03:33 */
+export function checkSacredTriple(): BadgeType | null {
+  if (hasBadge('sacred_triple')) return null
+  const now = new Date()
+  if (now.getHours() === 3 && now.getMinutes() === 33) {
+    awardBadge('sacred_triple')
+    return 'sacred_triple'
+  }
+  return null
+}
+
 // ── Time v6 — Infinite Loop ───────────────────────────────────────────────────
 
 /** Award Nine Lives badge if current time is 09:09 */
@@ -217,6 +263,7 @@ export function checkTimeEasterEggs(): BadgeType[] {
     checkPiHour, checkErrorHour, checkSequenceTime, checkLotHour,
     checkDigitalSymmetry, checkSeqBoot, checkPalindromeTime, checkTauSignal,
     checkNineLives, checkHexHour, checkFinalFrame, checkYearSignal,
+    checkDeepNight, checkMiddaySignal, checkLiminalHour, checkSacredTriple,
   ]
   for (const check of checks) {
     const result = check()
@@ -315,6 +362,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('fibonacci_day') && month === 11 && day === 23) {
     awardBadge('fibonacci_day')
     awarded.push('fibonacci_day')
+  }
+
+  // ── Calendar v6 ────────────────────────────────────────────────────────────
+
+  // DOS Day: April 4 (04/04)
+  if (!hasBadge('dos_day') && month === 4 && day === 4) {
+    awardBadge('dos_day')
+    awarded.push('dos_day')
+  }
+
+  // Eleven Eleven: November 11 (11/11)
+  if (!hasBadge('eleven_eleven') && month === 11 && day === 11) {
+    awardBadge('eleven_eleven')
+    awarded.push('eleven_eleven')
+  }
+
+  // March Protocol: March 1
+  if (!hasBadge('march_protocol') && month === 3 && day === 1) {
+    awardBadge('march_protocol')
+    awarded.push('march_protocol')
   }
 
   return awarded
@@ -623,6 +690,219 @@ export function checkTimeAnchor(): BadgeType | null {
   return null
 }
 
+// ── Behavioral v6 ────────────────────────────────────────────────────────────
+
+/**
+ * Check Three Week Archive badge: 21 consecutive journal entries.
+ * Stores journal entry dates in localStorage.
+ * Call this when a journal entry is saved.
+ */
+export function checkThreeWeekArchive(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('three_week_archive')) return null
+
+  try {
+    const now = new Date()
+    const todayStr = now.toISOString().slice(0, 10)
+    const key = 'journal_entry_dates'
+    const stored = localStorage.getItem(key)
+    const dates: string[] = stored ? JSON.parse(stored) : []
+
+    if (!dates.includes(todayStr)) {
+      dates.push(todayStr)
+      const recent = dates.slice(-30)
+      localStorage.setItem(key, JSON.stringify(recent))
+
+      if (recent.length >= 21) {
+        const sorted = [...recent].sort()
+        let consecutive = 1
+        for (let i = sorted.length - 1; i > 0 && consecutive < 21; i--) {
+          const dayDiff = Math.round(
+            (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime())
+            / (1000 * 60 * 60 * 24)
+          )
+          if (dayDiff === 1) {
+            consecutive++
+          } else {
+            break
+          }
+        }
+        if (consecutive >= 21) {
+          awardBadge('three_week_archive')
+          return 'three_week_archive'
+        }
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Dawn Runner badge: 3 check-ins before 06:00 AM in a single week.
+ * Stores timestamps of early check-ins in localStorage.
+ * Call this on every check-in.
+ */
+export function checkDawnRunner(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('dawn_runner')) return null
+
+  const now = new Date()
+  if (now.getHours() >= 6) return null  // Only track pre-06:00
+
+  try {
+    const key = 'dawn_runner_dates'
+    const stored = localStorage.getItem(key)
+    const dates: string[] = stored ? JSON.parse(stored) : []
+    const todayStr = now.toISOString().slice(0, 10)
+
+    if (!dates.includes(todayStr)) {
+      dates.push(todayStr)
+      // Keep only last 14 days
+      const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+      const recent = dates.filter(d => d >= cutoff)
+      localStorage.setItem(key, JSON.stringify(recent))
+
+      // Check if 3+ early check-ins occurred in the last 7 days
+      const weekCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+      const thisWeek = recent.filter(d => d >= weekCutoff)
+      if (thisWeek.length >= 3) {
+        awardBadge('dawn_runner')
+        return 'dawn_runner'
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Weekend Warrior badge: Perfect Day on both Saturday AND Sunday in same weekend.
+ * perfectDayDates: array of ISO date strings (YYYY-MM-DD) when Perfect Day was earned.
+ */
+export function checkWeekendWarrior(perfectDayDates: string[]): BadgeType | null {
+  if (hasBadge('weekend_warrior')) return null
+  if (perfectDayDates.length < 2) return null
+
+  // Group by ISO week number; check if any week has both Sat (day=6) and Sun (day=0)
+  const weekMap = new Map<string, Set<number>>()
+  for (const dateStr of perfectDayDates) {
+    const d = new Date(dateStr)
+    const dayOfWeek = d.getDay()
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) continue  // Only weekends
+
+    // Week key: Mon of that week
+    const mon = new Date(d)
+    const diff = (dayOfWeek === 0 ? -6 : 1) - dayOfWeek
+    mon.setDate(d.getDate() + diff + (dayOfWeek === 0 ? 7 : 0))
+    const weekKey = mon.toISOString().slice(0, 10)
+
+    if (!weekMap.has(weekKey)) weekMap.set(weekKey, new Set())
+    weekMap.get(weekKey)!.add(dayOfWeek)
+  }
+
+  for (const days of weekMap.values()) {
+    if (days.has(0) && days.has(6)) {
+      awardBadge('weekend_warrior')
+      return 'weekend_warrior'
+    }
+  }
+
+  return null
+}
+
+// ── Century Architect check (extends time_anchor to 100 days) ────────────────
+
+/**
+ * Check Century Architect badge: same clock hour × 100 consecutive days.
+ * Uses the same time_anchor_log as checkTimeAnchor.
+ * Call this on every check-in.
+ */
+export function checkCenturyArchitect(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('century_architect')) return null
+
+  try {
+    const stored = localStorage.getItem('time_anchor_log')
+    if (!stored) return null
+    const log: Array<{ date: string; hour: number }> = JSON.parse(stored)
+
+    if (log.length < 100) return null
+
+    const sorted = [...log].sort((a, b) => a.date.localeCompare(b.date))
+    let consecutive = 1
+    const anchorHour = sorted[sorted.length - 1].hour
+    for (let i = sorted.length - 1; i > 0; i--) {
+      const prev = sorted[i - 1]
+      const curr = sorted[i]
+      const dayDiff = Math.round(
+        (new Date(curr.date).getTime() - new Date(prev.date).getTime())
+        / (1000 * 60 * 60 * 24)
+      )
+      if (dayDiff === 1 && prev.hour === anchorHour) {
+        consecutive++
+        if (consecutive >= 100) {
+          awardBadge('century_architect')
+          return 'century_architect'
+        }
+      } else {
+        break
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Signal Economist check (30 consecutive days before 09:00) ────────────────
+
+/**
+ * Check Signal Economist badge: 30 consecutive days with check-in before 09:00.
+ * Call this on every check-in.
+ */
+export function checkSignalEconomist(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('signal_economist')) return null
+
+  const now = new Date()
+  if (now.getHours() >= 9) return null  // Only track pre-09:00
+
+  try {
+    const todayStr = now.toISOString().slice(0, 10)
+    const key = 'signal_economist_log'
+    const stored = localStorage.getItem(key)
+    const dates: string[] = stored ? JSON.parse(stored) : []
+
+    if (!dates.includes(todayStr)) {
+      dates.push(todayStr)
+      const recent = dates.slice(-35)
+      localStorage.setItem(key, JSON.stringify(recent))
+
+      if (recent.length >= 30) {
+        const sorted = [...recent].sort()
+        let consecutive = 1
+        for (let i = sorted.length - 1; i > 0; i--) {
+          const dayDiff = Math.round(
+            (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime())
+            / (1000 * 60 * 60 * 24)
+          )
+          if (dayDiff === 1) {
+            consecutive++
+            if (consecutive >= 30) {
+              awardBadge('signal_economist')
+              return 'signal_economist'
+            }
+          } else {
+            break
+          }
+        }
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
 // ── Word turn detection ───────────────────────────────────────────────────────
 
 /** Word turn map: phrase patterns → badge IDs */
@@ -685,6 +965,19 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bbold\b/i,                           badge: 'bold_protocol' },
   { patterns: /\b(trust|trusted|trusting)\b/i,       badge: 'trust_lock' },
   { patterns: /\b(shift|shifted|shifting)\b/i,       badge: 'shift_sequence' },
+  // ── v7 — RPG Lexicon ─────────────────────────────────────────────────────
+  { patterns: /\b(loot|looted|looting)\b/i,          badge: 'loot_drop' },
+  { patterns: /\bboss\b/i,                            badge: 'boss_encounter' },
+  { patterns: /\b(save|saved|saving)\b/i,             badge: 'save_state' },
+  { patterns: /\b(respawn|respawned|respawning)\b/i,  badge: 'respawn_point' },
+  { patterns: /\b(grind|grinding|grinded|ground)\b/i, badge: 'grind_mode' },
+  { patterns: /\b(level|leveled|levelling)\b/i,       badge: 'level_gained' },
+  { patterns: /\b(quest|quests)\b/i,                  badge: 'quest_log' },
+  { patterns: /\b(potion|potions)\b/i,                badge: 'potion_protocol' },
+  { patterns: /\b(dungeon|dungeons)\b/i,              badge: 'dungeon_cleared' },
+  { patterns: /\b(armor|armour)\b/i,                  badge: 'armor_up' },
+  { patterns: /\bstealth\b/i,                         badge: 'stealth_mode' },
+  { patterns: /\b(rogue|rogues)\b/i,                  badge: 'rogue_state' },
   // ── Secret Boss word triggers ─────────────────────────────────────────────
   { patterns: /\bi am lot\b/i,                       badge: 'i_am_lot' },
   { patterns: /\bmalibu\b/i,                         badge: 'malibu' },
@@ -708,6 +1001,17 @@ export function detectWordTurns(text: string): BadgeType[] {
         awarded.push(badge)
       }
     }
+  }
+
+  // void_master: track "void" across 5 different entries
+  if (/\bvoid\b/i.test(text) && !hasBadge('void_master') && typeof window !== 'undefined') {
+    try {
+      const count = parseInt(localStorage.getItem('void_entry_count') || '0', 10) + 1
+      localStorage.setItem('void_entry_count', String(count))
+      if (count >= 5) {
+        if (awardBadge('void_master')) awarded.push('void_master')
+      }
+    } catch { /* non-critical */ }
   }
 
   return awarded
@@ -840,6 +1144,18 @@ export function runCheckInEasterEggs(
   const timeAnchor = checkTimeAnchor()
   if (timeAnchor) awarded.push(timeAnchor)
 
+  // Behavioral v6: dawn runner (3 pre-06:00 check-ins in one week)
+  const dawnRunner = checkDawnRunner()
+  if (dawnRunner) awarded.push(dawnRunner)
+
+  // Behavioral v6: century architect (same hour × 100 consecutive days)
+  const centuryArchitect = checkCenturyArchitect()
+  if (centuryArchitect) awarded.push(centuryArchitect)
+
+  // Achievement RPG v4: signal economist (30 consecutive days before 09:00)
+  const signalEconomist = checkSignalEconomist()
+  if (signalEconomist) awarded.push(signalEconomist)
+
   // Record activity after all checks (so gap detection works next time)
   recordActivity()
 
@@ -861,6 +1177,10 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   // Behavioral v5: deep scribe (≥500 chars)
   const deepScribe = checkDeepScribe(journalText)
   if (deepScribe) awarded.push(deepScribe)
+
+  // Behavioral v6: three week archive (21 consecutive journal entries)
+  const threeWeekArchive = checkThreeWeekArchive()
+  if (threeWeekArchive) awarded.push(threeWeekArchive)
 
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)

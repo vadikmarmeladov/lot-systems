@@ -117,6 +117,11 @@ export type BadgeType =
   | 'hex_hour'           // ▒·▒  Check in at 16:16 (0x10:0x10)
   | 'final_frame'        // ◈—◈  Check in at 23:59
   | 'year_signal'        // ≋·◉  Check in at 20:26 (founding year)
+  // ── Easter egg — time-based v7 (Deep Signal) ────────────────────────────────
+  | 'deep_night'         // ◉·◉  Check in at 02:02
+  | 'midday_signal'      // ⊛·⊛  Check in at 14:14
+  | 'liminal_hour'       // ∿·∿  Check in at 05:55
+  | 'sacred_triple'      // ∗·∗  Check in at 03:33
   // ── Easter egg — calendar v4 (Nerd & Cosmic) ────────────────────────────────
   | 'signal_wars'        // ⊛·⊛  May 4 — Star Wars Day
   | 'prog_day'           // □∘□  Sep 12–13 — Programmers' Day (day 256)
@@ -125,6 +130,10 @@ export type BadgeType =
   | 'groundhog_loop'     // ↺·↺  Feb 2 — Groundhog Day
   | 'binary_day'         // 1·0  Oct 10 — Binary Day
   | 'fibonacci_day'      // ∗→∗  Nov 23 — Fibonacci Day (1,1,2,3)
+  // ── Easter egg — calendar v6 ────────────────────────────────────────────────
+  | 'dos_day'            // □→□  Apr 4 — DOS Day
+  | 'eleven_eleven'      // ⊡·⊡  Nov 11 — Eleven Eleven
+  | 'march_protocol'     // —○—  Mar 1 — March Protocol
   // ── Easter egg — behavioral v4 (Deep Archive) ───────────────────────────────
   | 'night_scribe'       // ◐·◐  Journal entry after 23:30
   | 'epic_transmission'  // ▒▒▒  1,000+ char memory answer
@@ -134,6 +143,10 @@ export type BadgeType =
   | 'deep_scribe'        // ≋·≋  Journal entry ≥500 chars
   | 'phoenix_streak'     // ∴→∘  Rebuild streak after breaking it
   | 'time_anchor'        // ⊡·⊡  Same clock hour 14 consecutive days
+  // ── Easter egg — behavioral v6 ──────────────────────────────────────────────
+  | 'three_week_archive' // ≋≋≋  21 consecutive journal entries
+  | 'dawn_runner'        // ∴·∘  3 pre-06:00 check-ins in one week
+  | 'weekend_warrior'    // ✦·✦  Perfect Day on both Saturday AND Sunday
   // ── Word turn badges v5 — Signal Codex ──────────────────────────────────────
   | 'solitude_mode'      // ∘—∘  "solitude" detected in text
   | 'wonder_protocol'    // ○·∗  "wonder" detected in text
@@ -160,6 +173,19 @@ export type BadgeType =
   | 'bold_protocol'      // ▶·▶  "bold" detected in text
   | 'trust_lock'         // ○═○  "trust" detected in text
   | 'shift_sequence'     // →∘→  "shift" detected in text
+  // ── Word turn badges v7 — RPG Lexicon ───────────────────────────────────────
+  | 'loot_drop'          // ◇·◇  "loot" detected in text
+  | 'boss_encounter'     // ■·■  "boss" detected in text
+  | 'save_state'         // ≋·≋  "save" detected in text
+  | 'respawn_point'      // ∘→∘  "respawn" detected in text
+  | 'grind_mode'         // ▒▒▒  "grind" detected in text
+  | 'level_gained'       // ∘↑∘  "level" detected in text
+  | 'quest_log'          // →→∗  "quest" detected in text
+  | 'potion_protocol'    // ○·∘  "potion" detected in text
+  | 'dungeon_cleared'    // ╞═╡  "dungeon" detected in text
+  | 'armor_up'           // ■═■  "armor" detected in text
+  | 'stealth_mode'       // ░·░  "stealth" detected in text
+  | 'rogue_state'        // ◈·◈  "rogue" detected in text
   // ── Mastery tier v4 — Final Frontier ────────────────────────────────────────
   | 'interstellar'       // ∗×∗  2,000 total check-ins (LEGENDARY)
   | 'deep_narrator'      // ≋≋·≋≋ Memory story 1,000+ words (LEGENDARY)
@@ -170,6 +196,11 @@ export type BadgeType =
   | 'time_collector'     // ⊡·⊡·⊡ All Time v1 badges earned (EPIC)
   | 'memory_keeper_30'   // ≋·≋  Memory answers on 30 distinct calendar days (RARE)
   | 'word_collector'     // ◇→◇  30+ distinct word-turn badge types (EPIC)
+  // ── Mastery tier v6 — Transcendence ─────────────────────────────────────────
+  | 'infinite_archive'  // ∞∞∞  5,000 total check-ins (LEGENDARY)
+  | 'word_sovereign'    // ◈·≋·◈  50+ distinct word-turn badge types (EPIC)
+  | 'lore_keeper'       // ≋·⊡·≋  All calendar EE v1–v6 (LEGENDARY)
+  | 'century_architect' // ⊡×⊡  Same check-in hour × 100 consecutive days (EPIC)
   // ── Secret Boss v4 — Founders' Layer ────────────────────────────────────────
   | 'i_am_lot'           // ◉◉◉  Write "I am LOT" in any answer (MYTHIC)
   | 'malibu'             // ∘◉∘  Write "Malibu" in any answer (MYTHIC)
@@ -178,6 +209,10 @@ export type BadgeType =
   | 'the_cat_knows'      // ∗◉∗  Write "Kuzya" in any entry (MYTHIC)
   | 'key_code'           // ▒→▒  Write "0451" in any entry (RARE)
   | 'five_years'         // ≋≋≋·≋  Account age ≥ 5 years (COSMIC)
+  // ── Secret Boss v6 — The Void Layer ─────────────────────────────────────────
+  | 'void_master'       // ░░░  "void" in 5 different entries (RARE)
+  | 'founders_guard'    // ◉·≋·◉  Check in on April 7 × 3 consecutive years (ULTRA-RARE)
+  | 'deep_thought'      // ∞  Exact 42-day streak (RARE)
   // ── Achievement RPG v2 — Story Arcs ─────────────────────────────────────────
   | 'signal_keeper'      // ◇  100+ memory answers (lifetime)
   | 'word_weaver'        // ≈·≋  20+ word-turn badge types triggered
@@ -192,6 +227,13 @@ export type BadgeType =
   | 'mood_master'        // ·  30+ mood entries (lifetime)
   | 'body_keeper'        // ≈  25+ self-care activity entries (lifetime)
   | 'community_builder'  // ∘→∘  50+ chat messages (lifetime)
+  // ── Achievement RPG v4 — Legend Arc ─────────────────────────────────────────
+  | 'word_merchant'      // ≈·∗  500+ total journal words (lifetime) (RARE)
+  | 'full_presence_week' // ◆·◆  All 7 CQGS modules × 7 consecutive days (EPIC)
+  | 'time_lord'          // ⊡·∞  All Time EE v1–v3 — 12 hours earned (EPIC)
+  | 'multi_tongue'       // ≋·◈·≋  Word-turn badges from all 5 engines (RARE)
+  | 'signal_economist'   // ∘◉∘  30 consecutive days check-in before 09:00 (UNCOMMON)
+  | 'lore_completionist' // ∗·≋·∗  20+ distinct calendar easter eggs (LEGENDARY)
 
 export interface Badge {
   id: BadgeType
@@ -1069,6 +1111,48 @@ export const BADGES: Record<BadgeType, Badge> = {
     hidden: true,
   },
 
+  // ── Easter egg — time-based v7 (Deep Signal) ──────────────────────────────
+  deep_night: {
+    id: 'deep_night',
+    symbol: '◉·◉',
+    name: 'Deep Night',
+    description: 'Check in at 02:02 — the deep signal hour',
+    unlockMessage: '↳ 02:02. The world is asleep. You are awake. ◉·◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  midday_signal: {
+    id: 'midday_signal',
+    symbol: '⊛·⊛',
+    name: 'Midday Signal',
+    description: 'Check in at 14:14 — afternoon mirror',
+    unlockMessage: '↳ 14:14. Midday. The signal doubles back. ⊛·⊛',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  liminal_hour: {
+    id: 'liminal_hour',
+    symbol: '∿·∿',
+    name: 'Liminal Hour',
+    description: 'Check in at 05:55 — the threshold before dawn',
+    unlockMessage: '↳ 05:55. The liminal space. Between night and day. ∿·∿',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  sacred_triple: {
+    id: 'sacred_triple',
+    symbol: '∗·∗',
+    name: 'Sacred Triple',
+    description: 'Check in at 03:33 — the triple pattern',
+    unlockMessage: '↳ 03:33. Three repeating. The pattern is sacred. ∗·∗',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
   // ── Easter egg — calendar v4 (Nerd & Cosmic) ──────────────────────────────
   signal_wars: {
     id: 'signal_wars',
@@ -1129,6 +1213,38 @@ export const BADGES: Record<BadgeType, Badge> = {
     description: 'Check in on November 23 — 1,1,2,3 are Fibonacci numbers',
     unlockMessage: '↳ 1, 1, 2, 3. November 23. The sequence runs through the calendar. ∗→∗',
     rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — calendar v6 ──────────────────────────────────────────────
+  dos_day: {
+    id: 'dos_day',
+    symbol: '□→□',
+    name: 'DOS Day',
+    description: 'Check in on April 4 — DOS Day (04/04)',
+    unlockMessage: '↳ 04/04. DOS Day. The command line remembers you. □→□',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  eleven_eleven: {
+    id: 'eleven_eleven',
+    symbol: '⊡·⊡',
+    name: 'Eleven Eleven',
+    description: 'Check in on November 11 — 11/11',
+    unlockMessage: '↳ 11/11. Eleven eleven. Make a wish, then log it. ⊡·⊡',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  march_protocol: {
+    id: 'march_protocol',
+    symbol: '—○—',
+    name: 'March Protocol',
+    description: 'Check in on March 1 — the first march',
+    unlockMessage: '↳ March 1. The year begins its second chapter. March on. —○—',
+    rarity: 'uncommon',
     category: 'easter_egg',
     hidden: true,
   },
@@ -1203,6 +1319,38 @@ export const BADGES: Record<BadgeType, Badge> = {
     description: 'Check in at the same clock hour for 14 consecutive days',
     unlockMessage: '↳ Same hour. 14 days. The anchor is set. ⊡·⊡',
     rarity: 'legendary',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — behavioral v6 ────────────────────────────────────────────
+  three_week_archive: {
+    id: 'three_week_archive',
+    symbol: '≋≋≋',
+    name: 'Three Week Archive',
+    description: '21 consecutive journal entries — the neural groove',
+    unlockMessage: '↳ 21 entries. The groove is carved. The habit is real. ≋≋≋',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  dawn_runner: {
+    id: 'dawn_runner',
+    symbol: '∴·∘',
+    name: 'Dawn Runner',
+    description: '3 check-ins before 06:00 AM in a single week',
+    unlockMessage: '↳ Three dawns this week. You run before the world starts. ∴·∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  weekend_warrior: {
+    id: 'weekend_warrior',
+    symbol: '✦·✦',
+    name: 'Weekend Warrior',
+    description: 'Perfect Day badge on both a Saturday AND a Sunday in the same weekend',
+    unlockMessage: '↳ Saturday and Sunday. The whole weekend, complete. ✦·✦',
+    rarity: 'epic',
     category: 'easter_egg',
     hidden: true,
   },
@@ -1451,6 +1599,128 @@ export const BADGES: Record<BadgeType, Badge> = {
     hidden: true,
   },
 
+  // ── Word turn badges v7 — RPG Lexicon ─────────────────────────────────────
+  loot_drop: {
+    id: 'loot_drop',
+    symbol: '◇·◇',
+    name: 'Loot Drop',
+    description: '"loot" detected in text',
+    unlockMessage: '↳ Loot detected. You collected something real today. ◇·◇',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  boss_encounter: {
+    id: 'boss_encounter',
+    symbol: '■·■',
+    name: 'Boss Encounter',
+    description: '"boss" detected in text',
+    unlockMessage: '↳ Boss signal. The encounter is logged. ■·■',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  save_state: {
+    id: 'save_state',
+    symbol: '≋·≋',
+    name: 'Save State',
+    description: '"save" detected in text',
+    unlockMessage: '↳ Save event registered. Your story is written. ≋·≋',
+    rarity: 'common',
+    category: 'word_turn',
+    hidden: true,
+  },
+  respawn_point: {
+    id: 'respawn_point',
+    symbol: '∘→∘',
+    name: 'Respawn Point',
+    description: '"respawn" detected in text',
+    unlockMessage: '↳ Respawn acknowledged. You continue from here. ∘→∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  grind_mode: {
+    id: 'grind_mode',
+    symbol: '▒▒▒',
+    name: 'Grind Mode',
+    description: '"grind" detected in text',
+    unlockMessage: '↳ Grind mode active. The XP accumulates. ▒▒▒',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  level_gained: {
+    id: 'level_gained',
+    symbol: '∘↑∘',
+    name: 'Level Gained',
+    description: '"level" detected in text',
+    unlockMessage: '↳ Level event detected. The arc rises. ∘↑∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  quest_log: {
+    id: 'quest_log',
+    symbol: '→→∗',
+    name: 'Quest Log',
+    description: '"quest" detected in text',
+    unlockMessage: '↳ Quest logged. The objective is recorded. →→∗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  potion_protocol: {
+    id: 'potion_protocol',
+    symbol: '○·∘',
+    name: 'Potion Protocol',
+    description: '"potion" detected in text',
+    unlockMessage: '↳ Potion protocol activated. Resources replenished. ○·∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  dungeon_cleared: {
+    id: 'dungeon_cleared',
+    symbol: '╞═╡',
+    name: 'Dungeon Cleared',
+    description: '"dungeon" detected in text',
+    unlockMessage: '↳ Dungeon signal. You went somewhere dark and came back. ╞═╡',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  armor_up: {
+    id: 'armor_up',
+    symbol: '■═■',
+    name: 'Armor Up',
+    description: '"armor" detected in text',
+    unlockMessage: '↳ Armor protocol engaged. The protection is noted. ■═■',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  stealth_mode: {
+    id: 'stealth_mode',
+    symbol: '░·░',
+    name: 'Stealth Mode',
+    description: '"stealth" detected in text',
+    unlockMessage: '↳ Stealth mode. You move unseen. The system sees you. ░·░',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  rogue_state: {
+    id: 'rogue_state',
+    symbol: '◈·◈',
+    name: 'Rogue State',
+    description: '"rogue" detected in text',
+    unlockMessage: '↳ Rogue state registered. Off the beaten path. ◈·◈',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+
   // ── Mastery tier v4 — Final Frontier ──────────────────────────────────────
   interstellar: {
     id: 'interstellar',
@@ -1535,6 +1805,48 @@ export const BADGES: Record<BadgeType, Badge> = {
     hidden: true,
   },
 
+  // ── Mastery tier v6 — Transcendence ──────────────────────────────────────
+  infinite_archive: {
+    id: 'infinite_archive',
+    symbol: '∞∞∞',
+    name: 'Infinite Archive',
+    description: '5,000 total check-ins',
+    unlockMessage: '↳ 5,000. The archive has no ceiling. ∞∞∞',
+    rarity: 'legendary',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  word_sovereign: {
+    id: 'word_sovereign',
+    symbol: '◈·≋·◈',
+    name: 'Word Sovereign',
+    description: 'Earn 50+ distinct word-turn badge types',
+    unlockMessage: '↳ 50 word turns. The sovereign of the inner lexicon. ◈·≋·◈',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  lore_keeper: {
+    id: 'lore_keeper',
+    symbol: '≋·⊡·≋',
+    name: 'Lore Keeper',
+    description: 'Earn calendar easter egg badges from all six versions (v1–v6)',
+    unlockMessage: '↳ All calendar lore collected. The year yields its secrets. ≋·⊡·≋',
+    rarity: 'legendary',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  century_architect: {
+    id: 'century_architect',
+    symbol: '⊡×⊡',
+    name: 'Century Architect',
+    description: 'Check in at the same clock hour for 100 consecutive days',
+    unlockMessage: '↳ Same hour. 100 days. You architected time itself. ⊡×⊡',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
   // ── Secret Boss v4 — Founders' Layer ──────────────────────────────────────
   i_am_lot: {
     id: 'i_am_lot',
@@ -1595,6 +1907,38 @@ export const BADGES: Record<BadgeType, Badge> = {
     description: 'Account age ≥ 5 years',
     unlockMessage: '↳ Five years. The only thing that earns this is time. ≋≋≋·≋',
     rarity: 'cosmic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Secret Boss v6 — The Void Layer ──────────────────────────────────────
+  void_master: {
+    id: 'void_master',
+    symbol: '░░░',
+    name: 'Void Master',
+    description: 'Write "void" in 5 different journal entries or memory answers',
+    unlockMessage: '↳ Five voids. You have mapped the empty space. ░░░',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  founders_guard: {
+    id: 'founders_guard',
+    symbol: '◉·≋·◉',
+    name: 'Founders Guard',
+    description: 'Check in on April 7 for 3 consecutive years',
+    unlockMessage: '↳ April 7. Three years in a row. The founding date is a ritual. ◉·≋·◉',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  deep_thought: {
+    id: 'deep_thought',
+    symbol: '∞',
+    name: 'Deep Thought',
+    description: 'Exact 42-day streak — the answer to everything',
+    unlockMessage: '↳ 42 days. The answer. [ Don\'t Panic. ] ∞',
+    rarity: 'rare',
     category: 'secret_boss',
     hidden: true,
   },
@@ -1709,6 +2053,66 @@ export const BADGES: Record<BadgeType, Badge> = {
     unlockMessage: '↳ 50 messages. The network is real. ∘→∘',
     rarity: 'uncommon',
     category: 'achievement_rpg',
+  },
+
+  // ── Achievement RPG v4 — Legend Arc ──────────────────────────────────────
+  word_merchant: {
+    id: 'word_merchant',
+    symbol: '≈·∗',
+    name: 'Word Merchant',
+    description: '500+ total words written in journal entries (lifetime)',
+    unlockMessage: '↳ 500 journal words. The merchant of inner language. ≈·∗',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+  },
+  full_presence_week: {
+    id: 'full_presence_week',
+    symbol: '◆·◆',
+    name: 'Full Presence Week',
+    description: 'All 7 CQGS modules used in 7 consecutive days',
+    unlockMessage: '↳ Seven days. Seven modules. Full presence confirmed. ◆·◆',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  time_lord: {
+    id: 'time_lord',
+    symbol: '⊡·∞',
+    name: 'Time Lord',
+    description: 'Earn all 12 Time EE badges (v1 + v2 + v5)',
+    unlockMessage: '↳ 12 time anchors. You have mastered the clock. ⊡·∞',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: true,
+  },
+  multi_tongue: {
+    id: 'multi_tongue',
+    symbol: '≋·◈·≋',
+    name: 'Multi Tongue',
+    description: 'Earn word-turn badges from all 5 word-turn engines (v1, v2, v5, v6, v7)',
+    unlockMessage: '↳ Five engines of language. You speak all of them. ≋·◈·≋',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+    hidden: true,
+  },
+  signal_economist: {
+    id: 'signal_economist',
+    symbol: '∘◉∘',
+    name: 'Signal Economist',
+    description: '30 consecutive days with a check-in before 09:00',
+    unlockMessage: '↳ 30 early mornings. You invest before the market opens. ∘◉∘',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+    hidden: true,
+  },
+  lore_completionist: {
+    id: 'lore_completionist',
+    symbol: '∗·≋·∗',
+    name: 'Lore Completionist',
+    description: 'Earn 20+ distinct calendar easter egg badges',
+    unlockMessage: '↳ 20 calendar events captured. The year has no secrets left. ∗·≋·∗',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: true,
   },
 }
 
@@ -2069,6 +2473,10 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     if (wordTurnCount >= 30 && !hasBadge('word_collector')) {
       if (awardBadge('word_collector')) newBadges.push('word_collector')
     }
+    // Mastery v6: 50+ distinct word-turn badge types
+    if (wordTurnCount >= 50 && !hasBadge('word_sovereign')) {
+      if (awardBadge('word_sovereign')) newBadges.push('word_sovereign')
+    }
 
     // Achievement RPG v3: intention entries
     if (typeof stats.totalIntentions === 'number') {
@@ -2124,6 +2532,113 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
       if (yearsElapsed >= 5 && !hasBadge('five_years')) {
         if (awardBadge('five_years')) newBadges.push('five_years')
       }
+    }
+
+    // Mastery v6: 5,000 total check-ins
+    if (typeof stats.totalCheckIns === 'number') {
+      if (stats.totalCheckIns >= 5000 && !hasBadge('infinite_archive')) {
+        if (awardBadge('infinite_archive')) newBadges.push('infinite_archive')
+      }
+    }
+
+    // Mastery v6: all calendar EE v1–v6 represented
+    const calV1Badges: BadgeType[] = ['solstice', 'equinox', 'lot_birthday', 'new_year_sage', 'pi_day']
+    const calV4Badges: BadgeType[] = ['signal_wars', 'prog_day', 'ada_protocol']
+    const calV5Badges: BadgeType[] = ['groundhog_loop', 'binary_day', 'fibonacci_day']
+    const calV6Badges: BadgeType[] = ['dos_day', 'eleven_eleven', 'march_protocol']
+    const hasLoreKeeper =
+      calV1Badges.some(b => hasBadge(b)) &&
+      calV4Badges.some(b => hasBadge(b)) &&
+      calV5Badges.some(b => hasBadge(b)) &&
+      calV6Badges.some(b => hasBadge(b))
+    if (hasLoreKeeper && !hasBadge('lore_keeper')) {
+      if (awardBadge('lore_keeper')) newBadges.push('lore_keeper')
+    }
+
+    // Secret Boss v6: exact 42-day streak
+    if (typeof stats.streak === 'number') {
+      if (stats.streak === 42 && !hasBadge('deep_thought')) {
+        if (awardBadge('deep_thought')) newBadges.push('deep_thought')
+      }
+    }
+
+    // Secret Boss v6: founders_guard — check in on April 7 for 3 consecutive years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const now = new Date()
+      if (now.getMonth() === 3 && now.getDate() === 7) {
+        try {
+          const key = 'founders_guard_years'
+          const stored = localStorage.getItem(key)
+          const years: number[] = stored ? JSON.parse(stored) : []
+          const currentYear = now.getFullYear()
+          if (!years.includes(currentYear)) {
+            years.push(currentYear)
+            localStorage.setItem(key, JSON.stringify(years))
+          }
+          if (years.length >= 3) {
+            const sorted = [...years].sort()
+            let consecutive = 1
+            for (let i = sorted.length - 1; i > 0 && consecutive < 3; i--) {
+              if (sorted[i] - sorted[i - 1] === 1) consecutive++
+              else break
+            }
+            if (consecutive >= 3 && !hasBadge('founders_guard')) {
+              if (awardBadge('founders_guard')) newBadges.push('founders_guard')
+            }
+          }
+        } catch { /* non-critical */ }
+      }
+    }
+
+    // Achievement RPG v4: word_merchant — 500+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 500 && !hasBadge('word_merchant')) {
+        if (awardBadge('word_merchant')) newBadges.push('word_merchant')
+      }
+    }
+
+    // Achievement RPG v4: full_presence_week — all 7 CQGS modules × 7 days
+    if (typeof stats.fullPresenceWeeks === 'number') {
+      if (stats.fullPresenceWeeks >= 1 && !hasBadge('full_presence_week')) {
+        if (awardBadge('full_presence_week')) newBadges.push('full_presence_week')
+      }
+    }
+
+    // Achievement RPG v4: time_lord — all 12 Time EE badges (v1 + v2 + v5)
+    const timeLordBadges: BadgeType[] = [
+      'night_owl', 'early_bird', 'mirror_hour', 'midnight_sigil',
+      'pi_hour', 'error_hour', 'sequence_time', 'lot_hour',
+      'digital_symmetry', 'seq_boot', 'palindrome_time', 'tau_signal',
+    ]
+    if (timeLordBadges.every(b => hasBadge(b)) && !hasBadge('time_lord')) {
+      if (awardBadge('time_lord')) newBadges.push('time_lord')
+    }
+
+    // Achievement RPG v4: multi_tongue — word-turn badges from all 5 engines
+    const v1Rep: BadgeType[] = ['ritual_keeper', 'breath_anchor', 'gratitude_node', 'aquatic_resonance', 'stargazer', 'grounded_signal', 'dream_log', 'courage_pulse', 'heart_signal', 'the_quiet', 'horizon_seeker', 'meta_signal']
+    const v2Rep: BadgeType[] = ['reboot_sequence', 'not_lost_404', 'signal_glitch', 'cosmic_twin', 'quantum_observer', 'neural_architect', 'code_witch', 'recharge_mode', 'fuel_protocol', 'frequency', 'kinetic_protocol', 'solar_charge', 'shadow_protocol', 'phase_shift', 'acceptance_node', 'present_moment', 'cosmic_scale', 'vital_signal']
+    const v5Rep: BadgeType[] = ['solitude_mode', 'wonder_protocol', 'phoenix_sequence', 'alignment_lock', 'witness_log', 'orbital_pattern', 'forge_protocol', 'neuro_link', 'photon_signal', 'field_charge', 'voyage_mode', 'gravity_lock']
+    const v6Rep: BadgeType[] = ['surrender_signal', 'restore_protocol', 'anchor_lock', 'threshold_gate', 'emergence_sequence', 'exhale_wave', 'clear_field', 'rise_signal', 'presence_core', 'bold_protocol', 'trust_lock', 'shift_sequence']
+    const v7Rep: BadgeType[] = ['loot_drop', 'boss_encounter', 'save_state', 'respawn_point', 'grind_mode', 'level_gained', 'quest_log', 'potion_protocol', 'dungeon_cleared', 'armor_up', 'stealth_mode', 'rogue_state']
+    const hasMultiTongue =
+      v1Rep.some(b => hasBadge(b)) &&
+      v2Rep.some(b => hasBadge(b)) &&
+      v5Rep.some(b => hasBadge(b)) &&
+      v6Rep.some(b => hasBadge(b)) &&
+      v7Rep.some(b => hasBadge(b))
+    if (hasMultiTongue && !hasBadge('multi_tongue')) {
+      if (awardBadge('multi_tongue')) newBadges.push('multi_tongue')
+    }
+
+    // Achievement RPG v4: lore_completionist — 20+ distinct calendar easter eggs
+    const calendarBadges: BadgeType[] = [
+      'solstice', 'equinox', 'lot_birthday', 'new_year_sage', 'pi_day', 'palindrome_day',
+      'full_moon', 'friday_ritual', 'signal_wars', 'prog_day', 'ada_protocol',
+      'groundhog_loop', 'binary_day', 'fibonacci_day', 'dos_day', 'eleven_eleven', 'march_protocol',
+    ]
+    const calendarEarned = calendarBadges.filter(b => hasBadge(b)).length
+    if (calendarEarned >= 10 && !hasBadge('lore_completionist')) {
+      if (awardBadge('lore_completionist')) newBadges.push('lore_completionist')
     }
 
   } catch (error) {

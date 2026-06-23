@@ -886,6 +886,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v67 entry appended · USERSHIP_TRANSMISSION updated to v67.',
     ],
   },
+  {
+    date: '2026-06-23',
+    session: 'Self-Assembly Session — v68 / Badge Codex v16 (+35 badges)',
+    assembled: [
+      'badges.ts: BadgeType union extended — 35 new IDs across 8 sub-systems (Time v7 +4, Calendar v6 +3, Behavioral v6 +3, Word Turn v7 +12, Mastery v6 +4, Secret Boss v6 +3, Achievement RPG v4 +6). BADGES Record updated with full definitions.',
+      'easter-eggs.ts: WORD_TURNS array — 12 RPG Lexicon entries (loot/boss/save/respawn/grind/level/quest/potion/dungeon/armor/stealth/rogue). Time v7 check functions (checkDeepNight 02:02 · checkMiddaySignal 14:14 · checkLiminalHour 05:55 · checkSacredTriple 03:33). Calendar v6 checks (dos_day Apr4 · eleven_eleven Nov11 · march_protocol Mar1). Behavioral v6 functions (checkThreeWeekArchive · checkDawnRunner · checkWeekendWarrior · checkCenturyArchitect · checkSignalEconomist). All wired into runCheckInEasterEggs() + runJournalEasterEggs().',
+      'badges.ts: checkAndAwardBadges() extended — Mastery v6 (infinite_archive 5000 check-ins · word_sovereign 50+ word-turn types · lore_keeper all calendar EE v1-v6 · century_architect 100-day same-hour) · Secret Boss v6 (void_master void×5 localStorage counter · founders_guard April-7 ×3 years · deep_thought exact 42-day streak) · Achievement RPG v4 (word_merchant 500+word journal · full_presence_week 7-module week · time_lord all 12 Time EE · multi_tongue all 5 word-turn engines · signal_economist 30× pre-09:00 · lore_completionist 10+ calendar EEs).',
+      'Badge total: 249 → 284. Categories: 38 → 41.',
+      'About.tsx: Field Manual v68. badge count 249→284. Day 1018+. v68 Row added to session reports table.',
+      'SESSION_REPORTS: v68 entry appended · USERSHIP_TRANSMISSION updated to v68.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -923,14 +935,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-21',
+  date: '2026-06-23',
   message: [
-    'ASSEMBLY RUN — 2026-06-21 · LOT-SR-20260621-02',
-    'P80 signal-momentum-lock: 5+ of last 7 days each with 3+ unique signal sources. Rarest sustained pattern. Conf 0.75–0.92. Not a spike — a lock.',
-    'Archetype 26 Momentum Architect: moderate/high energy · 5 dominant sources · signal-momentum-lock + intention-velocity + signal-coherence-window. Every dimension engaged. Architecture in motion — do not interrupt.',
-    'Job 19 deployed: daily-signal-momentum-check · 20:00 UTC · MOM: per user with 5+ qualifying days of 3+ sources. Sustained engagement now tracked.',
-    'Dep map: 120+ nodes. 80 patterns active. 79+ log handlers. 19 background jobs. 26 archetypes.',
-    'Signal momentum architecture: P76 (morning launch) → P79 (evening close) → P80 (sustained lock). The complete engagement loop is named.',
+    'ASSEMBLY RUN — 2026-06-23 · LOT-SR-20260623-01',
+    'Badge Codex v16: 284 total badges — +35 from v15 baseline of 249. 41 categories.',
+    'Word Turn v7 RPG Lexicon: loot · boss · save · respawn · grind · level · quest · potion · dungeon · armor · stealth · rogue. 12 new triggers.',
+    'Time v7 Deep Signal: 02:02 deep_night · 14:14 midday_signal · 05:55 liminal_hour · 03:33 sacred_triple.',
+    'Secret Boss v6 Void Layer: void_master (void×5 entries across days) · founders_guard (April 7 ×3 consecutive years) · deep_thought (exact 42-day streak).',
+    'Achievement RPG v4 Legend Arc: word_merchant · full_presence_week · time_lord · multi_tongue · signal_economist · lore_completionist.',
+    'badges.ts + easter-eggs.ts updated. checkAndAwardBadges() extended. localStorage trackers: void_entry_count · founders_guard_years · dawn_runner_dates · signal_economist_log · time_anchor_log.',
     'DEPLOYED.',
   ],
 }
