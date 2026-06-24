@@ -1869,6 +1869,27 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 81: Cognitive Depth Arc — memory depth (5+ entries) + journal depth (150+ words)
+  // + any badge discovery signal, all within a 7-day window. The three pillars of inner
+  // engagement: retention (memory), articulation (journal), discovery (badges). When all
+  // three are active the person is not just using the system — they are building inside it.
+  // Confidence: 0.68 base, up to 0.90 at saturation.
+  const p81Window = now - 7 * 86400000
+  const p81MemorySignals = signals.filter(s => s.source === 'memory' && s.timestamp > p81Window)
+  const p81JournalSignals = signals.filter(s => s.source === 'journal' && s.timestamp > p81Window)
+  const p81JournalWords = p81JournalSignals.reduce((sum, s) => sum + (s.metadata?.wordCount ?? 0), 0)
+  const p81BadgeSignals = signals.filter(s => s.source === 'badges' && s.timestamp > p81Window)
+  if (p81MemorySignals.length >= 5 && p81JournalWords >= 150 && p81BadgeSignals.length > 0) {
+    const p81Conf = Math.min(0.90, 0.68 + (p81MemorySignals.length - 5) * 0.03 + Math.min(0.09, (p81JournalWords - 150) / 1000))
+    patterns.push({
+      pattern: 'cognitive-depth-arc',
+      confidence: p81Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `COGNITIVE DEPTH ARC: ${p81MemorySignals.length} memories + ${p81JournalWords}w journal + discovery active in 7d. All three inner channels engaged. The map is being built from the inside.`,
+    })
+  }
+
   // Pattern 74: Badge Momentum — 3+ distinct badge types unlocked within a 7-day window.
   // Achievement acquisition velocity signal: the person is actively exploring the system
   // and discovering easter eggs / word turns / milestones in a concentrated burst.
@@ -1896,6 +1917,59 @@ export function analyzeIntentions(): IntentionPattern[] {
       suggestedWidget: 'memory',
       suggestedTiming: 'soon',
       reason: `WORD-TURN DEPTH: ${p75DistinctWords.size} distinct word-turn badge types earned. Self-care vocabulary expanding. Language is signal. The person speaks in the system's vocabulary.`
+    })
+  }
+
+  // Pattern 82: Circadian vitality peak — first 4 hours of day (before 10:00) have 3+ positive
+  // mood signals AND biorhythm-lock is active AND energy state is high or moderate.
+  // The biological prime window: morning vitality before cortisol plateau.
+  // Highest-value 90-minute execution window. Direct energy before it peaks.
+  const p82TodayEarly = p76TodaySignals.filter(s => {
+    const h = new Date(s.timestamp).getHours()
+    return h < 10
+  })
+  const p82PositiveMoodsEarly = p82TodayEarly.filter(s =>
+    s.source === 'mood' &&
+    ['energized', 'hopeful', 'excited', 'calm', 'peaceful', 'content', 'grateful', 'fulfilled'].includes(s.signal)
+  )
+  const p82HasBiorhythmLock = patterns.some(p => p.pattern === 'biorhythm-lock')
+  const p82CurrentState = calculateUserState(signals, now)
+  const p82EnergyAdequate = p82CurrentState.energy === 'high' || p82CurrentState.energy === 'moderate'
+  if (p82PositiveMoodsEarly.length >= 2 && p82HasBiorhythmLock && p82EnergyAdequate && hour < 13) {
+    patterns.push({
+      pattern: 'circadian-vitality-peak',
+      confidence: Math.min(0.70 + (p82PositiveMoodsEarly.length - 2) * 0.08, 0.90),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'immediate',
+      reason: `CIRCADIAN VITALITY PEAK: ${p82PositiveMoodsEarly.length} positive morning signals + biorhythm anchored + energy ${p82CurrentState.energy}. Biological prime window open. Direct this state before it peaks — 90-minute execution window.`,
+    })
+  }
+
+  // Pattern 83: Systemic thinking mode — planner + goals + intentions each have 3+ signals in last
+  // 3 days AND UserIndex ≥ 50 AND no active depletion patterns. The strategic cognition state:
+  // the person is not just doing tasks — they are building the structure of their operating system.
+  const p83ThreeDaysAgo = now - 3 * 24 * 60 * 60 * 1000
+  const p83PlannerSignals   = signals.filter(s => s.source === 'planner'   && s.timestamp > p83ThreeDaysAgo)
+  const p83GoalsSignals     = signals.filter(s => s.source === 'goals'     && s.timestamp > p83ThreeDaysAgo)
+  const p83IntentionSignals = signals.filter(s => s.source === 'intentions' && s.timestamp > p83ThreeDaysAgo)
+  const p83UserIndex        = getUserIndex()
+  const p83NoDepletion      = !patterns.some(p =>
+    ['physiological-depletion', 'sleep-debt-accumulation', 'recovery-plateau', 'signal-silence'].includes(p.pattern)
+  )
+  if (
+    p83PlannerSignals.length >= 3 &&
+    p83GoalsSignals.length >= 3 &&
+    p83IntentionSignals.length >= 3 &&
+    p83UserIndex.overall >= 50 &&
+    p83NoDepletion
+  ) {
+    const p83StructuralDepth = p83PlannerSignals.length + p83GoalsSignals.length + p83IntentionSignals.length
+    patterns.push({
+      pattern: 'systemic-thinking-mode',
+      confidence: Math.min(0.68 + (p83StructuralDepth - 9) * 0.03 + (p83UserIndex.overall - 50) * 0.004, 0.92),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `SYSTEMIC THINKING MODE: Planner ${p83PlannerSignals.length} · Goals ${p83GoalsSignals.length} · Intentions ${p83IntentionSignals.length} signals in 3d. UserIndex ${p83UserIndex.overall}/100. No depletion signals. You are building the structure, not just executing tasks.`,
     })
   }
 
@@ -2419,6 +2493,9 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   moodMomentum:          ['mood', 'energy', 'selfcare', 'log'],
   breatheMonitor:        ['mood', 'energy', 'selfcare'],
   fastingSignal:         ['mood', 'energy', 'time', 'selfcare'],
+  // ── Vitality + systemic intelligence monitors (2026-06-23 audit)
+  vitalityMonitor:       ['mood', 'energy', 'selfcare', 'log', 'cohort'],
+  systemicThinker:       ['planner', 'goals', 'intentions', 'memory', 'journal'],
 }
 
 /**
@@ -2668,6 +2745,20 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['intentions', 'journal', 'memory', 'planner', 'selfcare'],
     patternConditions: ['signal-momentum-lock', 'intention-velocity', 'signal-coherence-window'],
     directive: 'Sustained signal momentum confirmed. Five-day multi-source streak active. Every dimension engaged. Architecture in motion — do not interrupt.',
+  },
+  {
+    archetype: 'Cognitive Cartographer',
+    energyBands: ['low', 'moderate', 'high'],
+    dominantSources: ['memory', 'journal', 'log'],
+    patternConditions: ['cognitive-depth-arc', 'word-turn-depth', 'signal-vault'],
+    directive: 'Deep trace confirmed. Memory bank filling. Journal vocabulary expanding. Discovery mode active. You are making the map from the inside.',
+  },
+  {
+    archetype: 'Vital Architect',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['planner', 'intentions', 'mood'],
+    patternConditions: ['circadian-vitality-peak', 'morning-coherence-launch', 'biorhythm-lock'],
+    directive: 'Biological prime window open. High-energy structural cognition confirmed. Planner + intentions aligned. Use this window — design, build, decide. Cortisol plateau approaching.',
   },
 ]
 
@@ -3651,5 +3742,41 @@ export function recordSignalMomentum(qualifyingDays: number, streakSources: stri
     streakSources,
     window: '7d',
     hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a cognitive-depth-arc event — memory depth + journal depth + badge discovery
+ * all within a 7-day window. Feeds P81 cognitive-depth-arc detection.
+ * The three pillars of inner engagement firing simultaneously.
+ */
+export function recordCognitiveDepthSignal(memoryCount: number, journalWords: number, badgeCount: number) {
+  recordSignal('memory', 'cognitive_depth_arc', {
+    memoryCount,
+    journalWords,
+    badgeCount,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordVitalityPeak(morningMoodCount: number, energyLevel: string, biorhythmAnchored: boolean) {
+  recordSignal('energy', 'vitality_peak', {
+    morningMoodCount,
+    energyLevel,
+    biorhythmAnchored,
+    hour: new Date().getHours(),
+    window: '1d',
+  })
+}
+
+export function recordSystemicThinkingMode(plannerCount: number, goalsCount: number, intentionsCount: number, userIndex: number) {
+  recordSignal('planner', 'systemic_thinking', {
+    plannerCount,
+    goalsCount,
+    intentionsCount,
+    userIndex,
+    structuralDepth: plannerCount + goalsCount + intentionsCount,
+    window: '3d',
   })
 }

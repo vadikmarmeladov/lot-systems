@@ -206,6 +206,90 @@ export function checkYearSignal(): BadgeType | null {
   return null
 }
 
+// ── Time v7 — Pixel Hours ─────────────────────────────────────────────────────
+
+export function checkDeepNight(): BadgeType | null {
+  if (hasBadge('deep_night')) return null
+  const now = new Date()
+  if (now.getHours() === 2 && now.getMinutes() === 2) {
+    awardBadge('deep_night')
+    return 'deep_night'
+  }
+  return null
+}
+
+export function checkMiddaySignal(): BadgeType | null {
+  if (hasBadge('midday_signal')) return null
+  const now = new Date()
+  if (now.getHours() === 14 && now.getMinutes() === 14) {
+    awardBadge('midday_signal')
+    return 'midday_signal'
+  }
+  return null
+}
+
+export function checkLiminalHour(): BadgeType | null {
+  if (hasBadge('liminal_hour')) return null
+  const now = new Date()
+  if (now.getHours() === 5 && now.getMinutes() === 55) {
+    awardBadge('liminal_hour')
+    return 'liminal_hour'
+  }
+  return null
+}
+
+export function checkSacredTriple(): BadgeType | null {
+  if (hasBadge('sacred_triple')) return null
+  const now = new Date()
+  if (now.getHours() === 3 && now.getMinutes() === 33) {
+    awardBadge('sacred_triple')
+    return 'sacred_triple'
+  }
+  return null
+}
+
+// ── Time v8 — Clock Cycles ────────────────────────────────────────────────────
+
+export function checkClockFortyTwo(): BadgeType | null {
+  if (hasBadge('clock_forty_two')) return null
+  const now = new Date()
+  if (now.getHours() === 0 && now.getMinutes() === 42) {
+    awardBadge('clock_forty_two')
+    return 'clock_forty_two'
+  }
+  return null
+}
+
+export function checkNoonKernel(): BadgeType | null {
+  if (hasBadge('noon_kernel')) return null
+  const now = new Date()
+  if (now.getHours() === 12 && now.getMinutes() === 0) {
+    awardBadge('noon_kernel')
+    return 'noon_kernel'
+  }
+  return null
+}
+
+export function checkByteTime(): BadgeType | null {
+  if (hasBadge('byte_time')) return null
+  const now = new Date()
+  if (now.getHours() === 8 && now.getMinutes() === 8) {
+    awardBadge('byte_time')
+    return 'byte_time'
+  }
+  return null
+}
+
+export function checkStackMirror(): BadgeType | null {
+  if (hasBadge('stack_mirror')) return null
+  const now = new Date()
+  if (now.getHours() === 17 && now.getMinutes() === 17) {
+    awardBadge('stack_mirror')
+    return 'stack_mirror'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
@@ -217,6 +301,10 @@ export function checkTimeEasterEggs(): BadgeType[] {
     checkPiHour, checkErrorHour, checkSequenceTime, checkLotHour,
     checkDigitalSymmetry, checkSeqBoot, checkPalindromeTime, checkTauSignal,
     checkNineLives, checkHexHour, checkFinalFrame, checkYearSignal,
+    // v7 — Pixel Hours
+    checkDeepNight, checkMiddaySignal, checkLiminalHour, checkSacredTriple,
+    // v8 — Clock Cycles
+    checkClockFortyTwo, checkNoonKernel, checkByteTime, checkStackMirror,
   ]
   for (const check of checks) {
     const result = check()
@@ -315,6 +403,46 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('fibonacci_day') && month === 11 && day === 23) {
     awardBadge('fibonacci_day')
     awarded.push('fibonacci_day')
+  }
+
+  // ── Calendar v6 — The Hacker Calendar ──────────────────────────────────────
+
+  // DOS Day: April 4 — 04/04
+  if (!hasBadge('dos_day') && month === 4 && day === 4) {
+    awardBadge('dos_day')
+    awarded.push('dos_day')
+  }
+
+  // 11/11 alignment: November 11
+  if (!hasBadge('eleven_eleven') && month === 11 && day === 11) {
+    awardBadge('eleven_eleven')
+    awarded.push('eleven_eleven')
+  }
+
+  // March Protocol: March 1
+  if (!hasBadge('march_protocol') && month === 3 && day === 1) {
+    awardBadge('march_protocol')
+    awarded.push('march_protocol')
+  }
+
+  // ── Calendar v7 — Sci-Fi Calendar ──────────────────────────────────────────
+
+  // Towel Day: May 25 (Hitchhiker's Guide to the Galaxy)
+  if (!hasBadge('towel_day') && month === 5 && day === 25) {
+    awardBadge('towel_day')
+    awarded.push('towel_day')
+  }
+
+  // COSMO Founding: July 1 (COSMO® Founded 1 July 2024)
+  if (!hasBadge('cosmo_founding') && month === 7 && day === 1) {
+    awardBadge('cosmo_founding')
+    awarded.push('cosmo_founding')
+  }
+
+  // Halloween Protocol: October 31
+  if (!hasBadge('halloween_protocol') && month === 10 && day === 31) {
+    awardBadge('halloween_protocol')
+    awarded.push('halloween_protocol')
   }
 
   return awarded
@@ -685,6 +813,32 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bbold\b/i,                           badge: 'bold_protocol' },
   { patterns: /\b(trust|trusted|trusting)\b/i,       badge: 'trust_lock' },
   { patterns: /\b(shift|shifted|shifting)\b/i,       badge: 'shift_sequence' },
+  // ── v7 — The Rogue Archive ────────────────────────────────────────────────
+  { patterns: /\bloot(ed|ing)?\b/i,                  badge: 'loot_drop' },
+  { patterns: /\bboss(es)?\b/i,                      badge: 'boss_encounter' },
+  { patterns: /\bsave(d|s)?\b/i,                     badge: 'save_state' },
+  { patterns: /\brespawn(ed|ing)?\b/i,               badge: 'respawn_point' },
+  { patterns: /\bgrind(ing|ed)?\b/i,                 badge: 'grind_mode' },
+  { patterns: /\blevel(ed|ing|s)?\b/i,               badge: 'level_gained' },
+  { patterns: /\bquest(s|ed|ing)?\b/i,               badge: 'quest_log' },
+  { patterns: /\bpotion(s)?\b/i,                     badge: 'potion_protocol' },
+  { patterns: /\bdungeon(s)?\b/i,                    badge: 'dungeon_cleared' },
+  { patterns: /\barmou?r(ed|ing)?\b/i,               badge: 'armor_up' },
+  { patterns: /\bstealth\b/i,                        badge: 'stealth_mode' },
+  { patterns: /\brogue\b/i,                          badge: 'rogue_state' },
+  // ── v8 — The Mainframe ────────────────────────────────────────────────────
+  { patterns: /\bcompile(d|s|r)?\b/i,                badge: 'compile_run' },
+  { patterns: /\bexecute(d|s)?\b/i,                  badge: 'execute_path' },
+  { patterns: /\bbuffer(ed|ing|s)?\b/i,              badge: 'buffer_flush' },
+  { patterns: /\bstack(ed|ing|s)?\b/i,               badge: 'stack_clear' },
+  { patterns: /\bpatch(ed|es|ing)?\b/i,              badge: 'patch_applied' },
+  { patterns: /\bfork(ed|ing|s)?\b/i,                badge: 'fork_event' },
+  { patterns: /\bterminal\b/i,                       badge: 'terminal_session' },
+  { patterns: /\bnull\b/i,                           badge: 'null_pointer' },
+  { patterns: /\bseed(ed|ing|s)?\b/i,                badge: 'seed_planted' },
+  { patterns: /\bloop(ed|ing|s)?\b/i,                badge: 'loop_detected' },
+  { patterns: /\broot\b/i,                           badge: 'root_access' },
+  { patterns: /\bdebug(ged|ging|s)?\b/i,             badge: 'debug_mode_badge' },
   // ── Secret Boss word triggers ─────────────────────────────────────────────
   { patterns: /\bi am lot\b/i,                       badge: 'i_am_lot' },
   { patterns: /\bmalibu\b/i,                         badge: 'malibu' },
@@ -756,6 +910,215 @@ export function getWordTurnResponse(text: string): string | null {
     return '↳ SCORE: XP ACCUMULATING. LEVEL CURRENT. MULTIPLIER ACTIVE.'
   if (/\bhistory\b/.test(lower))
     return '↳ HISTORY LOADED. Last 10 badge unlocks retrievable.'
+
+  return null
+}
+
+// ── Behavioral v6 — Endurance Signals ────────────────────────────────────────
+
+/**
+ * Check Dawn Runner badge: 3+ check-ins before 06:00 in one calendar week.
+ * Call on every check-in.
+ */
+export function checkDawnRunner(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('dawn_runner')) return null
+
+  const now = new Date()
+  if (now.getHours() >= 6) return null
+
+  try {
+    const key = 'dawn_runner_log'
+    const stored = localStorage.getItem(key)
+    const log: string[] = stored ? JSON.parse(stored) : []
+    const todayStr = now.toISOString().slice(0, 10)
+
+    if (!log.includes(todayStr)) {
+      log.push(todayStr)
+      localStorage.setItem(key, JSON.stringify(log.slice(-14)))
+
+      // Count entries in the current ISO week (Mon–Sun)
+      const dayOfWeek = now.getDay() === 0 ? 7 : now.getDay()
+      const weekStart = new Date(now)
+      weekStart.setDate(now.getDate() - dayOfWeek + 1)
+      weekStart.setHours(0, 0, 0, 0)
+
+      const thisWeek = log.filter(d => new Date(d) >= weekStart)
+      if (thisWeek.length >= 3) {
+        awardBadge('dawn_runner')
+        return 'dawn_runner'
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Three-Week Arc badge: journal entry every day for 21 consecutive days.
+ * journalDates: sorted array of ISO date strings with at least one entry each.
+ */
+export function checkThreeWeekArc(journalDates: string[]): BadgeType | null {
+  if (hasBadge('three_week_arc')) return null
+  if (journalDates.length < 21) return null
+
+  const sorted = [...new Set(journalDates)].sort()
+  let consecutive = 1
+  for (let i = sorted.length - 1; i > 0; i--) {
+    const diff = Math.round(
+      (new Date(sorted[i]).getTime() - new Date(sorted[i - 1]).getTime())
+      / (1000 * 60 * 60 * 24)
+    )
+    if (diff === 1) {
+      consecutive++
+      if (consecutive >= 21) {
+        awardBadge('three_week_arc')
+        return 'three_week_arc'
+      }
+    } else {
+      break
+    }
+  }
+  return null
+}
+
+// ── Behavioral v7 — Deep Patterns ────────────────────────────────────────────
+
+/**
+ * Check Triple Session badge: 3+ journal entries in one day.
+ * journalCountToday: number of journal entries submitted today.
+ */
+export function checkTripleSession(journalCountToday: number): BadgeType | null {
+  if (hasBadge('triple_session')) return null
+  if (journalCountToday >= 3) {
+    awardBadge('triple_session')
+    return 'triple_session'
+  }
+  return null
+}
+
+/**
+ * Check Cron Job badge: check-in at the same exact minute 7 consecutive days.
+ * Call on every check-in.
+ */
+export function checkCronJob(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('cron_job')) return null
+
+  try {
+    const now = new Date()
+    const minute = now.getMinutes()
+    const todayStr = now.toISOString().slice(0, 10)
+    const key = 'cron_job_log'
+    const stored = localStorage.getItem(key)
+    const log: Array<{ date: string; minute: number }> = stored ? JSON.parse(stored) : []
+
+    if (!log.find(e => e.date === todayStr)) {
+      log.push({ date: todayStr, minute })
+      const recent = log.slice(-10)
+      localStorage.setItem(key, JSON.stringify(recent))
+
+      if (recent.length >= 7) {
+        const sorted = [...recent].sort((a, b) => a.date.localeCompare(b.date))
+        const anchorMinute = sorted[sorted.length - 1].minute
+        let consecutive = 1
+        for (let i = sorted.length - 1; i > 0; i--) {
+          const dayDiff = Math.round(
+            (new Date(sorted[i].date).getTime() - new Date(sorted[i - 1].date).getTime())
+            / (1000 * 60 * 60 * 24)
+          )
+          if (dayDiff === 1 && Math.abs(sorted[i - 1].minute - anchorMinute) <= 1) {
+            consecutive++
+            if (consecutive >= 7) {
+              awardBadge('cron_job')
+              return 'cron_job'
+            }
+          } else {
+            break
+          }
+        }
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Lucky Return badge: return after exactly 7 days (6–8 day window).
+ * Call this on check-in BEFORE recording activity.
+ */
+export function checkLuckyReturn(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('lucky_return')) return null
+
+  try {
+    const lastActivity = localStorage.getItem('last_activity_date')
+    if (!lastActivity) return null
+
+    const daysSince = Math.floor(
+      (Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24)
+    )
+
+    if (daysSince >= 6 && daysSince <= 8) {
+      awardBadge('lucky_return')
+      return 'lucky_return'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Secret Boss v6/v7 — Special Triggers ─────────────────────────────────────
+
+/**
+ * Check Void Master badge: write "void" in 5 different answer sessions.
+ * voidCount: total number of sessions where "void" was used (from server stats).
+ */
+export function checkVoidMaster(voidCount: number): BadgeType | null {
+  if (hasBadge('void_master')) return null
+  if (voidCount >= 5) {
+    awardBadge('void_master')
+    return 'void_master'
+  }
+  return null
+}
+
+/**
+ * Check The Answer Is Words badge: exactly 42 words in a journal entry.
+ * Call this when a journal entry is submitted.
+ */
+export function checkTheAnswerIsWords(journalText: string): BadgeType | null {
+  if (hasBadge('the_answer_is_words')) return null
+  const wordCount = journalText.trim().split(/\s+/).filter(Boolean).length
+  if (wordCount === 42) {
+    awardBadge('the_answer_is_words')
+    return 'the_answer_is_words'
+  }
+  return null
+}
+
+/**
+ * Check Welcome Back Program badge: return after 360–370 days of absence.
+ * The full-year return. Call on check-in before recordActivity.
+ */
+export function checkWelcomeBackProgram(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('welcome_back_program')) return null
+
+  try {
+    const lastActivity = localStorage.getItem('last_activity_date')
+    if (!lastActivity) return null
+
+    const daysSince = Math.floor(
+      (Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24)
+    )
+
+    if (daysSince >= 360 && daysSince <= 370) {
+      awardBadge('welcome_back_program')
+      return 'welcome_back_program'
+    }
+  } catch { /* non-critical */ }
 
   return null
 }
@@ -840,6 +1203,22 @@ export function runCheckInEasterEggs(
   const timeAnchor = checkTimeAnchor()
   if (timeAnchor) awarded.push(timeAnchor)
 
+  // Behavioral v6: dawn runner (3 early check-ins in one week)
+  const dawnRunner = checkDawnRunner()
+  if (dawnRunner) awarded.push(dawnRunner)
+
+  // Behavioral v7: cron job (same minute 7 consecutive days)
+  const cronJob = checkCronJob()
+  if (cronJob) awarded.push(cronJob)
+
+  // Behavioral v7: lucky return (7-day gap)
+  const luckyReturn = checkLuckyReturn()
+  if (luckyReturn) awarded.push(luckyReturn)
+
+  // Secret Boss v7: welcome back program (365-day gap)
+  const welcomeBack = checkWelcomeBackProgram()
+  if (welcomeBack) awarded.push(welcomeBack)
+
   // Record activity after all checks (so gap detection works next time)
   recordActivity()
 
@@ -861,6 +1240,10 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   // Behavioral v5: deep scribe (≥500 chars)
   const deepScribe = checkDeepScribe(journalText)
   if (deepScribe) awarded.push(deepScribe)
+
+  // Secret Boss v7: the answer is words (exactly 42 words)
+  const answerIsWords = checkTheAnswerIsWords(journalText)
+  if (answerIsWords) awarded.push(answerIsWords)
 
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)

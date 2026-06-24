@@ -53,3 +53,7 @@ ID             | CLASS        | SUMMARY                                         
 20260621-01    | SELF-ASSEMBLY| QIE v66 — P79 evening-coherence-close · Arch25 Diurnal Operator · Job18 22:00 UTC · LOT-WIKI-v61 · EVE: handler | GREEN  | 1156cb2  | WORDS: 495 (median 425)
 20260621-02    | SELF-ASSEMBLY| QIE v67 — P80 signal-momentum-lock · Arch26 Momentum Architect · Job19 20:00 UTC · MOM: handler · LOT-WIKI-v62 · 5 tokens minted | GREEN  | 015bcbd  | WORDS: 552 (median 535)
 20260622-01    | ENGINEERING  | Bug fixes — /prayer persistence + /story + /system + Memory lag · 5 files · 299 ins | GREEN  | 78745c3  | WORDS: 310 (median 495)
+20260622-03    | SELF-ASSEMBLY| QIE v68 — P81 cognitive-depth-arc · Arch27 Cognitive Cartographer · Job20 · COGN: · displayableEvents fix (signal_momentum) · live cohort view | GREEN  | ec047ab  | WORDS: 480 (median 495)
+20260623-01    | ENGINEERING  | Badge engine v16+v17 — 70 new badges wired · Mainframe Awakening · WORD_TURNS 58→82 · v17 codex + PDF · 319 total badges | GREEN  | e9cb289  | WORDS: 580 (median 495)
+20260623-02    | SELF-ASSEMBLY| QIE v69 — P82/P83 · Arch28 Vital Architect · Job21 12:00 UTC · VITAL:/SYSTMK: handlers · dep map 122+ · 83 patterns · 28 archetypes · 21 jobs | GREEN  | 09e0d451  | WORDS: 620 (median 495)
+20260624-03    | ENGINEERING  | Error page + About separation — static error.html · standalone About template · server error redirect | GREEN  | eae9481  | WORDS: 310 (median 395)

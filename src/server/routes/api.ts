@@ -1059,6 +1059,13 @@ export default async (fastify: FastifyInstance) => {
       'morning_coherence_launch', 'signal_vault', 'depletion_recovery_surge',
       // v66: evening coherence close
       'evening_coherence_close',
+      // v67: signal momentum lock (Job 19 output)
+      'signal_momentum',
+      // v68: cognitive depth arc (Job 20 output)
+      'cognitive_depth_arc',
+      // v69: vitality peak (Job 21 output) + systemic thinking mode
+      'vitality_peak',
+      'systemic_thinking',
       // Story generation
       'generated_story',
     ]

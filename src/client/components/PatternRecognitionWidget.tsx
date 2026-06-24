@@ -111,6 +111,8 @@ export function PatternRecognitionWidget() {
       'signal-vault':               'Signal vault — deep journal + memory + log in 6h',
       'depletion-recovery-surge':   'Depletion recovery surge — restored to peak',
       'evening-coherence-close':    'Evening coherence close — day closed in reflection',
+      'circadian-vitality-peak':    'Circadian vitality peak — biological prime window open',
+      'systemic-thinking-mode':     'Systemic thinking mode — structural cognition active',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -382,6 +384,20 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'evening-coherence-close') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Evening close confirmed. The arc is complete.
+                </div>
+              )}
+
+              {/* Circadian vitality peak indicator — surfaces when pattern P82 is active */}
+              {patterns.some(p => p.pattern === 'circadian-vitality-peak') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Biological prime window open. 90-minute execution window. Direct this state.
+                </div>
+              )}
+
+              {/* Systemic thinking mode indicator — surfaces when pattern P83 is active */}
+              {patterns.some(p => p.pattern === 'systemic-thinking-mode') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Systemic cognition confirmed. You are building the structure.
                 </div>
               )}
 

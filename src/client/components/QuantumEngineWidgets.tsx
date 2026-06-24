@@ -333,6 +333,35 @@ export const QuantumEngineWidgets: React.FC = () => {
                     </div>
                   )}
                 </>
+              ) : engineState.signals.length > 0 ? (
+                <>
+                  {(() => {
+                    const live = classifyPhysiologicalCohort(engineState.signals, getUserState(), engineState.recognizedPatterns ?? [])
+                    return live ? (
+                      <>
+                        <div className="flex justify-between items-baseline">
+                          <span className="opacity-30 uppercase tracking-widest">Live</span>
+                          <span>{live.archetype}</span>
+                        </div>
+                        <div className="flex justify-between items-baseline">
+                          <span className="opacity-30 uppercase tracking-widest">Conf</span>
+                          <span className="tabular-nums">{live.confidence}%</span>
+                        </div>
+                        <div className="flex justify-between items-baseline">
+                          <span className="opacity-30 uppercase tracking-widest">Energy</span>
+                          <span className="capitalize">{live.energyBand}</span>
+                        </div>
+                        {live.directive && (
+                          <div className="border-t border-acc-400/20 pt-8 mt-4">
+                            <div className="opacity-40">{live.directive}</div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="opacity-30">Cohort pending. Engage more widgets to surface pattern.</div>
+                    )
+                  })()}
+                </>
               ) : (
                 <div className="opacity-30">Cohort pending. Engage more widgets to surface pattern.</div>
               )}

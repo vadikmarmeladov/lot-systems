@@ -134,16 +134,44 @@ if (typeof window !== 'undefined') {
 
 type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api'
 
-function TabPanel({ route, children }: { route: string; children: React.ReactNode }) {
-  const router = useStore(stores.router)
-  const active = (router?.route ?? 'system') === route
+const TabPanel = React.memo(function TabPanel({
+  active,
+  children,
+}: {
+  active: boolean
+  children: React.ReactNode
+}) {
   const visitedRef = React.useRef(active)
   if (active) visitedRef.current = true
   if (!visitedRef.current) return null
   return (
-    <div style={{ display: active ? 'contents' : 'none' }} data-tab={route}>
+    <div style={{ display: active ? 'contents' : 'none' }}>
       {children}
     </div>
+  )
+}, (prev, next) => prev.active === next.active)
+
+function TabPanels() {
+  const router = useStore(stores.router)
+  const currentRoute = router?.route ?? 'system'
+  return (
+    <>
+      <TabPanel active={currentRoute === 'system'}>
+        <System />
+      </TabPanel>
+      <TabPanel active={currentRoute === 'logs'}>
+        <Logs />
+      </TabPanel>
+      <TabPanel active={currentRoute === 'sync'}>
+        <Sync />
+      </TabPanel>
+      <TabPanel active={currentRoute === 'settings'}>
+        <Settings />
+      </TabPanel>
+      <TabPanel active={currentRoute === 'api'}>
+        <ApiPage />
+      </TabPanel>
+    </>
   )
 }
 
@@ -285,21 +313,7 @@ const App = () => {
     <>
       <ConnectionStatus />
       <Layout>
-        <TabPanel route="system">
-          <System />
-        </TabPanel>
-        <TabPanel route="logs">
-          <Logs />
-        </TabPanel>
-        <TabPanel route="sync">
-          <Sync />
-        </TabPanel>
-        <TabPanel route="settings">
-          <Settings />
-        </TabPanel>
-        <TabPanel route="api">
-          <ApiPage />
-        </TabPanel>
+        <TabPanels />
         <DynamicRoutes />
         {isMirrorOn && (
           <video
