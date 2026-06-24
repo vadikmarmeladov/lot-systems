@@ -40,4 +40,8 @@ EVE:               Evening Coherence Close — log block label for evening-coher
 DIURNAL ARC        P76→P79→P80 behavioral arc: morning launch → evening close → sustained momentum lock     B  20260621
 MOM:               Momentum Lock — log block label for signal_momentum events (5+ days, 3+ sources)         B  20260621
 MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
+PRESENCE CASCADE   QIE P84 — meta-pattern: P76 morning + P79 evening + P80 biorhythm all active same day    C  20260624
+PRES:              Presence Cascade — log block label for presence_cascade Job22 output (21:00 UTC)          C  20260624
+CREAT:             Creative Emergence — log block label for creative_emergence events (journal+goals+memory) C  20260624
+REC-ARCH:          Recovery Architecture — log block label for recovery_architecture multi-modal care events C  20260624
 ```

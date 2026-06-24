@@ -1973,6 +1973,64 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 84: Presence Cascade — P76 (morning-coherence-launch) + P79 (evening-coherence-close)
+  // + P72 (biorhythm-lock) all simultaneously active. Full-day intentional presence confirmed:
+  // the day opened from intention, closed in reflection, and that structure held for 5+ days.
+  // The apex of the diurnal arc architecture. Rare compound confirmation.
+  const p84MorningActive = patterns.some(p => p.pattern === 'morning-coherence-launch')
+  const p84EveningActive = patterns.some(p => p.pattern === 'evening-coherence-close')
+  const p84BiorhythmActive = patterns.some(p => p.pattern === 'biorhythm-lock')
+  if (p84MorningActive && p84EveningActive && p84BiorhythmActive) {
+    patterns.push({
+      pattern: 'presence-cascade',
+      confidence: 0.93,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `PRESENCE CASCADE: Morning launch + evening close confirmed today. Biorhythm anchored 5+ days. Full-day intentional presence — the complete presence architecture is operational.`,
+    })
+  }
+
+  // Pattern 85: Creative Emergence — journal depth >200w + goals active (2+) + memory captures (3+)
+  // all within a 48h window, with no depletion patterns active. The conditions for creative synthesis:
+  // energy adequate, reflection deep, goals visible, memory capturing the output.
+  // Distinct from P77 (signal-vault): P85 requires goals, not badges, and spans 48h not 6h.
+  const p85Window = now - 48 * 60 * 60 * 1000
+  const p85JournalSignals = signals.filter(s => s.source === 'journal' && s.timestamp > p85Window)
+  const p85JournalWords = p85JournalSignals.reduce((sum, s) => sum + (s.metadata?.wordCount ?? 0), 0)
+  const p85GoalSignals = signals.filter(s => s.source === 'goals' && s.timestamp > p85Window)
+  const p85MemorySignals = signals.filter(s => s.source === 'memory' && s.timestamp > p85Window)
+  const p85NoDepletion = !patterns.some(p =>
+    ['physiological-depletion', 'recovery-plateau', 'signal-silence', 'sleep-debt-accumulation'].includes(p.pattern)
+  )
+  if (p85JournalWords >= 200 && p85GoalSignals.length >= 2 && p85MemorySignals.length >= 3 && p85NoDepletion) {
+    const p85Conf = Math.min(0.90, 0.68 + (p85JournalWords - 200) / 500 * 0.05 + (p85GoalSignals.length - 2) * 0.03)
+    patterns.push({
+      pattern: 'creative-emergence',
+      confidence: p85Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `CREATIVE EMERGENCE: ${p85JournalWords}w journal + ${p85GoalSignals.length} goal signals + ${p85MemorySignals.length} memory captures in 48h. No depletion. Synthesis conditions confirmed — the signal is ready to become structure.`,
+    })
+  }
+
+  // Pattern 86: Recovery Architecture — 3+ distinct selfcare signal types across 48h.
+  // Structured recovery, not emergency response. The person is building a multi-modal
+  // care protocol: different interventions from different categories, not repeating one fix.
+  // Distinct from P49 (care-momentum: quantity); P86 rewards diversity of care types.
+  const p86Window = now - 48 * 60 * 60 * 1000
+  const p86SelfcareSignals = signals.filter(s => s.source === 'selfcare' && s.timestamp > p86Window)
+  const p86DistinctTypes = new Set(p86SelfcareSignals.map(s => s.signal).filter(Boolean))
+  if (p86DistinctTypes.size >= 3) {
+    const p86Conf = Math.min(0.88, 0.62 + (p86DistinctTypes.size - 3) * 0.07)
+    patterns.push({
+      pattern: 'recovery-architecture',
+      confidence: p86Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `RECOVERY ARCHITECTURE: ${p86DistinctTypes.size} distinct selfcare types in 48h. Multi-modal protocol active. Structured recovery — not emergency response. The care system is diversified.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2496,6 +2554,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Vitality + systemic intelligence monitors (2026-06-23 audit)
   vitalityMonitor:       ['mood', 'energy', 'selfcare', 'log', 'cohort'],
   systemicThinker:       ['planner', 'goals', 'intentions', 'memory', 'journal'],
+
+  // ── Full-day presence architecture + creative synthesis nodes (2026-06-24 audit)
+  presenceCascade:       ['intentions', 'journal', 'planner', 'mood', 'energy', 'selfcare'],
+  creativeEmergenceNode: ['journal', 'goals', 'memory', 'mood'],
+  recoveryArchitectNode: ['selfcare', 'mood', 'energy', 'log'],
 }
 
 /**
@@ -2504,7 +2567,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * tracked separately in the physiological report log-dependency audit.
  */
 export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = [
-  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience', 'badges', 'calculator',
+  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience', 'badges', 'calculator', 'mood',
 ]
 
 /** Returns which signal sources a given widget depends on. */
@@ -2759,6 +2822,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'mood'],
     patternConditions: ['circadian-vitality-peak', 'morning-coherence-launch', 'biorhythm-lock'],
     directive: 'Biological prime window open. High-energy structural cognition confirmed. Planner + intentions aligned. Use this window — design, build, decide. Cortisol plateau approaching.',
+  },
+  {
+    archetype: 'Presence Architect',
+    energyBands: ['high', 'moderate', 'low'],
+    dominantSources: ['intentions', 'journal', 'planner'],
+    patternConditions: ['presence-cascade', 'evening-coherence-close', 'morning-coherence-launch'],
+    directive: 'Full-day presence architecture confirmed. Day launched from intention, closed in reflection. Biorhythm anchored. The complete cycle is documented — this is the operational baseline.',
   },
 ]
 
@@ -3778,5 +3848,51 @@ export function recordSystemicThinkingMode(plannerCount: number, goalsCount: num
     userIndex,
     structuralDepth: plannerCount + goalsCount + intentionsCount,
     window: '3d',
+  })
+}
+
+/**
+ * Record a presence-cascade event — P76 + P79 + P72 all simultaneously confirmed.
+ * The apex of full-day intentional presence: morning intention, evening close, and
+ * biorhythm anchored across 5+ days. Feeds P84 detection.
+ */
+export function recordPresenceCascade(morningLaunched: boolean, eveningClosed: boolean, biorhythmDays: number) {
+  recordSignal('intentions', 'presence_cascade', {
+    morningLaunched,
+    eveningClosed,
+    biorhythmDays,
+    window: '1d',
+    hour: new Date().getHours(),
+    timestamp: Date.now(),
+  })
+}
+
+/**
+ * Record a creative-emergence event — journal depth >200w + goals + memory all in 48h.
+ * The synthesis state: reflection deep, goals visible, memory capturing the output.
+ * Feeds P85 detection.
+ */
+export function recordCreativeEmergence(journalWords: number, goalCount: number, memoryCount: number) {
+  recordSignal('journal', 'creative_emergence', {
+    journalWords,
+    goalCount,
+    memoryCount,
+    window: '48h',
+    hour: new Date().getHours(),
+    timestamp: Date.now(),
+  })
+}
+
+/**
+ * Record a recovery-architecture event — 3+ distinct selfcare types in 48h.
+ * Structured multi-modal recovery protocol. Feeds P86 detection.
+ */
+export function recordRecoveryArchitecture(distinctCareTypes: number, careTypes: string[]) {
+  recordSignal('selfcare', 'recovery_architecture', {
+    distinctCareTypes,
+    careTypes,
+    window: '48h',
+    hour: new Date().getHours(),
+    timestamp: Date.now(),
   })
 }

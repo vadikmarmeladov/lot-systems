@@ -1523,12 +1523,17 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="EVE:" blockView>
-                <div className="uppercase tracking-widest mb-4">EVENING CLOSE</div>
                 {morningSignal && (
-                  <div className="opacity-60">Arc confirmed. Morning launch + evening close.</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARC</span>
+                    <span>CONFIRMED</span>
+                  </div>
                 )}
                 {captureCount !== undefined && (
-                  <div className="opacity-40 tabular-nums">CAPTURE: {captureCount} channel{captureCount === 1 ? '' : 's'}</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CAPTURE</span>
+                    <span className="tabular-nums">{captureCount}</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -1539,20 +1544,18 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="MOM:" blockView>
-                <div className="uppercase tracking-widest mb-4">MOMENTUM LOCK</div>
                 {qualifyingDays !== undefined && (
-                  <div className="flex justify-between items-baseline mb-8">
+                  <div className="flex justify-between items-baseline mb-4">
                     <span className="opacity-30">DAYS 7D</span>
                     <span className="tabular-nums">{qualifyingDays}/7</span>
                   </div>
                 )}
                 {streakSources && streakSources.length > 0 && (
-                  <div className="flex justify-between items-baseline mb-8">
+                  <div className="flex justify-between items-baseline">
                     <span className="opacity-30">SRC</span>
                     <span className="tabular-nums">{streakSources.length}</span>
                   </div>
                 )}
-                <div className="opacity-40">Architecture in motion. Every dimension engaged.</div>
               </Block>
             </LogContainer>
           )
@@ -1563,7 +1566,6 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COGN:" blockView>
-                <div className="uppercase tracking-widest mb-4">COGNITIVE DEPTH ARC</div>
                 {memoryCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
                     <span className="opacity-30">MEM 7D</span>
@@ -1577,12 +1579,11 @@ export const Logs: React.FC = () => {
                   </div>
                 )}
                 {badgeCount !== undefined && (
-                  <div className="flex justify-between items-baseline mb-8">
+                  <div className="flex justify-between items-baseline">
                     <span className="opacity-30">BADGES</span>
                     <span className="tabular-nums">{badgeCount}</span>
                   </div>
                 )}
-                <div className="opacity-40">Deep trace confirmed. The map is built from the inside.</div>
               </Block>
             </LogContainer>
           )
@@ -1594,17 +1595,16 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="VITAL:" blockView>
-                <div className="uppercase tracking-widest mb-4">CIRCADIAN VITALITY PEAK</div>
                 {morningMoodCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">MORNING MOOD</span>
+                    <span className="opacity-30">MORNING</span>
                     <span className="tabular-nums">{morningMoodCount}</span>
                   </div>
                 )}
                 {energyLevel !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">ENERGY</span>
-                    <span className="tabular-nums uppercase">{energyLevel}</span>
+                    <span className="opacity-30">ATP</span>
+                    <span className="uppercase">{energyLevel}</span>
                   </div>
                 )}
                 {hour !== undefined && (
@@ -1614,56 +1614,126 @@ export const Logs: React.FC = () => {
                   </div>
                 )}
                 {biorhythmAnchored !== undefined && (
-                  <div className="flex justify-between items-baseline mb-8">
+                  <div className="flex justify-between items-baseline">
                     <span className="opacity-30">BIORHYTHM</span>
-                    <span className="tabular-nums">{biorhythmAnchored ? 'ANCHORED' : 'UNANCHORED'}</span>
+                    <span>{biorhythmAnchored ? 'ANCHORED' : 'DRIFT'}</span>
                   </div>
                 )}
-                <div className="opacity-40">Biological prime window open. 90-minute execution window.</div>
               </Block>
             </LogContainer>
           )
         } else if (log.event === 'systemic_thinking') {
-          const plannerCount   = log.metadata?.plannerCount   as number | undefined
-          const goalsCount     = log.metadata?.goalsCount     as number | undefined
+          const plannerCount    = log.metadata?.plannerCount    as number | undefined
+          const goalsCount      = log.metadata?.goalsCount      as number | undefined
           const intentionsCount = log.metadata?.intentionsCount as number | undefined
-          const userIndex      = log.metadata?.userIndex      as number | undefined
+          const userIndex       = log.metadata?.userIndex       as number | undefined
           const structuralDepth = log.metadata?.structuralDepth as number | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="SYSTMK:" blockView>
-                <div className="uppercase tracking-widest mb-4">SYSTEMIC THINKING MODE</div>
                 {plannerCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">PLANNER 3D</span>
+                    <span className="opacity-30">PLN 3D</span>
                     <span className="tabular-nums">{plannerCount}</span>
                   </div>
                 )}
                 {goalsCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">GOALS 3D</span>
+                    <span className="opacity-30">GOAL 3D</span>
                     <span className="tabular-nums">{goalsCount}</span>
                   </div>
                 )}
                 {intentionsCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">INTENTIONS 3D</span>
+                    <span className="opacity-30">INT 3D</span>
                     <span className="tabular-nums">{intentionsCount}</span>
                   </div>
                 )}
                 {structuralDepth !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">STRUCT DEPTH</span>
+                    <span className="opacity-30">DEPTH</span>
                     <span className="tabular-nums">{structuralDepth}</span>
                   </div>
                 )}
                 {userIndex !== undefined && (
-                  <div className="flex justify-between items-baseline mb-8">
-                    <span className="opacity-30">USER INDEX</span>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">IDX</span>
                     <span className="tabular-nums">{userIndex}/100</span>
                   </div>
                 )}
-                <div className="opacity-40">You are building the structure, not just executing tasks.</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'presence_cascade') {
+          const morningLaunched  = log.metadata?.morningLaunched  as boolean | undefined
+          const eveningClosed    = log.metadata?.eveningClosed    as boolean | undefined
+          const biorhythmDays   = log.metadata?.biorhythmDays   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PRES:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">MRN</span>
+                  <span>{morningLaunched ? 'LAUNCHED' : '—'}</span>
+                </div>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">EVE</span>
+                  <span>{eveningClosed ? 'CLOSED' : '—'}</span>
+                </div>
+                {biorhythmDays !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">ANCHOR</span>
+                    <span className="tabular-nums">{biorhythmDays}/7D</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'creative_emergence') {
+          const journalWords = log.metadata?.journalWords as number | undefined
+          const goalCount    = log.metadata?.goalCount    as number | undefined
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CREAT:" blockView>
+                {journalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">JRN 48H</span>
+                    <span className="tabular-nums">{journalWords}w</span>
+                  </div>
+                )}
+                {goalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GOAL</span>
+                    <span className="tabular-nums">{goalCount}</span>
+                  </div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">MEM</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recovery_architecture') {
+          const distinctCareTypes = log.metadata?.distinctCareTypes as number | undefined
+          const careTypes         = log.metadata?.careTypes         as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="REC-ARCH:" blockView>
+                {distinctCareTypes !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TYPES 48H</span>
+                    <span className="tabular-nums">{distinctCareTypes}</span>
+                  </div>
+                )}
+                {careTypes && careTypes.length > 0 && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">PROTOCOL</span>
+                    <span className="uppercase text-xs opacity-60">{careTypes.slice(0, 3).join('·')}</span>
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )

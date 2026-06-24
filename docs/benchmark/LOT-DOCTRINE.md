@@ -141,6 +141,22 @@ the LOG in military instrument style.
 (SR-20260619-01: P76 minted; SR-20260621-01: P79 + EVE: minted;
 SR-20260621-02: P80 + MOM: + MOMENTUM LOCK minted. DIURNAL ARC named.)
 
+## Presence Cascade Meta-Pattern
+
+The QIE supports meta-patterns: patterns whose trigger conditions are other
+patterns rather than raw signal data. P84 (presence-cascade) is the first
+meta-pattern — it fires only when P76 (morning-coherence-launch), P79
+(evening-coherence-close), and P80 (biorhythm-lock) are all active on the
+same day. This makes presence-cascade a behavioral completeness detector:
+it confirms the full diurnal arc was executed and sustained. No individual
+arc component carries the same signal — the combination is the unit.
+Background Job 22 (21:00 UTC) materializes this as a daily log entry after
+the evening close window has elapsed, giving the operator a timestamped
+record that the complete presence architecture ran. The PRES: log block
+surfaces it in COCKPIT-RULE instrument style.
+(SR-20260624-04: P84 minted; Job22 added; PRES:/CREAT:/REC-ARCH: handlers
+added. Arch29 Presence Architect surfaces this state in physiological report.)
+
 ## Query Batching
 
 When a route handler issues multiple independent database queries sequentially,

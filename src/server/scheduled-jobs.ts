@@ -935,6 +935,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityPeakCheck()) {
     await executeDailyVitalityPeakCheck()
   }
+
+  // Check daily presence cascade (21:00 UTC every day) — Job 22
+  if (shouldRunDailyPresenceCascadeCheck()) {
+    await executeDailyPresenceCascadeCheck()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -2705,6 +2710,132 @@ async function executeDailyVitalityPeakCheck(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Presence Cascade Check — Job 22 ──────────────────────────────────
+
+let isDailyPresenceCascadeRunning = false
+let lastDailyPresenceCascadeRun: Date | null = null
+
+function shouldRunDailyPresenceCascadeCheck(): boolean {
+  const now = dayjs()
+  if (isDailyPresenceCascadeRunning) return false
+  if (lastDailyPresenceCascadeRun) {
+    const lastRun = dayjs(lastDailyPresenceCascadeRun)
+    if (now.isSame(lastRun, 'day')) return false
+  }
+  return now.hour() === 21 // 21:00 UTC every day
+}
+
+/**
+ * Daily Presence Cascade Check — Job 22
+ * Runs daily at 21:00 UTC.
+ * Scans users who had morning_coherence_launch + evening_coherence_close today.
+ * Writes presence_cascade when the full diurnal arc is confirmed.
+ */
+async function executeDailyPresenceCascadeCheck(): Promise<JobResult> {
+  const jobName = 'daily-presence-cascade-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyPresenceCascadeRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPresenceCascadeRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PRESENCE CASCADE CHECK — 21:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const todayStart = dayjs().startOf('day').toDate()
+    const now = dayjs().toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    // Find users who had morning_coherence_launch today
+    const morningLogs = await Log.findAll({
+      where: {
+        event: 'morning_coherence_launch',
+        createdAt: { [Op.between]: [todayStart, now] },
+      },
+      attributes: ['userId'],
+    })
+    const morningUserIds = new Set(morningLogs.map((l: any) => l.userId))
+
+    if (morningUserIds.size === 0) {
+      console.log('  No morning launches found today.')
+      isDailyPresenceCascadeRunning = false
+      lastDailyPresenceCascadeRun = new Date()
+      return { jobName, executedAt, success: true, result: { scanned: 0, written: 0 } }
+    }
+
+    // Find users who also had evening_coherence_close today
+    const eveningLogs = await Log.findAll({
+      where: {
+        userId: { [Op.in]: Array.from(morningUserIds) },
+        event: 'evening_coherence_close',
+        createdAt: { [Op.between]: [todayStart, now] },
+      },
+      attributes: ['userId'],
+    })
+    const eveningUserIds = new Set(eveningLogs.map((l: any) => l.userId))
+
+    // Among those, find users with biorhythm_lock signal in last 7 days
+    const biorhythmLogs = await Log.findAll({
+      where: {
+        userId: { [Op.in]: Array.from(eveningUserIds) },
+        event: 'biorhythm_lock',
+        createdAt: { [Op.gte]: sevenDaysAgo },
+      },
+      attributes: ['userId', 'metadata'],
+    })
+    const biorhythmMap: Record<number, number> = {}
+    for (const l of biorhythmLogs) {
+      const uid = (l as any).userId
+      const days = (l as any).metadata?.anchoredDays ?? 5
+      biorhythmMap[uid] = Math.max(biorhythmMap[uid] ?? 0, days)
+    }
+
+    let written = 0
+    for (const userId of eveningUserIds) {
+      const biorhythmDays = biorhythmMap[userId] ?? 0
+      if (biorhythmDays < 5) continue
+      try {
+        await Log.create({
+          userId: Number(userId),
+          event: 'presence_cascade',
+          text: '',
+          metadata: {
+            morningLaunched: true,
+            eveningClosed: true,
+            biorhythmDays,
+            window: '1d',
+            hour: 21,
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} presence cascade write failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Morning launches today: ${morningUserIds.size}`)
+    console.log(`  Evening closes today: ${eveningUserIds.size}`)
+    console.log(`  Presence cascade records written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('DAILY PRESENCE CASCADE CHECK COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyPresenceCascadeRun = new Date()
+    isDailyPresenceCascadeRunning = false
+
+    return { jobName, executedAt, success: true, result: { morningLaunches: morningUserIds.size, eveningCloses: eveningUserIds.size, written } }
+  } catch (error: any) {
+    console.error('Daily presence cascade check failed:', error.message)
+    isDailyPresenceCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -2741,6 +2872,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily signal momentum check: 8 PM UTC every day')
   console.log('   - Weekly cognitive depth check: 6 AM UTC every Sunday')
   console.log('   - Daily vitality peak check: 12 PM UTC every day')
+  console.log('   - Daily presence cascade check: 9 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2750,8 +2882,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 21=presence-cascade, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

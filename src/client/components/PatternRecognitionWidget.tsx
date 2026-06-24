@@ -113,6 +113,9 @@ export function PatternRecognitionWidget() {
       'evening-coherence-close':    'Evening coherence close — day closed in reflection',
       'circadian-vitality-peak':    'Circadian vitality peak — biological prime window open',
       'systemic-thinking-mode':     'Systemic thinking mode — structural cognition active',
+      'presence-cascade':           'Presence cascade — full-day arc confirmed',
+      'creative-emergence':         'Creative emergence — synthesis conditions met',
+      'recovery-architecture':      'Recovery architecture — multi-modal protocol active',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -398,6 +401,27 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'systemic-thinking-mode') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Systemic cognition confirmed. You are building the structure.
+                </div>
+              )}
+
+              {/* Presence cascade indicator — surfaces when pattern P84 is active */}
+              {patterns.some(p => p.pattern === 'presence-cascade') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Full-day presence architecture confirmed. Morning + evening + biorhythm.
+                </div>
+              )}
+
+              {/* Creative emergence indicator — surfaces when pattern P85 is active */}
+              {patterns.some(p => p.pattern === 'creative-emergence') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Synthesis conditions met. Journal + goals + memory aligned. Create.
+                </div>
+              )}
+
+              {/* Recovery architecture indicator — surfaces when pattern P86 is active */}
+              {patterns.some(p => p.pattern === 'recovery-architecture') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Multi-modal recovery protocol active. Structured care confirmed.
                 </div>
               )}
 

@@ -268,7 +268,7 @@ export function About() {
         <aside className="hidden lg:block w-56 shrink-0 sticky top-0 h-screen overflow-y-auto py-16 pr-16">
           <div className="mb-16">
             <div className="text-acc/90 text-sm mb-4">LOT Systems</div>
-            <Meta>Field Manual v69 · v1.3.0</Meta>
+            <Meta>Field Manual v70 · v1.3.0</Meta>
           </div>
           <Sidebar activeId={activeId} />
         </aside>
@@ -283,15 +283,15 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              v1.3.0. Day 1014+. Continuous operation since launch.
-              83 behavioral patterns active. 18 modules assembled.
-              6 index dimensions. 6 ecosystem nodes. 28 physiological archetypes.
-              122+ dependency nodes. 21 background jobs.
-              82+ log event handlers. 125 active branches scanned.
-              284 badges catalogued. The system does not sleep. It accumulates.
+              v1.3.0. Day 1017+. Continuous operation since launch.
+              86 behavioral patterns active. 18 modules assembled.
+              6 index dimensions. 6 ecosystem nodes. 29 physiological archetypes.
+              125+ dependency nodes. 22 background jobs.
+              85+ log event handlers. 125 active branches scanned.
+              354 badges catalogued. The system does not sleep. It accumulates.
             </P>
             <P>
-              Field Manual v69. Not marketing copy. Not documentation for external audiences.
+              Field Manual v70. Not marketing copy. Not documentation for external audiences.
               Operational reference for operators of the system.
               Definitions are exact. Terminology is fixed. Imprecision is a defect.
               Every term in this document exists in the codebase.

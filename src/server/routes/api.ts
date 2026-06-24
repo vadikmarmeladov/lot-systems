@@ -1066,6 +1066,10 @@ export default async (fastify: FastifyInstance) => {
       // v69: vitality peak (Job 21 output) + systemic thinking mode
       'vitality_peak',
       'systemic_thinking',
+      // v70: presence cascade (Job 22) · creative emergence · recovery architecture
+      'presence_cascade',
+      'creative_emergence',
+      'recovery_architecture',
       // Story generation
       'generated_story',
     ]

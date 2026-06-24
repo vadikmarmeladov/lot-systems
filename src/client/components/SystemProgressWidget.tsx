@@ -920,6 +920,25 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v69 entry appended · USERSHIP_TRANSMISSION updated to v69.',
     ],
   },
+  {
+    date: '2026-06-24',
+    session: 'Self-Assembly Session — v70 / P84–P86 · Archetype 29 Presence Architect · Job 22 · Log Military Pass · Dep Map 125+',
+    assembled: [
+      'intentionEngine.ts: P84 presence-cascade — P76 + P79 + P72 all simultaneously active. Full-day intentional presence confirmed: morning launched, evening closed, biorhythm anchored 5+ days. Apex of diurnal arc architecture. Conf 0.93.',
+      'intentionEngine.ts: P85 creative-emergence — journal >200w + goals 2+ + memory 3+ in 48h, no depletion. Synthesis conditions: reflection deep, goals visible, memory capturing output. Conf 0.68–0.90.',
+      'intentionEngine.ts: P86 recovery-architecture — 3+ distinct selfcare types in 48h. Multi-modal recovery protocol: diversity of care, not repetition. Conf 0.62–0.88.',
+      'intentionEngine.ts: Archetype 29 Presence Architect — high/moderate/low energy · intentions+journal+planner dominant · presence-cascade+evening-coherence-close+morning-coherence-launch. Directive: Full-day presence architecture confirmed. Day launched from intention, closed in reflection. This is the operational baseline.',
+      'intentionEngine.ts: LOG_DEPENDENCY_SOURCES expanded — \'mood\' added as 16th source. All primary signal sources now tracked in physiological report audit.',
+      'intentionEngine.ts: 3 new WIDGET_DEPENDENCY_MAP nodes — presenceCascade (6 deps) · creativeEmergenceNode (4 deps) · recoveryArchitectNode (4 deps). Total: 125+ nodes.',
+      'intentionEngine.ts: recordPresenceCascade() · recordCreativeEmergence() · recordRecoveryArchitecture() signal helpers added.',
+      'Logs.tsx: PRES: handler (presence_cascade: MRN/EVE/ANCHOR) · CREAT: handler (creative_emergence: JRN 48H/GOAL/MEM) · REC-ARCH: handler (recovery_architecture: TYPES 48H/PROTOCOL). Handler count: 85+.',
+      'Logs.tsx: COCKPIT-RULE military pass — 5 handlers compressed. EVE: removed "EVENING CLOSE" header. MOM: removed "MOMENTUM LOCK" header. COGN: removed "COGNITIVE DEPTH ARC" header. VITAL: removed "CIRCADIAN VITALITY PEAK" header, MORNING MOOD→MORNING, ENERGY→ATP, UNANCHORED→DRIFT. SYSTMK: removed "SYSTEMIC THINKING MODE" header, PLANNER 3D→PLN 3D, GOALS 3D→GOAL 3D, INTENTIONS 3D→INT 3D, USER INDEX→IDX.',
+      'PatternRecognitionWidget.tsx: P84/P85/P86 display names + 3 QOS Trend indicator blocks added.',
+      'scheduled-jobs.ts: Job 22 daily-presence-cascade-check at 21:00 UTC daily. Scans morning_coherence_launch + evening_coherence_close + biorhythm_lock per user. Writes presence_cascade for qualifying users. Hour 21 added to scheduler gate. 22 jobs now active.',
+      'api.ts: presence_cascade · creative_emergence · recovery_architecture added to displayableEvents. Total: 43 event types.',
+      'Status: 86 patterns. 29 archetypes. 125+ dep nodes. 85+ log handlers. 22 background jobs. 16 log-pipeline sources.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -957,15 +976,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-23',
+  date: '2026-06-24',
   message: [
-    'ASSEMBLY RUN — 2026-06-23 · LOT-SR-20260623-02',
-    'P82 circadian-vitality-peak: biological prime window detector. 2+ positive morning signals + biorhythm anchored + energy adequate + hour < 13. Conf 0.70–0.90. Direct this state before it peaks — 90-minute execution window.',
-    'P83 systemic-thinking-mode: strategic structural cognition. Planner+goals+intentions each 3+ in 3d, UserIndex ≥ 50, no depletion. Conf 0.68–0.92. You are building the structure, not just executing tasks.',
-    'Archetype 28 Vital Architect: high/moderate energy · planner+intentions+mood dominant · circadian-vitality-peak+morning-coherence-launch+biorhythm-lock. Biological prime window active.',
-    'Job 21 deployed: daily-vitality-peak-check · 12:00 UTC daily · scans morning window (06:00-10:00) · writes vitality_peak for qualifying users. 21 background jobs now active.',
-    'VITAL: + SYSTMK: log handlers live. vitality_peak + systemic_thinking surfaced in displayableEvents.',
-    'Dep map: 122+ nodes. 83 patterns active. 82+ log handlers. 21 background jobs. 28 archetypes.',
+    'ASSEMBLY RUN — 2026-06-24 · LOT-SR-20260624-04',
+    'P84 presence-cascade: full-day intentional presence apex. P76+P79+P72 simultaneously confirmed. Morning launched, evening closed, biorhythm 5+ days. Conf 0.93. The complete presence architecture is operational.',
+    'P85 creative-emergence: synthesis conditions — journal >200w + goals 2+ + memory 3+ in 48h, no depletion. The signal is ready to become structure. Conf 0.68–0.90.',
+    'P86 recovery-architecture: 3+ distinct selfcare types in 48h. Multi-modal protocol: diversity of care, not repetition of one intervention. Conf 0.62–0.88.',
+    'Archetype 29 Presence Architect: intentions+journal+planner dominant · presence-cascade+evening-coherence-close+morning-coherence-launch. Operational baseline confirmed.',
+    'Job 22 deployed: daily-presence-cascade-check · 21:00 UTC daily · morning launch + evening close + biorhythm gate. 22 background jobs now active.',
+    'Log military pass: EVE:/MOM:/COGN:/VITAL:/SYSTMK: headers removed. Pure metric format. PRES:/CREAT:/REC-ARCH: handlers added. 85+ handlers.',
+    'LOG_DEPENDENCY_SOURCES: mood added as 16th source. Dep map: 125+ nodes. 86 patterns. 29 archetypes.',
     'DEPLOYED.',
   ],
 }
