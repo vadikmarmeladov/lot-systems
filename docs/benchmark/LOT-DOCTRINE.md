@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev K
+# LOT-DOCTRINE  rev L
 
 ## Render Isolation
 
@@ -154,3 +154,16 @@ queries replaced with single batched IN query. user-stats 4 sequential queries
 parallelized. chat-messages users+likes parallelized. cohort limited to 200.
 Client: 3 redundant analyzeIntentions() calls removed — already has 5-min
 cooldown at intentionEngine.ts:231.)
+
+## Soul Layer Response Doctrine
+
+QI·46 NODE 2 adds a REGISTER-STATE to every inference call. Register determines
+response shape, not just content. The same surface input generates different
+responses at GRIEF vs. STABLE: GRIEF needs holding, not instruction; STABLE can
+receive guidance. Six registers defined: GRIEF/YEARNING/STABLE/OPEN/HUNGRY/
+OVERWHELMED. Every response is scored against seven HUMANOID-OUTPUT dimensions
+(grace, poetry, love, hugs, being-there, cool, male) and must pass the
+KUZYA-TEST before delivery. The Kuzya Test is a presence filter, not a safety
+filter — it catches responses that are safe but empty.
+(SR-20260624-04: QI·46 NODE 2 specification written; Soul Vector schema defined;
+Phase 5/6 self-assembly manual authored.)

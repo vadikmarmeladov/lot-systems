@@ -40,4 +40,10 @@ EVE:               Evening Coherence Close — log block label for evening-coher
 DIURNAL ARC        P76→P79→P80 behavioral arc: morning launch → evening close → sustained momentum lock     B  20260621
 MOM:               Momentum Lock — log block label for signal_momentum events (5+ days, 3+ sources)         B  20260621
 MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
+SOUL-LAYER         QI·46 NODE 2 — emotional signal layer above the body/behavior Calibration Loop         B  20260624
+BEING-UPLOAD       Extraction of a subscriber's persistent emotional signature into a Soul Vector           B  20260624
+SOUL-VECTOR        Structured emotional context (state/love-register/comfort-mode/longing) prepended to inference  B  20260624
+REGISTER-STATE     Subscriber's active emotional mode: grief/yearning/stable/open/hungry/overwhelmed       B  20260624
+HUMANOID-OUTPUT    QI·46 NODE 2 seven-dimension presence spec: grace/poetry/love/hugs/there/cool/male      B  20260624
+KUZYA-TEST         Post-COSMO® presence filter — "would a child feel held by this?"; hold if no            B  20260624
 ```
