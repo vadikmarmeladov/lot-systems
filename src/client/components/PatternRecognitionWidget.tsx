@@ -113,6 +113,8 @@ export function PatternRecognitionWidget() {
       'evening-coherence-close':    'Evening coherence close — day closed in reflection',
       'circadian-vitality-peak':    'Circadian vitality peak — biological prime window open',
       'systemic-thinking-mode':     'Systemic thinking mode — structural cognition active',
+      'integration-depth-lock':     'Integration depth lock — full inner loop closed',
+      'recovery-momentum-lock':     'Recovery momentum lock — active maintenance protocol sustained',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -398,6 +400,20 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'systemic-thinking-mode') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Systemic cognition confirmed. You are building the structure.
+                </div>
+              )}
+
+              {/* Integration depth lock indicator — surfaces when pattern P84 is active */}
+              {patterns.some(p => p.pattern === 'integration-depth-lock') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Inner loop closed. All three arcs confirmed. This is the full-stack day.
+                </div>
+              )}
+
+              {/* Recovery momentum lock indicator — surfaces when pattern P85 is active */}
+              {patterns.some(p => p.pattern === 'recovery-momentum-lock') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Recovery is a pattern. Active maintenance protocol sustained.
                 </div>
               )}
 

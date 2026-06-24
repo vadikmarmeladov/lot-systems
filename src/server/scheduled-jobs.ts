@@ -935,6 +935,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityPeakCheck()) {
     await executeDailyVitalityPeakCheck()
   }
+
+  // Check daily integration depth pulse (17:00 UTC every day) — Job 22
+  if (shouldRunDailyIntegrationDepthPulse()) {
+    await executeDailyIntegrationDepthPulse()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -2705,6 +2710,112 @@ async function executeDailyVitalityPeakCheck(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Integration Depth Pulse ───────────────────────────────────────────
+
+let isDailyIntegrationDepthRunning = false
+let lastDailyIntegrationDepthRun: Date | null = null
+
+function shouldRunDailyIntegrationDepthPulse(): boolean {
+  const now = dayjs()
+  if (isDailyIntegrationDepthRunning) return false
+  if (lastDailyIntegrationDepthRun) {
+    const lastRun = dayjs(lastDailyIntegrationDepthRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 17 // 17:00 UTC every day
+}
+
+async function executeDailyIntegrationDepthPulse(): Promise<JobResult> {
+  const jobName = 'daily-integration-depth-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyIntegrationDepthRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyIntegrationDepthRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY INTEGRATION DEPTH PULSE — 17:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    // Pull last 7 days of relevant events to detect P43+P81+P76 co-firing users
+    const recentLogs = await Log.findAll({
+      where: {
+        createdAt: { [Op.gte]: sevenDaysAgo },
+        event: {
+          [Op.in]: ['intention_completion_arc', 'cognitive_depth_arc', 'morning_coherence_launch'],
+        },
+      },
+      attributes: ['userId', 'event', 'metadata', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    })
+
+    const userArcMap: Record<string, { hasCompletion: boolean; hasCognition: boolean; hasLaunch: boolean; completionConf: number; cognitionConf: number; launchConf: number }> = {}
+    for (const l of recentLogs) {
+      const uid = String((l as any).userId)
+      if (!userArcMap[uid]) userArcMap[uid] = { hasCompletion: false, hasCognition: false, hasLaunch: false, completionConf: 0.80, cognitionConf: 0.70, launchConf: 0.70 }
+
+      const meta = l.metadata as Record<string, any> | null
+      const ev = l.event
+
+      if (ev === 'intention_completion_arc') {
+        userArcMap[uid].hasCompletion = true
+        if (meta?.confidence) userArcMap[uid].completionConf = Number(meta.confidence)
+      } else if (ev === 'cognitive_depth_arc') {
+        userArcMap[uid].hasCognition = true
+        if (meta?.confidence) userArcMap[uid].cognitionConf = Number(meta.confidence)
+      } else if (ev === 'morning_coherence_launch') {
+        userArcMap[uid].hasLaunch = true
+        if (meta?.confidence) userArcMap[uid].launchConf = Number(meta.confidence)
+      }
+    }
+
+    let written = 0
+    for (const [userId, arcs] of Object.entries(userArcMap)) {
+      if (!arcs.hasCompletion || !arcs.hasCognition || !arcs.hasLaunch) continue
+      try {
+        const avgConf = Math.round(((arcs.completionConf + arcs.cognitionConf + arcs.launchConf) / 3) * 100) / 100
+        await Log.create({
+          userId: Number(userId),
+          event: 'integration_depth_lock',
+          text: '',
+          metadata: {
+            completionConf: arcs.completionConf,
+            cognitionConf: arcs.cognitionConf,
+            launchConf: arcs.launchConf,
+            avgConf,
+            window: '7d',
+            hour: 17,
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} integration depth lock write failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users scanned: ${Object.keys(userArcMap).length}`)
+    console.log(`  Integration depth lock records written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('DAILY INTEGRATION DEPTH PULSE COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyIntegrationDepthRun = new Date()
+    isDailyIntegrationDepthRunning = false
+
+    return { jobName, executedAt, success: true, result: { scanned: Object.keys(userArcMap).length, written } }
+  } catch (error: any) {
+    console.error('Daily integration depth pulse failed:', error.message)
+    isDailyIntegrationDepthRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -2741,6 +2852,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily signal momentum check: 8 PM UTC every day')
   console.log('   - Weekly cognitive depth check: 6 AM UTC every Sunday')
   console.log('   - Daily vitality peak check: 12 PM UTC every day')
+  console.log('   - Daily integration depth pulse: 5 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2750,8 +2862,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 17=integration-depth-pulse, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 15 || hour === 16 || hour === 17) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

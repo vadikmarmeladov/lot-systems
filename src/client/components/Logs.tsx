@@ -1667,6 +1667,94 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'integration_depth_lock') {
+          const completionConf = log.metadata?.completionConf as number | undefined
+          const cognitionConf  = log.metadata?.cognitionConf  as number | undefined
+          const launchConf     = log.metadata?.launchConf     as number | undefined
+          const avgConf        = log.metadata?.avgConf        as number | undefined
+          const hour           = log.metadata?.hour           as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTG:" blockView>
+                <div className="uppercase tracking-widest mb-4">INTEGRATION DEPTH LOCK</div>
+                {launchConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MORNING LAUNCH</span>
+                    <span className="tabular-nums">{Math.round(launchConf * 100)}%</span>
+                  </div>
+                )}
+                {cognitionConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">COGNITIVE DEPTH</span>
+                    <span className="tabular-nums">{Math.round(cognitionConf * 100)}%</span>
+                  </div>
+                )}
+                {completionConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">COMPLETION ARC</span>
+                    <span className="tabular-nums">{Math.round(completionConf * 100)}%</span>
+                  </div>
+                )}
+                {avgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">AVG CONF</span>
+                    <span className="tabular-nums">{Math.round(avgConf * 100)}%</span>
+                  </div>
+                )}
+                {hour !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">HOUR</span>
+                    <span className="tabular-nums">{String(hour).padStart(2, '0')}:00</span>
+                  </div>
+                )}
+                <div className="opacity-40">Inner loop closed. Intention launched, cognition deepened, completion confirmed.</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recovery_momentum_lock') {
+          const selfCareCount   = log.metadata?.selfCareCount   as number | undefined
+          const recoveryPairs   = log.metadata?.recoveryPairs   as number | undefined
+          const resilienceCount = log.metadata?.resilienceCount as number | undefined
+          const totalScore      = log.metadata?.totalScore      as number | undefined
+          const hour            = log.metadata?.hour            as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RCLK:" blockView>
+                <div className="uppercase tracking-widest mb-4">RECOVERY MOMENTUM LOCK</div>
+                {selfCareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SELFCARE 7D</span>
+                    <span className="tabular-nums">{selfCareCount}</span>
+                  </div>
+                )}
+                {recoveryPairs !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RECOVERY ARCS</span>
+                    <span className="tabular-nums">{recoveryPairs}</span>
+                  </div>
+                )}
+                {resilienceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RESILIENCE 7D</span>
+                    <span className="tabular-nums">{resilienceCount}</span>
+                  </div>
+                )}
+                {totalScore !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">TOTAL SCORE</span>
+                    <span className="tabular-nums">{totalScore}</span>
+                  </div>
+                )}
+                {hour !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">HOUR</span>
+                    <span className="tabular-nums">{String(hour).padStart(2, '0')}:00</span>
+                  </div>
+                )}
+                <div className="opacity-40">Recovery is now a pattern — not crisis response, but active maintenance protocol.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

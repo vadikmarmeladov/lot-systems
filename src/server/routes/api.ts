@@ -1066,6 +1066,9 @@ export default async (fastify: FastifyInstance) => {
       // v69: vitality peak (Job 21 output) + systemic thinking mode
       'vitality_peak',
       'systemic_thinking',
+      // v70: integration depth lock (Job 22 output) + recovery momentum lock
+      'integration_depth_lock',
+      'recovery_momentum_lock',
       // Story generation
       'generated_story',
     ]

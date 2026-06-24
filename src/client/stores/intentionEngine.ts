@@ -1973,6 +1973,57 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 84: Integration depth lock — P43 (intention-completion-arc) + P81 (cognitive-depth-arc) + P76 (morning-coherence-launch) all active simultaneously.
+  // The inner loop fully closed: intention set at launch, cognition deepened through the day, completion confirmed at close.
+  // Rarest high-signal operator state — all three arcs firing in the same window is structural evidence of a full-stack day.
+  const p84HasCompletion = patterns.some(p => p.pattern === 'intention-completion-arc')
+  const p84HasCognition  = patterns.some(p => p.pattern === 'cognitive-depth-arc')
+  const p84HasLaunch     = patterns.some(p => p.pattern === 'morning-coherence-launch')
+  if (p84HasCompletion && p84HasCognition && p84HasLaunch) {
+    const p84CompletionConf = patterns.find(p => p.pattern === 'intention-completion-arc')?.confidence ?? 0.80
+    const p84CognitionConf  = patterns.find(p => p.pattern === 'cognitive-depth-arc')?.confidence ?? 0.70
+    const p84LaunchConf     = patterns.find(p => p.pattern === 'morning-coherence-launch')?.confidence ?? 0.70
+    const p84AvgConf = (p84CompletionConf + p84CognitionConf + p84LaunchConf) / 3
+    patterns.push({
+      pattern: 'integration-depth-lock',
+      confidence: Math.min(0.82 + (p84AvgConf - 0.73) * 0.60, 0.94),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `INTEGRATION DEPTH LOCK: All three inner arcs confirmed — morning launch · cognitive depth · intention completion. Full-stack operator mode. Completion ${Math.round(p84CompletionConf * 100)}% · Cognition ${Math.round(p84CognitionConf * 100)}% · Launch ${Math.round(p84LaunchConf * 100)}%.`,
+    })
+  }
+
+  // Pattern 85: Recovery momentum lock — selfcare engagement ≥3 events + ≥2 negative-to-positive mood recovery arcs in 7d.
+  // Distinct from P48 (single recovery arc): P85 fires when recovery is a repeated pattern — active maintenance protocol, not crisis response.
+  // Co-fires with P49 (care-momentum) but extends it by requiring confirmed arc completions, not just absence of depletion.
+  const p85SevenDays = now - 7 * 24 * 60 * 60 * 1000
+  const p85SelfCare7d   = signals.filter(s => s.source === 'selfcare'  && s.timestamp >= p85SevenDays)
+  const p85Resilience7d = signals.filter(s => s.source === 'resilience' && s.timestamp >= p85SevenDays)
+  const p85Moods7d      = signals.filter(s => s.source === 'mood'       && s.timestamp >= p85SevenDays)
+  const P85_DEPLETING = ['anxious', 'overwhelmed', 'tired', 'exhausted', 'depleted']
+  const P85_RESTORING = ['calm', 'peaceful', 'content', 'energized', 'restored', 'clear', 'grounded']
+  let p85RecoveryPairs = 0
+  const p85DepletingMoods = p85Moods7d.filter(s => P85_DEPLETING.includes(s.signal)).sort((a, b) => a.timestamp - b.timestamp)
+  for (const dep of p85DepletingMoods) {
+    const hasRecovery = p85Moods7d.some(s =>
+      P85_RESTORING.includes(s.signal) &&
+      s.timestamp > dep.timestamp &&
+      s.timestamp - dep.timestamp < 6 * 60 * 60 * 1000
+    )
+    if (hasRecovery) p85RecoveryPairs++
+  }
+  if (p85SelfCare7d.length >= 3 && (p85RecoveryPairs >= 2 || p85Resilience7d.length >= 3)) {
+    const p85ResilienceBonus = p85Resilience7d.length >= 3 ? (p85Resilience7d.length - 3) * 0.04 : 0
+    const p85PairBonus       = p85RecoveryPairs >= 2      ? (p85RecoveryPairs - 2) * 0.04       : 0
+    patterns.push({
+      pattern: 'recovery-momentum-lock',
+      confidence: Math.min(0.70 + (p85SelfCare7d.length - 3) * 0.05 + p85PairBonus + p85ResilienceBonus, 0.88),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `RECOVERY MOMENTUM LOCK: ${p85SelfCare7d.length} selfcare signals in 7d · ${p85RecoveryPairs} recovery arcs · ${p85Resilience7d.length} resilience signals. Recovery is now a pattern — not crisis response, but active maintenance protocol sustained across the week.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2496,6 +2547,9 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Vitality + systemic intelligence monitors (2026-06-23 audit)
   vitalityMonitor:       ['mood', 'energy', 'selfcare', 'log', 'cohort'],
   systemicThinker:       ['planner', 'goals', 'intentions', 'memory', 'journal'],
+  // ── Integration + recovery monitors (2026-06-24 audit)
+  integratedBuilderMonitor: ['intentions', 'planner', 'memory', 'journal', 'goals'],
+  recoveryMomentumMonitor:  ['selfcare', 'mood', 'resilience', 'energy'],
 }
 
 /**
@@ -2759,6 +2813,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'mood'],
     patternConditions: ['circadian-vitality-peak', 'morning-coherence-launch', 'biorhythm-lock'],
     directive: 'Biological prime window open. High-energy structural cognition confirmed. Planner + intentions aligned. Use this window — design, build, decide. Cortisol plateau approaching.',
+  },
+  {
+    archetype: 'Integrated Builder',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['intentions', 'planner', 'memory', 'journal'],
+    patternConditions: ['integration-depth-lock', 'intention-completion-arc', 'cognitive-depth-arc'],
+    directive: 'Inner loop closed. Intention launched the day, cognition deepened it, completion confirmed it. This is full-stack operator mode. The system recognized a complete day — log this state, repeat the structure.',
   },
 ]
 
@@ -3778,5 +3839,27 @@ export function recordSystemicThinkingMode(plannerCount: number, goalsCount: num
     userIndex,
     structuralDepth: plannerCount + goalsCount + intentionsCount,
     window: '3d',
+  })
+}
+
+export function recordIntegrationDepthLock(completionConf: number, cognitionConf: number, launchConf: number) {
+  recordSignal('intentions', 'integration_depth_lock', {
+    completionConf,
+    cognitionConf,
+    launchConf,
+    avgConf: Math.round(((completionConf + cognitionConf + launchConf) / 3) * 100) / 100,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordRecoveryMomentumLock(selfCareCount: number, recoveryPairs: number, resilienceCount: number) {
+  recordSignal('selfcare', 'recovery_momentum_lock', {
+    selfCareCount,
+    recoveryPairs,
+    resilienceCount,
+    totalScore: selfCareCount + recoveryPairs + resilienceCount,
+    window: '7d',
+    hour: new Date().getHours(),
   })
 }

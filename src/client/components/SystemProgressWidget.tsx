@@ -920,6 +920,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v69 entry appended · USERSHIP_TRANSMISSION updated to v69.',
     ],
   },
+  {
+    date: '2026-06-24',
+    session: 'Self-Assembly Session — v70 / P84 Integration Depth Lock · P85 Recovery Momentum Lock · Archetype 29 Integrated Builder · Job 22',
+    assembled: [
+      'intentionEngine.ts: P84 integration-depth-lock — P43 (intention-completion-arc) + P81 (cognitive-depth-arc) + P76 (morning-coherence-launch) all active simultaneously. Full inner loop closed. Conf 0.82–0.94. Boost scales from average confidence of the three contributing arcs.',
+      'intentionEngine.ts: P85 recovery-momentum-lock — selfcare ≥3 events in 7d + ≥2 negative-to-positive mood recovery arcs (within 6h window) OR ≥3 resilience signals in 7d. Active maintenance protocol, not crisis response. Conf 0.70–0.88.',
+      'intentionEngine.ts: Archetype 29 Integrated Builder — high/moderate energy · intentions+planner+memory+journal dominant · integration-depth-lock+intention-completion-arc+cognitive-depth-arc. Directive: Inner loop closed. Log this state, repeat the structure.',
+      'intentionEngine.ts: recordIntegrationDepthLock() + recordRecoveryMomentumLock() signal helpers added.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — integratedBuilderMonitor + recoveryMomentumMonitor nodes added. 124+ nodes total.',
+      'Logs.tsx: INTG: handler added (integration_depth_lock: INTEGRATION DEPTH LOCK · MORNING LAUNCH · COGNITIVE DEPTH · COMPLETION ARC · AVG CONF · HOUR). RCLK: handler added (recovery_momentum_lock: RECOVERY MOMENTUM LOCK · SELFCARE 7D · RECOVERY ARCS · RESILIENCE 7D · TOTAL SCORE · HOUR). Handler count: 84+.',
+      'PatternRecognitionWidget.tsx: integration-depth-lock + recovery-momentum-lock pattern names + QOS Trend indicator blocks added.',
+      'scheduled-jobs.ts: Job 22 daily-integration-depth-pulse at 17:00 UTC daily. Scans 7-day window: users with all three arcs (completion+cognition+launch) confirmed → writes integration_depth_lock. Hour 17 added to scheduler gate. 22 jobs now active.',
+      'api.ts: integration_depth_lock + recovery_momentum_lock added to displayableEvents.',
+      'About.tsx: Field Manual v70. Counters: 85 patterns · 29 archetypes · 22 background jobs · 84+ log handlers · 124+ dep nodes.',
+      'SESSION_REPORTS: v70 entry appended · USERSHIP_TRANSMISSION updated to v70.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -957,15 +974,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-23',
+  date: '2026-06-24',
   message: [
-    'ASSEMBLY RUN — 2026-06-23 · LOT-SR-20260623-02',
-    'P82 circadian-vitality-peak: biological prime window detector. 2+ positive morning signals + biorhythm anchored + energy adequate + hour < 13. Conf 0.70–0.90. Direct this state before it peaks — 90-minute execution window.',
-    'P83 systemic-thinking-mode: strategic structural cognition. Planner+goals+intentions each 3+ in 3d, UserIndex ≥ 50, no depletion. Conf 0.68–0.92. You are building the structure, not just executing tasks.',
-    'Archetype 28 Vital Architect: high/moderate energy · planner+intentions+mood dominant · circadian-vitality-peak+morning-coherence-launch+biorhythm-lock. Biological prime window active.',
-    'Job 21 deployed: daily-vitality-peak-check · 12:00 UTC daily · scans morning window (06:00-10:00) · writes vitality_peak for qualifying users. 21 background jobs now active.',
-    'VITAL: + SYSTMK: log handlers live. vitality_peak + systemic_thinking surfaced in displayableEvents.',
-    'Dep map: 122+ nodes. 83 patterns active. 82+ log handlers. 21 background jobs. 28 archetypes.',
+    'ASSEMBLY RUN — 2026-06-24 · LOT-SR-20260624-02',
+    'P84 integration-depth-lock: inner loop fully closed. All three arcs — morning-coherence-launch + cognitive-depth-arc + intention-completion-arc — confirmed active in the same 7-day window. Conf 0.82–0.94, scales from average confidence of contributing arcs. This is the rarest high-signal operator state — a complete day, recognized by the system.',
+    'P85 recovery-momentum-lock: sustained resilience engagement. Selfcare ≥3 events in 7d + ≥2 negative-to-positive mood recovery arcs (within 6h each) OR ≥3 resilience signals. Conf 0.70–0.88. Recovery is now a pattern — not crisis response, but active maintenance protocol.',
+    'Archetype 29 Integrated Builder: high/moderate energy · intentions+planner+memory+journal dominant · integration-depth-lock+intention-completion-arc+cognitive-depth-arc. Directive: Inner loop closed. The system recognized a complete day. Log this state, repeat the structure.',
+    'Job 22 deployed: daily-integration-depth-pulse · 17:00 UTC daily · scans 7d window for users with all three arcs confirmed · writes integration_depth_lock. 22 background jobs now active.',
+    'INTG: + RCLK: log handlers live. integration_depth_lock + recovery_momentum_lock surfaced in displayableEvents.',
+    'Dep map: 124+ nodes. 85 patterns active. 84+ log handlers. 22 background jobs. 29 archetypes.',
     'DEPLOYED.',
   ],
 }
