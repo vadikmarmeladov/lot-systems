@@ -1198,11 +1198,60 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const entryText = log.metadata?.text as string | undefined
+          const delta = date
+            ? dayjs(date).startOf('day').diff(dayjs().startOf('day'), 'day')
+            : null
+          const dDayLabel = delta === null
+            ? ''
+            : delta === 0
+            ? 'TODAY'
+            : delta > 0
+            ? `D-${delta}`
+            : `D+${Math.abs(delta)}`
+          const milDate = date ? dayjs(date).format('DD MMM YYYY').toUpperCase() : ''
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex justify-between items-baseline">
+                  <span className="uppercase tracking-widest text-xs opacity-60">
+                    {(entryType || 'NOTE').toUpperCase()}
+                  </span>
+                  <span className={cn('tabular-nums text-xs', delta === 0 ? 'opacity-100' : 'opacity-30')}>
+                    {dDayLabel}
+                  </span>
+                </div>
+                {entryText && (
+                  <div className="mt-4 opacity-80">{entryText}</div>
+                )}
+                {milDate && (
+                  <div className="opacity-30 mt-4 tabular-nums uppercase text-xs">{milDate}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_today') {
+          const calEntries = log.metadata?.entries as Array<{ text: string; type: string }> | undefined
+          const date = log.metadata?.date as string | undefined
+          const count = log.metadata?.count as number | undefined
+          const milDate = date ? dayjs(date).format('DD MMM YYYY').toUpperCase() : ''
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-OPS:" blockView>
+                <div className="uppercase tracking-widest mb-8">Operations today</div>
+                {calEntries?.map((e, i) => (
+                  <div key={i} className="flex gap-8 mb-4 items-baseline">
+                    <span className="opacity-30 uppercase text-xs w-10 shrink-0">
+                      {(e.type || 'NOTE').slice(0, 4).toUpperCase()}
+                    </span>
+                    <span className="opacity-80">{e.text}</span>
+                  </div>
+                ))}
+                {milDate && (
+                  <div className="opacity-30 mt-8 tabular-nums uppercase text-xs">
+                    {milDate} · {count ?? 0} op(s)
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )

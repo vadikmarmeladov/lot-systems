@@ -48,17 +48,34 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
   return weeks
 }
 
+function daysUntil(dateStr: string): number {
+  return dayjs(dateStr).startOf('day').diff(dayjs().startOf('day'), 'day')
+}
+
+function dDayLabel(delta: number): string {
+  if (delta === 0) return 'D+0'
+  if (delta > 0) return `D-${delta}`
+  return `D+${Math.abs(delta)}`
+}
+
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
 
+  const [now, setNow] = React.useState(() => dayjs())
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+
+  // Live clock — ticks every minute
+  React.useEffect(() => {
+    const id = setInterval(() => setNow(dayjs()), 60_000)
+    return () => clearInterval(id)
+  }, [])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -72,12 +89,13 @@ export function CalendarWidget() {
       .sort((a, b) => a.date.localeCompare(b.date))
   }, [logs])
 
+  const today = dayjs().format('YYYY-MM-DD')
+
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
     return entries
       .filter(e => e.date >= today)
       .slice(0, 10)
-  }, [entries])
+  }, [entries, today])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,16 +108,48 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
   )
 
+  // Auto-trigger: log a CAL-OPS event once per day if there are entries for today
+  const todayFiredRef = React.useRef(false)
+  React.useEffect(() => {
+    if (todayFiredRef.current) return
+    if (!logs.length) return
+
+    const storageKey = `cal_today_fired_${today}`
+    if (sessionStorage.getItem(storageKey)) return
+
+    const todayEntries = entries.filter(e => e.date === today)
+    if (!todayEntries.length) return
+
+    todayFiredRef.current = true
+    sessionStorage.setItem(storageKey, '1')
+
+    const summary = todayEntries
+      .map(e => `${e.type.toUpperCase()}: ${e.text}`)
+      .join(' | ')
+
+    createLog({
+      text: `[CAL-OPS] ${todayEntries.length} OP(S) TODAY — ${summary}`,
+      event: 'calendar_today',
+      metadata: {
+        date: today,
+        entries: todayEntries.map(e => ({ text: e.text, type: e.type })),
+        count: todayEntries.length,
+      },
+    }, {
+      onSuccess: () => queryClient.invalidateQueries(['/api/logs']),
+    })
+  }, [logs.length, entries])
+
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
     if (selectedDate === key) {
       setSelectedDate(null)
+      setIsAddingEntry(false)
     } else {
       setSelectedDate(key)
     }
@@ -136,9 +186,17 @@ export function CalendarWidget() {
     setIsCalendarOpen(!isCalendarOpen)
   }
 
+  const milNow = now.format('ddd DD MMM YYYY').toUpperCase() + ' · ' + now.format('HH:mm')
+
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
+
+        {/* Live clock */}
+        <div className="text-acc/30 tabular-nums uppercase text-xs mb-12">
+          {milNow}
+        </div>
+
         <div className="mb-16">
           <Button onClick={handleToggleCalendar}>
             Add date
@@ -244,12 +302,15 @@ export function CalendarWidget() {
 
             {selectedDate && entriesOnDate.length > 0 && (
               <div className="mt-8">
-                <div className="text-acc/40 mb-4">
-                  {dayjs(selectedDate).format('dddd, MMMM D')}
+                <div className="text-acc/40 mb-4 uppercase text-xs">
+                  {dayjs(selectedDate).format('ddd DD MMM YYYY').toUpperCase()}
                 </div>
                 {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                  <div key={i} className="flex gap-8 mb-1">
+                    <span className="text-acc/30 uppercase text-xs w-10 shrink-0">
+                      {e.type.slice(0, 4).toUpperCase()}
+                    </span>
+                    <span className="text-acc/80">{e.text}</span>
                   </div>
                 ))}
               </div>
@@ -257,18 +318,35 @@ export function CalendarWidget() {
           </div>
         )}
 
+        {/* Upcoming entries with D-day countdowns */}
         {upcomingEntries.length > 0 && (
-          <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+          <div className="space-y-2">
+            {upcomingEntries.map((entry, i) => {
+              const delta = daysUntil(entry.date)
+              const isEventToday = delta === 0
+              return (
+                <div
+                  key={i}
+                  className={cn(
+                    'flex gap-8 items-baseline',
+                    isEventToday ? 'text-acc' : 'text-acc/60'
+                  )}
+                >
+                  <span className={cn('tabular-nums text-xs w-10 shrink-0 uppercase', isEventToday ? 'text-acc' : 'text-acc/40')}>
+                    {dDayLabel(delta)}
+                  </span>
+                  <span className={cn('text-xs uppercase w-10 shrink-0', isEventToday ? 'text-acc/60' : 'text-acc/30')}>
+                    {entry.type.slice(0, 4)}
+                  </span>
+                  <span className="flex-1 leading-snug">
+                    {entry.text}
+                  </span>
+                  {isEventToday && (
+                    <span className="text-xs text-acc/40 uppercase shrink-0">today</span>
+                  )}
+                </div>
+              )
+            })}
           </div>
         )}
 
