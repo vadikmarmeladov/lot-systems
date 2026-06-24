@@ -10,7 +10,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button } from '#client/components/ui'
-import { useCohorts, useEnergy, useProfile } from '#client/queries'
+import { useCohorts, useEnergy, useProfile, useSendLotMail } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
 import { recordSignal, getUserState } from '#client/stores/intentionEngine'
@@ -28,6 +28,17 @@ export const CohortConnectWidget: React.FC = () => {
   const { data: energyData } = useEnergy()
   const { data: profileData } = useProfile()
   const [expandedMemberId, setExpandedMemberId] = React.useState<string | null>(null)
+  const [mailComposeMemberId, setMailComposeMemberId] = React.useState<string | null>(null)
+  const [mailBody, setMailBody] = React.useState('')
+  const [mailSentFor, setMailSentFor] = React.useState<string | null>(null)
+  const { mutate: sendLotMail, isLoading: isMailSending } = useSendLotMail({
+    onSuccess: (res) => {
+      setMailSentFor(res.to)
+      setMailComposeMemberId(null)
+      setMailBody('')
+    },
+    onError: () => { setMailSentFor(null) },
+  })
   const logCtx = useLogContext()
   const punctuation = usePunctuationContext()
   const hasRecordedRef = React.useRef(false)
@@ -250,7 +261,7 @@ export const CohortConnectWidget: React.FC = () => {
                     )}
 
                     {/* Actions */}
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 flex-wrap">
                       <Button
                         size="small"
                         onClick={(e: React.MouseEvent) => {
@@ -267,9 +278,57 @@ export const CohortConnectWidget: React.FC = () => {
                           handleSendMessage(match.user.id, match.similarity)
                         }}
                       >
-                        Send message
+                        Sync
+                      </Button>
+                      <Button
+                        size="small"
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation()
+                          setMailComposeMemberId(
+                            mailComposeMemberId === match.user.id ? null : match.user.id
+                          )
+                          setMailBody('')
+                        }}
+                      >
+                        ✉️ Mail
                       </Button>
                     </div>
+
+                    {/* Inline LOT Mail compose */}
+                    {mailComposeMemberId === match.user.id && (
+                      <div
+                        className="mt-8"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <textarea
+                          className="w-full bg-transparent border border-acc/20 rounded p-8 text-acc placeholder:opacity-30 resize-none outline-none text-sm"
+                          rows={2}
+                          placeholder={`Message to ${match.user.firstName}...`}
+                          value={mailBody}
+                          onChange={e => setMailBody(e.target.value)}
+                          autoFocus
+                        />
+                        <div className="flex justify-end mt-4">
+                          <Button
+                            size="small"
+                            disabled={isMailSending || !mailBody.trim()}
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation()
+                              if (match.user.firstName && mailBody.trim()) {
+                                sendLotMail({ to: match.user.firstName, message: mailBody.trim() })
+                              }
+                            }}
+                          >
+                            {isMailSending ? '...' : 'Send ✉️'}
+                          </Button>
+                        </div>
+                        {mailSentFor === match.user.firstName && (
+                          <div className="mt-4 opacity-40 text-xs uppercase tracking-widest">
+                            Sent → {match.user.firstName}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

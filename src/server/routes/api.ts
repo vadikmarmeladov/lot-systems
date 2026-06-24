@@ -3906,6 +3906,129 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   })
 
   // ============================================================================
+  // LOT MAIL — in-system messaging via /email command in Log
+  // ============================================================================
+
+  // GET /api/lot-mail — inbox (messages received by current user)
+  fastify.get('/lot-mail', async (req, reply) => {
+    try {
+      const messages = await fastify.models.DirectMessage.findAll({
+        where: { receiverId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+
+      // Fetch sender names in a single batch query
+      const senderIds = [...new Set(messages.map(m => m.senderId))]
+      const senders = senderIds.length
+        ? await fastify.models.User.findAll({
+            where: { id: senderIds } as any,
+            attributes: ['id', 'firstName', 'lastName'],
+          })
+        : []
+      const senderById = senders.reduce<Record<string, { firstName: string | null; lastName: string | null }>>(
+        (acc, u) => { acc[u.id] = { firstName: u.firstName, lastName: u.lastName }; return acc },
+        {}
+      )
+
+      return reply.send({
+        messages: messages.map(m => ({
+          id: m.id,
+          senderId: m.senderId,
+          senderName: senderById[m.senderId]
+            ? `${senderById[m.senderId].firstName || ''} ${senderById[m.senderId].lastName || ''}`.trim()
+            : 'Unknown',
+          message: m.message,
+          createdAt: m.createdAt,
+        })),
+      })
+    } catch (error) {
+      console.error('Error fetching LOT Mail inbox:', error)
+      return reply.status(500).send({ error: 'Failed to fetch mail' })
+    }
+  })
+
+  // POST /api/lot-mail — send a LOT Mail by recipient first name
+  fastify.post('/lot-mail', async (req: FastifyRequest<{
+    Body: { to: string; message: string }
+  }>, reply) => {
+    try {
+      const { to, message } = req.body
+
+      if (!to || !to.trim()) {
+        return reply.status(400).send({ error: 'Recipient name is required' })
+      }
+      if (!message || !message.trim()) {
+        return reply.status(400).send({ error: 'Message body is required' })
+      }
+
+      // Find receiver by first name (case-insensitive)
+      const receiver = await fastify.models.User.findOne({
+        where: fastify.sequelize.where(
+          fastify.sequelize.fn('LOWER', fastify.sequelize.col('firstName')),
+          to.toLowerCase()
+        ),
+      } as any)
+
+      if (!receiver) {
+        return reply.status(404).send({ error: `User "${to}" not found in LOT Community` })
+      }
+
+      if (receiver.id === req.user.id) {
+        return reply.status(400).send({ error: 'Cannot send LOT Mail to yourself' })
+      }
+
+      const mail = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        message: message.trim().slice(0, 2000),
+      })
+
+      const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'Anonymous'
+
+      sync.emit('lot_mail', {
+        id: mail.id,
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        senderName,
+        to: receiver.firstName,
+        message: mail.message,
+        createdAt: mail.createdAt,
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'lot_mail_sent',
+            text: '',
+            metadata: {
+              mailId: mail.id,
+              to: receiver.firstName,
+              receiverId: receiver.id,
+              message: mail.message,
+            },
+            context,
+          })
+        } catch (logErr) {
+          console.error('Error logging LOT Mail:', logErr)
+        }
+      })
+
+      return reply.send({
+        id: mail.id,
+        to: receiver.firstName,
+        message: mail.message,
+        createdAt: mail.createdAt,
+      })
+    } catch (error) {
+      console.error('Error sending LOT Mail:', error)
+      return reply.status(500).send({ error: 'Failed to send mail' })
+    }
+  })
+
+  // ============================================================================
   // STATS API - Real-time metrics and community insights
   // ============================================================================
 

@@ -122,9 +122,29 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeLotMailListener } = sync.listen(
+      'lot_mail',
+      (data) => {
+        if (data.receiverId !== me?.id) return
+        const mailMessage: PublicChatMessage = {
+          id: data.id,
+          authorUserId: data.senderId,
+          author: data.senderName,
+          message: `✉️ MAIL: ${data.message}`,
+          likes: 0,
+          isLiked: false,
+          createdAt: data.createdAt,
+        } as any
+        setMessages((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [mailMessage, ...prev]
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotMailListener()
     }
   }, [me?.id])
 
