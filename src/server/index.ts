@@ -216,7 +216,7 @@ setInterval(() => {
 
 // Health check endpoint (required for Digital Ocean)
 fastify.get('/health', async (request, reply) => {
-  return { status: 'ok', timestamp: new Date().toISOString() }
+  return { status: 'ok', version: config.version || 'unknown', timestamp: new Date().toISOString() }
 })
 
 // Public API routes (no authentication required)

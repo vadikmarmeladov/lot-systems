@@ -7,7 +7,11 @@
  */
 
 import dotenv from 'dotenv'
+import { createRequire } from 'module'
 dotenv.config()
+
+const _require = createRequire(import.meta.url)
+const pkg = _require('../../package.json') as { version: string }
 
 function requireEnv(key: string, fallback?: string): string {
   const value = process.env[key] || fallback
@@ -20,6 +24,7 @@ function requireEnv(key: string, fallback?: string): string {
 
 const config = {
   env: process.env.NODE_ENV || 'development',
+  version: `v${pkg.version}`,
   port: parseInt(process.env.PORT || '4400', 10),
   appName: process.env.APP_NAME || 'Your App',
   appHost: process.env.APP_HOST || 'http://localhost:4400',
