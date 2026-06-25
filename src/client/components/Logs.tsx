@@ -429,6 +429,28 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'qos_mode_change') {
+          const oldMode  = log.metadata?.oldMode  as string | undefined
+          const newMode  = log.metadata?.newMode  as string | undefined
+          const pressure = log.metadata?.pressure as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="OS [MODE]:" blockView>
+                {oldMode && newMode && (
+                  <div className="uppercase tracking-widest mb-4">
+                    {oldMode} → {newMode}
+                  </div>
+                )}
+                {pressure && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">PRESSURE</span>
+                    <span className="uppercase">{pressure}</span>
+                  </div>
+                )}
+                <div className="opacity-40">Operating mode transition detected.</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'physiological_cohort') {
           const archetype = log.metadata?.archetype as string | undefined
           const behavioralCohort = log.metadata?.behavioralCohort as string | undefined
@@ -1620,6 +1642,29 @@ export const Logs: React.FC = () => {
                   </div>
                 )}
                 <div className="opacity-40">Biological prime window open. 90-minute execution window.</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'longitudinal_drift') {
+          const weeklyScores = log.metadata?.weeklyScores as number[] | undefined
+          const declineStreak = log.metadata?.declineStreak as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DRIFT:" blockView>
+                <div className="uppercase tracking-widest mb-4">LONGITUDINAL DRIFT</div>
+                {weeklyScores && weeklyScores.length > 0 && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">4-WEEK ARC</span>
+                    <span className="tabular-nums">{weeklyScores.join(' → ')}</span>
+                  </div>
+                )}
+                {declineStreak !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">DECLINE</span>
+                    <span className="tabular-nums">{declineStreak}w ↓</span>
+                  </div>
+                )}
+                <div className="opacity-40">Signal trajectory declining. Review engagement baseline.</div>
               </Block>
             </LogContainer>
           )
