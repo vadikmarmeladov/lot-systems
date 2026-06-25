@@ -58,4 +58,4 @@ ID             | CLASS        | SUMMARY                                         
 20260623-02    | SELF-ASSEMBLY| QIE v69 — P82/P83 · Arch28 Vital Architect · Job21 12:00 UTC · VITAL:/SYSTMK: handlers · dep map 122+ · 83 patterns · 28 archetypes · 21 jobs | GREEN  | 09e0d451  | WORDS: 620 (median 495)
 20260624-03    | ENGINEERING  | Error page + About separation — static error.html · standalone About template · server error redirect | GREEN  | eae9481  | WORDS: 310 (median 395)
 20260625-01    | ENGINEERING  | Badge Codex v19 — Quantum Protocol · +35 badges (354→389) · 10th word-turn engine · PDF · tsconfig TS6 fix | GREEN  | 92254ce | WORDS: 449 (median 449)
-20260625-02    | SELF-ASSEMBLY| QIE P84 longitudinal-drift (Job 22) + OS [MODE]: qos_mode_change handler (Job 23) | GREEN  | (pending) | WORDS: 422 (median 422)
+20260625-02    | SELF-ASSEMBLY| QIE P84 longitudinal-drift (Job 22) + OS [MODE]: qos_mode_change handler (Job 23) | GREEN  | 54b71fb  | WORDS: 422 (median 422)
