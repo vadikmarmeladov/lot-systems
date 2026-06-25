@@ -141,6 +141,19 @@ the LOG in military instrument style.
 (SR-20260619-01: P76 minted; SR-20260621-01: P79 + EVE: minted;
 SR-20260621-02: P80 + MOM: + MOMENTUM LOCK minted. DIURNAL ARC named.)
 
+## TypeScript Upgrade Compatibility (TS-UPGRADE)
+
+When TypeScript major version increments, compiler options deprecated in prior
+minor versions may escalate to hard errors. `moduleResolution: "node"` (alias
+"node10") and bare `baseUrl` were deprecated in TS 5.0 but only blocked builds
+in TS 6.0. The safe silence path is `"ignoreDeprecations": "5.0"` in
+tsconfig.server.json, which preserves all existing path alias behavior without
+requiring a resolution-mode migration. A full migration to `moduleResolution:
+"bundler"` + paths-without-baseUrl is the long-term fix (deferred until a
+dedicated TS migration session, not bundled into an unrelated content session).
+(SR-20260625-01: TS 6.0 escalated two deprecated options to errors; fixed
+with ignoreDeprecations flag; both server+client builds green.)
+
 ## Query Batching
 
 When a route handler issues multiple independent database queries sequentially,

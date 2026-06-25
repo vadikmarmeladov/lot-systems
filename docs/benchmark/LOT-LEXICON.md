@@ -40,4 +40,6 @@ EVE:               Evening Coherence Close — log block label for evening-coher
 DIURNAL ARC        P76→P79→P80 behavioral arc: morning launch → evening close → sustained momentum lock     B  20260621
 MOM:               Momentum Lock — log block label for signal_momentum events (5+ days, 3+ sources)         B  20260621
 MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
+COSMO-CIA          Physical hardware terminal for LOT operators — 40×40×7mm SS body, OLED + camera + Copy button, Wi-Fi, Qi charging  A  20260625
+HW-SIGNAL          hardware_signal log event — triggered by COSMO CIA Copy button → appears in operator Log tab  A  20260625
 ```
