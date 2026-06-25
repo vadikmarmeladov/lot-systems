@@ -386,6 +386,13 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'direct_message': {
+          // Only deliver to the intended receiver
+          if (data.receiverId === req.user.id) {
+            write({ event: 'lot_mail', data })
+          }
+          break
+        }
       }
     })
 
@@ -3909,6 +3916,120 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // ============================================================================
+  // LOT® MAIL — In-app messaging via /email command in Log
+  // ============================================================================
+
+  // Inbox: recent messages received by current user
+  fastify.get('/lot-mail/inbox', async (req, reply) => {
+    try {
+      const messages = await fastify.models.DirectMessage.findAll({
+        where: { receiverId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 30,
+      })
+      const senderIds = [...new Set(messages.map(m => m.senderId))]
+      const senders = await fastify.models.User.findAll({
+        where: { id: senderIds },
+        attributes: ['id', 'firstName', 'lastName'],
+      })
+      const senderMap = new Map(senders.map(s => [s.id, s]))
+      return reply.send({
+        messages: messages.map(m => {
+          const sender = senderMap.get(m.senderId)
+          const senderName = sender
+            ? `${sender.firstName || ''} ${sender.lastName || ''}`.trim() || 'Unknown'
+            : 'Unknown'
+          return {
+            id: m.id,
+            senderId: m.senderId,
+            receiverId: m.receiverId,
+            message: m.message,
+            senderName,
+            createdAt: m.createdAt,
+          }
+        }),
+      })
+    } catch (error) {
+      console.error('Error fetching LOT Mail inbox:', error)
+      return reply.status(500).send({ error: 'Failed to fetch inbox' })
+    }
+  })
+
+  // Lookup user by first name (case-insensitive) for /email to <name>
+  fastify.post('/lot-mail/lookup', async (req: FastifyRequest<{
+    Body: { name: string }
+  }>, reply) => {
+    try {
+      const { name } = req.body
+      if (!name || !name.trim()) return reply.status(400).send({ error: 'Name required' })
+      const user = await fastify.models.User.findOne({
+        where: fastify.sequelize.where(
+          fastify.sequelize.fn('LOWER', fastify.sequelize.col('firstName')),
+          name.toLowerCase().trim()
+        ),
+        attributes: ['id', 'firstName', 'lastName'],
+      })
+      if (!user) return reply.send(null)
+      return reply.send({ id: user.id, firstName: user.firstName, lastName: user.lastName })
+    } catch (error) {
+      console.error('Error looking up user:', error)
+      return reply.status(500).send({ error: 'Lookup failed' })
+    }
+  })
+
+  // Send LOT Mail: resolves recipient by name then sends as DirectMessage
+  fastify.post('/lot-mail/send', async (req: FastifyRequest<{
+    Body: { recipientName: string; message: string }
+  }>, reply) => {
+    try {
+      const { recipientName, message } = req.body
+      if (!recipientName || !message || !message.trim()) {
+        return reply.status(400).send({ error: 'Recipient and message required' })
+      }
+      const recipient = await fastify.models.User.findOne({
+        where: fastify.sequelize.where(
+          fastify.sequelize.fn('LOWER', fastify.sequelize.col('firstName')),
+          recipientName.toLowerCase().trim()
+        ),
+      })
+      if (!recipient) {
+        return reply.send({ status: 'user_not_found', recipientName })
+      }
+      const dm = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: message.trim().slice(0, 2000),
+      })
+      const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim()
+      sync.emit('direct_message', {
+        id: dm.id,
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: dm.message,
+        senderName,
+        createdAt: dm.createdAt,
+      })
+      // Log the send event
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'lot_mail_sent',
+            text: '',
+            metadata: { recipientId: recipient.id, recipientName, message: dm.message },
+            context,
+          })
+        } catch {}
+      })
+      return reply.send({ id: dm.id, recipientName: recipient.firstName, status: 'sent' })
+    } catch (error) {
+      console.error('Error sending LOT Mail:', error)
+      return reply.status(500).send({ error: 'Failed to send mail' })
     }
   })
 

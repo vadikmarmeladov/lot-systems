@@ -28,11 +28,11 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, parseEmailCommand, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendLotMail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -1667,6 +1667,19 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'lot_mail_sent') {
+          const recipientName = log.metadata?.recipientName as string | undefined
+          const msgText = log.metadata?.message as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                {recipientName && (
+                  <div className="uppercase tracking-widest mb-4">TO: {recipientName}</div>
+                )}
+                {msgText && <div className="opacity-60">{msgText}</div>}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
@@ -1751,6 +1764,17 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [mailStatus, setMailStatus] = React.useState<string | null>(null)
+  const { mutate: sendLotMail } = useSendLotMail({
+    onSuccess: (data) => {
+      if (data?.status === 'sent') {
+        setMailStatus(`SENT → ${data.recipientName}`)
+      } else {
+        setMailStatus(`NOT FOUND: ${data?.recipientName || 'Unknown'}`)
+      }
+    },
+    onError: () => setMailStatus('MAIL ERROR — Try again'),
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -2162,6 +2186,7 @@ const NoteEditor = ({
           '/synth        Toggle keyboard sound',
           '/radio        Toggle radio',
           '/night        Dark mode',
+          '/email to <name> [message]   LOT Mail — send in-app message',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -2184,6 +2209,17 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'email-compose') {
+        const parsed = parseEmailCommand(value)
+        if (parsed && parsed.to) {
+          setMailStatus(`SENDING → ${parsed.to}...`)
+          sendLotMail({
+            recipientName: parsed.to,
+            message: parsed.message || '(no message)',
+          })
+        } else {
+          setMailStatus('USAGE: /email to <name> [message]')
         }
       }
     }
@@ -2408,6 +2444,13 @@ const NoteEditor = ({
                   ))}
                 </div>
               )}
+            </Block>
+          </div>
+        )}
+        {mailStatus && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              <div className="opacity-60 font-mono uppercase tracking-widest">{mailStatus}</div>
             </Block>
           </div>
         )}

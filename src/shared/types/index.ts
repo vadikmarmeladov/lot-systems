@@ -439,9 +439,20 @@ export type ChatMessageLikeEventPayload = {
   isLiked?: boolean;
 };
 
+// LOT Mail in-app message
+export type LotMailMessage = {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  message: string;
+  senderName: string;
+  createdAt: string;
+};
+
 // Sync Events
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
   settings_updated: Record<string, never>;
+  lot_mail: LotMailMessage;
 };

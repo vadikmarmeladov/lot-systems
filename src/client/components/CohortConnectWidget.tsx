@@ -116,14 +116,26 @@ export const CohortConnectWidget: React.FC = () => {
     window.location.href = `/users/${userId}`
   }
 
-  const handleSendMessage = (userId: string, similarity: number) => {
+  const handleSendMessage = (userId: string, firstName: string, similarity: number) => {
     recordSignal('mood', 'cohort_message_initiated', {
       userId,
       similarity,
       connectionReadiness,
       hour: new Date().getHours()
     })
-    stores.goTo('sync')
+    // Navigate to Log and pre-seed the /email command for LOT Mail
+    stores.goTo('logs')
+    setTimeout(() => {
+      const textarea = document.querySelector<HTMLTextAreaElement>('#page textarea')
+      if (textarea) {
+        const cmd = `/email to ${firstName} `
+        const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set
+        setter?.call(textarea, cmd)
+        textarea.dispatchEvent(new Event('input', { bubbles: true }))
+        textarea.focus()
+        textarea.selectionStart = textarea.selectionEnd = cmd.length
+      }
+    }, 200)
   }
 
   const handleToggleExpand = (userId: string) => {
@@ -264,10 +276,10 @@ export const CohortConnectWidget: React.FC = () => {
                         size="small"
                         onClick={(e: React.MouseEvent) => {
                           e.stopPropagation()
-                          handleSendMessage(match.user.id, match.similarity)
+                          handleSendMessage(match.user.id, match.user.firstName || '', match.similarity)
                         }}
                       >
-                        Send message
+                        Mail
                       </Button>
                     </div>
                   </div>

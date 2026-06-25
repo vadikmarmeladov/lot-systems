@@ -18,6 +18,7 @@ import {
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
+  LotMailMessage,
   Paginated,
   PublicChatMessage,
   User,
@@ -905,3 +906,19 @@ export const useStoryGeneration = createMutation<
     logId: string | null
   }
 >('post', '/api/story')
+
+// LOT® Mail
+export const useLotMailInbox = createQuery<{ messages: LotMailMessage[] }>(
+  '/api/lot-mail/inbox',
+  { refetchOnWindowFocus: false, staleTime: 30 * 1000 }
+)
+
+export const useSendLotMail = createMutation<
+  { recipientName: string; message: string },
+  { id: string; recipientName: string; status: 'sent' | 'user_not_found' }
+>('post', '/api/lot-mail/send')
+
+export const useLookupUserByName = createMutation<
+  { name: string },
+  { id: string; firstName: string; lastName: string | null } | null
+>('post', '/api/lot-mail/lookup')

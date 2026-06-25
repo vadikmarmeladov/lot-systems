@@ -57,3 +57,4 @@ ID             | CLASS        | SUMMARY                                         
 20260623-01    | ENGINEERING  | Badge engine v16+v17 — 70 new badges wired · Mainframe Awakening · WORD_TURNS 58→82 · v17 codex + PDF · 319 total badges | GREEN  | e9cb289  | WORDS: 580 (median 495)
 20260623-02    | SELF-ASSEMBLY| QIE v69 — P82/P83 · Arch28 Vital Architect · Job21 12:00 UTC · VITAL:/SYSTMK: handlers · dep map 122+ · 83 patterns · 28 archetypes · 21 jobs | GREEN  | 09e0d451  | WORDS: 620 (median 495)
 20260624-03    | ENGINEERING  | Error page + About separation — static error.html · standalone About template · server error redirect | GREEN  | eae9481  | WORDS: 310 (median 395)
+20260625-01    | ENGINEERING  | LOT® Mail — /email to <name> trigger · Sync inbox · Cohort dating wire · SSE delivery · 7 files +152 lines | GREEN  | 41cad73  | WORDS: 430 (median 425)

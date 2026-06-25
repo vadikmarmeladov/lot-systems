@@ -24,9 +24,10 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotMailInbox,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { LotMailMessage, PublicChatMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -42,6 +43,7 @@ export const Sync = () => {
 
   const [message, setMessage] = React.useState('')
   const [messages, setMessages] = React.useState<PublicChatMessage[]>([])
+  const [mailMessages, setMailMessages] = React.useState<LotMailMessage[]>([])
   const hasInitiallyLoaded = React.useRef(false)
 
   // Check if current user can access /us section (admin-level access)
@@ -55,6 +57,7 @@ export const Sync = () => {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: fetchedMail } = useLotMailInbox()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -81,6 +84,13 @@ export const Sync = () => {
       hasInitiallyLoaded.current = true
     }
   }, [fetchedMessages])
+
+  // Load LOT Mail inbox on mount
+  React.useEffect(() => {
+    if (fetchedMail?.messages) {
+      setMailMessages(fetchedMail.messages)
+    }
+  }, [fetchedMail])
 
   // Invalidate cache on mount to ensure fresh data (filters suspended users)
   // Reset hasInitiallyLoaded when component unmounts so data reloads on return
@@ -122,9 +132,19 @@ export const Sync = () => {
         })
       }
     )
+    const { dispose: disposeLotMailListener } = sync.listen(
+      'lot_mail',
+      (data) => {
+        setMailMessages((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [data, ...prev].slice(0, 30)
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotMailListener()
     }
   }, [me?.id])
 
@@ -188,6 +208,23 @@ export const Sync = () => {
 
   return (
     <div className="max-w-[700px]">
+      {mailMessages.length > 0 && (
+        <div className="mb-80">
+          <div className="text-acc/40 uppercase tracking-widest text-xs mb-16">LOT Mail</div>
+          {mailMessages.slice(0, 10).map((m) => (
+            <div key={m.id} className="flex items-start gap-x-8 py-2 -mx-4 px-4">
+              <span className="whitespace-nowrap opacity-60">{m.senderName}</span>
+              <div className="flex-1 whitespace-breakspaces" style={{ wordBreak: 'break-word' }}>
+                {m.message}
+              </div>
+              <span className="text-acc/30 text-xs whitespace-nowrap select-none">
+                {dayjs(m.createdAt).fromNow()}
+              </span>
+            </div>
+          ))}
+          <div className="border-t border-acc/10 mt-16 mb-16" />
+        </div>
+      )}
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}
