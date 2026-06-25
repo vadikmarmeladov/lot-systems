@@ -1068,6 +1068,8 @@ export default async (fastify: FastifyInstance) => {
       'systemic_thinking',
       // Story generation
       'generated_story',
+      // Calendar alerts (auto-fired when today's entries are detected)
+      'calendar_alert',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

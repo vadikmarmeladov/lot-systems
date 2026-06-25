@@ -1198,11 +1198,56 @@ export const Logs: React.FC = () => {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const TYPE_LABELS: Record<string, string> = { note: 'NOTE', task: 'TASK', call: 'COMM' }
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex justify-between items-baseline mb-4">
+                  <div className="uppercase tracking-widest">
+                    {TYPE_LABELS[entryType || ''] || entryType?.toUpperCase() || 'ENTRY'}
+                  </div>
+                  {date && (
+                    <div className="opacity-40 tabular-nums">
+                      {date}{time ? ` ${time}` : ''}
+                    </div>
+                  )}
+                </div>
+                {text && <div className="opacity-80">{text}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_alert') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const status = log.metadata?.status as string | undefined
+          const minutesUntil = log.metadata?.minutesUntil as number | undefined
+          const TYPE_LABELS: Record<string, string> = { note: 'NOTE', task: 'TASK', call: 'COMM' }
+          const tMinus =
+            status === 'IMMINENT' && minutesUntil !== undefined
+              ? minutesUntil <= 1
+                ? 'NOW'
+                : `T-${minutesUntil}m`
+              : 'TODAY'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                <div className="flex justify-between items-baseline mb-8">
+                  <div className="uppercase tracking-widest">{status || 'ALERT'}</div>
+                  <div className="tabular-nums opacity-60">{tMinus}</div>
+                </div>
+                {text && <div className="mb-4">{text}</div>}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">
+                    {TYPE_LABELS[entryType || ''] || entryType?.toUpperCase() || '—'}
+                  </span>
+                  <span className="opacity-40 tabular-nums">
+                    {date}{time ? ` ${time}` : ''}
+                  </span>
+                </div>
               </Block>
             </LogContainer>
           )
