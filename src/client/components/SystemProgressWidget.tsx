@@ -920,6 +920,53 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v69 entry appended · USERSHIP_TRANSMISSION updated to v69.',
     ],
   },
+  {
+    date: '2026-06-25',
+    session: 'Self-Assembly Session — v70 / Badge Codex v19 · Quantum Protocol · +35 badges (354→389)',
+    assembled: [
+      'LOT_BADGES_ACHIEVEMENTS_MASTER_CODEX_v19.md: Badge Codex v19 — Word Turn engine v10 with quantum vocabulary (quantum/entangle/collapse/observe/tunnel/spin/waveform/coherence/superposition/qubit/eigenstate/decohere).',
+      'Word Turn v10: 12 quantum-class word triggers. Time Easter v10: 11:23 Fibonacci · 20:16 LOT Year · 06:06 Dawn Double · 21:21 Mirror Nine.',
+      'Calendar Easter v9: Mar 14 π-Day · Nov 23 Fibonacci Day · Jun 25 Midsummer Node. Behavioral v9: quantum_jump · silent_archive · signal_locked.',
+      'Achievement RPG v7: 6 new quantum-class achievements. Mastery Tier v9: long_signal / phase_lock / eigenstate / infinite_loop.',
+      'Secret Boss v9: pi_signal / fibonacci_word / superposition_word. 389 total badges · 50 categories · 114 word-turn triggers · 40 time easter eggs.',
+      'PDF generated: LOT-BADGES-ACHIEVEMENTS-MASTER-CODEX-v19.pdf (71KB). tsconfig.server.json: ignoreDeprecations fix for TS6.0.',
+      'About.tsx: Field Manual v70. Counters unchanged from v69 (badge/codex-only session).',
+      'SESSION_REPORTS: v70 entry appended · USERSHIP_TRANSMISSION updated to v70.',
+    ],
+  },
+  {
+    date: '2026-06-25',
+    session: 'Self-Assembly Session — v71 / Job 22 Longitudinal Drift · Job 23 QOS Mode Watch · DRIFT: · OS [MODE]: handlers',
+    assembled: [
+      'scheduled-jobs.ts: Job 22 weekly-longitudinal-drift-check — Monday 09:00 UTC · 28-day window · 3+ consecutive declining engagement weeks → writes longitudinal_drift. Metadata: weeklyScores, declineStreak, window: 28d.',
+      'scheduled-jobs.ts: Job 23 daily-qos-mode-watch — Daily 14:00 UTC · 24h vs prior 24h · derives mode (nominal/recovery/critical) from energy+mood signal density · writes qos_mode_change only on transition. Metadata: oldMode, newMode, pressure, date.',
+      'Logs.tsx: DRIFT: handler — renders longitudinal_drift · 4W ARC (weekly scores) + DECLINE field · military data-only format.',
+      'Logs.tsx: OS [MODE]: handler — renders qos_mode_change · OLDMODE → NEWMODE + PRESSURE field · military format.',
+      'api.ts: longitudinal_drift + qos_mode_change added to displayableEvents (v71 block). 23 background jobs active.',
+      'docs/assembly/2026-06-25_LOT-assembly-v71.md: assembly documentation written.',
+      'SESSION_REPORTS: v71 entry appended · USERSHIP_TRANSMISSION updated to v71.',
+    ],
+  },
+  {
+    date: '2026-06-25',
+    session: 'Self-Assembly Session — v72 / P84 Longitudinal Drift (client) · P85 Adaptive Momentum · P86 Vitality Strategy Peak · Archetype 29 Peak Strategist · COCKPIT-RULE military pass',
+    assembled: [
+      'intentionEngine.ts: P84 longitudinal-drift (client-side) — 3-day bucket comparison (recent 3d vs prior 3d signals). If prior ≥ 3 signals and recent ≤ 50% of prior → early-warning engagement decline. Conf 0.55–0.80. Distinct from server Job 22 (28-day arc). Client 7-day window.',
+      'intentionEngine.ts: P85 adaptive-momentum-window — fires when systemic-thinking-mode + signal-momentum-lock both active. Sustained engagement streak during structural cognition. Conf 0.75–0.90. Suggests systemProgress widget, passive timing.',
+      'intentionEngine.ts: P86 vitality-strategy-peak — fires when circadian-vitality-peak + systemic-thinking-mode both active. Biology aligned with strategy. Conf 0.78–0.92. Suggests memory widget, immediate timing. 86 patterns total.',
+      'intentionEngine.ts: Archetype 29 Peak Strategist — high/moderate energy · planner+intentions+goals dominant · vitality-strategy-peak+adaptive-momentum-window+systemic-thinking-mode. Directive: Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.',
+      'intentionEngine.ts: p83StructuralDepth scope fix — hoisted outside if-block so P85 confidence scaling can reference it.',
+      'intentionEngine.ts: recordAdaptiveMomentumWindow() + recordVitalityStrategyPeak() signal helpers added.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 4 new nodes: longitudinalDriftMonitor · qosModeWatcher · adaptiveMomentumNode · vitalityStrategyNode. 126+ dep nodes total.',
+      'Logs.tsx: COCKPIT-RULE military pass on 5 existing handlers — OS [MODE]: · VITAL: · DRIFT: · SYSTMK: · COGN: — removed all verbose prose headers/footers and full-sentence descriptions. Data rows only.',
+      'Logs.tsx: ADAPT-MOM: handler — renders adaptive_momentum (STREAK + STRUCT) in military data format.',
+      'Logs.tsx: VSTRAT: handler — renders vitality_strategy_peak (MORNING MOOD · STRUCT DEPTH · HOUR) in military format. 85+ handlers total.',
+      'PatternRecognitionWidget.tsx: 3 new pattern display names (longitudinal-drift · adaptive-momentum-window · vitality-strategy-peak). 4 QOS Trend view indicators added for P83–P86.',
+      'api.ts: adaptive_momentum + vitality_strategy_peak added to displayableEvents (v72 block).',
+      'About.tsx: Field Manual v72. Counters: 86 patterns · 29 archetypes · 23 background jobs · 85+ log handlers · 126+ dep nodes.',
+      'SESSION_REPORTS: v72 entry appended · USERSHIP_TRANSMISSION updated to v72.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -957,15 +1004,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-23',
+  date: '2026-06-25',
   message: [
-    'ASSEMBLY RUN — 2026-06-23 · LOT-SR-20260623-02',
-    'P82 circadian-vitality-peak: biological prime window detector. 2+ positive morning signals + biorhythm anchored + energy adequate + hour < 13. Conf 0.70–0.90. Direct this state before it peaks — 90-minute execution window.',
-    'P83 systemic-thinking-mode: strategic structural cognition. Planner+goals+intentions each 3+ in 3d, UserIndex ≥ 50, no depletion. Conf 0.68–0.92. You are building the structure, not just executing tasks.',
-    'Archetype 28 Vital Architect: high/moderate energy · planner+intentions+mood dominant · circadian-vitality-peak+morning-coherence-launch+biorhythm-lock. Biological prime window active.',
-    'Job 21 deployed: daily-vitality-peak-check · 12:00 UTC daily · scans morning window (06:00-10:00) · writes vitality_peak for qualifying users. 21 background jobs now active.',
-    'VITAL: + SYSTMK: log handlers live. vitality_peak + systemic_thinking surfaced in displayableEvents.',
-    'Dep map: 122+ nodes. 83 patterns active. 82+ log handlers. 21 background jobs. 28 archetypes.',
+    'ASSEMBLY RUN — 2026-06-25 · LOT-SR-20260625-03',
+    'P84 longitudinal-drift (client): 3-day bucket comparison. Recent 3d vs prior 3d signal density. ≤50% → early engagement decline detected. Conf 0.55–0.80. Fires before the 28-day server arc catches it.',
+    'P85 adaptive-momentum-window: fires when systemic-thinking-mode + signal-momentum-lock both active. Sustained engagement streak during structural cognition. Strategy is running at full capacity. Conf 0.75–0.90.',
+    'P86 vitality-strategy-peak: fires when circadian-vitality-peak + systemic-thinking-mode both active. Biology aligned with strategy. Prime execution window. Suggests memory widget, immediate timing. Conf 0.78–0.92.',
+    'Archetype 29 Peak Strategist: high/moderate energy · planner+intentions+goals · vitality-strategy-peak+adaptive-momentum-window+systemic-thinking-mode. Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.',
+    'COCKPIT-RULE military pass: 5 existing handlers stripped of verbose prose — OS [MODE]: · VITAL: · DRIFT: · SYSTMK: · COGN:. Data rows only. Log surface is now fully military.',
+    'ADAPT-MOM: + VSTRAT: handlers deployed. adaptive_momentum + vitality_strategy_peak surfaced in displayableEvents.',
+    'Dep map: 126+ nodes. 86 patterns active. 85+ log handlers. 23 background jobs. 29 archetypes.',
     'DEPLOYED.',
   ],
 }

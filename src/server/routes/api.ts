@@ -1069,6 +1069,9 @@ export default async (fastify: FastifyInstance) => {
       // v71: longitudinal drift (Job 22 output) + QOS mode change (Job 23 output)
       'longitudinal_drift',
       'qos_mode_change',
+      // v72: adaptive momentum window + vitality strategy peak
+      'adaptive_momentum',
+      'vitality_strategy_peak',
       // Story generation
       'generated_story',
     ]

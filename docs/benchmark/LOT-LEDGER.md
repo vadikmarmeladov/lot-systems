@@ -59,3 +59,4 @@ ID             | CLASS        | SUMMARY                                         
 20260624-03    | ENGINEERING  | Error page + About separation — static error.html · standalone About template · server error redirect | GREEN  | eae9481  | WORDS: 310 (median 395)
 20260625-01    | ENGINEERING  | Badge Codex v19 — Quantum Protocol · +35 badges (354→389) · 10th word-turn engine · PDF · tsconfig TS6 fix | GREEN  | 92254ce | WORDS: 449 (median 449)
 20260625-02    | SELF-ASSEMBLY| QIE P84 longitudinal-drift (Job 22) + OS [MODE]: qos_mode_change handler (Job 23) | GREEN  | 54b71fb  | WORDS: 422 (median 422)
+20260625-03    | SELF-ASSEMBLY| QIE v72 — P84 longitudinal-drift (client) · P85 adaptive-momentum · P86 vitality-strategy-peak · Arch29 Peak Strategist · COCKPIT-RULE pass · dep map 126+ · 86 patterns | GREEN  | <hash>  | WORDS: 612 (median 495)
