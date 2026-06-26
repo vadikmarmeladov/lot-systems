@@ -198,12 +198,12 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
+                  <span aria-hidden="true">{getStatusIcon(check.status)}</span>
                   <span className={cn(
                     check.status === 'ok' && 'text-acc',
                     check.status === 'error' && 'text-acc/60'
                   )}>
-                    {check.status === 'ok' ? 'Ok' :
+                    {check.status === 'ok' ? 'Operational' :
                      check.status === 'error' ? 'Error' :
                      'Unknown'}
                   </span>
