@@ -276,6 +276,48 @@ export type BadgeType =
   | 'cosmo_vigil'       // ◉∘◉  Check in every July 1 for 2 consecutive years (ULTRA-RARE)
   | 'the_answer_is_words'// ∞·≋  Write exactly 42 words in a journal entry (RARE)
   | 'welcome_back_program'// ↺≋↺  Return after exactly 365 days of absence (LEGENDARY)
+  // ── Word Turn v9 — The Arcade Cabinet ───────────────────────────────────
+  | 'coin_drop'           // ¢·↓  Wrote "coin" in a journal or answer
+  | 'pixel_recognized'   // ▪·◉  Wrote "pixel" in a journal or answer
+  | 'sprite_active'      // ►·◉  Wrote "sprite" in a journal or answer
+  | 'score_logged'       // #·→  Wrote "score" in a journal or answer
+  | 'life_remaining'     // ♡·←  Wrote "life" or "lives" in a journal or answer
+  | 'joystick_input'     // ↑→↓  Wrote "joystick" in a journal or answer
+  | 'blip_signal'        // ·-·  Wrote "blip" in a journal or answer
+  | 'continue_selected'  // ►··  Wrote "continue" in a journal or answer
+  | 'high_signal'        // ▲·∞  Wrote "high" in a journal or answer
+  | 'reset_protocol'     // ↺·∞  Wrote "reset" in a journal or answer
+  | 'quarter_offered'    // ¢·⊙  Wrote "quarter" in a journal or answer
+  | 'cheat_code'         // ←↑→  Wrote "cheat" in a journal or answer
+  // ── Time EE v9 — Arcade Clock ───────────────────────────────────────────
+  | 'lucky_seven'        // 7·∘  Check in at exactly 07:00
+  | 'mirror_play'        // ▪·▪  Check in at exactly 15:15
+  | 'neon_stack'         // ≡·≡  Check in at exactly 19:19
+  | 'four_aces'          // ♠·♠  Check in at exactly 04:44
+  // ── Calendar EE v8 — The Arcade Calendar ────────────────────────────────
+  | 'new_year_sig'       // ∘·∘  Check in on January 1
+  | 'sonic_day'          // ►·9  Check in on September 9
+  | 'winter_code'        // ❄·∘  Check in on December 25
+  // ── Behavioral EE v8 — The Arcade Protocol ──────────────────────────────
+  | 'perfect_bday'       // ◉·♡  Check in on April 7 (LOT Birthday)
+  | 'high_score'         // ▲·#  7-day streak AND badge earned on the same day
+  | 'extra_life'         // ♡·+  Return from 3-day absence with active streak
+  // ── Secret Boss v8 — The Player One Protocol ─────────────────────────────
+  | 'player_one'         // ►·1  Write "player 1" in any journal or answer
+  | 'birthday_perfect'   // ◉·7  Check in on April 7 with a 7-day streak active
+  | 'one_up'             // +·1  Write "1up" in any journal or answer
+  // ── Achievement RPG v6 — The Arcade Run ─────────────────────────────────
+  | 'quarter_drop'       // ¢·↓  Return after a 2-day break
+  | 'insert_coin'        // ¢·○  First check-in of any calendar month
+  | 'arcade_champion'    // ▲·◉  7 consecutive days each including a badge unlock
+  | 'game_over_retry'    // ↺·○  Break a streak and restart within 24 hours
+  | 'combo_seven'        // ×7   Earn 7+ badges in a single day
+  | 'world_builder'      // ○·∞  Earn badges from 5+ different categories
+  // ── Mastery v8 — The Initials Board ─────────────────────────────────────
+  | 'initials_on_board'  // ▒·▲  Earn 300+ distinct badges (MYTHIC)
+  | 'credit_feed'        // ≋·∞  Accumulate 3000+ total XP (LEGENDARY)
+  | 'speedrun_record'    // ↺·▲  Earn 7 milestones in under 30 days (EPIC)
+  | 'game_complete'      // ◉·∞  Earn badges from all 9 word turn engines (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -2475,6 +2517,332 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v9 — The Arcade Cabinet ─────────────────────────────────────
+  coin_drop: {
+    id: 'coin_drop',
+    symbol: '¢·↓',
+    name: 'Coin Drop',
+    description: 'Write "coin" in a journal entry or memory answer',
+    unlockMessage: '↳ Coin inserted. The machine is listening. ¢·↓',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  pixel_recognized: {
+    id: 'pixel_recognized',
+    symbol: '▪·◉',
+    name: 'Pixel Recognized',
+    description: 'Write "pixel" in a journal entry or memory answer',
+    unlockMessage: '↳ Pixel found. The screen knows you are here. ▪·◉',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  sprite_active: {
+    id: 'sprite_active',
+    symbol: '►·◉',
+    name: 'Sprite Active',
+    description: 'Write "sprite" in a journal entry or memory answer',
+    unlockMessage: '↳ Sprite loaded. Character is live on the field. ►·◉',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  score_logged: {
+    id: 'score_logged',
+    symbol: '#·→',
+    name: 'Score Logged',
+    description: 'Write "score" in a journal entry or memory answer',
+    unlockMessage: '↳ Score registered. The machine keeps count. #·→',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  life_remaining: {
+    id: 'life_remaining',
+    symbol: '♡·←',
+    name: 'Life Remaining',
+    description: 'Write "life" or "lives" in a journal entry or memory answer',
+    unlockMessage: '↳ Life counted. You still have more. ♡·←',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  joystick_input: {
+    id: 'joystick_input',
+    symbol: '↑→↓',
+    name: 'Joystick Input',
+    description: 'Write "joystick" in a journal entry or memory answer',
+    unlockMessage: '↳ Direction confirmed. Input received. ↑→↓',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  blip_signal: {
+    id: 'blip_signal',
+    symbol: '·-·',
+    name: 'Blip Signal',
+    description: 'Write "blip" in a journal entry or memory answer',
+    unlockMessage: '↳ Blip detected on the scope. Signal confirmed. ·-·',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  continue_selected: {
+    id: 'continue_selected',
+    symbol: '►··',
+    name: 'Continue Selected',
+    description: 'Write "continue" in a journal entry or memory answer',
+    unlockMessage: '↳ Continue selected. The run is not over. ►··',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  high_signal: {
+    id: 'high_signal',
+    symbol: '▲·∞',
+    name: 'High Signal',
+    description: 'Write "high" in a journal entry or memory answer',
+    unlockMessage: '↳ Signal peaked. Reading at maximum amplitude. ▲·∞',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  reset_protocol: {
+    id: 'reset_protocol',
+    symbol: '↺·∞',
+    name: 'Reset Protocol',
+    description: 'Write "reset" in a journal entry or memory answer',
+    unlockMessage: '↳ Reset initiated. State cleared. Starting from zero. ↺·∞',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  quarter_offered: {
+    id: 'quarter_offered',
+    symbol: '¢·⊙',
+    name: 'Quarter Offered',
+    description: 'Write "quarter" in a journal entry or memory answer',
+    unlockMessage: '↳ Quarter in the slot. The game accepted your offering. ¢·⊙',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  cheat_code: {
+    id: 'cheat_code',
+    symbol: '←↑→',
+    name: 'Cheat Code',
+    description: 'Write "cheat" in a journal entry or memory answer',
+    unlockMessage: '↳ Cheat code accepted. The system sees what you did. ←↑→',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  // ── Time EE v9 — Arcade Clock ──────────────────────────────────────────────
+  lucky_seven: {
+    id: 'lucky_seven',
+    symbol: '7·∘',
+    name: 'Lucky Seven',
+    description: 'Check in at exactly 07:00',
+    unlockMessage: '↳ 07:00. The lucky hour. Seven is a prime. 7·∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  mirror_play: {
+    id: 'mirror_play',
+    symbol: '▪·▪',
+    name: 'Mirror Play',
+    description: 'Check in at exactly 15:15',
+    unlockMessage: '↳ 15:15. The symmetry is confirmed. Both sides match. ▪·▪',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  neon_stack: {
+    id: 'neon_stack',
+    symbol: '≡·≡',
+    name: 'Neon Stack',
+    description: 'Check in at exactly 19:19',
+    unlockMessage: '↳ 19:19. Neon hour. The stack is glowing. ≡·≡',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  four_aces: {
+    id: 'four_aces',
+    symbol: '♠·♠',
+    name: 'Four Aces',
+    description: 'Check in at exactly 04:44',
+    unlockMessage: '↳ 04:44. Four aces in the dark. The hand is dealt. ♠·♠',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  // ── Calendar EE v8 — The Arcade Calendar ──────────────────────────────────
+  new_year_sig: {
+    id: 'new_year_sig',
+    symbol: '∘·∘',
+    name: 'New Year Signal',
+    description: 'Check in on January 1',
+    unlockMessage: '↳ January 1. The counter resets. The signal is new. ∘·∘',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  sonic_day: {
+    id: 'sonic_day',
+    symbol: '►·9',
+    name: 'Sonic Day',
+    description: 'Check in on September 9',
+    unlockMessage: '↳ September 9. Speed record confirmed. Rings collected. ►·9',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  winter_code: {
+    id: 'winter_code',
+    symbol: '❄·∘',
+    name: 'Winter Code',
+    description: 'Check in on December 25',
+    unlockMessage: '↳ December 25. The system runs while the world sleeps. ❄·∘',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  // ── Behavioral EE v8 — The Arcade Protocol ────────────────────────────────
+  perfect_bday: {
+    id: 'perfect_bday',
+    symbol: '◉·♡',
+    name: 'Perfect Birthday',
+    description: 'Check in on April 7 (LOT founding day)',
+    unlockMessage: '↳ April 7. The founding signal. Happy birthday, LOT. ◉·♡',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  high_score: {
+    id: 'high_score',
+    symbol: '▲·#',
+    name: 'High Score',
+    description: 'Maintain a 7-day streak and earn a badge on the same day',
+    unlockMessage: '↳ High score confirmed. Streak active, badge unlocked. Enter your initials. ▲·#',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  extra_life: {
+    id: 'extra_life',
+    symbol: '♡·+',
+    name: 'Extra Life',
+    description: 'Return after a 3-day absence',
+    unlockMessage: '↳ Extra life awarded. You came back after three days gone. ♡·+',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  // ── Secret Boss v8 — The Player One Protocol ──────────────────────────────
+  player_one: {
+    id: 'player_one',
+    symbol: '►·1',
+    name: 'Player One',
+    description: 'Write "player 1" in any journal entry or memory answer',
+    unlockMessage: '↳ Player 1. It was always you. The only one in the room. ►·1',
+    rarity: 'legendary',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  birthday_perfect: {
+    id: 'birthday_perfect',
+    symbol: '◉·7',
+    name: 'Birthday Perfect',
+    description: 'Check in on April 7 with an active 7-day streak',
+    unlockMessage: '↳ April 7. Seven days. The numbers align on the founding day. ◉·7',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  one_up: {
+    id: 'one_up',
+    symbol: '+·1',
+    name: '1-UP',
+    description: 'Write "1up" in any journal entry or memory answer',
+    unlockMessage: '↳ 1-UP collected. An extra life entered the system. +·1',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  // ── Achievement RPG v6 — The Arcade Run ───────────────────────────────────
+  quarter_drop: {
+    id: 'quarter_drop',
+    symbol: '¢·↓',
+    name: 'Quarter Drop',
+    description: 'Return after a 2-day break',
+    unlockMessage: '↳ Quarter in. Two days out. The machine accepted you back. ¢·↓',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  insert_coin: {
+    id: 'insert_coin',
+    symbol: '¢·○',
+    name: 'Insert Coin',
+    description: 'First check-in of any calendar month',
+    unlockMessage: '↳ New month. Coin inserted. Game begins. ¢·○',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  arcade_champion: {
+    id: 'arcade_champion',
+    symbol: '▲·◉',
+    name: 'Arcade Champion',
+    description: '7 consecutive days each including a badge unlock',
+    unlockMessage: '↳ Seven days. Seven badge unlocks. Champion registered. ▲·◉',
+    rarity: 'mythic',
+    category: 'achievement_rpg',
+  },
+  game_over_retry: {
+    id: 'game_over_retry',
+    symbol: '↺·○',
+    name: 'Game Over — Retry',
+    description: 'Break a streak then restart within 24 hours',
+    unlockMessage: '↳ Game over. But you pressed retry. The machine respects that. ↺·○',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  combo_seven: {
+    id: 'combo_seven',
+    symbol: '×7',
+    name: 'Combo Seven',
+    description: 'Earn 7 or more badges in a single day',
+    unlockMessage: '↳ ×7 combo. The system registered seven unlocks today. ×7',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  world_builder: {
+    id: 'world_builder',
+    symbol: '○·∞',
+    name: 'World Builder',
+    description: 'Earn badges from 5 or more distinct categories',
+    unlockMessage: '↳ Five categories crossed. The world is being built. ○·∞',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery v8 — The Initials Board ───────────────────────────────────────
+  initials_on_board: {
+    id: 'initials_on_board',
+    symbol: '▒·▲',
+    name: 'Initials on the Board',
+    description: 'Earn 300 or more distinct badges',
+    unlockMessage: '↳ 300 badges. Your initials are on the board. ▒·▲',
+    rarity: 'mythic',
+    category: 'achievement_rpg',
+  },
+  credit_feed: {
+    id: 'credit_feed',
+    symbol: '≋·∞',
+    name: 'Credit Feed',
+    description: 'Accumulate 3000+ total XP',
+    unlockMessage: '↳ 3000 XP. The credit feed is full. The machine salutes you. ≋·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  speedrun_record: {
+    id: 'speedrun_record',
+    symbol: '↺·▲',
+    name: 'Speedrun Record',
+    description: 'Earn 7 milestone badges in under 30 days',
+    unlockMessage: '↳ Speedrun complete. Seven milestones in 30 days. Record confirmed. ↺·▲',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  game_complete: {
+    id: 'game_complete',
+    symbol: '◉·∞',
+    name: 'Game Complete',
+    description: 'Earn at least one badge from all 9 word turn engines',
+    unlockMessage: '↳ All 9 engines unlocked. The game is complete. ◉·∞',
+    rarity: 'mythic',
+    category: 'achievement_rpg',
+  },
 }
 
 // Default separator when no badges earned yet
@@ -2889,6 +3257,83 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
       if (yearsElapsed >= 5 && !hasBadge('five_years')) {
         if (awardBadge('five_years')) newBadges.push('five_years')
       }
+    }
+
+    // Mastery v8: 300+ distinct badges
+    const earnedCountV8 = getEarnedBadges().length
+    if (earnedCountV8 >= 300 && !hasBadge('initials_on_board')) {
+      if (awardBadge('initials_on_board')) newBadges.push('initials_on_board')
+    }
+
+    // Mastery v8: 3000+ total XP
+    if (typeof stats.totalXP === 'number') {
+      if (stats.totalXP >= 3000 && !hasBadge('credit_feed')) {
+        if (awardBadge('credit_feed')) newBadges.push('credit_feed')
+      }
+    }
+
+    // Mastery v8: 7 milestone badges in under 30 days
+    if (typeof stats.milestonesIn30Days === 'number') {
+      if (stats.milestonesIn30Days >= 7 && !hasBadge('speedrun_record')) {
+        if (awardBadge('speedrun_record')) newBadges.push('speedrun_record')
+      }
+    }
+
+    // Mastery v8: badges from all 9 word turn engines
+    const earnedAll = getEarnedBadges()
+    const v1Engines = ['ritual_keeper','breath_anchor','gratitude_node','aquatic_resonance','stargazer','grounded_signal','dream_log','courage_pulse','heart_signal','the_quiet','horizon_seeker','meta_signal']
+    const v2Engines = ['reboot_sequence','not_lost_404','signal_glitch','cosmic_twin','quantum_observer','neural_architect','code_witch','recharge_mode','fuel_protocol','frequency','kinetic_protocol','solar_charge','shadow_protocol','phase_shift','acceptance_node','present_moment','cosmic_scale','vital_signal']
+    const v5Engines = ['solitude_mode','wonder_protocol','phoenix_sequence','alignment_lock','witness_log','orbital_pattern','forge_protocol','neuro_link','photon_signal','field_charge','voyage_mode','gravity_lock']
+    const v6Engines = ['surrender_signal','restore_protocol','anchor_lock','threshold_gate','emergence_sequence','exhale_wave','clear_field','rise_signal','presence_core','bold_protocol','trust_lock','shift_sequence']
+    const v7Engines = ['loot_drop','boss_encounter','save_state','respawn_point','grind_mode','level_gained','quest_log','potion_protocol','dungeon_cleared','armor_up','stealth_mode','rogue_state']
+    const v8Engines = ['compile_run','execute_path','buffer_flush','stack_clear','patch_applied','fork_event','terminal_session','null_pointer','seed_planted','loop_detected','root_access','debug_mode_badge']
+    const v9Engines = ['coin_drop','pixel_recognized','sprite_active','score_logged','life_remaining','joystick_input','blip_signal','continue_selected','high_signal','reset_protocol','quarter_offered','cheat_code']
+    const hasSomeBoss = ['i_am_lot','malibu','the_cat_knows','key_code','player_one','one_up'].some(b => hasBadge(b as BadgeType))
+    const hasTimeEE = ['night_owl','early_bird','mirror_hour','midnight_sigil','lucky_seven','mirror_play','neon_stack','four_aces'].some(b => hasBadge(b as BadgeType))
+    const allNineEngines = [v1Engines, v2Engines, v5Engines, v6Engines, v7Engines, v8Engines, v9Engines].every(engine => engine.some(b => earnedAll.includes(b as BadgeType))) && hasSomeBoss && hasTimeEE
+    if (allNineEngines && !hasBadge('game_complete')) {
+      if (awardBadge('game_complete')) newBadges.push('game_complete')
+    }
+
+    // Achievement RPG v6: insert_coin — first check-in of the month
+    if (typeof stats.todayDate === 'string' && stats.todayDate) {
+      const day = new Date(stats.todayDate).getDate()
+      if (day === 1 && !hasBadge('insert_coin')) {
+        if (awardBadge('insert_coin')) newBadges.push('insert_coin')
+      }
+    }
+
+    // Achievement RPG v6: quarter_drop — return after 2-day break
+    if (typeof stats.daysSinceLastCheckIn === 'number') {
+      if (stats.daysSinceLastCheckIn >= 2 && stats.daysSinceLastCheckIn <= 3 && !hasBadge('quarter_drop')) {
+        if (awardBadge('quarter_drop')) newBadges.push('quarter_drop')
+      }
+    }
+
+    // Achievement RPG v6: combo_seven — 7+ badges earned today
+    if (typeof stats.badgesEarnedToday === 'number') {
+      if (stats.badgesEarnedToday >= 7 && !hasBadge('combo_seven')) {
+        if (awardBadge('combo_seven')) newBadges.push('combo_seven')
+      }
+    }
+
+    // Achievement RPG v6: world_builder — badges from 5+ distinct categories
+    const earnedBadgeList = getEarnedBadges()
+    const distinctCategories = new Set(earnedBadgeList.map(id => BADGES[id]?.category).filter(Boolean))
+    if (distinctCategories.size >= 5 && !hasBadge('world_builder')) {
+      if (awardBadge('world_builder')) newBadges.push('world_builder')
+    }
+
+    // Achievement RPG v6: arcade_champion — 7 consecutive badge-unlock days
+    if (typeof stats.consecutiveBadgeDays === 'number') {
+      if (stats.consecutiveBadgeDays >= 7 && !hasBadge('arcade_champion')) {
+        if (awardBadge('arcade_champion')) newBadges.push('arcade_champion')
+      }
+    }
+
+    // Achievement RPG v6: game_over_retry — break streak then return within 24h
+    if (stats.streakBrokenAndReturned === true && !hasBadge('game_over_retry')) {
+      if (awardBadge('game_over_retry')) newBadges.push('game_over_retry')
     }
 
   } catch (error) {

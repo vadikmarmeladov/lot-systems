@@ -290,6 +290,48 @@ export function checkStackMirror(): BadgeType | null {
   return null
 }
 
+// ── Time EE v9 — Arcade Clock ─────────────────────────────────────────────────
+
+export function checkLuckySeven(): BadgeType | null {
+  if (hasBadge('lucky_seven')) return null
+  const now = new Date()
+  if (now.getHours() === 7 && now.getMinutes() === 0) {
+    awardBadge('lucky_seven')
+    return 'lucky_seven'
+  }
+  return null
+}
+
+export function checkMirrorPlay(): BadgeType | null {
+  if (hasBadge('mirror_play')) return null
+  const now = new Date()
+  if (now.getHours() === 15 && now.getMinutes() === 15) {
+    awardBadge('mirror_play')
+    return 'mirror_play'
+  }
+  return null
+}
+
+export function checkNeonStack(): BadgeType | null {
+  if (hasBadge('neon_stack')) return null
+  const now = new Date()
+  if (now.getHours() === 19 && now.getMinutes() === 19) {
+    awardBadge('neon_stack')
+    return 'neon_stack'
+  }
+  return null
+}
+
+export function checkFourAces(): BadgeType | null {
+  if (hasBadge('four_aces')) return null
+  const now = new Date()
+  if (now.getHours() === 4 && now.getMinutes() === 44) {
+    awardBadge('four_aces')
+    return 'four_aces'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
@@ -305,6 +347,8 @@ export function checkTimeEasterEggs(): BadgeType[] {
     checkDeepNight, checkMiddaySignal, checkLiminalHour, checkSacredTriple,
     // v8 — Clock Cycles
     checkClockFortyTwo, checkNoonKernel, checkByteTime, checkStackMirror,
+    // v9 — Arcade Clock
+    checkLuckySeven, checkMirrorPlay, checkNeonStack, checkFourAces,
   ]
   for (const check of checks) {
     const result = check()
@@ -443,6 +487,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('halloween_protocol') && month === 10 && day === 31) {
     awardBadge('halloween_protocol')
     awarded.push('halloween_protocol')
+  }
+
+  // ── Calendar v8 — The Arcade Calendar ──────────────────────────────────────
+
+  // New Year Signal: January 1
+  if (!hasBadge('new_year_sig') && month === 1 && day === 1) {
+    awardBadge('new_year_sig')
+    awarded.push('new_year_sig')
+  }
+
+  // Sonic Day: September 9 (Sonic the Hedgehog launch date)
+  if (!hasBadge('sonic_day') && month === 9 && day === 9) {
+    awardBadge('sonic_day')
+    awarded.push('sonic_day')
+  }
+
+  // Winter Code: December 25
+  if (!hasBadge('winter_code') && month === 12 && day === 25) {
+    awardBadge('winter_code')
+    awarded.push('winter_code')
   }
 
   return awarded
@@ -839,11 +903,26 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bloop(ed|ing|s)?\b/i,                badge: 'loop_detected' },
   { patterns: /\broot\b/i,                           badge: 'root_access' },
   { patterns: /\bdebug(ged|ging|s)?\b/i,             badge: 'debug_mode_badge' },
+  // ── v9 — The Arcade Cabinet ──────────────────────────────────────────────
+  { patterns: /\bcoin(s)?\b/i,                        badge: 'coin_drop' },
+  { patterns: /\bpixel(s|ated|ate)?\b/i,              badge: 'pixel_recognized' },
+  { patterns: /\bsprite(s)?\b/i,                      badge: 'sprite_active' },
+  { patterns: /\bscore(d|s|board)?\b/i,               badge: 'score_logged' },
+  { patterns: /\b(life|lives)\b/i,                    badge: 'life_remaining' },
+  { patterns: /\bjoystick(s)?\b/i,                    badge: 'joystick_input' },
+  { patterns: /\bblip(s|ped|ping)?\b/i,               badge: 'blip_signal' },
+  { patterns: /\bcontinue(d|s|ing)?\b/i,              badge: 'continue_selected' },
+  { patterns: /\bhigh\b/i,                            badge: 'high_signal' },
+  { patterns: /\breset(s|ting|ted)?\b/i,              badge: 'reset_protocol' },
+  { patterns: /\bquarter(s|back)?\b/i,                badge: 'quarter_offered' },
+  { patterns: /\bcheat(s|ed|ing|code)?\b/i,           badge: 'cheat_code' },
   // ── Secret Boss word triggers ─────────────────────────────────────────────
   { patterns: /\bi am lot\b/i,                       badge: 'i_am_lot' },
   { patterns: /\bmalibu\b/i,                         badge: 'malibu' },
   { patterns: /\bkuzya\b/i,                          badge: 'the_cat_knows' },
   { patterns: /\b0451\b/,                            badge: 'key_code' },
+  { patterns: /\bplayer\s*1\b/i,                     badge: 'player_one' },
+  { patterns: /\b1[\s-]?up\b/i,                      badge: 'one_up' },
 ]
 
 /**
@@ -1069,6 +1148,72 @@ export function checkLuckyReturn(): BadgeType | null {
   return null
 }
 
+// ── Behavioral EE v8 — The Arcade Protocol ────────────────────────────────────
+
+/**
+ * Check Perfect Birthday badge: check-in on April 7 (LOT founding day).
+ */
+export function checkPerfectBday(): BadgeType | null {
+  if (hasBadge('perfect_bday')) return null
+  const now = new Date()
+  if (now.getMonth() + 1 === 4 && now.getDate() === 7) {
+    awardBadge('perfect_bday')
+    return 'perfect_bday'
+  }
+  return null
+}
+
+/**
+ * Check High Score badge: 7-day streak active AND a badge unlocked today.
+ * streak: current streak count from server stats. badgesEarnedToday: today's unlock count.
+ */
+export function checkHighScore(streak: number, badgesEarnedToday: number): BadgeType | null {
+  if (hasBadge('high_score')) return null
+  if (streak >= 7 && badgesEarnedToday >= 1) {
+    awardBadge('high_score')
+    return 'high_score'
+  }
+  return null
+}
+
+/**
+ * Check Extra Life badge: return after exactly 3-day absence.
+ * Call on check-in BEFORE recording activity.
+ */
+export function checkExtraLife(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('extra_life')) return null
+
+  try {
+    const lastActivity = localStorage.getItem('last_activity_date')
+    if (!lastActivity) return null
+
+    const daysSince = Math.floor(
+      (Date.now() - new Date(lastActivity).getTime()) / (1000 * 60 * 60 * 24)
+    )
+
+    if (daysSince >= 3 && daysSince <= 4) {
+      awardBadge('extra_life')
+      return 'extra_life'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Birthday Perfect (Secret Boss v8): check-in on April 7 with 7-day streak active.
+ */
+export function checkBirthdayPerfect(streak: number): BadgeType | null {
+  if (hasBadge('birthday_perfect')) return null
+  const now = new Date()
+  if (now.getMonth() + 1 === 4 && now.getDate() === 7 && streak >= 7) {
+    awardBadge('birthday_perfect')
+    return 'birthday_perfect'
+  }
+  return null
+}
+
 // ── Secret Boss v6/v7 — Special Triggers ─────────────────────────────────────
 
 /**
@@ -1161,6 +1306,8 @@ export function checkAnniversary(signupDate: string): BadgeType | null {
 export function runCheckInEasterEggs(
   activityCount?: number,
   activityTimestamps?: string[],
+  streak?: number,
+  badgesEarnedToday?: number,
 ): BadgeType[] {
   const awarded: BadgeType[] = []
 
@@ -1218,6 +1365,24 @@ export function runCheckInEasterEggs(
   // Secret Boss v7: welcome back program (365-day gap)
   const welcomeBack = checkWelcomeBackProgram()
   if (welcomeBack) awarded.push(welcomeBack)
+
+  // Behavioral v8: arcade protocol
+  const perfectBday = checkPerfectBday()
+  if (perfectBday) awarded.push(perfectBday)
+
+  const extraLife = checkExtraLife()
+  if (extraLife) awarded.push(extraLife)
+
+  if (streak !== undefined && badgesEarnedToday !== undefined) {
+    const highScore = checkHighScore(streak, badgesEarnedToday)
+    if (highScore) awarded.push(highScore)
+  }
+
+  // Secret Boss v8: birthday perfect (April 7 + 7-day streak)
+  if (streak !== undefined) {
+    const birthdayPerfect = checkBirthdayPerfect(streak)
+    if (birthdayPerfect) awarded.push(birthdayPerfect)
+  }
 
   // Record activity after all checks (so gap detection works next time)
   recordActivity()

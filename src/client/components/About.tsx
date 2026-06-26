@@ -288,7 +288,7 @@ export function About() {
               6 index dimensions. 6 ecosystem nodes. 28 physiological archetypes.
               122+ dependency nodes. 21 background jobs.
               82+ log event handlers. 125 active branches scanned.
-              284 badges catalogued. The system does not sleep. It accumulates.
+              354 badges catalogued. The system does not sleep. It accumulates.
             </P>
             <P>
               Field Manual v69. Not marketing copy. Not documentation for external audiences.

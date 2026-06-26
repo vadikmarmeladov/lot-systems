@@ -32,6 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
+import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
@@ -1841,6 +1842,7 @@ const NoteEditor = ({
       try {
         if (primary) {
           recordJournalSignal(wordCount)
+          try { runJournalEasterEggs(debouncedValue) } catch { /* non-critical */ }
         } else {
           recordLogSignal(wordCount, !!log.context)
         }

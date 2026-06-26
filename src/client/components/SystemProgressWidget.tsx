@@ -920,6 +920,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v69 entry appended · USERSHIP_TRANSMISSION updated to v69.',
     ],
   },
+  {
+    date: '2026-06-26',
+    session: 'Self-Assembly Session — Badge v18 Arcade Protocol · Word Turn v9 · Time EE v9 · Calendar EE v8 · Behavioral EE v8 · Secret Boss v8 · RPG v6 · Mastery v8',
+    assembled: [
+      'badges.ts: BadgeType union expanded from 319 to 354 entries. v18 Arcade Protocol: Word Turn v9 (12 arcade vocabulary badges), Time EE v9 (4 arcade clock badges), Calendar EE v8 (3 dates: Jan 1 / Sep 9 / Dec 25), Behavioral EE v8 (3 protocol badges), Secret Boss v8 (3 hidden bosses), Achievement RPG v6 (6 arcade run badges), Mastery v8 (4 initials board badges).',
+      'badges.ts: BADGES record extended — all 35 v18 entries with symbol, name, description, unlockMessage, rarity, category. Includes hidden flags for secret bosses.',
+      'badges.ts: checkAndAwardBadges() extended — Mastery v8 (initials_on_board 300+, credit_feed 3000+ XP, speedrun_record 7 milestones/30d, game_complete all 9 engines), RPG v6 (insert_coin, quarter_drop, combo_seven, world_builder, arcade_champion, game_over_retry).',
+      'easter-eggs.ts: Time EE v9 — checkLuckySeven (07:00), checkMirrorPlay (15:15), checkNeonStack (19:19), checkFourAces (04:44). Wired into checkTimeEasterEggs(). 28 time checks total.',
+      'easter-eggs.ts: Calendar EE v8 — new_year_sig (Jan 1), sonic_day (Sep 9), winter_code (Dec 25). Wired into checkCalendarEasterEggs(). 21 calendar dates total.',
+      'easter-eggs.ts: Word Turn v9 (Arcade Cabinet) — 12 entries: coin, pixel, sprite, score, life/lives, joystick, blip, continue, high, reset, quarter, cheat. WORD_TURNS now 70 entries (v1/2/5/6/7/8/9 + Secret Boss).',
+      'easter-eggs.ts: Secret Boss v8 word triggers — player_one ("player 1"), one_up ("1up"). Added to WORD_TURNS.',
+      'easter-eggs.ts: Behavioral EE v8 — checkPerfectBday (April 7), checkExtraLife (3-day absence), checkHighScore (7-day streak + badge same day), checkBirthdayPerfect (April 7 + 7-day streak). runCheckInEasterEggs() updated to accept streak + badgesEarnedToday params.',
+      'Logs.tsx: runJournalEasterEggs() imported and wired into autosave effect (primary log only). Journal text analyzed on every debounced save.',
+      'MemoryWidget.tsx: runMemoryAnswerEasterEggs() imported and wired into onAnswer callback. Answer option text analyzed on submission.',
+      'SESSION_REPORTS: v18 entry appended · USERSHIP_TRANSMISSION updated to 2026-06-26.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -957,14 +974,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-23',
+  date: '2026-06-26',
   message: [
-    'ASSEMBLY RUN — 2026-06-23 · LOT-SR-20260623-02',
-    'P82 circadian-vitality-peak: biological prime window detector. 2+ positive morning signals + biorhythm anchored + energy adequate + hour < 13. Conf 0.70–0.90. Direct this state before it peaks — 90-minute execution window.',
-    'P83 systemic-thinking-mode: strategic structural cognition. Planner+goals+intentions each 3+ in 3d, UserIndex ≥ 50, no depletion. Conf 0.68–0.92. You are building the structure, not just executing tasks.',
-    'Archetype 28 Vital Architect: high/moderate energy · planner+intentions+mood dominant · circadian-vitality-peak+morning-coherence-launch+biorhythm-lock. Biological prime window active.',
-    'Job 21 deployed: daily-vitality-peak-check · 12:00 UTC daily · scans morning window (06:00-10:00) · writes vitality_peak for qualifying users. 21 background jobs now active.',
-    'VITAL: + SYSTMK: log handlers live. vitality_peak + systemic_thinking surfaced in displayableEvents.',
+    'ASSEMBLY RUN — 2026-06-26 · Badge v18 Arcade Protocol',
+    'Badge engine wired: 354 badges live (319→354 · +35). Word Turn v9 Arcade Cabinet: coin / pixel / sprite / score / life / joystick / blip / continue / high / reset / quarter / cheat. 70 WORD_TURNS entries total.',
+    'Time EE v9 Arcade Clock: lucky_seven (07:00) · mirror_play (15:15) · neon_stack (19:19) · four_aces (04:44). 28 time checks active.',
+    'Calendar EE v8 Arcade Calendar: new_year_sig (Jan 1) · sonic_day (Sep 9) · winter_code (Dec 25). 21 calendar dates active.',
+    'Behavioral EE v8 Arcade Protocol: perfect_bday (April 7) · extra_life (3-day gap) · high_score (7-streak + badge). Secret Boss v8: player_one · birthday_perfect · one_up.',
+    'Achievement RPG v6 Arcade Run: insert_coin · quarter_drop · combo_seven · world_builder · arcade_champion · game_over_retry.',
+    'Mastery v8 Initials Board: initials_on_board (300+) · credit_feed (3000+ XP) · speedrun_record (7 milestones/30d) · game_complete (all 9 engines).',
+    'runJournalEasterEggs() wired into Logs.tsx autosave. runMemoryAnswerEasterEggs() wired into MemoryWidget.tsx onAnswer. All badge functions now connected to live user interactions.',
     'Dep map: 122+ nodes. 83 patterns active. 82+ log handlers. 21 background jobs. 28 archetypes.',
     'DEPLOYED.',
   ],

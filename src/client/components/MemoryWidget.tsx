@@ -20,6 +20,7 @@ import { recordSignal, getUserState, analyzeIntentions } from '#client/stores/in
 import { getMemoryReflectionPrompt, getStoicReflection } from '#client/utils/narrative'
 import dayjs from '#client/utils/dayjs'
 import { getNextBadgeUnlock, checkAndAwardBadges } from '#client/utils/badges'
+import { runMemoryAnswerEasterEggs } from '#client/utils/easter-eggs'
 
 export const MemoryWidget = React.memo(function MemoryWidget() {
   const featureUnlocks = useStore($featureUnlocks)
@@ -121,6 +122,9 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
         question: question.question,
         options: question.options,
       })
+
+      // Easter egg detection on answer text
+      try { runMemoryAnswerEasterEggs(option) } catch { /* non-critical */ }
 
       // Deferred: record signal after React commits the visual update
       setTimeout(() => {
