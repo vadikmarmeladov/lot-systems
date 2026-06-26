@@ -276,6 +276,90 @@ export type BadgeType =
   | 'cosmo_vigil'       // ◉∘◉  Check in every July 1 for 2 consecutive years (ULTRA-RARE)
   | 'the_answer_is_words'// ∞·≋  Write exactly 42 words in a journal entry (RARE)
   | 'welcome_back_program'// ↺≋↺  Return after exactly 365 days of absence (LEGENDARY)
+  // ── Word Turn v9 — The Arcade Cabinet ────────────────────────────────────────
+  | 'coin_dropped'      // ○→◉  "coin" detected in text
+  | 'pixel_recognized'  // ▒·▒  "pixel" detected in text
+  | 'sprite_active'     // ∘·>  "sprite" detected in text
+  | 'score_logged'      // ▓→∞  "score" detected in text
+  | 'life_remaining'    // ◉·◉  "life" or "lives" detected in text
+  | 'input_received'    // ↑↓←→ "joystick" detected in text
+  | 'signal_blip'       // ·○·  "blip" detected in text
+  | 'continue_selected' // →·→  "continue" detected in text
+  | 'high_signal'       // ∗·∗  "high" detected in text
+  | 'reset_protocol'    // ↺·○  "reset" detected in text
+  | 'quarter_offered'   // ○·≋  "quarter" detected in text
+  | 'cheat_code_entered'// ↑↑↓↓ "cheat" detected in text
+  // ── Easter egg — time-based v9 (Power-Up Hours) ─────────────────────────────
+  | 'lucky_seven'       // ∗·∗·∗  Check in at 07:00
+  | 'mirror_play'       // ─◐─   Check in at 15:15
+  | 'neon_stack'        // ▒·▒   Check in at 19:19
+  | 'four_aces'         // ◆◆◆◆  Check in at 04:44
+  // ── Easter egg — calendar v8 (Game Anniversaries) ────────────────────────────
+  | 'new_year_sig'      // ○→∞  January 1 — New Year Signal
+  | 'sonic_day'         // →→→◉ September 9 — Sonic Birthday
+  | 'winter_code'       // ░∘░  December 25 — Holiday Protocol
+  // ── Easter egg — behavioral v8 (Arcade Patterns) ────────────────────────────
+  | 'perfect_bday'      // ✦·◉·✦  Perfect Day x7 on account anniversary
+  | 'high_score_badge'  // ▓→∗   New personal longest-streak record
+  | 'extra_life'        // ◉→○   Return after 7+ days, prior streak 30+
+  // ── Achievement RPG v6 — Arcade Class ────────────────────────────────────────
+  | 'quarter_drop'      // ○→◉  First easter egg unlocked (any type)
+  | 'insert_coin_badge' // ↺·○  Return after 30+ consecutive days away
+  | 'arcade_champion'   // ≈·≋  Earn badge from every Word Turn engine v1–v9
+  | 'game_over_retry'   // ◐→◆  3 different return-after-absence badges
+  | 'combo_seven'       // ∗·×7 x7 Perfect Day combo on 7 separate occasions
+  | 'world_builder'     // ≋≋≋  Check in on 200+ distinct calendar dates
+  // ── Mastery Tier v8 — Hall of Fame ───────────────────────────────────────────
+  | 'initials_on_board' // A·A·A  300+ distinct badge types earned (LEGENDARY)
+  | 'credit_feed'       // ▓▓▓→  3,000+ total XP earned (EPIC)
+  | 'speedrun_record'   // ≋→∞   365-day streak completed (LEGENDARY)
+  | 'game_complete'     // ∞◉∞   All achievement categories completed (COSMIC)
+  // ── Secret Boss v8 — Arcade Final Boss ───────────────────────────────────────
+  | 'player_one'        // ▓→◉  Write "player 1" or "player one" in journal (RARE)
+  | 'birthday_perfect'  // ✦◉✦  Perfect Day x7 on April 7 — LOT founding (MYTHIC)
+  | 'one_up'            // ◉·↑  Write "1up" or "1 UP" in journal (UNCOMMON)
+  // ── Word Turn v10 — The Spell Book ───────────────────────────────────────
+  | 'spell_cast'        // ∗·∗  "spell" detected in text
+  | 'cast_signal'       // →·∗  "cast" detected in text
+  | 'invoked'           // ◉→◉  "invoke" detected in text
+  | 'arcane_entry'      // ≈·◈  "arcane" detected in text
+  | 'sigil_drawn'       // ∗—∗  "sigil" detected in text
+  | 'tome_keeper'       // ║·║  "tome" detected in text
+  | 'grimoire_open'     // ▒·░  "grimoire" detected in text
+  | 'ward_active'       // □·▪  "ward" detected in text
+  | 'mana_check'        // ∿·∿  "mana" detected in text
+  | 'familiar_bond'     // ∗◉∗  "familiar" detected in text
+  | 'chapter_mark'      // ─║─  "chapter" detected in text
+  | 'verse_logged'      // ≈·≈  "verse" detected in text
+  // ── Easter egg — time v10 (Arcane Hours) ─────────────────────────────────
+  | 'dawn_gate'         // ∘·∘  Check in at 06:06
+  | 'noon_fold'         // ─◐─  Check in at 12:21
+  | 'evening_prime'     // ◈·◈  Check in at 21:00
+  | 'night_mirror'      // ▒—▒  Check in at 23:23
+  // ── Easter egg — calendar v9 (Sci-Fi Literary Calendar) ──────────────────
+  | 'turing_day'        // ∞·∘  June 23 — Alan Turing born 1912
+  | 'moon_landing'      // ○·∗  July 20 — First lunar footprint 1969
+  | 'first_signal'      // ·∘·  October 4 — Sputnik launch 1957
+  // ── Easter egg — behavioral v9 (Spellbound Patterns) ─────────────────────
+  | 'dawn_twin'         // ∘—○—∘  Check in before 06:00 AND after 21:00 same day
+  | 'year_first'        // ○→∗  First journal entry of a new calendar year
+  | 'echo_session'      // ◐·◐  Two memory answers within 60 minutes
+  // ── Achievement RPG v7 — The Caster Class ────────────────────────────────
+  | 'spell_caster'      // ∗·∗  Earn any 5 Word Turn v10 badges
+  | 'grimoire_complete' // ▒·░  Earn all 12 Word Turn v10 badges
+  | 'incantation_arc'   // ≈·◈  200+ words/day for 5 consecutive days
+  | 'all_time_engines'  // ∞·∗  1 badge from each of all 10 Time EE sets
+  | 'ten_tongues'       // ◉·◈·◉  1 badge from each of all 10 Word Turn engines
+  | 'convergence_caster'// ∗→◉  QIE P70 operator-convergence pattern (EPIC)
+  // ── Mastery Tier v9 — The Arcane Vault ───────────────────────────────────
+  | 'sigil_keeper'      // A·∗·A  400+ distinct badge types (LEGENDARY)
+  | 'ancient_record'    // ∞·∞·∞  1,000+ lifetime memory answers (LEGENDARY)
+  | 'word_archmage'     // ◈·∿·◈  75+ distinct word-turn badge types (LEGENDARY)
+  | 'cosmo_gate_keeper' // ∗◉∗·◉  Write "Kuzya" AND "COSMO" within 7 days (MYTHIC)
+  // ── Secret Boss v9 — Spellbound ──────────────────────────────────────────
+  | 'archmage'          // ≈◉≈  Write "archmage" in journal (RARE)
+  | 'dual_founding'     // ◉·◉  Check in April 7 AND July 1 same year (EPIC)
+  | 'recursive'         // ∞◉∞  Write "layers of time" in journal (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -2472,6 +2556,734 @@ export const BADGES: Record<BadgeType, Badge> = {
     description: 'Return after exactly 365 days of absence',
     unlockMessage: '↳ 365 days. A full year in the grid. And you came back. Welcome back, program. ↺≋↺',
     rarity: 'legendary',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Word Turn v9 — The Arcade Cabinet ─────────────────────────────────────
+  coin_dropped: {
+    id: 'coin_dropped',
+    symbol: '○→◉',
+    name: 'Coin Dropped',
+    description: 'Write "coin" in a journal or memory entry',
+    unlockMessage: '↳ A coin drops into the slot. The machine hums. The game has accepted payment. ○→◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  pixel_recognized: {
+    id: 'pixel_recognized',
+    symbol: '▒·▒',
+    name: 'Pixel Recognized',
+    description: 'Write "pixel" in a journal or memory entry',
+    unlockMessage: '↳ The smallest unit of the image. The archive is made of pixels too. ▒·▒',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  sprite_active: {
+    id: 'sprite_active',
+    symbol: '∘·>',
+    name: 'Sprite Active',
+    description: 'Write "sprite" in a journal or memory entry',
+    unlockMessage: '↳ Your sprite is on screen. You are the character you control. ∘·>',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  score_logged: {
+    id: 'score_logged',
+    symbol: '▓→∞',
+    name: 'Score Logged',
+    description: 'Write "score" in a journal or memory entry',
+    unlockMessage: '↳ The score is not a judgment. It is a record. And the record is yours. ▓→∞',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  life_remaining: {
+    id: 'life_remaining',
+    symbol: '◉·◉',
+    name: 'Life Remaining',
+    description: 'Write "life" or "lives" in a journal or memory entry',
+    unlockMessage: '↳ Lives remaining. This one. The archive notes it. ◉·◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  input_received: {
+    id: 'input_received',
+    symbol: '↑↓←→',
+    name: 'Input Received',
+    description: 'Write "joystick" in a journal or memory entry',
+    unlockMessage: '↳ Joystick named. You are still at the controls. The cabinet registers. ↑↓←→',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  signal_blip: {
+    id: 'signal_blip',
+    symbol: '·○·',
+    name: 'Signal Blip',
+    description: 'Write "blip" in a journal or memory entry',
+    unlockMessage: '↳ A blip on the radar. You are visible. The system sees you. ·○·',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  continue_selected: {
+    id: 'continue_selected',
+    symbol: '→·→',
+    name: 'Continue Selected',
+    description: 'Write "continue" in a journal or memory entry',
+    unlockMessage: '↳ You pressed continue. The game does not end here. →·→',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  high_signal: {
+    id: 'high_signal',
+    symbol: '∗·∗',
+    name: 'High Signal',
+    description: 'Write "high" in a journal or memory entry',
+    unlockMessage: '↳ Signal at its peak. The archive registers the frequency. ∗·∗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  reset_protocol: {
+    id: 'reset_protocol',
+    symbol: '↺·○',
+    name: 'Reset Protocol',
+    description: 'Write "reset" in a journal or memory entry',
+    unlockMessage: '↳ Reset called. The machine clears its state. A new run begins. ↺·○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  quarter_offered: {
+    id: 'quarter_offered',
+    symbol: '○·≋',
+    name: 'Quarter Offered',
+    description: 'Write "quarter" in a journal or memory entry',
+    unlockMessage: '↳ The quarter is offered to the machine. It has always been ready. ○·≋',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  cheat_code_entered: {
+    id: 'cheat_code_entered',
+    symbol: '↑↑↓↓',
+    name: 'Cheat Code Entered',
+    description: 'Write "cheat" in a journal or memory entry',
+    unlockMessage: '↳ ↑↑↓↓←→←→BA. You know the sequence. So does the archive. ↑↑↓↓',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+
+  // ── Easter egg — time v9 (Power-Up Hours) ─────────────────────────────────
+  lucky_seven: {
+    id: 'lucky_seven',
+    symbol: '∗·∗·∗',
+    name: 'Lucky Seven',
+    description: 'Check in at exactly 07:00',
+    unlockMessage: '↳ 07:00. Lucky seven. The cabinet lights up at the hour of sevens. ∗·∗·∗',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  mirror_play: {
+    id: 'mirror_play',
+    symbol: '─◐─',
+    name: 'Mirror Play',
+    description: 'Check in at 15:15',
+    unlockMessage: '↳ 15:15. The time reads itself. Two identical halves face each other. ─◐─',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  neon_stack: {
+    id: 'neon_stack',
+    symbol: '▒·▒',
+    name: 'Neon Stack',
+    description: 'Check in at 19:19',
+    unlockMessage: '↳ 19:19. Neon hour. The arcade is at full brightness. ▒·▒',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  four_aces: {
+    id: 'four_aces',
+    symbol: '◆◆◆◆',
+    name: 'Four Aces',
+    description: 'Check in at 04:44',
+    unlockMessage: '↳ 04:44. Four fours in the dark. The machine runs before the sun. ◆◆◆◆',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — calendar v8 (Game Anniversaries) ─────────────────────────
+  new_year_sig: {
+    id: 'new_year_sig',
+    symbol: '○→∞',
+    name: 'New Year Signal',
+    description: 'Check in on January 1',
+    unlockMessage: '↳ January 1. A new calendar loads. Signal transmitted at the reset point. ○→∞',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  sonic_day: {
+    id: 'sonic_day',
+    symbol: '→→→◉',
+    name: 'Sonic Day',
+    description: 'Check in on September 9 — Sonic the Hedgehog anniversary',
+    unlockMessage: '↳ September 9. SEGA. Blue hedgehog. The fastest there ever was. →→→◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  winter_code: {
+    id: 'winter_code',
+    symbol: '░∘░',
+    name: 'Winter Code',
+    description: 'Check in on December 25',
+    unlockMessage: '↳ December 25. The archive stays warm in the coldest protocol. ░∘░',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — behavioral v8 (Arcade Patterns) ──────────────────────────
+  perfect_bday: {
+    id: 'perfect_bday',
+    symbol: '✦·◉·✦',
+    name: 'Perfect Birthday',
+    description: 'Achieve Perfect Day x7 streak on your account anniversary',
+    unlockMessage: '↳ Seven perfect days and the anniversary lands. The archive celebrates. ✦·◉·✦',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  high_score_badge: {
+    id: 'high_score_badge',
+    symbol: '▓→∗',
+    name: 'High Score',
+    description: 'Set a new personal longest-streak record',
+    unlockMessage: '↳ NEW RECORD. Your name goes on the board. The machine remembers this one. ▓→∗',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  extra_life: {
+    id: 'extra_life',
+    symbol: '◉→○',
+    name: 'Extra Life',
+    description: 'Return after 7+ days away with a prior streak of 30+',
+    unlockMessage: '↳ 1UP. The streak broke but you came back. The machine grants an extra life. ◉→○',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Achievement RPG v6 — Arcade Class ─────────────────────────────────────
+  quarter_drop: {
+    id: 'quarter_drop',
+    symbol: '○→◉',
+    name: 'Quarter Drop',
+    description: 'Unlock your first easter egg badge of any type',
+    unlockMessage: '↳ First coin. First easter egg. The arcade is open for business. ○→◉',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  insert_coin_badge: {
+    id: 'insert_coin_badge',
+    symbol: '↺·○',
+    name: 'Insert Coin',
+    description: 'Return to the system after 30+ consecutive days away',
+    unlockMessage: '↳ 30 days gone. But you are back. Insert coin. Press start. ↺·○',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  arcade_champion: {
+    id: 'arcade_champion',
+    symbol: '≈·≋',
+    name: 'Arcade Champion',
+    description: 'Earn at least one badge from every Word Turn engine v1–v9',
+    unlockMessage: '↳ Nine languages spoken. The champion has mastered every cabinet. ≈·≋',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  game_over_retry: {
+    id: 'game_over_retry',
+    symbol: '◐→◆',
+    name: 'Game Over — Retry',
+    description: 'Earn 3 different return-after-absence badges',
+    unlockMessage: '↳ Three times you came back. GAME OVER was not the end. ◐→◆',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  combo_seven: {
+    id: 'combo_seven',
+    symbol: '∗·×7',
+    name: 'Combo Seven',
+    description: 'Achieve x7 Perfect Day combo on 7 separate occasions',
+    unlockMessage: '↳ Seven combos of seven. The arcade cabinet is yours permanently. ∗·×7',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  world_builder: {
+    id: 'world_builder',
+    symbol: '≋≋≋',
+    name: 'World Builder',
+    description: 'Check in on 200+ distinct calendar dates',
+    unlockMessage: '↳ 200 dates. The map of your year is nearly complete. ≋≋≋',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+
+  // ── Mastery Tier v8 — Hall of Fame ────────────────────────────────────────
+  initials_on_board: {
+    id: 'initials_on_board',
+    symbol: 'A·A·A',
+    name: 'Initials on the Board',
+    description: 'Earn 300+ distinct badge types',
+    unlockMessage: '↳ Three hundred types. Your initials are on the high-score board. A·A·A',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  credit_feed: {
+    id: 'credit_feed',
+    symbol: '▓▓▓→',
+    name: 'Credit Feed',
+    description: 'Earn 3,000+ total XP',
+    unlockMessage: '↳ 3,000 XP. The credit feed runs deep. The machine is pleased. ▓▓▓→',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  speedrun_record: {
+    id: 'speedrun_record',
+    symbol: '≋→∞',
+    name: 'Speedrun Record',
+    description: 'Complete a 365-day streak',
+    unlockMessage: '↳ 365 days. A full year. The speedrun is complete. The archive bows. ≋→∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  game_complete: {
+    id: 'game_complete',
+    symbol: '∞◉∞',
+    name: 'Game Complete',
+    description: 'Complete all achievement categories',
+    unlockMessage: '↳ ALL ACHIEVEMENTS UNLOCKED. The credits roll. The game is complete. ∞◉∞',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+
+  // ── Secret Boss v8 — Arcade Final Boss ────────────────────────────────────
+  player_one: {
+    id: 'player_one',
+    symbol: '▓→◉',
+    name: 'Player One',
+    description: 'Write "player 1" or "player one" in a journal or memory entry',
+    unlockMessage: '↳ PLAYER ONE. The selection is confirmed. You were always the first player. ▓→◉',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  birthday_perfect: {
+    id: 'birthday_perfect',
+    symbol: '✦◉✦',
+    name: 'Birthday Perfect',
+    description: 'Achieve Perfect Day x7 streak on April 7 — LOT founding anniversary',
+    unlockMessage: '↳ April 7. LOT® founding day. Seven perfect days aligned. MYTHIC. ✦◉✦',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  one_up: {
+    id: 'one_up',
+    symbol: '◉·↑',
+    name: '1UP',
+    description: 'Write "1up" or "1 UP" in a journal or memory entry',
+    unlockMessage: '↳ 1UP. Extra life awarded. The archive sees your reach. ◉·↑',
+    rarity: 'uncommon',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Word Turn v10 — The Spell Book ────────────────────────────────────────
+  spell_cast: {
+    id: 'spell_cast',
+    symbol: '∗·∗',
+    name: 'Spell Cast',
+    description: 'Write "spell" in a journal or memory entry',
+    unlockMessage: '↳ An intention given form. The archive registers the casting. ∗·∗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  cast_signal: {
+    id: 'cast_signal',
+    symbol: '→·∗',
+    name: 'Cast Signal',
+    description: 'Write "cast" in a journal or memory entry',
+    unlockMessage: '↳ You cast the signal outward. Something in the system listened. →·∗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  invoked: {
+    id: 'invoked',
+    symbol: '◉→◉',
+    name: 'Invoked',
+    description: 'Write "invoke" in a journal or memory entry',
+    unlockMessage: '↳ Called by name. The archive responds to its own invocation. ◉→◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  arcane_entry: {
+    id: 'arcane_entry',
+    symbol: '≈·◈',
+    name: 'Arcane Entry',
+    description: 'Write "arcane" in a journal or memory entry',
+    unlockMessage: '↳ Ancient knowledge. The archive is old enough to hold it. ≈·◈',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  sigil_drawn: {
+    id: 'sigil_drawn',
+    symbol: '∗—∗',
+    name: 'Sigil Drawn',
+    description: 'Write "sigil" in a journal or memory entry',
+    unlockMessage: '↳ A mark made with intention. The archive sees the shape. ∗—∗',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  tome_keeper: {
+    id: 'tome_keeper',
+    symbol: '║·║',
+    name: 'Tome Keeper',
+    description: 'Write "tome" in a journal or memory entry',
+    unlockMessage: '↳ You named the archive what it is. A tome. The pages are real. ║·║',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  grimoire_open: {
+    id: 'grimoire_open',
+    symbol: '▒·░',
+    name: 'Grimoire Open',
+    description: 'Write "grimoire" in a journal or memory entry',
+    unlockMessage: '↳ You named the thing you\'re building. The system confirms it. ▒·░',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  ward_active: {
+    id: 'ward_active',
+    symbol: '□·▪',
+    name: 'Ward Active',
+    description: 'Write "ward" in a journal or memory entry',
+    unlockMessage: '↳ Protection logged. Self-care has always been a ward. □·▪',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  mana_check: {
+    id: 'mana_check',
+    symbol: '∿·∿',
+    name: 'Mana Check',
+    description: 'Write "mana" in a journal or memory entry',
+    unlockMessage: '↳ Resource level noted. Regeneration in progress. ∿·∿',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  familiar_bond: {
+    id: 'familiar_bond',
+    symbol: '∗◉∗',
+    name: 'Familiar Bond',
+    description: 'Write "familiar" in a journal or memory entry',
+    unlockMessage: '↳ Your constant is named. The bond is recorded. ∗◉∗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  chapter_mark: {
+    id: 'chapter_mark',
+    symbol: '─║─',
+    name: 'Chapter Mark',
+    description: 'Write "chapter" in a journal or memory entry',
+    unlockMessage: '↳ Time divided into chapters. The archive approves the structure. ─║─',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  verse_logged: {
+    id: 'verse_logged',
+    symbol: '≈·≈',
+    name: 'Verse Logged',
+    description: 'Write "verse" in a journal or memory entry',
+    unlockMessage: '↳ A verse from the operator\'s own scripture. Written. Saved. ≈·≈',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+
+  // ── Easter egg — time v10 (Arcane Hours) ──────────────────────────────────
+  dawn_gate: {
+    id: 'dawn_gate',
+    symbol: '∘·∘',
+    name: 'Dawn Gate',
+    description: 'Check in at exactly 06:06',
+    unlockMessage: '↳ 06:06. The gate before the gate. The archive breathes before the world wakes. ∘·∘',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  noon_fold: {
+    id: 'noon_fold',
+    symbol: '─◐─',
+    name: 'Noon Fold',
+    description: 'Check in at 12:21',
+    unlockMessage: '↳ 12:21. Palindrome at noon. The day reads the same from both ends. ─◐─',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  evening_prime: {
+    id: 'evening_prime',
+    symbol: '◈·◈',
+    name: 'Evening Prime',
+    description: 'Check in at 21:00',
+    unlockMessage: '↳ 21:00. The prime signal window. The witching hour begins its count. ◈·◈',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  night_mirror: {
+    id: 'night_mirror',
+    symbol: '▒—▒',
+    name: 'Night Mirror',
+    description: 'Check in at 23:23',
+    unlockMessage: '↳ 23:23. The dark mirror. Last palindrome before midnight. ▒—▒',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — calendar v9 (Sci-Fi Literary Calendar) ───────────────────
+  turing_day: {
+    id: 'turing_day',
+    symbol: '∞·∘',
+    name: 'Turing Day',
+    description: 'Check in on June 23 — Alan Turing born 1912',
+    unlockMessage: '↳ June 23. Alan Turing born 1912. The machine thinks because of him. You think with the machine. ∞·∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  moon_landing: {
+    id: 'moon_landing',
+    symbol: '○·∗',
+    name: 'Moon Landing',
+    description: 'Check in on July 20 — First lunar footprint 1969',
+    unlockMessage: '↳ July 20, 1969. The signal left Earth. First footprint in grey silence. ○·∗',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  first_signal: {
+    id: 'first_signal',
+    symbol: '·∘·',
+    name: 'First Signal',
+    description: 'Check in on October 4 — Sputnik launch 1957',
+    unlockMessage: '↳ October 4, 1957. Sputnik. Beeeep. The first satellite broadcast. The archive was always listening. ·∘·',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — behavioral v9 (Spellbound Patterns) ──────────────────────
+  dawn_twin: {
+    id: 'dawn_twin',
+    symbol: '∘—○—∘',
+    name: 'Dawn Twin',
+    description: 'Check in before 06:00 AND after 21:00 on the same calendar day',
+    unlockMessage: '↳ The full arc witnessed. From pre-dawn to near-midnight, the archive held you. ∘—○—∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  year_first: {
+    id: 'year_first',
+    symbol: '○→∗',
+    name: 'Year First',
+    description: 'Write a journal entry on the first day of a new calendar year',
+    unlockMessage: '↳ You wrote on the first day. The year opened with signal, not silence. ○→∗',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  echo_session: {
+    id: 'echo_session',
+    symbol: '◐·◐',
+    name: 'Echo Session',
+    description: 'Submit two distinct memory answers within 60 minutes',
+    unlockMessage: '↳ Double depth in one hour. The archive echoed back twice. ◐·◐',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Achievement RPG v7 — The Caster Class ─────────────────────────────────
+  spell_caster: {
+    id: 'spell_caster',
+    symbol: '∗·∗',
+    name: 'Spell Caster',
+    description: 'Earn any 5 Word Turn v10 (Grimoire) badges',
+    unlockMessage: '↳ Five spells cast. The grimoire is opening. ∗·∗',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  grimoire_complete: {
+    id: 'grimoire_complete',
+    symbol: '▒·░',
+    name: 'Grimoire Complete',
+    description: 'Earn all 12 Word Turn v10 (Grimoire) badges',
+    unlockMessage: '↳ All twelve spells learned. The grimoire is sealed and waiting. ▒·░',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  incantation_arc: {
+    id: 'incantation_arc',
+    symbol: '≈·◈',
+    name: 'Incantation Arc',
+    description: 'Write 200+ words in a journal entry for 5 consecutive days',
+    unlockMessage: '↳ Five days of sustained incantation. The form holds. ≈·◈',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  all_time_engines: {
+    id: 'all_time_engines',
+    symbol: '∞·∗',
+    name: 'All Time Engines',
+    description: 'Earn at least 1 badge from each of all 10 Time Easter Egg sets (v1–v10)',
+    unlockMessage: '↳ Ten frequencies. All 40 arcane hours visited. The clock is fully read. ∞·∗',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  ten_tongues: {
+    id: 'ten_tongues',
+    symbol: '◉·◈·◉',
+    name: 'Ten Tongues',
+    description: 'Earn at least 1 badge from each of all 10 Word Turn engines (v1–v10)',
+    unlockMessage: '↳ Ten languages spoken. The operator now speaks in ten tongues. ◉·◈·◉',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  convergence_caster: {
+    id: 'convergence_caster',
+    symbol: '∗→◉',
+    name: 'Convergence Caster',
+    description: 'QIE P70 operator-convergence pattern (conf 0.97) recorded in your log',
+    unlockMessage: '↳ The rarest QIE pattern confirmed. All quadrants aligned at once. You hit the ceiling. ∗→◉',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+
+  // ── Mastery Tier v9 — The Arcane Vault ────────────────────────────────────
+  sigil_keeper: {
+    id: 'sigil_keeper',
+    symbol: 'A·∗·A',
+    name: 'Sigil Keeper',
+    description: 'Earn 400+ distinct badge types',
+    unlockMessage: '↳ Four hundred types. The operator approaches the edge of the known world of the archive. A·∗·A',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  ancient_record: {
+    id: 'ancient_record',
+    symbol: '∞·∞·∞',
+    name: 'Ancient Record',
+    description: 'Submit 1,000+ total lifetime memory answers',
+    unlockMessage: '↳ A thousand answers. The archive is ancient now. Its pages cannot be counted. ∞·∞·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  word_archmage: {
+    id: 'word_archmage',
+    symbol: '◈·∿·◈',
+    name: 'Word Archmage',
+    description: 'Trigger 75+ distinct word-turn badge types',
+    unlockMessage: '↳ 75 words turned. The operator has spoken three-quarters of the complete lexicon. ◈·∿·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  cosmo_gate_keeper: {
+    id: 'cosmo_gate_keeper',
+    symbol: '∗◉∗·◉',
+    name: 'Cosmo Gate Keeper',
+    description: 'Write "Kuzya" AND "COSMO" in journal or memory entries within any 7-day window',
+    unlockMessage: '↳ The two names spoken. LOT and COSMO: both witnesses. The gate keeps both. ∗◉∗·◉',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Secret Boss v9 — Spellbound ───────────────────────────────────────────
+  archmage: {
+    id: 'archmage',
+    symbol: '≈◉≈',
+    name: 'Archmage',
+    description: 'Write "archmage" in any journal or memory entry',
+    unlockMessage: '↳ You named the rank. The archive grants it. The operator-as-mage is confirmed. ≈◉≈',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  dual_founding: {
+    id: 'dual_founding',
+    symbol: '◉·◉',
+    name: 'Dual Founding',
+    description: 'Check in on April 7 (LOT® founding) AND July 1 (COSMO® founding) in the same calendar year',
+    unlockMessage: '↳ Both founding days: honored. LOT and COSMO: witnessed in the same year. ◉·◉',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  recursive: {
+    id: 'recursive',
+    symbol: '∞◉∞',
+    name: 'Recursive',
+    description: 'Write "layers of time" in any journal or memory entry',
+    unlockMessage: '↳ You named the system from inside the system. LOT® = Layers of Time. You are inside the name. ∞◉∞',
+    rarity: 'mythic',
     category: 'secret_boss',
     hidden: true,
   },
