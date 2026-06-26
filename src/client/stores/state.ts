@@ -83,5 +83,8 @@ export const lastAnsweredMemoryQuestionId = persistentAtom<string | null>(
   }
 )
 
+// LOT Mail — unread count clears when user visits /mail
+export const unreadMailCount = atom<number>(0)
+
 // computed
 export const isLoggedIn = computed(me, (m) => !!m)

@@ -17,6 +17,7 @@ import { Settings } from '#client/components/Settings'
 import { Logs } from '#client/components/Logs'
 import { Sync } from '#client/components/Sync'
 import { DirectMessageThread } from '#client/components/DirectMessageThread'
+import { Mail } from '#client/components/Mail'
 import { StatusPage } from '#client/components/StatusPage'
 import { ApiPage } from '#client/components/ApiPage'
 import { ConnectionStatus } from '#client/components/ConnectionStatus'
@@ -107,6 +108,12 @@ sync.listen('live_message', (data) => {
 sync.listen('settings_updated', () => {
   getMe().then((user) => stores.me.set(user)).catch(() => {})
 })
+sync.listen('lot_email', (data: any) => {
+  const currentRoute = stores.router.get()?.route
+  if (currentRoute !== 'mail') {
+    stores.unreadMailCount.set(stores.unreadMailCount.get() + 1)
+  }
+})
 
 const queryClient = new QueryClient()
 
@@ -132,7 +139,7 @@ if (typeof window !== 'undefined') {
   })
 }
 
-type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api'
+type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api' | 'mail'
 
 const TabPanel = React.memo(function TabPanel({
   active,
@@ -170,6 +177,9 @@ function TabPanels() {
       </TabPanel>
       <TabPanel active={currentRoute === 'api'}>
         <ApiPage />
+      </TabPanel>
+      <TabPanel active={currentRoute === 'mail'}>
+        <Mail />
       </TabPanel>
     </>
   )

@@ -386,6 +386,17 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'lot_email': {
+          // Only deliver to sender or receiver
+          const emailPayload = data as { senderId: string; receiverId: string }
+          if (
+            emailPayload.receiverId === req.user.id ||
+            emailPayload.senderId === req.user.id
+          ) {
+            write({ event, data })
+          }
+          break
+        }
       }
     })
 
@@ -5438,6 +5449,209 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           story: 'The system holds your data quietly. When the engine returns, your story will be here.',
           logId: null,
         }
+      }
+    }
+  )
+
+  // ============================================================================
+  // LOT MAIL — Internal Community Email System
+  // Compose with /email to [Name] in Log. New mail appears in Sync + /mail inbox.
+  // ============================================================================
+
+  // GET /api/lot-emails/inbox — received emails
+  fastify.get('/lot-emails/inbox', async (req, reply) => {
+    try {
+      const emails = await fastify.models.LotEmail.findAll({
+        where: { receiverId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100,
+      })
+
+      const senderIds = [...new Set(emails.map((e: any) => e.senderId))]
+      const senders = senderIds.length
+        ? await fastify.models.User.findAll({
+            where: { id: { [Op.in]: senderIds } },
+            attributes: ['id', 'firstName', 'lastName'],
+          })
+        : []
+      const senderMap = senders.reduce((acc: Record<string, any>, u: any) => {
+        acc[u.id] = `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email
+        return acc
+      }, {} as Record<string, string>)
+
+      return emails.map((e: any) => ({
+        id: e.id,
+        senderId: e.senderId,
+        receiverId: e.receiverId,
+        senderName: senderMap[e.senderId] || null,
+        receiverName: null,
+        subject: e.subject,
+        body: e.body,
+        readAt: e.readAt,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+      }))
+    } catch (error: any) {
+      console.error('LOT Mail inbox error:', error)
+      return reply.status(500).send({ error: 'Failed to fetch inbox' })
+    }
+  })
+
+  // GET /api/lot-emails/sent — sent emails
+  fastify.get('/lot-emails/sent', async (req, reply) => {
+    try {
+      const emails = await fastify.models.LotEmail.findAll({
+        where: { senderId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100,
+      })
+
+      const receiverIds = [...new Set(emails.map((e: any) => e.receiverId))]
+      const receivers = receiverIds.length
+        ? await fastify.models.User.findAll({
+            where: { id: { [Op.in]: receiverIds } },
+            attributes: ['id', 'firstName', 'lastName'],
+          })
+        : []
+      const receiverMap = receivers.reduce((acc: Record<string, any>, u: any) => {
+        acc[u.id] = `${u.firstName || ''} ${u.lastName || ''}`.trim() || u.email
+        return acc
+      }, {} as Record<string, string>)
+
+      return emails.map((e: any) => ({
+        id: e.id,
+        senderId: e.senderId,
+        receiverId: e.receiverId,
+        senderName: null,
+        receiverName: receiverMap[e.receiverId] || null,
+        subject: e.subject,
+        body: e.body,
+        readAt: e.readAt,
+        createdAt: e.createdAt,
+        updatedAt: e.updatedAt,
+      }))
+    } catch (error: any) {
+      console.error('LOT Mail sent error:', error)
+      return reply.status(500).send({ error: 'Failed to fetch sent mail' })
+    }
+  })
+
+  // POST /api/lot-emails — send a LOT Mail
+  fastify.post(
+    '/lot-emails',
+    async (
+      req: FastifyRequest<{
+        Body: { recipientName: string; body: string; subject?: string }
+      }>,
+      reply
+    ) => {
+      try {
+        const { recipientName, body, subject } = req.body
+
+        if (!recipientName?.trim() || !body?.trim()) {
+          return reply.status(400).send({ error: 'recipientName and body are required' })
+        }
+
+        // Find recipient by firstName (case-insensitive)
+        const candidate = await fastify.models.User.findOne({
+          where: {
+            firstName: { [Op.iLike]: recipientName.trim() },
+          },
+        })
+
+        if (!candidate) {
+          return reply.status(404).send({ error: `No user found with name "${recipientName}"` })
+        }
+
+        if (candidate.id === req.user.id) {
+          return reply.status(400).send({ error: 'Cannot send mail to yourself' })
+        }
+
+        const email = await fastify.models.LotEmail.create({
+          senderId: req.user.id,
+          receiverId: candidate.id,
+          subject: subject?.trim().slice(0, 300) || null,
+          body: body.trim().slice(0, 5000),
+        })
+
+        const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || req.user.email
+        const resolvedRecipientName = `${candidate.firstName || ''} ${candidate.lastName || ''}`.trim()
+
+        // Broadcast to sender + receiver via SSE
+        sync.emit('lot_email', {
+          id: email.id,
+          senderId: req.user.id,
+          receiverId: candidate.id,
+          senderName,
+          body: email.body,
+          createdAt: email.createdAt,
+        })
+
+        // Log the sent email in sender's log
+        process.nextTick(async () => {
+          try {
+            const context = await getLogContext(req.user)
+            await fastify.models.Log.create({
+              userId: req.user.id,
+              event: 'lot_email_sent',
+              text: '',
+              metadata: {
+                lotEmailId: email.id,
+                recipientId: candidate.id,
+                recipientName: resolvedRecipientName,
+                body: email.body,
+              },
+              context,
+            })
+            // Also log receipt in receiver's log
+            await fastify.models.Log.create({
+              userId: candidate.id,
+              event: 'lot_email_received',
+              text: '',
+              metadata: {
+                lotEmailId: email.id,
+                senderId: req.user.id,
+                senderName,
+                body: email.body,
+              },
+              context: {},
+            })
+          } catch (logErr) {
+            console.error('LOT Mail log error:', logErr)
+          }
+        })
+
+        return {
+          id: email.id,
+          recipientName: resolvedRecipientName,
+          createdAt: email.createdAt,
+        }
+      } catch (error: any) {
+        console.error('LOT Mail send error:', error)
+        return reply.status(500).send({ error: 'Failed to send mail' })
+      }
+    }
+  )
+
+  // PUT /api/lot-emails/:id/read — mark as read
+  fastify.put(
+    '/lot-emails/:id/read',
+    async (
+      req: FastifyRequest<{ Params: { id: string } }>,
+      reply
+    ) => {
+      try {
+        const email = await fastify.models.LotEmail.findOne({
+          where: { id: req.params.id, receiverId: req.user.id },
+        })
+        if (!email) return reply.status(404).send({ error: 'Not found' })
+        if (!email.readAt) {
+          await email.update({ readAt: new Date() })
+        }
+        return { ok: true }
+      } catch (error: any) {
+        console.error('LOT Mail read error:', error)
+        return reply.status(500).send({ error: 'Failed to mark read' })
       }
     }
   )

@@ -13,7 +13,7 @@ import { goTo } from '#client/stores/router'
 import { Button, Page } from '#client/components/ui'
 import { cn } from '#client/utils'
 
-type RouteName = 'sync' | 'logs' | 'system' | 'api' | 'settings'
+type RouteName = 'sync' | 'logs' | 'system' | 'api' | 'settings' | 'mail'
 
 type NavItem = { label: string | null; spacer?: boolean; route?: RouteName }
 
@@ -21,16 +21,18 @@ const NavButton = React.memo(function NavButton({
   link,
   isActive,
   isMirrorOn,
+  badge,
 }: {
   link: NavItem
   isActive: boolean
   isMirrorOn: boolean
+  badge?: number
 }) {
   return (
     <Button
       kind="secondary-rounded"
       className={cn(
-        'mb-4 flex-shrink-0',
+        'mb-4 flex-shrink-0 relative',
         !link.route && 'opacity-30 pointer-events-none',
         isActive && (isMirrorOn
           ? 'bg-white/20 hover:bg-white/30'
@@ -40,6 +42,9 @@ const NavButton = React.memo(function NavButton({
       disabled={!link.route}
     >
       {link.label}
+      {!!badge && (
+        <span className="ml-4 text-xs opacity-60">{badge}</span>
+      )}
     </Button>
   )
 })
@@ -54,11 +59,13 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
   const layoutView = useStore(stores.layoutView)
   const isMirrorOn = useStore(stores.isMirrorOn)
   const routerState = useStore(stores.router)
+  const unreadMailCount = useStore(stores.unreadMailCount)
   const currentRoute = routerState?.route ?? 'system'
   const navLinks = React.useMemo<NavItem[]>(() => {
     const result: NavItem[] = isLoggedIn
       ? [
           { label: 'Sync', route: 'sync' },
+          { label: 'Mail', route: 'mail' },
           { label: 'Log', route: 'logs' },
           { label: 'System', route: 'system' },
           { label: 'Basics' },
@@ -71,6 +78,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
         ]
       : [
           { label: 'Sync' },
+          { label: 'Mail' },
           { label: 'Logs' },
           { label: 'System', route: 'system' },
           { label: 'Basics' },
@@ -112,6 +120,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
                     link={link}
                     isActive={link.route === currentRoute}
                     isMirrorOn={isMirrorOn}
+                    badge={link.route === 'mail' ? unreadMailCount : undefined}
                   />
                 )
               )}

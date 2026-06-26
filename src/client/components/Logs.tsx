@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendLotEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -217,6 +217,24 @@ export const Logs: React.FC = () => {
               </Block>
               <Block label="OUT:" blockView>
                 {log.metadata.answer as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'lot_email_sent') {
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                <div className="opacity-60 mb-4">→ {log.metadata.recipientName as string}</div>
+                {log.metadata.body as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'lot_email_received') {
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                <div className="opacity-60 mb-4">← {log.metadata.senderName as string}</div>
+                {log.metadata.body as string}
               </Block>
             </LogContainer>
           )
@@ -1745,7 +1763,17 @@ const NoteEditor = ({
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
+
+  const { mutate: sendLotEmail } = useSendLotEmail({
+    onSuccess: (data) => {
+      setEmailResult(`MAIL SENT TO ${(data?.recipientName || 'RECIPIENT').toUpperCase()}`)
+    },
+    onError: () => {
+      setEmailResult('MAIL FAILED — RECIPIENT NOT FOUND')
+    },
+  })
   const breatheState = useBreathe(breatheEnabled)
   const [silentResult, setSilentResult] = React.useState<string | null>(null)
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
@@ -2148,6 +2176,7 @@ const NoteEditor = ({
         const lines = [
           'AVAILABLE COMMANDS',
           '',
+          '/email to [Name] [msg]  Send LOT Mail to a community member',
           '/prayer       Generate contextual scripture',
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
@@ -2184,6 +2213,21 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'email-send') {
+        // Parse: /email to [Name] [message]
+        const emailMatch = value.match(/\/email\s+to\s+(\S+)\s*(.*)/is)
+        if (emailMatch) {
+          const recipientName = emailMatch[1].trim()
+          const body = emailMatch[2].trim()
+          if (recipientName && body) {
+            setEmailResult('SENDING...')
+            sendLotEmail({ recipientName, body })
+          } else if (recipientName && !body) {
+            setEmailResult('MAIL SYNTAX: /email to [Name] [message]')
+          }
+        } else {
+          setEmailResult('MAIL SYNTAX: /email to [Name] [message]')
         }
       }
     }
@@ -2408,6 +2452,13 @@ const NoteEditor = ({
                   ))}
                 </div>
               )}
+            </Block>
+          </div>
+        )}
+        {emailResult && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              <div className="opacity-60 font-mono whitespace-pre">{emailResult}</div>
             </Block>
           </div>
         )}
