@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev K
+# LOT-DOCTRINE  rev L
 
 ## Render Isolation
 
@@ -154,3 +154,17 @@ queries replaced with single batched IN query. user-stats 4 sequential queries
 parallelized. chat-messages users+likes parallelized. cohort limited to 200.
 Client: 3 redundant analyzeIntentions() calls removed — already has 5-min
 cooldown at intentionEngine.ts:231.)
+
+## BASIC Plan — Hardware Layer
+
+The BASIC plan is the hardware tier of the LOT® System: a physical ration issued
+monthly to ON-STRENGTH subscribers at USD 100/30 days. The RATION-MANIFEST is
+23 items (nutrition, supplement, hygiene, field equipment, documentation). COGS
+ceiling is USD 40 landed; margin floor is 60%; both are inviolable per LOT-FM-001.
+The OPEN TAB is the public surface: nomenclature + cadence displayed; COGS
+withheld. No marketing, no color, no radius, no icons. Voice: quartermaster,
+imperative, terse. Style: LiberationMono-Bold, white ground, black ink, 2px rules,
+inversion-only hierarchy, fixed character grid, IBM 3270 register.
+Month 1 delivers the ledger (read-only, live). Month 2 wires the UPGRADE path
+(USERSHIP/AI → PENDING → ON STRENGTH → STEADY STATE). Month 3 ships the first box.
+(SR-20260626-01: BASICS M1 delivered — OPEN TAB live on /basics.)
