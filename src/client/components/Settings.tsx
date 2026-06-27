@@ -24,7 +24,7 @@ import { GrowthMilestones, BadgeUnlockFeed } from './stats'
 import { InvestmentSwitch } from './InvestmentSwitch'
 import { ProfileQRCode } from './ProfileQRCode'
 
-export const Settings = () => {
+export const Settings = React.memo(function SettingsInner() {
   const me = useStore(stores.me)
   const baseColor = useStore(stores.baseColor)
   const accentColor = useStore(stores.accentColor)
@@ -636,4 +636,4 @@ export const Settings = () => {
 
     </div>
   )
-}
+})

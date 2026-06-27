@@ -41,7 +41,7 @@ const localStore = {
   logIds: atom<string[]>([]),
 }
 
-export const Logs: React.FC = () => {
+export const Logs: React.FC = React.memo(function LogsInner() {
   const inputContainerRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
 
@@ -1800,7 +1800,7 @@ export const Logs: React.FC = () => {
       })}
     </div>
   )
-}
+})
 
 const NoteEditor = ({
   log,

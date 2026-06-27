@@ -98,7 +98,7 @@ function LoadingDots() {
   return <span className="opacity-40">{'·'.repeat(dots)}</span>
 }
 
-export const System = () => {
+export const System = React.memo(function SystemInner() {
   const me = useStore(stores.me)
   const weather = useStore(stores.weather)
   const theme = useStore(stores.theme)
@@ -1051,4 +1051,4 @@ export const System = () => {
       </div>
     </div>
   )
-}
+})
