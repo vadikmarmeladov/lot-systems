@@ -48,6 +48,7 @@ import { EvolutionWidget } from './EvolutionWidget'
 import { CohortConnectWidget } from './CohortConnectWidget'
 import { InterfaceEvolutionWidget } from './InterfaceEvolutionWidget'
 import { EvolutionMilestoneToast } from './EvolutionMilestoneToast'
+import { CalendarNotificationToast } from './CalendarNotificationToast'
 import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
@@ -741,6 +742,9 @@ export const System = React.memo(function SystemInner() {
 
           {/* Evolution Milestone Toast - Subtle notifications for progression milestones */}
           <EvolutionMilestoneToast />
+
+          {/* Calendar Notification Toast - Military-grade schedule alerts */}
+          <CalendarNotificationToast />
         </div>
       </WidgetErrorBoundary>
 

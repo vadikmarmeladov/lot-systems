@@ -146,6 +146,11 @@ export const useUpdateLog = createMutation<{ id: string; text: string }, Log>(
   (data) => `/api/logs/${data.id}`
 )
 
+export const useDeleteLog = createMutation<{ id: string }, { id: string; deleted: boolean }>(
+  'delete',
+  (data) => `/api/logs/${data.id}`
+)
+
 export const useMemory = () => {
   const date = btoa(dayjs().format('YYYY-MM-DD'))
   const path = '/api/memory'

@@ -6,10 +6,12 @@
  * Made in the USA | brand.lot-systems.com
  */
 
+// Calendar Widget v12 — time-aware scheduling, delete, military event log
+
 import * as React from 'react'
 import { useQueryClient } from 'react-query'
 import { Block, Button } from '#client/components/ui'
-import { useCreateLog, useLogs } from '#client/queries'
+import { useCreateLog, useDeleteLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
@@ -17,13 +19,21 @@ import { recordCalendarSignal } from '#client/stores/intentionEngine'
 
 type EntryType = 'note' | 'task' | 'call'
 
-type CalendarEntry = {
+export type CalendarEntry = {
+  id: string
   date: string
   text: string
   type: EntryType
+  time?: string
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+const TYPE_PREFIX: Record<EntryType, string> = {
+  note: '·',
+  task: '▸',
+  call: '◉',
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -52,6 +62,7 @@ export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
+  const { mutate: deleteLog } = useDeleteLog()
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
@@ -59,24 +70,32 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [entryTime, setEntryTime] = React.useState('')
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
+        id: log.id,
         date: log.metadata?.date as string,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
+        time: log.metadata?.time as string | undefined,
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => {
+        const dateCmp = a.date.localeCompare(b.date)
+        if (dateCmp !== 0) return dateCmp
+        if (a.time && b.time) return a.time.localeCompare(b.time)
+        if (a.time) return -1
+        if (b.time) return 1
+        return 0
+      })
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
     const today = dayjs().format('YYYY-MM-DD')
-    return entries
-      .filter(e => e.date >= today)
-      .slice(0, 10)
+    return entries.filter(e => e.date >= today).slice(0, 10)
   }, [entries])
 
   const entriesOnDate = React.useMemo(() => {
@@ -109,14 +128,16 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeLabel = entryTime ? ` @ ${entryTime}` : ''
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType.toUpperCase()}: ${entryText.trim()}${timeLabel} (${dateLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
         text: entryText.trim(),
         entryType,
+        ...(entryTime ? { time: entryTime } : {}),
       },
     }, {
       onSuccess: () => {
@@ -126,13 +147,20 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
   }
 
+  const handleDeleteEntry = (id: string) => {
+    deleteLog({ id }, {
+      onSuccess: () => {
+        queryClient.refetchQueries(['/api/logs'])
+      },
+    })
+  }
+
   const handleToggleCalendar = () => {
-    if (!isCalendarOpen) {
-      setViewMonth(dayjs())
-    }
+    if (!isCalendarOpen) setViewMonth(dayjs())
     setIsCalendarOpen(!isCalendarOpen)
   }
 
@@ -227,7 +255,7 @@ export function CalendarWidget() {
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-8 items-center">
+                <div className="flex gap-8 items-center mb-8">
                   <input
                     type="text"
                     value={entryText}
@@ -236,6 +264,12 @@ export function CalendarWidget() {
                     placeholder={`Add ${entryType}...`}
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
+                  />
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    className="bg-transparent border border-acc/20 text-acc/60 px-4 py-2 outline-none focus:border-acc/40 w-[7em]"
                   />
                   <Button onClick={handleAddEntry}>Add</Button>
                 </div>
@@ -247,9 +281,19 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                {entriesOnDate.map((e) => (
+                  <div key={e.id} className="flex items-start gap-8 mb-1 group">
+                    <span className="text-acc/40 mt-0.5 flex-shrink-0">{TYPE_PREFIX[e.type]}</span>
+                    <span className="text-acc/80 flex-1">
+                      {e.text}
+                      {e.time && <span className="text-acc/40 ml-4">{e.time}</span>}
+                    </span>
+                    <button
+                      onClick={() => handleDeleteEntry(e.id)}
+                      className="text-acc/20 hover:text-acc/60 transition-opacity opacity-0 group-hover:opacity-100 flex-shrink-0"
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
               </div>
@@ -259,14 +303,14 @@ export function CalendarWidget() {
 
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+            {upcomingEntries.map((entry) => (
+              <div key={entry.id} className="flex gap-8">
+                <span className="text-acc/30 flex-shrink-0">{TYPE_PREFIX[entry.type]}</span>
+                <span className="text-acc/50 whitespace-nowrap flex-shrink-0">
+                  {dayjs(entry.date).format('ddd MMM D')}
+                  {entry.time && <span className="text-acc/30 ml-4">{entry.time}</span>}
                 </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
+                <span className="text-acc truncate">{entry.text}</span>
               </div>
             ))}
           </div>
