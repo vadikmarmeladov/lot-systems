@@ -850,10 +850,10 @@ export default async (fastify: FastifyInstance) => {
     ])
     const userById = users.reduce(fp.by('id'), {})
 
-    // Filter out messages from suspended users
+    // Only filter out messages from suspended users; messages from deleted accounts are kept
     const filteredMessages = messages.filter((msg) => {
       const author = userById[msg.authorUserId]
-      if (!author) return false
+      if (!author) return true
       const isSuspended = author.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
       return !isSuspended
     })
@@ -862,12 +862,13 @@ export default async (fastify: FastifyInstance) => {
     const likesByMessageId = likes.reduce(fp.groupBy('messageId'), {})
 
     const result: PublicChatMessage[] = filteredMessages.map((x) => {
+      const author = userById[x.authorUserId]
       const likes = likesByMessageId[x.id] || []
       return {
         id: x.id,
         authorUserId: x.authorUserId,
         message: x.message,
-        author: userById[x.authorUserId].firstName || null,
+        author: author?.firstName || null,
         createdAt: x.createdAt,
         updatedAt: x.updatedAt,
         likes: likes.length,
