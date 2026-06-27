@@ -429,6 +429,27 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'qos_mode_change') {
+          const oldMode  = log.metadata?.oldMode  as string | undefined
+          const newMode  = log.metadata?.newMode  as string | undefined
+          const pressure = log.metadata?.pressure as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="OS [MODE]:" blockView>
+                {oldMode && newMode && (
+                  <div className="uppercase tracking-widest mb-4">
+                    {oldMode} → {newMode}
+                  </div>
+                )}
+                {pressure && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">PRESSURE</span>
+                    <span className="uppercase">{pressure}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'physiological_cohort') {
           const archetype = log.metadata?.archetype as string | undefined
           const behavioralCohort = log.metadata?.behavioralCohort as string | undefined
@@ -1582,7 +1603,6 @@ export const Logs: React.FC = () => {
                     <span className="tabular-nums">{badgeCount}</span>
                   </div>
                 )}
-                <div className="opacity-40">Deep trace confirmed. The map is built from the inside.</div>
               </Block>
             </LogContainer>
           )
@@ -1594,7 +1614,6 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="VITAL:" blockView>
-                <div className="uppercase tracking-widest mb-4">CIRCADIAN VITALITY PEAK</div>
                 {morningMoodCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
                     <span className="opacity-30">MORNING MOOD</span>
@@ -1614,12 +1633,32 @@ export const Logs: React.FC = () => {
                   </div>
                 )}
                 {biorhythmAnchored !== undefined && (
-                  <div className="flex justify-between items-baseline mb-8">
+                  <div className="flex justify-between items-baseline">
                     <span className="opacity-30">BIORHYTHM</span>
                     <span className="tabular-nums">{biorhythmAnchored ? 'ANCHORED' : 'UNANCHORED'}</span>
                   </div>
                 )}
-                <div className="opacity-40">Biological prime window open. 90-minute execution window.</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'longitudinal_drift') {
+          const weeklyScores = log.metadata?.weeklyScores as number[] | undefined
+          const declineStreak = log.metadata?.declineStreak as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DRIFT:" blockView>
+                {weeklyScores && weeklyScores.length > 0 && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">4W ARC</span>
+                    <span className="tabular-nums">{weeklyScores.join(' → ')}</span>
+                  </div>
+                )}
+                {declineStreak !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">DECLINE</span>
+                    <span className="tabular-nums">{declineStreak}w ↓</span>
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )
@@ -1632,38 +1671,85 @@ export const Logs: React.FC = () => {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="SYSTMK:" blockView>
-                <div className="uppercase tracking-widest mb-4">SYSTEMIC THINKING MODE</div>
                 {plannerCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">PLANNER 3D</span>
+                    <span className="opacity-30">PLNR 3D</span>
                     <span className="tabular-nums">{plannerCount}</span>
                   </div>
                 )}
                 {goalsCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">GOALS 3D</span>
+                    <span className="opacity-30">GOAL 3D</span>
                     <span className="tabular-nums">{goalsCount}</span>
                   </div>
                 )}
                 {intentionsCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">INTENTIONS 3D</span>
+                    <span className="opacity-30">INT 3D</span>
                     <span className="tabular-nums">{intentionsCount}</span>
                   </div>
                 )}
                 {structuralDepth !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
-                    <span className="opacity-30">STRUCT DEPTH</span>
+                    <span className="opacity-30">STRUCT</span>
                     <span className="tabular-nums">{structuralDepth}</span>
                   </div>
                 )}
                 {userIndex !== undefined && (
-                  <div className="flex justify-between items-baseline mb-8">
-                    <span className="opacity-30">USER INDEX</span>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">IDX</span>
                     <span className="tabular-nums">{userIndex}/100</span>
                   </div>
                 )}
-                <div className="opacity-40">You are building the structure, not just executing tasks.</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'adaptive_momentum') {
+          const streakDays      = log.metadata?.streakDays      as number | undefined
+          const structuralDepth = log.metadata?.structuralDepth as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ADAPT-MOM:" blockView>
+                {streakDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">STREAK</span>
+                    <span className="tabular-nums">{streakDays}d</span>
+                  </div>
+                )}
+                {structuralDepth !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">STRUCT</span>
+                    <span className="tabular-nums">{structuralDepth}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'vitality_strategy_peak') {
+          const morningMoodCount = log.metadata?.morningMoodCount as number | undefined
+          const structuralDepth  = log.metadata?.structuralDepth  as number | undefined
+          const hour             = log.metadata?.hour             as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="VSTRAT:" blockView>
+                {morningMoodCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MRN MOOD</span>
+                    <span className="tabular-nums">{morningMoodCount}</span>
+                  </div>
+                )}
+                {structuralDepth !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">STRUCT</span>
+                    <span className="tabular-nums">{structuralDepth}</span>
+                  </div>
+                )}
+                {hour !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">HOUR</span>
+                    <span className="tabular-nums">{String(hour).padStart(2, '0')}:00</span>
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )
@@ -2330,7 +2416,7 @@ const NoteEditor = ({
         {scanResult && (
           <div className="mt-8">
             <Block label="SCAN:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
                 {scanResult}
               </div>
             </Block>
@@ -2363,35 +2449,55 @@ const NoteEditor = ({
         {silentResult && (
           <div className="mt-8">
             <Block label="SIL [PROTOCOL]:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{silentResult}</div>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{silentResult}</div>
             </Block>
           </div>
         )}
         {freezeResult && (
           <div className="mt-8">
             <Block label="FREEZE:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{freezeResult}</div>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{freezeResult}</div>
             </Block>
           </div>
         )}
         {fastResult && (
           <div className="mt-8">
             <Block label="FAST:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{fastResult}</div>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{fastResult}</div>
             </Block>
           </div>
         )}
         {physResult && (
           <div className="mt-8">
             <Block label="PHYS:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
             </Block>
           </div>
         )}
         {systemHelp && (
           <div className="mt-8">
             <Block label="SYSTEM:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{systemHelp}</div>
+              <div className="opacity-80" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
+                {systemHelp.split('\n').map((line, idx) => {
+                  if (!line.trim()) return <div key={idx} style={{ height: '0.75rem' }} />
+                  if (line.startsWith('/')) {
+                    const spaceIdx = line.search(/\s{2,}/)
+                    const cmd = spaceIdx > -1 ? line.slice(0, spaceIdx) : line
+                    const desc = spaceIdx > -1 ? line.slice(spaceIdx).trim() : ''
+                    return (
+                      <div key={idx} style={{ display: 'flex', gap: '1.5rem', padding: '3px 0', fontSize: '14px', lineHeight: '1.5' }}>
+                        <span style={{ minWidth: '100px', opacity: 1 }}>{cmd}</span>
+                        <span style={{ opacity: 0.6 }}>{desc}</span>
+                      </div>
+                    )
+                  }
+                  return (
+                    <div key={idx} style={{ fontSize: '11px', letterSpacing: '0.08em', opacity: 0.4, paddingBottom: '4px', paddingTop: idx > 0 ? '12px' : '0' }}>
+                      {line}
+                    </div>
+                  )
+                })}
+              </div>
             </Block>
           </div>
         )}

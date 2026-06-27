@@ -935,6 +935,14 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityPeakCheck()) {
     await executeDailyVitalityPeakCheck()
   }
+  // Check weekly longitudinal drift (Monday 09:00 UTC) — Job 22
+  if (shouldRunWeeklyLongitudinalDriftCheck()) {
+    await executeWeeklyLongitudinalDriftCheck()
+  }
+  // Check daily QOS mode watch (14:00 UTC every day) — Job 23
+  if (shouldRunDailyQOSModeWatch()) {
+    await executeDailyQOSModeWatch()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -2705,6 +2713,268 @@ async function executeDailyVitalityPeakCheck(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly Longitudinal Drift Check (Job 22 — Mondays 09:00 UTC) ─────────────
+// Detects users with declining weekly engagement over 3+ consecutive weeks.
+// Weekly engagement score = days per week with 3+ unique event categories.
+// Writes longitudinal_drift event. Feeds P84 longitudinal-drift pattern.
+
+let isWeeklyLongitudinalDriftRunning = false
+let lastWeeklyLongitudinalDriftRun: Date | null = null
+
+function shouldRunWeeklyLongitudinalDriftCheck(): boolean {
+  const now = dayjs()
+  if (isWeeklyLongitudinalDriftRunning) return false
+  if (lastWeeklyLongitudinalDriftRun) {
+    const lastRun = dayjs(lastWeeklyLongitudinalDriftRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.day() === 1 && now.hour() === 9 // Monday 09:00 UTC
+}
+
+async function executeWeeklyLongitudinalDriftCheck(): Promise<JobResult> {
+  const jobName = 'weekly-longitudinal-drift-check'
+  const executedAt = new Date().toISOString()
+  if (isWeeklyLongitudinalDriftRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isWeeklyLongitudinalDriftRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('WEEKLY LONGITUDINAL DRIFT CHECK — Monday 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const twentyEightDaysAgo = dayjs().subtract(28, 'day').toDate()
+
+    const recentLogs = await Log.findAll({
+      where: { createdAt: { [Op.gte]: twentyEightDaysAgo } },
+      attributes: ['userId', 'event', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    })
+
+    const eventToCategory = (ev: string): string | null => {
+      if (['intention', 'plan_set'].includes(ev)) return 'intentions'
+      if (['emotional_checkin', 'mood_checkin', 'energy_checkin'].includes(ev)) return 'mood'
+      if (['answer', 'memory'].includes(ev)) return 'memory'
+      if (['note', 'journal'].includes(ev)) return 'journal'
+      if (['self_care_complete', 'self_care_completed'].includes(ev)) return 'selfcare'
+      if (['goal_set', 'goal_update', 'goal_complete'].includes(ev)) return 'goals'
+      if (['recipe_viewed'].includes(ev)) return 'recipe'
+      if (['calendar_entry'].includes(ev)) return 'planner'
+      return null
+    }
+
+    // Group: userId → week bucket (0=oldest, 3=most recent) → day → set of categories
+    const now = dayjs()
+    const userWeekDayMap: Record<string, Record<number, Record<string, Set<string>>>> = {}
+
+    for (const l of recentLogs) {
+      const uid = String((l as any).userId)
+      const cat = eventToCategory(l.event)
+      if (!cat) continue
+      const daysAgo = now.diff(dayjs(l.createdAt as any), 'day')
+      const weekIndex = 3 - Math.floor(daysAgo / 7)
+      if (weekIndex < 0 || weekIndex > 3) continue
+      const day = dayjs(l.createdAt as any).format('YYYY-MM-DD')
+      if (!userWeekDayMap[uid]) userWeekDayMap[uid] = {}
+      if (!userWeekDayMap[uid][weekIndex]) userWeekDayMap[uid][weekIndex] = {}
+      if (!userWeekDayMap[uid][weekIndex][day]) userWeekDayMap[uid][weekIndex][day] = new Set()
+      userWeekDayMap[uid][weekIndex][day].add(cat)
+    }
+
+    let written = 0
+    for (const [userId, weekMap] of Object.entries(userWeekDayMap)) {
+      // Weekly engagement score = days with 3+ categories that week
+      const weeklyScores: number[] = [0, 1, 2, 3].map(wi => {
+        if (!weekMap[wi]) return 0
+        return Object.values(weekMap[wi]).filter(s => s.size >= 3).length
+      })
+
+      // Require 3 consecutive declining weeks (oldest → newest)
+      let declineStreak = 0
+      for (let i = 3; i >= 1; i--) {
+        if (weeklyScores[i] < weeklyScores[i - 1]) declineStreak++
+        else break
+      }
+      if (declineStreak < 3) continue
+
+      try {
+        await Log.create({
+          userId: Number(userId),
+          event: 'longitudinal_drift',
+          text: '',
+          metadata: {
+            weeklyScores,
+            declineStreak,
+            window: '28d',
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} longitudinal drift write failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users scanned: ${Object.keys(userWeekDayMap).length}`)
+    console.log(`  Longitudinal drift records written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('WEEKLY LONGITUDINAL DRIFT CHECK COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastWeeklyLongitudinalDriftRun = new Date()
+    isWeeklyLongitudinalDriftRunning = false
+
+    return { jobName, executedAt, success: true, result: { scanned: Object.keys(userWeekDayMap).length, written } }
+  } catch (error: any) {
+    console.error('Weekly longitudinal drift check failed:', error.message)
+    isWeeklyLongitudinalDriftRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily QOS Mode Watch (Job 23 — 14:00 UTC every day) ─────────────────────
+// Derives each user's QOS operating mode from their last 24h of energy/mood signals.
+// Compares to the prior 24h window. Writes qos_mode_change when mode shifts.
+// Metadata: { oldMode, newMode, pressure, date }
+
+let isDailyQOSModeWatchRunning = false
+let lastDailyQOSModeWatchRun: Date | null = null
+
+function shouldRunDailyQOSModeWatch(): boolean {
+  const now = dayjs()
+  if (isDailyQOSModeWatchRunning) return false
+  if (lastDailyQOSModeWatchRun) {
+    const lastRun = dayjs(lastDailyQOSModeWatchRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 14 // 14:00 UTC daily
+}
+
+function deriveQOSModeFromLogs(logs: any[]): { mode: string; pressure: string } {
+  const energyLogs = logs.filter((l: any) =>
+    l.event === 'energy_checkin' || l.event === 'energy_state' || l.event === 'energy_update'
+  )
+  const moodLogs = logs.filter((l: any) =>
+    l.event === 'mood_checkin' || l.event === 'emotional_checkin'
+  )
+
+  let depleted = false
+  let low = false
+  for (const l of energyLogs) {
+    const meta = (l.metadata as any) || {}
+    const val = meta.energy ?? meta.energyLevel ?? meta.level ?? meta.value
+    if (val === 'depleted' || val === 'critical' || (typeof val === 'number' && val <= 1)) {
+      depleted = true
+    } else if (val === 'low' || (typeof val === 'number' && val <= 3)) {
+      low = true
+    }
+  }
+
+  const negativeMoods = ['exhausted', 'overwhelmed', 'anxious', 'restless', 'uncertain', 'tired']
+  const lowMoodSignals = moodLogs.filter((l: any) => {
+    const meta = (l.metadata as any) || {}
+    const mood = meta.mood ?? meta.emotionalState ?? meta.state
+    return mood && negativeMoods.includes(String(mood))
+  }).length
+
+  if (depleted || (low && lowMoodSignals >= 2)) {
+    return { mode: 'critical', pressure: depleted ? 'depleted energy' : 'low energy + mood cascade' }
+  }
+  if (low || lowMoodSignals >= 1) {
+    return { mode: 'recovery', pressure: low ? 'low energy' : 'low mood signal' }
+  }
+  return { mode: 'nominal', pressure: 'system stable' }
+}
+
+async function executeDailyQOSModeWatch(): Promise<JobResult> {
+  const jobName = 'daily-qos-mode-watch'
+  const executedAt = new Date().toISOString()
+  if (isDailyQOSModeWatchRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyQOSModeWatchRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY QOS MODE WATCH — 14:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const twoDaysAgo = dayjs().subtract(48, 'hour').toDate()
+
+    const SIGNAL_EVENTS = [
+      'energy_checkin', 'energy_state', 'energy_update',
+      'mood_checkin', 'emotional_checkin',
+    ] as const
+
+    // Fetch last 48h of energy/mood signals for all users
+    const allLogs = await Log.findAll({
+      where: {
+        createdAt: { [Op.gte]: twoDaysAgo },
+        event: { [Op.in]: [...SIGNAL_EVENTS] as any[] },
+      },
+      attributes: ['userId', 'event', 'metadata', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    })
+
+    // Split into today vs yesterday windows per user
+    const byUser: Record<string, { today: any[]; yesterday: any[] }> = {}
+    for (const l of allLogs) {
+      const uid = String((l as any).userId)
+      if (!byUser[uid]) byUser[uid] = { today: [], yesterday: [] }
+      const ts = new Date(l.createdAt as any)
+      if (ts >= oneDayAgo) byUser[uid].today.push(l)
+      else byUser[uid].yesterday.push(l)
+    }
+
+    let written = 0
+    for (const [userId, windows] of Object.entries(byUser)) {
+      if (windows.today.length === 0 || windows.yesterday.length === 0) continue
+      const current = deriveQOSModeFromLogs(windows.today)
+      const prior = deriveQOSModeFromLogs(windows.yesterday)
+      if (current.mode === prior.mode) continue
+
+      try {
+        await Log.create({
+          userId: Number(userId),
+          event: 'qos_mode_change',
+          text: '',
+          metadata: {
+            oldMode: prior.mode,
+            newMode: current.mode,
+            pressure: current.mode !== 'nominal' ? current.pressure : prior.pressure,
+            date: dayjs().format('YYYY-MM-DD'),
+          },
+        } as any)
+        written++
+        console.log(`  [${userId}] QOS MODE: ${prior.mode} → ${current.mode} (${current.pressure})`)
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} QOS mode watch write failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users with signal pairs: ${Object.keys(byUser).length}`)
+    console.log(`  Mode transitions written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('DAILY QOS MODE WATCH COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyQOSModeWatchRun = new Date()
+    isDailyQOSModeWatchRunning = false
+
+    return { jobName, executedAt, success: true, result: { scanned: Object.keys(byUser).length, written } }
+  } catch (error: any) {
+    console.error('Daily QOS mode watch failed:', error.message)
+    isDailyQOSModeWatchRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -2741,6 +3011,8 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily signal momentum check: 8 PM UTC every day')
   console.log('   - Weekly cognitive depth check: 6 AM UTC every Sunday')
   console.log('   - Daily vitality peak check: 12 PM UTC every day')
+  console.log('   - Weekly longitudinal drift check: 9 AM UTC every Monday')
+  console.log('   - Daily QOS mode watch: 2 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -2750,8 +3022,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

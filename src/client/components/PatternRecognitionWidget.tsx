@@ -113,6 +113,9 @@ export function PatternRecognitionWidget() {
       'evening-coherence-close':    'Evening coherence close — day closed in reflection',
       'circadian-vitality-peak':    'Circadian vitality peak — biological prime window open',
       'systemic-thinking-mode':     'Systemic thinking mode — structural cognition active',
+      'longitudinal-drift':         'Longitudinal drift — engagement density declining',
+      'adaptive-momentum-window':   'Adaptive momentum window — strategy active during streak',
+      'vitality-strategy-peak':     'Vitality strategy peak — biology + strategy aligned',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -394,10 +397,31 @@ export function PatternRecognitionWidget() {
                 </div>
               )}
 
-              {/* Systemic thinking mode indicator — surfaces when pattern P83 is active */}
+              {/* Systemic thinking mode — P83 */}
               {patterns.some(p => p.pattern === 'systemic-thinking-mode') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
-                  Systemic cognition confirmed. You are building the structure.
+                  Structural cognition active.
+                </div>
+              )}
+
+              {/* Longitudinal drift — P84 client-side early warning */}
+              {patterns.some(p => p.pattern === 'longitudinal-drift') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Drift detected. Re-engage.
+                </div>
+              )}
+
+              {/* Adaptive momentum window — P85 */}
+              {patterns.some(p => p.pattern === 'adaptive-momentum-window') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Strategy + momentum aligned.
+                </div>
+              )}
+
+              {/* Vitality strategy peak — P86 */}
+              {patterns.some(p => p.pattern === 'vitality-strategy-peak') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Biology + strategy peak. Execute.
                 </div>
               )}
 

@@ -1066,6 +1066,12 @@ export default async (fastify: FastifyInstance) => {
       // v69: vitality peak (Job 21 output) + systemic thinking mode
       'vitality_peak',
       'systemic_thinking',
+      // v71: longitudinal drift (Job 22 output) + QOS mode change (Job 23 output)
+      'longitudinal_drift',
+      'qos_mode_change',
+      // v72: adaptive momentum window + vitality strategy peak
+      'adaptive_momentum',
+      'vitality_strategy_peak',
       // Story generation
       'generated_story',
     ]

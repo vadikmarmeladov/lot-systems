@@ -57,3 +57,7 @@ ID             | CLASS        | SUMMARY                                         
 20260623-01    | ENGINEERING  | Badge engine v16+v17 — 70 new badges wired · Mainframe Awakening · WORD_TURNS 58→82 · v17 codex + PDF · 319 total badges | GREEN  | e9cb289  | WORDS: 580 (median 495)
 20260623-02    | SELF-ASSEMBLY| QIE v69 — P82/P83 · Arch28 Vital Architect · Job21 12:00 UTC · VITAL:/SYSTMK: handlers · dep map 122+ · 83 patterns · 28 archetypes · 21 jobs | GREEN  | 09e0d451  | WORDS: 620 (median 495)
 20260624-03    | ENGINEERING  | Error page + About separation — static error.html · standalone About template · server error redirect | GREEN  | eae9481  | WORDS: 310 (median 395)
+20260625-01    | ENGINEERING  | Badge Codex v19 — Quantum Protocol · +35 badges (354→389) · 10th word-turn engine · PDF · tsconfig TS6 fix | GREEN  | 92254ce | WORDS: 449 (median 449)
+20260625-02    | SELF-ASSEMBLY| QIE P84 longitudinal-drift (Job 22) + OS [MODE]: qos_mode_change handler (Job 23) | GREEN  | 54b71fb  | WORDS: 422 (median 422)
+20260625-03    | SELF-ASSEMBLY| QIE v72 — P84 longitudinal-drift (client) · P85 adaptive-momentum · P86 vitality-strategy-peak · Arch29 Peak Strategist · COCKPIT-RULE pass · dep map 126+ · 86 patterns | GREEN  | 0d8985d  | WORDS: 612 (median 495)
+20260627-01    | WIKI-BUILD   | LOT-WIKI-v66 · FM v73 · 27 sections · cohort profiles (6) · Word Turn Lexicon v10 (126 triggers) · Vocab Index 40+ · About.tsx Day 1023+ | GREEN  | e074756  | WORDS: 680 (median 540)

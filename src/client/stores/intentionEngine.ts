@@ -1956,6 +1956,7 @@ export function analyzeIntentions(): IntentionPattern[] {
   const p83NoDepletion      = !patterns.some(p =>
     ['physiological-depletion', 'sleep-debt-accumulation', 'recovery-plateau', 'signal-silence'].includes(p.pattern)
   )
+  const p83StructuralDepth = p83PlannerSignals.length + p83GoalsSignals.length + p83IntentionSignals.length
   if (
     p83PlannerSignals.length >= 3 &&
     p83GoalsSignals.length >= 3 &&
@@ -1963,13 +1964,62 @@ export function analyzeIntentions(): IntentionPattern[] {
     p83UserIndex.overall >= 50 &&
     p83NoDepletion
   ) {
-    const p83StructuralDepth = p83PlannerSignals.length + p83GoalsSignals.length + p83IntentionSignals.length
     patterns.push({
       pattern: 'systemic-thinking-mode',
       confidence: Math.min(0.68 + (p83StructuralDepth - 9) * 0.03 + (p83UserIndex.overall - 50) * 0.004, 0.92),
       suggestedWidget: 'systemProgress',
       suggestedTiming: 'passive',
       reason: `SYSTEMIC THINKING MODE: Planner ${p83PlannerSignals.length} · Goals ${p83GoalsSignals.length} · Intentions ${p83IntentionSignals.length} signals in 3d. UserIndex ${p83UserIndex.overall}/100. No depletion signals. You are building the structure, not just executing tasks.`,
+    })
+  }
+
+  // Pattern 84: Longitudinal drift — client-side detection of declining signal density.
+  // Compares 3-day engagement buckets within the 7-day local signal window.
+  // Distinct from the server-side Job 22 (4-week scan): this is the near-term early warning.
+  // Fires when recent 3 days have ≤50% of the prior 3-day signal count AND ≥3 signals existed
+  // in the prior window (filters false positives when the user is new).
+  const p84ThreeDaysAgo = now - 3 * 24 * 60 * 60 * 1000
+  const p84SixDaysAgo   = now - 6 * 24 * 60 * 60 * 1000
+  const p84Recent3d = signals.filter(s => s.timestamp > p84ThreeDaysAgo).length
+  const p84Prior3d  = signals.filter(s => s.timestamp > p84SixDaysAgo && s.timestamp <= p84ThreeDaysAgo).length
+  if (p84Prior3d >= 3 && p84Recent3d <= Math.floor(p84Prior3d * 0.5)) {
+    const declineRate = p84Prior3d > 0 ? 1 - (p84Recent3d / p84Prior3d) : 1
+    patterns.push({
+      pattern: 'longitudinal-drift',
+      confidence: Math.min(0.55 + declineRate * 0.25, 0.80),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'soon',
+      reason: `LONGITUDINAL DRIFT: Signal density down ${Math.round(declineRate * 100)}% vs prior 3 days (${p84Recent3d} vs ${p84Prior3d} signals). Early engagement decline. Re-engage a dormant module.`,
+    })
+  }
+
+  // Pattern 85: Adaptive momentum window — systemic-thinking-mode AND signal-momentum-lock
+  // both active in the same analysis window. Strategic structural cognition is firing
+  // during a period of sustained multi-day engagement. The builder has momentum AND a plan.
+  const p85HasSystemicThinking = patterns.some(p => p.pattern === 'systemic-thinking-mode')
+  const p85HasMomentumLock     = patterns.some(p => p.pattern === 'signal-momentum-lock')
+  if (p85HasSystemicThinking && p85HasMomentumLock) {
+    patterns.push({
+      pattern: 'adaptive-momentum-window',
+      confidence: Math.min(0.75 + (p83StructuralDepth > 9 ? (p83StructuralDepth - 9) * 0.02 : 0), 0.90),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `ADAPTIVE MOMENTUM WINDOW: Systemic thinking active during sustained engagement streak. Strategic cognition confirmed across a multi-day signal run. The architecture is building with continuity.`,
+    })
+  }
+
+  // Pattern 86: Vitality strategy peak — circadian-vitality-peak AND systemic-thinking-mode
+  // both fire in same analysis window. The biological prime window open AND structural
+  // cognitive mode active simultaneously — the optimal design and execution window.
+  const p86HasVitalityPeak     = patterns.some(p => p.pattern === 'circadian-vitality-peak')
+  const p86HasSystemicThinking = patterns.some(p => p.pattern === 'systemic-thinking-mode')
+  if (p86HasVitalityPeak && p86HasSystemicThinking) {
+    patterns.push({
+      pattern: 'vitality-strategy-peak',
+      confidence: Math.min(0.78 + (p82PositiveMoodsEarly.length - 2) * 0.05, 0.92),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'immediate',
+      reason: `VITALITY STRATEGY PEAK: Biological prime window confirmed + structural cognition active. Biology and strategy aligned. This is the highest-capacity design window. Anchor decisions made here.`,
     })
   }
 
@@ -2496,6 +2546,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Vitality + systemic intelligence monitors (2026-06-23 audit)
   vitalityMonitor:       ['mood', 'energy', 'selfcare', 'log', 'cohort'],
   systemicThinker:       ['planner', 'goals', 'intentions', 'memory', 'journal'],
+
+  // ── Drift + mode-change + peak-state monitors (2026-06-25 audit)
+  longitudinalDriftMonitor: ['log', 'energy', 'mood', 'selfcare', 'memory', 'planner'],
+  qosModeWatcher:           ['energy', 'mood', 'log', 'selfcare'],
+  adaptiveMomentumNode:     ['planner', 'intentions', 'goals', 'memory', 'selfcare', 'log'],
+  vitalityStrategyNode:     ['mood', 'energy', 'selfcare', 'planner', 'intentions', 'log'],
 }
 
 /**
@@ -2759,6 +2815,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'mood'],
     patternConditions: ['circadian-vitality-peak', 'morning-coherence-launch', 'biorhythm-lock'],
     directive: 'Biological prime window open. High-energy structural cognition confirmed. Planner + intentions aligned. Use this window — design, build, decide. Cortisol plateau approaching.',
+  },
+  {
+    archetype: 'Peak Strategist',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['planner', 'intentions', 'goals'],
+    patternConditions: ['vitality-strategy-peak', 'adaptive-momentum-window', 'systemic-thinking-mode'],
+    directive: 'Biology aligned with strategy. Prime window open during sustained momentum streak. The architecture is building itself — commit fully, decide fast, record everything.',
   },
 ]
 
@@ -3778,5 +3841,31 @@ export function recordSystemicThinkingMode(plannerCount: number, goalsCount: num
     userIndex,
     structuralDepth: plannerCount + goalsCount + intentionsCount,
     window: '3d',
+  })
+}
+
+/**
+ * Record an adaptive-momentum-window event — systemic-thinking-mode active during
+ * a sustained signal-momentum-lock streak. Feeds P85 detection.
+ */
+export function recordAdaptiveMomentumWindow(streakDays: number, structuralDepth: number) {
+  recordSignal('planner', 'adaptive_momentum', {
+    streakDays,
+    structuralDepth,
+    window: '48h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a vitality-strategy-peak event — circadian-vitality-peak + systemic-thinking-mode
+ * simultaneously active. Feeds P86 detection. The optimal design + execution window.
+ */
+export function recordVitalityStrategyPeak(morningMoodCount: number, structuralDepth: number) {
+  recordSignal('energy', 'vitality_strategy_peak', {
+    morningMoodCount,
+    structuralDepth,
+    window: '24h',
+    hour: new Date().getHours(),
   })
 }
