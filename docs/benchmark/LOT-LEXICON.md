@@ -40,4 +40,6 @@ EVE:               Evening Coherence Close — log block label for evening-coher
 DIURNAL ARC        P76→P79→P80 behavioral arc: morning launch → evening close → sustained momentum lock     B  20260621
 MOM:               Momentum Lock — log block label for signal_momentum events (5+ days, 3+ sources)         B  20260621
 MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
+SOUL SIGNAL        4-channel extraction (return frequency, stress vector, silence pattern, language register) defining a subscriber's being texture for ENGINE-2 upload  A  20260627
+HUMANOID OUTPUT    7-register output grammar (grace/poetry/love/hugs/being there/cool/male) produced when being upload reaches Phase 3+ coherence                       A  20260627
 ```
