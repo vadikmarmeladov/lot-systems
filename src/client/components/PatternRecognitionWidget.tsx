@@ -116,6 +116,8 @@ export function PatternRecognitionWidget() {
       'longitudinal-drift':         'Longitudinal drift — engagement density declining',
       'adaptive-momentum-window':   'Adaptive momentum window — strategy active during streak',
       'vitality-strategy-peak':     'Vitality strategy peak — biology + strategy aligned',
+      'weekly-story-reflection':    'Weekly story reflection — arc received and journaled',
+      'contextual-checkin-momentum':'Contextual check-in momentum — high-frequency positive signal',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -422,6 +424,20 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'vitality-strategy-peak') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Biology + strategy peak. Execute.
+                </div>
+              )}
+
+              {/* Weekly story reflection — P87 */}
+              {patterns.some(p => p.pattern === 'weekly-story-reflection') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Arc received. Reflection loop closed.
+                </div>
+              )}
+
+              {/* Contextual check-in momentum — P88 */}
+              {patterns.some(p => p.pattern === 'contextual-checkin-momentum') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  High-frequency signal. Positive valence.
                 </div>
               )}
 

@@ -1001,6 +1001,117 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Archetype Directive Pulse (Job 25 — 09:00 UTC every day) ─────────
+// Reads each active user's current archetype and writes an archetype_directive_pulse
+// log event with the day's operating directive. Fires at 09:00 UTC daily — the
+// beginning of the cognitive prime window for most operators. Distinct from
+// Job 10 (archetype shift monitor): shift monitors for archetype changes over 7d;
+// this pulse delivers the current archetype's directive each morning as an
+// actionable instrument reading. The DRCT: block surfaces it in the LOG.
+
+let isDailyArchetypeDirectivePulseRunning = false
+let lastDailyArchetypeDirectivePulseRun: Date | null = null
+
+function shouldRunDailyArchetypeDirectivePulse(): boolean {
+  const now = dayjs()
+  if (isDailyArchetypeDirectivePulseRunning) return false
+  if (lastDailyArchetypeDirectivePulseRun) {
+    const lastRun = dayjs(lastDailyArchetypeDirectivePulseRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 9 // 09:00 UTC daily
+}
+
+async function executeDailyArchetypeDirectivePulse(): Promise<JobResult> {
+  const jobName = 'daily-archetype-directive-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyArchetypeDirectivePulseRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyArchetypeDirectivePulseRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY ARCHETYPE DIRECTIVE PULSE — 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { $gte: oneDayAgo } as any },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    // Archetype directive map — compressed operating directives per archetype
+    const ARCHETYPE_DIRECTIVES: Record<string, { label: string; directive: string }> = {
+      'Relentless Builder':       { label: 'BUILD',    directive: 'Build without waiting for perfect conditions. Progress is the feedback.' },
+      'Resilient Protector':      { label: 'HOLD',     directive: 'Stability is not stagnation. Anchor others by anchoring yourself.' },
+      'Adaptive Navigator':       { label: 'ADAPT',    directive: 'The path shifts. Lock the destination, release the route.' },
+      'Quiet Achiever':           { label: 'EXECUTE',  directive: 'Depth over display. One completed thing outweighs ten announced.' },
+      'Visionary Connector':      { label: 'BRIDGE',   directive: 'The idea needs a listener. Make the connection today.' },
+      'Grounded Strategist':      { label: 'ANCHOR',   directive: 'Strategy without ground truth is noise. Read the real data.' },
+      'Energized Innovator':      { label: 'SPARK',    directive: 'Energy is the signal. Follow the pull, record the output.' },
+      'Reflective Observer':      { label: 'OBSERVE',  directive: 'Pattern recognition requires stillness. Observe before acting.' },
+      'Systematic Optimizer':     { label: 'OPTIMIZE', directive: 'One constraint removed today compounds for a year.' },
+      'Dynamic Challenger':       { label: 'PUSH',     directive: 'Resistance is the weight room. Enter it voluntarily.' },
+      'Empathetic Catalyst':      { label: 'MOVE',     directive: 'Your attention moves things. Point it where it matters.' },
+      'Precision Executor':       { label: 'PRECISE',  directive: 'The margin is in the detail. Eliminate the approximation.' },
+      'Integrative Thinker':      { label: 'CONNECT',  directive: 'The answer is usually in the gap between two fields.' },
+      'Momentum Builder':         { label: 'CONTINUE', directive: 'Streak is infrastructure. Protect it.' },
+      'Focused Achiever':         { label: 'LOCK',     directive: 'Single target. Full force. Today is not a day for optionality.' },
+      'Coherence Architect':      { label: 'ALIGN',    directive: 'Align one system today. The rest follows.' },
+      'Signal Amplifier':         { label: 'AMPLIFY',  directive: 'Surface what is working. Repeat it deliberately.' },
+      'Sovereign Operator':       { label: 'OPERATE',  directive: 'The system is you. Run it with intention.' },
+      'Structural Architect':     { label: 'FRAME',    directive: 'Good structure carries more than any single decision.' },
+      'Quantum Catalyst':         { label: 'CATALYZE', directive: 'State transition is available. Commit to the new configuration.' },
+      'Flow State Engineer':      { label: 'FLOW',     directive: 'Remove the one friction point. Flow does the rest.' },
+      'Temporal Strategist':      { label: 'TIME',     directive: 'Match the task to the window. Timing is leverage.' },
+      'Pattern Synthesizer':      { label: 'SYNTH',    directive: 'Two patterns converging is a signal. Act on the intersection.' },
+      'Evolutionary Operator':    { label: 'EVOLVE',   directive: 'The current configuration is not the final configuration. Update.' },
+      'Vital Force Carrier':      { label: 'VITALIZE', directive: 'Energy maintained is energy compounded. Protect the source.' },
+      'Resonance Field Builder':  { label: 'RESONATE', directive: 'The signal you broadcast is the environment you create.' },
+      'Deep Signal Reader':       { label: 'READ',     directive: 'The body is already reporting. Listen before acting.' },
+      'Crystalline Intelligence': { label: 'CLARIFY',  directive: 'Precision removes friction faster than speed ever will.' },
+      'Peak Strategist':          { label: 'PEAK',     directive: 'Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.' },
+    }
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const meta = (user as any).metadata as any || {}
+        const archetype = meta.currentArchetype as string | undefined
+        if (!archetype) continue
+        const entry = ARCHETYPE_DIRECTIVES[archetype]
+        if (!entry) continue
+        await (Log as any).create({
+          userId: (user as any).id,
+          event: 'archetype_directive_pulse',
+          text: entry.directive,
+          metadata: {
+            archetype,
+            label: entry.label,
+            directive: entry.directive,
+            hour: 9,
+          },
+        })
+        written++
+      } catch (_) {}
+    }
+
+    console.log(`ARCHETYPE DIRECTIVE PULSE COMPLETE — ${written} directives written`)
+    console.log('─'.repeat(60))
+
+    lastDailyArchetypeDirectivePulseRun = new Date()
+    isDailyArchetypeDirectivePulseRunning = false
+    return { jobName, executedAt, success: true, result: { written } }
+  } catch (error: any) {
+    console.error('Daily archetype directive pulse failed:', error.message)
+    isDailyArchetypeDirectivePulseRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -1117,6 +1228,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check weekly LOT AI story generation (Sunday 18:00 UTC) — Job 24
   if (shouldRunWeeklyLOTAIStory()) {
     await executeWeeklyLOTAIStory()
+  }
+  // Check daily archetype directive pulse (09:00 UTC every day) — Job 25
+  if (shouldRunDailyArchetypeDirectivePulse()) {
+    await executeDailyArchetypeDirectivePulse()
   }
 }
 
@@ -3189,6 +3304,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly longitudinal drift check: 9 AM UTC every Monday')
   console.log('   - Daily QOS mode watch: 2 PM UTC every day')
   console.log('   - Weekly LOT® AI story generation: 6 PM UTC every Sunday')
+  console.log('   - Daily archetype directive pulse: 9 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -3198,7 +3314,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 18 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

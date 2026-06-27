@@ -967,6 +967,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v72 entry appended · USERSHIP_TRANSMISSION updated to v72.',
     ],
   },
+  {
+    date: '2026-06-27',
+    session: 'Self-Assembly Session — v74 / P87 Weekly Story Reflection · P88 Contextual Check-in Momentum · Job 25 Archetype Directive Pulse · STORY: + DRCT: log handlers · Backend Whitelist Hygiene (lot_ai_story + archetype_directive_pulse)',
+    assembled: [
+      'intentionEngine.ts: P87 weekly-story-reflection — fires when lot_ai_story signal in log + journal entry within 24h. Reflection loop closed. Operator is processing own pattern record. Conf 0.72. suggestedWidget: systemProgress, timing: passive.',
+      'intentionEngine.ts: P88 contextual-checkin-momentum — fires when 3+ emotional check-ins in 24h with ≥50% positive valence. High-frequency self-tracking + net-forward tone. Conf 0.65–0.85. suggestedWidget: energy, timing: passive.',
+      'intentionEngine.ts: recordWeeklyStoryReflection() + recordContextualCheckinMomentum() signal helpers added.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 2 new nodes: weeklyStoryNode (log+journal+energy+mood+selfcare+intentions) · contextualCheckinNode (energy+mood+log). 128+ dep nodes total.',
+      'scheduled-jobs.ts: Job 25 daily-archetype-directive-pulse — 09:00 UTC daily. Reads currentArchetype per user from metadata. 29-entry archetype directive map (LABEL + directive per archetype). Writes archetype_directive_pulse event. Guard: once per day, skip if running.',
+      'Logs.tsx: STORY: handler — renders lot_ai_story: W{weekNumber} headline + TONE/MOOD/CHK/CARE/INTENT data rows. COCKPIT-RULE compliant. Military format, no prose.',
+      'Logs.tsx: DRCT: handler — renders archetype_directive_pulse: label + ARCH row + directive text. 87+ handlers total.',
+      'PatternRecognitionWidget.tsx: 2 pattern display names (weekly-story-reflection · contextual-checkin-momentum). 2 QOS Trend indicators (Arc received/Reflection loop closed · High-frequency signal/Positive valence).',
+      'routes/api.ts: lot_ai_story + archetype_directive_pulse added to displayableEvents (v73 block). Closes Backend Whitelist Hygiene gap for Job 24 and Job 25 outputs.',
+      'About.tsx: Field Manual v74. Counters: 88 patterns · 29 archetypes · 25 background jobs · 87+ log handlers · 128+ dep nodes.',
+      'SESSION_REPORTS: v74 entry appended · USERSHIP_TRANSMISSION updated to v74.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1004,16 +1021,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-25',
+  date: '2026-06-27',
   message: [
-    'ASSEMBLY RUN — 2026-06-25 · LOT-SR-20260625-03',
-    'P84 longitudinal-drift (client): 3-day bucket comparison. Recent 3d vs prior 3d signal density. ≤50% → early engagement decline detected. Conf 0.55–0.80. Fires before the 28-day server arc catches it.',
-    'P85 adaptive-momentum-window: fires when systemic-thinking-mode + signal-momentum-lock both active. Sustained engagement streak during structural cognition. Strategy is running at full capacity. Conf 0.75–0.90.',
-    'P86 vitality-strategy-peak: fires when circadian-vitality-peak + systemic-thinking-mode both active. Biology aligned with strategy. Prime execution window. Suggests memory widget, immediate timing. Conf 0.78–0.92.',
-    'Archetype 29 Peak Strategist: high/moderate energy · planner+intentions+goals · vitality-strategy-peak+adaptive-momentum-window+systemic-thinking-mode. Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.',
-    'COCKPIT-RULE military pass: 5 existing handlers stripped of verbose prose — OS [MODE]: · VITAL: · DRIFT: · SYSTMK: · COGN:. Data rows only. Log surface is now fully military.',
-    'ADAPT-MOM: + VSTRAT: handlers deployed. adaptive_momentum + vitality_strategy_peak surfaced in displayableEvents.',
-    'Dep map: 126+ nodes. 86 patterns active. 85+ log handlers. 23 background jobs. 29 archetypes.',
+    'ASSEMBLY RUN — 2026-06-27 · LOT-SR-20260627-02',
+    'P87 weekly-story-reflection: lot_ai_story received + journal within 24h → reflection loop closed. Conf 0.72.',
+    'P88 contextual-checkin-momentum: 3+ check-ins 24h ≥50% positive → high-frequency self-tracking confirmed. Conf 0.65–0.85.',
+    'Job 25 daily-archetype-directive-pulse: 09:00 UTC daily. 29 archetype directives. DRCT: block. archetype_directive_pulse event written per user.',
+    'STORY: handler deployed (lot_ai_story: W{n} TONE MOOD CHK CARE INTENT). DRCT: handler deployed (archetype_directive_pulse: label+arch+directive).',
+    'Backend Whitelist Hygiene: lot_ai_story + archetype_directive_pulse added to displayableEvents. Both Job 24 and Job 25 outputs now surface in LOG.',
+    'Dep map: 128+ nodes. 88 patterns active. 87+ log handlers. 25 background jobs. 29 archetypes.',
     'DEPLOYED.',
   ],
 }

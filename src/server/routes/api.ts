@@ -1073,8 +1073,9 @@ export default async (fastify: FastifyInstance) => {
       // v72: adaptive momentum window + vitality strategy peak
       'adaptive_momentum',
       'vitality_strategy_peak',
-      // Story generation
-      'generated_story',
+      // v73: weekly LOT® AI story (Job 24 output) + archetype directive pulse (Job 25 output)
+      'lot_ai_story',
+      'archetype_directive_pulse',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

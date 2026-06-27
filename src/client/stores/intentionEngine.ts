@@ -2023,6 +2023,40 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 87: Weekly story reflection — lot_ai_story log exists for this week AND
+  // operator journaled (note/journal) within 24h. The operator read their own arc
+  // and responded in writing. Reflection loop closed.
+  const p87StorySignal = signals.find(s => s.source === 'log' && s.signal === 'lot_ai_story')
+  const p87JournalRecent = signals.filter(s => s.source === 'journal' && now - s.timestamp < 24 * 60 * 60 * 1000)
+  if (p87StorySignal && p87JournalRecent.length >= 1) {
+    patterns.push({
+      pattern: 'weekly-story-reflection',
+      confidence: 0.72,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `WEEKLY STORY REFLECTION: Weekly arc delivered + journal entry within 24h. Reflection loop closed. Operator is processing their own pattern record.`,
+    })
+  }
+
+  // Pattern 88: Contextual check-in momentum — 3+ emotional_checkins in 24h with ≥50% positive.
+  // High-frequency self-reporting with net-positive valence. The system is being used
+  // as intended: frequent micro-reads of internal state, signal density rising, tone net-forward.
+  const p88Checkins24h = signals.filter(s => s.source === 'energy' && now - s.timestamp < 24 * 60 * 60 * 1000)
+  const p88Positive = p88Checkins24h.filter(s => {
+    const POSITIVE = new Set(['energized', 'calm', 'hopeful', 'grateful', 'fulfilled', 'content', 'peaceful', 'excited', 'grounded', 'focused', 'flowing', 'steady'])
+    return POSITIVE.has(s.signal)
+  })
+  if (p88Checkins24h.length >= 3 && p88Positive.length >= Math.ceil(p88Checkins24h.length * 0.5)) {
+    const positiveRate = p88Positive.length / p88Checkins24h.length
+    patterns.push({
+      pattern: 'contextual-checkin-momentum',
+      confidence: Math.min(0.65 + positiveRate * 0.20, 0.85),
+      suggestedWidget: 'energy',
+      suggestedTiming: 'passive',
+      reason: `CONTEXTUAL CHECK-IN MOMENTUM: ${p88Checkins24h.length} check-ins in 24h, ${Math.round(positiveRate * 100)}% positive. High-frequency self-tracking with net-forward valence. Signal density healthy.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2552,6 +2586,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   qosModeWatcher:           ['energy', 'mood', 'log', 'selfcare'],
   adaptiveMomentumNode:     ['planner', 'intentions', 'goals', 'memory', 'selfcare', 'log'],
   vitalityStrategyNode:     ['mood', 'energy', 'selfcare', 'planner', 'intentions', 'log'],
+
+  // ── Weekly arc + check-in flow monitors (2026-06-27 audit)
+  weeklyStoryNode:          ['log', 'journal', 'energy', 'mood', 'selfcare', 'intentions'],
+  contextualCheckinNode:    ['energy', 'mood', 'log'],
 }
 
 /**
@@ -3865,6 +3903,32 @@ export function recordVitalityStrategyPeak(morningMoodCount: number, structuralD
   recordSignal('energy', 'vitality_strategy_peak', {
     morningMoodCount,
     structuralDepth,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a weekly-story-reflection signal — operator journaled within 24h of receiving
+ * their weekly lot_ai_story. Feeds P87 detection. Reflection loop closed.
+ */
+export function recordWeeklyStoryReflection(weekNumber: number, weekTone: string) {
+  recordSignal('log', 'lot_ai_story', {
+    weekNumber,
+    weekTone,
+    reflected: true,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a contextual check-in momentum signal — 3+ emotional check-ins in 24h
+ * with net-positive valence. Feeds P88 detection. High-frequency self-tracking.
+ */
+export function recordContextualCheckinMomentum(checkinCount: number, positiveRate: number) {
+  recordSignal('energy', 'checkin_momentum', {
+    checkinCount,
+    positiveRate: Math.round(positiveRate * 100),
     window: '24h',
     hour: new Date().getHours(),
   })

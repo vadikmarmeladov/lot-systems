@@ -1301,6 +1301,28 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'archetype_directive_pulse') {
+          const archetype = log.metadata?.archetype as string | undefined
+          const label     = log.metadata?.label     as string | undefined
+          const directive = log.metadata?.directive  as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DRCT:" blockView>
+                {label && (
+                  <div className="uppercase tracking-widest mb-4">{label}</div>
+                )}
+                {archetype && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARCH</span>
+                    <span className="uppercase">{archetype}</span>
+                  </div>
+                )}
+                {directive && (
+                  <div className="mt-4 opacity-60 text-xs leading-relaxed">{directive}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'intention_completion') {
           const completed = log.metadata?.completed as number | undefined
           const total = log.metadata?.total as number | undefined
@@ -1773,6 +1795,52 @@ export const Logs: React.FC = () => {
                   <div className="flex justify-between items-baseline">
                     <span className="opacity-30">HOUR</span>
                     <span className="tabular-nums">{String(hour).padStart(2, '0')}:00</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'lot_ai_story') {
+          const weekNumber    = log.metadata?.weekNumber    as number | undefined
+          const weekTone      = log.metadata?.weekTone      as string | undefined
+          const dominantMood  = log.metadata?.dominantMood  as string | undefined
+          const checkinsCount = log.metadata?.checkinsCount as number | undefined
+          const selfCareCount = log.metadata?.selfCareCount as number | undefined
+          const intentionsCount = log.metadata?.intentionsCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="STORY:" blockView>
+                {weekNumber !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">W{weekNumber}</div>
+                )}
+                {weekTone && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TONE</span>
+                    <span className="uppercase">{weekTone}</span>
+                  </div>
+                )}
+                {dominantMood && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MOOD</span>
+                    <span className="uppercase">{dominantMood}</span>
+                  </div>
+                )}
+                {checkinsCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CHK</span>
+                    <span className="tabular-nums">{checkinsCount}</span>
+                  </div>
+                )}
+                {selfCareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfCareCount}</span>
+                  </div>
+                )}
+                {intentionsCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums">{intentionsCount}</span>
                   </div>
                 )}
               </Block>
