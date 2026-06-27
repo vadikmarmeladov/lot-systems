@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev K
+# LOT-DOCTRINE  rev L
 
 ## Render Isolation
 
@@ -154,3 +154,28 @@ queries replaced with single batched IN query. user-stats 4 sequential queries
 parallelized. chat-messages users+likes parallelized. cohort limited to 200.
 Client: 3 redundant analyzeIntentions() calls removed — already has 5-min
 cooldown at intentionEngine.ts:231.)
+
+## Master-Authoritative Files (WIKI-GUARD)
+
+Certain files are updated continuously on master by standing routines (wiki
+sessions, field manual iterations, ledger appends). Feature branches cut before
+those updates carry stale versions of these files. During any cherry-pick or
+branch merge, these files must be restored from master before committing —
+never from the branch, regardless of how recent the branch appears:
+
+  src/client/components/About.tsx       — live /about page; updated by every
+                                          wiki session. Branch versions are
+                                          always older than master.
+  docs/benchmark/LOT-LEDGER.md         — append-only chronicle; branch copies
+                                          are snapshots, not current truth.
+  docs/benchmark/LOT-MANIFEST.md       — session-managed; branch copies diverge.
+
+Restore command during any merge:
+  git restore --staged -- <file>
+  git restore -- <file>
+
+docs/wiki/LOT-WIKI-v*.md and docs/assembly/ are inherently safe: each session
+creates a new numbered file; old files are never modified. No restore needed.
+
+The rule: wiki archives are additive and safe. About.tsx is master-authoritative.
+(Manifest §06 Sunday Protocol: WIKI-GUARD added 2026-06-27.)

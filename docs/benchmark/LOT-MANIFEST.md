@@ -158,11 +158,26 @@ ROUTINE 2 — BRANCH ROUTINES CHECK (session-required, S-2 triggers)
   ACTION:
     1. Read this manifest — identify all BEST candidates not yet SHIPPED
     2. For each: fetch branch, review diff against master, assess compatibility
-    3. If compatible: cherry-pick to master, run full build (green gate required)
-    4. If green: push to master → DO deploy picks it up automatically
-    5. If red: diagnose, fix or defer — never push red
-    6. Update manifest: mark SHIPPED, record merge commit hash
-    7. Append ledger line: CLASS SHIP
+    3. Cherry-pick with --no-commit (never auto-commit during merge)
+    4. PROTECTED FILES CHECK — restore master's versions before committing:
+         git restore --staged -- src/client/components/About.tsx
+         git restore -- src/client/components/About.tsx
+       About.tsx is updated by every wiki session on master. A feature branch
+       cut weeks ago carries an older version. Always keep master's About.tsx.
+       The feature branch's About.tsx changes (FM version bumps, day counters)
+       are wiki session artifacts — they don't belong to the feature being shipped.
+    5. Run full build — green gate required
+    6. If green: commit + push to master → DO deploy picks it up automatically
+    7. If red: diagnose, fix or defer — never push red
+    8. Update manifest: mark SHIPPED, record merge commit hash
+    9. Append ledger line: CLASS SHIP
+
+PROTECTED FILES (always restore from master during any branch merge):
+  src/client/components/About.tsx     — wiki session artifact, master is authoritative
+  docs/wiki/LOT-WIKI-v*.md            — additive only, new file per session (safe)
+  docs/assembly/                      — additive only, new file per session (safe)
+  docs/benchmark/LOT-LEDGER.md        — append-only, never merge from branch
+  docs/benchmark/LOT-MANIFEST.md      — session-managed, never merge from branch
 
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   LOT Mail         | determined-turing-f6bw7r  | +504 lines
@@ -171,6 +186,11 @@ CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
   COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
+
+NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
+they were incorporated into master in prior sessions. The ship queue will be
+re-populated as new BEST branches are designated from future assembly runs.
+The protocol above applies to all future merges.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
