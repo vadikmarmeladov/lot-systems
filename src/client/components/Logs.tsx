@@ -2416,7 +2416,7 @@ const NoteEditor = ({
         {scanResult && (
           <div className="mt-8">
             <Block label="SCAN:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
                 {scanResult}
               </div>
             </Block>
@@ -2449,35 +2449,55 @@ const NoteEditor = ({
         {silentResult && (
           <div className="mt-8">
             <Block label="SIL [PROTOCOL]:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{silentResult}</div>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{silentResult}</div>
             </Block>
           </div>
         )}
         {freezeResult && (
           <div className="mt-8">
             <Block label="FREEZE:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{freezeResult}</div>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{freezeResult}</div>
             </Block>
           </div>
         )}
         {fastResult && (
           <div className="mt-8">
             <Block label="FAST:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{fastResult}</div>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{fastResult}</div>
             </Block>
           </div>
         )}
         {physResult && (
           <div className="mt-8">
             <Block label="PHYS:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{physResult}</div>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
             </Block>
           </div>
         )}
         {systemHelp && (
           <div className="mt-8">
             <Block label="SYSTEM:" blockView>
-              <div className="opacity-60 font-mono whitespace-pre">{systemHelp}</div>
+              <div className="opacity-80" style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
+                {systemHelp.split('\n').map((line, idx) => {
+                  if (!line.trim()) return <div key={idx} style={{ height: '0.75rem' }} />
+                  if (line.startsWith('/')) {
+                    const spaceIdx = line.search(/\s{2,}/)
+                    const cmd = spaceIdx > -1 ? line.slice(0, spaceIdx) : line
+                    const desc = spaceIdx > -1 ? line.slice(spaceIdx).trim() : ''
+                    return (
+                      <div key={idx} style={{ display: 'flex', gap: '1.5rem', padding: '3px 0', fontSize: '14px', lineHeight: '1.5' }}>
+                        <span style={{ minWidth: '100px', opacity: 1 }}>{cmd}</span>
+                        <span style={{ opacity: 0.6 }}>{desc}</span>
+                      </div>
+                    )
+                  }
+                  return (
+                    <div key={idx} style={{ fontSize: '11px', letterSpacing: '0.08em', opacity: 0.4, paddingBottom: '4px', paddingTop: idx > 0 ? '12px' : '0' }}>
+                      {line}
+                    </div>
+                  )
+                })}
+              </div>
             </Block>
           </div>
         )}
