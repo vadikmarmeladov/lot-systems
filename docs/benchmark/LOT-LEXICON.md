@@ -40,4 +40,8 @@ EVE:               Evening Coherence Close — log block label for evening-coher
 DIURNAL ARC        P76→P79→P80 behavioral arc: morning launch → evening close → sustained momentum lock     B  20260621
 MOM:               Momentum Lock — log block label for signal_momentum events (5+ days, 3+ sources)         B  20260621
 MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
+R&D-TIER           $15/mo contributor entry — system builders; lowest-friction LOT® access   C  20260627 PROVISIONAL
+LEGACY-TIER        $3,564/3yr founders covenant — Usership rate locked; 3-year tenure mark  C  20260627 PROVISIONAL
+ADMIN-TIER         $11,000/9yr system governance — decade stake; governance earned by tenure C  20260627 PROVISIONAL
+TEKHNĒ             Craft intelligence doctrine — skilled output permanently valued above automation; LOT® craft-archetype mapping  C  20260627 PROVISIONAL
 ```
