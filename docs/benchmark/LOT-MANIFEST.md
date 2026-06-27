@@ -3,7 +3,7 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-12 (updated)
+DATE:     2026-06-27 (updated)
 ================================================================================
 
 Central catalog of all self-assembly routines across all branches.
@@ -140,6 +140,41 @@ GREEN BENCHMARKS (all-time):         28
 BENCHMARK TAGS:                      28
 DOCTRINE CLAUSES:                    10 (rev I)
 LEXICON TOKENS:                      27
+
+================================================================================
+06 // SUNDAY SELF-ASSEMBLY PROTOCOL
+================================================================================
+
+Runs every Sunday. Two standing routines execute in order:
+
+ROUTINE 1 — WEEKLY LOT® AI STORY (Job 24, automated)
+  SCHEDULE:  18:00 UTC every Sunday (server-side, no session required)
+  ACTION:    Aggregates 7-day logs per user → derives dominant mood + weekTone
+             → generates compressed story text → writes lot_ai_story log event
+             → stores in user.metadata.weeklyStory
+
+ROUTINE 2 — BRANCH ROUTINES CHECK (session-required, S-2 triggers)
+  SCHEDULE:  Sunday, any time — S-2 opens a session and says "Routines check"
+  ACTION:
+    1. Read this manifest — identify all BEST candidates not yet SHIPPED
+    2. For each: fetch branch, review diff against master, assess compatibility
+    3. If compatible: cherry-pick to master, run full build (green gate required)
+    4. If green: push to master → DO deploy picks it up automatically
+    5. If red: diagnose, fix or defer — never push red
+    6. Update manifest: mark SHIPPED, record merge commit hash
+    7. Append ledger line: CLASS SHIP
+
+CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
+  LOT Mail         | determined-turing-f6bw7r  | +504 lines
+  Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
+  Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
+  QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
+  COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
+  Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
+
+RULE: One feature per Sunday merge pass. If multiple features are queued,
+start with the smallest diff — lower blast radius, cleaner green gate.
+Ship sequentially across Sundays, not all at once.
 
 ================================================================================
 AUTHORIZED BY: S-2 // VADIK MARMELADOV
