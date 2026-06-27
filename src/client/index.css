@@ -79,8 +79,13 @@ input:-webkit-autofill {
     @apply font-base;
   }
 
-  *:focus {
+  *:focus:not(:focus-visible) {
     @apply outline-none;
+  }
+  *:focus-visible {
+    outline: 1px solid rgb(var(--acc-color-default) / 0.5);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 }
 
@@ -366,8 +371,6 @@ td:last-child {
   &::after {
     content: attr(data-value) ' ';
     visibility: hidden;
-    outline: 1px dashed red;
-    color: red;
     white-space: pre-wrap;
     word-wrap: break-word;
     pointer-events: none;
