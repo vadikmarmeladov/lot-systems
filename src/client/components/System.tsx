@@ -89,6 +89,15 @@ function LazyMount({ children }: { children: React.ReactNode }) {
   return <div ref={ref}>{inViewport ? children : null}</div>
 }
 
+function LoadingDots() {
+  const [dots, setDots] = React.useState(1)
+  React.useEffect(() => {
+    const id = setInterval(() => setDots(d => d === 3 ? 1 : d + 1), 500)
+    return () => clearInterval(id)
+  }, [])
+  return <span className="opacity-40">{'·'.repeat(dots)}</span>
+}
+
 export const System = () => {
   const me = useStore(stores.me)
   const weather = useStore(stores.weather)
@@ -574,10 +583,10 @@ export const System = () => {
       {/* Visitor Statistics */}
       <div>
         <Block label="Total LOT visitors:">
-          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.totalSiteVisitors) : '—'}
+          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.totalSiteVisitors) : <LoadingDots />}
         </Block>
         <Block label="My OS visitors:">
-          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.userProfileVisits) : '—'}
+          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.userProfileVisits) : <LoadingDots />}
         </Block>
       </div>
 
