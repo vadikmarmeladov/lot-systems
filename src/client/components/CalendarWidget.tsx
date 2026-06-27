@@ -120,7 +120,7 @@ export function CalendarWidget() {
       },
     }, {
       onSuccess: () => {
-        queryClient.invalidateQueries(['/api/logs'])
+        queryClient.refetchQueries(['/api/logs'])
         try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
       },
     })

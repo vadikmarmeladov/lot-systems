@@ -572,16 +572,14 @@ export const System = () => {
       </div>
 
       {/* Visitor Statistics */}
-      {visitorStats && (
-        <div>
-          <Block label="Total LOT visitors:">
-            {formatNumberWithCommas(visitorStats.totalSiteVisitors)}
-          </Block>
-          <Block label="My OS visitors:">
-            {formatNumberWithCommas(visitorStats.userProfileVisits)}
-          </Block>
-        </div>
-      )}
+      <div>
+        <Block label="Total LOT visitors:">
+          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.totalSiteVisitors) : '—'}
+        </Block>
+        <Block label="My OS visitors:">
+          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.userProfileVisits) : '—'}
+        </Block>
+      </div>
 
       <div>
         <TimeWidget />
