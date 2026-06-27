@@ -151,7 +151,7 @@ const TabPanel = React.memo(function TabPanel({
   )
 }, (prev, next) => prev.active === next.active)
 
-function TabPanels() {
+const TabPanels = React.memo(function TabPanels() {
   const router = useStore(stores.router)
   const currentRoute = router?.route ?? 'system'
   return (
@@ -173,9 +173,9 @@ function TabPanels() {
       </TabPanel>
     </>
   )
-}
+})
 
-function DynamicRoutes() {
+const DynamicRoutes = React.memo(function DynamicRoutes() {
   const router = useStore(stores.router)
   const currentRoute = router?.route ?? 'system'
   return (
@@ -186,7 +186,7 @@ function DynamicRoutes() {
       {currentRoute === 'status' && <StatusPage noWrapper />}
     </>
   )
-}
+})
 
 const App = () => {
   const mirrorRef = React.useRef<HTMLVideoElement>(null)
