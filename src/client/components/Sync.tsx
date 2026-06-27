@@ -31,6 +31,7 @@ import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+import { LotMailInbox } from '#client/components/LotMailInbox'
 
 export const Sync = () => {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -221,6 +222,8 @@ export const Sync = () => {
           </div>
         </form>
       </div>
+
+      <LotMailInbox />
 
       <div>
         {messages.map((x, i) => {

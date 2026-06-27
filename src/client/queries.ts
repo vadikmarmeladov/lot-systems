@@ -120,6 +120,48 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+// LOT® Mail
+export interface LotMailRecord {
+  id: string
+  senderId: string
+  receiverId: string
+  subject: string | null
+  body: string
+  readAt: string | null
+  senderName: string
+  receiverName: string
+  createdAt: string
+  updatedAt: string
+}
+
+export const useLotMailInbox = (opts?: { unreadOnly?: boolean }) =>
+  createQuery<{ mails: LotMailRecord[] }>(
+    `/api/lot-mail/inbox${opts?.unreadOnly ? '?unreadOnly=true' : ''}`,
+    { refetchOnWindowFocus: false }
+  )()
+
+export const useLotMailSent = () =>
+  createQuery<{ mails: LotMailRecord[] }>('/api/lot-mail/sent', {
+    refetchOnWindowFocus: false,
+  })()
+
+export const useSendLotMail = createMutation<
+  { receiverId: string; subject?: string; body: string },
+  LotMailRecord
+>('post', '/api/lot-mail')
+
+export const useMarkLotMailRead = (id: string) =>
+  createMutation<Record<string, never>, { ok: boolean }>(
+    'post',
+    `/api/lot-mail/${id}/read`
+  )
+
+export const useLotMailUserSearch = (q: string) =>
+  createQuery<{ users: { id: string; firstName: string | null; lastName: string | null }[] }>(
+    `/api/lot-mail/search-users?q=${encodeURIComponent(q)}`,
+    { refetchOnWindowFocus: false, enabled: q.length >= 1 }
+  )()
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

@@ -35,6 +35,7 @@ import { getEarnedBadges, BADGES } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
+import { LotMailComposer } from '#client/components/LotMailComposer'
 
 const localStore = {
   logById: map<Record<string, Log>>({}),
@@ -1751,6 +1752,7 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailToName, setEmailToName] = React.useState<string | null>(null)
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -2150,6 +2152,7 @@ const NoteEditor = ({
           '',
           '/prayer       Generate contextual scripture',
           '/story        Generate a personal story from recent data',
+          '/email to X   Compose LOT® Mail to community member X',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -2184,6 +2187,11 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'lot-email') {
+        const emailMatch = value.match(/\/email\s+to\s+(\S+)/i)
+        if (emailMatch && emailMatch[1]) {
+          setEmailToName(emailMatch[1])
         }
       }
     }
@@ -2410,6 +2418,9 @@ const NoteEditor = ({
               )}
             </Block>
           </div>
+        )}
+        {emailToName && (
+          <LotMailComposer toName={emailToName} />
         )}
       </div>
     </div>
