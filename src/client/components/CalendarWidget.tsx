@@ -23,7 +23,12 @@ type CalendarEntry = {
   type: EntryType
 }
 
+type AlertLevel = 'D1' | 'TODAY' | 'OVERDUE'
+
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+const ALERT_STORE_KEY = 'lot-cal-alerts-v2'
+// Alert check interval: every 5 minutes
+const ALERT_INTERVAL_MS = 5 * 60 * 1000
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -48,17 +53,60 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
   return weeks
 }
 
+function getAlertStore(): Set<string> {
+  try {
+    const raw = localStorage.getItem(ALERT_STORE_KEY)
+    return raw ? new Set(JSON.parse(raw) as string[]) : new Set()
+  } catch {
+    return new Set()
+  }
+}
+
+function saveAlertStore(store: Set<string>): void {
+  try {
+    localStorage.setItem(ALERT_STORE_KEY, JSON.stringify([...store]))
+  } catch {}
+}
+
+function alertKey(date: string, text: string, level: AlertLevel): string {
+  return `${date}::${text.slice(0, 40)}::${level}`
+}
+
+function daysUntil(entryDate: string): number {
+  const target = dayjs(entryDate).startOf('day')
+  const today = dayjs().startOf('day')
+  return target.diff(today, 'day')
+}
+
+function tMinusLabel(entryDate: string): { label: string; urgency: 'past' | 'today' | 'soon' | 'normal' } {
+  const diff = daysUntil(entryDate)
+  if (diff < 0) return { label: `+${Math.abs(diff)}D OVERDUE`, urgency: 'past' }
+  if (diff === 0) return { label: 'TODAY', urgency: 'today' }
+  if (diff === 1) return { label: 'T-1D', urgency: 'soon' }
+  if (diff <= 7) return { label: `T-${diff}D`, urgency: 'soon' }
+  return { label: `T-${diff}D`, urgency: 'normal' }
+}
+
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
+  const createLogRef = React.useRef(createLog)
+  createLogRef.current = createLog
 
+  const [clock, setClock] = React.useState(() => dayjs().format('HH:mm:ss'))
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+
+  // Live clock tick (every second)
+  React.useEffect(() => {
+    const id = setInterval(() => setClock(dayjs().format('HH:mm:ss')), 1000)
+    return () => clearInterval(id)
+  }, [])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -72,12 +120,16 @@ export function CalendarWidget() {
       .sort((a, b) => a.date.localeCompare(b.date))
   }, [logs])
 
+  const todayStr = dayjs().format('YYYY-MM-DD')
+
+  const todayEntries = React.useMemo(
+    () => entries.filter(e => e.date === todayStr),
+    [entries, todayStr]
+  )
+
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
-    return entries
-      .filter(e => e.date >= today)
-      .slice(0, 10)
-  }, [entries])
+    return entries.filter(e => e.date >= todayStr).slice(0, 10)
+  }, [entries, todayStr])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,26 +142,63 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
   )
 
+  // Alert engine — fires once per threshold per entry, persisted to localStorage
+  const checkAndFireAlerts = React.useCallback(() => {
+    const store = getAlertStore()
+    let dirty = false
+    const todayIso = dayjs().format('YYYY-MM-DD')
+    const yesterdayIso = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+    const tomorrowIso = dayjs().add(1, 'day').format('YYYY-MM-DD')
+
+    for (const entry of entries) {
+      const fireAlert = (level: AlertLevel, tMinus: string) => {
+        const key = alertKey(entry.date, entry.text, level)
+        if (store.has(key)) return
+        store.add(key)
+        dirty = true
+        createLogRef.current({
+          text: `[SCHED-ALERT] ${level}: ${entry.type.toUpperCase()} · ${entry.text}`,
+          event: 'calendar_alert',
+          metadata: {
+            alertLevel: level,
+            date: entry.date,
+            entryType: entry.type,
+            entryText: entry.text,
+            tMinus,
+          },
+        }, {
+          onSuccess: () => queryClient.invalidateQueries(['/api/logs']),
+        })
+      }
+
+      if (entry.date === tomorrowIso) fireAlert('D1', 'T-1D')
+      if (entry.date === todayIso) fireAlert('TODAY', 'TODAY')
+      if (entry.date === yesterdayIso) fireAlert('OVERDUE', '+1D')
+    }
+
+    if (dirty) saveAlertStore(store)
+  }, [entries, queryClient])
+
+  // Run alert check on mount and every ALERT_INTERVAL_MS
+  React.useEffect(() => {
+    checkAndFireAlerts()
+    const id = setInterval(checkAndFireAlerts, ALERT_INTERVAL_MS)
+    return () => clearInterval(id)
+  }, [checkAndFireAlerts])
+
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
-    if (selectedDate === key) {
-      setSelectedDate(null)
-    } else {
-      setSelectedDate(key)
-    }
+    setSelectedDate(prev => prev === key ? null : key)
   }
 
   const handleAddEntry = () => {
     if (!selectedDate || !entryText.trim()) return
-
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
-
     createLog({
       text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
       event: 'calendar_entry',
@@ -124,27 +213,43 @@ export function CalendarWidget() {
         try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
       },
     })
-
     setEntryText('')
     setIsAddingEntry(false)
   }
 
   const handleToggleCalendar = () => {
-    if (!isCalendarOpen) {
-      setViewMonth(dayjs())
-    }
-    setIsCalendarOpen(!isCalendarOpen)
+    if (!isCalendarOpen) setViewMonth(dayjs())
+    setIsCalendarOpen(v => !v)
   }
+
+  const today = dayjs()
 
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
-        <div className="mb-16">
-          <Button onClick={handleToggleCalendar}>
-            Add date
-          </Button>
+
+        {/* Header row: Add button + live clock */}
+        <div className="flex items-center justify-between mb-16">
+          <Button onClick={handleToggleCalendar}>Add date</Button>
+          <span className="tabular-nums text-acc/40 tracking-wider">{clock}</span>
         </div>
 
+        {/* Today panel */}
+        {todayEntries.length > 0 && (
+          <div className="mb-16">
+            <div className="text-acc/30 uppercase tracking-widest mb-4">
+              {today.format('ddd DD MMM').toUpperCase()}
+            </div>
+            {todayEntries.map((entry, i) => (
+              <div key={i} className="flex items-baseline justify-between gap-8 mb-2">
+                <span className="text-acc capitalize">{entry.type}: {entry.text}</span>
+                <span className="text-acc tabular-nums whitespace-nowrap text-right">TODAY</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Calendar grid (expandable) */}
         {isCalendarOpen && (
           <div className="mb-16">
             <div className="flex items-center gap-8 mb-8">
@@ -170,7 +275,7 @@ export function CalendarWidget() {
                 <div key={wi} className="flex gap-0">
                   {week.map((d, di) => {
                     const key = d.format('YYYY-MM-DD')
-                    const isToday = key === today
+                    const isToday = key === todayStr
                     const isCurrentMonth = d.month() === viewMonth.month()
                     const isSelected = key === selectedDate
                     const hasEntry = datesWithEntries.has(key)
@@ -257,18 +362,36 @@ export function CalendarWidget() {
           </div>
         )}
 
+        {/* Upcoming entries with T-minus */}
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+            {upcomingEntries.map((entry, i) => {
+              const { label, urgency } = tMinusLabel(entry.date)
+              return (
+                <div key={i} className="flex justify-between gap-16">
+                  <span
+                    className={cn(
+                      'whitespace-nowrap',
+                      urgency === 'today' ? 'text-acc' : 'text-acc/60',
+                    )}
+                  >
+                    {dayjs(entry.date).format('ddd DD MMM').toUpperCase()}
+                    {' · '}
+                    {entry.text}
+                  </span>
+                  <span
+                    className={cn(
+                      'tabular-nums whitespace-nowrap text-right',
+                      urgency === 'today' && 'text-acc',
+                      urgency === 'soon' && 'text-acc/60',
+                      urgency === 'normal' && 'text-acc/30',
+                    )}
+                  >
+                    {label}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 

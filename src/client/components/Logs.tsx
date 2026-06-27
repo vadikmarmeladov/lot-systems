@@ -1206,6 +1206,33 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'calendar_alert') {
+          const alertLevel = log.metadata?.alertLevel as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const entryType = log.metadata?.entryType as string | undefined
+          const entryText = log.metadata?.entryText as string | undefined
+          const tMinus = log.metadata?.tMinus as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SCHED:" blockView>
+                {alertLevel && (
+                  <div className="uppercase tracking-widest mb-4">{alertLevel}</div>
+                )}
+                {entryType && (
+                  <div className="opacity-60">{entryType.toUpperCase()}</div>
+                )}
+                {entryText && (
+                  <div className="opacity-80 mt-4">{entryText}</div>
+                )}
+                {tMinus && (
+                  <div className="opacity-40 tabular-nums mt-4">{tMinus}</div>
+                )}
+                {date && (
+                  <div className="opacity-30 mt-4">DATE: {date}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'qos_coherence') {
           const diversityScore = log.metadata?.diversityScore as number | undefined
           const sourceCount = log.metadata?.sourceCount as number | undefined
