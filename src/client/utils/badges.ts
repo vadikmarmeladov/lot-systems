@@ -276,6 +276,31 @@ export type BadgeType =
   | 'cosmo_vigil'       // ◉∘◉  Check in every July 1 for 2 consecutive years (ULTRA-RARE)
   | 'the_answer_is_words'// ∞·≋  Write exactly 42 words in a journal entry (RARE)
   | 'welcome_back_program'// ↺≋↺  Return after exactly 365 days of absence (LEGENDARY)
+  // ── Word turn badges v9 — The Arcade Cabinet ─────────────────────────────────
+  | 'coin_drop'           // ○·¢  "coin" detected in text
+  | 'pixel_mode'          // ▪·▪  "pixel" detected in text
+  | 'sprite_active'       // ◈·◈  "sprite" detected in text
+  | 'score_logged'        // ▒·▒  "score" detected in text
+  | 'life_counter'        // ∘+∘  "life" detected in text
+  | 'joystick_lock'       // +·+  "joystick" detected in text
+  | 'blip_signal'         // ·∘·  "blip" detected in text
+  | 'continue_screen'     // ↺·∘  "continue" detected in text
+  | 'high_signal'         // ▲·∘  "high" detected in text
+  | 'reset_state'         // ↺·↺  "reset" detected in text
+  | 'quarter_credit'      // ○·○  "quarter" detected in text
+  | 'cheat_code'          // ░▒▓  "cheat" detected in text
+  // ── Easter egg — time-based v9 (Arcade Clock) ────────────────────────────────
+  | 'boot_sequence_7'     // ∘·□  Check in at 07:00
+  | 'triple_fifteen'      // ◉·◉  Check in at 15:15
+  | 'evening_sequence'    // ≈·≈  Check in at 19:19
+  | 'quad_dawn'           // ∴·∴  Check in at 04:44
+  // ── Easter egg — calendar v8 (Kernel Holidays) ───────────────────────────────
+  | 'system_day_99'       // ◉·◉  September 9 — 09/09
+  | 'kernel_holiday'      // ✦·✦  December 25 — Kernel Holiday
+  // ── Easter egg — behavioral v8 (High Score Tier) ─────────────────────────────
+  | 'perfect_bday'        // ◉·✦  Perfect Day on account signup anniversary
+  | 'high_score_arc'      // ▲·◉  Beat personal best streak
+  | 'extra_life'          // +∘+  Return after exactly 1 missed day
 
 export interface Badge {
   id: BadgeType
@@ -2473,6 +2498,215 @@ export const BADGES: Record<BadgeType, Badge> = {
     unlockMessage: '↳ 365 days. A full year in the grid. And you came back. Welcome back, program. ↺≋↺',
     rarity: 'legendary',
     category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Word Turn v9 — The Arcade Cabinet ─────────────────────────────────────────
+  coin_drop: {
+    id: 'coin_drop',
+    symbol: '○·¢',
+    name: 'Coin Drop',
+    description: '"coin" detected in text',
+    unlockMessage: '↳ INSERT COIN. Logged. The machine accepted it. ○·¢',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  pixel_mode: {
+    id: 'pixel_mode',
+    symbol: '▪·▪',
+    name: 'Pixel Mode',
+    description: '"pixel" detected in text',
+    unlockMessage: '↳ Pixel-level attention. The smallest unit noticed. ▪·▪',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  sprite_active: {
+    id: 'sprite_active',
+    symbol: '◈·◈',
+    name: 'Sprite Active',
+    description: '"sprite" detected in text',
+    unlockMessage: '↳ Character loaded. You are the sprite in this level. ◈·◈',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  score_logged: {
+    id: 'score_logged',
+    symbol: '▒·▒',
+    name: 'Score Logged',
+    description: '"score" detected in text',
+    unlockMessage: '↳ Score entered. The archive counts everything. ▒·▒',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  life_counter: {
+    id: 'life_counter',
+    symbol: '∘+∘',
+    name: 'Life Counter',
+    description: '"life" detected in text',
+    unlockMessage: '↳ Life registered. Still in play. ∘+∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  joystick_lock: {
+    id: 'joystick_lock',
+    symbol: '+·+',
+    name: 'Joystick Lock',
+    description: '"joystick" detected in text',
+    unlockMessage: '↳ Input device named. Control is yours. +·+',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  blip_signal: {
+    id: 'blip_signal',
+    symbol: '·∘·',
+    name: 'Blip Signal',
+    description: '"blip" detected in text',
+    unlockMessage: '↳ One blip on the radar. The system caught it. ·∘·',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  continue_screen: {
+    id: 'continue_screen',
+    symbol: '↺·∘',
+    name: 'Continue Screen',
+    description: '"continue" detected in text',
+    unlockMessage: '↳ CONTINUE? You chose yes. The game resumes. ↺·∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  high_signal: {
+    id: 'high_signal',
+    symbol: '▲·∘',
+    name: 'High Signal',
+    description: '"high" detected in text',
+    unlockMessage: '↳ Peak noted. The high point is in the log. ▲·∘',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  reset_state: {
+    id: 'reset_state',
+    symbol: '↺·↺',
+    name: 'Reset State',
+    description: '"reset" detected in text',
+    unlockMessage: '↳ Reset acknowledged. Fresh start confirmed. The slate is clear. ↺·↺',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  quarter_credit: {
+    id: 'quarter_credit',
+    symbol: '○·○',
+    name: 'Quarter Credit',
+    description: '"quarter" detected in text',
+    unlockMessage: '↳ One quarter. The machine starts. Credit: confirmed. ○·○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  cheat_code: {
+    id: 'cheat_code',
+    symbol: '░▒▓',
+    name: 'Cheat Code',
+    description: '"cheat" detected in text',
+    unlockMessage: '↳ Cheat entered. All cheats are just another way of playing. ░▒▓',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+
+  // ── Time Easter Eggs v9 — Arcade Clock ────────────────────────────────────────
+  boot_sequence_7: {
+    id: 'boot_sequence_7',
+    symbol: '∘·□',
+    name: 'Seven Boot',
+    description: 'Check in at 07:00',
+    unlockMessage: '↳ 07:00. The workday kernel boots. All systems: online. ∘·□',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  triple_fifteen: {
+    id: 'triple_fifteen',
+    symbol: '◉·◉',
+    name: 'Triple Fifteen',
+    description: 'Check in at 15:15',
+    unlockMessage: '↳ 15:15. Three fives. Afternoon alignment confirmed. ◉·◉',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  evening_sequence: {
+    id: 'evening_sequence',
+    symbol: '≈·≈',
+    name: 'Evening Sequence',
+    description: 'Check in at 19:19',
+    unlockMessage: '↳ 19:19. Double nineteen. Evening signal logged. ≈·≈',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  quad_dawn: {
+    id: 'quad_dawn',
+    symbol: '∴·∴',
+    name: 'Quad Dawn',
+    description: 'Check in at 04:44',
+    unlockMessage: '↳ 04:44. Four fours before the sun. Pre-dawn quad signal received. ∴·∴',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Calendar Easter Eggs v8 — Kernel Holidays ─────────────────────────────────
+  system_day_99: {
+    id: 'system_day_99',
+    symbol: '◉·◉',
+    name: 'System Day 9/9',
+    description: 'September 9 — 09/09 double nine alignment',
+    unlockMessage: '↳ 09/09. Double nine. The system notes the alignment. ◉·◉',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  kernel_holiday: {
+    id: 'kernel_holiday',
+    symbol: '✦·✦',
+    name: 'Kernel Holiday',
+    description: 'December 25 — Kernel Holiday',
+    unlockMessage: '↳ Dec 25. The kernel rests. You showed up anyway. ✦·✦',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Behavioral Easter Eggs v8 — High Score Tier ───────────────────────────────
+  perfect_bday: {
+    id: 'perfect_bday',
+    symbol: '◉·✦',
+    name: 'Perfect Birthday',
+    description: 'Perfect Day on your account signup anniversary',
+    unlockMessage: '↳ Anniversary day. And you showed up fully. The system celebrates. ◉·✦',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  high_score_arc: {
+    id: 'high_score_arc',
+    symbol: '▲·◉',
+    name: 'High Score',
+    description: 'Beat your personal best streak',
+    unlockMessage: '↳ NEW PERSONAL BEST. The archive breaks its own record. ▲·◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  extra_life: {
+    id: 'extra_life',
+    symbol: '+∘+',
+    name: 'Extra Life',
+    description: 'Return after exactly 1 missed day',
+    unlockMessage: '↳ 1UP. One day missed. But you came back. Extra life: claimed. +∘+',
+    rarity: 'uncommon',
+    category: 'easter_egg',
     hidden: true,
   },
 }
