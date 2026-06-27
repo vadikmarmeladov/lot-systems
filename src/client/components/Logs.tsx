@@ -1148,12 +1148,37 @@ export const Logs: React.FC = () => {
           const isError = log.metadata?.error as boolean | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="ASM [DIRECTIVE]:" blockView>
+              <Block label="TRANSMISSION:" blockView>
                 {directive && (
-                  <div className={cn('opacity-60', isError && 'opacity-40')}>
-                    {directive.split('\n').map((line, idx) => (
-                      <div key={idx}>{line}</div>
-                    ))}
+                  <div style={{ fontFamily: 'Arial, Helvetica, sans-serif' }} className={isError ? 'opacity-40' : ''}>
+                    {directive.split('\n').map((line, idx) => {
+                      const t = line.trim()
+                      if (!t) return <div key={idx} style={{ height: '0.5rem' }} />
+                      // Section label: short all-caps ending with colon
+                      if (/^[A-Z][A-Z\s]+:$/.test(t) && t.length < 25) {
+                        return <div key={idx} style={{ fontSize: '11px', letterSpacing: '0.08em', opacity: 0.4, paddingBottom: '4px', paddingTop: idx > 0 ? '12px' : '0' }}>{t}</div>
+                      }
+                      // Title: ASSEMBLY RUN / LOT-SR line
+                      if (/^ASSEMBLY RUN|^LOT-SR-/.test(t)) {
+                        return <div key={idx} style={{ fontSize: '13px', fontWeight: 600, paddingBottom: '10px', opacity: 0.9 }}>{t}</div>
+                      }
+                      // Key: value — split on first colon if key is short enough
+                      const ci = t.indexOf(':')
+                      if (ci > 0 && ci < 50 && t.slice(ci + 1).trim().length > 0) {
+                        return (
+                          <div key={idx} style={{ display: 'flex', gap: '1.5rem', padding: '3px 0', fontSize: '14px', lineHeight: '1.5' }}>
+                            <span style={{ minWidth: '140px', flexShrink: 0, opacity: 1 }}>{t.slice(0, ci)}:</span>
+                            <span style={{ opacity: 0.65 }}>{t.slice(ci + 1).trim()}</span>
+                          </div>
+                        )
+                      }
+                      // Short all-caps status (DEPLOYED. etc.)
+                      if (/^[A-Z][A-Z\s\.\-]+$/.test(t) && t.length < 25) {
+                        return <div key={idx} style={{ fontSize: '12px', letterSpacing: '0.05em', opacity: 0.7, paddingTop: '8px' }}>{t}</div>
+                      }
+                      // Default body
+                      return <div key={idx} style={{ fontSize: '14px', lineHeight: '1.6', opacity: 0.7, padding: '2px 0' }}>{t}</div>
+                    })}
                   </div>
                 )}
               </Block>
@@ -2402,15 +2427,35 @@ const NoteEditor = ({
         )}
         {(asmLoading || asmResponse) && (
           <div className="mt-8">
-            <Block label="ASM [DIRECTIVE]:" blockView>
+            <Block label="TRANSMISSION:" blockView>
               {asmLoading && !asmResponse && (
                 <div className="opacity-40 uppercase tracking-widest">Generating directive...</div>
               )}
               {asmResponse && (
-                <div className="opacity-60">
-                  {asmResponse.split('\n').map((line, idx) => (
-                    <div key={idx}>{line}</div>
-                  ))}
+                <div style={{ fontFamily: 'Arial, Helvetica, sans-serif' }}>
+                  {asmResponse.split('\n').map((line, idx) => {
+                    const t = line.trim()
+                    if (!t) return <div key={idx} style={{ height: '0.5rem' }} />
+                    if (/^[A-Z][A-Z\s]+:$/.test(t) && t.length < 25) {
+                      return <div key={idx} style={{ fontSize: '11px', letterSpacing: '0.08em', opacity: 0.4, marginTop: '0.75rem', marginBottom: '0.25rem' }}>{t}</div>
+                    }
+                    if (/^ASSEMBLY RUN|^LOT-SR-/.test(t)) {
+                      return <div key={idx} style={{ fontSize: '13px', fontWeight: 600, opacity: 0.9, marginBottom: '0.5rem' }}>{t}</div>
+                    }
+                    const ci = t.indexOf(':')
+                    if (ci > 0 && ci < 50 && t.slice(ci + 1).trim().length > 0) {
+                      return (
+                        <div key={idx} style={{ display: 'flex', gap: '1.5rem', fontSize: '14px', lineHeight: '1.6' }}>
+                          <span style={{ minWidth: '140px', opacity: 0.9, flexShrink: 0 }}>{t.slice(0, ci + 1)}</span>
+                          <span style={{ opacity: 0.65 }}>{t.slice(ci + 1).trim()}</span>
+                        </div>
+                      )
+                    }
+                    if (/^[A-Z][A-Z\s.]+$/.test(t) && t.length < 20) {
+                      return <div key={idx} style={{ fontSize: '12px', letterSpacing: '0.05em', opacity: 0.7, marginTop: '0.5rem' }}>{t}</div>
+                    }
+                    return <div key={idx} style={{ fontSize: '14px', lineHeight: '1.6', opacity: 0.7 }}>{t}</div>
+                  })}
                 </div>
               )}
             </Block>
