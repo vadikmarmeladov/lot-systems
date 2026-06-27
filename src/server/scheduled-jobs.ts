@@ -830,6 +830,177 @@ async function executeDailyIntentionAudit(): Promise<JobResult> {
   }
 }
 
+// ─── Weekly LOT® AI Story Generation (Job 24 — Sunday 18:00 UTC) ─────────────
+// Compresses each active user's week into a short personal narrative and stores
+// it in user metadata as weeklyStory. Also writes a lot_ai_story log event.
+// The story is template-based (no AI call) — dense, honest, earned compression.
+
+let isWeeklyLOTAIStoryRunning = false
+let lastWeeklyLOTAIStoryRun: Date | null = null
+
+function shouldRunWeeklyLOTAIStory(): boolean {
+  const now = dayjs()
+  if (isWeeklyLOTAIStoryRunning) return false
+  if (lastWeeklyLOTAIStoryRun) {
+    const lastRun = dayjs(lastWeeklyLOTAIStoryRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.day() === 0 && now.hour() === 18 // Sunday 18:00 UTC
+}
+
+async function executeWeeklyLOTAIStory(): Promise<JobResult> {
+  const jobName = 'weekly-lot-ai-story'
+  const executedAt = new Date().toISOString()
+  if (isWeeklyLOTAIStoryRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isWeeklyLOTAIStoryRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('WEEKLY LOT® AI STORY GENERATION — Sunday 18:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { User } = await import('#server/models/user.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const weekNumber = dayjs().isoWeek()
+    const weekYear = dayjs().year()
+
+    // Gather all logs from the past 7 days
+    const recentLogs = await Log.findAll({
+      where: { createdAt: { [Op.gte]: sevenDaysAgo } },
+      attributes: ['userId', 'event', 'text', 'metadata', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    })
+
+    // Group by user
+    const byUser: Record<string, any[]> = {}
+    for (const l of recentLogs) {
+      const uid = String((l as any).userId)
+      if (!byUser[uid]) byUser[uid] = []
+      byUser[uid].push(l)
+    }
+
+    const MOOD_POSITIVE = new Set(['energized', 'calm', 'hopeful', 'grateful', 'fulfilled', 'content', 'peaceful', 'excited', 'grounded', 'focused', 'flowing', 'steady'])
+    const MOOD_HARD = new Set(['tired', 'anxious', 'exhausted', 'overwhelmed', 'restless', 'uncertain', 'drained', 'depleted', 'unsettled', 'heavy'])
+
+    let generated = 0
+
+    for (const [userId, logs] of Object.entries(byUser)) {
+      if (logs.length < 3) continue // Not enough signal for a story
+
+      const checkins = logs.filter((l: any) => l.event === 'emotional_checkin')
+      const selfCare  = logs.filter((l: any) => ['self_care_complete', 'self_care_completed'].includes(l.event))
+      const intentions = logs.filter((l: any) => l.event === 'intention')
+      const notes = logs.filter((l: any) => ['note', 'journal'].includes(l.event))
+      const totalLogs = logs.length
+
+      // Derive dominant mood
+      let positiveCount = 0
+      let hardCount = 0
+      let dominantMood: string | null = null
+      const moodCounts: Record<string, number> = {}
+      for (const c of checkins) {
+        const mood = (c.metadata as any)?.emotionalState
+        if (!mood) continue
+        moodCounts[mood] = (moodCounts[mood] || 0) + 1
+        if (MOOD_POSITIVE.has(mood)) positiveCount++
+        if (MOOD_HARD.has(mood)) hardCount++
+      }
+      if (Object.keys(moodCounts).length > 0) {
+        dominantMood = Object.entries(moodCounts).sort(([,a],[,b]) => b - a)[0][0]
+      }
+
+      // Derive week tone
+      const weekTone = positiveCount > hardCount ? 'growth'
+        : hardCount > positiveCount ? 'recovery'
+        : 'steady'
+
+      // Build the story text — compressed, first-person, honest
+      const lines: string[] = []
+      lines.push(`Week ${weekNumber}, ${weekYear}.`)
+
+      if (checkins.length > 0 && dominantMood) {
+        const cap = dominantMood.charAt(0).toUpperCase() + dominantMood.slice(1)
+        lines.push(`${cap} was the dominant state across ${checkins.length} check-in${checkins.length !== 1 ? 's' : ''}.`)
+      }
+
+      if (selfCare.length > 0) {
+        lines.push(`${selfCare.length} self-care moment${selfCare.length !== 1 ? 's' : ''} completed.`)
+      }
+
+      if (intentions.length > 0) {
+        lines.push(`${intentions.length} intention${intentions.length !== 1 ? 's' : ''} set.`)
+      }
+
+      if (notes.length > 0) {
+        lines.push(`${notes.length} note${notes.length !== 1 ? 's' : ''} logged.`)
+      }
+
+      const closingLines: Record<string, string> = {
+        growth: 'The signal was forward.',
+        recovery: 'The system held.',
+        steady: 'Consistent. The foundation holds.',
+      }
+      lines.push(closingLines[weekTone])
+
+      const storyText = lines.join(' ')
+
+      // Write lot_ai_story log event
+      await Log.create({
+        userId: parseInt(userId),
+        event: 'lot_ai_story',
+        text: storyText,
+        metadata: {
+          weekNumber,
+          weekYear,
+          weekTone,
+          dominantMood,
+          checkinsCount: checkins.length,
+          selfCareCount: selfCare.length,
+          intentionsCount: intentions.length,
+          totalLogsCount: totalLogs,
+        },
+      } as any)
+
+      // Store in user metadata for API access
+      try {
+        const user = await User.findOne({ where: { id: parseInt(userId) } })
+        if (user) {
+          const meta = (user.metadata as any) || {}
+          await user.set({
+            metadata: {
+              ...meta,
+              weeklyStory: {
+                text: storyText,
+                weekNumber,
+                weekYear,
+                weekTone,
+                dominantMood,
+                generatedAt: new Date().toISOString(),
+              },
+            },
+          }).save()
+        }
+      } catch (_) {}
+
+      generated++
+    }
+
+    console.log(`LOT® AI STORY GENERATION COMPLETE — ${generated} stories written`)
+    console.log('─'.repeat(60))
+
+    lastWeeklyLOTAIStoryRun = new Date()
+    isWeeklyLOTAIStoryRunning = false
+    return { jobName, executedAt, success: true, result: { generated } }
+  } catch (error: any) {
+    console.error('Weekly LOT® AI story generation failed:', error.message)
+    isWeeklyLOTAIStoryRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -942,6 +1113,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check daily QOS mode watch (14:00 UTC every day) — Job 23
   if (shouldRunDailyQOSModeWatch()) {
     await executeDailyQOSModeWatch()
+  }
+  // Check weekly LOT AI story generation (Sunday 18:00 UTC) — Job 24
+  if (shouldRunWeeklyLOTAIStory()) {
+    await executeWeeklyLOTAIStory()
   }
 }
 
@@ -3013,6 +3188,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily vitality peak check: 12 PM UTC every day')
   console.log('   - Weekly longitudinal drift check: 9 AM UTC every Monday')
   console.log('   - Daily QOS mode watch: 2 PM UTC every day')
+  console.log('   - Weekly LOT® AI story generation: 6 PM UTC every Sunday')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -3022,8 +3198,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 18 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

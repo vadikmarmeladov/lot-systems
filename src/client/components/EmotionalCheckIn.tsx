@@ -7,6 +7,8 @@
  */
 
 import React from 'react'
+import { useStore } from '@nanostores/react'
+import * as stores from '#client/stores'
 import { Block, Button } from '#client/components/ui'
 import { useCreateEmotionalCheckIn, useEmotionalCheckIns, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
@@ -29,6 +31,14 @@ type EmotionalState =
   | 'peaceful'
   | 'excited'
   | 'uncertain'
+  | 'grounded'
+  | 'focused'
+  | 'drained'
+  | 'steady'
+  | 'flowing'
+  | 'depleted'
+  | 'unsettled'
+  | 'heavy'
 
 /**
  * Biofield Check-In Widget - Emotional state as biofield emission
@@ -36,6 +46,44 @@ type EmotionalState =
  * Genuine laughter can't be faked and is always a result of curiosity.
  * Pattern: Check-In > History > Patterns > Graph
  */
+// Returns a short weather context word (e.g. "Rainy", "Sunny", "Overcast") or null
+function getWeatherContext(description: string | undefined): string | null {
+  if (!description) return null
+  const d = description.toLowerCase()
+  if (d.includes('rain') || d.includes('drizzle') || d.includes('shower')) return 'Rainy'
+  if (d.includes('snow') || d.includes('sleet') || d.includes('blizzard')) return 'Snowy'
+  if (d.includes('storm') || d.includes('thunder')) return 'Stormy'
+  if (d.includes('clear') || d.includes('sunny')) return 'Sunny'
+  if (d.includes('cloud') || d.includes('overcast')) return 'Overcast'
+  if (d.includes('fog') || d.includes('mist') || d.includes('haze')) return 'Foggy'
+  if (d.includes('wind')) return 'Windy'
+  return null
+}
+
+// Time-of-day labels and corresponding offered answer sets
+function getTimeSlot(hour: number): { label: string; checkInType: 'morning' | 'evening' | 'moment'; answers: EmotionalState[] } {
+  if (hour >= 5 && hour < 12) return {
+    label: 'morning',
+    checkInType: 'morning',
+    answers: ['energized', 'grounded', 'anxious', 'tired', 'hopeful', 'calm'],
+  }
+  if (hour >= 12 && hour < 17) return {
+    label: 'afternoon',
+    checkInType: 'moment',
+    answers: ['focused', 'flowing', 'drained', 'steady', 'overwhelmed', 'grateful'],
+  }
+  if (hour >= 17 && hour < 22) return {
+    label: 'evening',
+    checkInType: 'evening',
+    answers: ['content', 'peaceful', 'depleted', 'restless', 'grateful', 'unsettled'],
+  }
+  return {
+    label: 'now',
+    checkInType: 'moment',
+    answers: ['calm', 'heavy', 'peaceful', 'tired', 'grateful', 'restless'],
+  }
+}
+
 export function EmotionalCheckIn() {
   const [view, setView] = React.useState<CheckInView>('prompt')
   const [response, setResponse] = React.useState<string | null>(null)
@@ -45,8 +93,9 @@ export function EmotionalCheckIn() {
   const [isPromptShown, setIsPromptShown] = React.useState(true)
   const [isResponseShown, setIsResponseShown] = React.useState(false)
   const [clickedButtonIndex, setClickedButtonIndex] = React.useState<number | null>(null)
-  const [shouldRender, setShouldRender] = React.useState(true) // Control whether widget should render at all
+  const [shouldRender, setShouldRender] = React.useState(true)
 
+  const weather = useStore(stores.weather)
   const { data: checkInsData } = useEmotionalCheckIns(30) // Last 30 days
   const { data: logs = [] } = useLogs()
 
@@ -97,8 +146,16 @@ export function EmotionalCheckIn() {
     }
   })
 
+  // Compute time + weather context once, before any handlers
+  const hour = new Date().getHours()
+  const timeSlot = getTimeSlot(hour)
+  const weatherCtx = getWeatherContext(weather?.description)
+
+  // LOT AI: leads in morning + evening (check-in moments)
+  // Biofield: in midday + afternoon + night (physiological tracking)
+  const isLOTAIMoment = timeSlot.checkInType === 'morning' || timeSlot.checkInType === 'evening'
+
   const cycleView = () => {
-    // When cycling views, reset response state
     setIsResponseShown(false)
     setResponse(null)
     setInsight(null)
@@ -117,44 +174,39 @@ export function EmotionalCheckIn() {
   }
 
   const handleCheckIn = (emotionalState: EmotionalState, buttonIndex: number) => {
-    // Prevent double-clicks during API call
     if (isLoading || !isPromptShown) return
 
-    const hour = new Date().getHours()
-    const checkInType = hour < 12 ? 'morning' : hour >= 19 ? 'evening' : 'moment'
-
-    // Record which button was clicked and start cascade immediately
     setClickedButtonIndex(buttonIndex)
     setIsPromptShown(false)
 
     createCheckIn({
-      checkInType,
+      checkInType: timeSlot.checkInType,
       emotionalState,
-      intensity: 5, // Default intensity
+      intensity: 5,
     })
 
-    // Defer signal recording so visual cascade plays immediately
     setTimeout(() => {
-      recordSignal('mood', emotionalState, { checkInType, hour })
+      recordSignal('mood', emotionalState, { checkInType: timeSlot.checkInType, hour })
     }, 0)
   }
 
   if (!shouldRender || !isDisplayed) return null
 
+  const weatherCtxStr = weatherCtx ? `${weatherCtx} ` : ''
+  const timeLabel = timeSlot.label.charAt(0).toUpperCase() + timeSlot.label.slice(1)
+
+  // Question: "[Weather][Time]. How are you?" for LOT AI moments
+  //           "[Weather][Time]. How is your biofield?" for physiological moments
+  const question = isLOTAIMoment
+    ? `${weatherCtxStr}${timeLabel}. How are you?`
+    : `${weatherCtxStr}${timeLabel}. How is your biofield?`
+
   const label =
-    view === 'prompt' ? 'Biofield:' :
-    view === 'history' ? 'History:' :
+    view === 'prompt'   ? (isLOTAIMoment ? 'LOT AI:' : 'Biofield:') :
+    view === 'history'  ? 'History:' :
     view === 'patterns' ? 'Patterns:' :
     'Graph:'
 
-  // Determine check-in type based on time
-  const hour = new Date().getHours()
-  const checkInLabel =
-    hour < 12 ? 'Morning' :
-    hour >= 19 ? 'Evening' :
-    'Right Now'
-
-  // Calculate cascade delay based on distance from clicked button
   const getCascadeDelay = (buttonIndex: number) => {
     if (clickedButtonIndex === null || isPromptShown) return '0ms'
     const distance = Math.abs(buttonIndex - clickedButtonIndex)
@@ -179,91 +231,22 @@ export function EmotionalCheckIn() {
                 'mb-16 transition-opacity duration-[1400ms]',
                 isPromptShown ? 'opacity-100' : 'opacity-0'
               )}>
-                {checkInLabel === 'Morning' && '→ Morning biofield reading. How is your state?'}
-                {checkInLabel === 'Evening' && '→ Evening biofield reading. How is your state?'}
-                {checkInLabel === 'Right Now' && '→ Current biofield emission. How are you?'}
+                → {question}
               </div>
               <div className="flex flex-wrap gap-8">
-                <Button
-                  onClick={() => handleCheckIn('energized', 0)}
-                  className={cn(
-                    'transition-opacity duration-[1400ms]',
-                    isPromptShown ? 'opacity-100' : 'opacity-0'
-                  )}
-                  style={{ transitionDelay: getCascadeDelay(0) }}
-                >
-                  Energized
-                </Button>
-                <Button
-                  onClick={() => handleCheckIn('calm', 1)}
-                  className={cn(
-                    'transition-opacity duration-[1400ms]',
-                    isPromptShown ? 'opacity-100' : 'opacity-0'
-                  )}
-                  style={{ transitionDelay: getCascadeDelay(1) }}
-                >
-                  Calm
-                </Button>
-                <Button
-                  onClick={() => handleCheckIn('tired', 2)}
-                  className={cn(
-                    'transition-opacity duration-[1400ms]',
-                    isPromptShown ? 'opacity-100' : 'opacity-0'
-                  )}
-                  style={{ transitionDelay: getCascadeDelay(2) }}
-                >
-                  Tired
-                </Button>
-                <Button
-                  onClick={() => handleCheckIn('anxious', 3)}
-                  className={cn(
-                    'transition-opacity duration-[1400ms]',
-                    isPromptShown ? 'opacity-100' : 'opacity-0'
-                  )}
-                  style={{ transitionDelay: getCascadeDelay(3) }}
-                >
-                  Anxious
-                </Button>
-                <Button
-                  onClick={() => handleCheckIn('hopeful', 4)}
-                  className={cn(
-                    'transition-opacity duration-[1400ms]',
-                    isPromptShown ? 'opacity-100' : 'opacity-0'
-                  )}
-                  style={{ transitionDelay: getCascadeDelay(4) }}
-                >
-                  Hopeful
-                </Button>
-                <Button
-                  onClick={() => handleCheckIn('grateful', 5)}
-                  className={cn(
-                    'transition-opacity duration-[1400ms]',
-                    isPromptShown ? 'opacity-100' : 'opacity-0'
-                  )}
-                  style={{ transitionDelay: getCascadeDelay(5) }}
-                >
-                  Grateful
-                </Button>
-                <Button
-                  onClick={() => handleCheckIn('overwhelmed', 6)}
-                  className={cn(
-                    'transition-opacity duration-[1400ms]',
-                    isPromptShown ? 'opacity-100' : 'opacity-0'
-                  )}
-                  style={{ transitionDelay: getCascadeDelay(6) }}
-                >
-                  Overwhelmed
-                </Button>
-                <Button
-                  onClick={() => handleCheckIn('content', 7)}
-                  className={cn(
-                    'transition-opacity duration-[1400ms]',
-                    isPromptShown ? 'opacity-100' : 'opacity-0'
-                  )}
-                  style={{ transitionDelay: getCascadeDelay(7) }}
-                >
-                  Content
-                </Button>
+                {timeSlot.answers.map((state, idx) => (
+                  <Button
+                    key={state}
+                    onClick={() => handleCheckIn(state, idx)}
+                    className={cn(
+                      'transition-opacity duration-[1400ms]',
+                      isPromptShown ? 'opacity-100' : 'opacity-0'
+                    )}
+                    style={{ transitionDelay: getCascadeDelay(idx) }}
+                  >
+                    {state.charAt(0).toUpperCase() + state.slice(1)}
+                  </Button>
+                ))}
               </div>
             </>
           )}
