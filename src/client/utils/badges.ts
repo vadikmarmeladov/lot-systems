@@ -3647,6 +3647,55 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
       if (awardBadge('word_collector')) newBadges.push('word_collector')
     }
 
+    // v9 word turn engine badge set
+    const v9Badges: BadgeType[] = [
+      'coin_dropped', 'pixel_recognized', 'sprite_active', 'score_logged',
+      'life_remaining', 'input_received', 'signal_blip', 'continue_selected',
+      'high_signal', 'reset_protocol', 'quarter_offered', 'cheat_code_entered',
+    ]
+    // v10 word turn engine badge set
+    const v10Badges: BadgeType[] = [
+      'spell_cast', 'cast_signal', 'invoked', 'arcane_entry', 'sigil_drawn',
+      'tome_keeper', 'grimoire_open', 'ward_active', 'mana_check',
+      'familiar_bond', 'chapter_mark', 'verse_logged',
+    ]
+
+    // spell_caster: any 5 v10 word turn badges
+    if (!hasBadge('spell_caster')) {
+      const v10Earned = v10Badges.filter(b => hasBadge(b)).length
+      if (v10Earned >= 5) {
+        if (awardBadge('spell_caster')) newBadges.push('spell_caster')
+      }
+    }
+
+    // grimoire_complete: all 12 v10 word turn badges
+    if (!hasBadge('grimoire_complete')) {
+      if (v10Badges.every(b => hasBadge(b))) {
+        if (awardBadge('grimoire_complete')) newBadges.push('grimoire_complete')
+      }
+    }
+
+    // arcade_champion: at least 1 badge from each Word Turn engine v1-v9
+    if (!hasBadge('arcade_champion')) {
+      const v1Rep: BadgeType[] = ['ritual_keeper', 'breath_anchor', 'gratitude_node', 'aquatic_resonance', 'stargazer', 'grounded_signal', 'dream_log', 'courage_pulse', 'heart_signal', 'the_quiet', 'horizon_seeker', 'meta_signal']
+      const v2Rep: BadgeType[] = ['reboot_sequence', 'not_lost_404', 'signal_glitch', 'cosmic_twin', 'quantum_observer', 'neural_architect', 'code_witch', 'recharge_mode', 'fuel_protocol', 'frequency', 'kinetic_protocol', 'solar_charge', 'shadow_protocol', 'phase_shift', 'acceptance_node', 'present_moment', 'cosmic_scale', 'vital_signal']
+      const v5Rep: BadgeType[] = ['solitude_mode', 'wonder_protocol', 'phoenix_sequence', 'alignment_lock', 'witness_log', 'orbital_pattern', 'forge_protocol', 'neuro_link', 'photon_signal', 'field_charge', 'voyage_mode', 'gravity_lock']
+      const v6Rep: BadgeType[] = ['surrender_signal', 'restore_protocol', 'anchor_lock', 'threshold_gate', 'emergence_sequence', 'exhale_wave', 'clear_field', 'rise_signal', 'presence_core', 'bold_protocol', 'trust_lock', 'shift_sequence']
+      const v7Rep: BadgeType[] = ['loot_drop', 'boss_encounter', 'save_state', 'respawn_point', 'grind_mode', 'level_gained', 'quest_log', 'potion_protocol', 'dungeon_cleared', 'armor_up', 'stealth_mode', 'rogue_state']
+      const v8Rep: BadgeType[] = ['compile_run', 'execute_path', 'buffer_flush', 'stack_clear', 'patch_applied', 'fork_event', 'terminal_session', 'null_pointer', 'seed_planted', 'loop_detected', 'root_access', 'debug_mode_badge']
+      const engines = [v1Rep, v2Rep, v5Rep, v6Rep, v7Rep, v8Rep, v9Badges]
+      if (engines.every(engine => engine.some(b => hasBadge(b)))) {
+        if (awardBadge('arcade_champion')) newBadges.push('arcade_champion')
+      }
+    }
+
+    // ten_tongues: at least 1 badge from each of all 10 Word Turn engines
+    if (!hasBadge('ten_tongues')) {
+      if (hasBadge('arcade_champion') && v10Badges.some(b => hasBadge(b))) {
+        if (awardBadge('ten_tongues')) newBadges.push('ten_tongues')
+      }
+    }
+
     // Achievement RPG v3: intention entries
     if (typeof stats.totalIntentions === 'number') {
       if (stats.totalIntentions >= 10 && !hasBadge('planner_class')) {

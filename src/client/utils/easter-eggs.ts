@@ -290,6 +290,90 @@ export function checkStackMirror(): BadgeType | null {
   return null
 }
 
+// ── Time v9 — Power-Up Hours ─────────────────────────────────────────────────
+
+export function checkLuckySeven(): BadgeType | null {
+  if (hasBadge('lucky_seven')) return null
+  const now = new Date()
+  if (now.getHours() === 7 && now.getMinutes() === 0) {
+    awardBadge('lucky_seven')
+    return 'lucky_seven'
+  }
+  return null
+}
+
+export function checkMirrorPlay(): BadgeType | null {
+  if (hasBadge('mirror_play')) return null
+  const now = new Date()
+  if (now.getHours() === 15 && now.getMinutes() === 15) {
+    awardBadge('mirror_play')
+    return 'mirror_play'
+  }
+  return null
+}
+
+export function checkNeonStack(): BadgeType | null {
+  if (hasBadge('neon_stack')) return null
+  const now = new Date()
+  if (now.getHours() === 19 && now.getMinutes() === 19) {
+    awardBadge('neon_stack')
+    return 'neon_stack'
+  }
+  return null
+}
+
+export function checkFourAces(): BadgeType | null {
+  if (hasBadge('four_aces')) return null
+  const now = new Date()
+  if (now.getHours() === 4 && now.getMinutes() === 44) {
+    awardBadge('four_aces')
+    return 'four_aces'
+  }
+  return null
+}
+
+// ── Time v10 — Arcane Hours ───────────────────────────────────────────────────
+
+export function checkDawnGate(): BadgeType | null {
+  if (hasBadge('dawn_gate')) return null
+  const now = new Date()
+  if (now.getHours() === 6 && now.getMinutes() === 6) {
+    awardBadge('dawn_gate')
+    return 'dawn_gate'
+  }
+  return null
+}
+
+export function checkNoonFold(): BadgeType | null {
+  if (hasBadge('noon_fold')) return null
+  const now = new Date()
+  if (now.getHours() === 12 && now.getMinutes() === 21) {
+    awardBadge('noon_fold')
+    return 'noon_fold'
+  }
+  return null
+}
+
+export function checkEveningPrime(): BadgeType | null {
+  if (hasBadge('evening_prime')) return null
+  const now = new Date()
+  if (now.getHours() === 21 && now.getMinutes() === 0) {
+    awardBadge('evening_prime')
+    return 'evening_prime'
+  }
+  return null
+}
+
+export function checkNightMirror(): BadgeType | null {
+  if (hasBadge('night_mirror')) return null
+  const now = new Date()
+  if (now.getHours() === 23 && now.getMinutes() === 23) {
+    awardBadge('night_mirror')
+    return 'night_mirror'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
@@ -305,6 +389,10 @@ export function checkTimeEasterEggs(): BadgeType[] {
     checkDeepNight, checkMiddaySignal, checkLiminalHour, checkSacredTriple,
     // v8 — Clock Cycles
     checkClockFortyTwo, checkNoonKernel, checkByteTime, checkStackMirror,
+    // v9 — Power-Up Hours
+    checkLuckySeven, checkMirrorPlay, checkNeonStack, checkFourAces,
+    // v10 — Arcane Hours
+    checkDawnGate, checkNoonFold, checkEveningPrime, checkNightMirror,
   ]
   for (const check of checks) {
     const result = check()
@@ -443,6 +531,46 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('halloween_protocol') && month === 10 && day === 31) {
     awardBadge('halloween_protocol')
     awarded.push('halloween_protocol')
+  }
+
+  // ── Calendar v8 — Game Anniversaries ───────────────────────────────────────
+
+  // New Year Signal: January 1
+  if (!hasBadge('new_year_sig') && month === 1 && day === 1) {
+    awardBadge('new_year_sig')
+    awarded.push('new_year_sig')
+  }
+
+  // Sonic Day: September 9 — Sonic the Hedgehog anniversary
+  if (!hasBadge('sonic_day') && month === 9 && day === 9) {
+    awardBadge('sonic_day')
+    awarded.push('sonic_day')
+  }
+
+  // Winter Code: December 25
+  if (!hasBadge('winter_code') && month === 12 && day === 25) {
+    awardBadge('winter_code')
+    awarded.push('winter_code')
+  }
+
+  // ── Calendar v9 — Sci-Fi Literary Calendar ──────────────────────────────────
+
+  // Turing Day: June 23 — Alan Turing born 1912
+  if (!hasBadge('turing_day') && month === 6 && day === 23) {
+    awardBadge('turing_day')
+    awarded.push('turing_day')
+  }
+
+  // Moon Landing: July 20 — First lunar footprint 1969
+  if (!hasBadge('moon_landing') && month === 7 && day === 20) {
+    awardBadge('moon_landing')
+    awarded.push('moon_landing')
+  }
+
+  // First Signal: October 4 — Sputnik launch 1957
+  if (!hasBadge('first_signal') && month === 10 && day === 4) {
+    awardBadge('first_signal')
+    awarded.push('first_signal')
   }
 
   return awarded
@@ -839,6 +967,32 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bloop(ed|ing|s)?\b/i,                badge: 'loop_detected' },
   { patterns: /\broot\b/i,                           badge: 'root_access' },
   { patterns: /\bdebug(ged|ging|s)?\b/i,             badge: 'debug_mode_badge' },
+  // ── v9 — The Arcade Cabinet ───────────────────────────────────────────────
+  { patterns: /\bcoins?\b/i,                          badge: 'coin_dropped' },
+  { patterns: /\bpixels?\b/i,                         badge: 'pixel_recognized' },
+  { patterns: /\bsprites?\b/i,                        badge: 'sprite_active' },
+  { patterns: /\bscored?\b/i,                         badge: 'score_logged' },
+  { patterns: /\b(life|lives)\b/i,                    badge: 'life_remaining' },
+  { patterns: /\bjoysticks?\b/i,                      badge: 'input_received' },
+  { patterns: /\bblips?\b/i,                          badge: 'signal_blip' },
+  { patterns: /\bcontinued?\b/i,                      badge: 'continue_selected' },
+  { patterns: /\bhigh\b/i,                            badge: 'high_signal' },
+  { patterns: /\bresets?\b/i,                         badge: 'reset_protocol' },
+  { patterns: /\bquarters?\b/i,                       badge: 'quarter_offered' },
+  { patterns: /\bcheats?\b/i,                         badge: 'cheat_code_entered' },
+  // ── v10 — The Spell Book (Operator's Grimoire) ────────────────────────────
+  { patterns: /\bspells?\b/i,                         badge: 'spell_cast' },
+  { patterns: /\bcast(s|ing)?\b/i,                    badge: 'cast_signal' },
+  { patterns: /\b(invoke|invoked|invokes|invoking)\b/i, badge: 'invoked' },
+  { patterns: /\barcane\b/i,                          badge: 'arcane_entry' },
+  { patterns: /\bsigils?\b/i,                         badge: 'sigil_drawn' },
+  { patterns: /\btomes?\b/i,                          badge: 'tome_keeper' },
+  { patterns: /\bgrimoires?\b/i,                      badge: 'grimoire_open' },
+  { patterns: /\bwards?\b/i,                          badge: 'ward_active' },
+  { patterns: /\bmana\b/i,                            badge: 'mana_check' },
+  { patterns: /\bfamiliar\b/i,                        badge: 'familiar_bond' },
+  { patterns: /\bchapters?\b/i,                       badge: 'chapter_mark' },
+  { patterns: /\bverses?\b/i,                         badge: 'verse_logged' },
   // ── Secret Boss word triggers ─────────────────────────────────────────────
   { patterns: /\bi am lot\b/i,                       badge: 'i_am_lot' },
   { patterns: /\bmalibu\b/i,                         badge: 'malibu' },
@@ -1151,6 +1305,89 @@ export function checkAnniversary(signupDate: string): BadgeType | null {
   return null
 }
 
+// ── Behavioral v9 — Spellbound Patterns ──────────────────────────────────────
+
+/**
+ * Check Dawn Twin badge: check in before 06:00 AND after 21:00 on the same calendar day.
+ * Call on every check-in.
+ */
+export function checkDawnTwin(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('dawn_twin')) return null
+
+  const now = new Date()
+  const hour = now.getHours()
+  const todayStr = now.toISOString().slice(0, 10)
+
+  try {
+    const key = 'dawn_twin_log'
+    const stored = localStorage.getItem(key)
+    const log: { date: string; early: boolean; late: boolean } =
+      stored ? JSON.parse(stored) : { date: todayStr, early: false, late: false }
+
+    // Reset if it's a new day
+    const entry = log.date === todayStr ? log : { date: todayStr, early: false, late: false }
+
+    if (hour < 6) entry.early = true
+    if (hour >= 21) entry.late = true
+
+    localStorage.setItem(key, JSON.stringify(entry))
+
+    if (entry.early && entry.late) {
+      awardBadge('dawn_twin')
+      return 'dawn_twin'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Check Year First badge: journal entry on January 1.
+ * Call from runJournalEasterEggs.
+ */
+export function checkYearFirst(): BadgeType | null {
+  if (hasBadge('year_first')) return null
+  const now = new Date()
+  if (now.getMonth() === 0 && now.getDate() === 1) {
+    awardBadge('year_first')
+    return 'year_first'
+  }
+  return null
+}
+
+/**
+ * Check Echo Session badge: two distinct memory answers within 60 minutes.
+ * Call from runMemoryAnswerEasterEggs; tracks session timestamps in localStorage.
+ */
+export function checkEchoSession(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('echo_session')) return null
+
+  try {
+    const key = 'echo_session_timestamps'
+    const stored = localStorage.getItem(key)
+    const timestamps: number[] = stored ? JSON.parse(stored) : []
+    const now = Date.now()
+
+    // Keep only last 2 hours
+    const recent = timestamps.filter(t => now - t < 2 * 60 * 60 * 1000)
+    recent.push(now)
+    localStorage.setItem(key, JSON.stringify(recent.slice(-20)))
+
+    // Two distinct answers within 60 minutes
+    if (recent.length >= 2) {
+      const oldest = recent[recent.length - 2]
+      if (now - oldest <= 60 * 60 * 1000) {
+        awardBadge('echo_session')
+        return 'echo_session'
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
 // ── Master check-in scanner ──────────────────────────────────────────────────
 
 /**
@@ -1219,6 +1456,10 @@ export function runCheckInEasterEggs(
   const welcomeBack = checkWelcomeBackProgram()
   if (welcomeBack) awarded.push(welcomeBack)
 
+  // Behavioral v9: dawn twin (before 06:00 AND after 21:00 same day)
+  const dawnTwin = checkDawnTwin()
+  if (dawnTwin) awarded.push(dawnTwin)
+
   // Record activity after all checks (so gap detection works next time)
   recordActivity()
 
@@ -1245,6 +1486,10 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const answerIsWords = checkTheAnswerIsWords(journalText)
   if (answerIsWords) awarded.push(answerIsWords)
 
+  // Behavioral v9: year first (journal on January 1)
+  const yearFirst = checkYearFirst()
+  if (yearFirst) awarded.push(yearFirst)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -1267,6 +1512,10 @@ export function runMemoryAnswerEasterEggs(answerText: string): BadgeType[] {
   // Midnight sigil
   const midnight = checkMidnightSigil()
   if (midnight) awarded.push(midnight)
+
+  // Behavioral v9: echo session (2 answers within 60 min)
+  const echoSession = checkEchoSession()
+  if (echoSession) awarded.push(echoSession)
 
   // Word turns from answer text
   const wordTurns = detectWordTurns(answerText)
