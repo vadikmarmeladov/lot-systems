@@ -44,6 +44,20 @@ const FASTING_FAREWELLS = [
   'Held.',
 ]
 
+const WATER_TIPS: Record<string, string> = {
+  breakfast: 'Drink 500ml of water before eating.',
+  lunch: 'Drink a glass 30 min before lunch — not during.',
+  dinner: 'Water before dinner, not during; aids digestion.',
+  snack: 'Try a glass of water first — it often satisfies hunger.',
+}
+
+const FASTING_WATER_TIPS: Record<string, string> = {
+  'light-snack': 'Sip water regularly between your light meal.',
+  'dry-food': 'Stay hydrated between dry-food intervals.',
+  'water-only': 'Warm or room-temp · herbal teas count · aim for 2 L total.',
+  'prayer-rest': 'Sip water gently throughout the day.',
+}
+
 export const RecipeWidget: React.FC = () => {
   const state = useStore(recipeWidget)
   const router = useStore(stores.router)
@@ -147,6 +161,11 @@ export const RecipeWidget: React.FC = () => {
 
   if (!state.isVisible) return null
 
+  const getWaterTip = (): string | null => {
+    if (state.isFasting) return FASTING_WATER_TIPS[state.fastingMode] ?? null
+    return state.mealTime ? (WATER_TIPS[state.mealTime] ?? null) : null
+  }
+
   const getMealLabel = () => {
     // During a Christian fast, we relabel the widget so the user
     // immediately reads the suggestion as fasting guidance, not a
@@ -202,6 +221,16 @@ export const RecipeWidget: React.FC = () => {
                 <div className="opacity-30 mb-4">{state.fastingHeadline}</div>
               )}
               <div>{state.recipe}</div>
+              {getWaterTip() && (
+                <div
+                  className={cn(
+                    'mt-3 text-xs leading-relaxed',
+                    state.fastingMode === 'water-only' ? 'opacity-60' : 'opacity-40'
+                  )}
+                >
+                  {getWaterTip()}
+                </div>
+              )}
             </div>
           )}
         </div>
