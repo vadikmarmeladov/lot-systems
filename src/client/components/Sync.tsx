@@ -24,6 +24,8 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useDirectMessagesInbox,
+  type DirectMessageInboxItem,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -43,6 +45,8 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // Real-time incoming DMs via SSE
+  const [sseDms, setSseDms] = React.useState<DirectMessageInboxItem[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -55,6 +59,7 @@ export const Sync = React.memo(function SyncInner() {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: fetchedInbox = [] } = useDirectMessagesInbox()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -101,9 +106,28 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeDirectMessageListener } = sync.listen(
+      'direct_message',
+      (data) => {
+        if (data.receiverId !== me?.id) return
+        setSseDms((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [{
+            id: data.id,
+            senderId: data.senderId,
+            receiverId: data.receiverId,
+            message: data.message,
+            createdAt: data.createdAt,
+            updatedAt: data.createdAt,
+            sender: { id: data.senderId, firstName: data.senderName, lastName: null },
+          }, ...prev]
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeDirectMessageListener()
     }
   }, [me?.id])
 
@@ -152,8 +176,41 @@ export const Sync = React.memo(function SyncInner() {
     formRef.current?.querySelector('textarea')?.focus()
   }, [])
 
+  // Merge fetched inbox with SSE-received DMs (deduplicated)
+  const inbox = React.useMemo(() => {
+    const fetchedIds = new Set(fetchedInbox.map((m) => m.id))
+    const fresh = sseDms.filter((m) => !fetchedIds.has(m.id))
+    return [...fresh, ...fetchedInbox].slice(0, 20)
+  }, [fetchedInbox, sseDms])
+
   return (
     <div className="max-w-[700px]">
+      {/* DM Inbox — new messages from other LOT members */}
+      {inbox.length > 0 && (
+        <div className="mb-40">
+          <div className="text-acc/30 uppercase tracking-widest mb-8" style={{ fontSize: '11px', letterSpacing: '0.1em' }}>
+            Messages
+          </div>
+          {inbox.map((dm) => {
+            const senderName = dm.sender
+              ? `${dm.sender.firstName || ''} ${dm.sender.lastName || ''}`.trim() || 'Unknown'
+              : 'Unknown'
+            return (
+              <div
+                key={dm.id}
+                className="flex items-start gap-x-8 border-l-2 border-acc/20 pl-12 -ml-12 py-2 rounded-r mb-2"
+              >
+                <span className="whitespace-nowrap text-acc/60 shrink-0">{senderName}</span>
+                <div className="text-acc/80 break-words min-w-0 flex-1">{dm.message}</div>
+                <div className="text-acc/30 whitespace-nowrap shrink-0 select-none">
+                  <MessageTimeLabel dateString={dm.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}
@@ -166,7 +223,7 @@ export const Sync = React.memo(function SyncInner() {
           <ResizibleGhostInput
             direction="vh"
             value={message}
-            onChange={onChangeMessage}
+            onChange={setMessage}
             onKeyDown={onKeyDown}
             placeholder="Type a message..."
             containerClassName="flex-grow leading-normal"

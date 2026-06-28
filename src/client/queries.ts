@@ -120,6 +120,34 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+export interface DirectMessageInboxItem {
+  id: string
+  senderId: string
+  receiverId: string
+  message: string
+  createdAt: string
+  updatedAt: string
+  sender: { id: string; firstName: string | null; lastName: string | null } | null
+}
+
+export const useDirectMessagesInbox = createQuery<DirectMessageInboxItem[]>(
+  '/api/direct-messages',
+  { refetchOnWindowFocus: false }
+)
+
+export interface UserSearchResult {
+  id: string
+  firstName: string | null
+  lastName: string | null
+}
+
+export async function searchUsers(q: string): Promise<UserSearchResult[]> {
+  const { data } = await api.get<UserSearchResult[]>('/api/users/search', {
+    params: { q },
+  })
+  return data
+}
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

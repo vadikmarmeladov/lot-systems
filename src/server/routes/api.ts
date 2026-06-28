@@ -3804,6 +3804,80 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     }
   })
 
+  // GET /api/direct-messages — inbox (messages received by current user)
+  fastify.get('/direct-messages', async (req, reply) => {
+    try {
+      const messages = await fastify.models.DirectMessage.findAll({
+        where: { receiverId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+
+      const senderIds = [...new Set(messages.map((m) => m.senderId))]
+      const senders = senderIds.length
+        ? await fastify.models.User.findAll({
+            where: { id: senderIds },
+            attributes: ['id', 'firstName', 'lastName'],
+          })
+        : []
+      const senderMap = Object.fromEntries(senders.map((s) => [s.id, s]))
+
+      return reply.send(
+        messages.map((m) => ({
+          id: m.id,
+          senderId: m.senderId,
+          receiverId: m.receiverId,
+          message: m.message,
+          createdAt: m.createdAt,
+          updatedAt: m.updatedAt,
+          sender: senderMap[m.senderId]
+            ? {
+                id: senderMap[m.senderId].id,
+                firstName: senderMap[m.senderId].firstName,
+                lastName: senderMap[m.senderId].lastName,
+              }
+            : null,
+        }))
+      )
+    } catch (error) {
+      console.error('Error fetching inbox:', error)
+      return reply.status(500).send({ error: 'Failed to fetch inbox' })
+    }
+  })
+
+  // GET /api/users/search — find users by first or last name
+  fastify.get('/users/search', async (req: FastifyRequest<{
+    Querystring: { q: string }
+  }>, reply) => {
+    try {
+      const { q } = req.query
+      if (!q || q.trim().length < 2) return reply.send([])
+
+      const users = await fastify.models.User.findAll({
+        where: {
+          [Op.or]: [
+            { firstName: { [Op.iLike]: `%${q.trim()}%` } },
+            { lastName: { [Op.iLike]: `%${q.trim()}%` } },
+          ],
+          id: { [Op.ne]: req.user.id },
+        },
+        attributes: ['id', 'firstName', 'lastName'],
+        limit: 10,
+      })
+
+      return reply.send(
+        users.map((u) => ({
+          id: u.id,
+          firstName: u.firstName,
+          lastName: u.lastName,
+        }))
+      )
+    } catch (error) {
+      console.error('Error searching users:', error)
+      return reply.status(500).send({ error: 'Failed to search users' })
+    }
+  })
+
   // Get direct message thread with another user
   fastify.get('/direct-messages/:userId', async (req: FastifyRequest<{
     Params: { userId: string }
@@ -3889,6 +3963,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       process.nextTick(async () => {
         try {
           const context = await getLogContext(req.user)
+          const receiverName = `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim()
           await fastify.models.Log.create({
             userId: req.user.id,
             event: 'direct_message_sent',
@@ -3896,6 +3971,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
             metadata: {
               directMessageId: directMessage.id,
               receiverId,
+              receiverName: receiverName || 'Unknown',
               message: directMessage.message,
             },
             context,

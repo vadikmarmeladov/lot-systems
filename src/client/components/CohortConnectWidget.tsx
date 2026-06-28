@@ -123,7 +123,7 @@ export const CohortConnectWidget: React.FC = () => {
       connectionReadiness,
       hour: new Date().getHours()
     })
-    stores.goTo('sync')
+    stores.goTo('logs')
   }
 
   const handleToggleExpand = (userId: string) => {

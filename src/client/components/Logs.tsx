@@ -9,8 +9,8 @@
 import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
-import { Block, Button, ResizibleGhostInput, Unknown } from '#client/components/ui'
-import { useLogs, useUpdateLog } from '#client/queries'
+import { Block, Button, GhostButton, ResizibleGhostInput, Unknown } from '#client/components/ui'
+import { useLogs, useUpdateLog, useSendDirectMessage, searchUsers } from '#client/queries'
 import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
@@ -233,6 +233,19 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COMM:" blockView>
                 ACK{'\n'}{log.metadata.message as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'direct_message_sent') {
+          const receiverName = log.metadata?.receiverName as string | undefined
+          const msgText = log.metadata?.message as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MSG [OUT]:" blockView>
+                {receiverName && (
+                  <div className="opacity-60 mb-4 uppercase tracking-widest">TO: {receiverName}</div>
+                )}
+                {msgText && <div className="opacity-80">{msgText}</div>}
               </Block>
             </LogContainer>
           )
@@ -1861,6 +1874,20 @@ const NoteEditor = ({
   const [silentResult, setSilentResult] = React.useState<string | null>(null)
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
+  const [emailCompose, setEmailCompose] = React.useState<{
+    recipientName: string
+    recipientId: string | null
+    body: string
+    status: 'resolving' | 'ready' | 'sending' | 'sent' | 'error' | 'not-found'
+  } | null>(null)
+  const { mutate: sendDirectMessage } = useSendDirectMessage({
+    onSuccess: () => {
+      setEmailCompose((prev) => (prev ? { ...prev, status: 'sent' } : null))
+    },
+    onError: () => {
+      setEmailCompose((prev) => (prev ? { ...prev, status: 'error' } : null))
+    },
+  })
   const [physResult, setPhysResult] = React.useState<string | null>(null)
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
@@ -2259,22 +2286,23 @@ const NoteEditor = ({
         const lines = [
           'AVAILABLE COMMANDS',
           '',
-          '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
-          '/scan         System status overview',
-          '/qi [query]   Ask the Quantum Intelligence engine',
-          '/assembly     Self-assembly module status',
-          '/phys         Physiological cohort report',
-          '/qos          Quantum OS state analysis',
-          '/fast         Orthodox fasting calendar',
-          '/breathe      4-2-6 breathing exercise',
-          '/freeze       Pause and reflect protocol',
-          '/silent       Signal silence check',
-          '/synth        Toggle keyboard sound',
-          '/radio        Toggle radio',
-          '/night        Dark mode',
-          '/how          Open LOT AI check-in (System tab)',
-          '/system       This help screen',
+          '/email to {name}   Compose a direct message',
+          '/prayer            Generate contextual scripture',
+          '/story             Generate a personal story from recent data',
+          '/scan              System status overview',
+          '/qi [query]        Ask the Quantum Intelligence engine',
+          '/assembly          Self-assembly module status',
+          '/phys              Physiological cohort report',
+          '/qos               Quantum OS state analysis',
+          '/fast              Orthodox fasting calendar',
+          '/breathe           4-2-6 breathing exercise',
+          '/freeze            Pause and reflect protocol',
+          '/silent            Signal silence check',
+          '/synth             Toggle keyboard sound',
+          '/radio             Toggle radio',
+          '/night             Dark mode',
+          '/how               Open LOT AI check-in (System tab)',
+          '/system            This help screen',
           '',
           'SHORTCUTS',
           'Ctrl+Enter    Save log immediately',
@@ -2282,6 +2310,27 @@ const NoteEditor = ({
         setSystemHelp(lines.join('\n'))
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
+      } else if (trigger === 'compose-email') {
+        const emailMatch = value.match(/\/email\s+to\s+(.+)/i)
+        if (emailMatch) {
+          const recipientName = emailMatch[1].trim()
+          setEmailCompose({ recipientName, recipientId: null, body: '', status: 'resolving' })
+          searchUsers(recipientName)
+            .then((users) => {
+              if (!users.length) {
+                setEmailCompose((prev) => (prev ? { ...prev, status: 'not-found' } : null))
+              } else {
+                const u = users[0]
+                const fullName = `${u.firstName || ''} ${u.lastName || ''}`.trim()
+                setEmailCompose((prev) =>
+                  prev ? { ...prev, recipientId: u.id, recipientName: fullName || recipientName, status: 'ready' } : null
+                )
+              }
+            })
+            .catch(() => {
+              setEmailCompose((prev) => (prev ? { ...prev, status: 'error' } : null))
+            })
+        }
       } else if (trigger === 'story-mode') {
         if (!storyLoading) {
           setStoryLoading(true)
@@ -2560,6 +2609,73 @@ const NoteEditor = ({
                   {storyResponse.split('\n').map((line, idx) => (
                     <div key={idx}>{line || <br />}</div>
                   ))}
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {emailCompose && (
+          <div className="mt-8">
+            <Block label="MSG [COMPOSE]:" blockView>
+              {emailCompose.status === 'resolving' && (
+                <div className="opacity-40 uppercase tracking-widest">
+                  Resolving {emailCompose.recipientName}...
+                </div>
+              )}
+              {emailCompose.status === 'not-found' && (
+                <div className="opacity-40 uppercase tracking-widest">
+                  USER NOT FOUND: {emailCompose.recipientName}
+                </div>
+              )}
+              {emailCompose.status === 'error' && (
+                <div className="opacity-40 uppercase tracking-widest">
+                  RESOLVE ERROR — try again
+                </div>
+              )}
+              {(emailCompose.status === 'ready' || emailCompose.status === 'sending') && (
+                <div>
+                  <div className="opacity-60 mb-8 uppercase tracking-widest" style={{ fontSize: '12px', letterSpacing: '0.08em' }}>
+                    TO: {emailCompose.recipientName}
+                  </div>
+                  <textarea
+                    value={emailCompose.body}
+                    onChange={(e) =>
+                      setEmailCompose((prev) =>
+                        prev ? { ...prev, body: e.target.value } : null
+                      )
+                    }
+                    placeholder="Message..."
+                    className="bg-transparent text-acc w-full resize-none focus:outline-none placeholder:text-acc/40 leading-normal"
+                    rows={4}
+                    autoFocus
+                    disabled={emailCompose.status === 'sending'}
+                  />
+                  <div className="mt-8 flex gap-8 items-center">
+                    <Button
+                      size="small"
+                      kind="secondary"
+                      onClick={() => {
+                        if (!emailCompose.recipientId || !emailCompose.body.trim()) return
+                        setEmailCompose((prev) => (prev ? { ...prev, status: 'sending' } : null))
+                        sendDirectMessage({
+                          receiverId: emailCompose.recipientId,
+                          message: emailCompose.body.trim(),
+                        })
+                      }}
+                      disabled={!emailCompose.body.trim() || emailCompose.status === 'sending'}
+                    >
+                      {emailCompose.status === 'sending' ? 'Sending...' : 'Send'}
+                    </Button>
+                    <GhostButton onClick={() => setEmailCompose(null)}>Cancel</GhostButton>
+                  </div>
+                </div>
+              )}
+              {emailCompose.status === 'sent' && (
+                <div>
+                  <div className="opacity-60 mb-4 uppercase tracking-widest" style={{ fontSize: '12px', letterSpacing: '0.08em' }}>
+                    TO: {emailCompose.recipientName}
+                  </div>
+                  <div className="opacity-40 mt-4 uppercase tracking-widest">Message sent</div>
                 </div>
               )}
             </Block>
