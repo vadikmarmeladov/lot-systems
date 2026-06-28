@@ -6,16 +6,12 @@
  * Made in the USA | brand.lot-systems.com
  */
 
-import fastify from 'fastify';
 import fs from 'fs'
 import zlib from 'zlib'
-import axios from 'axios'
 import { FastifyReply } from 'fastify'
 import jwtLib, { JwtPayload } from 'jsonwebtoken'
 import config from '#server/config'
 import { SafeResponse } from '#server/types'
-
-const app = fastify();
 
 export const throwReplyDecorator = {
   getter() {
