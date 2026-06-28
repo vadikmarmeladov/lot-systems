@@ -2023,6 +2023,91 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 87: Circadian coherence arc — signals present in 3+ distinct circadian phases (morning/midday/
+  // afternoon/evening) within the same calendar day. Full-day behavioral coverage confirmed. The operator
+  // engaged across the complete temporal arc. Rare — most users cluster in 1–2 windows.
+  const p87Now    = new Date(now)
+  const p87DayStart = new Date(p87Now.getFullYear(), p87Now.getMonth(), p87Now.getDate()).getTime()
+  const p87TodaySignals = signals.filter(s => s.timestamp >= p87DayStart)
+  const p87Phases = new Set<string>()
+  p87TodaySignals.forEach(s => {
+    const h = new Date(s.timestamp).getHours()
+    if (h >= 5  && h < 11) p87Phases.add('morning')
+    if (h >= 11 && h < 14) p87Phases.add('midday')
+    if (h >= 14 && h < 18) p87Phases.add('afternoon')
+    if (h >= 18 && h < 23) p87Phases.add('evening')
+  })
+  if (p87Phases.size >= 3) {
+    patterns.push({
+      pattern: 'circadian-coherence-arc',
+      confidence: Math.min(0.65 + (p87Phases.size - 3) * 0.10, 0.88),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `CIRCADIAN COHERENCE ARC: ${p87Phases.size} distinct phases covered today (${Array.from(p87Phases).join(' · ')}). Full-day behavioral arc confirmed. The complete temporal signature is present.`,
+    })
+  }
+
+  // Pattern 88: Memory-intention bridge — a memory capture event followed by an intention signal
+  // within a 2-hour window in the same day. Past experience feeding forward into declared future action.
+  // Insight-action loop: what was remembered becomes what is intended.
+  const p88MemorySignals   = signals.filter(s => s.source === 'memory' && s.timestamp >= p87DayStart)
+  const p88IntentionSignals = signals.filter(s => s.source === 'intentions' && s.timestamp >= p87DayStart)
+  let p88BridgeFound = false
+  for (const mem of p88MemorySignals) {
+    const twoHoursMs = 2 * 60 * 60 * 1000
+    const bridge = p88IntentionSignals.find(
+      i => i.timestamp > mem.timestamp && i.timestamp - mem.timestamp <= twoHoursMs
+    )
+    if (bridge) { p88BridgeFound = true; break }
+  }
+  if (p88BridgeFound && p88MemorySignals.length >= 1) {
+    patterns.push({
+      pattern: 'memory-intention-bridge',
+      confidence: 0.72,
+      suggestedWidget: 'intentions',
+      suggestedTiming: 'soon',
+      reason: `MEMORY-INTENTION BRIDGE: Memory capture followed by intention signal within 2h today. Past experience is feeding forward into declared action. The loop from reflection to commitment is live.`,
+    })
+  }
+
+  // Pattern 89: Restoration acceleration — energy state was depleted or low within the past 24h,
+  // then 3+ self-care signals occurred, and current energy state is now moderate or high.
+  // Complete restoration arc confirmed: depletion detected, care applied, energy recovered.
+  const p89PriorDepletion = signals.filter(
+    s => s.source === 'energy' && (s.signal === 'energy_low' || s.signal === 'energy_depleted') &&
+    s.timestamp > now - 24 * 60 * 60 * 1000
+  )
+  const p89CareCount = signals.filter(
+    s => s.source === 'selfcare' && s.timestamp > now - 24 * 60 * 60 * 1000
+  ).length
+  const p89EnergyRecovered = state.userState.energy === 'moderate' || state.userState.energy === 'high'
+  if (p89PriorDepletion.length >= 1 && p89CareCount >= 3 && p89EnergyRecovered) {
+    patterns.push({
+      pattern: 'restoration-acceleration',
+      confidence: Math.min(0.70 + (p89CareCount - 3) * 0.05, 0.90),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `RESTORATION ACCELERATION: Depletion detected → ${p89CareCount} care acts in 24h → energy restored. Complete restoration arc confirmed. Continue protocol — momentum is building.`,
+    })
+  }
+
+  // Pattern 90: Depth diversity convergence — journal entry >100 words AND memory capture AND
+  // 3+ unique signal sources all within the same calendar day. High-complexity inner engagement day.
+  // Depth (journal) + capture (memory) + breadth (diverse sources) simultaneously present.
+  const p90JournalSignals = signals.filter(s => s.source === 'journal' && s.timestamp >= p87DayStart)
+  const p90DeepJournal    = p90JournalSignals.some(s => (s.metadata?.wordCount ?? 0) >= 100)
+  const p90MemoryToday    = p87TodaySignals.some(s => s.source === 'memory')
+  const p90UniqueSources  = new Set(p87TodaySignals.map(s => s.source)).size
+  if (p90DeepJournal && p90MemoryToday && p90UniqueSources >= 3) {
+    patterns.push({
+      pattern: 'depth-diversity-convergence',
+      confidence: Math.min(0.68 + (p90UniqueSources - 3) * 0.04, 0.88),
+      suggestedWidget: 'narrative',
+      suggestedTiming: 'passive',
+      reason: `DEPTH-DIVERSITY CONVERGENCE: Deep journal entry + memory capture + ${p90UniqueSources} signal sources today. Inner engagement operating on all cylinders. Depth and breadth confirmed simultaneously.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2552,6 +2637,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   qosModeWatcher:           ['energy', 'mood', 'log', 'selfcare'],
   adaptiveMomentumNode:     ['planner', 'intentions', 'goals', 'memory', 'selfcare', 'log'],
   vitalityStrategyNode:     ['mood', 'energy', 'selfcare', 'planner', 'intentions', 'log'],
+
+  // ── Restoration + coherence arc + insight-action + depth nodes (2026-06-28 audit)
+  restorationArcNode:         ['selfcare', 'mood', 'energy', 'log'],
+  circadianCoherenceNode:     ['mood', 'energy', 'log', 'journal', 'selfcare'],
+  memoryIntentionBridgeNode:  ['memory', 'intentions', 'planner'],
+  depthDiversityNode:         ['journal', 'memory', 'mood', 'energy', 'selfcare'],
 }
 
 /**
@@ -2822,6 +2913,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'goals'],
     patternConditions: ['vitality-strategy-peak', 'adaptive-momentum-window', 'systemic-thinking-mode'],
     directive: 'Biology aligned with strategy. Prime window open during sustained momentum streak. The architecture is building itself — commit fully, decide fast, record everything.',
+  },
+  {
+    archetype: 'Restorative Architect',
+    energyBands: ['depleted', 'low', 'moderate'],
+    dominantSources: ['selfcare', 'mood', 'energy'],
+    patternConditions: ['restoration-acceleration', 'recovery-window', 'circadian-coherence-arc'],
+    directive: 'Restoration arc confirmed. Biology is rebuilding. Protect recovery momentum — every hour of rest is architecture.',
   },
 ]
 
@@ -3866,6 +3964,35 @@ export function recordVitalityStrategyPeak(morningMoodCount: number, structuralD
     morningMoodCount,
     structuralDepth,
     window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a restoration arc event — energy was depleted, self-care was applied,
+ * energy has recovered. Feeds P89 (restoration-acceleration) detection.
+ * Call when energy improves after a confirmed depletion + care cycle.
+ */
+export function recordRestorationArcSignal(careCount: number, priorEnergy: string) {
+  recordSignal('selfcare', 'restoration_arc', {
+    careCount,
+    priorEnergy,
+    currentEnergy: 'improved',
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a memory-intention bridge event — a memory capture was followed by an
+ * intention signal within 2 hours. Feeds P88 (memory-intention-bridge) detection.
+ * Marks the insight-to-action transition.
+ */
+export function recordMemoryIntentionBridge(intervalMinutes: number) {
+  recordSignal('memory', 'memory_intention_bridge', {
+    intervalMinutes,
+    direction: 'memory→intention',
+    window: '2h',
     hour: new Date().getHours(),
   })
 }

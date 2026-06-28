@@ -1118,6 +1118,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunWeeklyLOTAIStory()) {
     await executeWeeklyLOTAIStory()
   }
+  // Check daily restoration arc detection (21:00 UTC every day) — Job 25
+  if (shouldRunDailyRestorationArcCheck()) {
+    await executeDailyRestorationArcCheck()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -3150,6 +3154,113 @@ async function executeDailyQOSModeWatch(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Restoration Arc Check (Job 25 — 21:00 UTC every day) ──────────────
+// Reads each active user's 24h self-care + energy signal logs. If depletion
+// was recorded earlier today, 3+ care acts followed, and the last energy signal
+// shows improvement, writes a restoration_arc log event. Feeds P89 detection.
+
+let isDailyRestorationArcRunning = false
+let lastDailyRestorationArcRun: Date | null = null
+
+function shouldRunDailyRestorationArcCheck(): boolean {
+  const now = dayjs()
+  if (isDailyRestorationArcRunning) return false
+  if (lastDailyRestorationArcRun) {
+    const lastRun = dayjs(lastDailyRestorationArcRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 21
+}
+
+async function executeDailyRestorationArcCheck(): Promise<JobResult> {
+  const jobName = 'daily-restoration-arc-check'
+  const executedAt = new Date().toISOString()
+  console.log('')
+  console.log('─'.repeat(60))
+  console.log('SCHEDULED JOB: Daily Restoration Arc Check')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+  console.log('')
+  isDailyRestorationArcRunning = true
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+
+    let written = 0
+    let skipped = 0
+
+    for (const user of activeUsers) {
+      try {
+        const recentLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            event: { [Op.in]: ['emotional_checkin', 'self_care_complete', 'self_care_completed', 'energy_update'] },
+            createdAt: { [Op.gte]: oneDayAgo },
+          },
+          order: [['createdAt', 'ASC']],
+        })
+
+        const depletion = recentLogs.find(
+          l => l.event === 'emotional_checkin' &&
+            ((l.metadata as any)?.energy === 'depleted' || (l.metadata as any)?.energy === 'low')
+        )
+        const careLogs = recentLogs.filter(
+          l => l.event === 'self_care_complete' || l.event === 'self_care_completed'
+        )
+        const lastEnergy = [...recentLogs]
+          .reverse()
+          .find(l => l.event === 'emotional_checkin' && (l.metadata as any)?.energy)
+
+        const energyImproved = lastEnergy &&
+          ((lastEnergy.metadata as any)?.energy === 'moderate' ||
+           (lastEnergy.metadata as any)?.energy === 'high')
+
+        if (depletion && careLogs.length >= 3 && energyImproved) {
+          await Log.create({
+            userId: (user as any).id,
+            event: 'restoration_arc',
+            text: '',
+            metadata: {
+              careCount: careLogs.length,
+              priorEnergy: (depletion.metadata as any)?.energy ?? 'low',
+              window: '24h',
+              date: dayjs().format('YYYY-MM-DD'),
+            },
+          } as any)
+          written++
+          console.log(`  [${(user as any).id}] RESTORE: ${careLogs.length} care ops · ${(depletion.metadata as any)?.energy} → ${(lastEnergy?.metadata as any)?.energy}`)
+        } else {
+          skipped++
+        }
+      } catch (userErr: any) {
+        console.warn(`  User ${(user as any).id} restoration arc check failed: ${userErr.message}`)
+      }
+    }
+
+    console.log('')
+    console.log('─'.repeat(60))
+    console.log('RESTORATION ARC CHECK COMPLETE')
+    console.log(`   Written: ${written} / Skipped: ${skipped} / Total: ${activeUsers.length}`)
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyRestorationArcRun = new Date()
+    isDailyRestorationArcRunning = false
+    return { jobName, executedAt, success: true, result: { written, skipped, total: activeUsers.length } }
+  } catch (error: any) {
+    console.error('Daily restoration arc check failed:', error.message)
+    isDailyRestorationArcRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -3189,6 +3300,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly longitudinal drift check: 9 AM UTC every Monday')
   console.log('   - Daily QOS mode watch: 2 PM UTC every day')
   console.log('   - Weekly LOT® AI story generation: 6 PM UTC every Sunday')
+  console.log('   - Daily restoration arc check: 9 PM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -3198,8 +3310,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 18 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 21=restoration-arc, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 18 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

@@ -40,4 +40,7 @@ EVE:               Evening Coherence Close — log block label for evening-coher
 DIURNAL ARC        P76→P79→P80 behavioral arc: morning launch → evening close → sustained momentum lock     B  20260621
 MOM:               Momentum Lock — log block label for signal_momentum events (5+ days, 3+ sources)         B  20260621
 MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
+RESTORATION-ARC    P89 + Archetype 30 — depletion → 3+ care acts → energy recovered in 24h; full arc       C  20260628
+MEM-BRIDGE:        Memory-Intention Bridge — log block label for memory_intention_bridge events (P88)       C  20260628
+CIRC-ARC:          Circadian Coherence Arc — log block label for circadian_coherence events (P87)           C  20260628
 ```

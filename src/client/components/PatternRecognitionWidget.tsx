@@ -116,6 +116,10 @@ export function PatternRecognitionWidget() {
       'longitudinal-drift':         'Longitudinal drift — engagement density declining',
       'adaptive-momentum-window':   'Adaptive momentum window — strategy active during streak',
       'vitality-strategy-peak':     'Vitality strategy peak — biology + strategy aligned',
+      'circadian-coherence-arc':    'Circadian coherence arc — full-day temporal coverage',
+      'memory-intention-bridge':    'Memory-intention bridge — insight feeding forward to action',
+      'restoration-acceleration':   'Restoration acceleration — depletion → care → recovery arc',
+      'depth-diversity-convergence':'Depth diversity convergence — depth + breadth simultaneous',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -422,6 +426,34 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'vitality-strategy-peak') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Biology + strategy peak. Execute.
+                </div>
+              )}
+
+              {/* Circadian coherence arc — P87 */}
+              {patterns.some(p => p.pattern === 'circadian-coherence-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Full-day arc confirmed.
+                </div>
+              )}
+
+              {/* Memory-intention bridge — P88 */}
+              {patterns.some(p => p.pattern === 'memory-intention-bridge') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Insight → action. Bridge active.
+                </div>
+              )}
+
+              {/* Restoration acceleration — P89 */}
+              {patterns.some(p => p.pattern === 'restoration-acceleration') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Restoration arc live. Protect.
+                </div>
+              )}
+
+              {/* Depth diversity convergence — P90 */}
+              {patterns.some(p => p.pattern === 'depth-diversity-convergence') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Depth + breadth converging.
                 </div>
               )}
 

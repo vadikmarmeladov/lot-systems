@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev L
+# LOT-DOCTRINE  rev M
 
 ## Render Isolation
 
@@ -179,3 +179,23 @@ creates a new numbered file; old files are never modified. No restore needed.
 
 The rule: wiki archives are additive and safe. About.tsx is master-authoritative.
 (Manifest §06 Sunday Protocol: WIKI-GUARD added 2026-06-27.)
+
+## Restoration Arc Pattern Cluster
+
+Recovery is not a single event but a three-state sequence: depletion detected →
+care intervention applied → energy improved. Each state is independently
+observable through QIE signals. The QIE represents this cluster in three
+distinct patterns across two detection timescales:
+  P12 recovery-window — binary: any care after any depletion signal (passive)
+  P48 recovery-velocity — arc: negative mood → selfcare → positive mood, with
+      velocity score (inverse of recovery window duration)
+  P89 restoration-acceleration — full 24h arc: depletion log + 3+ care acts +
+      energy improved within 24h window (confirmed restoration)
+Archetype 30 Restorative Architect classifies the operator in this state when
+P89 + P12 + P87 (circadian-coherence-arc) are simultaneously present — the
+operator is rebuilding while still maintaining full diurnal arc coverage.
+The patterns are not redundant: P12 is the earliest signal, P48 is the rate,
+P89 is the confirmed arc. Job 25 (daily-restoration-arc-check 21:00 UTC) runs
+the server-side confirmation at end-of-day when arc completion is assessable.
+(SR-20260516-01: P48 minted. SR-20260628-01: P89 + Arch30 + Job 25 minted.
+RESTORATION-ARC entered LEXICON rev C.)

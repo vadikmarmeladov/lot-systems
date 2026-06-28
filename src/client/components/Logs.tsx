@@ -1778,6 +1778,83 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'restoration_arc') {
+          const careCount   = log.metadata?.careCount   as number | undefined
+          const priorEnergy = log.metadata?.priorEnergy as string | undefined
+          const window_     = log.metadata?.window      as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RESTORE:" blockView>
+                {priorEnergy !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRIOR ATP</span>
+                    <span className="capitalize">{priorEnergy}</span>
+                  </div>
+                )}
+                {careCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE OPS</span>
+                    <span className="tabular-nums">{careCount}</span>
+                  </div>
+                )}
+                {window_ !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">WINDOW</span>
+                    <span>{window_}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'circadian_coherence') {
+          const phases    = log.metadata?.phases    as string[] | undefined
+          const coverage  = log.metadata?.coverage  as number  | undefined
+          const window_   = log.metadata?.window    as string  | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CIRC-ARC:" blockView>
+                {phases !== undefined && phases.length > 0 && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PHASES</span>
+                    <span className="uppercase">{phases.join(' · ')}</span>
+                  </div>
+                )}
+                {coverage !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">COVERAGE</span>
+                    <span className="tabular-nums">{coverage}/4</span>
+                  </div>
+                )}
+                {window_ !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">WINDOW</span>
+                    <span>{window_}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'memory_intention_bridge') {
+          const intervalMinutes = log.metadata?.intervalMinutes as number | undefined
+          const direction       = log.metadata?.direction       as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MEM-BRIDGE:" blockView>
+                {direction !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FLOW</span>
+                    <span className="uppercase">{direction}</span>
+                  </div>
+                )}
+                {intervalMinutes !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">INTERVAL</span>
+                    <span className="tabular-nums">{intervalMinutes}m</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

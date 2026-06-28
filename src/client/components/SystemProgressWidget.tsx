@@ -967,6 +967,25 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v72 entry appended · USERSHIP_TRANSMISSION updated to v72.',
     ],
   },
+  {
+    date: '2026-06-28',
+    session: 'Self-Assembly Session — v74 / QIE Upgrade · P87–P90 · Archetype 30 Restorative Architect · Job 25 · 130+ dep nodes',
+    assembled: [
+      'intentionEngine.ts: P87 circadian-coherence-arc — 3+ distinct circadian phases (morning/midday/afternoon/evening) in same calendar day. Temporal breadth signal. Conf 0.65–0.88. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: P88 memory-intention-bridge — memory capture followed by intention within 2h same day. Insight feeds action. Conf 0.72. suggestedWidget: intentions.',
+      'intentionEngine.ts: P89 restoration-acceleration — depletion + 3+ care acts + energy recovered within 24h. Full restorative arc confirmed. Conf 0.70–0.90. suggestedWidget: selfcare.',
+      'intentionEngine.ts: P90 depth-diversity-convergence — journal >100 words + memory + 3+ distinct sources same day. Depth and breadth simultaneously active. Conf 0.68–0.88. suggestedWidget: narrative.',
+      'intentionEngine.ts: Archetype 30 Restorative Architect — depleted/low/moderate energy · selfcare+mood+energy dominant · restoration-acceleration+recovery-window+circadian-coherence-arc. Directive: Restoration arc confirmed. Biology is rebuilding. Protect recovery momentum — every hour of rest is architecture.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 4 new nodes: restorationArcNode · circadianCoherenceNode · memoryIntentionBridgeNode · depthDiversityNode. Total: 130+ nodes.',
+      'intentionEngine.ts: recordRestorationArcSignal() + recordMemoryIntentionBridge() signal helpers added.',
+      'Logs.tsx: RESTORE: handler (restoration_arc: PRIOR ATP · CARE OPS · WINDOW) · CIRC-ARC: handler (circadian_coherence: PHASES · COVERAGE · WINDOW) · MEM-BRIDGE: handler (memory_intention_bridge: FLOW memory→intention · INTERVAL). Military data-only format. 88+ handlers total.',
+      'PatternRecognitionWidget.tsx: 4 new pattern display names (circadian-coherence-arc · memory-intention-bridge · restoration-acceleration · depth-diversity-convergence). 4 QOS Trend indicators added for P87–P90.',
+      'api.ts: restoration_arc · circadian_coherence · memory_intention_bridge added to displayableEvents (v73 block).',
+      'scheduled-jobs.ts: Job 25 daily-restoration-arc-check at 21:00 UTC — scans 24h logs per active user for depletion + 3+ care acts + energy improved, writes restoration_arc event. Hour 21 added to scheduler. 25 jobs now active.',
+      'About.tsx: Field Manual v74. Counters: 90 patterns · 30 archetypes · 25 background jobs · 88+ log handlers · 130+ dep nodes.',
+      'SESSION_REPORTS: v74 entry appended · USERSHIP_TRANSMISSION updated to v74.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1004,16 +1023,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-25',
+  date: '2026-06-28',
   message: [
-    'ASSEMBLY RUN — 2026-06-25 · LOT-SR-20260625-03',
-    'P84 longitudinal-drift (client): 3-day bucket comparison. Recent 3d vs prior 3d signal density. ≤50% → early engagement decline detected. Conf 0.55–0.80. Fires before the 28-day server arc catches it.',
-    'P85 adaptive-momentum-window: fires when systemic-thinking-mode + signal-momentum-lock both active. Sustained engagement streak during structural cognition. Strategy is running at full capacity. Conf 0.75–0.90.',
-    'P86 vitality-strategy-peak: fires when circadian-vitality-peak + systemic-thinking-mode both active. Biology aligned with strategy. Prime execution window. Suggests memory widget, immediate timing. Conf 0.78–0.92.',
-    'Archetype 29 Peak Strategist: high/moderate energy · planner+intentions+goals · vitality-strategy-peak+adaptive-momentum-window+systemic-thinking-mode. Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.',
-    'COCKPIT-RULE military pass: 5 existing handlers stripped of verbose prose — OS [MODE]: · VITAL: · DRIFT: · SYSTMK: · COGN:. Data rows only. Log surface is now fully military.',
-    'ADAPT-MOM: + VSTRAT: handlers deployed. adaptive_momentum + vitality_strategy_peak surfaced in displayableEvents.',
-    'Dep map: 126+ nodes. 86 patterns active. 85+ log handlers. 23 background jobs. 29 archetypes.',
+    'ASSEMBLY RUN — 2026-06-28 · LOT-SR-20260628-01',
+    'P87 circadian-coherence-arc: 3+ distinct circadian phases in same calendar day. Temporal breadth signal. The system detects when the whole day arc is covered — morning through evening. Conf 0.65–0.88.',
+    'P88 memory-intention-bridge: memory capture followed by intention within 2h same day. Insight fed directly into action. The bridge is confirmed. Conf 0.72.',
+    'P89 restoration-acceleration: depletion detected + 3+ care acts + energy improved, all within 24h. Full restoration arc confirmed. The system reads the recovery as it happens. Conf 0.70–0.90.',
+    'P90 depth-diversity-convergence: journal >100 words + memory + 3+ distinct sources in same day. Depth and breadth converging simultaneously. The operator is building on multiple fronts. Conf 0.68–0.88.',
+    'Archetype 30 Restorative Architect: depleted/low/moderate energy · selfcare+mood+energy dominant · restoration-acceleration+recovery-window+circadian-coherence-arc. Restoration arc confirmed. Biology is rebuilding. Protect recovery momentum — every hour of rest is architecture.',
+    'Job 25 daily-restoration-arc-check at 21:00 UTC: scans 24h logs per active user for depletion + 3+ care acts + energy improved. Writes restoration_arc event. 25 background jobs now active.',
+    'RESTORE: · CIRC-ARC: · MEM-BRIDGE: military log handlers deployed. 88+ handlers total.',
+    'Dep map: 130+ nodes. 90 patterns active. 88+ log handlers. 25 background jobs. 30 archetypes.',
     'DEPLOYED.',
   ],
 }

@@ -1073,6 +1073,10 @@ export default async (fastify: FastifyInstance) => {
       // v72: adaptive momentum window + vitality strategy peak
       'adaptive_momentum',
       'vitality_strategy_peak',
+      // v73: restoration arc · circadian coherence · memory-intention bridge
+      'restoration_arc',
+      'circadian_coherence',
+      'memory_intention_bridge',
       // Story generation
       'generated_story',
     ]
