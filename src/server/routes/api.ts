@@ -554,26 +554,19 @@ export default async (fastify: FastifyInstance) => {
   // Visitor statistics endpoint
   fastify.get('/visitor-stats', async (req: FastifyRequest, reply) => {
     try {
-      // Get total site visitors from a global counter
-      const globalStats = await fastify.models.User.findOne({
-        where: { email: 'system@lot' } // Special system user for global stats
-      })
+      const [totalSiteVisitors, freshUser] = await Promise.all([
+        fastify.models.User.count(),
+        fastify.models.User.findByPk(req.user.id, {
+          attributes: ['metadata'],
+        }),
+      ])
 
-      const totalVisitors = globalStats?.metadata?.totalSiteVisitors || 0
+      const userProfileVisits = freshUser?.metadata?.profileVisits || 0
 
-      // Get current user's profile visits
-      const userProfileVisits = req.user.metadata?.profileVisits || 0
-
-      return {
-        totalSiteVisitors: totalVisitors,
-        userProfileVisits: userProfileVisits
-      }
+      return { totalSiteVisitors, userProfileVisits }
     } catch (error) {
       console.error('Error fetching visitor stats:', error)
-      return {
-        totalSiteVisitors: 0,
-        userProfileVisits: 0
-      }
+      return { totalSiteVisitors: 0, userProfileVisits: 0 }
     }
   })
 
