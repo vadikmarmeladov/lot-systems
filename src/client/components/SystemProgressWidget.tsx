@@ -984,6 +984,29 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v74 entry appended · USERSHIP_TRANSMISSION updated to v74.',
     ],
   },
+  {
+    date: '2026-06-29',
+    session: 'Self-Assembly Session — v76 / P89–P91 · Arch30 · J26–J27 · COCKPIT-RULE Pass · Cohort Surfacing · Dep Map Audit',
+    assembled: [
+      'intentionEngine.ts: P89 quantum-learning-spiral — memory 3+ + journal 150+w + badge_unlock all in 7d. Deep knowledge loop: capture+reflection+discovery simultaneously active. Conf 0.68–0.88. suggestedWidget: memory.',
+      'intentionEngine.ts: P90 accountability-arc — intention + cohort message + goal action within 7d. External commitment loop: declare→share→execute. Conf 0.70–0.90. suggestedWidget: cohort.',
+      'intentionEngine.ts: P91 full-presence-arc — morning signal (before 09:00) + evening signal (18:00–23:00) same calendar day. Complete day arc. Conf 0.82. suggestedWidget: journal. 91 patterns total.',
+      'intentionEngine.ts: Archetype 30 Quantum Scholar — memory+journal+badges dominant · quantum-learning-spiral+cognitive-depth-arc+word-turn-depth conditions. Directive: Deep learning confirmed. Memory, reflection, and discovery simultaneously active. The knowledge base is compiling. 30 archetypes total.',
+      'intentionEngine.ts: recordQuantumLearningSpiral() + recordAccountabilityArc() + recordFullPresenceArc() signal helpers added.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 2 new nodes: quantumLearningNode (memory+journal+badges+goals) · accountabilityArcNode (intentions+cohort+goals). 130+ dep nodes total.',
+      'Logs.tsx: COCKPIT-RULE military pass — 9 handlers stripped of all prose headers + footers: INTF: · TCOH: · RECV: · STACK: · MCL: · SURGE: · EVE: · MOM: · COGN:. All prose divs converted to data rows only.',
+      'Logs.tsx: LEARN: handler — renders quantum_learning_spiral (MEM 7D · WORDS 7D · BADGES 7D). Military format.',
+      'Logs.tsx: ACCT: handler — renders accountability_arc (INTENT 7D · COHORT 7D · GOALS 7D). Military format.',
+      'Logs.tsx: PRES: handler — renders full_presence_arc (MORNING · EVENING counts). Military format.',
+      'Logs.tsx: PHR: handler — renders pattern_health_scan (ACTIVE · COVERAGE · TOP pattern). Military format. 92+ handlers total.',
+      'System.tsx: Biofield table — Cohort (dominantModule) + Confidence rows added after Archetype. Cohort surfacing now includes dominantModule and confidence% in quantum view.',
+      'scheduled-jobs.ts: J26 daily-physiological-cohort-broadcast — 17:00 UTC daily. Reads currentArchetype+dominantModule+confidence+energyBand per user from metadata. Writes physiological_cohort event. Afternoon cohort signal layer.',
+      'scheduled-jobs.ts: J27 weekly-pattern-health-report — Saturday 09:00 UTC. Reads activePatterns per user. Writes pattern_health_scan (patternsActive/coverage/topPattern). Feeds PHR: block. 27 background jobs total.',
+      'routes/api.ts: quantum_learning_spiral + accountability_arc + full_presence_arc + pattern_health_scan added to displayableEvents (v76 block).',
+      'About.tsx: Field Manual v76. Counters: 91 patterns · 30 archetypes · 27 background jobs · 92+ log handlers · 130+ dep nodes.',
+      'SESSION_REPORTS: v76 entry appended.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person

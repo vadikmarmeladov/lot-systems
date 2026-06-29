@@ -2057,6 +2057,64 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 89: Quantum learning spiral — memory 3+ in 7d + journal 150+ words in 7d + badge_unlock in 7d.
+  // Deep learning loop: knowledge capture → reflection → discovery co-firing simultaneously.
+  const p89Cut = now - 7 * 24 * 60 * 60 * 1000
+  const p89Memory = signals.filter(s => s.source === 'memory' && s.timestamp > p89Cut)
+  const p89Journal = signals.filter(s => s.source === 'journal' && s.timestamp > p89Cut)
+  const p89JournalWords = p89Journal.reduce((sum, s) => sum + ((s.metadata?.wordCount as number) ?? 0), 0)
+  const p89Badge = signals.filter(s => s.source === 'badges' && s.timestamp > p89Cut)
+  if (p89Memory.length >= 3 && p89JournalWords >= 150 && p89Badge.length >= 1) {
+    patterns.push({
+      pattern: 'quantum-learning-spiral',
+      confidence: Math.min(0.68 + (p89Memory.length - 3) * 0.04 + (p89Badge.length - 1) * 0.04, 0.88),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `QUANTUM LEARNING SPIRAL: ${p89Memory.length} memories + ${p89JournalWords}w journal + ${p89Badge.length} badge(s) in 7d. Knowledge capture, reflection, and discovery simultaneously active. Deep learning loop confirmed.`,
+    })
+  }
+
+  // Pattern 90: Accountability arc — intention set + cohort message + goal action within 7d.
+  // External commitment loop: declare → share → execute. The social execution gate.
+  const p90Cut = now - 7 * 24 * 60 * 60 * 1000
+  const p90Intention = signals.filter(s => s.source === 'intentions' && s.timestamp > p90Cut)
+  const p90Cohort = signals.filter(s => s.source === 'cohort' && s.timestamp > p90Cut)
+  const p90Goals = signals.filter(s => s.source === 'goals' && s.timestamp > p90Cut)
+  if (p90Intention.length >= 1 && p90Cohort.length >= 1 && p90Goals.length >= 1) {
+    const depth = p90Intention.length + p90Goals.length
+    patterns.push({
+      pattern: 'accountability-arc',
+      confidence: Math.min(0.70 + depth * 0.04, 0.90),
+      suggestedWidget: 'cohort',
+      suggestedTiming: 'passive',
+      reason: `ACCOUNTABILITY ARC: Intention set + cohort message + goal action within 7d. External commitment loop closed — declared, shared, executed.`,
+    })
+  }
+
+  // Pattern 91: Full-presence arc — morning signal (before 09:00) AND evening signal (18:00–23:00)
+  // recorded on the same calendar day. The most complete single-day engagement arc.
+  const p91Today = new Date()
+  const p91DateStr = `${p91Today.getFullYear()}-${String(p91Today.getMonth() + 1).padStart(2, '0')}-${String(p91Today.getDate()).padStart(2, '0')}`
+  const p91Morning = signals.filter(s => {
+    const d = new Date(s.timestamp)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    return ds === p91DateStr && d.getHours() < 9
+  })
+  const p91Evening = signals.filter(s => {
+    const d = new Date(s.timestamp)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    return ds === p91DateStr && d.getHours() >= 18 && d.getHours() < 23
+  })
+  if (p91Morning.length >= 1 && p91Evening.length >= 1) {
+    patterns.push({
+      pattern: 'full-presence-arc',
+      confidence: 0.82,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `FULL PRESENCE ARC: Morning signal (before 09:00) + evening signal (18:00–23:00) on same calendar day. Complete day captured. Both arcs closed.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2590,6 +2648,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Weekly arc + check-in flow monitors (2026-06-27 audit)
   weeklyStoryNode:          ['log', 'journal', 'energy', 'mood', 'selfcare', 'intentions'],
   contextualCheckinNode:    ['energy', 'mood', 'log'],
+
+  // ── Deep learning + social accountability monitors (2026-06-29 audit)
+  quantumLearningNode:      ['memory', 'journal', 'badges', 'goals'],
+  accountabilityArcNode:    ['intentions', 'cohort', 'goals'],
 }
 
 /**
@@ -2860,6 +2922,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'goals'],
     patternConditions: ['vitality-strategy-peak', 'adaptive-momentum-window', 'systemic-thinking-mode'],
     directive: 'Biology aligned with strategy. Prime window open during sustained momentum streak. The architecture is building itself — commit fully, decide fast, record everything.',
+  },
+  {
+    archetype: 'Quantum Scholar',
+    energyBands: ['moderate', 'high', 'low'],
+    dominantSources: ['memory', 'journal', 'badges'],
+    patternConditions: ['quantum-learning-spiral', 'cognitive-depth-arc', 'word-turn-depth'],
+    directive: 'Deep learning confirmed. Memory, reflection, and discovery simultaneously active. The knowledge base is compiling.',
   },
 ]
 
@@ -3930,6 +3999,47 @@ export function recordContextualCheckinMomentum(checkinCount: number, positiveRa
     checkinCount,
     positiveRate: Math.round(positiveRate * 100),
     window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-learning-spiral signal — memory 3+, journal 150+w, and badge_unlock
+ * all within a 7-day window. Feeds P89 detection. Deep knowledge loop confirmed.
+ */
+export function recordQuantumLearningSpiral(memoryCount: number, journalWords: number, badgeCount: number) {
+  recordSignal('memory', 'quantum_learning_spiral', {
+    memoryCount,
+    journalWords,
+    badgeCount,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an accountability-arc signal — intention set + cohort message + goal action
+ * all within a 7-day window. Feeds P90 detection. External commitment loop closed.
+ */
+export function recordAccountabilityArc(intentionCount: number, cohortCount: number, goalCount: number) {
+  recordSignal('intentions', 'accountability_arc', {
+    intentionCount,
+    cohortCount,
+    goalCount,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a full-presence-arc signal — morning signal (before 09:00) and evening signal
+ * (18:00–23:00) both present on the same calendar day. Feeds P91 detection.
+ */
+export function recordFullPresenceArc(morningCount: number, eveningCount: number) {
+  recordSignal('log', 'full_presence_arc', {
+    morningCount,
+    eveningCount,
+    window: '1d',
     hour: new Date().getHours(),
   })
 }

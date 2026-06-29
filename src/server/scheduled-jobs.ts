@@ -1112,6 +1112,168 @@ async function executeDailyArchetypeDirectivePulse(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Physiological Cohort Broadcast (Job 26 — 17:00 UTC every day) ────
+// Reads each active user's stored physiological cohort metadata and writes a
+// physiological_cohort log event. Surfaces archetype + dominantModule + confidence
+// for dashboard rendering at the end of the productive window. Distinct from
+// J25 (archetype directive pulse at 09:00): that job delivers the morning directive;
+// this job broadcasts the cohort state at 17:00 for afternoon/evening surfacing.
+
+let isDailyPhysiologicalCohortBroadcastRunning = false
+let lastDailyPhysiologicalCohortBroadcastRun: Date | null = null
+
+function shouldRunDailyPhysiologicalCohortBroadcast(): boolean {
+  const now = dayjs()
+  if (isDailyPhysiologicalCohortBroadcastRunning) return false
+  if (lastDailyPhysiologicalCohortBroadcastRun) {
+    const lastRun = dayjs(lastDailyPhysiologicalCohortBroadcastRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 17 // 17:00 UTC daily
+}
+
+async function executeDailyPhysiologicalCohortBroadcast(): Promise<JobResult> {
+  const jobName = 'daily-physiological-cohort-broadcast'
+  const executedAt = new Date().toISOString()
+  if (isDailyPhysiologicalCohortBroadcastRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPhysiologicalCohortBroadcastRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PHYSIOLOGICAL COHORT BROADCAST — 17:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { $gte: oneDayAgo } as any },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const meta = (user as any).metadata as any || {}
+        const archetype      = meta.currentArchetype      as string | undefined
+        const dominantModule = meta.currentDominantModule as string | undefined
+        const confidence     = meta.currentConfidence     as number | undefined
+        const energyBand     = meta.currentEnergyBand     as string | undefined
+        if (!archetype) continue
+        await (Log as any).create({
+          userId: (user as any).id,
+          event: 'physiological_cohort',
+          text: `Cohort broadcast: ${archetype}`,
+          metadata: {
+            archetype,
+            dominantModule: dominantModule ?? 'unknown',
+            confidence: confidence ?? 50,
+            energyBand: energyBand ?? 'unknown',
+            hour: 17,
+            source: 'j26-broadcast',
+          },
+        })
+        written++
+      } catch (_) {}
+    }
+
+    console.log(`PHYSIOLOGICAL COHORT BROADCAST COMPLETE — ${written} records written`)
+    console.log('─'.repeat(60))
+
+    lastDailyPhysiologicalCohortBroadcastRun = new Date()
+    isDailyPhysiologicalCohortBroadcastRunning = false
+    return { jobName, executedAt, success: true, result: { written } }
+  } catch (error: any) {
+    console.error('Daily physiological cohort broadcast failed:', error.message)
+    isDailyPhysiologicalCohortBroadcastRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Weekly Pattern Health Report (Job 27 — Saturday 09:00 UTC) ─────────────
+// Writes a pattern_health_scan log event per active user. Surfaces the count of
+// active QIE patterns detected in the past 7 days, pattern coverage percentage,
+// and the top pattern by signal weight. Enables PHR: block in Logs.tsx.
+// Fires Saturday 09:00 UTC — the beginning of the weekend review window.
+
+let isWeeklyPatternHealthReportRunning = false
+let lastWeeklyPatternHealthReportRun: Date | null = null
+
+function shouldRunWeeklyPatternHealthReport(): boolean {
+  const now = dayjs()
+  if (isWeeklyPatternHealthReportRunning) return false
+  if (lastWeeklyPatternHealthReportRun) {
+    const lastRun = dayjs(lastWeeklyPatternHealthReportRun)
+    const daysSinceLast = now.diff(lastRun, 'day')
+    if (daysSinceLast < 6) return false
+  }
+  return now.day() === 6 && now.hour() === 9 // Saturday 09:00 UTC
+}
+
+async function executeWeeklyPatternHealthReport(): Promise<JobResult> {
+  const jobName = 'weekly-pattern-health-report'
+  const executedAt = new Date().toISOString()
+  if (isWeeklyPatternHealthReportRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isWeeklyPatternHealthReportRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('WEEKLY PATTERN HEALTH REPORT — SATURDAY 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  const TOTAL_PATTERNS = 91
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { $gte: sevenDaysAgo } as any },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const meta = (user as any).metadata as any || {}
+        const activePatterns: string[] = (meta.activePatterns as string[]) ?? []
+        const patternsActive = activePatterns.length
+        const coverage = Math.round((patternsActive / TOTAL_PATTERNS) * 100)
+        const topPattern = activePatterns[0] ?? null
+
+        await (Log as any).create({
+          userId: (user as any).id,
+          event: 'pattern_health_scan',
+          text: `Pattern health: ${patternsActive} active of ${TOTAL_PATTERNS}`,
+          metadata: {
+            patternsActive,
+            coverage,
+            topPattern,
+            totalPatterns: TOTAL_PATTERNS,
+            window: '7d',
+            hour: 9,
+          },
+        })
+        written++
+      } catch (_) {}
+    }
+
+    console.log(`WEEKLY PATTERN HEALTH REPORT COMPLETE — ${written} reports written`)
+    console.log('─'.repeat(60))
+
+    lastWeeklyPatternHealthReportRun = new Date()
+    isWeeklyPatternHealthReportRunning = false
+    return { jobName, executedAt, success: true, result: { written } }
+  } catch (error: any) {
+    console.error('Weekly pattern health report failed:', error.message)
+    isWeeklyPatternHealthReportRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -1232,6 +1394,14 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check daily archetype directive pulse (09:00 UTC every day) — Job 25
   if (shouldRunDailyArchetypeDirectivePulse()) {
     await executeDailyArchetypeDirectivePulse()
+  }
+  // Check daily physiological cohort broadcast (17:00 UTC every day) — Job 26
+  if (shouldRunDailyPhysiologicalCohortBroadcast()) {
+    await executeDailyPhysiologicalCohortBroadcast()
+  }
+  // Check weekly pattern health report (Saturday 09:00 UTC) — Job 27
+  if (shouldRunWeeklyPatternHealthReport()) {
+    await executeWeeklyPatternHealthReport()
   }
 }
 
