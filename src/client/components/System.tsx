@@ -115,7 +115,7 @@ export const System = React.memo(function SystemInner() {
     try { return JSON.parse(localStorage.getItem('lot-visitor-stats') || 'null') } catch { return null }
   })
   React.useEffect(() => {
-    if (visitorStats) {
+    if (visitorStats !== undefined) {
       setCachedStats(visitorStats)
       try { localStorage.setItem('lot-visitor-stats', JSON.stringify(visitorStats)) } catch {}
     }

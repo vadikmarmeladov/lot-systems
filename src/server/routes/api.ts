@@ -6,7 +6,7 @@
  * Made in the USA | brand.lot-systems.com
  */
 
-import { Op, QueryTypes } from 'sequelize'
+import { Op } from 'sequelize'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import seedrandom from 'seedrandom'
 import {
@@ -554,23 +554,11 @@ export default async (fastify: FastifyInstance) => {
   // Visitor statistics endpoint
   fastify.get('/visitor-stats', async (req: FastifyRequest, reply) => {
     try {
-      const seq = fastify.models.User.sequelize!
-      const [countRows, profileRows] = await Promise.all([
-        seq.query<{ total: string }>(
-          'SELECT COUNT(*) AS total FROM users',
-          { type: QueryTypes.SELECT }
-        ),
-        seq.query<{ profileVisits: number }>(
-          `SELECT (metadata->>'profileVisits')::int AS "profileVisits" FROM users WHERE id = :id`,
-          { replacements: { id: req.user.id }, type: QueryTypes.SELECT }
-        ),
-      ])
-      return {
-        totalSiteVisitors: Number((countRows as any)[0]?.total ?? 0),
-        userProfileVisits: Number((profileRows as any)[0]?.profileVisits ?? 0),
-      }
-    } catch (err) {
-      fastify.log.error(err, 'visitor-stats query failed')
+      const totalSiteVisitors = await fastify.models.User.count()
+      const userProfileVisits = Number((req.user.metadata as any)?.profileVisits ?? 0)
+      return { totalSiteVisitors, userProfileVisits }
+    } catch (err: any) {
+      console.error('[visitor-stats] error:', err?.message)
       return { totalSiteVisitors: 0, userProfileVisits: 0 }
     }
   })
