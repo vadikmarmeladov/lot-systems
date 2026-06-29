@@ -1244,11 +1244,81 @@ export const Logs: React.FC = React.memo(function LogsInner() {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const time = log.metadata?.time as string | undefined
+
+          const typeCode =
+            entryType === 'task' ? 'TASK' :
+            entryType === 'call' ? 'COMM' :
+            'NOTE'
+
+          const entryDate = date ? dayjs(date) : null
+          const daysUntil = entryDate ? entryDate.diff(dayjs().startOf('day'), 'day') : null
+          const statusCode =
+            daysUntil === null ? '—' :
+            daysUntil < 0 ? `T-${Math.abs(daysUntil)}D` :
+            daysUntil === 0 ? 'TODAY' :
+            daysUntil === 1 ? 'TMR' :
+            `T+${daysUntil}D`
+
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+              <Block label={`CAL [${typeCode}]:`} blockView>
+                <div className="uppercase tracking-widest mb-8">{text || log.text || '—'}</div>
+                {entryDate && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DATE</span>
+                    <span className="tabular-nums opacity-60">{entryDate.format('DD MMM YYYY')}</span>
+                  </div>
+                )}
+                {time && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TIME</span>
+                    <span className="tabular-nums opacity-60">{time}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATUS</span>
+                  <span className="tabular-nums">{statusCode}</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_alert') {
+          const period = log.metadata?.period as string | undefined
+          const eventCount = log.metadata?.eventCount as number | undefined
+          const events = log.metadata?.events as Array<{ text: string; type: string; time?: string }> | undefined
+
+          const headerLabel =
+            period === 'today' ? 'EVENTS TODAY' :
+            period === 'tomorrow' ? 'EVENTS TOMORROW' :
+            'UPCOMING EVENTS'
+
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL [ALERT]:" blockView>
+                <div className="uppercase tracking-widest mb-8">{headerLabel}</div>
+                {eventCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">COUNT</span>
+                    <span className="tabular-nums">{eventCount}</span>
+                  </div>
+                )}
+                {events && events.length > 0 && (
+                  <div className="space-y-4">
+                    {events.map((ev, idx) => (
+                      <div key={idx} className="flex justify-between items-baseline">
+                        <span className="opacity-30 uppercase tracking-widest">
+                          {ev.type === 'task' ? 'TASK' : ev.type === 'call' ? 'COMM' : 'NOTE'}
+                        </span>
+                        <span className="opacity-60 text-right">
+                          {ev.time && <span className="opacity-60 mr-8">{ev.time}</span>}
+                          {ev.text}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )

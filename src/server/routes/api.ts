@@ -1061,6 +1061,8 @@ export default async (fastify: FastifyInstance) => {
       'vitality_strategy_peak',
       // Story generation
       'generated_story',
+      // Calendar alerts (client-generated, fires on mount when today/tomorrow has events)
+      'calendar_alert',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
