@@ -61,4 +61,4 @@ ID             | CLASS        | SUMMARY                                         
 20260625-02    | SELF-ASSEMBLY| QIE P84 longitudinal-drift (Job 22) + OS [MODE]: qos_mode_change handler (Job 23) | GREEN  | 54b71fb  | WORDS: 422 (median 422)
 20260625-03    | SELF-ASSEMBLY| QIE v72 — P84 longitudinal-drift (client) · P85 adaptive-momentum · P86 vitality-strategy-peak · Arch29 Peak Strategist · COCKPIT-RULE pass · dep map 126+ · 86 patterns | GREEN  | 0d8985d  | WORDS: 612 (median 495)
 20260627-01    | WIKI-BUILD   | LOT-WIKI-v66 · FM v73 · 27 sections · cohort profiles (6) · Word Turn Lexicon v10 (126 triggers) · Vocab Index 40+ · About.tsx Day 1023+ | GREEN  | e074756  | WORDS: 680 (median 540)
-20260628-01    | CORPORATE    | LOT® Lent Diet 2026 — extremely successful cohort program outcome · S-2 direct testimony | GREEN  | (pending tag) | WORDS: 298 (median 495) — trend ↓
+20260627-02    | SELF-ASSEMBLY| QIE v74 — P87 weekly-story-reflection · P88 contextual-checkin-momentum · Job 25 archetype-directive-pulse · STORY:/DRCT: handlers · displayableEvents whitelist hygiene · dep map 128+ · 88 patterns | GREEN  | 66082b1  | WORDS: 412 (median 540)
