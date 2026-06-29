@@ -108,18 +108,7 @@ export const System = React.memo(function SystemInner() {
   const usersOnline = useStore(stores.usersOnline)
   const liveMessage = useStore(stores.liveMessage)
   const { data: visitorStats } = useVisitorStats()
-
-  // Persist last-known visitor stats so numbers show immediately on reload
-  const [cachedStats, setCachedStats] = React.useState<{ totalSiteVisitors: number; userProfileVisits: number } | null>(() => {
-    try { return JSON.parse(localStorage.getItem('lot-visitor-stats') || 'null') } catch { return null }
-  })
-  React.useEffect(() => {
-    if (visitorStats !== undefined) {
-      setCachedStats(visitorStats)
-      try { localStorage.setItem('lot-visitor-stats', JSON.stringify(visitorStats)) } catch {}
-    }
-  }, [visitorStats])
-  const displayStats = visitorStats ?? cachedStats
+  const displayStats = visitorStats ?? null
 
   const { data: profile } = useProfile()
   const { data: logs = [] } = useLogs()
@@ -411,7 +400,7 @@ export const System = React.memo(function SystemInner() {
 
         <div>
           <Block label="Users online:">{formatNumberWithCommas(usersOnline)}</Block>
-          <Block label="Total users:">{formatNumberWithCommas(usersTotal)}</Block>
+          <Block label="Total LOT® users:">{formatNumberWithCommas(usersTotal)}</Block>
         </div>
 
         <div>
@@ -581,7 +570,7 @@ export const System = React.memo(function SystemInner() {
             formatNumberWithCommas(usersOnline)
           )}
         </Block>
-        <Block label="Total users:">
+        <Block label="Total LOT® users:">
           {me?.isAdmin ? (
             <GhostButton href="/us" rel="external">
               {formatNumberWithCommas(usersTotal)}
@@ -589,13 +578,6 @@ export const System = React.memo(function SystemInner() {
           ) : (
             formatNumberWithCommas(usersTotal)
           )}
-        </Block>
-      </div>
-
-      {/* Visitor Statistics */}
-      <div>
-        <Block label="Total LOT® visitors:">
-          {displayStats !== null ? formatNumberWithCommas(displayStats.totalSiteVisitors) : <LoadingDots />}
         </Block>
         <Block label="My OS visitors:">
           {displayStats !== null ? formatNumberWithCommas(displayStats.userProfileVisits) : <LoadingDots />}
