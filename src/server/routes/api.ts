@@ -6,7 +6,7 @@
  * Made in the USA | brand.lot-systems.com
  */
 
-import { Op } from 'sequelize'
+import { Op, QueryTypes } from 'sequelize'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import seedrandom from 'seedrandom'
 import {
@@ -553,12 +553,18 @@ export default async (fastify: FastifyInstance) => {
 
   // Visitor statistics endpoint
   fastify.get('/visitor-stats', async (req: FastifyRequest, reply) => {
-    const [totalSiteVisitors, userProfileVisits] = await Promise.all([
-      fastify.models.User.countJoined().catch(() => 0),
-      fastify.models.User.findByPk(req.user.id, { attributes: ['metadata'] })
-        .then((u) => (u?.metadata as any)?.profileVisits ?? 0)
-        .catch(() => req.user.metadata?.profileVisits ?? 0),
+    const [countRows, profileRows] = await Promise.all([
+      fastify.sequelize.query<{ total: string }>(
+        'SELECT COUNT(*) AS total FROM users',
+        { type: QueryTypes.SELECT }
+      ).catch(() => [] as { total: string }[]),
+      fastify.sequelize.query<{ profileVisits: number }>(
+        `SELECT (metadata->>'profileVisits')::int AS "profileVisits" FROM users WHERE id = :id`,
+        { replacements: { id: req.user.id }, type: QueryTypes.SELECT }
+      ).catch(() => [] as { profileVisits: number }[]),
     ])
+    const totalSiteVisitors = Number(countRows[0]?.total ?? 0)
+    const userProfileVisits = Number(profileRows[0]?.profileVisits ?? 0)
     return { totalSiteVisitors, userProfileVisits }
   })
 
