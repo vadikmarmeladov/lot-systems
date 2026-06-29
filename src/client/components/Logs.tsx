@@ -36,6 +36,10 @@ import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneratio
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
+// Module-level guard: tracks which lot_ai_story log ids have fired the story-viewed
+// signal this session. Prevents re-firing on every render.
+const _storyViewedSet = new Set<number>()
+
 const localStore = {
   logById: map<Record<string, Log>>({}),
   logIds: atom<string[]>([]),
@@ -1773,6 +1777,88 @@ export const Logs: React.FC = React.memo(function LogsInner() {
                   <div className="flex justify-between items-baseline">
                     <span className="opacity-30">HOUR</span>
                     <span className="tabular-nums">{String(hour).padStart(2, '0')}:00</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'lot_ai_story') {
+          const weekNumber     = log.metadata?.weekNumber     as number | undefined
+          const weekTone       = log.metadata?.weekTone       as string | undefined
+          const dominantMood   = log.metadata?.dominantMood   as string | undefined
+          const checkinsCount  = log.metadata?.checkinsCount  as number | undefined
+          const selfCareCount  = log.metadata?.selfCareCount  as number | undefined
+          const intentionsCount = log.metadata?.intentionsCount as number | undefined
+          // Record that operator viewed the story — feeds P87 weekly-story-reflection.
+          // Deferred out of render path; module-level Set guards against re-firing.
+          if (weekNumber !== undefined && weekTone !== undefined && typeof window !== 'undefined') {
+            if (!_storyViewedSet.has(id)) {
+              _storyViewedSet.add(id)
+              const wn = weekNumber, wt = weekTone
+              setTimeout(() => {
+                import('../stores/intentionEngine').then(({ recordWeeklyStoryViewed }) => {
+                  recordWeeklyStoryViewed(wn, wt)
+                }).catch(() => {})
+              }, 0)
+            }
+          }
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="STORY:" blockView>
+                {weekNumber !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WEEK</span>
+                    <span className="tabular-nums">W{weekNumber}</span>
+                  </div>
+                )}
+                {weekTone && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TONE</span>
+                    <span className="uppercase">{weekTone}</span>
+                  </div>
+                )}
+                {dominantMood && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MOOD</span>
+                    <span className="uppercase">{dominantMood}</span>
+                  </div>
+                )}
+                {checkinsCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CHK</span>
+                    <span className="tabular-nums">{checkinsCount}</span>
+                  </div>
+                )}
+                {selfCareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfCareCount}</span>
+                  </div>
+                )}
+                {intentionsCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums">{intentionsCount}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'archetype_directive_pulse') {
+          const archetype  = log.metadata?.archetype  as string | undefined
+          const directive  = log.metadata?.directive  as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DRCT:" blockView>
+                {archetype && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARCH</span>
+                    <span className="uppercase">{archetype}</span>
+                  </div>
+                )}
+                {directive && (
+                  <div className="mt-4" style={{ opacity: 0.9 }}>
+                    {directive}
                   </div>
                 )}
               </Block>

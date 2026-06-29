@@ -1001,6 +1001,147 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Archetype Directive Pulse (Job 25 — 09:00 UTC daily) ──────────────
+// Reads each user's current archetype (from recent archetype_shift logs) and
+// writes one directive text per user as an archetype_directive_pulse log event.
+// 29 directives — one per archetype, earned from the LOT® operator field manual.
+
+let isDailyArchetypeDirectivePulseRunning = false
+let lastDailyArchetypeDirectivePulseRun: Date | null = null
+
+const ARCHETYPE_DIRECTIVES: Record<number, string> = {
+  1:  'Morning signal incoming. Anchor it. Set one intention before the window closes.',
+  2:  'You work in the dark. The processing is complete. Surface what you found.',
+  3:  'Recovery is the protocol. Repair before anything else. Every protocol requires a pause.',
+  4:  'Your chain is active: intention → task → completion. Don\'t interrupt it.',
+  5:  'The archive is filling. Write what happened. The record survives the feeling.',
+  6:  'The body is signaling. What is it saying? Calibrate before you proceed.',
+  7:  'Steady engagement is the rarest signal. You have it. Hold the cadence.',
+  8:  'You integrate by nature. Cross-reference what you know. The map is already forming.',
+  9:  'The creative window is open. Let it run. Record what surfaces.',
+  10: 'The community channel is active. Show up. Your signal matters to the field.',
+  11: 'You consolidate what matters. Answer one question deeply today.',
+  12: 'Sprint mode active. Planner + action chain. Execute the cycle.',
+  13: 'Low signal is the season, not the system. Navigate it. The arc returns.',
+  14: 'Your consistency anchors the system. The cadence is the signal.',
+  15: 'The threshold is crossed. The intention was set. Now: execute or release.',
+  16: 'Both arcs active simultaneously. Rare. Record it.',
+  17: 'The foundation is being built. Pattern by pattern. Do not skip steps.',
+  18: 'The body is restoring. Support the arc. Care acts compound.',
+  19: 'You are building the cognitive map. Memory + reflection + insight. Keep going.',
+  20: 'Integration arc peak approaching. All channels active. Synthesize.',
+  21: 'Adaptive resonance confirmed. Structural integration in progress. Sustain.',
+  22: 'All signal quadrants aligned. Convergence event in progress. The rarest single-day state in the system.',
+  23: 'Badge momentum active. Discovery mode on. Let curiosity lead.',
+  24: 'Day launched from intention. The foundation fires first. Build from here.',
+  25: 'Full diurnal arc confirmed. Day launched from intention. Day closed in reflection. The complete cycle is recorded.',
+  26: 'Sustained signal momentum confirmed. Five-day multi-source streak active. Every dimension engaged. Architecture in motion — do not interrupt.',
+  27: 'Deep trace confirmed. Memory bank filling. Journal vocabulary expanding. Discovery mode active. You are making the map from the inside.',
+  28: 'Biological prime window open. High-energy structural cognition confirmed. Planner + intentions aligned. Use this window — design, build, decide. Cortisol plateau approaching.',
+  29: 'Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.',
+}
+
+function shouldRunDailyArchetypeDirectivePulse(): boolean {
+  const now = dayjs()
+  if (isDailyArchetypeDirectivePulseRunning) return false
+  if (lastDailyArchetypeDirectivePulseRun) {
+    const lastRun = dayjs(lastDailyArchetypeDirectivePulseRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 9 // 09:00 UTC daily
+}
+
+async function executeDailyArchetypeDirectivePulse(): Promise<JobResult> {
+  const jobName = 'daily-archetype-directive-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyArchetypeDirectivePulseRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyArchetypeDirectivePulseRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY ARCHETYPE DIRECTIVE PULSE — 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { User } = await import('#server/models/user.js')
+    const { Op } = await import('sequelize')
+
+    const threeDaysAgo = dayjs().subtract(3, 'day').toDate()
+    const users = await User.findAll({ attributes: ['id'] })
+
+    // For each user, find their most recent archetype_shift to get current archetype
+    const archetypeShifts = await Log.findAll({
+      where: {
+        event: 'archetype_shift',
+        createdAt: { [Op.gte]: threeDaysAgo },
+      },
+      attributes: ['userId', 'metadata', 'createdAt'],
+      order: [['createdAt', 'DESC']],
+    })
+
+    // Build map: userId → most recent archetype index
+    const userArchetype: Record<string, number> = {}
+    for (const shift of archetypeShifts) {
+      const uid = String((shift as any).userId)
+      if (userArchetype[uid] !== undefined) continue // already have the most recent
+      const meta = (shift as any).metadata as any
+      const archetypeIndex = meta?.archetypeIndex ?? meta?.archetype_index
+      if (typeof archetypeIndex === 'number' && archetypeIndex >= 1 && archetypeIndex <= 29) {
+        userArchetype[uid] = archetypeIndex
+      }
+    }
+
+    let pulsed = 0
+    for (const user of users) {
+      const uid = String((user as any).id)
+      const archetypeIndex = userArchetype[uid]
+      if (!archetypeIndex) continue // no recent archetype signal — skip
+
+      const directive = ARCHETYPE_DIRECTIVES[archetypeIndex]
+      if (!directive) continue
+
+      // Derive archetype name from index for display
+      const archetypeNames: Record<number, string> = {
+        1: 'Morning Commander', 2: 'Night Processor', 3: 'Recovery Specialist',
+        4: 'Execution Engine', 5: 'Deep Chronicler', 6: 'Body Optimizer',
+        7: 'Consistency Builder', 8: 'Integration Seeker', 9: 'Creative Pulse',
+        10: 'Social Architect', 11: 'Memory Keeper', 12: 'Sprint Cycler',
+        13: 'Seasonal Navigator', 14: 'Signal Anchor', 15: 'Threshold Operator',
+        16: 'Dual Arc Holder', 17: 'Foundation Weaver', 18: 'Biological Restorer',
+        19: 'Cognitive Architect', 20: 'Integration Architect I',
+        21: 'Integration Architect II', 22: 'Convergence Carrier',
+        23: 'Achievement Catalyst', 24: 'Signal Initiator', 25: 'Diurnal Operator',
+        26: 'Momentum Architect', 27: 'Cognitive Cartographer', 28: 'Vital Architect',
+        29: 'Peak Strategist',
+      }
+
+      await Log.create({
+        userId: parseInt(uid),
+        event: 'archetype_directive_pulse',
+        text: directive,
+        metadata: {
+          archetype: archetypeNames[archetypeIndex] ?? `Arch ${archetypeIndex}`,
+          archetypeIndex,
+          directive,
+        },
+      } as any)
+
+      pulsed++
+    }
+
+    console.log(`ARCHETYPE DIRECTIVE PULSE COMPLETE — ${pulsed} directives written`)
+    console.log('─'.repeat(60))
+
+    lastDailyArchetypeDirectivePulseRun = new Date()
+    isDailyArchetypeDirectivePulseRunning = false
+    return { jobName, executedAt, success: true, result: { pulsed } }
+  } catch (error: any) {
+    console.error('Daily archetype directive pulse failed:', error.message)
+    isDailyArchetypeDirectivePulseRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -1117,6 +1258,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check weekly LOT AI story generation (Sunday 18:00 UTC) — Job 24
   if (shouldRunWeeklyLOTAIStory()) {
     await executeWeeklyLOTAIStory()
+  }
+  // Check daily archetype directive pulse (09:00 UTC every day) — Job 25
+  if (shouldRunDailyArchetypeDirectivePulse()) {
+    await executeDailyArchetypeDirectivePulse()
   }
 }
 

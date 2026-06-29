@@ -1058,6 +1058,9 @@ export default async (fastify: FastifyInstance) => {
       // v72: adaptive momentum window + vitality strategy peak
       'adaptive_momentum',
       'vitality_strategy_peak',
+      // v74: weekly AI story (J24) + archetype directive pulse (J25)
+      'lot_ai_story',
+      'archetype_directive_pulse',
       // Story generation
       'generated_story',
     ]
