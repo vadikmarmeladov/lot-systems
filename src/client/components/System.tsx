@@ -107,6 +107,7 @@ export const System = React.memo(function SystemInner() {
   const usersTotal = useStore(stores.usersTotal)
   const usersOnline = useStore(stores.usersOnline)
   const liveMessage = useStore(stores.liveMessage)
+  const appVersion = useStore(stores.appVersion) || process.env.APP_VERSION || '1.3.0'
 
   const { data: visitorStats } = useVisitorStats()
 
@@ -595,10 +596,10 @@ export const System = React.memo(function SystemInner() {
 
       {/* Visitor Statistics */}
       <div>
-        <Block label={`Total LOT® v.${process.env.APP_VERSION} visitors:`}>
+        <Block label={`Total LOT® v.${appVersion} visitors:`}>
           {displayStats !== null ? formatNumberWithCommas(displayStats.totalSiteVisitors) : <LoadingDots />}
         </Block>
-        <Block label={`v.${process.env.APP_VERSION} since:`}>May 28, 2026</Block>
+        <Block label={`v.${appVersion} since:`}>May 28, 2026</Block>
         <Block label="My OS visitors:">
           {displayStats !== null ? formatNumberWithCommas(displayStats.userProfileVisits) : <LoadingDots />}
         </Block>
