@@ -553,19 +553,26 @@ export default async (fastify: FastifyInstance) => {
 
   // Visitor statistics endpoint
   fastify.get('/visitor-stats', async (req: FastifyRequest, reply) => {
-    const [countRows, profileRows] = await Promise.all([
-      fastify.sequelize.query<{ total: string }>(
-        'SELECT COUNT(*) AS total FROM users',
-        { type: QueryTypes.SELECT }
-      ).catch(() => [] as { total: string }[]),
-      fastify.sequelize.query<{ profileVisits: number }>(
-        `SELECT (metadata->>'profileVisits')::int AS "profileVisits" FROM users WHERE id = :id`,
-        { replacements: { id: req.user.id }, type: QueryTypes.SELECT }
-      ).catch(() => [] as { profileVisits: number }[]),
-    ])
-    const totalSiteVisitors = Number(countRows[0]?.total ?? 0)
-    const userProfileVisits = Number(profileRows[0]?.profileVisits ?? 0)
-    return { totalSiteVisitors, userProfileVisits }
+    try {
+      const seq = fastify.models.User.sequelize!
+      const [countRows, profileRows] = await Promise.all([
+        seq.query<{ total: string }>(
+          'SELECT COUNT(*) AS total FROM users',
+          { type: QueryTypes.SELECT }
+        ),
+        seq.query<{ profileVisits: number }>(
+          `SELECT (metadata->>'profileVisits')::int AS "profileVisits" FROM users WHERE id = :id`,
+          { replacements: { id: req.user.id }, type: QueryTypes.SELECT }
+        ),
+      ])
+      return {
+        totalSiteVisitors: Number((countRows as any)[0]?.total ?? 0),
+        userProfileVisits: Number((profileRows as any)[0]?.profileVisits ?? 0),
+      }
+    } catch (err) {
+      fastify.log.error(err, 'visitor-stats query failed')
+      return { totalSiteVisitors: 0, userProfileVisits: 0 }
+    }
   })
 
   fastify.post(

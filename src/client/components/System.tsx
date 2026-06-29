@@ -109,6 +109,19 @@ export const System = React.memo(function SystemInner() {
   const liveMessage = useStore(stores.liveMessage)
 
   const { data: visitorStats } = useVisitorStats()
+
+  // Persist last-known visitor stats so numbers show immediately on reload
+  const [cachedStats, setCachedStats] = React.useState<{ totalSiteVisitors: number; userProfileVisits: number } | null>(() => {
+    try { return JSON.parse(localStorage.getItem('lot-visitor-stats') || 'null') } catch { return null }
+  })
+  React.useEffect(() => {
+    if (visitorStats) {
+      setCachedStats(visitorStats)
+      try { localStorage.setItem('lot-visitor-stats', JSON.stringify(visitorStats)) } catch {}
+    }
+  }, [visitorStats])
+  const displayStats = visitorStats ?? cachedStats
+
   const { data: profile } = useProfile()
   const { data: logs = [] } = useLogs()
   const { data: communityEmotion } = useCommunityEmotion()
@@ -583,10 +596,10 @@ export const System = React.memo(function SystemInner() {
       {/* Visitor Statistics */}
       <div>
         <Block label="Total LOT visitors:">
-          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.totalSiteVisitors) : <LoadingDots />}
+          {displayStats !== null ? formatNumberWithCommas(displayStats.totalSiteVisitors) : <LoadingDots />}
         </Block>
         <Block label="My OS visitors:">
-          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.userProfileVisits) : <LoadingDots />}
+          {displayStats !== null ? formatNumberWithCommas(displayStats.userProfileVisits) : <LoadingDots />}
         </Block>
       </div>
 
