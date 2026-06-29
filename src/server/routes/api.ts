@@ -554,7 +554,7 @@ export default async (fastify: FastifyInstance) => {
   // Visitor statistics endpoint
   fastify.get('/visitor-stats', async (req: FastifyRequest, reply) => {
     try {
-      const totalSiteVisitors = await fastify.models.User.count()
+      const totalSiteVisitors = await fastify.models.User.countJoined()
       const userProfileVisits = Number((req.user.metadata as any)?.profileVisits ?? 0)
       return { totalSiteVisitors, userProfileVisits }
     } catch (err: any) {
