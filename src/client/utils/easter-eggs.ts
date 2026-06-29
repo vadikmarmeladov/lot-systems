@@ -290,6 +290,132 @@ export function checkStackMirror(): BadgeType | null {
   return null
 }
 
+// ── Time v9 — Power-Up Hours ──────────────────────────────────────────────────
+
+export function checkLuckySeven(): BadgeType | null {
+  if (hasBadge('lucky_seven')) return null
+  const now = new Date()
+  if (now.getHours() === 7 && now.getMinutes() === 0) {
+    awardBadge('lucky_seven')
+    return 'lucky_seven'
+  }
+  return null
+}
+
+export function checkMirrorPlay(): BadgeType | null {
+  if (hasBadge('mirror_play')) return null
+  const now = new Date()
+  if (now.getHours() === 15 && now.getMinutes() === 15) {
+    awardBadge('mirror_play')
+    return 'mirror_play'
+  }
+  return null
+}
+
+export function checkNeonStack(): BadgeType | null {
+  if (hasBadge('neon_stack')) return null
+  const now = new Date()
+  if (now.getHours() === 19 && now.getMinutes() === 19) {
+    awardBadge('neon_stack')
+    return 'neon_stack'
+  }
+  return null
+}
+
+export function checkFourAces(): BadgeType | null {
+  if (hasBadge('four_aces')) return null
+  const now = new Date()
+  if (now.getHours() === 4 && now.getMinutes() === 44) {
+    awardBadge('four_aces')
+    return 'four_aces'
+  }
+  return null
+}
+
+// ── Time v10 — Arcane Hours ───────────────────────────────────────────────────
+
+export function checkDawnGate(): BadgeType | null {
+  if (hasBadge('dawn_gate')) return null
+  const now = new Date()
+  if (now.getHours() === 6 && now.getMinutes() === 6) {
+    awardBadge('dawn_gate')
+    return 'dawn_gate'
+  }
+  return null
+}
+
+export function checkNoonFold(): BadgeType | null {
+  if (hasBadge('noon_fold')) return null
+  const now = new Date()
+  if (now.getHours() === 12 && now.getMinutes() === 21) {
+    awardBadge('noon_fold')
+    return 'noon_fold'
+  }
+  return null
+}
+
+export function checkEveningPrime(): BadgeType | null {
+  if (hasBadge('evening_prime')) return null
+  const now = new Date()
+  if (now.getHours() === 21 && now.getMinutes() === 0) {
+    awardBadge('evening_prime')
+    return 'evening_prime'
+  }
+  return null
+}
+
+export function checkNightMirror(): BadgeType | null {
+  if (hasBadge('night_mirror')) return null
+  const now = new Date()
+  if (now.getHours() === 23 && now.getMinutes() === 23) {
+    awardBadge('night_mirror')
+    return 'night_mirror'
+  }
+  return null
+}
+
+// ── Time v11 — Navigator Hours ────────────────────────────────────────────────
+
+export function checkAfternoonMirror(): BadgeType | null {
+  if (hasBadge('afternoon_mirror')) return null
+  const now = new Date()
+  if (now.getHours() === 13 && now.getMinutes() === 13) {
+    awardBadge('afternoon_mirror')
+    return 'afternoon_mirror'
+  }
+  return null
+}
+
+export function checkNavigatorDawn(): BadgeType | null {
+  if (hasBadge('navigator_dawn')) return null
+  const now = new Date()
+  if (now.getHours() === 5 && now.getMinutes() === 12) {
+    awardBadge('navigator_dawn')
+    return 'navigator_dawn'
+  }
+  return null
+}
+
+export function checkAnswerHourV11(): BadgeType | null {
+  if (hasBadge('answer_hour_v11')) return null
+  const now = new Date()
+  if (now.getHours() === 18 && now.getMinutes() === 42) {
+    awardBadge('answer_hour_v11')
+    return 'answer_hour_v11'
+  }
+  return null
+}
+
+export function checkPalindromeCheck(): BadgeType | null {
+  if (hasBadge('palindrome_check')) return null
+  const now = new Date()
+  if (now.getHours() === 10 && now.getMinutes() === 1) {
+    awardBadge('palindrome_check')
+    return 'palindrome_check'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
@@ -305,6 +431,12 @@ export function checkTimeEasterEggs(): BadgeType[] {
     checkDeepNight, checkMiddaySignal, checkLiminalHour, checkSacredTriple,
     // v8 — Clock Cycles
     checkClockFortyTwo, checkNoonKernel, checkByteTime, checkStackMirror,
+    // v9 — Power-Up Hours
+    checkLuckySeven, checkMirrorPlay, checkNeonStack, checkFourAces,
+    // v10 — Arcane Hours
+    checkDawnGate, checkNoonFold, checkEveningPrime, checkNightMirror,
+    // v11 — Navigator Hours
+    checkAfternoonMirror, checkNavigatorDawn, checkAnswerHourV11, checkPalindromeCheck,
   ]
   for (const check of checks) {
     const result = check()
@@ -443,6 +575,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('halloween_protocol') && month === 10 && day === 31) {
     awardBadge('halloween_protocol')
     awarded.push('halloween_protocol')
+  }
+
+  // ── Calendar v10 — Navigation Dates ──────────────────────────────────────────
+
+  // Voyager Day: August 25 — Voyager 2 launched 1977
+  if (!hasBadge('voyager_day') && month === 8 && day === 25) {
+    awardBadge('voyager_day')
+    awarded.push('voyager_day')
+  }
+
+  // Navigator's Day: October 12
+  if (!hasBadge('navigators_day') && month === 10 && day === 12) {
+    awardBadge('navigators_day')
+    awarded.push('navigators_day')
+  }
+
+  // Leap Day: February 29 (only exists in leap years)
+  if (!hasBadge('leap_day') && month === 2 && day === 29) {
+    awardBadge('leap_day')
+    awarded.push('leap_day')
   }
 
   return awarded
@@ -839,11 +991,54 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bloop(ed|ing|s)?\b/i,                badge: 'loop_detected' },
   { patterns: /\broot\b/i,                           badge: 'root_access' },
   { patterns: /\bdebug(ged|ging|s)?\b/i,             badge: 'debug_mode_badge' },
-  // ── Secret Boss word triggers ─────────────────────────────────────────────
+  // ── v9 — The Arcade Cabinet ──────────────────────────────────────────────────
+  { patterns: /\bcoin(s)?\b/i,                       badge: 'coin_dropped' },
+  { patterns: /\bpixel(s|ated|ate)?\b/i,             badge: 'pixel_recognized' },
+  { patterns: /\bsprite(s)?\b/i,                     badge: 'sprite_active' },
+  { patterns: /\bscore(d|s|board)?\b/i,              badge: 'score_logged' },
+  { patterns: /\b(life|lives|extra.?life)\b/i,       badge: 'life_remaining' },
+  { patterns: /\bjoystick(s)?\b/i,                   badge: 'input_received' },
+  { patterns: /\bblip(s|ped|ping)?\b/i,              badge: 'signal_blip' },
+  { patterns: /\bcontinue(d|s)?\b/i,                 badge: 'continue_selected' },
+  { patterns: /\bhigh.?score\b/i,                    badge: 'high_signal' },
+  { patterns: /\breset(s|ting|ted)?\b/i,             badge: 'reset_protocol' },
+  { patterns: /\bquarter(s|back)?\b/i,               badge: 'quarter_offered' },
+  { patterns: /\bcheat(s|ed|ing|.?code)?\b/i,        badge: 'cheat_code_entered' },
+  // ── v10 — The Spell Book ──────────────────────────────────────────────────────
+  { patterns: /\bspell(s|ed|ing|bound)?\b/i,         badge: 'spell_cast' },
+  { patterns: /\bcast(s|ing)?\b/i,                   badge: 'cast_signal' },
+  { patterns: /\binvoke(d|s|r)?\b/i,                 badge: 'invoked' },
+  { patterns: /\barcane\b/i,                         badge: 'arcane_entry' },
+  { patterns: /\bsigil(s)?\b/i,                      badge: 'sigil_drawn' },
+  { patterns: /\btome(s)?\b/i,                       badge: 'tome_keeper' },
+  { patterns: /\bgrimoire(s)?\b/i,                   badge: 'grimoire_open' },
+  { patterns: /\bward(s|ed|ing)?\b/i,                badge: 'ward_active' },
+  { patterns: /\bmana\b/i,                           badge: 'mana_check' },
+  { patterns: /\bfamiliar(s)?\b/i,                   badge: 'familiar_bond' },
+  { patterns: /\bchapter(s)?\b/i,                    badge: 'chapter_mark' },
+  { patterns: /\bverse(s)?\b/i,                      badge: 'verse_logged' },
+  // ── v11 — The Navigator ───────────────────────────────────────────────────────
+  { patterns: /\bdrift(s|ed|ing)?\b/i,               badge: 'nav_drift' },
+  { patterns: /\bvector(s|ed|ing)?\b/i,              badge: 'nav_vector' },
+  { patterns: /\bbearing(s)?\b/i,                    badge: 'nav_bearing' },
+  { patterns: /\bwaypoint(s)?\b/i,                   badge: 'nav_waypoint' },
+  { patterns: /\bchart(s|ed|ing)?\b/i,               badge: 'nav_chart' },
+  { patterns: /\bmagnetic\b/i,                       badge: 'nav_magnetic' },
+  { patterns: /\bmeridian(s)?\b/i,                   badge: 'nav_meridian' },
+  { patterns: /\bcourse(s|d)?\b/i,                   badge: 'nav_course' },
+  { patterns: /\bheading(s)?\b/i,                    badge: 'nav_heading' },
+  { patterns: /\blandmark(s)?\b/i,                   badge: 'nav_landmark' },
+  { patterns: /\bnavigate(d|s|r)?\b/i,               badge: 'nav_navigate' },
+  { patterns: /\bcompass(es)?\b/i,                   badge: 'nav_compass' },
+  // ── Secret Boss word triggers ─────────────────────────────────────────────────
   { patterns: /\bi am lot\b/i,                       badge: 'i_am_lot' },
   { patterns: /\bmalibu\b/i,                         badge: 'malibu' },
   { patterns: /\bkuzya\b/i,                          badge: 'the_cat_knows' },
   { patterns: /\b0451\b/,                            badge: 'key_code' },
+  // ── v11 Secret Boss — Terra Incognita word triggers ───────────────────────────
+  { patterns: /dead.?reckoning/i,                    badge: 'dead_reckoning_word' },
+  { patterns: /terra.?incognita/i,                   badge: 'terra_incognita' },
+  { patterns: /(magnetic.?north|true.?north)/i,       badge: 'true_north' },
 ]
 
 /**

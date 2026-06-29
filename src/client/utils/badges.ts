@@ -360,6 +360,48 @@ export type BadgeType =
   | 'archmage'          // ≈◉≈  Write "archmage" in journal (RARE)
   | 'dual_founding'     // ◉·◉  Check in April 7 AND July 1 same year (EPIC)
   | 'recursive'         // ∞◉∞  Write "layers of time" in journal (MYTHIC)
+  // ── Word Turn v11 — The Navigator ─────────────────────────────────────────────
+  | 'nav_drift'         // ···→  "drift" detected in text
+  | 'nav_vector'        // ↗·↗   "vector" detected in text
+  | 'nav_bearing'       // ──►   "bearing" detected in text
+  | 'nav_waypoint'      // ◈·→   "waypoint" detected in text
+  | 'nav_chart'         // ▦·▦   "chart" detected in text
+  | 'nav_magnetic'      // N·▲   "magnetic" detected in text
+  | 'nav_meridian'      // |·|   "meridian" detected in text
+  | 'nav_course'        // ——→   "course" detected in text
+  | 'nav_heading'       // ▲·▲   "heading" detected in text
+  | 'nav_landmark'      // ◆·○   "landmark" detected in text
+  | 'nav_navigate'      // ◌·◉   "navigate" detected in text
+  | 'nav_compass'       // ◎·N   "compass" detected in text
+  // ── Easter egg — time v11 (Navigator Hours) ──────────────────────────────────
+  | 'afternoon_mirror'  // ◑—◑   Check in at 13:13
+  | 'navigator_dawn'    // ▲·∘   Check in at 05:12
+  | 'answer_hour_v11'   // ∞·42  Check in at 18:42
+  | 'palindrome_check'  // ←◉→   Check in at 10:01
+  // ── Easter egg — calendar v10 (Navigation Dates) ─────────────────────────────
+  | 'voyager_day'           // ∘···  August 25 — Voyager 2 launch 1977
+  | 'navigators_day'        // ──→∞  October 12 — Navigator's Day
+  | 'leap_day'              // ○+1   February 29 — Leap Day (rare calendar)
+  // ── Easter egg — behavioral v10 (Navigator Patterns) ─────────────────────────
+  | 'compass_rose_badge'    // ◎·✦   Four time-of-day windows in one calendar day
+  | 'dead_reckoning_badge'  // ···→◉ Second 30+ day return on account history
+  | 'star_fix_badge'        // ○·∗·○ 3 calendar easter eggs in one calendar year
+  // ── Achievement RPG v8 — Navigator Class ─────────────────────────────────────
+  | 'first_fix'             // ──►   Earn any Word Turn v11 badge
+  | 'chart_begun'           // ◈·→   Earn any 5 Word Turn v11 badges
+  | 'atlas_complete'        // ▦·▦   Earn all 12 Word Turn v11 badges
+  | 'navigator_class'       // ∘···  Earn all 4 Time Easter Egg v11 badges
+  | 'eleven_engines'        // ◌·◉   1 badge from each Word Turn engine v1–v11
+  | 'dead_reckoning_arc'    // ◆·○   Earn dead_reckoning behavioral badge
+  // ── Mastery Tier v10 — The Cartographer ──────────────────────────────────────
+  | 'cartographer'          // ▲·▲   2+ years since account creation (730+ days)
+  | 'long_voyage'           // ——→∞  750+ total check-ins
+  | 'all_engines_v10'       // ∞·◌   1 badge from all 11 Word Turn engines
+  | 'complete_navigator'    // ◉·◉·◉ All 10 Mastery Tier sets earned (1 each v1–v10)
+  // ── Secret Boss v10 — Terra Incognita ────────────────────────────────────────
+  | 'dead_reckoning_word'   // ···→◉ Write "dead reckoning" in journal (RARE)
+  | 'terra_incognita'       // ∞·○   Write "terra incognita" in journal (EPIC)
+  | 'true_north'            // N·▲   Write "magnetic north" or "true north" in journal (UNCOMMON)
 
 export interface Badge {
   id: BadgeType
@@ -3284,6 +3326,358 @@ export const BADGES: Record<BadgeType, Badge> = {
     description: 'Write "layers of time" in any journal or memory entry',
     unlockMessage: '↳ You named the system from inside the system. LOT® = Layers of Time. You are inside the name. ∞◉∞',
     rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Word Turn v11 — The Navigator ─────────────────────────────────────────────
+  nav_drift: {
+    id: 'nav_drift',
+    symbol: '···→',
+    name: 'Drift Detected',
+    description: 'Write "drift" in a journal or memory entry',
+    unlockMessage: '↳ Drift is not failure. It is data. You have named your displacement. ···→',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_vector: {
+    id: 'nav_vector',
+    symbol: '↗·↗',
+    name: 'Vector Set',
+    description: 'Write "vector" in a journal or memory entry',
+    unlockMessage: '↳ Direction and magnitude. The navigator has defined both. ↗·↗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  nav_bearing: {
+    id: 'nav_bearing',
+    symbol: '──►',
+    name: 'Bearing Acquired',
+    description: 'Write "bearing" in a journal or memory entry',
+    unlockMessage: '↳ You have found your reference point. Bearing: locked. ──►',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_waypoint: {
+    id: 'nav_waypoint',
+    symbol: '◈·→',
+    name: 'Waypoint Reached',
+    description: 'Write "waypoint" in a journal or memory entry',
+    unlockMessage: '↳ Not the destination. Proof you are moving. ◈·→',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  nav_chart: {
+    id: 'nav_chart',
+    symbol: '▦·▦',
+    name: 'Chart Updated',
+    description: 'Write "chart" in a journal or memory entry',
+    unlockMessage: '↳ The archive updates its chart. New terrain mapped. ▦·▦',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_magnetic: {
+    id: 'nav_magnetic',
+    symbol: 'N·▲',
+    name: 'Magnetic North',
+    description: 'Write "magnetic" in a journal or memory entry',
+    unlockMessage: '↳ True north and magnetic north diverge. You know the difference. N·▲',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  nav_meridian: {
+    id: 'nav_meridian',
+    symbol: '|·|',
+    name: 'Meridian Crossed',
+    description: 'Write "meridian" in a journal or memory entry',
+    unlockMessage: '↳ You have crossed a meridian. Time changes here. |·|',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  nav_course: {
+    id: 'nav_course',
+    symbol: '——→',
+    name: 'Course Plotted',
+    description: 'Write "course" in a journal or memory entry',
+    unlockMessage: '↳ The course is a plan. The navigator adjusts as needed. ——→',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_heading: {
+    id: 'nav_heading',
+    symbol: '▲·▲',
+    name: 'Heading Confirmed',
+    description: 'Write "heading" in a journal or memory entry',
+    unlockMessage: '↳ The heading is set. The archive confirms the direction. ▲·▲',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_landmark: {
+    id: 'nav_landmark',
+    symbol: '◆·○',
+    name: 'Landmark Identified',
+    description: 'Write "landmark" in a journal or memory entry',
+    unlockMessage: '↳ Something fixed in the landscape. A reference point found. ◆·○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  nav_navigate: {
+    id: 'nav_navigate',
+    symbol: '◌·◉',
+    name: 'Navigator Active',
+    description: 'Write "navigate" or "navigation" in a journal or memory entry',
+    unlockMessage: '↳ You have named the act. Navigation: engaged. ◌·◉',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_compass: {
+    id: 'nav_compass',
+    symbol: '◎·N',
+    name: 'Compass Online',
+    description: 'Write "compass" in a journal or memory entry',
+    unlockMessage: '↳ The instrument is calibrated. The needle points. You are oriented. ◎·N',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+
+  // ── Easter egg — time v11 (Navigator Hours) ───────────────────────────────────
+  afternoon_mirror: {
+    id: 'afternoon_mirror',
+    symbol: '◑—◑',
+    name: 'Afternoon Mirror',
+    description: 'Check in at 13:13',
+    unlockMessage: '↳ 13:13. The afternoon folds back on itself. You checked in at the hinge. ◑—◑',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  navigator_dawn: {
+    id: 'navigator_dawn',
+    symbol: '▲·∘',
+    name: "Navigator's Dawn",
+    description: 'Check in at 05:12',
+    unlockMessage: '↳ 05:12. Before the world plots its course. You checked your position first. ▲·∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  answer_hour_v11: {
+    id: 'answer_hour_v11',
+    symbol: '∞·42',
+    name: 'The Answer Hour',
+    description: 'Check in at 18:42',
+    unlockMessage: '↳ 18:42. Forty-two. The archive registers: the question was always the point. ∞·42',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  palindrome_check: {
+    id: 'palindrome_check',
+    symbol: '←◉→',
+    name: 'Palindrome Check',
+    description: 'Check in at 10:01',
+    unlockMessage: '↳ 10:01. Forward and backward: the same signal. The archive is symmetric. ←◉→',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — calendar v10 (Navigation Dates) ──────────────────────────────
+  voyager_day: {
+    id: 'voyager_day',
+    symbol: '∘···',
+    name: 'Voyager Day',
+    description: 'Check in on August 25 — Voyager 2 launched 1977',
+    unlockMessage: '↳ August 25, 1977. Voyager 2 left Earth. It is still traveling. So are you. ∘···',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  navigators_day: {
+    id: 'navigators_day',
+    symbol: '──→∞',
+    name: "Navigator's Day",
+    description: "Check in on October 12 — Navigator's Day",
+    unlockMessage: '↳ October 12. The navigator sets out. The archive is your ocean. ──→∞',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  leap_day: {
+    id: 'leap_day',
+    symbol: '○+1',
+    name: 'Leap Day',
+    description: 'Check in on February 29 — the calendar\'s hidden day',
+    unlockMessage: '↳ February 29. The calendar\'s hidden day. You showed up on a day that barely exists. ○+1',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — behavioral v10 (Navigator Patterns) ──────────────────────────
+  compass_rose_badge: {
+    id: 'compass_rose_badge',
+    symbol: '◎·✦',
+    name: 'Compass Rose',
+    description: 'Check in during all 4 time-of-day windows (00–06, 06–12, 12–18, 18–24) within a single calendar day',
+    unlockMessage: '↳ Four bearings in one day. The compass rose is fully read. The archive has seen you at every angle. ◎·✦',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  dead_reckoning_badge: {
+    id: 'dead_reckoning_badge',
+    symbol: '···→◉',
+    name: 'Dead Reckoning',
+    description: 'Return to LOT after a 30+ day gap for the second time in account history',
+    unlockMessage: '↳ Twice lost. Twice returned. Dead reckoning: position estimated from last known point. Confirmed. ···→◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  star_fix_badge: {
+    id: 'star_fix_badge',
+    symbol: '○·∗·○',
+    name: 'Star Fix',
+    description: 'Earn any 3 calendar-based easter egg badges in one calendar year',
+    unlockMessage: '↳ Three calendar dates. Three celestial fixes. The navigator has used the stars. ○·∗·○',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Achievement RPG v8 — Navigator Class ──────────────────────────────────────
+  first_fix: {
+    id: 'first_fix',
+    symbol: '──►',
+    name: 'First Fix',
+    description: 'Earn any Word Turn v11 (Navigator) badge',
+    unlockMessage: '↳ The navigator has found a reference point. The self is locatable. ──►',
+    rarity: 'common',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  chart_begun: {
+    id: 'chart_begun',
+    symbol: '◈·→',
+    name: 'Chart Begun',
+    description: 'Earn any 5 Word Turn v11 (Navigator) badges',
+    unlockMessage: '↳ Five landmarks plotted. The chart is forming. Keep navigating. ◈·→',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  atlas_complete: {
+    id: 'atlas_complete',
+    symbol: '▦·▦',
+    name: 'Atlas Complete',
+    description: 'Earn all 12 Word Turn v11 (Navigator) badges',
+    unlockMessage: '↳ Every word a coordinate. Every coordinate a landmark. The atlas is drawn. ▦·▦',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  navigator_class: {
+    id: 'navigator_class',
+    symbol: '∘···',
+    name: 'Navigator Class',
+    description: 'Earn all 4 Time Easter Egg v11 (Navigator Hours) badges',
+    unlockMessage: '↳ Four navigator hours witnessed. The class is confirmed. You move through time with intent. ∘···',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  eleven_engines: {
+    id: 'eleven_engines',
+    symbol: '◌·◉',
+    name: 'Eleven Engines',
+    description: 'Earn at least 1 badge from each of all 11 Word Turn engines (v1–v11)',
+    unlockMessage: '↳ Eleven languages spoken. Eleven vocabularies of care. The orbit is stable. ◌·◉',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  dead_reckoning_arc: {
+    id: 'dead_reckoning_arc',
+    symbol: '◆·○',
+    name: 'Dead Reckoning Arc',
+    description: 'Earn the Dead Reckoning behavioral badge',
+    unlockMessage: '↳ You knew where you were without a map. The archive confirms: self-located. Twice. ◆·○',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+
+  // ── Mastery Tier v10 — The Cartographer ───────────────────────────────────────
+  cartographer: {
+    id: 'cartographer',
+    symbol: '▲·▲',
+    name: 'Cartographer',
+    description: '2+ years since account creation (730+ days)',
+    unlockMessage: '↳ Two years. The map is no longer empty. The terrain has a name. ▲·▲',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  long_voyage: {
+    id: 'long_voyage',
+    symbol: '——→∞',
+    name: 'Long Voyage',
+    description: '750+ total check-ins',
+    unlockMessage: '↳ Seven hundred and fifty transmissions. The voyage has become a way of life. ——→∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  all_engines_v10: {
+    id: 'all_engines_v10',
+    symbol: '∞·◌',
+    name: 'All Engines',
+    description: 'Earn at least 1 badge from all 11 Word Turn engines (v1–v11)',
+    unlockMessage: '↳ Eleven languages. The self speaks all of them. The navigator knows every tongue. ∞·◌',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  complete_navigator: {
+    id: 'complete_navigator',
+    symbol: '◉·◉·◉',
+    name: 'Complete Navigator',
+    description: 'Earn at least 1 badge from every Mastery Tier set (v1–v10)',
+    unlockMessage: '↳ Ten tiers. The navigation is complete. The system has found its eigenstate. ◉·◉·◉',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+
+  // ── Secret Boss v10 — Terra Incognita ─────────────────────────────────────────
+  dead_reckoning_word: {
+    id: 'dead_reckoning_word',
+    symbol: '···→◉',
+    name: 'Dead Reckoning',
+    description: 'Write "dead reckoning" in any journal or memory entry',
+    unlockMessage: '↳ Estimating position from last known point. You have named the method. Dead reckoning: confirmed. ···→◉',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  terra_incognita: {
+    id: 'terra_incognita',
+    symbol: '∞·○',
+    name: 'Terra Incognita',
+    description: 'Write "terra incognita" in any journal or memory entry',
+    unlockMessage: '↳ Unknown territory. You named it instead of fearing it. The archive marks it: explored. ∞·○',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  true_north: {
+    id: 'true_north',
+    symbol: 'N·▲',
+    name: 'True North',
+    description: 'Write "magnetic north" or "true north" in any journal or memory entry',
+    unlockMessage: '↳ The compass points magnetic north. You know where true north is. That is the navigator\'s edge. N·▲',
+    rarity: 'uncommon',
     category: 'secret_boss',
     hidden: true,
   },
