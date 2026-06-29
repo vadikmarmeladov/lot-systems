@@ -386,6 +386,12 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'direct_message': {
+          if (data.receiverId === req.user.id || data.senderId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
       }
     })
 
@@ -3787,6 +3793,20 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       console.error('Error calculating community emotion:', error)
       return reply.status(500).send({ error: 'Failed to calculate community emotion' })
     }
+  })
+
+  // LOT® Mail — search users by first name (for /email compose)
+  fastify.get('/users/search', async (req: FastifyRequest<{
+    Querystring: { q: string }
+  }>, reply) => {
+    const q = (req.query.q || '').trim()
+    if (q.length < 2) return reply.status(400).send({ error: 'Query too short' })
+    const users = await fastify.models.User.findAll({
+      where: { firstName: { [Op.iLike]: `%${q}%` } },
+      attributes: ['id', 'firstName', 'lastName'],
+      limit: 10,
+    })
+    return reply.send({ users: users.map(u => ({ id: u.id, firstName: u.firstName, lastName: u.lastName })) })
   })
 
   // Get direct message thread with another user

@@ -43,6 +43,9 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT® Mail inbox: incoming direct messages
+  const [inboxMessages, setInboxMessages] = React.useState<Array<{ id: string; senderName: string; message: string; createdAt: string }>>([])
+  const [inboxExpanded, setInboxExpanded] = React.useState(false)
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -101,9 +104,22 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeDirectMessageListener } = sync.listen(
+      'direct_message',
+      (data: any) => {
+        if (data.receiverId === me?.id) {
+          setInboxMessages((prev) => {
+            if (prev.some((m) => m.id === data.id)) return prev
+            return [{ id: data.id, senderName: data.senderName, message: data.message, createdAt: data.createdAt }, ...prev]
+          })
+          setInboxExpanded(true)
+        }
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeDirectMessageListener()
     }
   }, [me?.id])
 
@@ -154,6 +170,30 @@ export const Sync = React.memo(function SyncInner() {
 
   return (
     <div className="max-w-[700px]">
+      {inboxMessages.length > 0 && (
+        <div className="mb-40">
+          <div
+            className="flex items-center gap-x-8 mb-8 cursor-pointer opacity-60 hover:opacity-80"
+            onClick={() => setInboxExpanded(prev => !prev)}
+          >
+            <span style={{ fontSize: '11px', letterSpacing: '0.08em' }}>✉️ MAIL</span>
+            <span style={{ fontSize: '11px', letterSpacing: '0.06em', opacity: 0.6 }}>
+              {inboxMessages.length} {inboxMessages.length === 1 ? 'message' : 'messages'}
+            </span>
+          </div>
+          {inboxExpanded && inboxMessages.map((msg) => (
+            <div key={msg.id} className="flex items-start gap-x-8 mb-8 -mx-4 px-4 py-2">
+              <span className="whitespace-nowrap opacity-80" style={{ minWidth: 80 }}>{msg.senderName}</span>
+              <span
+                className="opacity-60"
+                style={{ wordBreak: 'break-word', wordWrap: 'break-word' }}
+              >
+                {msg.message}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}

@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendDirectMessage, searchUsers } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -1862,6 +1862,10 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailStatus, setEmailStatus] = React.useState<'idle' | 'searching' | 'compose' | 'not_found' | 'sending' | 'sent' | 'error'>('idle')
+  const [emailRecipient, setEmailRecipient] = React.useState<{ id: string; name: string } | null>(null)
+  const [emailBody, setEmailBody] = React.useState('')
+  const { mutate: sendEmail } = useSendDirectMessage()
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -2259,6 +2263,7 @@ const NoteEditor = ({
         const lines = [
           'AVAILABLE COMMANDS',
           '',
+          '/email [to]   Compose LOT® Mail to a community member',
           '/prayer       Generate contextual scripture',
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
@@ -2298,6 +2303,23 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'email-compose') {
+        const match = value.match(/\/email\s+to\s+(\S+)(?:\s+([\s\S]*))?/i)
+        if (match && emailStatus === 'idle') {
+          const name = match[1].replace(/[.,!?]$/, '').trim()
+          const body = (match[2] || '').trim()
+          setEmailStatus('searching')
+          setEmailBody(body)
+          searchUsers(name).then(users => {
+            const found = users.find(u => u.firstName.toLowerCase() === name.toLowerCase()) || users[0]
+            if (found) {
+              setEmailRecipient({ id: found.id, name: `${found.firstName} ${found.lastName || ''}`.trim() })
+              setEmailStatus('compose')
+            } else {
+              setEmailStatus('not_found')
+            }
+          }).catch(() => setEmailStatus('not_found'))
         }
       }
     }
@@ -2561,6 +2583,71 @@ const NoteEditor = ({
                     <div key={idx}>{line || <br />}</div>
                   ))}
                 </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {emailStatus !== 'idle' && (
+          <div className="mt-8">
+            <Block label="✉️ MAIL:" blockView>
+              {emailStatus === 'searching' && (
+                <div className="opacity-40 tracking-widest">SEARCHING...</div>
+              )}
+              {emailStatus === 'not_found' && (
+                <div className="opacity-60">USER NOT FOUND IN LOT COMMUNITY</div>
+              )}
+              {(emailStatus === 'compose' || emailStatus === 'sending') && emailRecipient && (
+                <div>
+                  <div className="opacity-40 mb-8" style={{ fontSize: '11px', letterSpacing: '0.08em' }}>
+                    TO  {emailRecipient.name.toUpperCase()}
+                  </div>
+                  <ResizibleGhostInput
+                    direction="vh"
+                    value={emailBody}
+                    onChange={setEmailBody}
+                    placeholder="Message..."
+                    containerClassName="flex-grow leading-normal mb-8"
+                    className="leading-normal"
+                  />
+                  <div className="flex gap-x-8 mt-4">
+                    <Button
+                      kind="secondary"
+                      size="small"
+                      disabled={!emailBody.trim() || emailStatus === 'sending'}
+                      onClick={() => {
+                        if (!emailRecipient || !emailBody.trim()) return
+                        setEmailStatus('sending')
+                        sendEmail(
+                          { receiverId: emailRecipient.id, message: emailBody.trim() },
+                          {
+                            onSuccess: () => setEmailStatus('sent'),
+                            onError: () => setEmailStatus('error'),
+                          }
+                        )
+                      }}
+                    >
+                      {emailStatus === 'sending' ? '...' : 'Send'}
+                    </Button>
+                    <Button
+                      kind="ghost"
+                      size="small"
+                      onClick={() => { setEmailStatus('idle'); setEmailRecipient(null); setEmailBody('') }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {emailStatus === 'sent' && (
+                <div className="opacity-60">
+                  <div>SENT ✓</div>
+                  <div className="opacity-60 mt-4" style={{ fontSize: '11px', letterSpacing: '0.06em' }}>
+                    MESSAGE DELIVERED TO {(emailRecipient?.name || '').toUpperCase()} VIA LOT® SYNC
+                  </div>
+                </div>
+              )}
+              {emailStatus === 'error' && (
+                <div className="opacity-60">SEND FAILED — CHECK CONNECTION AND RETRY</div>
               )}
             </Block>
           </div>

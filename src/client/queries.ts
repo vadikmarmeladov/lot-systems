@@ -120,6 +120,13 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+export async function searchUsers(q: string): Promise<Array<{ id: string; firstName: string; lastName: string }>> {
+  const { data } = await api.get<{ users: Array<{ id: string; firstName: string; lastName: string }> }>(
+    `/api/users/search?q=${encodeURIComponent(q)}`
+  )
+  return data.users
+}
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })
