@@ -107,8 +107,6 @@ export const System = React.memo(function SystemInner() {
   const usersTotal = useStore(stores.usersTotal)
   const usersOnline = useStore(stores.usersOnline)
   const liveMessage = useStore(stores.liveMessage)
-  const appVersion = useStore(stores.appVersion) || process.env.APP_VERSION || '1.3.0'
-
   const { data: visitorStats } = useVisitorStats()
 
   // Persist last-known visitor stats so numbers show immediately on reload
@@ -596,10 +594,9 @@ export const System = React.memo(function SystemInner() {
 
       {/* Visitor Statistics */}
       <div>
-        <Block label={`Total LOT® v.${appVersion} visitors:`}>
+        <Block label="Total LOT® visitors:">
           {displayStats !== null ? formatNumberWithCommas(displayStats.totalSiteVisitors) : <LoadingDots />}
         </Block>
-        <Block label={`v.${appVersion} since:`}>May 28, 2026</Block>
         <Block label="My OS visitors:">
           {displayStats !== null ? formatNumberWithCommas(displayStats.userProfileVisits) : <LoadingDots />}
         </Block>
