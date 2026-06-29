@@ -595,9 +595,10 @@ export const System = React.memo(function SystemInner() {
 
       {/* Visitor Statistics */}
       <div>
-        <Block label="Total LOT visitors:">
+        <Block label="Total LOT® v.1.3.0 visitors:">
           {displayStats !== null ? formatNumberWithCommas(displayStats.totalSiteVisitors) : <LoadingDots />}
         </Block>
+        <Block label="v.1.3.0 since:">May 28, 2026</Block>
         <Block label="My OS visitors:">
           {displayStats !== null ? formatNumberWithCommas(displayStats.userProfileVisits) : <LoadingDots />}
         </Block>
