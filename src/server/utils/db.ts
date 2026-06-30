@@ -58,11 +58,10 @@ const sequelize = new Sequelize({
     statement_timeout: 30000,
   },
   pool: {
-    max: 5,
-    min: 0,
-    acquire: 30000,
+    max: 10,
+    min: 1,
+    acquire: 15000,
     idle: 10000,
-    // Validate connections before use
     evict: 1000,
   },
   // Never log SQL queries containing user data in production

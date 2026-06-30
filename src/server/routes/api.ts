@@ -3494,27 +3494,29 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
 
       console.log(`Syncing ${signals.length} Quantum Intent signals for user ${req.user.id}`)
 
-      // Save each signal as a log entry for historical tracking
-      const savedSignals = []
-      for (const signal of signals) {
-        try {
-          const log = await fastify.models.Log.create({
-            userId: req.user.id,
-            event: 'quantum_intent_signal',
-            text: signal.signal,
-            metadata: {
-              source: signal.source,
-              signal: signal.signal,
-              signalMetadata: signal.metadata,
-              timestamp: signal.timestamp
-            },
-            context: await getLogContext(req.user)
-          })
-          savedSignals.push(log.id)
-        } catch (signalError: any) {
-          console.error('Failed to save individual signal:', signalError.message)
-          // Continue with other signals
-        }
+      // Fetch context once (avoids N WeatherResponse queries in a loop)
+      const logCtx = await getLogContext(req.user)
+
+      // Bulk-insert all signals in one query instead of N serial creates
+      const rows = signals.map((signal: any) => ({
+        userId: req.user.id,
+        event: 'quantum_intent_signal',
+        text: signal.signal,
+        metadata: {
+          source: signal.source,
+          signal: signal.signal,
+          signalMetadata: signal.metadata,
+          timestamp: signal.timestamp,
+        },
+        context: logCtx,
+      }))
+
+      let savedCount = 0
+      try {
+        const created = await fastify.models.Log.bulkCreate(rows, { validate: false })
+        savedCount = created.length
+      } catch (bulkError: any) {
+        console.error('Failed to bulk-save signals:', bulkError.message)
       }
 
       // Save aggregated state to user metadata
@@ -3527,7 +3529,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
               quantumIntentState: userState,
               quantumIntentPatterns: recognizedPatterns,
               quantumIntentLastSync: new Date().toISOString(),
-              quantumIntentSignalCount: (currentMetadata.quantumIntentSignalCount || 0) + signals.length
+              quantumIntentSignalCount: (currentMetadata.quantumIntentSignalCount || 0) + signals.length,
             }
           }).save()
           console.log(`Quantum Intent state saved to user metadata`)
@@ -3538,7 +3540,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
 
       return {
         success: true,
-        savedSignals: savedSignals.length,
+        savedSignals: savedCount,
         totalSignals: signals.length,
         timestamp: new Date().toISOString()
       }
