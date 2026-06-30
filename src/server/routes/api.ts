@@ -413,8 +413,12 @@ export default async (fastify: FastifyInstance) => {
     const profile = req.user.useProfileView()
     const isAdmin = req.user.isAdmin() || undefined
     const metadata = req.user.metadata || {}
+    const [usersTotal, usersOnline] = await Promise.all([
+      fastify.models.User.countJoined().catch(() => 0),
+      fastify.models.User.countOnline().catch(() => 0),
+    ])
     req.user.deferredPing()
-    return { ...profile, isAdmin, metadata }
+    return { ...profile, isAdmin, metadata, usersTotal, usersOnline }
   })
 
   // Memory prompt status - debugging endpoint
