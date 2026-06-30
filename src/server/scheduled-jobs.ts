@@ -1274,6 +1274,265 @@ async function executeWeeklyPatternHealthReport(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Presence Arc Check (Job 28 — 21:00 UTC every day) ────────────────
+// Reads today's log entries per user. Counts morning (before 10:00) and evening (after 18:00)
+// signals. Writes full_presence_arc event. If 3+ complete days this week → writes daily_rhythm_lock.
+
+let isDailyPresenceArcRunning = false
+let lastDailyPresenceArcRun: Date | null = null
+
+function shouldRunDailyPresenceArcCheck(): boolean {
+  const now = dayjs()
+  if (isDailyPresenceArcRunning) return false
+  if (lastDailyPresenceArcRun) {
+    const lastRun = dayjs(lastDailyPresenceArcRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 21 // 21:00 UTC daily
+}
+
+async function executeDailyPresenceArcCheck(): Promise<JobResult> {
+  const jobName = 'daily-presence-arc-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyPresenceArcRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPresenceArcRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PRESENCE ARC CHECK — 21:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const todayLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: oneDayAgo } },
+          attributes: ['createdAt', 'event'],
+        })
+        const weekLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: sevenDaysAgo } },
+          attributes: ['createdAt'],
+        })
+
+        const morningToday = todayLogs.filter((l: any) => new Date(l.createdAt).getHours() < 10).length
+        const eveningToday = todayLogs.filter((l: any) => new Date(l.createdAt).getHours() >= 18).length
+
+        // Count complete days (morning+evening) in past 7 days
+        const dayMap: Record<string, { morning: boolean; evening: boolean }> = {}
+        weekLogs.forEach((l: any) => {
+          const d = new Date(l.createdAt)
+          const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+          if (!dayMap[ds]) dayMap[ds] = { morning: false, evening: false }
+          if (d.getHours() < 10) dayMap[ds].morning = true
+          if (d.getHours() >= 18) dayMap[ds].evening = true
+        })
+        const completeDays = Object.values(dayMap).filter(v => v.morning && v.evening).length
+
+        if (morningToday > 0 || eveningToday > 0) {
+          await (Log as any).create({
+            userId,
+            event: 'full_presence_arc',
+            text: `Presence arc: morning ${morningToday} · evening ${eveningToday}`,
+            metadata: { morningCount: morningToday, eveningCount: eveningToday, completeDays, window: '1d', hour: 21 },
+          })
+          written++
+        }
+
+        if (completeDays >= 3) {
+          await (Log as any).create({
+            userId,
+            event: 'daily_rhythm_lock',
+            text: `Rhythm lock: ${completeDays} complete days (morning+evening) in 7d`,
+            metadata: { completeDays, morningToday, eveningToday, window: '7d', hour: 21 },
+          })
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailyPresenceArcRun = new Date()
+    isDailyPresenceArcRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily presence arc check failed:', error.message)
+    isDailyPresenceArcRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Cross-Domain Pulse (Job 29 — 19:00 UTC every day) ────────────────
+// Reads 7d logs per user. If memory 5+, journal 200+w, badges 2+, goals 2+, planner 2+
+// all present → writes cross_domain_mastery_pulse event.
+
+let isDailyCrossDomainRunning = false
+let lastDailyCrossDomainRun: Date | null = null
+
+function shouldRunDailyCrossDomainPulse(): boolean {
+  const now = dayjs()
+  if (isDailyCrossDomainRunning) return false
+  if (lastDailyCrossDomainRun) {
+    const lastRun = dayjs(lastDailyCrossDomainRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 19 // 19:00 UTC daily
+}
+
+async function executeDailyCrossDomainPulse(): Promise<JobResult> {
+  const jobName = 'daily-cross-domain-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyCrossDomainRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCrossDomainRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY CROSS-DOMAIN PULSE — 19:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const weekLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: sevenDaysAgo } },
+          attributes: ['event', 'metadata'],
+        })
+
+        const memoryCount  = weekLogs.filter((l: any) => ['memory_saved', 'answer_created'].includes(l.event)).length
+        const journalLogs  = weekLogs.filter((l: any) => l.event === 'field_entry' || l.event === 'journal_entry')
+        const journalWords = journalLogs.reduce((sum: number, l: any) => sum + ((l.metadata?.wordCount as number) ?? 0), 0)
+        const badgeCount   = weekLogs.filter((l: any) => l.event === 'badge_unlock').length
+        const goalCount    = weekLogs.filter((l: any) => ['goal_created', 'goal_updated', 'goal_completed'].includes(l.event)).length
+        const plannerCount = weekLogs.filter((l: any) => ['planner_entry', 'calendar_entry'].includes(l.event)).length
+
+        if (memoryCount >= 5 && journalWords >= 200 && badgeCount >= 2 && goalCount >= 2 && plannerCount >= 2) {
+          await (Log as any).create({
+            userId,
+            event: 'cross_domain_mastery_pulse',
+            text: `Cross-domain: ${memoryCount} mem · ${journalWords}w · ${badgeCount} badges · ${goalCount} goals · ${plannerCount} plans`,
+            metadata: { memoryCount, journalWords, badgeCount, goalCount, plannerCount, window: '7d', hour: 19 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailyCrossDomainRun = new Date()
+    isDailyCrossDomainRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily cross-domain pulse failed:', error.message)
+    isDailyCrossDomainRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Systemic Readiness Check (Job 30 — 01:00 UTC every day) ──────────
+// Reads user metadata per active user. If archetype confidence ≥ 60 + energy band
+// is 'high' or 'moderate' + no critical flag → writes systemic_readiness_peak event.
+
+let isDailySystemicReadinessRunning = false
+let lastDailySystemicReadinessRun: Date | null = null
+
+function shouldRunDailySystemicReadinessCheck(): boolean {
+  const now = dayjs()
+  if (isDailySystemicReadinessRunning) return false
+  if (lastDailySystemicReadinessRun) {
+    const lastRun = dayjs(lastDailySystemicReadinessRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 1 // 01:00 UTC daily
+}
+
+async function executeDailySystemicReadinessCheck(): Promise<JobResult> {
+  const jobName = 'daily-systemic-readiness-check'
+  const executedAt = new Date().toISOString()
+  if (isDailySystemicReadinessRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailySystemicReadinessRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY SYSTEMIC READINESS CHECK — 01:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const meta = (user as any).metadata as any || {}
+        const currentArchetype: string = meta.currentArchetype ?? ''
+        const archetypeConfidence: number = meta.archetypeConfidence ?? 0
+        const energyBand: string = meta.energyBand ?? 'unknown'
+        const criticalFlag: boolean = meta.criticalFlag ?? false
+
+        if (
+          archetypeConfidence >= 60 &&
+          (energyBand === 'high' || energyBand === 'moderate') &&
+          !criticalFlag
+        ) {
+          await (Log as any).create({
+            userId: (user as any).id,
+            event: 'systemic_readiness_peak',
+            text: `Systemic readiness peak — ${currentArchetype || 'archetype'} · ${archetypeConfidence}% conf · ${energyBand} energy`,
+            metadata: {
+              archetype: currentArchetype,
+              confidence: archetypeConfidence,
+              energyBand,
+              readinessScore: archetypeConfidence,
+              hour: 1,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailySystemicReadinessRun = new Date()
+    isDailySystemicReadinessRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily systemic readiness check failed:', error.message)
+    isDailySystemicReadinessRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -1402,6 +1661,18 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check weekly pattern health report (Saturday 09:00 UTC) — Job 27
   if (shouldRunWeeklyPatternHealthReport()) {
     await executeWeeklyPatternHealthReport()
+  }
+  // Check daily presence arc check (21:00 UTC every day) — Job 28
+  if (shouldRunDailyPresenceArcCheck()) {
+    await executeDailyPresenceArcCheck()
+  }
+  // Check daily cross-domain pulse (19:00 UTC every day) — Job 29
+  if (shouldRunDailyCrossDomainPulse()) {
+    await executeDailyCrossDomainPulse()
+  }
+  // Check daily systemic readiness check (01:00 UTC every day) — Job 30
+  if (shouldRunDailySystemicReadinessCheck()) {
+    await executeDailySystemicReadinessCheck()
   }
 }
 
@@ -3475,6 +3746,9 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily QOS mode watch: 2 PM UTC every day')
   console.log('   - Weekly LOT® AI story generation: 6 PM UTC every Sunday')
   console.log('   - Daily archetype directive pulse: 9 AM UTC every day')
+  console.log('   - Daily presence arc check: 9 PM UTC every day (Job 28)')
+  console.log('   - Daily cross-domain pulse: 7 PM UTC every day (Job 29)')
+  console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -3484,8 +3758,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 18 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

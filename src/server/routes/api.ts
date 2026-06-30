@@ -1081,6 +1081,10 @@ export default async (fastify: FastifyInstance) => {
       'accountability_arc',
       'full_presence_arc',
       'pattern_health_scan',
+      // v78: daily rhythm lock · cross-domain mastery pulse · systemic readiness peak
+      'daily_rhythm_lock',
+      'cross_domain_mastery_pulse',
+      'systemic_readiness_peak',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

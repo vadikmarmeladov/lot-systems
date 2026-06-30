@@ -1007,6 +1007,29 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v76 entry appended.',
     ],
   },
+  {
+    date: '2026-06-30',
+    session: 'Self-Assembly Session — v78 / P92–P94 · Arch31–Arch32 · J28–J30 · Dep Map 134+ · RLOCK: CROSS: SYSRDY: · Systemic Readiness + Daily Rhythm + Cross-Domain Mastery',
+    assembled: [
+      'intentionEngine.ts: P92 systemic-readiness-peak — energy+clarity+alignment all positive + no critical patterns + 3+ active sources in 4h. Full biological and cognitive stack simultaneously clear. Conf 0.85. suggestedWidget: planner.',
+      'intentionEngine.ts: P93 daily-rhythm-lock — morning signal (before 10:00) + evening signal (after 18:00) on same day, 3+ consecutive days in past 7d. Diurnal regularity confirmed. Conf 0.75–0.92. suggestedWidget: journal.',
+      'intentionEngine.ts: P94 cross-domain-mastery — memory 5+, journal 200+w, badges 2+, goals 2+, planner 2+ all in 7d. Full engagement spectrum: capture+reflection+discovery+goals+structure simultaneously active. Conf 0.72–0.90. 94 patterns total.',
+      'intentionEngine.ts: Arch31 Rhythm Architect — daily-rhythm-lock+full-presence-arc+morning-coherence-launch+evening-coherence-close conditions. dominantSources: log+selfcare+mood. Directive: Complete daily arc confirmed. The rhythm is structural — maintain without forcing.',
+      'intentionEngine.ts: Arch32 Integrated Operator — systemic-readiness-peak+vitality-strategy-peak+operator-convergence+cross-domain-mastery conditions. energyBands: high+moderate. Directive: Full-stack biological and strategic alignment. Maximum execution window — commit now. 32 archetypes total.',
+      'intentionEngine.ts: recordSystemicReadinessPeak() + recordDailyRhythmLock() + recordCrossDomainMastery() signal helpers added.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 4 new nodes: presenceArcNode (log+mood+energy+selfcare+journal+time) · systemicReadinessNode (energy+mood+selfcare+cohort+planner+intentions) · rhythmLockNode (mood+energy+log+time+selfcare) · crossDomainMasteryNode (memory+journal+badges+goals+planner+intentions). 134+ dep nodes total.',
+      'scheduled-jobs.ts: J28 daily-presence-arc-check — 21:00 UTC daily. Reads today logs per user, counts morning/evening signals, writes full_presence_arc + daily_rhythm_lock when thresholds met.',
+      'scheduled-jobs.ts: J29 daily-cross-domain-pulse — 19:00 UTC daily. Reads 7d logs per user, writes cross_domain_mastery_pulse when memory 5+ + journal 200w+ + badges 2+ + goals 2+ + planner 2+ all present.',
+      'scheduled-jobs.ts: J30 daily-systemic-readiness-check — 01:00 UTC daily. Reads user metadata, writes systemic_readiness_peak when archetypeConfidence ≥60 + energyBand high/moderate + no critical flag. 30 background jobs total.',
+      'scheduled-jobs.ts: Hour check expanded — hours 1, 17, 19, 21 added to the setInterval gate. All 30 jobs now covered.',
+      'Logs.tsx: RLOCK: handler — renders daily_rhythm_lock (STREAK · MORNING · EVENING). Military data-row format.',
+      'Logs.tsx: CROSS: handler — renders cross_domain_mastery_pulse (MEM · WORDS · BADGES · GOALS · PLANS 7D). Military data-row format.',
+      'Logs.tsx: SYSRDY: handler — renders systemic_readiness_peak (ARCH · CONF · ATP · READINESS). Military data-row format. 95+ handlers total.',
+      'routes/api.ts: daily_rhythm_lock + cross_domain_mastery_pulse + systemic_readiness_peak added to displayableEvents (v78 block).',
+      'About.tsx: Field Manual v78. Counters: 94 patterns · 32 archetypes · 30 background jobs · 95+ log handlers · 134+ dep nodes.',
+      'SESSION_REPORTS: v78 entry appended. USERSHIP_TRANSMISSION updated to v78.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1044,15 +1067,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-27',
+  date: '2026-06-30',
   message: [
-    'ASSEMBLY RUN — 2026-06-27 · LOT-SR-20260627-02',
-    'P87 weekly-story-reflection: lot_ai_story received + journal within 24h → reflection loop closed. Conf 0.72.',
-    'P88 contextual-checkin-momentum: 3+ check-ins 24h ≥50% positive → high-frequency self-tracking confirmed. Conf 0.65–0.85.',
-    'Job 25 daily-archetype-directive-pulse: 09:00 UTC daily. 29 archetype directives. DRCT: block. archetype_directive_pulse event written per user.',
-    'STORY: handler deployed (lot_ai_story: W{n} TONE MOOD CHK CARE INTENT). DRCT: handler deployed (archetype_directive_pulse: label+arch+directive).',
-    'Backend Whitelist Hygiene: lot_ai_story + archetype_directive_pulse added to displayableEvents. Both Job 24 and Job 25 outputs now surface in LOG.',
-    'Dep map: 128+ nodes. 88 patterns active. 87+ log handlers. 25 background jobs. 29 archetypes.',
+    'ASSEMBLY RUN — 2026-06-30 · LOT-SR-20260630-01',
+    'P92 systemic-readiness-peak: energy+clarity+alignment all positive + no critical patterns + 3+ sources in 4h. Full biological and cognitive stack clear simultaneously. Conf 0.85.',
+    'P93 daily-rhythm-lock: morning (before 10:00) + evening (after 18:00) signals on same day, 3+ consecutive days. Diurnal regularity structural. Conf 0.75–0.92.',
+    'P94 cross-domain-mastery: memory 5+ + journal 200w+ + badges 2+ + goals 2+ + planner 2+ in 7d. Full engagement spectrum simultaneously active. Conf 0.72–0.90. 94 patterns total.',
+    'Arch31 Rhythm Architect: daily-rhythm-lock+full-presence-arc+morning-coherence-launch+evening-coherence-close. The arc is sealed — structural, not forced.',
+    'Arch32 Integrated Operator: systemic-readiness-peak+vitality-strategy-peak+operator-convergence+cross-domain-mastery. Maximum execution window. 32 archetypes total.',
+    'J28 daily-presence-arc-check: 21:00 UTC. Writes full_presence_arc + daily_rhythm_lock per active user.',
+    'J29 daily-cross-domain-pulse: 19:00 UTC. Writes cross_domain_mastery_pulse when full spectrum confirmed.',
+    'J30 daily-systemic-readiness-check: 01:00 UTC. Writes systemic_readiness_peak when conf≥60+energy OK+no critical. 30 background jobs total.',
+    'RLOCK: CROSS: SYSRDY: log handlers deployed. 95+ handlers total.',
+    'Dep map: 134+ nodes. 94 patterns. 32 archetypes. 30 jobs. Hours 1+17+19+21 added to scheduler gate.',
     'DEPLOYED.',
   ],
 }

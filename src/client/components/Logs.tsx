@@ -1991,6 +1991,111 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'daily_rhythm_lock') {
+          const completeDays = log.metadata?.completeDays as number | undefined
+          const morningToday = log.metadata?.morningToday as number | undefined
+          const eveningToday = log.metadata?.eveningToday as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RLOCK:" blockView>
+                {completeDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">STREAK</span>
+                    <span className="tabular-nums">{completeDays}d</span>
+                  </div>
+                )}
+                {morningToday !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MORNING</span>
+                    <span className="tabular-nums">{morningToday}</span>
+                  </div>
+                )}
+                {eveningToday !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">EVENING</span>
+                    <span className="tabular-nums">{eveningToday}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cross_domain_mastery_pulse') {
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const journalWords = log.metadata?.journalWords as number | undefined
+          const badgeCount   = log.metadata?.badgeCount   as number | undefined
+          const goalCount    = log.metadata?.goalCount    as number | undefined
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CROSS:" blockView>
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEM 7D</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {journalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WORDS 7D</span>
+                    <span className="tabular-nums">{journalWords}w</span>
+                  </div>
+                )}
+                {badgeCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">BADGES 7D</span>
+                    <span className="tabular-nums">{badgeCount}</span>
+                  </div>
+                )}
+                {goalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GOALS 7D</span>
+                    <span className="tabular-nums">{goalCount}</span>
+                  </div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">PLANS 7D</span>
+                    <span className="tabular-nums">{plannerCount}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'systemic_readiness_peak') {
+          const archetype     = log.metadata?.archetype     as string | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          const energyBand    = log.metadata?.energyBand    as string | undefined
+          const readinessScore = log.metadata?.readinessScore as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SYSRDY:" blockView>
+                {archetype && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARCH</span>
+                    <span className="uppercase tracking-widest text-xs">{archetype}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {energyBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ATP</span>
+                    <span className="capitalize">{energyBand}</span>
+                  </div>
+                )}
+                {readinessScore !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">READINESS</span>
+                    <span className="tabular-nums">{readinessScore}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

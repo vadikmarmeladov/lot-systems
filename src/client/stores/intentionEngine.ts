@@ -2115,6 +2115,68 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 92: Systemic readiness peak — energy + clarity + alignment all positive, no critical patterns,
+  // physiological readiness > 70. Full biological and cognitive stack simultaneously clear.
+  const p92Energy = state.userState.energy === 'high' || state.userState.energy === 'moderate'
+  const p92Clarity = state.userState.clarity === 'focused' || state.userState.clarity === 'clear'
+  const p92Alignment = state.userState.alignment === 'flowing' || state.userState.alignment === 'aligned'
+  const p92NoCritical = !patterns.some(p =>
+    ['physiological-depletion', 'sleep-debt-accumulation', 'recovery-plateau', 'longitudinal-drift'].includes(p.pattern)
+  )
+  const p92Recent = signals.filter(s => s.timestamp > now - 4 * 60 * 60 * 1000)
+  const p92Sources = new Set(p92Recent.map(s => s.source))
+  if (p92Energy && p92Clarity && p92Alignment && p92NoCritical && p92Sources.size >= 3) {
+    patterns.push({
+      pattern: 'systemic-readiness-peak',
+      confidence: 0.85,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'immediate',
+      reason: `SYSTEMIC READINESS PEAK: Energy ${state.userState.energy} · clarity ${state.userState.clarity} · alignment ${state.userState.alignment} · ${p92Sources.size} active sources. Full biological and cognitive stack simultaneously clear.`,
+    })
+  }
+
+  // Pattern 93: Daily rhythm lock — morning signal (before 10:00) AND evening signal (after 18:00)
+  // detected on 3+ consecutive calendar days in the past week. Diurnal regularity confirmed.
+  const p93Cut = now - 7 * 24 * 60 * 60 * 1000
+  const p93Week = signals.filter(s => s.timestamp > p93Cut)
+  const p93DayMap: Record<string, { morning: boolean; evening: boolean }> = {}
+  p93Week.forEach(s => {
+    const d = new Date(s.timestamp)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    if (!p93DayMap[ds]) p93DayMap[ds] = { morning: false, evening: false }
+    if (d.getHours() < 10) p93DayMap[ds].morning = true
+    if (d.getHours() >= 18) p93DayMap[ds].evening = true
+  })
+  const p93CompleteDays = Object.values(p93DayMap).filter(v => v.morning && v.evening).length
+  if (p93CompleteDays >= 3) {
+    patterns.push({
+      pattern: 'daily-rhythm-lock',
+      confidence: Math.min(0.75 + (p93CompleteDays - 3) * 0.05, 0.92),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `DAILY RHYTHM LOCK: ${p93CompleteDays} complete days (morning + evening) in past 7d. Diurnal arc confirmed — the rhythm is structural.`,
+    })
+  }
+
+  // Pattern 94: Cross-domain mastery — memory 5+, journal 200+w, badges 2+, goals 2+, planner 2+
+  // all in a 7-day window. Full spectrum engagement: capture, reflection, discovery, goals, structure.
+  const p94Cut = now - 7 * 24 * 60 * 60 * 1000
+  const p94Memory  = signals.filter(s => s.source === 'memory'    && s.timestamp > p94Cut)
+  const p94Journal = signals.filter(s => s.source === 'journal'   && s.timestamp > p94Cut)
+  const p94JWords  = p94Journal.reduce((sum, s) => sum + ((s.metadata?.wordCount as number) ?? 0), 0)
+  const p94Badges  = signals.filter(s => s.source === 'badges'    && s.timestamp > p94Cut)
+  const p94Goals   = signals.filter(s => s.source === 'goals'     && s.timestamp > p94Cut)
+  const p94Planner = signals.filter(s => s.source === 'planner'   && s.timestamp > p94Cut)
+  if (p94Memory.length >= 5 && p94JWords >= 200 && p94Badges.length >= 2 && p94Goals.length >= 2 && p94Planner.length >= 2) {
+    patterns.push({
+      pattern: 'cross-domain-mastery',
+      confidence: Math.min(0.72 + (p94Memory.length - 5) * 0.03, 0.90),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `CROSS-DOMAIN MASTERY: ${p94Memory.length} memories · ${p94JWords}w journal · ${p94Badges.length} badges · ${p94Goals.length} goals · ${p94Planner.length} plans in 7d. Full engagement spectrum active simultaneously.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2652,6 +2714,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Deep learning + social accountability monitors (2026-06-29 audit)
   quantumLearningNode:      ['memory', 'journal', 'badges', 'goals'],
   accountabilityArcNode:    ['intentions', 'cohort', 'goals'],
+
+  // ── Presence arc + systemic readiness + rhythm + cross-domain nodes (2026-06-30 audit)
+  presenceArcNode:          ['log', 'mood', 'energy', 'selfcare', 'journal', 'time'],
+  systemicReadinessNode:    ['energy', 'mood', 'selfcare', 'cohort', 'planner', 'intentions'],
+  rhythmLockNode:           ['mood', 'energy', 'log', 'time', 'selfcare'],
+  crossDomainMasteryNode:   ['memory', 'journal', 'badges', 'goals', 'planner', 'intentions'],
 }
 
 /**
@@ -2929,6 +2997,20 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['memory', 'journal', 'badges'],
     patternConditions: ['quantum-learning-spiral', 'cognitive-depth-arc', 'word-turn-depth'],
     directive: 'Deep learning confirmed. Memory, reflection, and discovery simultaneously active. The knowledge base is compiling.',
+  },
+  {
+    archetype: 'Rhythm Architect',
+    energyBands: ['moderate', 'high', 'low', 'unknown'],
+    dominantSources: ['log', 'selfcare', 'mood'],
+    patternConditions: ['daily-rhythm-lock', 'full-presence-arc', 'morning-coherence-launch', 'evening-coherence-close'],
+    directive: 'Complete daily arc confirmed. Morning and evening signals sealed for 3+ consecutive days. The rhythm is structural — maintain without forcing.',
+  },
+  {
+    archetype: 'Integrated Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['planner', 'intentions', 'goals'],
+    patternConditions: ['systemic-readiness-peak', 'vitality-strategy-peak', 'operator-convergence', 'cross-domain-mastery'],
+    directive: 'Full-stack biological and strategic alignment. Energy, clarity, alignment, and structure simultaneously optimized. Maximum execution window — commit now.',
   },
 ]
 
@@ -4040,6 +4122,48 @@ export function recordFullPresenceArc(morningCount: number, eveningCount: number
     morningCount,
     eveningCount,
     window: '1d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a systemic-readiness-peak signal — energy + clarity + alignment simultaneously positive,
+ * no critical patterns active. Feeds P92 detection. Full biological and cognitive stack clear.
+ */
+export function recordSystemicReadinessPeak(readinessScore: number, activeSources: number) {
+  recordSignal('energy', 'systemic_readiness_peak', {
+    readinessScore,
+    activeSources,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a daily-rhythm-lock signal — morning + evening signals on the same day,
+ * confirmed for N consecutive days. Feeds P93 detection. Diurnal regularity locked.
+ */
+export function recordDailyRhythmLock(completeDays: number, morningToday: number, eveningToday: number) {
+  recordSignal('log', 'daily_rhythm_lock', {
+    completeDays,
+    morningToday,
+    eveningToday,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a cross-domain-mastery signal — memory 5+, journal 200+w, badges 2+, goals 2+, planner 2+
+ * all within 7d. Feeds P94 detection. Full engagement spectrum confirmed.
+ */
+export function recordCrossDomainMastery(memoryCount: number, journalWords: number, badgeCount: number, goalCount: number, plannerCount: number) {
+  recordSignal('memory', 'cross_domain_mastery_pulse', {
+    memoryCount,
+    journalWords,
+    badgeCount,
+    goalCount,
+    plannerCount,
+    window: '7d',
     hour: new Date().getHours(),
   })
 }
