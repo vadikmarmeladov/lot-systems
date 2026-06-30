@@ -449,23 +449,14 @@ export const System = React.memo(function SystemInner() {
                 stores.isSoundOn.set(false)
               }
             }}
-            onChildrenClick={async () => {
+            onChildrenClick={() => {
               if (isSoundToggling) return
               setIsSoundToggling(true)
               try {
                 if (showRadio) {
                   stores.isRadioOn.set(!isRadioOn)
                 } else {
-                  const newValue = !isSoundOn
-                  // @ts-ignore - Tone.js loaded via external script
-                  if (newValue && window.Tone) {
-                    try {
-                      await window.Tone.start()
-                    } catch (e) {
-                      console.error('Failed to start Tone.context:', e)
-                    }
-                  }
-                  stores.isSoundOn.set(newValue)
+                  stores.isSoundOn.set(!isSoundOn)
                 }
               } finally {
                 setTimeout(() => setIsSoundToggling(false), 300)
@@ -756,30 +747,16 @@ export const System = React.memo(function SystemInner() {
               stores.isSoundOn.set(false)
             }
           }}
-          onChildrenClick={async () => {
-            // Prevent rapid clicks
+          onChildrenClick={() => {
             if (isSoundToggling) return
             setIsSoundToggling(true)
-
             try {
               if (showRadio) {
-                // Radio mode - toggle radio
                 stores.isRadioOn.set(!isRadioOn)
               } else {
-                // Sound mode - toggle sound
-                const newValue = !isSoundOn
-                // @ts-ignore - Tone.js loaded via external script
-                if (newValue && window.Tone) {
-                  try {
-                    await window.Tone.start()
-                  } catch (e) {
-                    console.error('Failed to start Tone.context:', e)
-                  }
-                }
-                stores.isSoundOn.set(newValue)
+                stores.isSoundOn.set(!isSoundOn)
               }
             } finally {
-              // Reset toggle state after a short delay
               setTimeout(() => setIsSoundToggling(false), 300)
             }
           }}
