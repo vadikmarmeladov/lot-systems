@@ -207,3 +207,43 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Dual-Path Time-Tracking Notification
+
+A widget that must reliably surface a time-based condition (due date, gap,
+overdue state) needs two independent paths, not one:
+
+1. Client-side derived state, computed on every render directly from already-
+   fetched data. This is instant and correct the moment the operator opens the
+   widget, with zero dependency on a cron job having run.
+2. A server-side daily scheduled job that persists ONE Log entry per affected
+   user when the condition holds. This is the path that reaches the operator
+   even on a day they never open the widget — the Log feed is the durable
+   record, not the widget's in-memory state.
+
+Path 1 without Path 2 means the notification only exists while the widget is
+mounted. Path 2 without Path 1 means a stale once-a-day snapshot instead of a
+live state. Build both; neither substitutes for the other.
+(SR-20260630-02: CalendarWidget overdue/due-today banner — computed live from
+the `entries` memo — paired with Job 25 daily-calendar-due-scan, which writes
+one `calendar_due` Log per user with unresolved entries.)
+
+## WARNING: Number(userId) on a UUID column silently breaks Log writes
+
+`users.id` and `logs.userId` are both `DataTypes.UUID` (see src/server/models/
+user.ts, log.ts) — string primary keys, not integers. At least 11 of the
+background scan jobs in scheduled-jobs.ts (vitality-peak, badge-scan,
+signal-momentum, cognitive-depth, longitudinal-drift, QOS-mode-watch, and
+others built across QIE v60–v72) build a per-user map keyed by `String(userId)`
+and then call `Log.create({ userId: Number(userId), ... })` when writing the
+result. `Number()` on a UUID string returns `NaN`. The write is wrapped in a
+per-user try/catch that logs a warning and continues — so the job reports
+"success" and a scanned count, but the Log row for every affected user never
+lands. Discovered while building Job 25 (calendar-due-scan); Job 25 uses the
+plain string `userId` instead and was verified to write correctly. Not fixed
+in the other 11 jobs this session — out of scope for a Calendar-widget session
+and each fix should be verified against live data, not batch-patched blind.
+Flagged here as the top candidate for the next ENGINEERING session: grep
+`userId: Number(userId)` in scheduled-jobs.ts, replace with the string key,
+verify against a real Log table that rows actually appear.
+(SR-20260630-02: discovered during Job 25 implementation; not remediated.)

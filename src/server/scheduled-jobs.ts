@@ -1001,6 +1001,103 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Calendar Due-Date Scan (Job 25 — 07:00 UTC every day) ────────────
+// Scans calendar_entry logs (within a 30-day lookback) for entries that are
+// due today or have passed their date unresolved. Writes a calendar_due event
+// per user with at least one due/overdue entry. This is the server-side half
+// of calendar time-tracking — the CalendarWidget detects the same condition
+// client-side in real time, but the scan guarantees the notification reaches
+// the Log even on days the operator never opens the widget.
+
+let isDailyCalendarDueScanRunning = false
+let lastDailyCalendarDueScanRun: Date | null = null
+
+function shouldRunDailyCalendarDueScan(): boolean {
+  const now = dayjs()
+  if (isDailyCalendarDueScanRunning) return false
+  if (lastDailyCalendarDueScanRun) {
+    const lastRun = dayjs(lastDailyCalendarDueScanRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 7 // 07:00 UTC every day
+}
+
+async function executeDailyCalendarDueScan(): Promise<JobResult> {
+  const jobName = 'daily-calendar-due-scan'
+  const executedAt = new Date().toISOString()
+  if (isDailyCalendarDueScanRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCalendarDueScanRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY CALENDAR DUE-DATE SCAN — 07:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+
+    const todayStr = dayjs().format('YYYY-MM-DD')
+    const earliestRelevant = dayjs().subtract(30, 'day').format('YYYY-MM-DD')
+
+    const entryLogs = await Log.findAll({
+      where: { event: 'calendar_entry' },
+      attributes: ['userId', 'metadata'],
+      order: [['createdAt', 'ASC']],
+      limit: 20000,
+    })
+
+    const userEntries: Record<string, Array<{ date: string; text: string }>> = {}
+    for (const l of entryLogs) {
+      const meta = l.metadata as Record<string, any> | null
+      const date = meta?.date as string | undefined
+      if (!date || date < earliestRelevant) continue
+      const uid = String((l as any).userId)
+      if (!userEntries[uid]) userEntries[uid] = []
+      userEntries[uid].push({ date, text: String(meta?.text || '') })
+    }
+
+    let written = 0
+    for (const [userId, userEntryList] of Object.entries(userEntries)) {
+      const dueToday = userEntryList.filter(e => e.date === todayStr)
+      const overdue = userEntryList.filter(e => e.date < todayStr)
+      if (dueToday.length === 0 && overdue.length === 0) continue
+
+      try {
+        await Log.create({
+          userId,
+          event: 'calendar_due',
+          text: '',
+          metadata: {
+            dueTodayCount: dueToday.length,
+            overdueCount: overdue.length,
+            dueTodayText: dueToday[0]?.text,
+            date: todayStr,
+            hour: 7,
+          },
+        })
+        written++
+      } catch (userErr: any) {
+        console.warn(`  User ${userId} calendar due scan write failed: ${userErr.message}`)
+      }
+    }
+
+    console.log(`  Users scanned: ${Object.keys(userEntries).length}`)
+    console.log(`  Calendar due notifications written: ${written}`)
+    console.log('─'.repeat(60))
+    console.log('DAILY CALENDAR DUE-DATE SCAN COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastDailyCalendarDueScanRun = new Date()
+    isDailyCalendarDueScanRunning = false
+
+    return { jobName, executedAt, success: true, result: { scanned: Object.keys(userEntries).length, written } }
+  } catch (error: any) {
+    console.error('Daily calendar due-date scan failed:', error.message)
+    isDailyCalendarDueScanRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -1117,6 +1214,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check weekly LOT AI story generation (Sunday 18:00 UTC) — Job 24
   if (shouldRunWeeklyLOTAIStory()) {
     await executeWeeklyLOTAIStory()
+  }
+  // Check daily calendar due-date scan (07:00 UTC every day) — Job 25
+  if (shouldRunDailyCalendarDueScan()) {
+    await executeDailyCalendarDueScan()
   }
 }
 
@@ -3189,6 +3290,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly longitudinal drift check: 9 AM UTC every Monday')
   console.log('   - Daily QOS mode watch: 2 PM UTC every day')
   console.log('   - Weekly LOT® AI story generation: 6 PM UTC every Sunday')
+  console.log('   - Daily calendar due-date scan: 7 AM UTC every day')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -3198,7 +3300,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+calendar-due-scan, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 18 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

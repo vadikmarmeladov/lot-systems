@@ -116,6 +116,7 @@ export function PatternRecognitionWidget() {
       'longitudinal-drift':         'Longitudinal drift — engagement density declining',
       'adaptive-momentum-window':   'Adaptive momentum window — strategy active during streak',
       'vitality-strategy-peak':     'Vitality strategy peak — biology + strategy aligned',
+      'calendar-due-active':        'Calendar due-active — scheduled entries unresolved',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

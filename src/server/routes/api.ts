@@ -1065,6 +1065,8 @@ export default async (fastify: FastifyInstance) => {
       'vitality_strategy_peak',
       // Story generation
       'generated_story',
+      // v74: calendar due-date scan (Job 25 output)
+      'calendar_due',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

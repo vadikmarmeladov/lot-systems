@@ -2023,6 +2023,22 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 87: Calendar due-active — calendar_due signal in last 24h with overdue
+  // entries present. Time-tracking surfaced an unresolved obligation. Distinct from
+  // P26 calendar-gap (no entries at all) — this fires when entries exist but have
+  // slipped past their date without resolution.
+  const p87CalendarDueSignals = signals.filter(s => s.signal === 'calendar_due' && s.timestamp > dayAgo)
+  const p87LatestDue = p87CalendarDueSignals[p87CalendarDueSignals.length - 1]
+  if (p87LatestDue && Number(p87LatestDue.metadata?.overdueCount) > 0) {
+    patterns.push({
+      pattern: 'calendar-due-active',
+      confidence: Math.min(0.6 + Number(p87LatestDue.metadata?.overdueCount) * 0.05, 0.85),
+      suggestedWidget: 'calendarWidget',
+      suggestedTiming: 'immediate',
+      reason: `CAL-ALERT: ${p87LatestDue.metadata?.overdueCount} scheduled ${Number(p87LatestDue.metadata?.overdueCount) === 1 ? 'entry has' : 'entries have'} passed their date unresolved. Time anchored but not closed. Open the calendar.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2439,7 +2455,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   chatCatalyst:      ['mood', 'cohort'],
 
   // ── Tier 2: calendar + media widgets (2026-04-28 audit)
-  calendarWidget:    ['planner', 'intentions', 'energy'],
+  calendarWidget:    ['planner', 'intentions', 'energy', 'log'],
   microImage:        ['log', 'mood'],
 
   // ── Ecosystem layer: device-level nodes (2026-05-04 audit)
@@ -3179,6 +3195,16 @@ export function checkFullStackSession(): boolean {
  */
 export function recordCalendarSignal(entryType: string, date: string) {
   recordSignal('log', 'calendar_entry', { entryType, date, hour: new Date().getHours() })
+}
+
+/**
+ * Record a calendar due-date signal — entries due today or overdue, detected
+ * client-side on render (real-time) and mirrored server-side by Job 25
+ * (daily-calendar-due-scan, 07:00 UTC) which persists a calendar_due Log
+ * entry so the alert survives even if the operator never opens the widget.
+ */
+export function recordCalendarDueSignal(dueTodayCount: number, overdueCount: number) {
+  recordSignal('log', 'calendar_due', { dueTodayCount, overdueCount, hour: new Date().getHours() })
 }
 
 /**

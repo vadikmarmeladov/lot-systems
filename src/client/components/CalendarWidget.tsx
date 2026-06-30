@@ -13,7 +13,7 @@ import { useCreateLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
-import { recordCalendarSignal } from '#client/stores/intentionEngine'
+import { recordCalendarSignal, recordCalendarDueSignal } from '#client/stores/intentionEngine'
 
 type EntryType = 'note' | 'task' | 'call'
 
@@ -24,6 +24,13 @@ type CalendarEntry = {
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+function getTimeStatus(date: string, today: Dayjs): string {
+  const daysUntil = dayjs(date).diff(today, 'day')
+  if (daysUntil === 0) return 'TODAY'
+  if (daysUntil < 0) return `OVERDUE ${Math.abs(daysUntil)}D`
+  return `T-${daysUntil}D`
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -72,6 +79,13 @@ export function CalendarWidget() {
       .sort((a, b) => a.date.localeCompare(b.date))
   }, [logs])
 
+  const overdueEntries = React.useMemo(() => {
+    const today = dayjs().format('YYYY-MM-DD')
+    return entries
+      .filter(e => e.date < today)
+      .slice(-5)
+  }, [entries])
+
   const upcomingEntries = React.useMemo(() => {
     const today = dayjs().format('YYYY-MM-DD')
     return entries
@@ -95,6 +109,16 @@ export function CalendarWidget() {
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
   )
+
+  const dueTodayCount = React.useMemo(
+    () => upcomingEntries.filter(e => e.date === today).length,
+    [upcomingEntries, today]
+  )
+
+  React.useEffect(() => {
+    if (dueTodayCount === 0 && overdueEntries.length === 0) return
+    try { recordCalendarDueSignal(dueTodayCount, overdueEntries.length) } catch (_) {}
+  }, [dueTodayCount, overdueEntries.length])
 
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
@@ -139,6 +163,21 @@ export function CalendarWidget() {
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
+        {(overdueEntries.length > 0 || dueTodayCount > 0) && (
+          <div className="mb-16">
+            <span className="text-acc/30 uppercase tracking-widest">CAL-ALERT:</span>{' '}
+            {dueTodayCount > 0 && (
+              <span className="text-acc">{dueTodayCount} DUE TODAY</span>
+            )}
+            {overdueEntries.length > 0 && (
+              <span className="text-acc/60">
+                {dueTodayCount > 0 ? ' · ' : ''}
+                {overdueEntries.length} OVERDUE
+              </span>
+            )}
+          </div>
+        )}
+
         <div className="mb-16">
           <Button onClick={handleToggleCalendar}>
             Add date
@@ -257,12 +296,33 @@ export function CalendarWidget() {
           </div>
         )}
 
+        {overdueEntries.length > 0 && (
+          <div className="space-y-1 mb-16">
+            {overdueEntries.map((entry, i) => (
+              <div key={i} className="flex justify-between gap-16">
+                <span className="text-acc/60 whitespace-nowrap">
+                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  <span className="text-acc/60 ml-8 uppercase tracking-widest">
+                    {getTimeStatus(entry.date, dayjs())}
+                  </span>
+                </span>
+                <span className="text-acc/60 text-right">
+                  {entry.text}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
             {upcomingEntries.map((entry, i) => (
               <div key={i} className="flex justify-between gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  <span className="text-acc/30 ml-8 uppercase tracking-widest">
+                    {getTimeStatus(entry.date, dayjs())}
+                  </span>
                 </span>
                 <span className="text-acc text-right">
                   {entry.text}
@@ -272,7 +332,7 @@ export function CalendarWidget() {
           </div>
         )}
 
-        {upcomingEntries.length === 0 && !isCalendarOpen && (
+        {upcomingEntries.length === 0 && overdueEntries.length === 0 && !isCalendarOpen && (
           <div className="text-acc/40">No upcoming dates.</div>
         )}
       </div>

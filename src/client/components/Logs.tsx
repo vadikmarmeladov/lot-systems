@@ -1252,6 +1252,31 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'calendar_due') {
+          const dueTodayCount = log.metadata?.dueTodayCount as number | undefined
+          const overdueCount = log.metadata?.overdueCount as number | undefined
+          const dueTodayText = log.metadata?.dueTodayText as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                {!!dueTodayCount && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DUE TODAY</span>
+                    <span className="tabular-nums">{dueTodayCount}</span>
+                  </div>
+                )}
+                {!!overdueCount && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">OVERDUE</span>
+                    <span className="tabular-nums">{overdueCount}</span>
+                  </div>
+                )}
+                {dueTodayText && (
+                  <div className="opacity-60 mt-4">&gt; {dueTodayText}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'qos_coherence') {
           const diversityScore = log.metadata?.diversityScore as number | undefined
           const sourceCount = log.metadata?.sourceCount as number | undefined
