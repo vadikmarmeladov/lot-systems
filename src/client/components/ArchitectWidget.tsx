@@ -278,11 +278,11 @@ export function ArchitectWidget() {
         </div>
 
         {/* Assembly Transmission Run */}
-        <div className="border-t border-acc-400/30 pt-16 font-base text-xs">
-          <div className="opacity-30 mb-8 uppercase tracking-widest">Transmission:</div>
-          <div className="flex flex-col gap-y-2">
+        <div className="border-t border-acc-400/30 pt-16 text-xs leading-relaxed">
+          <div className="opacity-30 mb-4 uppercase tracking-widest">Transmission:</div>
+          <div className="flex flex-col gap-y-1">
             {USERSHIP_TRANSMISSION.message.map((line, i) => (
-              <div key={i} className={i === 0 ? 'opacity-80 uppercase tracking-widest' : 'opacity-50'}>
+              <div key={i} className={i === 0 ? 'opacity-50' : 'opacity-30'}>
                 {line}
               </div>
             ))}
