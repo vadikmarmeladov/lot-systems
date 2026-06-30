@@ -124,7 +124,7 @@ export function ArchitectWidget() {
         {/* Brand header */}
         <div>
           <div className="flex justify-between items-baseline mb-8">
-            <span>LOT® Self-Assembly®</span>
+            <span>LOT® Self-Assembly™</span>
             <span className="opacity-30 tabular-nums">v{assembly.totalModules}.{assembly.assembledCount}</span>
           </div>
           <div className="opacity-30">
@@ -278,7 +278,7 @@ export function ArchitectWidget() {
         </div>
 
         {/* Assembly Transmission Run */}
-        <div className="border-t border-acc-400/30 pt-16 font-mono text-xs">
+        <div className="border-t border-acc-400/30 pt-16 font-base text-xs">
           <div className="opacity-30 mb-8 uppercase tracking-widest">Transmission:</div>
           <div className="flex flex-col gap-y-2">
             {USERSHIP_TRANSMISSION.message.map((line, i) => (
