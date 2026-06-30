@@ -6,8 +6,6 @@
  * Made in the USA | brand.lot-systems.com
  */
 
-import Instructor from '@instructor-ai/instructor'
-import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
 import { Op } from 'sequelize'
 import { randomUUID } from 'crypto'
@@ -34,17 +32,7 @@ import { getLogContext } from './logs.js'
 import { aiEngineManager, type EnginePreference } from './ai-engines.js'
 import { extractGoals, type ExtractedGoal } from './goal-understanding.js'
 
-// OpenAI client (for non-Usership users - LEGACY fallback)
-let oai: OpenAI | null = null
-let oaiClient: ReturnType<typeof Instructor> | null = null
 let anthropicClient: Anthropic | null = null
-
-try {
-  oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  oaiClient = Instructor({ client: oai, mode: 'TOOLS' })
-} catch (err) {
-  console.error('[memory] Failed to initialize OpenAI client:', (err as Error).message)
-}
 
 try {
   anthropicClient = new Anthropic({ apiKey: config.anthropic.apiKey })
@@ -60,7 +48,7 @@ const anthropic = anthropicClient
 // ============================================================================
 // Switch between 'together', 'claude', 'openai', or 'auto'
 // This is where YOU control which AI engine to use - LOT owns the decision!
-const AI_ENGINE_PREFERENCE: EnginePreference = 'together'
+const AI_ENGINE_PREFERENCE: EnginePreference = 'claude'
 
 const questionSchema = z.object({
   question: z.string(),
@@ -192,41 +180,14 @@ Make sure the question is personalized, relevant to self-care habits, and the op
       ...validatedQuestion,
     }
   } catch (error: any) {
-    console.error('AI Engine failed, falling back to legacy OpenAI:', {
+    console.error('AI Engine failed, using backup questions:', {
       message: error.message,
-      stack: error.stack,
       user: user.email,
     })
 
-    try {
-      // FALLBACK 1: Use legacy OpenAI with Instructor if new system fails
-      if (!oaiClient) throw new Error('OpenAI client not initialized')
-      const extractedQuestion = await oaiClient.chat.completions.create({
-        messages: [{ role: 'user', content: prompt }],
-        model: 'gpt-4o-mini',
-        response_model: {
-          schema: questionSchema,
-          name: 'Question',
-        },
-      })
-      const validatedQuestion = questionSchema.parse(extractedQuestion)
-      return {
-        id: randomUUID(),
-        ...validatedQuestion,
-      }
-    } catch (openaiError: any) {
-      // FALLBACK 2: All AI engines failed - use hardcoded backup questions
-      console.error('OpenAI fallback also failed, using backup questions:', {
-        message: openaiError.message,
-        user: user.email,
-      })
-
-      // Use day of year to rotate through backup questions (provides variety without DB dependency)
-      const dayOfYear = dayjs().dayOfYear()
-
-      console.log(`🆘 EMERGENCY FALLBACK: Using backup question bank (day ${dayOfYear})`)
-      return getBackupQuestion(dayOfYear, promptsShownToday)
-    }
+    const dayOfYear = dayjs().dayOfYear()
+    console.log(`🆘 FALLBACK: Using backup question bank (day ${dayOfYear})`)
+    return getBackupQuestion(dayOfYear, promptsShownToday)
   }
 }
 
