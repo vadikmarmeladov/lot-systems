@@ -302,6 +302,19 @@ ${quantumState.needsSupport === 'critical' || quantumState.needsSupport === 'mod
 Match your question to their quantum state. The engine recognizes patterns they may not consciously see.`
   }
 
+  // Planner context — user's declared daily intention
+  let plannerContext = ''
+  const recentPlanLog = logs.find(log => log.event === 'plan_set')
+  if (recentPlanLog?.text) {
+    const planDate = recentPlanLog.context?.timeZone
+      ? dayjs(recentPlanLog.createdAt).tz(recentPlanLog.context.timeZone).format('D MMM')
+      : dayjs(recentPlanLog.createdAt).format('D MMM')
+    plannerContext = `\n\n**User's Declared Daily Intention (${planDate}):**
+${recentPlanLog.text}
+
+**Planner-Aligned Guidance:** The user declared this intention today. Consider probing how they're experiencing the pursuit of it, what their "feeling" state reveals, or whether their daily approach (their "how") is serving their intent. Connect Memory questions back to what they consciously chose to focus on.`
+  }
+
   // Goal context - understand what user is working toward
   const userGoals = extractGoals(user, logs)
   const activeGoals = userGoals.filter(g => g.state === 'active' || g.state === 'progressing').slice(0, 3)
@@ -753,11 +766,12 @@ Recent activity logs (for additional context):
   `.trim()
   const formattedLogs = logs.map(formatLog).filter(Boolean).join('\n\n')
 
-  const fullPrompt = head + quantumContext + goalContext + '\n\n' + formattedLogs
+  const fullPrompt = head + quantumContext + plannerContext + goalContext + '\n\n' + formattedLogs
 
   console.log(`📨 Prompt built: ${fullPrompt.length} chars total`)
   console.log(`   - Head section: ${head.length} chars`)
   console.log(`   - Quantum context: ${quantumContext.length} chars`)
+  console.log(`   - Planner context: ${plannerContext.length} chars${recentPlanLog ? ' (plan found)' : ''}`)
   console.log(`   - Goal context: ${goalContext.length} chars`)
   console.log(`   - Formatted logs: ${formattedLogs.length} chars (${logs.map(formatLog).filter(Boolean).length} logs)`)
   console.log(`   - User story included: ${userStory.length > 0 ? 'YES' : 'NO'}`)
@@ -797,6 +811,15 @@ function formatLog(log: Log): string {
         return ''
       })
       body = changes.filter(Boolean).join('\n').trim()
+      break
+    }
+    case 'plan_set': {
+      body = log.text || ''
+      break
+    }
+    case 'emotional_checkin': {
+      const state = (log.metadata as any)?.emotionalState
+      if (state) body = `Biofield check-in: ${state}`
       break
     }
   }
