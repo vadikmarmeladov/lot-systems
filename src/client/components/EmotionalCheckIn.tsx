@@ -94,6 +94,7 @@ export function EmotionalCheckIn() {
   const [isResponseShown, setIsResponseShown] = React.useState(false)
   const [clickedButtonIndex, setClickedButtonIndex] = React.useState<number | null>(null)
   const [shouldRender, setShouldRender] = React.useState(true)
+  const [pendingState, setPendingState] = React.useState<string | null>(null)
 
   const weather = useStore(stores.weather)
   const { data: checkInsData } = useEmotionalCheckIns(30) // Last 30 days
@@ -125,6 +126,7 @@ export function EmotionalCheckIn() {
   const { mutate: createCheckIn, isLoading } = useCreateEmotionalCheckIn({
     onSuccess: (data) => {
       const fullResponse = data.compassionateResponse || 'Noted.'
+      setPendingState(null)
       setResponse(fullResponse)
       setInsight(data.insights)
 
@@ -178,6 +180,7 @@ export function EmotionalCheckIn() {
 
     setClickedButtonIndex(buttonIndex)
     setIsPromptShown(false)
+    setPendingState(emotionalState)
 
     createCheckIn({
       checkInType: timeSlot.checkInType,
@@ -225,7 +228,7 @@ export function EmotionalCheckIn() {
     >
       {view === 'prompt' && (
         <>
-          {!response && (
+          {!response && !pendingState && (
             <>
               <div className={cn(
                 'mb-16 transition-opacity duration-[1400ms]',
@@ -237,6 +240,7 @@ export function EmotionalCheckIn() {
                 {timeSlot.answers.map((state, idx) => (
                   <Button
                     key={state}
+                    size="small"
                     onClick={() => handleCheckIn(state, idx)}
                     className={cn(
                       'transition-opacity duration-[1400ms]',
@@ -249,6 +253,11 @@ export function EmotionalCheckIn() {
                 ))}
               </div>
             </>
+          )}
+          {!!pendingState && !response && (
+            <div className="opacity-40 transition-opacity duration-[1400ms]">
+              {pendingState.charAt(0).toUpperCase() + pendingState.slice(1)} — logged.
+            </div>
           )}
           {!!response && (
             <div
