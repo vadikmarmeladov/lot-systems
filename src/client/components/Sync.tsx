@@ -24,9 +24,11 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotEmails,
+  LotEmailRecord,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { LotEmailEventPayload, PublicChatMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -43,6 +45,9 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Mail: received emails (SSE + persisted)
+  const [sseEmails, setSseEmails] = React.useState<LotEmailRecord[]>([])
+  const { data: emailData } = useLotEmails()
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -101,9 +106,20 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeLotEmailListener } = sync.listen(
+      'lot_email',
+      (data: LotEmailEventPayload) => {
+        if (data.receiverId !== me?.id) return
+        setSseEmails((prev) => {
+          if (prev.some((e) => e.id === data.id)) return prev
+          return [{ id: data.id, senderId: data.senderId, receiverId: data.receiverId, senderName: data.senderName, body: data.body, createdAt: data.createdAt, updatedAt: data.createdAt }, ...prev]
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotEmailListener()
     }
   }, [me?.id])
 
@@ -191,6 +207,33 @@ export const Sync = React.memo(function SyncInner() {
           </div>
         </form>
       </div>
+
+      {/* LOT MAIL inbox — received emails surfaced in Sync */}
+      {(() => {
+        const persisted = emailData?.emails || []
+        const persistedIds = new Set(persisted.map((e) => e.id))
+        const allEmails = [...sseEmails.filter((e) => !persistedIds.has(e.id)), ...persisted]
+        if (allEmails.length === 0) return null
+        return (
+          <div className="mb-80">
+            <div className="opacity-30 uppercase tracking-widest text-xs mb-16">LOT MAIL</div>
+            {allEmails.map((email) => (
+              <div key={email.id} className="group flex items-start gap-x-8 -mx-4 px-4 py-2 rounded grid-fill-hover">
+                <span className="whitespace-nowrap -ml-4 px-4 pr-4 opacity-60 text-xs uppercase tracking-widest pt-[2px]">✉</span>
+                <span className="whitespace-nowrap pr-4">{email.senderName}</span>
+                <div className="whitespace-breakspaces flex-1" style={{ wordBreak: 'break-word' }}>
+                  {email.body}
+                </div>
+                {!isTouchDevice && (
+                  <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40">
+                    <MessageTimeLabel dateString={email.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )
+      })()}
 
       <div>
         {messages.map((x, i) => {

@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendLotEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -1862,6 +1862,19 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { mutate: sendLotEmail } = useSendLotEmail({
+    onSuccess: (data) => {
+      setEmailResult(`MAIL SENT → ${data.recipientName}`)
+      setEmailLoading(false)
+    },
+    onError: (err: any) => {
+      const msg = err?.response?.data?.error || 'MAIL FAILED — Check recipient name.'
+      setEmailResult(msg)
+      setEmailLoading(false)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -2259,6 +2272,7 @@ const NoteEditor = ({
         const lines = [
           'AVAILABLE COMMANDS',
           '',
+          '/email to [name]: [msg]  Send LOT Mail (appears in Sync)',
           '/prayer       Generate contextual scripture',
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
@@ -2282,6 +2296,18 @@ const NoteEditor = ({
         setSystemHelp(lines.join('\n'))
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
+      } else if (trigger === 'lot-email') {
+        // Parse: /email to [Name]: [body] or /email to [Name] [body]
+        const emailMatch = value.match(/\/email\s+to\s+([A-Za-zÀ-ÿ'-]+)[:\s]+(.+)/is)
+        if (emailMatch && !emailLoading) {
+          const recipientName = emailMatch[1].trim()
+          const body = emailMatch[2].trim()
+          if (recipientName && body.length >= 2) {
+            setEmailLoading(true)
+            setEmailResult(null)
+            sendLotEmail({ recipientName, body })
+          }
+        }
       } else if (trigger === 'story-mode') {
         if (!storyLoading) {
           setStoryLoading(true)
@@ -2409,6 +2435,18 @@ const NoteEditor = ({
           )}
           rows={primary ? 10 : 1}
         />
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="LOT MAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Sending...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60 uppercase tracking-widest">{emailResult}</div>
+              )}
+            </Block>
+          </div>
+        )}
         {(qiLoading || qiResponse) && (
           <div className="mt-8">
             <Block label="QI [INTSUM]:" blockView>

@@ -18,6 +18,7 @@ import {
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
+  LotEmail,
   Paginated,
   PublicChatMessage,
   User,
@@ -905,3 +906,19 @@ export const useStoryGeneration = createMutation<
     logId: string | null
   }
 >('post', '/api/story')
+
+// ============================================================================
+// LOT MAIL — in-app email via /email to [name]: [body]
+// ============================================================================
+
+export type LotEmailRecord = LotEmail & { senderName: string }
+
+export const useLotEmails = createQuery<{ emails: LotEmailRecord[] }>(
+  '/api/lot-emails',
+  { refetchOnWindowFocus: false }
+)
+
+export const useSendLotEmail = createMutation<
+  { recipientName: string; body: string },
+  { id: string; recipientName: string; status: string }
+>('post', '/api/lot-emails')

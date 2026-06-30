@@ -126,6 +126,29 @@ export const CohortConnectWidget: React.FC = () => {
     stores.goTo('sync')
   }
 
+  const handleSendEmail = (firstName: string | null, similarity: number) => {
+    if (!firstName) return
+    recordSignal('mood', 'cohort_email_initiated', {
+      recipientName: firstName,
+      similarity,
+      connectionReadiness,
+      hour: new Date().getHours()
+    })
+    // Navigate to Log and seed the textarea with the /email command
+    stores.goTo('logs')
+    // Give the router time to mount the Logs component, then seed the input
+    setTimeout(() => {
+      const textarea = document.querySelector<HTMLTextAreaElement>('textarea')
+      if (!textarea) return
+      const cmd = `/email to ${firstName}: `
+      const nativeSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value')?.set
+      nativeSetter?.call(textarea, cmd)
+      textarea.dispatchEvent(new Event('input', { bubbles: true }))
+      textarea.focus()
+      textarea.selectionStart = textarea.selectionEnd = cmd.length
+    }, 300)
+  }
+
   const handleToggleExpand = (userId: string) => {
     const willExpand = expandedMemberId !== userId
     if (willExpand) {
@@ -268,6 +291,15 @@ export const CohortConnectWidget: React.FC = () => {
                         }}
                       >
                         Send message
+                      </Button>
+                      <Button
+                        size="small"
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation()
+                          handleSendEmail(match.user.firstName, match.similarity)
+                        }}
+                      >
+                        ✉ Email
                       </Button>
                     </div>
                   </div>

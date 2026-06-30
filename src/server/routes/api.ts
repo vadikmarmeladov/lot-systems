@@ -6,7 +6,7 @@
  * Made in the USA | brand.lot-systems.com
  */
 
-import { Op } from 'sequelize'
+import { Op, Sequelize } from 'sequelize'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import seedrandom from 'seedrandom'
 import {
@@ -15,6 +15,7 @@ import {
   PublicChatMessage,
   UserSettings,
   UserTag,
+  LotEmailEventPayload,
 } from '#shared/types'
 import config from '#server/config'
 import { fp } from '#shared/utils'
@@ -3902,6 +3903,108 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // ============================================================================
+  // LOT MAIL — in-app email via /email to [name]: [body] log command
+  // ============================================================================
+
+  fastify.get('/lot-emails', async (req, reply) => {
+    try {
+      const emails = await fastify.models.LotEmail.findAll({
+        where: { receiverId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+
+      const senderIds = [...new Set(emails.map((e: any) => e.senderId))]
+      const senders = senderIds.length
+        ? await fastify.models.User.findAll({
+            where: { id: senderIds as string[] },
+            attributes: ['id', 'firstName', 'lastName'],
+          })
+        : []
+      const senderMap = Object.fromEntries(senders.map((u: any) => [u.id, u]))
+
+      return reply.send({
+        emails: emails.map((e: any) => ({
+          id: e.id,
+          senderId: e.senderId,
+          receiverId: e.receiverId,
+          senderName: (() => {
+            const s = senderMap[e.senderId]
+            return s ? `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Unknown' : 'Unknown'
+          })(),
+          body: e.body,
+          createdAt: e.createdAt,
+        })),
+      })
+    } catch (error) {
+      console.error('Error fetching lot-emails:', error)
+      return reply.status(500).send({ error: 'Failed to fetch emails' })
+    }
+  })
+
+  fastify.post('/lot-emails', async (req: FastifyRequest<{
+    Body: { recipientName: string; body: string }
+  }>, reply) => {
+    try {
+      const { recipientName, body } = req.body
+
+      if (!recipientName?.trim() || !body?.trim()) {
+        return reply.status(400).send({ error: 'Recipient name and body are required' })
+      }
+
+      // Resolve recipient by first name (case-insensitive, first match)
+      const recipient = await fastify.models.User.findOne({
+        where: Sequelize.where(
+          Sequelize.fn('LOWER', Sequelize.col('firstName')),
+          recipientName.trim().toLowerCase()
+        ),
+        attributes: ['id', 'firstName', 'lastName'],
+      })
+
+      if (!recipient) {
+        return reply.status(404).send({
+          error: `No LOT member found named "${recipientName}"`,
+          hint: 'Check the spelling or use the full first name.',
+        })
+      }
+
+      if (recipient.id === req.user.id) {
+        return reply.status(400).send({ error: 'Cannot send LOT Mail to yourself' })
+      }
+
+      const email = await fastify.models.LotEmail.create({
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        body: body.trim().slice(0, 4000),
+      })
+
+      const senderName = `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'Someone'
+      const recipientName2 = `${recipient.firstName || ''} ${recipient.lastName || ''}`.trim()
+
+      const payload: LotEmailEventPayload = {
+        id: email.id as string,
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        senderName,
+        recipientName: recipientName2,
+        body: body.trim().slice(0, 4000),
+        createdAt: (email.createdAt as any)?.toISOString?.() ?? new Date().toISOString(),
+      }
+
+      sync.emit('lot_email', payload)
+
+      return reply.send({
+        id: email.id,
+        recipientName: recipientName2,
+        status: 'SENT',
+      })
+    } catch (error) {
+      console.error('Error sending lot-email:', error)
+      return reply.status(500).send({ error: 'Failed to send email' })
     }
   })
 
