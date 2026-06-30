@@ -24,7 +24,7 @@ import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
 import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
-import { useVisitorStats, useProfile, useLogs, useCommunityEmotion } from '#client/queries'
+import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
 import { UserTag } from '#shared/types'
 import { TimeWidget } from './TimeWidget'
@@ -107,8 +107,7 @@ export const System = React.memo(function SystemInner() {
   const usersTotal = useStore(stores.usersTotal)
   const usersOnline = useStore(stores.usersOnline)
   const liveMessage = useStore(stores.liveMessage)
-  const { data: visitorStats } = useVisitorStats()
-  const displayStats = visitorStats ?? null
+  const myProfileVisits: number = (me as any)?.metadata?.profileVisits ?? 0
 
   const { data: profile } = useProfile()
   const { data: logs = [] } = useLogs()
@@ -580,7 +579,7 @@ export const System = React.memo(function SystemInner() {
           )}
         </Block>
         <Block label="My OS visitors:">
-          {displayStats !== null ? formatNumberWithCommas(displayStats.userProfileVisits) : <LoadingDots />}
+          {formatNumberWithCommas(myProfileVisits)}
         </Block>
       </div>
 
