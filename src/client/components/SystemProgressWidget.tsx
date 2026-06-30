@@ -967,6 +967,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v72 entry appended · USERSHIP_TRANSMISSION updated to v72.',
     ],
   },
+  {
+    date: '2026-06-30',
+    session: 'Self-Assembly Session — v74 / Visitor Stats Accuracy · APP_VERSION Live Injection · Sync Crash Fix',
+    assembled: [
+      'scripts/build/client.build.ts: APP_VERSION read from package.json via readFileSync at build time. Injected as process.env.APP_VERSION via esbuild define. Version labels in System tab auto-update from package.json — no manual edits required. v1.3.0.',
+      'Sync.tsx: onChangeMessage callback was missing — crash on message input. useCallback handler added calling setMessage(value). Stable.',
+      'System.tsx: "Total LOT® visitors:" row removed (totalSiteVisitors unreliable). Label "Total users:" → "Total LOT® users:" in two display locations. "My OS visitors:" preserved via displayStats null-safe alias.',
+      'api.ts: visitor-stats route simplified. Removed Promise.all parallel query. profileVisits sourced directly from req.user.metadata (already on request object). Entire handler wrapped in try/catch — errors logged, returns {0,0} on failure.',
+      'About.tsx: Field Manual v73→v74. Day 1023+ (June 27) → Day 1026+ (June 30, 2026). Self-assembly phase row prepended with v74 entry. Version log + bottom status block updated.',
+      'SESSION_REPORTS: v74 entry appended · USERSHIP_TRANSMISSION updated to v74.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1004,16 +1016,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-25',
+  date: '2026-06-30',
   message: [
-    'ASSEMBLY RUN — 2026-06-25 · LOT-SR-20260625-03',
-    'P84 longitudinal-drift (client): 3-day bucket comparison. Recent 3d vs prior 3d signal density. ≤50% → early engagement decline detected. Conf 0.55–0.80. Fires before the 28-day server arc catches it.',
-    'P85 adaptive-momentum-window: fires when systemic-thinking-mode + signal-momentum-lock both active. Sustained engagement streak during structural cognition. Strategy is running at full capacity. Conf 0.75–0.90.',
-    'P86 vitality-strategy-peak: fires when circadian-vitality-peak + systemic-thinking-mode both active. Biology aligned with strategy. Prime execution window. Suggests memory widget, immediate timing. Conf 0.78–0.92.',
-    'Archetype 29 Peak Strategist: high/moderate energy · planner+intentions+goals · vitality-strategy-peak+adaptive-momentum-window+systemic-thinking-mode. Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.',
-    'COCKPIT-RULE military pass: 5 existing handlers stripped of verbose prose — OS [MODE]: · VITAL: · DRIFT: · SYSTMK: · COGN:. Data rows only. Log surface is now fully military.',
-    'ADAPT-MOM: + VSTRAT: handlers deployed. adaptive_momentum + vitality_strategy_peak surfaced in displayableEvents.',
-    'Dep map: 126+ nodes. 86 patterns active. 85+ log handlers. 23 background jobs. 29 archetypes.',
+    'ASSEMBLY RUN — 2026-06-30 · LOT-SR-20260630-01',
+    'Visitor stats: broken Total LOT® visitors row removed. System shows Total LOT® users (live via SSE stores.usersTotal) + My OS visitors only. No undefined-crash path.',
+    'APP_VERSION: live injection from package.json at build time. process.env.APP_VERSION defined via esbuild. Version labels in System tab auto-update. v1.3.0.',
+    'stores.appVersion wired in System.tsx. Version row now resolves from live server process, not hardcoded string.',
+    'Sync crash fix: onChangeMessage callback was missing — crash on message input. useCallback handler added. Stable.',
+    'visitor-stats API: route simplified. Direct req.user.metadata access. try/catch error wrap. Logs on failure, returns zeros. Clean.',
+    'Field Manual v74. Day 1026+ (June 30, 2026). 86 patterns. 29 archetypes. 23 background jobs. 389 badges.',
     'DEPLOYED.',
   ],
 }
