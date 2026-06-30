@@ -48,7 +48,8 @@ const anthropic = anthropicClient
 // ============================================================================
 // Switch between 'together', 'claude', 'openai', or 'auto'
 // This is where YOU control which AI engine to use - LOT owns the decision!
-const AI_ENGINE_PREFERENCE: EnginePreference = 'claude'
+// Primary: Together AI (Llama-3.3-70B). Falls back to Claude if key missing.
+const AI_ENGINE_PREFERENCE: EnginePreference = 'together'
 
 const questionSchema = z.object({
   question: z.string(),
