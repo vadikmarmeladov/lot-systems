@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev L
+# LOT-DOCTRINE  rev M
 
 ## Render Isolation
 
@@ -179,3 +179,31 @@ creates a new numbered file; old files are never modified. No restore needed.
 
 The rule: wiki archives are additive and safe. About.tsx is master-authoritative.
 (Manifest §06 Sunday Protocol: WIKI-GUARD added 2026-06-27.)
+
+## Widget→Memory Compression Loop (PLANNER-CONTEXT)
+
+The widget interaction → signal → DB → Memory Engine → question cycle closes
+when PLANNER-CONTEXT (plan_set log text field) is extracted in buildPrompt()
+and appended to the AI prompt before formattedLogs. Two rules maintain loop
+integrity:
+
+1. Any event type that must influence Memory Engine question generation must
+   have an explicit case in formatLog(). If the case is absent, the log entry
+   returns empty string, is filtered out, and becomes invisible to the AI —
+   even though it was passed in the logs array. Silent erasure, no error.
+
+2. The prompt assembly order is:
+     head + quantumContext + plannerContext + goalContext + '\n\n' + formattedLogs
+   plannerContext (declared intent) precedes goalContext (inferred goals) and
+   formattedLogs (raw history) so the AI orients on conscious intention first,
+   then enriches with behavioral inference. Reversing this order buries the
+   operator's stated focus under inferred patterns.
+
+The AI engine preference (AI_ENGINE_PREFERENCE) is separate from the fallback
+chain. Setting preference='together' means Together AI is primary; if
+TOGETHER_API_KEY is absent or returns auth failure, aiEngineManager walks
+ollama → together (already failed) → gemini → mistral → claude → openai
+automatically. No code change needed to switch keys.
+
+(SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
+to formatLog(); Together AI restored as primary.)
