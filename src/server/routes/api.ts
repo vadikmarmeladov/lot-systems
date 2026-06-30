@@ -4297,7 +4297,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       const uniqueQuestions = await fastify.models.Answer.count({
         where: { createdAt: { [Op.gte]: todayStart } },
         distinct: true,
-        col: 'questionId'
+        col: 'question'
       })
       const aiDiversity = totalQuestions > 0
         ? Math.min(100, Math.round((uniqueQuestions / totalQuestions) * 100))
