@@ -207,3 +207,16 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Provisional Observation — Not Yet a Clause (rev M, no fold)
+
+QI·46 Node 2 (SR-20260701-01) introduces SOUL UPLOAD and BEING CALIBRATION
+as candidate concepts (see LOT-LEXICON.md PROVISIONAL section). Per the
+mint/fold rule, a single appearance does not earn a doctrine clause. Recorded
+here only so a future session can recognize the second occurrence and fold
+correctly. The one load-bearing rule already stated explicitly in the Node 2
+document itself, worth flagging even pre-fold: any output-calibration or
+personalization feature must state its data-vs-metaphysical boundary in the
+spec that defines it, not leave it implied — Node 1 implied it across several
+sections; Node 2 states it once, in one place (§0), and every later section
+can point back to it.

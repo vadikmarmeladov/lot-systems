@@ -63,3 +63,4 @@ ID             | CLASS        | SUMMARY                                         
 20260627-01    | WIKI-BUILD   | LOT-WIKI-v66 · FM v73 · 27 sections · cohort profiles (6) · Word Turn Lexicon v10 (126 triggers) · Vocab Index 40+ · About.tsx Day 1023+ | GREEN  | e074756  | WORDS: 680 (median 540)
 20260628-01    | CORPORATE    | LOT® Lent Diet 2026 — extremely successful cohort program outcome · S-2 direct testimony | GREEN  | (pending tag) | WORDS: 298 (median 495) — trend ↓
 20260630-01    | SELF-ASSEMBLY| Widget→Memory compression loop — PLANNER-CONTEXT injected · plan_set+emotional_checkin in formatLog · Together AI primary · M2M rebuild doc | GREEN  | dc27749  | WORDS: 312 (median 495) — trend ↓
+20260701-01    | CORPORATE    | QI·46 Node 2 spec — Soul Upload (Layer 6, consent-gated) + Being Calibration (Layer 7, output grammar) · docs only | GREEN  | (pending commit) | WORDS: 857 (median 396) — trend ↑

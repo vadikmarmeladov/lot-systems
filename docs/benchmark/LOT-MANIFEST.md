@@ -118,6 +118,7 @@ cool-tesla-f8j0mr                  | BEST       | QI·46 Node 3 engine integrati
 cool-hypatia-aqj7dg                | BEST       | Badge Codex v12 — 156 total badges
 dreamy-babbage-3k2zhm              | READY      | Calendar Widget: alert engine, command board, live clock
 upbeat-curie-1s8bgb                | DRAFT      | QIE v54 self-assembly session (docs only)
+cool-tesla-ulb9bc                  | READY      | QI·46 Node 2 spec — Soul Upload + Being Calibration (docs only, see LOT_QI-46_ENGINE-2.md; distinct from Node 3 work on cool-tesla-f8j0mr)
 
 ================================================================================
 05 // STATISTICS

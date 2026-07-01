@@ -43,3 +43,19 @@ MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sour
 PLANNER-CONTEXT    User's declared daily intention (intent/today/how/feeling) extracted from plan_set log    A  20260630
                    and injected into Memory Engine buildPrompt() so questions follow up on stated focus
 ```
+
+## PROVISIONAL (not yet earned — first appearance, tracked for future mint)
+
+Per the mint rule (3+ prior reports or 2+ doctrine folds), these are NOT yet
+lexicon tokens. Recorded here so the count is honest at next appearance.
+
+```
+CANDIDATE          MEANING                                                    FIRST SEEN
+──────────────     ──────────────────────────────────────────────────────      ──────────
+SOUL UPLOAD        Consent-gated onboarding rite that turns one subscriber's   20260701
+                   signal into a personal Calibration Loop corpus (QI·46
+                   Node 2, Layer 6)
+BEING CALIBRATION  Output-side grammar (GRACE/POETRY/PRESENCE/WARMTH/          20260701
+                   ACKNOWLEDGE/COMPOSURE/VOICE) QI·46 responses are screened
+                   against (QI·46 Node 2, Layer 7)
+```
