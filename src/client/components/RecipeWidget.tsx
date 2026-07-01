@@ -220,17 +220,14 @@ export const RecipeWidget: React.FC = () => {
               {state.isFasting && state.fastingHeadline && (
                 <div className="opacity-30 mb-4">{state.fastingHeadline}</div>
               )}
-              <div>{state.recipe}</div>
-              {getWaterTip() && (
-                <div
-                  className={cn(
-                    'mt-3 text-xs leading-relaxed',
-                    state.fastingMode === 'water-only' ? 'opacity-60' : 'opacity-40'
-                  )}
-                >
-                  {getWaterTip()}
-                </div>
-              )}
+              <div>
+                {state.recipe}
+                {getWaterTip() && (
+                  <span className="opacity-30">
+                    {' · '}{getWaterTip()!.charAt(0).toLowerCase() + getWaterTip()!.slice(1).replace(/\.$/, '')}
+                  </span>
+                )}
+              </div>
             </div>
           )}
         </div>
