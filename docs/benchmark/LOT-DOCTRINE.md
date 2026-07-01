@@ -247,3 +247,25 @@ Flagged here as the top candidate for the next ENGINEERING session: grep
 `userId: Number(userId)` in scheduled-jobs.ts, replace with the string key,
 verify against a real Log table that rows actually appear.
 (SR-20260630-02: discovered during Job 25 implementation; not remediated.)
+
+## WARNING: `git push` of tag refs is rejected in this environment
+
+`git tag <name>` followed by `git push origin <tag>` (or `refs/tags/<tag>:
+refs/tags/<tag>`) returns HTTP 403 through this session's git remote, even
+though the identical credential pushes branch refs (`refs/heads/...`)
+successfully. `git push --follow-tags` silently does nothing here too — it
+only forwards *annotated* tags reachable from the pushed branch, and every
+benchmark tag so far has been lightweight, so it has never actually sent one.
+This is the root cause behind every prior report's "LAST GREEN: NONE / no
+benchmark tags exist" preflight finding, despite dozens of reports claiming
+`TAG: benchmark-YYYYMMDD-NN ... PUSHED` in their 07 // PUSH section — the
+branch push (which the PUSH line's "origin/<branch> PUSHED" refers to) really
+did succeed; the tag never left the local clone. Until the remote token scope
+allows `refs/tags/*` writes (or tags are created through a GitHub API call
+instead of `git push`), treat every session's LAST GREEN as NONE and skip the
+Plan-B rollback path — it has never had a valid target. Do not keep re-
+attempting `git push <tag>` per session once this is confirmed; note it once
+and move on, per Cardinal Rule 5 (don't fabricate progress on a known-broken
+path).
+(SR-20260630-02: confirmed via direct 403 on tag push; local tag
+benchmark-20260630-02 retained but not on origin.)
