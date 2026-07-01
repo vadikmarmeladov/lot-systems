@@ -339,7 +339,7 @@ export type BadgeType =
   // ── Easter egg — calendar v9 (Sci-Fi Literary Calendar) ──────────────────
   | 'turing_day'        // ∞·∘  June 23 — Alan Turing born 1912
   | 'moon_landing'      // ○·∗  July 20 — First lunar footprint 1969
-  | 'first_signal'      // ·∘·  October 4 — Sputnik launch 1957
+  | 'sputnik_day'       // ·∘·  October 4 — Sputnik launch 1957
   // ── Easter egg — behavioral v9 (Spellbound Patterns) ─────────────────────
   | 'dawn_twin'         // ∘—○—∘  Check in before 06:00 AND after 21:00 same day
   | 'year_first'        // ○→∗  First journal entry of a new calendar year
@@ -3109,10 +3109,10 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'easter_egg',
     hidden: true,
   },
-  first_signal: {
-    id: 'first_signal',
+  sputnik_day: {
+    id: 'sputnik_day',
     symbol: '·∘·',
-    name: 'First Signal',
+    name: 'Sputnik Day',
     description: 'Check in on October 4 — Sputnik launch 1957',
     unlockMessage: '↳ October 4, 1957. Sputnik. Beeeep. The first satellite broadcast. The archive was always listening. ·∘·',
     rarity: 'rare',
