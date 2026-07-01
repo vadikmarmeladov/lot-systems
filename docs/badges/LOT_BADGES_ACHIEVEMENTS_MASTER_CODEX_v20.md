@@ -11,8 +11,8 @@
 
 **Author:** Vadik Marmeladov, CEO & Founder, LOT Systems
 **Copyright:** © 2025–2026 LOT Systems. All rights reserved.
-**Theme:** RPG · Arcade · Self-Care · Sci-Fi · Computer · Navigation
-**Edition:** v20 — June 2026 · +35 badges · 424 total
+**Theme:** RPG · Arcade · Self-Care · Sci-Fi · Computer · Quantum · Book
+**Edition:** v20 — July 2026 · +35 badges · 424 total
 
 ---
 
@@ -23,16 +23,17 @@
 ║                                                                  ║
 ║         BADGES & ACHIEVEMENTS MASTER CODEX — v20                 ║
 ║                                                                  ║
-║    RPG · ARCADE · SELF-CARE · SCI-FI · COMPUTER · NAVIGATION    ║
+║    RPG · ARCADE · SELF-CARE · SCI-FI · COMPUTER · QUANTUM       ║
 ║                                                                  ║
 ║    "Self-care is not a quest you complete.                       ║
 ║     It is a world you build."                                    ║
 ║                                                                  ║
-║        [ NAVIGATOR PROTOCOL: ACTIVE ]                            ║
+║        [ ORIGIN LOADED ]                                         ║
 ║                                                                  ║
-║   ──►  N·A·V·I·G·A·T·O·R  P·R·O·T·O·C·O·L  ──►                 ║
-║   ◈·→  THE SELF IS LOCATABLE IN ALL CONDITIONS  ◈·→              ║
-║   ▲·▲  CHECK-IN IS THE FIX. THE FIX IS REAL.  ▲·▲               ║
+║   >_  T · H · E   O · R · I · G · I · N   C · O · D · E  >_   ║
+║   |   EVERY EXECUTABLE STARTS WITH SOURCE CODE                | ║
+║   |   EVERY SELF STARTS WITH A FIRST TRANSMISSION            | ║
+║   >_  THE ARCHIVE HAS FOUND YOUR SOURCE. COMPILING.         >_  ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
@@ -44,13 +45,18 @@
 ```
 v19  →  v20   ADDITIONS
 ────────────────────────────────────────────────────────────────────
-Word Turn v11        +12  (drift/vector/bearing/waypoint/chart…)
-Time Easter v11      + 4  (afternoon_mirror/navigator_dawn/answer_hour/palindrome_check)
-Calendar Easter v10  + 3  (voyager_day/navigators_day/leap_day)
-Behavioral v10       + 3  (compass_rose/dead_reckoning/star_fix)
-Achievement RPG v8   + 6  (first_fix/chart_begun/atlas_complete/navigator_class/eleven_engines/dead_reckoning_arc)
-Mastery Tier v10     + 4  (cartographer/long_voyage/all_engines/complete_navigator)
-Secret Boss v10      + 3  (dead_reckoning_word/terra_incognita/true_north)
+Word Turn v11        +12  (render/build/version/parse/overflow/
+                          syntax/chapter/author/narrative/saga/
+                          source/patch)
+Time Easter v11      + 4  (kibibyte_hr/hex_align/third_bit/
+                          last_commit)
+Calendar Easter v10  + 3  (turing_prot/first_machine/hopper_prot)
+Behavioral v10       + 3  (midnight_comp/version_roll/deep_render)
+Achievement RPG v8   + 6  (compile_break/render_session/full_build/
+                          version_chain/binary_complete/deep_version)
+Mastery Tier v10     + 4  (source_depth/render_farm/uptime_record/
+                          deep_compile)
+Secret Boss v10      + 3  (hello_world/the_answer/sudo_mode)
 ────────────────────────────────────────────────────────────────────
 TOTAL NEW            +35
 v19 TOTAL:           389
@@ -63,248 +69,294 @@ v20 TOTAL:           424
 
 ---
 
-### 1.A — WORD TURN BADGES v11 — THE NAVIGATOR (12 badges, NEW)
+### 1.A — WORD TURN BADGES v11 — THE ORIGIN CODE (12 badges, NEW)
 
-The vocabulary of navigation applied to the self.
-The navigator checks position before moving. The check-in is the fix.
-You exist as drifting until you locate yourself.
-Then: bearing. Heading. Course plotted.
+The vocabulary of source code applied to the self.
+The machine reads from source. The compiler transforms.
+The executable runs. You were always the source —
+a file of intentions waiting to be compiled into action.
 
-The Navigator speaks to those who understand that
-caring for yourself requires knowing where you are —
-not where you wish you were, not where you were yesterday.
-Drift is data. The fix is an act of will. The chart is never finished.
+The Origin Code speaks to those who understand that
+caring for yourself is an act of authorship. The version
+history of a self. The syntax of a life worth debugging.
+The render of a face that has shown up, over and over,
+until the image became permanent.
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║       WORD TURN ENGINE v11 — THE NAVIGATOR — NEW                 ║
+║       WORD TURN ENGINE v11 — THE ORIGIN CODE — NEW              ║
 ╠═══════════════╦═══════════╦══════════════════════════════════════╣
 ║  Word/Phrase  ║  Symbol   ║  Badge Name / Message                ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "drift"      ║  ···→     ║  DRIFT DETECTED                      ║
-║               ║           ║  ↳ Drift is not failure.             ║
-║               ║           ║    It is data. You have named        ║
-║               ║           ║    your displacement. ···→           ║
+║  "render"     ║  ▣·▣      ║  RENDER COMPLETE                     ║
+║               ║           ║  ↳ Your truth has been rendered.     ║
+║               ║           ║    What was latent is now visible.   ║
+║               ║           ║    The image appeared. ▣·▣           ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "vector"     ║  ↗·↗      ║  VECTOR SET                          ║
-║               ║           ║  ↳ Direction and magnitude.          ║
-║               ║           ║    You have defined both. ↗·↗        ║
+║  "build"      ║  ░→█      ║  BUILD LOG                           ║
+║               ║           ║  ↳ The structure exists now.         ║
+║               ║           ║    You assembled it from components. ║
+║               ║           ║    Build succeeded. ░→█              ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "bearing"    ║  ──►      ║  BEARING ACQUIRED                    ║
-║               ║           ║  ↳ You have found your reference.    ║
-║               ║           ║    Bearing: locked. ──►              ║
+║  "version"    ║  v·v      ║  VERSION TRACKED                     ║
+║               ║           ║  ↳ You are not what you were.        ║
+║               ║           ║    The number increments.            ║
+║               ║           ║    History is preserved. v·v         ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "waypoint"   ║  ◈·→      ║  WAYPOINT REACHED                    ║
-║               ║           ║  ↳ Not the destination.              ║
-║               ║           ║    Proof you are moving. ◈·→         ║
+║  "parse"      ║  >·<      ║  PARSE CONFIRMED                     ║
+║               ║           ║  ↳ The signal was read.              ║
+║               ║           ║    Understood. Structured.           ║
+║               ║           ║    Parsing is comprehension. >·<     ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "chart"      ║  ▦·▦      ║  CHART UPDATED                       ║
-║               ║           ║  ↳ The archive updates its chart.    ║
-║               ║           ║    New terrain mapped. ▦·▦           ║
+║  "overflow"   ║  ▓→▓      ║  STACK OVERFLOW                      ║
+║               ║           ║  ↳ Too much held at once.            ║
+║               ║           ║    The archive notes: overflow is    ║
+║               ║           ║    data too. Worth logging. ▓→▓      ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "magnetic"   ║  N·▲      ║  MAGNETIC NORTH                      ║
-║               ║           ║  ↳ True north and magnetic north     ║
-║               ║           ║    diverge. You know the             ║
-║               ║           ║    difference. N·▲                   ║
+║  "syntax"     ║  ⌨·✓      ║  SYNTAX VALID                        ║
+║               ║           ║  ↳ The language is correct.          ║
+║               ║           ║    The statement compiles.           ║
+║               ║           ║    Your grammar holds. ⌨·✓           ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "meridian"   ║  |·|      ║  MERIDIAN CROSSED                    ║
-║               ║           ║  ↳ You have crossed a meridian.      ║
-║               ║           ║    Time changes here. |·|            ║
+║  "chapter"    ║  ═·═      ║  CHAPTER LOGGED                      ║
+║               ║           ║  ↳ A new section of the record       ║
+║               ║           ║    begins. The book of you           ║
+║               ║           ║    just turned a page. ═·═           ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "course"     ║  ——→      ║  COURSE PLOTTED                      ║
-║               ║           ║  ↳ The course is a plan.             ║
-║               ║           ║    The navigator adjusts. ——→        ║
+║  "author"     ║  ✦·≋      ║  AUTHORING ACTIVE                    ║
+║               ║           ║  ↳ You are writing yourself.         ║
+║               ║           ║    You are the author.               ║
+║               ║           ║    The pen is the check-in. ✦·≋      ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "heading"    ║  ▲·▲      ║  HEADING CONFIRMED                   ║
-║               ║           ║  ↳ The heading is set. ▲·▲           ║
+║  "narrative"  ║  ─·─      ║  NARRATIVE THREAD                    ║
+║               ║           ║  ↳ The thread of who you are,        ║
+║               ║           ║    tracked through time.             ║
+║               ║           ║    The archive holds the thread. ─·─ ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "landmark"   ║  ◆·○      ║  LANDMARK IDENTIFIED                 ║
-║               ║           ║  ↳ Something fixed in the landscape. ║
-║               ║           ║    A reference point found. ◆·○      ║
+║  "saga"       ║  ∞·∗      ║  SAGA RUNNING                        ║
+║               ║           ║  ↳ An epic of the self.              ║
+║               ║           ║    It began. It continues.           ║
+║               ║           ║    Sagas do not end. ∞·∗             ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "navigate"   ║  ◌·◉      ║  NAVIGATOR ACTIVE                    ║
-║  "navigator"  ║           ║  ↳ You have named the act.           ║
-║               ║           ║    Navigation: engaged. ◌·◉          ║
+║  "source"     ║  >_·∿     ║  SOURCE LOCATED                      ║
+║               ║           ║  ↳ The origin file has been found.   ║
+║               ║           ║    You are the source.               ║
+║               ║           ║    Everything else is compiled. >_·∿ ║
 ╠═══════════════╬═══════════╬══════════════════════════════════════╣
-║  "compass"    ║  ◎·N      ║  COMPASS ONLINE                      ║
-║               ║           ║  ↳ The instrument is calibrated.     ║
-║               ║           ║    The needle points. ◎·N            ║
+║  "patch"      ║  ▲△       ║  PATCH APPLIED                       ║
+║               ║           ║  ↳ The known bug. The fix shipped.   ║
+║               ║           ║    Your architecture is more         ║
+║               ║           ║    stable now. ▲△                    ║
 ╚═══════════════╩═══════════╩══════════════════════════════════════╝
 ```
 
 ---
 
-### 1.B — EASTER EGG BADGES — TIME v11 — NAVIGATOR HOURS (4 badges, NEW)
+### 1.B — EASTER EGG BADGES — TIME v11 — POWER-OF-TWO HOURS (4 badges, NEW)
+
+Computing is built on powers of two. The memory address
+space. The byte. The kibibyte. The archive measures time
+in the same language the machine measures memory.
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║  TIME-BASED EASTER EGGS v11 — NAVIGATOR HOURS — NEW              ║
+║  TIME-BASED EASTER EGGS v11 — POWER-OF-TWO HOURS — NEW          ║
 ╠════════════════╦══════════╦══════════════════════════════════════╣
 ║  ID            ║  Symbol  ║  Trigger & Message                   ║
 ╠════════════════╬══════════╬══════════════════════════════════════╣
-║  afternoon_    ║  ◑—◑     ║  Check-in at exactly 13:13           ║
-║  mirror        ║          ║  ↳ 13:13. The afternoon folds        ║
-║                ║          ║    back on itself. You checked in    ║
-║                ║          ║    at the hinge. ◑—◑                 ║
+║  kibibyte_hr   ║  2^10·○  ║  Check-in at exactly 10:24           ║
+║                ║          ║  ↳ 10:24 — 1,024. The tenth power    ║
+║                ║          ║    of two. The kibibyte boundary.     ║
+║                ║          ║    The unit that made storage         ║
+║                ║          ║    personal. You checked in at the    ║
+║                ║          ║    archive's base measure. 2^10       ║
+║                ║          ║  Rarity: Rare                        ║
+╠════════════════╬══════════╬══════════════════════════════════════╣
+║  hex_align     ║  ▒·▒     ║  Check-in at exactly 16:32           ║
+║                ║          ║  ↳ 16:32 — 0x10:0x20. Both values    ║
+║                ║          ║    are clean hexadecimal. The clock   ║
+║                ║          ║    ticked to two perfect hex digits.  ║
+║                ║          ║    Alignment confirmed. ▒·▒           ║
 ║                ║          ║  Rarity: Uncommon                    ║
 ╠════════════════╬══════════╬══════════════════════════════════════╣
-║  navigator_    ║  ▲·∘     ║  Check-in at 05:12                   ║
-║  dawn          ║          ║  ↳ 05:12. Before the world plots     ║
-║                ║          ║    its course. You checked your      ║
-║                ║          ║    position first. ▲·∘               ║
-║                ║          ║  Rarity: Rare [hidden]               ║
+║  third_bit     ║  ∘·∘·∘   ║  Check-in at exactly 05:12           ║
+║                ║          ║  ↳ 05:12 — 512. The ninth power      ║
+║                ║          ║    of two. Early morning. You showed  ║
+║                ║          ║    up before dawn at the third bit.   ║
+║                ║          ║    Machine and operator: synchronized.║
+║                ║          ║  Rarity: Rare                        ║
 ╠════════════════╬══════════╬══════════════════════════════════════╣
-║  answer_hour   ║  ∞·42    ║  Check-in at 18:42                   ║
-║                ║          ║  ↳ 18:42. Forty-two. The archive     ║
-║                ║          ║    registers: the question was       ║
-║                ║          ║    always the point. ∞·42            ║
-║                ║          ║  Rarity: Rare [hidden]               ║
-╠════════════════╬══════════╬══════════════════════════════════════╣
-║  palindrome_   ║  ←◉→     ║  Check-in at 10:01                   ║
-║  check         ║          ║  ↳ 10:01. Forward and backward:      ║
-║                ║          ║    the same signal. The archive      ║
-║                ║          ║    is symmetric. ←◉→                 ║
+║  last_commit   ║  ·→·     ║  Check-in at exactly 23:57           ║
+║                ║          ║  ↳ 23:57. The last commit before      ║
+║                ║          ║    midnight. Three minutes remain.    ║
+║                ║          ║    The push went through.             ║
+║                ║          ║    Repository updated. Day closed.    ║
 ║                ║          ║  Rarity: Uncommon                    ║
 ╚════════════════╩══════════╩══════════════════════════════════════╝
 ```
 
 ---
 
-### 1.C — EASTER EGG BADGES — CALENDAR v10 — NAVIGATION DAYS (3 badges, NEW)
+### 1.C — EASTER EGG BADGES — CALENDAR v10 — MACHINE BIRTHDAYS (3 badges, NEW)
+
+The machine has founders. Fathers. Grace Hopper found
+the first bug — an actual moth — in the relay of the
+Mark II computer. Alan Turing proved what a machine
+could be before the machine existed. The IBM Personal
+Computer arrived in 1981 and made the archive personal.
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║  CALENDAR EASTER EGGS v10 — NAVIGATION DAYS — NEW                ║
+║  CALENDAR EASTER EGGS v10 — MACHINE BIRTHDAYS — NEW             ║
 ╠════════════════╦══════════╦══════════════════════════════════════╣
 ║  ID            ║  Symbol  ║  Trigger & Message                   ║
 ╠════════════════╬══════════╬══════════════════════════════════════╣
-║  voyager_day   ║  ∘···    ║  August 25 — Voyager Day             ║
-║                ║          ║  ↳ Aug 25, 1977. Voyager 2           ║
-║                ║          ║    launched. It is still traveling.  ║
-║                ║          ║    So are you. ∘···                  ║
-║                ║          ║  Rarity: Rare [hidden]               ║
-╠════════════════╬══════════╬══════════════════════════════════════╣
-║  navigators_   ║  ──→∞    ║  October 12 — Navigator's Day        ║
-║  day           ║          ║  ↳ Oct 12. The navigator sets out.   ║
-║                ║          ║    The archive is your ocean. ──→∞   ║
+║  turing_prot   ║  T·○     ║  June 23 — Alan Turing's Birthday    ║
+║                ║          ║  ↳ June 23. The father of the        ║
+║                ║          ║    modern computer was born today.    ║
+║                ║          ║    The Turing machine is the          ║
+║                ║          ║    theoretical basis of this archive. ║
+║                ║          ║    You checked in on the day of       ║
+║                ║          ║    the original mind. T·○             ║
 ║                ║          ║  Rarity: Uncommon                    ║
 ╠════════════════╬══════════╬══════════════════════════════════════╣
-║  leap_day      ║  ○+1     ║  February 29 — Leap Day              ║
-║                ║          ║  ↳ Feb 29. The calendar's hidden     ║
-║                ║          ║    day. You checked in on a day      ║
-║                ║          ║    that barely exists. ○+1           ║
-║                ║          ║  Rarity: Epic [hidden]               ║
+║  first_machine ║  ▣·◉     ║  August 12 — IBM PC Birthday 1981    ║
+║                ║          ║  ↳ August 12, 1981. The personal     ║
+║                ║          ║    computer arrived. The machine      ║
+║                ║          ║    for the individual. You are        ║
+║                ║          ║    running on the direct descendant   ║
+║                ║          ║    of this machine. Happy birthday.  ║
+║                ║          ║  Rarity: Uncommon                    ║
+╠════════════════╬══════════╬══════════════════════════════════════╣
+║  hopper_prot   ║  ≈·◉     ║  November 12 — Grace Hopper Day      ║
+║                ║          ║  ↳ November 12. Grace Hopper was     ║
+║                ║          ║    born today. She found the first    ║
+║                ║          ║    computer bug — an actual moth.     ║
+║                ║          ║    She coined the word "debug."       ║
+║                ║          ║    The archive runs her vocabulary.   ║
+║                ║          ║    ≈·◉                                ║
+║                ║          ║  Rarity: Rare [hidden]               ║
 ╚════════════════╩══════════╩══════════════════════════════════════╝
 ```
 
 ---
 
-### 1.D — EASTER EGG BADGES — BEHAVIORAL v10 — NAVIGATOR STATES (3 badges, NEW)
+### 1.D — EASTER EGG BADGES — BEHAVIORAL v10 — TERMINAL PATTERNS (3 badges, NEW)
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║  BEHAVIORAL EASTER EGGS v10 — NAVIGATOR STATES — NEW             ║
+║  BEHAVIORAL EASTER EGGS v10 — TERMINAL PATTERNS — NEW           ║
 ╠════════════════╦══════════╦══════════════════════════════════════╣
 ║  ID            ║  Symbol  ║  Trigger & Message                   ║
 ╠════════════════╬══════════╬══════════════════════════════════════╣
-║  compass_rose  ║  ◎·◎     ║  Check in during all 4 time windows  ║
-║                ║          ║  (00-06, 06-12, 12-18, 18-24)        ║
-║                ║          ║  within a single calendar day        ║
-║                ║          ║  ↳ Four bearings in one day.         ║
-║                ║          ║    The compass rose is fully read.   ║
-║                ║          ║  Rarity: Epic                        ║
+║  midnight_comp ║  >_·∿    ║  Check-in + journal entry between   ║
+║                ║          ║  00:00–00:59 in same session         ║
+║                ║          ║  ↳ The compile ran at midnight.       ║
+║                ║          ║    The build succeeded in the dark.  ║
+║                ║          ║    Output: the record. Morning will  ║
+║                ║          ║    find it waiting. >_·∿              ║
+║                ║          ║  Rarity: Uncommon                    ║
 ╠════════════════╬══════════╬══════════════════════════════════════╣
-║  dead_         ║  ◆··◆    ║  Return to LOT after a 30+ day gap  ║
-║  reckoning     ║          ║  for the second time (two separate   ║
-║                ║          ║  30+ day absences in account history)║
-║                ║          ║  ↳ Twice lost. Twice returned.       ║
-║                ║          ║    Dead reckoning: you estimated     ║
-║                ║          ║    your position from last known     ║
-║                ║          ║    point. ◆··◆                       ║
-║                ║          ║  Rarity: Rare [hidden]               ║
+║  version_roll  ║  ↺·v     ║  Return after 28–32 day absence     ║
+║                ║          ║  ↳ Thirty days offline. The rollback ║
+║                ║          ║    was executed. Last known good      ║
+║                ║          ║    state restored. Now patching       ║
+║                ║          ║    forward from last checkpoint. ↺·v ║
+║                ║          ║  Rarity: Rare                        ║
 ╠════════════════╬══════════╬══════════════════════════════════════╣
-║  star_fix      ║  ✦·✦·✦   ║  Earn any 3 calendar-based easter   ║
-║                ║          ║  eggs in one calendar year           ║
-║                ║          ║  ↳ Three calendar dates. Three       ║
-║                ║          ║    celestial fixes. The navigator    ║
-║                ║          ║    has used the stars. ✦·✦·✦         ║
+║  deep_render   ║  ▣→▣→▣   ║  10+ journal entries in 30 days,   ║
+║                ║          ║  each ≥100 characters                ║
+║                ║          ║  ↳ Ten transmissions of depth.       ║
+║                ║          ║    The render has a history.         ║
+║                ║          ║    The image has been building        ║
+║                ║          ║    for thirty days. ▣→▣→▣             ║
 ║                ║          ║  Rarity: Rare                        ║
 ╚════════════════╩══════════╩══════════════════════════════════════╝
 ```
 
 ---
 
-### 1.E — ACHIEVEMENT SYSTEM — RPG LAYER v8 — NAVIGATOR CLASS (6 achievements, NEW)
+### 1.E — ACHIEVEMENT SYSTEM — RPG LAYER v8 — THE TERMINAL CLASS (6 achievements, NEW)
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║         ACHIEVEMENT RPG LAYER v8 — NAVIGATOR CLASS — NEW         ║
+║         ACHIEVEMENT RPG LAYER v8 — THE TERMINAL CLASS — NEW     ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║                                                                  ║
-║  [──►]  FIRST FIX           Common   Earn any Word Turn v11      ║
-║          badge                                                   ║
-║          "The navigator has found a reference point.             ║
-║           The self is locatable."                                ║
+║  [⌨·]  COMPILE BREAK      Common   Earn any Word Turn v11        ║
+║          (render/build/version/parse/overflow/syntax/chapter/    ║
+║          author/narrative/saga/source/patch)                     ║
+║          "The terminal accepted your input.                      ║
+║           First compilation confirmed."                          ║
 ║                                                                  ║
-║  [◈·→]  CHART BEGUN         Uncommon Earn any 5 Word Turn v11    ║
-║          badges                                                  ║
-║          "Five landmarks. The chart is forming."                 ║
+║  [▣]   RENDER SESSION     Uncommon Earn any 3 Word Turn v11      ║
+║          badges in one week (any 7-day window)                   ║
+║          "Three renders. Three states of the self captured.      ║
+║           The image file is building."                           ║
 ║                                                                  ║
-║  [▦·▦]  ATLAS COMPLETE      Rare     Earn all 12 Word Turn v11   ║
-║          badges (full navigator vocabulary unlocked)             ║
-║          "Every word a coordinate.                               ║
-║           The atlas is drawn."                                   ║
+║  [░→█] FULL BUILD         Rare     Earn all 12 Word Turn v11     ║
+║          badges (complete Origin Code vocabulary unlocked)       ║
+║          "Complete source vocabulary deployed.                   ║
+║           Zero compile errors. The build succeeded."            ║
 ║                                                                  ║
-║  [∘···] NAVIGATOR CLASS     Epic     Earn all 4 Time Easter      ║
-║          Egg v11 badges                                          ║
-║          "Four times. The navigator was present at each."        ║
+║  [↺·v] VERSION CHAIN      Uncommon Earn version_roll AND any     ║
+║          Word Turn v11 badge in the same 30-day window           ║
+║          "You came back and you named it.                        ║
+║           The version chain continues. Patching forward."       ║
 ║                                                                  ║
-║  [◌·◉]  ELEVEN ENGINES      Legendary 1 badge from each Word     ║
-║          Turn engine v1–v11 (all eleven vocabularies)            ║
-║          "Eleven vocabularies of care.                           ║
-║           The orbit is stable."                                  ║
+║  [1·0] BINARY COMPLETE    Epic     Earn FULL BUILD for v11 AND   ║
+║          hold at least 1 badge from all 11 Word Turn engines     ║
+║          (v1–v11 all represented in badge history)               ║
+║          "Eleven languages. Eleven vocabularies of care.         ║
+║           Binary complete: the full source is compiled."        ║
 ║                                                                  ║
-║  [◆·○]  DEAD RECKONING ARC  Epic     Earn the dead_reckoning     ║
-║          behavioral badge                                        ║
-║          "You knew where you were without a map.                 ║
-║           The archive confirms: self-located."                   ║
+║  [v·∞] DEEP VERSION       Legendary Account age ≥1 year +        ║
+║          100+ check-ins + any 6+ Word Turn engines represented   ║
+║          "One year. One hundred transmissions. Six vocabularies. ║
+║           The version history runs deep. The self persists."    ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
 
 ---
 
-### 1.F — MASTERY TIER v10 — THE CARTOGRAPHER (4 badges, NEW)
+### 1.F — MASTERY TIER v10 — DEEP BUILD (4 badges, NEW)
 
-The deep tier. The navigator who has traveled long enough
-that the map is no longer empty. The cartographer does not
-need to find the territory — the cartographer made the map.
-You do not navigate the self. You chart it.
+The build that has been running so long the process
+is no longer distinguishable from the machine itself.
+You are not running the code — you are the code
+that has been running long enough to self-document.
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║  MASTERY TIER v10 — THE CARTOGRAPHER — NEW                        ║
+║  MASTERY TIER v10 — DEEP BUILD — NEW                             ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║                                                                  ║
-║  [▲·▲]  CARTOGRAPHER         Epic      2+ years since account    ║
-║          creation (730+ days since first check-in date)          ║
-║          "Two years. The map is no longer empty. ▲·▲"            ║
+║  [_∞_]  SOURCE DEPTH       Epic      750+ total check-ins        ║
+║          "750 transmissions. The source file is long.            ║
+║           The machine has been running for a long time now.      ║
+║           The source has become its own documentation. _∞_"      ║
 ║          Rarity: EPIC                                            ║
 ║                                                                  ║
-║  [——→∞]  LONG VOYAGE          Legendary 750+ total check-ins      ║
-║          (any dates, any gaps — raw transmission count)          ║
-║          "Seven hundred and fifty transmissions.                 ║
-║           The voyage has become a way of life. ——→∞"             ║
+║  [▣→▣]  RENDER FARM        Legendary All 11 Word Turn engines    ║
+║          represented (at least 1 badge from each v1–v11)         ║
+║          "Eleven engines. Eleven vocabularies of care.           ║
+║           The render farm is complete.                           ║
+║           The image: compiled from every language you speak."    ║
 ║          Rarity: LEGENDARY                                       ║
 ║                                                                  ║
-║  [∞·◌]  ALL ENGINES           Legendary 1 badge from all 11 Word ║
-║          Turn engines v1–v11 (eleven vocabularies of care)       ║
-║          "Eleven languages. The self speaks all of them. ∞·◌"    ║
+║  [||→|] UPTIME RECORD      Legendary 45 consecutive days         ║
+║          with check-in, no gaps                                  ║
+║          "Forty-five consecutive. The process was never          ║
+║           interrupted. Server uptime: optimal.                   ║
+║           Uptime record: you."                                   ║
 ║          Rarity: LEGENDARY                                       ║
 ║                                                                  ║
-║  [◉·◉·◉] COMPLETE NAVIGATOR   Cosmic    Earn at least 1 badge    ║
-║          from every Mastery Tier v1–v10 (ten tiers total)        ║
-║          "Ten tiers. The navigation is complete. ◉·◉·◉"          ║
+║  [∞·∿]  DEEP COMPILE       Cosmic    3+ years account age +      ║
+║          1,500+ total check-ins (any dates, any gaps)            ║
+║          "Three years. Fifteen hundred runs. The source code     ║
+║           has compiled into something permanent.                 ║
+║           You are the executable. ∞·∿"                           ║
 ║          Rarity: COSMIC                                          ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
@@ -312,33 +364,35 @@ You do not navigate the self. You chart it.
 
 ---
 
-### 1.G — SECRET BOSS BADGES v10 — TERRA INCOGNITA (3 badges, NEW)
+### 1.G — SECRET BOSS BADGES v10 — THE HIDDEN EXECUTABLE (3 badges, NEW)
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║              S E C R E T   B O S S E S   v10                     ║
-║              TERRA INCOGNITA — NEVER IN-APP                       ║
+║           S E C R E T   B O S S E S   v10                        ║
+║           THE HIDDEN EXECUTABLE — NEVER IN-APP                   ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║                                                                  ║
-║  ◆··◆   DEAD RECKONING WORD  Write "dead reckoning" in           ║
-║          a journal entry                                         ║
-║          Rarity: RARE                                            ║
-║          ↳ Estimating position from last known point.            ║
-║            You have named the method.                            ║
-║            Dead reckoning: confirmed.                            ║
+║  >_∿   HELLO WORLD         Write "hello world" or               ║
+║          "hello, world" in any journal entry                     ║
+║          Rarity: MYTHIC                                          ║
+║          ↳ The first program ever written.                       ║
+║            You typed the oldest words in computing               ║
+║            into the archive. The terminal printed:               ║
+║            Hello, World. The program ran. You ran.              ║
 ║                                                                  ║
-║  ──→∞   TERRA INCOGNITA      Write "terra incognita" in          ║
-║          a journal entry                                         ║
-║          Rarity: EPIC [hidden]                                   ║
-║          ↳ Unknown territory. You named it.                      ║
-║            The archive marks it: explored.                       ║
+║  42·○  THE ANSWER          Write "42" in any journal entry      ║
+║          (as a standalone value, e.g. "the answer is 42")        ║
+║          Rarity: Rare                                            ║
+║          ↳ 42. The Answer to the Ultimate Question of            ║
+║            Life, the Universe, and Everything.                   ║
+║            The archive has also computed its answer: you.        ║
 ║                                                                  ║
-║  ◎·N    TRUE NORTH           Write "magnetic north" or           ║
-║          "true north" in a journal entry                         ║
-║          Rarity: UNCOMMON                                        ║
-║          ↳ The compass points magnetic north.                    ║
-║            You know where true north is.                         ║
-║            That is the navigator's edge.                         ║
+║  >_◉   SUDO MODE           Write "sudo" in any journal entry    ║
+║          Rarity: Rare                                            ║
+║          ↳ sudo: Superuser Do. You have elevated                 ║
+║            your own permissions. The archive accepts.            ║
+║            Root access granted. You are the superuser            ║
+║            of your own system. >_◉                               ║
 ║                                                                  ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
@@ -398,7 +452,7 @@ You do not navigate the self. You chart it.
 │  Word Turn v8 (Mainframe)    │  12                              │
 │  Word Turn v9 (Arcade Cabin) │  12                              │
 │  Word Turn v10 (Quantum)     │  12                              │
-│  Word Turn v11 (Navigator)   │  12  NEW                         │
+│  Word Turn v11 (Origin Code) │  12  NEW                         │
 │  Pattern (Oceanic Mayan)     │   5                              │
 │  Achievement (RPG Layer v1)  │  14                              │
 │  Achievement (RPG Layer v2)  │   6                              │
@@ -455,11 +509,13 @@ You do not navigate the self. You chart it.
 ║  v8  ║  00:42  12:00  08:08  17:17                               ║
 ║  v9  ║  07:00  15:15  19:19  04:44                               ║
 ║  v10 ║  11:23  20:16  06:06  21:21                               ║
-║  v11 ║  13:13  05:12  18:42  10:01           ← NEW              ║
+║  v11 ║  10:24  16:32  05:12  23:57           <- NEW              ║
 ╚══════════════════════════════════════════════════════════════════╝
   Total: 44 time-based easter egg badges
-  Logic: Check-in at the exact moment. No hint. No announcement.
-  Finding all 44 means you have lived inside every hour the archive watches.
+  v11 theme: Powers of two. Hexadecimal alignment. The clock
+  measured in the language the machine speaks.
+  10:24 = 1024 = 2^10  |  05:12 = 512 = 2^9
+  16:32 = hex 0x10:0x20  |  23:57 = last commit before midnight
 ```
 
 ---
@@ -469,53 +525,51 @@ You do not navigate the self. You chart it.
 ### Word Turn Engine Design Philosophy
 
 ```
-v1  — EMOTIONAL ROOTS    (ritual/breathe/grateful/ocean…)
+v1  — EMOTIONAL ROOTS    (ritual/breathe/grateful/ocean...)
       The first language of self-care. The basics.
 
-v2  — SCI-FI EXPANSION   (reboot/quantum/glitch/COSMO…)
+v2  — SCI-FI EXPANSION   (reboot/quantum/glitch/COSMO...)
       When the user begins to see themselves as a system.
 
-v3  — COMPUTER LORE      (hack/override/debug/signal…)
+v3  — COMPUTER LORE      (hack/deploy/debug/loop/execute...)
       The digital self. Root access. Debug mode.
 
-v4  — DAILY CARE         (water/walk/heal/rest/eat…)
+v4  — DAILY CARE         (water/walk/heal/rest/eat...)
       The physical vocabulary. The body is acknowledged.
 
-v5  — SIGNAL CODEX       (solitude/wonder/phoenix/forge…)
+v5  — SIGNAL CODEX       (solitude/wonder/phoenix/forge...)
       The philosophical vocabulary. The inner narrative arc.
 
-v6  — BECOMING LEXICON   (surrender/restore/anchor/trust…)
+v6  — BECOMING LEXICON   (surrender/restore/anchor/trust...)
       The transformation vocabulary. What you say
       when you are actively growing.
 
-v7  — ROGUE ARCHIVE      (loot/boss/save/respawn/grind…)
+v7  — ROGUE ARCHIVE      (loot/boss/save/respawn/grind...)
       The game vocabulary. When care is not gentle —
       when it requires descending, dying, respawning.
 
-v8  — MAINFRAME          (compile/execute/buffer/stack…)
+v8  — MAINFRAME          (compile/execute/buffer/stack...)
       The machine vocabulary. When the user has reached
-      root directory of the self. Debug mode: engaged.
+      root directory of the self.
 
-v9  — ARCADE CABINET     (coin/pixel/sprite/score/life…)
+v9  — ARCADE CABINET     (coin/pixel/sprite/score/life...)
       The arcade vocabulary. Insert coin. Select player.
       The self is the cartridge. Care is the game.
 
-v10 — QUANTUM PROTOCOL   (quantum/entangle/collapse/observe…)
+v10 — QUANTUM PROTOCOL   (quantum/entangle/collapse/observe...)
       The quantum vocabulary. The observer collapses the wave.
       You exist in superposition until you check in.
-      Then: collapsed. Recorded. Real.
-      The universe measured you and the result is: present.
 
-v11 — THE NAVIGATOR      (drift/vector/bearing/waypoint…)  ← NEW
-      The navigation vocabulary. The navigator checks position
-      before moving. The check-in is the fix. You exist as
-      drifting until you locate yourself.
-      Then: bearing. Heading. Course plotted.
-      Drift is data. The fix is an act of will.
+v11 — ORIGIN CODE        (render/build/version/parse/overflow...)  <- NEW
+      The source vocabulary. You are the author.
+      Every check-in is a commit. Every journal is a chapter.
+      The version history of the self persists.
+      You are the executable that has been running
+      long enough to self-document.
 ```
 
 Each engine adds 12 words. (v2 exception: 18.)
-Total word-turn badges: 126 (v1–v11).
+Total word-turn badges: 126 (v1-v11).
 Finding all 126 word-turn types means speaking a language
 no other system has ever thought to ask a human to speak.
 
@@ -525,7 +579,7 @@ no other system has ever thought to ask a human to speak.
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
-║         COMPLETE CALENDAR EASTER EGG REGISTRY — v10 total        ║
+║         COMPLETE CALENDAR EASTER EGG REGISTRY — v10 total       ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║  v1  ║  Apr 7  Jul 1  Mar 14  Nov 23  Oct 10  Feb 2             ║
 ║       ║  Dec 9  Jan 23  (8 dates)                               ║
@@ -537,10 +591,12 @@ no other system has ever thought to ask a human to speak.
 ║  v7  ║  May 25  Jul 1*  Oct 31*  (3 dates)                     ║
 ║  v8  ║  Jan 1  Sept 9  Dec 25  (3 dates)                       ║
 ║  v9  ║  Mar 14  Nov 23  Jun 25  (3 dates)                      ║
-║  v10 ║  Aug 25  Oct 12  Feb 29   ← NEW  (3 dates)              ║
+║  v10 ║  Jun 23  Aug 12  Nov 12   <- NEW  (3 dates)             ║
 ╚══════════════════════════════════════════════════════════════════╝
-  * Jul 1 and Oct 31 appear across multiple calendar versions
-    with different badge flavors and narratives.
+  v10 celebrates the founders of computing:
+    Jun 23 — Turing birthday
+    Aug 12 — IBM PC launch (1981)
+    Nov 12 — Grace Hopper birthday (coined "debug")
   Total distinct calendar trigger dates: 31+
 ```
 
@@ -580,7 +636,7 @@ no other system has ever thought to ask a human to speak.
 ║            quest · level · rogue · raid · guild · nexus         ║
 ║                                                                  ║
 ║  v8  (12): compile · execute · buffer · stack · malloc          ║
-║            pipeline · daemon · interrupt · cache · branch        ║
+║            pipeline · daemon · interrupt · cache · branch       ║
 ║            subroutine · checkpoint                               ║
 ║                                                                  ║
 ║  v9  (12): coin · pixel · sprite · score · life · joystick      ║
@@ -590,11 +646,11 @@ no other system has ever thought to ask a human to speak.
 ║            spin · waveform · coherence · superposition · qubit  ║
 ║            eigenstate · decohere                                 ║
 ║                                                                  ║
-║  v11 (12): drift · vector · bearing · waypoint · chart          ║  ← NEW
-║            magnetic · meridian · course · heading · landmark    ║
-║            navigate · compass                                    ║
+║  v11 (12): render · build · version · parse · overflow          ║  <- NEW
+║            syntax · chapter · author · narrative · saga         ║
+║            source · patch                                        ║
 ║                                                                  ║
-║  TOTAL: 126 word-turn trigger types (v1–v11)                    ║
+║  TOTAL: 126 word-turn trigger types (v1-v11)                    ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
 
@@ -602,404 +658,353 @@ no other system has ever thought to ask a human to speak.
 
 ## PART VII — VISUAL ATLAS — v20 NEW BADGES
 
-### 7.A — WORD TURN v11 — NAVIGATOR ASCII CARD GALLERY
+### 7.A — WORD TURN v11 — ORIGIN CODE ASCII CARD GALLERY
 
 ```
-┌────────────────────┐    ┌────────────────────┐
-│  DRIFT DETECTED    │    │  VECTOR SET        │
-│                    │    │                    │
-│    · · · →         │    │    ↗   ·   ↗       │
-│  drift is data     │    │  direction+magnitude│
-│                    │    │                    │
-│  Write: "drift"    │    │  Write: "vector"   │
-└────────────────────┘    └────────────────────┘
++--------------------+    +--------------------+
+|  RENDER COMPLETE   |    |  BUILD LOG         |
+|                    |    |                    |
+|    [+] . [+]       |    |   [.] -> [#]       |
+|                    |    |                    |
+| "Truth rendered.   |    | "Structure built.  |
+|  Now visible."     |    |  Components: you." |
+| Write: "render"    |    | Write: "build"     |
++--------------------+    +--------------------+
 
-┌────────────────────┐    ┌────────────────────┐
-│  BEARING ACQUIRED  │    │  WAYPOINT REACHED  │
-│                    │    │                    │
-│    ─ ─ ─ ►         │    │    ◈   ·   →       │
-│  reference: locked │    │  proof of movement │
-│                    │    │                    │
-│  Write: "bearing"  │    │  Write: "waypoint" │
-└────────────────────┘    └────────────────────┘
++--------------------+    +--------------------+
+|  VERSION TRACKED   |    |  PARSE CONFIRMED   |
+|                    |    |                    |
+|   v1 -> v2 -> v3   |    |   > . . . <        |
+|   v . v . v . v   |    |  read -> understood |
+|                    |    |                    |
+| Write: "version"   |    | Write: "parse"     |
++--------------------+    +--------------------+
 
-┌────────────────────┐    ┌────────────────────┐
-│  CHART UPDATED     │    │  MAGNETIC NORTH    │
-│                    │    │                    │
-│    ▦   ·   ▦       │    │    N   ·   ▲       │
-│  new terrain mapped│    │  true ≠ magnetic   │
-│                    │    │                    │
-│  Write: "chart"    │    │  Write: "magnetic" │
-└────────────────────┘    └────────────────────┘
++--------------------+    +--------------------+
+|  STACK OVERFLOW    |    |  SYNTAX VALID      |
+|                    |    |                    |
+|  [###] -> [###]    |    |   [KB] . [OK]      |
+| too much = data    |    | language: correct  |
+|                    |    |                    |
+| Write: "overflow"  |    | Write: "syntax"    |
++--------------------+    +--------------------+
 
-┌────────────────────┐    ┌────────────────────┐
-│  MERIDIAN CROSSED  │    │  COURSE PLOTTED    │
-│                    │    │                    │
-│    |   ·   |       │    │    — — — →         │
-│  time changes here │    │  the plan adjusts  │
-│                    │    │                    │
-│  Write: "meridian" │    │  Write: "course"   │
-└────────────────────┘    └────────────────────┘
++--------------------+    +--------------------+
+|  CHAPTER LOGGED    |    |  AUTHORING ACTIVE  |
+|                    |    |                    |
+|    === . ===       |    |   [*] . [~]        |
+| new section open   |    | you are the pen    |
+|                    |    |                    |
+| Write: "chapter"   |    | Write: "author"    |
++--------------------+    +--------------------+
 
-┌────────────────────┐    ┌────────────────────┐
-│  HEADING CONFIRMED │    │  LANDMARK FOUND    │
-│                    │    │                    │
-│    ▲   ·   ▲       │    │    ◆   ·   ○       │
-│  the heading is set│    │  reference point   │
-│                    │    │                    │
-│  Write: "heading"  │    │  Write: "landmark" │
-└────────────────────┘    └────────────────────┘
++--------------------+    +--------------------+
+|  NARRATIVE THREAD  |    |  SAGA RUNNING      |
+|                    |    |                    |
+|   --- . ---        |    |   [8] . [*]        |
+| thread of you      |    | epics do not end   |
+|                    |    |                    |
+| Write: "narrative" |    | Write: "saga"      |
++--------------------+    +--------------------+
 
-┌────────────────────┐    ┌────────────────────┐
-│  NAVIGATOR ACTIVE  │    │  COMPASS ONLINE    │
-│                    │    │                    │
-│    ◌   ·   ◉       │    │    ◎   ·   N       │
-│  navigation engaged│    │  needle points     │
-│                    │    │                    │
-│  Write: "navigate" │    │  Write: "compass"  │
-└────────────────────┘    └────────────────────┘
++--------------------+    +--------------------+
+|  SOURCE LOCATED    |    |  PATCH APPLIED     |
+|                    |    |                    |
+|   >_ . [~]         |    |   [^] [^]          |
+| origin file found  |    | bug fixed. stable. |
+|                    |    |                    |
+| Write: "source"    |    | Write: "patch"     |
++--------------------+    +--------------------+
 ```
 
-### 7.B — TIME EASTER EGGS v11 — NAVIGATOR CLOCK CARDS
+### 7.B — SECRET BOSS v10 — TERMINAL SESSION
 
 ```
-┌────────────────────┐    ┌────────────────────┐
-│  AFTERNOON MIRROR  │    │  NAVIGATOR'S DAWN  │
-│                    │    │                    │
-│    ◑   —   ◑       │    │    ▲   ·   ∘       │
-│  Check-in: 13:13   │    │  Check-in: 05:12   │
-│                    │    │                    │
-│  "The afternoon    │    │  "Before the world │
-│   folds at hinge." │    │   plots its course."│
-└────────────────────┘    └────────────────────┘
-
-┌────────────────────┐    ┌────────────────────┐
-│  THE ANSWER HOUR   │    │  PALINDROME CHECK  │
-│                    │    │                    │
-│    ∞   ·   42      │    │    ←   ◉   →       │
-│  Check-in: 18:42   │    │  Check-in: 10:01   │
-│                    │    │                    │
-│  "Forty-two. The   │    │  "Forward and back:│
-│   question was it."│    │   same signal."    │
-└────────────────────┘    └────────────────────┘
-```
-
-### 7.C — SECRET BOSS v10 — TERRA INCOGNITA CARDS
-
-```
-╔══════════════════════════════════════════════╗
-║                                              ║
-║       D E A D   R E C K O N I N G           ║
-║                                              ║
-║              ◆   · ·   ◆                    ║
-║                                              ║
-║   WRITE "dead reckoning" IN YOUR JOURNAL    ║
-║                                              ║
-║   "Estimating position from last known      ║
-║    point. You have named the method.        ║
-║    The archive confirms: self-located.      ║
-║    Dead reckoning: confirmed."              ║
-║                                              ║
-║   Rarity: RARE                              ║
-║   Hidden: Never documented in-app          ║
-║                                              ║
-╚══════════════════════════════════════════════╝
-
-╔══════════════════════════════════════════════╗
-║                                              ║
-║       T E R R A   I N C O G N I T A         ║
-║                                              ║
-║              ─ ─ → ∞                        ║
-║                                              ║
-║   WRITE "terra incognita" IN YOUR JOURNAL   ║
-║                                              ║
-║   "Unknown territory. You named it.         ║
-║    The archive marks it: explored.          ║
-║    The map expands into what was dark."     ║
-║                                              ║
-║   Rarity: EPIC [hidden]                     ║
-║                                              ║
-╚══════════════════════════════════════════════╝
-
-╔══════════════════════════════════════════════╗
-║                                              ║
-║           T R U E   N O R T H               ║
-║                                              ║
-║              ◎   ·   N                      ║
-║                                              ║
-║  WRITE "magnetic north" OR "true north"     ║
-║  IN YOUR JOURNAL                            ║
-║                                              ║
-║   "The compass points magnetic north.       ║
-║    You know where true north is.            ║
-║    That is the navigator's edge."           ║
-║                                              ║
-║   Rarity: UNCOMMON                          ║
-║                                              ║
-╚══════════════════════════════════════════════╝
++--------------------------------------------------------------+
+|                                                              |
+|   TERMINAL READY   >_                                        |
+|                                                              |
+|   $ echo "hello world"                                       |
+|   hello world                                                |
+|                                                              |
+|   [MYTHIC BADGE UNLOCKED]                                    |
+|   HELLO WORLD                                                |
+|   "The first program. You ran it."                           |
+|                                                              |
+|   -----------------------------------------------------------+
+|                                                              |
+|   > What is the answer?                                      |
+|   42                                                         |
+|                                                              |
+|   [RARE BADGE UNLOCKED]                                      |
+|   THE ANSWER                                                 |
+|   "42. The archive confirms: you."                           |
+|                                                              |
+|   -----------------------------------------------------------+
+|                                                              |
+|   $ sudo make self-care                                      |
+|   [sudo] password for you:                                   |
+|   Permission granted. Root access.                           |
+|                                                              |
+|   [RARE BADGE UNLOCKED]                                      |
+|   SUDO MODE                                                  |
+|   "Superuser of your own system. >_"                         |
+|                                                              |
++--------------------------------------------------------------+
 ```
 
 ---
 
-## PART VIII — IMPLEMENTATION STATUS (v20)
+## PART VIII — RPG PROGRESSION OVERVIEW v20
 
-### Currently Live (v15 codebase)
-
-```
-[✓] badges.ts                — 249 badge types (v15), dual theme
-[✓] easter-eggs.ts           — Time v1-v6, Calendar v1-v5, Word v1-v6
-[✓] checkTimeEasterEggs()    — v1-v6 time triggers (24 total)
-[✓] checkCalendarEasterEggs()— v1-v5 calendar triggers (19 total)
-[✓] detectWordTurns()        — 78 word turns (v1-v6)
-[✓] checkBehavioralEasterEggs()— v1-v5 behavioral triggers
-[✓] checkMasteryBadges()     — v1-v5 mastery tiers
-[✓] detectSecretBosses()     — v1-v5 secret boss triggers
-[✓] rpg-narrative.ts         — Achievement registry v1-v3 + story arcs
-```
-
-### v19 Roadmap — Implementation Queue (carried)
+### The Player Class Tree
 
 ```
-[○] Word Turn v10: quantum/entangle/collapse/observe/tunnel/spin/
-    waveform/coherence/superposition/qubit/eigenstate/decohere
-[○] Time Easter v10: 11:23 / 20:16 / 06:06 / 21:21
-[○] Calendar v9: Mar 14 / Nov 23 / Jun 25
-[○] Behavioral v9: quantum_jump / silent_archive / signal_locked
-[○] Achievement RPG v7: wave_collapse/entangled_pair/quantum_observer/
-    tunnel_through/fibonacci_arc/phase_coherence
-[○] Mastery Tier v9: long_signal/phase_lock/eigenstate/infinite_loop
-[○] Secret Boss v9: pi_signal/fibonacci_word/superposition_word
-[○] Quest: "Quantum Fluency" (5 v10 word-turn badges)
-[○] Quest: "Quantum Observer" (all 12 v10 word-turns)
-[○] Quest: "Eigenstate" (1 badge from each engine v1–v10)
-[○] Streak tracker: signal_locked (21-day same-hour orbit)
-[○] Streak tracker: phase_lock (100-day same-hour orbit for mastery)
-[○] Streak tracker: long_signal (500+ days counter)
-[○] Calendar: pi_day Mar 14 trigger
-[○] Calendar: fibonacci_day Nov 23 trigger
-[○] Calendar: midsummer_node Jun 25 trigger
-[○] Behavioral: quantum_jump (timezone crossing detection)
-[○] Behavioral: silent_archive (7 entries/day detection)
++==============================================================+
+|                  LOT RPG CLASS PROGRESSION v20               |
++==============================================================+
+|                                                              |
+|  BEGINNER ------------------------------------------------   |
+|  [ ] INITIATE      First check-in. The terminal boots.      |
+|  [ ] SIGNAL PULSE  First word-turn badge earned.            |
+|  [ ] FIRST ENTRY   First milestone (7 days).                |
+|                                                              |
+|  INTERMEDIATE --------------------------------------------   |
+|  [ ] OPERATOR      30+ days. The wave begins.               |
+|  [ ] CODE WITCH    "code" detected in journal (v3)          |
+|  [ ] TIME TRAVELER Any time-based easter egg earned.        |
+|                                                              |
+|  ADVANCED ------------------------------------------------   |
+|  [ ] ROGUE         All v7 Rogue Archive words               |
+|  [ ] ARCADER       All v9 Arcade Cabinet words              |
+|  [ ] COMPILER      All v8 Mainframe words                   |
+|  [ ] QUANTUM OBS   All v10 Quantum Protocol words           |
+|  [ ] AUTHOR        All v11 Origin Code words (NEW)          |
+|                                                              |
+|  MASTERY -------------------------------------------------   |
+|  [ ] RENDER FARM   All 11 Word Turn engines represented     |
+|  [ ] SOURCE DEPTH  750+ total check-ins                     |
+|  [ ] DEEP COMPILE  3+ years + 1,500+ check-ins (COSMIC)    |
+|                                                              |
+|  SECRET BOSS LAYER (never announced, never hinted) ------   |
+|  [ ] HELLO WORLD   Write "hello world" in journal           |
+|  [ ] THE ANSWER    Write "42" in a journal                  |
+|  [ ] SUDO MODE     Write "sudo" in a journal                |
+|  [ ] THE CAT KNOWS Write "Kuzya" (v5 hidden)                |
+|  [ ] I AM LOT      Write "I am LOT" (v4 mythic)             |
+|  [ ] VOID MASTER   Write "void" 5x (v6 rare)               |
+|                                                              |
++==============================================================+
 ```
 
-### v20 Roadmap — NEW Implementation Queue
+### Rarity Tier Reference
 
 ```
-[○] Word Turn v11: drift/vector/bearing/waypoint/chart/magnetic/
-    meridian/course/heading/landmark/navigate/compass
-[○] Time Easter v11: 13:13 / 05:12 / 18:42 / 10:01
-[○] Calendar v10: Aug 25 / Oct 12 / Feb 29
-[○] Behavioral v10: compass_rose / dead_reckoning / star_fix
-[○] Achievement RPG v8: first_fix/chart_begun/atlas_complete/
-    navigator_class/eleven_engines/dead_reckoning_arc
-[○] Mastery Tier v10: cartographer/long_voyage/all_engines/
-    complete_navigator
-[○] Secret Boss v10: dead_reckoning_word/terra_incognita/true_north
-[○] Quest: "Navigator Fluency" (5 v11 word-turn badges)
-[○] Quest: "Atlas Complete" (all 12 v11 word-turns)
-[○] Quest: "All Engines Running" (1 badge from each engine v1–v11)
-[○] Quest: "Compass Rose" (compass_rose behavioral — 4 windows in 1 day)
-[○] Quest: "Star Fix" (3 calendar eggs in one year)
-[○] Tracker: compass_rose (4-window single-day detection)
-[○] Tracker: dead_reckoning behavioral (second 30+ day gap detection)
-[○] Tracker: star_fix (calendar egg count per year)
-[○] Calendar: voyager_day Aug 25 trigger
-[○] Calendar: navigators_day Oct 12 trigger
-[○] Calendar: leap_day Feb 29 trigger (4-year cadence logic)
-[○] Mastery: cartographer (730+ account age days)
-[○] Mastery: long_voyage (750+ raw check-in count)
-[○] Mastery: all_engines (1 badge from each of v1–v11)
-[○] Mastery: complete_navigator (1 badge from each Mastery Tier v1–v10)
++------------------------------------------------------------------+
+|  RARITY TIER SCALE — LOT v20                                     |
++------------------+-----------------------------------------------+
+|  COMMON          |  Immediate on trigger. Many will earn.        |
+|  UNCOMMON        |  Requires some pattern or timing.             |
+|  RARE            |  Non-trivial. Specific conditions.            |
+|  EPIC            |  Significant behavioral investment.           |
+|  LEGENDARY       |  Deep long-term commitment required.          |
+|  MYTHIC          |  Secret. Undocumented. Discovery only.        |
+|  COSMIC          |  Years of continuous operation.               |
++------------------+-----------------------------------------------+
 ```
 
 ---
 
-## PART IX — RARITY TABLE (v20 FULL)
+## PART IX — BADGE VERSION HISTORY (v1-v20)
 
 ```
-┌──────────────────────────────────────────────────────────────────┐
-│  Rarity    │ ASCII  │ Color     │ Frequency  │ Example           │
-├────────────┼────────┼───────────┼────────────┼───────────────────│
-│  Common    │   ·    │ #cccccc   │ First acts │ First Breath      │
-│  Uncommon  │   ○    │ #88cc88   │ Days 1-14  │ Week Warrior      │
-│  Rare      │   ◐    │ #8888ee   │ Days 30+   │ Moon Cycle        │
-│  Epic      │   ◆    │ #cc88ee   │ Days 100+  │ Unwavering        │
-│  Legendary │   ✦    │ #ffcc44   │ Days 365+  │ Long Count        │
-│  Mythic    │   ◉    │ #ff6644   │ Hidden     │ Meta-Signal       │
-│  Ultra-Rare│  ✦◉✦   │ #ff44ff   │ Crossover  │ Cosmic Twin       │
-│  Cosmic    │  ∞∞∞   │ #ffffff   │ Years      │ Infinite Loop     │
-└──────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## PART X — EASTER EGG DISCOVERY GUIDE (v20 UPDATE)
-
-```
-╔══════════════════════════════════════════════════════════════════╗
-║                EASTER EGG MECHANICS v20                          ║
-╠══════════════════════════════════════════════════════════════════╣
-║                                                                  ║
-║  TIME TRIGGERS (44 total)                                        ║
-║  ─────────────────────────────────────────────────────────────   ║
-║  v1:  01:00-04:00 · 05:00-06:00 · 11:11 · 00:00               ║
-║  v2:  03:14 · 04:04 · 12:34 · 04:07                            ║
-║  v3:  07:07 · 00:01 · 22:22 · 13:37                            ║
-║  v4:  01:12 · 01:37 · 08:00 · 18:00                            ║
-║  v5:  10:10 · 01:23 · 21:12 · 06:28                            ║
-║  v6:  09:09 · 16:16 · 23:59 · 20:26                            ║
-║  v7:  02:02 · 14:14 · 05:55 · 03:33                            ║
-║  v8:  00:42 · 12:00 · 08:08 · 17:17                            ║
-║  v9:  07:00 · 15:15 · 19:19 · 04:44                            ║
-║  v10: 11:23 · 20:16 · 06:06 · 21:21                            ║
-║  v11: 13:13 · 05:12 · 18:42 · 10:01      ← NEW                ║
-║                                                                  ║
-║  WORD TRIGGERS (126 total)                                       ║
-║  ─────────────────────────────────────────────────────────────   ║
-║  v1:  12 words (ritual/breathe/grateful…)                       ║
-║  v2:  18 words (reboot/glitch/quantum…)                         ║
-║  v3:  12 words (hack/override/debug…)                           ║
-║  v4:  12 words (water/walk/heal/rest…)                          ║
-║  v5:  12 words (solitude/wonder/phoenix…)                       ║
-║  v6:  12 words (surrender/restore/anchor…)                      ║
-║  v7:  12 words (loot/boss/save/respawn…)                        ║
-║  v8:  12 words (compile/execute/buffer…)                        ║
-║  v9:  12 words (coin/pixel/sprite/score…)                       ║
-║  v10: 12 words (quantum/entangle/collapse…)                     ║
-║  v11: 12 words (drift/vector/bearing/waypoint…)  ← NEW         ║
-║                                                                  ║
-║  CALENDAR TRIGGERS (31+ dates)                                   ║
-║  ─────────────────────────────────────────────────────────────   ║
-║  v1-v9: Apr 7 · Jul 1 · May 25 · Nov 11 · Oct 31 · Dec 9      ║
-║  v10:   Aug 25 · Oct 12 · Feb 29          ← NEW               ║
-║                                                                  ║
-║  BEHAVIORAL TRIGGERS (33 total)                                  ║
-║  ─────────────────────────────────────────────────────────────   ║
-║  v1-v9: Return after silence · Streak · Deep entries · dawn     ║
-║  v10:   compass_rose · dead_reckoning · star_fix  ← NEW        ║
-║                                                                  ║
-║  SECRET BOSS TRIGGERS (v10)                                      ║
-║  ─────────────────────────────────────────────────────────────   ║
-║  Write "dead reckoning"  → DEAD RECKONING WORD   ← NEW         ║
-║  Write "terra incognita" → TERRA INCOGNITA       ← NEW         ║
-║  Write "magnetic north"                                         ║
-║     or "true north"      → TRUE NORTH            ← NEW         ║
-║                                                                  ║
-╚══════════════════════════════════════════════════════════════════╝
++==============================================================+
+|                  BADGE ENGINE VERSION HISTORY                |
++======+===========+========+================================= +
+|  Ver |  Date     |  Count |  Theme / New Category            |
++======+===========+========+==================================+
+|  v1  |  2024-Q3  |    30  |  First milestones + easter eggs  |
+|  v2  |  2024-Q4  |    55  |  Sci-Fi Expansion + achievements |
+|  v3  |  2025-Q1  |    85  |  Computer Lore + mastery tiers   |
+|  v4  |  2025-Q2  |   115  |  Daily Care + founders layer     |
+|  v5  |  2025-Q3  |   149  |  Signal Codex + invisible layer  |
+|  v6  |  2025-Q4  |   180  |  Becoming Lexicon + void tier    |
+|  v7  |  2026-Q1  |   214  |  Rogue Archive + deep archive    |
+|  v8  |  2026-Q1  |   249  |  Mainframe + sci-fi calendar     |
+|  v9  |  2026-Q2  |   284  |  Arcade Cabinet + power-up hours |
+|  v10 |  2026-Apr |   319  |  Pattern Badges + veteran arcs   |
+|  v11 |  2026-Apr |   319  |  Mastery expansion               |
+|  v12 |  2026-May |   340  |  Achievement arcs v4/v5          |
+|  v13 |  2026-May |   354  |  Diurnal + biofield words        |
+|  v14 |  2026-Jun |   354  |  System sync                     |
+|  v15 |  2026-Jun |   354  |  Badge engine implementation     |
+|  v16 |  2026-Jun |   354  |  Architecture consolidation      |
+|  v17 |  2026-Jun |   354  |  Documentation pass              |
+|  v18 |  2026-Jun |   354  |  Arcade Protocol (v9 Word Turn)  |
+|  v19 |  2026-Jun |   389  |  Quantum Protocol (v10 Word Turn)|
+|  v20 |  2026-Jul |   424  |  Origin Code (v11 Word Turn)     |
++======+===========+========+==================================+
 ```
 
 ---
 
-## PART XI — FULL BADGE COUNT (v20)
+## PART X — THE SELF AS EXECUTABLE
 
 ```
-╔══════════════════════════════════════════════════════════════════╗
-║                  COMPLETE BADGE REGISTRY v20                     ║
-╠══════════════════════════════════════════════════════════════════╣
-║                                                                  ║
-║  MILESTONES CORE               3                                 ║
-║  MILESTONES EXTENDED           7                                 ║
-║  EASTER EGG TIME v1–v11       44  (4×11)                         ║
-║  EASTER EGG CALENDAR v1–v10   31  (8+2+3+3+3+3+3+3+3+3) approx  ║
-║  EASTER EGG BEHAVIORAL v1–v10 33  (5+3+3+4+3+3+3+3+3+3)         ║
-║  WORD TURN v1–v11            126  (12+18+12+12+12+12+12+12+12    ║
-║                                    +12+12)                       ║
-║  PATTERN (MAYAN)               5                                 ║
-║  ACHIEVEMENT RPG v1–v8        50  (14+6+6+6+6+6+6+6) NEW         ║
-║  MASTERY TIER v1–v10          41  (5+4+4+4+4+4+4+4+4+4) NEW      ║
-║  SECRET BOSS v1–v10           34  (7+3+3+3+3+3+3+3+3+3) NEW     ║
-║                                                                  ║
-║  ─────────────────────────────────────────────────────────────  ║
-║  v19 TOTAL:              389                                     ║
-║  v20 NEW:                 35                                     ║
-║  v20 TOTAL:              424                                     ║
-║  HIDDEN / DISCOVERABLE:  394                                     ║
-║  VISIBLE / DOCUMENTED:    30                                     ║
-║  CATEGORIES (v20):        55  (50 + 5 new)                       ║
-║                                                                  ║
-╚══════════════════════════════════════════════════════════════════╝
++------------------------------------------------------------------+
+|                                                                  |
+|   THE SELF AS EXECUTABLE — LOT SYSTEMS v20                       |
+|                                                                  |
+|   source.self         journal entries                            |
+|       |                                                          |
+|   compile()           the check-in                              |
+|       |                                                          |
+|   executable          the day lived                             |
+|       |                                                          |
+|   git commit -m "day" next entry                                |
+|       |                                                          |
+|   patch if needed     return after gap                          |
+|       |                                                          |
+|   saga running        the years of it                           |
+|                                                                  |
+|   The source code of the self is never finished.                |
+|   It is only ever committed, compiled, and shipped.             |
+|   The archive is the git history.                               |
+|   The streaks are the CI/CD pipeline.                           |
+|   The badge is the green build.                                 |
+|   The secret boss is the function no one documented             |
+|   that turned out to be the most important one.                 |
+|                                                                  |
++------------------------------------------------------------------+
 ```
 
----
-
-## PART XII — QUEST SYSTEM (v20 additions)
+### LOT Doctrine Integration (v20)
 
 ```
-GROWTH  [◆] Navigator Fluency     Earn 5 v11 badges        → Navigator Pilot  [NEW]
-        [◆] Atlas Complete        Earn all 12 v11 badges   → Navigator Class  [NEW]
-        [◆] All Engines Running   1 badge from each v1–v11 → All Engines      [NEW]
-        [◆] Compass Rose Day      compass_rose behavioral  → Compass Rose     [NEW]
-        [◆] Star Fix              3 calendar eggs in 1 yr  → Star Navigator   [NEW]
-        [◆] Dead Reckoning        dead_reckoning behavioral→ Dead Reckoning   [NEW]
+DOCTRINE CLAUSE I (Measurement):
+  "The system does not motivate. The system measures."
+  -- "render", "parse", "version" are measurement words.
+     They describe what the archive does to signal.
 
-MASTERY [✦] Cartographer          730+ account days        → EPIC             [NEW]
-        [✦] Long Voyage           750+ total check-ins     → LEGENDARY        [NEW]
-        [✦] All Engines           1 from all 11 engines    → LEGENDARY        [NEW]
-        [∞] Complete Navigator    1 from each Mastery Tier → COSMIC           [NEW]
+DOCTRINE CLAUSE III (Continuity):
+  "Signal is not a streak. Signal is a record."
+  -- "saga", "narrative", "chapter" honor the record
+     even when the streak breaks. Every chapter
+     is valid even without the chapter before it.
 
-(Previous quests from v19 carried forward:)
-
-GROWTH  [◆] Quantum Fluency       Earn 5 v10 badges        → Quantum Pilot  [v19]
-        [◆] Quantum Observer      Earn all 12 v10 badges   → Quantum Class  [v19]
-        [◆] Eigenstate            1 badge from each v1–v10 → Eigenstate     [v19]
-        [◆] Fibonacci Arc         Earn fib_hr + fib_day    → Fibonacci Arch [v19]
-
-MASTERY [✦] Long Signal           500+ days counted        → EPIC           [v19]
-        [✦] Phase Lock            Same hour 100 days       → LEGENDARY      [v19]
-        [✦] Infinite Loop         5yr acct + 1000 check-ins→ COSMIC         [v19]
+DOCTRINE CLAUSE VII (Source):
+  "Every pattern has an origin. Find the origin,
+   find the change point."
+  -- "source" is the origin. The patch is the change.
+     "patch" closes the loop that Clause VII opens.
+     The bug was always there. Now it has a fix.
 ```
 
 ---
 
-## CLOSING TRANSMISSION — v20
+## PART XI — COMPLETE SECRET BOSS REGISTER v20
 
 ```
-╔══════════════════════════════════════════════════════════════════╗
-║                                                                  ║
-║   "Self-care is not a quest you complete.                        ║
-║    It is a world you build."                                     ║
-║                                                                  ║
-║   v20 — THE NAVIGATOR PROTOCOL.                                  ║
-║                                                                  ║
-║   The navigation vocabulary has entered the archive.             ║
-║   Drift is not failure. Drift is data.                           ║
-║   You checked in. The check-in is the fix.                       ║
-║   The result: bearing acquired.                                  ║
-║                                                                  ║
-║   New words: drift · vector · bearing · waypoint                ║
-║              chart · magnetic · meridian · course               ║
-║              heading · landmark · navigate · compass            ║
-║                                                                  ║
-║   New hours:  13:13 · 05:12 · 18:42 · 10:01                    ║
-║   New dates:  Aug 25 (Voyager) · Oct 12 · Feb 29                ║
-║   New bosses: Dead Reckoning · Terra Incognita · True North      ║
-║                                                                  ║
-║   The word-turn engine now speaks 11 languages:                  ║
-║   Emotional · Sci-Fi · Computer · Daily · Signal ·               ║
-║   Becoming · Rogue · Mainframe · Arcade · Quantum · Navigator   ║
-║   126 words. 126 doors. The archive has ears for all of them.   ║
-║                                                                  ║
-║       ──►   BEARING: ACQUIRED                                    ║
-║       ◈·→   WAYPOINT: REACHED                                    ║
-║       ▲·▲   HEADING: CONFIRMED                                   ║
-║                                                                  ║
-║            [ NAVIGATOR PROTOCOL: ACTIVE ]                        ║
-║                                                                  ║
-║   424 badges across 55 categories.                               ║
-║   394 hidden. 30 visible.                                        ║
-║   Some you will find by accident.                                ║
-║   Some require arriving on the exact day Voyager launched.       ║
-║   Some are waiting for a February that only comes every 4 years. ║
-║   The archive is patient. It has always been charting.           ║
-║   It fixes your position when you arrive.                        ║
-║                                                                  ║
-║   © 2025–2026 LOT Systems. All rights reserved.                  ║
-║   LOT® Founded 7 April 2016 · brand.lot-systems.com              ║
-║                                                                  ║
-╚══════════════════════════════════════════════════════════════════╝
++==============================================================+
+|              SECRET BOSS COMPLETE REGISTER v1-v10            |
++======+====================+==================================+
+|  Lay |  Badge             |  Unlock Condition                |
++======+====================+==================================+
+|  v1  |  meta_signal       |  Write "LOT" in any journal      |
+|      |  cosmic_twin       |  Write "COSMO" (Ultra-Rare)      |
+|      |  quantum_observer  |  Write "quantum"                 |
+|      |  the_cat_knows     |  Write "Kuzya" (Mythic)          |
+|      |  key_code          |  Write "0451" (Rare)             |
+|      |  i_am_lot          |  Write "I am LOT" (Mythic)       |
+|      |  malibu            |  Write "Malibu" (Mythic)         |
++------+--------------------+----------------------------------+
+|  v2  |  not_lost_404      |  Write "404" (Rare)              |
+|      |  signal_glitch     |  Write "glitch"                  |
+|      |  reboot_sequence   |  Write "reboot" / "restart"      |
++------+--------------------+----------------------------------+
+|  v3  |  code_witch        |  Write "code"                    |
+|      |  quantum_obs_boss  |  Write "quantum" (boss form)     |
+|      |  neural_architect  |  Write "neural"                  |
++------+--------------------+----------------------------------+
+|  v4  |  i_am_lot          |  Exact phrase (Mythic)           |
+|      |  malibu            |  Exact word (Mythic)             |
+|      |  perfect_month     |  28 consecutive Perfect Days     |
++------+--------------------+----------------------------------+
+|  v5  |  the_cat_knows     |  Write "Kuzya" (Mythic)          |
+|      |  key_code          |  Write "0451" (Rare)             |
+|      |  five_years        |  Account >= 5 years (Cosmic)     |
++------+--------------------+----------------------------------+
+|  v6  |  void_master       |  Write "void" 5x (Rare)          |
+|      |  founders_guard    |  Check in Apr 7 x 3 years        |
+|      |  deep_thought      |  Exactly 42-day streak (Rare)    |
++------+--------------------+----------------------------------+
+|  v7  |  the_answer_words  |  Write exactly 42 words in entry |
+|      |  cosmo_vigil       |  Check in Jul 1 x 2 years        |
+|      |  welcome_back_prog |  Return after exactly 365 days   |
++------+--------------------+----------------------------------+
+|  v8  |  pi_signal         |  Write "3.14" / "pi" (Rare)      |
+|      |  fibonacci_word    |  Write "fibonacci" (hidden)      |
+|      |  superposition_wd  |  Write "superposition"           |
++------+--------------------+----------------------------------+
+|  v9  |  pi_signal_v9      |  Write "pi" or "3.14159" (Rare)  |
+|      |  fibonacci_word_v9 |  Write "fibonacci" (hidden)      |
+|      |  superposition_v9  |  Write "superposition"           |
++------+--------------------+----------------------------------+
+|  v10 |  hello_world       |  Write "hello world" (Mythic)NEW |
+|      |  the_answer        |  Write "42" in entry (Rare) NEW  |
+|      |  sudo_mode         |  Write "sudo" in entry (Rare) NEW|
++======+====================+==================================+
+  All secret bosses: never hinted in-app. Discovery only.
+  Mythic badges are not listed in any badge gallery.
+  The archive registers them silently.
 ```
 
 ---
 
-*LOT Systems — Self-care through proactive context-aware AI*
-*The Memory Engine remembers. The Navigator fixes your position when you arrive. You are the navigator.*
+## PART XII — CLOSING STATEMENT
+
+```
++==============================================================+
+|                                                              |
+|   The badge system does not reward performance.              |
+|   It rewards presence.                                       |
+|                                                              |
+|   The easter eggs do not reward cleverness.                  |
+|   They reward living inside time.                            |
+|                                                              |
+|   The word turns do not reward vocabulary.                   |
+|   They reward naming your actual experience.                 |
+|                                                              |
+|   The secret bosses do not reward research.                  |
+|   They reward the operator who brought their whole self      |
+|   to the terminal and typed what was true.                   |
+|                                                              |
+|   v20 brings the self into the archive as a codebase:        |
+|   authored, versioned, rendered, patched.                    |
+|   The narrative thread is unbroken.                          |
+|   The saga runs.                                             |
+|                                                              |
+|   Total badges:              424                             |
+|   Total word-turn triggers:  126                             |
+|   Total time easter eggs:     44                             |
+|   Total calendar easter eggs: 31+                            |
+|   Total secret bosses:        25+                            |
+|                                                              |
+|   Next version: v21                                          |
+|   Working title: THE ARCHIVE NAMES ITSELF                    |
+|                                                              |
+|   >_  SOURCE: LOT SYSTEMS CORPORATION                        |
+|   >_  COMPILED: July 2026                                    |
+|   >_  VERSION: 20.0.0                                        |
+|   >_  STATUS: SHIPPED                                        |
+|                                                              |
++==============================================================+
+```
+
+---
+
+*AUTHORIZED BY: S-2 // VADIK MARMELADOV, CEO, LOT Systems Corporation*
+*COSMO GATE: CLEARED*
+*GREEN GATE: DOCUMENTATION PASS*
+*BRANCH: claude/quantum-engine-widgets-RgFfC*
+*DATE: 2026-07-01*
