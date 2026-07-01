@@ -973,6 +973,86 @@ export default async (fastify: FastifyInstance) => {
     }
   )
 
+  // LOT Email — "/email to <Name>" composed in the Log. Delivered through
+  // Lot Chat (Sync): no separate inbox, the message is simply a ChatMessage
+  // addressed to a named recipient. The entry's own text (minus the command
+  // phrase) is the body, so "/email to Hitomi" alone is a valid, bodyless
+  // ping. Recipient resolution is cross-referenced against LOT Community
+  // (shared city/country is the same signal Cohort matching weighs first)
+  // to surface a "cohort match" tag, consistent with the existing DM model
+  // where any member can be addressed.
+  fastify.post(
+    '/lot-email',
+    async (req: FastifyRequest<{ Body: { toName: string; body: string } }>, reply) => {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+
+      const toName = (req.body.toName || '').trim()
+      const body = (req.body.body || '').trim()
+      if (!toName) {
+        return reply.status(400).send({ error: 'Recipient name is required' })
+      }
+
+      const { User } = await import('#server/models/user')
+      const recipient = await User.findOne({
+        where: {
+          firstName: { [Op.iLike]: toName },
+          id: { [Op.not]: req.user.id },
+        },
+        order: [['lastSeenAt', 'DESC']],
+      })
+
+      const sameLocation = !!(
+        recipient?.city &&
+        recipient?.country &&
+        recipient.city === req.user.city &&
+        recipient.country === req.user.country
+      )
+
+      const messageText = `✉️ ${req.user.firstName} → ${toName}${body ? ': ' + body : ''}`.slice(
+        0,
+        MAX_SYNC_CHAT_MESSAGE_LENGTH
+      )
+      const chatMessage = await fastify.models.ChatMessage.create({
+        authorUserId: req.user.id,
+        message: messageText,
+      })
+      sync.emit('chat_message', {
+        id: chatMessage.id,
+        message: chatMessage.message,
+        author: req.user.firstName,
+        createdAt: chatMessage.createdAt,
+        likes: 0,
+        isLiked: false,
+      })
+
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'lot_email_sent',
+        text: '',
+        metadata: {
+          chatMessageId: chatMessage.id,
+          toName,
+          toUserId: recipient?.id || null,
+          recipientFound: !!recipient,
+          sameLocation,
+        },
+        context,
+      })
+
+      return {
+        toName,
+        body,
+        recipientFound: !!recipient,
+        recipientName: recipient?.firstName || null,
+        sameLocation,
+      }
+    }
+  )
+
   fastify.get('/weather', async (req: FastifyRequest, reply) => {
     try {
       const { city, country } = req.user

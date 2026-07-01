@@ -824,6 +824,21 @@ export const useQiQuery = createMutation<
 >('post', '/api/qi')
 
 // ============================================================================
+// LOT EMAIL — /email to <Name> <message>, delivered via Lot Chat (Sync)
+// ============================================================================
+
+export const useSendLotEmail = createMutation<
+  { toName: string; body: string },
+  {
+    toName: string
+    body: string
+    recipientFound: boolean
+    recipientName: string | null
+    sameLocation: boolean
+  }
+>('post', '/api/lot-email')
+
+// ============================================================================
 // ASSEMBLY — Self-Assembly Directive
 // ============================================================================
 

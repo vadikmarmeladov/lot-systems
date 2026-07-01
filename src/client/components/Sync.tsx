@@ -232,6 +232,16 @@ export const Sync = React.memo(function SyncInner() {
                 {x.message}
               </div>
 
+              {x.message.startsWith('✉️') && (
+                <Tag
+                  className="text-acc/40 select-none -mt-[2px]"
+                  title="LOT Email — /email to <Name> from Log"
+                  fill={false}
+                >
+                  MAIL
+                </Tag>
+              )}
+
               {!!x.likes && featureUnlocks?.communityRich && (
                 <Tag
                   className={cn(
