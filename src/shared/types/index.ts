@@ -73,6 +73,30 @@ export type UserProfile = {
   timeChime?: boolean;
   memoryEngine?: 'ai' | 'standard';
   isAdmin?: boolean;
+  metadata?: Record<string, any>;
+};
+
+// ─── LOT-FM-001 / BASIC RATION MODULE — roster + state machine ───────────────
+export type BasicsStatus = 'PENDING' | 'ON_STRENGTH' | 'STOOD_DOWN';
+
+export type BasicsRoster = {
+  size: string;
+  shippingAddress: string;
+  cadenceStart: string; // ISO date — first issue month
+};
+
+export type BasicsIssueLogEntry = {
+  date: string; // ISO timestamp
+  status: 'SCHEDULED' | 'DISPATCHED' | 'STOOD_DOWN';
+  note: string;
+};
+
+export type BasicsState = {
+  status: BasicsStatus;
+  roster: BasicsRoster | null;
+  enrolledAt: string | null;
+  standDownAt: string | null;
+  issueLog: BasicsIssueLogEntry[];
 };
 
 export type User = {

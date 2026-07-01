@@ -30,6 +30,7 @@ import {
   WEATHER_STALE_TIME_MINUTES,
 } from '#shared/constants'
 import { sync } from '../sync.js'
+import { registerBasicsRoutes } from './basics-api.js'
 import * as weather from '#server/utils/weather'
 import { getLogContext } from '#server/utils/logs'
 import { defaultQuestions, defaultReplies } from '#server/utils/questions'
@@ -134,6 +135,9 @@ function generateCompassionateResponse(
 export default async (fastify: FastifyInstance) => {
   // Register User Operating System API routes
   registerOSRoutes(fastify)
+
+  // Register BASIC ration module routes (LOT-FM-001)
+  registerBasicsRoutes(fastify)
 
   // Admin diagnostic ping endpoint
   fastify.get('/ping', async (req, reply) => {

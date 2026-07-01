@@ -15,6 +15,7 @@ import {
 } from 'react-query'
 import {
   AdminUsersSort,
+  BasicsState,
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
@@ -130,6 +131,27 @@ export const useVisitorStats = createQuery<{
 }>('/api/visitor-stats', {
   refetchOnWindowFocus: false,
 })
+
+// LOT-FM-001 / BASIC ration module (Month 2 — upgrade + roster)
+export const useBasicsState = createQuery<{ state: BasicsState | null }>(
+  '/api/basics/state',
+  { refetchOnWindowFocus: false }
+)
+
+export const useBasicsEnroll = createMutation<
+  { size: string; shippingAddress: string; cadenceStart?: string },
+  { state: BasicsState }
+>('post', '/api/basics/enroll')
+
+export const useBasicsConfirm = createMutation<void, { state: BasicsState }>(
+  'post',
+  '/api/basics/confirm'
+)
+
+export const useBasicsStandDown = createMutation<void, { state: BasicsState }>(
+  'post',
+  '/api/basics/stand-down'
+)
 
 export const useLogs = createQuery<Log[]>('/api/logs', {
   refetchOnWindowFocus: false, // Prevent refetching on tab switch (was creating duplicate empty logs)

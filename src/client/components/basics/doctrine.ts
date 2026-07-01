@@ -54,3 +54,15 @@ export const DOCTRINE_LINES = [
 export const PRICE_LINE = 'USD 100.00 / MO.'
 export const MANUAL_REF = 'LOT-FM-001'
 export const RATION_COUNT = 23
+
+// ─── SECTION 2 — UPGRADE STATE MACHINE (Month 2) ──────────────────────────────
+// USERSHIP / AI (base layer) → PENDING (roster submitted) →
+// ON STRENGTH (issue scheduled) → STOOD DOWN (ration withdrawn, AI retained).
+export const BASICS_STATUS_LABEL: Record<string, string> = {
+  PENDING: 'PENDING',
+  ON_STRENGTH: 'ON STRENGTH',
+  STOOD_DOWN: 'STOOD DOWN',
+}
+
+export const UPGRADE_LINE = 'ADDITIVE +USD 100.00 / MO — ON TOP OF USERSHIP.'
+export const STAND_DOWN_NOTICE = 'STAND DOWN drops the ration. USERSHIP / AI is retained.'
