@@ -2096,6 +2096,84 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'intent_gap_pulse') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const gapMinutes     = log.metadata?.gapMinutes     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="IGAP:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                {gapMinutes !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GAP</span>
+                    <span className="tabular-nums">{gapMinutes}m</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">WINDOW</span>
+                  <span>24H</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recovery_initiation') {
+          const selfcareCount     = log.metadata?.selfcareCount     as number | undefined
+          const priorEnergyLevel  = log.metadata?.priorEnergyLevel  as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RECOV:" blockView>
+                {selfcareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfcareCount}</span>
+                  </div>
+                )}
+                {priorEnergyLevel && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRIOR ATP</span>
+                    <span className="capitalize">{priorEnergyLevel}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATUS</span>
+                  <span>ARC BEGIN</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_vitality_sync') {
+          const journalWords = log.metadata?.journalWords as number | undefined
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const energyBand   = log.metadata?.energyBand   as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="VSYNC:" blockView>
+                {journalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WORDS 24H</span>
+                    <span className="tabular-nums">{journalWords}w</span>
+                  </div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEM 24H</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {energyBand && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">ATP</span>
+                    <span className="capitalize">{energyBand}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

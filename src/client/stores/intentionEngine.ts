@@ -2177,6 +2177,59 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 95: Intent-to-action gap — intention set in last 24h with no planner/goal in same window.
+  // Early decay signal before P47's 48h threshold fires. Indicates intention not yet anchored.
+  const p95Cut = now - 24 * 60 * 60 * 1000
+  const p95Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p95Cut)
+  const p95Plans      = signals.filter(s => (s.source === 'planner' || s.source === 'goals') && s.timestamp > p95Cut)
+  if (p95Intentions.length >= 1 && p95Plans.length === 0) {
+    const gapMinutes = Math.round((now - Math.max(...p95Intentions.map(s => s.timestamp))) / 60000)
+    patterns.push({
+      pattern: 'intent-to-action-gap',
+      confidence: Math.min(0.60 + p95Intentions.length * 0.06, 0.78),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'active',
+      reason: `INTENT GAP: ${p95Intentions.length} intention(s) set — no plan or goal in 24h. Gap: ${gapMinutes}m. Bridge intention to structure now.`,
+    })
+  }
+
+  // Pattern 96: Recovery initiation — first selfcare signal after depleted/low energy same day.
+  // The arc begins. Biology re-engaging after a drain cycle.
+  const p96TodayStart = new Date(now)
+  p96TodayStart.setHours(0, 0, 0, 0)
+  const p96TodaySelfcare = signals.filter(s => s.source === 'selfcare' && s.timestamp >= p96TodayStart.getTime())
+  const p96TodayEnergy   = signals.filter(s => s.source === 'energy'   && s.timestamp >= p96TodayStart.getTime())
+  const p96PriorEnergy   = p96TodayEnergy.filter(s => (s.metadata?.level as string | undefined) === 'depleted' || (s.metadata?.level as string | undefined) === 'low')
+  if (p96TodaySelfcare.length >= 1 && p96TodaySelfcare.length <= 2 && p96PriorEnergy.length >= 1) {
+    patterns.push({
+      pattern: 'recovery-initiation',
+      confidence: 0.72,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'active',
+      reason: `RECOVERY ARC: First selfcare signal detected after depleted/low energy today. Arc begins — ${p96TodaySelfcare.length} signal(s). Support the re-entry.`,
+    })
+  }
+
+  // Pattern 97: Cognitive-vitality sync — journal 150+w + memory capture when energy=high AND clarity=focused.
+  // Biology powering cognition. Dual-system activation: body and mind aligned.
+  const p97Cut       = now - 24 * 60 * 60 * 1000
+  const p97Journal   = signals.filter(s => s.source === 'journal' && s.timestamp > p97Cut)
+  const p97JWords    = p97Journal.reduce((sum, s) => sum + ((s.metadata?.wordCount as number) ?? 0), 0)
+  const p97Memory    = signals.filter(s => s.source === 'memory' && s.timestamp > p97Cut)
+  const p97HighEnergy = signals.filter(s =>
+    s.source === 'energy' && s.timestamp > p97Cut &&
+    ((s.metadata?.level as string | undefined) === 'high' || (s.metadata?.band as string | undefined) === 'high')
+  )
+  if (p97JWords >= 150 && p97Memory.length >= 1 && p97HighEnergy.length >= 1) {
+    patterns.push({
+      pattern: 'cognitive-vitality-sync',
+      confidence: Math.min(0.72 + p97Memory.length * 0.04 + (p97JWords >= 300 ? 0.12 : 0), 0.88),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `COGNITIVE SYNC: ${p97JWords}w journal + ${p97Memory.length} memory captures during high energy. Biology powering cognition — dual-system activation confirmed.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2720,6 +2773,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   systemicReadinessNode:    ['energy', 'mood', 'selfcare', 'cohort', 'planner', 'intentions'],
   rhythmLockNode:           ['mood', 'energy', 'log', 'time', 'selfcare'],
   crossDomainMasteryNode:   ['memory', 'journal', 'badges', 'goals', 'planner', 'intentions'],
+
+  // ── Intent gap + recovery initiation monitors (2026-07-01 audit)
+  intentGapMonitor:         ['intentions', 'planner', 'goals', 'log'],
+  recoveryInitiator:        ['selfcare', 'mood', 'energy', 'log'],
 }
 
 /**
@@ -3011,6 +3068,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'goals'],
     patternConditions: ['systemic-readiness-peak', 'vitality-strategy-peak', 'operator-convergence', 'cross-domain-mastery'],
     directive: 'Full-stack biological and strategic alignment. Energy, clarity, alignment, and structure simultaneously optimized. Maximum execution window — commit now.',
+  },
+  {
+    archetype: 'Dynamic Responder',
+    energyBands: ['depleted', 'low', 'moderate', 'high', 'unknown'],
+    dominantSources: ['selfcare', 'mood', 'log'],
+    patternConditions: ['recovery-initiation', 'contextual-checkin-momentum', 'recovery-velocity'],
+    directive: 'Fast-response calibration active. You engage. The system responds.',
   },
 ]
 
@@ -4164,6 +4228,45 @@ export function recordCrossDomainMastery(memoryCount: number, journalWords: numb
     goalCount,
     plannerCount,
     window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an intent-gap-pulse signal — intention set in last 24h with no plan/goal follow-through.
+ * Feeds P95 detection. Early bridge-to-structure signal.
+ */
+export function recordIntentGap(intentionCount: number, gapMinutes: number) {
+  recordSignal('intentions', 'intent_gap_pulse', {
+    intentionCount,
+    gapMinutes,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a recovery-initiation signal — first selfcare after depleted/low energy today.
+ * Feeds P96 detection. Marks the start of the biological re-entry arc.
+ */
+export function recordRecoveryInitiation(selfcareCount: number, priorEnergyLevel: string) {
+  recordSignal('selfcare', 'recovery_initiation', {
+    selfcareCount,
+    priorEnergyLevel,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a cognitive-vitality-sync signal — journal 150+w + memory capture during high energy.
+ * Feeds P97 detection. Dual-system (biology + cognition) activation confirmed.
+ */
+export function recordCognitiveVitalitySync(journalWords: number, memoryCount: number, energyBand: string) {
+  recordSignal('journal', 'cognitive_vitality_sync', {
+    journalWords,
+    memoryCount,
+    energyBand,
+    window: '24h',
     hour: new Date().getHours(),
   })
 }

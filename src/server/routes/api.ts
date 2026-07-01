@@ -1085,6 +1085,10 @@ export default async (fastify: FastifyInstance) => {
       'daily_rhythm_lock',
       'cross_domain_mastery_pulse',
       'systemic_readiness_peak',
+      // v80: intent gap pulse · recovery initiation · cognitive vitality sync
+      'intent_gap_pulse',
+      'recovery_initiation',
+      'cognitive_vitality_sync',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

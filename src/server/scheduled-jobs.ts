@@ -1674,6 +1674,90 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySystemicReadinessCheck()) {
     await executeDailySystemicReadinessCheck()
   }
+  // Check daily intent gap pulse (02:00 UTC every day) — Job 31
+  if (shouldRunDailyIntentGapPulse()) {
+    await executeDailyIntentGapPulse()
+  }
+}
+
+// ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
+// Reads active users. Finds those with an intention log in the last 24h but no
+// plan_set / goal_created / goal_updated in the same window. Writes intent_gap_pulse.
+
+let isDailyIntentGapRunning = false
+let lastDailyIntentGapRun: Date | null = null
+
+function shouldRunDailyIntentGapPulse(): boolean {
+  const now = dayjs()
+  if (isDailyIntentGapRunning) return false
+  if (lastDailyIntentGapRun) {
+    const lastRun = dayjs(lastDailyIntentGapRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 2 // 02:00 UTC daily
+}
+
+async function executeDailyIntentGapPulse(): Promise<JobResult> {
+  const jobName = 'daily-intent-gap-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyIntentGapRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyIntentGapRunning = true
+
+  console.log('')
+  console.log('DAILY INTENT GAP PULSE — 02:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const dayLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: oneDayAgo } },
+          attributes: ['event', 'metadata', 'createdAt'],
+        })
+
+        const intentions = dayLogs.filter((l: any) =>
+          ['intention_set', 'intention_created', 'daily_intention'].includes(l.event)
+        )
+        const actions = dayLogs.filter((l: any) =>
+          ['plan_set', 'planner_entry', 'calendar_entry', 'goal_created', 'goal_updated', 'goal_completed'].includes(l.event)
+        )
+
+        if (intentions.length >= 1 && actions.length === 0) {
+          const lastIntention = intentions[intentions.length - 1]
+          const gapMinutes = Math.round((Date.now() - new Date(lastIntention.createdAt).getTime()) / 60000)
+          await (Log as any).create({
+            userId,
+            event: 'intent_gap_pulse',
+            text: `Intent gap: ${intentions.length} intention(s) — no plan or goal in 24h. Gap: ${gapMinutes}m.`,
+            metadata: { intentionCount: intentions.length, gapMinutes, window: '24h', hour: 2 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailyIntentGapRun = new Date()
+    isDailyIntentGapRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily intent gap pulse failed:', error.message)
+    isDailyIntentGapRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -3749,6 +3833,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily presence arc check: 9 PM UTC every day (Job 28)')
   console.log('   - Daily cross-domain pulse: 7 PM UTC every day (Job 29)')
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
+  console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -3758,8 +3843,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

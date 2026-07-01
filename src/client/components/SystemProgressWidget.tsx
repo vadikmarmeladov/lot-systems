@@ -1030,6 +1030,26 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v78 entry appended. USERSHIP_TRANSMISSION updated to v78.',
     ],
   },
+  {
+    date: '2026-07-01',
+    session: 'Self-Assembly Session — v80 / P95–P97 · Arch33 · J31 · IGAP: RECOV: VSYNC: · Intent Gap + Recovery Arc + Cognitive Sync',
+    assembled: [
+      'intentionEngine.ts: P95 intent-to-action-gap — intention set in last 24h with no plan/goal follow-through in same window. Early decay signal before P47 48h threshold. Conf 0.60–0.78. suggestedWidget: planner.',
+      'intentionEngine.ts: P96 recovery-initiation — first selfcare signal after depleted/low energy on same day. The arc begins. Biological re-entry indicator. Conf 0.72. suggestedWidget: selfcare.',
+      'intentionEngine.ts: P97 cognitive-vitality-sync — journal 150+w + memory capture when energy=high in 24h. Biology powering cognition. Dual-system activation confirmed. Conf 0.72–0.88. 97 patterns total.',
+      'intentionEngine.ts: Arch33 Dynamic Responder — recovery-initiation+contextual-checkin-momentum+recovery-velocity conditions. dominantSources: selfcare+mood+log. energyBands: any. Directive: Fast-response calibration active. You engage. The system responds. 33 archetypes total.',
+      'intentionEngine.ts: recordIntentGap() + recordRecoveryInitiation() + recordCognitiveVitalitySync() signal helpers added.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 2 new nodes: intentGapMonitor (intentions+planner+goals+log) · recoveryInitiator (selfcare+mood+energy+log). 136+ dep nodes total.',
+      'scheduled-jobs.ts: J31 daily-intent-gap-pulse — 02:00 UTC daily. Reads active users with intention log in last 24h but no plan/goal. Writes intent_gap_pulse (intentionCount+gapMinutes+window). 31 background jobs total.',
+      'scheduled-jobs.ts: Hour 2 added to setInterval gate. Full 24h coverage: 0–23 all present.',
+      'Logs.tsx: IGAP: handler — renders intent_gap_pulse (INTENT · GAP · WINDOW). Military data-row format.',
+      'Logs.tsx: RECOV: handler — renders recovery_initiation (CARE · PRIOR ATP · STATUS). Military data-row format.',
+      'Logs.tsx: VSYNC: handler — renders cognitive_vitality_sync (WORDS 24H · MEM 24H · ATP). Military data-row format. 98+ handlers total.',
+      'routes/api.ts: intent_gap_pulse + recovery_initiation + cognitive_vitality_sync added to displayableEvents (v80 block).',
+      'About.tsx: Field Manual v80. Counters: 97 patterns · 33 archetypes · 31 background jobs · 98+ log handlers · 136+ dep nodes.',
+      'SESSION_REPORTS: v80 entry appended. USERSHIP_TRANSMISSION updated to v80.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1067,19 +1087,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-30',
+  date: '2026-07-01',
   message: [
-    'ASSEMBLY RUN — 2026-06-30 · LOT-SR-20260630-01',
-    'P92 systemic-readiness-peak: energy+clarity+alignment all positive + no critical patterns + 3+ sources in 4h. Full biological and cognitive stack clear simultaneously. Conf 0.85.',
-    'P93 daily-rhythm-lock: morning (before 10:00) + evening (after 18:00) signals on same day, 3+ consecutive days. Diurnal regularity structural. Conf 0.75–0.92.',
-    'P94 cross-domain-mastery: memory 5+ + journal 200w+ + badges 2+ + goals 2+ + planner 2+ in 7d. Full engagement spectrum simultaneously active. Conf 0.72–0.90. 94 patterns total.',
-    'Arch31 Rhythm Architect: daily-rhythm-lock+full-presence-arc+morning-coherence-launch+evening-coherence-close. The arc is sealed — structural, not forced.',
-    'Arch32 Integrated Operator: systemic-readiness-peak+vitality-strategy-peak+operator-convergence+cross-domain-mastery. Maximum execution window. 32 archetypes total.',
-    'J28 daily-presence-arc-check: 21:00 UTC. Writes full_presence_arc + daily_rhythm_lock per active user.',
-    'J29 daily-cross-domain-pulse: 19:00 UTC. Writes cross_domain_mastery_pulse when full spectrum confirmed.',
-    'J30 daily-systemic-readiness-check: 01:00 UTC. Writes systemic_readiness_peak when conf≥60+energy OK+no critical. 30 background jobs total.',
-    'RLOCK: CROSS: SYSRDY: log handlers deployed. 95+ handlers total.',
-    'Dep map: 134+ nodes. 94 patterns. 32 archetypes. 30 jobs. Hours 1+17+19+21 added to scheduler gate.',
+    'ASSEMBLY RUN — 2026-07-01 · LOT-SR-20260701-01',
+    'P95 intent-to-action-gap: intention set 24h — no plan/goal follow-through. Early decay before P47 threshold. Bridge to structure now. Conf 0.60–0.78.',
+    'P96 recovery-initiation: first selfcare signal after depleted/low energy today. The arc begins. Biological re-entry confirmed. Conf 0.72.',
+    'P97 cognitive-vitality-sync: journal 150+w + memory capture during high energy 24h. Biology powering cognition. Dual-system activation. Conf 0.72–0.88. 97 patterns total.',
+    'Arch33 Dynamic Responder: recovery-initiation+contextual-checkin-momentum+recovery-velocity. You engage. The system responds. 33 archetypes total.',
+    'J31 daily-intent-gap-pulse: 02:00 UTC. Reads users with intention log but no plan/goal in 24h. Writes intent_gap_pulse. 31 background jobs total.',
+    'IGAP: RECOV: VSYNC: log handlers deployed. 98+ handlers total.',
+    'Dep map: 136+ nodes. 2 new: intentGapMonitor + recoveryInitiator.',
+    'Signal helpers: recordIntentGap() + recordRecoveryInitiation() + recordCognitiveVitalitySync().',
+    'displayableEvents: intent_gap_pulse + recovery_initiation + cognitive_vitality_sync (v80 block).',
+    '97 patterns · 33 archetypes · 31 jobs · 98+ handlers · 136+ dep nodes. Hour 2 in scheduler gate.',
     'DEPLOYED.',
   ],
 }
