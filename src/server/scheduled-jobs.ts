@@ -1674,6 +1674,14 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySystemicReadinessCheck()) {
     await executeDailySystemicReadinessCheck()
   }
+  // Check daily memory synthesis check (23:00 UTC every day) — Job 31
+  if (shouldRunDailyMemorySynthesisCheck()) {
+    await executeDailyMemorySynthesisCheck()
+  }
+  // Check daily somatic journal check (10:00 UTC every day) — Job 32
+  if (shouldRunDailySomaticJournalCheck()) {
+    await executeDailySomaticJournalCheck()
+  }
 }
 
 // ─── Daily OS Snapshot ───────────────────────────────────────────────────────
@@ -3706,6 +3714,177 @@ async function executeDailyQOSModeWatch(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Memory Synthesis Check (Job 31 — 23:00 UTC every day) ────────────
+// Reads active users. If 3+ memory-type logs exist in the last 4h → writes memory_synthesis_burst.
+
+let isDailyMemorySynthesisRunning = false
+let lastDailyMemorySynthesisRun: Date | null = null
+
+function shouldRunDailyMemorySynthesisCheck(): boolean {
+  const now = dayjs()
+  if (isDailyMemorySynthesisRunning) return false
+  if (lastDailyMemorySynthesisRun) {
+    const lastRun = dayjs(lastDailyMemorySynthesisRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 23 // 23:00 UTC daily
+}
+
+async function executeDailyMemorySynthesisCheck(): Promise<JobResult> {
+  const jobName = 'daily-memory-synthesis-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyMemorySynthesisRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyMemorySynthesisRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY MEMORY SYNTHESIS CHECK — 23:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo   = dayjs().subtract(1, 'day').toDate()
+    const fourHoursAgo = dayjs().subtract(4, 'hours').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const memoryLogs = await (Log as any).findAll({
+          where: {
+            userId: (user as any).id,
+            event: { [Op.in]: ['note', 'memory_added', 'memory_synthesis_burst'] },
+            createdAt: { [Op.gte]: fourHoursAgo },
+          },
+          attributes: ['id'],
+        })
+
+        if (memoryLogs.length >= 3) {
+          await (Log as any).create({
+            userId: (user as any).id,
+            event: 'memory_synthesis_burst',
+            text: `Memory synthesis burst — ${memoryLogs.length} memory entries in 4h. Dense consolidation phase detected.`,
+            metadata: {
+              memoryCount: memoryLogs.length,
+              window: '4h',
+              hour: 23,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailyMemorySynthesisRun = new Date()
+    isDailyMemorySynthesisRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily memory synthesis check failed:', error.message)
+    isDailyMemorySynthesisRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Somatic Journal Check (Job 32 — 10:00 UTC every day) ─────────────
+// Reads active users. If 1+ energy+journal pairs within 2h in last 24h → writes somatic_journal_arc.
+
+let isDailySomaticJournalRunning = false
+let lastDailySomaticJournalRun: Date | null = null
+
+function shouldRunDailySomaticJournalCheck(): boolean {
+  const now = dayjs()
+  if (isDailySomaticJournalRunning) return false
+  if (lastDailySomaticJournalRun) {
+    const lastRun = dayjs(lastDailySomaticJournalRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 10 // 10:00 UTC daily
+}
+
+async function executeDailySomaticJournalCheck(): Promise<JobResult> {
+  const jobName = 'daily-somatic-journal-check'
+  const executedAt = new Date().toISOString()
+  if (isDailySomaticJournalRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailySomaticJournalRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY SOMATIC JOURNAL CHECK — 10:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo  = dayjs().subtract(1, 'day').toDate()
+    const twoHoursMs = 2 * 60 * 60 * 1000
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const energyLogs = await (Log as any).findAll({
+          where: {
+            userId: (user as any).id,
+            event: { [Op.in]: ['energy_checkin', 'energy_state', 'energy_update'] as any[] },
+            createdAt: { [Op.gte]: oneDayAgo },
+          },
+          attributes: ['id', 'createdAt'],
+        })
+        const journalLogs = await (Log as any).findAll({
+          where: {
+            userId: (user as any).id,
+            event: 'note',
+            createdAt: { [Op.gte]: oneDayAgo },
+          },
+          attributes: ['id', 'createdAt'],
+        })
+
+        let pairCount = 0
+        for (const e of energyLogs) {
+          const eTime = new Date(e.createdAt).getTime()
+          const paired = journalLogs.some((j: any) => Math.abs(new Date(j.createdAt).getTime() - eTime) <= twoHoursMs)
+          if (paired) pairCount++
+        }
+
+        if (pairCount >= 1) {
+          await (Log as any).create({
+            userId: (user as any).id,
+            event: 'somatic_journal_arc',
+            text: `Somatic journal arc — ${pairCount} energy+journal pair(s) within 2h in 24h. Body-mind integration confirmed.`,
+            metadata: {
+              pairCount,
+              window: '24h',
+              hour: 10,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailySomaticJournalRun = new Date()
+    isDailySomaticJournalRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily somatic journal check failed:', error.message)
+    isDailySomaticJournalRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -3749,6 +3928,8 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily presence arc check: 9 PM UTC every day (Job 28)')
   console.log('   - Daily cross-domain pulse: 7 PM UTC every day (Job 29)')
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
+  console.log('   - Daily memory synthesis check: 11 PM UTC every day (Job 31)')
+  console.log('   - Daily somatic journal check: 10 AM UTC every day (Job 32)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -3758,7 +3939,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift+somatic-journal, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage+memory-synthesis
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

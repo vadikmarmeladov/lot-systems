@@ -2096,6 +2096,69 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'memory_synthesis_burst') {
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const window      = log.metadata?.window      as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MEM2:" blockView>
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEMORY 4H</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {window && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">WINDOW</span>
+                    <span className="tabular-nums">{window}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'somatic_journal_arc') {
+          const pairCount = log.metadata?.pairCount as number | undefined
+          const window    = log.metadata?.window    as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOMA:" blockView>
+                {pairCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PAIRS 2H</span>
+                    <span className="tabular-nums">{pairCount}</span>
+                  </div>
+                )}
+                {window && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">WINDOW</span>
+                    <span className="tabular-nums">{window}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'full_spectrum_week') {
+          const activeChannels = log.metadata?.activeChannels as number | undefined
+          const channelList    = log.metadata?.channelList    as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SPEC:" blockView>
+                {activeChannels !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CHANNELS 7D</span>
+                    <span className="tabular-nums">{activeChannels}/6</span>
+                  </div>
+                )}
+                {channelList && channelList.length > 0 && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">ACTIVE</span>
+                    <span className="uppercase tracking-widest text-xs">{channelList.join(' · ')}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

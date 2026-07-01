@@ -2177,6 +2177,61 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // ─── P95: memory-synthesis-burst ─────────────────────────────────────────
+  const p95Window = now - 4 * 60 * 60 * 1000
+  const p95Memory = signals.filter(s => s.source === 'memory' && s.timestamp > p95Window)
+  if (p95Memory.length >= 3) {
+    patterns.push({
+      pattern: 'memory-synthesis-burst',
+      confidence: Math.min(0.70 + (p95Memory.length - 3) * 0.05, 0.90),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `MEMORY SYNTHESIS BURST: ${p95Memory.length} memory signals in 4h window. Dense consolidation phase active — synthesis at peak.`,
+    })
+  }
+
+  // ─── P96: somatic-journal-arc ─────────────────────────────────────────────
+  const p96Window = now - 24 * 60 * 60 * 1000
+  const p96TwoHour = 2 * 60 * 60 * 1000
+  const p96Energy  = signals.filter(s => s.source === 'energy'  && s.timestamp > p96Window)
+  const p96Journal = signals.filter(s => s.source === 'journal' && s.timestamp > p96Window)
+  let p96Pairs = 0
+  for (const e of p96Energy) {
+    if (p96Journal.some(j => Math.abs(j.timestamp - e.timestamp) <= p96TwoHour)) p96Pairs++
+  }
+  if (p96Pairs >= 1) {
+    patterns.push({
+      pattern: 'somatic-journal-arc',
+      confidence: Math.min(0.68 + p96Pairs * 0.07, 0.88),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `SOMATIC JOURNAL ARC: ${p96Pairs} energy+journal pair(s) within 2h in 24h. Body-mind integration arc confirmed.`,
+    })
+  }
+
+  // ─── P97: full-spectrum-week ──────────────────────────────────────────────
+  const p97Window = now - 7 * 24 * 60 * 60 * 1000
+  const P97_CHANNELS: Array<{ source: IntentionSignal['source']; label: string }> = [
+    { source: 'memory',     label: 'memory' },
+    { source: 'journal',    label: 'journal' },
+    { source: 'goals',      label: 'goals' },
+    { source: 'planner',    label: 'planner' },
+    { source: 'intentions', label: 'intentions' },
+    { source: 'badges',     label: 'badges' },
+  ]
+  const p97Active = P97_CHANNELS.filter(ch =>
+    signals.filter(s => s.source === ch.source && s.timestamp > p97Window).length >= 2
+  )
+  if (p97Active.length >= 5) {
+    patterns.push({
+      pattern: 'full-spectrum-week',
+      confidence: Math.min(0.74 + (p97Active.length - 5) * 0.08, 0.90),
+      suggestedWidget: 'intentions',
+      suggestedTiming: 'passive',
+      reason: `FULL SPECTRUM WEEK: ${p97Active.length}/6 channels active with 2+ entries in 7d (${p97Active.map(c => c.label).join(', ')}). Total system engagement — organism fully online.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3011,6 +3066,20 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'goals'],
     patternConditions: ['systemic-readiness-peak', 'vitality-strategy-peak', 'operator-convergence', 'cross-domain-mastery'],
     directive: 'Full-stack biological and strategic alignment. Energy, clarity, alignment, and structure simultaneously optimized. Maximum execution window — commit now.',
+  },
+  {
+    archetype: 'Synthesis Cartographer',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['memory', 'journal'],
+    patternConditions: ['memory-synthesis-burst', 'cognitive-depth-arc', 'cross-domain-mastery'],
+    directive: 'Dense memory and journal synthesis in active window. Pattern-recognition at peak — map the landscape before the burst fades.',
+  },
+  {
+    archetype: 'Somatic Scribe',
+    energyBands: ['moderate', 'low'],
+    dominantSources: ['energy', 'journal'],
+    patternConditions: ['somatic-journal-arc', 'deep-restoration', 'vitality-strategy-peak'],
+    directive: 'Body-mind integration arc confirmed. Energy check-ins paired with journal — soma is speaking. Transcribe now, analyze later.',
   },
 ]
 
@@ -4163,6 +4232,43 @@ export function recordCrossDomainMastery(memoryCount: number, journalWords: numb
     badgeCount,
     goalCount,
     plannerCount,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a memory-synthesis-burst signal — 3+ memory signals in 4h window.
+ * Feeds P95 detection. Dense synthesis phase active.
+ */
+export function recordMemorySynthesisBurst(memoryCount: number) {
+  recordSignal('memory', 'memory_synthesis_burst', {
+    memoryCount,
+    window: '4h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a somatic-journal-arc signal — energy+journal pair within 2h, 1+ pairs in 24h.
+ * Feeds P96 detection. Body-mind integration arc confirmed.
+ */
+export function recordSomaticJournalArc(pairCount: number) {
+  recordSignal('energy', 'somatic_journal_arc', {
+    pairCount,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a full-spectrum-week signal — 5+ of 6 core channels with 2+ entries in 7d.
+ * Feeds P97 detection. Total system engagement — organism fully online.
+ */
+export function recordFullSpectrumWeek(activeChannels: number, channelList: string[]) {
+  recordSignal('intentions', 'full_spectrum_week', {
+    activeChannels,
+    channelList,
     window: '7d',
     hour: new Date().getHours(),
   })

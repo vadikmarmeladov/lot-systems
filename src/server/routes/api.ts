@@ -1085,6 +1085,10 @@ export default async (fastify: FastifyInstance) => {
       'daily_rhythm_lock',
       'cross_domain_mastery_pulse',
       'systemic_readiness_peak',
+      // v79: memory synthesis burst · somatic journal arc · full spectrum week
+      'memory_synthesis_burst',
+      'somatic_journal_arc',
+      'full_spectrum_week',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

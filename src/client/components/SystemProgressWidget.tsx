@@ -1030,6 +1030,26 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v78 entry appended. USERSHIP_TRANSMISSION updated to v78.',
     ],
   },
+  {
+    date: '2026-07-01',
+    session: 'Self-Assembly Session — v79 / P95–P97 · Arch33–Arch34 · J31–J32 · Dep Map 136+ · MEM2: SOMA: SPEC: · Memory Synthesis + Somatic Journal + Full Spectrum Week',
+    assembled: [
+      'intentionEngine.ts: P95 memory-synthesis-burst — 3+ memory source signals in 4h window. Dense synthesis phase active — consolidation at peak. Conf 0.70–0.90. suggestedWidget: memory.',
+      'intentionEngine.ts: P96 somatic-journal-arc — 1+ energy+journal pairs within 2h in 24h. Body-mind integration arc confirmed. Conf 0.68–0.88. suggestedWidget: journal.',
+      'intentionEngine.ts: P97 full-spectrum-week — 5+ of 6 core channels (memory/journal/goals/planner/intentions/badges) each with 2+ entries in 7d. Total system engagement. Conf 0.74–0.90. 97 patterns total.',
+      'intentionEngine.ts: Arch33 Synthesis Cartographer — memory-synthesis-burst+cognitive-depth-arc+cross-domain-mastery. dominantSources: memory+journal. Directive: Dense memory and journal synthesis in active window. Map the landscape before the burst fades.',
+      'intentionEngine.ts: Arch34 Somatic Scribe — somatic-journal-arc+deep-restoration+vitality-strategy-peak. dominantSources: energy+journal. Directive: Body-mind integration arc confirmed. Soma is speaking. Transcribe now, analyze later. 34 archetypes total.',
+      'intentionEngine.ts: recordMemorySynthesisBurst() + recordSomaticJournalArc() + recordFullSpectrumWeek() signal helpers added.',
+      'scheduled-jobs.ts: J31 daily-memory-synthesis-check — 23:00 UTC daily. Reads 4h logs per user, writes memory_synthesis_burst when 3+ memory-type entries (note/memory_added) present.',
+      'scheduled-jobs.ts: J32 daily-somatic-journal-check — 10:00 UTC daily. Reads 24h energy+journal logs per user, writes somatic_journal_arc when 1+ energy+journal pairs within 2h. 32 background jobs total.',
+      'Logs.tsx: MEM2: handler — renders memory_synthesis_burst (MEMORY 4H · WINDOW). Military data-row format.',
+      'Logs.tsx: SOMA: handler — renders somatic_journal_arc (PAIRS 2H · WINDOW). Military data-row format.',
+      'Logs.tsx: SPEC: handler — renders full_spectrum_week (CHANNELS 7D · ACTIVE). Military data-row format. 98+ handlers total.',
+      'routes/api.ts: memory_synthesis_burst + somatic_journal_arc + full_spectrum_week added to displayableEvents (v79 block).',
+      'About.tsx: Field Manual v79. Counters: 97 patterns · 34 archetypes · 32 background jobs · 98+ log handlers · 136+ dep nodes.',
+      'SESSION_REPORTS: v79 entry appended. USERSHIP_TRANSMISSION updated to v79.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1067,19 +1087,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-30',
+  date: '2026-07-01',
   message: [
-    'ASSEMBLY RUN — 2026-06-30 · LOT-SR-20260630-01',
-    'P92 systemic-readiness-peak: energy+clarity+alignment all positive + no critical patterns + 3+ sources in 4h. Full biological and cognitive stack clear simultaneously. Conf 0.85.',
-    'P93 daily-rhythm-lock: morning (before 10:00) + evening (after 18:00) signals on same day, 3+ consecutive days. Diurnal regularity structural. Conf 0.75–0.92.',
-    'P94 cross-domain-mastery: memory 5+ + journal 200w+ + badges 2+ + goals 2+ + planner 2+ in 7d. Full engagement spectrum simultaneously active. Conf 0.72–0.90. 94 patterns total.',
-    'Arch31 Rhythm Architect: daily-rhythm-lock+full-presence-arc+morning-coherence-launch+evening-coherence-close. The arc is sealed — structural, not forced.',
-    'Arch32 Integrated Operator: systemic-readiness-peak+vitality-strategy-peak+operator-convergence+cross-domain-mastery. Maximum execution window. 32 archetypes total.',
-    'J28 daily-presence-arc-check: 21:00 UTC. Writes full_presence_arc + daily_rhythm_lock per active user.',
-    'J29 daily-cross-domain-pulse: 19:00 UTC. Writes cross_domain_mastery_pulse when full spectrum confirmed.',
-    'J30 daily-systemic-readiness-check: 01:00 UTC. Writes systemic_readiness_peak when conf≥60+energy OK+no critical. 30 background jobs total.',
-    'RLOCK: CROSS: SYSRDY: log handlers deployed. 95+ handlers total.',
-    'Dep map: 134+ nodes. 94 patterns. 32 archetypes. 30 jobs. Hours 1+17+19+21 added to scheduler gate.',
+    'ASSEMBLY RUN — 2026-07-01 · LOT-SR-20260701-01',
+    'P95 memory-synthesis-burst: 3+ memory signals in 4h. Dense consolidation phase. Synthesis at peak. Conf 0.70–0.90.',
+    'P96 somatic-journal-arc: 1+ energy+journal pairs within 2h in 24h. Body-mind integration arc confirmed. Conf 0.68–0.88.',
+    'P97 full-spectrum-week: 5+/6 channels (memory/journal/goals/planner/intentions/badges) with 2+ entries in 7d. Total system engagement. Conf 0.74–0.90. 97 patterns total.',
+    'Arch33 Synthesis Cartographer: memory-synthesis-burst+cognitive-depth-arc+cross-domain-mastery. Dense memory+journal synthesis in active window — map the landscape.',
+    'Arch34 Somatic Scribe: somatic-journal-arc+deep-restoration+vitality-strategy-peak. Soma speaking. Transcribe now, analyze later. 34 archetypes total.',
+    'J31 daily-memory-synthesis-check: 23:00 UTC. Writes memory_synthesis_burst when 3+ memory entries in 4h.',
+    'J32 daily-somatic-journal-check: 10:00 UTC. Writes somatic_journal_arc when 1+ energy+journal pairs within 2h. 32 background jobs total.',
+    'MEM2: SOMA: SPEC: log handlers deployed. 98+ handlers total.',
+    'Dep map: 136+ nodes. 97 patterns. 34 archetypes. 32 jobs.',
     'DEPLOYED.',
   ],
 }
