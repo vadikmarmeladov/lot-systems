@@ -61,6 +61,6 @@ ID             | CLASS        | SUMMARY                                         
 20260625-02    | SELF-ASSEMBLY| QIE P84 longitudinal-drift (Job 22) + OS [MODE]: qos_mode_change handler (Job 23) | GREEN  | 54b71fb  | WORDS: 422 (median 422)
 20260625-03    | SELF-ASSEMBLY| QIE v72 — P84 longitudinal-drift (client) · P85 adaptive-momentum · P86 vitality-strategy-peak · Arch29 Peak Strategist · COCKPIT-RULE pass · dep map 126+ · 86 patterns | GREEN  | 0d8985d  | WORDS: 612 (median 495)
 20260627-01    | WIKI-BUILD   | LOT-WIKI-v66 · FM v73 · 27 sections · cohort profiles (6) · Word Turn Lexicon v10 (126 triggers) · Vocab Index 40+ · About.tsx Day 1023+ | GREEN  | e074756  | WORDS: 680 (median 540)
-20260628-01    | CORPORATE    | LOT® Lent Diet 2026 — extremely successful cohort program outcome · S-2 direct testimony | GREEN  | (pending tag) | WORDS: 298 (median 495) — trend ↓
+20260628-01    | CORPORATE    | LOT® Lent Diet 2026 — extremely successful cohort program outcome · S-2 direct testimony | GREEN  | 99dce626 | WORDS: 298 (median 495) — trend ↓
 20260630-01    | SELF-ASSEMBLY| Widget→Memory compression loop — PLANNER-CONTEXT injected · plan_set+emotional_checkin in formatLog · Together AI primary · M2M rebuild doc | GREEN  | dc27749  | WORDS: 312 (median 495) — trend ↓
-20260702-01    | ENGINEERING  | Calendar widget — live clock · EXECUTE/ALERT/STANDBY/ELAPSED status engine · reload-safe military-grade alert overlay · Log CAL [TYPE]: renderer | GREEN  | (pending tag) | WORDS: 760 (median 533) — trend ↑
+20260702-01    | ENGINEERING  | Calendar widget — live clock · EXECUTE/ALERT/STANDBY/ELAPSED status engine · reload-safe military-grade alert overlay · Log CAL [TYPE]: renderer | GREEN  | 99dce626 | WORDS: 760 (median 533) — trend ↑
