@@ -248,13 +248,12 @@ async function checkMemory(): Promise<SystemCheck> {
     // Check if Log model is available (logging system)
     await models.Log.findOne()
 
-    // Check if Anthropic API key is configured for Claude-powered Memory
-    const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY || !!config.anthropic?.apiKey
-    if (!hasAnthropicKey) {
+    // Check if any AI engine is available (Together AI is primary; Claude is fallback)
+    if (!aiEngineManager.hasAvailableEngine()) {
       return {
         name: 'Memory Engine',
         status: 'error',
-        message: 'Claude API key not configured',
+        message: 'No AI engine configured — set TOGETHER_API_KEY, ANTHROPIC_API_KEY, or another provider key',
         duration: Date.now() - start,
       }
     }
@@ -356,8 +355,15 @@ async function performHealthChecks(): Promise<{
   ])
 
   // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Critical checks: Database, Authentication Engine, Memory Engine
+  const criticalNames = new Set(['Database stack', 'Authentication engine', 'Memory Engine'])
+  const errorChecks = checks.filter((c) => c.status === 'error')
+  const hasCriticalError = errorChecks.some((c) => criticalNames.has(c.name))
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalError
+    ? 'error'
+    : errorChecks.length > 0
+    ? 'degraded'
+    : 'ok'
 
   return {
     version: VERSION,
@@ -703,7 +709,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 10,
         messages: [
           {
