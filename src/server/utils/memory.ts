@@ -316,6 +316,32 @@ ${recentPlanLog.text}
 **Planner-Aligned Guidance:** The user declared this intention today. Consider probing how they're experiencing the pursuit of it, what their "feeling" state reveals, or whether their daily approach (their "how") is serving their intent. Connect Memory questions back to what they consciously chose to focus on.`
   }
 
+  // Soul context — QI·46 Calibration Loop: biofield check-ins as the emotional/soul signal
+  const GROUNDED_STATES = new Set([
+    'energized', 'calm', 'hopeful', 'fulfilled', 'grateful', 'content',
+    'peaceful', 'excited', 'grounded', 'focused', 'steady', 'flowing',
+  ])
+  let soulContext = ''
+  const recentCheckIns = logs
+    .filter(log => log.event === 'emotional_checkin')
+    .slice(0, 5)
+  if (recentCheckIns.length > 0) {
+    const states = recentCheckIns
+      .map(log => (log.metadata as any)?.emotionalState)
+      .filter(Boolean)
+    const groundedCount = states.filter(s => GROUNDED_STATES.has(s)).length
+    const needsCareCount = states.length - groundedCount
+    const latest = states[0]
+    soulContext = `\n\n**Soul Signal (Biofield Calibration — most recent first):**
+${states.join(' -> ')}
+
+**Calibration Guidance:** This is the user's being, as they gave it to us. Their current signal is "${latest}". ${
+      needsCareCount > groundedCount
+        ? 'The recent trend needs care — meet them with warmth, not analysis. Land the question gently. One idea. No hedging.'
+        : 'The recent trend is grounded — meet them with presence and depth. Let the question honor the coherence already there.'
+    } Speak the way LOT speaks: direct, warm, poetry over jargon. Never generic. This is the next right thing for this body, on this day.`
+  }
+
   // Goal context - understand what user is working toward
   const userGoals = extractGoals(user, logs)
   const activeGoals = userGoals.filter(g => g.state === 'active' || g.state === 'progressing').slice(0, 3)
@@ -753,6 +779,13 @@ ${taskInstructions}
 - The question should deepen understanding of their self-care habits, daily routines, and preferences
 - Each answer helps build a richer, multi-dimensional narrative about who they are
 
+**LOT Voice Grammar (QI·46 calibration):**
+- No hedging language ("I think," "perhaps," "it might be")
+- No clinical distance — land in the body, not the head
+- One idea per question. Density over sprawl.
+- Never explain what you are doing. Do it.
+- Grace over cleverness, presence over generic advice — the next right thing for this body, on this day.
+
 ${userStory}
 
 ${contextLine ? 'Current context to consider:' : ''}
@@ -767,12 +800,13 @@ Recent activity logs (for additional context):
   `.trim()
   const formattedLogs = logs.map(formatLog).filter(Boolean).join('\n\n')
 
-  const fullPrompt = head + quantumContext + plannerContext + goalContext + '\n\n' + formattedLogs
+  const fullPrompt = head + quantumContext + plannerContext + soulContext + goalContext + '\n\n' + formattedLogs
 
   console.log(`📨 Prompt built: ${fullPrompt.length} chars total`)
   console.log(`   - Head section: ${head.length} chars`)
   console.log(`   - Quantum context: ${quantumContext.length} chars`)
   console.log(`   - Planner context: ${plannerContext.length} chars${recentPlanLog ? ' (plan found)' : ''}`)
+  console.log(`   - Soul context: ${soulContext.length} chars (${recentCheckIns.length} check-ins)`)
   console.log(`   - Goal context: ${goalContext.length} chars`)
   console.log(`   - Formatted logs: ${formattedLogs.length} chars (${logs.map(formatLog).filter(Boolean).length} logs)`)
   console.log(`   - User story included: ${userStory.length > 0 ? 'YES' : 'NO'}`)

@@ -1073,11 +1073,76 @@ The machine learns from the corpus. The corpus was built by the body. The body i
 
 ---
 
-*QI·46 Engine Specification — v0.2*
+## IX. ASSEMBLY LOG — LIVE NODES
+
+*Everything above this line is specification. Below is what has actually been
+built and shipped, in order. This section is append-only — each node is a
+fact, not a plan.*
+
+---
+
+### NODE 0 — The Soul Signal (Biofield Calibration Loop, live)
+
+**Shipped:** 2 July 2026 · Session LOT-SR-20260702-01
+
+QI·46 does not yet have its own fine-tuned model, its own Droplet, or its own
+`/v1/inference` endpoint. Phase 0–4 above remain the roadmap. But the
+Calibration Loop described in Layer 1 already has one real, working signal
+path, and Node 0 is the act of naming it correctly and extending it toward
+QI·46's actual voice grammar — the substrate the future model will be
+fine-tuned on.
+
+**What already exists (pre-dates QI·46 naming):**
+- The Biofield Check-In widget (`EmotionalCheckIn.tsx`) captures a
+  subscriber's emotional state — their being, as they give it to the
+  platform — and persists it server-side as a `Log{ event: 'emotional_checkin' }`.
+- The Memory Engine's `buildPrompt()` (`src/server/utils/memory.ts`) already
+  assembles a context vector from planner intent, goals, and quantum state
+  before every AI inference call — this *is* the Calibration Loop, running
+  today, on the current AI engine stack (Together AI primary, Claude/others
+  fallback), ahead of QI·46's own fine-tuned model.
+
+**What Node 0 adds:**
+- **Soul Signal block** — `buildPrompt()` now reads the subscriber's 5 most
+  recent biofield check-ins and synthesizes them into a dedicated calibration
+  block (grounded trend vs. needs-care trend), inserted into the prompt
+  immediately after Planner Context. This is the first extraction of "the
+  engine based on people's soul and emotions" the corpus already had the
+  data for — it just wasn't being read as a signal.
+- **LOT Voice Grammar block** — the persona head in `buildPrompt()` now
+  carries an explicit instruction set matching Layer III's Response Grammar:
+  no hedging, land in the body not the head, one idea per response, presence
+  over generic advice. This is the calibration of humanoid output toward the
+  LOT register — grace and directness over clinical distance — using the
+  voice constraints Vadik already wrote into this document.
+
+**What Node 0 does not claim:** no fine-tuning has occurred, no new model
+weights exist, no COSMO® node has been wired. The "soul and emotion" signal
+is real subscriber data already flowing through the platform; what changed
+is that it is now read into every inference call and the response voice is
+now explicitly constrained toward LOT's grammar. This is Phase 0 in
+substance (a real, tagged signal path fit for eventual corpus use) delivered
+inside the current stack rather than a standalone training pipeline.
+
+**Open naming conflict (flag for Vadik):** the LOT-BENCHMARK lexicon already
+carries a token `QI` — the operator's `/qi` RFI terminal (since 2026-06-05),
+unrelated to this engine. `QI·46` and `QI` will read as the same word in any
+unstyled context (chat, voice, external licensing copy). Recommend either the
+interpunct stays mandatory in all external copy, or the RFI terminal token is
+renamed before QI·46 reaches subscriber-facing surfaces.
+
+**Next node:** wire `chakraErgonomics` (currently client-only, localStorage,
+never reaches the server) into a persisted signal — the seven-chakra model
+is a richer soul-state read than the six discrete emotional states currently
+captured, but it does not yet reach the Calibration Loop.
+
+---
+
+*QI·46 Engine Specification — v0.3*
 *LOT Systems Corporation — Los Angeles, CA*
 *institute.lot-systems.com*
 *Authored by Vadik · Named for Kuzya*
-*Updated: May 27, 2026*
+*Updated: July 2, 2026 — Node 0 live*
 
 ---
 
