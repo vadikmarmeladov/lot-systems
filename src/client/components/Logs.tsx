@@ -28,11 +28,11 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, parseEmailCommand, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendMail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -233,6 +233,30 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COMM:" blockView>
                 ACK{'\n'}{log.metadata.message as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'email_sent') {
+          const receiverName = log.metadata?.receiverName as string | undefined
+          const message = log.metadata?.message as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                {receiverName && (
+                  <div className="uppercase tracking-widest mb-4">TO: {receiverName}</div>
+                )}
+                {message && <div className="opacity-60">{message}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'email_failed') {
+          const recipientName = log.metadata?.recipientName as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL [FAILED]:" blockView>
+                <div className="opacity-40">
+                  {recipientName ? `No Cohort connection named "${recipientName}"` : 'Recipient not found'}
+                </div>
               </Block>
             </LogContainer>
           )
@@ -1862,6 +1886,19 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [mailResult, setMailResult] = React.useState<string | null>(null)
+  const [mailLoading, setMailLoading] = React.useState(false)
+  const { mutate: submitMail } = useSendMail({
+    onSuccess: (data) => {
+      setMailResult(`✉ SENT → ${data.receiverName || 'recipient'}`)
+      setMailLoading(false)
+    },
+    onError: (error: any) => {
+      const serverMessage = error?.response?.data?.error
+      setMailResult(serverMessage || '✉ MAIL FAILED — recipient not in your Cohort.')
+      setMailLoading(false)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -2274,6 +2311,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Send LOT Mail to a Cohort connection',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -2298,6 +2336,13 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'lot-mail') {
+        const parsed = parseEmailCommand(value)
+        if (parsed && parsed.recipientName && parsed.message && !mailLoading) {
+          setMailLoading(true)
+          setMailResult(null)
+          submitMail({ recipientName: parsed.recipientName, message: parsed.message })
         }
       }
     }
@@ -2480,6 +2525,18 @@ const NoteEditor = ({
                 <div className="opacity-60 italic">
                   {prayerResponse}
                 </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {(mailLoading || mailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              {mailLoading && !mailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Sending...</div>
+              )}
+              {mailResult && (
+                <div className="opacity-60">{mailResult}</div>
               )}
             </Block>
           </div>

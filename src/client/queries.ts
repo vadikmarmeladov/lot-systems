@@ -120,6 +120,14 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+// LOT Mail — "/email to <Name>" from the Log. Rides the direct-message
+// rail; recipientName is resolved server-side against the sender's
+// Cohort Dating / LOT Community matches.
+export const useSendMail = createMutation<
+  { recipientName: string; message: string },
+  { id: string; receiverId: string; receiverName: string; message: string; createdAt: string }
+>('post', '/api/mail')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

@@ -41,6 +41,7 @@ export type LogTrigger =
   | 'system-help'       // /system — list all available slash commands
   | 'story-mode'        // /story — generate contextual story from recent data
   | 'how-checkin'       // /how — open LOT AI check-in (navigates to System tab)
+  | 'lot-mail'          // ✉ or /email to <Name> — send LOT Mail to a Cohort connection
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -67,6 +68,7 @@ const RULES: TriggerRule[] = [
   { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'] },
   { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'] },
   { trigger: 'how-checkin',    emojis: [],        keywords: ['how'] },
+  { trigger: 'lot-mail',       emojis: ['✉️', '✉'], keywords: ['email', 'mail'] },
 ]
 
 /**
@@ -114,4 +116,21 @@ export function detectNewTriggers(
   const fresh: LogTrigger[] = []
   current.forEach(t => { if (!prior.has(t)) fresh.push(t) })
   return fresh
+}
+
+/**
+ * Parses "/email to <Name> <message>" (also accepts /mail, ✉️). The
+ * recipient is the first word after "to"; everything remaining — same
+ * line or the lines below it — is the message body. Returns null when
+ * the command has no recipient yet (user is still typing).
+ */
+export function parseEmailCommand(
+  text: string
+): { recipientName: string; message: string } | null {
+  const match = text.match(/\/(?:email|mail)\s+to\s+([A-Za-z][\w'-]*)\s*([\s\S]*)/i)
+  if (!match) return null
+  return {
+    recipientName: match[1],
+    message: match[2].replace(/^[:.,\-\s]+/, '').trim(),
+  }
 }

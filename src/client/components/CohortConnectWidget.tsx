@@ -123,7 +123,10 @@ export const CohortConnectWidget: React.FC = () => {
       connectionReadiness,
       hour: new Date().getHours()
     })
-    stores.goTo('sync')
+    // Straight to the LOT Mail / direct-message thread with this match —
+    // "Send message" from Cohort Dating should open the conversation, not
+    // just the general Sync feed.
+    stores.goTo('dm', { userId })
   }
 
   const handleToggleExpand = (userId: string) => {

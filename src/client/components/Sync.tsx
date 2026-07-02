@@ -12,6 +12,7 @@ import { useQueryClient } from 'react-query'
 import * as stores from '#client/stores'
 import { $featureUnlocks } from '#client/stores/evolution'
 import {
+  Block,
   Button,
   Clock,
   GhostButton,
@@ -43,6 +44,17 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Mail — live ✉ notices for direct messages sent/received while this
+  // tab is open. Mail rides the same direct_message SSE channel as the
+  // /dm thread; this is the "new messages appear in Sync" surface.
+  const [mailNotices, setMailNotices] = React.useState<Array<{
+    id: string
+    counterpartId: string
+    counterpartName: string
+    message: string
+    createdAt: string
+    direction: 'in' | 'out'
+  }>>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -101,11 +113,36 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeDirectMessageListener } = sync.listen(
+      'direct_message',
+      (data: any) => {
+        const isIncoming = data.receiverId === me?.id
+        const isOutgoing = data.senderId === me?.id
+        if (!isIncoming && !isOutgoing) return
+        setMailNotices((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          const notice = {
+            id: data.id,
+            counterpartId: isIncoming ? data.senderId : data.receiverId,
+            counterpartName: isIncoming ? (data.senderName || 'Someone') : 'sent',
+            message: data.message,
+            createdAt: data.createdAt,
+            direction: (isIncoming ? 'in' : 'out') as 'in' | 'out',
+          }
+          return [notice, ...prev].slice(0, 20)
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeDirectMessageListener()
     }
   }, [me?.id])
+
+  const onOpenMailThread = React.useCallback((userId: string) => () => {
+    stores.goTo('dm', { userId })
+  }, [])
 
   const onChangeMessage = React.useCallback((value: string) => {
     setMessage(value)
@@ -191,6 +228,27 @@ export const Sync = React.memo(function SyncInner() {
           </div>
         </form>
       </div>
+
+      {mailNotices.length > 0 && (
+        <div className="mb-40">
+          <Block label="MAIL:" blockView>
+            <div className="space-y-8">
+              {mailNotices.map((notice) => (
+                <div
+                  key={notice.id}
+                  className="cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
+                  onClick={onOpenMailThread(notice.counterpartId)}
+                >
+                  <span className="opacity-30 mr-8">
+                    {notice.direction === 'in' ? notice.counterpartName : 'You →'}
+                  </span>
+                  {notice.message}
+                </div>
+              ))}
+            </div>
+          </Block>
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

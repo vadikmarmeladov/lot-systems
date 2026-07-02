@@ -386,6 +386,14 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'direct_message': {
+          // Private — only relay to the two parties in the thread (covers
+          // LOT Mail, which rides on the same direct_message channel).
+          if (data.senderId === req.user.id || data.receiverId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
       }
     })
 
@@ -1065,6 +1073,8 @@ export default async (fastify: FastifyInstance) => {
       'vitality_strategy_peak',
       // Story generation
       'generated_story',
+      // LOT Mail — "/email to <Name>" from the Log
+      'email_sent', 'email_failed',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -3063,83 +3073,69 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     }
   })
 
+  // Resolve a user's LOT Community / Cohort Dating matches — the shared
+  // "who am I connected to" lookup behind both /cohorts (browse) and
+  // /mail (send). Kept in one place so the two surfaces never disagree
+  // about who counts as a connection.
+  const resolveCohortMatches = async (user: any) => {
+    const { User } = await import('#server/models/user')
+    const { Log } = await import('#server/models/log')
+
+    const userLogs = await Log.findAll({
+      where: { userId: user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 100
+    })
+    if (userLogs.length < 10) return { matches: [] as Awaited<ReturnType<typeof findCohortMatches>>, yourPatterns: [] as PatternInsight[] }
+
+    const userPatterns = await analyzeUserPatterns(user, userLogs)
+    if (userPatterns.length === 0) return { matches: [] as Awaited<ReturnType<typeof findCohortMatches>>, yourPatterns: [] as PatternInsight[] }
+
+    const allUsers = await User.findAll({
+      where: {
+        city: { [Op.not]: null },
+        country: { [Op.not]: null },
+        id: { [Op.not]: user.id }
+      },
+      attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata'],
+      order: [['lastSeenAt', 'DESC']],
+      limit: 200,
+    })
+
+    const patternCache = new Map<string, PatternInsight[]>()
+    const getUserPatterns = async (userId: string): Promise<PatternInsight[]> => {
+      if (patternCache.has(userId)) return patternCache.get(userId)!
+      const logs = await Log.findAll({ where: { userId }, order: [['createdAt', 'DESC']], limit: 100 })
+      const candidate = allUsers.find((u: any) => u.id === userId)
+      if (!candidate || logs.length < 5) return []
+      const patterns = await analyzeUserPatterns(candidate, logs)
+      patternCache.set(userId, patterns)
+      return patterns
+    }
+
+    const matches = await findCohortMatches(user, userPatterns, allUsers, getUserPatterns)
+    return { matches, yourPatterns: userPatterns }
+  }
+
   // Find cohort matches
   fastify.get('/cohorts', async (req, reply) => {
     try {
-      const { User } = await import('#server/models/user')
-      const { Log } = await import('#server/models/log')
+      const { matches, yourPatterns } = await resolveCohortMatches(req.user)
 
-      // Get current user's patterns
-      const userLogs = await Log.findAll({
-        where: { userId: req.user.id },
-        order: [['createdAt', 'DESC']],
-        limit: 100
-      })
-
-      if (userLogs.length < 10) {
+      if (yourPatterns.length === 0) {
         return {
           matches: [],
-          message: 'Keep building your journey! Cohort matching available after 10+ entries.'
+          message: matches.length === 0 && yourPatterns.length === 0
+            ? 'Keep building your journey! Cohort matching available after 10+ entries.'
+            : 'No clear patterns yet. Continue your practice!'
         }
       }
-
-      const userPatterns = await analyzeUserPatterns(req.user, userLogs)
-
-      if (userPatterns.length === 0) {
-        return {
-          matches: [],
-          message: 'No clear patterns yet. Continue your practice!'
-        }
-      }
-
-      // Get recent active users with location data (for cohort matching)
-      const allUsers = await User.findAll({
-        where: {
-          city: { [Op.not]: null },
-          country: { [Op.not]: null },
-          id: { [Op.not]: req.user.id }
-        },
-        attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata'],
-        order: [['lastSeenAt', 'DESC']],
-        limit: 200,
-      })
-
-      // Cache for pattern lookups (to avoid re-analyzing same user)
-      const patternCache = new Map<string, PatternInsight[]>()
-
-      const getUserPatterns = async (userId: string): Promise<PatternInsight[]> => {
-        if (patternCache.has(userId)) {
-          return patternCache.get(userId)!
-        }
-
-        const logs = await Log.findAll({
-          where: { userId },
-          order: [['createdAt', 'DESC']],
-          limit: 100
-        })
-
-        const user = allUsers.find((u: any) => u.id === userId)
-        if (!user || logs.length < 5) {
-          return []
-        }
-
-        const patterns = await analyzeUserPatterns(user, logs)
-        patternCache.set(userId, patterns)
-        return patterns
-      }
-
-      const matches = await findCohortMatches(
-        req.user,
-        userPatterns,
-        allUsers,
-        getUserPatterns
-      )
 
       console.log(`👥 Found ${matches.length} cohort matches for user ${req.user.id}`)
 
       return {
         matches,
-        yourPatterns: userPatterns.slice(0, 3), // Share top 3 patterns for context
+        yourPatterns: yourPatterns.slice(0, 3), // Share top 3 patterns for context
         lastAnalyzedAt: new Date().toISOString()
       }
 
@@ -3908,6 +3904,101 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // ============================================================================
+  // LOT MAIL — "/email to <Name>" from the Log. Simplest possible email: no
+  // inbox, no compose screen. It rides the existing DirectMessage rail, so a
+  // sent mail is a direct message and appears anywhere direct messages do
+  // (Sync's live feed, the /dm thread). The only new thing mail adds is name
+  // resolution: recipients are matched by first name against the sender's
+  // LOT Community / Cohort Dating connections, not the whole user base —
+  // mail only reaches people you're already matched with.
+  // ============================================================================
+  fastify.post('/mail', async (req: FastifyRequest<{
+    Body: { recipientName: string; message: string }
+  }>, reply) => {
+    try {
+      const recipientName = (req.body.recipientName || '').trim()
+      const message = (req.body.message || '').trim()
+
+      if (!recipientName || !message) {
+        return reply.status(400).send({ error: 'Recipient name and message are required' })
+      }
+
+      const { matches } = await resolveCohortMatches(req.user)
+      const match = matches.find(
+        (m) => m.user.firstName.toLowerCase() === recipientName.toLowerCase()
+      )
+
+      if (!match) {
+        process.nextTick(async () => {
+          try {
+            const context = await getLogContext(req.user)
+            await fastify.models.Log.create({
+              userId: req.user.id,
+              event: 'email_failed',
+              text: '',
+              metadata: { recipientName },
+              context,
+            })
+          } catch (logError) {
+            console.error('Error logging failed LOT Mail:', logError)
+          }
+        })
+        return reply.status(404).send({
+          error: `No Cohort connection named "${recipientName}" found. LOT Mail only reaches your matched Community.`,
+        })
+      }
+
+      const directMessage = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: match.user.id,
+        message: message.slice(0, 2000),
+      })
+
+      sync.emit('direct_message', {
+        id: directMessage.id,
+        senderId: req.user.id,
+        receiverId: match.user.id,
+        message: directMessage.message,
+        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        createdAt: directMessage.createdAt,
+      })
+
+      const receiverName = `${match.user.firstName} ${match.user.lastName}`.trim()
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'email_sent',
+            text: '',
+            metadata: {
+              directMessageId: directMessage.id,
+              receiverId: match.user.id,
+              receiverName,
+              message: directMessage.message,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging LOT Mail:', logError)
+        }
+      })
+
+      return reply.send({
+        id: directMessage.id,
+        receiverId: match.user.id,
+        receiverName,
+        message: directMessage.message,
+        createdAt: directMessage.createdAt,
+      })
+    } catch (error) {
+      console.error('Error sending LOT Mail:', error)
+      return reply.status(500).send({ error: 'Failed to send mail' })
     }
   })
 
