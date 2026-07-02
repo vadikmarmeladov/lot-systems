@@ -3,7 +3,7 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-27 (updated)
+DATE:     2026-07-02 (updated)
 ================================================================================
 
 Central catalog of all self-assembly routines across all branches.
@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
+Basics Tab       | claude/beautiful-johnson-t23f4u | (pending) | 1/1 | BEST   | 5     | +296   | BASICS M1: OPEN TAB live — cherry-picked from 6815f550, rebased clean onto current master tip, green-gated
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
@@ -88,8 +88,8 @@ determined-turing| 6     | f6bw7r            | 5     | LOT Mail iterations (late
 dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations (SUPERSEDED by brave-lamport)
 brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
 gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
-nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson)
-beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (latest series)
+nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson-t23f4u)
+beautiful-johnson| 3     | 56p7ov, t23f4u    | 1     | Basics Tab iterations — t23f4u is the ship line (56p7ov's M1 commit cherry-picked clean onto current master tip, 2026-07-02)
 gracious-gauss   | 7     | WnL0k             | 6     | QI-46 Engine iterations (SUPERSEDED by cool-tesla)
 upbeat-faraday   | 2     | xviFF             | 1     | Badge RPG iterations (SUPERSEDED by cool-hypatia)
 inspiring-volta  | 6     | 2hmidy            | 5     | Health check iterations
@@ -180,17 +180,23 @@ PROTECTED FILES (always restore from master during any branch merge):
   docs/benchmark/LOT-MANIFEST.md      — session-managed, never merge from branch
 
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
-  LOT Mail         | determined-turing-f6bw7r  | +504 lines
-  Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
-  Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
-  QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
-  COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
-  Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
+  LOT Mail         | determined-turing-f6bw7r        | +504 lines
+  Basics Tab       | claude/beautiful-johnson-t23f4u | +296 lines
+  Calendar Alerts  | gifted-lovelace-cZOWR            | +359 lines
+  QI-46 Engine     | cool-tesla-f8j0mr                | +2050 lines
+  COSMO Hardware   | brave-lamport-t9z5u8              | +2610 lines
+  Badge RPG        | cool-hypatia-aqj7dg               | +1832 lines
 
-NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
-they were incorporated into master in prior sessions. The ship queue will be
-re-populated as new BEST branches are designated from future assembly runs.
-The protocol above applies to all future merges.
+NOTE (correction, 2026-07-02): the 2026-06-27 note below claiming these
+branches "no longer exist on the remote" was wrong for at least Basics Tab —
+beautiful-johnson-56p7ov was still on the remote, unmerged, master had zero
+Basics tab code, and a second competing implementation was nearly started
+from scratch this session before the manifest was checked. Verify remote
+branch existence (`git ls-remote --heads origin <branch>`) before trusting
+this queue's "already shipped" assumptions. The Basics Tab row above is now
+current: 56p7ov's M1 commit is cherry-picked onto claude/beautiful-johnson-
+t23f4u, itself built from current master tip, green-gated, ready to cherry-
+pick straight onto master with no further rebase.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.

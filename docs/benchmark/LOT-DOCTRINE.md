@@ -207,3 +207,28 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Duplicate-Work Guard (check MANIFEST before building)
+
+Before starting any feature build, grep the live repo for the feature name
+and check MANIFEST for an existing BEST branch — then verify that branch
+still exists on the remote (`git ls-remote --heads origin <branch>`) rather
+than trusting the manifest's own "already shipped" notes at face value.
+MANIFEST entries can go stale: a branch marked BEST and "awaiting Sunday
+merge" can sit unmerged indefinitely while master accumulates unrelated
+history, so master having zero trace of a feature does not mean the BEST
+branch is gone — check the remote, not just master's tree.
+
+When a live BEST branch exists, cherry-pick the specific commit(s), not the
+whole branch — SHIP MODE already establishes this, but it bears restating:
+a feature branch cut before a master rollback or a long-lived parallel
+history (e.g. hundreds of unmerged wiki/badge commits) will show as a wall
+of unrelated deletions in a raw `git diff master branch`. That is not
+evidence the feature commit itself is unsafe to bring forward — isolate the
+one commit and cherry-pick it; resolve only the conflicts that commit
+actually introduces.
+(SR-20260702-01: Basics Tab had two unmerged competing iteration lines
+(nifty-allen-*, beautiful-johnson-56p7ov) sitting in the ship queue while
+master had no Basics tab code at all. beautiful-johnson-56p7ov's single M1
+commit was cherry-picked clean onto the current ship line instead of a third
+implementation being authored from scratch.)
