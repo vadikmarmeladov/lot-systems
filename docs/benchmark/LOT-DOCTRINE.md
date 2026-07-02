@@ -36,7 +36,10 @@ deferred to allow immediate visual response.)
 
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
-(SR-20260604-01: calendar_entry saved but never returned.)
+(SR-20260604-01: calendar_entry saved but never returned. SR-20260612-05,
+SR-20260622-03: same class of fix, +17 and signal_momentum respectively.
+SR-20260702-01: email_sent/email_failed added proactively before push —
+4th citation, doctrine caught it before it shipped broken.)
 
 ## Ship Mode Discipline
 
