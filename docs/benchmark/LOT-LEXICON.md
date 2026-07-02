@@ -40,4 +40,10 @@ EVE:               Evening Coherence Close — log block label for evening-coher
 DIURNAL ARC        P76→P79→P80 behavioral arc: morning launch → evening close → sustained momentum lock     B  20260621
 MOM:               Momentum Lock — log block label for signal_momentum events (5+ days, 3+ sources)         B  20260621
 MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
+COMP:              Action Completion Arc — log block label; intention set AND plan recorded same 24h window   B  20260702
+BRES:              Biological Restoration Peak — log block label; selfcare + depleted→moderate/high energy arc B  20260702
+CENT:              Centennial Convergence — log block label; P100 milestone; all 6 primary sources + high energy + positive mood within 12h  B  20260702
+ACTION-COMPLETION-ARC  QIE P98 — intention signal + planner/goal signal in same 24h; intent becomes structure  B  20260702
+BIOLOGICAL-RESTORATION-PEAK  QIE P99 — 3+ selfcare signals + depleted prior energy + moderate/high today; recovery arc complete  B  20260702
+CENTENNIAL-CONVERGENCE  QIE P100 — rarest system state; all 6 primary sources active + high energy + positive mood within 12h; milestone  B  20260702
 ```

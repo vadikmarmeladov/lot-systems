@@ -2230,6 +2230,63 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 98: Action-completion-arc — intention set AND planner/goal recorded in same 24h window.
+  // Resolution of P95. The gap is closed. Intention has become structure.
+  const p98Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p95Cut)
+  const p98Plans      = signals.filter(s => (s.source === 'planner' || s.source === 'goals') && s.timestamp > p95Cut)
+  if (p98Intentions.length >= 1 && p98Plans.length >= 1) {
+    patterns.push({
+      pattern: 'action-completion-arc',
+      confidence: Math.min(0.65 + p98Plans.length * 0.07 + p98Intentions.length * 0.04, 0.82),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `COMPLETION ARC: ${p98Intentions.length} intention(s) → ${p98Plans.length} plan/goal in 24h. Gap closed. Intention is now structure.`,
+    })
+  }
+
+  // Pattern 99: Biological-restoration-peak — depleted/low energy → 3+ selfcare acts → moderate/high energy same day.
+  // Full recovery arc completed within a single day. Biology rebounded.
+  const p99TodaySelfcare    = signals.filter(s => s.source === 'selfcare' && s.timestamp >= p96TodayStart.getTime())
+  const p99TodayHighEnergy  = signals.filter(s =>
+    s.source === 'energy' && s.timestamp >= p96TodayStart.getTime() &&
+    ((s.metadata?.level as string | undefined) === 'moderate' || (s.metadata?.level as string | undefined) === 'high' ||
+     (s.metadata?.band  as string | undefined) === 'moderate'  || (s.metadata?.band  as string | undefined) === 'high')
+  )
+  if (p99TodaySelfcare.length >= 3 && p96PriorEnergy.length >= 1 && p99TodayHighEnergy.length >= 1) {
+    patterns.push({
+      pattern: 'biological-restoration-peak',
+      confidence: Math.min(0.70 + p99TodaySelfcare.length * 0.05, 0.88),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `BIOL RESTORE: ${p99TodaySelfcare.length} selfcare signals — depleted/low → moderate/high today. Recovery arc complete.`,
+    })
+  }
+
+  // Pattern 100: Centennial Convergence — all 6 primary signal sources active with high energy + positive mood within 12h.
+  // Milestone pattern. The rarest and highest-coherence state in the QIE.
+  const p100Cut        = now - 12 * 60 * 60 * 1000
+  const p100Signals    = signals.filter(s => s.timestamp > p100Cut)
+  const p100Sources    = new Set(p100Signals.map(s => s.source))
+  const p100Primary    = ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood']
+  const p100AllActive  = p100Primary.every(src => p100Sources.has(src))
+  const p100HighEnergy = signals.some(s =>
+    s.source === 'energy' && s.timestamp > p100Cut &&
+    ((s.metadata?.level as string | undefined) === 'high' || (s.metadata?.band as string | undefined) === 'high')
+  )
+  const p100PosMood    = signals.some(s =>
+    s.source === 'mood' && s.timestamp > p100Cut &&
+    ['calm', 'energized', 'hopeful', 'excited', 'grateful', 'peaceful', 'fulfilled'].includes(s.signal)
+  )
+  if (p100AllActive && p100HighEnergy && p100PosMood) {
+    patterns.push({
+      pattern: 'centennial-convergence',
+      confidence: Math.min(0.82 + Math.max(0, p100Signals.length - 10) * 0.01, 0.97),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `CENTENNIAL: All 6 primary sources active · high energy · positive mood within 12h. P100 — rarest system state.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2259,6 +2316,7 @@ export function analyzeIntentions(): IntentionPattern[] {
     setTimeout(() => {
       try { checkIntentionVelocity() } catch {}
       try { checkSignalCoherencePeak() } catch {}
+      try { checkCentennialConvergence() } catch {}
       // Record QOS coherence every 20th analysis (sampled, not every time)
       if (signals.length % 20 === 0) {
         try { recordQOSCoherence() } catch {}
@@ -2777,6 +2835,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Intent gap + recovery initiation monitors (2026-07-01 audit)
   intentGapMonitor:         ['intentions', 'planner', 'goals', 'log'],
   recoveryInitiator:        ['selfcare', 'mood', 'energy', 'log'],
+
+  // ── Action completion + biological restoration + centennial convergence (2026-07-02 audit)
+  actionCompletionArc:      ['intentions', 'planner', 'goals', 'log'],
+  biologicalRestorationNode:['selfcare', 'mood', 'energy', 'log'],
+  centennialConvergenceNode:['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood', 'energy'],
 }
 
 /**
@@ -4269,4 +4332,75 @@ export function recordCognitiveVitalitySync(journalWords: number, memoryCount: n
     window: '24h',
     hour: new Date().getHours(),
   })
+}
+
+/**
+ * Record an action-completion-arc signal — intention anchored into plan/goal in same 24h window.
+ * Feeds P98 detection. The gap from P95 is now closed.
+ */
+export function recordActionCompletion(intentionCount: number, planCount: number) {
+  recordSignal('intentions', 'action_completion_arc', {
+    intentionCount,
+    planCount,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a biological-restoration-peak signal — depleted/low → moderate/high energy via selfcare today.
+ * Feeds P99 detection. Full recovery arc completed in a single day.
+ */
+export function recordBiologicalRestoration(selfcareCount: number, fromBand: string, toBand: string) {
+  recordSignal('selfcare', 'biological_restoration_peak', {
+    selfcareCount,
+    fromBand,
+    toBand,
+    window: 'today',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a centennial-convergence signal — all 6 primary sources active, high energy, positive mood in 12h.
+ * Feeds P100 detection. Milestone pattern. The rarest system state.
+ */
+export function recordCentennialConvergence(activeSources: number, energyBand: string) {
+  recordSignal('energy', 'centennial_convergence', {
+    activeSources,
+    energyBand,
+    window: '12h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Check for centennial convergence and record if conditions are met.
+ * P100: all 6 primary sources active + high energy within 12h.
+ * Returns true if convergence signal was recorded.
+ */
+export function checkCentennialConvergence(): boolean {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const twelveHoursAgo = now - 12 * 60 * 60 * 1000
+
+  const windowSignals = state.signals.filter(s => s.timestamp > twelveHoursAgo)
+  const windowSources = new Set(windowSignals.map(s => s.source))
+  const primarySources = ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood']
+  const allActive = primarySources.every(src => windowSources.has(src))
+
+  const highEnergy = state.signals.some(s =>
+    s.source === 'energy' && s.timestamp > twelveHoursAgo &&
+    ((s.metadata?.level as string | undefined) === 'high' || (s.metadata?.band as string | undefined) === 'high')
+  )
+
+  const alreadyRecorded = state.signals.some(s =>
+    s.signal === 'centennial_convergence' && s.timestamp > twelveHoursAgo
+  )
+
+  if (allActive && highEnergy && !alreadyRecorded) {
+    recordCentennialConvergence(windowSources.size, 'high')
+    return true
+  }
+  return false
 }

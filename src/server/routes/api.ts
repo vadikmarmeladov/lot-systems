@@ -1089,6 +1089,10 @@ export default async (fastify: FastifyInstance) => {
       'intent_gap_pulse',
       'recovery_initiation',
       'cognitive_vitality_sync',
+      // v82: action completion arc · biological restoration peak · centennial convergence (P98/P99/P100)
+      'action_completion_arc',
+      'biological_restoration_peak',
+      'centennial_convergence',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

@@ -2174,6 +2174,92 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'action_completion_arc') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const planCount      = log.metadata?.planCount      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COMP:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                {planCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PLAN</span>
+                    <span className="tabular-nums">{planCount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATUS</span>
+                  <span>GAP CLOSED</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biological_restoration_peak') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const fromBand      = log.metadata?.fromBand      as string | undefined
+          const toBand        = log.metadata?.toBand        as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BRES:" blockView>
+                {selfcareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfcareCount}</span>
+                  </div>
+                )}
+                {fromBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FROM</span>
+                    <span className="capitalize">{fromBand}</span>
+                  </div>
+                )}
+                {toBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TO</span>
+                    <span className="capitalize">{toBand}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">ARC</span>
+                  <span>RESTORED</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'centennial_convergence') {
+          const activeSources = log.metadata?.activeSources as number | undefined
+          const energyBand    = log.metadata?.energyBand    as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CENT:" blockView>
+                {activeSources !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOURCES</span>
+                    <span className="tabular-nums">{activeSources}</span>
+                  </div>
+                )}
+                {energyBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ATP</span>
+                    <span className="capitalize">{energyBand}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">PATTERN</span>
+                  <span>P100</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATE</span>
+                  <span>CENTENNIAL</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
