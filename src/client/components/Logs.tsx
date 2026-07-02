@@ -2260,6 +2260,96 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'quantum_presence_arc') {
+          const activeChannels = log.metadata?.activeChannels as number | undefined
+          const totalSources   = log.metadata?.totalSources   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QPRES:" blockView>
+                {activeChannels !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CHANNELS</span>
+                    <span className="tabular-nums">{activeChannels}/6</span>
+                  </div>
+                )}
+                {totalSources !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOURCES</span>
+                    <span className="tabular-nums">{totalSources}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">WINDOW</span>
+                  <span>48H</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">PATTERN</span>
+                  <span>P101</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'planner_intention_sync') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const planCount      = log.metadata?.planCount      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PSYNC:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                {planCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PLAN</span>
+                    <span className="tabular-nums">{planCount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">WINDOW</span>
+                  <span>2H</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATUS</span>
+                  <span>SYNCED</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'resilience_cascade') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const memoryCount   = log.metadata?.memoryCount   as number | undefined
+          const fromBand      = log.metadata?.fromBand      as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RCASE:" blockView>
+                {fromBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ATP-FROM</span>
+                    <span className="capitalize">{fromBand}</span>
+                  </div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfcareCount}</span>
+                  </div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CAPTURE</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">ARC</span>
+                  <span>CLOSED</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

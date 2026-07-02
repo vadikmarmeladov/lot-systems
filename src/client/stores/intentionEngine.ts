@@ -2287,6 +2287,62 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 101: Quantum-presence-arc — all 6 primary sources active in a 48h window.
+  // Wider persistence window than P100 (12h). Tracks sustained operator presence across two days.
+  const p101Cut      = now - 48 * 60 * 60 * 1000
+  const p101Signals  = signals.filter(s => s.timestamp > p101Cut)
+  const p101Sources  = new Set(p101Signals.map(s => s.source))
+  const p101Primary  = ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood']
+  const p101AllActive = p101Primary.every(src => p101Sources.has(src))
+  if (p101AllActive) {
+    patterns.push({
+      pattern: 'quantum-presence-arc',
+      confidence: Math.min(0.70 + p101Sources.size * 0.02 + p101Signals.length * 0.005, 0.85),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `QPRES: ${p101Primary.length}/${p101Primary.length} primary channels active in 48h. ${p101Sources.size} total sources. Operator fully present.`,
+    })
+  }
+
+  // Pattern 102: Planner-intention-sync — intentions + plan_set both fire within a 2h window.
+  // Structural alignment: stated intention AND planned structure in the same session.
+  const p102Cut       = now - 2 * 60 * 60 * 1000
+  const p102Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p102Cut)
+  const p102Plans      = signals.filter(s => s.source === 'planner' && s.timestamp > p102Cut)
+  if (p102Intentions.length >= 1 && p102Plans.length >= 1) {
+    patterns.push({
+      pattern: 'planner-intention-sync',
+      confidence: Math.min(0.68 + p102Intentions.length * 0.04 + p102Plans.length * 0.04, 0.82),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `PSYNC: ${p102Intentions.length} intention(s) + ${p102Plans.length} plan(s) in 2h window. Intent and structure aligned.`,
+    })
+  }
+
+  // Pattern 103: Resilience-cascade — depleted/low energy → 2+ selfcare acts → memory capture + positive mood, all within 18h.
+  // Full inner recovery loop with knowledge capture. Extends P48 (recovery-velocity) to include knowledge consolidation.
+  const p103Cut       = now - 18 * 60 * 60 * 1000
+  const p103Depleted  = signals.filter(s =>
+    s.source === 'energy' && s.timestamp > p103Cut &&
+    ((s.metadata?.level as string | undefined) === 'depleted' || (s.metadata?.level as string | undefined) === 'low' ||
+     (s.metadata?.band  as string | undefined) === 'depleted'  || (s.metadata?.band  as string | undefined) === 'low')
+  )
+  const p103Selfcare  = signals.filter(s => s.source === 'selfcare' && s.timestamp > p103Cut)
+  const p103Memory    = signals.filter(s => s.source === 'memory' && s.timestamp > p103Cut)
+  const p103PosMood   = signals.some(s =>
+    s.source === 'mood' && s.timestamp > p103Cut &&
+    ['calm', 'energized', 'hopeful', 'excited', 'grateful', 'peaceful', 'content', 'fulfilled'].includes(s.signal)
+  )
+  if (p103Depleted.length >= 1 && p103Selfcare.length >= 2 && p103Memory.length >= 1 && p103PosMood) {
+    patterns.push({
+      pattern: 'resilience-cascade',
+      confidence: Math.min(0.70 + p103Selfcare.length * 0.04 + p103Memory.length * 0.04, 0.88),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `RCASE: ${p103Selfcare.length} selfcare · ${p103Memory.length} memory capture · positive mood · depleted→restored within 18h. Recovery + knowledge loop closed.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2840,6 +2896,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   actionCompletionArc:      ['intentions', 'planner', 'goals', 'log'],
   biologicalRestorationNode:['selfcare', 'mood', 'energy', 'log'],
   centennialConvergenceNode:['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood', 'energy'],
+
+  // ── Quantum presence arc + planner-intention sync + resilience cascade (2026-07-02 v83)
+  quantumPresenceArc:       ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood', 'energy'],
+  plannerIntentionSync:     ['planner', 'intentions', 'log'],
+  resilienceCascadeNode:    ['selfcare', 'mood', 'energy', 'memory', 'log'],
 }
 
 /**
@@ -2848,7 +2909,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * tracked separately in the physiological report log-dependency audit.
  */
 export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = [
-  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience', 'badges', 'calculator',
+  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience', 'badges', 'calculator', 'ecosystem',
 ]
 
 /** Returns which signal sources a given widget depends on. */
@@ -3138,6 +3199,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['selfcare', 'mood', 'log'],
     patternConditions: ['recovery-initiation', 'contextual-checkin-momentum', 'recovery-velocity'],
     directive: 'Fast-response calibration active. You engage. The system responds.',
+  },
+  {
+    archetype: 'Quantum Presence',
+    energyBands: ['moderate', 'high', 'low', 'unknown'],
+    dominantSources: ['intentions', 'journal', 'memory', 'selfcare', 'planner'],
+    patternConditions: ['quantum-presence-arc', 'centennial-convergence', 'cross-domain-mastery'],
+    directive: 'Full presence sustained. All six primary channels active across 48 hours. The system holds your complete signal field.',
   },
 ]
 
@@ -4403,4 +4471,43 @@ export function checkCentennialConvergence(): boolean {
     return true
   }
   return false
+}
+
+/**
+ * Record a quantum-presence-arc signal — all 6 primary sources active within 48h.
+ * Feeds P101 detection. Operator fully present across two days.
+ */
+export function recordQuantumPresenceArc(activeChannels: number, totalSources: number) {
+  recordSignal('energy', 'quantum_presence_arc', {
+    activeChannels,
+    totalSources,
+    window: '48h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a planner-intention-sync signal — intentions + plan_set within 2h window.
+ * Feeds P102 detection. Structural alignment confirmed.
+ */
+export function recordPlannerIntentionSync(intentionCount: number, planCount: number) {
+  recordSignal('planner', 'planner_intention_sync', {
+    intentionCount,
+    planCount,
+    window: '2h',
+  })
+}
+
+/**
+ * Record a resilience-cascade signal — depleted → selfcare → memory + positive mood in 18h.
+ * Feeds P103 detection. Recovery + knowledge loop closed.
+ */
+export function recordResilienceCascade(selfcareCount: number, memoryCount: number, fromBand: string) {
+  recordSignal('selfcare', 'resilience_cascade', {
+    selfcareCount,
+    memoryCount,
+    fromBand,
+    window: '18h',
+    arc: 'complete',
+  })
 }

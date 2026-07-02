@@ -1678,6 +1678,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyIntentGapPulse()) {
     await executeDailyIntentGapPulse()
   }
+  // Check daily quantum presence check (18:00 UTC every day) — Job 32
+  if (shouldRunDailyQuantumPresenceCheck()) {
+    await executeDailyQuantumPresenceCheck()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -1756,6 +1760,106 @@ async function executeDailyIntentGapPulse(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily intent gap pulse failed:', error.message)
     isDailyIntentGapRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Quantum Presence Check (Job 32 — 18:00 UTC every day) ─────────────
+// Reads 48h logs per user. Checks if all 6 primary signal sources fired.
+// Writes quantum_presence_arc when all 6 channels active.
+
+let isDailyQuantumPresenceRunning = false
+let lastDailyQuantumPresenceRun: Date | null = null
+
+function shouldRunDailyQuantumPresenceCheck(): boolean {
+  const now = dayjs()
+  if (isDailyQuantumPresenceRunning) return false
+  if (lastDailyQuantumPresenceRun) {
+    const lastRun = dayjs(lastDailyQuantumPresenceRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 18 // 18:00 UTC daily
+}
+
+async function executeDailyQuantumPresenceCheck(): Promise<JobResult> {
+  const jobName = 'daily-quantum-presence-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyQuantumPresenceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyQuantumPresenceRunning = true
+
+  console.log('')
+  console.log('DAILY QUANTUM PRESENCE CHECK — 18:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const twoDaysAgo = dayjs().subtract(48, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: twoDaysAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    // Primary signal event types per channel
+    const PRIMARY_CHANNELS: Record<string, string[]> = {
+      journal:    ['note', 'journal_entry', 'field_entry'],
+      memory:     ['answer', 'memory_answer', 'weekly_summary_response'],
+      planner:    ['plan_set', 'planner_entry', 'calendar_entry'],
+      selfcare:   ['self_care_complete', 'self_care_completed', 'self_care_skip'],
+      intentions: ['intention', 'intention_set', 'daily_intention'],
+      mood:       ['emotional_checkin', 'mood_checkin', 'energy_checkin'],
+    }
+    const ALL_EVENTS = Object.values(PRIMARY_CHANNELS).flat()
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: twoDaysAgo },
+            event: { [Op.in]: ALL_EVENTS },
+          },
+          attributes: ['event'],
+          limit: 500,
+        })
+
+        const presentChannels = new Set<string>()
+        for (const log of recentLogs) {
+          for (const [channel, events] of Object.entries(PRIMARY_CHANNELS)) {
+            if (events.includes(log.event)) presentChannels.add(channel)
+          }
+        }
+
+        if (presentChannels.size === 6) {
+          await (Log as any).create({
+            userId,
+            event: 'quantum_presence_arc',
+            text: `Quantum presence arc: all 6 primary channels active in 48h window.`,
+            metadata: {
+              activeChannels: 6,
+              totalSources: presentChannels.size,
+              channels: [...presentChannels],
+              window: '48h',
+              hour: 18,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Quantum presence events written: ${written}`)
+    lastDailyQuantumPresenceRun = new Date()
+    isDailyQuantumPresenceRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily quantum presence check failed:', error.message)
+    isDailyQuantumPresenceRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

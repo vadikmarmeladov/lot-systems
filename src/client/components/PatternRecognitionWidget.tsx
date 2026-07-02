@@ -118,6 +118,21 @@ export function PatternRecognitionWidget() {
       'vitality-strategy-peak':     'Vitality strategy peak — biology + strategy aligned',
       'weekly-story-reflection':    'Weekly story reflection — arc received and journaled',
       'contextual-checkin-momentum':'Contextual check-in momentum — high-frequency positive signal',
+      'quantum-learning-spiral':    'Quantum learning spiral — discovery + memory + reflection loop',
+      'accountability-arc':         'Accountability arc — external commitment closed in reflection',
+      'full-presence-arc':          'Full presence arc — morning + evening arc confirmed',
+      'systemic-readiness-peak':    'Systemic readiness peak — biology + archetype + energy aligned',
+      'daily-rhythm-lock':          'Daily rhythm lock — consistent morning/evening cadence locked',
+      'cross-domain-mastery':       'Cross-domain mastery — memory + journal + badges + goals + plans all active',
+      'intent-to-action-gap':       'Intent-to-action gap — intention set with no follow-through',
+      'recovery-initiation':        'Recovery initiation — first selfcare after depleted state',
+      'cognitive-vitality-sync':    'Cognitive vitality sync — journal depth + memory capture at high energy',
+      'action-completion-arc':      'Action completion arc — intention resolved into plan/goal (P98)',
+      'biological-restoration-peak':'Biological restoration peak — depleted → restored via 3+ selfcare acts (P99)',
+      'centennial-convergence':     'CENTENNIAL CONVERGENCE — all 6 primary sources + high energy + positive mood (P100)',
+      'quantum-presence-arc':       'Quantum presence arc — all 6 channels active across 48 hours (P101)',
+      'planner-intention-sync':     'Planner-intention sync — intentions + plan aligned in 2h window (P102)',
+      'resilience-cascade':         'Resilience cascade — depleted → selfcare → capture + positive mood (P103)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -438,6 +453,48 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'contextual-checkin-momentum') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   High-frequency signal. Positive valence.
+                </div>
+              )}
+
+              {/* Action completion arc — P98 */}
+              {patterns.some(p => p.pattern === 'action-completion-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Intent → structure. Gap closed.
+                </div>
+              )}
+
+              {/* Biological restoration peak — P99 */}
+              {patterns.some(p => p.pattern === 'biological-restoration-peak') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Restoration arc complete. Biology rebounded.
+                </div>
+              )}
+
+              {/* Centennial convergence — P100 */}
+              {patterns.some(p => p.pattern === 'centennial-convergence') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  CENTENNIAL. All six channels + high energy. Rarest state.
+                </div>
+              )}
+
+              {/* Quantum presence arc — P101 */}
+              {patterns.some(p => p.pattern === 'quantum-presence-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Full presence sustained. 48h operator arc confirmed.
+                </div>
+              )}
+
+              {/* Planner-intention sync — P102 */}
+              {patterns.some(p => p.pattern === 'planner-intention-sync') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Intent and structure aligned. 2h sync confirmed.
+                </div>
+              )}
+
+              {/* Resilience cascade — P103 */}
+              {patterns.some(p => p.pattern === 'resilience-cascade') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Resilience cascade. Recovery + knowledge arc closed.
                 </div>
               )}
 

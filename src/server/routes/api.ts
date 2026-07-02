@@ -1093,6 +1093,10 @@ export default async (fastify: FastifyInstance) => {
       'action_completion_arc',
       'biological_restoration_peak',
       'centennial_convergence',
+      // v83: quantum presence arc · planner-intention sync · resilience cascade (P101/P102/P103)
+      'quantum_presence_arc',
+      'planner_intention_sync',
+      'resilience_cascade',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

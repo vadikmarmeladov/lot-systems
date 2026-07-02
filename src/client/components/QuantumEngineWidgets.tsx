@@ -63,6 +63,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'systemic-readiness-peak':     'SYS READY',
   'daily-rhythm-lock':           'RHYTHM LOCK',
   'cross-domain-mastery':        'CROSS DOMAIN',
+  'quantum-presence-arc':        'QPRES ARC',
+  'planner-intention-sync':      'PLAN-INTENT',
+  'resilience-cascade':          'RES CASCADE',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
