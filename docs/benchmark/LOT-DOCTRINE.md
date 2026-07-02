@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev M
+# LOT-DOCTRINE  rev N
 
 ## Render Isolation
 
@@ -207,3 +207,32 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Soul Signal (QI·46 Node 0 — Calibration Loop extension)
+
+Individual `emotional_checkin` logs were already rendered into raw log
+history by formatLog() (since SR-20260630-01), but the AI never received an
+*aggregate* read of the subscriber's current state — no block said "here is
+where this person is, calibrate to it." Node 0 adds that block: the 5 most
+recent check-ins, classified grounded vs. needs-care, inserted after
+plannerContext:
+
+  head + quantumContext + plannerContext + soulContext + goalContext + '\n\n' + formattedLogs
+
+Rule: any signal that already reaches the `logs` table but is only consumed
+per-entry (via formatLog's raw history) is a candidate for a dedicated
+aggregate context block if the *trend* across recent entries — not just the
+latest one — should shape the AI's response. formatLog() answers "what
+happened"; a dedicated *Context block answers "what does this mean right
+now." Both are needed; neither substitutes for the other.
+
+A second, separate addition: the persona head in buildPrompt() now carries
+an explicit LOT Voice Grammar block (no hedging, land in the body not the
+head, one idea per response, presence over generic advice) — translating
+the QI·46 spec's Layer III Response Grammar into the prompt that runs today,
+on the current AI engine stack, without waiting for a fine-tuned model.
+
+(SR-20260702-01: soulContext + LOT Voice Grammar added to buildPrompt();
+tsconfig.server.json ignoreDeprecations fix unblocked a silently-red
+server:build; naming collision between lexicon token `QI` and engine name
+`QI·46` flagged for S-2, unresolved.)
