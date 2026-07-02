@@ -99,7 +99,7 @@ npx tsc --noEmit -p tsconfig.json
 
 ## Phase 5 — Deploy
 
-**Commit:** `[LOT-ASSEMBLY] 2026-07-02 — QIE v82: P98/P99/P100 centennial convergence + pattern display polish`
+**Commit:** `b0eeed4` — `[LOT-ASSEMBLY] 2026-07-02 — QIE v82: P98/P99/P100 centennial convergence + pattern display polish`
 
 **Files committed:**
 1. `src/client/stores/intentionEngine.ts` — P98/P99/P100 + dep map + 4 exports
