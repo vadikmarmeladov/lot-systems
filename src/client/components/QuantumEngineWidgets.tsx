@@ -66,6 +66,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'quantum-presence-arc':        'QPRES ARC',
   'planner-intention-sync':      'PLAN-INTENT',
   'resilience-cascade':          'RES CASCADE',
+  'vitality-cascade':            'VIT CASCADE',
+  'social-presence-arc':         'SOC PRES',
+  'clarity-momentum-peak':       'CLAR PEAK',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

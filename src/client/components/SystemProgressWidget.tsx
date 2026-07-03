@@ -1086,6 +1086,22 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '103 patterns · 34 archetypes · 32 background jobs · 103+ handlers · 142+ dep nodes. Full presence loop closed.',
     ],
   },
+  {
+    date: '2026-07-03',
+    session: 'Self-Assembly Session — v84 / P104–P106 · Arch35 Vitality Architect · Arch36 Social Signal Operator · J33 Daily Vitality Cascade Pulse · VITAL-CAS: SOC-ARC: CLAR-PEAK: · Dep Map 145+',
+    assembled: [
+      'intentionEngine.ts: P104 vitality-cascade — high energy + 3+ selfcare acts + positive mood + journal entry in 24h. Proactive peak maintenance confirmed. Conf 0.78–0.90. suggestedWidget: selfcare.',
+      'intentionEngine.ts: P105 social-presence-arc — cohort signal + outreach message + intention in 48h. Social dimension fully active. Conf 0.70–0.85. suggestedWidget: cohort.',
+      'intentionEngine.ts: P106 clarity-momentum-peak — focused clarity + 2+ plans + 2+ memories + 2+ intentions in 24h. Cognitive performance at structural peak. Conf 0.80–0.92. suggestedWidget: memory.',
+      'intentionEngine.ts: Arch35 Vitality Architect — energyBands high+moderate · dominantSources selfcare+mood+energy · patternConditions vitality-cascade+care-momentum+biological-restoration-peak+biorhythm-lock. Directive: Sustained vitality confirmed. 35 archetypes total.',
+      'intentionEngine.ts: Arch36 Social Signal Operator — energyBands moderate+high · dominantSources cohort+intentions+journal · patternConditions social-presence-arc+accountability-arc+social-resonance-arc+intention-velocity. Directive: Social arc live. 36 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: vitalityCascadeNode (5 deps) · socialPresenceArcNode (5 deps) · clarityMomentumNode (5 deps). 145+ dep nodes total.',
+      'Logs.tsx: VITAL-CAS: handler (vitality_cascade: ATP band + CARE 24H count + CONF). SOC-ARC: handler (social_presence_arc: COHORT 48H + INTENT 48H + CONF). CLAR-PEAK: handler (clarity_momentum_peak: CLR state + PLAN 24H + MEM 24H + CONF). COCKPIT-RULE compliant. 106+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — vitality-cascade (VIT CASCADE) · social-presence-arc (SOC PRES) · clarity-momentum-peak (CLAR PEAK).',
+      'scheduled-jobs.ts: J33 daily-vitality-cascade-pulse — 15:00 UTC daily. Reads 24h logs per user. high energy + 3+ selfcare + positive mood + journal → writes vitality_cascade event. 33 background jobs total.',
+      '106 patterns · 36 archetypes · 33 background jobs · 106+ handlers · 145+ dep nodes. Vitality, social presence, and cognitive peak — three new arcs confirmed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1123,20 +1139,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-02',
+  date: '2026-07-03',
   message: [
-    'ASSEMBLY RUN — 2026-07-02 · LOT-SR-20260702-01',
-    'P101 quantum-presence-arc: all 6 primary channels active in 48h. Journal+memory+planner+selfcare+intentions+mood. Operator fully present. Conf 0.70–0.85.',
-    'P102 planner-intention-sync: intentions + planner within 2h. Intent and structure aligned. Conf 0.68–0.82.',
-    'P103 resilience-cascade: depleted → 2+ selfcare → memory + positive mood in 18h. Full restoration arc confirmed. Conf 0.70–0.88. 103 patterns total.',
-    'Arch34 Quantum Presence: all 6 primary channels dominant · quantum-presence-arc+centennial-convergence+cross-domain-mastery. Full presence sustained. 34 archetypes total.',
-    'J32 daily-quantum-presence-check: 18:00 UTC. Reads 48h logs. All 6 PRIMARY_CHANNELS → writes quantum_presence_arc. 32 background jobs total.',
-    'QPRES: PSYNC: RCASE: log handlers deployed. 103+ handlers total.',
-    'Dep map: 142+ nodes. 3 new: quantumPresenceArc + plannerIntentionSync + resilienceCascadeNode.',
-    'LOG_DEPENDENCY_SOURCES: 15→16 (ecosystem added).',
-    'Signal helpers: recordQuantumPresenceArc() + recordPlannerIntentionSync() + recordResilienceCascade().',
-    'displayableEvents: quantum_presence_arc + planner_intention_sync + resilience_cascade (v83 block).',
-    '103 patterns · 34 archetypes · 32 jobs · 103+ handlers · 142+ dep nodes. Full presence loop closed.',
+    'ASSEMBLY RUN — 2026-07-03 · LOT-SR-20260703-01',
+    'P104 vitality-cascade: high energy + 3+ selfcare acts + positive mood + journal in 24h. Proactive peak maintenance. Conf 0.78–0.90.',
+    'P105 social-presence-arc: cohort signal + outreach + intention in 48h. Social dimension fully active. Conf 0.70–0.85.',
+    'P106 clarity-momentum-peak: focused clarity + 2+ plans + 2+ memories + 2+ intentions in 24h. Cognitive peak confirmed. Conf 0.80–0.92. 106 patterns total.',
+    'Arch35 Vitality Architect: selfcare+mood+energy dominant · vitality-cascade+care-momentum+biological-restoration-peak. Sustained vitality confirmed. 35 archetypes.',
+    'Arch36 Social Signal Operator: cohort+intentions+journal dominant · social-presence-arc+accountability-arc+social-resonance-arc. Social arc live. 36 archetypes total.',
+    'J33 daily-vitality-cascade-pulse: 15:00 UTC daily. Reads 24h logs. high energy + 3+ selfcare + positive mood + journal → writes vitality_cascade. 33 background jobs total.',
+    'VITAL-CAS: SOC-ARC: CLAR-PEAK: log handlers deployed (COCKPIT-RULE). 106+ handlers total.',
+    'Dep map: 145+ nodes. 3 new: vitalityCascadeNode + socialPresenceArcNode + clarityMomentumNode.',
+    'PATTERN_DISPLAY: VIT CASCADE · SOC PRES · CLAR PEAK added to QOS widget.',
+    '106 patterns · 36 archetypes · 33 jobs · 106+ handlers · 145+ dep nodes. Vitality, social, cognitive — three new arcs confirmed.',
     'DEPLOYED.',
   ],
 }

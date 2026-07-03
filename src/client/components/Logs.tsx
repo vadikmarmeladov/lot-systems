@@ -523,6 +523,67 @@ export const Logs: React.FC = () => {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'vitality_cascade') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const energyBand = log.metadata?.energyBand as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="VITAL-CAS:" blockView>
+                {energyBand && (
+                  <div className="uppercase tracking-widest mb-4">ATP: {energyBand}</div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 24H: {selfcareCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'social_presence_arc') {
+          const cohortCount = log.metadata?.cohortCount as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOC-ARC:" blockView>
+                {cohortCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">COHORT 48H: {cohortCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT 48H: {intentionCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'clarity_momentum_peak') {
+          const clarity = log.metadata?.clarity as string | undefined
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CLAR-PEAK:" blockView>
+                {clarity && (
+                  <div className="uppercase tracking-widest mb-4">CLR: {clarity}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN 24H: {plannerCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 24H: {memoryCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

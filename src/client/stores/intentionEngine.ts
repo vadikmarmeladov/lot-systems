@@ -2343,6 +2343,67 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 104: Vitality Cascade — energy high + selfcare 3+ in 24h + positive mood + journal entry.
+  // Proactive peak maintenance: all biological systems tended simultaneously while at full capacity.
+  // Distinct from P99 (restoration from depleted) — P104 fires when already high and care momentum active.
+  const p104Cut       = now - 24 * 60 * 60 * 1000
+  const p104Selfcare  = signals.filter(s => s.source === 'selfcare' && s.timestamp > p104Cut)
+  const p104Journal   = signals.filter(s => s.source === 'journal'  && s.timestamp > p104Cut)
+  const p104PosMood   = signals.some(s =>
+    s.source === 'mood' && s.timestamp > p104Cut &&
+    ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled', 'excited', 'grateful'].includes(s.signal)
+  )
+  const p104HighEnergy = state.userState.energy === 'high'
+  if (p104HighEnergy && p104Selfcare.length >= 3 && p104PosMood && p104Journal.length >= 1) {
+    patterns.push({
+      pattern: 'vitality-cascade',
+      confidence: Math.min(0.78 + (p104Selfcare.length - 3) * 0.04, 0.90),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `VITAL CASCADE: High energy + ${p104Selfcare.length} selfcare acts + positive mood + journal — proactive peak maintenance. All biological systems tended at full capacity.`,
+    })
+  }
+
+  // Pattern 105: Social Presence Arc — cohort viewed + message/connection signal + intentions set
+  // all within 48h. Social dimension fully active: community + outreach + personal direction aligned.
+  // Complements P44 (social-resonance-arc) with a faster 48h window focused on direction, not reflection.
+  const p105Cut       = now - 48 * 60 * 60 * 1000
+  const p105Cohort    = signals.filter(s => s.source === 'cohort' && s.timestamp > p105Cut)
+  const p105Message   = signals.filter(s =>
+    (s.source === 'cohort' || s.source === 'log') && s.timestamp > p105Cut &&
+    (s.signal === 'message_sent' || s.signal === 'chat_message' || s.signal === 'connection_accepted' || s.signal === 'direct_message_sent')
+  )
+  const p105Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p105Cut)
+  if (p105Cohort.length >= 1 && p105Message.length >= 1 && p105Intentions.length >= 1) {
+    const p105Conf = Math.min(0.70 + p105Cohort.length * 0.04 + p105Intentions.length * 0.03, 0.85)
+    patterns.push({
+      pattern: 'social-presence-arc',
+      confidence: p105Conf,
+      suggestedWidget: 'cohort',
+      suggestedTiming: 'passive',
+      reason: `SOC ARC: ${p105Cohort.length} cohort signal(s) + ${p105Message.length} outreach + ${p105Intentions.length} intention(s) in 48h. Social dimension alive — community, connection, and direction all confirmed.`,
+    })
+  }
+
+  // Pattern 106: Clarity Momentum Peak — clarity=focused + planner 2+ + memory 2+ + intentions 2+ in 24h.
+  // Cognitive performance at structural peak: stated direction backed by both planning and knowledge capture.
+  // High confidence because it requires multi-system coherence: direction + structure + knowledge simultaneously.
+  const p106Cut        = now - 24 * 60 * 60 * 1000
+  const p106Planner    = signals.filter(s => s.source === 'planner'    && s.timestamp > p106Cut)
+  const p106Memory     = signals.filter(s => s.source === 'memory'     && s.timestamp > p106Cut)
+  const p106Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p106Cut)
+  const p106Focused    = state.userState.clarity === 'focused'
+  if (p106Focused && p106Planner.length >= 2 && p106Memory.length >= 2 && p106Intentions.length >= 2) {
+    const p106Conf = Math.min(0.80 + (p106Planner.length - 2) * 0.03 + (p106Memory.length - 2) * 0.03, 0.92)
+    patterns.push({
+      pattern: 'clarity-momentum-peak',
+      confidence: p106Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `CLAR PEAK: Focused clarity + ${p106Planner.length} plans + ${p106Memory.length} memories + ${p106Intentions.length} intentions in 24h. Cognitive peak confirmed — direction, structure, and knowledge all live simultaneously.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2901,6 +2962,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumPresenceArc:       ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood', 'energy'],
   plannerIntentionSync:     ['planner', 'intentions', 'log'],
   resilienceCascadeNode:    ['selfcare', 'mood', 'energy', 'memory', 'log'],
+
+  // ── Vitality cascade + social presence + clarity momentum peak nodes (2026-07-03 v84)
+  vitalityCascadeNode:      ['energy', 'selfcare', 'mood', 'journal', 'log'],
+  socialPresenceArcNode:    ['cohort', 'intentions', 'journal', 'memory', 'log'],
+  clarityMomentumNode:      ['planner', 'intentions', 'memory', 'energy', 'log'],
 }
 
 /**
@@ -3206,6 +3272,20 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['intentions', 'journal', 'memory', 'selfcare', 'planner'],
     patternConditions: ['quantum-presence-arc', 'centennial-convergence', 'cross-domain-mastery'],
     directive: 'Full presence sustained. All six primary channels active across 48 hours. The system holds your complete signal field.',
+  },
+  {
+    archetype: 'Vitality Architect',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['selfcare', 'mood', 'energy'],
+    patternConditions: ['vitality-cascade', 'care-momentum', 'biological-restoration-peak', 'biorhythm-lock'],
+    directive: 'Sustained vitality confirmed. Selfcare momentum active at peak capacity. Protect recovery rhythms — this is peak maintenance mode.',
+  },
+  {
+    archetype: 'Social Signal Operator',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['cohort', 'intentions', 'journal'],
+    patternConditions: ['social-presence-arc', 'accountability-arc', 'social-resonance-arc', 'intention-velocity'],
+    directive: 'Social arc live. Community, connection, and direction all confirmed in 48h. The signal is going out. Anchor the response.',
   },
 ]
 

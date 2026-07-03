@@ -1682,6 +1682,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyQuantumPresenceCheck()) {
     await executeDailyQuantumPresenceCheck()
   }
+  // Check daily vitality cascade pulse (15:00 UTC every day) — Job 33
+  if (shouldRunDailyVitalityCascadePulse()) {
+    await executeDailyVitalityCascadePulse()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -1860,6 +1864,108 @@ async function executeDailyQuantumPresenceCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily quantum presence check failed:', error.message)
     isDailyQuantumPresenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Vitality Cascade Pulse (Job 33 — 15:00 UTC every day) ─────────────
+// Reads active users' 24h logs. Confirms high energy + 3+ selfcare acts + positive
+// mood + journal entry. Writes vitality_cascade when all conditions met.
+
+let isDailyVitalityCascadeRunning = false
+let lastDailyVitalityCascadeRun: Date | null = null
+
+function shouldRunDailyVitalityCascadePulse(): boolean {
+  const now = dayjs()
+  if (isDailyVitalityCascadeRunning) return false
+  if (lastDailyVitalityCascadeRun) {
+    const lastRun = dayjs(lastDailyVitalityCascadeRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 15 // 15:00 UTC daily
+}
+
+async function executeDailyVitalityCascadePulse(): Promise<JobResult> {
+  const jobName = 'daily-vitality-cascade-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyVitalityCascadeRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyVitalityCascadeRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY VITALITY CASCADE PULSE — 15:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    const SELFCARE_EVENTS = ['self_care_complete', 'self_care_completed']
+    const POSITIVE_MOOD_SIGNALS = ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled', 'excited', 'grateful']
+    const JOURNAL_EVENTS = ['note', 'journal_entry', 'field_entry']
+    const ENERGY_EVENTS = ['energy_checkin', 'energy_set']
+    const MOOD_EVENTS = ['emotional_checkin', 'mood_checkin', 'mood_set']
+    const ALL_EVENTS = [...SELFCARE_EVENTS, ...JOURNAL_EVENTS, ...ENERGY_EVENTS, ...MOOD_EVENTS]
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: ALL_EVENTS },
+          },
+          attributes: ['event', 'metadata'],
+          limit: 500,
+        })
+
+        const selfcareLogs = recentLogs.filter((l: any) => SELFCARE_EVENTS.includes(l.event))
+        const journalLogs = recentLogs.filter((l: any) => JOURNAL_EVENTS.includes(l.event))
+        const hasPositiveMood = recentLogs.some((l: any) =>
+          MOOD_EVENTS.includes(l.event) &&
+          POSITIVE_MOOD_SIGNALS.includes(l.metadata?.mood ?? l.metadata?.signal ?? '')
+        )
+        const hasHighEnergy = recentLogs.some((l: any) =>
+          ENERGY_EVENTS.includes(l.event) &&
+          (l.metadata?.energy === 'high' || l.metadata?.level === 'high')
+        )
+
+        if (hasHighEnergy && selfcareLogs.length >= 3 && hasPositiveMood && journalLogs.length >= 1) {
+          const confidence = Math.min(0.78 + (selfcareLogs.length - 3) * 0.04, 0.90)
+          await (Log as any).create({
+            userId,
+            event: 'vitality_cascade',
+            text: `Vitality cascade: high energy + ${selfcareLogs.length} selfcare acts + positive mood + journal entry in 24h.`,
+            metadata: {
+              selfcareCount: selfcareLogs.length,
+              journalCount: journalLogs.length,
+              energyBand: 'high',
+              confidence,
+              window: '24h',
+              hour: 15,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Vitality cascade events written: ${written}`)
+    lastDailyVitalityCascadeRun = new Date()
+    isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily vitality cascade pulse failed:', error.message)
+    isDailyVitalityCascadeRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
