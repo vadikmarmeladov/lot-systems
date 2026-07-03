@@ -834,20 +834,35 @@ export default async (fastify: FastifyInstance) => {
   })
 
   fastify.get('/chat-messages', async (req: FastifyRequest, reply) => {
-    const messages = await fastify.models.ChatMessage.findAll({
-      order: [['createdAt', 'DESC']],
-      limit: req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW,
-    })
+    let messages: InstanceType<typeof fastify.models.ChatMessage>[] = []
+    try {
+      messages = await fastify.models.ChatMessage.findAll({
+        order: [['createdAt', 'DESC']],
+        limit: req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW,
+      })
+    } catch (err: any) {
+      console.error('chat-messages: findAll failed:', err?.message)
+      return []
+    }
+
+    if (messages.length === 0) return []
 
     const userIds = messages.map((m) => m.authorUserId)
-    const [users, allLikes] = await Promise.all([
-      fastify.models.User.findAll({
-        where: { id: userIds },
-      }),
-      fastify.models.ChatMessageLike.findAll({
-        where: { messageId: messages.map(fp.prop('id')) },
-      }),
-    ])
+    let users: InstanceType<typeof fastify.models.User>[] = []
+    let allLikes: InstanceType<typeof fastify.models.ChatMessageLike>[] = []
+    try {
+      ;[users, allLikes] = await Promise.all([
+        fastify.models.User.findAll({
+          where: { id: userIds },
+        }),
+        fastify.models.ChatMessageLike.findAll({
+          where: { messageId: messages.map(fp.prop('id')) },
+        }),
+      ])
+    } catch (err: any) {
+      console.error('chat-messages: author/likes lookup failed:', err?.message)
+    }
+
     const userById = users.reduce(fp.by('id'), {})
 
     // Only filter out messages from suspended users; messages from deleted accounts are kept
