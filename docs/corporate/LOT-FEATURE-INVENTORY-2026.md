@@ -207,6 +207,13 @@ Chat Catalyst                       AI conversation starters based on cohort    
 Direct Messages                     User-to-user DMs. 100 message history,            LIVE
                                     2000 char limit.
 
+LOT Mail                            /email to [Name] from Log opens an inline         LIVE
+                                    compose panel; resolves recipient by first
+                                    name across LOT Community. Delivered to a
+                                    Mail tab inside Sync — unread badge, real-time
+                                    via SSE. Cohort Connect + Chat Catalyst carry
+                                    a ✉ Mail action that hands off to Log pre-filled.
+
 Contextual Prompts                  Time/weather/pattern-aware behavioral nudges       LIVE
                                     with rotating label vocabulary.
 
@@ -438,6 +445,8 @@ FEATURE                             DESCRIPTION                                 
 ───────                             ───────────                                         ──────
 Community Chat (Sync)               Real-time SSE chat with likes.                     LIVE
 Direct Messages                     User-to-user. 100 history, 2000 char limit.       LIVE
+LOT Mail (Sync · Mail tab)          /email to [Name] from Log. Cohort/Community       LIVE
+                                    name resolution, unread badge, real-time SSE.
 Cohort Matching                     Similar users by pattern, location, archetype.     LIVE
 Chat Catalysts                      AI conversation starters for cohort connections.   LIVE
 Community Coherence                 Shared emotional state from last 24h check-ins.    LIVE
@@ -580,9 +589,6 @@ WebAuthn Passkeys                   4-phase deployment (July-October 2026).     
 NODE-0 Self-Hosted Server           RTX 5090, Threadripper 7960X, ZFS, local AI        PLANNED
                                     inference, append-only ledger, kill switch.
                                     Entry ~$5,600.
-
-LOT Mail                            Email system with /email trigger. Feature           IN-DEV
-                                    branch (8 iterations).
 
 Basics Tab                          Physical supply subscription layer                 IN-DEV
                                     (LOT-FM-001).

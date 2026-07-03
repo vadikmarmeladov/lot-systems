@@ -24,7 +24,7 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
+LOT Mail         | determined-turing-4388tl     | (pending)| 1/1   | READY  | 12    | +350   | Reimplemented against current master (determined-turing-f6bw7r superseded — too diverged to cherry-pick): /email trigger, Sync Mail tab, Cohort/Community name resolution
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
@@ -83,8 +83,8 @@ CLUSTER          | COUNT | KEEP              | PRUNE | REASON
 ──────────────     ─────   ─────────────────   ─────   ────────────────────────
 gallant-mayer    | 35    | GqGA0             | 34    | Same health check fix iterated 35 times
 pensive-rubin    | 5     | 4jhgF             | 4     | Strict superset progression
-relaxed-hamilton | 8     | eRBVA             | 7     | LOT Mail iterations (SUPERSEDED by determined-turing)
-determined-turing| 6     | f6bw7r            | 5     | LOT Mail iterations (latest series)
+relaxed-hamilton | 8     | eRBVA             | 7     | LOT Mail iterations (SUPERSEDED — see determined-turing-4388tl)
+determined-turing| 6     | f6bw7r            | 5     | LOT Mail iterations (SUPERSEDED by determined-turing-4388tl — 06-27 divergence made cherry-pick unsafe, reimplemented fresh)
 dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations (SUPERSEDED by brave-lamport)
 brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
 gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
@@ -180,7 +180,7 @@ PROTECTED FILES (always restore from master during any branch merge):
   docs/benchmark/LOT-MANIFEST.md      — session-managed, never merge from branch
 
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
-  LOT Mail         | determined-turing-f6bw7r  | +504 lines
+  LOT Mail         | determined-turing-4388tl  | +350 lines
   Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines

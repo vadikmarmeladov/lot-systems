@@ -24,13 +24,15 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useLotMailUnreadCount,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, UserTag, LotMailSyncPayload } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
+import { EmailInbox } from './EmailInbox'
 
 export const Sync = React.memo(function SyncInner() {
   const formRef = React.useRef<HTMLFormElement>(null)
@@ -43,6 +45,11 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  const [tab, setTab] = React.useState<'chat' | 'mail'>('chat')
+  const [newMailEvents, setNewMailEvents] = React.useState<LotMailSyncPayload[]>([])
+
+  const { data: unreadMailData } = useLotMailUnreadCount()
+  const unreadMailCount = unreadMailData?.count ?? 0
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -101,9 +108,16 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeLotMailListener } = sync.listen(
+      'lot_mail',
+      (data: LotMailSyncPayload) => {
+        setNewMailEvents((prev) => [data, ...prev])
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotMailListener()
     }
   }, [me?.id])
 
@@ -158,6 +172,25 @@ export const Sync = React.memo(function SyncInner() {
 
   return (
     <div className="max-w-[700px]">
+      <div className="flex items-center gap-x-16 mb-40">
+        <GhostButton
+          className={cn(tab === 'chat' ? 'opacity-100' : 'opacity-30')}
+          onClick={() => setTab('chat')}
+        >
+          Chat
+        </GhostButton>
+        <GhostButton
+          className={cn(tab === 'mail' ? 'opacity-100' : 'opacity-30')}
+          onClick={() => { setTab('mail'); setNewMailEvents([]) }}
+        >
+          Mail{unreadMailCount > 0 && tab !== 'mail' ? ` (${unreadMailCount})` : ''}
+        </GhostButton>
+      </div>
+
+      {tab === 'mail' ? (
+        <EmailInbox newMailEvents={newMailEvents} />
+      ) : (
+      <>
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}
@@ -255,6 +288,8 @@ export const Sync = React.memo(function SyncInner() {
           )
         })}
       </div>
+      </>
+      )}
     </div>
   )
 })
