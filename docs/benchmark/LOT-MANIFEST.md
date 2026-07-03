@@ -24,7 +24,7 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | determined-turing-4388tl     | (pending)| 1/1   | READY  | 12    | +350   | Reimplemented against current master (determined-turing-f6bw7r superseded — too diverged to cherry-pick): /email trigger, Sync Mail tab, Cohort/Community name resolution
+LOT Mail         | determined-turing-4388tl     | e9cbc20c| 1/1   | READY  | 12    | +350   | Reimplemented against current master (determined-turing-f6bw7r superseded — too diverged to cherry-pick): /email trigger, Sync Mail tab, Cohort/Community name resolution
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
