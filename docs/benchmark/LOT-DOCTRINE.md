@@ -207,3 +207,24 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Gitignore Overbreadth
+
+A bare directory-name pattern in .gitignore (no leading/trailing slash
+anchor) matches that name at any depth, not just the intended top-level
+build directory. `server/` was written to ignore compiled output, but it
+also matched `src/server/*` at every level below it — any brand-new file
+placed under `src/server/` was silently invisible to `git status` and
+would never reach a commit unless force-added, with no error or warning
+at any point in the pipeline. The bug caused no visible symptom locally
+(the file still builds and runs from disk) — it only surfaces as a missing
+file in the next `git diff` or on a fresh clone. Audit new .gitignore rules
+against existing anchored equivalents (here, `dist/` on an earlier line
+already covered the real target) before accepting a bare name pattern;
+prefer anchoring (`/dist/server/`) over a directory-name match with no
+slash context. When a new source file mysteriously doesn't appear in
+`git status --short`, check `git check-ignore -v <path>` before assuming
+the file was never written.
+(SR-20260703-01: basics-api.ts silently ignored by .gitignore:50 `server/`;
+swept src/server/ for other orphaned files from past sessions — none found;
+rule removed, dist/ already sufficient.)

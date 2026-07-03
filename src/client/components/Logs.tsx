@@ -1778,6 +1778,48 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (
+          log.event === 'ration_pending' ||
+          log.event === 'ration_on_strength' ||
+          log.event === 'ration_stand_down' ||
+          log.event === 'ration_issue'
+        ) {
+          const status    = log.metadata?.status    as string | undefined
+          const monthIndex = log.metadata?.monthIndex as number | undefined
+          const itemCount  = log.metadata?.itemCount  as number | undefined
+          const label =
+            log.event === 'ration_pending' ? 'FM001:' :
+            log.event === 'ration_on_strength' ? 'FM001:' :
+            log.event === 'ration_stand_down' ? 'FM001:' : 'FM001:'
+          const title =
+            log.event === 'ration_pending' ? 'ROSTER SUBMITTED' :
+            log.event === 'ration_on_strength' ? 'ON STRENGTH' :
+            log.event === 'ration_stand_down' ? 'STAND DOWN' : 'ISSUE LOGGED'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={label} blockView>
+                <div className="uppercase tracking-widest mb-4">{title}</div>
+                {status && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">STATUS</span>
+                    <span className="tabular-nums">{status}</span>
+                  </div>
+                )}
+                {monthIndex !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ISSUE NO</span>
+                    <span className="tabular-nums">{String(monthIndex + 1).padStart(3, '0')}</span>
+                  </div>
+                )}
+                {itemCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">ITEMS</span>
+                    <span className="tabular-nums">{itemCount}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

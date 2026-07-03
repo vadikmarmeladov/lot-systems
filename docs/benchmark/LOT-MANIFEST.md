@@ -3,7 +3,7 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-27 (updated)
+DATE:     2026-07-03 (updated)
 ================================================================================
 
 Central catalog of all self-assembly routines across all branches.
@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
+Basics Tab       | beautiful-johnson-o14hn1     | 4dc83f6  | 1/1   | BEST   | 12    | +~1000 | LOT-FM-001: OPEN TAB live (M1, verified) + upgrade/roster/stand-down state machine + issue engine (M2/M3, built, DB-unverified). Prior BEST pointer (56p7ov) and About.tsx's separate pointer (nifty-allen-jWyOe) both stale — neither branch exists on origin, neither reached master. Rebuilt fresh; see SR-20260703-01.
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0

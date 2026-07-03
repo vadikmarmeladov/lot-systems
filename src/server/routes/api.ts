@@ -42,6 +42,7 @@ import { generateChatCatalysts, generateConversationStarters, shouldShowChatCata
 import { generateCompassionateInterventions, shouldShowIntervention } from '#server/utils/compassionate-interventions'
 import dayjs from '#server/utils/dayjs'
 import { registerOSRoutes } from './os-api.js'
+import { registerBasicsRoutes } from './basics-api.js'
 
 // ============================================================================
 // Helper Functions
@@ -134,6 +135,9 @@ function generateCompassionateResponse(
 export default async (fastify: FastifyInstance) => {
   // Register User Operating System API routes
   registerOSRoutes(fastify)
+
+  // Register LOT-FM-001 Basic Ration Module routes
+  registerBasicsRoutes(fastify)
 
   // Admin diagnostic ping endpoint
   fastify.get('/ping', async (req, reply) => {
@@ -1065,6 +1069,8 @@ export default async (fastify: FastifyInstance) => {
       'vitality_strategy_peak',
       // Story generation
       'generated_story',
+      // LOT-FM-001: Basic ration state machine (roster intake, issue engine)
+      'ration_pending', 'ration_on_strength', 'ration_stand_down', 'ration_issue',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

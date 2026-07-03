@@ -18,6 +18,7 @@ import { Logs } from '#client/components/Logs'
 import { Sync } from '#client/components/Sync'
 import { DirectMessageThread } from '#client/components/DirectMessageThread'
 import { StatusPage } from '#client/components/StatusPage'
+import { Basics } from '#client/components/Basics'
 import { ApiPage } from '#client/components/ApiPage'
 import { ConnectionStatus } from '#client/components/ConnectionStatus'
 import { render } from '#client/utils/render'
@@ -184,6 +185,7 @@ const DynamicRoutes = React.memo(function DynamicRoutes() {
         <DirectMessageThread userId={router.params.userId} />
       )}
       {currentRoute === 'status' && <StatusPage noWrapper />}
+      {currentRoute === 'basics' && <Basics noWrapper />}
     </>
   )
 })
