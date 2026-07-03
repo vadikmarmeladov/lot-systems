@@ -416,6 +416,48 @@ export function checkPalindromeCheck(): BadgeType | null {
   return null
 }
 
+// ── Time v14 — Mission Control Hours ──────────────────────────────────────────
+
+export function checkLuckyPair(): BadgeType | null {
+  if (hasBadge('lucky_pair')) return null
+  const now = new Date()
+  if (now.getHours() === 7 && now.getMinutes() === 7) {
+    awardBadge('lucky_pair')
+    return 'lucky_pair'
+  }
+  return null
+}
+
+export function checkVisionYear(): BadgeType | null {
+  if (hasBadge('vision_year')) return null
+  const now = new Date()
+  if (now.getHours() === 20 && now.getMinutes() === 20) {
+    awardBadge('vision_year')
+    return 'vision_year'
+  }
+  return null
+}
+
+export function checkBinaryTriple(): BadgeType | null {
+  if (hasBadge('binary_triple')) return null
+  const now = new Date()
+  if (now.getHours() === 2 && now.getMinutes() === 22) {
+    awardBadge('binary_triple')
+    return 'binary_triple'
+  }
+  return null
+}
+
+export function checkSignalNine(): BadgeType | null {
+  if (hasBadge('signal_nine')) return null
+  const now = new Date()
+  if (now.getHours() === 15 && now.getMinutes() === 45) {
+    awardBadge('signal_nine')
+    return 'signal_nine'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
@@ -437,6 +479,8 @@ export function checkTimeEasterEggs(): BadgeType[] {
     checkDawnGate, checkNoonFold, checkEveningPrime, checkNightMirror,
     // v11 — Navigator Hours
     checkAfternoonMirror, checkNavigatorDawn, checkAnswerHourV11, checkPalindromeCheck,
+    // v14 — Mission Control Hours
+    checkLuckyPair, checkVisionYear, checkBinaryTriple, checkSignalNine,
   ]
   for (const check of checks) {
     const result = check()
@@ -577,6 +621,46 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('halloween_protocol')
   }
 
+  // ── Calendar v8 — Game Anniversaries ────────────────────────────────────────
+
+  // New Year Signal: January 1
+  if (!hasBadge('new_year_sig') && month === 1 && day === 1) {
+    awardBadge('new_year_sig')
+    awarded.push('new_year_sig')
+  }
+
+  // Sonic Day: September 9 — Sonic the Hedgehog birthday
+  if (!hasBadge('sonic_day') && month === 9 && day === 9) {
+    awardBadge('sonic_day')
+    awarded.push('sonic_day')
+  }
+
+  // Winter Code: December 25 — Holiday Protocol
+  if (!hasBadge('winter_code') && month === 12 && day === 25) {
+    awardBadge('winter_code')
+    awarded.push('winter_code')
+  }
+
+  // ── Calendar v9 — Sci-Fi Literary Calendar ────────────────────────────────
+
+  // Turing Day: June 23 — Alan Turing born 1912
+  if (!hasBadge('turing_day') && month === 6 && day === 23) {
+    awardBadge('turing_day')
+    awarded.push('turing_day')
+  }
+
+  // Moon Landing: July 20 — First lunar footprint 1969
+  if (!hasBadge('moon_landing') && month === 7 && day === 20) {
+    awardBadge('moon_landing')
+    awarded.push('moon_landing')
+  }
+
+  // Sputnik Signal: October 4 — Sputnik launch 1957
+  if (!hasBadge('sputnik_signal') && month === 10 && day === 4) {
+    awardBadge('sputnik_signal')
+    awarded.push('sputnik_signal')
+  }
+
   // ── Calendar v10 — Navigation Dates ──────────────────────────────────────────
 
   // Voyager Day: August 25 — Voyager 2 launched 1977
@@ -595,6 +679,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('leap_day') && month === 2 && day === 29) {
     awardBadge('leap_day')
     awarded.push('leap_day')
+  }
+
+  // ── Calendar v11 — Space Firsts ──────────────────────────────────────────────
+
+  // Gagarin Day: April 12 — First human in space 1961
+  if (!hasBadge('gagarin_day') && month === 4 && day === 12) {
+    awardBadge('gagarin_day')
+    awarded.push('gagarin_day')
+  }
+
+  // Zarya Signal: November 20 — ISS first module Zarya launched 1998
+  if (!hasBadge('zarya_signal') && month === 11 && day === 20) {
+    awardBadge('zarya_signal')
+    awarded.push('zarya_signal')
+  }
+
+  // Pluto Discovered: February 18 — Pluto found by Clyde Tombaugh 1930
+  if (!hasBadge('pluto_discovered') && month === 2 && day === 18) {
+    awardBadge('pluto_discovered')
+    awarded.push('pluto_discovered')
   }
 
   return awarded
@@ -1039,6 +1143,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /dead.?reckoning/i,                    badge: 'dead_reckoning_word' },
   { patterns: /terra.?incognita/i,                   badge: 'terra_incognita' },
   { patterns: /(magnetic.?north|true.?north)/i,       badge: 'true_north' },
+  // ── v14 — The Starship Deck ───────────────────────────────────────────────
+  { patterns: /\blaunch(ed|ing|es)?\b/i,              badge: 'launch_confirmed' },
+  { patterns: /\bmission(s)?\b/i,                     badge: 'mission_active' },
+  { patterns: /\bastronaut(s)?\b/i,                   badge: 'astronaut_mode' },
+  { patterns: /\bcapsule(s)?\b/i,                     badge: 'capsule_entry' },
+  { patterns: /\btelemetry\b/i,                       badge: 'telemetry_live' },
+  { patterns: /\bcountdown(s)?\b/i,                   badge: 'countdown_initiated' },
+  { patterns: /\bre-?entry\b/i,                       badge: 'reentry_burn' },
+  { patterns: /\bcrew\b/i,                            badge: 'crew_signal' },
+  { patterns: /\bstarship(s)?\b/i,                    badge: 'starship_mode' },
+  { patterns: /\bmodule(s)?\b/i,                      badge: 'module_locked' },
+  { patterns: /\bdocking\b/i,                         badge: 'docking_complete' },
+  { patterns: /\bspacewalk(s|ed|ing)?\b/i,            badge: 'spacewalk_mode' },
+  // ── v14 Secret Boss — Final Transmission word triggers ──────────────────────
+  { patterns: /\bhouston\b/i,                         badge: 'houston_signal' },
+  { patterns: /\bgagarin\b/i,                         badge: 'gagarin_echo' },
+  { patterns: /pale.?blue.?dot/i,                     badge: 'sagan_protocol' },
 ]
 
 /**
