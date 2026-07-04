@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev M
+# LOT-DOCTRINE  rev N
 
 ## Render Isolation
 
@@ -207,3 +207,23 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Environment Preflight (ENV-PREFLIGHT)
+
+A fresh container with no `node_modules/` will still resolve `npx tsc` to
+whatever TypeScript happens to be on the global PATH, silently ignoring the
+version this repo pins in package.json. That stray version can hard-error on
+config this repo's pinned version accepts (observed: TS 6.0.2 treats
+`moduleResolution=node10`/`baseUrl` as fatal errors, exit 2; the pinned 5.9.3
+does not). The result looks exactly like a code regression — CHECK A fails
+before any diff is even applied — but is actually a missing precondition.
+
+Rule: before trusting any RED from `tsc`/`build`, confirm `node_modules/`
+exists and `npx tsc --version` matches package.json's pinned version. If it
+doesn't, the fix is `npm install --legacy-peer-deps` (this repo's nanostores
+peer-dependency range requires the legacy flag with plain `npm install`), not
+a tsconfig edit. Re-run CHECK A on the unmodified tree first — if it now
+passes, the earlier RED was environmental, not a defect to fix in code.
+
+(SR-20260704-01: LOT Mail green-gate blocked by exactly this false RED;
+resolved by installing deps, not by touching tsconfig.)

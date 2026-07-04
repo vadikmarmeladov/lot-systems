@@ -42,4 +42,6 @@ MOM:               Momentum Lock — log block label for signal_momentum events 
 MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
 PLANNER-CONTEXT    User's declared daily intention (intent/today/how/feeling) extracted from plan_set log    A  20260630
                    and injected into Memory Engine buildPrompt() so questions follow up on stated focus
+LOT MAIL           Internal user-to-user messaging: /email trigger in Log, Chat|Mail tabs in Sync,          A  20260704
+                   ChatCatalystWidget cohort send button — the three-module wiring named by the mission
 ```
