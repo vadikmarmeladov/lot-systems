@@ -7,6 +7,7 @@
  */
 
 import dayjs from '#server/utils/dayjs'
+import type { Dayjs } from '#server/utils/dayjs'
 
 /**
  * Scheduled Jobs - Automated Monthly Email System
@@ -1001,6 +1002,146 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
   }
 }
 
+// ─── Hourly Calendar Reminder Check (Job 25 — every hour) ───────────────────
+// Scans calendar_entry logs for entries due soon (≤60min), due now, due today
+// (all-day entries), or overdue, and writes a calendar_reminder log per stage.
+// Surfaced in the log UI as CAL-ALERT:. Dedup guard: a (sourceLogId, stage)
+// pair fires at most once — checked against calendar_reminder logs from the
+// last 3 days.
+
+let isHourlyCalendarReminderRunning = false
+let lastHourlyCalendarReminderRun: Date | null = null
+
+function shouldRunHourlyCalendarReminderCheck(): boolean {
+  const now = dayjs()
+  if (isHourlyCalendarReminderRunning) return false
+  if (lastHourlyCalendarReminderRun && now.diff(dayjs(lastHourlyCalendarReminderRun), 'minute') < 55) {
+    return false
+  }
+  return true
+}
+
+type CalendarReminderStage = 'due_soon' | 'due_now' | 'due_today' | 'overdue'
+
+function deriveCalendarReminderStage(
+  date: string,
+  time: string | undefined,
+  now: Dayjs
+): CalendarReminderStage | null {
+  if (time) {
+    const dueAt = dayjs(`${date} ${time}`, 'YYYY-MM-DD HH:mm')
+    if (!dueAt.isValid()) return null
+    const diffMin = dueAt.diff(now, 'minute')
+    if (diffMin > 0 && diffMin <= 60) return 'due_soon'
+    if (diffMin <= 0 && diffMin >= -5) return 'due_now'
+    if (diffMin < -30 && diffMin >= -24 * 60) return 'overdue'
+    return null
+  }
+
+  const dayDiff = dayjs(date, 'YYYY-MM-DD').startOf('day').diff(now.startOf('day'), 'day')
+  if (dayDiff === 0) return 'due_today'
+  if (dayDiff === -1) return 'overdue'
+  return null
+}
+
+async function executeHourlyCalendarReminderCheck(): Promise<JobResult> {
+  const jobName = 'hourly-calendar-reminder-check'
+  const executedAt = new Date().toISOString()
+  if (isHourlyCalendarReminderRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isHourlyCalendarReminderRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('HOURLY CALENDAR REMINDER CHECK')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const now = dayjs()
+    const windowStart = now.subtract(2, 'day').format('YYYY-MM-DD')
+    const windowEnd = now.add(2, 'day').format('YYYY-MM-DD')
+
+    // metadata is JSONB — narrow the window in application code, not SQL
+    const entryLogs = await Log.findAll({
+      where: { event: 'calendar_entry' },
+      attributes: ['id', 'userId', 'metadata'],
+    })
+
+    const candidates = entryLogs.filter((l: any) => {
+      const date = l.metadata?.date
+      return typeof date === 'string' && date >= windowStart && date <= windowEnd
+    })
+
+    if (candidates.length === 0) {
+      console.log('  No calendar entries in window.')
+      console.log('─'.repeat(60))
+      lastHourlyCalendarReminderRun = new Date()
+      isHourlyCalendarReminderRunning = false
+      return { jobName, executedAt, success: true, result: { scanned: 0, written: 0 } }
+    }
+
+    const threeDaysAgo = now.subtract(3, 'day').toDate()
+    const reminderLogs = await Log.findAll({
+      where: { event: 'calendar_reminder', createdAt: { [Op.gte]: threeDaysAgo } },
+      attributes: ['metadata'],
+    })
+    const alreadyFired = new Set(
+      reminderLogs.map((l: any) => `${l.metadata?.sourceLogId}:${l.metadata?.stage}`)
+    )
+
+    let written = 0
+    for (const entry of candidates) {
+      const date = (entry as any).metadata?.date as string
+      const time = (entry as any).metadata?.time as string | undefined
+      const entryType = (entry as any).metadata?.entryType as string | undefined
+      const text = (entry as any).metadata?.text as string | undefined
+
+      const stage = deriveCalendarReminderStage(date, time || undefined, now)
+      if (!stage) continue
+
+      const dedupKey = `${entry.id}:${stage}`
+      if (alreadyFired.has(dedupKey)) continue
+
+      try {
+        await Log.create({
+          userId: (entry as any).userId,
+          event: 'calendar_reminder',
+          text: '',
+          metadata: {
+            sourceLogId: entry.id,
+            stage,
+            entryType: entryType || 'note',
+            date,
+            time: time || null,
+            text: text || '',
+          },
+        } as any)
+        written++
+        alreadyFired.add(dedupKey)
+        console.log(`  [${(entry as any).userId}] CAL-ALERT: ${stage.toUpperCase()} — ${text || entryType} (${date}${time ? ' ' + time : ''})`)
+      } catch (writeErr: any) {
+        console.warn(`  Calendar reminder write failed for entry ${entry.id}: ${writeErr.message}`)
+      }
+    }
+
+    console.log(`  Candidates in window: ${candidates.length}`)
+    console.log(`  Reminders written:    ${written}`)
+    console.log('─'.repeat(60))
+    console.log('HOURLY CALENDAR REMINDER CHECK COMPLETE')
+    console.log('─'.repeat(60))
+    console.log('')
+
+    lastHourlyCalendarReminderRun = new Date()
+    isHourlyCalendarReminderRunning = false
+    return { jobName, executedAt, success: true, result: { scanned: candidates.length, written } }
+  } catch (error: any) {
+    console.error('Hourly calendar reminder check failed:', error.message)
+    isHourlyCalendarReminderRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -1117,6 +1258,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check weekly LOT AI story generation (Sunday 18:00 UTC) — Job 24
   if (shouldRunWeeklyLOTAIStory()) {
     await executeWeeklyLOTAIStory()
+  }
+  // Check hourly calendar reminder — due soon / due now / overdue — Job 25
+  if (shouldRunHourlyCalendarReminderCheck()) {
+    await executeHourlyCalendarReminderCheck()
   }
 }
 
@@ -3189,22 +3334,20 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly longitudinal drift check: 9 AM UTC every Monday')
   console.log('   - Daily QOS mode watch: 2 PM UTC every day')
   console.log('   - Weekly LOT® AI story generation: 6 PM UTC every Sunday')
+  console.log('   - Hourly calendar reminder check: every hour, all day (Job 25)')
   console.log('')
 
   // Check every hour for scheduled jobs
   const HOURLY_CHECK = 60 * 60 * 1000 // 1 hour in milliseconds
 
   setInterval(async () => {
-    const now = dayjs()
-    const hour = now.hour()
-
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 18 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
-      try {
-        await checkAndRunScheduledJobs()
-      } catch (error: any) {
-        console.error('Scheduled job check failed:', error.message)
-      }
+    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage.
+    // Job 25 (calendar reminder) has no fixed hour — it runs every tick — so
+    // every hour is checked; each job's own shouldRun() still gates on day/hour.
+    try {
+      await checkAndRunScheduledJobs()
+    } catch (error: any) {
+      console.error('Scheduled job check failed:', error.message)
     }
   }, HOURLY_CHECK)
 

@@ -1080,6 +1080,8 @@ export default async (fastify: FastifyInstance) => {
       'vitality_strategy_peak',
       // Story generation
       'generated_story',
+      // v73: calendar reminder (Job 25 output — due soon / due now / overdue)
+      'calendar_reminder',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -1481,6 +1483,24 @@ export default async (fastify: FastifyInstance) => {
         }
       })
       return log
+    }
+  )
+
+  fastify.delete(
+    '/logs/:id',
+    async (
+      req: FastifyRequest<{
+        Params: { id: string }
+      }>,
+      reply
+    ) => {
+      const log = await fastify.models.Log.findByPk(req.params.id)
+      if (!log || log.userId !== req.user.id) return reply.throw.notFound()
+      // Scoped to calendar entries for now — the only log type with a user-facing delete action
+      if (log.event !== 'calendar_entry') return reply.throw.badParams('This log type cannot be deleted')
+
+      await log.destroy()
+      return { id: log.id, deleted: true }
     }
   )
 

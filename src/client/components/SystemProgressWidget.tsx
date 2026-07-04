@@ -967,6 +967,27 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v72 entry appended · USERSHIP_TRANSMISSION updated to v72.',
     ],
   },
+  {
+    date: '2026-07-04',
+    session: 'Self-Assembly Session — v73 / Calendar Time-Tracking + CAL-ALERT: Military Reminders',
+    assembled: [
+      'CalendarWidget.tsx: optional time-of-day (HH:mm) on every entry — native time input alongside the existing note/task/call text field.',
+      'CalendarWidget.tsx: entries now sort by date + time (not date alone); untimed entries treat as start-of-day.',
+      'CalendarWidget.tsx: Remove action per entry (day view) — first delete path the widget has ever had. Wired to new useDeleteLog mutation.',
+      'CalendarWidget.tsx: inline "overdue" / "due soon" tag on the upcoming list, computed client-side from entry time vs now.',
+      'CalendarWidget.tsx: failed saves keep the typed text and time instead of clearing the form — inline error text, no silent data loss.',
+      'queries.ts: useDeleteLog() — DELETE /api/logs/:id mutation.',
+      'api.ts: DELETE /logs/:id — scoped to calendar_entry logs owned by the requesting user only.',
+      'api.ts: calendar_reminder added to displayableEvents (v73 block).',
+      'intentionEngine.ts: recordCalendarSignal() takes an optional time argument, carried into the calendar_entry signal metadata.',
+      'scheduled-jobs.ts: Job 25 hourly-calendar-reminder-check — scans calendar_entry logs, derives due_soon (≤60min) / due_now / due_today (all-day) / overdue, writes calendar_reminder with a (sourceLogId, stage) dedup guard against the last 3 days.',
+      'scheduled-jobs.ts: hourly scheduler tick no longer hour-gated before dispatch — every job\'s own shouldRun() already gates by day/hour; the outer gate was silently skipping hours 1, 2, 17, 19, 21 for any future all-hours job. Job 25 needed it. 25 background jobs active.',
+      'Logs.tsx: CAL-ALERT: handler — renders calendar_reminder (DUE SOON / DUE NOW / DUE TODAY / OVERDUE + entry text + date/time) in military format.',
+      'Logs.tsx: CAL: handler extended to show entry time when present.',
+      'docs/assembly/2026-07-04_LOT-assembly_v73-calendar-time-reminders.md: assembly documentation written.',
+      'SESSION_REPORTS: v73 entry appended · USERSHIP_TRANSMISSION updated to v73.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1004,16 +1025,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-25',
+  date: '2026-07-04',
   message: [
-    'ASSEMBLY RUN — 2026-06-25 · LOT-SR-20260625-03',
-    'P84 longitudinal-drift (client): 3-day bucket comparison. Recent 3d vs prior 3d signal density. ≤50% → early engagement decline detected. Conf 0.55–0.80. Fires before the 28-day server arc catches it.',
-    'P85 adaptive-momentum-window: fires when systemic-thinking-mode + signal-momentum-lock both active. Sustained engagement streak during structural cognition. Strategy is running at full capacity. Conf 0.75–0.90.',
-    'P86 vitality-strategy-peak: fires when circadian-vitality-peak + systemic-thinking-mode both active. Biology aligned with strategy. Prime execution window. Suggests memory widget, immediate timing. Conf 0.78–0.92.',
-    'Archetype 29 Peak Strategist: high/moderate energy · planner+intentions+goals · vitality-strategy-peak+adaptive-momentum-window+systemic-thinking-mode. Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.',
-    'COCKPIT-RULE military pass: 5 existing handlers stripped of verbose prose — OS [MODE]: · VITAL: · DRIFT: · SYSTMK: · COGN:. Data rows only. Log surface is now fully military.',
-    'ADAPT-MOM: + VSTRAT: handlers deployed. adaptive_momentum + vitality_strategy_peak surfaced in displayableEvents.',
-    'Dep map: 126+ nodes. 86 patterns active. 85+ log handlers. 23 background jobs. 29 archetypes.',
+    'ASSEMBLY RUN — 2026-07-04 · LOT-SR-20260704-01',
+    'Calendar entries now carry an optional time-of-day, not just a date. Sort order, the upcoming list, and the day view all reflect it.',
+    'First delete path the Calendar has ever had — Remove on any entry, scoped server-side to the requesting user\'s own calendar_entry logs.',
+    'Job 25 hourly-calendar-reminder-check: due_soon (≤60min out) / due_now / due_today (all-day) / overdue, each fired once per entry via a (sourceLogId, stage) dedup guard. Surfaced as CAL-ALERT: in the log.',
+    'Scheduler tick no longer hour-gated before dispatch — closed a latent gap where hours 1, 2, 17, 19, 21 never ran any job at all.',
+    'Failed calendar saves keep the typed text instead of discarding it. Small, but it is the difference between a tool you trust and one you re-check.',
+    'Dep map: 126+ nodes (unchanged). 86 patterns active. 86+ log handlers (+1: CAL-ALERT:). 25 background jobs (+1: Job 25). 29 archetypes.',
     'DEPLOYED.',
   ],
 }

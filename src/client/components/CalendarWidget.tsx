@@ -9,21 +9,43 @@
 import * as React from 'react'
 import { useQueryClient } from 'react-query'
 import { Block, Button } from '#client/components/ui'
-import { useCreateLog, useLogs } from '#client/queries'
+import { useCreateLog, useDeleteLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
 import { recordCalendarSignal } from '#client/stores/intentionEngine'
 
 type EntryType = 'note' | 'task' | 'call'
+type EntryStatus = 'overdue' | 'due-soon' | null
 
 type CalendarEntry = {
+  id: string
   date: string
+  time: string | null
   text: string
   type: EntryType
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+function entryDueAt(entry: CalendarEntry): Dayjs {
+  return entry.time
+    ? dayjs(`${entry.date} ${entry.time}`, 'YYYY-MM-DD HH:mm')
+    : dayjs(entry.date, 'YYYY-MM-DD').endOf('day')
+}
+
+function entrySortKey(entry: CalendarEntry): string {
+  return `${entry.date}T${entry.time || '00:00'}`
+}
+
+function entryStatus(entry: CalendarEntry, now: Dayjs): EntryStatus {
+  if (!entry.time) return null
+  const dueAt = entryDueAt(entry)
+  const diffMin = dueAt.diff(now, 'minute')
+  if (diffMin < 0) return 'overdue'
+  if (diffMin <= 60) return 'due-soon'
+  return null
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -52,24 +74,30 @@ export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
+  const { mutate: deleteLog } = useDeleteLog()
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
+  const [entryTime, setEntryTime] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [addError, setAddError] = React.useState<string | null>(null)
+  const [deletingId, setDeletingId] = React.useState<string | null>(null)
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
+        id: log.id,
         date: log.metadata?.date as string,
+        time: (log.metadata?.time as string) || null,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => entrySortKey(a).localeCompare(entrySortKey(b)))
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
@@ -90,7 +118,8 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
+  const now = dayjs()
+  const today = now.format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
@@ -109,24 +138,41 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const time = entryTime.trim() || null
+    const timeLabel = time ? ` · ${time}` : ''
+    const text = entryText.trim()
+
+    setAddError(null)
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${text} (${dateLabel}${timeLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
-        text: entryText.trim(),
+        time,
+        text,
         entryType,
       },
     }, {
       onSuccess: () => {
         queryClient.refetchQueries(['/api/logs'])
-        try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        try { recordCalendarSignal(entryType, selectedDate!, time || undefined) } catch (_) {}
+        setEntryText('')
+        setEntryTime('')
+        setIsAddingEntry(false)
+      },
+      onError: () => {
+        setAddError('Could not save — try again.')
       },
     })
+  }
 
-    setEntryText('')
-    setIsAddingEntry(false)
+  const handleDeleteEntry = (id: string) => {
+    setDeletingId(id)
+    deleteLog({ id }, {
+      onSuccess: () => queryClient.refetchQueries(['/api/logs']),
+      onSettled: () => setDeletingId(null),
+    })
   }
 
   const handleToggleCalendar = () => {
@@ -237,8 +283,18 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40"
+                  />
                   <Button onClick={handleAddEntry}>Add</Button>
                 </div>
+                {addError && (
+                  <div className="text-acc/40 mt-4">{addError}</div>
+                )}
               </div>
             )}
 
@@ -247,9 +303,19 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                {entriesOnDate.map(e => (
+                  <div key={e.id} className="flex justify-between gap-8 mb-1">
+                    <span className="text-acc/80">
+                      {e.time && <span className="text-acc/40 tabular-nums">{e.time} </span>}
+                      {e.text}
+                    </span>
+                    <button
+                      onClick={() => handleDeleteEntry(e.id)}
+                      disabled={deletingId === e.id}
+                      className="text-acc/20 hover:text-acc/60 transition-opacity whitespace-nowrap"
+                    >
+                      {deletingId === e.id ? '...' : 'Remove'}
+                    </button>
                   </div>
                 ))}
               </div>
@@ -259,16 +325,22 @@ export function CalendarWidget() {
 
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+            {upcomingEntries.map(entry => {
+              const status = entryStatus(entry, now)
+              return (
+                <div key={entry.id} className="flex justify-between gap-16">
+                  <span className="text-acc whitespace-nowrap">
+                    {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                    {entry.time && <span className="text-acc/60 tabular-nums"> · {entry.time}</span>}
+                  </span>
+                  <span className={cn('text-right', status === 'overdue' ? 'text-acc/50' : 'text-acc')}>
+                    {entry.text}
+                    {status === 'overdue' && <span className="text-acc/40 uppercase"> · overdue</span>}
+                    {status === 'due-soon' && <span className="text-acc/40 uppercase"> · due soon</span>}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 

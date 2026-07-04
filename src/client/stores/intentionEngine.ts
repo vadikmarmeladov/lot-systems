@@ -3177,8 +3177,8 @@ export function checkFullStackSession(): boolean {
  * Record a calendar entry signal when a date entry is created.
  * Wires the Temporal Planner module and feeds Pattern 26 (calendar-gap) detection.
  */
-export function recordCalendarSignal(entryType: string, date: string) {
-  recordSignal('log', 'calendar_entry', { entryType, date, hour: new Date().getHours() })
+export function recordCalendarSignal(entryType: string, date: string, time?: string) {
+  recordSignal('log', 'calendar_entry', { entryType, date, time: time || null, hour: new Date().getHours() })
 }
 
 /**
