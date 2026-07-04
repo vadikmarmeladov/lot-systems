@@ -2434,6 +2434,62 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'calendar_entry') {
+          const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const entryType = log.metadata?.entryType as string | undefined
+          const time = log.metadata?.time as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-LOG:" blockView>
+                {entryType && (
+                  <div className="uppercase tracking-widest mb-4">
+                    {entryType}{time ? ` · ${time}` : ''}
+                  </div>
+                )}
+                {text && <div className="opacity-60">{text}</div>}
+                {date && <div className="opacity-30 tabular-nums">{date}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_entry_complete') {
+          const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const entryType = log.metadata?.entryType as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-DONE:" blockView>
+                <div className="uppercase tracking-widest mb-4">{entryType || 'entry'} closed</div>
+                {text && <div className="opacity-60">{text}</div>}
+                {date && <div className="opacity-30 tabular-nums">{date}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_alert_fired') {
+          const alertType = log.metadata?.alertType as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const ALERT_LABEL: Record<string, string> = {
+            t_minus_15: 'T-MINUS 15',
+            execute: 'EXECUTE',
+            overdue: 'OVERDUE',
+          }
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                <div className="uppercase tracking-widest mb-4">
+                  {(alertType && ALERT_LABEL[alertType]) || 'ALERT'}
+                </div>
+                {text && <div className="opacity-60">{text}</div>}
+                {(date || time) && (
+                  <div className="opacity-30 tabular-nums">
+                    {date}{time ? ` ${time}` : ''}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

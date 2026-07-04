@@ -3646,6 +3646,16 @@ export function recordCalendarSignal(entryType: string, date: string) {
 }
 
 /**
+ * Record a calendar alert signal when a time-tracked entry crosses a T-MINUS,
+ * EXECUTE, or OVERDUE threshold. Closes the `calendar_update` gap Pattern 46
+ * (temporal-coherence-window) already checks for — only `calendar_entry` fired
+ * it before now.
+ */
+export function recordCalendarAlertSignal(alertType: string, entryType: string) {
+  recordSignal('log', 'calendar_update', { alertType, entryType, hour: new Date().getHours() })
+}
+
+/**
  * Record a journal depth signal when a field entry is saved with word count.
  * Feeds Reflection Layer (journal module) density in self-assembly.
  * Deep entries (>100 words) awaken and advance the Reflection Layer faster.
