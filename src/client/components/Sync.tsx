@@ -32,7 +32,7 @@ import {
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
 
-export const Sync = () => {
+export const Sync = React.memo(function SyncInner() {
   const formRef = React.useRef<HTMLFormElement>(null)
   const me = useStore(stores.me)
   const isTouchDevice = useStore(stores.isTouchDevice)
@@ -108,6 +108,9 @@ export const Sync = () => {
   }, [me?.id])
 
   const onChangeMessage = React.useCallback((value: string) => setMessage(value), [])
+  const onChangeMessage = React.useCallback((value: string) => {
+    setMessage(value)
+  }, [])
 
   const onSubmitMessage = React.useCallback(
     (ev?: React.FormEvent) => {
@@ -255,7 +258,7 @@ export const Sync = () => {
       </div>
     </div>
   )
-}
+})
 
 const MessageTimeLabel: React.FC<{ dateString: string | Date; isTimeFormat12h: boolean }> = ({ dateString, isTimeFormat12h }) => {
   const date = dayjs(dateString)

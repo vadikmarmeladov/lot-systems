@@ -154,7 +154,7 @@ export const PatternInsightsWidget = () => {
                 {selectedInsight === idx && (
                   <div className="mt-8 flex gap-8">
                     {getPatternActions(insight).map((action, aidx) => (
-                      <Button key={aidx} onClick={action.handler}>
+                      <Button key={aidx} size="small" onClick={action.handler}>
                         {action.label}
                       </Button>
                     ))}

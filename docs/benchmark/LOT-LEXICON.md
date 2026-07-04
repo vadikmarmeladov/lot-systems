@@ -52,4 +52,6 @@ RCASE:              Resilience Cascade — log block label; depleted → 2+ self
 QUANTUM-PRESENCE-ARC    QIE P101 — all 6 primary channels (journal+memory+planner+selfcare+intentions+mood) active in 48h; operator fully present across all signal dimensions  B  20260702
 PLANNER-INTENTION-SYNC  QIE P102 — intentions signal + planner signal within 2h; intent becomes structure in real time; execution synchronization  B  20260702
 RESILIENCE-CASCADE      QIE P103 — depleted → 2+ selfcare → memory capture + positive mood within 18h; complete restoration arc: breakdown → intervention → capture           B  20260702
+PLANNER-CONTEXT    User's declared daily intention (intent/today/how/feeling) extracted from plan_set log    A  20260630
+                   and injected into Memory Engine buildPrompt() so questions follow up on stated focus
 ```

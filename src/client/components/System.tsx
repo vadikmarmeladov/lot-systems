@@ -24,7 +24,7 @@ import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
 import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
-import { useVisitorStats, useProfile, useLogs, useCommunityEmotion } from '#client/queries'
+import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
 import { UserTag } from '#shared/types'
 import { TimeWidget } from './TimeWidget'
@@ -98,7 +98,7 @@ function LoadingDots() {
   return <span className="opacity-40">{'·'.repeat(dots)}</span>
 }
 
-export const System = () => {
+export const System = React.memo(function SystemInner() {
   const me = useStore(stores.me)
   const weather = useStore(stores.weather)
   const theme = useStore(stores.theme)
@@ -107,8 +107,8 @@ export const System = () => {
   const usersTotal = useStore(stores.usersTotal)
   const usersOnline = useStore(stores.usersOnline)
   const liveMessage = useStore(stores.liveMessage)
+  const myProfileVisits: number = (me as any)?.metadata?.profileVisits ?? 0
 
-  const { data: visitorStats } = useVisitorStats()
   const { data: profile } = useProfile()
   const { data: logs = [] } = useLogs()
   const { data: communityEmotion } = useCommunityEmotion()
@@ -399,7 +399,7 @@ export const System = () => {
 
         <div>
           <Block label="Users online:">{formatNumberWithCommas(usersOnline)}</Block>
-          <Block label="Total users:">{formatNumberWithCommas(usersTotal)}</Block>
+          <Block label="Total LOT® users:">{formatNumberWithCommas(usersTotal)}</Block>
         </div>
 
         <div>
@@ -449,23 +449,14 @@ export const System = () => {
                 stores.isSoundOn.set(false)
               }
             }}
-            onChildrenClick={async () => {
+            onChildrenClick={() => {
               if (isSoundToggling) return
               setIsSoundToggling(true)
               try {
                 if (showRadio) {
                   stores.isRadioOn.set(!isRadioOn)
                 } else {
-                  const newValue = !isSoundOn
-                  // @ts-ignore - Tone.js loaded via external script
-                  if (newValue && window.Tone) {
-                    try {
-                      await window.Tone.start()
-                    } catch (e) {
-                      console.error('Failed to start Tone.context:', e)
-                    }
-                  }
-                  stores.isSoundOn.set(newValue)
+                  stores.isSoundOn.set(!isSoundOn)
                 }
               } finally {
                 setTimeout(() => setIsSoundToggling(false), 300)
@@ -569,7 +560,7 @@ export const System = () => {
             formatNumberWithCommas(usersOnline)
           )}
         </Block>
-        <Block label="Total users:">
+        <Block label="Total LOT® users:">
           {me?.isAdmin ? (
             <GhostButton href="/us" rel="external">
               {formatNumberWithCommas(usersTotal)}
@@ -578,15 +569,8 @@ export const System = () => {
             formatNumberWithCommas(usersTotal)
           )}
         </Block>
-      </div>
-
-      {/* Visitor Statistics */}
-      <div>
-        <Block label="Total LOT visitors:">
-          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.totalSiteVisitors) : <LoadingDots />}
-        </Block>
         <Block label="My OS visitors:">
-          {visitorStats !== undefined ? formatNumberWithCommas(visitorStats.userProfileVisits) : <LoadingDots />}
+          {formatNumberWithCommas(myProfileVisits)}
         </Block>
       </div>
 
@@ -765,30 +749,16 @@ export const System = () => {
               stores.isSoundOn.set(false)
             }
           }}
-          onChildrenClick={async () => {
-            // Prevent rapid clicks
+          onChildrenClick={() => {
             if (isSoundToggling) return
             setIsSoundToggling(true)
-
             try {
               if (showRadio) {
-                // Radio mode - toggle radio
                 stores.isRadioOn.set(!isRadioOn)
               } else {
-                // Sound mode - toggle sound
-                const newValue = !isSoundOn
-                // @ts-ignore - Tone.js loaded via external script
-                if (newValue && window.Tone) {
-                  try {
-                    await window.Tone.start()
-                  } catch (e) {
-                    console.error('Failed to start Tone.context:', e)
-                  }
-                }
-                stores.isSoundOn.set(newValue)
+                stores.isSoundOn.set(!isSoundOn)
               }
             } finally {
-              // Reset toggle state after a short delay
               setTimeout(() => setIsSoundToggling(false), 300)
             }
           }}
@@ -1053,4 +1023,4 @@ export const System = () => {
       </div>
     </div>
   )
-}
+})

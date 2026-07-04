@@ -236,6 +236,10 @@ const App = () => {
     getMe().then((user) => {
       stores.me.set(user)
 
+      // Seed counters immediately so System widget never shows 0 on first paint
+      if ((user as any).usersTotal) stores.usersTotal.set((user as any).usersTotal)
+      if ((user as any).usersOnline) stores.usersOnline.set((user as any).usersOnline)
+
       // Sync theme from user metadata (server) to local stores
       if (user.metadata?.theme) {
         const { theme: themeName, baseColor, accentColor, customThemeEnabled } = user.metadata.theme

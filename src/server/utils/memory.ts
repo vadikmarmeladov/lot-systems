@@ -6,8 +6,6 @@
  * Made in the USA | brand.lot-systems.com
  */
 
-import Instructor from '@instructor-ai/instructor'
-import OpenAI from 'openai'
 import Anthropic from '@anthropic-ai/sdk'
 import { Op } from 'sequelize'
 import { randomUUID } from 'crypto'
@@ -34,17 +32,7 @@ import { getLogContext } from './logs.js'
 import { aiEngineManager, type EnginePreference } from './ai-engines.js'
 import { extractGoals, type ExtractedGoal } from './goal-understanding.js'
 
-// OpenAI client (for non-Usership users - LEGACY fallback)
-let oai: OpenAI | null = null
-let oaiClient: ReturnType<typeof Instructor> | null = null
 let anthropicClient: Anthropic | null = null
-
-try {
-  oai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
-  oaiClient = Instructor({ client: oai, mode: 'TOOLS' })
-} catch (err) {
-  console.error('[memory] Failed to initialize OpenAI client:', (err as Error).message)
-}
 
 try {
   anthropicClient = new Anthropic({ apiKey: config.anthropic.apiKey })
@@ -60,6 +48,7 @@ const anthropic = anthropicClient
 // ============================================================================
 // Switch between 'together', 'claude', 'openai', or 'auto'
 // This is where YOU control which AI engine to use - LOT owns the decision!
+// Primary: Together AI (Llama-3.3-70B). Falls back to Claude if key missing.
 const AI_ENGINE_PREFERENCE: EnginePreference = 'together'
 
 const questionSchema = z.object({
@@ -192,41 +181,14 @@ Make sure the question is personalized, relevant to self-care habits, and the op
       ...validatedQuestion,
     }
   } catch (error: any) {
-    console.error('AI Engine failed, falling back to legacy OpenAI:', {
+    console.error('AI Engine failed, using backup questions:', {
       message: error.message,
-      stack: error.stack,
       user: user.email,
     })
 
-    try {
-      // FALLBACK 1: Use legacy OpenAI with Instructor if new system fails
-      if (!oaiClient) throw new Error('OpenAI client not initialized')
-      const extractedQuestion = await oaiClient.chat.completions.create({
-        messages: [{ role: 'user', content: prompt }],
-        model: 'gpt-4o-mini',
-        response_model: {
-          schema: questionSchema,
-          name: 'Question',
-        },
-      })
-      const validatedQuestion = questionSchema.parse(extractedQuestion)
-      return {
-        id: randomUUID(),
-        ...validatedQuestion,
-      }
-    } catch (openaiError: any) {
-      // FALLBACK 2: All AI engines failed - use hardcoded backup questions
-      console.error('OpenAI fallback also failed, using backup questions:', {
-        message: openaiError.message,
-        user: user.email,
-      })
-
-      // Use day of year to rotate through backup questions (provides variety without DB dependency)
-      const dayOfYear = dayjs().dayOfYear()
-
-      console.log(`🆘 EMERGENCY FALLBACK: Using backup question bank (day ${dayOfYear})`)
-      return getBackupQuestion(dayOfYear, promptsShownToday)
-    }
+    const dayOfYear = dayjs().dayOfYear()
+    console.log(`🆘 FALLBACK: Using backup question bank (day ${dayOfYear})`)
+    return getBackupQuestion(dayOfYear, promptsShownToday)
   }
 }
 
@@ -339,6 +301,19 @@ ${quantumState.needsSupport === 'critical' || quantumState.needsSupport === 'mod
   : ''}
 
 Match your question to their quantum state. The engine recognizes patterns they may not consciously see.`
+  }
+
+  // Planner context — user's declared daily intention
+  let plannerContext = ''
+  const recentPlanLog = logs.find(log => log.event === 'plan_set')
+  if (recentPlanLog?.text) {
+    const planDate = recentPlanLog.context?.timeZone
+      ? dayjs(recentPlanLog.createdAt).tz(recentPlanLog.context.timeZone).format('D MMM')
+      : dayjs(recentPlanLog.createdAt).format('D MMM')
+    plannerContext = `\n\n**User's Declared Daily Intention (${planDate}):**
+${recentPlanLog.text}
+
+**Planner-Aligned Guidance:** The user declared this intention today. Consider probing how they're experiencing the pursuit of it, what their "feeling" state reveals, or whether their daily approach (their "how") is serving their intent. Connect Memory questions back to what they consciously chose to focus on.`
   }
 
   // Goal context - understand what user is working toward
@@ -792,11 +767,12 @@ Recent activity logs (for additional context):
   `.trim()
   const formattedLogs = logs.map(formatLog).filter(Boolean).join('\n\n')
 
-  const fullPrompt = head + quantumContext + goalContext + '\n\n' + formattedLogs
+  const fullPrompt = head + quantumContext + plannerContext + goalContext + '\n\n' + formattedLogs
 
   console.log(`📨 Prompt built: ${fullPrompt.length} chars total`)
   console.log(`   - Head section: ${head.length} chars`)
   console.log(`   - Quantum context: ${quantumContext.length} chars`)
+  console.log(`   - Planner context: ${plannerContext.length} chars${recentPlanLog ? ' (plan found)' : ''}`)
   console.log(`   - Goal context: ${goalContext.length} chars`)
   console.log(`   - Formatted logs: ${formattedLogs.length} chars (${logs.map(formatLog).filter(Boolean).length} logs)`)
   console.log(`   - User story included: ${userStory.length > 0 ? 'YES' : 'NO'}`)
@@ -836,6 +812,15 @@ function formatLog(log: Log): string {
         return ''
       })
       body = changes.filter(Boolean).join('\n').trim()
+      break
+    }
+    case 'plan_set': {
+      body = log.text || ''
+      break
+    }
+    case 'emotional_checkin': {
+      const state = (log.metadata as any)?.emotionalState
+      if (state) body = `Biofield check-in: ${state}`
       break
     }
   }

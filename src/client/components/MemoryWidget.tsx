@@ -68,8 +68,6 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
       }
 
       const date = btoa(dayjs().format('YYYY-MM-DD'))
-      shownQuestionId.current = null
-      queryClient.invalidateQueries(['/api/memory', date])
 
       setIsQuestionShown(false)
       setTimeout(() => {
@@ -95,6 +93,12 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
               setIsDisplayed(false)
               setIsResponseShown(false)
               setResponse(null)
+              // Only now allow the next question to load — after the widget
+              // has fully dismissed. Moving this earlier caused the next
+              // question's show-timer to race with the response display and
+              // the old auto-hide timer to tear down the new question.
+              shownQuestionId.current = null
+              queryClient.invalidateQueries(['/api/memory', date])
             }, 1500)
           }, insight ? 8000 : 6000)
         }, 100)

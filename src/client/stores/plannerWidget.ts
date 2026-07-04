@@ -241,34 +241,47 @@ export async function checkPlannerWidget() {
   })
 }
 
-// Play click sound
+// Shared AudioContext — browsers limit total instances; reuse one for the lifetime of the widget
+let _audioCtx: AudioContext | null = null
+function getAudioContext(): AudioContext | null {
+  if (typeof window === 'undefined') return null
+  try {
+    if (!_audioCtx || _audioCtx.state === 'closed') {
+      _audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+    }
+    return _audioCtx
+  } catch {
+    return null
+  }
+}
+
+// Play click sound — non-blocking: errors are swallowed so navigation always works
 function playClickSound() {
-  // Create a short, satisfying click using Web Audio API
-  if (typeof window === 'undefined') return
+  try {
+    const audioContext = getAudioContext()
+    if (!audioContext) return
 
-  const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const oscillator1 = audioContext.createOscillator()
+    const oscillator2 = audioContext.createOscillator()
+    const gainNode = audioContext.createGain()
 
-  // Create a short click sound with two oscillators for richness
-  const oscillator1 = audioContext.createOscillator()
-  const oscillator2 = audioContext.createOscillator()
-  const gainNode = audioContext.createGain()
+    oscillator1.connect(gainNode)
+    oscillator2.connect(gainNode)
+    gainNode.connect(audioContext.destination)
 
-  oscillator1.connect(gainNode)
-  oscillator2.connect(gainNode)
-  gainNode.connect(audioContext.destination)
+    oscillator1.frequency.value = 800
+    oscillator2.frequency.value = 400
 
-  // Frequencies for a pleasing click
-  oscillator1.frequency.value = 800 // Higher frequency
-  oscillator2.frequency.value = 400 // Lower frequency
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05)
 
-  // Very short duration for a click
-  gainNode.gain.setValueAtTime(0.3, audioContext.currentTime)
-  gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.05)
-
-  oscillator1.start(audioContext.currentTime)
-  oscillator2.start(audioContext.currentTime)
-  oscillator1.stop(audioContext.currentTime + 0.05)
-  oscillator2.stop(audioContext.currentTime + 0.05)
+    oscillator1.start(audioContext.currentTime)
+    oscillator2.start(audioContext.currentTime)
+    oscillator1.stop(audioContext.currentTime + 0.05)
+    oscillator2.stop(audioContext.currentTime + 0.05)
+  } catch {
+    // Audio failure must never block navigation
+  }
 }
 
 // Navigate through suggestions
