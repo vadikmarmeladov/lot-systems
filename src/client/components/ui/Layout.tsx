@@ -89,7 +89,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
       {!hideNav && (
         <div
           id="nav"
-          className="sticky bottom-0 left-0 right-0 self-end transition-opacity"
+          className="sticky bottom-0 left-0 right-0 self-end transition-opacity z-10"
         >
           <div className="px-16 phone:px-32 tablet:px-48 desktop:px-64 mb-16 phone:mb-32 tablet:mb-48 desktop:mb-64">
             <nav

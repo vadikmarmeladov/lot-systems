@@ -186,6 +186,9 @@ export const Logs: React.FC = () => {
     const page = document.querySelector('#page')
     const onClick = (ev: Event) => {
       if (ev.target !== page) return
+      // Only navigate away when actually on the logs route — Logs stays mounted
+      // across all tabs so without this guard it would fire on Settings, Sync, etc.
+      if (stores.router.get()?.route !== 'logs') return
       stores.goTo('system')
     }
     page?.addEventListener('click', onClick)

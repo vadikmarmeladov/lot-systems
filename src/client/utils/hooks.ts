@@ -116,24 +116,29 @@ export function useMouseInactivity(
   delay: number,
   callback: (active: boolean) => void
 ) {
-  const [isMoving, setIsMoving] = React.useState(false)
+  const callbackRef = React.useRef(callback)
+  callbackRef.current = callback
+
   React.useEffect(() => {
     let timer: any = null
+    let isMoving = false
+
     const handleMouseMove = () => {
       if (timer) clearTimeout(timer)
       if (!isMoving) {
-        setIsMoving(true)
-        callback(true)
+        isMoving = true
+        callbackRef.current(true)
       }
       timer = setTimeout(() => {
-        setIsMoving(false)
-        callback(false)
+        isMoving = false
+        callbackRef.current(false)
       }, delay)
     }
+
     document.addEventListener('mousemove', handleMouseMove)
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
       if (timer) clearTimeout(timer)
     }
-  }, [delay, callback, isMoving])
+  }, [delay])
 }

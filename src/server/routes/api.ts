@@ -368,16 +368,14 @@ export default async (fastify: FastifyInstance) => {
         }
         case 'chat_message_like': {
           const payload = data as ChatMessageLikeEventPayload
-          const likes = await fastify.models.ChatMessageLike.findAll({
-            where: { messageId: payload.messageId },
+          // likes/likesCount are already computed by the POST handler.
+          // Only check if THIS client has liked the message — one row lookup
+          // instead of fetching every like row for every connected client.
+          const myLike = await fastify.models.ChatMessageLike.findOne({
+            where: { messageId: payload.messageId, userId: req.user.id },
+            attributes: ['id'],
           })
-          const updatedPayload: ChatMessageLikeEventPayload = {
-            ...payload,
-            likes: likes.length,
-            likesCount: likes.length,
-            isLiked: likes.some(fp.propEq('userId', req.user.id)),
-          }
-          write({ event, data: updatedPayload })
+          write({ event, data: { ...payload, isLiked: !!myLike } })
           break
         }
         case 'settings_updated': {
