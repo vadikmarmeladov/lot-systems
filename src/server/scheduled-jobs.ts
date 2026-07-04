@@ -1001,6 +1001,538 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Archetype Directive Pulse (Job 25 — 09:00 UTC every day) ─────────
+// Reads each active user's current archetype and writes an archetype_directive_pulse
+// log event with the day's operating directive. Fires at 09:00 UTC daily — the
+// beginning of the cognitive prime window for most operators. Distinct from
+// Job 10 (archetype shift monitor): shift monitors for archetype changes over 7d;
+// this pulse delivers the current archetype's directive each morning as an
+// actionable instrument reading. The DRCT: block surfaces it in the LOG.
+
+let isDailyArchetypeDirectivePulseRunning = false
+let lastDailyArchetypeDirectivePulseRun: Date | null = null
+
+function shouldRunDailyArchetypeDirectivePulse(): boolean {
+  const now = dayjs()
+  if (isDailyArchetypeDirectivePulseRunning) return false
+  if (lastDailyArchetypeDirectivePulseRun) {
+    const lastRun = dayjs(lastDailyArchetypeDirectivePulseRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 9 // 09:00 UTC daily
+}
+
+async function executeDailyArchetypeDirectivePulse(): Promise<JobResult> {
+  const jobName = 'daily-archetype-directive-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyArchetypeDirectivePulseRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyArchetypeDirectivePulseRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY ARCHETYPE DIRECTIVE PULSE — 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { $gte: oneDayAgo } as any },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    // Archetype directive map — compressed operating directives per archetype
+    const ARCHETYPE_DIRECTIVES: Record<string, { label: string; directive: string }> = {
+      'Relentless Builder':       { label: 'BUILD',    directive: 'Build without waiting for perfect conditions. Progress is the feedback.' },
+      'Resilient Protector':      { label: 'HOLD',     directive: 'Stability is not stagnation. Anchor others by anchoring yourself.' },
+      'Adaptive Navigator':       { label: 'ADAPT',    directive: 'The path shifts. Lock the destination, release the route.' },
+      'Quiet Achiever':           { label: 'EXECUTE',  directive: 'Depth over display. One completed thing outweighs ten announced.' },
+      'Visionary Connector':      { label: 'BRIDGE',   directive: 'The idea needs a listener. Make the connection today.' },
+      'Grounded Strategist':      { label: 'ANCHOR',   directive: 'Strategy without ground truth is noise. Read the real data.' },
+      'Energized Innovator':      { label: 'SPARK',    directive: 'Energy is the signal. Follow the pull, record the output.' },
+      'Reflective Observer':      { label: 'OBSERVE',  directive: 'Pattern recognition requires stillness. Observe before acting.' },
+      'Systematic Optimizer':     { label: 'OPTIMIZE', directive: 'One constraint removed today compounds for a year.' },
+      'Dynamic Challenger':       { label: 'PUSH',     directive: 'Resistance is the weight room. Enter it voluntarily.' },
+      'Empathetic Catalyst':      { label: 'MOVE',     directive: 'Your attention moves things. Point it where it matters.' },
+      'Precision Executor':       { label: 'PRECISE',  directive: 'The margin is in the detail. Eliminate the approximation.' },
+      'Integrative Thinker':      { label: 'CONNECT',  directive: 'The answer is usually in the gap between two fields.' },
+      'Momentum Builder':         { label: 'CONTINUE', directive: 'Streak is infrastructure. Protect it.' },
+      'Focused Achiever':         { label: 'LOCK',     directive: 'Single target. Full force. Today is not a day for optionality.' },
+      'Coherence Architect':      { label: 'ALIGN',    directive: 'Align one system today. The rest follows.' },
+      'Signal Amplifier':         { label: 'AMPLIFY',  directive: 'Surface what is working. Repeat it deliberately.' },
+      'Sovereign Operator':       { label: 'OPERATE',  directive: 'The system is you. Run it with intention.' },
+      'Structural Architect':     { label: 'FRAME',    directive: 'Good structure carries more than any single decision.' },
+      'Quantum Catalyst':         { label: 'CATALYZE', directive: 'State transition is available. Commit to the new configuration.' },
+      'Flow State Engineer':      { label: 'FLOW',     directive: 'Remove the one friction point. Flow does the rest.' },
+      'Temporal Strategist':      { label: 'TIME',     directive: 'Match the task to the window. Timing is leverage.' },
+      'Pattern Synthesizer':      { label: 'SYNTH',    directive: 'Two patterns converging is a signal. Act on the intersection.' },
+      'Evolutionary Operator':    { label: 'EVOLVE',   directive: 'The current configuration is not the final configuration. Update.' },
+      'Vital Force Carrier':      { label: 'VITALIZE', directive: 'Energy maintained is energy compounded. Protect the source.' },
+      'Resonance Field Builder':  { label: 'RESONATE', directive: 'The signal you broadcast is the environment you create.' },
+      'Deep Signal Reader':       { label: 'READ',     directive: 'The body is already reporting. Listen before acting.' },
+      'Crystalline Intelligence': { label: 'CLARIFY',  directive: 'Precision removes friction faster than speed ever will.' },
+      'Peak Strategist':          { label: 'PEAK',     directive: 'Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.' },
+    }
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const meta = (user as any).metadata as any || {}
+        const archetype = meta.currentArchetype as string | undefined
+        if (!archetype) continue
+        const entry = ARCHETYPE_DIRECTIVES[archetype]
+        if (!entry) continue
+        await (Log as any).create({
+          userId: (user as any).id,
+          event: 'archetype_directive_pulse',
+          text: entry.directive,
+          metadata: {
+            archetype,
+            label: entry.label,
+            directive: entry.directive,
+            hour: 9,
+          },
+        })
+        written++
+      } catch (_) {}
+    }
+
+    console.log(`ARCHETYPE DIRECTIVE PULSE COMPLETE — ${written} directives written`)
+    console.log('─'.repeat(60))
+
+    lastDailyArchetypeDirectivePulseRun = new Date()
+    isDailyArchetypeDirectivePulseRunning = false
+    return { jobName, executedAt, success: true, result: { written } }
+  } catch (error: any) {
+    console.error('Daily archetype directive pulse failed:', error.message)
+    isDailyArchetypeDirectivePulseRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Physiological Cohort Broadcast (Job 26 — 17:00 UTC every day) ────
+// Reads each active user's stored physiological cohort metadata and writes a
+// physiological_cohort log event. Surfaces archetype + dominantModule + confidence
+// for dashboard rendering at the end of the productive window. Distinct from
+// J25 (archetype directive pulse at 09:00): that job delivers the morning directive;
+// this job broadcasts the cohort state at 17:00 for afternoon/evening surfacing.
+
+let isDailyPhysiologicalCohortBroadcastRunning = false
+let lastDailyPhysiologicalCohortBroadcastRun: Date | null = null
+
+function shouldRunDailyPhysiologicalCohortBroadcast(): boolean {
+  const now = dayjs()
+  if (isDailyPhysiologicalCohortBroadcastRunning) return false
+  if (lastDailyPhysiologicalCohortBroadcastRun) {
+    const lastRun = dayjs(lastDailyPhysiologicalCohortBroadcastRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 17 // 17:00 UTC daily
+}
+
+async function executeDailyPhysiologicalCohortBroadcast(): Promise<JobResult> {
+  const jobName = 'daily-physiological-cohort-broadcast'
+  const executedAt = new Date().toISOString()
+  if (isDailyPhysiologicalCohortBroadcastRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPhysiologicalCohortBroadcastRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PHYSIOLOGICAL COHORT BROADCAST — 17:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { $gte: oneDayAgo } as any },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const meta = (user as any).metadata as any || {}
+        const archetype      = meta.currentArchetype      as string | undefined
+        const dominantModule = meta.currentDominantModule as string | undefined
+        const confidence     = meta.currentConfidence     as number | undefined
+        const energyBand     = meta.currentEnergyBand     as string | undefined
+        if (!archetype) continue
+        await (Log as any).create({
+          userId: (user as any).id,
+          event: 'physiological_cohort',
+          text: `Cohort broadcast: ${archetype}`,
+          metadata: {
+            archetype,
+            dominantModule: dominantModule ?? 'unknown',
+            confidence: confidence ?? 50,
+            energyBand: energyBand ?? 'unknown',
+            hour: 17,
+            source: 'j26-broadcast',
+          },
+        })
+        written++
+      } catch (_) {}
+    }
+
+    console.log(`PHYSIOLOGICAL COHORT BROADCAST COMPLETE — ${written} records written`)
+    console.log('─'.repeat(60))
+
+    lastDailyPhysiologicalCohortBroadcastRun = new Date()
+    isDailyPhysiologicalCohortBroadcastRunning = false
+    return { jobName, executedAt, success: true, result: { written } }
+  } catch (error: any) {
+    console.error('Daily physiological cohort broadcast failed:', error.message)
+    isDailyPhysiologicalCohortBroadcastRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Weekly Pattern Health Report (Job 27 — Saturday 09:00 UTC) ─────────────
+// Writes a pattern_health_scan log event per active user. Surfaces the count of
+// active QIE patterns detected in the past 7 days, pattern coverage percentage,
+// and the top pattern by signal weight. Enables PHR: block in Logs.tsx.
+// Fires Saturday 09:00 UTC — the beginning of the weekend review window.
+
+let isWeeklyPatternHealthReportRunning = false
+let lastWeeklyPatternHealthReportRun: Date | null = null
+
+function shouldRunWeeklyPatternHealthReport(): boolean {
+  const now = dayjs()
+  if (isWeeklyPatternHealthReportRunning) return false
+  if (lastWeeklyPatternHealthReportRun) {
+    const lastRun = dayjs(lastWeeklyPatternHealthReportRun)
+    const daysSinceLast = now.diff(lastRun, 'day')
+    if (daysSinceLast < 6) return false
+  }
+  return now.day() === 6 && now.hour() === 9 // Saturday 09:00 UTC
+}
+
+async function executeWeeklyPatternHealthReport(): Promise<JobResult> {
+  const jobName = 'weekly-pattern-health-report'
+  const executedAt = new Date().toISOString()
+  if (isWeeklyPatternHealthReportRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isWeeklyPatternHealthReportRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('WEEKLY PATTERN HEALTH REPORT — SATURDAY 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  const TOTAL_PATTERNS = 91
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { $gte: sevenDaysAgo } as any },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const meta = (user as any).metadata as any || {}
+        const activePatterns: string[] = (meta.activePatterns as string[]) ?? []
+        const patternsActive = activePatterns.length
+        const coverage = Math.round((patternsActive / TOTAL_PATTERNS) * 100)
+        const topPattern = activePatterns[0] ?? null
+
+        await (Log as any).create({
+          userId: (user as any).id,
+          event: 'pattern_health_scan',
+          text: `Pattern health: ${patternsActive} active of ${TOTAL_PATTERNS}`,
+          metadata: {
+            patternsActive,
+            coverage,
+            topPattern,
+            totalPatterns: TOTAL_PATTERNS,
+            window: '7d',
+            hour: 9,
+          },
+        })
+        written++
+      } catch (_) {}
+    }
+
+    console.log(`WEEKLY PATTERN HEALTH REPORT COMPLETE — ${written} reports written`)
+    console.log('─'.repeat(60))
+
+    lastWeeklyPatternHealthReportRun = new Date()
+    isWeeklyPatternHealthReportRunning = false
+    return { jobName, executedAt, success: true, result: { written } }
+  } catch (error: any) {
+    console.error('Weekly pattern health report failed:', error.message)
+    isWeeklyPatternHealthReportRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Presence Arc Check (Job 28 — 21:00 UTC every day) ────────────────
+// Reads today's log entries per user. Counts morning (before 10:00) and evening (after 18:00)
+// signals. Writes full_presence_arc event. If 3+ complete days this week → writes daily_rhythm_lock.
+
+let isDailyPresenceArcRunning = false
+let lastDailyPresenceArcRun: Date | null = null
+
+function shouldRunDailyPresenceArcCheck(): boolean {
+  const now = dayjs()
+  if (isDailyPresenceArcRunning) return false
+  if (lastDailyPresenceArcRun) {
+    const lastRun = dayjs(lastDailyPresenceArcRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 21 // 21:00 UTC daily
+}
+
+async function executeDailyPresenceArcCheck(): Promise<JobResult> {
+  const jobName = 'daily-presence-arc-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyPresenceArcRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPresenceArcRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PRESENCE ARC CHECK — 21:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const todayLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: oneDayAgo } },
+          attributes: ['createdAt', 'event'],
+        })
+        const weekLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: sevenDaysAgo } },
+          attributes: ['createdAt'],
+        })
+
+        const morningToday = todayLogs.filter((l: any) => new Date(l.createdAt).getHours() < 10).length
+        const eveningToday = todayLogs.filter((l: any) => new Date(l.createdAt).getHours() >= 18).length
+
+        // Count complete days (morning+evening) in past 7 days
+        const dayMap: Record<string, { morning: boolean; evening: boolean }> = {}
+        weekLogs.forEach((l: any) => {
+          const d = new Date(l.createdAt)
+          const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+          if (!dayMap[ds]) dayMap[ds] = { morning: false, evening: false }
+          if (d.getHours() < 10) dayMap[ds].morning = true
+          if (d.getHours() >= 18) dayMap[ds].evening = true
+        })
+        const completeDays = Object.values(dayMap).filter(v => v.morning && v.evening).length
+
+        if (morningToday > 0 || eveningToday > 0) {
+          await (Log as any).create({
+            userId,
+            event: 'full_presence_arc',
+            text: `Presence arc: morning ${morningToday} · evening ${eveningToday}`,
+            metadata: { morningCount: morningToday, eveningCount: eveningToday, completeDays, window: '1d', hour: 21 },
+          })
+          written++
+        }
+
+        if (completeDays >= 3) {
+          await (Log as any).create({
+            userId,
+            event: 'daily_rhythm_lock',
+            text: `Rhythm lock: ${completeDays} complete days (morning+evening) in 7d`,
+            metadata: { completeDays, morningToday, eveningToday, window: '7d', hour: 21 },
+          })
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailyPresenceArcRun = new Date()
+    isDailyPresenceArcRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily presence arc check failed:', error.message)
+    isDailyPresenceArcRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Cross-Domain Pulse (Job 29 — 19:00 UTC every day) ────────────────
+// Reads 7d logs per user. If memory 5+, journal 200+w, badges 2+, goals 2+, planner 2+
+// all present → writes cross_domain_mastery_pulse event.
+
+let isDailyCrossDomainRunning = false
+let lastDailyCrossDomainRun: Date | null = null
+
+function shouldRunDailyCrossDomainPulse(): boolean {
+  const now = dayjs()
+  if (isDailyCrossDomainRunning) return false
+  if (lastDailyCrossDomainRun) {
+    const lastRun = dayjs(lastDailyCrossDomainRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 19 // 19:00 UTC daily
+}
+
+async function executeDailyCrossDomainPulse(): Promise<JobResult> {
+  const jobName = 'daily-cross-domain-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyCrossDomainRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCrossDomainRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY CROSS-DOMAIN PULSE — 19:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const weekLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: sevenDaysAgo } },
+          attributes: ['event', 'metadata'],
+        })
+
+        const memoryCount  = weekLogs.filter((l: any) => ['memory_saved', 'answer_created'].includes(l.event)).length
+        const journalLogs  = weekLogs.filter((l: any) => l.event === 'field_entry' || l.event === 'journal_entry')
+        const journalWords = journalLogs.reduce((sum: number, l: any) => sum + ((l.metadata?.wordCount as number) ?? 0), 0)
+        const badgeCount   = weekLogs.filter((l: any) => l.event === 'badge_unlock').length
+        const goalCount    = weekLogs.filter((l: any) => ['goal_created', 'goal_updated', 'goal_completed'].includes(l.event)).length
+        const plannerCount = weekLogs.filter((l: any) => ['planner_entry', 'calendar_entry'].includes(l.event)).length
+
+        if (memoryCount >= 5 && journalWords >= 200 && badgeCount >= 2 && goalCount >= 2 && plannerCount >= 2) {
+          await (Log as any).create({
+            userId,
+            event: 'cross_domain_mastery_pulse',
+            text: `Cross-domain: ${memoryCount} mem · ${journalWords}w · ${badgeCount} badges · ${goalCount} goals · ${plannerCount} plans`,
+            metadata: { memoryCount, journalWords, badgeCount, goalCount, plannerCount, window: '7d', hour: 19 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailyCrossDomainRun = new Date()
+    isDailyCrossDomainRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily cross-domain pulse failed:', error.message)
+    isDailyCrossDomainRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Systemic Readiness Check (Job 30 — 01:00 UTC every day) ──────────
+// Reads user metadata per active user. If archetype confidence ≥ 60 + energy band
+// is 'high' or 'moderate' + no critical flag → writes systemic_readiness_peak event.
+
+let isDailySystemicReadinessRunning = false
+let lastDailySystemicReadinessRun: Date | null = null
+
+function shouldRunDailySystemicReadinessCheck(): boolean {
+  const now = dayjs()
+  if (isDailySystemicReadinessRunning) return false
+  if (lastDailySystemicReadinessRun) {
+    const lastRun = dayjs(lastDailySystemicReadinessRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 1 // 01:00 UTC daily
+}
+
+async function executeDailySystemicReadinessCheck(): Promise<JobResult> {
+  const jobName = 'daily-systemic-readiness-check'
+  const executedAt = new Date().toISOString()
+  if (isDailySystemicReadinessRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailySystemicReadinessRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY SYSTEMIC READINESS CHECK — 01:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id', 'metadata'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const meta = (user as any).metadata as any || {}
+        const currentArchetype: string = meta.currentArchetype ?? ''
+        const archetypeConfidence: number = meta.archetypeConfidence ?? 0
+        const energyBand: string = meta.energyBand ?? 'unknown'
+        const criticalFlag: boolean = meta.criticalFlag ?? false
+
+        if (
+          archetypeConfidence >= 60 &&
+          (energyBand === 'high' || energyBand === 'moderate') &&
+          !criticalFlag
+        ) {
+          await (Log as any).create({
+            userId: (user as any).id,
+            event: 'systemic_readiness_peak',
+            text: `Systemic readiness peak — ${currentArchetype || 'archetype'} · ${archetypeConfidence}% conf · ${energyBand} energy`,
+            metadata: {
+              archetype: currentArchetype,
+              confidence: archetypeConfidence,
+              energyBand,
+              readinessScore: archetypeConfidence,
+              hour: 1,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailySystemicReadinessRun = new Date()
+    isDailySystemicReadinessRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily systemic readiness check failed:', error.message)
+    isDailySystemicReadinessRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Check and run scheduled jobs
  * Called periodically by the scheduler
@@ -1117,6 +1649,324 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check weekly LOT AI story generation (Sunday 18:00 UTC) — Job 24
   if (shouldRunWeeklyLOTAIStory()) {
     await executeWeeklyLOTAIStory()
+  }
+  // Check daily archetype directive pulse (09:00 UTC every day) — Job 25
+  if (shouldRunDailyArchetypeDirectivePulse()) {
+    await executeDailyArchetypeDirectivePulse()
+  }
+  // Check daily physiological cohort broadcast (17:00 UTC every day) — Job 26
+  if (shouldRunDailyPhysiologicalCohortBroadcast()) {
+    await executeDailyPhysiologicalCohortBroadcast()
+  }
+  // Check weekly pattern health report (Saturday 09:00 UTC) — Job 27
+  if (shouldRunWeeklyPatternHealthReport()) {
+    await executeWeeklyPatternHealthReport()
+  }
+  // Check daily presence arc check (21:00 UTC every day) — Job 28
+  if (shouldRunDailyPresenceArcCheck()) {
+    await executeDailyPresenceArcCheck()
+  }
+  // Check daily cross-domain pulse (19:00 UTC every day) — Job 29
+  if (shouldRunDailyCrossDomainPulse()) {
+    await executeDailyCrossDomainPulse()
+  }
+  // Check daily systemic readiness check (01:00 UTC every day) — Job 30
+  if (shouldRunDailySystemicReadinessCheck()) {
+    await executeDailySystemicReadinessCheck()
+  }
+  // Check daily intent gap pulse (02:00 UTC every day) — Job 31
+  if (shouldRunDailyIntentGapPulse()) {
+    await executeDailyIntentGapPulse()
+  }
+  // Check daily quantum presence check (18:00 UTC every day) — Job 32
+  if (shouldRunDailyQuantumPresenceCheck()) {
+    await executeDailyQuantumPresenceCheck()
+  }
+  // Check daily vitality cascade pulse (15:00 UTC every day) — Job 33
+  if (shouldRunDailyVitalityCascadePulse()) {
+    await executeDailyVitalityCascadePulse()
+  }
+}
+
+// ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
+// Reads active users. Finds those with an intention log in the last 24h but no
+// plan_set / goal_created / goal_updated in the same window. Writes intent_gap_pulse.
+
+let isDailyIntentGapRunning = false
+let lastDailyIntentGapRun: Date | null = null
+
+function shouldRunDailyIntentGapPulse(): boolean {
+  const now = dayjs()
+  if (isDailyIntentGapRunning) return false
+  if (lastDailyIntentGapRun) {
+    const lastRun = dayjs(lastDailyIntentGapRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 2 // 02:00 UTC daily
+}
+
+async function executeDailyIntentGapPulse(): Promise<JobResult> {
+  const jobName = 'daily-intent-gap-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyIntentGapRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyIntentGapRunning = true
+
+  console.log('')
+  console.log('DAILY INTENT GAP PULSE — 02:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const dayLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: oneDayAgo } },
+          attributes: ['event', 'metadata', 'createdAt'],
+        })
+
+        const intentions = dayLogs.filter((l: any) =>
+          ['intention_set', 'intention_created', 'daily_intention'].includes(l.event)
+        )
+        const actions = dayLogs.filter((l: any) =>
+          ['plan_set', 'planner_entry', 'calendar_entry', 'goal_created', 'goal_updated', 'goal_completed'].includes(l.event)
+        )
+
+        if (intentions.length >= 1 && actions.length === 0) {
+          const lastIntention = intentions[intentions.length - 1]
+          const gapMinutes = Math.round((Date.now() - new Date(lastIntention.createdAt).getTime()) / 60000)
+          await (Log as any).create({
+            userId,
+            event: 'intent_gap_pulse',
+            text: `Intent gap: ${intentions.length} intention(s) — no plan or goal in 24h. Gap: ${gapMinutes}m.`,
+            metadata: { intentionCount: intentions.length, gapMinutes, window: '24h', hour: 2 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Written: ${written}`)
+    lastDailyIntentGapRun = new Date()
+    isDailyIntentGapRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily intent gap pulse failed:', error.message)
+    isDailyIntentGapRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Quantum Presence Check (Job 32 — 18:00 UTC every day) ─────────────
+// Reads 48h logs per user. Checks if all 6 primary signal sources fired.
+// Writes quantum_presence_arc when all 6 channels active.
+
+let isDailyQuantumPresenceRunning = false
+let lastDailyQuantumPresenceRun: Date | null = null
+
+function shouldRunDailyQuantumPresenceCheck(): boolean {
+  const now = dayjs()
+  if (isDailyQuantumPresenceRunning) return false
+  if (lastDailyQuantumPresenceRun) {
+    const lastRun = dayjs(lastDailyQuantumPresenceRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 18 // 18:00 UTC daily
+}
+
+async function executeDailyQuantumPresenceCheck(): Promise<JobResult> {
+  const jobName = 'daily-quantum-presence-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyQuantumPresenceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyQuantumPresenceRunning = true
+
+  console.log('')
+  console.log('DAILY QUANTUM PRESENCE CHECK — 18:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const twoDaysAgo = dayjs().subtract(48, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: twoDaysAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    // Primary signal event types per channel
+    const PRIMARY_CHANNELS: Record<string, string[]> = {
+      journal:    ['note', 'journal_entry', 'field_entry'],
+      memory:     ['answer', 'memory_answer', 'weekly_summary_response'],
+      planner:    ['plan_set', 'planner_entry', 'calendar_entry'],
+      selfcare:   ['self_care_complete', 'self_care_completed', 'self_care_skip'],
+      intentions: ['intention', 'intention_set', 'daily_intention'],
+      mood:       ['emotional_checkin', 'mood_checkin', 'energy_checkin'],
+    }
+    const ALL_EVENTS = Object.values(PRIMARY_CHANNELS).flat()
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: twoDaysAgo },
+            event: { [Op.in]: ALL_EVENTS },
+          },
+          attributes: ['event'],
+          limit: 500,
+        })
+
+        const presentChannels = new Set<string>()
+        for (const log of recentLogs) {
+          for (const [channel, events] of Object.entries(PRIMARY_CHANNELS)) {
+            if (events.includes(log.event)) presentChannels.add(channel)
+          }
+        }
+
+        if (presentChannels.size === 6) {
+          await (Log as any).create({
+            userId,
+            event: 'quantum_presence_arc',
+            text: `Quantum presence arc: all 6 primary channels active in 48h window.`,
+            metadata: {
+              activeChannels: 6,
+              totalSources: presentChannels.size,
+              channels: [...presentChannels],
+              window: '48h',
+              hour: 18,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Quantum presence events written: ${written}`)
+    lastDailyQuantumPresenceRun = new Date()
+    isDailyQuantumPresenceRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily quantum presence check failed:', error.message)
+    isDailyQuantumPresenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Vitality Cascade Pulse (Job 33 — 15:00 UTC every day) ─────────────
+// Reads active users' 24h logs. Confirms high energy + 3+ selfcare acts + positive
+// mood + journal entry. Writes vitality_cascade when all conditions met.
+
+let isDailyVitalityCascadeRunning = false
+let lastDailyVitalityCascadeRun: Date | null = null
+
+function shouldRunDailyVitalityCascadePulse(): boolean {
+  const now = dayjs()
+  if (isDailyVitalityCascadeRunning) return false
+  if (lastDailyVitalityCascadeRun) {
+    const lastRun = dayjs(lastDailyVitalityCascadeRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 15 // 15:00 UTC daily
+}
+
+async function executeDailyVitalityCascadePulse(): Promise<JobResult> {
+  const jobName = 'daily-vitality-cascade-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyVitalityCascadeRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyVitalityCascadeRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY VITALITY CASCADE PULSE — 15:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    const SELFCARE_EVENTS = ['self_care_complete', 'self_care_completed']
+    const POSITIVE_MOOD_SIGNALS = ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled', 'excited', 'grateful']
+    const JOURNAL_EVENTS = ['note', 'journal_entry', 'field_entry']
+    const ENERGY_EVENTS = ['energy_checkin', 'energy_set']
+    const MOOD_EVENTS = ['emotional_checkin', 'mood_checkin', 'mood_set']
+    const ALL_EVENTS = [...SELFCARE_EVENTS, ...JOURNAL_EVENTS, ...ENERGY_EVENTS, ...MOOD_EVENTS]
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: ALL_EVENTS },
+          },
+          attributes: ['event', 'metadata'],
+          limit: 500,
+        })
+
+        const selfcareLogs = recentLogs.filter((l: any) => SELFCARE_EVENTS.includes(l.event))
+        const journalLogs = recentLogs.filter((l: any) => JOURNAL_EVENTS.includes(l.event))
+        const hasPositiveMood = recentLogs.some((l: any) =>
+          MOOD_EVENTS.includes(l.event) &&
+          POSITIVE_MOOD_SIGNALS.includes(l.metadata?.mood ?? l.metadata?.signal ?? '')
+        )
+        const hasHighEnergy = recentLogs.some((l: any) =>
+          ENERGY_EVENTS.includes(l.event) &&
+          (l.metadata?.energy === 'high' || l.metadata?.level === 'high')
+        )
+
+        if (hasHighEnergy && selfcareLogs.length >= 3 && hasPositiveMood && journalLogs.length >= 1) {
+          const confidence = Math.min(0.78 + (selfcareLogs.length - 3) * 0.04, 0.90)
+          await (Log as any).create({
+            userId,
+            event: 'vitality_cascade',
+            text: `Vitality cascade: high energy + ${selfcareLogs.length} selfcare acts + positive mood + journal entry in 24h.`,
+            metadata: {
+              selfcareCount: selfcareLogs.length,
+              journalCount: journalLogs.length,
+              energyBand: 'high',
+              confidence,
+              window: '24h',
+              hour: 15,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Vitality cascade events written: ${written}`)
+    lastDailyVitalityCascadeRun = new Date()
+    isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily vitality cascade pulse failed:', error.message)
+    isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
   }
 }
 
@@ -3189,6 +4039,11 @@ export function initializeScheduledJobs(): void {
   console.log('   - Weekly longitudinal drift check: 9 AM UTC every Monday')
   console.log('   - Daily QOS mode watch: 2 PM UTC every day')
   console.log('   - Weekly LOT® AI story generation: 6 PM UTC every Sunday')
+  console.log('   - Daily archetype directive pulse: 9 AM UTC every day')
+  console.log('   - Daily presence arc check: 9 PM UTC every day (Job 28)')
+  console.log('   - Daily cross-domain pulse: 7 PM UTC every day (Job 29)')
+  console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
+  console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -3198,8 +4053,8 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 18=LOT AI story (Sun), 20=intention completion+signal-momentum, 22=evening-coherence-close, 23=pattern coverage
-    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 0 || hour === 18 || hour === 20 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
+    if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
       } catch (error: any) {

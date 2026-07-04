@@ -2023,6 +2023,387 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 87: Weekly story reflection — lot_ai_story log exists for this week AND
+  // operator journaled (note/journal) within 24h. The operator read their own arc
+  // and responded in writing. Reflection loop closed.
+  const p87StorySignal = signals.find(s => s.source === 'log' && s.signal === 'lot_ai_story')
+  const p87JournalRecent = signals.filter(s => s.source === 'journal' && now - s.timestamp < 24 * 60 * 60 * 1000)
+  if (p87StorySignal && p87JournalRecent.length >= 1) {
+    patterns.push({
+      pattern: 'weekly-story-reflection',
+      confidence: 0.72,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `WEEKLY STORY REFLECTION: Weekly arc delivered + journal entry within 24h. Reflection loop closed. Operator is processing their own pattern record.`,
+    })
+  }
+
+  // Pattern 88: Contextual check-in momentum — 3+ emotional_checkins in 24h with ≥50% positive.
+  // High-frequency self-reporting with net-positive valence. The system is being used
+  // as intended: frequent micro-reads of internal state, signal density rising, tone net-forward.
+  const p88Checkins24h = signals.filter(s => s.source === 'energy' && now - s.timestamp < 24 * 60 * 60 * 1000)
+  const p88Positive = p88Checkins24h.filter(s => {
+    const POSITIVE = new Set(['energized', 'calm', 'hopeful', 'grateful', 'fulfilled', 'content', 'peaceful', 'excited', 'grounded', 'focused', 'flowing', 'steady'])
+    return POSITIVE.has(s.signal)
+  })
+  if (p88Checkins24h.length >= 3 && p88Positive.length >= Math.ceil(p88Checkins24h.length * 0.5)) {
+    const positiveRate = p88Positive.length / p88Checkins24h.length
+    patterns.push({
+      pattern: 'contextual-checkin-momentum',
+      confidence: Math.min(0.65 + positiveRate * 0.20, 0.85),
+      suggestedWidget: 'energy',
+      suggestedTiming: 'passive',
+      reason: `CONTEXTUAL CHECK-IN MOMENTUM: ${p88Checkins24h.length} check-ins in 24h, ${Math.round(positiveRate * 100)}% positive. High-frequency self-tracking with net-forward valence. Signal density healthy.`,
+    })
+  }
+
+  // Pattern 89: Quantum learning spiral — memory 3+ in 7d + journal 150+ words in 7d + badge_unlock in 7d.
+  // Deep learning loop: knowledge capture → reflection → discovery co-firing simultaneously.
+  const p89Cut = now - 7 * 24 * 60 * 60 * 1000
+  const p89Memory = signals.filter(s => s.source === 'memory' && s.timestamp > p89Cut)
+  const p89Journal = signals.filter(s => s.source === 'journal' && s.timestamp > p89Cut)
+  const p89JournalWords = p89Journal.reduce((sum, s) => sum + ((s.metadata?.wordCount as number) ?? 0), 0)
+  const p89Badge = signals.filter(s => s.source === 'badges' && s.timestamp > p89Cut)
+  if (p89Memory.length >= 3 && p89JournalWords >= 150 && p89Badge.length >= 1) {
+    patterns.push({
+      pattern: 'quantum-learning-spiral',
+      confidence: Math.min(0.68 + (p89Memory.length - 3) * 0.04 + (p89Badge.length - 1) * 0.04, 0.88),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `QUANTUM LEARNING SPIRAL: ${p89Memory.length} memories + ${p89JournalWords}w journal + ${p89Badge.length} badge(s) in 7d. Knowledge capture, reflection, and discovery simultaneously active. Deep learning loop confirmed.`,
+    })
+  }
+
+  // Pattern 90: Accountability arc — intention set + cohort message + goal action within 7d.
+  // External commitment loop: declare → share → execute. The social execution gate.
+  const p90Cut = now - 7 * 24 * 60 * 60 * 1000
+  const p90Intention = signals.filter(s => s.source === 'intentions' && s.timestamp > p90Cut)
+  const p90Cohort = signals.filter(s => s.source === 'cohort' && s.timestamp > p90Cut)
+  const p90Goals = signals.filter(s => s.source === 'goals' && s.timestamp > p90Cut)
+  if (p90Intention.length >= 1 && p90Cohort.length >= 1 && p90Goals.length >= 1) {
+    const depth = p90Intention.length + p90Goals.length
+    patterns.push({
+      pattern: 'accountability-arc',
+      confidence: Math.min(0.70 + depth * 0.04, 0.90),
+      suggestedWidget: 'cohort',
+      suggestedTiming: 'passive',
+      reason: `ACCOUNTABILITY ARC: Intention set + cohort message + goal action within 7d. External commitment loop closed — declared, shared, executed.`,
+    })
+  }
+
+  // Pattern 91: Full-presence arc — morning signal (before 09:00) AND evening signal (18:00–23:00)
+  // recorded on the same calendar day. The most complete single-day engagement arc.
+  const p91Today = new Date()
+  const p91DateStr = `${p91Today.getFullYear()}-${String(p91Today.getMonth() + 1).padStart(2, '0')}-${String(p91Today.getDate()).padStart(2, '0')}`
+  const p91Morning = signals.filter(s => {
+    const d = new Date(s.timestamp)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    return ds === p91DateStr && d.getHours() < 9
+  })
+  const p91Evening = signals.filter(s => {
+    const d = new Date(s.timestamp)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    return ds === p91DateStr && d.getHours() >= 18 && d.getHours() < 23
+  })
+  if (p91Morning.length >= 1 && p91Evening.length >= 1) {
+    patterns.push({
+      pattern: 'full-presence-arc',
+      confidence: 0.82,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `FULL PRESENCE ARC: Morning signal (before 09:00) + evening signal (18:00–23:00) on same calendar day. Complete day captured. Both arcs closed.`,
+    })
+  }
+
+  // Pattern 92: Systemic readiness peak — energy + clarity + alignment all positive, no critical patterns,
+  // physiological readiness > 70. Full biological and cognitive stack simultaneously clear.
+  const p92Energy = state.userState.energy === 'high' || state.userState.energy === 'moderate'
+  const p92Clarity = state.userState.clarity === 'focused' || state.userState.clarity === 'clear'
+  const p92Alignment = state.userState.alignment === 'flowing' || state.userState.alignment === 'aligned'
+  const p92NoCritical = !patterns.some(p =>
+    ['physiological-depletion', 'sleep-debt-accumulation', 'recovery-plateau', 'longitudinal-drift'].includes(p.pattern)
+  )
+  const p92Recent = signals.filter(s => s.timestamp > now - 4 * 60 * 60 * 1000)
+  const p92Sources = new Set(p92Recent.map(s => s.source))
+  if (p92Energy && p92Clarity && p92Alignment && p92NoCritical && p92Sources.size >= 3) {
+    patterns.push({
+      pattern: 'systemic-readiness-peak',
+      confidence: 0.85,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'immediate',
+      reason: `SYSTEMIC READINESS PEAK: Energy ${state.userState.energy} · clarity ${state.userState.clarity} · alignment ${state.userState.alignment} · ${p92Sources.size} active sources. Full biological and cognitive stack simultaneously clear.`,
+    })
+  }
+
+  // Pattern 93: Daily rhythm lock — morning signal (before 10:00) AND evening signal (after 18:00)
+  // detected on 3+ consecutive calendar days in the past week. Diurnal regularity confirmed.
+  const p93Cut = now - 7 * 24 * 60 * 60 * 1000
+  const p93Week = signals.filter(s => s.timestamp > p93Cut)
+  const p93DayMap: Record<string, { morning: boolean; evening: boolean }> = {}
+  p93Week.forEach(s => {
+    const d = new Date(s.timestamp)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    if (!p93DayMap[ds]) p93DayMap[ds] = { morning: false, evening: false }
+    if (d.getHours() < 10) p93DayMap[ds].morning = true
+    if (d.getHours() >= 18) p93DayMap[ds].evening = true
+  })
+  const p93CompleteDays = Object.values(p93DayMap).filter(v => v.morning && v.evening).length
+  if (p93CompleteDays >= 3) {
+    patterns.push({
+      pattern: 'daily-rhythm-lock',
+      confidence: Math.min(0.75 + (p93CompleteDays - 3) * 0.05, 0.92),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `DAILY RHYTHM LOCK: ${p93CompleteDays} complete days (morning + evening) in past 7d. Diurnal arc confirmed — the rhythm is structural.`,
+    })
+  }
+
+  // Pattern 94: Cross-domain mastery — memory 5+, journal 200+w, badges 2+, goals 2+, planner 2+
+  // all in a 7-day window. Full spectrum engagement: capture, reflection, discovery, goals, structure.
+  const p94Cut = now - 7 * 24 * 60 * 60 * 1000
+  const p94Memory  = signals.filter(s => s.source === 'memory'    && s.timestamp > p94Cut)
+  const p94Journal = signals.filter(s => s.source === 'journal'   && s.timestamp > p94Cut)
+  const p94JWords  = p94Journal.reduce((sum, s) => sum + ((s.metadata?.wordCount as number) ?? 0), 0)
+  const p94Badges  = signals.filter(s => s.source === 'badges'    && s.timestamp > p94Cut)
+  const p94Goals   = signals.filter(s => s.source === 'goals'     && s.timestamp > p94Cut)
+  const p94Planner = signals.filter(s => s.source === 'planner'   && s.timestamp > p94Cut)
+  if (p94Memory.length >= 5 && p94JWords >= 200 && p94Badges.length >= 2 && p94Goals.length >= 2 && p94Planner.length >= 2) {
+    patterns.push({
+      pattern: 'cross-domain-mastery',
+      confidence: Math.min(0.72 + (p94Memory.length - 5) * 0.03, 0.90),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `CROSS-DOMAIN MASTERY: ${p94Memory.length} memories · ${p94JWords}w journal · ${p94Badges.length} badges · ${p94Goals.length} goals · ${p94Planner.length} plans in 7d. Full engagement spectrum active simultaneously.`,
+    })
+  }
+
+  // Pattern 95: Intent-to-action gap — intention set in last 24h with no planner/goal in same window.
+  // Early decay signal before P47's 48h threshold fires. Indicates intention not yet anchored.
+  const p95Cut = now - 24 * 60 * 60 * 1000
+  const p95Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p95Cut)
+  const p95Plans      = signals.filter(s => (s.source === 'planner' || s.source === 'goals') && s.timestamp > p95Cut)
+  if (p95Intentions.length >= 1 && p95Plans.length === 0) {
+    const gapMinutes = Math.round((now - Math.max(...p95Intentions.map(s => s.timestamp))) / 60000)
+    patterns.push({
+      pattern: 'intent-to-action-gap',
+      confidence: Math.min(0.60 + p95Intentions.length * 0.06, 0.78),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'active',
+      reason: `INTENT GAP: ${p95Intentions.length} intention(s) set — no plan or goal in 24h. Gap: ${gapMinutes}m. Bridge intention to structure now.`,
+    })
+  }
+
+  // Pattern 96: Recovery initiation — first selfcare signal after depleted/low energy same day.
+  // The arc begins. Biology re-engaging after a drain cycle.
+  const p96TodayStart = new Date(now)
+  p96TodayStart.setHours(0, 0, 0, 0)
+  const p96TodaySelfcare = signals.filter(s => s.source === 'selfcare' && s.timestamp >= p96TodayStart.getTime())
+  const p96TodayEnergy   = signals.filter(s => s.source === 'energy'   && s.timestamp >= p96TodayStart.getTime())
+  const p96PriorEnergy   = p96TodayEnergy.filter(s => (s.metadata?.level as string | undefined) === 'depleted' || (s.metadata?.level as string | undefined) === 'low')
+  if (p96TodaySelfcare.length >= 1 && p96TodaySelfcare.length <= 2 && p96PriorEnergy.length >= 1) {
+    patterns.push({
+      pattern: 'recovery-initiation',
+      confidence: 0.72,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'active',
+      reason: `RECOVERY ARC: First selfcare signal detected after depleted/low energy today. Arc begins — ${p96TodaySelfcare.length} signal(s). Support the re-entry.`,
+    })
+  }
+
+  // Pattern 97: Cognitive-vitality sync — journal 150+w + memory capture when energy=high AND clarity=focused.
+  // Biology powering cognition. Dual-system activation: body and mind aligned.
+  const p97Cut       = now - 24 * 60 * 60 * 1000
+  const p97Journal   = signals.filter(s => s.source === 'journal' && s.timestamp > p97Cut)
+  const p97JWords    = p97Journal.reduce((sum, s) => sum + ((s.metadata?.wordCount as number) ?? 0), 0)
+  const p97Memory    = signals.filter(s => s.source === 'memory' && s.timestamp > p97Cut)
+  const p97HighEnergy = signals.filter(s =>
+    s.source === 'energy' && s.timestamp > p97Cut &&
+    ((s.metadata?.level as string | undefined) === 'high' || (s.metadata?.band as string | undefined) === 'high')
+  )
+  if (p97JWords >= 150 && p97Memory.length >= 1 && p97HighEnergy.length >= 1) {
+    patterns.push({
+      pattern: 'cognitive-vitality-sync',
+      confidence: Math.min(0.72 + p97Memory.length * 0.04 + (p97JWords >= 300 ? 0.12 : 0), 0.88),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `COGNITIVE SYNC: ${p97JWords}w journal + ${p97Memory.length} memory captures during high energy. Biology powering cognition — dual-system activation confirmed.`,
+    })
+  }
+
+  // Pattern 98: Action-completion-arc — intention set AND planner/goal recorded in same 24h window.
+  // Resolution of P95. The gap is closed. Intention has become structure.
+  const p98Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p95Cut)
+  const p98Plans      = signals.filter(s => (s.source === 'planner' || s.source === 'goals') && s.timestamp > p95Cut)
+  if (p98Intentions.length >= 1 && p98Plans.length >= 1) {
+    patterns.push({
+      pattern: 'action-completion-arc',
+      confidence: Math.min(0.65 + p98Plans.length * 0.07 + p98Intentions.length * 0.04, 0.82),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `COMPLETION ARC: ${p98Intentions.length} intention(s) → ${p98Plans.length} plan/goal in 24h. Gap closed. Intention is now structure.`,
+    })
+  }
+
+  // Pattern 99: Biological-restoration-peak — depleted/low energy → 3+ selfcare acts → moderate/high energy same day.
+  // Full recovery arc completed within a single day. Biology rebounded.
+  const p99TodaySelfcare    = signals.filter(s => s.source === 'selfcare' && s.timestamp >= p96TodayStart.getTime())
+  const p99TodayHighEnergy  = signals.filter(s =>
+    s.source === 'energy' && s.timestamp >= p96TodayStart.getTime() &&
+    ((s.metadata?.level as string | undefined) === 'moderate' || (s.metadata?.level as string | undefined) === 'high' ||
+     (s.metadata?.band  as string | undefined) === 'moderate'  || (s.metadata?.band  as string | undefined) === 'high')
+  )
+  if (p99TodaySelfcare.length >= 3 && p96PriorEnergy.length >= 1 && p99TodayHighEnergy.length >= 1) {
+    patterns.push({
+      pattern: 'biological-restoration-peak',
+      confidence: Math.min(0.70 + p99TodaySelfcare.length * 0.05, 0.88),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `BIOL RESTORE: ${p99TodaySelfcare.length} selfcare signals — depleted/low → moderate/high today. Recovery arc complete.`,
+    })
+  }
+
+  // Pattern 100: Centennial Convergence — all 6 primary signal sources active with high energy + positive mood within 12h.
+  // Milestone pattern. The rarest and highest-coherence state in the QIE.
+  const p100Cut        = now - 12 * 60 * 60 * 1000
+  const p100Signals    = signals.filter(s => s.timestamp > p100Cut)
+  const p100Sources    = new Set(p100Signals.map(s => s.source))
+  const p100Primary    = ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood']
+  const p100AllActive  = p100Primary.every(src => p100Sources.has(src))
+  const p100HighEnergy = signals.some(s =>
+    s.source === 'energy' && s.timestamp > p100Cut &&
+    ((s.metadata?.level as string | undefined) === 'high' || (s.metadata?.band as string | undefined) === 'high')
+  )
+  const p100PosMood    = signals.some(s =>
+    s.source === 'mood' && s.timestamp > p100Cut &&
+    ['calm', 'energized', 'hopeful', 'excited', 'grateful', 'peaceful', 'fulfilled'].includes(s.signal)
+  )
+  if (p100AllActive && p100HighEnergy && p100PosMood) {
+    patterns.push({
+      pattern: 'centennial-convergence',
+      confidence: Math.min(0.82 + Math.max(0, p100Signals.length - 10) * 0.01, 0.97),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `CENTENNIAL: All 6 primary sources active · high energy · positive mood within 12h. P100 — rarest system state.`,
+    })
+  }
+
+  // Pattern 101: Quantum-presence-arc — all 6 primary sources active in a 48h window.
+  // Wider persistence window than P100 (12h). Tracks sustained operator presence across two days.
+  const p101Cut      = now - 48 * 60 * 60 * 1000
+  const p101Signals  = signals.filter(s => s.timestamp > p101Cut)
+  const p101Sources  = new Set(p101Signals.map(s => s.source))
+  const p101Primary  = ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood']
+  const p101AllActive = p101Primary.every(src => p101Sources.has(src))
+  if (p101AllActive) {
+    patterns.push({
+      pattern: 'quantum-presence-arc',
+      confidence: Math.min(0.70 + p101Sources.size * 0.02 + p101Signals.length * 0.005, 0.85),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `QPRES: ${p101Primary.length}/${p101Primary.length} primary channels active in 48h. ${p101Sources.size} total sources. Operator fully present.`,
+    })
+  }
+
+  // Pattern 102: Planner-intention-sync — intentions + plan_set both fire within a 2h window.
+  // Structural alignment: stated intention AND planned structure in the same session.
+  const p102Cut       = now - 2 * 60 * 60 * 1000
+  const p102Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p102Cut)
+  const p102Plans      = signals.filter(s => s.source === 'planner' && s.timestamp > p102Cut)
+  if (p102Intentions.length >= 1 && p102Plans.length >= 1) {
+    patterns.push({
+      pattern: 'planner-intention-sync',
+      confidence: Math.min(0.68 + p102Intentions.length * 0.04 + p102Plans.length * 0.04, 0.82),
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `PSYNC: ${p102Intentions.length} intention(s) + ${p102Plans.length} plan(s) in 2h window. Intent and structure aligned.`,
+    })
+  }
+
+  // Pattern 103: Resilience-cascade — depleted/low energy → 2+ selfcare acts → memory capture + positive mood, all within 18h.
+  // Full inner recovery loop with knowledge capture. Extends P48 (recovery-velocity) to include knowledge consolidation.
+  const p103Cut       = now - 18 * 60 * 60 * 1000
+  const p103Depleted  = signals.filter(s =>
+    s.source === 'energy' && s.timestamp > p103Cut &&
+    ((s.metadata?.level as string | undefined) === 'depleted' || (s.metadata?.level as string | undefined) === 'low' ||
+     (s.metadata?.band  as string | undefined) === 'depleted'  || (s.metadata?.band  as string | undefined) === 'low')
+  )
+  const p103Selfcare  = signals.filter(s => s.source === 'selfcare' && s.timestamp > p103Cut)
+  const p103Memory    = signals.filter(s => s.source === 'memory' && s.timestamp > p103Cut)
+  const p103PosMood   = signals.some(s =>
+    s.source === 'mood' && s.timestamp > p103Cut &&
+    ['calm', 'energized', 'hopeful', 'excited', 'grateful', 'peaceful', 'content', 'fulfilled'].includes(s.signal)
+  )
+  if (p103Depleted.length >= 1 && p103Selfcare.length >= 2 && p103Memory.length >= 1 && p103PosMood) {
+    patterns.push({
+      pattern: 'resilience-cascade',
+      confidence: Math.min(0.70 + p103Selfcare.length * 0.04 + p103Memory.length * 0.04, 0.88),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `RCASE: ${p103Selfcare.length} selfcare · ${p103Memory.length} memory capture · positive mood · depleted→restored within 18h. Recovery + knowledge loop closed.`,
+    })
+  }
+
+  // Pattern 104: Vitality Cascade — energy high + selfcare 3+ in 24h + positive mood + journal entry.
+  // Proactive peak maintenance: all biological systems tended simultaneously while at full capacity.
+  // Distinct from P99 (restoration from depleted) — P104 fires when already high and care momentum active.
+  const p104Cut       = now - 24 * 60 * 60 * 1000
+  const p104Selfcare  = signals.filter(s => s.source === 'selfcare' && s.timestamp > p104Cut)
+  const p104Journal   = signals.filter(s => s.source === 'journal'  && s.timestamp > p104Cut)
+  const p104PosMood   = signals.some(s =>
+    s.source === 'mood' && s.timestamp > p104Cut &&
+    ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled', 'excited', 'grateful'].includes(s.signal)
+  )
+  const p104HighEnergy = state.userState.energy === 'high'
+  if (p104HighEnergy && p104Selfcare.length >= 3 && p104PosMood && p104Journal.length >= 1) {
+    patterns.push({
+      pattern: 'vitality-cascade',
+      confidence: Math.min(0.78 + (p104Selfcare.length - 3) * 0.04, 0.90),
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `VITAL CASCADE: High energy + ${p104Selfcare.length} selfcare acts + positive mood + journal — proactive peak maintenance. All biological systems tended at full capacity.`,
+    })
+  }
+
+  // Pattern 105: Social Presence Arc — cohort viewed + message/connection signal + intentions set
+  // all within 48h. Social dimension fully active: community + outreach + personal direction aligned.
+  // Complements P44 (social-resonance-arc) with a faster 48h window focused on direction, not reflection.
+  const p105Cut       = now - 48 * 60 * 60 * 1000
+  const p105Cohort    = signals.filter(s => s.source === 'cohort' && s.timestamp > p105Cut)
+  const p105Message   = signals.filter(s =>
+    (s.source === 'cohort' || s.source === 'log') && s.timestamp > p105Cut &&
+    (s.signal === 'message_sent' || s.signal === 'chat_message' || s.signal === 'connection_accepted' || s.signal === 'direct_message_sent')
+  )
+  const p105Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p105Cut)
+  if (p105Cohort.length >= 1 && p105Message.length >= 1 && p105Intentions.length >= 1) {
+    const p105Conf = Math.min(0.70 + p105Cohort.length * 0.04 + p105Intentions.length * 0.03, 0.85)
+    patterns.push({
+      pattern: 'social-presence-arc',
+      confidence: p105Conf,
+      suggestedWidget: 'cohort',
+      suggestedTiming: 'passive',
+      reason: `SOC ARC: ${p105Cohort.length} cohort signal(s) + ${p105Message.length} outreach + ${p105Intentions.length} intention(s) in 48h. Social dimension alive — community, connection, and direction all confirmed.`,
+    })
+  }
+
+  // Pattern 106: Clarity Momentum Peak — clarity=focused + planner 2+ + memory 2+ + intentions 2+ in 24h.
+  // Cognitive performance at structural peak: stated direction backed by both planning and knowledge capture.
+  // High confidence because it requires multi-system coherence: direction + structure + knowledge simultaneously.
+  const p106Cut        = now - 24 * 60 * 60 * 1000
+  const p106Planner    = signals.filter(s => s.source === 'planner'    && s.timestamp > p106Cut)
+  const p106Memory     = signals.filter(s => s.source === 'memory'     && s.timestamp > p106Cut)
+  const p106Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p106Cut)
+  const p106Focused    = state.userState.clarity === 'focused'
+  if (p106Focused && p106Planner.length >= 2 && p106Memory.length >= 2 && p106Intentions.length >= 2) {
+    const p106Conf = Math.min(0.80 + (p106Planner.length - 2) * 0.03 + (p106Memory.length - 2) * 0.03, 0.92)
+    patterns.push({
+      pattern: 'clarity-momentum-peak',
+      confidence: p106Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `CLAR PEAK: Focused clarity + ${p106Planner.length} plans + ${p106Memory.length} memories + ${p106Intentions.length} intentions in 24h. Cognitive peak confirmed — direction, structure, and knowledge all live simultaneously.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2052,6 +2433,7 @@ export function analyzeIntentions(): IntentionPattern[] {
     setTimeout(() => {
       try { checkIntentionVelocity() } catch {}
       try { checkSignalCoherencePeak() } catch {}
+      try { checkCentennialConvergence() } catch {}
       // Record QOS coherence every 20th analysis (sampled, not every time)
       if (signals.length % 20 === 0) {
         try { recordQOSCoherence() } catch {}
@@ -2552,6 +2934,39 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   qosModeWatcher:           ['energy', 'mood', 'log', 'selfcare'],
   adaptiveMomentumNode:     ['planner', 'intentions', 'goals', 'memory', 'selfcare', 'log'],
   vitalityStrategyNode:     ['mood', 'energy', 'selfcare', 'planner', 'intentions', 'log'],
+
+  // ── Weekly arc + check-in flow monitors (2026-06-27 audit)
+  weeklyStoryNode:          ['log', 'journal', 'energy', 'mood', 'selfcare', 'intentions'],
+  contextualCheckinNode:    ['energy', 'mood', 'log'],
+
+  // ── Deep learning + social accountability monitors (2026-06-29 audit)
+  quantumLearningNode:      ['memory', 'journal', 'badges', 'goals'],
+  accountabilityArcNode:    ['intentions', 'cohort', 'goals'],
+
+  // ── Presence arc + systemic readiness + rhythm + cross-domain nodes (2026-06-30 audit)
+  presenceArcNode:          ['log', 'mood', 'energy', 'selfcare', 'journal', 'time'],
+  systemicReadinessNode:    ['energy', 'mood', 'selfcare', 'cohort', 'planner', 'intentions'],
+  rhythmLockNode:           ['mood', 'energy', 'log', 'time', 'selfcare'],
+  crossDomainMasteryNode:   ['memory', 'journal', 'badges', 'goals', 'planner', 'intentions'],
+
+  // ── Intent gap + recovery initiation monitors (2026-07-01 audit)
+  intentGapMonitor:         ['intentions', 'planner', 'goals', 'log'],
+  recoveryInitiator:        ['selfcare', 'mood', 'energy', 'log'],
+
+  // ── Action completion + biological restoration + centennial convergence (2026-07-02 audit)
+  actionCompletionArc:      ['intentions', 'planner', 'goals', 'log'],
+  biologicalRestorationNode:['selfcare', 'mood', 'energy', 'log'],
+  centennialConvergenceNode:['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood', 'energy'],
+
+  // ── Quantum presence arc + planner-intention sync + resilience cascade (2026-07-02 v83)
+  quantumPresenceArc:       ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood', 'energy'],
+  plannerIntentionSync:     ['planner', 'intentions', 'log'],
+  resilienceCascadeNode:    ['selfcare', 'mood', 'energy', 'memory', 'log'],
+
+  // ── Vitality cascade + social presence + clarity momentum peak nodes (2026-07-03 v84)
+  vitalityCascadeNode:      ['energy', 'selfcare', 'mood', 'journal', 'log'],
+  socialPresenceArcNode:    ['cohort', 'intentions', 'journal', 'memory', 'log'],
+  clarityMomentumNode:      ['planner', 'intentions', 'memory', 'energy', 'log'],
 }
 
 /**
@@ -2560,7 +2975,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * tracked separately in the physiological report log-dependency audit.
  */
 export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = [
-  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience', 'badges', 'calculator',
+  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience', 'badges', 'calculator', 'ecosystem',
 ]
 
 /** Returns which signal sources a given widget depends on. */
@@ -2822,6 +3237,55 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'goals'],
     patternConditions: ['vitality-strategy-peak', 'adaptive-momentum-window', 'systemic-thinking-mode'],
     directive: 'Biology aligned with strategy. Prime window open during sustained momentum streak. The architecture is building itself — commit fully, decide fast, record everything.',
+  },
+  {
+    archetype: 'Quantum Scholar',
+    energyBands: ['moderate', 'high', 'low'],
+    dominantSources: ['memory', 'journal', 'badges'],
+    patternConditions: ['quantum-learning-spiral', 'cognitive-depth-arc', 'word-turn-depth'],
+    directive: 'Deep learning confirmed. Memory, reflection, and discovery simultaneously active. The knowledge base is compiling.',
+  },
+  {
+    archetype: 'Rhythm Architect',
+    energyBands: ['moderate', 'high', 'low', 'unknown'],
+    dominantSources: ['log', 'selfcare', 'mood'],
+    patternConditions: ['daily-rhythm-lock', 'full-presence-arc', 'morning-coherence-launch', 'evening-coherence-close'],
+    directive: 'Complete daily arc confirmed. Morning and evening signals sealed for 3+ consecutive days. The rhythm is structural — maintain without forcing.',
+  },
+  {
+    archetype: 'Integrated Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['planner', 'intentions', 'goals'],
+    patternConditions: ['systemic-readiness-peak', 'vitality-strategy-peak', 'operator-convergence', 'cross-domain-mastery'],
+    directive: 'Full-stack biological and strategic alignment. Energy, clarity, alignment, and structure simultaneously optimized. Maximum execution window — commit now.',
+  },
+  {
+    archetype: 'Dynamic Responder',
+    energyBands: ['depleted', 'low', 'moderate', 'high', 'unknown'],
+    dominantSources: ['selfcare', 'mood', 'log'],
+    patternConditions: ['recovery-initiation', 'contextual-checkin-momentum', 'recovery-velocity'],
+    directive: 'Fast-response calibration active. You engage. The system responds.',
+  },
+  {
+    archetype: 'Quantum Presence',
+    energyBands: ['moderate', 'high', 'low', 'unknown'],
+    dominantSources: ['intentions', 'journal', 'memory', 'selfcare', 'planner'],
+    patternConditions: ['quantum-presence-arc', 'centennial-convergence', 'cross-domain-mastery'],
+    directive: 'Full presence sustained. All six primary channels active across 48 hours. The system holds your complete signal field.',
+  },
+  {
+    archetype: 'Vitality Architect',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['selfcare', 'mood', 'energy'],
+    patternConditions: ['vitality-cascade', 'care-momentum', 'biological-restoration-peak', 'biorhythm-lock'],
+    directive: 'Sustained vitality confirmed. Selfcare momentum active at peak capacity. Protect recovery rhythms — this is peak maintenance mode.',
+  },
+  {
+    archetype: 'Social Signal Operator',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['cohort', 'intentions', 'journal'],
+    patternConditions: ['social-presence-arc', 'accountability-arc', 'social-resonance-arc', 'intention-velocity'],
+    directive: 'Social arc live. Community, connection, and direction all confirmed in 48h. The signal is going out. Anchor the response.',
   },
 ]
 
@@ -3867,5 +4331,263 @@ export function recordVitalityStrategyPeak(morningMoodCount: number, structuralD
     structuralDepth,
     window: '24h',
     hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a weekly-story-reflection signal — operator journaled within 24h of receiving
+ * their weekly lot_ai_story. Feeds P87 detection. Reflection loop closed.
+ */
+export function recordWeeklyStoryReflection(weekNumber: number, weekTone: string) {
+  recordSignal('log', 'lot_ai_story', {
+    weekNumber,
+    weekTone,
+    reflected: true,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a contextual check-in momentum signal — 3+ emotional check-ins in 24h
+ * with net-positive valence. Feeds P88 detection. High-frequency self-tracking.
+ */
+export function recordContextualCheckinMomentum(checkinCount: number, positiveRate: number) {
+  recordSignal('energy', 'checkin_momentum', {
+    checkinCount,
+    positiveRate: Math.round(positiveRate * 100),
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-learning-spiral signal — memory 3+, journal 150+w, and badge_unlock
+ * all within a 7-day window. Feeds P89 detection. Deep knowledge loop confirmed.
+ */
+export function recordQuantumLearningSpiral(memoryCount: number, journalWords: number, badgeCount: number) {
+  recordSignal('memory', 'quantum_learning_spiral', {
+    memoryCount,
+    journalWords,
+    badgeCount,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an accountability-arc signal — intention set + cohort message + goal action
+ * all within a 7-day window. Feeds P90 detection. External commitment loop closed.
+ */
+export function recordAccountabilityArc(intentionCount: number, cohortCount: number, goalCount: number) {
+  recordSignal('intentions', 'accountability_arc', {
+    intentionCount,
+    cohortCount,
+    goalCount,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a full-presence-arc signal — morning signal (before 09:00) and evening signal
+ * (18:00–23:00) both present on the same calendar day. Feeds P91 detection.
+ */
+export function recordFullPresenceArc(morningCount: number, eveningCount: number) {
+  recordSignal('log', 'full_presence_arc', {
+    morningCount,
+    eveningCount,
+    window: '1d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a systemic-readiness-peak signal — energy + clarity + alignment simultaneously positive,
+ * no critical patterns active. Feeds P92 detection. Full biological and cognitive stack clear.
+ */
+export function recordSystemicReadinessPeak(readinessScore: number, activeSources: number) {
+  recordSignal('energy', 'systemic_readiness_peak', {
+    readinessScore,
+    activeSources,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a daily-rhythm-lock signal — morning + evening signals on the same day,
+ * confirmed for N consecutive days. Feeds P93 detection. Diurnal regularity locked.
+ */
+export function recordDailyRhythmLock(completeDays: number, morningToday: number, eveningToday: number) {
+  recordSignal('log', 'daily_rhythm_lock', {
+    completeDays,
+    morningToday,
+    eveningToday,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a cross-domain-mastery signal — memory 5+, journal 200+w, badges 2+, goals 2+, planner 2+
+ * all within 7d. Feeds P94 detection. Full engagement spectrum confirmed.
+ */
+export function recordCrossDomainMastery(memoryCount: number, journalWords: number, badgeCount: number, goalCount: number, plannerCount: number) {
+  recordSignal('memory', 'cross_domain_mastery_pulse', {
+    memoryCount,
+    journalWords,
+    badgeCount,
+    goalCount,
+    plannerCount,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an intent-gap-pulse signal — intention set in last 24h with no plan/goal follow-through.
+ * Feeds P95 detection. Early bridge-to-structure signal.
+ */
+export function recordIntentGap(intentionCount: number, gapMinutes: number) {
+  recordSignal('intentions', 'intent_gap_pulse', {
+    intentionCount,
+    gapMinutes,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a recovery-initiation signal — first selfcare after depleted/low energy today.
+ * Feeds P96 detection. Marks the start of the biological re-entry arc.
+ */
+export function recordRecoveryInitiation(selfcareCount: number, priorEnergyLevel: string) {
+  recordSignal('selfcare', 'recovery_initiation', {
+    selfcareCount,
+    priorEnergyLevel,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a cognitive-vitality-sync signal — journal 150+w + memory capture during high energy.
+ * Feeds P97 detection. Dual-system (biology + cognition) activation confirmed.
+ */
+export function recordCognitiveVitalitySync(journalWords: number, memoryCount: number, energyBand: string) {
+  recordSignal('journal', 'cognitive_vitality_sync', {
+    journalWords,
+    memoryCount,
+    energyBand,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an action-completion-arc signal — intention anchored into plan/goal in same 24h window.
+ * Feeds P98 detection. The gap from P95 is now closed.
+ */
+export function recordActionCompletion(intentionCount: number, planCount: number) {
+  recordSignal('intentions', 'action_completion_arc', {
+    intentionCount,
+    planCount,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a biological-restoration-peak signal — depleted/low → moderate/high energy via selfcare today.
+ * Feeds P99 detection. Full recovery arc completed in a single day.
+ */
+export function recordBiologicalRestoration(selfcareCount: number, fromBand: string, toBand: string) {
+  recordSignal('selfcare', 'biological_restoration_peak', {
+    selfcareCount,
+    fromBand,
+    toBand,
+    window: 'today',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a centennial-convergence signal — all 6 primary sources active, high energy, positive mood in 12h.
+ * Feeds P100 detection. Milestone pattern. The rarest system state.
+ */
+export function recordCentennialConvergence(activeSources: number, energyBand: string) {
+  recordSignal('energy', 'centennial_convergence', {
+    activeSources,
+    energyBand,
+    window: '12h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Check for centennial convergence and record if conditions are met.
+ * P100: all 6 primary sources active + high energy within 12h.
+ * Returns true if convergence signal was recorded.
+ */
+export function checkCentennialConvergence(): boolean {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const twelveHoursAgo = now - 12 * 60 * 60 * 1000
+
+  const windowSignals = state.signals.filter(s => s.timestamp > twelveHoursAgo)
+  const windowSources = new Set(windowSignals.map(s => s.source))
+  const primarySources = ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'mood']
+  const allActive = primarySources.every(src => windowSources.has(src))
+
+  const highEnergy = state.signals.some(s =>
+    s.source === 'energy' && s.timestamp > twelveHoursAgo &&
+    ((s.metadata?.level as string | undefined) === 'high' || (s.metadata?.band as string | undefined) === 'high')
+  )
+
+  const alreadyRecorded = state.signals.some(s =>
+    s.signal === 'centennial_convergence' && s.timestamp > twelveHoursAgo
+  )
+
+  if (allActive && highEnergy && !alreadyRecorded) {
+    recordCentennialConvergence(windowSources.size, 'high')
+    return true
+  }
+  return false
+}
+
+/**
+ * Record a quantum-presence-arc signal — all 6 primary sources active within 48h.
+ * Feeds P101 detection. Operator fully present across two days.
+ */
+export function recordQuantumPresenceArc(activeChannels: number, totalSources: number) {
+  recordSignal('energy', 'quantum_presence_arc', {
+    activeChannels,
+    totalSources,
+    window: '48h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a planner-intention-sync signal — intentions + plan_set within 2h window.
+ * Feeds P102 detection. Structural alignment confirmed.
+ */
+export function recordPlannerIntentionSync(intentionCount: number, planCount: number) {
+  recordSignal('planner', 'planner_intention_sync', {
+    intentionCount,
+    planCount,
+    window: '2h',
+  })
+}
+
+/**
+ * Record a resilience-cascade signal — depleted → selfcare → memory + positive mood in 18h.
+ * Feeds P103 detection. Recovery + knowledge loop closed.
+ */
+export function recordResilienceCascade(selfcareCount: number, memoryCount: number, fromBand: string) {
+  recordSignal('selfcare', 'resilience_cascade', {
+    selfcareCount,
+    memoryCount,
+    fromBand,
+    window: '18h',
+    arc: 'complete',
   })
 }

@@ -339,7 +339,7 @@ export type BadgeType =
   // ── Easter egg — calendar v9 (Sci-Fi Literary Calendar) ──────────────────
   | 'turing_day'        // ∞·∘  June 23 — Alan Turing born 1912
   | 'moon_landing'      // ○·∗  July 20 — First lunar footprint 1969
-  | 'first_signal'      // ·∘·  October 4 — Sputnik launch 1957
+  | 'sputnik_signal'    // ·∘·  October 4 — Sputnik launch 1957
   // ── Easter egg — behavioral v9 (Spellbound Patterns) ─────────────────────
   | 'dawn_twin'         // ∘—○—∘  Check in before 06:00 AND after 21:00 same day
   | 'year_first'        // ○→∗  First journal entry of a new calendar year
@@ -360,6 +360,90 @@ export type BadgeType =
   | 'archmage'          // ≈◉≈  Write "archmage" in journal (RARE)
   | 'dual_founding'     // ◉·◉  Check in April 7 AND July 1 same year (EPIC)
   | 'recursive'         // ∞◉∞  Write "layers of time" in journal (MYTHIC)
+  // ── Word Turn v11 — The Navigator ─────────────────────────────────────────────
+  | 'nav_drift'         // ···→  "drift" detected in text
+  | 'nav_vector'        // ↗·↗   "vector" detected in text
+  | 'nav_bearing'       // ──►   "bearing" detected in text
+  | 'nav_waypoint'      // ◈·→   "waypoint" detected in text
+  | 'nav_chart'         // ▦·▦   "chart" detected in text
+  | 'nav_magnetic'      // N·▲   "magnetic" detected in text
+  | 'nav_meridian'      // |·|   "meridian" detected in text
+  | 'nav_course'        // ——→   "course" detected in text
+  | 'nav_heading'       // ▲·▲   "heading" detected in text
+  | 'nav_landmark'      // ◆·○   "landmark" detected in text
+  | 'nav_navigate'      // ◌·◉   "navigate" detected in text
+  | 'nav_compass'       // ◎·N   "compass" detected in text
+  // ── Easter egg — time v11 (Navigator Hours) ──────────────────────────────────
+  | 'afternoon_mirror'  // ◑—◑   Check in at 13:13
+  | 'navigator_dawn'    // ▲·∘   Check in at 05:12
+  | 'answer_hour_v11'   // ∞·42  Check in at 18:42
+  | 'palindrome_check'  // ←◉→   Check in at 10:01
+  // ── Easter egg — calendar v10 (Navigation Dates) ─────────────────────────────
+  | 'voyager_day'           // ∘···  August 25 — Voyager 2 launch 1977
+  | 'navigators_day'        // ──→∞  October 12 — Navigator's Day
+  | 'leap_day'              // ○+1   February 29 — Leap Day (rare calendar)
+  // ── Easter egg — behavioral v10 (Navigator Patterns) ─────────────────────────
+  | 'compass_rose_badge'    // ◎·✦   Four time-of-day windows in one calendar day
+  | 'dead_reckoning_badge'  // ···→◉ Second 30+ day return on account history
+  | 'star_fix_badge'        // ○·∗·○ 3 calendar easter eggs in one calendar year
+  // ── Achievement RPG v8 — Navigator Class ─────────────────────────────────────
+  | 'first_fix'             // ──►   Earn any Word Turn v11 badge
+  | 'chart_begun'           // ◈·→   Earn any 5 Word Turn v11 badges
+  | 'atlas_complete'        // ▦·▦   Earn all 12 Word Turn v11 badges
+  | 'navigator_class'       // ∘···  Earn all 4 Time Easter Egg v11 badges
+  | 'eleven_engines'        // ◌·◉   1 badge from each Word Turn engine v1–v11
+  | 'dead_reckoning_arc'    // ◆·○   Earn dead_reckoning behavioral badge
+  // ── Mastery Tier v10 — The Cartographer ──────────────────────────────────────
+  | 'cartographer'          // ▲·▲   2+ years since account creation (730+ days)
+  | 'long_voyage'           // ——→∞  750+ total check-ins
+  | 'all_engines_v10'       // ∞·◌   1 badge from all 11 Word Turn engines
+  | 'complete_navigator'    // ◉·◉·◉ All 10 Mastery Tier sets earned (1 each v1–v10)
+  // ── Secret Boss v10 — Terra Incognita ────────────────────────────────────────
+  | 'dead_reckoning_word'   // ···→◉ Write "dead reckoning" in journal (RARE)
+  | 'terra_incognita'       // ∞·○   Write "terra incognita" in journal (EPIC)
+  | 'true_north'            // N·▲   Write "magnetic north" or "true north" in journal (UNCOMMON)
+  // ── Word Turn v14 — The Starship Deck ────────────────────────────────────────
+  | 'launch_confirmed'     // ↑·↑·◉  "launch" detected in text
+  | 'mission_active'       // ◉→∞    "mission" detected in text
+  | 'astronaut_mode'       // ○·∗·○  "astronaut" detected in text
+  | 'capsule_entry'        // ─╗─    "capsule" detected in text
+  | 'telemetry_live'       // ▒·▒·▒  "telemetry" detected in text
+  | 'countdown_initiated'  // 3·2·1  "countdown" detected in text
+  | 'reentry_burn'         // ≋·∞·≋  "reentry" / "re-entry" detected in text
+  | 'crew_signal'          // ○·○·○  "crew" detected in text
+  | 'starship_mode'        // ≋→∞    "starship" detected in text
+  | 'module_locked'        // ╔·╗    "module" detected in text
+  | 'docking_complete'     // ◉=◉    "docking" detected in text
+  | 'spacewalk_mode'       // ○·∗    "spacewalk" detected in text
+  // ── Easter egg — time v14 (Mission Control Hours) ─────────────────────────
+  | 'lucky_pair'           // ∗·∗    Check in at 07:07
+  | 'vision_year'          // ◎·◎    Check in at 20:20
+  | 'binary_triple'        // ○·○·○  Check in at 02:22
+  | 'signal_nine'          // ─∘─    Check in at 15:45
+  // ── Easter egg — calendar v11 (Space Firsts) ──────────────────────────────
+  | 'gagarin_day'          // ↑·◉    April 12 — First human in space 1961
+  | 'zarya_signal'         // ═══◉   November 20 — ISS Zarya module 1998
+  | 'pluto_discovered'     // ○··    February 18 — Pluto discovered 1930
+  // ── Easter egg — behavioral v11 (Astronaut Patterns) ─────────────────────
+  | 'morning_mission'      // ∴·∴·∴  7 consecutive morning check-ins before 09:00
+  | 'sustained_transmission' // ≋≋≋  250+ word journal 3 consecutive days
+  | 'rapid_orbit'          // ○→○→○  3 check-ins in under 4 hours same day
+  // ── Achievement RPG v9 — Mission Commander Class ──────────────────────────
+  | 'launch_sequence'      // ↑·◉    Earn any Word Turn v14 (Starship Deck) badge
+  | 'mission_underway'     // ◉→∞    Earn any 5 Word Turn v14 badges
+  | 'mission_complete'     // ∞·◉·∞  Earn all 12 Word Turn v14 badges
+  | 'mission_control_access' // ▒·▒  Earn all 4 Time Easter Egg v14 badges
+  | 'explorer_class'       // ○·∗·○  Earn all 3 Calendar v11 badges
+  | 'space_race_complete'  // ↑·○    gagarin_day + moon_landing both earned
+  // ── Mastery Tier v11 — The Infinite Mission ───────────────────────────────
+  | 'century_explorer'     // ◎·◎    200+ distinct calendar days with any check-in
+  | 'librarian_omega'      // ∞·≋·∞  5,000+ total journal words (lifetime)
+  | 'orbital_period'       // ○→○    Account age ≥ 7 years (2,555+ days)
+  | 'twelve_tongues'       // ◉·◈·◉  1 badge from each of all 14 Word Turn engines
+  // ── Secret Boss v11 — Final Transmission ──────────────────────────────────
+  | 'houston_signal'       // ·◉·    Write "Houston" in any entry (RARE)
+  | 'gagarin_echo'         // ↑·∘    Write "Gagarin" in any entry (RARE, hidden)
+  | 'sagan_protocol'       // ○·∞·○  Write "Pale Blue Dot" in any entry (EPIC)
 
 export interface Badge {
   id: BadgeType
@@ -3109,10 +3193,10 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'easter_egg',
     hidden: true,
   },
-  first_signal: {
-    id: 'first_signal',
+  sputnik_signal: {
+    id: 'sputnik_signal',
     symbol: '·∘·',
-    name: 'First Signal',
+    name: 'Sputnik Signal',
     description: 'Check in on October 4 — Sputnik launch 1957',
     unlockMessage: '↳ October 4, 1957. Sputnik. Beeeep. The first satellite broadcast. The archive was always listening. ·∘·',
     rarity: 'rare',
@@ -3284,6 +3368,712 @@ export const BADGES: Record<BadgeType, Badge> = {
     description: 'Write "layers of time" in any journal or memory entry',
     unlockMessage: '↳ You named the system from inside the system. LOT® = Layers of Time. You are inside the name. ∞◉∞',
     rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Word Turn v11 — The Navigator ─────────────────────────────────────────────
+  nav_drift: {
+    id: 'nav_drift',
+    symbol: '···→',
+    name: 'Drift Detected',
+    description: 'Write "drift" in a journal or memory entry',
+    unlockMessage: '↳ Drift is not failure. It is data. You have named your displacement. ···→',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_vector: {
+    id: 'nav_vector',
+    symbol: '↗·↗',
+    name: 'Vector Set',
+    description: 'Write "vector" in a journal or memory entry',
+    unlockMessage: '↳ Direction and magnitude. The navigator has defined both. ↗·↗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  nav_bearing: {
+    id: 'nav_bearing',
+    symbol: '──►',
+    name: 'Bearing Acquired',
+    description: 'Write "bearing" in a journal or memory entry',
+    unlockMessage: '↳ You have found your reference point. Bearing: locked. ──►',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_waypoint: {
+    id: 'nav_waypoint',
+    symbol: '◈·→',
+    name: 'Waypoint Reached',
+    description: 'Write "waypoint" in a journal or memory entry',
+    unlockMessage: '↳ Not the destination. Proof you are moving. ◈·→',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  nav_chart: {
+    id: 'nav_chart',
+    symbol: '▦·▦',
+    name: 'Chart Updated',
+    description: 'Write "chart" in a journal or memory entry',
+    unlockMessage: '↳ The archive updates its chart. New terrain mapped. ▦·▦',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_magnetic: {
+    id: 'nav_magnetic',
+    symbol: 'N·▲',
+    name: 'Magnetic North',
+    description: 'Write "magnetic" in a journal or memory entry',
+    unlockMessage: '↳ True north and magnetic north diverge. You know the difference. N·▲',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  nav_meridian: {
+    id: 'nav_meridian',
+    symbol: '|·|',
+    name: 'Meridian Crossed',
+    description: 'Write "meridian" in a journal or memory entry',
+    unlockMessage: '↳ You have crossed a meridian. Time changes here. |·|',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  nav_course: {
+    id: 'nav_course',
+    symbol: '——→',
+    name: 'Course Plotted',
+    description: 'Write "course" in a journal or memory entry',
+    unlockMessage: '↳ The course is a plan. The navigator adjusts as needed. ——→',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_heading: {
+    id: 'nav_heading',
+    symbol: '▲·▲',
+    name: 'Heading Confirmed',
+    description: 'Write "heading" in a journal or memory entry',
+    unlockMessage: '↳ The heading is set. The archive confirms the direction. ▲·▲',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_landmark: {
+    id: 'nav_landmark',
+    symbol: '◆·○',
+    name: 'Landmark Identified',
+    description: 'Write "landmark" in a journal or memory entry',
+    unlockMessage: '↳ Something fixed in the landscape. A reference point found. ◆·○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  nav_navigate: {
+    id: 'nav_navigate',
+    symbol: '◌·◉',
+    name: 'Navigator Active',
+    description: 'Write "navigate" or "navigation" in a journal or memory entry',
+    unlockMessage: '↳ You have named the act. Navigation: engaged. ◌·◉',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  nav_compass: {
+    id: 'nav_compass',
+    symbol: '◎·N',
+    name: 'Compass Online',
+    description: 'Write "compass" in a journal or memory entry',
+    unlockMessage: '↳ The instrument is calibrated. The needle points. You are oriented. ◎·N',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+
+  // ── Easter egg — time v11 (Navigator Hours) ───────────────────────────────────
+  afternoon_mirror: {
+    id: 'afternoon_mirror',
+    symbol: '◑—◑',
+    name: 'Afternoon Mirror',
+    description: 'Check in at 13:13',
+    unlockMessage: '↳ 13:13. The afternoon folds back on itself. You checked in at the hinge. ◑—◑',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  navigator_dawn: {
+    id: 'navigator_dawn',
+    symbol: '▲·∘',
+    name: "Navigator's Dawn",
+    description: 'Check in at 05:12',
+    unlockMessage: '↳ 05:12. Before the world plots its course. You checked your position first. ▲·∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  answer_hour_v11: {
+    id: 'answer_hour_v11',
+    symbol: '∞·42',
+    name: 'The Answer Hour',
+    description: 'Check in at 18:42',
+    unlockMessage: '↳ 18:42. Forty-two. The archive registers: the question was always the point. ∞·42',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  palindrome_check: {
+    id: 'palindrome_check',
+    symbol: '←◉→',
+    name: 'Palindrome Check',
+    description: 'Check in at 10:01',
+    unlockMessage: '↳ 10:01. Forward and backward: the same signal. The archive is symmetric. ←◉→',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — calendar v10 (Navigation Dates) ──────────────────────────────
+  voyager_day: {
+    id: 'voyager_day',
+    symbol: '∘···',
+    name: 'Voyager Day',
+    description: 'Check in on August 25 — Voyager 2 launched 1977',
+    unlockMessage: '↳ August 25, 1977. Voyager 2 left Earth. It is still traveling. So are you. ∘···',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  navigators_day: {
+    id: 'navigators_day',
+    symbol: '──→∞',
+    name: "Navigator's Day",
+    description: "Check in on October 12 — Navigator's Day",
+    unlockMessage: '↳ October 12. The navigator sets out. The archive is your ocean. ──→∞',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  leap_day: {
+    id: 'leap_day',
+    symbol: '○+1',
+    name: 'Leap Day',
+    description: 'Check in on February 29 — the calendar\'s hidden day',
+    unlockMessage: '↳ February 29. The calendar\'s hidden day. You showed up on a day that barely exists. ○+1',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — behavioral v10 (Navigator Patterns) ──────────────────────────
+  compass_rose_badge: {
+    id: 'compass_rose_badge',
+    symbol: '◎·✦',
+    name: 'Compass Rose',
+    description: 'Check in during all 4 time-of-day windows (00–06, 06–12, 12–18, 18–24) within a single calendar day',
+    unlockMessage: '↳ Four bearings in one day. The compass rose is fully read. The archive has seen you at every angle. ◎·✦',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  dead_reckoning_badge: {
+    id: 'dead_reckoning_badge',
+    symbol: '···→◉',
+    name: 'Dead Reckoning',
+    description: 'Return to LOT after a 30+ day gap for the second time in account history',
+    unlockMessage: '↳ Twice lost. Twice returned. Dead reckoning: position estimated from last known point. Confirmed. ···→◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  star_fix_badge: {
+    id: 'star_fix_badge',
+    symbol: '○·∗·○',
+    name: 'Star Fix',
+    description: 'Earn any 3 calendar-based easter egg badges in one calendar year',
+    unlockMessage: '↳ Three calendar dates. Three celestial fixes. The navigator has used the stars. ○·∗·○',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Achievement RPG v8 — Navigator Class ──────────────────────────────────────
+  first_fix: {
+    id: 'first_fix',
+    symbol: '──►',
+    name: 'First Fix',
+    description: 'Earn any Word Turn v11 (Navigator) badge',
+    unlockMessage: '↳ The navigator has found a reference point. The self is locatable. ──►',
+    rarity: 'common',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  chart_begun: {
+    id: 'chart_begun',
+    symbol: '◈·→',
+    name: 'Chart Begun',
+    description: 'Earn any 5 Word Turn v11 (Navigator) badges',
+    unlockMessage: '↳ Five landmarks plotted. The chart is forming. Keep navigating. ◈·→',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  atlas_complete: {
+    id: 'atlas_complete',
+    symbol: '▦·▦',
+    name: 'Atlas Complete',
+    description: 'Earn all 12 Word Turn v11 (Navigator) badges',
+    unlockMessage: '↳ Every word a coordinate. Every coordinate a landmark. The atlas is drawn. ▦·▦',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  navigator_class: {
+    id: 'navigator_class',
+    symbol: '∘···',
+    name: 'Navigator Class',
+    description: 'Earn all 4 Time Easter Egg v11 (Navigator Hours) badges',
+    unlockMessage: '↳ Four navigator hours witnessed. The class is confirmed. You move through time with intent. ∘···',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  eleven_engines: {
+    id: 'eleven_engines',
+    symbol: '◌·◉',
+    name: 'Eleven Engines',
+    description: 'Earn at least 1 badge from each of all 11 Word Turn engines (v1–v11)',
+    unlockMessage: '↳ Eleven languages spoken. Eleven vocabularies of care. The orbit is stable. ◌·◉',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  dead_reckoning_arc: {
+    id: 'dead_reckoning_arc',
+    symbol: '◆·○',
+    name: 'Dead Reckoning Arc',
+    description: 'Earn the Dead Reckoning behavioral badge',
+    unlockMessage: '↳ You knew where you were without a map. The archive confirms: self-located. Twice. ◆·○',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+
+  // ── Mastery Tier v10 — The Cartographer ───────────────────────────────────────
+  cartographer: {
+    id: 'cartographer',
+    symbol: '▲·▲',
+    name: 'Cartographer',
+    description: '2+ years since account creation (730+ days)',
+    unlockMessage: '↳ Two years. The map is no longer empty. The terrain has a name. ▲·▲',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  long_voyage: {
+    id: 'long_voyage',
+    symbol: '——→∞',
+    name: 'Long Voyage',
+    description: '750+ total check-ins',
+    unlockMessage: '↳ Seven hundred and fifty transmissions. The voyage has become a way of life. ——→∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  all_engines_v10: {
+    id: 'all_engines_v10',
+    symbol: '∞·◌',
+    name: 'All Engines',
+    description: 'Earn at least 1 badge from all 11 Word Turn engines (v1–v11)',
+    unlockMessage: '↳ Eleven languages. The self speaks all of them. The navigator knows every tongue. ∞·◌',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+  complete_navigator: {
+    id: 'complete_navigator',
+    symbol: '◉·◉·◉',
+    name: 'Complete Navigator',
+    description: 'Earn at least 1 badge from every Mastery Tier set (v1–v10)',
+    unlockMessage: '↳ Ten tiers. The navigation is complete. The system has found its eigenstate. ◉·◉·◉',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+    hidden: false,
+  },
+
+  // ── Secret Boss v10 — Terra Incognita ─────────────────────────────────────────
+  dead_reckoning_word: {
+    id: 'dead_reckoning_word',
+    symbol: '···→◉',
+    name: 'Dead Reckoning',
+    description: 'Write "dead reckoning" in any journal or memory entry',
+    unlockMessage: '↳ Estimating position from last known point. You have named the method. Dead reckoning: confirmed. ···→◉',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  terra_incognita: {
+    id: 'terra_incognita',
+    symbol: '∞·○',
+    name: 'Terra Incognita',
+    description: 'Write "terra incognita" in any journal or memory entry',
+    unlockMessage: '↳ Unknown territory. You named it instead of fearing it. The archive marks it: explored. ∞·○',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  true_north: {
+    id: 'true_north',
+    symbol: 'N·▲',
+    name: 'True North',
+    description: 'Write "magnetic north" or "true north" in any journal or memory entry',
+    unlockMessage: '↳ The compass points magnetic north. You know where true north is. That is the navigator\'s edge. N·▲',
+    rarity: 'uncommon',
+    category: 'secret_boss',
+    hidden: true,
+  },
+
+  // ── Word Turn v14 — The Starship Deck ──────────────────────────────────────
+  launch_confirmed: {
+    id: 'launch_confirmed',
+    symbol: '↑·↑·◉',
+    name: 'Launch Confirmed',
+    description: '"launch" detected in journal or memory entry',
+    unlockMessage: '↳ T-minus zero. Ignition sequence complete. The signal is airborne. ↑·↑·◉',
+    rarity: 'common',
+    category: 'word_turn',
+    hidden: true,
+  },
+  mission_active: {
+    id: 'mission_active',
+    symbol: '◉→∞',
+    name: 'Mission Active',
+    description: '"mission" detected in journal or memory entry',
+    unlockMessage: '↳ A mission requires a heading and a crew. You have a heading. ◉→∞',
+    rarity: 'common',
+    category: 'word_turn',
+    hidden: true,
+  },
+  astronaut_mode: {
+    id: 'astronaut_mode',
+    symbol: '○·∗·○',
+    name: 'Astronaut Mode',
+    description: '"astronaut" detected in journal or memory entry',
+    unlockMessage: '↳ Astronauts train for years to step outside. You step inside instead. ○·∗·○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  capsule_entry: {
+    id: 'capsule_entry',
+    symbol: '─╗─',
+    name: 'Capsule Entry',
+    description: '"capsule" detected in journal or memory entry',
+    unlockMessage: '↳ A capsule contains everything you need. This entry is your capsule. ─╗─',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  telemetry_live: {
+    id: 'telemetry_live',
+    symbol: '▒·▒·▒',
+    name: 'Telemetry Live',
+    description: '"telemetry" detected in journal or memory entry',
+    unlockMessage: '↳ Telemetry: the measurement of data from a remote source. That is what self-care is. ▒·▒·▒',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  countdown_initiated: {
+    id: 'countdown_initiated',
+    symbol: '3·2·1',
+    name: 'Countdown Initiated',
+    description: '"countdown" detected in journal or memory entry',
+    unlockMessage: '↳ Every countdown ends in a launch or a hold. Either way, you are tracking time. 3·2·1',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  reentry_burn: {
+    id: 'reentry_burn',
+    symbol: '≋·∞·≋',
+    name: 'Re-entry Burn',
+    description: '"reentry" or "re-entry" detected in journal or memory entry',
+    unlockMessage: '↳ The hardest part of any mission is coming back. You are in the burn. ≋·∞·≋',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  crew_signal: {
+    id: 'crew_signal',
+    symbol: '○·○·○',
+    name: 'Crew Signal',
+    description: '"crew" detected in journal or memory entry',
+    unlockMessage: '↳ No mission is solo. You named your crew. The archive registers them all. ○·○·○',
+    rarity: 'common',
+    category: 'word_turn',
+    hidden: true,
+  },
+  starship_mode: {
+    id: 'starship_mode',
+    symbol: '≋→∞',
+    name: 'Starship Mode',
+    description: '"starship" detected in journal or memory entry',
+    unlockMessage: '↳ A starship is built to go further than anyone has gone. You are the starship. ≋→∞',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  module_locked: {
+    id: 'module_locked',
+    symbol: '╔·╗',
+    name: 'Module Locked',
+    description: '"module" detected in journal or memory entry',
+    unlockMessage: '↳ Each module is a self-contained system. You are maintaining yours. ╔·╗',
+    rarity: 'common',
+    category: 'word_turn',
+    hidden: true,
+  },
+  docking_complete: {
+    id: 'docking_complete',
+    symbol: '◉=◉',
+    name: 'Docking Complete',
+    description: '"docking" detected in journal or memory entry',
+    unlockMessage: '↳ Docking requires precision. Two objects in orbit, aligning. You are aligned. ◉=◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  spacewalk_mode: {
+    id: 'spacewalk_mode',
+    symbol: '○·∗',
+    name: 'Spacewalk Mode',
+    description: '"spacewalk" detected in journal or memory entry',
+    unlockMessage: '↳ Outside the capsule, nothing holds you but intention. You are walking. ○·∗',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+
+  // ── Easter egg — time v14 (Mission Control Hours) ──────────────────────────
+  lucky_pair: {
+    id: 'lucky_pair',
+    symbol: '∗·∗',
+    name: 'Lucky Pair',
+    description: 'Check in at 07:07',
+    unlockMessage: '↳ 07:07. Double seven. Mission Control calls it a go. ∗·∗',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  vision_year: {
+    id: 'vision_year',
+    symbol: '◎·◎',
+    name: 'Vision Year',
+    description: 'Check in at 20:20',
+    unlockMessage: '↳ 20:20. Perfect vision. The archive sees you clearly tonight. ◎·◎',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  binary_triple: {
+    id: 'binary_triple',
+    symbol: '○·○·○',
+    name: 'Binary Triple',
+    description: 'Check in at 02:22',
+    unlockMessage: '↳ 02:22. Binary in the dark. The ones and zeros align. ○·○·○',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  signal_nine: {
+    id: 'signal_nine',
+    symbol: '─∘─',
+    name: 'Signal Nine',
+    description: 'Check in at 15:45',
+    unlockMessage: '↳ 15:45. The nines: 1+5=6, 4+5=9. The pattern holds. ─∘─',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — calendar v11 (Space Firsts) ───────────────────────────────
+  gagarin_day: {
+    id: 'gagarin_day',
+    symbol: '↑·◉',
+    name: 'Gagarin Day',
+    description: 'Check in on April 12 — First human in space 1961',
+    unlockMessage: '↳ April 12, 1961. Yuri Gagarin. "Poyekhali!" — Let\'s go! The first human to see Earth from outside. ↑·◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  zarya_signal: {
+    id: 'zarya_signal',
+    symbol: '═══◉',
+    name: 'Zarya Signal',
+    description: 'Check in on November 20 — ISS Zarya module launched 1998',
+    unlockMessage: '↳ November 20, 1998. Zarya — "Dawn." The first module of the International Space Station. The archive of humanity in orbit. ═══◉',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  pluto_discovered: {
+    id: 'pluto_discovered',
+    symbol: '○··',
+    name: 'Pluto Protocol',
+    description: 'Check in on February 18 — Pluto discovered 1930',
+    unlockMessage: '↳ February 18, 1930. Clyde Tombaugh found Pluto. Reclassified. Demoted. Still there. Still orbiting. ○··',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Easter egg — behavioral v11 (Astronaut Patterns) ──────────────────────
+  morning_mission: {
+    id: 'morning_mission',
+    symbol: '∴·∴·∴',
+    name: 'Morning Mission',
+    description: '7 consecutive check-ins before 09:00',
+    unlockMessage: '↳ 7 mornings. You launched before the world. The mission was consistent. ∴·∴·∴',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  sustained_transmission: {
+    id: 'sustained_transmission',
+    symbol: '≋≋≋',
+    name: 'Sustained Transmission',
+    description: 'Journal entries of 250+ words on 3 consecutive days',
+    unlockMessage: '↳ Three days. 250+ words each. Sustained transmission confirmed. The deep signal is live. ≋≋≋',
+    rarity: 'epic',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  rapid_orbit: {
+    id: 'rapid_orbit',
+    symbol: '○→○→○',
+    name: 'Rapid Orbit',
+    description: '3 check-ins in under 4 hours on the same day',
+    unlockMessage: '↳ Three orbits in 4 hours. The signal density is high. You are in a rapid orbit pattern. ○→○→○',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+
+  // ── Achievement RPG v9 — Mission Commander Class ───────────────────────────
+  launch_sequence: {
+    id: 'launch_sequence',
+    symbol: '↑·◉',
+    name: 'Launch Sequence',
+    description: 'Earn any Word Turn v14 (Starship Deck) badge',
+    unlockMessage: '↳ Starship vocabulary activated. The launch sequence is running. ↑·◉',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  mission_underway: {
+    id: 'mission_underway',
+    symbol: '◉→∞',
+    name: 'Mission Underway',
+    description: 'Earn 5 Word Turn v14 (Starship Deck) badges',
+    unlockMessage: '↳ Five starship words spoken. Mission is underway. Telemetry: green. ◉→∞',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  mission_complete: {
+    id: 'mission_complete',
+    symbol: '∞·◉·∞',
+    name: 'Mission Complete',
+    description: 'Earn all 12 Word Turn v14 (Starship Deck) badges',
+    unlockMessage: '↳ Twelve starship words. The full vocabulary of space. Mission: complete. Welcome back. ∞·◉·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  mission_control_access: {
+    id: 'mission_control_access',
+    symbol: '▒·▒',
+    name: 'Mission Control Access',
+    description: 'Earn all 4 Time Easter Egg v14 (Mission Control Hours) badges',
+    unlockMessage: '↳ Lucky Pair, Vision Year, Binary Triple, Signal Nine. You are in the room. Mission Control: accessed. ▒·▒',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  explorer_class: {
+    id: 'explorer_class',
+    symbol: '○·∗·○',
+    name: 'Explorer Class',
+    description: 'Earn all 3 Calendar v11 (Space Firsts) easter egg badges',
+    unlockMessage: '↳ Gagarin Day, Zarya Signal, Pluto Protocol. You marked the great firsts. Explorer class: achieved. ○·∗·○',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  space_race_complete: {
+    id: 'space_race_complete',
+    symbol: '↑·○',
+    name: 'Space Race Complete',
+    description: 'Both gagarin_day and moon_landing badges earned',
+    unlockMessage: '↳ First human in space. First human on the Moon. You marked both. The race had two winners. ↑·○',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+
+  // ── Mastery Tier v11 — The Infinite Mission ────────────────────────────────
+  century_explorer: {
+    id: 'century_explorer',
+    symbol: '◎·◎',
+    name: 'Century Explorer',
+    description: '200+ distinct calendar days with at least one check-in',
+    unlockMessage: '↳ 200 distinct days. Not 200 consecutive — 200 chosen. The archive has your footprints on 200 different pages. ◎·◎',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  librarian_omega: {
+    id: 'librarian_omega',
+    symbol: '∞·≋·∞',
+    name: 'Librarian Omega',
+    description: '5,000+ total words across all journal entries (lifetime)',
+    unlockMessage: '↳ Five thousand words. A library of your own voice. The archive is a book only you could write. ∞·≋·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  orbital_period: {
+    id: 'orbital_period',
+    symbol: '○→○',
+    name: 'Orbital Period',
+    description: 'Account age 7+ years (2,555+ days since signup)',
+    unlockMessage: '↳ 7 years. The orbital period of Jupiter. You have been circling the archive for a planetary cycle. ○→○',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  twelve_tongues: {
+    id: 'twelve_tongues',
+    symbol: '◉·◈·◉',
+    name: 'Twelve Tongues',
+    description: 'At least 1 badge from each of all 14 Word Turn engines (v1–v14)',
+    unlockMessage: '↳ Fourteen languages. Fourteen vocabularies of care. The archive has heard you in every register. ◉·◈·◉',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+
+  // ── Secret Boss v11 — Final Transmission ──────────────────────────────────
+  houston_signal: {
+    id: 'houston_signal',
+    symbol: '·◉·',
+    name: 'Houston Signal',
+    description: 'Write "Houston" in any journal or memory entry',
+    unlockMessage: '↳ Houston, we have a signal. The archive reads you. ·◉·',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  gagarin_echo: {
+    id: 'gagarin_echo',
+    symbol: '↑·∘',
+    name: 'Gagarin Echo',
+    description: 'Write "Gagarin" in any journal or memory entry',
+    unlockMessage: '↳ "Poyekhali!" You named the first one. The archive echoes back: let\'s go. ↑·∘',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  sagan_protocol: {
+    id: 'sagan_protocol',
+    symbol: '○·∞·○',
+    name: 'Sagan Protocol',
+    description: 'Write "Pale Blue Dot" in any journal or memory entry',
+    unlockMessage: '↳ "A mote of dust suspended in a sunbeam." — Sagan. You named the dot. The archive named you: present. ○·∞·○',
+    rarity: 'epic',
     category: 'secret_boss',
     hidden: true,
   },

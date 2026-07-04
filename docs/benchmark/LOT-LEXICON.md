@@ -40,6 +40,18 @@ EVE:               Evening Coherence Close — log block label for evening-coher
 DIURNAL ARC        P76→P79→P80 behavioral arc: morning launch → evening close → sustained momentum lock     B  20260621
 MOM:               Momentum Lock — log block label for signal_momentum events (5+ days, 3+ sources)         B  20260621
 MOMENTUM LOCK      QIE P80 — 5+ of last 7 days each with 3+ unique signal sources; rarest sustained state   B  20260621
+COMP:              Action Completion Arc — log block label; intention set AND plan recorded same 24h window   B  20260702
+BRES:              Biological Restoration Peak — log block label; selfcare + depleted→moderate/high energy arc B  20260702
+CENT:              Centennial Convergence — log block label; P100 milestone; all 6 primary sources + high energy + positive mood within 12h  B  20260702
+ACTION-COMPLETION-ARC  QIE P98 — intention signal + planner/goal signal in same 24h; intent becomes structure  B  20260702
+BIOLOGICAL-RESTORATION-PEAK  QIE P99 — 3+ selfcare signals + depleted prior energy + moderate/high today; recovery arc complete  B  20260702
+CENTENNIAL-CONVERGENCE  QIE P100 — rarest system state; all 6 primary sources active + high energy + positive mood within 12h; milestone  B  20260702
+QPRES:              Quantum Presence Arc — log block label; all 6 primary channels active in 48h window; operator fully present   B  20260702
+PSYNC:              Planner-Intention Sync — log block label; intentions + planner within 2h; intent and structure aligned        B  20260702
+RCASE:              Resilience Cascade — log block label; depleted → 2+ selfcare → memory + positive mood in 18h; arc confirmed   B  20260702
+QUANTUM-PRESENCE-ARC    QIE P101 — all 6 primary channels (journal+memory+planner+selfcare+intentions+mood) active in 48h; operator fully present across all signal dimensions  B  20260702
+PLANNER-INTENTION-SYNC  QIE P102 — intentions signal + planner signal within 2h; intent becomes structure in real time; execution synchronization  B  20260702
+RESILIENCE-CASCADE      QIE P103 — depleted → 2+ selfcare → memory capture + positive mood within 18h; complete restoration arc: breakdown → intervention → capture           B  20260702
 PLANNER-CONTEXT    User's declared daily intention (intent/today/how/feeling) extracted from plan_set log    A  20260630
                    and injected into Memory Engine buildPrompt() so questions follow up on stated focus
 ```

@@ -40,6 +40,37 @@ const TOTAL_DEVICES = 6
 
 type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index' | 'assembly' | 'qos-mode'
 
+const PATTERN_DISPLAY: Record<string, string> = {
+  'intent-to-action-gap':        'INTENT GAP',
+  'recovery-initiation':         'RECOV INIT',
+  'cognitive-vitality-sync':     'COG-VIT SYNC',
+  'action-completion-arc':       'COMP ARC',
+  'biological-restoration-peak': 'BIOL RESTORE',
+  'centennial-convergence':      'CENTENNIAL',
+  'physiological-depletion':     'PHYS DEPLETE',
+  'biofield-recovery-arc':       'BIOFIELD ARC',
+  'signal-drought':              'SIG DROUGHT',
+  'circadian-drift':             'CIRC DRIFT',
+  'multimodal-peak':             'MULTI PEAK',
+  'meridian-lock':               'MERIDIAN',
+  'flow-state':                  'FLOW STATE',
+  'recovery-plateau':            'RECOV PLATEAU',
+  'morning-launch-sequence':     'MORNING LAUNCH',
+  'evening-coherence-close':     'EVE CLOSE',
+  'signal-momentum-lock':        'MOM LOCK',
+  'cognitive-depth-arc':         'COG DEPTH',
+  'longitudinal-drift':          'LONG DRIFT',
+  'systemic-readiness-peak':     'SYS READY',
+  'daily-rhythm-lock':           'RHYTHM LOCK',
+  'cross-domain-mastery':        'CROSS DOMAIN',
+  'quantum-presence-arc':        'QPRES ARC',
+  'planner-intention-sync':      'PLAN-INTENT',
+  'resilience-cascade':          'RES CASCADE',
+  'vitality-cascade':            'VIT CASCADE',
+  'social-presence-arc':         'SOC PRES',
+  'clarity-momentum-peak':       'CLAR PEAK',
+}
+
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
 
 function computeQOSMode(
@@ -466,12 +497,22 @@ export const QuantumEngineWidgets: React.FC = () => {
               <div className="border-t border-acc-400/20 pt-8 mt-4">
                 <div className="opacity-40">{qosModeData.directive}</div>
               </div>
+              {engineState.recognizedPatterns.some(p => p.pattern === 'centennial-convergence') && (
+                <div className="border-t border-acc-400/20 pt-8">
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase tracking-widest">Milestone</span>
+                    <span>P100 ACTIVE</span>
+                  </div>
+                </div>
+              )}
               {engineState.recognizedPatterns.length > 0 && (
                 <div className="border-t border-acc-400/20 pt-8">
                   <div className="opacity-30 uppercase tracking-widest mb-6">Active signals</div>
-                  {engineState.recognizedPatterns.slice(0, 4).map(p => (
+                  {engineState.recognizedPatterns.slice(0, 5).map(p => (
                     <div key={p.pattern} className="flex justify-between mb-2">
-                      <span className="opacity-50 uppercase">{p.pattern.replace(/-/g, ' ').slice(0, 18)}</span>
+                      <span className={`uppercase ${p.pattern === 'centennial-convergence' ? '' : 'opacity-50'}`}>
+                        {PATTERN_DISPLAY[p.pattern] ?? p.pattern.replace(/-/g, ' ').slice(0, 14).toUpperCase()}
+                      </span>
                       <span className="opacity-30 tabular-nums">{Math.round(p.confidence * 100)}%</span>
                     </div>
                   ))}

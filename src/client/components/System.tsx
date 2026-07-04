@@ -653,6 +653,8 @@ export const System = React.memo(function SystemInner() {
             <Table
               data={[
                 { metric: 'Archetype', value: physiologicalCohort?.archetype ?? '—' },
+                { metric: 'Cohort', value: physiologicalCohort?.dominantModule ?? '—' },
+                { metric: 'Confidence', value: physiologicalCohort ? `${physiologicalCohort.confidence}%` : '—' },
                 { metric: 'ATP', value: quantumState.energy },
                 { metric: 'Clarity', value: quantumState.clarity },
                 { metric: 'Alignment', value: quantumState.alignment },

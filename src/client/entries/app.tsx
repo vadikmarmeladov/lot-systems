@@ -95,6 +95,14 @@ class AppErrorBoundary extends React.Component<
   }
 }
 
+// When a new service worker takes control (after a version bump + skipWaiting),
+// reload the page so the fresh JS bundle is used immediately.
+if (typeof window !== 'undefined' && navigator.serviceWorker) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload()
+  })
+}
+
 sync.listen('users_total', (data) => {
   stores.usersTotal.set(data.value)
 })
@@ -154,6 +162,15 @@ const TabPanel = React.memo(function TabPanel({
 const TabPanels = React.memo(function TabPanels() {
   const router = useStore(stores.router)
   const currentRoute = router?.route ?? 'system'
+
+  // Scroll to top when switching tabs so users don't end up past the new tab's
+  // content (System is tall — leaving it scrolled down makes other tabs blank).
+  // useLayoutEffect fires synchronously after DOM mutations but before the
+  // browser paints, eliminating the blank frame that useEffect would cause.
+  React.useLayoutEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+  }, [currentRoute])
+
   return (
     <>
       <TabPanel active={currentRoute === 'system'}>

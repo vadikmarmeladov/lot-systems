@@ -146,6 +146,11 @@ export const Logs: React.FC = React.memo(function LogsInner() {
   const onMouseActivityChange = React.useCallback(
     (isMoving: boolean) => {
       if (isTouchDevice) return
+      // Only hide/show nav while actually on the logs route.
+      // The Logs component stays mounted (display:none) across tab switches,
+      // so without this guard the inactivity timer would disable nav buttons
+      // on every other tab too.
+      if (stores.router.get()?.route !== 'logs') return
       const nav = document.querySelector('#nav')
       if (!nav) return
       if (isMoving) {
@@ -161,11 +166,29 @@ export const Logs: React.FC = React.memo(function LogsInner() {
 
   useMouseInactivity(2000, onMouseActivityChange)
 
+  // Restore nav whenever navigating away from logs, and on unmount.
+  React.useEffect(() => {
+    const unsub = stores.router.listen((routerState) => {
+      if (routerState?.route !== 'logs') {
+        const nav = document.querySelector('#nav')
+        if (nav) nav.classList.remove('opacity-0', 'pointer-events-none')
+      }
+    })
+    return () => {
+      const nav = document.querySelector('#nav')
+      if (nav) nav.classList.remove('opacity-0', 'pointer-events-none')
+      unsub()
+    }
+  }, [])
+
   React.useEffect(() => {
     if (isTouchDevice) return
     const page = document.querySelector('#page')
     const onClick = (ev: Event) => {
       if (ev.target !== page) return
+      // Only navigate away when actually on the logs route — Logs stays mounted
+      // across all tabs so without this guard it would fire on Settings, Sync, etc.
+      if (stores.router.get()?.route !== 'logs') return
       stores.goTo('system')
     }
     page?.addEventListener('click', onClick)
@@ -523,6 +546,67 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'vitality_cascade') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const energyBand = log.metadata?.energyBand as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="VITAL-CAS:" blockView>
+                {energyBand && (
+                  <div className="uppercase tracking-widest mb-4">ATP: {energyBand}</div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 24H: {selfcareCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'social_presence_arc') {
+          const cohortCount = log.metadata?.cohortCount as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOC-ARC:" blockView>
+                {cohortCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">COHORT 48H: {cohortCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT 48H: {intentionCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'clarity_momentum_peak') {
+          const clarity = log.metadata?.clarity as string | undefined
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CLAR-PEAK:" blockView>
+                {clarity && (
+                  <div className="uppercase tracking-widest mb-4">CLR: {clarity}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN 24H: {plannerCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 24H: {memoryCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined
@@ -557,19 +641,29 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="INTF:" blockView>
-                <div className="uppercase tracking-widest mb-4">Execution arc complete</div>
                 {intentionLabel && (
-                  <div className="opacity-60 mb-4">&gt; {intentionLabel}</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums uppercase">{intentionLabel}</span>
+                  </div>
                 )}
                 {plannerCount !== undefined && (
-                  <div className="opacity-60">PLAN 48h: {plannerCount}</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PLAN 48H</span>
+                    <span className="tabular-nums">{plannerCount}</span>
+                  </div>
                 )}
                 {goalCount !== undefined && (
-                  <div className="opacity-60">GOAL 48h: {goalCount}</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GOAL 48H</span>
+                    <span className="tabular-nums">{goalCount}</span>
+                  </div>
                 )}
-                <div className="opacity-40 mt-4">Intention → structure → action. Loop closed.</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -781,19 +875,29 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="TCOH:" blockView>
-                <div className="uppercase tracking-widest mb-4">Temporal grid active</div>
                 {calCount !== undefined && (
-                  <div className="opacity-60">CAL 7d: {calCount}</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CAL 7D</span>
+                    <span className="tabular-nums">{calCount}</span>
+                  </div>
                 )}
                 {planCount !== undefined && (
-                  <div className="opacity-60">PLAN 7d: {planCount}</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PLAN 7D</span>
+                    <span className="tabular-nums">{planCount}</span>
+                  </div>
                 )}
                 {intentCount !== undefined && (
-                  <div className="opacity-60">INTENT 7d: {intentCount}</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT 7D</span>
+                    <span className="tabular-nums">{intentCount}</span>
+                  </div>
                 )}
-                <div className="opacity-40">Calendar + planner + intentions. Time anchored.</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -806,18 +910,23 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="RECV:" blockView>
-                <div className="uppercase tracking-widest mb-4">Recovery arc accelerating</div>
                 {(preMood || postMood) && (
-                  <div className="opacity-60">
-                    {preMood && preMood.toUpperCase()} → {postMood && postMood.toUpperCase()}
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARC</span>
+                    <span className="tabular-nums uppercase">{preMood?.toUpperCase() ?? '—'} → {postMood?.toUpperCase() ?? '—'}</span>
                   </div>
                 )}
                 {windowMinutes !== undefined && (
-                  <div className="opacity-60">WINDOW: {windowMinutes}min</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WINDOW</span>
+                    <span className="tabular-nums">{windowMinutes}m</span>
+                  </div>
                 )}
-                <div className="opacity-40">Negative → care → positive restored.</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -944,12 +1053,17 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="STACK:" blockView>
-                <div className="uppercase tracking-widest mb-4">FULL STACK</div>
                 {activeSources && activeSources.length > 0 && (
-                  <div className="opacity-60">{activeSources.join(' · ')}</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SRC</span>
+                    <span className="tabular-nums uppercase">{activeSources.join(' · ')}</span>
+                  </div>
                 )}
                 {windowMinutes !== undefined && (
-                  <div className="opacity-40 tabular-nums">WIN: {windowMinutes}m</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">WIN</span>
+                    <span className="tabular-nums">{windowMinutes}m</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -1301,6 +1415,28 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'archetype_directive_pulse') {
+          const archetype = log.metadata?.archetype as string | undefined
+          const label     = log.metadata?.label     as string | undefined
+          const directive = log.metadata?.directive  as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DRCT:" blockView>
+                {label && (
+                  <div className="uppercase tracking-widest mb-4">{label}</div>
+                )}
+                {archetype && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARCH</span>
+                    <span className="uppercase">{archetype}</span>
+                  </div>
+                )}
+                {directive && (
+                  <div className="mt-4 opacity-60 text-xs leading-relaxed">{directive}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'intention_completion') {
           const completed = log.metadata?.completed as number | undefined
           const total = log.metadata?.total as number | undefined
@@ -1516,12 +1652,17 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="MCL:" blockView>
-                <div className="uppercase tracking-widest mb-4">MORNING LAUNCH</div>
                 {intentionLabel && (
-                  <div className="opacity-60">&gt; {intentionLabel}</div>
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums uppercase">{intentionLabel}</span>
+                  </div>
                 )}
                 {plannerMinutes !== undefined && (
-                  <div className="opacity-40 tabular-nums">PLAN: +{plannerMinutes}m</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">PLAN</span>
+                    <span className="tabular-nums">+{plannerMinutes}m</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -1553,13 +1694,16 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="SURGE:" blockView>
-                <div className="uppercase tracking-widest mb-4">
-                  {priorEnergy ? priorEnergy.toUpperCase() : 'LOW'} → HIGH
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">ARC</span>
+                  <span className="tabular-nums uppercase">{priorEnergy ? priorEnergy.toUpperCase() : 'LOW'} → HIGH</span>
                 </div>
                 {careCount !== undefined && (
-                  <div className="opacity-60 tabular-nums">CARE 6H: {careCount}</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CARE 6H</span>
+                    <span className="tabular-nums">{careCount}</span>
+                  </div>
                 )}
-                <div className="opacity-40">Restoration arc complete. Peak confirmed.</div>
               </Block>
             </LogContainer>
           )
@@ -1569,12 +1713,17 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="EVE:" blockView>
-                <div className="uppercase tracking-widest mb-4">EVENING CLOSE</div>
-                {morningSignal && (
-                  <div className="opacity-60">Arc confirmed. Morning launch + evening close.</div>
+                {morningSignal !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DIURNAL ARC</span>
+                    <span className="tabular-nums">{morningSignal ? 'CLOSED' : 'OPEN'}</span>
+                  </div>
                 )}
                 {captureCount !== undefined && (
-                  <div className="opacity-40 tabular-nums">CAPTURE: {captureCount} channel{captureCount === 1 ? '' : 's'}</div>
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CAPTURE</span>
+                    <span className="tabular-nums">{captureCount} ch</span>
+                  </div>
                 )}
               </Block>
             </LogContainer>
@@ -1585,20 +1734,18 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="MOM:" blockView>
-                <div className="uppercase tracking-widest mb-4">MOMENTUM LOCK</div>
                 {qualifyingDays !== undefined && (
-                  <div className="flex justify-between items-baseline mb-8">
+                  <div className="flex justify-between items-baseline mb-4">
                     <span className="opacity-30">DAYS 7D</span>
                     <span className="tabular-nums">{qualifyingDays}/7</span>
                   </div>
                 )}
                 {streakSources && streakSources.length > 0 && (
-                  <div className="flex justify-between items-baseline mb-8">
+                  <div className="flex justify-between items-baseline">
                     <span className="opacity-30">SRC</span>
                     <span className="tabular-nums">{streakSources.length}</span>
                   </div>
                 )}
-                <div className="opacity-40">Architecture in motion. Every dimension engaged.</div>
               </Block>
             </LogContainer>
           )
@@ -1609,7 +1756,6 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COGN:" blockView>
-                <div className="uppercase tracking-widest mb-4">COGNITIVE DEPTH ARC</div>
                 {memoryCount !== undefined && (
                   <div className="flex justify-between items-baseline mb-4">
                     <span className="opacity-30">MEM 7D</span>
@@ -1623,7 +1769,7 @@ export const Logs: React.FC = React.memo(function LogsInner() {
                   </div>
                 )}
                 {badgeCount !== undefined && (
-                  <div className="flex justify-between items-baseline mb-8">
+                  <div className="flex justify-between items-baseline">
                     <span className="opacity-30">BADGES</span>
                     <span className="tabular-nums">{badgeCount}</span>
                   </div>
@@ -1775,6 +1921,516 @@ export const Logs: React.FC = React.memo(function LogsInner() {
                     <span className="tabular-nums">{String(hour).padStart(2, '0')}:00</span>
                   </div>
                 )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'lot_ai_story') {
+          const weekNumber    = log.metadata?.weekNumber    as number | undefined
+          const weekTone      = log.metadata?.weekTone      as string | undefined
+          const dominantMood  = log.metadata?.dominantMood  as string | undefined
+          const checkinsCount = log.metadata?.checkinsCount as number | undefined
+          const selfCareCount = log.metadata?.selfCareCount as number | undefined
+          const intentionsCount = log.metadata?.intentionsCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="STORY:" blockView>
+                {weekNumber !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">W{weekNumber}</div>
+                )}
+                {weekTone && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TONE</span>
+                    <span className="uppercase">{weekTone}</span>
+                  </div>
+                )}
+                {dominantMood && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MOOD</span>
+                    <span className="uppercase">{dominantMood}</span>
+                  </div>
+                )}
+                {checkinsCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CHK</span>
+                    <span className="tabular-nums">{checkinsCount}</span>
+                  </div>
+                )}
+                {selfCareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfCareCount}</span>
+                  </div>
+                )}
+                {intentionsCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums">{intentionsCount}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_learning_spiral') {
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const journalWords = log.metadata?.journalWords as number | undefined
+          const badgeCount   = log.metadata?.badgeCount   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="LEARN:" blockView>
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEM 7D</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {journalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WORDS 7D</span>
+                    <span className="tabular-nums">{journalWords}w</span>
+                  </div>
+                )}
+                {badgeCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">BADGES 7D</span>
+                    <span className="tabular-nums">{badgeCount}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'accountability_arc') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const cohortCount    = log.metadata?.cohortCount    as number | undefined
+          const goalCount      = log.metadata?.goalCount      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ACCT:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT 7D</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                {cohortCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">COHORT 7D</span>
+                    <span className="tabular-nums">{cohortCount}</span>
+                  </div>
+                )}
+                {goalCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">GOALS 7D</span>
+                    <span className="tabular-nums">{goalCount}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'full_presence_arc') {
+          const morningCount = log.metadata?.morningCount as number | undefined
+          const eveningCount = log.metadata?.eveningCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PRES:" blockView>
+                {morningCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MORNING</span>
+                    <span className="tabular-nums">{morningCount}</span>
+                  </div>
+                )}
+                {eveningCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">EVENING</span>
+                    <span className="tabular-nums">{eveningCount}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'pattern_health_scan') {
+          const patternsActive = log.metadata?.patternsActive as number | undefined
+          const coverage       = log.metadata?.coverage       as number | undefined
+          const topPattern     = log.metadata?.topPattern     as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PHR:" blockView>
+                {patternsActive !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ACTIVE</span>
+                    <span className="tabular-nums">{patternsActive}</span>
+                  </div>
+                )}
+                {coverage !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">COVERAGE</span>
+                    <span className="tabular-nums">{coverage}%</span>
+                  </div>
+                )}
+                {topPattern && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">TOP</span>
+                    <span className="tabular-nums uppercase">{topPattern}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'daily_rhythm_lock') {
+          const completeDays = log.metadata?.completeDays as number | undefined
+          const morningToday = log.metadata?.morningToday as number | undefined
+          const eveningToday = log.metadata?.eveningToday as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RLOCK:" blockView>
+                {completeDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">STREAK</span>
+                    <span className="tabular-nums">{completeDays}d</span>
+                  </div>
+                )}
+                {morningToday !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MORNING</span>
+                    <span className="tabular-nums">{morningToday}</span>
+                  </div>
+                )}
+                {eveningToday !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">EVENING</span>
+                    <span className="tabular-nums">{eveningToday}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cross_domain_mastery_pulse') {
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const journalWords = log.metadata?.journalWords as number | undefined
+          const badgeCount   = log.metadata?.badgeCount   as number | undefined
+          const goalCount    = log.metadata?.goalCount    as number | undefined
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CROSS:" blockView>
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEM 7D</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {journalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WORDS 7D</span>
+                    <span className="tabular-nums">{journalWords}w</span>
+                  </div>
+                )}
+                {badgeCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">BADGES 7D</span>
+                    <span className="tabular-nums">{badgeCount}</span>
+                  </div>
+                )}
+                {goalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GOALS 7D</span>
+                    <span className="tabular-nums">{goalCount}</span>
+                  </div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">PLANS 7D</span>
+                    <span className="tabular-nums">{plannerCount}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'systemic_readiness_peak') {
+          const archetype     = log.metadata?.archetype     as string | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          const energyBand    = log.metadata?.energyBand    as string | undefined
+          const readinessScore = log.metadata?.readinessScore as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SYSRDY:" blockView>
+                {archetype && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARCH</span>
+                    <span className="uppercase tracking-widest text-xs">{archetype}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {energyBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ATP</span>
+                    <span className="capitalize">{energyBand}</span>
+                  </div>
+                )}
+                {readinessScore !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">READINESS</span>
+                    <span className="tabular-nums">{readinessScore}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'intent_gap_pulse') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const gapMinutes     = log.metadata?.gapMinutes     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="IGAP:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                {gapMinutes !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GAP</span>
+                    <span className="tabular-nums">{gapMinutes}m</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">WINDOW</span>
+                  <span>24H</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recovery_initiation') {
+          const selfcareCount     = log.metadata?.selfcareCount     as number | undefined
+          const priorEnergyLevel  = log.metadata?.priorEnergyLevel  as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RECOV:" blockView>
+                {selfcareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfcareCount}</span>
+                  </div>
+                )}
+                {priorEnergyLevel && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRIOR ATP</span>
+                    <span className="capitalize">{priorEnergyLevel}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATUS</span>
+                  <span>ARC BEGIN</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_vitality_sync') {
+          const journalWords = log.metadata?.journalWords as number | undefined
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const energyBand   = log.metadata?.energyBand   as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="VSYNC:" blockView>
+                {journalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WORDS 24H</span>
+                    <span className="tabular-nums">{journalWords}w</span>
+                  </div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEM 24H</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {energyBand && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">ATP</span>
+                    <span className="capitalize">{energyBand}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'action_completion_arc') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const planCount      = log.metadata?.planCount      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COMP:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                {planCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PLAN</span>
+                    <span className="tabular-nums">{planCount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATUS</span>
+                  <span>GAP CLOSED</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biological_restoration_peak') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const fromBand      = log.metadata?.fromBand      as string | undefined
+          const toBand        = log.metadata?.toBand        as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BRES:" blockView>
+                {selfcareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfcareCount}</span>
+                  </div>
+                )}
+                {fromBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FROM</span>
+                    <span className="capitalize">{fromBand}</span>
+                  </div>
+                )}
+                {toBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TO</span>
+                    <span className="capitalize">{toBand}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">ARC</span>
+                  <span>RESTORED</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'centennial_convergence') {
+          const activeSources = log.metadata?.activeSources as number | undefined
+          const energyBand    = log.metadata?.energyBand    as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CENT:" blockView>
+                {activeSources !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOURCES</span>
+                    <span className="tabular-nums">{activeSources}</span>
+                  </div>
+                )}
+                {energyBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ATP</span>
+                    <span className="capitalize">{energyBand}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">PATTERN</span>
+                  <span>P100</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATE</span>
+                  <span>CENTENNIAL</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_presence_arc') {
+          const activeChannels = log.metadata?.activeChannels as number | undefined
+          const totalSources   = log.metadata?.totalSources   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QPRES:" blockView>
+                {activeChannels !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CHANNELS</span>
+                    <span className="tabular-nums">{activeChannels}/6</span>
+                  </div>
+                )}
+                {totalSources !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOURCES</span>
+                    <span className="tabular-nums">{totalSources}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">WINDOW</span>
+                  <span>48H</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">PATTERN</span>
+                  <span>P101</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'planner_intention_sync') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const planCount      = log.metadata?.planCount      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PSYNC:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                {planCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PLAN</span>
+                    <span className="tabular-nums">{planCount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">WINDOW</span>
+                  <span>2H</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATUS</span>
+                  <span>SYNCED</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'resilience_cascade') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const memoryCount   = log.metadata?.memoryCount   as number | undefined
+          const fromBand      = log.metadata?.fromBand      as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RCASE:" blockView>
+                {fromBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ATP-FROM</span>
+                    <span className="capitalize">{fromBand}</span>
+                  </div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfcareCount}</span>
+                  </div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CAPTURE</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">ARC</span>
+                  <span>CLOSED</span>
+                </div>
               </Block>
             </LogContainer>
           )

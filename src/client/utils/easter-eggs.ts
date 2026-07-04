@@ -290,6 +290,174 @@ export function checkStackMirror(): BadgeType | null {
   return null
 }
 
+// ── Time v9 — Power-Up Hours ──────────────────────────────────────────────────
+
+export function checkLuckySeven(): BadgeType | null {
+  if (hasBadge('lucky_seven')) return null
+  const now = new Date()
+  if (now.getHours() === 7 && now.getMinutes() === 0) {
+    awardBadge('lucky_seven')
+    return 'lucky_seven'
+  }
+  return null
+}
+
+export function checkMirrorPlay(): BadgeType | null {
+  if (hasBadge('mirror_play')) return null
+  const now = new Date()
+  if (now.getHours() === 15 && now.getMinutes() === 15) {
+    awardBadge('mirror_play')
+    return 'mirror_play'
+  }
+  return null
+}
+
+export function checkNeonStack(): BadgeType | null {
+  if (hasBadge('neon_stack')) return null
+  const now = new Date()
+  if (now.getHours() === 19 && now.getMinutes() === 19) {
+    awardBadge('neon_stack')
+    return 'neon_stack'
+  }
+  return null
+}
+
+export function checkFourAces(): BadgeType | null {
+  if (hasBadge('four_aces')) return null
+  const now = new Date()
+  if (now.getHours() === 4 && now.getMinutes() === 44) {
+    awardBadge('four_aces')
+    return 'four_aces'
+  }
+  return null
+}
+
+// ── Time v10 — Arcane Hours ───────────────────────────────────────────────────
+
+export function checkDawnGate(): BadgeType | null {
+  if (hasBadge('dawn_gate')) return null
+  const now = new Date()
+  if (now.getHours() === 6 && now.getMinutes() === 6) {
+    awardBadge('dawn_gate')
+    return 'dawn_gate'
+  }
+  return null
+}
+
+export function checkNoonFold(): BadgeType | null {
+  if (hasBadge('noon_fold')) return null
+  const now = new Date()
+  if (now.getHours() === 12 && now.getMinutes() === 21) {
+    awardBadge('noon_fold')
+    return 'noon_fold'
+  }
+  return null
+}
+
+export function checkEveningPrime(): BadgeType | null {
+  if (hasBadge('evening_prime')) return null
+  const now = new Date()
+  if (now.getHours() === 21 && now.getMinutes() === 0) {
+    awardBadge('evening_prime')
+    return 'evening_prime'
+  }
+  return null
+}
+
+export function checkNightMirror(): BadgeType | null {
+  if (hasBadge('night_mirror')) return null
+  const now = new Date()
+  if (now.getHours() === 23 && now.getMinutes() === 23) {
+    awardBadge('night_mirror')
+    return 'night_mirror'
+  }
+  return null
+}
+
+// ── Time v11 — Navigator Hours ────────────────────────────────────────────────
+
+export function checkAfternoonMirror(): BadgeType | null {
+  if (hasBadge('afternoon_mirror')) return null
+  const now = new Date()
+  if (now.getHours() === 13 && now.getMinutes() === 13) {
+    awardBadge('afternoon_mirror')
+    return 'afternoon_mirror'
+  }
+  return null
+}
+
+export function checkNavigatorDawn(): BadgeType | null {
+  if (hasBadge('navigator_dawn')) return null
+  const now = new Date()
+  if (now.getHours() === 5 && now.getMinutes() === 12) {
+    awardBadge('navigator_dawn')
+    return 'navigator_dawn'
+  }
+  return null
+}
+
+export function checkAnswerHourV11(): BadgeType | null {
+  if (hasBadge('answer_hour_v11')) return null
+  const now = new Date()
+  if (now.getHours() === 18 && now.getMinutes() === 42) {
+    awardBadge('answer_hour_v11')
+    return 'answer_hour_v11'
+  }
+  return null
+}
+
+export function checkPalindromeCheck(): BadgeType | null {
+  if (hasBadge('palindrome_check')) return null
+  const now = new Date()
+  if (now.getHours() === 10 && now.getMinutes() === 1) {
+    awardBadge('palindrome_check')
+    return 'palindrome_check'
+  }
+  return null
+}
+
+// ── Time v14 — Mission Control Hours ──────────────────────────────────────────
+
+export function checkLuckyPair(): BadgeType | null {
+  if (hasBadge('lucky_pair')) return null
+  const now = new Date()
+  if (now.getHours() === 7 && now.getMinutes() === 7) {
+    awardBadge('lucky_pair')
+    return 'lucky_pair'
+  }
+  return null
+}
+
+export function checkVisionYear(): BadgeType | null {
+  if (hasBadge('vision_year')) return null
+  const now = new Date()
+  if (now.getHours() === 20 && now.getMinutes() === 20) {
+    awardBadge('vision_year')
+    return 'vision_year'
+  }
+  return null
+}
+
+export function checkBinaryTriple(): BadgeType | null {
+  if (hasBadge('binary_triple')) return null
+  const now = new Date()
+  if (now.getHours() === 2 && now.getMinutes() === 22) {
+    awardBadge('binary_triple')
+    return 'binary_triple'
+  }
+  return null
+}
+
+export function checkSignalNine(): BadgeType | null {
+  if (hasBadge('signal_nine')) return null
+  const now = new Date()
+  if (now.getHours() === 15 && now.getMinutes() === 45) {
+    awardBadge('signal_nine')
+    return 'signal_nine'
+  }
+  return null
+}
+
 /**
  * Run all time-based checks on a check-in event.
  * Returns array of newly awarded badge IDs.
@@ -305,6 +473,14 @@ export function checkTimeEasterEggs(): BadgeType[] {
     checkDeepNight, checkMiddaySignal, checkLiminalHour, checkSacredTriple,
     // v8 — Clock Cycles
     checkClockFortyTwo, checkNoonKernel, checkByteTime, checkStackMirror,
+    // v9 — Power-Up Hours
+    checkLuckySeven, checkMirrorPlay, checkNeonStack, checkFourAces,
+    // v10 — Arcane Hours
+    checkDawnGate, checkNoonFold, checkEveningPrime, checkNightMirror,
+    // v11 — Navigator Hours
+    checkAfternoonMirror, checkNavigatorDawn, checkAnswerHourV11, checkPalindromeCheck,
+    // v14 — Mission Control Hours
+    checkLuckyPair, checkVisionYear, checkBinaryTriple, checkSignalNine,
   ]
   for (const check of checks) {
     const result = check()
@@ -443,6 +619,86 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('halloween_protocol') && month === 10 && day === 31) {
     awardBadge('halloween_protocol')
     awarded.push('halloween_protocol')
+  }
+
+  // ── Calendar v8 — Game Anniversaries ────────────────────────────────────────
+
+  // New Year Signal: January 1
+  if (!hasBadge('new_year_sig') && month === 1 && day === 1) {
+    awardBadge('new_year_sig')
+    awarded.push('new_year_sig')
+  }
+
+  // Sonic Day: September 9 — Sonic the Hedgehog birthday
+  if (!hasBadge('sonic_day') && month === 9 && day === 9) {
+    awardBadge('sonic_day')
+    awarded.push('sonic_day')
+  }
+
+  // Winter Code: December 25 — Holiday Protocol
+  if (!hasBadge('winter_code') && month === 12 && day === 25) {
+    awardBadge('winter_code')
+    awarded.push('winter_code')
+  }
+
+  // ── Calendar v9 — Sci-Fi Literary Calendar ────────────────────────────────
+
+  // Turing Day: June 23 — Alan Turing born 1912
+  if (!hasBadge('turing_day') && month === 6 && day === 23) {
+    awardBadge('turing_day')
+    awarded.push('turing_day')
+  }
+
+  // Moon Landing: July 20 — First lunar footprint 1969
+  if (!hasBadge('moon_landing') && month === 7 && day === 20) {
+    awardBadge('moon_landing')
+    awarded.push('moon_landing')
+  }
+
+  // Sputnik Signal: October 4 — Sputnik launch 1957
+  if (!hasBadge('sputnik_signal') && month === 10 && day === 4) {
+    awardBadge('sputnik_signal')
+    awarded.push('sputnik_signal')
+  }
+
+  // ── Calendar v10 — Navigation Dates ──────────────────────────────────────────
+
+  // Voyager Day: August 25 — Voyager 2 launched 1977
+  if (!hasBadge('voyager_day') && month === 8 && day === 25) {
+    awardBadge('voyager_day')
+    awarded.push('voyager_day')
+  }
+
+  // Navigator's Day: October 12
+  if (!hasBadge('navigators_day') && month === 10 && day === 12) {
+    awardBadge('navigators_day')
+    awarded.push('navigators_day')
+  }
+
+  // Leap Day: February 29 (only exists in leap years)
+  if (!hasBadge('leap_day') && month === 2 && day === 29) {
+    awardBadge('leap_day')
+    awarded.push('leap_day')
+  }
+
+  // ── Calendar v11 — Space Firsts ──────────────────────────────────────────────
+
+  // Gagarin Day: April 12 — First human in space 1961
+  if (!hasBadge('gagarin_day') && month === 4 && day === 12) {
+    awardBadge('gagarin_day')
+    awarded.push('gagarin_day')
+  }
+
+  // Zarya Signal: November 20 — ISS first module Zarya launched 1998
+  if (!hasBadge('zarya_signal') && month === 11 && day === 20) {
+    awardBadge('zarya_signal')
+    awarded.push('zarya_signal')
+  }
+
+  // Pluto Discovered: February 18 — Pluto found by Clyde Tombaugh 1930
+  if (!hasBadge('pluto_discovered') && month === 2 && day === 18) {
+    awardBadge('pluto_discovered')
+    awarded.push('pluto_discovered')
   }
 
   return awarded
@@ -839,11 +1095,71 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bloop(ed|ing|s)?\b/i,                badge: 'loop_detected' },
   { patterns: /\broot\b/i,                           badge: 'root_access' },
   { patterns: /\bdebug(ged|ging|s)?\b/i,             badge: 'debug_mode_badge' },
-  // ── Secret Boss word triggers ─────────────────────────────────────────────
+  // ── v9 — The Arcade Cabinet ──────────────────────────────────────────────────
+  { patterns: /\bcoin(s)?\b/i,                       badge: 'coin_dropped' },
+  { patterns: /\bpixel(s|ated|ate)?\b/i,             badge: 'pixel_recognized' },
+  { patterns: /\bsprite(s)?\b/i,                     badge: 'sprite_active' },
+  { patterns: /\bscore(d|s|board)?\b/i,              badge: 'score_logged' },
+  { patterns: /\b(life|lives|extra.?life)\b/i,       badge: 'life_remaining' },
+  { patterns: /\bjoystick(s)?\b/i,                   badge: 'input_received' },
+  { patterns: /\bblip(s|ped|ping)?\b/i,              badge: 'signal_blip' },
+  { patterns: /\bcontinue(d|s)?\b/i,                 badge: 'continue_selected' },
+  { patterns: /\bhigh.?score\b/i,                    badge: 'high_signal' },
+  { patterns: /\breset(s|ting|ted)?\b/i,             badge: 'reset_protocol' },
+  { patterns: /\bquarter(s|back)?\b/i,               badge: 'quarter_offered' },
+  { patterns: /\bcheat(s|ed|ing|.?code)?\b/i,        badge: 'cheat_code_entered' },
+  // ── v10 — The Spell Book ──────────────────────────────────────────────────────
+  { patterns: /\bspell(s|ed|ing|bound)?\b/i,         badge: 'spell_cast' },
+  { patterns: /\bcast(s|ing)?\b/i,                   badge: 'cast_signal' },
+  { patterns: /\binvoke(d|s|r)?\b/i,                 badge: 'invoked' },
+  { patterns: /\barcane\b/i,                         badge: 'arcane_entry' },
+  { patterns: /\bsigil(s)?\b/i,                      badge: 'sigil_drawn' },
+  { patterns: /\btome(s)?\b/i,                       badge: 'tome_keeper' },
+  { patterns: /\bgrimoire(s)?\b/i,                   badge: 'grimoire_open' },
+  { patterns: /\bward(s|ed|ing)?\b/i,                badge: 'ward_active' },
+  { patterns: /\bmana\b/i,                           badge: 'mana_check' },
+  { patterns: /\bfamiliar(s)?\b/i,                   badge: 'familiar_bond' },
+  { patterns: /\bchapter(s)?\b/i,                    badge: 'chapter_mark' },
+  { patterns: /\bverse(s)?\b/i,                      badge: 'verse_logged' },
+  // ── v11 — The Navigator ───────────────────────────────────────────────────────
+  { patterns: /\bdrift(s|ed|ing)?\b/i,               badge: 'nav_drift' },
+  { patterns: /\bvector(s|ed|ing)?\b/i,              badge: 'nav_vector' },
+  { patterns: /\bbearing(s)?\b/i,                    badge: 'nav_bearing' },
+  { patterns: /\bwaypoint(s)?\b/i,                   badge: 'nav_waypoint' },
+  { patterns: /\bchart(s|ed|ing)?\b/i,               badge: 'nav_chart' },
+  { patterns: /\bmagnetic\b/i,                       badge: 'nav_magnetic' },
+  { patterns: /\bmeridian(s)?\b/i,                   badge: 'nav_meridian' },
+  { patterns: /\bcourse(s|d)?\b/i,                   badge: 'nav_course' },
+  { patterns: /\bheading(s)?\b/i,                    badge: 'nav_heading' },
+  { patterns: /\blandmark(s)?\b/i,                   badge: 'nav_landmark' },
+  { patterns: /\bnavigate(d|s|r)?\b/i,               badge: 'nav_navigate' },
+  { patterns: /\bcompass(es)?\b/i,                   badge: 'nav_compass' },
+  // ── Secret Boss word triggers ─────────────────────────────────────────────────
   { patterns: /\bi am lot\b/i,                       badge: 'i_am_lot' },
   { patterns: /\bmalibu\b/i,                         badge: 'malibu' },
   { patterns: /\bkuzya\b/i,                          badge: 'the_cat_knows' },
   { patterns: /\b0451\b/,                            badge: 'key_code' },
+  // ── v11 Secret Boss — Terra Incognita word triggers ───────────────────────────
+  { patterns: /dead.?reckoning/i,                    badge: 'dead_reckoning_word' },
+  { patterns: /terra.?incognita/i,                   badge: 'terra_incognita' },
+  { patterns: /(magnetic.?north|true.?north)/i,       badge: 'true_north' },
+  // ── v14 — The Starship Deck ───────────────────────────────────────────────
+  { patterns: /\blaunch(ed|ing|es)?\b/i,              badge: 'launch_confirmed' },
+  { patterns: /\bmission(s)?\b/i,                     badge: 'mission_active' },
+  { patterns: /\bastronaut(s)?\b/i,                   badge: 'astronaut_mode' },
+  { patterns: /\bcapsule(s)?\b/i,                     badge: 'capsule_entry' },
+  { patterns: /\btelemetry\b/i,                       badge: 'telemetry_live' },
+  { patterns: /\bcountdown(s)?\b/i,                   badge: 'countdown_initiated' },
+  { patterns: /\bre-?entry\b/i,                       badge: 'reentry_burn' },
+  { patterns: /\bcrew\b/i,                            badge: 'crew_signal' },
+  { patterns: /\bstarship(s)?\b/i,                    badge: 'starship_mode' },
+  { patterns: /\bmodule(s)?\b/i,                      badge: 'module_locked' },
+  { patterns: /\bdocking\b/i,                         badge: 'docking_complete' },
+  { patterns: /\bspacewalk(s|ed|ing)?\b/i,            badge: 'spacewalk_mode' },
+  // ── v14 Secret Boss — Final Transmission word triggers ──────────────────────
+  { patterns: /\bhouston\b/i,                         badge: 'houston_signal' },
+  { patterns: /\bgagarin\b/i,                         badge: 'gagarin_echo' },
+  { patterns: /pale.?blue.?dot/i,                     badge: 'sagan_protocol' },
 ]
 
 /**

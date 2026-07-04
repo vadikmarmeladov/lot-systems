@@ -368,16 +368,14 @@ export default async (fastify: FastifyInstance) => {
         }
         case 'chat_message_like': {
           const payload = data as ChatMessageLikeEventPayload
-          const likes = await fastify.models.ChatMessageLike.findAll({
-            where: { messageId: payload.messageId },
+          // likes/likesCount are already computed by the POST handler.
+          // Only check if THIS client has liked the message — one row lookup
+          // instead of fetching every like row for every connected client.
+          const myLike = await fastify.models.ChatMessageLike.findOne({
+            where: { messageId: payload.messageId, userId: req.user.id },
+            attributes: ['id'],
           })
-          const updatedPayload: ChatMessageLikeEventPayload = {
-            ...payload,
-            likes: likes.length,
-            likesCount: likes.length,
-            isLiked: likes.some(fp.propEq('userId', req.user.id)),
-          }
-          write({ event, data: updatedPayload })
+          write({ event, data: { ...payload, isLiked: !!myLike } })
           break
         }
         case 'settings_updated': {
@@ -824,10 +822,16 @@ export default async (fastify: FastifyInstance) => {
   })
 
   fastify.get('/chat-messages', async (req: FastifyRequest, reply) => {
+    const targetCount = req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW
+    // Fetch 4× the target so the suspended-user filter always leaves enough rows.
+    // Applying LIMIT before filtering meant suspended users' recent messages could
+    // exhaust the limit and leave non-suspended messages below the cutoff.
+    const fetchLimit = req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW * 4
     let messages: InstanceType<typeof fastify.models.ChatMessage>[] = []
     try {
       messages = await fastify.models.ChatMessage.findAll({
         order: [['createdAt', 'DESC']],
+        limit: fetchLimit,
         limit: req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW,
       })
     } catch (err: any) {
@@ -836,6 +840,23 @@ export default async (fastify: FastifyInstance) => {
     }
 
     if (messages.length === 0) return []
+
+    const userIds = [...new Set(messages.map((m) => m.authorUserId))]
+    let users: InstanceType<typeof fastify.models.User>[] = []
+    let allLikes: InstanceType<typeof fastify.models.ChatMessageLike>[] = []
+    try {
+      ;[users, allLikes] = await Promise.all([
+        fastify.models.User.findAll({
+          where: { id: userIds },
+        }),
+        fastify.models.ChatMessageLike.findAll({
+          where: { messageId: messages.map(fp.prop('id')) },
+        }),
+      ])
+    } catch (err: any) {
+      console.error('chat-messages: author/likes lookup failed:', err?.message)
+    }
+
 
     const userIds = messages.map((m) => m.authorUserId)
     let users: InstanceType<typeof fastify.models.User>[] = []
@@ -855,13 +876,14 @@ export default async (fastify: FastifyInstance) => {
 
     const userById = users.reduce(fp.by('id'), {})
 
-    // Only filter out messages from suspended users; messages from deleted accounts are kept
+    // Filter out suspended users BEFORE applying the display limit so their
+    // recent messages don't silently crowd out non-suspended messages.
     const filteredMessages = messages.filter((msg) => {
       const author = userById[msg.authorUserId]
       if (!author) return true
       const isSuspended = author.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
       return !isSuspended
-    })
+    }).slice(0, targetCount)
 
     const likes = allLikes.filter(l => filteredMessages.some(m => m.id === l.messageId))
     const likesByMessageId = likes.reduce(fp.groupBy('messageId'), {})
@@ -1078,8 +1100,30 @@ export default async (fastify: FastifyInstance) => {
       // v72: adaptive momentum window + vitality strategy peak
       'adaptive_momentum',
       'vitality_strategy_peak',
-      // Story generation
-      'generated_story',
+      // v73: weekly LOT® AI story (Job 24 output) + archetype directive pulse (Job 25 output)
+      'lot_ai_story',
+      'archetype_directive_pulse',
+      // v76: quantum learning spiral · accountability arc · full presence arc · pattern health scan
+      'quantum_learning_spiral',
+      'accountability_arc',
+      'full_presence_arc',
+      'pattern_health_scan',
+      // v78: daily rhythm lock · cross-domain mastery pulse · systemic readiness peak
+      'daily_rhythm_lock',
+      'cross_domain_mastery_pulse',
+      'systemic_readiness_peak',
+      // v80: intent gap pulse · recovery initiation · cognitive vitality sync
+      'intent_gap_pulse',
+      'recovery_initiation',
+      'cognitive_vitality_sync',
+      // v82: action completion arc · biological restoration peak · centennial convergence (P98/P99/P100)
+      'action_completion_arc',
+      'biological_restoration_peak',
+      'centennial_convergence',
+      // v83: quantum presence arc · planner-intention sync · resilience cascade (P101/P102/P103)
+      'quantum_presence_arc',
+      'planner_intention_sync',
+      'resilience_cascade',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
