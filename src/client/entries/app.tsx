@@ -154,6 +154,13 @@ const TabPanel = React.memo(function TabPanel({
 const TabPanels = React.memo(function TabPanels() {
   const router = useStore(stores.router)
   const currentRoute = router?.route ?? 'system'
+
+  // Scroll to top when switching tabs so users don't end up past the new tab's
+  // content (System is tall — leaving it scrolled down makes other tabs blank).
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
+  }, [currentRoute])
+
   return (
     <>
       <TabPanel active={currentRoute === 'system'}>
