@@ -832,7 +832,6 @@ export default async (fastify: FastifyInstance) => {
       messages = await fastify.models.ChatMessage.findAll({
         order: [['createdAt', 'DESC']],
         limit: fetchLimit,
-        limit: req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW,
       })
     } catch (err: any) {
       console.error('chat-messages: findAll failed:', err?.message)
@@ -842,23 +841,6 @@ export default async (fastify: FastifyInstance) => {
     if (messages.length === 0) return []
 
     const userIds = [...new Set(messages.map((m) => m.authorUserId))]
-    let users: InstanceType<typeof fastify.models.User>[] = []
-    let allLikes: InstanceType<typeof fastify.models.ChatMessageLike>[] = []
-    try {
-      ;[users, allLikes] = await Promise.all([
-        fastify.models.User.findAll({
-          where: { id: userIds },
-        }),
-        fastify.models.ChatMessageLike.findAll({
-          where: { messageId: messages.map(fp.prop('id')) },
-        }),
-      ])
-    } catch (err: any) {
-      console.error('chat-messages: author/likes lookup failed:', err?.message)
-    }
-
-
-    const userIds = messages.map((m) => m.authorUserId)
     let users: InstanceType<typeof fastify.models.User>[] = []
     let allLikes: InstanceType<typeof fastify.models.ChatMessageLike>[] = []
     try {
