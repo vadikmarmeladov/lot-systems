@@ -165,7 +165,9 @@ const TabPanels = React.memo(function TabPanels() {
 
   // Scroll to top when switching tabs so users don't end up past the new tab's
   // content (System is tall — leaving it scrolled down makes other tabs blank).
-  React.useEffect(() => {
+  // useLayoutEffect fires synchronously after DOM mutations but before the
+  // browser paints, eliminating the blank frame that useEffect would cause.
+  React.useLayoutEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior })
   }, [currentRoute])
 

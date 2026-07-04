@@ -832,11 +832,16 @@ export default async (fastify: FastifyInstance) => {
   })
 
   fastify.get('/chat-messages', async (req: FastifyRequest, reply) => {
+    const targetCount = req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW
+    // Fetch 4× the target so the suspended-user filter always leaves enough rows.
+    // Applying LIMIT before filtering meant suspended users' recent messages could
+    // exhaust the limit and leave non-suspended messages below the cutoff.
+    const fetchLimit = req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW * 4
     let messages: InstanceType<typeof fastify.models.ChatMessage>[] = []
     try {
       messages = await fastify.models.ChatMessage.findAll({
         order: [['createdAt', 'DESC']],
-        limit: req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW,
+        limit: fetchLimit,
       })
     } catch (err: any) {
       console.error('chat-messages: findAll failed:', err?.message)
@@ -845,7 +850,7 @@ export default async (fastify: FastifyInstance) => {
 
     if (messages.length === 0) return []
 
-    const userIds = messages.map((m) => m.authorUserId)
+    const userIds = [...new Set(messages.map((m) => m.authorUserId))]
     let users: InstanceType<typeof fastify.models.User>[] = []
     let allLikes: InstanceType<typeof fastify.models.ChatMessageLike>[] = []
     try {
@@ -863,13 +868,14 @@ export default async (fastify: FastifyInstance) => {
 
     const userById = users.reduce(fp.by('id'), {})
 
-    // Only filter out messages from suspended users; messages from deleted accounts are kept
+    // Filter out suspended users BEFORE applying the display limit so their
+    // recent messages don't silently crowd out non-suspended messages.
     const filteredMessages = messages.filter((msg) => {
       const author = userById[msg.authorUserId]
       if (!author) return true
       const isSuspended = author.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
       return !isSuspended
-    })
+    }).slice(0, targetCount)
 
     const likes = allLikes.filter(l => filteredMessages.some(m => m.id === l.messageId))
     const likesByMessageId = likes.reduce(fp.groupBy('messageId'), {})

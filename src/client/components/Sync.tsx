@@ -107,6 +107,8 @@ export const Sync = () => {
     }
   }, [me?.id])
 
+  const onChangeMessage = React.useCallback((value: string) => setMessage(value), [])
+
   const onSubmitMessage = React.useCallback(
     (ev?: React.FormEvent) => {
       ev?.preventDefault()
