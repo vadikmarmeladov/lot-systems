@@ -1778,6 +1778,34 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'intention_fulfillment') {
+          const captureSource = log.metadata?.captureSource as string | undefined
+          const captureCount  = log.metadata?.captureCount  as number | undefined
+          const hour          = log.metadata?.hour          as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="LOOP:" blockView>
+                {captureSource !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CAPTURE</span>
+                    <span className="tabular-nums uppercase">{captureSource}</span>
+                  </div>
+                )}
+                {captureCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">COUNT</span>
+                    <span className="tabular-nums">{captureCount}</span>
+                  </div>
+                )}
+                {hour !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">HOUR</span>
+                    <span className="tabular-nums">{String(hour).padStart(2, '0')}:00</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

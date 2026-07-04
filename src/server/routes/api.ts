@@ -1078,6 +1078,8 @@ export default async (fastify: FastifyInstance) => {
       // v72: adaptive momentum window + vitality strategy peak
       'adaptive_momentum',
       'vitality_strategy_peak',
+      // v74: intention fulfillment loop — plan declared + memory/journal captured same day
+      'intention_fulfillment',
       // Story generation
       'generated_story',
     ]

@@ -967,6 +967,51 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'SESSION_REPORTS: v72 entry appended · USERSHIP_TRANSMISSION updated to v72.',
     ],
   },
+  {
+    date: '2026-06-27',
+    session: 'Self-Assembly Session — v73 / Full Wiki Scan · LOT-WIKI-v66 · Field Manual v73',
+    assembled: [
+      'LOT-WIKI-v66: 27 sections. Section 7 expanded — full behavioral profiles for 6 cohorts (ARCHITECTS / OPERATORS / CHRONICLERS / RESTORERS / EXPLORERS / MEDICAL). Signal, dominant behaviors, log vocabulary, archetype affinity, weekly signature per cohort.',
+      'Section 16 (NEW): Word Turn Engine Complete Lexicon v10 — all 126 trigger words across v1–v10. Each lexicon named: Signal Codex v1 · Military v2 · Temporal Arc v3 · Becoming v4 · Becoming Extended v5 · COGN-SYST v6 · Biofield v7 · Diurnal v8 · Arcade Cabinet v9 · Quantum Protocol v10.',
+      'Section 16.3: Pattern Families — 5 families documented: Diurnal Arc (P76→P79→P80) · Inner Depth Triad (P75+P81+P74) · Biological Prime (P82+P72+P76) · Strategic Peak Cluster (P86+P85+P83→Arch29) · Convergence Sequence (P66→P67→P68→P70→P73).',
+      'Section 17.2: Notable Archetype Directives — operator-facing directives for Arch22/25/26/27/28/29.',
+      'Section 19: Badge Version History — full v1–v19 table with names, dates, badge counts.',
+      'Section 19.9: Secret Boss Complete Register — all 9 layers (v1–v9) with conditions and rarity.',
+      'Section 26: Vocabulary Index expanded — 40+ entries. New: ADAPT-MOM: · EIGENSTATE · SUPERPOSITION · VSTRAT: · QUANTUM PROTOCOL · CQGS · FIVE_YEARS · P73 · P86 · SIGNAL VAULT · LONGITUDINAL DRIFT · QOS MODE · PEAK STRATEGIST · COGNITIVE CARTOGRAPHER.',
+      'About.tsx: Field Manual v72 → v73. Day 1021+ → 1023+. v73 prepended to Self-Assembly phase row. Documentation only — no runtime code changes.',
+    ],
+  },
+  {
+    date: '2026-06-30',
+    session: 'BENCHMARK: SELF-ASSEMBLY — Widget→Memory Compression Loop · M2M Doc · Infrastructure',
+    assembled: [
+      'M2M REBUILD PROMPT: docs/assembly/2026-06-30_LOT-assembly_widget-memory-engine-compression-loop.md — complete machine-readable specification for an AI agent to understand, audit, and reconstruct the LOT widget signal pipeline and Memory Engine compression loop. No conversation history required.',
+      'DB INDEX: migrations/20260630150000_add-logs-userid-createdat-index.cjs — composite index (userId, createdAt) on logs table. Prevents statement timeout on log queries for active users.',
+      'POOL EXPANSION: db.ts pool.max: 5→10 · pool.min: 0→1. Absorbs burst load from concurrent quantum-intent syncs. Never set min: 0 — pool can drop to zero under burst.',
+      'BULK CREATE: /quantum-intent/sync replaced serial Log.create() loop with Log.bulkCreate(). Prevents pool exhaustion (~28 ops × 6 concurrent users = pool dead). CRITICAL: never revert to serial loop.',
+      'PLANNER → MEMORY WIRING: buildPrompt() now extracts the most recent plan_set log and injects declared intention as plannerContext. Memory questions can now follow up on what the user consciously chose to focus on today.',
+      'formatLog() EXPANSION: plan_set and emotional_checkin cases added. Both event types now appear in the formatted log history sent to the AI — previously returned empty string, invisible to the model.',
+      'AI ENGINE: AI_ENGINE_PREFERENCE: "claude" → "together". Together AI (Llama-3.3-70B) is primary. Claude is automatic fallback if key absent/invalid.',
+      '/me SEEDING: /api/me returns usersTotal/usersOnline. app.tsx seeds nanostores immediately on login — System widget never shows 0 on first paint.',
+      'EmotionalCheckIn UX: pendingState shows "[State] — logged." immediately on button click before API responds. Closes the "goes nowhere" perception gap.',
+    ],
+  },
+  {
+    date: '2026-07-04',
+    session: 'Self-Assembly Session — v74 / P87 Intention Fulfillment Loop · Archetype 30 Loop Closer · SESSION_REPORTS catch-up',
+    assembled: [
+      'intentionEngine.ts: P87 intention-fulfillment-loop — plan_set signal today (planner source) + memory or journal capture within same 24h window. BENCHMARK (2026-06-30) wired planner intent into Memory Engine prompt; P87 confirms the arc completes at signal level. Conf 0.68–0.85. suggestedWidget: systemProgress · suggestedTiming: passive.',
+      'intentionEngine.ts: Archetype 30 Loop Closer — high/moderate/low energy · planner+memory+journal dominant · intention-fulfillment-loop+morning-coherence-launch+evening-coherence-close. Directive: Declared and captured. Intent compressed to record. The loop is complete — you do not just intend, you close.',
+      'intentionEngine.ts: recordIntentionFulfillmentLoop(captureSource, captureCount) signal helper added. Feeds P87 detection.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — intentionFulfillmentArc node added (planner+memory+journal+intentions+log). 127+ dep nodes total.',
+      'Logs.tsx: LOOP: handler added — renders intention_fulfillment event (CAPTURE: source · COUNT: n · HOUR: hh:00). Military cockpit format. Forward-compatible with future background job output.',
+      'PatternRecognitionWidget.tsx: intention-fulfillment-loop display name + P87 QOS Trend indicator ("Loop closed. Declared and captured.").',
+      'api.ts: intention_fulfillment added to displayableEvents (v74 block).',
+      'SystemProgressWidget.tsx: SESSION_REPORTS catch-up — v73 wiki scan + BENCHMARK (2026-06-30) + v74 this session appended. USERSHIP_TRANSMISSION updated to 2026-07-04.',
+      'About.tsx: Field Manual v73 → v74. Day 1023+ → 1027+. 86→87 patterns. 29→30 archetypes. v74 prepended to Self-Assembly phase row.',
+      '87 patterns. 30 archetypes. 23 background jobs. 86+ log handlers. 127+ dep nodes.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1004,16 +1049,14 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-06-25',
+  date: '2026-07-04',
   message: [
-    'ASSEMBLY RUN — 2026-06-25 · LOT-SR-20260625-03',
-    'P84 longitudinal-drift (client): 3-day bucket comparison. Recent 3d vs prior 3d signal density. ≤50% → early engagement decline detected. Conf 0.55–0.80. Fires before the 28-day server arc catches it.',
-    'P85 adaptive-momentum-window: fires when systemic-thinking-mode + signal-momentum-lock both active. Sustained engagement streak during structural cognition. Strategy is running at full capacity. Conf 0.75–0.90.',
-    'P86 vitality-strategy-peak: fires when circadian-vitality-peak + systemic-thinking-mode both active. Biology aligned with strategy. Prime execution window. Suggests memory widget, immediate timing. Conf 0.78–0.92.',
-    'Archetype 29 Peak Strategist: high/moderate energy · planner+intentions+goals · vitality-strategy-peak+adaptive-momentum-window+systemic-thinking-mode. Biology aligned with strategy. Prime window open during sustained momentum streak. Commit fully, decide fast, record everything.',
-    'COCKPIT-RULE military pass: 5 existing handlers stripped of verbose prose — OS [MODE]: · VITAL: · DRIFT: · SYSTMK: · COGN:. Data rows only. Log surface is now fully military.',
-    'ADAPT-MOM: + VSTRAT: handlers deployed. adaptive_momentum + vitality_strategy_peak surfaced in displayableEvents.',
-    'Dep map: 126+ nodes. 86 patterns active. 85+ log handlers. 23 background jobs. 29 archetypes.',
+    'ASSEMBLY RUN — 2026-07-04 · LOT-SR-v74',
+    'P87 intention-fulfillment-loop: plan declared today + memory or journal captured same day. The BENCHMARK wired your intention into the Memory Engine — P87 confirms the arc closes at signal level. Declare → act → capture. Conf 0.68–0.85.',
+    'Archetype 30 Loop Closer: planner+memory+journal dominant · intention-fulfillment-loop+morning-coherence-launch+evening-coherence-close. Declared and captured. Intent compressed to record. The loop is complete — you do not just intend, you close.',
+    'LOOP: handler deployed. intention_fulfillment event surfaces in field log. CAPTURE: / COUNT: / HOUR: data rows.',
+    'SESSION_REPORTS catch-up: v73 (wiki scan June 27) + BENCHMARK (June 30, M2M doc + planner→memory wiring + pool fix + bulkCreate) + v74 (this run) — all three appended.',
+    'Dep map: 127+ nodes. 87 patterns active. 86+ log handlers. 23 background jobs. 30 archetypes.',
     'DEPLOYED.',
   ],
 }

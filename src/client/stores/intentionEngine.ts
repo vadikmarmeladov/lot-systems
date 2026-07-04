@@ -2023,6 +2023,29 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 87: intention-fulfillment-loop — plan_set signal today + memory or journal
+  // capture within the same 24h window. The BENCHMARK (2026-06-30) wired planner intent
+  // into the Memory Engine prompt — this pattern confirms the arc also completes at signal
+  // level. Declare → act → capture. The loop closes.
+  const p87PlanToday = signals.filter(s =>
+    s.source === 'planner' &&
+    s.signal === 'plan_set' &&
+    now - s.timestamp < 24 * 60 * 60 * 1000
+  )
+  const p87CaptureToday = signals.filter(s =>
+    (s.source === 'memory' || s.source === 'journal') &&
+    now - s.timestamp < 24 * 60 * 60 * 1000
+  )
+  if (p87PlanToday.length >= 1 && p87CaptureToday.length >= 1) {
+    patterns.push({
+      pattern: 'intention-fulfillment-loop',
+      confidence: Math.min(0.68 + p87CaptureToday.length * 0.05, 0.85),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `INTENTION FULFILLMENT LOOP: Plan declared. Memory or journal captured. Intent compressed into record. The day's loop closes.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2552,6 +2575,9 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   qosModeWatcher:           ['energy', 'mood', 'log', 'selfcare'],
   adaptiveMomentumNode:     ['planner', 'intentions', 'goals', 'memory', 'selfcare', 'log'],
   vitalityStrategyNode:     ['mood', 'energy', 'selfcare', 'planner', 'intentions', 'log'],
+
+  // ── Intention fulfillment arc monitor (2026-07-04 audit)
+  intentionFulfillmentArc:  ['planner', 'memory', 'journal', 'intentions', 'log'],
 }
 
 /**
@@ -2822,6 +2848,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'goals'],
     patternConditions: ['vitality-strategy-peak', 'adaptive-momentum-window', 'systemic-thinking-mode'],
     directive: 'Biology aligned with strategy. Prime window open during sustained momentum streak. The architecture is building itself — commit fully, decide fast, record everything.',
+  },
+  {
+    archetype: 'Loop Closer',
+    energyBands: ['high', 'moderate', 'low'],
+    dominantSources: ['planner', 'memory', 'journal'],
+    patternConditions: ['intention-fulfillment-loop', 'morning-coherence-launch', 'evening-coherence-close'],
+    directive: 'Declared and captured. Intent compressed to record. The loop is complete — you do not just intend, you close.',
   },
 ]
 
@@ -3865,6 +3898,19 @@ export function recordVitalityStrategyPeak(morningMoodCount: number, structuralD
   recordSignal('energy', 'vitality_strategy_peak', {
     morningMoodCount,
     structuralDepth,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an intention-fulfillment-loop event — plan_set declared AND memory or journal
+ * captured within the same 24h window. The loop closes. Feeds P87 detection.
+ */
+export function recordIntentionFulfillmentLoop(captureSource: 'memory' | 'journal', captureCount: number) {
+  recordSignal('planner', 'intention_fulfillment', {
+    captureSource,
+    captureCount,
     window: '24h',
     hour: new Date().getHours(),
   })

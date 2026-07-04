@@ -116,6 +116,7 @@ export function PatternRecognitionWidget() {
       'longitudinal-drift':         'Longitudinal drift — engagement density declining',
       'adaptive-momentum-window':   'Adaptive momentum window — strategy active during streak',
       'vitality-strategy-peak':     'Vitality strategy peak — biology + strategy aligned',
+      'intention-fulfillment-loop': 'Intention fulfillment loop — declared and captured',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -422,6 +423,13 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'vitality-strategy-peak') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Biology + strategy peak. Execute.
+                </div>
+              )}
+
+              {/* Intention fulfillment loop — P87 */}
+              {patterns.some(p => p.pattern === 'intention-fulfillment-loop') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Loop closed. Declared and captured.
                 </div>
               )}
 
