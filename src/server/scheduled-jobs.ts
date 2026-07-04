@@ -21,6 +21,7 @@ interface JobResult {
   success: boolean
   result?: any
   error?: string
+  signalsCreated?: number
 }
 
 let isMonthlyEmailJobRunning = false
