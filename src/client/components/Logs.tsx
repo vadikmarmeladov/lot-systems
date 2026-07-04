@@ -146,6 +146,11 @@ export const Logs: React.FC = () => {
   const onMouseActivityChange = React.useCallback(
     (isMoving: boolean) => {
       if (isTouchDevice) return
+      // Only hide/show nav while actually on the logs route.
+      // The Logs component stays mounted (display:none) across tab switches,
+      // so without this guard the inactivity timer would disable nav buttons
+      // on every other tab too.
+      if (stores.router.get()?.route !== 'logs') return
       const nav = document.querySelector('#nav')
       if (!nav) return
       if (isMoving) {
@@ -160,6 +165,21 @@ export const Logs: React.FC = () => {
   )
 
   useMouseInactivity(2000, onMouseActivityChange)
+
+  // Restore nav whenever navigating away from logs, and on unmount.
+  React.useEffect(() => {
+    const unsub = stores.router.listen((routerState) => {
+      if (routerState?.route !== 'logs') {
+        const nav = document.querySelector('#nav')
+        if (nav) nav.classList.remove('opacity-0', 'pointer-events-none')
+      }
+    })
+    return () => {
+      const nav = document.querySelector('#nav')
+      if (nav) nav.classList.remove('opacity-0', 'pointer-events-none')
+      unsub()
+    }
+  }, [])
 
   React.useEffect(() => {
     if (isTouchDevice) return
