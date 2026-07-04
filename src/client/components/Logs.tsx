@@ -2318,7 +2318,7 @@ const NoteEditor = ({
       } else if (trigger === 'email-compose') {
         const emailMatch = value.match(/\/(?:email|mail)\s+to\s+(\S+(?:\s+\S+)?)\s*([\s\S]*)/i)
         if (emailMatch) {
-          const toName = emailMatch[1].trim()
+          const toName = emailMatch[1].trim().replace(/[.,!?;:]+$/, '')
           const body = emailMatch[2]?.trim() || ''
           setEmailStatus(null)
           setEmailCompose({ toName, body })
