@@ -108,9 +108,6 @@ export const Sync = React.memo(function SyncInner() {
   }, [me?.id])
 
   const onChangeMessage = React.useCallback((value: string) => setMessage(value), [])
-  const onChangeMessage = React.useCallback((value: string) => {
-    setMessage(value)
-  }, [])
 
   const onSubmitMessage = React.useCallback(
     (ev?: React.FormEvent) => {
