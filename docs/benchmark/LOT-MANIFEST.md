@@ -36,7 +36,7 @@ Viewport Isolate | exciting-ritchie-7dsvkw       | aaaeca18 | 1/1   | READY  | 2
 IntegrityWidget  | quantum-engine-widgets-RgFfC  | 696741a  | 1/1   | READY  | 3     | +479   | Lie detector: 6 fracture types, 4 views, intent contradiction analysis
 Evolution Gates  | quantum-engine-widgets-RgFfC  | aff885eb | 1/1   | READY  | 8     | +48    | Feature unlock gates wired to 6 widgets, progressive disclosure
 Density Patterns | quantum-engine-widgets-RgFfC  | 0567b2eb | 1/1   | READY  | 2     | +37    | 5 density-evolved ASCII pattern fills, CSS-only progression
-Button Perf      | quantum-engine-widgets-RgFfC  | 2c0da2ff | 1/1   | READY  | 1     | +17    | GPU-composited ::before opacity hover replacing background-image
+Button Perf      | quantum-engine-widgets-RgFfC  | 02de5f5  | 1/1   | SHIPPED| 1     | +17    | GPU-composited ::before opacity hover replacing background-image (landed via PR #66; verified in index.css 2026-07-04)
 CQGS White Paper | quantum-engine-widgets-RgFfC  | c9a7b170 | 1/1   | READY  | 2     | +190   | Founding white paper snapshot + platform mapping
 LOG Terminals v56| quantum-engine-widgets-RgFfC  | d7535a1d | 1/1   | READY  | 1     | +115   | Wire /breathe /fast /silent /freeze /phys LOG commands
 Perf Optimization| quantum-engine-widgets-RgFfC  | 5126e09  | 1/1   | SHIPPED| 4     | +200   | Router isolation, subscription reduction, memoization
