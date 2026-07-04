@@ -73,6 +73,13 @@ Security documentation and repository maintenance.
 - Security Fixes - Security issue resolution
 - Repository Issues Summary - Known issues and fixes
 
+### [Hardware Documentation](./hardware/)
+Physical product documentation — plans, bills of materials, mechanical
+and firmware specs for LOT's hardware line.
+
+**Key Documents:**
+- [COSMO® Cube](./hardware/cosmo-cube/) - First hardware computer: product plan, BOM, mechanical design, firmware spec, LOT API connector, manufacturing/compliance, PDF manual pipeline
+
 ## 🚀 Quick Links
 
 - [Main README](../README.md) - Project overview
@@ -87,6 +94,7 @@ Security documentation and repository maintenance.
 - **How it works?** → [Technical Documentation](./technical/)
 - **What's new?** → [Release Notes](./releases/)
 - **Having issues?** → [Diagnostics](./diagnostics/)
+- **Building hardware?** → [Hardware Documentation](./hardware/)
 
 ## 🔄 Documentation Updates
 
