@@ -607,6 +607,75 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'quantum_readiness_window') {
+          const patternCount = log.metadata?.patternCount as number | undefined
+          const energyBand = log.metadata?.energyBand as string | undefined
+          const alignment = log.metadata?.alignment as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QRDW:" blockView>
+                {energyBand && (
+                  <div className="uppercase tracking-widest mb-4">ATP: {energyBand}</div>
+                )}
+                {alignment && (
+                  <div className="opacity-60 tabular-nums">ALIGN: {alignment}</div>
+                )}
+                {patternCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PTRN: {patternCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_depth_surge') {
+          const journalCount = log.metadata?.journalCount as number | undefined
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const logCount = log.metadata?.logCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIGDP:" blockView>
+                {journalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">JRNL 24H: {journalCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 24H: {memoryCount}</div>
+                )}
+                {logCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">LOG 24H: {logCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'planner_execution_arc') {
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const goalsCount = log.metadata?.goalsCount as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PLANX:" blockView>
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN 48H: {plannerCount}</div>
+                )}
+                {goalsCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">GOAL 48H: {goalsCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT 48H: {intentionCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

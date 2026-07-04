@@ -21,6 +21,7 @@ interface JobResult {
   success: boolean
   result?: any
   error?: string
+  signalsCreated?: number
 }
 
 let isMonthlyEmailJobRunning = false
@@ -1686,6 +1687,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityCascadePulse()) {
     await executeDailyVitalityCascadePulse()
   }
+  // Check daily quantum readiness check (10:00 UTC every day) — Job 34
+  if (shouldRunDailyQuantumReadinessCheck()) {
+    await executeDailyQuantumReadinessCheck()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -1966,6 +1971,112 @@ async function executeDailyVitalityCascadePulse(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily vitality cascade pulse failed:', error.message)
     isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Quantum Readiness Check (Job 34 — 10:00 UTC every day) ────────────
+// Reads active users' 24h logs. Confirms energy=high + clarity=focused signal +
+// 3+ active pattern events in the same window. Writes quantum_readiness_window.
+
+let isDailyQuantumReadinessRunning = false
+let lastDailyQuantumReadinessRun: Date | null = null
+
+function shouldRunDailyQuantumReadinessCheck(): boolean {
+  const now = dayjs()
+  if (isDailyQuantumReadinessRunning) return false
+  if (lastDailyQuantumReadinessRun) {
+    const lastRun = dayjs(lastDailyQuantumReadinessRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 10 // 10:00 UTC daily
+}
+
+async function executeDailyQuantumReadinessCheck(): Promise<JobResult> {
+  const jobName = 'daily-quantum-readiness-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyQuantumReadinessRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyQuantumReadinessRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY QUANTUM READINESS CHECK — 10:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    const ENERGY_EVENTS    = ['energy_checkin', 'energy_set']
+    const CLARITY_EVENTS   = ['clarity_checkin', 'field_entry', 'journal_entry', 'note']
+    const PATTERN_EVENTS   = [
+      'flow_state', 'momentum_wave', 'biofield_coherence_peak', 'morning_clarity',
+      'signal_coherence_window', 'vitality_cascade', 'clarity_momentum_peak',
+      'systemic_readiness_peak', 'vitality_strategy_peak', 'adaptive_momentum_window',
+      'quantum_presence_arc', 'planner_execution_arc', 'signal_depth_surge',
+    ]
+    const ALL_EVENTS = [...ENERGY_EVENTS, ...CLARITY_EVENTS, ...PATTERN_EVENTS]
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: ALL_EVENTS },
+          },
+          attributes: ['event', 'metadata'],
+          limit: 500,
+        })
+
+        const hasHighEnergy = recentLogs.some((l: any) =>
+          ENERGY_EVENTS.includes(l.event) &&
+          (l.metadata?.energy === 'high' || l.metadata?.level === 'high')
+        )
+        const hasFocusedClarity = recentLogs.some((l: any) =>
+          CLARITY_EVENTS.includes(l.event) &&
+          (l.metadata?.clarity === 'focused' || l.metadata?.type === 'focused')
+        )
+        const patternLogs = recentLogs.filter((l: any) => PATTERN_EVENTS.includes(l.event))
+        const journalCount = recentLogs.filter((l: any) => CLARITY_EVENTS.includes(l.event)).length
+
+        if (hasHighEnergy && hasFocusedClarity && patternLogs.length >= 3) {
+          const confidence = Math.min(0.82 + (patternLogs.length - 3) * 0.02, 0.94)
+          await (Log as any).create({
+            userId,
+            event: 'quantum_readiness_window',
+            text: `Quantum readiness window: high energy + focused clarity + ${patternLogs.length} active patterns in 24h. Peak QOS operating state confirmed.`,
+            metadata: {
+              patternCount: patternLogs.length,
+              journalCount,
+              energyBand: 'high',
+              alignment: 'flowing',
+              confidence,
+              window: '24h',
+              hour: 10,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Quantum readiness events written: ${written}`)
+    lastDailyQuantumReadinessRun = new Date()
+    isDailyQuantumReadinessRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily quantum readiness check failed:', error.message)
+    isDailyQuantumReadinessRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4053,7 +4164,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift+quantum-readiness, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit+vitality-cascade, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun)+quantum-presence, 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

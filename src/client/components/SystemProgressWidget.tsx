@@ -1102,6 +1102,21 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '106 patterns · 36 archetypes · 33 background jobs · 106+ handlers · 145+ dep nodes. Vitality, social presence, and cognitive peak — three new arcs confirmed.',
     ],
   },
+  {
+    date: '2026-07-04',
+    session: 'Self-Assembly Session — v85 / P107–P109 · Arch37 Quantum Executor · J34 Daily Quantum Readiness Check · QRDW: SIGDP: PLANX: · Dep Map 148+',
+    assembled: [
+      'intentionEngine.ts: P107 quantum-readiness-window — energy=high + clarity=focused + alignment=flowing/aligned + 3+ active patterns in 24h. Peak QOS operating state — all dimensions aligned. Conf 0.82–0.94. suggestedWidget: planner.',
+      'intentionEngine.ts: P108 signal-depth-surge — 3+ journal entries + 3+ memory entries + 5+ log signals in 24h. Full inner signal depth confirmed. Conf 0.78–0.91. suggestedWidget: journal.',
+      'intentionEngine.ts: P109 planner-execution-arc — 3+ planner + 2+ goals + 1+ intention in 48h. Structural execution arc active — direction, architecture, and commitment confirmed. Conf 0.75–0.90. suggestedWidget: planner.',
+      'intentionEngine.ts: Arch37 Quantum Executor — energyBands high · dominantSources planner+goals+intentions · patternConditions quantum-readiness-window+planner-execution-arc+clarity-momentum-peak+systemic-readiness-peak. Directive: Peak execution window — all QOS dimensions aligned, maximum leverage. 37 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: quantumReadinessNode (5 deps) · signalDepthSurgeNode (4 deps) · plannerExecutionArcNode (4 deps). 148+ dep nodes total.',
+      'Logs.tsx: QRDW: handler (quantum_readiness_window: ATP band + ALIGN + PTRN + CONF). SIGDP: handler (signal_depth_surge: JRNL 24H + MEM 24H + LOG 24H + CONF). PLANX: handler (planner_execution_arc: PLAN 48H + GOAL 48H + INTENT 48H + CONF). COCKPIT-RULE compliant. 109+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — quantum-readiness-window (QM READY) · signal-depth-surge (SIG DEPTH) · planner-execution-arc (PLAN EXEC).',
+      'scheduled-jobs.ts: J34 daily-quantum-readiness-check — 10:00 UTC daily. Reads 24h logs per user. energy=high + clarity=focused + 3+ pattern events → writes quantum_readiness_window event. 34 background jobs total.',
+      '109 patterns · 37 archetypes · 34 background jobs · 109+ handlers · 148+ dep nodes. Quantum readiness, signal depth, and structural execution — three new operating-state arcs confirmed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1139,19 +1154,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-03',
+  date: '2026-07-04',
   message: [
-    'ASSEMBLY RUN — 2026-07-03 · LOT-SR-20260703-01',
-    'P104 vitality-cascade: high energy + 3+ selfcare acts + positive mood + journal in 24h. Proactive peak maintenance. Conf 0.78–0.90.',
-    'P105 social-presence-arc: cohort signal + outreach + intention in 48h. Social dimension fully active. Conf 0.70–0.85.',
-    'P106 clarity-momentum-peak: focused clarity + 2+ plans + 2+ memories + 2+ intentions in 24h. Cognitive peak confirmed. Conf 0.80–0.92. 106 patterns total.',
-    'Arch35 Vitality Architect: selfcare+mood+energy dominant · vitality-cascade+care-momentum+biological-restoration-peak. Sustained vitality confirmed. 35 archetypes.',
-    'Arch36 Social Signal Operator: cohort+intentions+journal dominant · social-presence-arc+accountability-arc+social-resonance-arc. Social arc live. 36 archetypes total.',
-    'J33 daily-vitality-cascade-pulse: 15:00 UTC daily. Reads 24h logs. high energy + 3+ selfcare + positive mood + journal → writes vitality_cascade. 33 background jobs total.',
-    'VITAL-CAS: SOC-ARC: CLAR-PEAK: log handlers deployed (COCKPIT-RULE). 106+ handlers total.',
-    'Dep map: 145+ nodes. 3 new: vitalityCascadeNode + socialPresenceArcNode + clarityMomentumNode.',
-    'PATTERN_DISPLAY: VIT CASCADE · SOC PRES · CLAR PEAK added to QOS widget.',
-    '106 patterns · 36 archetypes · 33 jobs · 106+ handlers · 145+ dep nodes. Vitality, social, cognitive — three new arcs confirmed.',
+    'ASSEMBLY RUN — 2026-07-04 · LOT-SR-20260704-01',
+    'P107 quantum-readiness-window: energy=high + focused + aligned + 3+ active patterns in 24h. Peak QOS operating state. Conf 0.82–0.94.',
+    'P108 signal-depth-surge: 3+ journal + 3+ memory + 5+ log signals in 24h. Full inner signal depth. Conf 0.78–0.91.',
+    'P109 planner-execution-arc: 3+ plans + 2+ goals + intention in 48h. Structural execution arc active. Conf 0.75–0.90. 109 patterns total.',
+    'Arch37 Quantum Executor: planner+goals+intentions dominant · quantum-readiness-window+planner-execution-arc+clarity-momentum-peak. Peak execution window — all QOS dimensions aligned. 37 archetypes total.',
+    'J34 daily-quantum-readiness-check: 10:00 UTC daily. Reads 24h logs. energy=high + clarity=focused + 3+ pattern events → writes quantum_readiness_window. 34 background jobs total.',
+    'QRDW: SIGDP: PLANX: log handlers deployed (COCKPIT-RULE). 109+ handlers total.',
+    'Dep map: 148+ nodes. 3 new: quantumReadinessNode + signalDepthSurgeNode + plannerExecutionArcNode.',
+    'PATTERN_DISPLAY: QM READY · SIG DEPTH · PLAN EXEC added to QOS widget.',
+    '109 patterns · 37 archetypes · 34 jobs · 109+ handlers · 148+ dep nodes. Quantum readiness, signal depth, structural execution — three new operating-state arcs confirmed.',
     'DEPLOYED.',
   ],
 }

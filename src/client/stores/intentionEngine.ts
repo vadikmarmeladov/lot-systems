@@ -2404,6 +2404,61 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // P107 — Quantum Readiness Window
+  // Fires when all primary QOS dimensions align: high energy + focused clarity + flowing alignment + 3+ active patterns.
+  // Represents the rarest and highest-value operating state — full biological and cognitive stack simultaneously optimal.
+  const p107Cut         = now - 24 * 60 * 60 * 1000
+  const p107Energy      = state.userState.energy === 'high'
+  const p107Clarity     = state.userState.clarity === 'focused'
+  const p107Alignment   = state.userState.alignment === 'flowing' || state.userState.alignment === 'aligned'
+  const p107PatternCount = patterns.length // active patterns accumulated so far
+  if (p107Energy && p107Clarity && p107Alignment && p107PatternCount >= 3) {
+    const p107Conf = Math.min(0.82 + (p107PatternCount - 3) * 0.02, 0.94)
+    patterns.push({
+      pattern: 'quantum-readiness-window',
+      confidence: p107Conf,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `QRDW: High energy + focused clarity + ${state.userState.alignment} alignment + ${p107PatternCount} active patterns. Peak QOS operating window open — execute high-leverage work now.`,
+    })
+  }
+
+  // P108 — Signal Depth Surge
+  // Fires when inner signal density is exceptionally high: journal 3+ entries + memory 3+ entries + 5+ log signals in 24h.
+  // Indicates a day of full inner engagement — reflection, memory formation, and behavioral signal all peaking simultaneously.
+  const p108Cut     = now - 24 * 60 * 60 * 1000
+  const p108Journal = signals.filter(s => s.source === 'journal'  && s.timestamp > p108Cut)
+  const p108Memory  = signals.filter(s => s.source === 'memory'   && s.timestamp > p108Cut)
+  const p108Log     = signals.filter(s => s.source === 'log'      && s.timestamp > p108Cut)
+  if (p108Journal.length >= 3 && p108Memory.length >= 3 && p108Log.length >= 5) {
+    const p108Conf = Math.min(0.78 + (p108Journal.length - 3) * 0.02 + (p108Memory.length - 3) * 0.02, 0.91)
+    patterns.push({
+      pattern: 'signal-depth-surge',
+      confidence: p108Conf,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `SIGDP: ${p108Journal.length} journal entries + ${p108Memory.length} memories + ${p108Log.length} log signals in 24h. Full inner signal depth confirmed — reflection, memory formation, and behavioral record all live simultaneously.`,
+    })
+  }
+
+  // P109 — Planner Execution Arc
+  // Fires when structural execution posture is confirmed: planner 3+ + goals 2+ + intention active in 48h.
+  // Captures users who are not just planning but executing against a structured architecture.
+  const p109Cut        = now - 48 * 60 * 60 * 1000
+  const p109Planner    = signals.filter(s => s.source === 'planner'    && s.timestamp > p109Cut)
+  const p109Goals      = signals.filter(s => s.source === 'goals'      && s.timestamp > p109Cut)
+  const p109Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p109Cut)
+  if (p109Planner.length >= 3 && p109Goals.length >= 2 && p109Intentions.length >= 1) {
+    const p109Conf = Math.min(0.75 + (p109Planner.length - 3) * 0.03 + (p109Goals.length - 2) * 0.03, 0.90)
+    patterns.push({
+      pattern: 'planner-execution-arc',
+      confidence: p109Conf,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `PLANX: ${p109Planner.length} plans + ${p109Goals.length} goals + ${p109Intentions.length} intentions in 48h. Structural execution arc active — direction, architecture, and commitment confirmed together.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2967,6 +3022,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   vitalityCascadeNode:      ['energy', 'selfcare', 'mood', 'journal', 'log'],
   socialPresenceArcNode:    ['cohort', 'intentions', 'journal', 'memory', 'log'],
   clarityMomentumNode:      ['planner', 'intentions', 'memory', 'energy', 'log'],
+
+  // ── Quantum readiness + signal depth + planner execution nodes (2026-07-04 v85)
+  quantumReadinessNode:     ['energy', 'planner', 'intentions', 'journal', 'log'],
+  signalDepthSurgeNode:     ['journal', 'memory', 'log', 'energy'],
+  plannerExecutionArcNode:  ['planner', 'goals', 'intentions', 'log'],
 }
 
 /**
@@ -3286,6 +3346,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['cohort', 'intentions', 'journal'],
     patternConditions: ['social-presence-arc', 'accountability-arc', 'social-resonance-arc', 'intention-velocity'],
     directive: 'Social arc live. Community, connection, and direction all confirmed in 48h. The signal is going out. Anchor the response.',
+  },
+  {
+    archetype: 'Quantum Executor',
+    energyBands: ['high'],
+    dominantSources: ['planner', 'goals', 'intentions'],
+    patternConditions: ['quantum-readiness-window', 'planner-execution-arc', 'clarity-momentum-peak', 'systemic-readiness-peak'],
+    directive: 'Peak execution window confirmed. All QOS dimensions aligned: high energy, focused clarity, flowing alignment, structural arc active. Maximum leverage — commit fully to highest-value work.',
   },
 ]
 
