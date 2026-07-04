@@ -13,7 +13,10 @@ const STATIC_CACHE = [
   '/og.jpg'
 ];
 
-// Install event - cache static assets
+// Install event - cache static assets and immediately activate the new version.
+// skipWaiting() ensures that when a new SW is deployed, it takes over right
+// away rather than waiting for all tabs to close. The client reloads on
+// controllerchange (see app.tsx) so users always run the latest code.
 self.addEventListener('install', (event) => {
   console.log('[SW] Installing service worker version:', CACHE_VERSION);
 
@@ -23,10 +26,8 @@ self.addEventListener('install', (event) => {
         console.log('[SW] Caching static assets');
         return cache.addAll(STATIC_CACHE);
       })
-      // Don't call skipWaiting() here — let the page decide when to activate
-      // via the SKIP_WAITING message. Calling it unconditionally causes
-      // controllerchange reloads on every install, even first-time visits.
   );
+  self.skipWaiting();
 });
 
 // Activate event - clean up old caches

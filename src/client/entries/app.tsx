@@ -95,6 +95,14 @@ class AppErrorBoundary extends React.Component<
   }
 }
 
+// When a new service worker takes control (after a version bump + skipWaiting),
+// reload the page so the fresh JS bundle is used immediately.
+if (typeof window !== 'undefined' && navigator.serviceWorker) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    window.location.reload()
+  })
+}
+
 sync.listen('users_total', (data) => {
   stores.usersTotal.set(data.value)
 })
