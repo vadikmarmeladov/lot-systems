@@ -17,7 +17,38 @@ export enum UserTag {
   Pro = 'Pro',
   Suspended = 'Suspended',
   Legacy = 'Legacy',
+  Basic = 'Basic',
 }
+
+// LOT-FM-001 — BASIC ration module
+export type BasicStatus = 'NONE' | 'PENDING' | 'ON_STRENGTH' | 'STEADY_STATE' | 'STAND_DOWN'
+
+export type BasicIssueStatus = 'SCHEDULED' | 'DISPATCHED'
+
+export type BasicIssue = {
+  id: string;
+  userId: string;
+  issueNumber: number;
+  scheduledFor: string;
+  dispatchedAt: string | null;
+  status: BasicIssueStatus;
+  items: { line: string; nomenclature: string; spec: string }[];
+  cogsCents: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// Stored at user.metadata.basics
+export type BasicsMetadata = {
+  status: BasicStatus;
+  cadenceStart: string | null;
+  sizingNotes: string | null;
+  requestedAt: string | null;
+  onStrengthAt: string | null;
+  standDownAt: string | null;
+  nextIssueDate: string | null;
+  history: { status: BasicStatus; at: string }[];
+};
 
 // User Types
 export type UserSettings = {
@@ -73,6 +104,7 @@ export type UserProfile = {
   timeChime?: boolean;
   memoryEngine?: 'ai' | 'standard';
   isAdmin?: boolean;
+  metadata?: Record<string, any>;
 };
 
 export type User = {

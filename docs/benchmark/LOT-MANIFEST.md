@@ -3,7 +3,7 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-27 (updated)
+DATE:     2026-07-04 (updated)
 ================================================================================
 
 Central catalog of all self-assembly routines across all branches.
@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
+Basics Tab       | beautiful-johnson-h6m65o      | (head)  | 1/1   | BEST   | 23    | +1168  | BASICS M1+M2+M3: OPEN TAB + in-app tab, UPGRADE/STAND DOWN state machine, cadence load engine + issue log (SUPERSEDES beautiful-johnson-56p7ov, M1-only)
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
@@ -89,7 +89,11 @@ dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations
 brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
 gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
 nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson)
-beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (latest series)
+beautiful-johnson| 22+   | h6m65o            | ?     | Basics Tab iterations. 56p7ov (M1-only) SUPERSEDED by h6m65o
+                 |       |                   |       | (M1+M2+M3). NOTE: 21 branches share this codename prefix on
+                 |       |                   |       | the remote — prefix is a random session codename, not
+                 |       |                   |       | confirmed Basics-Tab-specific beyond 56p7ov/h6m65o. Full
+                 |       |                   |       | audit of the other ~19 pending — do not prune on this count.
 gracious-gauss   | 7     | WnL0k             | 6     | QI-46 Engine iterations (SUPERSEDED by cool-tesla)
 upbeat-faraday   | 2     | xviFF             | 1     | Badge RPG iterations (SUPERSEDED by cool-hypatia)
 inspiring-volta  | 6     | 2hmidy            | 5     | Health check iterations
@@ -181,7 +185,7 @@ PROTECTED FILES (always restore from master during any branch merge):
 
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   LOT Mail         | determined-turing-f6bw7r  | +504 lines
-  Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
+  Basics Tab       | beautiful-johnson-h6m65o   | +1058 lines (M1+M2+M3, supersedes 56p7ov)
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
   COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines

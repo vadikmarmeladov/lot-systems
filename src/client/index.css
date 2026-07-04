@@ -419,3 +419,12 @@ td:last-child {
   content: 'built different since day one';
   display: none;
 }
+
+/* LOT-FM-001 — printed manifest card. Nav chrome and controls fall away,
+   only the doctrine + ledger + status surface prints. */
+@media print {
+  #nav,
+  .basics-print-hide {
+    display: none !important;
+  }
+}

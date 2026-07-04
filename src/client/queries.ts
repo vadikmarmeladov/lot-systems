@@ -15,6 +15,7 @@ import {
 } from 'react-query'
 import {
   AdminUsersSort,
+  BasicIssue,
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
@@ -905,3 +906,19 @@ export const useStoryGeneration = createMutation<
     logId: string | null
   }
 >('post', '/api/story')
+
+// ============================================================================
+// BASICS — LOT-FM-001 ration module
+// ============================================================================
+
+export const useBasicIssues = createQuery<BasicIssue[]>('/api/basics/issues')
+
+export const useUpgradeToBasic = createMutation<
+  { cadenceStart: string; sizingNotes?: string },
+  { status: string; nextIssueDate: string }
+>('post', '/api/basics/upgrade')
+
+export const useStandDownBasic = createMutation<void, { status: string }>(
+  'post',
+  '/api/basics/stand-down'
+)

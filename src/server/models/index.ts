@@ -16,6 +16,7 @@ import { DirectMessage } from './direct-message.js'
 import { WeatherResponse } from './weather-response.js'
 import { Log } from './log.js'
 import { Answer } from './answer.js'
+import { BasicIssue } from './basic-issue.js'
 
 export type UserRecord = User
 
@@ -30,6 +31,7 @@ export const models = {
   WeatherResponse,
   Log,
   Answer,
+  BasicIssue,
 }
 
 export type Models = {
@@ -43,11 +45,19 @@ export type Models = {
   WeatherResponse: typeof WeatherResponse
   Log: typeof Log
   Answer: typeof Answer
+  BasicIssue: typeof BasicIssue
 }
 
 User.hasMany(Session)
 
 Session.belongsTo(User, {
+  targetKey: 'id',
+  foreignKey: 'userId',
+})
+
+User.hasMany(BasicIssue)
+
+BasicIssue.belongsTo(User, {
   targetKey: 'id',
   foreignKey: 'userId',
 })

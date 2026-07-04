@@ -10,12 +10,15 @@ import { Op } from 'sequelize'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import seedrandom from 'seedrandom'
 import {
+  BasicsMetadata,
+  BasicStatus,
   ChatMessageLikeEventPayload,
   ChatMessageLikePayload,
   PublicChatMessage,
   UserSettings,
   UserTag,
 } from '#shared/types'
+import { itemsForIssue, verifyMargin, nextCadenceDate } from '#shared/constants/basics-cadence'
 import config from '#server/config'
 import { fp } from '#shared/utils'
 import {
@@ -420,6 +423,203 @@ export default async (fastify: FastifyInstance) => {
     req.user.deferredPing()
     return { ...profile, isAdmin, metadata, usersTotal, usersOnline }
   })
+
+  // ==========================================================================
+  // BASICS — LOT-FM-001 BASIC RATION MODULE (Month 2 / Month 3)
+  // UPGRADE state machine: USERSHIP/AI -> PENDING -> ON STRENGTH -> STEADY STATE
+  // STAND DOWN drops the ration, retains Usership/AI.
+  // ==========================================================================
+
+  const hasUsershipTag = (tags: string[]) =>
+    tags.some((tag) => tag.toLowerCase() === 'usership')
+  const hasBasicTag = (tags: string[]) =>
+    tags.some((tag) => tag.toLowerCase() === 'basic')
+
+  const emptyBasicsMetadata = (): BasicsMetadata => ({
+    status: 'NONE',
+    cadenceStart: null,
+    sizingNotes: null,
+    requestedAt: null,
+    onStrengthAt: null,
+    standDownAt: null,
+    nextIssueDate: null,
+    history: [],
+  })
+
+  fastify.post<{
+    Body: { cadenceStart: string; sizingNotes?: string }
+  }>('/basics/upgrade', async (req: FastifyRequest<{
+    Body: { cadenceStart: string; sizingNotes?: string }
+  }>, reply) => {
+    if (!hasUsershipTag(req.user.tags)) {
+      reply.status(403)
+      throw new Error('UPGRADE requires USERSHIP / AI plan as base layer')
+    }
+    if (hasBasicTag(req.user.tags)) {
+      reply.status(409)
+      throw new Error('Already ON STRENGTH')
+    }
+
+    const cadenceStart = dayjs(req.body.cadenceStart)
+    if (!cadenceStart.isValid() || cadenceStart.isBefore(dayjs().startOf('day'))) {
+      reply.status(400)
+      throw new Error('Invalid cadence start date')
+    }
+
+    const now = new Date().toISOString()
+    const currentMetadata = req.user.metadata || {}
+    const prevBasics: BasicsMetadata = currentMetadata.basics || emptyBasicsMetadata()
+
+    // No live payment gateway is wired yet — PENDING resolves to ON STRENGTH
+    // in the same request. The state machine still records both transitions.
+    const history = [
+      ...prevBasics.history,
+      { status: 'PENDING' as BasicStatus, at: now },
+      { status: 'ON_STRENGTH' as BasicStatus, at: now },
+    ]
+
+    const nextIssueDate = cadenceStart.format('YYYY-MM-DD')
+    const updatedBasics: BasicsMetadata = {
+      status: 'ON_STRENGTH',
+      cadenceStart: nextIssueDate,
+      sizingNotes: req.body.sizingNotes?.slice(0, 500) || null,
+      requestedAt: now,
+      onStrengthAt: now,
+      standDownAt: null,
+      nextIssueDate,
+      history,
+    }
+
+    await req.user.set({
+      tags: [...req.user.tags, UserTag.Basic],
+      metadata: { ...currentMetadata, basics: updatedBasics },
+    }).save()
+
+    const issueCount = await fastify.models.BasicIssue.count({ where: { userId: req.user.id } })
+    const issueNumber = issueCount + 1
+    const margin = verifyMargin(issueNumber)
+    await fastify.models.BasicIssue.create({
+      userId: req.user.id,
+      issueNumber,
+      scheduledFor: nextIssueDate,
+      items: itemsForIssue(issueNumber).map((i) => ({
+        line: i.line,
+        nomenclature: i.nomenclature,
+        spec: i.spec,
+      })),
+      cogsCents: margin.cogsCents,
+    })
+
+    sync.emit('settings_updated', { userId: req.user.id })
+
+    return { status: updatedBasics.status, nextIssueDate }
+  })
+
+  fastify.post('/basics/stand-down', async (req: FastifyRequest, reply) => {
+    if (!hasBasicTag(req.user.tags)) {
+      reply.status(409)
+      throw new Error('Not ON STRENGTH')
+    }
+
+    const now = new Date().toISOString()
+    const currentMetadata = req.user.metadata || {}
+    const prevBasics: BasicsMetadata = currentMetadata.basics || emptyBasicsMetadata()
+
+    const updatedBasics: BasicsMetadata = {
+      ...prevBasics,
+      status: 'STAND_DOWN',
+      standDownAt: now,
+      nextIssueDate: null,
+      history: [...prevBasics.history, { status: 'STAND_DOWN' as BasicStatus, at: now }],
+    }
+
+    await req.user.set({
+      tags: req.user.tags.filter((tag) => tag.toLowerCase() !== 'basic'),
+      metadata: { ...currentMetadata, basics: updatedBasics },
+    }).save()
+
+    // Drop any un-dispatched issues. Dispatched history is kept as-is.
+    await fastify.models.BasicIssue.destroy({
+      where: { userId: req.user.id, status: 'SCHEDULED' },
+    })
+
+    sync.emit('settings_updated', { userId: req.user.id })
+
+    return { status: updatedBasics.status }
+  })
+
+  fastify.get('/basics/issues', async (req: FastifyRequest, reply) => {
+    const issues = await fastify.models.BasicIssue.findAll({
+      where: { userId: req.user.id },
+      order: [['issueNumber', 'ASC']],
+    })
+    return issues
+  })
+
+  // Ops action — marks an issue dispatched, advances the roster to the next
+  // scheduled issue, and promotes ON STRENGTH -> STEADY STATE on first dispatch.
+  fastify.post<{ Params: { id: string } }>(
+    '/basics/issues/:id/dispatch',
+    async (req: FastifyRequest<{ Params: { id: string } }>, reply) => {
+      if (!req.user.isAdmin()) {
+        reply.status(401)
+        throw new Error('Access denied: dispatch is an ops action')
+      }
+
+      const issue = await fastify.models.BasicIssue.findByPk(req.params.id)
+      if (!issue) {
+        reply.status(404)
+        throw new Error('Issue not found')
+      }
+      if (issue.status === 'DISPATCHED') {
+        reply.status(409)
+        throw new Error('Already dispatched')
+      }
+
+      await issue.set({ status: 'DISPATCHED', dispatchedAt: new Date().toISOString() }).save()
+
+      const owner = await fastify.models.User.findByPk(issue.userId)
+      if (owner) {
+        const currentMetadata = owner.metadata || {}
+        const prevBasics: BasicsMetadata = currentMetadata.basics || emptyBasicsMetadata()
+        const nextIssueDate = nextCadenceDate().toISOString().slice(0, 10)
+        const promotedStatus: BasicStatus =
+          prevBasics.status === 'ON_STRENGTH' ? 'STEADY_STATE' : prevBasics.status
+        await owner.set({
+          metadata: {
+            ...currentMetadata,
+            basics: {
+              ...prevBasics,
+              status: promotedStatus,
+              nextIssueDate,
+              history: [
+                ...prevBasics.history,
+                { status: promotedStatus, at: new Date().toISOString() },
+              ],
+            },
+          },
+        }).save()
+
+        const nextIssueNumber = issue.issueNumber + 1
+        const margin = verifyMargin(nextIssueNumber)
+        await fastify.models.BasicIssue.create({
+          userId: owner.id,
+          issueNumber: nextIssueNumber,
+          scheduledFor: nextIssueDate,
+          items: itemsForIssue(nextIssueNumber).map((i) => ({
+            line: i.line,
+            nomenclature: i.nomenclature,
+            spec: i.spec,
+          })),
+          cogsCents: margin.cogsCents,
+        })
+
+        sync.emit('settings_updated', { userId: owner.id })
+      }
+
+      return { status: issue.status, dispatchedAt: issue.dispatchedAt }
+    }
+  )
 
   // Memory prompt status - debugging endpoint
   fastify.get('/memory-status', async (req: FastifyRequest<{ Querystring: { d?: string } }>, reply) => {

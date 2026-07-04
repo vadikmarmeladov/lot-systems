@@ -48,7 +48,7 @@ const fastify = Fastify({
   bodyLimit: 1_048_576,
 })
 
-const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/sync', '/log']
+const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/sync', '/log', '/basics']
 
 // ==============================================================================
 // SECURITY PLUGINS
@@ -257,6 +257,14 @@ fastify.get('/u/:userIdOrUsername', async function (req, reply) {
 // About page — standalone template, loads independently from main app
 fastify.get('/about', async (req, reply) => {
   return reply.view('about-standalone', {
+    scriptNonce: reply.cspNonce.script,
+    styleNonce: reply.cspNonce.style,
+  })
+})
+
+// OPEN TAB — LOT-FM-001 public ration ledger. No authentication required.
+fastify.get('/open-tab', async (req, reply) => {
+  return reply.view('open-tab-standalone', {
     scriptNonce: reply.cspNonce.script,
     styleNonce: reply.cspNonce.style,
   })
