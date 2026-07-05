@@ -607,6 +607,75 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'temporal_alignment_peak') {
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const calendarCount = log.metadata?.calendarCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TALIGN:" blockView>
+                {plannerCount !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">PLAN 48H: {plannerCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT 48H: {intentionCount}</div>
+                )}
+                {calendarCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CAL ANC: {calendarCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'creative_output_peak') {
+          const journalCount = log.metadata?.journalCount as number | undefined
+          const wordCount = log.metadata?.wordCount as number | undefined
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CROUT:" blockView>
+                {journalCount !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">JRNL 24H: {journalCount}</div>
+                )}
+                {wordCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">WORDS: {wordCount}+</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 24H: {memoryCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'full_system_coherence') {
+          const journalCount = log.metadata?.journalCount as number | undefined
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FSCOHERE:" blockView>
+                <div className="uppercase tracking-widest mb-4">ALL SYSTEMS LIVE</div>
+                {journalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">JRNL: {journalCount} MEM: {memoryCount ?? '—'} PLAN: {plannerCount ?? '—'}</div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE: {selfcareCount} INTENT: {intentionCount ?? '—'}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

@@ -54,4 +54,16 @@ PLANNER-INTENTION-SYNC  QIE P102 — intentions signal + planner signal within 2
 RESILIENCE-CASCADE      QIE P103 — depleted → 2+ selfcare → memory capture + positive mood within 18h; complete restoration arc: breakdown → intervention → capture           B  20260702
 PLANNER-CONTEXT    User's declared daily intention (intent/today/how/feeling) extracted from plan_set log    A  20260630
                    and injected into Memory Engine buildPrompt() so questions follow up on stated focus
+VITAL-CAS:         Vitality Cascade — log block label; high energy + 3+ selfcare + positive mood + journal in 24h; P104 output  B  20260703
+SOC-ARC:           Social Presence Arc — log block label; cohort + outreach + intention in 48h; P105 output                    B  20260703
+CLAR-PEAK:         Clarity Momentum Peak — log block label; focused clarity + 2+ plans + 2+ memories + 2+ intentions in 24h   B  20260703
+VITALITY-CASCADE        QIE P104 — high energy band + 3+ selfcare acts + positive mood + journal entry in 24h; proactive peak maintenance confirmed  B  20260703
+SOCIAL-PRESENCE-ARC     QIE P105 — cohort signal + outreach message + intention set all in 48h; social dimension fully active  B  20260703
+CLARITY-MOMENTUM-PEAK   QIE P106 — clarity=focused + planner 2+ + memory 2+ + intentions 2+ in 24h; cognitive performance at structural peak  B  20260703
+TALIGN:            Temporal Alignment Peak — log block label; planner 2+ + intentions 2+ + calendar anchor in 48h; P107 output  B  20260705
+CROUT:             Creative Output Peak — log block label; journal 200w+ + memory capture in 24h; P108 output                   B  20260705
+FSCOHERE:          Full System Coherence — log block label; all 5 core sources active in 24h; P109 output                      B  20260705
+TEMPORAL-ALIGNMENT-PEAK  QIE P107 — planner 2+ + intentions 2+ + calendar anchor event in 48h; operator structuring time; direction and schedule aligned  B  20260705
+CREATIVE-OUTPUT-PEAK     QIE P108 — journal 200+ words + memory capture in same 24h; creative expression anchored in knowledge retention  B  20260705
+FULL-SYSTEM-COHERENCE    QIE P109 — all 5 core sources (journal+memory+planner+selfcare+intentions) active in 24h; rarest coherence state; full operator engagement across all tracked life domains  B  20260705
 ```

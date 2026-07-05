@@ -1102,6 +1102,35 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '106 patterns · 36 archetypes · 33 background jobs · 106+ handlers · 145+ dep nodes. Vitality, social presence, and cognitive peak — three new arcs confirmed.',
     ],
   },
+  {
+    date: '2026-07-05',
+    session: 'Self-Assembly Session — v85 / LOT-WIKI-v73 · About.tsx FM v85 · LOT-LEXICON tokens · LOT-LEDGER 20260703-01',
+    assembled: [
+      'About.tsx: FM v85 published. Counters updated: 106 patterns · 36 archetypes · 33 jobs · 106+ handlers · 145+ dep nodes.',
+      'docs/assembly/2026-07-05_LOT-assembly-wiki-v73.md: Wiki v73 assembly log created. Full session record.',
+      'docs/wiki/LOT-WIKI-v73.md: LOT-WIKI-v73 published. Reference documentation v73.',
+      'docs/benchmark/LOT-LEXICON.md: VITAL-CAS: SOC-ARC: CLAR-PEAK: tokens + VITALITY-CASCADE SOCIAL-PRESENCE-ARC CLARITY-MOMENTUM-PEAK added.',
+      'docs/benchmark/LOT-LEDGER.md: 20260703-01 entry appended. 74 benchmark runs total. All GREEN.',
+      '106 patterns · 36 archetypes · 33 background jobs. Documentation phase complete. Wiki and FM in sync.',
+    ],
+  },
+  {
+    date: '2026-07-05',
+    session: 'Self-Assembly Session — v86 / P107–P109 · Arch37 Temporal Architect · J34 Daily Temporal Alignment Check · TALIGN: CROUT: FSCOHERE: · Dep Map 148+ · fix v84 displayableEvents gap',
+    assembled: [
+      'intentionEngine.ts: P107 temporal-alignment-peak — planner 2+ + intentions 2+ + calendar anchor in 48h. Operator mapping future time. Conf 0.65–0.82. suggestedWidget: planner.',
+      'intentionEngine.ts: P108 creative-output-peak — journal 200w+ + memory capture in 24h. Creative expression and knowledge retention confirmed simultaneously. Conf 0.70–0.85. suggestedWidget: journal.',
+      'intentionEngine.ts: P109 full-system-coherence — all 5 core sources (journal+memory+planner+selfcare+intentions) active in 24h. Full operator coherence across all tracked life domains. Conf 0.75–0.90. suggestedWidget: qos.',
+      'intentionEngine.ts: Arch37 Temporal Architect — energyBands moderate+high · dominantSources planner+intentions+journal · patternConditions temporal-alignment-peak+planner-intention-sync+clarity-momentum-peak. Directive: Time and intention aligned. 37 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: temporalAlignmentNode (4 deps) · creativeOutputNode (4 deps) · systemCoherenceNode (6 deps). 148+ dep nodes total.',
+      'intentionEngine.ts: 6 signal helpers added — recordVitalityCascade · recordSocialPresenceArc · recordClarityMomentumPeak (v84 missing fixes) · recordTemporalAlignmentPeak · recordCreativeOutputPeak · recordFullSystemCoherence (v86 new).',
+      'Logs.tsx: TALIGN: handler (temporal_alignment_peak: PLAN 48H + INTENT 48H + CAL ANC + CONF). CROUT: handler (creative_output_peak: JRNL 24H + WORDS + MEM 24H + CONF). FSCOHERE: handler (full_system_coherence: ALL SYSTEMS LIVE + 5-source readout + CONF). COCKPIT-RULE compliant. 109+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — temporal-alignment-peak (TALIGN PEAK) · creative-output-peak (CROUT PEAK) · full-system-coherence (FSCOHERE).',
+      'scheduled-jobs.ts: J34 daily-temporal-alignment-check — 10:00 UTC daily. Reads 48h logs per user. planner 2+ + intentions 2+ + calendar anchor → writes temporal_alignment_peak. 34 background jobs total.',
+      'routes/api.ts: displayableEvents gap fix — vitality_cascade + social_presence_arc + clarity_momentum_peak (v84 block) + temporal_alignment_peak + creative_output_peak + full_system_coherence (v86 block) all added.',
+      '109 patterns · 37 archetypes · 34 background jobs · 109+ handlers · 148+ dep nodes. Temporal, creative, and full-system coherence arcs deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1139,19 +1168,20 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-03',
+  date: '2026-07-05',
   message: [
-    'ASSEMBLY RUN — 2026-07-03 · LOT-SR-20260703-01',
-    'P104 vitality-cascade: high energy + 3+ selfcare acts + positive mood + journal in 24h. Proactive peak maintenance. Conf 0.78–0.90.',
-    'P105 social-presence-arc: cohort signal + outreach + intention in 48h. Social dimension fully active. Conf 0.70–0.85.',
-    'P106 clarity-momentum-peak: focused clarity + 2+ plans + 2+ memories + 2+ intentions in 24h. Cognitive peak confirmed. Conf 0.80–0.92. 106 patterns total.',
-    'Arch35 Vitality Architect: selfcare+mood+energy dominant · vitality-cascade+care-momentum+biological-restoration-peak. Sustained vitality confirmed. 35 archetypes.',
-    'Arch36 Social Signal Operator: cohort+intentions+journal dominant · social-presence-arc+accountability-arc+social-resonance-arc. Social arc live. 36 archetypes total.',
-    'J33 daily-vitality-cascade-pulse: 15:00 UTC daily. Reads 24h logs. high energy + 3+ selfcare + positive mood + journal → writes vitality_cascade. 33 background jobs total.',
-    'VITAL-CAS: SOC-ARC: CLAR-PEAK: log handlers deployed (COCKPIT-RULE). 106+ handlers total.',
-    'Dep map: 145+ nodes. 3 new: vitalityCascadeNode + socialPresenceArcNode + clarityMomentumNode.',
-    'PATTERN_DISPLAY: VIT CASCADE · SOC PRES · CLAR PEAK added to QOS widget.',
-    '106 patterns · 36 archetypes · 33 jobs · 106+ handlers · 145+ dep nodes. Vitality, social, cognitive — three new arcs confirmed.',
+    'ASSEMBLY RUN — 2026-07-05 · LOT-SR-20260705-01',
+    'P107 temporal-alignment-peak: planner 2+ + intentions 2+ + calendar anchor in 48h. Time and intention aligned. Conf 0.65–0.82.',
+    'P108 creative-output-peak: journal 200w+ + memory capture in 24h. Expression anchored in knowledge. Conf 0.70–0.85.',
+    'P109 full-system-coherence: all 5 core sources active in 24h — journal+memory+planner+selfcare+intentions. Full operator coherence. Conf 0.75–0.90. 109 patterns total.',
+    'Arch37 Temporal Architect: planner+intentions+journal dominant · temporal-alignment-peak+planner-intention-sync+clarity-momentum-peak. Time and intention aligned. 37 archetypes total.',
+    'J34 daily-temporal-alignment-check: 10:00 UTC daily. Reads 48h logs. planner 2+ + intentions 2+ + calendar anchor → writes temporal_alignment_peak. 34 background jobs total.',
+    'TALIGN: CROUT: FSCOHERE: log handlers deployed (COCKPIT-RULE). 109+ handlers total.',
+    'Dep map: 148+ nodes. 3 new: temporalAlignmentNode + creativeOutputNode + systemCoherenceNode.',
+    'PATTERN_DISPLAY: TALIGN PEAK · CROUT PEAK · FSCOHERE added to QOS widget.',
+    'displayableEvents gap fixed: v84 events (vitality_cascade + social_presence_arc + clarity_momentum_peak) now visible in LOG terminal.',
+    '6 signal helpers added: recordVitalityCascade · recordSocialPresenceArc · recordClarityMomentumPeak · recordTemporalAlignmentPeak · recordCreativeOutputPeak · recordFullSystemCoherence.',
+    '109 patterns · 37 archetypes · 34 jobs · 109+ handlers · 148+ dep nodes. Temporal, creative, and full-system coherence deployed.',
     'DEPLOYED.',
   ],
 }

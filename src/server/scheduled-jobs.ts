@@ -1687,6 +1687,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityCascadePulse()) {
     await executeDailyVitalityCascadePulse()
   }
+  // Check daily temporal alignment check (10:00 UTC every day) — Job 34
+  if (shouldRunDailyTemporalAlignmentCheck()) {
+    await executeDailyTemporalAlignmentCheck()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -1967,6 +1971,99 @@ async function executeDailyVitalityCascadePulse(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily vitality cascade pulse failed:', error.message)
     isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Temporal Alignment Check (Job 34 — 10:00 UTC every day) ───────────
+// Reads active users' 48h logs. Confirms planner 2+ + intentions 2+ + at least one
+// calendar anchor event. Writes temporal_alignment_peak when all conditions met.
+
+let isDailyTemporalAlignmentRunning = false
+let lastDailyTemporalAlignmentRun: Date | null = null
+
+function shouldRunDailyTemporalAlignmentCheck(): boolean {
+  const now = dayjs()
+  if (isDailyTemporalAlignmentRunning) return false
+  if (lastDailyTemporalAlignmentRun) {
+    const lastRun = dayjs(lastDailyTemporalAlignmentRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 10 // 10:00 UTC daily
+}
+
+async function executeDailyTemporalAlignmentCheck(): Promise<JobResult> {
+  const jobName = 'daily-temporal-alignment-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyTemporalAlignmentRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyTemporalAlignmentRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY TEMPORAL ALIGNMENT CHECK — 10:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const twoDaysAgo = dayjs().subtract(48, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(24, 'hour').toDate() } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    const PLANNER_EVENTS = ['plan_set', 'goal_created', 'goal_updated', 'task_created', 'task_completed']
+    const INTENTION_EVENTS = ['intention_set', 'intention_updated', 'intention_created']
+    const CALENDAR_EVENTS = ['event_created', 'calendar_entry', 'deadline_set', 'schedule_block']
+    const ALL_EVENTS = [...PLANNER_EVENTS, ...INTENTION_EVENTS, ...CALENDAR_EVENTS]
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: twoDaysAgo },
+            event: { [Op.in]: ALL_EVENTS },
+          },
+          attributes: ['event', 'metadata'],
+          limit: 500,
+        })
+
+        const plannerLogs    = recentLogs.filter((l: any) => PLANNER_EVENTS.includes(l.event))
+        const intentionLogs  = recentLogs.filter((l: any) => INTENTION_EVENTS.includes(l.event))
+        const calendarLogs   = recentLogs.filter((l: any) => CALENDAR_EVENTS.includes(l.event))
+
+        if (plannerLogs.length >= 2 && intentionLogs.length >= 2 && calendarLogs.length >= 1) {
+          const confidence = Math.min(0.65 + plannerLogs.length * 0.04 + intentionLogs.length * 0.03, 0.82)
+          await (Log as any).create({
+            userId,
+            event: 'temporal_alignment_peak',
+            text: `Temporal alignment: ${plannerLogs.length} plans + ${intentionLogs.length} intentions + ${calendarLogs.length} calendar anchor(s) in 48h.`,
+            metadata: {
+              plannerCount: plannerLogs.length,
+              intentionCount: intentionLogs.length,
+              calendarCount: calendarLogs.length,
+              confidence,
+              window: '48h',
+              hour: 10,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Temporal alignment events written: ${written}`)
+    lastDailyTemporalAlignmentRun = new Date()
+    isDailyTemporalAlignmentRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily temporal alignment check failed:', error.message)
+    isDailyTemporalAlignmentRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
