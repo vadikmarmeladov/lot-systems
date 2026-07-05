@@ -207,3 +207,18 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Tag Push Is Not Guaranteed — Verify, Don't Assume
+
+`git push --follow-tags` (or an explicit `git push origin benchmark-*`) can
+be rejected with HTTP 403 by the git remote's egress/token policy in the
+exact same session where the branch push to that identical remote just
+succeeded — a branch-push success does not imply a tag-push will succeed.
+403 here is a policy denial, not a transient fault: do not retry past the
+standard backoff count, record it, and move on. Before trusting any prior
+report's "TAG: ... PUSHED" line as a live rollback target, verify with
+`git ls-remote --tags origin` — a report claiming success is not proof the
+ref exists on the remote today.
+(SR-20260705-01: 00 PREFLIGHT found zero benchmark-* tags on origin despite
+~28 prior reports each claiming one; 07 PUSH reproduced the 403 live —
+branch pushed clean, tag push rejected on 3 attempts.)
