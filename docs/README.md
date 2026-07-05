@@ -20,6 +20,7 @@ Core technical documentation about system architecture, engines, and implementat
 - Memory Engine Documentation - Complete Memory Engine system docs
 - Psychological Depth Analysis - User analysis engine documentation
 - Quantum Intent Engine - Intent pattern recognition system
+- COSMO® Cube Model S1 - Hardware spec, BOM, firmware, LOT API bridge, and roadmap for the first COSMO® hardware SKU (`LOT-COSMO-CUBE-*.md`)
 
 ### [Deployment Documentation](./deployment/)
 Guides for deploying and managing the application in production.
