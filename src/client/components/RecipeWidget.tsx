@@ -58,13 +58,18 @@ const FASTING_WATER_TIPS: Record<string, string> = {
   'prayer-rest': 'Sip water gently throughout the day.',
 }
 
+type WidgetTurn = 'recipe' | 'water' | 'farewell'
+
 export const RecipeWidget: React.FC = () => {
   const state = useStore(recipeWidget)
   const router = useStore(stores.router)
   const { mutate: createLog } = useCreateLog()
   const { data: logs } = useLogs()
   const loggedRecipesRef = React.useRef<Set<string>>(new Set())
+
+  const [turn, setTurn] = React.useState<WidgetTurn>('recipe')
   const [isShown, setIsShown] = React.useState(false)
+  const [waterShown, setWaterShown] = React.useState(false)
   const [isFading, setIsFading] = React.useState(false)
   const [isLabelFading, setIsLabelFading] = React.useState(false)
   const [farewellPhrase, setFarewellPhrase] = React.useState<string | null>(null)
@@ -94,15 +99,12 @@ export const RecipeWidget: React.FC = () => {
     const alreadyExists = logs?.some(log => log.text === fullText)
     if (alreadyExists) {
       console.log(`⏭️  Skipping duplicate recipe (already in database): "${fullText}"`)
-      // Add to session tracking even if it's already in database
       loggedRecipesRef.current.add(recipeKey)
       return
     }
 
-    // Mark as logged BEFORE creating (prevents race conditions)
     loggedRecipesRef.current.add(recipeKey)
 
-    // Create log entry with recipe suggestion
     createLog(
       { text: fullText },
       {
@@ -111,55 +113,25 @@ export const RecipeWidget: React.FC = () => {
         },
         onError: (error) => {
           console.error('Failed to log recipe:', error)
-          // Remove from logged set on error so it can be retried
           loggedRecipesRef.current.delete(recipeKey)
         }
       }
     )
   }, [state.isVisible, state.recipe, state.mealTime, router, createLog])
 
-  // Handle fade-in when widget becomes visible
+  // Handle fade-in when widget becomes visible / reset on hide
   React.useEffect(() => {
     if (state.isVisible) {
-      // Small delay before showing to trigger transition
-      setTimeout(() => {
-        setIsShown(true)
-      }, 100)
+      setTimeout(() => setIsShown(true), 100)
     } else {
       setIsShown(false)
+      setWaterShown(false)
       setIsFading(false)
       setIsLabelFading(false)
       setFarewellPhrase(null)
+      setTurn('recipe')
     }
   }, [state.isVisible])
-
-  const handleDismiss = () => {
-    try {
-      recordSignal('selfcare', state.isFasting ? 'fasting_acknowledged' : 'recipe_acknowledged', {
-        mealTime: state.mealTime,
-        hour: new Date().getHours(),
-        fastingMode: state.fastingMode,
-      })
-    } catch (e) {}
-
-    // Pick a random farewell phrase — reverent for fasts, cheerful for meals
-    const pool = state.isFasting ? FASTING_FAREWELLS : FAREWELL_PHRASES
-    const randomPhrase = pool[Math.floor(Math.random() * pool.length)]
-    setFarewellPhrase(randomPhrase)
-
-    // Greeting stays visible for 3 seconds, then fades with label at memory speed (1400ms)
-    setTimeout(() => {
-      setIsFading(true) // Fade greeting content
-      setIsLabelFading(true) // Fade label at same time
-    }, 3000) // 3 seconds visible
-
-    // Dismiss after fade completes
-    setTimeout(() => {
-      dismissRecipeWidget()
-    }, 4400) // 3000ms visible + 1400ms fade = 4400ms total
-  }
-
-  if (!state.isVisible) return null
 
   const getWaterTip = (): string | null => {
     if (state.isFasting) return FASTING_WATER_TIPS[state.fastingMode] ?? null
@@ -167,10 +139,6 @@ export const RecipeWidget: React.FC = () => {
   }
 
   const getMealLabel = () => {
-    // During a Christian fast, we relabel the widget so the user
-    // immediately reads the suggestion as fasting guidance, not a
-    // recipe. The label shifts with the fasting mode to match the
-    // gradual algorithm: light snack → dry food → water → rest.
     if (state.isFasting) {
       switch (state.fastingMode) {
         case 'light-snack': return 'Light snack:'
@@ -189,6 +157,52 @@ export const RecipeWidget: React.FC = () => {
     }
   }
 
+  const startFarewell = () => {
+    try {
+      recordSignal('selfcare', state.isFasting ? 'fasting_acknowledged' : 'recipe_acknowledged', {
+        mealTime: state.mealTime,
+        hour: new Date().getHours(),
+        fastingMode: state.fastingMode,
+      })
+    } catch (e) {}
+
+    const pool = state.isFasting ? FASTING_FAREWELLS : FAREWELL_PHRASES
+    const randomPhrase = pool[Math.floor(Math.random() * pool.length)]
+    setFarewellPhrase(randomPhrase)
+    setTurn('farewell')
+
+    setTimeout(() => {
+      setIsFading(true)
+      setIsLabelFading(true)
+    }, 3000)
+
+    setTimeout(() => {
+      dismissRecipeWidget()
+    }, 4400)
+  }
+
+  const handleClick = () => {
+    if (turn === 'recipe') {
+      const waterTip = getWaterTip()
+      if (waterTip) {
+        setTurn('water')
+        setTimeout(() => setWaterShown(true), 50)
+      } else {
+        startFarewell()
+      }
+    } else if (turn === 'water') {
+      startFarewell()
+    }
+    // farewell: no-op — dismissal is already in flight
+  }
+
+  if (!state.isVisible) return null
+
+  const getLabel = () => {
+    if (turn === 'water' || turn === 'farewell') return 'Water intake:'
+    return getMealLabel()
+  }
+
   return (
     <div
       className={cn(
@@ -196,21 +210,12 @@ export const RecipeWidget: React.FC = () => {
         isLabelFading ? 'opacity-0' : 'opacity-100'
       )}
     >
-      <Block label={getMealLabel()} blockView>
+      <Block label={getLabel()} blockView>
         <div
-          onClick={handleDismiss}
+          onClick={handleClick}
           className="cursor-pointer select-none"
         >
-          {farewellPhrase ? (
-            <div
-              className={cn(
-                'transition-opacity duration-[1400ms]',
-                isFading ? 'opacity-0' : 'opacity-100'
-              )}
-            >
-              {farewellPhrase}
-            </div>
-          ) : (
+          {turn === 'recipe' && (
             <div
               className={cn(
                 'opacity-0 transition-opacity duration-[1400ms]',
@@ -220,14 +225,29 @@ export const RecipeWidget: React.FC = () => {
               {state.isFasting && state.fastingHeadline && (
                 <div className="opacity-30 mb-4">{state.fastingHeadline}</div>
               )}
-              <div>
-                {state.recipe}
-                {getWaterTip() && (
-                  <span className="opacity-30">
-                    {' · '}{getWaterTip()!.charAt(0).toLowerCase() + getWaterTip()!.slice(1).replace(/\.$/, '')}
-                  </span>
-                )}
-              </div>
+              <div>{state.recipe}</div>
+            </div>
+          )}
+
+          {turn === 'water' && (
+            <div
+              className={cn(
+                'opacity-0 transition-opacity duration-[1400ms]',
+                waterShown && 'opacity-100'
+              )}
+            >
+              {getWaterTip()}
+            </div>
+          )}
+
+          {turn === 'farewell' && (
+            <div
+              className={cn(
+                'transition-opacity duration-[1400ms]',
+                isFading ? 'opacity-0' : 'opacity-100'
+              )}
+            >
+              {farewellPhrase}
             </div>
           )}
         </div>
