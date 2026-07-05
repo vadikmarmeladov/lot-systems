@@ -157,6 +157,25 @@ export const RecipeWidget: React.FC = () => {
     }
   }
 
+  const getWaterLabel = () => {
+    if (state.isFasting) {
+      switch (state.fastingMode) {
+        case 'light-snack': return 'Water:'
+        case 'dry-food':    return 'Stay hydrated:'
+        case 'water-only':  return 'Water:'
+        case 'prayer-rest': return 'Water:'
+        default:            return 'Water:'
+      }
+    }
+    switch (state.mealTime) {
+      case 'breakfast': return 'First glass:'
+      case 'lunch':     return 'To drink:'
+      case 'dinner':    return 'Before dinner:'
+      case 'snack':     return 'Next glass:'
+      default:          return 'Water intake:'
+    }
+  }
+
   const startFarewell = () => {
     try {
       recordSignal('selfcare', state.isFasting ? 'fasting_acknowledged' : 'recipe_acknowledged', {
@@ -199,7 +218,7 @@ export const RecipeWidget: React.FC = () => {
   if (!state.isVisible) return null
 
   const getLabel = () => {
-    if (turn === 'water' || turn === 'farewell') return 'Water intake:'
+    if (turn === 'water' || turn === 'farewell') return getWaterLabel()
     return getMealLabel()
   }
 
