@@ -905,3 +905,35 @@ export const useStoryGeneration = createMutation<
     logId: string | null
   }
 >('post', '/api/story')
+
+// BASICS (LOT-FM-001) — roster intake + upgrade state machine
+export const useBasicsRoster = createMutation<
+  { shippingNotes?: string },
+  UserProfile
+>('post', '/api/basics/roster')
+
+export const useBasicsConfirm = createMutation<void, UserProfile>(
+  'post',
+  '/api/basics/confirm'
+)
+
+export const useBasicsStandDown = createMutation<void, UserProfile>(
+  'post',
+  '/api/basics/standdown'
+)
+
+// BASICS — admin fulfillment (Month 3, CEO-gated)
+export const useDispatchBasicRation = createMutation<
+  { userId: string },
+  {
+    dispatchedIssue: number
+    nextIssueNumber: number
+    nextScheduledAt: string
+    margin: {
+      costUSD: number
+      marginPct: number
+      withinCeiling: boolean
+      meetsFloor: boolean
+    }
+  }
+>('post', '/admin-api/basics/dispatch')

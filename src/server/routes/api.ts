@@ -15,6 +15,7 @@ import {
   PublicChatMessage,
   UserSettings,
   UserTag,
+  BasicsState,
 } from '#shared/types'
 import config from '#server/config'
 import { fp } from '#shared/utils'
@@ -30,6 +31,8 @@ import {
   WEATHER_STALE_TIME_MINUTES,
 } from '#shared/constants'
 import { sync } from '../sync.js'
+import { getIssueLoad } from '#shared/constants/basics'
+import { verifyMargin } from '#server/utils/basics-cogs'
 import * as weather from '#server/utils/weather'
 import { getLogContext } from '#server/utils/logs'
 import { defaultQuestions, defaultReplies } from '#server/utils/questions'
@@ -624,6 +627,119 @@ export default async (fastify: FastifyInstance) => {
       reply.ok()
     }
   )
+
+  // ============================================================================
+  // BASICS (LOT-FM-001) — UPGRADE + ROSTER + STAND DOWN
+  // Self-serve state machine additive to Usership: NONE -> PENDING ->
+  // ON_STRENGTH -> STAND_DOWN. STAND_DOWN retains the Usership/AI tag and
+  // only removes Basic + future issues (LOT-FM-001 Month 2).
+  // ============================================================================
+  const hasTagCI = (tags: string[], tag: string) =>
+    tags.some((t) => t.toLowerCase() === tag.toLowerCase())
+
+  const basicsMeResponse = (user: FastifyRequest['user']) => {
+    const profile = user.useProfileView()
+    const isAdmin = user.isAdmin() || undefined
+    const metadata = user.metadata || {}
+    return { ...profile, isAdmin, metadata }
+  }
+
+  fastify.post(
+    '/basics/roster',
+    async (
+      req: FastifyRequest<{ Body: { shippingNotes?: string } }>,
+      reply
+    ) => {
+      if (!hasTagCI(req.user.tags, UserTag.Usership)) {
+        return reply.throw.accessDenied('USERSHIP / AI required as base layer')
+      }
+      const existing: BasicsState | undefined = req.user.metadata?.basics
+      if (existing?.status === 'ON_STRENGTH') {
+        return reply.throw.conflict('Already ON STRENGTH')
+      }
+      const basics: BasicsState = {
+        status: 'PENDING',
+        shippingNotes: (req.body.shippingNotes || '').trim().slice(0, 500),
+        cadenceStartAt: existing?.cadenceStartAt ?? null,
+        nextIssueAt: null,
+        issueCount: existing?.issueCount ?? 0,
+        issueLog: existing?.issueLog ?? [],
+        standDownAt: null,
+      }
+      await req.user
+        .set({ metadata: { ...req.user.metadata, basics } })
+        .save()
+      sync.emit('settings_updated', { userId: req.user.id })
+      return basicsMeResponse(req.user)
+    }
+  )
+
+  fastify.post('/basics/confirm', async (req: FastifyRequest, reply) => {
+    const basics: BasicsState | undefined = req.user.metadata?.basics
+    if (basics?.status !== 'PENDING') {
+      return reply.throw.conflict('Roster intake required before confirmation')
+    }
+    const cadenceStartAt = dayjs().toISOString()
+    const nextIssueAt = dayjs().add(3, 'day').toISOString()
+    const load = getIssueLoad(1)
+    const next: BasicsState = {
+      ...basics,
+      status: 'ON_STRENGTH',
+      cadenceStartAt,
+      nextIssueAt,
+      issueLog: [
+        ...basics.issueLog,
+        {
+          issueNumber: 1,
+          scheduledAt: nextIssueAt,
+          dispatchedAt: null,
+          status: 'SCHEDULED',
+          itemLines: load.map((item) => item.line),
+        },
+      ],
+    }
+    const tags = req.user.tags.some((t) => t.toLowerCase() === 'basic')
+      ? req.user.tags
+      : [...req.user.tags, 'basic']
+    await req.user
+      .set({ tags, metadata: { ...req.user.metadata, basics: next } })
+      .save()
+    sync.emit('settings_updated', { userId: req.user.id })
+    process.nextTick(async () => {
+      try {
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          event: 'other',
+          text: '',
+          metadata: { basics: 'enrolled', issueNumber: 1 },
+          context,
+        })
+      } catch (err) {
+        console.error('Error logging BASIC enrollment:', err)
+      }
+    })
+    return basicsMeResponse(req.user)
+  })
+
+  fastify.post('/basics/standdown', async (req: FastifyRequest, reply) => {
+    const basics: BasicsState | undefined = req.user.metadata?.basics
+    if (!basics || basics.status === 'STAND_DOWN') {
+      return reply.throw.conflict('Not currently on strength')
+    }
+    const next: BasicsState = {
+      ...basics,
+      status: 'STAND_DOWN',
+      nextIssueAt: null,
+      standDownAt: dayjs().toISOString(),
+    }
+    const tags = req.user.tags.filter((t) => t.toLowerCase() !== 'basic')
+    await req.user
+      .set({ tags, metadata: { ...req.user.metadata, basics: next } })
+      .save()
+    sync.emit('settings_updated', { userId: req.user.id })
+    return basicsMeResponse(req.user)
+  })
 
   fastify.post<{
     Body: {

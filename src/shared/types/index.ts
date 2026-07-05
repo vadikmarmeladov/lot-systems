@@ -17,6 +17,7 @@ export enum UserTag {
   Pro = 'Pro',
   Suspended = 'Suspended',
   Legacy = 'Legacy',
+  Basic = 'Basic',
 }
 
 // User Types
@@ -73,6 +74,7 @@ export type UserProfile = {
   timeChime?: boolean;
   memoryEngine?: 'ai' | 'standard';
   isAdmin?: boolean;
+  metadata?: Record<string, any>;
 };
 
 export type User = {
@@ -154,6 +156,33 @@ export type Log = {
   context: Record<string, any>;
   createdAt: Date;
   updatedAt: Date;
+};
+
+// ─── BASICS (LOT-FM-001) ─────────────────────────────────────────────────────
+// State machine: NONE -> PENDING -> ON_STRENGTH -> STAND_DOWN (retains
+// Usership tag, drops Basic tag + future issues). Persisted at
+// user.metadata.basics. STEADY STATE is a derived label (ON_STRENGTH with
+// issueCount >= 1), not a persisted enum value.
+export type BasicsStatus = 'PENDING' | 'ON_STRENGTH' | 'STAND_DOWN';
+
+export type IssueLogStatus = 'SCHEDULED' | 'DISPATCHED';
+
+export type IssueLogEntry = {
+  issueNumber: number;
+  scheduledAt: string; // ISO date
+  dispatchedAt: string | null; // ISO date
+  status: IssueLogStatus;
+  itemLines: string[]; // RationItem['line'] values shipped in this issue
+};
+
+export type BasicsState = {
+  status: BasicsStatus;
+  shippingNotes: string;
+  cadenceStartAt: string | null; // ISO date, set on ON_STRENGTH
+  nextIssueAt: string | null; // ISO date
+  issueCount: number;
+  issueLog: IssueLogEntry[];
+  standDownAt: string | null; // ISO date
 };
 
 export type LogContext = {

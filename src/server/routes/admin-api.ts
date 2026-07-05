@@ -18,6 +18,8 @@ import { Umzug, SequelizeStorage } from 'umzug'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { escapeHtml } from '../utils/security.js'
+import { getIssueLoad } from '#shared/constants/basics'
+import { verifyMargin } from '#server/utils/basics-cogs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -369,6 +371,73 @@ export default async (fastify: FastifyInstance) => {
       }
       await user.set(body).save()
       return user
+    }
+  )
+
+  // ============================================================================
+  // BASICS (LOT-FM-001) — FULFILLMENT (Month 3)
+  // Marking an issue DISPATCHED is a human, CEO-gated action: a physical box
+  // is packed and shipped. The daily ration-issue-watch job only monitors and
+  // flags readiness — it never dispatches automatically.
+  // ============================================================================
+  fastify.post(
+    '/basics/dispatch',
+    async (req: FastifyRequest<{ Body: { userId: string } }>, reply) => {
+      if (!req.user.canEditTags()) {
+        reply.status(403)
+        throw new Error('Access denied: Only the CEO can dispatch a ration')
+      }
+      const user = await fastify.models.User.findByPk(req.body.userId)
+      if (!user) return reply.throw.notFound()
+
+      const basics = user.metadata?.basics
+      if (!basics || basics.status !== 'ON_STRENGTH') {
+        return reply.throw.conflict('User is not ON STRENGTH')
+      }
+      const current = basics.issueLog.find(
+        (e: any) => e.status === 'SCHEDULED'
+      )
+      if (!current) {
+        return reply.throw.conflict('No scheduled issue to dispatch')
+      }
+
+      const dispatchedAt = dayjs().toISOString()
+      const nextIssueNumber = current.issueNumber + 1
+      const nextScheduledAt = dayjs(current.scheduledAt)
+        .add(1, 'month')
+        .toISOString()
+      const nextLoad = getIssueLoad(nextIssueNumber)
+
+      const issueLog = basics.issueLog.map((e: any) =>
+        e.issueNumber === current.issueNumber
+          ? { ...e, dispatchedAt, status: 'DISPATCHED' }
+          : e
+      )
+      issueLog.push({
+        issueNumber: nextIssueNumber,
+        scheduledAt: nextScheduledAt,
+        dispatchedAt: null,
+        status: 'SCHEDULED',
+        itemLines: nextLoad.map((item) => item.line),
+      })
+
+      const nextBasics = {
+        ...basics,
+        issueCount: (basics.issueCount ?? 0) + 1,
+        nextIssueAt: nextScheduledAt,
+        issueLog,
+      }
+      await user
+        .set({ metadata: { ...user.metadata, basics: nextBasics } })
+        .save()
+      sync.emit('settings_updated', { userId: user.id })
+
+      return {
+        dispatchedIssue: current.issueNumber,
+        nextIssueNumber,
+        nextScheduledAt,
+        margin: verifyMargin(nextIssueNumber),
+      }
     }
   )
 

@@ -413,6 +413,32 @@ td:last-child {
   transition: border-color var(--evolution-transition-speed) ease;
 }
 
+/* ── BASICS (LOT-FM-001) — terminal grid register ──────────────────────────
+ * Scoped, non-global: only the Basics tab uses the LiberationMono-Bold /
+ * IBM 3270 register. No self-hosted font binary — Liberation Mono is
+ * requested first and falls back gracefully where the system lacks it. */
+.lot-basics-terminal {
+  font-family: 'Liberation Mono', 'Courier New', monospace;
+  font-weight: 700;
+}
+
+.lot-basics-manifest-print {
+  display: none;
+}
+
+@media print {
+  body.lot-basics-printing > *:not(.lot-basics-manifest-print) {
+    display: none !important;
+  }
+  body.lot-basics-printing .lot-basics-manifest-print {
+    display: block !important;
+    font-family: 'Liberation Mono', 'Courier New', monospace;
+    font-weight: 700;
+    color: #000;
+    background: #fff;
+  }
+}
+
 /* They can copy the interface but they can't copy the intention. */
 /* LOT-SYSTEMS::ORIGINAL — The quantum field remembers who arrived first. */
 [data-lot-genesis]::after {

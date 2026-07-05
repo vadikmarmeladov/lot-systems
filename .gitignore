@@ -46,8 +46,9 @@ postcss.config.*.backup
 *.working
 *.working-backup
 
-# Compiled output (should not be in repo)
-server/
+# Compiled output (should not be in repo) — dist/ above already covers this;
+# a bare "server/" here was matching src/server/ too and silently dropping
+# new server source files from git status.
 *.js.map
 
 # Archive files

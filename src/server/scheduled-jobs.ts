@@ -1687,6 +1687,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityCascadePulse()) {
     await executeDailyVitalityCascadePulse()
   }
+  // Check daily BASIC ration issue watch (05:00 UTC every day) — Job 34
+  if (shouldRunDailyRationIssueWatch()) {
+    await executeDailyRationIssueWatch()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -3997,6 +4001,84 @@ async function executeDailyQOSModeWatch(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily QOS mode watch failed:', error.message)
     isDailyQOSModeWatchRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily BASIC Ration Issue Watch (Job 34 — 05:00 UTC every day) ──────────
+// LOT-FM-001 Month 3. Reads users ON_STRENGTH whose scheduled issue is due.
+// Writes a ration_issue_ready log for ops visibility — dispatch itself stays
+// a CEO-gated human action (POST /admin/basics/dispatch); the box is packed
+// by a person, never by this job.
+
+let isDailyRationIssueWatchRunning = false
+let lastDailyRationIssueWatchRun: Date | null = null
+
+function shouldRunDailyRationIssueWatch(): boolean {
+  const now = dayjs()
+  if (isDailyRationIssueWatchRunning) return false
+  if (lastDailyRationIssueWatchRun) {
+    const lastRun = dayjs(lastDailyRationIssueWatchRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 5 // 05:00 UTC daily
+}
+
+async function executeDailyRationIssueWatch(): Promise<JobResult> {
+  const jobName = 'daily-ration-issue-watch'
+  const executedAt = new Date().toISOString()
+  if (isDailyRationIssueWatchRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyRationIssueWatchRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY BASIC RATION ISSUE WATCH — 05:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const onStrength = await User.findAll({
+      where: { tags: { [Op.contains]: ['basic'] } },
+      attributes: ['id', 'metadata'],
+      limit: 5000,
+    })
+
+    const now = dayjs()
+    let ready = 0
+    for (const user of onStrength) {
+      try {
+        const basics = (user as any).metadata?.basics
+        if (!basics || basics.status !== 'ON_STRENGTH') continue
+        const current = (basics.issueLog || []).find((e: any) => e.status === 'SCHEDULED')
+        if (!current) continue
+        if (!now.isAfter(dayjs(current.scheduledAt))) continue
+
+        await (Log as any).create({
+          userId: (user as any).id,
+          event: 'other',
+          text: '',
+          metadata: {
+            basics: 'ration_issue_ready',
+            issueNumber: current.issueNumber,
+            scheduledAt: current.scheduledAt,
+          },
+        })
+        ready++
+      } catch {}
+    }
+
+    console.log(`  Operators ON STRENGTH: ${onStrength.length}`)
+    console.log(`  Issues ready for dispatch: ${ready}`)
+    console.log('')
+
+    lastDailyRationIssueWatchRun = new Date()
+    isDailyRationIssueWatchRunning = false
+    return { jobName, executedAt, success: true, result: { onStrength: onStrength.length, ready } }
+  } catch (error: any) {
+    console.error('Daily ration issue watch failed:', error.message)
+    isDailyRationIssueWatchRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

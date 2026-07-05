@@ -20,6 +20,7 @@ import {
 } from '#client/components/ui'
 import {
   useCompleteMemoryPrompt,
+  useDispatchBasicRation,
   useUpdateUser,
   useUser,
   useUserMemoryPrompt,
@@ -57,6 +58,10 @@ export const AdminUser = () => {
   const { mutate: completeMemoryPrompt, isLoading: isMemoryPromptLoading } =
     useCompleteMemoryPrompt({
       onSuccess: (x) => setMemoryQuestion(x),
+    })
+  const { mutate: dispatchRation, isLoading: isDispatching } =
+    useDispatchBasicRation({
+      onSuccess: () => refetchUser(),
     })
   useDocumentTitle(user?.email ?? null)
 
@@ -215,6 +220,29 @@ export const AdminUser = () => {
             <Block label="Address:" children={user.address || <Unknown />} />
             <Block label="Phone:" children={user.phone || <Unknown />} />
           </div>
+
+          {canEditTags && !!user.metadata?.basics && (
+            <div>
+              <Block label="Basics:">
+                {user.metadata.basics.status}
+                {' · '}
+                issue {user.metadata.basics.issueCount ?? 0}
+                {user.metadata.basics.nextIssueAt &&
+                  ` · next ${dayjs(user.metadata.basics.nextIssueAt).format('YYYY-MM-DD')}`}
+              </Block>
+              {user.metadata.basics.status === 'ON_STRENGTH' &&
+                user.metadata.basics.issueLog?.some(
+                  (e: any) => e.status === 'SCHEDULED'
+                ) && (
+                  <Button
+                    onClick={() => dispatchRation({ userId: user.id })}
+                    disabled={isDispatching}
+                  >
+                    {isDispatching ? 'Dispatching…' : 'Dispatch ration'}
+                  </Button>
+                )}
+            </div>
+          )}
           {!!user.lastSeenAt && (
             <div className="mt-32">
               Last seen {dayjs(user.lastSeenAt).fromNow()}
