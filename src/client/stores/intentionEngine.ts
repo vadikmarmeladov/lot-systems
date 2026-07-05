@@ -2404,6 +2404,67 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 107: Integration Peak State — vitality-cascade + clarity-momentum-peak both detected in 24h.
+  // Full cognitive-biological stack synchronized: biology and cognition simultaneously at structural peak.
+  // Rarest dual-system state — requires P104 AND P106 conditions in scope within a single day arc.
+  const p107Cut            = now - 24 * 60 * 60 * 1000
+  const hasVitalityCascade = signals.some(s => s.signal === 'vitality_cascade'     && s.timestamp > p107Cut)
+  const hasClarityMomentum = signals.some(s => s.signal === 'clarity_momentum_peak' && s.timestamp > p107Cut)
+  const p107HighEnergy     = state.userState.energy === 'high'
+  if (hasVitalityCascade && hasClarityMomentum && p107HighEnergy) {
+    patterns.push({
+      pattern: 'integration-peak-state',
+      confidence: Math.min(0.83 + 0.055, 0.94),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: 'INT PEAK: Vitality cascade and clarity peak both confirmed in 24h. Full biological + cognitive stack synchronized at peak capacity.',
+    })
+  }
+
+  // Pattern 108: Operator Presence Lock — intentions + planner + memory + journal all active in 6h window.
+  // Four primary execution channels synchronized: direction + structure + knowledge + reflection all live.
+  // Maximum structured engagement state — all four build channels active in a single tight session arc.
+  const p108SixHoursAgo  = now - 6 * 60 * 60 * 1000
+  const p108Intentions   = signals.filter(s => s.source === 'intentions' && s.timestamp > p108SixHoursAgo)
+  const p108Planner      = signals.filter(s => s.source === 'planner'    && s.timestamp > p108SixHoursAgo)
+  const p108Memory       = signals.filter(s => s.source === 'memory'     && s.timestamp > p108SixHoursAgo)
+  const p108Journal      = signals.filter(s => s.source === 'journal'    && s.timestamp > p108SixHoursAgo)
+  if (p108Intentions.length >= 1 && p108Planner.length >= 1 && p108Memory.length >= 1 && p108Journal.length >= 1) {
+    const p108Conf = Math.min(0.86 + (p108Intentions.length - 1) * 0.02 + (p108Memory.length - 1) * 0.02, 0.95)
+    patterns.push({
+      pattern: 'operator-presence-lock',
+      confidence: p108Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `OPR LOCK: ${p108Intentions.length} intention(s) + ${p108Planner.length} plan(s) + ${p108Memory.length} memory capture(s) + ${p108Journal.length} journal entry in 6h window. Four build channels locked simultaneously.`,
+    })
+  }
+
+  // Pattern 109: Weekly Peak Convergence — 5+ unique peak-signal types detected in the last 7 days.
+  // The operator's 7-day behavioral record shows macro-level pattern diversity at peak density.
+  // Fires when coverage breadth confirms multi-dimensional engagement across the full week arc.
+  const p109WeekAgo        = now - 7 * 24 * 60 * 60 * 1000
+  const p109WeekSignals    = signals.filter(s => s.timestamp > p109WeekAgo)
+  const PEAK_SIGNAL_EVENTS = [
+    'vitality_cascade', 'clarity_momentum_peak', 'social_presence_arc', 'integration_peak_state',
+    'operator_presence_lock', 'centennial_convergence', 'signal_momentum', 'quantum_presence_arc',
+    'full_presence_arc', 'daily_rhythm_lock', 'systemic_readiness_peak', 'cross_domain_mastery_pulse',
+    'cognitive_vitality_sync', 'action_completion_arc', 'biological_restoration_peak', 'resilience_cascade',
+    'biofield_coherence_cascade', 'quantum_coherence_summit',
+  ]
+  const p109PatternEvents  = p109WeekSignals.filter(s => PEAK_SIGNAL_EVENTS.includes(s.signal))
+  const uniqueWeekPatterns = new Set(p109PatternEvents.map(s => s.signal)).size
+  if (uniqueWeekPatterns >= 5) {
+    const p109Conf = Math.min(0.75 + (uniqueWeekPatterns - 5) * 0.025, 0.88)
+    patterns.push({
+      pattern: 'weekly-peak-convergence',
+      confidence: p109Conf,
+      suggestedWidget: 'quantumEngine',
+      suggestedTiming: 'passive',
+      reason: `WK CONV: ${uniqueWeekPatterns} unique peak patterns detected in 7-day arc. Macro convergence confirmed — full-week behavioral intelligence map complete.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2967,6 +3028,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   vitalityCascadeNode:      ['energy', 'selfcare', 'mood', 'journal', 'log'],
   socialPresenceArcNode:    ['cohort', 'intentions', 'journal', 'memory', 'log'],
   clarityMomentumNode:      ['planner', 'intentions', 'memory', 'energy', 'log'],
+
+  // ── Integration peak + operator presence lock + weekly peak convergence (2026-07-05 v85)
+  integrationPeakStateNode: ['energy', 'selfcare', 'mood', 'journal', 'planner', 'intentions', 'memory', 'log'],
+  operatorPresenceLockNode: ['intentions', 'planner', 'memory', 'journal', 'log'],
+  weeklyPeakConvergenceNode:['log', 'energy', 'mood', 'selfcare', 'intentions', 'memory', 'planner', 'journal'],
 }
 
 /**
@@ -3286,6 +3352,20 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['cohort', 'intentions', 'journal'],
     patternConditions: ['social-presence-arc', 'accountability-arc', 'social-resonance-arc', 'intention-velocity'],
     directive: 'Social arc live. Community, connection, and direction all confirmed in 48h. The signal is going out. Anchor the response.',
+  },
+  {
+    archetype: 'Integrated Peak Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['planner', 'intentions', 'memory', 'journal'],
+    patternConditions: ['integration-peak-state', 'clarity-momentum-peak', 'vitality-cascade'],
+    directive: 'Biological and cognitive peaks synchronized in 24h. Full integration confirmed. Execute from total clarity — this is the system\'s highest dual-stack state.',
+  },
+  {
+    archetype: 'Weekly Convergence Analyst',
+    energyBands: ['moderate', 'high', 'low', 'unknown'],
+    dominantSources: ['log', 'memory', 'planner', 'intentions'],
+    patternConditions: ['weekly-peak-convergence', 'cross-domain-mastery', 'signal-momentum-lock'],
+    directive: '7-day arc showing 5+ distinct peak-pattern types. System fully mapped. You are operating from complete terrain knowledge — the full week is recorded.',
   },
 ]
 
@@ -4589,5 +4669,47 @@ export function recordResilienceCascade(selfcareCount: number, memoryCount: numb
     fromBand,
     window: '18h',
     arc: 'complete',
+  })
+}
+
+/**
+ * Record an integration-peak-state signal — vitality-cascade + clarity-momentum both in 24h.
+ * Feeds P107 detection. Full biological + cognitive stack synchronized at peak.
+ */
+export function recordIntegrationPeakState(energyBand: string, clarityLevel: string) {
+  recordSignal('energy', 'integration_peak_state', {
+    energyBand,
+    clarityLevel,
+    window: '24h',
+    arc: 'dual-peak',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an operator-presence-lock signal — intentions + planner + memory + journal all in 6h window.
+ * Feeds P108 detection. Four primary build channels synchronized in tight window.
+ */
+export function recordOperatorPresenceLock(intentionCount: number, planCount: number, memoryCount: number, journalCount: number) {
+  recordSignal('intentions', 'operator_presence_lock', {
+    intentionCount,
+    planCount,
+    memoryCount,
+    journalCount,
+    window: '6h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a weekly-peak-convergence signal — 5+ unique peak patterns in last 7 days.
+ * Feeds P109 detection. Macro-level behavioral intelligence map complete for the week.
+ */
+export function recordWeeklyPeakConvergence(uniquePatternCount: number, topPattern: string) {
+  recordSignal('log', 'weekly_peak_convergence', {
+    uniquePatternCount,
+    topPattern,
+    window: '7d',
+    hour: new Date().getHours(),
   })
 }

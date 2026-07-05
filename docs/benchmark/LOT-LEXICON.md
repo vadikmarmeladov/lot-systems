@@ -54,4 +54,8 @@ PLANNER-INTENTION-SYNC  QIE P102 — intentions signal + planner signal within 2
 RESILIENCE-CASCADE      QIE P103 — depleted → 2+ selfcare → memory capture + positive mood within 18h; complete restoration arc: breakdown → intervention → capture           B  20260702
 PLANNER-CONTEXT    User's declared daily intention (intent/today/how/feeling) extracted from plan_set log    A  20260630
                    and injected into Memory Engine buildPrompt() so questions follow up on stated focus
+INT-PEAK:          Integration Peak State — log block label; vitality cascade + clarity momentum peak both confirmed in 24h  B  20260705
+OPR-LOCK:          Operator Presence Lock — log block label; 4 build channels (intentions+planner+memory+journal) active in 6h  B  20260705
+WK-CONV:           Weekly Peak Convergence — log block label; 5+ distinct peak-pattern types in 7-day arc           B  20260705
+DUAL-STACK         Simultaneous biological (vitality) + cognitive (clarity) peak state in 24h window; highest QIE state  B  20260705
 ```

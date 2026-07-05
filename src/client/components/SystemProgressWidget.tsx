@@ -22,6 +22,9 @@ import {
   getQuantumOS,
   getLogDependencySummary,
   recordQOSSignal,
+  classifyPhysiologicalCohort,
+  getUserState,
+  intentionEngine,
   type PhysiologicalReport,
   type QuantumOS,
 } from '#client/stores/intentionEngine'
@@ -1102,6 +1105,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '106 patterns · 36 archetypes · 33 background jobs · 106+ handlers · 145+ dep nodes. Vitality, social presence, and cognitive peak — three new arcs confirmed.',
     ],
   },
+  {
+    date: '2026-07-05',
+    session: 'Self-Assembly Session — v85 / P107–P109 · Arch37 Integrated Peak Operator · Arch38 Weekly Convergence Analyst · J34 Daily Operator Presence Lock · INT-PEAK: OPR-LOCK: WK-CONV: · Dep Map 148+ · Cohort surface upgrade',
+    assembled: [
+      'intentionEngine.ts: P107 integration-peak-state — vitality-cascade + clarity-momentum both in 24h. Full biological+cognitive stack synchronized at peak. Conf 0.83–0.94. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: P108 operator-presence-lock — intentions + planner + memory + journal all in 6h window. Four build channels locked simultaneously. Conf 0.86–0.95. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: P109 weekly-peak-convergence — 5+ unique peak signal types in 7-day arc. Macro convergence confirmed. Conf 0.75–0.88. suggestedWidget: quantumEngine.',
+      'intentionEngine.ts: Arch37 Integrated Peak Operator — energyBands high+moderate · dominantSources planner+intentions+memory+journal · integration-peak-state+clarity-momentum-peak+vitality-cascade. Directive: Full dual-stack integration. 37 archetypes.',
+      'intentionEngine.ts: Arch38 Weekly Convergence Analyst — energyBands moderate+high+low+unknown · dominantSources log+memory+planner+intentions · weekly-peak-convergence+cross-domain-mastery+signal-momentum-lock. Directive: 7-day terrain map complete. 38 archetypes.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: integrationPeakStateNode (8 deps) · operatorPresenceLockNode (5 deps) · weeklyPeakConvergenceNode (8 deps). 148+ dep nodes total.',
+      'Logs.tsx: INT-PEAK: (integration_peak_state: ATP band + CLR + DUAL-PEAK mode). OPR-LOCK: (operator_presence_lock: INTENT+PLAN+MEM+JOUR counts + WIN 6H). WK-CONV: (weekly_peak_convergence: PATTERNS 7D count + TOP pattern). COCKPIT-RULE. 109+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY — integration-peak-state (INT PEAK) · operator-presence-lock (OPR LOCK) · weekly-peak-convergence (WK CONV).',
+      'scheduled-jobs.ts: J34 daily-operator-presence-lock — 16:00 UTC daily. Reads 6h logs per user. all 4 build channels (intention+plan+memory+journal) present → writes operator_presence_lock. 34 background jobs.',
+      'SystemProgressWidget.tsx: Cohort surface upgrade — live cohort classification, archetype confidence, dominant source, physiological readiness, active pattern count all surfaced in System Progress cohort section.',
+      '109 patterns · 38 archetypes · 34 background jobs · 109+ handlers · 148+ dep nodes. Dual-stack peak, operator presence, and weekly convergence — three new macro arcs confirmed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1139,19 +1159,20 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-03',
+  date: '2026-07-05',
   message: [
-    'ASSEMBLY RUN — 2026-07-03 · LOT-SR-20260703-01',
-    'P104 vitality-cascade: high energy + 3+ selfcare acts + positive mood + journal in 24h. Proactive peak maintenance. Conf 0.78–0.90.',
-    'P105 social-presence-arc: cohort signal + outreach + intention in 48h. Social dimension fully active. Conf 0.70–0.85.',
-    'P106 clarity-momentum-peak: focused clarity + 2+ plans + 2+ memories + 2+ intentions in 24h. Cognitive peak confirmed. Conf 0.80–0.92. 106 patterns total.',
-    'Arch35 Vitality Architect: selfcare+mood+energy dominant · vitality-cascade+care-momentum+biological-restoration-peak. Sustained vitality confirmed. 35 archetypes.',
-    'Arch36 Social Signal Operator: cohort+intentions+journal dominant · social-presence-arc+accountability-arc+social-resonance-arc. Social arc live. 36 archetypes total.',
-    'J33 daily-vitality-cascade-pulse: 15:00 UTC daily. Reads 24h logs. high energy + 3+ selfcare + positive mood + journal → writes vitality_cascade. 33 background jobs total.',
-    'VITAL-CAS: SOC-ARC: CLAR-PEAK: log handlers deployed (COCKPIT-RULE). 106+ handlers total.',
-    'Dep map: 145+ nodes. 3 new: vitalityCascadeNode + socialPresenceArcNode + clarityMomentumNode.',
-    'PATTERN_DISPLAY: VIT CASCADE · SOC PRES · CLAR PEAK added to QOS widget.',
-    '106 patterns · 36 archetypes · 33 jobs · 106+ handlers · 145+ dep nodes. Vitality, social, cognitive — three new arcs confirmed.',
+    'ASSEMBLY RUN — 2026-07-05 · LOT-SR-20260705-01',
+    'P107 integration-peak-state: vitality-cascade + clarity-momentum both confirmed in 24h. Full biological + cognitive stack synchronized. Conf 0.83–0.94.',
+    'P108 operator-presence-lock: intentions + planner + memory + journal all in 6h window. Four build channels locked simultaneously. Conf 0.86–0.95.',
+    'P109 weekly-peak-convergence: 5+ unique peak signal types detected in 7-day arc. Macro convergence confirmed. Conf 0.75–0.88. 109 patterns total.',
+    'Arch37 Integrated Peak Operator: planner+intentions+memory+journal dominant · integration-peak-state+clarity-momentum+vitality-cascade. Full dual-stack integration. 37 archetypes.',
+    'Arch38 Weekly Convergence Analyst: log+memory+planner+intentions dominant · weekly-peak-convergence+cross-domain-mastery+signal-momentum-lock. 7-day terrain map. 38 archetypes total.',
+    'J34 daily-operator-presence-lock: 16:00 UTC daily. Reads 6h logs. all 4 build channels present → writes operator_presence_lock. 34 background jobs total.',
+    'INT-PEAK: OPR-LOCK: WK-CONV: log handlers deployed (COCKPIT-RULE). 109+ handlers total.',
+    'Dep map: 148+ nodes. 3 new: integrationPeakStateNode + operatorPresenceLockNode + weeklyPeakConvergenceNode.',
+    'PATTERN_DISPLAY: INT PEAK · OPR LOCK · WK CONV added to QOS widget.',
+    'Cohort surface upgrade: live classification + archetype confidence + dominant source + readiness + active patterns now shown in System Progress cohort section.',
+    '109 patterns · 38 archetypes · 34 jobs · 109+ handlers · 148+ dep nodes. Dual-stack peak, operator lock, weekly convergence — three new macro arcs confirmed.',
     'DEPLOYED.',
   ],
 }
@@ -2106,26 +2127,73 @@ export function SystemProgressWidget() {
               )}
             </div>
 
-            {/* Physiological cohort summary */}
-            {cohortData && (
-              <div className="border-t border-acc-400/30 pt-16">
-                <div className="opacity-30 mb-8 uppercase tracking-widest">Current cohort</div>
-                <div className="flex flex-col gap-y-4 font-mono text-xs">
-                  {cohortData.archetype && (
-                    <div className="flex justify-between">
-                      <span className="opacity-30 uppercase">Archetype</span>
-                      <span>{cohortData.archetype}</span>
-                    </div>
-                  )}
-                  {cohortData.behavioralCohort && (
-                    <div className="flex justify-between">
-                      <span className="opacity-30 uppercase">Cohort</span>
-                      <span>{cohortData.behavioralCohort}</span>
-                    </div>
-                  )}
+            {/* Physiological cohort summary — live classification surface */}
+            {(() => {
+              const engineState = intentionEngine.get()
+              const liveClassification = engineState.signals.length >= 3
+                ? classifyPhysiologicalCohort(engineState.signals, getUserState(), engineState.recognizedPatterns ?? [])
+                : null
+              const displayArchetype = cohortData?.archetype ?? liveClassification?.archetype
+              const displayCohort    = cohortData?.behavioralCohort
+              const displayConf      = liveClassification?.confidence
+              const displaySource    = liveClassification?.dominantModule
+              const displayPatterns  = engineState.recognizedPatterns.length
+              const displayReadiness = report?.physiologicalReadiness
+              if (!displayArchetype && !liveClassification) return null
+              return (
+                <div className="border-t border-acc-400/30 pt-16">
+                  <div className="opacity-30 mb-8 uppercase tracking-widest">Cohort</div>
+                  <div className="flex flex-col gap-y-4 font-mono text-xs">
+                    {displayArchetype && (
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Archetype</span>
+                        <span>{displayArchetype}</span>
+                      </div>
+                    )}
+                    {displayCohort && (
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Cohort</span>
+                        <span>{displayCohort}</span>
+                      </div>
+                    )}
+                    {displayConf !== undefined && (
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Conf</span>
+                        <span className="tabular-nums">{displayConf}%</span>
+                      </div>
+                    )}
+                    {displaySource && (
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Dominant</span>
+                        <span className="uppercase">{displaySource}</span>
+                      </div>
+                    )}
+                    {displayReadiness !== undefined && (
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Readiness</span>
+                        <span className="tabular-nums">
+                          {displayReadiness}%{' '}
+                          <span className="opacity-30">
+                            {displayReadiness >= 70 ? '▲' : displayReadiness >= 40 ? '—' : '▼'}
+                          </span>
+                        </span>
+                      </div>
+                    )}
+                    {displayPatterns > 0 && (
+                      <div className="flex justify-between">
+                        <span className="opacity-30 uppercase">Patterns</span>
+                        <span className="tabular-nums">{displayPatterns} active</span>
+                      </div>
+                    )}
+                    {liveClassification?.directive && (
+                      <div className="border-t border-acc-400/20 pt-8 mt-4">
+                        <div className="opacity-40">{liveClassification.directive}</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )
+            })()}
 
             {/* Assembly module count */}
             <div className="border-t border-acc-400/30 pt-16">

@@ -607,6 +607,62 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'integration_peak_state') {
+          const energyBand  = log.metadata?.energyBand  as string | undefined
+          const clarityLevel = log.metadata?.clarityLevel as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INT-PEAK:" blockView>
+                {energyBand && (
+                  <div className="uppercase tracking-widest mb-4">ATP: {energyBand}</div>
+                )}
+                {clarityLevel && (
+                  <div className="opacity-60 uppercase tracking-widest">CLR: {clarityLevel}</div>
+                )}
+                <div className="opacity-40 tabular-nums mt-4">MODE: DUAL-PEAK</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'operator_presence_lock') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const planCount      = log.metadata?.planCount      as number | undefined
+          const memoryCount    = log.metadata?.memoryCount    as number | undefined
+          const journalCount   = log.metadata?.journalCount   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="OPR-LOCK:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT: {intentionCount}</div>
+                )}
+                {planCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN: {planCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM: {memoryCount}</div>
+                )}
+                {journalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">JOUR: {journalCount}</div>
+                )}
+                <div className="opacity-30 tabular-nums mt-4">WIN: 6H</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'weekly_peak_convergence') {
+          const uniquePatternCount = log.metadata?.uniquePatternCount as number | undefined
+          const topPattern         = log.metadata?.topPattern         as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="WK-CONV:" blockView>
+                {uniquePatternCount !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">PATTERNS 7D: {uniquePatternCount}</div>
+                )}
+                {topPattern && (
+                  <div className="opacity-60 uppercase tracking-widest">TOP: {topPattern.replace(/_/g, '-').slice(0, 18)}</div>
+                )}
+                <div className="opacity-30 tabular-nums mt-4">WIN: 7D</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

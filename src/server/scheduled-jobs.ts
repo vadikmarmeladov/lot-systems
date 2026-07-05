@@ -1687,6 +1687,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityCascadePulse()) {
     await executeDailyVitalityCascadePulse()
   }
+  // Check daily operator presence lock (16:00 UTC every day) — Job 34
+  if (shouldRunDailyOperatorPresenceLock()) {
+    await executeDailyOperatorPresenceLock()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -1967,6 +1971,109 @@ async function executeDailyVitalityCascadePulse(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily vitality cascade pulse failed:', error.message)
     isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Operator Presence Lock (Job 34 — 16:00 UTC every day) ─────────────
+// Reads active users. Finds those with intentions + planner + memory + journal signals
+// all within a 6-hour window today. Writes operator_presence_lock event.
+
+let isDailyOperatorPresenceLockRunning = false
+let lastDailyOperatorPresenceLockRun: Date | null = null
+
+function shouldRunDailyOperatorPresenceLock(): boolean {
+  const now = dayjs()
+  if (isDailyOperatorPresenceLockRunning) return false
+  if (lastDailyOperatorPresenceLockRun) {
+    const lastRun = dayjs(lastDailyOperatorPresenceLockRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 16 // 16:00 UTC daily
+}
+
+async function executeDailyOperatorPresenceLock(): Promise<JobResult> {
+  const jobName = 'daily-operator-presence-lock'
+  const executedAt = new Date().toISOString()
+  if (isDailyOperatorPresenceLockRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyOperatorPresenceLockRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY OPERATOR PRESENCE LOCK — 16:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sixHoursAgo = dayjs().subtract(6, 'hour').toDate()
+    const oneDayAgo   = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    const INTENTION_EVENTS = ['intention_set', 'intention_created', 'current_intention_set']
+    const PLANNER_EVENTS   = ['plan_set', 'plan_created', 'planner_entry']
+    const MEMORY_EVENTS    = ['memory_captured', 'memory_created', 'memory_entry']
+    const JOURNAL_EVENTS   = ['note', 'journal_entry', 'field_entry']
+    const ALL_EVENTS       = [...INTENTION_EVENTS, ...PLANNER_EVENTS, ...MEMORY_EVENTS, ...JOURNAL_EVENTS]
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: sixHoursAgo },
+            event: { [Op.in]: ALL_EVENTS },
+          },
+          attributes: ['event'],
+          limit: 200,
+        })
+
+        const intentionLogs = recentLogs.filter((l: any) => INTENTION_EVENTS.includes(l.event))
+        const plannerLogs   = recentLogs.filter((l: any) => PLANNER_EVENTS.includes(l.event))
+        const memoryLogs    = recentLogs.filter((l: any) => MEMORY_EVENTS.includes(l.event))
+        const journalLogs   = recentLogs.filter((l: any) => JOURNAL_EVENTS.includes(l.event))
+
+        if (
+          intentionLogs.length >= 1 &&
+          plannerLogs.length   >= 1 &&
+          memoryLogs.length    >= 1 &&
+          journalLogs.length   >= 1
+        ) {
+          const confidence = Math.min(0.86 + (intentionLogs.length - 1) * 0.02 + (memoryLogs.length - 1) * 0.02, 0.95)
+          await (Log as any).create({
+            userId,
+            event: 'operator_presence_lock',
+            text: `Operator presence lock: ${intentionLogs.length} intention(s) + ${plannerLogs.length} plan(s) + ${memoryLogs.length} memory capture(s) + ${journalLogs.length} journal entry in 6h window.`,
+            metadata: {
+              intentionCount: intentionLogs.length,
+              planCount:      plannerLogs.length,
+              memoryCount:    memoryLogs.length,
+              journalCount:   journalLogs.length,
+              confidence,
+              window: '6h',
+              hour:   16,
+            },
+          })
+          written++
+          console.log(`  [${userId}] OPR-LOCK: INTENT:${intentionLogs.length} PLAN:${plannerLogs.length} MEM:${memoryLogs.length} JOUR:${journalLogs.length} CONF:${Math.round(confidence * 100)}%`)
+        }
+      } catch {}
+    }
+
+    console.log(`  Operator presence lock events written: ${written}`)
+    lastDailyOperatorPresenceLockRun = new Date()
+    isDailyOperatorPresenceLockRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily operator presence lock failed:', error.message)
+    isDailyOperatorPresenceLockRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4045,6 +4152,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily cross-domain pulse: 7 PM UTC every day (Job 29)')
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
   console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
+  console.log('   - Daily operator presence lock: 4 PM UTC every day (Job 34)')
   console.log('')
 
   // Check every hour for scheduled jobs
