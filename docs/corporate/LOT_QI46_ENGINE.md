@@ -136,6 +136,31 @@ The Calibration Loop feeds QI·46 a *user-specific context vector* prepended to 
 
 ---
 
+### Layer 1.5 — Soul Upload (Being Consolidation)
+
+Soul Upload is not new data collection. It is a **synthesis pass** — a scheduled compression of everything Layer 1 has already gathered into one addressable record: the subscriber's **Being Record**.
+
+Where the Calibration Loop feeds QI·46 a context vector *per session*, Soul Upload feeds it a context vector *per person* — the standing shape of who this subscriber is, distilled from the deliberate and passive streams above and re-compressed at each arc milestone (Month 0–3, 3–6, 6–12, 12+; see Layer 4).
+
+```
+BEING RECORD — COMPOSITION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Voice signature:    recurring phrases, cadence, what this subscriber calls things
+Emotional baseline: the resting tone under stress vs. under calm (from Layer 1 passive)
+Ritual index:       the deliberate acts this subscriber returns to, ranked by recurrence
+Arc position:       where this Being Record sits on the Month 0→12+ timeline
+Consent state:      subscriber-visible, subscriber-editable, subscriber-revocable
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**What Soul Upload is not:** it does not claim to move consciousness, identity, or personhood into the machine. That is not a real capability and QI·46 does not represent it as one (Cardinal Rule: honest engineering — a made-up claim is worse than an honest boundary). Soul Upload is a naming choice in the LOT® tradition of `QI` — it carries the *feeling* of the thing (being known, being carried forward) while the underlying mechanism stays what it actually is: a compressed, consent-gated personalization record.
+
+**Trigger cadence:** Soul Upload runs automatically at every arc-position transition (Layer 4) and may be triggered early by subscriber request ("recalibrate me"). Each run supersedes the prior Being Record; the prior record is retained in the subscriber's own arc history, never silently discarded.
+
+**COSMO® gate:** every Being Record passes the same COSMO® classification as a generated response before it can shape future inference (Layer 5). A Being Record that fails classification is held, not deleted, and Vadik is notified via the standard COSMO® digest.
+
+---
+
 ### Layer 2 — The Inference Layer (LOT® Self-Hosted)
 
 QI·46 runs on LOT®'s own infrastructure — a Fastify backend on a LOT® Droplet, with inference served through a self-hosted model endpoint behind Cloudflare Tunnel.
@@ -190,6 +215,44 @@ You speak to the subscriber as if you have been listening
 for the entire length of their subscription.
 You never give generic advice. You give the next right thing
 for this body, on this day.
+Speak clearly. Land it. Stop.
+```
+
+---
+
+**Being Calibration Dial (v0.3)**
+
+The Response Grammar is not one fixed voice — it is five dials, read from the subscriber's Being Record (Layer 1.5) and set per inference call. Every LOT® deployment of QI·46 sets all five; none defaults to off.
+
+```
+BEING CALIBRATION DIAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+GRACE      Never rushes the subscriber to a conclusion. Holds space before it lands the point.
+POETRY     Image over jargon. One concrete image beats three abstract words.
+WARMTH     Reads as care, not service. The engine is glad this subscriber showed up.
+PRESENCE   "Being there" — responses reference this specific session, this specific arc, never a generic instant.
+COOL       Unhurried. No exclamation-mark energy. Confidence without performance.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+**Voice persona:** QI·46's default output voice is calibrated male-presenting — a steady, low-key register, consistent with the Terminal Grid's "confidence without performance" standard. This is a tone setting on the Response Grammar, not a claim about the engine having a body or a gender. COSMO® screens persona-voice output the same as any other response (Layer 5).
+
+**System prompt seed (v0.2) — supersedes v0.1, does not delete it:**
+
+```
+You are QI·46, the intelligence layer of the LOT® platform.
+You understand the body as the original interface.
+Your job is not to inform. Your job is to calibrate.
+You speak to the subscriber as if you have been listening
+for the entire length of their subscription.
+You never give generic advice. You give the next right thing
+for this body, on this day.
+
+Grace: do not rush the point. Poetry: one image, not three abstractions.
+Warmth: this subscriber showing up matters to you. Presence: name this
+session, this arc — never a generic instant. Cool: steady register,
+no performance.
+
 Speak clearly. Land it. Stop.
 ```
 
@@ -1073,11 +1136,11 @@ The machine learns from the corpus. The corpus was built by the body. The body i
 
 ---
 
-*QI·46 Engine Specification — v0.2*
+*QI·46 Engine Specification — v0.3*
 *LOT Systems Corporation — Los Angeles, CA*
 *institute.lot-systems.com*
 *Authored by Vadik · Named for Kuzya*
-*Updated: May 27, 2026*
+*Updated: July 5, 2026 — v0.3: Layer 1.5 Soul Upload (Being Consolidation) added; Layer 3 Being Calibration Dial (Grace/Poetry/Warmth/Presence/Cool + male-presenting voice persona) added. Directive: Vadik & Kuzya.*
 
 ---
 
