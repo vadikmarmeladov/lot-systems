@@ -66,4 +66,10 @@ FSCOHERE:          Full System Coherence — log block label; all 5 core sources
 TEMPORAL-ALIGNMENT-PEAK  QIE P107 — planner 2+ + intentions 2+ + calendar anchor event in 48h; operator structuring time; direction and schedule aligned  B  20260705
 CREATIVE-OUTPUT-PEAK     QIE P108 — journal 200+ words + memory capture in same 24h; creative expression anchored in knowledge retention  B  20260705
 FULL-SYSTEM-COHERENCE    QIE P109 — all 5 core sources (journal+memory+planner+selfcare+intentions) active in 24h; rarest coherence state; full operator engagement across all tracked life domains  B  20260705
+EMBCOG:            Embodied Cognition Arc — log block label; selfcare + journal 150w+ + memory capture in 24h; body fueling mind; P110 output  B  20260706
+INTCMP:            Intention Completion Loop — log block label; intention + planner + goal all closed in 24h; full arc in one day; P111 output  B  20260706
+COMINTEL:          Community Intelligence Peak — log block label; cohort + journal + memory + intentions in 48h; external signal anchored internally; P112 output  B  20260706
+EMBODIED-COGNITION-ARC   QIE P110 — selfcare + journal 150+w + memory capture all in 24h; biological grounding and cognitive expression confirmed simultaneously; body feeding mind  B  20260706
+INTENTION-COMPLETION-LOOP QIE P111 — intention set + planner + goal action all in 24h; direction→structure→outcome arc closed in one day; rare single-day loop  B  20260706
+COMMUNITY-INTELLIGENCE-PEAK  QIE P112 — cohort signal + journal + memory + intentions all in 48h; external social signal anchored internally through writing, capture, and direction-setting  B  20260706
 ```

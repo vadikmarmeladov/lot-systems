@@ -1691,6 +1691,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyTemporalAlignmentCheck()) {
     await executeDailyTemporalAlignmentCheck()
   }
+  // Check daily embodied cognition check (11:00 UTC every day) — Job 35
+  if (shouldRunDailyEmbodiedCognitionCheck()) {
+    await executeDailyEmbodiedCognitionCheck()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -2064,6 +2068,104 @@ async function executeDailyTemporalAlignmentCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily temporal alignment check failed:', error.message)
     isDailyTemporalAlignmentRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Embodied Cognition Check (Job 35 — 11:00 UTC every day) ───────────
+// Reads active users' 24h logs. Confirms selfcare + journal 150+w + memory capture
+// all present in the same window. Writes embodied_cognition_arc event.
+// Feeds P110 detection. Biological grounding + cognitive expression confirmed simultaneously.
+
+let isDailyEmbodiedCognitionRunning = false
+let lastDailyEmbodiedCognitionRun: Date | null = null
+
+function shouldRunDailyEmbodiedCognitionCheck(): boolean {
+  const now = dayjs()
+  if (isDailyEmbodiedCognitionRunning) return false
+  if (lastDailyEmbodiedCognitionRun) {
+    const lastRun = dayjs(lastDailyEmbodiedCognitionRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 11 // 11:00 UTC daily
+}
+
+async function executeDailyEmbodiedCognitionCheck(): Promise<JobResult> {
+  const jobName = 'daily-embodied-cognition-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyEmbodiedCognitionRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyEmbodiedCognitionRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY EMBODIED COGNITION CHECK — 11:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    const SELFCARE_EVENTS = ['self_care_complete', 'self_care_completed']
+    const JOURNAL_EVENTS  = ['note', 'journal']
+    const MEMORY_EVENTS   = ['answer', 'memory']
+    const ALL_EVENTS      = [...SELFCARE_EVENTS, ...JOURNAL_EVENTS, ...MEMORY_EVENTS]
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: ALL_EVENTS },
+          },
+          attributes: ['event', 'metadata'],
+          limit: 500,
+        })
+
+        const selfcareLogs = recentLogs.filter((l: any) => SELFCARE_EVENTS.includes(l.event))
+        const journalLogs  = recentLogs.filter((l: any) =>
+          JOURNAL_EVENTS.includes(l.event) &&
+          ((l.metadata?.wordCount as number ?? 0) >= 150 ||
+           (l.metadata?.text?.split?.(/\s+/)?.length ?? 0) >= 150)
+        )
+        const memoryLogs   = recentLogs.filter((l: any) => MEMORY_EVENTS.includes(l.event))
+
+        if (selfcareLogs.length >= 1 && journalLogs.length >= 1 && memoryLogs.length >= 1) {
+          const confidence = Math.min(0.72 + journalLogs.length * 0.04 + memoryLogs.length * 0.03, 0.86)
+          await (Log as any).create({
+            userId,
+            event: 'embodied_cognition_arc',
+            text: `Embodied cognition: ${selfcareLogs.length} selfcare + ${journalLogs.length} long-form journal(s) + ${memoryLogs.length} memory capture(s) in 24h.`,
+            metadata: {
+              selfcareCount: selfcareLogs.length,
+              journalCount:  journalLogs.length,
+              memoryCount:   memoryLogs.length,
+              confidence,
+              window: '24h',
+              hour: 11,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Embodied cognition events written: ${written}`)
+    lastDailyEmbodiedCognitionRun = new Date()
+    isDailyEmbodiedCognitionRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily embodied cognition check failed:', error.message)
+    isDailyEmbodiedCognitionRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

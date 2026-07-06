@@ -1131,6 +1131,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '109 patterns · 37 archetypes · 34 background jobs · 109+ handlers · 148+ dep nodes. Temporal, creative, and full-system coherence arcs deployed.',
     ],
   },
+  {
+    date: '2026-07-06',
+    session: 'Self-Assembly Session — v87 / P110–P112 · Arch38 Embodied Strategist · J35 Daily Embodied Cognition Check · EMBCOG: INTCMP: COMINTEL: · Dep Map 151+',
+    assembled: [
+      'intentionEngine.ts: P110 embodied-cognition-arc — selfcare + journal 150w+ + memory capture in 24h. Body fueling mind — biological grounding and cognitive expression simultaneously confirmed. Conf 0.72–0.86. suggestedWidget: journal.',
+      'intentionEngine.ts: P111 intention-completion-loop — intention + planner + goal all in 24h. Full direction-to-structure-to-outcome arc closed in one day. Rare: usually spans multiple days. Conf 0.75–0.88. suggestedWidget: intentions.',
+      'intentionEngine.ts: P112 community-intelligence-peak — cohort + journal + memory + intentions all in 48h. External social signal anchored internally through writing, capture, and direction-setting. Conf 0.68–0.84. suggestedWidget: cohort.',
+      'intentionEngine.ts: Arch38 Embodied Strategist — energyBands high+moderate · dominantSources selfcare+journal+memory+intentions · patternConditions embodied-cognition-arc+vitality-cascade+creative-output-peak. Directive: Body integrated with mind. 38 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: embodiedCognitionNode (4 deps) · intentionCompletionNode (4 deps) · communityIntelligenceNode (5 deps). 151+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers added — recordEmbodiedCognitionArc · recordIntentionCompletionLoop · recordCommunityIntelligencePeak.',
+      'Logs.tsx: EMBCOG: handler (embodied_cognition_arc: BODY→MIND header + CARE 24H + JRNL 150W+ + MEM 24H + CONF). INTCMP: handler (intention_completion_loop: LOOP CLOSED header + INTENT 24H + PLAN 24H + GOAL ACT + CONF). COMINTEL: handler (community_intelligence_peak: COMM 48H + JRNL 48H + MEM 48H + INTENT 48H + CONF). COCKPIT-RULE compliant. 112+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — embodied-cognition-arc (EMBCOG ARC) · intention-completion-loop (INTCMP LOOP) · community-intelligence-peak (COMINTEL).',
+      'scheduled-jobs.ts: J35 daily-embodied-cognition-check — 11:00 UTC daily. Reads 24h logs per user. selfcare + journal 150w+ + memory → writes embodied_cognition_arc. 35 background jobs total.',
+      'routes/api.ts: embodied_cognition_arc + intention_completion_loop + community_intelligence_peak added to displayableEvents (v87 block).',
+      '112 patterns · 38 archetypes · 35 background jobs · 112+ handlers · 151+ dep nodes. Embodied cognition, intention completion, and community intelligence arcs deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1168,20 +1185,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-05',
+  date: '2026-07-06',
   message: [
-    'ASSEMBLY RUN — 2026-07-05 · LOT-SR-20260705-01',
-    'P107 temporal-alignment-peak: planner 2+ + intentions 2+ + calendar anchor in 48h. Time and intention aligned. Conf 0.65–0.82.',
-    'P108 creative-output-peak: journal 200w+ + memory capture in 24h. Expression anchored in knowledge. Conf 0.70–0.85.',
-    'P109 full-system-coherence: all 5 core sources active in 24h — journal+memory+planner+selfcare+intentions. Full operator coherence. Conf 0.75–0.90. 109 patterns total.',
-    'Arch37 Temporal Architect: planner+intentions+journal dominant · temporal-alignment-peak+planner-intention-sync+clarity-momentum-peak. Time and intention aligned. 37 archetypes total.',
-    'J34 daily-temporal-alignment-check: 10:00 UTC daily. Reads 48h logs. planner 2+ + intentions 2+ + calendar anchor → writes temporal_alignment_peak. 34 background jobs total.',
-    'TALIGN: CROUT: FSCOHERE: log handlers deployed (COCKPIT-RULE). 109+ handlers total.',
-    'Dep map: 148+ nodes. 3 new: temporalAlignmentNode + creativeOutputNode + systemCoherenceNode.',
-    'PATTERN_DISPLAY: TALIGN PEAK · CROUT PEAK · FSCOHERE added to QOS widget.',
-    'displayableEvents gap fixed: v84 events (vitality_cascade + social_presence_arc + clarity_momentum_peak) now visible in LOG terminal.',
-    '6 signal helpers added: recordVitalityCascade · recordSocialPresenceArc · recordClarityMomentumPeak · recordTemporalAlignmentPeak · recordCreativeOutputPeak · recordFullSystemCoherence.',
-    '109 patterns · 37 archetypes · 34 jobs · 109+ handlers · 148+ dep nodes. Temporal, creative, and full-system coherence deployed.',
+    'ASSEMBLY RUN — 2026-07-06 · LOT-SR-20260706-02',
+    'P110 embodied-cognition-arc: selfcare + journal 150w+ + memory capture in 24h. Body fueling mind. Conf 0.72–0.86.',
+    'P111 intention-completion-loop: intention + planner + goal all in 24h. Full loop closed in one day. Conf 0.75–0.88.',
+    'P112 community-intelligence-peak: cohort + journal + memory + intentions in 48h. External signal anchored internally. Conf 0.68–0.84. 112 patterns total.',
+    'Arch38 Embodied Strategist: selfcare+journal+memory+intentions dominant · embodied-cognition-arc+vitality-cascade+creative-output-peak. Body integrated with mind. 38 archetypes total.',
+    'J35 daily-embodied-cognition-check: 11:00 UTC daily. selfcare + journal 150w+ + memory → writes embodied_cognition_arc. 35 background jobs total.',
+    'EMBCOG: INTCMP: COMINTEL: log handlers deployed (COCKPIT-RULE). 112+ handlers total.',
+    'Dep map: 151+ nodes. 3 new: embodiedCognitionNode + intentionCompletionNode + communityIntelligenceNode.',
+    'PATTERN_DISPLAY: EMBCOG ARC · INTCMP LOOP · COMINTEL added to QOS widget.',
+    '3 signal helpers added: recordEmbodiedCognitionArc · recordIntentionCompletionLoop · recordCommunityIntelligencePeak.',
+    '112 patterns · 38 archetypes · 35 jobs · 112+ handlers · 151+ dep nodes. Embodied cognition, intention completion, and community intelligence deployed.',
     'DEPLOYED.',
   ],
 }

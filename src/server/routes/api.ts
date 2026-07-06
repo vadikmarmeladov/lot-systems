@@ -1114,6 +1114,10 @@ export default async (fastify: FastifyInstance) => {
       'temporal_alignment_peak',
       'creative_output_peak',
       'full_system_coherence',
+      // v87: embodied cognition arc · intention completion loop · community intelligence peak (P110/P111/P112)
+      'embodied_cognition_arc',
+      'intention_completion_loop',
+      'community_intelligence_peak',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

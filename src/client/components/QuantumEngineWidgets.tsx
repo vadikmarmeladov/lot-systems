@@ -72,6 +72,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'temporal-alignment-peak':     'TALIGN PEAK',
   'creative-output-peak':        'CROUT PEAK',
   'full-system-coherence':       'FSCOHERE',
+  'embodied-cognition-arc':      'EMBCOG ARC',
+  'intention-completion-loop':   'INTCMP LOOP',
+  'community-intelligence-peak': 'COMINTEL',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

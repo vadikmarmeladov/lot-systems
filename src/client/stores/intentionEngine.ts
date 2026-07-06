@@ -2463,6 +2463,61 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 110: Embodied Cognition Arc — selfcare + journal 150+w + memory capture in 24h.
+  // The body fueling the mind: physical grounding (selfcare) while writing and capturing knowledge.
+  // Confirmed when biological maintenance and cognitive expression occur in the same window.
+  const p110Cut      = now - 24 * 60 * 60 * 1000
+  const p110Selfcare = signals.filter(s => s.source === 'selfcare' && s.timestamp > p110Cut)
+  const p110Journal  = signals.filter(s => s.source === 'journal'  && s.timestamp > p110Cut && (s.metadata?.wordCount as number ?? 0) >= 150)
+  const p110Memory   = signals.filter(s => s.source === 'memory'   && s.timestamp > p110Cut)
+  if (p110Selfcare.length >= 1 && p110Journal.length >= 1 && p110Memory.length >= 1) {
+    const p110Conf = Math.min(0.72 + p110Journal.length * 0.04 + p110Memory.length * 0.03, 0.86)
+    patterns.push({
+      pattern: 'embodied-cognition-arc',
+      confidence: p110Conf,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `EMBCOG: ${p110Selfcare.length} selfcare + ${p110Journal.length} long-form journal(s) + ${p110Memory.length} memory capture(s) in 24h. Body feeding mind — biological grounding and cognitive expression confirmed simultaneously.`,
+    })
+  }
+
+  // Pattern 111: Intention Completion Loop — intention + planner + goal, all in 24h.
+  // The full direction-to-structure-to-outcome arc closed in a single day.
+  // Rare because the loop from declared intention through plan to goal execution usually spans days.
+  const p111Cut        = now - 24 * 60 * 60 * 1000
+  const p111Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p111Cut)
+  const p111Planner    = signals.filter(s => s.source === 'planner'    && s.timestamp > p111Cut)
+  const p111Goals      = signals.filter(s => s.source === 'goals'      && s.timestamp > p111Cut)
+  if (p111Intentions.length >= 1 && p111Planner.length >= 1 && p111Goals.length >= 1) {
+    const p111Conf = Math.min(0.75 + p111Planner.length * 0.04 + p111Goals.length * 0.04, 0.88)
+    patterns.push({
+      pattern: 'intention-completion-loop',
+      confidence: p111Conf,
+      suggestedWidget: 'intentions',
+      suggestedTiming: 'passive',
+      reason: `INTCMP: ${p111Intentions.length} intention(s) + ${p111Planner.length} plan(s) + ${p111Goals.length} goal action(s) in 24h. Declared direction → structure → outcome — full loop closed in one day.`,
+    })
+  }
+
+  // Pattern 112: Community Intelligence Peak — cohort signal + journal + memory + intentions in 48h.
+  // External social signal anchored internally through writing, capture, and direction-setting.
+  // The internal-external coherence arc — what enters from others is processed and directed.
+  const p112Cut        = now - 48 * 60 * 60 * 1000
+  const p112Cohort     = signals.filter(s => s.source === 'cohort'     && s.timestamp > p112Cut)
+  const p112Journal    = signals.filter(s => s.source === 'journal'    && s.timestamp > p112Cut)
+  const p112Memory     = signals.filter(s => s.source === 'memory'     && s.timestamp > p112Cut)
+  const p112Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p112Cut)
+  if (p112Cohort.length >= 1 && p112Journal.length >= 1 && p112Memory.length >= 1 && p112Intentions.length >= 1) {
+    const p112Conf = Math.min(0.68 + p112Cohort.length * 0.04 + p112Memory.length * 0.03 + p112Journal.length * 0.03, 0.84)
+    patterns.push({
+      pattern: 'community-intelligence-peak',
+      confidence: p112Conf,
+      suggestedWidget: 'cohort',
+      suggestedTiming: 'passive',
+      reason: `COMINTEL: ${p112Cohort.length} cohort signal(s) + ${p112Journal.length} journal + ${p112Memory.length} memory + ${p112Intentions.length} intention(s) in 48h. Community signal anchored internally — external engagement driving knowledge capture and direction.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3031,6 +3086,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   temporalAlignmentNode:    ['planner', 'intentions', 'calendar', 'log'],
   creativeOutputNode:       ['journal', 'memory', 'energy', 'log'],
   systemCoherenceNode:      ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'log'],
+
+  // ── Embodied cognition + intention completion + community intelligence nodes (2026-07-06 v87)
+  embodiedCognitionNode:      ['selfcare', 'journal', 'memory', 'log'],
+  intentionCompletionNode:    ['intentions', 'planner', 'goals', 'log'],
+  communityIntelligenceNode:  ['cohort', 'journal', 'memory', 'intentions', 'log'],
 }
 
 /**
@@ -3357,6 +3417,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'journal'],
     patternConditions: ['temporal-alignment-peak', 'planner-intention-sync', 'clarity-momentum-peak'],
     directive: 'Time and intention aligned. Calendar anchors plans in structure. The operator maps the future.',
+  },
+  {
+    archetype: 'Embodied Strategist',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['selfcare', 'journal', 'memory', 'intentions'],
+    patternConditions: ['embodied-cognition-arc', 'vitality-cascade', 'creative-output-peak'],
+    directive: 'Body integrated with mind. Selfcare feeding cognition. Journal and memory active simultaneously. The biological substrate is executing the strategy.',
   },
 ]
 
@@ -4747,5 +4814,48 @@ export function recordFullSystemCoherence(journalCount: number, memoryCount: num
     intentionCount,
     window: '24h',
     arc: 'coherent',
+  })
+}
+
+/**
+ * Record an embodied-cognition-arc signal — selfcare + journal 150+w + memory capture in 24h.
+ * Feeds P110 detection. Body integrated with mind in same window.
+ */
+export function recordEmbodiedCognitionArc(selfcareCount: number, journalWords: number, memoryCount: number) {
+  recordSignal('journal', 'embodied_cognition_arc', {
+    selfcareCount,
+    journalWords,
+    memoryCount,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an intention-completion-loop signal — intention + planner + goal all in 24h.
+ * Feeds P111 detection. Full direction-to-structure-to-outcome arc closed in one day.
+ */
+export function recordIntentionCompletionLoop(intentionCount: number, plannerCount: number, goalCount: number) {
+  recordSignal('intentions', 'intention_completion_loop', {
+    intentionCount,
+    plannerCount,
+    goalCount,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a community-intelligence-peak signal — cohort + journal + memory + intentions in 48h.
+ * Feeds P112 detection. External social signal anchored internally through writing, capture, and direction.
+ */
+export function recordCommunityIntelligencePeak(cohortCount: number, journalCount: number, memoryCount: number, intentionCount: number) {
+  recordSignal('cohort', 'community_intelligence_peak', {
+    cohortCount,
+    journalCount,
+    memoryCount,
+    intentionCount,
+    window: '48h',
+    hour: new Date().getHours(),
   })
 }
