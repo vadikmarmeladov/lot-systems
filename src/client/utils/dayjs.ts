@@ -13,6 +13,7 @@ import dayjsWeekOfYear from 'dayjs/plugin/weekOfYear.js'
 import dayjsIsoWeek from 'dayjs/plugin/isoWeek.js'
 import dayjsAdvancedFormat from 'dayjs/plugin/advancedFormat.js'
 import dayjsDayOfYear from 'dayjs/plugin/dayOfYear.js'
+import dayjsCustomParseFormat from 'dayjs/plugin/customParseFormat.js'
 import { Dayjs as _Dayjs } from 'dayjs'
 
 _dayjs.extend(dayjsUtc)
@@ -21,6 +22,7 @@ _dayjs.extend(dayjsWeekOfYear)
 _dayjs.extend(dayjsIsoWeek)
 _dayjs.extend(dayjsAdvancedFormat)
 _dayjs.extend(dayjsDayOfYear)
+_dayjs.extend(dayjsCustomParseFormat)
 
 export default _dayjs
 export type Dayjs = _Dayjs

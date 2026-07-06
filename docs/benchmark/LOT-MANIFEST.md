@@ -26,7 +26,7 @@ FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | F
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
-Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
+Calendar Alerts  | claude/dreamy-babbage-7l45wn  | (pending)| 7/7   | STAGED | 4     | +458   | Live clock, T-minus countdown, military alert overlay, today panel, reminder pulse (Job 34)
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
@@ -182,15 +182,23 @@ PROTECTED FILES (always restore from master during any branch merge):
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   LOT Mail         | determined-turing-f6bw7r  | +504 lines
   Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
-  Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
+  Calendar Alerts  | claude/dreamy-babbage-7l45wn (STAGED) | +458 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
   COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
 
-NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
-they were incorporated into master in prior sessions. The ship queue will be
-re-populated as new BEST branches are designated from future assembly runs.
-The protocol above applies to all future merges.
+NOTE (2026-06-27, unverified for this row on): this note claimed the above
+branches no longer existed on the remote. That was WRONG for at least
+gifted-lovelace-cZOWR — verified present on origin at hash 978cf52 during the
+2026-07-05 session. Don't trust this note for the remaining rows without
+re-checking `git ls-remote --heads origin` first.
+
+2026-07-05: Calendar Alerts read directly off gifted-lovelace-cZOWR (978cf52),
+hand-ported (not cherry-picked — that branch has no merge-base with master,
+totally unrelated history) onto claude/dreamy-babbage-7l45wn, green-gated
+(tsc + client/server build), and pushed. See LOT-SR-20260705-01.md. Still
+needs an explicit "Ship Calendar Alerts" directive to reach master — this
+session's branch authorization did not extend to master.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.

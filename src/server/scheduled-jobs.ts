@@ -1687,6 +1687,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityCascadePulse()) {
     await executeDailyVitalityCascadePulse()
   }
+  // Check daily calendar reminder pulse (08:00 UTC every day) — Job 34
+  if (shouldRunDailyCalendarReminderPulse()) {
+    await executeDailyCalendarReminderPulse()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -1967,6 +1971,98 @@ async function executeDailyVitalityCascadePulse(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily vitality cascade pulse failed:', error.message)
     isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Calendar Reminder Pulse (Job 34 — 08:00 UTC every day) ────────────
+// Reads calendar_entry logs. Writes a one-time calendar_reminder ('due') when an
+// entry's date is today, and a one-time calendar_reminder ('overdue') the day
+// after an entry's date has passed. Deduplicated per user/date/text/kind so a
+// reminder never fires twice for the same entry.
+
+let isDailyCalendarReminderRunning = false
+let lastDailyCalendarReminderRun: Date | null = null
+
+function shouldRunDailyCalendarReminderPulse(): boolean {
+  const now = dayjs()
+  if (now.hour() !== 8) return false
+  if (isDailyCalendarReminderRunning) return false
+  if (lastDailyCalendarReminderRun) {
+    const lastRun = dayjs(lastDailyCalendarReminderRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeDailyCalendarReminderPulse(): Promise<JobResult> {
+  const jobName = 'daily-calendar-reminder-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyCalendarReminderRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCalendarReminderRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY CALENDAR REMINDER PULSE — 08:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+
+    const todayStr = dayjs().format('YYYY-MM-DD')
+    const yesterdayStr = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+
+    const entryLogs = await (Log as any).findAll({
+      where: { event: 'calendar_entry' },
+      attributes: ['userId', 'metadata'],
+      limit: 5000,
+    })
+
+    const reminderLogs = await (Log as any).findAll({
+      where: { event: 'calendar_reminder' },
+      attributes: ['userId', 'metadata'],
+      limit: 5000,
+    })
+    const alreadyReminded = new Set(
+      reminderLogs.map((l: any) =>
+        `${l.userId}|${l.metadata?.date}|${l.metadata?.text}|${l.metadata?.kind}`
+      )
+    )
+
+    let written = 0
+    for (const log of entryLogs) {
+      try {
+        const userId = (log as any).userId
+        const date = log.metadata?.date as string | undefined
+        const text = (log.metadata?.text as string | undefined) || ''
+        const entryType = (log.metadata?.entryType as string | undefined) || 'note'
+        if (!date || !text) continue
+
+        let kind: 'due' | 'overdue' | null = null
+        if (date === todayStr) kind = 'due'
+        else if (date === yesterdayStr) kind = 'overdue'
+        if (!kind) continue
+
+        const dedupeKey = `${userId}|${date}|${text}|${kind}`
+        if (alreadyReminded.has(dedupeKey)) continue
+
+        await (Log as any).create({
+          userId,
+          event: 'calendar_reminder',
+          text: `[CAL-RMD] ${kind.toUpperCase()}: ${entryType} — ${text}`,
+          metadata: { date, text, entryType, kind },
+        })
+        alreadyReminded.add(dedupeKey)
+        written++
+      } catch {}
+    }
+
+    console.log(`  Calendar reminders written: ${written}`)
+    lastDailyCalendarReminderRun = new Date()
+    isDailyCalendarReminderRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily calendar reminder pulse failed:', error.message)
+    isDailyCalendarReminderRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

@@ -1356,13 +1356,39 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             </LogContainer>
           )
         } else if (log.event === 'calendar_entry') {
-          const entryType = log.metadata?.entryType as string | undefined
+          const text = (log.metadata?.text as string | undefined) || log.text || '—'
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const entryType = (log.metadata?.entryType as string | undefined) || 'note'
+          const dateLabel = date ? dayjs(date).format('ddd D MMM YYYY').toUpperCase() : '—'
+          const isPast = date
+            ? (time
+              ? dayjs(`${date} ${time}`, 'YYYY-MM-DD HH:mm').isBefore(dayjs())
+              : dayjs(date).endOf('day').isBefore(dayjs()))
+            : false
+          const status = isPast ? 'ELAPSED' : 'SCHEDULED'
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+              <Block label={`CAL [${entryType.toUpperCase()}]:`} blockView>
+                <div className="uppercase tracking-widest mb-4">{text}</div>
+                <div className="opacity-60 tabular-nums">
+                  {dateLabel}{time ? ` · ${time}` : ''}
+                </div>
+                <div className="opacity-30 uppercase tracking-widest mt-4">{status}</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_reminder') {
+          const text = log.metadata?.text as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const kind = (log.metadata?.kind as string | undefined) || 'due'
+          const entryType = (log.metadata?.entryType as string | undefined) || 'note'
+          const dateLabel = date ? dayjs(date).format('ddd D MMM YYYY').toUpperCase() : '—'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={`CAL-RMD [${kind.toUpperCase()}]:`} blockView>
+                <div className="uppercase tracking-widest mb-4">{entryType}: {text || 'ENTRY'}</div>
+                <div className="opacity-60 tabular-nums">{dateLabel}</div>
               </Block>
             </LogContainer>
           )

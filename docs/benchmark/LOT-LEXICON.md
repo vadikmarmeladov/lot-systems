@@ -54,4 +54,9 @@ PLANNER-INTENTION-SYNC  QIE P102 — intentions signal + planner signal within 2
 RESILIENCE-CASCADE      QIE P103 — depleted → 2+ selfcare → memory capture + positive mood within 18h; complete restoration arc: breakdown → intervention → capture           B  20260702
 PLANNER-CONTEXT    User's declared daily intention (intent/today/how/feeling) extracted from plan_set log    A  20260630
                    and injected into Memory Engine buildPrompt() so questions follow up on stated focus
+CAL-RMD:           Log block label for calendar_reminder events — CAL-RMD [DUE] / CAL-RMD [OVERDUE];         B  20260705
+                   written once per entry by Job 34 (daily-calendar-reminder-pulse), dedup'd by
+                   userId|date|text|kind so the reminder never repeats
+CAL-STATUS-LADDER  CalendarWidget per-entry live status: EXECUTE (≤15min) → ALERT (≤60min) →                 B  20260705
+                   STANDBY (≤24h) → ELAPSED (past) → null (out of window); drives countdown color/urgency
 ```
