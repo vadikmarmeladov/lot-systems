@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev M
+# LOT-DOCTRINE  rev N
 
 ## Render Isolation
 
@@ -207,3 +207,30 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Environment Verification (Dependency Ground Truth)
+
+`npx tsc --noEmit` returns a clean exit even when the project's own
+`node_modules` is entirely absent — npx silently fetches a standalone
+`typescript` package and type-checks against ambient globals only, producing
+zero errors that mean nothing. Before trusting any CHECK A/B result, confirm
+`node_modules` exists and matches the lockfile (`ls node_modules | wc -l` or a
+known dependency's presence), not just that the check command exited 0. A
+stashed before/after diff of the real error set (with node_modules installed)
+is the only reliable way to confirm a session introduced zero new errors
+against a baseline that is itself imperfect.
+
+Separately: this environment's git remote is reached through a local proxy
+that accepts pushes to the assigned feature branch but rejects arbitrary tag
+refs (`git push origin benchmark-YYYYMMDD-NN` → HTTP 403). `git ls-remote
+--tags origin | grep benchmark` returns zero results despite 60+ prior
+session reports recording `TAG: benchmark-... PUSHED` — the rollback lattice
+described in the pipeline was never actually anchored on the remote in this
+environment. Until tag-push is confirmed working, record VERSION as the
+short commit hash (already the documented fallback in step 00) and treat
+LAST GREEN as the prior report's commit hash, not a tag name.
+(SR-20260706-01: found node_modules missing at session start — first `tsc
+--noEmit` read falsely clean; `npm ci --legacy-peer-deps` installed real
+deps, re-run surfaced 61 pre-existing errors, confirmed unchanged by diffing
+stash before/after. Tag push to origin/benchmark-20260706-00 → 403, deleted
+local tag, proceeded on commit-hash versioning.)

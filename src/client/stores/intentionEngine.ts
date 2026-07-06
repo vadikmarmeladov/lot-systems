@@ -3646,6 +3646,14 @@ export function recordCalendarSignal(entryType: string, date: string) {
 }
 
 /**
+ * Record a calendar entry completion signal — closes the loop on scheduled time.
+ * Distinct signal name from calendar_entry so QIE can tell scheduling from follow-through.
+ */
+export function recordCalendarCompletionSignal(entryType: string) {
+  recordSignal('log', 'calendar_entry_done', { entryType, hour: new Date().getHours() })
+}
+
+/**
  * Record a journal depth signal when a field entry is saved with word count.
  * Feeds Reflection Layer (journal module) density in self-assembly.
  * Deep entries (>100 words) awaken and advance the Reflection Layer faster.

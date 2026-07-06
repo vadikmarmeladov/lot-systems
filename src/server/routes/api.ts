@@ -1106,6 +1106,8 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_arc',
       'planner_intention_sync',
       'resilience_cascade',
+      // v85: calendar entry completion — closes the loop on Calendar widget follow-through
+      'calendar_entry_done',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
