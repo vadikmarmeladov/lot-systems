@@ -481,6 +481,8 @@ export function checkTimeEasterEggs(): BadgeType[] {
     checkAfternoonMirror, checkNavigatorDawn, checkAnswerHourV11, checkPalindromeCheck,
     // v14 — Mission Control Hours
     checkLuckyPair, checkVisionYear, checkBinaryTriple, checkSignalNine,
+    // v15 — Oracle Hours
+    checkFirstCode, checkLeetHour, checkQuadSignal, checkSignalGate,
   ]
   for (const check of checks) {
     const result = check()
@@ -699,6 +701,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('pluto_discovered') && month === 2 && day === 18) {
     awardBadge('pluto_discovered')
     awarded.push('pluto_discovered')
+  }
+
+  // ── Calendar v14 — Oracle Calendar ────────────────────────────────────────
+
+  // Infinity Gate: August 8 — 08/08 double infinity
+  if (!hasBadge('infinity_gate') && month === 8 && day === 8) {
+    awardBadge('infinity_gate')
+    awarded.push('infinity_gate')
+  }
+
+  // Mole Day: October 23 — 6.02 × 10²³ (Avogadro's number)
+  if (!hasBadge('mole_day') && month === 10 && day === 23) {
+    awardBadge('mole_day')
+    awarded.push('mole_day')
+  }
+
+  // World Water Day: March 22 — UN World Water Day
+  if (!hasBadge('world_water_day') && month === 3 && day === 22) {
+    awardBadge('world_water_day')
+    awarded.push('world_water_day')
   }
 
   return awarded
@@ -1160,6 +1182,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bhouston\b/i,                         badge: 'houston_signal' },
   { patterns: /\bgagarin\b/i,                         badge: 'gagarin_echo' },
   { patterns: /pale.?blue.?dot/i,                     badge: 'sagan_protocol' },
+  // ── v15 — The Oracle Archive ─────────────────────────────────────────────
+  { patterns: /\boracle(s)?\b/i,                       badge: 'oracle_consulted' },
+  { patterns: /\brune(s)?\b/i,                         badge: 'rune_detected' },
+  { patterns: /\bprophecy\b|\bprophesy\b/i,             badge: 'prophecy_logged' },
+  { patterns: /\bscroll(s)?\b/i,                       badge: 'scroll_opened' },
+  { patterns: /\bamplif(y|ied|ying|ication)\b/i,        badge: 'signal_amplified' },
+  { patterns: /\brelay(ed|ing|s)?\b/i,                  badge: 'relay_active' },
+  { patterns: /\bencrypt(ed|ing|ion|s)?\b/i,            badge: 'encrypted_entry' },
+  { patterns: /\bpulse(s|d)?\b/i,                      badge: 'pulse_detected' },
+  { patterns: /\bcascade(s|d|ing)?\b/i,                 badge: 'cascade_event' },
+  { patterns: /\bconverge(s|d|nce)?\b|\bconvergence\b/i, badge: 'convergence_point' },
+  { patterns: /\bsync(ed|ing|hronize[ds]?)?\b/i,        badge: 'sync_complete' },
+  { patterns: /\bcalibrat(e|ed|ion|ing)\b/i,            badge: 'calibration_active' },
+  // ── v15 Secret Boss — Hidden Protocol word triggers ──────────────────────────
+  { patterns: /\b42\b/,                                badge: 'the_answer' },
+  { patterns: /\bseldon\b/i,                           badge: 'seldon_plan' },
+  { patterns: /heat.?death/i,                          badge: 'big_crunch' },
 ]
 
 /**
@@ -1226,6 +1265,25 @@ export function getWordTurnResponse(text: string): string | null {
     return '↳ SCORE: XP ACCUMULATING. LEVEL CURRENT. MULTIPLIER ACTIVE.'
   if (/\bhistory\b/.test(lower))
     return '↳ HISTORY LOADED. Last 10 badge unlocks retrievable.'
+  // ── v15 Oracle Archive terminal responses ────────────────────────────────
+  if (/\boracle\b/.test(lower))
+    return '↳ ORACLE ACTIVE. Ask clearly. ◉⊡◉'
+  if (/\b42\b/.test(text))
+    return '↳ THE ANSWER IS 42. ARCHIVE NOTES. ∞·42·∞'
+  if (/\bcalibrate\b/.test(lower))
+    return '↳ CALIBRATING. Precision loading. ▒═▒'
+  if (/\bsync\b/.test(lower))
+    return '↳ SYNC INITIATED. Aligning signal. ═══'
+  if (/\bencrypt\b/.test(lower))
+    return '↳ ▓▓▓ ENCRYPTED. Only you can read this.'
+  if (/\bpulse\b/.test(lower))
+    return '↳ ∘·∘·∘ Heartbeat confirmed.'
+  if (/\bseldon\b/.test(lower))
+    return '↳ THE PLAN IS IN MOTION. ≋·◉·≋'
+  if (/heat.?death/.test(lower))
+    return '↳ Maximum entropy acknowledged. ○→·'
+  if (/\bconverge\b/.test(lower))
+    return '↳ ←◉→ Lines meeting. Archive ready.'
 
   return null
 }
@@ -1584,9 +1642,145 @@ export function runMemoryAnswerEasterEggs(answerText: string): BadgeType[] {
   const midnight = checkMidnightSigil()
   if (midnight) awarded.push(midnight)
 
+  // Behavioral v14: double depth (two 100+ char answers same day)
+  const doubleDepth = checkDoubleDepth(answerText)
+  if (doubleDepth) awarded.push(doubleDepth)
+
   // Word turns from answer text
   const wordTurns = detectWordTurns(answerText)
   awarded.push(...wordTurns)
 
   return awarded
 }
+
+// ── Time Easter Egg v15 — Oracle Hours ───────────────────────────────────────
+
+export function checkFirstCode(): BadgeType | null {
+  if (hasBadge('first_code')) return null
+  const now = new Date()
+  if (now.getHours() === 1 && now.getMinutes() === 1) {
+    awardBadge('first_code')
+    return 'first_code'
+  }
+  return null
+}
+
+export function checkLeetHour(): BadgeType | null {
+  if (hasBadge('leet_hour')) return null
+  const now = new Date()
+  if (now.getHours() === 13 && now.getMinutes() === 37) {
+    awardBadge('leet_hour')
+    return 'leet_hour'
+  }
+  return null
+}
+
+export function checkQuadSignal(): BadgeType | null {
+  if (hasBadge('quad_signal')) return null
+  const now = new Date()
+  if (now.getHours() === 22 && now.getMinutes() === 22) {
+    awardBadge('quad_signal')
+    return 'quad_signal'
+  }
+  return null
+}
+
+export function checkSignalGate(): BadgeType | null {
+  if (hasBadge('signal_gate')) return null
+  const now = new Date()
+  if (now.getHours() === 18 && now.getMinutes() === 18) {
+    awardBadge('signal_gate')
+    return 'signal_gate'
+  }
+  return null
+}
+
+// ── Calendar Easter Egg v14 — Oracle Calendar ─────────────────────────────────
+
+export function checkInfinityGate(): BadgeType | null {
+  if (hasBadge('infinity_gate')) return null
+  const now = new Date()
+  if (now.getMonth() + 1 === 8 && now.getDate() === 8) {
+    awardBadge('infinity_gate')
+    return 'infinity_gate'
+  }
+  return null
+}
+
+export function checkMoleDay(): BadgeType | null {
+  if (hasBadge('mole_day')) return null
+  const now = new Date()
+  if (now.getMonth() + 1 === 10 && now.getDate() === 23) {
+    awardBadge('mole_day')
+    return 'mole_day'
+  }
+  return null
+}
+
+export function checkWorldWaterDay(): BadgeType | null {
+  if (hasBadge('world_water_day')) return null
+  const now = new Date()
+  if (now.getMonth() + 1 === 3 && now.getDate() === 22) {
+    awardBadge('world_water_day')
+    return 'world_water_day'
+  }
+  return null
+}
+
+// ── Behavioral Easter Egg v14 — Oracle Patterns ──────────────────────────────
+
+/**
+ * Check Page One badge: very first journal entry ever on this account.
+ * Call when a journal entry is saved, passing the lifetime journal count (before this entry).
+ */
+export function checkPageOne(lifetimeJournalCountBefore: number): BadgeType | null {
+  if (hasBadge('page_one')) return null
+  if (lifetimeJournalCountBefore === 0) {
+    awardBadge('page_one')
+    return 'page_one'
+  }
+  return null
+}
+
+/**
+ * Check Full Stack Day badge: journal + mood + self-care + memory all in same calendar day.
+ * widgetTypesToday: set of widget types used today (e.g. ['journal','mood','self_care','memory'])
+ */
+export function checkFullStackDay(widgetTypesToday: string[]): BadgeType | null {
+  if (hasBadge('full_stack_day')) return null
+  const required = ['journal', 'mood', 'self_care', 'memory']
+  if (required.every(t => widgetTypesToday.includes(t))) {
+    awardBadge('full_stack_day')
+    return 'full_stack_day'
+  }
+  return null
+}
+
+/**
+ * Check Double Depth badge: two memory answers of 100+ chars each in the same calendar day.
+ * Call when a memory answer is submitted.
+ */
+export function checkDoubleDepth(answerText: string): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('double_depth')) return null
+  if (answerText.length < 100) return null
+
+  try {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const key = 'double_depth_log'
+    const stored = localStorage.getItem(key)
+    const log: Array<{ date: string; len: number }> = stored ? JSON.parse(stored) : []
+
+    log.push({ date: todayStr, len: answerText.length })
+    const todayDeep = log.filter(e => e.date === todayStr && e.len >= 100)
+    localStorage.setItem(key, JSON.stringify(log.slice(-20)))
+
+    if (todayDeep.length >= 2) {
+      awardBadge('double_depth')
+      return 'double_depth'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+

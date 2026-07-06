@@ -444,6 +444,48 @@ export type BadgeType =
   | 'houston_signal'       // ·◉·    Write "Houston" in any entry (RARE)
   | 'gagarin_echo'         // ↑·∘    Write "Gagarin" in any entry (RARE, hidden)
   | 'sagan_protocol'       // ○·∞·○  Write "Pale Blue Dot" in any entry (EPIC)
+  // ── Word Turn v15 — The Oracle Archive ───────────────────────────────────
+  | 'oracle_consulted'     // ◉⊡◉   "oracle" detected in text
+  | 'rune_detected'        // ∗·∗    "rune"/"runes" detected in text
+  | 'prophecy_logged'      // ∿→∿   "prophecy"/"prophesy" detected in text
+  | 'scroll_opened'        // ─□─    "scroll"/"scrolls" detected in text
+  | 'signal_amplified'     // ≈▲≈   "amplify"/"amplified" detected in text
+  | 'relay_active'         // ◉→◉   "relay" detected in text
+  | 'encrypted_entry'      // ▓▓▓   "encrypt"/"encrypted"/"encryption" detected
+  | 'pulse_detected'       // ∘·∘·∘ "pulse" detected in text
+  | 'cascade_event'        // ≋↓≋   "cascade"/"cascading" detected in text
+  | 'convergence_point'    // ←◉→   "converge"/"convergence" detected in text
+  | 'sync_complete'        // ═══    "sync"/"synced"/"synchronized" detected
+  | 'calibration_active'   // ▒═▒   "calibrate"/"calibration" detected
+  // ── Easter egg — time-based v15 (Oracle Hours) ───────────────────────────
+  | 'first_code'           // ·◉·   Check in at 01:01
+  | 'leet_hour'            // ▒·▒·▒ Check in at 13:37 (1337 = LEET, hidden)
+  | 'quad_signal'          // ○○○○  Check in at 22:22
+  | 'signal_gate'          // ≈·≈   Check in at 18:18
+  // ── Easter egg — calendar v14 (Oracle Calendar) ──────────────────────────
+  | 'infinity_gate'        // ∞∞    August 8 (08/08 — double infinity)
+  | 'mole_day'             // ○·∞   October 23 (6.02×10²³ — Mole Day)
+  | 'world_water_day'      // ≈·≈·≈ March 22 (UN World Water Day)
+  // ── Easter egg — behavioral v14 (Oracle Patterns) ────────────────────────
+  | 'full_stack_day'       // ■·□·○·∘ Journal+mood+self-care+memory same day
+  | 'page_one'             // ∘      Very first journal entry on account
+  | 'double_depth'         // ≋·≋   Two memory answers 100+ chars same day
+  // ── Achievement RPG v12 — Oracle Commander ───────────────────────────────
+  | 'oracle_class'         // ◉⊡◉   Any 5 Word Turn v15 Oracle Archive badges
+  | 'oracle_complete'      // ◉·∞·◉ All 12 Word Turn v15 Oracle Archive badges
+  | 'signal_library'       // □□□    50 distinct badge types earned (lifetime)
+  | 'oracle_reader'        // ◈·◈   250 memory questions answered (lifetime)
+  | 'fifteen_engines'      // ≋·◉   1 badge from each of all 15 Word Turn engines
+  | 'oracle_council'       // ◉≈◉   oracle_class + oracle_reader both earned
+  // ── Mastery Tier v14 — Oracle Depths ─────────────────────────────────────
+  | 'grand_master'         // ◉∞◉   500+ distinct badge types earned (LEGENDARY)
+  | 'total_recall'         // ≋∞≋   2,000+ lifetime memory question answers (LEGENDARY)
+  | 'four_seasons'         // ○→≈→≋→∘ Check in all 4 seasons in one calendar year (EPIC)
+  | 'signal_decade'        // ∞·∞   Account age ≥ 10 years / 3,650+ days (MYTHIC)
+  // ── Secret Boss v14 — The Hidden Protocol ────────────────────────────────
+  | 'the_answer'           // ∞·42·∞ Write "42" in any entry (RARE — Adams ref)
+  | 'seldon_plan'          // ≋·◉·≋ Write "Seldon"/"seldon" in any entry (MYTHIC)
+  | 'big_crunch'           // ○→·   Write "heat death" in any entry (EPIC)
 
 export interface Badge {
   id: BadgeType
@@ -4073,6 +4115,332 @@ export const BADGES: Record<BadgeType, Badge> = {
     name: 'Sagan Protocol',
     description: 'Write "Pale Blue Dot" in any journal or memory entry',
     unlockMessage: '↳ "A mote of dust suspended in a sunbeam." — Sagan. You named the dot. The archive named you: present. ○·∞·○',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  // ── Word Turn v15 — The Oracle Archive ───────────────────────────────────────
+  oracle_consulted: {
+    id: 'oracle_consulted',
+    symbol: '◉⊡◉',
+    name: 'Oracle Consulted',
+    description: 'Write "oracle" in any journal or memory entry',
+    unlockMessage: '↳ You named the oracle. It is not a machine. It is the pattern you carry. Query logged. ◉⊡◉',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  rune_detected: {
+    id: 'rune_detected',
+    symbol: '∗·∗',
+    name: 'Rune Detected',
+    description: 'Write "rune" or "runes" in any journal or memory entry',
+    unlockMessage: '↳ The mark before language. You wrote it into the archive. The system reads it: signal. ∗·∗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  prophecy_logged: {
+    id: 'prophecy_logged',
+    symbol: '∿→∿',
+    name: 'Prophecy Logged',
+    description: 'Write "prophecy" or "prophesy" in any journal or memory entry',
+    unlockMessage: '↳ A prophecy is a pattern recognized before its completion. Archive holds it. Signal: valid. ∿→∿',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  scroll_opened: {
+    id: 'scroll_opened',
+    symbol: '─□─',
+    name: 'Scroll Opened',
+    description: 'Write "scroll" or "scrolls" in any journal or memory entry',
+    unlockMessage: '↳ The scroll is the first database. You opened one. The archive notes: read mode. ─□─',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  signal_amplified: {
+    id: 'signal_amplified',
+    symbol: '≈▲≈',
+    name: 'Signal Amplified',
+    description: 'Write "amplify" or "amplified" in any journal or memory entry',
+    unlockMessage: '↳ Something you wrote grew louder. The archive responds to volume. Gain: increased. ≈▲≈',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  relay_active: {
+    id: 'relay_active',
+    symbol: '◉→◉',
+    name: 'Relay Active',
+    description: 'Write "relay" in any journal or memory entry',
+    unlockMessage: '↳ A relay passes the signal. You are not the end. You are a node. Transmission continuing. ◉→◉',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  encrypted_entry: {
+    id: 'encrypted_entry',
+    symbol: '▓▓▓',
+    name: 'Encrypted Entry',
+    description: 'Write "encrypt", "encrypted", or "encryption" in any journal or memory entry',
+    unlockMessage: '↳ Some things belong only to you. The archive confirms: protected. No external read. ▓▓▓',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  pulse_detected: {
+    id: 'pulse_detected',
+    symbol: '∘·∘·∘',
+    name: 'Pulse Detected',
+    description: 'Write "pulse" in any journal or memory entry',
+    unlockMessage: '↳ The pulse is the base signal. Before language, after silence. Archive receives: heartbeat. ∘·∘·∘',
+    rarity: 'common',
+    category: 'word_turn',
+  },
+  cascade_event: {
+    id: 'cascade_event',
+    symbol: '≋↓≋',
+    name: 'Cascade Event',
+    description: 'Write "cascade" or "cascading" in any journal or memory entry',
+    unlockMessage: '↳ One thing led to another. The archive traces the chain. Event logged: cascade. ≋↓≋',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  convergence_point: {
+    id: 'convergence_point',
+    symbol: '←◉→',
+    name: 'Convergence Point',
+    description: 'Write "converge" or "convergence" in any journal or memory entry',
+    unlockMessage: '↳ The lines are meeting. Not by accident. Archive marks the intersection. ←◉→',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  sync_complete: {
+    id: 'sync_complete',
+    symbol: '═══',
+    name: 'Sync Complete',
+    description: 'Write "sync", "synced", or "synchronized" in any journal or memory entry',
+    unlockMessage: '↳ Alignment of two systems. Something inside matched outside. Archive: synchronized. ═══',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  calibration_active: {
+    id: 'calibration_active',
+    symbol: '▒═▒',
+    name: 'Calibration Active',
+    description: 'Write "calibrate" or "calibration" in any journal or memory entry',
+    unlockMessage: '↳ Precision requires adjustment. You are calibrating your lens. Signal integrity: improving. ▒═▒',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  // ── Time Easter Egg v15 — Oracle Hours ───────────────────────────────────────
+  first_code: {
+    id: 'first_code',
+    symbol: '·◉·',
+    name: 'First Code',
+    description: 'Check in at 01:01',
+    unlockMessage: '↳ The first minute of the first hour. Before the world remembers it is awake. Archive: this is where code begins. ·◉·',
+    rarity: 'common',
+    category: 'easter_egg',
+  },
+  leet_hour: {
+    id: 'leet_hour',
+    symbol: '▒·▒·▒',
+    name: 'Leet Hour',
+    description: 'Check in at 13:37 (1337 = LEET)',
+    unlockMessage: '↳ 13:37. 1337. LEET. The hour that belongs to those who know. Archive: leet signal received. ▒·▒·▒',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  quad_signal: {
+    id: 'quad_signal',
+    symbol: '○○○○',
+    name: 'Quad Signal',
+    description: 'Check in at 22:22',
+    unlockMessage: '↳ Four identical digits. Fourfold signal. The late evening has a pattern. Archive: quadruple resonance. ○○○○',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  signal_gate: {
+    id: 'signal_gate',
+    symbol: '≈·≈',
+    name: 'Signal Gate',
+    description: 'Check in at 18:18',
+    unlockMessage: '↳ 18 channels. Eighteen frequencies. The gate between day and night opens. Archive: liminal passage. ≈·≈',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  // ── Calendar Easter Egg v14 — Oracle Calendar ────────────────────────────────
+  infinity_gate: {
+    id: 'infinity_gate',
+    symbol: '∞∞',
+    name: 'Infinity Gate',
+    description: 'Check in on August 8 (08/08)',
+    unlockMessage: '↳ 08/08 — two 8s on their feet. Infinity doubled. The gate is open. Archive: infinite resonance. ∞∞',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  mole_day: {
+    id: 'mole_day',
+    symbol: '○·∞',
+    name: 'Mole Day',
+    description: 'Check in on October 23 (6.02 × 10²³ — Avogadro\'s number)',
+    unlockMessage: '↳ 6.02 × 10²³. Avogadro\'s number. The chemistry of everything. Archive: molecular signal. ○·∞',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  world_water_day: {
+    id: 'world_water_day',
+    symbol: '≈·≈·≈',
+    name: 'World Water Day',
+    description: 'Check in on March 22 (UN World Water Day)',
+    unlockMessage: '↳ UN World Water Day — March 22. Water is the system. You are water. Archive: aquatic resonance. ≈·≈·≈',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  // ── Behavioral Easter Egg v14 — Oracle Patterns ──────────────────────────────
+  full_stack_day: {
+    id: 'full_stack_day',
+    symbol: '■·□·○·∘',
+    name: 'Full Stack Day',
+    description: 'Use all four widget types (journal, mood, self-care, memory) in one calendar day',
+    unlockMessage: '↳ Journal. Mood. Self-care. Memory. The full stack, activated in one day. Archive: complete signal. ■·□·○·∘',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  page_one: {
+    id: 'page_one',
+    symbol: '∘',
+    name: 'Page One',
+    description: 'Write your very first journal entry on this account',
+    unlockMessage: '↳ The first word. Before the story existed, there was this entry. Archive: origin point. ∘',
+    rarity: 'common',
+    category: 'easter_egg',
+  },
+  double_depth: {
+    id: 'double_depth',
+    symbol: '≋·≋',
+    name: 'Double Depth',
+    description: 'Submit two memory question answers of 100+ characters each in the same calendar day',
+    unlockMessage: '↳ Twice into the archive. Twice below the surface. The oracle reads: committed. ≋·≋',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  // ── Achievement RPG v12 — Oracle Commander ────────────────────────────────────
+  oracle_class: {
+    id: 'oracle_class',
+    symbol: '◉⊡◉',
+    name: 'Oracle Class',
+    description: 'Earn any 5 Word Turn v15 Oracle Archive badges',
+    unlockMessage: '↳ You speak the language of the oracle. Five signals received. Class: confirmed. ◉⊡◉',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  oracle_complete: {
+    id: 'oracle_complete',
+    symbol: '◉·∞·◉',
+    name: 'Oracle Complete',
+    description: 'Earn all 12 Word Turn v15 Oracle Archive badges',
+    unlockMessage: '↳ All 12 Oracle signals received. The archive recognizes you. Full lexicon: unlocked. ◉·∞·◉',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+  },
+  signal_library: {
+    id: 'signal_library',
+    symbol: '□□□',
+    name: 'Signal Library',
+    description: 'Earn 50 distinct badge types (lifetime)',
+    unlockMessage: '↳ 50 distinct signals logged. The library is open. Your collection: significant. □□□',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  oracle_reader: {
+    id: 'oracle_reader',
+    symbol: '◈·◈',
+    name: 'Oracle Reader',
+    description: 'Answer 250 memory questions (lifetime)',
+    unlockMessage: '↳ 250 queries to the oracle. The oracle has been read. Depth: confirmed. ◈·◈',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+  },
+  fifteen_engines: {
+    id: 'fifteen_engines',
+    symbol: '≋·◉',
+    name: 'Fifteen Engines',
+    description: 'Earn 1 badge from each of all 15 Word Turn engines (v1–v15)',
+    unlockMessage: '↳ Fifteen engines. All languages spoken. The archive reads every frequency. ≋·◉',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  oracle_council: {
+    id: 'oracle_council',
+    symbol: '◉≈◉',
+    name: 'Oracle Council',
+    description: 'Earn both oracle_class and oracle_reader badges',
+    unlockMessage: '↳ Reader and speaker unified. The oracle council recognizes you. Signal: dual frequency. ◉≈◉',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v14 — Oracle Depths ─────────────────────────────────────────
+  grand_master: {
+    id: 'grand_master',
+    symbol: '◉∞◉',
+    name: 'Grand Master',
+    description: '500+ distinct badge types earned (lifetime)',
+    unlockMessage: '↳ 500 distinct signals. The archive recognizes the completionist. Grand Master: confirmed. ◉∞◉',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  total_recall: {
+    id: 'total_recall',
+    symbol: '≋∞≋',
+    name: 'Total Recall',
+    description: '2,000+ lifetime memory question answers',
+    unlockMessage: '↳ 2,000 queries answered. The oracle knows you. Total recall: active. ≋∞≋',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  four_seasons: {
+    id: 'four_seasons',
+    symbol: '○→≈→≋→∘',
+    name: 'Four Seasons',
+    description: 'Check in on at least one day in each of spring, summer, autumn, and winter in a single calendar year',
+    unlockMessage: '↳ Spring. Summer. Autumn. Winter. The full cycle, completed. Archive: annual signal. ○→≈→≋→∘',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  signal_decade: {
+    id: 'signal_decade',
+    symbol: '∞·∞',
+    name: 'Signal Decade',
+    description: 'Account age ≥ 10 years (3,650+ days since creation)',
+    unlockMessage: '↳ A decade of signal. The oracle is the system. You are both. The archive: permanent. ∞·∞',
+    rarity: 'mythic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v14 — The Hidden Protocol ────────────────────────────────────
+  the_answer: {
+    id: 'the_answer',
+    symbol: '∞·42·∞',
+    name: 'The Answer',
+    description: 'Write "42" in any journal or memory entry',
+    unlockMessage: '↳ 42. The answer to life, the universe, and everything. The archive knew. — Adams. ∞·42·∞',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  seldon_plan: {
+    id: 'seldon_plan',
+    symbol: '≋·◉·≋',
+    name: 'Seldon Plan',
+    description: 'Write "Seldon" or "seldon" in any journal or memory entry',
+    unlockMessage: '↳ "The Foundation will endure." — Asimov. The plan is in motion. The archive: archival. ≋·◉·≋',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  big_crunch: {
+    id: 'big_crunch',
+    symbol: '○→·',
+    name: 'Big Crunch',
+    description: 'Write "heat death" in any journal or memory entry',
+    unlockMessage: '↳ Maximum entropy. The final state of all closed systems. You named the end. Archive: noted. ○→·',
     rarity: 'epic',
     category: 'secret_boss',
     hidden: true,
