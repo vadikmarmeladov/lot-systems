@@ -24,7 +24,9 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
+LOT Mail         | determined-turing-imh6u8*    | e376070d | 1/1   | STAGED | 14    | +556   | Cherry-picked from f6bw7r (verified real, 19f7906e); green-gated
+                 * source: determined-turing-f6bw7r (fa622a25, orig 11/11, +504) — kept, not superseded.
+                   determined-turing-imh6u8 is a session branch, not master — awaiting explicit Ship pass.
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
@@ -180,17 +182,24 @@ PROTECTED FILES (always restore from master during any branch merge):
   docs/benchmark/LOT-MANIFEST.md      — session-managed, never merge from branch
 
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
-  LOT Mail         | determined-turing-f6bw7r  | +504 lines
+  LOT Mail         | determined-turing-imh6u8  | +556 lines (STAGED, see 01, was f6bw7r)
   Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
   COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
 
-NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
-they were incorporated into master in prior sessions. The ship queue will be
-re-populated as new BEST branches are designated from future assembly runs.
-The protocol above applies to all future merges.
+CORRECTION (SR-20260706-01): the "no longer exist on the remote" note below
+was checked for LOT Mail this session via `git ls-remote` + fetch and found
+FALSE — claude/determined-turing-f6bw7r is live on origin, unmerged into
+master. Re-verify the other 5 branches before trusting this note for them;
+do not assume SHIPPED/gone without a fresh `git ls-remote` check.
+
+NOTE (pre-20260706, unverified for branches below LOT Mail): As of
+2026-06-27, the above branches were believed to no longer exist on the
+remote — they were incorporated into master in prior sessions. The ship
+queue will be re-populated as new BEST branches are designated from future
+assembly runs. The protocol above applies to all future merges.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.

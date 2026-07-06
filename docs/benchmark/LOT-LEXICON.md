@@ -54,4 +54,7 @@ PLANNER-INTENTION-SYNC  QIE P102 — intentions signal + planner signal within 2
 RESILIENCE-CASCADE      QIE P103 — depleted → 2+ selfcare → memory capture + positive mood within 18h; complete restoration arc: breakdown → intervention → capture           B  20260702
 PLANNER-CONTEXT    User's declared daily intention (intent/today/how/feeling) extracted from plan_set log    A  20260630
                    and injected into Memory Engine buildPrompt() so questions follow up on stated focus
+LOT MAIL           In-app messaging: /email trigger in Log, LotMail model, Sync Mail tab, recipient          A  20260706
+                   resolved by name across LOT Community; rides the existing Cohort Connect surface rather
+                   than a separate matching system (mentioned 4+ prior reports before this landing)
 ```
