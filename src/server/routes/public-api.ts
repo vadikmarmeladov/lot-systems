@@ -190,16 +190,21 @@ async function checkUsers(): Promise<SystemCheck> {
 async function checkSettings(): Promise<SystemCheck> {
   const start = Date.now()
   try {
-    // Check if User model is available (settings are part of User model)
-    await models.User.findOne()
-
-    // Check if settings page bundle exists
-    const settingsPagePath = path.join(process.cwd(), 'dist/client/js/app.js')
-    if (!fs.existsSync(settingsPagePath)) {
+    const jwtSecret = config.jwt?.secret
+    if (!jwtSecret || jwtSecret.length < 32) {
       return {
         name: 'Settings',
         status: 'error',
-        message: 'Settings page bundle not found',
+        message: 'JWT secret not configured or too weak',
+        duration: Date.now() - start,
+      }
+    }
+
+    if (!config.appName || !config.appHost) {
+      return {
+        name: 'Settings',
+        status: 'error',
+        message: 'App name or host not configured',
         duration: Date.now() - start,
       }
     }
@@ -357,7 +362,8 @@ async function performHealthChecks(): Promise<{
 
   // Determine overall status
   const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  const hasSlow = !hasErrors && checks.some((c) => c.status === 'ok' && (c.duration ?? 0) > 500)
+  const overall = hasErrors ? 'error' : hasSlow ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
@@ -703,7 +709,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 10,
         messages: [
           {

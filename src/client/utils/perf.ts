@@ -64,6 +64,42 @@ export function initPerfObserver(): void {
   } catch {
     // LoAF not supported
   }
+
+  try {
+    const lcpObserver = new PerformanceObserver((list) => {
+      const entries = list.getEntries()
+      const last = entries[entries.length - 1] as any
+      if (last) {
+        const lcp = Math.round(last.startTime)
+        ;(window as any).__LOT_PERF__.lcp = lcp
+        if (lcp > 2500) {
+          console.warn(`[Perf] LCP ${lcp}ms exceeds 2500ms threshold`)
+        }
+      }
+    })
+    lcpObserver.observe({ type: 'largest-contentful-paint', buffered: true } as any)
+  } catch {
+    // LCP not supported
+  }
+
+  try {
+    let cumulativeCLS = 0
+    const clsObserver = new PerformanceObserver((list) => {
+      for (const entry of list.getEntries()) {
+        const e = entry as any
+        if (!e.hadRecentInput) {
+          cumulativeCLS += e.value ?? 0
+          ;(window as any).__LOT_PERF__.cls = Number(cumulativeCLS.toFixed(4))
+          if (cumulativeCLS > 0.1) {
+            console.warn(`[Perf] CLS ${cumulativeCLS.toFixed(4)} exceeds 0.1 threshold`)
+          }
+        }
+      }
+    })
+    clsObserver.observe({ type: 'layout-shift', buffered: true } as any)
+  } catch {
+    // CLS not supported
+  }
 }
 
 export function getPerfEntries(): InteractionEntry[] {

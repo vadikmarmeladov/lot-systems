@@ -108,15 +108,34 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
     return () => clearInterval(interval)
   }, [fetchStatus])
 
-  const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
-    switch (checkStatus) {
-      case 'ok':
-        return '✓'
-      case 'error':
-        return '✕'
-      case 'unknown':
-        return '?'
-    }
+  const getStatusDot = (checkStatus: 'ok' | 'error' | 'unknown') => {
+    const colorMap = { ok: 'bg-green', error: 'bg-red', unknown: 'bg-yellow' }
+    return (
+      <span
+        className={cn(
+          'inline-block w-8 h-8 rounded-full flex-shrink-0',
+          colorMap[checkStatus]
+        )}
+      />
+    )
+  }
+
+  const getStatusLabel = (checkStatus: 'ok' | 'error' | 'unknown') => {
+    const colorMap = { ok: 'text-green', error: 'text-red', unknown: 'text-yellow' }
+    const labelMap = { ok: 'Operational', error: 'Outage', unknown: 'Unknown' }
+    return <span className={colorMap[checkStatus]}>{labelMap[checkStatus]}</span>
+  }
+
+  const getLatencyBadge = (duration: number | undefined) => {
+    if (duration === undefined) return null
+    const color = duration < 100 ? 'text-green' : duration < 500 ? 'text-yellow' : 'text-red'
+    return <span className={cn('text-acc/40', color)}>{duration}ms</span>
+  }
+
+  const overallMeta = {
+    ok: { label: 'All Systems Operational', color: 'text-green', border: 'border-green' },
+    degraded: { label: 'Degraded Performance', color: 'text-yellow', border: 'border-yellow' },
+    error: { label: 'System Issues Detected', color: 'text-red', border: 'border-red' },
   }
 
   const formatDate = (dateString: string) => {
@@ -144,12 +163,12 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       </div>
 
       {loading && !status && (
-        <div className="text-acc/40">Loading...</div>
+        <div className="text-acc/40">Checking systems&hellip;</div>
       )}
 
       {error && !status && (
         <div className="mb-32">
-          <div className="mb-16 text-acc/80">Error: {error}</div>
+          <div className="mb-16 text-red">Error: {error}</div>
           <Button kind="secondary" size="small" onClick={fetchStatus}>
             Retry
           </Button>
@@ -158,38 +177,41 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
       {status && (
         <>
+          <div className={cn(
+            'mb-32 pl-16 border-l-2',
+            overallMeta[status.overall]?.border ?? 'border-acc/40'
+          )}>
+            <div className={cn(
+              'text-acc mb-8',
+              overallMeta[status.overall]?.color
+            )}>
+              {overallMeta[status.overall]?.label ?? status.overall}
+            </div>
+            <div className="text-acc/40">
+              {formatDate(lastUpdate.toISOString())}
+              {status.cached && status.cacheAge !== undefined && (
+                <span> · cached {status.cacheAge}s ago</span>
+              )}
+            </div>
+          </div>
+
           <div className="mb-16">
-            <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
-            </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
-            <Block label="Last updated:" labelClassName="!pl-0" containsSmallButton>
-              <div className="flex items-center gap-x-16">
-                <span>
-                  {formatDate(lastUpdate.toISOString())}
-                  {status.cached && status.cacheAge && (
-                    <span className="text-acc/40">
-                      {' '}(cached {status.cacheAge}s ago)
-                    </span>
-                  )}
-                </span>
-                <Button
-                  kind="secondary"
-                  size="small"
-                  onClick={fetchStatus}
-                  disabled={loading}
-                >
-                  {loading ? 'Refreshing...' : 'Refresh'}
-                </Button>
-              </div>
+            <Block label="Refresh:" labelClassName="!pl-0" containsSmallButton>
+              <Button
+                kind="secondary"
+                size="small"
+                onClick={fetchStatus}
+                disabled={loading}
+              >
+                {loading ? 'Refreshing…' : 'Refresh now'}
+              </Button>
             </Block>
           </div>
 
           <div className="mb-16">
-            <div className="mb-16">System components:</div>
+            <div className="mb-16 text-acc/60">Components</div>
             {status.checks.map((check, index) => (
               <Block
                 key={index}
@@ -198,21 +220,12 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
-                  <span className={cn(
-                    check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
-                  )}>
-                    {check.status === 'ok' ? 'Ok' :
-                     check.status === 'error' ? 'Error' :
-                     'Unknown'}
-                  </span>
-                  {check.duration !== undefined && (
-                    <span className="text-acc/40">({check.duration}ms)</span>
-                  )}
+                  {getStatusDot(check.status)}
+                  {getStatusLabel(check.status)}
+                  {getLatencyBadge(check.duration)}
                 </div>
                 {check.message && (
-                  <div className="text-acc/60 mt-4">{check.message}</div>
+                  <div className="text-red/80 mt-4 text-acc/60">{check.message}</div>
                 )}
               </Block>
             ))}
@@ -220,37 +233,39 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
           {memoryStatus && (
             <div className="mb-16 pt-32 border-t border-acc/20">
-              <div className="mb-16">Memory Prompts (Your Status):</div>
-              <Block label="Current time:" labelClassName="!pl-0">
-                {memoryStatus.currentTime}
-              </Block>
+              <div className="mb-16 text-acc/60">Memory Engine (Your Session)</div>
               <Block label="Time window:" labelClassName="!pl-0">
                 <span className={cn(
-                  memoryStatus.timeWindow === 'OUTSIDE TIME WINDOWS' && 'text-acc/60'
+                  memoryStatus.timeWindow === 'OUTSIDE TIME WINDOWS' ? 'text-acc/40' : 'text-acc'
                 )}>
                   {memoryStatus.timeWindow}
                 </span>
               </Block>
-              <Block label="Day number:" labelClassName="!pl-0">
-                Day {memoryStatus.dayNumber}
+              <Block label="Day:" labelClassName="!pl-0">
+                {memoryStatus.dayNumber}
               </Block>
-              <Block label="Today's quota:" labelClassName="!pl-0">
-                {memoryStatus.promptsShownToday} / {memoryStatus.promptQuotaToday} prompts
+              <Block label="Quota:" labelClassName="!pl-0">
+                {memoryStatus.promptsShownToday} / {memoryStatus.promptQuotaToday}
                 {memoryStatus.remainingToday > 0 && (
-                  <span className="text-acc/60"> ({memoryStatus.remainingToday} remaining)</span>
+                  <span className="text-acc/40"> · {memoryStatus.remainingToday} remaining</span>
                 )}
               </Block>
               <Block label="Next prompt:" labelClassName="!pl-0">
                 <div className="flex items-center gap-x-8">
-                  <span>{memoryStatus.nextPromptAvailable ? '✓' : '✕'}</span>
+                  <span
+                    className={cn(
+                      'inline-block w-8 h-8 rounded-full flex-shrink-0',
+                      memoryStatus.nextPromptAvailable ? 'bg-green' : 'bg-red'
+                    )}
+                  />
                   <span className={cn(
-                    memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/60'
+                    memoryStatus.nextPromptAvailable ? 'text-green' : 'text-acc/60'
                   )}>
-                    {memoryStatus.nextPromptAvailable ? 'Available now' : 'Not available'}
+                    {memoryStatus.nextPromptAvailable ? 'Available' : 'Not available'}
                   </span>
                 </div>
                 {memoryStatus.blockReason && (
-                  <div className="text-acc/60 mt-4">Reason: {memoryStatus.blockReason}</div>
+                  <div className="text-acc/40 mt-4">{memoryStatus.blockReason}</div>
                 )}
               </Block>
             </div>
@@ -258,9 +273,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
           <div className="text-acc/40 pt-32 border-t border-acc/20">
             <div>Build: {formatDate(status.buildDate)}</div>
-            <div className="mt-8">
-              Status checks cached for 2 minutes
-            </div>
+            <div className="mt-8">Auto-refreshes every 2 minutes · checks cached 2 minutes</div>
           </div>
         </>
       )}
