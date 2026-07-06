@@ -668,6 +668,70 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'intention_resonance_window') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const memoryCount    = log.metadata?.memoryCount    as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="IRES:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT 8H: {intentionCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 8H: {memoryCount}</div>
+                )}
+                <div className="opacity-40">MOOD-ANCHOR: CONFIRMED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'deep_care_arc') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const journalCount  = log.metadata?.journalCount  as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DCARE:" blockView>
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 24H: {selfcareCount}</div>
+                )}
+                {journalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">JOURNAL 24H: {journalCount}</div>
+                )}
+                <div className="opacity-40">BODY-MIND: CONCURRENT</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_social_bridge') {
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const cohortCount  = log.metadata?.cohortCount  as number | undefined
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COGBR:" blockView>
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 24H: {memoryCount}</div>
+                )}
+                {cohortCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">COHORT 24H: {cohortCount}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN 24H: {plannerCount}</div>
+                )}
+                <div className="opacity-40">BRIDGE: LIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'energy_check') {
           const level = log.metadata?.level as number | undefined
           const status = log.metadata?.status as string | undefined

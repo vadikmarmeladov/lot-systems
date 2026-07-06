@@ -1687,6 +1687,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityCascadePulse()) {
     await executeDailyVitalityCascadePulse()
   }
+  // Check daily cognitive-social bridge check (16:00 UTC every day) — Job 34
+  if (shouldRunDailyCognitiveSocialBridgeCheck()) {
+    await executeDailyCognitiveSocialBridgeCheck()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -1967,6 +1971,102 @@ async function executeDailyVitalityCascadePulse(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily vitality cascade pulse failed:', error.message)
     isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Cognitive-Social Bridge Check (Job 34 — 16:00 UTC every day) ─────
+// Reads active users. Checks for memory 1+ + cohort 1+ + planner 1+ in 24h.
+// Writes cognitive_social_bridge event. Feeds P109 detection.
+
+let isDailyCognitiveSocialBridgeRunning = false
+let lastDailyCognitiveSocialBridgeRun: Date | null = null
+
+function shouldRunDailyCognitiveSocialBridgeCheck(): boolean {
+  const now = dayjs()
+  if (isDailyCognitiveSocialBridgeRunning) return false
+  if (lastDailyCognitiveSocialBridgeRun) {
+    const lastRun = dayjs(lastDailyCognitiveSocialBridgeRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 16 // 16:00 UTC daily
+}
+
+async function executeDailyCognitiveSocialBridgeCheck(): Promise<JobResult> {
+  const jobName = 'daily-cognitive-social-bridge-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyCognitiveSocialBridgeRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCognitiveSocialBridgeRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY COGNITIVE-SOCIAL BRIDGE CHECK — 16:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    const MEMORY_EVENTS  = ['memory_saved', 'memory_created', 'memory_entry']
+    const COHORT_EVENTS  = ['cohort_viewed', 'connection_accepted', 'message_sent', 'chat_message', 'direct_message_sent']
+    const PLANNER_EVENTS = ['plan_set', 'plan_created', 'plan_updated']
+    const ALL_EVENTS = [...MEMORY_EVENTS, ...COHORT_EVENTS, ...PLANNER_EVENTS]
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: ALL_EVENTS },
+          },
+          attributes: ['event', 'metadata'],
+          limit: 500,
+        })
+
+        const memoryLogs  = recentLogs.filter((l: any) => MEMORY_EVENTS.includes(l.event))
+        const cohortLogs  = recentLogs.filter((l: any) => COHORT_EVENTS.includes(l.event))
+        const plannerLogs = recentLogs.filter((l: any) => PLANNER_EVENTS.includes(l.event))
+
+        if (memoryLogs.length >= 1 && cohortLogs.length >= 1 && plannerLogs.length >= 1) {
+          const confidence = Math.min(
+            0.68 + memoryLogs.length * 0.05 + cohortLogs.length * 0.05 + plannerLogs.length * 0.03,
+            0.85
+          )
+          await (Log as any).create({
+            userId,
+            event: 'cognitive_social_bridge',
+            text: `Cognitive-social bridge: ${memoryLogs.length} memory + ${cohortLogs.length} cohort + ${plannerLogs.length} planner in 24h. Knowledge bridge live.`,
+            metadata: {
+              memoryCount: memoryLogs.length,
+              cohortCount: cohortLogs.length,
+              plannerCount: plannerLogs.length,
+              confidence,
+              window: '24h',
+              hour: 16,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Cognitive-social bridge events written: ${written}`)
+    lastDailyCognitiveSocialBridgeRun = new Date()
+    isDailyCognitiveSocialBridgeRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily cognitive-social bridge check failed:', error.message)
+    isDailyCognitiveSocialBridgeRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4045,6 +4145,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily cross-domain pulse: 7 PM UTC every day (Job 29)')
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
   console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
+  console.log('   - Daily cognitive-social bridge check: 4 PM UTC every day (Job 34)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -4054,7 +4155,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence+vitality-cascade, 16=coherence index+cognitive-social-bridge, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

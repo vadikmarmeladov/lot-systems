@@ -2404,6 +2404,62 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 107: Intention Resonance Window — intentions set + memory capture + emotional check-in within 8h.
+  // Intent anchored to knowledge and state simultaneously: direction is emotionally grounded and captured.
+  // Distinct from P102 (planner-intention-sync, 2h) — P107 requires memory and mood layering over 8h.
+  const p107Cut        = now - 8 * 60 * 60 * 1000
+  const p107Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p107Cut)
+  const p107Memory     = signals.filter(s => s.source === 'memory'     && s.timestamp > p107Cut)
+  const p107Mood       = signals.some(s =>
+    s.source === 'mood' && s.timestamp > p107Cut &&
+    ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled', 'excited', 'grateful'].includes(s.signal)
+  )
+  if (p107Intentions.length >= 1 && p107Memory.length >= 1 && p107Mood) {
+    const p107Conf = Math.min(0.72 + p107Intentions.length * 0.06 + p107Memory.length * 0.04, 0.88)
+    patterns.push({
+      pattern: 'intention-resonance-window',
+      confidence: p107Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `IRES: ${p107Intentions.length} intention(s) + ${p107Memory.length} memory capture(s) + positive mood in 8h. Intent anchored to knowledge and emotional state simultaneously.`,
+    })
+  }
+
+  // Pattern 108: Deep Care Arc — 4+ selfcare completions + journal entry within 24h.
+  // Thoroughness loop: body and mind attended together in the same cycle — not separate tracks.
+  // Complements P104 (vitality-cascade) which requires high energy; P108 fires regardless of energy band.
+  const p108Cut      = now - 24 * 60 * 60 * 1000
+  const p108Selfcare = signals.filter(s => s.source === 'selfcare' && s.timestamp > p108Cut)
+  const p108Journal  = signals.filter(s => s.source === 'journal'  && s.timestamp > p108Cut)
+  if (p108Selfcare.length >= 4 && p108Journal.length >= 1) {
+    const p108Conf = Math.min(0.73 + (p108Selfcare.length - 4) * 0.04 + p108Journal.length * 0.03, 0.89)
+    patterns.push({
+      pattern: 'deep-care-arc',
+      confidence: p108Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `DCARE: ${p108Selfcare.length} selfcare acts + ${p108Journal.length} journal entry in 24h. Body and mind tended together — thoroughness loop confirmed.`,
+    })
+  }
+
+  // Pattern 109: Cognitive-Social Bridge — memory capture + cohort signal + planner entry within 24h.
+  // Learned knowledge is moving outward: personal insight → community → structured action.
+  // The bridge from internal cognition to external contribution is live.
+  const p109Cut     = now - 24 * 60 * 60 * 1000
+  const p109Memory  = signals.filter(s => s.source === 'memory'  && s.timestamp > p109Cut)
+  const p109Cohort  = signals.filter(s => s.source === 'cohort'  && s.timestamp > p109Cut)
+  const p109Planner = signals.filter(s => s.source === 'planner' && s.timestamp > p109Cut)
+  if (p109Memory.length >= 1 && p109Cohort.length >= 1 && p109Planner.length >= 1) {
+    const p109Conf = Math.min(0.68 + p109Memory.length * 0.05 + p109Cohort.length * 0.05 + p109Planner.length * 0.03, 0.85)
+    patterns.push({
+      pattern: 'cognitive-social-bridge',
+      confidence: p109Conf,
+      suggestedWidget: 'cohort',
+      suggestedTiming: 'soon',
+      reason: `COGBR: ${p109Memory.length} memory + ${p109Cohort.length} cohort + ${p109Planner.length} planner in 24h. Knowledge bridge live — insight flowing from self to community to structure.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2967,6 +3023,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   vitalityCascadeNode:      ['energy', 'selfcare', 'mood', 'journal', 'log'],
   socialPresenceArcNode:    ['cohort', 'intentions', 'journal', 'memory', 'log'],
   clarityMomentumNode:      ['planner', 'intentions', 'memory', 'energy', 'log'],
+
+  // ── Intention resonance + deep care arc + cognitive-social bridge nodes (2026-07-06 v85)
+  intentionResonanceNode:    ['intentions', 'memory', 'mood', 'log'],
+  deepCareArcNode:           ['selfcare', 'journal', 'mood', 'log'],
+  cognitiveSocialBridgeNode: ['memory', 'cohort', 'planner', 'log'],
 }
 
 /**
@@ -3286,6 +3347,21 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['cohort', 'intentions', 'journal'],
     patternConditions: ['social-presence-arc', 'accountability-arc', 'social-resonance-arc', 'intention-velocity'],
     directive: 'Social arc live. Community, connection, and direction all confirmed in 48h. The signal is going out. Anchor the response.',
+  },
+  // ── v85 archetypes (2026-07-06)
+  {
+    archetype: 'Integrated Healer',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['selfcare', 'journal', 'mood'],
+    patternConditions: ['deep-care-arc', 'recovery-velocity', 'care-momentum', 'biorhythm-lock'],
+    directive: 'Healing arc confirmed. Body and mind attended together. The integrated care signal is active — protect this cycle.',
+  },
+  {
+    archetype: 'Quantum Bridge Operator',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['memory', 'cohort', 'planner'],
+    patternConditions: ['cognitive-social-bridge', 'accountability-arc', 'social-presence-arc', 'intention-resonance-window'],
+    directive: 'Knowledge is moving outward. Learning shared. Community fed. The bridge is live — keep transmitting.',
   },
 ]
 
@@ -4589,5 +4665,45 @@ export function recordResilienceCascade(selfcareCount: number, memoryCount: numb
     fromBand,
     window: '18h',
     arc: 'complete',
+  })
+}
+
+/**
+ * Record an intention-resonance-window signal — intentions + memory capture + positive mood in 8h.
+ * Feeds P107 detection. Intent anchored to knowledge and emotional state simultaneously.
+ */
+export function recordIntentionResonanceWindow(intentionCount: number, memoryCount: number) {
+  recordSignal('intentions', 'intention_resonance_window', {
+    intentionCount,
+    memoryCount,
+    window: '8h',
+    arc: 'grounded',
+  })
+}
+
+/**
+ * Record a deep-care-arc signal — 4+ selfcare acts + journal entry in 24h.
+ * Feeds P108 detection. Body and mind attended together in one cycle.
+ */
+export function recordDeepCareArc(selfcareCount: number, journalCount: number) {
+  recordSignal('selfcare', 'deep_care_arc', {
+    selfcareCount,
+    journalCount,
+    window: '24h',
+    arc: 'complete',
+  })
+}
+
+/**
+ * Record a cognitive-social-bridge signal — memory + cohort + planner in 24h.
+ * Feeds P109 detection. Knowledge moving from self to community to structure.
+ */
+export function recordCognitiveSocialBridge(memoryCount: number, cohortCount: number, plannerCount: number) {
+  recordSignal('memory', 'cognitive_social_bridge', {
+    memoryCount,
+    cohortCount,
+    plannerCount,
+    window: '24h',
+    bridge: 'live',
   })
 }

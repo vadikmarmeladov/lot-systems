@@ -1102,6 +1102,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '106 patterns · 36 archetypes · 33 background jobs · 106+ handlers · 145+ dep nodes. Vitality, social presence, and cognitive peak — three new arcs confirmed.',
     ],
   },
+  {
+    session: 'QIE v85 — 2026-07-06',
+    date: '2026-07-06',
+    assembled: [
+      'CRITICAL FIX: api.ts displayableEvents — v84 events (vitality_cascade, social_presence_arc, clarity_momentum_peak) added. Backend whitelist gap closed.',
+      'P107 intention-resonance-window: intentions + memory capture + positive mood in 8h. Intent anchored to knowledge and emotional state simultaneously. Conf 0.72–0.88.',
+      'P108 deep-care-arc: 4+ selfcare completions + journal entry in 24h. Body and mind attended together — thoroughness loop. Conf 0.73–0.89.',
+      'P109 cognitive-social-bridge: memory + cohort + planner in 24h. Learned knowledge moving outward — self to community to structure. Conf 0.68–0.85. 109 patterns total.',
+      'Arch37 Integrated Healer: selfcare+journal+mood dominant · deep-care-arc+recovery-velocity+care-momentum+biorhythm-lock. Healing arc confirmed.',
+      'Arch38 Quantum Bridge Operator: memory+cohort+planner dominant · cognitive-social-bridge+accountability-arc+social-presence-arc+intention-resonance-window. Bridge live. 38 archetypes total.',
+      'J34 daily-cognitive-social-bridge-check: 16:00 UTC daily. memory 1+ + cohort 1+ + planner 1+ in 24h → writes cognitive_social_bridge event. 34 background jobs total.',
+      'IRES: DCARE: COGBR: log handlers deployed (COCKPIT-RULE). 109+ handlers total.',
+      'Dep map: 148+ nodes. 3 new: intentionResonanceNode + deepCareArcNode + cognitiveSocialBridgeNode.',
+      'PatternRecognitionWidget: v84 + v85 gap fixed — P104–P109 display names + QOS Trend indicators added.',
+      'PATTERN_DISPLAY: INTENT RESON · DEEP CARE · COG-SOC BRG added to QuantumEngineWidgets.',
+      '109 patterns · 38 archetypes · 34 background jobs · 109+ handlers · 148+ dep nodes. Intent, care, and knowledge bridge — three new arcs confirmed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1139,19 +1157,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-03',
+  date: '2026-07-06',
   message: [
-    'ASSEMBLY RUN — 2026-07-03 · LOT-SR-20260703-01',
-    'P104 vitality-cascade: high energy + 3+ selfcare acts + positive mood + journal in 24h. Proactive peak maintenance. Conf 0.78–0.90.',
-    'P105 social-presence-arc: cohort signal + outreach + intention in 48h. Social dimension fully active. Conf 0.70–0.85.',
-    'P106 clarity-momentum-peak: focused clarity + 2+ plans + 2+ memories + 2+ intentions in 24h. Cognitive peak confirmed. Conf 0.80–0.92. 106 patterns total.',
-    'Arch35 Vitality Architect: selfcare+mood+energy dominant · vitality-cascade+care-momentum+biological-restoration-peak. Sustained vitality confirmed. 35 archetypes.',
-    'Arch36 Social Signal Operator: cohort+intentions+journal dominant · social-presence-arc+accountability-arc+social-resonance-arc. Social arc live. 36 archetypes total.',
-    'J33 daily-vitality-cascade-pulse: 15:00 UTC daily. Reads 24h logs. high energy + 3+ selfcare + positive mood + journal → writes vitality_cascade. 33 background jobs total.',
-    'VITAL-CAS: SOC-ARC: CLAR-PEAK: log handlers deployed (COCKPIT-RULE). 106+ handlers total.',
-    'Dep map: 145+ nodes. 3 new: vitalityCascadeNode + socialPresenceArcNode + clarityMomentumNode.',
-    'PATTERN_DISPLAY: VIT CASCADE · SOC PRES · CLAR PEAK added to QOS widget.',
-    '106 patterns · 36 archetypes · 33 jobs · 106+ handlers · 145+ dep nodes. Vitality, social, cognitive — three new arcs confirmed.',
+    'ASSEMBLY RUN — 2026-07-06 · LOT-SR-20260706-01',
+    'CRITICAL FIX: v84 displayableEvents gap closed — vitality_cascade, social_presence_arc, clarity_momentum_peak now whitelisted in api.ts.',
+    'P107 intention-resonance-window: intent + memory capture + positive mood in 8h. Direction anchored to knowledge and state simultaneously. Conf 0.72–0.88.',
+    'P108 deep-care-arc: 4+ selfcare + journal in 24h. Body and mind attended together — thoroughness loop confirmed. Conf 0.73–0.89.',
+    'P109 cognitive-social-bridge: memory + cohort + planner in 24h. Knowledge bridge live — self to community to structure. Conf 0.68–0.85. 109 patterns total.',
+    'Arch37 Integrated Healer: deep-care-arc+recovery-velocity+care-momentum. Healing arc confirmed.',
+    'Arch38 Quantum Bridge Operator: cognitive-social-bridge+social-presence-arc+intention-resonance-window. Bridge live. 38 archetypes total.',
+    'J34 daily-cognitive-social-bridge-check: 16:00 UTC. memory + cohort + planner in 24h → writes cognitive_social_bridge. 34 jobs total.',
+    'IRES: DCARE: COGBR: log handlers deployed (COCKPIT-RULE). 109+ handlers.',
+    'PatternRecognitionWidget: v84+v85 gap fixed — P104–P109 names + QOS Trend indicators.',
+    '109 patterns · 38 archetypes · 34 jobs · 109+ handlers · 148+ dep nodes. Intent resonance, deep care, knowledge bridge — confirmed.',
     'DEPLOYED.',
   ],
 }

@@ -1106,6 +1106,14 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_arc',
       'planner_intention_sync',
       'resilience_cascade',
+      // v84: vitality cascade · social presence arc · clarity momentum peak (P104/P105/P106)
+      'vitality_cascade',
+      'social_presence_arc',
+      'clarity_momentum_peak',
+      // v85: intention resonance window · deep care arc · cognitive-social bridge (P107/P108/P109)
+      'intention_resonance_window',
+      'deep_care_arc',
+      'cognitive_social_bridge',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

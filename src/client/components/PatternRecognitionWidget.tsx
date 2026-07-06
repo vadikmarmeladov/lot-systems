@@ -133,6 +133,12 @@ export function PatternRecognitionWidget() {
       'quantum-presence-arc':       'Quantum presence arc — all 6 channels active across 48 hours (P101)',
       'planner-intention-sync':     'Planner-intention sync — intentions + plan aligned in 2h window (P102)',
       'resilience-cascade':         'Resilience cascade — depleted → selfcare → capture + positive mood (P103)',
+      'vitality-cascade':           'Vitality cascade — energy high + 3+ selfcare + positive mood + journal (P104)',
+      'social-presence-arc':        'Social presence arc — cohort + outreach + intentions in 48h (P105)',
+      'clarity-momentum-peak':      'Clarity momentum peak — focused clarity + planner + memory + intentions (P106)',
+      'intention-resonance-window': 'Intention resonance window — intent + memory + mood anchored in 8h (P107)',
+      'deep-care-arc':              'Deep care arc — 4+ selfcare acts + journal in 24h (P108)',
+      'cognitive-social-bridge':    'Cognitive-social bridge — memory + cohort + planner in 24h (P109)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -495,6 +501,48 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'resilience-cascade') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Resilience cascade. Recovery + knowledge arc closed.
+                </div>
+              )}
+
+              {/* Vitality cascade — P104 */}
+              {patterns.some(p => p.pattern === 'vitality-cascade') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Vitality cascade. Peak maintenance — all systems tended at full capacity.
+                </div>
+              )}
+
+              {/* Social presence arc — P105 */}
+              {patterns.some(p => p.pattern === 'social-presence-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Social presence arc. Community, outreach, and direction live in 48h.
+                </div>
+              )}
+
+              {/* Clarity momentum peak — P106 */}
+              {patterns.some(p => p.pattern === 'clarity-momentum-peak') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Clarity momentum peak. Direction, structure, and knowledge simultaneously confirmed.
+                </div>
+              )}
+
+              {/* Intention resonance window — P107 */}
+              {patterns.some(p => p.pattern === 'intention-resonance-window') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Intention resonance. Intent anchored to memory and emotional state in 8h.
+                </div>
+              )}
+
+              {/* Deep care arc — P108 */}
+              {patterns.some(p => p.pattern === 'deep-care-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Deep care arc. Body and mind attended together — thoroughness loop confirmed.
+                </div>
+              )}
+
+              {/* Cognitive-social bridge — P109 */}
+              {patterns.some(p => p.pattern === 'cognitive-social-bridge') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Cognitive-social bridge. Knowledge moving from self to community to structure.
                 </div>
               )}
 
