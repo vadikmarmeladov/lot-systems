@@ -614,7 +614,8 @@ export const Settings = React.memo(function SettingsInner() {
             ) : (
               <>
                 <div className="mb-8">
-                  Subscribe to start building your profile and generate your story.
+                  Answer Memory questions over time — the system builds your story from what you share.
+                  Available with Usership.
                 </div>
                 <Link
                   href="https://brand.lot-systems.com"
@@ -622,7 +623,7 @@ export const Settings = React.memo(function SettingsInner() {
                   rel="external"
                   className="underline block"
                 >
-                  Visit brand.lot-systems.com
+                  brand.lot-systems.com
                 </Link>
               </>
             )}
