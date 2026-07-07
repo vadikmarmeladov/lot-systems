@@ -1106,6 +1106,18 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_arc',
       'planner_intention_sync',
       'resilience_cascade',
+      // v84: vitality cascade · social presence arc · clarity momentum peak (P104/P105/P106)
+      'vitality_cascade',
+      'social_presence_arc',
+      'clarity_momentum_peak',
+      // v86: temporal alignment peak · creative output peak · full system coherence (P107/P108/P109)
+      'temporal_alignment_peak',
+      'creative_output_peak',
+      'full_system_coherence',
+      // v87: embodied cognition arc · intention completion loop · community intelligence peak (P110/P111/P112)
+      'embodied_cognition_arc',
+      'intention_completion_loop',
+      'community_intelligence_peak',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

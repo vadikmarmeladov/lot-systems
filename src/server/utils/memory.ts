@@ -950,34 +950,92 @@ Key insights into their daily routines and preferences include:
   }
 }
 
+function capFirst(s: string): string {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1) : s
+}
+
 function composeLocalStory(user: User, answerLogs: Log[]): string {
   const name = user.firstName || 'This person'
+
   const answers = answerLogs
-    .slice(0, 20)
+    .slice(0, 30)
     .map((log) => ({
-      question: (log.metadata.question as string) || '',
-      answer: (log.metadata.answer as string) || '',
+      question: ((log.metadata.question as string) || '').trim(),
+      answer: ((log.metadata.answer as string) || '').trim(),
       date: log.context.timeZone
-        ? dayjs(log.createdAt).tz(log.context.timeZone).format('D MMM YYYY')
-        : dayjs(log.createdAt).format('D MMM YYYY'),
+        ? dayjs(log.createdAt).tz(log.context.timeZone)
+        : dayjs(log.createdAt),
     }))
     .filter((a) => a.question && a.answer)
 
-  if (answers.length === 0) return `${name} has begun their journey. The first questions await.`
+  if (answers.length === 0) {
+    return `${name}. The first questions await. Each answer begins the portrait.`
+  }
 
-  const first = answers[answers.length - 1]
+  // Time span
+  const newest = answers[0].date
+  const oldest = answers[answers.length - 1].date
+  const days = newest.diff(oldest, 'day')
+  const timeSpan =
+    days > 365 ? 'over a year' :
+    days > 60  ? `${Math.round(days / 30)} months` :
+    days > 14  ? `${Math.round(days / 7)} weeks` :
+    days > 0   ? `${days} days` : 'one sitting'
+
+  // Theme detection — assign each answer to the first matching theme
+  const hits = (a: typeof answers[0], kw: string[]) =>
+    kw.some((k) => `${a.question} ${a.answer}`.toLowerCase().includes(k))
+
+  const THEMES: Array<{ label: string; prefix: string; kw: string[] }> = [
+    { label: 'morning', prefix: 'Mornings',   kw: ['morning', 'wake', 'coffee', 'tea', 'breakfast', 'start the day', 'early'] },
+    { label: 'food',    prefix: 'At the table', kw: ['eat', 'meal', 'dinner', 'lunch', 'cook', 'food', 'recipe', 'hungry', 'salmon', 'vegetables', 'fruit'] },
+    { label: 'water',   prefix: 'Water',       kw: ['water', 'drink', 'hydrat', 'glass', 'thirst'] },
+    { label: 'move',    prefix: 'Movement',    kw: ['walk', 'run', 'gym', 'exercise', 'workout', 'stretch', 'yoga', 'swim', 'sport', 'active', 'move'] },
+    { label: 'sleep',   prefix: 'Rest',        kw: ['sleep', 'rest', 'bed', 'night', 'tired', 'dream', 'nap', 'insomnia'] },
+    { label: 'focus',   prefix: 'Focus',       kw: ['work', 'focus', 'productive', 'creat', 'build', 'project', 'goal', 'task', 'energy'] },
+  ]
+
+  const usedIdx = new Set<number>()
+  const insights: string[] = []
+
+  for (const theme of THEMES) {
+    if (insights.length >= 5) break
+    const idx = answers.findIndex((a, i) => !usedIdx.has(i) && hits(a, theme.kw))
+    if (idx === -1) continue
+    usedIdx.add(idx)
+    const a = capFirst(answers[idx].answer.replace(/\.$/, ''))
+    insights.push(`${theme.prefix}: ${a}.`)
+  }
+
+  // Fill remaining slots from uncategorised answers
+  for (let i = 0; i < answers.length && insights.length < 5; i++) {
+    if (usedIdx.has(i)) continue
+    usedIdx.add(i)
+    const entry = answers[i]
+    const q = capFirst(
+      entry.question
+        .replace(/\?$/, '')
+        .replace(/^(What|How|When|Do you|Are you|Have you|Tell me)\s+/i, '')
+    )
+    const a = capFirst(entry.answer.replace(/\.$/, ''))
+    insights.push(`${q}: ${a}.`)
+  }
+
+  // Compose
   const lines: string[] = []
-  lines.push(`${name} — a portrait in ${answers.length} answer${answers.length !== 1 ? 's' : ''}.`)
+  lines.push(`${name}. ${answers.length} answer${answers.length !== 1 ? 's' : ''}, across ${timeSpan}.`)
   lines.push('')
-  for (const a of answers.slice(0, 6)) {
-    lines.push(`– "${a.question}" — ${a.answer}.`)
-  }
-  if (answers.length > 6) {
-    lines.push('')
-    lines.push(`…and ${answers.length - 6} more, woven in since ${first.date}.`)
-  }
+  for (const ins of insights) lines.push(`– ${ins}`)
   lines.push('')
-  lines.push('Each answer sharpens the portrait. The story continues.')
+
+  if (answers.length >= 20) {
+    lines.push('The portrait is clear. The system has been listening.')
+  } else if (answers.length >= 10) {
+    lines.push('The portrait is taking shape. Each answer adds definition.')
+  } else {
+    lines.push('The portrait has begun. More answers, more depth.')
+  }
+
   return lines.join('\n')
 }
 

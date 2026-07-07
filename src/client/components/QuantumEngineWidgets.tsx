@@ -69,6 +69,12 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'vitality-cascade':            'VIT CASCADE',
   'social-presence-arc':         'SOC PRES',
   'clarity-momentum-peak':       'CLAR PEAK',
+  'temporal-alignment-peak':     'TALIGN PEAK',
+  'creative-output-peak':        'CROUT PEAK',
+  'full-system-coherence':       'FSCOHERE',
+  'embodied-cognition-arc':      'EMBCOG ARC',
+  'intention-completion-loop':   'INTCMP LOOP',
+  'community-intelligence-peak': 'COMINTEL',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

@@ -31,6 +31,7 @@ import { TimeWidget } from './TimeWidget'
 import { QuantumRandomWidget } from './QuantumRandomWidget'
 import { MemoryWidget } from './MemoryWidget'
 import { RecipeWidget } from './RecipeWidget'
+import { MonthlyPulseWidget } from './MonthlyPulseWidget'
 import { EmotionalCheckIn } from './EmotionalCheckIn'
 import { SelfCareMoments } from './SelfCareMoments'
 import { IntentionsWidget } from './IntentionsWidget'
@@ -520,6 +521,10 @@ export const System = React.memo(function SystemInner() {
           Christian fasting days the widget gradually degrades from a
           light plant-based snack to water-only rest (see
           #client/utils/fasting.ts). */}
+      <WidgetErrorBoundary name="MonthlyPulse">
+        <MonthlyPulseWidget />
+      </WidgetErrorBoundary>
+
       <WidgetErrorBoundary name="Recipe">
         <RecipeWidget />
       </WidgetErrorBoundary>

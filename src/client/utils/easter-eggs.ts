@@ -481,6 +481,8 @@ export function checkTimeEasterEggs(): BadgeType[] {
     checkAfternoonMirror, checkNavigatorDawn, checkAnswerHourV11, checkPalindromeCheck,
     // v14 — Mission Control Hours
     checkLuckyPair, checkVisionYear, checkBinaryTriple, checkSignalNine,
+    // v15 — Oracle Hours
+    checkFirstCode, checkLeetHour, checkQuadSignal, checkSignalGate,
   ]
   for (const check of checks) {
     const result = check()
@@ -699,6 +701,46 @@ export function checkCalendarEasterEggs(): BadgeType[] {
   if (!hasBadge('pluto_discovered') && month === 2 && day === 18) {
     awardBadge('pluto_discovered')
     awarded.push('pluto_discovered')
+  }
+
+  // ── Calendar v14 — Oracle Calendar ────────────────────────────────────────
+
+  // Infinity Gate: August 8 — 08/08 double infinity
+  if (!hasBadge('infinity_gate') && month === 8 && day === 8) {
+    awardBadge('infinity_gate')
+    awarded.push('infinity_gate')
+  }
+
+  // Mole Day: October 23 — 6.02 × 10²³ (Avogadro's number)
+  if (!hasBadge('mole_day') && month === 10 && day === 23) {
+    awardBadge('mole_day')
+    awarded.push('mole_day')
+  }
+
+  // World Water Day: March 22 — UN World Water Day
+  if (!hasBadge('world_water_day') && month === 3 && day === 22) {
+    awardBadge('world_water_day')
+    awarded.push('world_water_day')
+  }
+
+  // ── Calendar v12 — The Literary Archive ────────────────────────────────────
+
+  // Bard Signal: April 23 — World Book Day / Shakespeare birth & death date
+  if (!hasBadge('bard_signal') && month === 4 && day === 23) {
+    awardBadge('bard_signal')
+    awarded.push('bard_signal')
+  }
+
+  // Autumn Code: September 23 — Autumnal Equinox Signal
+  if (!hasBadge('autumn_code') && month === 9 && day === 23) {
+    awardBadge('autumn_code')
+    awarded.push('autumn_code')
+  }
+
+  // Tranquility Base: July 20 — Apollo 11 landing (variant of moon_landing)
+  if (!hasBadge('tranquility_base') && month === 7 && day === 20) {
+    awardBadge('tranquility_base')
+    awarded.push('tranquility_base')
   }
 
   return awarded
@@ -1160,6 +1202,40 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bhouston\b/i,                         badge: 'houston_signal' },
   { patterns: /\bgagarin\b/i,                         badge: 'gagarin_echo' },
   { patterns: /pale.?blue.?dot/i,                     badge: 'sagan_protocol' },
+  // ── v15 — The Oracle Archive ─────────────────────────────────────────────
+  { patterns: /\boracle(s)?\b/i,                       badge: 'oracle_consulted' },
+  { patterns: /\brune(s)?\b/i,                         badge: 'rune_detected' },
+  { patterns: /\bprophecy\b|\bprophesy\b/i,             badge: 'prophecy_logged' },
+  { patterns: /\bscroll(s)?\b/i,                       badge: 'scroll_opened' },
+  { patterns: /\bamplif(y|ied|ying|ication)\b/i,        badge: 'signal_amplified' },
+  { patterns: /\brelay(ed|ing|s)?\b/i,                  badge: 'relay_active' },
+  { patterns: /\bencrypt(ed|ing|ion|s)?\b/i,            badge: 'encrypted_entry' },
+  { patterns: /\bpulse(s|d)?\b/i,                      badge: 'pulse_detected' },
+  { patterns: /\bcascade(s|d|ing)?\b/i,                 badge: 'cascade_event' },
+  { patterns: /\bconverge(s|d|nce)?\b|\bconvergence\b/i, badge: 'convergence_point' },
+  { patterns: /\bsync(ed|ing|hronize[ds]?)?\b/i,        badge: 'sync_complete' },
+  { patterns: /\bcalibrat(e|ed|ion|ing)\b/i,            badge: 'calibration_active' },
+  // ── v15 Secret Boss — Hidden Protocol word triggers ──────────────────────────
+  { patterns: /\b42\b/,                                badge: 'the_answer' },
+  { patterns: /\bseldon\b/i,                           badge: 'seldon_plan' },
+  { patterns: /heat.?death/i,                          badge: 'big_crunch' },
+  // ── v12 — The Alchemist ────────────────────────────────────────────────────
+  { patterns: /\btransmute(d|s|r)?\b/i,               badge: 'transmutation_event' },
+  { patterns: /\bcrucible(s)?\b/i,                    badge: 'crucible_forged' },
+  { patterns: /\bdistill(ed|s|ing|ation)?\b/i,        badge: 'distillation_complete' },
+  { patterns: /\bcatalyst(s)?\b/i,                    badge: 'catalyst_detected' },
+  { patterns: /\balloy(s|ed|ing)?\b/i,                badge: 'alloy_formed' },
+  { patterns: /\bsublimate(d|s|ing|ion)?\b/i,         badge: 'sublimation_signal' },
+  { patterns: /\bprima\b/i,                            badge: 'prima_materia_word' },
+  { patterns: /\bopus\b/i,                             badge: 'magnum_opus' },
+  { patterns: /\belixir(s)?\b/i,                      badge: 'elixir_found' },
+  { patterns: /\bchrysal(is|id)?\b/i,                 badge: 'chrysalis_state' },
+  { patterns: /\brefine(d|s|r|ment|ments|ing|ry)?\b/i, badge: 'refinement_active' },
+  { patterns: /\banneal(ed|s|ing)?\b/i,               badge: 'annealed' },
+  // ── v12 Secret Boss — The Philosopher's Vault ────────────────────────────
+  { patterns: /philosopher'?s\s+stone/i,               badge: 'philosopher_stone_word' },
+  { patterns: /prima\s+materia/i,                      badge: 'prima_materia_signal_word' },
+  { patterns: /\bouroboros\b/i,                        badge: 'ouroboros' },
 ]
 
 /**
@@ -1226,6 +1302,25 @@ export function getWordTurnResponse(text: string): string | null {
     return '↳ SCORE: XP ACCUMULATING. LEVEL CURRENT. MULTIPLIER ACTIVE.'
   if (/\bhistory\b/.test(lower))
     return '↳ HISTORY LOADED. Last 10 badge unlocks retrievable.'
+  // ── v15 Oracle Archive terminal responses ────────────────────────────────
+  if (/\boracle\b/.test(lower))
+    return '↳ ORACLE ACTIVE. Ask clearly. ◉⊡◉'
+  if (/\b42\b/.test(text))
+    return '↳ THE ANSWER IS 42. ARCHIVE NOTES. ∞·42·∞'
+  if (/\bcalibrate\b/.test(lower))
+    return '↳ CALIBRATING. Precision loading. ▒═▒'
+  if (/\bsync\b/.test(lower))
+    return '↳ SYNC INITIATED. Aligning signal. ═══'
+  if (/\bencrypt\b/.test(lower))
+    return '↳ ▓▓▓ ENCRYPTED. Only you can read this.'
+  if (/\bpulse\b/.test(lower))
+    return '↳ ∘·∘·∘ Heartbeat confirmed.'
+  if (/\bseldon\b/.test(lower))
+    return '↳ THE PLAN IS IN MOTION. ≋·◉·≋'
+  if (/heat.?death/.test(lower))
+    return '↳ Maximum entropy acknowledged. ○→·'
+  if (/\bconverge\b/.test(lower))
+    return '↳ ←◉→ Lines meeting. Archive ready.'
 
   return null
 }
@@ -1561,6 +1656,18 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const answerIsWords = checkTheAnswerIsWords(journalText)
   if (answerIsWords) awarded.push(answerIsWords)
 
+  // Behavioral v12: alchemist session (3+ alchemist words in one entry)
+  const alchemistSession = checkAlchemistSession(journalText)
+  if (alchemistSession) awarded.push(alchemistSession)
+
+  // Behavioral v12: night alchemist (alchemist word after 21:00)
+  const nightAlchemist = checkNightAlchemist(journalText)
+  if (nightAlchemist) awarded.push(nightAlchemist)
+
+  // Behavioral v12: great work sequence (7+ consecutive journal days)
+  const greatWork = checkGreatWorkSequence()
+  if (greatWork) awarded.push(greatWork)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -1584,9 +1691,229 @@ export function runMemoryAnswerEasterEggs(answerText: string): BadgeType[] {
   const midnight = checkMidnightSigil()
   if (midnight) awarded.push(midnight)
 
+  // Behavioral v14: double depth (two 100+ char answers same day)
+  const doubleDepth = checkDoubleDepth(answerText)
+  if (doubleDepth) awarded.push(doubleDepth)
+
   // Word turns from answer text
   const wordTurns = detectWordTurns(answerText)
   awarded.push(...wordTurns)
 
   return awarded
 }
+
+// ── Time Easter Egg v15 — Oracle Hours ───────────────────────────────────────
+
+export function checkFirstCode(): BadgeType | null {
+  if (hasBadge('first_code')) return null
+  const now = new Date()
+  if (now.getHours() === 1 && now.getMinutes() === 1) {
+    awardBadge('first_code')
+    return 'first_code'
+  }
+  return null
+}
+
+export function checkLeetHour(): BadgeType | null {
+  if (hasBadge('leet_hour')) return null
+  const now = new Date()
+  if (now.getHours() === 13 && now.getMinutes() === 37) {
+    awardBadge('leet_hour')
+    return 'leet_hour'
+  }
+  return null
+}
+
+export function checkQuadSignal(): BadgeType | null {
+  if (hasBadge('quad_signal')) return null
+  const now = new Date()
+  if (now.getHours() === 22 && now.getMinutes() === 22) {
+    awardBadge('quad_signal')
+    return 'quad_signal'
+  }
+  return null
+}
+
+export function checkSignalGate(): BadgeType | null {
+  if (hasBadge('signal_gate')) return null
+  const now = new Date()
+  if (now.getHours() === 18 && now.getMinutes() === 18) {
+    awardBadge('signal_gate')
+    return 'signal_gate'
+  }
+  return null
+}
+
+// ── Calendar Easter Egg v14 — Oracle Calendar ─────────────────────────────────
+
+export function checkInfinityGate(): BadgeType | null {
+  if (hasBadge('infinity_gate')) return null
+  const now = new Date()
+  if (now.getMonth() + 1 === 8 && now.getDate() === 8) {
+    awardBadge('infinity_gate')
+    return 'infinity_gate'
+  }
+  return null
+}
+
+export function checkMoleDay(): BadgeType | null {
+  if (hasBadge('mole_day')) return null
+  const now = new Date()
+  if (now.getMonth() + 1 === 10 && now.getDate() === 23) {
+    awardBadge('mole_day')
+    return 'mole_day'
+  }
+  return null
+}
+
+export function checkWorldWaterDay(): BadgeType | null {
+  if (hasBadge('world_water_day')) return null
+  const now = new Date()
+  if (now.getMonth() + 1 === 3 && now.getDate() === 22) {
+    awardBadge('world_water_day')
+    return 'world_water_day'
+  }
+  return null
+}
+
+// ── Behavioral Easter Egg v14 — Oracle Patterns ──────────────────────────────
+
+/**
+ * Check Page One badge: very first journal entry ever on this account.
+ * Call when a journal entry is saved, passing the lifetime journal count (before this entry).
+ */
+export function checkPageOne(lifetimeJournalCountBefore: number): BadgeType | null {
+  if (hasBadge('page_one')) return null
+  if (lifetimeJournalCountBefore === 0) {
+    awardBadge('page_one')
+    return 'page_one'
+  }
+  return null
+}
+
+/**
+ * Check Full Stack Day badge: journal + mood + self-care + memory all in same calendar day.
+ * widgetTypesToday: set of widget types used today (e.g. ['journal','mood','self_care','memory'])
+ */
+export function checkFullStackDay(widgetTypesToday: string[]): BadgeType | null {
+  if (hasBadge('full_stack_day')) return null
+  const required = ['journal', 'mood', 'self_care', 'memory']
+  if (required.every(t => widgetTypesToday.includes(t))) {
+    awardBadge('full_stack_day')
+    return 'full_stack_day'
+  }
+  return null
+}
+
+/**
+ * Check Double Depth badge: two memory answers of 100+ chars each in the same calendar day.
+ * Call when a memory answer is submitted.
+ */
+export function checkDoubleDepth(answerText: string): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('double_depth')) return null
+  if (answerText.length < 100) return null
+
+  try {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const key = 'double_depth_log'
+    const stored = localStorage.getItem(key)
+    const log: Array<{ date: string; len: number }> = stored ? JSON.parse(stored) : []
+
+    log.push({ date: todayStr, len: answerText.length })
+    const todayDeep = log.filter(e => e.date === todayStr && e.len >= 100)
+    localStorage.setItem(key, JSON.stringify(log.slice(-20)))
+
+    if (todayDeep.length >= 2) {
+      awardBadge('double_depth')
+      return 'double_depth'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Behavioral Easter Egg v12 — Alchemist Patterns ───────────────────────────
+
+const ALCHEMIST_WORDS_V12 = [
+  /\btransmute(d|s|r)?\b/i,
+  /\bcrucible(s)?\b/i,
+  /\bdistill(ed|s|ing|ation)?\b/i,
+  /\bcatalyst(s)?\b/i,
+  /\balloy(s|ed|ing)?\b/i,
+  /\bsublimate(d|s|ing|ion)?\b/i,
+  /\bprima\b/i,
+  /\bopus\b/i,
+  /\belixir(s)?\b/i,
+  /\bchrysal(is|id)?\b/i,
+  /\brefine(d|s|r|ment|ments|ing|ry)?\b/i,
+  /\banneal(ed|s|ing)?\b/i,
+]
+
+/**
+ * Award alchemist_session badge if 3+ distinct Alchemist (v12) words appear in one entry.
+ * Call when a journal entry is saved.
+ */
+export function checkAlchemistSession(journalText: string): BadgeType | null {
+  if (hasBadge('alchemist_session')) return null
+  const matchCount = ALCHEMIST_WORDS_V12.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('alchemist_session')
+    return 'alchemist_session'
+  }
+  return null
+}
+
+/**
+ * Award night_alchemist badge if an Alchemist word is used in a journal entry after 21:00.
+ * Call when a journal entry is saved.
+ */
+export function checkNightAlchemist(journalText: string): BadgeType | null {
+  if (hasBadge('night_alchemist')) return null
+  const h = new Date().getHours()
+  if (h < 21) return null
+  const hasAlchemistWord = ALCHEMIST_WORDS_V12.some(r => r.test(journalText))
+  if (hasAlchemistWord) {
+    awardBadge('night_alchemist')
+    return 'night_alchemist'
+  }
+  return null
+}
+
+/**
+ * Award great_work_sequence badge for 7+ consecutive journal days.
+ * Reads the journal_dates localStorage key (array of ISO date strings, deduped per day).
+ * Call when a journal entry is saved.
+ */
+export function checkGreatWorkSequence(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('great_work_sequence')) return null
+
+  try {
+    const stored = localStorage.getItem('journal_dates')
+    if (!stored) return null
+    const raw: string[] = JSON.parse(stored)
+    // Dedupe and sort descending
+    const dates = Array.from(new Set(raw.map(d => d.slice(0, 10)))).sort().reverse()
+    if (dates.length < 7) return null
+
+    let consecutive = 1
+    for (let i = 0; i < dates.length - 1; i++) {
+      const a = new Date(dates[i])
+      const b = new Date(dates[i + 1])
+      const diff = Math.round((a.getTime() - b.getTime()) / (1000 * 60 * 60 * 24))
+      if (diff === 1) {
+        consecutive++
+        if (consecutive >= 7) {
+          awardBadge('great_work_sequence')
+          return 'great_work_sequence'
+        }
+      } else {
+        consecutive = 1
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+

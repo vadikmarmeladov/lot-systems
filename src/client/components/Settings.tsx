@@ -614,7 +614,8 @@ export const Settings = React.memo(function SettingsInner() {
             ) : (
               <>
                 <div className="mb-8">
-                  Subscribe to start building your profile and generate your story.
+                  Answer questions over time and the system builds your portrait from what you share.
+                  Available with LOT Usership — $99/month, 12 months.
                 </div>
                 <Link
                   href="https://brand.lot-systems.com"
@@ -622,7 +623,7 @@ export const Settings = React.memo(function SettingsInner() {
                   rel="external"
                   className="underline block"
                 >
-                  Visit brand.lot-systems.com
+                  brand.lot-systems.com
                 </Link>
               </>
             )}
