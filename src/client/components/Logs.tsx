@@ -1502,11 +1502,40 @@ export const Logs: React.FC = React.memo(function LogsInner() {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
                 <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                {date && <div className="opacity-40 mt-8 tabular-nums">{date}{time ? ` ${time}` : ''}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_entry_complete') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const varianceMinutes = log.metadata?.varianceMinutes as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-X:" blockView>
+                <div className="uppercase tracking-widest">{entryType || 'ENTRY'} CLOSED</div>
+                {varianceMinutes !== undefined && (
+                  <div className="opacity-60 mt-8 tabular-nums">
+                    {varianceMinutes <= 0 ? 'EARLY' : 'LATE'} {Math.abs(varianceMinutes)}M
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_reminder_fired') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const leadMinutes = log.metadata?.leadMinutes as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-RMD:" blockView>
+                <div className="uppercase tracking-widest">{entryType || 'ENTRY'} ALERT</div>
+                {leadMinutes !== undefined && (
+                  <div className="opacity-40 mt-8 tabular-nums">T-{leadMinutes}M</div>
+                )}
               </Block>
             </LogContainer>
           )
