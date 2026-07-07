@@ -28,7 +28,7 @@ LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
-COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
+COSMO Hardware   | brave-lamport-cu64ct         | (pending)| 15/15 | BEST   | 11    | +3073  | COSMO® Cube v2.0 — 19-pt spec reconciled (17/19 CONFIRMED), PDF pipeline + session-compression rule + roadmap risk analysis added
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
 Badge RPG        | cool-hypatia-aqj7dg          | (head)   | 3/3   | BEST   | 4     | +1832  | Badge Codex v12 — 156 badges, character classes, codex markdown
 Self-Assembly v45| pensive-rubin-4jhgF           | 95d47fa  | 5/5   | BEST   | 8     | +677   | Patterns 63-66, Archetype 18, QOS Mode, Background Job 9
@@ -184,7 +184,7 @@ CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
-  COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
+  COSMO Hardware   | brave-lamport-cu64ct        | +3073 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
 
 NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
