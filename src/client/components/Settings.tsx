@@ -614,8 +614,8 @@ export const Settings = React.memo(function SettingsInner() {
             ) : (
               <>
                 <div className="mb-8">
-                  Answer Memory questions over time — the system builds your story from what you share.
-                  Available with Usership.
+                  Answer questions over time and the system builds your portrait from what you share.
+                  Available with LOT Usership — $99/month, 12 months.
                 </div>
                 <Link
                   href="https://brand.lot-systems.com"
