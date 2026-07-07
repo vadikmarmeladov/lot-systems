@@ -27,7 +27,7 @@ FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | F
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
-QI-46 Engine     | cool-tesla-02lw8w            | (session)| 1/1   | READY  | 5     | +387   | Node 1 — Soul Upload + Being Calibration (Layers 1/3/5), real code — see note below
+QI-46 Engine     | cool-tesla-02lw8w            | 3b6e687  | 1/1   | READY  | 5     | +387   | Node 1 — Soul Upload + Being Calibration (Layers 1/3/5), real code — see note below
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
 Badge RPG        | cool-hypatia-aqj7dg          | (head)   | 3/3   | BEST   | 4     | +1832  | Badge Codex v12 — 156 badges, character classes, codex markdown
