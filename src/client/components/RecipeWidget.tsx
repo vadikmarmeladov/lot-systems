@@ -255,7 +255,9 @@ export const RecipeWidget: React.FC = () => {
         hour: new Date().getHours(),
         fastingMode: state.fastingMode,
       })
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[RecipeWidget] recordSignal failed:', e)
+    }
 
     const picked = pickFarewellEntry(
       state.mealTime,
