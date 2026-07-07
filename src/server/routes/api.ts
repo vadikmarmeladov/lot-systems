@@ -5346,6 +5346,106 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
   )
 
   // ============================================================================
+  // QI·46 — SOUL UPLOAD + BEING CALIBRATION
+  // Spec: docs/corporate/LOT_QI46_ENGINE.md (Layer 1 Calibration Loop,
+  // Layer 3 Response Grammar, Layer 5 COSMO® node). The subscriber uploads
+  // a piece of their being (soulText); QI·46 calibrates a humanoid response
+  // (grace, poetry, love, warmth, presence) from that text plus their
+  // recent emotional arc, then screens it through COSMO® before delivery.
+  // ============================================================================
+  fastify.post(
+    '/qi46/soul-upload',
+    { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
+    async (
+      req: FastifyRequest<{
+        Body: { soulText: string }
+      }>,
+      reply
+    ) => {
+      const { soulText } = req.body
+
+      if (!soulText || !soulText.trim()) {
+        return reply.code(400).send({ error: 'soulText is required' })
+      }
+
+      const { computeCalibration, buildCalibratedPrompt, cosmoScreen, COSMO_FALLBACK_RESPONSE } =
+        await import('#server/utils/qi46-engine.js')
+
+      const logs = await fastify.models.Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100,
+      })
+
+      const recentMoods = logs
+        .filter(l => l.event === 'emotional_checkin')
+        .slice(0, 5)
+        .map(l => (l.metadata?.emotionalState as string) || '')
+        .filter(Boolean)
+
+      const calibration = computeCalibration(soulText, recentMoods)
+      const prompt = buildCalibratedPrompt(soulText, calibration, recentMoods)
+      const context = await getLogContext(req.user)
+
+      try {
+        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+        const engine = aiEngineManager.getEngine('together')
+
+        console.log(`QI·46 soul upload for ${req.user.email}: "${soulText.substring(0, 80)}"`)
+
+        const rawResponse = await engine.generateCompletion(prompt, 300)
+        const screen = cosmoScreen(rawResponse)
+        const delivered = screen.cleared ? rawResponse.trim() : COSMO_FALLBACK_RESPONSE
+
+        const soulLog = await fastify.models.Log.create({
+          userId: req.user.id,
+          text: delivered,
+          event: 'soul_upload',
+          context,
+          metadata: {
+            soulText: soulText.substring(0, 1000),
+            calibration,
+            response: delivered,
+            cosmoCleared: screen.cleared,
+            cosmoReason: screen.reason || null,
+            timestamp: new Date().toISOString(),
+          },
+        })
+
+        if (!screen.cleared) {
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            text: rawResponse.substring(0, 1000),
+            event: 'cosmo_audit',
+            context,
+            metadata: {
+              source: 'qi46_soul_upload',
+              reason: screen.reason,
+              heldResponse: rawResponse.substring(0, 1000),
+              timestamp: new Date().toISOString(),
+            },
+          })
+        }
+
+        return {
+          response: delivered,
+          calibration,
+          cosmoCleared: screen.cleared,
+          logId: soulLog.id,
+        }
+      } catch (error: any) {
+        console.error('QI·46 soul upload failed:', error)
+        return {
+          response: COSMO_FALLBACK_RESPONSE,
+          calibration,
+          cosmoCleared: false,
+          logId: null,
+        }
+      }
+    }
+  )
+
+  // ============================================================================
   // STORY — Contextual AI Story
   // Generates a 1-2 paragraph story based on recent logs, self-care events,
   // and widget data. The story reflects the operator's recent journey.

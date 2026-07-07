@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSoulUpload } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -2511,6 +2511,15 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [soulResponse, setSoulResponse] = React.useState<string | null>(null)
+  const [soulCalibration, setSoulCalibration] = React.useState<{
+    grace: number
+    poetry: number
+    love: number
+    warmth: number
+    presence: number
+  } | null>(null)
+  const [soulLoading, setSoulLoading] = React.useState(false)
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -2563,6 +2572,32 @@ const NoteEditor = ({
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
       const updated = current + separator + '📖 ' + fallback
+      setValue(updated)
+      valueRef.current = updated
+      onChangeRef.current(updated)
+      setIsSaved(true)
+    },
+  })
+  const { mutate: submitSoulUpload } = useSoulUpload({
+    onSuccess: (data) => {
+      setSoulResponse(data.response)
+      setSoulCalibration(data.calibration)
+      setSoulLoading(false)
+      const current = valueRef.current
+      const separator = current.trim() ? '\n\n' : ''
+      const updated = current + separator + '🫂 ' + data.response
+      setValue(updated)
+      valueRef.current = updated
+      onChangeRef.current(updated)
+      setIsSaved(true)
+    },
+    onError: () => {
+      const fallback = 'QI·46 is listening. Say that again, in your own words.'
+      setSoulResponse(fallback)
+      setSoulLoading(false)
+      const current = valueRef.current
+      const separator = current.trim() ? '\n\n' : ''
+      const updated = current + separator + '🫂 ' + fallback
       setValue(updated)
       valueRef.current = updated
       onChangeRef.current(updated)
@@ -2762,6 +2797,18 @@ const NoteEditor = ({
             submitPrayer({ logText: value })
           }
         }
+      } else if (trigger === 'soul-upload') {
+        if (!soulLoading) {
+          setSoulLoading(true)
+          setSoulResponse(null)
+          setSoulCalibration(null)
+          try {
+            const soulText = value.replace(/\/soul/i, '').replace(/🫂/g, '').trim()
+            submitSoulUpload({ soulText: soulText || value })
+          } catch {
+            submitSoulUpload({ soulText: value })
+          }
+        }
       } else if (trigger === 'qos-report') {
         try { analyzeIntentions() } catch {}
       } else if (trigger === 'assembly-check') {
@@ -2917,6 +2964,7 @@ const NoteEditor = ({
           '',
           '/prayer       Generate contextual scripture',
           '/story        Generate a personal story from recent data',
+          '/soul         QI·46 Soul Upload + Being Calibration',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -3216,6 +3264,25 @@ const NoteEditor = ({
                   {storyResponse.split('\n').map((line, idx) => (
                     <div key={idx}>{line || <br />}</div>
                   ))}
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {(soulLoading || soulResponse) && (
+          <div className="mt-8">
+            <Block label="🫂 QI·46" blockView>
+              {soulLoading && !soulResponse && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {soulCalibration && (
+                <div className="opacity-50" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12px', letterSpacing: '0.04em', paddingBottom: '6px' }}>
+                  GRACE {soulCalibration.grace} · POETRY {soulCalibration.poetry} · LOVE {soulCalibration.love} · WARMTH {soulCalibration.warmth} · PRESENCE {soulCalibration.presence}
+                </div>
+              )}
+              {soulResponse && (
+                <div className="opacity-70 italic">
+                  {soulResponse}
                 </div>
               )}
             </Block>

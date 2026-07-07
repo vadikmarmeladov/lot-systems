@@ -905,3 +905,23 @@ export const useStoryGeneration = createMutation<
     logId: string | null
   }
 >('post', '/api/story')
+
+// ============================================================================
+// QI·46 — Soul Upload + Being Calibration
+// ============================================================================
+
+export const useSoulUpload = createMutation<
+  { soulText: string },
+  {
+    response: string
+    calibration: {
+      grace: number
+      poetry: number
+      love: number
+      warmth: number
+      presence: number
+    }
+    cosmoCleared: boolean
+    logId: string | null
+  }
+>('post', '/api/qi46/soul-upload')

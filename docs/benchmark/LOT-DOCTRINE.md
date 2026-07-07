@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev M
+# LOT-DOCTRINE  rev N
 
 ## Render Isolation
 
@@ -207,3 +207,45 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Gitignore Anchor Rule
+
+An un-anchored directory-name pattern in .gitignore (e.g. `server/` with no
+leading slash) matches that directory name at ANY depth, not just the repo
+root. `src/server/utils/` collided with a stale `server/` rule meant to
+exclude a legacy top-level compiled-output folder that no longer exists.
+Effect: any NEW file created under `src/server/` was silently invisible to
+`git status` / `git add -A` — already-tracked files were unaffected (git
+does not retroactively untrack), but a fresh file (this session's
+qi46-engine.ts) vanished with no error. Same failure shape as the
+Widget→Memory silent-erasure case above: absence of a case/rule produces
+invisibility, not a diagnostic.
+
+Rule: any .gitignore entry targeting a top-level build/output directory
+must be anchored (`/server/`, not `server/`) so it cannot collide with a
+same-named directory nested under `src/`. Fixed 2026-07-07 (SR-20260707-01).
+
+## QI·46 — Soul Upload + Being Calibration (Layer 1 / 3 / 5)
+
+Spec: docs/corporate/LOT_QI46_ENGINE.md. First working implementation
+(SR-20260707-01) keeps the three layers cleanly separated as pure functions
+in qi46-engine.ts, called from the existing generation-route pattern
+(same shape as /prayer, /story):
+
+1. Calibration (Layer 1) is computed LOCALLY — no AI call — from deliberate
+   input (soul-text keyword scan) blended with passive input (recent
+   emotional_checkin states, most-recent-weighted). Cheap, deterministic,
+   inspectable before a single token of inference is spent.
+2. The calibration vector (grace/poetry/love/warmth/presence) is rendered
+   into tone directives and prepended to the LOT® voice system prompt
+   (Layer 3) — the AI never invents tone, it receives it as instruction.
+3. COSMO® (Layer 5) screens the raw completion AFTER generation, BEFORE
+   delivery — it holds, logs (`cosmo_audit` event), and falls back; it does
+   not block generation itself. Matches the doctrine: COSMO® records, it
+   does not censor upstream.
+
+New Log event types (`soul_upload`, `cosmo_audit`) follow the existing
+loose-string convention (`prayer_scripture`, `plan_set`, etc.) — `Log.event`
+is `string` in the shared type; `LogEvent` is a narrower lookup union used
+only by `MODULE_BY_LOG_EVENT` in the story/memory generators, not a runtime
+validator. New event names need no type-union edit to compile.
