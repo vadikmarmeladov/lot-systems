@@ -1687,6 +1687,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityCascadePulse()) {
     await executeDailyVitalityCascadePulse()
   }
+  // Check daily physiological renewal check (21:00 UTC every day) — Job 34
+  if (shouldRunDailyPhysiologicalRenewalCheck()) {
+    await executeDailyPhysiologicalRenewalCheck()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -1967,6 +1971,110 @@ async function executeDailyVitalityCascadePulse(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily vitality cascade pulse failed:', error.message)
     isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Physiological Renewal Check (Job 34 — 21:00 UTC every day) ───────
+// Reads active users' today-window logs. Detects the full renewal arc:
+// depleted/low energy early in the day → 3+ selfcare acts → moderate/high energy
+// + positive mood signal later in the same day. Writes physiological_renewal_cycle.
+
+let isDailyPhysiologicalRenewalRunning = false
+let lastDailyPhysiologicalRenewalRun: Date | null = null
+
+function shouldRunDailyPhysiologicalRenewalCheck(): boolean {
+  const now = dayjs()
+  if (isDailyPhysiologicalRenewalRunning) return false
+  if (lastDailyPhysiologicalRenewalRun) {
+    const lastRun = dayjs(lastDailyPhysiologicalRenewalRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 21 // 21:00 UTC daily
+}
+
+async function executeDailyPhysiologicalRenewalCheck(): Promise<JobResult> {
+  const jobName = 'daily-physiological-renewal-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyPhysiologicalRenewalRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPhysiologicalRenewalRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PHYSIOLOGICAL RENEWAL CHECK — 21:00 UTC')
+  console.log(`   Started: ${executedAt}`)
+  console.log('─'.repeat(60))
+
+  try {
+    const users = await db.query.users.findMany({ columns: { id: true } })
+    const now = new Date()
+    const todayStart = new Date(now)
+    todayStart.setUTCHours(0, 0, 0, 0)
+    const todayStartMs = todayStart.getTime()
+
+    let written = 0
+
+    for (const user of users) {
+      const todayLogs = await db.query.logs.findMany({
+        where: (l, { and, eq, gte }) => and(eq(l.userId, user.id), gte(l.createdAt, todayStart)),
+        orderBy: (l, { asc }) => [asc(l.createdAt)],
+      })
+
+      const DEPLETED_BANDS = ['depleted', 'low']
+      const RECOVERED_BANDS = ['moderate', 'high']
+      const POSITIVE_MOODS = ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled']
+
+      const energyLogs = todayLogs.filter(l => l.event === 'energy_logged')
+      const selfcareLogs = todayLogs.filter(l => l.event === 'selfcare_logged')
+      const moodLogs = todayLogs.filter(l => l.event === 'mood_logged')
+
+      const depletedStart = energyLogs.find(l => {
+        const band = (l.metadata as any)?.band ?? (l.metadata as any)?.level
+        return typeof band === 'string' && DEPLETED_BANDS.includes(band)
+      })
+      if (!depletedStart) continue
+
+      const selfcareAfterDepletion = selfcareLogs.filter(l => l.createdAt >= depletedStart.createdAt)
+      if (selfcareAfterDepletion.length < 3) continue
+
+      const recoveredEnergy = energyLogs.find(l => {
+        if (l.createdAt <= depletedStart.createdAt) return false
+        const band = (l.metadata as any)?.band ?? (l.metadata as any)?.level
+        return typeof band === 'string' && RECOVERED_BANDS.includes(band)
+      })
+      if (!recoveredEnergy) continue
+
+      const positiveAfterRecovery = moodLogs.some(l => {
+        if (l.createdAt < recoveredEnergy.createdAt) return false
+        const signal = (l.metadata as any)?.signal ?? (l.metadata as any)?.mood
+        return typeof signal === 'string' && POSITIVE_MOODS.includes(signal)
+      })
+      if (!positiveAfterRecovery) continue
+
+      const fromBand = (depletedStart.metadata as any)?.band ?? (depletedStart.metadata as any)?.level ?? 'low'
+      const toBand   = (recoveredEnergy.metadata as any)?.band ?? (recoveredEnergy.metadata as any)?.level ?? 'moderate'
+
+      await db.insert(logs).values({
+        userId: user.id,
+        event: 'physiological_renewal_cycle',
+        metadata: {
+          fromBand,
+          toBand,
+          selfcareCount: selfcareAfterDepletion.length,
+          source: 'daily-physiological-renewal-check',
+        },
+        createdAt: now,
+      })
+      written++
+      console.log(`  [${user.id}] PHYS-RENEW: ${fromBand} → ${toBand}, care-ops ${selfcareAfterDepletion.length}`)
+    }
+
+    console.log(`  Physiological renewal events written: ${written}`)
+    lastDailyPhysiologicalRenewalRun = new Date()
+    isDailyPhysiologicalRenewalRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily physiological renewal check failed:', error.message)
+    isDailyPhysiologicalRenewalRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4045,6 +4153,9 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily cross-domain pulse: 7 PM UTC every day (Job 29)')
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
   console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
+  console.log('   - Daily quantum presence check: 6 PM UTC every day (Job 32)')
+  console.log('   - Daily vitality cascade pulse: 3 PM UTC every day (Job 33)')
+  console.log('   - Daily physiological renewal check: 9 PM UTC every day (Job 34)')
   console.log('')
 
   // Check every hour for scheduled jobs

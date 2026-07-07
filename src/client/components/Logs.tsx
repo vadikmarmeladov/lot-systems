@@ -2434,6 +2434,78 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'physiological_renewal_cycle') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const fromBand      = log.metadata?.fromBand      as string | undefined
+          const toBand        = log.metadata?.toBand        as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PHYS-RENEW:" blockView>
+                {fromBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FROM</span>
+                    <span className="capitalize">{fromBand}</span>
+                  </div>
+                )}
+                {toBand && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TO</span>
+                    <span className="capitalize">{toBand}</span>
+                  </div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE-OPS</span>
+                    <span className="tabular-nums">{selfcareCount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">CYCLE</span>
+                  <span>COMPLETE</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'operator_anchor') {
+          const consecutiveDays = log.metadata?.consecutiveDays as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="OPR-ANCH:" blockView>
+                {consecutiveDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DAYS</span>
+                    <span className="tabular-nums">{consecutiveDays}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">STATUS</span>
+                  <span>ANCHORED</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'integrated_recovery_map') {
+          const fullDays = log.metadata?.fullDays as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INT-RECOV:" blockView>
+                {fullDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FULL-DAYS</span>
+                    <span className="tabular-nums">{fullDays}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">CHANNELS</span>
+                  <span>CARE+NRG+MOOD</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30">MAP</span>
+                  <span>ACTIVE</span>
+                </div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

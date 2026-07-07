@@ -1102,6 +1102,22 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '106 patterns · 36 archetypes · 33 background jobs · 106+ handlers · 145+ dep nodes. Vitality, social presence, and cognitive peak — three new arcs confirmed.',
     ],
   },
+  {
+    date: '2026-07-07',
+    session: 'Self-Assembly Session — v85 / P107–P109 · Arch37 Recovery Architect · J34 Daily Physiological Renewal Check · PHYS-RENEW: OPR-ANCH: INT-RECOV: · Dep Map 148+',
+    assembled: [
+      'intentionEngine.ts: P107 physiological-renewal-cycle — full same-day arc: depleted/low energy → 3+ selfcare acts → moderate/high energy + positive mood. Complete biological renewal confirmed within one day. Conf 0.78–0.92. suggestedWidget: selfcare.',
+      'intentionEngine.ts: P108 operator-anchor — 7+ consecutive calendar days each with at least 1 signal. Commitment confirmed. The anchor holds. Conf 0.72–0.88. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: P109 integrated-recovery-map — selfcare + energy + mood all tracked on 5+ of last 7 days. Full-resolution physiological map active — all three biological channels present across the week. Conf 0.75–0.90. suggestedWidget: systemProgress. 109 patterns total.',
+      'intentionEngine.ts: Arch37 Recovery Architect — energyBands depleted+low+moderate · dominantSources selfcare+energy+mood · patternConditions physiological-renewal-cycle+biological-restoration-peak+recovery-initiation+care-momentum. Directive: Full renewal arc confirmed. Depleted → restored within one day. Protect and repeat this cycle. 37 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: physiologicalRenewalNode (selfcare+energy+mood+log) · operatorAnchorNode (log+intentions+mood+energy+selfcare+journal+memory+planner) · integratedRecoveryNode (selfcare+energy+mood). 148+ dep nodes total.',
+      'Logs.tsx: PHYS-RENEW: handler (physiological_renewal_cycle: FROM/TO energy band + CARE-OPS count + CYCLE COMPLETE). OPR-ANCH: handler (operator_anchor: DAYS consecutive + STATUS ANCHORED). INT-RECOV: handler (integrated_recovery_map: FULL-DAYS + CHANNELS CARE+NRG+MOOD + MAP ACTIVE). COCKPIT-RULE compliant. 109+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — physiological-renewal-cycle (PHYS RENEW) · operator-anchor (OPR ANCHOR) · integrated-recovery-map (INT RECOV).',
+      'scheduled-jobs.ts: J34 daily-physiological-renewal-check — 21:00 UTC daily. Reads today-window logs per user. Detects depleted/low → 3+ selfcare → moderate/high energy + positive mood arc. Writes physiological_renewal_cycle (fromBand+toBand+selfcareCount). 34 background jobs total.',
+      'SystemProgressWidget.tsx: SESSION_REPORTS v85 entry appended. USERSHIP_TRANSMISSION updated to v85.',
+      '109 patterns · 37 archetypes · 34 background jobs · 109+ handlers · 148+ dep nodes. Full renewal arc, operator anchor, integrated recovery — three new physiological arcs confirmed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1139,19 +1155,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-03',
+  date: '2026-07-07',
   message: [
-    'ASSEMBLY RUN — 2026-07-03 · LOT-SR-20260703-01',
-    'P104 vitality-cascade: high energy + 3+ selfcare acts + positive mood + journal in 24h. Proactive peak maintenance. Conf 0.78–0.90.',
-    'P105 social-presence-arc: cohort signal + outreach + intention in 48h. Social dimension fully active. Conf 0.70–0.85.',
-    'P106 clarity-momentum-peak: focused clarity + 2+ plans + 2+ memories + 2+ intentions in 24h. Cognitive peak confirmed. Conf 0.80–0.92. 106 patterns total.',
-    'Arch35 Vitality Architect: selfcare+mood+energy dominant · vitality-cascade+care-momentum+biological-restoration-peak. Sustained vitality confirmed. 35 archetypes.',
-    'Arch36 Social Signal Operator: cohort+intentions+journal dominant · social-presence-arc+accountability-arc+social-resonance-arc. Social arc live. 36 archetypes total.',
-    'J33 daily-vitality-cascade-pulse: 15:00 UTC daily. Reads 24h logs. high energy + 3+ selfcare + positive mood + journal → writes vitality_cascade. 33 background jobs total.',
-    'VITAL-CAS: SOC-ARC: CLAR-PEAK: log handlers deployed (COCKPIT-RULE). 106+ handlers total.',
-    'Dep map: 145+ nodes. 3 new: vitalityCascadeNode + socialPresenceArcNode + clarityMomentumNode.',
-    'PATTERN_DISPLAY: VIT CASCADE · SOC PRES · CLAR PEAK added to QOS widget.',
-    '106 patterns · 36 archetypes · 33 jobs · 106+ handlers · 145+ dep nodes. Vitality, social, cognitive — three new arcs confirmed.',
+    'ASSEMBLY RUN — 2026-07-07 · LOT-SR-20260707-01',
+    'P107 physiological-renewal-cycle: full same-day arc — depleted/low → 3+ selfcare acts → moderate/high energy + positive mood. Complete biological renewal within one day. Conf 0.78–0.92.',
+    'P108 operator-anchor: 7+ consecutive calendar days with 1+ signal. Commitment confirmed. The anchor holds. Conf 0.72–0.88.',
+    'P109 integrated-recovery-map: selfcare + energy + mood all tracked on 5+ of last 7 days. Full-resolution physiological map active. Conf 0.75–0.90. 109 patterns total.',
+    'Arch37 Recovery Architect: selfcare+energy+mood dominant · physiological-renewal-cycle+biological-restoration-peak+recovery-initiation+care-momentum. Full renewal arc confirmed. 37 archetypes total.',
+    'J34 daily-physiological-renewal-check: 21:00 UTC daily. Reads today-window logs per user. Depleted/low → 3+ selfcare → restored energy + positive mood → writes physiological_renewal_cycle. 34 background jobs total.',
+    'PHYS-RENEW: OPR-ANCH: INT-RECOV: log handlers deployed (COCKPIT-RULE). 109+ handlers total.',
+    'Dep map: 148+ nodes. 3 new: physiologicalRenewalNode + operatorAnchorNode + integratedRecoveryNode.',
+    'PATTERN_DISPLAY: PHYS RENEW · OPR ANCHOR · INT RECOV added to QOS widget.',
+    '109 patterns · 37 archetypes · 34 jobs · 109+ handlers · 148+ dep nodes. Full renewal, operator anchor, integrated recovery — three new physiological arcs confirmed.',
     'DEPLOYED.',
   ],
 }

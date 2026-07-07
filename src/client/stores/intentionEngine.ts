@@ -2404,6 +2404,104 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 107: Physiological Renewal Cycle — full same-day arc: depleted/low energy signal →
+  // 3+ selfcare acts → moderate/high energy confirmed, within one calendar day.
+  // Extends P99 (biological-restoration-peak) by requiring a confirmed start state (explicit
+  // depleted/low energy signal) AND a confirmed end state (moderate/high energy signal), both
+  // within the same 24h window. This is the complete renewal loop: drain → replenish → peak.
+  // Distinct from P48 (recovery-velocity, 4h window) and P78 (depletion-recovery-surge, 12h window).
+  // P107 operates on the full-day window and requires explicit energy signals at both endpoints.
+  const p107TodayStart = new Date(now)
+  p107TodayStart.setHours(0, 0, 0, 0)
+  const p107TodayStartMs = p107TodayStart.getTime()
+  const p107TodaySignals = signals.filter(s => s.timestamp >= p107TodayStartMs)
+  const p107DepletedStart = p107TodaySignals.filter(s =>
+    s.source === 'energy' &&
+    ((s.metadata?.level as string | undefined) === 'depleted' || (s.metadata?.level as string | undefined) === 'low' ||
+     (s.metadata?.band  as string | undefined) === 'depleted'  || (s.metadata?.band  as string | undefined) === 'low')
+  )
+  const p107SelfcareActs = p107TodaySignals.filter(s => s.source === 'selfcare')
+  const p107HighEnd = p107TodaySignals.filter(s =>
+    s.source === 'energy' &&
+    ((s.metadata?.level as string | undefined) === 'moderate' || (s.metadata?.level as string | undefined) === 'high' ||
+     (s.metadata?.band  as string | undefined) === 'moderate'  || (s.metadata?.band  as string | undefined) === 'high')
+  )
+  const p107MoodPositive = p107TodaySignals.some(s =>
+    s.source === 'mood' &&
+    ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled'].includes(s.signal)
+  )
+  if (p107DepletedStart.length >= 1 && p107SelfcareActs.length >= 3 && p107HighEnd.length >= 1 && p107MoodPositive) {
+    const p107Conf = Math.min(0.78 + (p107SelfcareActs.length - 3) * 0.04, 0.92)
+    patterns.push({
+      pattern: 'physiological-renewal-cycle',
+      confidence: p107Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `PHYS RENEW: Full renewal arc today — depleted/low → ${p107SelfcareActs.length} selfcare acts → ${p107HighEnd[p107HighEnd.length - 1]?.metadata?.level ?? 'restored'} energy + positive mood. Complete biological cycle within one day.`,
+    })
+  }
+
+  // Pattern 108: Operator Anchor — 7+ consecutive calendar days each with at least 1 signal.
+  // Pure longevity metric: measures commitment across time, not intensity within a session.
+  // The person has shown up every day for a week. Not about depth — about constancy.
+  // Complementary to P80 (signal-momentum-lock: 5+ days with 3+ sources — depth metric).
+  // P108 fires on presence alone: one signal per day, for 7 consecutive days, is enough.
+  // Provides the foundation signal beneath all high-intensity patterns.
+  const p108SevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000
+  const p108WeekSignals = signals.filter(s => s.timestamp > p108SevenDaysAgo)
+  const p108DayMap: Record<string, boolean> = {}
+  p108WeekSignals.forEach(s => {
+    const d = new Date(s.timestamp)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    p108DayMap[ds] = true
+  })
+  const p108ActivatedDays = Object.keys(p108DayMap).length
+  let p108ConsecutiveDays = 0
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now - i * 24 * 60 * 60 * 1000)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    if (p108DayMap[ds]) p108ConsecutiveDays++
+    else break
+  }
+  if (p108ConsecutiveDays >= 7) {
+    patterns.push({
+      pattern: 'operator-anchor',
+      confidence: Math.min(0.72 + (p108ActivatedDays - 7) * 0.08, 0.88),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `OPERATOR ANCHOR: ${p108ConsecutiveDays} consecutive days with 1+ signals. Commitment confirmed — present every day for a week. The anchor holds.`,
+    })
+  }
+
+  // Pattern 109: Integrated Recovery Map — selfcare + energy (direct signal) + mood all active on
+  // 5+ of the last 7 calendar days. Physiological cohort signal: the person is consistently
+  // tracking all three biological channels simultaneously across the week.
+  // Distinct from P93 (daily-rhythm-lock: morning + evening arc, structural) and P72 (biorhythm-lock:
+  // check-in cadence). P109 requires all three physiological layers — body maintenance (selfcare),
+  // body state (energy), and inner state (mood) — to be recorded together on most days.
+  // When the map is complete for 5+ days, the system has a full-resolution physiological picture.
+  const p109SevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000
+  const p109Week = signals.filter(s => s.timestamp > p109SevenDaysAgo)
+  const p109DayBioMap: Record<string, { selfcare: boolean; energy: boolean; mood: boolean }> = {}
+  p109Week.forEach(s => {
+    const d = new Date(s.timestamp)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    if (!p109DayBioMap[ds]) p109DayBioMap[ds] = { selfcare: false, energy: false, mood: false }
+    if (s.source === 'selfcare') p109DayBioMap[ds].selfcare = true
+    if (s.source === 'energy')   p109DayBioMap[ds].energy = true
+    if (s.source === 'mood')     p109DayBioMap[ds].mood = true
+  })
+  const p109FullDays = Object.values(p109DayBioMap).filter(d => d.selfcare && d.energy && d.mood).length
+  if (p109FullDays >= 5) {
+    patterns.push({
+      pattern: 'integrated-recovery-map',
+      confidence: Math.min(0.75 + (p109FullDays - 5) * 0.05, 0.90),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `INT RECOV MAP: Selfcare + energy + mood all tracked on ${p109FullDays} of last 7 days. Full-resolution physiological map active — all three biological channels present across the week.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2967,6 +3065,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   vitalityCascadeNode:      ['energy', 'selfcare', 'mood', 'journal', 'log'],
   socialPresenceArcNode:    ['cohort', 'intentions', 'journal', 'memory', 'log'],
   clarityMomentumNode:      ['planner', 'intentions', 'memory', 'energy', 'log'],
+
+  // ── Physiological renewal + operator anchor + integrated recovery nodes (2026-07-07 v85)
+  physiologicalRenewalNode: ['selfcare', 'energy', 'mood', 'log'],
+  operatorAnchorNode:       ['log', 'intentions', 'mood', 'energy', 'selfcare', 'journal', 'memory', 'planner'],
+  integratedRecoveryNode:   ['selfcare', 'energy', 'mood'],
 }
 
 /**
@@ -3286,6 +3389,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['cohort', 'intentions', 'journal'],
     patternConditions: ['social-presence-arc', 'accountability-arc', 'social-resonance-arc', 'intention-velocity'],
     directive: 'Social arc live. Community, connection, and direction all confirmed in 48h. The signal is going out. Anchor the response.',
+  },
+  {
+    archetype: 'Recovery Architect',
+    energyBands: ['depleted', 'low', 'moderate'],
+    dominantSources: ['selfcare', 'energy', 'mood'],
+    patternConditions: ['physiological-renewal-cycle', 'biological-restoration-peak', 'recovery-initiation', 'care-momentum'],
+    directive: 'Full renewal arc confirmed. Depleted → restored within one day — this is the recovery architecture in action. Protect and repeat this cycle.',
   },
 ]
 
