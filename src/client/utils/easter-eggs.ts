@@ -723,6 +723,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('world_water_day')
   }
 
+  // ── Calendar v12 — The Literary Archive ────────────────────────────────────
+
+  // Bard Signal: April 23 — World Book Day / Shakespeare birth & death date
+  if (!hasBadge('bard_signal') && month === 4 && day === 23) {
+    awardBadge('bard_signal')
+    awarded.push('bard_signal')
+  }
+
+  // Autumn Code: September 23 — Autumnal Equinox Signal
+  if (!hasBadge('autumn_code') && month === 9 && day === 23) {
+    awardBadge('autumn_code')
+    awarded.push('autumn_code')
+  }
+
+  // Tranquility Base: July 20 — Apollo 11 landing (variant of moon_landing)
+  if (!hasBadge('tranquility_base') && month === 7 && day === 20) {
+    awardBadge('tranquility_base')
+    awarded.push('tranquility_base')
+  }
+
   return awarded
 }
 
@@ -1199,6 +1219,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\b42\b/,                                badge: 'the_answer' },
   { patterns: /\bseldon\b/i,                           badge: 'seldon_plan' },
   { patterns: /heat.?death/i,                          badge: 'big_crunch' },
+  // ── v12 — The Alchemist ────────────────────────────────────────────────────
+  { patterns: /\btransmute(d|s|r)?\b/i,               badge: 'transmutation_event' },
+  { patterns: /\bcrucible(s)?\b/i,                    badge: 'crucible_forged' },
+  { patterns: /\bdistill(ed|s|ing|ation)?\b/i,        badge: 'distillation_complete' },
+  { patterns: /\bcatalyst(s)?\b/i,                    badge: 'catalyst_detected' },
+  { patterns: /\balloy(s|ed|ing)?\b/i,                badge: 'alloy_formed' },
+  { patterns: /\bsublimate(d|s|ing|ion)?\b/i,         badge: 'sublimation_signal' },
+  { patterns: /\bprima\b/i,                            badge: 'prima_materia_word' },
+  { patterns: /\bopus\b/i,                             badge: 'magnum_opus' },
+  { patterns: /\belixir(s)?\b/i,                      badge: 'elixir_found' },
+  { patterns: /\bchrysal(is|id)?\b/i,                 badge: 'chrysalis_state' },
+  { patterns: /\brefine(d|s|r|ment|ments|ing|ry)?\b/i, badge: 'refinement_active' },
+  { patterns: /\banneal(ed|s|ing)?\b/i,               badge: 'annealed' },
+  // ── v12 Secret Boss — The Philosopher's Vault ────────────────────────────
+  { patterns: /philosopher'?s\s+stone/i,               badge: 'philosopher_stone_word' },
+  { patterns: /prima\s+materia/i,                      badge: 'prima_materia_signal_word' },
+  { patterns: /\bouroboros\b/i,                        badge: 'ouroboros' },
 ]
 
 /**
@@ -1619,6 +1656,18 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const answerIsWords = checkTheAnswerIsWords(journalText)
   if (answerIsWords) awarded.push(answerIsWords)
 
+  // Behavioral v12: alchemist session (3+ alchemist words in one entry)
+  const alchemistSession = checkAlchemistSession(journalText)
+  if (alchemistSession) awarded.push(alchemistSession)
+
+  // Behavioral v12: night alchemist (alchemist word after 21:00)
+  const nightAlchemist = checkNightAlchemist(journalText)
+  if (nightAlchemist) awarded.push(nightAlchemist)
+
+  // Behavioral v12: great work sequence (7+ consecutive journal days)
+  const greatWork = checkGreatWorkSequence()
+  if (greatWork) awarded.push(greatWork)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -1778,6 +1827,90 @@ export function checkDoubleDepth(answerText: string): BadgeType | null {
     if (todayDeep.length >= 2) {
       awardBadge('double_depth')
       return 'double_depth'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Behavioral Easter Egg v12 — Alchemist Patterns ───────────────────────────
+
+const ALCHEMIST_WORDS_V12 = [
+  /\btransmute(d|s|r)?\b/i,
+  /\bcrucible(s)?\b/i,
+  /\bdistill(ed|s|ing|ation)?\b/i,
+  /\bcatalyst(s)?\b/i,
+  /\balloy(s|ed|ing)?\b/i,
+  /\bsublimate(d|s|ing|ion)?\b/i,
+  /\bprima\b/i,
+  /\bopus\b/i,
+  /\belixir(s)?\b/i,
+  /\bchrysal(is|id)?\b/i,
+  /\brefine(d|s|r|ment|ments|ing|ry)?\b/i,
+  /\banneal(ed|s|ing)?\b/i,
+]
+
+/**
+ * Award alchemist_session badge if 3+ distinct Alchemist (v12) words appear in one entry.
+ * Call when a journal entry is saved.
+ */
+export function checkAlchemistSession(journalText: string): BadgeType | null {
+  if (hasBadge('alchemist_session')) return null
+  const matchCount = ALCHEMIST_WORDS_V12.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('alchemist_session')
+    return 'alchemist_session'
+  }
+  return null
+}
+
+/**
+ * Award night_alchemist badge if an Alchemist word is used in a journal entry after 21:00.
+ * Call when a journal entry is saved.
+ */
+export function checkNightAlchemist(journalText: string): BadgeType | null {
+  if (hasBadge('night_alchemist')) return null
+  const h = new Date().getHours()
+  if (h < 21) return null
+  const hasAlchemistWord = ALCHEMIST_WORDS_V12.some(r => r.test(journalText))
+  if (hasAlchemistWord) {
+    awardBadge('night_alchemist')
+    return 'night_alchemist'
+  }
+  return null
+}
+
+/**
+ * Award great_work_sequence badge for 7+ consecutive journal days.
+ * Reads the journal_dates localStorage key (array of ISO date strings, deduped per day).
+ * Call when a journal entry is saved.
+ */
+export function checkGreatWorkSequence(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('great_work_sequence')) return null
+
+  try {
+    const stored = localStorage.getItem('journal_dates')
+    if (!stored) return null
+    const raw: string[] = JSON.parse(stored)
+    // Dedupe and sort descending
+    const dates = Array.from(new Set(raw.map(d => d.slice(0, 10)))).sort().reverse()
+    if (dates.length < 7) return null
+
+    let consecutive = 1
+    for (let i = 0; i < dates.length - 1; i++) {
+      const a = new Date(dates[i])
+      const b = new Date(dates[i + 1])
+      const diff = Math.round((a.getTime() - b.getTime()) / (1000 * 60 * 60 * 24))
+      if (diff === 1) {
+        consecutive++
+        if (consecutive >= 7) {
+          awardBadge('great_work_sequence')
+          return 'great_work_sequence'
+        }
+      } else {
+        consecutive = 1
+      }
     }
   } catch { /* non-critical */ }
 

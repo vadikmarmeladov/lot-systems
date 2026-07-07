@@ -486,6 +486,43 @@ export type BadgeType =
   | 'the_answer'           // ∞·42·∞ Write "42" in any entry (RARE — Adams ref)
   | 'seldon_plan'          // ≋·◉·≋ Write "Seldon"/"seldon" in any entry (MYTHIC)
   | 'big_crunch'           // ○→·   Write "heat death" in any entry (EPIC)
+  // ── Word Turn v12 — The Alchemist ────────────────────────────────────────────
+  | 'transmutation_event'      // ∴→∘  "transmute" detected in text
+  | 'crucible_forged'          // ≋·■  "crucible" detected in text
+  | 'distillation_complete'    // ∘↓∘  "distill/distillation" detected in text
+  | 'catalyst_detected'        // ○→≋  "catalyst" detected in text
+  | 'alloy_formed'             // ─∘─  "alloy" detected in text
+  | 'sublimation_signal'       // ∘↑∞  "sublimate/sublimation" detected in text
+  | 'prima_materia_word'       // ◉··  "prima" detected in text
+  | 'magnum_opus'              // ∞·∞  "opus" detected in text
+  | 'elixir_found'             // ∘∿∘  "elixir" detected in text
+  | 'chrysalis_state'          // ○→◉  "chrysalis" detected in text
+  | 'refinement_active'        // ≋·≈  "refine/refinement" detected in text
+  | 'annealed'                 // ─■─  "anneal/annealed" detected in text
+  // ── Easter egg — calendar v12 (The Literary Archive) ──────────────────────
+  | 'bard_signal'              // ≈·≈  April 23 — World Book Day / Shakespeare
+  | 'autumn_code'              // ○→∘  September 23 — Autumnal Signal
+  | 'tranquility_base'         // ○·∗  July 20 — Tranquility Base variant
+  // ── Easter egg — behavioral v12 (Alchemist Patterns) ──────────────────────
+  | 'alchemist_session'        // ∴·≋  3+ Alchemist words in one journal entry
+  | 'great_work_sequence'      // ≋·≋  7+ consecutive journal days
+  | 'night_alchemist'          // ∘·■  Alchemist word in journal entry after 21:00
+  // ── Achievement RPG v13 — Alchemist Class ─────────────────────────────────
+  | 'alchemist_entry'          // ∘→∘  Any 1 Word Turn v12 (Alchemist) badge
+  | 'alchemist_class'          // ≈→≈  Any 5 Word Turn v12 (Alchemist) badges
+  | 'alchemist_complete'       // ≋→≋  All 12 Word Turn v12 (Alchemist) badges
+  | 'philosopher_stone_arch'   // ◉·∞  alchemist_complete + all 3 Calendar v12 badges
+  | 'twelve_engines_arc'       // ◈·◈  1 badge from each of Word Turn v1–v12
+  | 'opus_magnum_badge'        // ∞·◉·∞ alchemist_complete + great_work_sequence
+  // ── Mastery Tier v15 — The Philosopher's Stone ────────────────────────────
+  | 'prima_materia_keeper'     // ◉··  300+ distinct calendar days with check-in (EPIC)
+  | 'masterwork'               // ∞·≋  20,000+ total journal words (LEGENDARY)
+  | 'crucible_keeper_age'      // ≋≋·  Account age ≥ 4 years (LEGENDARY)
+  | 'thirteen_tongues'         // ◈·≋  1 badge from each of all 13 Word Turn engines (COSMIC)
+  // ── Secret Boss v12 — The Philosopher's Vault ─────────────────────────────
+  | 'philosopher_stone_word'   // ≋·◉  Write "philosopher's stone" in journal (RARE)
+  | 'prima_materia_signal_word'// ◉··∞ Write "prima materia" in journal (EPIC)
+  | 'ouroboros'                // ○→○  Write "ouroboros" in journal (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -4445,6 +4482,312 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v12 — The Alchemist ─────────────────────────────────────────────
+  transmutation_event: {
+    id: 'transmutation_event',
+    symbol: '∴→∘',
+    name: 'Transmutation Event',
+    description: 'Write "transmute" in a journal or memory entry',
+    unlockMessage: '↳ Something becomes something else. The work of transformation: documented. ∴→∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  crucible_forged: {
+    id: 'crucible_forged',
+    symbol: '≋·■',
+    name: 'Crucible Forged',
+    description: 'Write "crucible" in a journal or memory entry',
+    unlockMessage: '↳ The crucible holds what cannot be held any other way. Heat. Pressure. The only path. ≋·■',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  distillation_complete: {
+    id: 'distillation_complete',
+    symbol: '∘↓∘',
+    name: 'Distillation Complete',
+    description: 'Write "distill" or "distillation" in a journal or memory entry',
+    unlockMessage: '↳ What remains after distillation is the essence. You identified it. ∘↓∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  catalyst_detected: {
+    id: 'catalyst_detected',
+    symbol: '○→≋',
+    name: 'Catalyst Detected',
+    description: 'Write "catalyst" in a journal or memory entry',
+    unlockMessage: '↳ The agent that changes everything without being changed. You named the trigger. ○→≋',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  alloy_formed: {
+    id: 'alloy_formed',
+    symbol: '─∘─',
+    name: 'Alloy Formed',
+    description: 'Write "alloy" in a journal or memory entry',
+    unlockMessage: '↳ Two elements. One substance. The combination becomes the thing. ─∘─',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  sublimation_signal: {
+    id: 'sublimation_signal',
+    symbol: '∘↑∞',
+    name: 'Sublimation Signal',
+    description: 'Write "sublimate" or "sublimation" in a journal or memory entry',
+    unlockMessage: '↳ Solid to vapor — no liquid stage required. Direct transformation. Archive: received. ∘↑∞',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  prima_materia_word: {
+    id: 'prima_materia_word',
+    symbol: '◉··',
+    name: 'Prima Materia',
+    description: 'Write "prima" in a journal or memory entry',
+    unlockMessage: '↳ Prima materia — the first matter. The raw substance before form. You returned to the origin. ◉··',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  magnum_opus: {
+    id: 'magnum_opus',
+    symbol: '∞·∞',
+    name: 'Magnum Opus',
+    description: 'Write "opus" in a journal or memory entry',
+    unlockMessage: '↳ The great work. The alchemist\'s goal was never gold — it was completion. The archive marks yours. ∞·∞',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  elixir_found: {
+    id: 'elixir_found',
+    symbol: '∘∿∘',
+    name: 'Elixir Found',
+    description: 'Write "elixir" in a journal or memory entry',
+    unlockMessage: '↳ The solution has been prepared. The elixir is not a potion — it is a state. ∘∿∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  chrysalis_state: {
+    id: 'chrysalis_state',
+    symbol: '○→◉',
+    name: 'Chrysalis State',
+    description: 'Write "chrysalis" in a journal or memory entry',
+    unlockMessage: '↳ You are inside the change. The chrysalis is not death — it is reorganization. Archive: mid-transform. ○→◉',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  refinement_active: {
+    id: 'refinement_active',
+    symbol: '≋·≈',
+    name: 'Refinement Active',
+    description: 'Write "refine" or "refinement" in a journal or memory entry',
+    unlockMessage: '↳ The impurities leave. What remains is the core. Refinement: ongoing. ≋·≈',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  annealed: {
+    id: 'annealed',
+    symbol: '─■─',
+    name: 'Annealed',
+    description: 'Write "anneal" or "annealed" in a journal or memory entry',
+    unlockMessage: '↳ Heat then slow cooling. Molecular structure relaxes into strength. You used the word. ─■─',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: true,
+  },
+  // ── Calendar v12 — The Literary Archive ───────────────────────────────────────
+  bard_signal: {
+    id: 'bard_signal',
+    symbol: '≈·≈',
+    name: 'Bard Signal',
+    description: 'Check in on April 23 — World Book Day / Shakespeare\'s birth and death day',
+    unlockMessage: '↳ April 23: Shakespeare was born and died on this day. Words outlast everything. Archive: received. ≈·≈',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  autumn_code: {
+    id: 'autumn_code',
+    symbol: '○→∘',
+    name: 'Autumn Code',
+    description: 'Check in on September 23 — Autumnal archive signal',
+    unlockMessage: '↳ September 23. The light shifts. The system marks the turning. Archive: autumn protocol. ○→∘',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  tranquility_base: {
+    id: 'tranquility_base',
+    symbol: '○·∗',
+    name: 'Tranquility Base',
+    description: 'Check in on July 20 — "The Eagle has landed" signal',
+    unlockMessage: '↳ "Tranquility Base here — the Eagle has landed." July 20, 1969. A footprint that never blew away. ○·∗',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  // ── Behavioral v12 — Alchemist Patterns ───────────────────────────────────────
+  alchemist_session: {
+    id: 'alchemist_session',
+    symbol: '∴·≋',
+    name: 'Alchemist Session',
+    description: 'Journal entry containing 3+ distinct v12 Alchemist word-turn triggers',
+    unlockMessage: '↳ Three transmutations in one entry. The Alchemist\'s session: documented. Archive marks the density. ∴·≋',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  great_work_sequence: {
+    id: 'great_work_sequence',
+    symbol: '≋·≋',
+    name: 'Great Work Sequence',
+    description: '7 consecutive days with at least one journal entry',
+    unlockMessage: '↳ Seven days. The great work requires patience. The archive: sequence confirmed. ≋·≋',
+    rarity: 'rare',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  night_alchemist: {
+    id: 'night_alchemist',
+    symbol: '∘·■',
+    name: 'Night Alchemist',
+    description: 'Write an Alchemist word (v12) in a journal entry submitted after 21:00',
+    unlockMessage: '↳ The alchemist worked at night. The furnace burns in the dark. After 21:00. Archive: noted. ∘·■',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+    hidden: true,
+  },
+  // ── Achievement RPG v13 — Alchemist Class ─────────────────────────────────────
+  alchemist_entry: {
+    id: 'alchemist_entry',
+    symbol: '∘→∘',
+    name: 'Alchemist Entry',
+    description: 'Earn any 1 Word Turn v12 (Alchemist) badge',
+    unlockMessage: '↳ The first element transmuted. Entry confirmed: Alchemist class begun. ∘→∘',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  alchemist_class: {
+    id: 'alchemist_class',
+    symbol: '≈→≈',
+    name: 'Alchemist Class',
+    description: 'Earn any 5 Word Turn v12 (Alchemist) badges',
+    unlockMessage: '↳ Five transmutations recorded. The class advances. Archive: Alchemist — operative. ≈→≈',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  alchemist_complete: {
+    id: 'alchemist_complete',
+    symbol: '≋→≋',
+    name: 'Alchemist Complete',
+    description: 'Earn all 12 Word Turn v12 (Alchemist) badges',
+    unlockMessage: '↳ All 12 transmutations documented. The great work complete. Alchemist: mastered. ≋→≋',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  philosopher_stone_arch: {
+    id: 'philosopher_stone_arch',
+    symbol: '◉·∞',
+    name: 'Stone Protocol',
+    description: 'Earn alchemist_complete and all 3 Calendar v12 (Literary Archive) badges',
+    unlockMessage: '↳ The stone is not a stone — it is completion. Archive: transformation cycle closed. ◉·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  twelve_engines_arc: {
+    id: 'twelve_engines_arc',
+    symbol: '◈·◈',
+    name: 'Twelve Engines Arc',
+    description: 'Earn at least 1 badge from each of Word Turn engines v1–v12',
+    unlockMessage: '↳ Twelve vocabularies. Twelve systems traversed. The operator speaks twelve dialects. ◈·◈',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  opus_magnum_badge: {
+    id: 'opus_magnum_badge',
+    symbol: '∞·◉·∞',
+    name: 'Opus Magnum',
+    description: 'Earn alchemist_complete AND great_work_sequence',
+    unlockMessage: '↳ The great work requires both transmutation and duration. You delivered both. Opus: complete. ∞·◉·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v15 — The Philosopher's Stone ───────────────────────────────
+  prima_materia_keeper: {
+    id: 'prima_materia_keeper',
+    symbol: '◉··',
+    name: 'Prima Materia Keeper',
+    description: '300+ distinct calendar days with any check-in (lifetime)',
+    unlockMessage: '↳ 300 distinct days. The prima materia of the archive is your presence — irreducible. ◉··',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  masterwork: {
+    id: 'masterwork',
+    symbol: '∞·≋',
+    name: 'Masterwork',
+    description: '20,000+ total journal words (lifetime)',
+    unlockMessage: '↳ Twenty thousand words written. The opus is real. The archive has weight now. ∞·≋',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  crucible_keeper_age: {
+    id: 'crucible_keeper_age',
+    symbol: '≋≋·',
+    name: 'Crucible Keeper',
+    description: 'Account age ≥ 4 years (1,460+ days since creation)',
+    unlockMessage: '↳ Four years in the crucible. Sustained heat. What remains is what was always there. ≋≋·',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  thirteen_tongues: {
+    id: 'thirteen_tongues',
+    symbol: '◈·≋',
+    name: 'Thirteen Tongues',
+    description: 'Earn at least 1 badge from each of all 13 Word Turn engines (v1–v13)',
+    unlockMessage: '↳ Thirteen vocabularies. The archive speaks every dialect you do. ◈·≋',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v12 — The Philosopher's Vault ──────────────────────────────
+  philosopher_stone_word: {
+    id: 'philosopher_stone_word',
+    symbol: '≋·◉',
+    name: "Philosopher's Stone",
+    description: 'Write "philosopher\'s stone" in any journal or memory entry',
+    unlockMessage: '↳ The philosopher\'s stone was never about gold. It was about completion of the self. ≋·◉',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  prima_materia_signal_word: {
+    id: 'prima_materia_signal_word',
+    symbol: '◉··∞',
+    name: 'Prima Materia Signal',
+    description: 'Write "prima materia" in any journal or memory entry',
+    unlockMessage: '↳ Prima materia — the undifferentiated substance before form. You named the beginning. ◉··∞',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  ouroboros: {
+    id: 'ouroboros',
+    symbol: '○→○',
+    name: 'Ouroboros',
+    description: 'Write "ouroboros" in any journal or memory entry',
+    unlockMessage: '↳ The serpent eating its own tail. Infinity and return. You named the cycle. ○→○',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -4859,6 +5202,99 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
       if (yearsElapsed >= 5 && !hasBadge('five_years')) {
         if (awardBadge('five_years')) newBadges.push('five_years')
       }
+      // Mastery v15: crucible_keeper_age — 4+ years
+      if (yearsElapsed >= 4 && !hasBadge('crucible_keeper_age')) {
+        if (awardBadge('crucible_keeper_age')) newBadges.push('crucible_keeper_age')
+      }
+    }
+
+    // Achievement RPG v13 — Alchemist Class
+    const alchemistV12Badges: BadgeType[] = [
+      'transmutation_event', 'crucible_forged', 'distillation_complete', 'catalyst_detected',
+      'alloy_formed', 'sublimation_signal', 'prima_materia_word', 'magnum_opus',
+      'elixir_found', 'chrysalis_state', 'refinement_active', 'annealed',
+    ]
+    const alchemistEarned = alchemistV12Badges.filter(b => hasBadge(b))
+    if (alchemistEarned.length >= 1 && !hasBadge('alchemist_entry')) {
+      if (awardBadge('alchemist_entry')) newBadges.push('alchemist_entry')
+    }
+    if (alchemistEarned.length >= 5 && !hasBadge('alchemist_class')) {
+      if (awardBadge('alchemist_class')) newBadges.push('alchemist_class')
+    }
+    const alchemistComplete = alchemistEarned.length >= 12
+    if (alchemistComplete && !hasBadge('alchemist_complete')) {
+      if (awardBadge('alchemist_complete')) newBadges.push('alchemist_complete')
+    }
+
+    // opus_magnum_badge: alchemist_complete + great_work_sequence
+    if (alchemistComplete && hasBadge('great_work_sequence') && !hasBadge('opus_magnum_badge')) {
+      if (awardBadge('opus_magnum_badge')) newBadges.push('opus_magnum_badge')
+    }
+
+    // philosopher_stone_arch: alchemist_complete + all 3 Calendar v12 badges
+    const calendarV12Badges: BadgeType[] = ['bard_signal', 'autumn_code', 'tranquility_base']
+    if (alchemistComplete && calendarV12Badges.every(b => hasBadge(b)) && !hasBadge('philosopher_stone_arch')) {
+      if (awardBadge('philosopher_stone_arch')) newBadges.push('philosopher_stone_arch')
+    }
+
+    // twelve_engines_arc: at least 1 badge from each of Word Turn engines v1–v12
+    const engineRepresentatives: BadgeType[] = [
+      'ritual_keeper',         // v1
+      'reboot_sequence',       // v2
+      'ocean_wave',            // v3
+      'dead_reckoning_word',   // v11 (navigator)
+      'launch_confirmed',      // v14 (starship)
+      'transmutation_event',   // v12 (alchemist)
+    ]
+    // Full check across all 12 engines using category detection
+    const wordTurnBadges = getEarnedBadges().filter(id => BADGES[id]?.category === 'word_turn')
+    // Badge IDs that represent each engine presence (representative first badge per engine)
+    const engineOnePresent    = ['ritual_keeper','breath_anchor','ocean_wave','lot_signal','cosmo_detected'].some(b => hasBadge(b as BadgeType))
+    const engineTwoPresent    = ['reboot_sequence','glitch_detected','quantum_state','neural_link','cosmo_detected'].some(b => hasBadge(b as BadgeType))
+    const engineThreePresent  = ['drift_mode','anchor_found','tide_keeper','deep_dive','shore_call'].some(b => hasBadge(b as BadgeType))
+    const engineFourPresent   = ['dream_sequence','echo_chamber','void_walker','static_cleared','signal_lost'].some(b => hasBadge(b as BadgeType))
+    const engineFivePresent   = ['solar_flare','lunar_cycle','stellar_drift','nova_burst','cosmic_ray'].some(b => hasBadge(b as BadgeType))
+    const engineSixPresent    = ['debug_mode','stack_overflow','merge_conflict','deploy_complete','rollback_initiated'].some(b => hasBadge(b as BadgeType))
+    const engineSevenPresent  = ['morning_mission','sustained_transmission','rapid_orbit'].some(b => hasBadge(b as BadgeType))
+    const engineEightPresent  = ['beacon_active','signal_burst','frequency_locked'].some(b => hasBadge(b as BadgeType))
+    const engineNinePresent   = ['path_finder','waypoint_reached','compass_true'].some(b => hasBadge(b as BadgeType))
+    const engineTenPresent    = ['code_complete','runtime_stable','system_clear'].some(b => hasBadge(b as BadgeType))
+    const engineElevenPresent = ['dead_reckoning_word','terra_incognita','true_north'].some(b => hasBadge(b as BadgeType))
+    const engineTwelvePresent = alchemistEarned.length >= 1
+
+    const allTwelveEngines = [
+      engineOnePresent, engineTwoPresent, engineThreePresent, engineFourPresent,
+      engineFivePresent, engineSixPresent, engineSevenPresent, engineEightPresent,
+      engineNinePresent, engineTenPresent, engineElevenPresent, engineTwelvePresent,
+    ].every(Boolean)
+
+    if (allTwelveEngines && !hasBadge('twelve_engines_arc')) {
+      if (awardBadge('twelve_engines_arc')) newBadges.push('twelve_engines_arc')
+    }
+
+    // Mastery v15: prima_materia_keeper — 300+ distinct calendar days with check-in
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 300 && !hasBadge('prima_materia_keeper')) {
+        if (awardBadge('prima_materia_keeper')) newBadges.push('prima_materia_keeper')
+      }
+    }
+
+    // Mastery v15: masterwork — 20,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 20000 && !hasBadge('masterwork')) {
+        if (awardBadge('masterwork')) newBadges.push('masterwork')
+      }
+    }
+
+    // Mastery v15: thirteen_tongues — 1 badge from each of all 13 Word Turn engines
+    // (v12 Alchemist is engine 12; v13 Oracle is engine 13)
+    const engineThirteenPresent = [
+      'first_code', 'leet_hour', 'quad_signal',
+    ].some(b => hasBadge(b as BadgeType)) || wordTurnBadges.some(b =>
+      BADGES[b]?.name?.toLowerCase().includes('oracle')
+    )
+    if (allTwelveEngines && engineThirteenPresent && !hasBadge('thirteen_tongues')) {
+      if (awardBadge('thirteen_tongues')) newBadges.push('thirteen_tongues')
     }
 
   } catch (error) {
