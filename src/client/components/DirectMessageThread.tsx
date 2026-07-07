@@ -13,6 +13,7 @@ import * as stores from '#client/stores'
 import {
   Button,
   Clock,
+  GhostButton,
   ResizibleGhostInput,
 } from '#client/components/ui'
 import dayjs from '#client/utils/dayjs'
@@ -128,6 +129,9 @@ export const DirectMessageThread: React.FC<DirectMessageThreadProps> = ({ userId
 
   return (
     <div className="max-w-[700px]">
+      <div className="mb-16">
+        <GhostButton onClick={() => stores.goTo('sync')}>← Back to Sync</GhostButton>
+      </div>
       <div className="mb-40">
         <span className="opacity-30">Conversation with {otherUserName}</span>
       </div>

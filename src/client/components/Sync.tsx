@@ -24,6 +24,8 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useInbox,
+  InboxThread,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -55,6 +57,7 @@ export const Sync = React.memo(function SyncInner() {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: inboxData } = useInbox()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -63,6 +66,8 @@ export const Sync = React.memo(function SyncInner() {
       queryClient.invalidateQueries(['/api/chat-messages'])
     }
   })
+
+  const inboxThreads = inboxData?.threads || []
 
   // Ensure fresh data on mount (filters suspended users)
   React.useEffect(() => {
@@ -101,9 +106,20 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    // LOT Email — a new direct message (sent from Log via /email, from Cohort
+    // Connect, or from a /dm thread) refreshes the inbox strip below.
+    const { dispose: disposeDirectMessageListener } = sync.listen(
+      'direct_message',
+      (data) => {
+        if (me && (data.senderId === me.id || data.receiverId === me.id)) {
+          queryClient.invalidateQueries(['/api/inbox'])
+        }
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeDirectMessageListener()
     }
   }, [me?.id])
 
@@ -190,6 +206,21 @@ export const Sync = React.memo(function SyncInner() {
         </form>
       </div>
 
+      {inboxThreads.length > 0 && (
+        <div className="mb-40">
+          <div className="opacity-30 mb-8">Email</div>
+          <div className="space-y-4">
+            {inboxThreads.map((thread) => (
+              <EmailThreadRow
+                key={thread.partnerId}
+                thread={thread}
+                isTimeFormat12h={isTimeFormat12h}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
       <div>
         {messages.map((x, i) => {
           const authorObj = typeof x.author === 'object' ? x.author : null
@@ -256,6 +287,32 @@ export const Sync = React.memo(function SyncInner() {
     </div>
   )
 })
+
+const EmailThreadRow: React.FC<{ thread: InboxThread; isTimeFormat12h: boolean }> = ({
+  thread,
+  isTimeFormat12h,
+}) => {
+  const onOpen = React.useCallback(
+    () => stores.goTo('dm', { userId: thread.partnerId }),
+    [thread.partnerId]
+  )
+  return (
+    <div
+      className="flex items-start gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
+      onClick={onOpen}
+    >
+      <span className="whitespace-nowrap pr-4">{thread.partnerName}</span>
+      <div
+        className="flex-1 opacity-60 overflow-hidden text-ellipsis whitespace-nowrap"
+      >
+        {thread.isMine ? `You: ${thread.message}` : thread.message}
+      </div>
+      <div className="text-acc/40 whitespace-nowrap">
+        <MessageTimeLabel dateString={thread.createdAt} isTimeFormat12h={isTimeFormat12h} />
+      </div>
+    </div>
+  )
+}
 
 const MessageTimeLabel: React.FC<{ dateString: string | Date; isTimeFormat12h: boolean }> = ({ dateString, isTimeFormat12h }) => {
   const date = dayjs(dateString)

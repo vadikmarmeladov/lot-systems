@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -2569,6 +2569,19 @@ const NoteEditor = ({
       setIsSaved(true)
     },
   })
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { mutate: submitEmail } = useSendEmail({
+    onSuccess: (data) => {
+      setEmailResult(`SENT TO ${(data.recipientName || 'RECIPIENT').toUpperCase()}`)
+      setEmailLoading(false)
+    },
+    onError: (error) => {
+      const reason = (error.response?.data as { error?: string })?.error
+      setEmailResult(reason ? reason.toUpperCase() : 'EMAIL FAILED — Unable to send.')
+      setEmailLoading(false)
+    },
+  })
   const debounceTime = 7000  // 7s for all logs
   const debouncedValue = useDebounce(value, debounceTime)
 
@@ -2919,6 +2932,7 @@ const NoteEditor = ({
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
+          '/email to X   Send a LOT Email to X (appears in Sync)',
           '/assembly     Self-assembly module status',
           '/phys         Physiological cohort report',
           '/qos          Quantum OS state analysis',
@@ -2953,6 +2967,19 @@ const NoteEditor = ({
             })
           } catch {
             submitStory({ logText: value })
+          }
+        }
+      } else if (trigger === 'email-send') {
+        const match = value.match(/\/email\s+to\s+([A-Za-z][\w'-]*)/i)
+        if (match && !emailLoading) {
+          const recipientName = match[1]
+          const body = value.replace(/\/email\s+to\s+[A-Za-z][\w'-]*/i, '').trim()
+          if (body.length > 0) {
+            setEmailLoading(true)
+            setEmailResult(null)
+            submitEmail({ recipientName, message: body })
+          } else {
+            setEmailResult('ADD A MESSAGE BEFORE SENDING')
           }
         }
       }
@@ -3175,6 +3202,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="EMAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6' }}>{emailResult}</div>
+              )}
             </Block>
           </div>
         )}

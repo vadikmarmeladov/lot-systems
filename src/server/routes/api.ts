@@ -3953,6 +3953,162 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   })
 
   // ============================================================================
+  // EMAIL — LOT Email, composed from Log with "/email to <Name> <message>".
+  // Backed by the same DirectMessage model/SSE as Sync direct messages, so a
+  // LOT Email and a Sync DM are the exact same object viewed from two doors.
+  // ============================================================================
+
+  // Send a LOT Email — resolves the recipient by first name, then sends it
+  // as a direct message.
+  fastify.post('/email', async (req: FastifyRequest<{
+    Body: { recipientName: string; message: string }
+  }>, reply) => {
+    try {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+
+      const recipientName = (req.body.recipientName || '').trim()
+      const message = (req.body.message || '').trim()
+
+      if (!recipientName) {
+        return reply.status(400).send({ error: 'Recipient name is required' })
+      }
+      if (!message) {
+        return reply.status(400).send({ error: 'Message is required' })
+      }
+
+      // Exact (case-insensitive) first-name match first, then prefix match.
+      // Skips the sender; suspended accounts are filtered out of the result.
+      const exactMatches = await fastify.models.User.findAll({
+        where: {
+          id: { [Op.not]: req.user.id },
+          firstName: { [Op.iLike]: recipientName },
+        },
+        order: [['lastSeenAt', 'DESC']],
+        limit: 5,
+      })
+      const candidates = exactMatches.length > 0
+        ? exactMatches
+        : await fastify.models.User.findAll({
+            where: {
+              id: { [Op.not]: req.user.id },
+              firstName: { [Op.iLike]: `${recipientName}%` },
+            },
+            order: [['lastSeenAt', 'DESC']],
+            limit: 5,
+          })
+
+      const recipient = candidates.find((u) =>
+        !u.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      )
+
+      if (!recipient) {
+        return reply.status(404).send({ error: `No one named "${recipientName}" found` })
+      }
+
+      const directMessage = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: message.slice(0, 2000),
+      })
+
+      sync.emit('direct_message', {
+        id: directMessage.id,
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: directMessage.message,
+        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        createdAt: directMessage.createdAt,
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'email_sent',
+            text: '',
+            metadata: {
+              directMessageId: directMessage.id,
+              receiverId: recipient.id,
+              recipientName: recipient.firstName,
+              message: directMessage.message,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging email:', logError)
+        }
+      })
+
+      return reply.send({
+        id: directMessage.id,
+        recipientId: recipient.id,
+        recipientName: recipient.firstName,
+        message: directMessage.message,
+        createdAt: directMessage.createdAt,
+      })
+    } catch (error) {
+      console.error('Error sending email:', error)
+      return reply.status(500).send({ error: 'Failed to send email' })
+    }
+  })
+
+  // Inbox — latest LOT Email per correspondent, for the Sync tab's inbox strip.
+  fastify.get('/inbox', async (req, reply) => {
+    try {
+      const messages = await fastify.models.DirectMessage.findAll({
+        where: {
+          [Op.or]: [
+            { senderId: req.user.id },
+            { receiverId: req.user.id },
+          ],
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 300,
+      })
+
+      const latestByPartner = new Map<string, (typeof messages)[number]>()
+      for (const m of messages) {
+        const partnerId = m.senderId === req.user.id ? m.receiverId : m.senderId
+        if (!latestByPartner.has(partnerId)) {
+          latestByPartner.set(partnerId, m)
+        }
+      }
+
+      const partnerIds = [...latestByPartner.keys()]
+      const partners = partnerIds.length > 0
+        ? await fastify.models.User.findAll({ where: { id: partnerIds } })
+        : []
+      const partnerById = partners.reduce(fp.by('id'), {})
+
+      const threads = partnerIds
+        .map((partnerId) => {
+          const m = latestByPartner.get(partnerId)!
+          const partner = partnerById[partnerId]
+          return {
+            partnerId,
+            partnerName: partner
+              ? `${partner.firstName || ''} ${partner.lastName || ''}`.trim() || 'Unknown'
+              : 'Unknown',
+            message: m.message,
+            createdAt: m.createdAt,
+            isMine: m.senderId === req.user.id,
+          }
+        })
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 20)
+
+      return reply.send({ threads })
+    } catch (error) {
+      console.error('Error fetching inbox:', error)
+      return reply.status(500).send({ error: 'Failed to fetch inbox' })
+    }
+  })
+
+  // ============================================================================
   // STATS API - Real-time metrics and community insights
   // ============================================================================
 

@@ -120,6 +120,25 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+// LOT Email — composed from Log with "/email to <Name> <message>".
+// Backed by the same DirectMessage model as Sync direct messages.
+export const useSendEmail = createMutation<
+  { recipientName: string; message: string },
+  { id: string; recipientId: string; recipientName: string; message: string; createdAt: string }
+>('post', '/api/email')
+
+export interface InboxThread {
+  partnerId: string
+  partnerName: string
+  message: string
+  createdAt: string
+  isMine: boolean
+}
+
+export const useInbox = createQuery<{ threads: InboxThread[] }>('/api/inbox', {
+  refetchOnWindowFocus: false,
+})
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })
