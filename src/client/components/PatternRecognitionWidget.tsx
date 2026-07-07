@@ -133,6 +133,12 @@ export function PatternRecognitionWidget() {
       'quantum-presence-arc':       'Quantum presence arc — all 6 channels active across 48 hours (P101)',
       'planner-intention-sync':     'Planner-intention sync — intentions + plan aligned in 2h window (P102)',
       'resilience-cascade':         'Resilience cascade — depleted → selfcare → capture + positive mood (P103)',
+      'vitality-cascade':           'Vitality cascade — high energy + 3+ selfcare + positive mood + journal (P104)',
+      'social-presence-arc':        'Social presence arc — cohort + outreach + intention in 48h (P105)',
+      'clarity-momentum-peak':      'Clarity momentum peak — focused + plans + memories + intentions in 24h (P106)',
+      'emotional-stability-arc':    'Emotional stability arc — 3+ positive moods sustained in 72h (P107)',
+      'focus-recovery-balance':     'Focus-recovery balance — deep work session + selfcare within 12h (P108)',
+      'system-alignment-peak':      'System alignment peak — all 5 systems: intention + plan + memory + care + mood (P109)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -495,6 +501,48 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'resilience-cascade') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Resilience cascade. Recovery + knowledge arc closed.
+                </div>
+              )}
+
+              {/* Vitality cascade — P104 */}
+              {patterns.some(p => p.pattern === 'vitality-cascade') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Vitality cascade. Peak maintenance active.
+                </div>
+              )}
+
+              {/* Social presence arc — P105 */}
+              {patterns.some(p => p.pattern === 'social-presence-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Social arc live. Community and direction confirmed.
+                </div>
+              )}
+
+              {/* Clarity momentum peak — P106 */}
+              {patterns.some(p => p.pattern === 'clarity-momentum-peak') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Clarity peak. Cognitive structure at maximum.
+                </div>
+              )}
+
+              {/* Emotional stability arc — P107 */}
+              {patterns.some(p => p.pattern === 'emotional-stability-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Emotional baseline stable. 72h field confirmed clear.
+                </div>
+              )}
+
+              {/* Focus-recovery balance — P108 */}
+              {patterns.some(p => p.pattern === 'focus-recovery-balance') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Build-and-recover cycle closed.
+                </div>
+              )}
+
+              {/* System alignment peak — P109 */}
+              {patterns.some(p => p.pattern === 'system-alignment-peak') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  ALIGNMENT PEAK. All five systems confirmed.
                 </div>
               )}
 

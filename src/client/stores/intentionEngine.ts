@@ -2404,6 +2404,78 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 107: Emotional Stability Arc — 3+ positive moods in 72h with ≤1 depleting signal.
+  // Sustained emotional baseline, not a single-day peak. The field is consistently positive across days.
+  // Distinct from P49 (care-momentum): P107 reads mood directly, not selfcare activity.
+  // Distinct from P104 (vitality-cascade): P104 is energy-anchored; P107 is mood-anchored over longer arc.
+  const p107Cut         = now - 72 * 60 * 60 * 1000
+  const p107PosMoods    = signals.filter(s =>
+    s.source === 'mood' && s.timestamp > p107Cut &&
+    ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled', 'excited', 'grateful'].includes(s.signal)
+  )
+  const p107DepMoods    = signals.filter(s =>
+    s.source === 'mood' && s.timestamp > p107Cut &&
+    ['anxious', 'overwhelmed', 'tired', 'exhausted'].includes(s.signal)
+  )
+  if (p107PosMoods.length >= 3 && p107DepMoods.length <= 1) {
+    patterns.push({
+      pattern: 'emotional-stability-arc',
+      confidence: Math.min(0.68 + p107PosMoods.length * 0.04, 0.85),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `EMOT-STAB: ${p107PosMoods.length} positive mood signals in 72h. ${p107DepMoods.length} depleting signal(s). Sustained emotional baseline confirmed — the field is clear across days.`,
+    })
+  }
+
+  // Pattern 108: Focus-Recovery Balance — deep work session (planner + memory + journal in 4h) followed
+  // by selfcare within 12h total. The complete build-and-recover cycle confirmed in a single operational day.
+  // Distinct from P42 (deep-work-cascade): P42 detects only the work phase. P108 requires the recovery loop.
+  const p108TwelveHrCut = now - 12 * 60 * 60 * 1000
+  const p108FourHrCut   = now - 4 * 60 * 60 * 1000
+  const p108WorkPlanner  = signals.filter(s => s.source === 'planner'  && s.timestamp > p108FourHrCut)
+  const p108WorkMemory   = signals.filter(s => s.source === 'memory'   && s.timestamp > p108FourHrCut)
+  const p108WorkJournal  = signals.filter(s => s.source === 'journal'  && s.timestamp > p108FourHrCut)
+  const p108Selfcare     = signals.filter(s => s.source === 'selfcare' && s.timestamp > p108TwelveHrCut)
+  if (
+    p108WorkPlanner.length >= 1 && p108WorkMemory.length >= 1 &&
+    p108WorkJournal.length >= 1 && p108Selfcare.length >= 1
+  ) {
+    patterns.push({
+      pattern: 'focus-recovery-balance',
+      confidence: Math.min(0.72 + p108Selfcare.length * 0.04, 0.88),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `FCREC: Planner + memory + journal in 4h work session, ${p108Selfcare.length} selfcare act(s) within 12h. Build-and-recover cycle closed — work protected by recovery.`,
+    })
+  }
+
+  // Pattern 109: System Alignment Peak — intention 2+ + planner 2+ + memory 2+ + selfcare 1+ + positive mood,
+  // all within 24h. The 5-element peak day: declared, structured, learned, tended, felt — all confirmed.
+  // Distinct from P61 (multimodal-peak): P109 requires intention as the explicit anchor AND demands structure
+  // (planner) and knowledge (memory) alongside care and mood. Higher threshold, higher meaning.
+  const p109Cut        = now - 24 * 60 * 60 * 1000
+  const p109Intentions = signals.filter(s => s.source === 'intentions' && s.timestamp > p109Cut)
+  const p109Planner    = signals.filter(s => s.source === 'planner'    && s.timestamp > p109Cut)
+  const p109Memory     = signals.filter(s => s.source === 'memory'     && s.timestamp > p109Cut)
+  const p109Selfcare   = signals.filter(s => s.source === 'selfcare'   && s.timestamp > p109Cut)
+  const p109PosMood    = signals.some(s =>
+    s.source === 'mood' && s.timestamp > p109Cut &&
+    ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled', 'excited', 'grateful'].includes(s.signal)
+  )
+  if (
+    p109Intentions.length >= 2 && p109Planner.length >= 2 &&
+    p109Memory.length >= 2 && p109Selfcare.length >= 1 && p109PosMood
+  ) {
+    const p109Conf = Math.min(0.80 + (p109Intentions.length - 2) * 0.03 + (p109Planner.length - 2) * 0.03, 0.93)
+    patterns.push({
+      pattern: 'system-alignment-peak',
+      confidence: p109Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `ALIGN-PEAK: ${p109Intentions.length} intentions + ${p109Planner.length} plans + ${p109Memory.length} memories + ${p109Selfcare.length} selfcare + positive mood in 24h. All five systems confirmed — declared, structured, learned, tended, felt.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -2967,6 +3039,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   vitalityCascadeNode:      ['energy', 'selfcare', 'mood', 'journal', 'log'],
   socialPresenceArcNode:    ['cohort', 'intentions', 'journal', 'memory', 'log'],
   clarityMomentumNode:      ['planner', 'intentions', 'memory', 'energy', 'log'],
+
+  // ── Emotional stability + focus-recovery balance + system alignment peak nodes (2026-07-07 v85)
+  emotionalStabilityArcNode:  ['mood', 'log', 'energy'],
+  focusRecoveryBalanceNode:   ['planner', 'memory', 'journal', 'selfcare', 'log'],
+  systemAlignmentPeakNode:    ['intentions', 'planner', 'memory', 'selfcare', 'mood'],
 }
 
 /**
@@ -3286,6 +3363,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['cohort', 'intentions', 'journal'],
     patternConditions: ['social-presence-arc', 'accountability-arc', 'social-resonance-arc', 'intention-velocity'],
     directive: 'Social arc live. Community, connection, and direction all confirmed in 48h. The signal is going out. Anchor the response.',
+  },
+  {
+    archetype: 'Aligned Builder',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['intentions', 'planner', 'selfcare', 'memory'],
+    patternConditions: ['system-alignment-peak', 'clarity-momentum-peak', 'focus-recovery-balance', 'planner-intention-sync'],
+    directive: 'Full alignment active. Intention declared, structure in place, knowledge captured, body tended. This is the complete operator state.',
   },
 ]
 
@@ -4589,5 +4673,46 @@ export function recordResilienceCascade(selfcareCount: number, memoryCount: numb
     fromBand,
     window: '18h',
     arc: 'complete',
+  })
+}
+
+/**
+ * Record an emotional-stability-arc signal — 3+ positive moods in 72h, ≤1 depleting.
+ * Feeds P107 detection. Sustained emotional baseline confirmed across days.
+ */
+export function recordEmotionalStabilityArc(positiveMoodCount: number, depletingMoodCount: number) {
+  recordSignal('mood', 'emotional_stability_arc', {
+    positiveMoodCount,
+    depletingMoodCount,
+    window: '72h',
+    arc: 'stable',
+  })
+}
+
+/**
+ * Record a focus-recovery-balance signal — deep work session followed by selfcare in 12h.
+ * Feeds P108 detection. Build-and-recover cycle closed.
+ */
+export function recordFocusRecoveryBalance(plannerCount: number, memoryCount: number, selfcareCount: number) {
+  recordSignal('journal', 'focus_recovery_balance', {
+    plannerCount,
+    memoryCount,
+    selfcareCount,
+    window: '12h',
+    arc: 'complete',
+  })
+}
+
+/**
+ * Record a system-alignment-peak signal — intention + plan + memory + selfcare + positive mood in 24h.
+ * Feeds P109 detection. All five systems confirmed simultaneously.
+ */
+export function recordSystemAlignmentPeak(intentionCount: number, plannerCount: number, memoryCount: number) {
+  recordSignal('intentions', 'system_alignment_peak', {
+    intentionCount,
+    plannerCount,
+    memoryCount,
+    window: '24h',
+    arc: 'peak',
   })
 }

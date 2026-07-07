@@ -607,6 +607,71 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'emotional_stability_arc') {
+          const positiveMoodCount = log.metadata?.positiveMoodCount as number | undefined
+          const depletingMoodCount = log.metadata?.depletingMoodCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EMOT-STAB:" blockView>
+                {positiveMoodCount !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">MOOD-POS 72H: {positiveMoodCount}</div>
+                )}
+                {depletingMoodCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MOOD-NEG 72H: {depletingMoodCount}</div>
+                )}
+                <div className="opacity-40">WINDOW: 72H</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'focus_recovery_balance') {
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FCREC:" blockView>
+                <div className="uppercase tracking-widest mb-4">WORK: PLAN+MEM+JRN / 4H</div>
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 12H: {selfcareCount}</div>
+                )}
+                {plannerCount !== undefined && memoryCount !== undefined && (
+                  <div className="opacity-40 tabular-nums">PLAN: {plannerCount} · MEM: {memoryCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'system_alignment_peak') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const plannerCount = log.metadata?.plannerCount as number | undefined
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ALIGN-PEAK:" blockView>
+                {intentionCount !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">INTENT 24H: {intentionCount}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN 24H: {plannerCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 24H: {memoryCount}</div>
+                )}
+                <div className="opacity-40">CARE+MOOD: CONFIRMED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

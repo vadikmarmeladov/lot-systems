@@ -54,4 +54,14 @@ PLANNER-INTENTION-SYNC  QIE P102 — intentions signal + planner signal within 2
 RESILIENCE-CASCADE      QIE P103 — depleted → 2+ selfcare → memory capture + positive mood within 18h; complete restoration arc: breakdown → intervention → capture           B  20260702
 PLANNER-CONTEXT    User's declared daily intention (intent/today/how/feeling) extracted from plan_set log    A  20260630
                    and injected into Memory Engine buildPrompt() so questions follow up on stated focus
+EMOT-STAB:         Emotional Stability Arc — log block label; 3+ positive moods in 72h · ≤1 depleting    C  20260707
+FCREC:             Focus-Recovery Balance — log block label; deep work session + selfcare within 12h       C  20260707
+ALIGN-PEAK:        System Alignment Peak — log block label; all 5 systems: intent+plan+memory+care+mood   C  20260707
+EMOTIONAL-STABILITY-ARC   QIE P107 — 3+ positive moods in 72h with ≤1 depleting signal; sustained        C  20260707
+                           emotional baseline confirmed across multi-day window; conf 0.68–0.85
+FOCUS-RECOVERY-BALANCE    QIE P108 — planner+memory+journal in 4h AND selfcare in 12h; work-build cycle   C  20260707
+                           closed by recovery act; biological and cognitive arc complete; conf 0.72–0.88
+SYSTEM-ALIGNMENT-PEAK     QIE P109 — intentions 2+ · planner 2+ · memory 2+ · selfcare 1+ · positive     C  20260707
+                           mood all in 24h; all five systems simultaneously active; rarest complete
+                           operator state; conf 0.80–0.93
 ```

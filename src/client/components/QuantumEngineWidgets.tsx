@@ -69,6 +69,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'vitality-cascade':            'VIT CASCADE',
   'social-presence-arc':         'SOC PRES',
   'clarity-momentum-peak':       'CLAR PEAK',
+  'emotional-stability-arc':     'EMOT STAB',
+  'focus-recovery-balance':      'FOCUS RECOV',
+  'system-alignment-peak':       'ALIGN PEAK',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

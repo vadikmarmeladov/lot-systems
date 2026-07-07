@@ -1687,6 +1687,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyVitalityCascadePulse()) {
     await executeDailyVitalityCascadePulse()
   }
+
+  // Check daily emotional stability scan (09:00 UTC every day) — Job 34
+  if (shouldRunDailyEmotionalStabilityScan()) {
+    await executeDailyEmotionalStabilityScan()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -1967,6 +1972,101 @@ async function executeDailyVitalityCascadePulse(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily vitality cascade pulse failed:', error.message)
     isDailyVitalityCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Emotional Stability Scan (Job 34 — 09:00 UTC every day) ──────────
+// Reads active users' 72h mood logs. Confirms 3+ positive moods with ≤1 depleting signal.
+// Writes emotional_stability_arc event when sustained emotional baseline is confirmed.
+
+let isDailyEmotionalStabilityRunning = false
+let lastDailyEmotionalStabilityRun: Date | null = null
+
+function shouldRunDailyEmotionalStabilityScan(): boolean {
+  const now = dayjs()
+  if (isDailyEmotionalStabilityRunning) return false
+  if (lastDailyEmotionalStabilityRun) {
+    const lastRun = dayjs(lastDailyEmotionalStabilityRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 9 // 09:00 UTC daily
+}
+
+async function executeDailyEmotionalStabilityScan(): Promise<JobResult> {
+  const jobName = 'daily-emotional-stability-scan'
+  const executedAt = new Date().toISOString()
+  if (isDailyEmotionalStabilityRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyEmotionalStabilityRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY EMOTIONAL STABILITY SCAN — 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const seventyTwoHoursAgo = dayjs().subtract(72, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(24, 'hour').toDate() } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    const POSITIVE_MOOD_SIGNALS = ['calm', 'energized', 'hopeful', 'peaceful', 'content', 'fulfilled', 'excited', 'grateful']
+    const DEPLETING_MOOD_SIGNALS = ['anxious', 'overwhelmed', 'tired', 'exhausted']
+    const MOOD_EVENTS = ['emotional_checkin', 'mood_checkin', 'mood_set']
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: seventyTwoHoursAgo },
+            event: { [Op.in]: MOOD_EVENTS },
+          },
+          attributes: ['event', 'metadata'],
+          limit: 200,
+        })
+
+        const positiveMoods = recentLogs.filter((l: any) =>
+          POSITIVE_MOOD_SIGNALS.includes(l.metadata?.mood ?? l.metadata?.signal ?? '')
+        )
+        const depletingMoods = recentLogs.filter((l: any) =>
+          DEPLETING_MOOD_SIGNALS.includes(l.metadata?.mood ?? l.metadata?.signal ?? '')
+        )
+
+        if (positiveMoods.length >= 3 && depletingMoods.length <= 1) {
+          const confidence = Math.min(0.68 + positiveMoods.length * 0.04, 0.85)
+          await (Log as any).create({
+            userId,
+            event: 'emotional_stability_arc',
+            text: `Emotional stability arc: ${positiveMoods.length} positive moods in 72h, ${depletingMoods.length} depleting signal(s). Sustained emotional baseline confirmed.`,
+            metadata: {
+              positiveMoodCount: positiveMoods.length,
+              depletingMoodCount: depletingMoods.length,
+              confidence,
+              window: '72h',
+              arc: 'stable',
+              hour: 9,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Emotional stability arc events written: ${written}`)
+    lastDailyEmotionalStabilityRun = new Date()
+    isDailyEmotionalStabilityRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily emotional stability scan failed:', error.message)
+    isDailyEmotionalStabilityRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

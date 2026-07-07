@@ -1102,6 +1102,25 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '106 patterns · 36 archetypes · 33 background jobs · 106+ handlers · 145+ dep nodes. Vitality, social presence, and cognitive peak — three new arcs confirmed.',
     ],
   },
+  {
+    date: '2026-07-07',
+    session: 'Self-Assembly Session — v85 / P107–P109 · Arch37 Aligned Builder · J34 Daily Emotional Stability Scan · EMOT-STAB: FCREC: ALIGN-PEAK: · Dep Map 148+',
+    assembled: [
+      'intentionEngine.ts: P107 emotional-stability-arc — 3+ positive moods in 72h with ≤1 depleting signal. Sustained emotional baseline confirmed across days. Distinct from P49 (selfcare-driven); P107 reads mood directly over longer arc. Conf 0.68–0.85. suggestedWidget: memory.',
+      'intentionEngine.ts: P108 focus-recovery-balance — deep work session (planner + memory + journal in 4h) followed by selfcare within 12h. Build-and-recover cycle closed. Distinct from P42 (deep-work-cascade, work only); P108 requires the recovery phase. Conf 0.72–0.88. suggestedWidget: journal.',
+      'intentionEngine.ts: P109 system-alignment-peak — intention 2+ + planner 2+ + memory 2+ + selfcare 1+ + positive mood all within 24h. 5-element peak day: declared, structured, learned, tended, felt. Distinct from P61 (multimodal-peak): P109 requires intention as anchor + higher threshold. Conf 0.80–0.93. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: Arch37 Aligned Builder — energyBands moderate+high · dominantSources intentions+planner+selfcare+memory · patternConditions system-alignment-peak+clarity-momentum-peak+focus-recovery-balance+planner-intention-sync. Directive: Full alignment active. Intention declared, structure in place, knowledge captured, body tended. This is the complete operator state. 37 archetypes total.',
+      'intentionEngine.ts: 3 signal helpers — recordEmotionalStabilityArc() · recordFocusRecoveryBalance() · recordSystemAlignmentPeak().',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: emotionalStabilityArcNode (3 deps) · focusRecoveryBalanceNode (5 deps) · systemAlignmentPeakNode (5 deps). 148+ dep nodes total.',
+      'Logs.tsx: EMOT-STAB: handler (emotional_stability_arc: MOOD-POS count + MOOD-NEG count + WINDOW + CONF). FCREC: handler (focus_recovery_balance: WORK summary + CARE 12H + counts + CONF). ALIGN-PEAK: handler (system_alignment_peak: INTENT + PLAN + MEM + CARE+MOOD status + CONF). COCKPIT-RULE compliant. 109+ handlers total.',
+      'PatternRecognitionWidget.tsx: P104–P109 added to name map (6 new entries). P107–P109 QOS Trend indicators added (3 new indicator blocks).',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — emotional-stability-arc (EMOT STAB) · focus-recovery-balance (FOCUS RECOV) · system-alignment-peak (ALIGN PEAK).',
+      'scheduled-jobs.ts: J34 daily-emotional-stability-scan — 09:00 UTC daily. Reads 72h mood logs per active user. Confirms 3+ positive moods ≤1 depleting → writes emotional_stability_arc. 34 background jobs total.',
+      'routes/api.ts: emotional_stability_arc + focus_recovery_balance + system_alignment_peak added to displayableEvents (v85 block).',
+      'SESSION_REPORTS: v85 entry appended. USERSHIP_TRANSMISSION updated to v85.',
+      '109 patterns · 37 archetypes · 34 background jobs · 109+ handlers · 148+ dep nodes. Emotional stability, focus-recovery balance, system alignment — three new arcs confirmed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1139,19 +1158,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-03',
+  date: '2026-07-07',
   message: [
-    'ASSEMBLY RUN — 2026-07-03 · LOT-SR-20260703-01',
-    'P104 vitality-cascade: high energy + 3+ selfcare acts + positive mood + journal in 24h. Proactive peak maintenance. Conf 0.78–0.90.',
-    'P105 social-presence-arc: cohort signal + outreach + intention in 48h. Social dimension fully active. Conf 0.70–0.85.',
-    'P106 clarity-momentum-peak: focused clarity + 2+ plans + 2+ memories + 2+ intentions in 24h. Cognitive peak confirmed. Conf 0.80–0.92. 106 patterns total.',
-    'Arch35 Vitality Architect: selfcare+mood+energy dominant · vitality-cascade+care-momentum+biological-restoration-peak. Sustained vitality confirmed. 35 archetypes.',
-    'Arch36 Social Signal Operator: cohort+intentions+journal dominant · social-presence-arc+accountability-arc+social-resonance-arc. Social arc live. 36 archetypes total.',
-    'J33 daily-vitality-cascade-pulse: 15:00 UTC daily. Reads 24h logs. high energy + 3+ selfcare + positive mood + journal → writes vitality_cascade. 33 background jobs total.',
-    'VITAL-CAS: SOC-ARC: CLAR-PEAK: log handlers deployed (COCKPIT-RULE). 106+ handlers total.',
-    'Dep map: 145+ nodes. 3 new: vitalityCascadeNode + socialPresenceArcNode + clarityMomentumNode.',
-    'PATTERN_DISPLAY: VIT CASCADE · SOC PRES · CLAR PEAK added to QOS widget.',
-    '106 patterns · 36 archetypes · 33 jobs · 106+ handlers · 145+ dep nodes. Vitality, social, cognitive — three new arcs confirmed.',
+    'ASSEMBLY RUN — 2026-07-07 · LOT-SR-20260707-01',
+    'P107 emotional-stability-arc: 3+ positive moods in 72h · ≤1 depleting signal. Sustained emotional baseline confirmed across days. Conf 0.68–0.85.',
+    'P108 focus-recovery-balance: deep work (planner+memory+journal in 4h) + selfcare within 12h. Build-and-recover cycle closed. Conf 0.72–0.88.',
+    'P109 system-alignment-peak: intention 2+ · plan 2+ · memory 2+ · selfcare 1+ · positive mood in 24h. 5-element peak day confirmed. Conf 0.80–0.93. 109 patterns total.',
+    'Arch37 Aligned Builder: intentions+planner+selfcare+memory dominant · system-alignment-peak+clarity-momentum-peak+focus-recovery-balance. Full alignment active. 37 archetypes total.',
+    'J34 daily-emotional-stability-scan: 09:00 UTC daily. Reads 72h mood logs. 3+ positive moods ≤1 depleting → writes emotional_stability_arc. 34 background jobs total.',
+    'EMOT-STAB: FCREC: ALIGN-PEAK: log handlers deployed (COCKPIT-RULE). 109+ handlers total.',
+    'Dep map: 148+ nodes. 3 new: emotionalStabilityArcNode + focusRecoveryBalanceNode + systemAlignmentPeakNode.',
+    'PATTERN_DISPLAY: EMOT STAB · FOCUS RECOV · ALIGN PEAK added to QOS widget.',
+    'PatternRecognitionWidget: P104–P109 name map complete. P107–P109 QOS Trend indicators deployed.',
+    '109 patterns · 37 archetypes · 34 jobs · 109+ handlers · 148+ dep nodes. Emotional stability, focus-recovery, system alignment — three new arcs confirmed.',
     'DEPLOYED.',
   ],
 }

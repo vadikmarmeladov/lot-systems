@@ -1106,6 +1106,10 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_arc',
       'planner_intention_sync',
       'resilience_cascade',
+      // v85: emotional stability arc · focus-recovery balance · system alignment peak (P107/P108/P109)
+      'emotional_stability_arc',
+      'focus_recovery_balance',
+      'system_alignment_peak',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
