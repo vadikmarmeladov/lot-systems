@@ -33,8 +33,8 @@ const NavButton = React.memo(function NavButton({
         'mb-4 flex-shrink-0',
         !link.route && 'opacity-30 pointer-events-none',
         isActive && (isMirrorOn
-          ? 'bg-white/20 hover:bg-white/30'
-          : 'bg-acc text-bac hover:bg-acc/90')
+          ? 'bg-white/20 hover:bg-white/20 hover:before:!opacity-0'
+          : 'bg-acc text-bac hover:bg-acc hover:text-bac hover:before:!opacity-0')
       )}
       onClick={link.route ? () => goTo(link.route!) : undefined}
       disabled={!link.route}

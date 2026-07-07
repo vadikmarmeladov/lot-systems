@@ -42,8 +42,8 @@ export const Tag: React.FC<Props> = ({
         : fill
         ? 'bg-acc text-bac'
         : 'border-acc text-acc',
-      // Mirror mode: use white for text and border
-      isMirrorOn && !isRed && 'text-white border-white',
+      // Mirror mode: outline tags use white text/border; filled tags keep text-bac (already contrasts)
+      isMirrorOn && !isRed && !fill && 'text-white border-white',
       !!(href || rest.onClick) ? 'cursor-pointer' : '',
       !!rest.onClick && 'select-none',
       className
