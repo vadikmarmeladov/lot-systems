@@ -15,6 +15,8 @@ import {
 } from 'react-query'
 import {
   AdminUsersSort,
+  BasicsSize,
+  BasicsState,
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
@@ -905,3 +907,29 @@ export const useStoryGeneration = createMutation<
     logId: string | null
   }
 >('post', '/api/story')
+
+// BASIC ration module (LOT-FM-001)
+export const useBasicsState = createQuery<{
+  basics: BasicsState
+  issues: { cycleNumber: number; dispatchedAt: string; itemLines: string[]; cogsTotalUsd: number; marginPct: number }[]
+}>('/api/basics/state')
+
+export const useBasicsEnroll = createMutation<
+  { size: BasicsSize; shippingAddress: string },
+  { basics: BasicsState }
+>('post', '/api/basics/enroll')
+
+export const useBasicsConfirm = createMutation<void, { basics: BasicsState }>(
+  'post',
+  '/api/basics/confirm'
+)
+
+export const useBasicsStandDown = createMutation<void, { basics: BasicsState }>(
+  'post',
+  '/api/basics/stand-down'
+)
+
+export const useBasicsDispatchIssue = createMutation<
+  void,
+  { basics: BasicsState; issue: { cycleNumber: number; dispatchedAt: string; itemLines: string[]; cogsTotalUsd: number; marginPct: number } }
+>('post', '/api/basics/dispatch-issue')

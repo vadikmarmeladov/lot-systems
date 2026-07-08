@@ -74,6 +74,7 @@ export class User
     return {
       ...profile,
       memoryEngine: hasUsershipTag && hasAIEngine ? 'ai' : 'standard',
+      basics: (this.metadata as any)?.basics,
     }
   }
 

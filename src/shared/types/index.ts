@@ -73,6 +73,7 @@ export type UserProfile = {
   timeChime?: boolean;
   memoryEngine?: 'ai' | 'standard';
   isAdmin?: boolean;
+  basics?: BasicsState;
 };
 
 export type User = {
@@ -117,6 +118,10 @@ export type LogEvent =
   | 'note'
   | 'emotional_checkin'
   | 'system_feedback'
+  | 'basics_enroll'
+  | 'basics_confirm'
+  | 'basics_stand_down'
+  | 'basics_issue'
   | 'other';
 
 // Emotional Check-in Types
@@ -438,6 +443,44 @@ export type ChatMessageLikeEventPayload = {
   likes?: number;
   isLiked?: boolean;
 };
+
+// ============================================================================
+// LOT-FM-001 / BASIC RATION MODULE
+// ============================================================================
+
+export type BasicsStatus = 'NONE' | 'PENDING' | 'ON_STRENGTH' | 'STEADY_STATE';
+export type BasicsSize = 'S' | 'M' | 'L' | 'XL';
+
+export type BasicsBilling = {
+  plan: 'BASIC_ADDITIVE';
+  amountUsd: number;
+  status: 'ACTIVE' | 'STOPPED';
+  startedAt: string;
+  stoppedAt?: string;
+  lastChargeAt?: string;
+};
+
+export type BasicsIssueRecord = {
+  cycleNumber: number;
+  dispatchedAt: string;
+  itemLines: string[]; // ration_manifest line numbers included in this issue
+  cogsTotalUsd: number;
+  marginPct: number;
+};
+
+// Persisted at User.metadata.basics
+export type BasicsState = {
+  status: BasicsStatus;
+  size?: BasicsSize;
+  shippingAddress?: string;
+  enrolledAt?: string;
+  cadenceStartAt?: string;
+  nextIssueAt?: string;
+  cycleNumber: number;
+  billing?: BasicsBilling;
+};
+
+export const BASICS_SIZES: BasicsSize[] = ['S', 'M', 'L', 'XL'];
 
 // Sync Events
 export type SyncEvents = {

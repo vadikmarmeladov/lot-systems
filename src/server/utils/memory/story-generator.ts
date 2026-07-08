@@ -22,6 +22,10 @@ const MODULE_BY_LOG_EVENT: Record<LogEvent, string> = {
   note: 'Note',
   emotional_checkin: 'Check-in',
   system_feedback: 'Feedback',
+  basics_enroll: 'Basics',
+  basics_confirm: 'Basics',
+  basics_stand_down: 'Basics',
+  basics_issue: 'Basics',
   other: 'Other',
 }
 
