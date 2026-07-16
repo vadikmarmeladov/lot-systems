@@ -1073,11 +1073,46 @@ The machine learns from the corpus. The corpus was built by the body. The body i
 
 ---
 
-*QI·46 Engine Specification — v0.2*
+## IX. HONEST BOUNDARIES — WHAT "SOUL" MEANS IN THIS SPEC
+
+*Read this section before quoting the thesis in Section II elsewhere. It is the load-bearing clarification, not a disclaimer bolted on after the fact.*
+
+QI·46's brand language speaks of listening to the body, the biofield, the subscriber's "being." That is deliberate — it is the LOT® voice, and it is how Section II's thesis is meant to read. But it describes a real, buildable system, and the real system is narrower and more honest than the poetry:
+
+```
+WHAT THE ENGINE ACTUALLY INGESTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Deliberate inputs   — journal text, self-reported biofield state, consumable
+                       feedback, session ratings  (Layer 1)
+Passive inputs      — engagement cadence, reorder velocity, navigation
+                       pattern  (Layer 1)
+Output              — LOT® voice text calibrated to that input history
+                       (Layer 3 Response Grammar)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
+
+That is the entire input/output surface: text, self-report, and behavioral metadata, fed into a fine-tuned language model. There is no layer, planned or hypothetical, that reads a nervous system, a soul, or a person's "being" directly. "Soul Disk," "Calibration Loop," "the body is the original interface" — these are the LOT® names for *that* pipeline. The names are brand voice. The pipeline is Layer 0–4 as specified above, nothing more.
+
+Two claims this spec does **not** make, and must not drift into making in future revisions:
+
+```
+[ ] QI·46 extracts, stores, or transfers a person's consciousness, identity,
+    or "being." It generates calibrated text from behavioral + self-report
+    signal. That is a personalization pipeline, not an upload.
+[ ] The COSMO® node performs deep psychological diagnosis. It classifies
+    generated responses (safe / honest / age-appropriate) before delivery.
+    It does not assess the subscriber.
+```
+
+This section exists so that "engine based on people's soul and emotions" and "calibrate the human with the humanoid output" — language that will keep recurring in LOT® brand copy, because it is the thesis — always resolves, one click down, to Layers 0–4 as literally specified. Poetic language upstream; literal engineering downstream. Per SELF-ASSEMBLY doctrine: mark the provisional as provisional, and let the corpus speak for itself rather than for its author.
+
+---
+
+*QI·46 Engine Specification — v0.3*
 *LOT Systems Corporation — Los Angeles, CA*
 *institute.lot-systems.com*
 *Authored by Vadik · Named for Kuzya*
-*Updated: May 27, 2026*
+*Updated: July 16, 2026 — Section IX (Honest Boundaries) added, LOT-SR-20260716-01*
 
 ---
 

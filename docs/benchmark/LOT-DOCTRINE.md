@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev M
+# LOT-DOCTRINE  rev N
 
 ## Render Isolation
 
@@ -207,3 +207,21 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Engine Spec Language (Honest Boundaries)
+
+Brand-facing engine specs (QI·46, and any future proprietary-engine doc) are
+written in LOT® voice — poetic, first-person-to-the-body, "soul," "being,"
+"listening." That voice is the thesis and stays. But every such spec must
+carry one section, read before the thesis is quoted elsewhere, that maps the
+poetic claim to the literal Layer 0-4 pipeline: what data is actually
+ingested (journal text, self-report, behavioral metadata — never a direct
+read of consciousness or a "soul"), and what the safety layer (COSMO® or
+equivalent) actually screens (generated output, not the subscriber). This is
+SELF-ASSEMBLY.md's honest-boundaries principle applied one level up: the
+skill must not let a session dress provisional brand poetry up as a literal
+capability claim, and a spec document is exactly where that drift would
+compound silently across future sessions if unchecked.
+(SR-20260716-01: Section IX added to LOT_QI46_ENGINE.md v0.3 — Calibration
+Loop and COSMO® scope stated literally alongside the existing Section II
+thesis.)
