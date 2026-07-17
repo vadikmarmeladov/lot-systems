@@ -751,6 +751,92 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'wellbeing_integrity_arc') {
+          const careDays      = log.metadata?.careDays      as number | undefined
+          const depletedDays  = log.metadata?.depletedDays  as number | undefined
+          const totalCareActs = log.metadata?.totalCareActs as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="WBINT:" blockView>
+                {careDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE DAYS 7D</span>
+                    <span className="tabular-nums">{careDays}/7</span>
+                  </div>
+                )}
+                {totalCareActs !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ACTS 7D</span>
+                    <span className="tabular-nums">{totalCareActs}</span>
+                  </div>
+                )}
+                {depletedDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DEPLETE</span>
+                    <span className="tabular-nums">{depletedDays}D</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'deep_focus_arc') {
+          const journalWords = log.metadata?.journalWords as number | undefined
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DFOC:" blockView>
+                <div className="uppercase tracking-widest mb-4">SOLO COGNITIVE</div>
+                {journalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WORDS 8H</span>
+                    <span className="tabular-nums">{journalWords}+</span>
+                  </div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEM 8H</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_density_peak') {
+          const sourceCount   = log.metadata?.sourceCount   as number | undefined
+          const totalPossible = log.metadata?.totalPossible as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIG-DENSE:" blockView>
+                {sourceCount !== undefined && totalPossible !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SRC 7D</span>
+                    <span className="tabular-nums">{sourceCount}/{totalPossible}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{Math.round(confidence * 100)}%</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

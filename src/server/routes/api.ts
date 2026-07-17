@@ -1118,6 +1118,10 @@ export default async (fastify: FastifyInstance) => {
       'embodied_cognition_arc',
       'intention_completion_loop',
       'community_intelligence_peak',
+      // v91: wellbeing integrity arc · deep focus arc · signal density peak (P113/P114/P115)
+      'wellbeing_integrity_arc',
+      'deep_focus_arc',
+      'signal_density_peak',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

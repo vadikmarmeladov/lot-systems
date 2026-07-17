@@ -1695,6 +1695,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyEmbodiedCognitionCheck()) {
     await executeDailyEmbodiedCognitionCheck()
   }
+  // Check daily signal density audit (16:00 UTC every day) — Job 36
+  if (shouldRunDailySignalDensityAudit()) {
+    await executeDailySignalDensityAudit()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -2166,6 +2170,109 @@ async function executeDailyEmbodiedCognitionCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily embodied cognition check failed:', error.message)
     isDailyEmbodiedCognitionRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Signal Density Audit (Job 36 — 16:00 UTC every day) ──────────────
+// Reads 7-day logs per active user. Counts distinct signal sources.
+// Writes signal_density_peak when 12+ of 16 possible sources contributed.
+// Feeds P115 detection client-side. Maximum behavioral field coverage event.
+
+let isDailySignalDensityRunning = false
+let lastDailySignalDensityRun: Date | null = null
+
+function shouldRunDailySignalDensityAudit(): boolean {
+  const now = dayjs()
+  if (isDailySignalDensityRunning) return false
+  if (lastDailySignalDensityRun) {
+    const lastRun = dayjs(lastDailySignalDensityRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 16 // 16:00 UTC daily
+}
+
+async function executeDailySignalDensityAudit(): Promise<JobResult> {
+  const jobName = 'daily-signal-density-audit'
+  const executedAt = new Date().toISOString()
+  if (isDailySignalDensityRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailySignalDensityRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY SIGNAL DENSITY AUDIT — 16:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const oneDayAgo    = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers  = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+      limit: 2000,
+    })
+
+    // Source category mapping — maps log event types to signal sources
+    const EVENT_TO_SOURCE: Record<string, string> = {
+      note: 'log', answer: 'memory', chat_message: 'cohort', chat_message_like: 'cohort',
+      emotional_checkin: 'mood', self_care_complete: 'selfcare', self_care_completed: 'selfcare',
+      plan_set: 'planner', intention: 'intentions', medical_record: 'medical',
+      energy_state: 'energy', energy_update: 'energy', energy_check: 'energy',
+      recipe_viewed: 'recipe', goal_set: 'goals', goal_update: 'goals', goal_journey: 'goals', goal_complete: 'goals',
+      badge_unlock: 'badges', journal: 'journal', quantum_intent_signal: 'qos',
+      ecosystem_update: 'ecosystem', resilience_check: 'resilience',
+    }
+
+    let written = 0
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+          attributes: ['event'],
+          limit: 2000,
+        })
+
+        const activeSources = new Set<string>()
+        for (const log of recentLogs) {
+          const src = EVENT_TO_SOURCE[log.event]
+          if (src) activeSources.add(src)
+        }
+
+        if (activeSources.size >= 12) {
+          const sourceList = Array.from(activeSources)
+          const confidence = Math.min(0.80 + (activeSources.size - 12) * 0.04, 0.96)
+          await (Log as any).create({
+            userId,
+            event: 'signal_density_peak',
+            text: `Signal density peak: ${activeSources.size}/16 sources active in 7d.`,
+            metadata: {
+              sourceCount: activeSources.size,
+              activeSources: sourceList,
+              totalPossible: 16,
+              confidence,
+              window: '7d',
+              hour: 16,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Signal density peak events written: ${written}`)
+    lastDailySignalDensityRun = new Date()
+    isDailySignalDensityRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily signal density audit failed:', error.message)
+    isDailySignalDensityRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4244,6 +4351,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily cross-domain pulse: 7 PM UTC every day (Job 29)')
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
   console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
+  console.log('   - Daily signal density audit: 4 PM UTC every day (Job 36)')
   console.log('')
 
   // Check every hour for scheduled jobs

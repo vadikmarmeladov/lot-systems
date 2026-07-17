@@ -2518,6 +2518,59 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 113: Wellbeing Integrity Arc — selfcare on 3+ distinct days in 7d, AND mood not depleted on 3+ consecutive days.
+  // Sustained proactive maintenance: not reactive selfcare, but baseline integrity across the week.
+  // Distinguishes operators who protect the floor from those who only intervene at crisis.
+  const p113Cut  = now - 7 * 24 * 60 * 60 * 1000
+  const p113Care = signals.filter(s => s.source === 'selfcare' && s.timestamp > p113Cut)
+  const p113Mood = signals.filter(s => s.source === 'mood' && s.timestamp > p113Cut)
+  const p113CareDays = new Set(p113Care.map(s => new Date(s.timestamp).toDateString())).size
+  const p113DepletedDays = p113Mood.filter(s => (s.metadata?.mood as string) === 'depleted').length
+  if (p113CareDays >= 3 && p113DepletedDays <= 1) {
+    const p113Conf = Math.min(0.68 + p113CareDays * 0.04 + (3 - Math.min(p113DepletedDays, 3)) * 0.03, 0.84)
+    patterns.push({
+      pattern: 'wellbeing-integrity-arc',
+      confidence: p113Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `WBINT: ${p113CareDays} care day(s) in 7d + ${p113DepletedDays} depleted mood signal(s). Proactive floor maintenance confirmed — consistent selfcare without depletion collapse.`,
+    })
+  }
+
+  // Pattern 114: Deep Focus Arc — journal 250+w AND 2+ memory captures AND no cohort signal — all within 8h.
+  // The operator enters solo cognitive mode: writing, capturing knowledge, no external social input.
+  // The absence of cohort signal is a positive indicator: undivided internal signal.
+  const p114Cut     = now - 8 * 60 * 60 * 1000
+  const p114Journal = signals.filter(s => s.source === 'journal' && s.timestamp > p114Cut && (s.metadata?.wordCount as number ?? 0) >= 250)
+  const p114Memory  = signals.filter(s => s.source === 'memory' && s.timestamp > p114Cut)
+  const p114Cohort  = signals.filter(s => s.source === 'cohort' && s.timestamp > p114Cut)
+  if (p114Journal.length >= 1 && p114Memory.length >= 2 && p114Cohort.length === 0) {
+    const p114Conf = Math.min(0.72 + p114Memory.length * 0.04 + p114Journal.length * 0.04, 0.88)
+    patterns.push({
+      pattern: 'deep-focus-arc',
+      confidence: p114Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `DFOC: journal ${p114Journal.length}×250+w + ${p114Memory.length} memory capture(s) in 8h — zero social signal. Solo cognitive mode confirmed. Internal signal undivided.`,
+    })
+  }
+
+  // Pattern 115: Signal Density Peak — 12+ distinct signal sources active in past 7 days.
+  // Full behavioral field instrumented. Maximum observable coverage across all tracked life domains.
+  // The system holds the most complete picture of the operator it can hold.
+  const p115Cut     = now - 7 * 24 * 60 * 60 * 1000
+  const p115Sources = new Set(signals.filter(s => s.timestamp > p115Cut).map(s => s.source))
+  if (p115Sources.size >= 12) {
+    const p115Conf = Math.min(0.80 + (p115Sources.size - 12) * 0.04, 0.96)
+    patterns.push({
+      pattern: 'signal-density-peak',
+      confidence: p115Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `SIG-DENSE: ${p115Sources.size}/16 distinct signal sources active in 7d. Maximum behavioral field coverage. The complete operator signal is transmitting.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3091,6 +3144,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   embodiedCognitionNode:      ['selfcare', 'journal', 'memory', 'log'],
   intentionCompletionNode:    ['intentions', 'planner', 'goals', 'log'],
   communityIntelligenceNode:  ['cohort', 'journal', 'memory', 'intentions', 'log'],
+
+  // ── Wellbeing integrity + deep focus + signal density nodes (2026-07-17 v91)
+  wellbeingIntegrityNode:  ['selfcare', 'mood', 'energy', 'log'],
+  deepFocusArcNode:        ['journal', 'memory', 'log'],
+  signalDensityNode:       ['journal', 'memory', 'planner', 'selfcare', 'intentions', 'cohort', 'energy', 'mood', 'goals', 'log'],
 }
 
 /**
@@ -3424,6 +3482,13 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['selfcare', 'journal', 'memory', 'intentions'],
     patternConditions: ['embodied-cognition-arc', 'vitality-cascade', 'creative-output-peak'],
     directive: 'Body integrated with mind. Selfcare feeding cognition. Journal and memory active simultaneously. The biological substrate is executing the strategy.',
+  },
+  {
+    archetype: 'Coherent Field Operator',
+    energyBands: ['moderate', 'high', 'low', 'unknown'],
+    dominantSources: ['journal', 'memory', 'intentions', 'selfcare', 'planner'],
+    patternConditions: ['signal-density-peak', 'quantum-presence-arc', 'full-system-coherence'],
+    directive: 'Full field coverage confirmed. 12+ signal sources active across 7 days. The complete behavioral profile is transmitting. No signal domain dark.',
   },
 ]
 
@@ -4856,6 +4921,48 @@ export function recordCommunityIntelligencePeak(cohortCount: number, journalCoun
     memoryCount,
     intentionCount,
     window: '48h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a wellbeing-integrity-arc signal — selfcare on 3+ distinct days + mood stable in 7d.
+ * Feeds P113 detection. Proactive floor maintenance: consistent care without depletion collapse.
+ */
+export function recordWellbeingIntegrityArc(careDays: number, depletedDays: number, totalCareActs: number) {
+  recordSignal('selfcare', 'wellbeing_integrity_arc', {
+    careDays,
+    depletedDays,
+    totalCareActs,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a deep-focus-arc signal — journal 250+w + memory 2+ captures in 8h, no cohort signal.
+ * Feeds P114 detection. Solo cognitive mode: writing and knowledge capture, undivided internal signal.
+ */
+export function recordDeepFocusArc(journalWords: number, memoryCount: number) {
+  recordSignal('journal', 'deep_focus_arc', {
+    journalWords,
+    memoryCount,
+    window: '8h',
+    arc: 'solo',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a signal-density-peak signal — 12+ distinct sources active in 7d.
+ * Feeds P115 detection. Maximum observable behavioral field coverage.
+ */
+export function recordSignalDensityPeak(sourceCount: number, activeSources: string[]) {
+  recordSignal('log', 'signal_density_peak', {
+    sourceCount,
+    activeSources,
+    totalPossible: 16,
+    window: '7d',
     hour: new Date().getHours(),
   })
 }

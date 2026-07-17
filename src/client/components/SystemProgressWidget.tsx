@@ -1148,6 +1148,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '112 patterns · 38 archetypes · 35 background jobs · 112+ handlers · 151+ dep nodes. Embodied cognition, intention completion, and community intelligence arcs deployed.',
     ],
   },
+  {
+    date: '2026-07-17',
+    session: 'Self-Assembly Session — v91 / P113–P115 · Arch39 Coherent Field Operator · J36 Daily Signal Density Audit · WBINT: DFOC: SIG-DENSE: · Dep Map 154+',
+    assembled: [
+      'intentionEngine.ts: P113 wellbeing-integrity-arc — selfcare 3+ days + depleted ≤1 day in 7d. Sustained biological maintenance confirmed, not reactive. Conf 0.68–0.84. suggestedWidget: selfcare.',
+      'intentionEngine.ts: P114 deep-focus-arc — journal 250w+ + memory 2+ captures + cohort 0 in 8h. Solo cognitive deep work with no social interrupt confirmed. Conf 0.72–0.88. suggestedWidget: journal.',
+      'intentionEngine.ts: P115 signal-density-peak — 12+ distinct signal sources active in 7d. Maximum field coverage: all signal domains instrumented. Conf 0.80–0.96. suggestedWidget: qos.',
+      'intentionEngine.ts: Arch39 Coherent Field Operator — energyBands all · dominantSources journal+memory+intentions+selfcare+planner · patternConditions signal-density-peak+quantum-presence-arc+full-system-coherence. Directive: Full field coverage confirmed. 12+ signal sources active across 7 days. 39 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: wellbeingIntegrityNode (4 deps) · deepFocusArcNode (3 deps) · signalDensityNode (10 deps). 154+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers added — recordWellbeingIntegrityArc · recordDeepFocusArc · recordSignalDensityPeak.',
+      'Logs.tsx: WBINT: handler (wellbeing_integrity_arc: CARE DAYS 7D · ACTS 7D · DEPLETE · CONF). DFOC: handler (deep_focus_arc: SOLO COGNITIVE header · WORDS 8H · MEM 8H · CONF). SIG-DENSE: handler (signal_density_peak: SRC 7D · CONF). COCKPIT-RULE compliant. 115+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — wellbeing-integrity-arc (WBINT ARC) · deep-focus-arc (DEEP FOCUS) · signal-density-peak (SIG DENSE). signalDensity computed (Set of 7d sources). Cohort view: Field: N/16 row added.',
+      'scheduled-jobs.ts: J36 daily-signal-density-audit — 16:00 UTC daily. Reads 7d logs per user. Maps event types to 16 signal sources. Writes signal_density_peak when activeSources ≥12. 36 background jobs total.',
+      'routes/api.ts: wellbeing_integrity_arc + deep_focus_arc + signal_density_peak added to displayableEvents (v91 block).',
+      '115 patterns · 39 archetypes · 36 background jobs · 115+ handlers · 154+ dep nodes. Wellbeing integrity, deep focus, and signal density arcs deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1185,19 +1202,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-06',
+  date: '2026-07-17',
   message: [
-    'ASSEMBLY RUN — 2026-07-06 · LOT-SR-20260706-02',
-    'P110 embodied-cognition-arc: selfcare + journal 150w+ + memory capture in 24h. Body fueling mind. Conf 0.72–0.86.',
-    'P111 intention-completion-loop: intention + planner + goal all in 24h. Full loop closed in one day. Conf 0.75–0.88.',
-    'P112 community-intelligence-peak: cohort + journal + memory + intentions in 48h. External signal anchored internally. Conf 0.68–0.84. 112 patterns total.',
-    'Arch38 Embodied Strategist: selfcare+journal+memory+intentions dominant · embodied-cognition-arc+vitality-cascade+creative-output-peak. Body integrated with mind. 38 archetypes total.',
-    'J35 daily-embodied-cognition-check: 11:00 UTC daily. selfcare + journal 150w+ + memory → writes embodied_cognition_arc. 35 background jobs total.',
-    'EMBCOG: INTCMP: COMINTEL: log handlers deployed (COCKPIT-RULE). 112+ handlers total.',
-    'Dep map: 151+ nodes. 3 new: embodiedCognitionNode + intentionCompletionNode + communityIntelligenceNode.',
-    'PATTERN_DISPLAY: EMBCOG ARC · INTCMP LOOP · COMINTEL added to QOS widget.',
-    '3 signal helpers added: recordEmbodiedCognitionArc · recordIntentionCompletionLoop · recordCommunityIntelligencePeak.',
-    '112 patterns · 38 archetypes · 35 jobs · 112+ handlers · 151+ dep nodes. Embodied cognition, intention completion, and community intelligence deployed.',
+    'ASSEMBLY RUN — 2026-07-17 · LOT-SR-20260717-01',
+    'P113 wellbeing-integrity-arc: selfcare 3+ days + depleted ≤1 day in 7d. Sustained biological maintenance confirmed. Conf 0.68–0.84.',
+    'P114 deep-focus-arc: journal 250w+ + memory 2+ captures + cohort 0 in 8h. Solo cognitive deep work with no social interrupt. Conf 0.72–0.88.',
+    'P115 signal-density-peak: 12+ distinct signal sources in 7d. Maximum field coverage — all domains instrumented. Conf 0.80–0.96. 115 patterns total.',
+    'Arch39 Coherent Field Operator: journal+memory+intentions+selfcare+planner dominant · signal-density-peak+quantum-presence-arc+full-system-coherence. Full field coverage confirmed. 39 archetypes total.',
+    'J36 daily-signal-density-audit: 16:00 UTC daily. 7d logs → 16 source map → signal_density_peak when ≥12 active. 36 background jobs total.',
+    'WBINT: DFOC: SIG-DENSE: log handlers deployed (COCKPIT-RULE). 115+ handlers total.',
+    'Dep map: 154+ nodes. 3 new: wellbeingIntegrityNode + deepFocusArcNode + signalDensityNode.',
+    'PATTERN_DISPLAY: WBINT ARC · DEEP FOCUS · SIG DENSE added to QOS widget. Cohort view: Field: N/16 row added.',
+    '3 signal helpers added: recordWellbeingIntegrityArc · recordDeepFocusArc · recordSignalDensityPeak.',
+    '115 patterns · 39 archetypes · 36 jobs · 115+ handlers · 154+ dep nodes. Wellbeing integrity, deep focus, and signal density deployed.',
     'DEPLOYED.',
   ],
 }

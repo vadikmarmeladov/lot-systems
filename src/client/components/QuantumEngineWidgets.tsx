@@ -75,6 +75,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'embodied-cognition-arc':      'EMBCOG ARC',
   'intention-completion-loop':   'INTCMP LOOP',
   'community-intelligence-peak': 'COMINTEL',
+  'wellbeing-integrity-arc':     'WBINT ARC',
+  'deep-focus-arc':              'DEEP FOCUS',
+  'signal-density-peak':         'SIG DENSE',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
@@ -168,6 +171,12 @@ export const QuantumEngineWidgets: React.FC = () => {
     const result = classifyPhysiologicalCohort(engineState.signals, getUserState(), engineState.recognizedPatterns ?? [])
     return result?.directive ?? null
   }, [engineState.signals.length, engineState.recognizedPatterns?.length])
+
+  // Signal density — distinct sources active in 7d (feeds P115)
+  const signalDensity = React.useMemo(() => {
+    const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000
+    return new Set(engineState.signals.filter(s => s.timestamp > cutoff).map(s => s.source)).size
+  }, [engineState.signals.length])
 
   const handleCarConnect = () => {
     setCarConnected((prev) => {
@@ -364,6 +373,12 @@ export const QuantumEngineWidgets: React.FC = () => {
                       </span>
                     </div>
                   )}
+                  {signalDensity > 0 && (
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-30 uppercase tracking-widest">Field</span>
+                      <span className="tabular-nums">{signalDensity}/16</span>
+                    </div>
+                  )}
                   {cohortDirective && (
                     <div className="border-t border-acc-400/20 pt-8 mt-4">
                       <div className="opacity-40">{cohortDirective}</div>
@@ -388,6 +403,12 @@ export const QuantumEngineWidgets: React.FC = () => {
                           <span className="opacity-30 uppercase tracking-widest">Energy</span>
                           <span className="capitalize">{live.energyBand}</span>
                         </div>
+                        {signalDensity > 0 && (
+                          <div className="flex justify-between items-baseline">
+                            <span className="opacity-30 uppercase tracking-widest">Field</span>
+                            <span className="tabular-nums">{signalDensity}/16</span>
+                          </div>
+                        )}
                         {live.directive && (
                           <div className="border-t border-acc-400/20 pt-8 mt-4">
                             <div className="opacity-40">{live.directive}</div>
