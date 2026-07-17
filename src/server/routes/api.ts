@@ -821,7 +821,17 @@ export default async (fastify: FastifyInstance) => {
     return { message }
   })
 
+  const CHAT_ALLOWED_TAGS = new Set([
+    UserTag.Admin, UserTag.RND, UserTag.Usership, UserTag.Onyx, UserTag.Legacy,
+  ].map((t) => t.toLowerCase()))
+
+  const canAccessChat = (tags: string[]) =>
+    tags.some((t) => CHAT_ALLOWED_TAGS.has(t.toLowerCase()))
+
   fastify.get('/chat-messages', async (req: FastifyRequest, reply) => {
+    if (!canAccessChat(req.user.tags || [])) {
+      return reply.status(403).send({ error: 'Chat requires Usership, Onyx, Legacy, R&D, or Admin' })
+    }
     const targetCount = req.user.canAccessUsSection() ? 500 : SYNC_CHAT_MESSAGES_TO_SHOW
     // Fetch 4× the target so the suspended-user filter always leaves enough rows.
     // Applying LIMIT before filtering meant suspended users' recent messages could
@@ -896,6 +906,9 @@ export default async (fastify: FastifyInstance) => {
       if (isSuspended) {
         console.log(`🚫 Suspended user ${req.user.id} attempted to post message`)
         return reply.status(403).send({ error: 'Account suspended' })
+      }
+      if (!canAccessChat(req.user.tags || [])) {
+        return reply.status(403).send({ error: 'Chat requires Usership, Onyx, Legacy, R&D, or Admin' })
       }
 
       const message = req.body.message.trim().slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
