@@ -743,6 +743,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('tranquility_base')
   }
 
+  // ── Calendar v13 — The Book of Days ────────────────────────────────────────
+
+  // Asimov Signal: January 2 — Isaac Asimov born 1920 (Foundation, I, Robot)
+  if (!hasBadge('asimov_signal') && month === 1 && day === 2) {
+    awardBadge('asimov_signal')
+    awarded.push('asimov_signal')
+  }
+
+  // Tolkien Gate: January 3 — J.R.R. Tolkien born 1892 (The Lord of the Rings)
+  if (!hasBadge('tolkien_gate') && month === 1 && day === 3) {
+    awardBadge('tolkien_gate')
+    awarded.push('tolkien_gate')
+  }
+
+  // Bloomsday: June 16 — James Joyce's Ulysses day (Dublin, 1904)
+  if (!hasBadge('bloomsday') && month === 6 && day === 16) {
+    awardBadge('bloomsday')
+    awarded.push('bloomsday')
+  }
+
   return awarded
 }
 
@@ -1236,6 +1256,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /philosopher'?s\s+stone/i,               badge: 'philosopher_stone_word' },
   { patterns: /prima\s+materia/i,                      badge: 'prima_materia_signal_word' },
   { patterns: /\bouroboros\b/i,                        badge: 'ouroboros' },
+  // ── v16 — The Quantum Library ─────────────────────────────────────────────
+  { patterns: /\bentangle(d|s|ment)?\b/i,              badge: 'entanglement_signal' },
+  { patterns: /\bsingularity\b/i,                      badge: 'singularity_gate' },
+  { patterns: /\bmatrix\b/i,                           badge: 'matrix_signal' },
+  { patterns: /\bcortex\b/i,                           badge: 'cortex_online' },
+  { patterns: /\bholograph?(ic)?\b/i,                  badge: 'hologram_projection' },
+  { patterns: /\buplink(s|ed|ing)?\b/i,                badge: 'uplink_active' },
+  { patterns: /\bgrid(s|ded|ding)?\b/i,                badge: 'grid_secured' },
+  { patterns: /\boverride(s|d|ing)?\b/i,               badge: 'override_sequence' },
+  { patterns: /\bclone(d|s|r)?\b/i,                   badge: 'clone_signal' },
+  { patterns: /\bbandwidth\b/i,                        badge: 'bandwidth_open' },
+  { patterns: /\bsynthetic\b/i,                        badge: 'synthetic_awareness' },
+  { patterns: /\b(cipher|cypher|decrypt|decode)(d|s|ing|er)?\b/i, badge: 'cypher_unlocked' },
+  // ── v13 Secret Boss — The Terminal Vault word triggers ────────────────────────
+  { patterns: /\bspice(s)?\b/i,                        badge: 'dune_signal' },
+  { patterns: /\bpsychohistory\b/i,                    badge: 'foundation_word' },
+  { patterns: /\bcyberspace\b/i,                       badge: 'neuromancer_signal' },
 ]
 
 /**
@@ -1668,6 +1705,14 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const greatWork = checkGreatWorkSequence()
   if (greatWork) awarded.push(greatWork)
 
+  // Behavioral v13: quantum session (3+ Quantum Library words in one entry)
+  const quantumSess = checkQuantumSession(journalText)
+  if (quantumSess) awarded.push(quantumSess)
+
+  // Behavioral v13: library run (14+ consecutive journal days)
+  const libraryRun = checkLibraryRun()
+  if (libraryRun) awarded.push(libraryRun)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -1694,6 +1739,10 @@ export function runMemoryAnswerEasterEggs(answerText: string): BadgeType[] {
   // Behavioral v14: double depth (two 100+ char answers same day)
   const doubleDepth = checkDoubleDepth(answerText)
   if (doubleDepth) awarded.push(doubleDepth)
+
+  // Behavioral v13: deep decoder (200+ char memory answer)
+  const deepDecoder = checkDeepDecoder(answerText)
+  if (deepDecoder) awarded.push(deepDecoder)
 
   // Word turns from answer text
   const wordTurns = detectWordTurns(answerText)
@@ -1914,6 +1963,86 @@ export function checkGreatWorkSequence(): BadgeType | null {
     }
   } catch { /* non-critical */ }
 
+  return null
+}
+
+// ── Behavioral Easter Egg v13 — Terminal Patterns ────────────────────────────
+
+const QUANTUM_WORDS_V16 = [
+  /\bentangle(d|s|ment)?\b/i,
+  /\bsingularity\b/i,
+  /\bmatrix\b/i,
+  /\bcortex\b/i,
+  /\bholograph?(ic)?\b/i,
+  /\buplink(s|ed|ing)?\b/i,
+  /\bgrid(s|ded|ding)?\b/i,
+  /\boverride(s|d|ing)?\b/i,
+  /\bclone(d|s|r)?\b/i,
+  /\bbandwidth\b/i,
+  /\bsynthetic\b/i,
+  /\b(cipher|cypher|decrypt|decode)(d|s|ing|er)?\b/i,
+]
+
+/**
+ * Award quantum_session badge if 3+ distinct Quantum Library (v16) words appear in one entry.
+ * Call when a journal entry is saved.
+ */
+export function checkQuantumSession(journalText: string): BadgeType | null {
+  if (hasBadge('quantum_session')) return null
+  const matchCount = QUANTUM_WORDS_V16.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('quantum_session')
+    return 'quantum_session'
+  }
+  return null
+}
+
+/**
+ * Award library_run badge for 14+ consecutive journal days.
+ * Reads the journal_dates localStorage key (array of ISO date strings).
+ * Call when a journal entry is saved.
+ */
+export function checkLibraryRun(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('library_run')) return null
+
+  try {
+    const stored = localStorage.getItem('journal_dates')
+    if (!stored) return null
+    const raw: string[] = JSON.parse(stored)
+    const dates = Array.from(new Set(raw.map(d => d.slice(0, 10)))).sort().reverse()
+    if (dates.length < 14) return null
+
+    let consecutive = 1
+    for (let i = 0; i < dates.length - 1; i++) {
+      const a = new Date(dates[i])
+      const b = new Date(dates[i + 1])
+      const diff = Math.round((a.getTime() - b.getTime()) / (1000 * 60 * 60 * 24))
+      if (diff === 1) {
+        consecutive++
+        if (consecutive >= 14) {
+          awardBadge('library_run')
+          return 'library_run'
+        }
+      } else {
+        consecutive = 1
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Award deep_decoder badge for a memory answer of 200+ characters.
+ * Call when a memory answer is submitted, passing the answer text.
+ */
+export function checkDeepDecoder(answerText: string): BadgeType | null {
+  if (hasBadge('deep_decoder')) return null
+  if (answerText.length >= 200) {
+    awardBadge('deep_decoder')
+    return 'deep_decoder'
+  }
   return null
 }
 

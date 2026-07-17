@@ -32,6 +32,14 @@ import {
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
 } from '#shared/constants'
 
+const CHAT_ALLOWED_TAGS: string[] = [
+  UserTag.Admin,
+  UserTag.RND,
+  UserTag.Usership,
+  UserTag.Onyx,
+  UserTag.Legacy,
+].map((t) => t.toLowerCase())
+
 export const Sync = React.memo(function SyncInner() {
   const formRef = React.useRef<HTMLFormElement>(null)
   const me = useStore(stores.me)
@@ -54,6 +62,13 @@ export const Sync = React.memo(function SyncInner() {
     )
   }, [me])
 
+  // Chat is restricted to Admin / R&D / Usership / Onyx / Legacy
+  const canAccessChat = React.useMemo(() => {
+    if (!me) return false
+    if (me.isAdmin) return true
+    return me.tags.some((tag) => CHAT_ALLOWED_TAGS.includes(tag.toLowerCase()))
+  }, [me])
+
   const { data: fetchedMessages } = useChatMessages()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
@@ -74,7 +89,7 @@ export const Sync = React.memo(function SyncInner() {
     const fetched = fetchedMessages || []
     const fetchedIds = new Set(fetched.map((m) => m.id))
     const fresh = sseMessages.filter((m) => !fetchedIds.has(m.id))
-    const combined = [...fresh, ...fetched]
+    const combined = [...fresh, ...fetched].filter((m) => m.message?.trim())
     return canAccessUserProfiles ? combined : combined.slice(0, SYNC_CHAT_MESSAGES_TO_SHOW)
   }, [fetchedMessages, sseMessages, canAccessUserProfiles])
 
@@ -154,6 +169,14 @@ export const Sync = React.memo(function SyncInner() {
     formRef.current?.querySelector('textarea')?.focus()
   }, [])
 
+  if (!canAccessChat) {
+    return (
+      <div className="max-w-[700px] text-acc/40 py-8">
+        Sync is available for Usership, Onyx, Legacy, R&D, and Admin members.
+      </div>
+    )
+  }
+
   return (
     <div className="max-w-[700px]">
       <div className="flex items-center mb-80">
@@ -207,7 +230,7 @@ export const Sync = React.memo(function SyncInner() {
                 'group flex items-start gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded',
                 i >= SYNC_CHAT_MESSAGES_TO_SHOW && 'text-acc/20'
               )}
-              onClick={featureUnlocks?.communityRich ? onToggleLike(x.id) : undefined}
+              onClick={onToggleLike(x.id)}
             >
               {authorId && (featureUnlocks?.socialMentions || canAccessUserProfiles) ? (
                 <GhostButton
@@ -230,7 +253,7 @@ export const Sync = React.memo(function SyncInner() {
                 {x.message}
               </div>
 
-              {!!x.likes && featureUnlocks?.communityRich && (
+              {!!x.likes && (
                 <Tag
                   className={cn(
                     'text-acc/40 select-none -mt-[2px]',
