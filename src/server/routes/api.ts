@@ -898,7 +898,10 @@ export default async (fastify: FastifyInstance) => {
         return reply.status(403).send({ error: 'Account suspended' })
       }
 
-      const message = req.body.message.slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
+      const message = req.body.message.trim().slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
+      if (!message) {
+        return reply.status(400).send({ error: 'Message cannot be empty' })
+      }
       const chatMessage = await fastify.models.ChatMessage.create({
         authorUserId: req.user.id,
         message,
