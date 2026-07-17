@@ -101,15 +101,22 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
                   ),
                 props.labelClassName
               )}
+              role={!!props.onLabelClick ? 'button' : undefined}
+              tabIndex={!!props.onLabelClick ? 0 : undefined}
               onClick={(e) => {
                 if (props.onLabelClick) {
-                  // Prevent parent onClick from firing if both handlers exist
                   if (props.onClick) {
                     e.stopPropagation()
                   }
                   props.onLabelClick()
                 }
               }}
+              onKeyDown={!!props.onLabelClick ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  props.onLabelClick!()
+                }
+              } : undefined}
             >
               {props.label}
             </span>
@@ -131,19 +138,26 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
                     : '',
                   props.labelClassName
                 )}
+                role={(!!props.onClick || !!props.onChildrenClick) ? 'button' : undefined}
+                tabIndex={(!!props.onClick || !!props.onChildrenClick) ? 0 : undefined}
                 onClick={(e) => {
                   if (props.onChildrenClick) {
-                    // Prevent parent onClick from firing if both handlers exist
                     if (props.onClick) {
                       e.stopPropagation()
                     }
                     props.onChildrenClick()
                   } else if (props.onClick) {
-                    // Stop propagation to prevent parent div from also calling onClick
                     e.stopPropagation()
                     props.onClick()
                   }
                 }}
+                onKeyDown={(!!props.onClick || !!props.onChildrenClick) ? (e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    if (props.onChildrenClick) props.onChildrenClick()
+                    else if (props.onClick) props.onClick()
+                  }
+                } : undefined}
               >
                 {props.children}
               </span>

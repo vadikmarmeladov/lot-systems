@@ -83,12 +83,19 @@ export const MonthlyPulseWidget: React.FC = () => {
   const [isFading, setIsFading] = React.useState(false)
   const [dismissed, setDismissed] = React.useState(false)
   const [dismissPhrase, setDismissPhrase] = React.useState<string | null>(null)
+  const dismissTimers = React.useRef<ReturnType<typeof setTimeout>[]>([])
+
+  React.useEffect(() => {
+    const timers = dismissTimers.current
+    return () => { timers.forEach(clearTimeout) }
+  }, [])
 
   React.useEffect(() => {
     if (!user?.id || !isUsership || monthNumber < 1) return
     if (!shouldShowPulse(user.id, monthNumber)) return
     setVisible(true)
-    setTimeout(() => setIsShown(true), 100)
+    const t = setTimeout(() => setIsShown(true), 100)
+    return () => clearTimeout(t)
   }, [user?.id, isUsership, monthNumber])
 
   const handleDismiss = React.useCallback(() => {
@@ -97,8 +104,10 @@ export const MonthlyPulseWidget: React.FC = () => {
     markDismissed(user.id, monthNumber)
     const phrase = DISMISS_PHRASES[Math.floor(Math.random() * DISMISS_PHRASES.length)]
     setDismissPhrase(phrase)
-    setTimeout(() => setIsFading(true), 2000)
-    setTimeout(() => setVisible(false), 3400)
+    dismissTimers.current.forEach(clearTimeout)
+    const t1 = setTimeout(() => setIsFading(true), 2000)
+    const t2 = setTimeout(() => setVisible(false), 3400)
+    dismissTimers.current = [t1, t2]
   }, [dismissed, user?.id, monthNumber])
 
   if (!visible) return null

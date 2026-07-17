@@ -138,6 +138,7 @@ export const RecipeWidget: React.FC = () => {
   const { mutate: createLog } = useCreateLog()
   const { data: logs } = useLogs()
   const loggedRecipesRef = React.useRef<Set<string>>(new Set())
+  const farewellTimers = React.useRef<ReturnType<typeof setTimeout>[]>([])
 
   const [turn, setTurn] = React.useState<WidgetTurn>('recipe')
   const [isShown, setIsShown] = React.useState(false)
@@ -145,6 +146,11 @@ export const RecipeWidget: React.FC = () => {
   const [isFading, setIsFading] = React.useState(false)
   const [isLabelFading, setIsLabelFading] = React.useState(false)
   const [farewell, setFarewell] = React.useState<{ label: string; phrase: string } | null>(null)
+
+  React.useEffect(() => {
+    const timers = farewellTimers.current
+    return () => { timers.forEach(clearTimeout) }
+  }, [])
 
   // Auto-log recipe when it becomes visible on System tab (only once per meal-time + recipe combo)
   React.useEffect(() => {
@@ -179,7 +185,8 @@ export const RecipeWidget: React.FC = () => {
   // Fade-in on show / full reset on hide
   React.useEffect(() => {
     if (state.isVisible) {
-      setTimeout(() => setIsShown(true), 100)
+      const t = setTimeout(() => setIsShown(true), 100)
+      return () => clearTimeout(t)
     } else {
       setIsShown(false)
       setWaterShown(false)
@@ -259,21 +266,21 @@ export const RecipeWidget: React.FC = () => {
 
     const picked = pickFarewellEntry(
       state.mealTime,
-      (weather as any)?.tempKelvin,
-      (weather as any)?.description,
+      weather?.tempKelvin ?? undefined,
+      weather?.description ?? undefined,
       state.isFasting
     )
     setFarewell(picked)
     setTurn('farewell')
 
-    setTimeout(() => {
+    const t1 = setTimeout(() => {
       setIsFading(true)
       setIsLabelFading(true)
     }, 3000)
-
-    setTimeout(() => {
+    const t2 = setTimeout(() => {
       dismissRecipeWidget()
     }, 4400)
+    farewellTimers.current = [t1, t2]
   }
 
   const handleClick = () => {
