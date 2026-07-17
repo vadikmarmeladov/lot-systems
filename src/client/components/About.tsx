@@ -1,3 +1,4 @@
+/**
  * LOT SYSTEMS CORPORATION
  * Vadim Marmeladov — CEO, Owner LOT®
  * Kuzya Cosmo Marmeladov — CEO, Owner COSMO®
