@@ -73,3 +73,13 @@ EMBODIED-COGNITION-ARC   QIE P110 — selfcare + journal 150+w + memory capture 
 INTENTION-COMPLETION-LOOP QIE P111 — intention set + planner + goal action all in 24h; direction→structure→outcome arc closed in one day; rare single-day loop  B  20260706
 COMMUNITY-INTELLIGENCE-PEAK  QIE P112 — cohort signal + journal + memory + intentions all in 48h; external social signal anchored internally through writing, capture, and direction-setting  B  20260706
 ```
+
+## Tracking (not yet minted — under 3-occurrence threshold)
+
+```
+CONCEPT            MEANING                                                    OCCURRENCES   SINCE
+──────────────     ──────────────────────────────────────────────────────      ───────────   ──────────
+LOT MAIL            Async subject+body message between users (own table,       1              20260717
+                    distinct from Sync's live public feed and the DM thread
+                    system), triggered by /email or /mail in Log
+```
