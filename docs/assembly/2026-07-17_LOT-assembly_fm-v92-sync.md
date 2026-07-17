@@ -1,0 +1,1 @@
+$(cat /tmp/assembly_log.md)
