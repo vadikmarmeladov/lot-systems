@@ -200,6 +200,90 @@ widget doing one job, per the existing architecture's separation of concerns.
 
 ---
 
+## The Person's Bible — The Cumulative Artifact
+
+Months Unlocked and the Memory Digest are not two separate features. Read
+together, month over month, they are the table of contents and the chapters of
+a single accumulating document — the thing this whole roadmap has been building
+toward without naming it. Call it what it is: **the Bible**. The first written
+account of an operator's year that the operator did not write themselves.
+
+### Structure
+
+```
+VOLUME I — The First Assembly (Year 1)
+  Part I    Months 1–3    "Cold Start · Signal Accumulation · Active User Status"
+    Ch. 1   Month 1       [no chapter — pre-digest, log volume below floor]
+    Ch. 2   Month 2       [no chapter — pre-digest]
+    Ch. 3   Month 3       {digest paragraph, if signal supports it}
+  Part II   Months 4–6    "The Portrait Deepens · Consistency · Half-Declared"
+    Ch. 4–6 {digest paragraphs}
+    ◆ Quarter Arc I  — closes Part I retrospectively, opens Part II
+  Part III  Months 7–9    "Listening · Rare Air · Habit"
+    Ch. 7–9 {digest paragraphs}
+    ◆ Quarter Arc II
+  Part IV   Months 10–12  "Almost There · One More · One Year With LOT"
+    Ch. 10–12 {digest paragraphs}
+    ◆ Quarter Arc III
+  ── The Year Portrait ──  closing chapter, Volume I
+```
+
+- **Table of Contents = Months Unlocked, re-read.** The chapter titles are the
+  affirmation lines already shipped in `MONTH_MESSAGES`
+  (`MonthlyPulseWidget.tsx`) — *"The first month. The system is beginning to
+  know you."* is not just a toast; it is Chapter 1's title once the widget's
+  job is done and the Bible's job begins.
+- **Chapters are honest about silence.** A month below the log-volume floor
+  gets no chapter, not a filler one — an intentionally blank page. A sparse
+  Volume I is still a true one. This is the same rule the Memory Digest widget
+  already follows, extended to the book as a whole.
+- **Quarter Arcs are Part dividers**, not extra chapters — the digest-of-digests
+  compression from the Month 10 spec finds its natural home here, closing three
+  chapters into one throughline before the next Part opens.
+- **The Year Portrait is the closing chapter**, not an appendix. Month 12's
+  existing copy — *"the portrait is complete — and still evolving"* — is
+  literally the last line of Volume I, and the hinge into Volume II.
+
+### Where it lives
+
+Not the public profile. `PublicProfile.tsx` already renders a single current
+`memoryStory` paragraph as a teaser — that stays as-is, an excerpt, not the
+book. The Bible is private, reached through the Memory Digest widget's
+**Archive** view (its terminal action becomes `Open the Bible →` rather than a
+flat list), landing on a dedicated full-page reading surface.
+
+That surface breaks one rule on purpose: LOT is monospace, system-default,
+instrument-panel typography everywhere (`LOT-STYLE-GUIDE.md` §Typography) —
+because everywhere else in LOT, the operator is *doing* something. The Bible is
+the one surface where they are only *reading*. A serif reading mode, single
+column, generous line-height, page-turn rather than scroll-and-fade — visually
+distinct enough that opening it feels like picking up a different kind of
+object, not tapping another widget.
+
+### Growth curve
+
+The Bible is why this roadmap resists making Month 12 a finish line.
+`Months unlocked: 12/12` retires into `Year one: complete.` precisely so
+Volume II can open without a counter implying restart. By month 24 the Bible
+is twice the size with a second Year Portrait closing it. By month 60 — five
+years, well inside Legacy-tier territory — it is the closest thing the product
+has to what the 2036 vision already promises: *"the longest-running personal
+intelligence record in consumer history"* (`LOT-AI-PRODUCT-BRIEF.md` §LOT®
+2036 Vision). The Bible is that promise made legible one month at a time,
+starting on day one of Usership.
+
+### Export
+
+The Bible is the human-readable rendering of exactly the data the Story API is
+specified to export machine-readable (`GET /api/story/:week_id`,
+`LOT-AI-PRODUCT-BRIEF.md` §Weekly Story-Report) — same underlying compression,
+two surfaces. When the Story API ships, `POST /api/story/:week_id/export` and
+"export a chapter of the Bible" are the same action pointed at different
+recipients: a robot anchoring context, a vehicle carrying ambient narrative, or
+the operator themselves, reading.
+
+---
+
 ## Month-by-Month
 
 Badge milestones below are the **already-shipped** streak chain from `badges.ts`
@@ -379,7 +463,10 @@ operator has changed.
   span, explicitly instructed to synthesize the *change* across all 12 monthly
   digests rather than list them. Delivered once, on the exact `joinedAt`
   anniversary, archived permanently (`user.metadata.yearPortrait`), never
-  regenerated. `Months unlocked:` retires as `Year one: complete.`
+  regenerated. `Months unlocked:` retires as `Year one: complete.` This is the
+  moment Volume I of the Bible closes — the Table of Contents (12 months, now
+  fixed), the chapters (each month's digest, blank pages included), and the
+  Year Portrait as the closing page, bound together for the first time.
 - **Signal-gated unlock:** `Level: ≋≋≋` "The Long Count" (day 365 exactly — "the
   Mayan tun-year," per the badge's own description). Legendary rarity. Unlock
   message: *"A year of presence. The architecture stands."* — written before
@@ -413,6 +500,7 @@ operator has changed.
 | Monthly digest generation (extends Monthly Email job) | **PROPOSED** | extends `memory.ts` compression path |
 | Quarter Arc Retrospective (months 4–6, 7–9…) | **PROPOSED** | digest-of-digests |
 | Year Portrait (month 12 finale) | **PROPOSED** | one-time, permanent archive |
+| The Bible (reading surface, Volume I TOC + chapters + Year Portrait) | **PROPOSED** | new page — spec above, composed entirely from the rows above it, no new generation logic of its own |
 | `Level:` symbols beyond 365 days | **NOT NEEDED YET** | 365 is the current ceiling by design — Year 2 is Legacy-tier territory, not a bigger number on the same scale |
 
 ---
@@ -431,6 +519,13 @@ architecture stands, not as a next unlockable level. The distinction matters
 because Usership's 12-month arc is a complete story on its own — *"the portrait
 is complete"* — and Legacy is a different story an operator opts into, not a
 sequel the system pressures them toward.
+
+The Bible does not care which tier funds its next chapter — Volume II opens on
+month 13 for any operator who stays Usership, Legacy or not. What Legacy adds is
+not more chapters; it is `weatherStation` and `wallet` sitting alongside them —
+the two Legacy-only blocks the Machiavelli reference account shows layered on
+top of a Bible that, underneath, any twelve-month Usership operator could have
+grown on their own.
 
 ---
 
@@ -452,6 +547,10 @@ sequel the system pressures them toward.
    count demanding attention.
 6. **Legacy is a choice, not a level.** The 12-month arc resolves on its own
    terms. What comes after is offered once, quietly, and dropped.
+7. **The book is never finished on purpose.** Volume I closes; it does not end
+   the Bible. Every design choice in this document — honest blank chapters, a
+   retiring counter instead of a resetting one, Quarter Arcs instead of a
+   flattened list — is made so Volume II opens without friction on month 13.
 
 ---
 
