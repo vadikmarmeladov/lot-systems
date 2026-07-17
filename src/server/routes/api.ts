@@ -6,7 +6,7 @@
  * Made in the USA | brand.lot-systems.com
  */
 
-import { Op } from 'sequelize'
+import { Op, Sequelize } from 'sequelize'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import seedrandom from 'seedrandom'
 import {
@@ -840,6 +840,7 @@ export default async (fastify: FastifyInstance) => {
     let messages: InstanceType<typeof fastify.models.ChatMessage>[] = []
     try {
       messages = await fastify.models.ChatMessage.findAll({
+        where: Sequelize.literal(`TRIM(message) <> ''`),
         order: [['createdAt', 'DESC']],
         limit: fetchLimit,
       })
