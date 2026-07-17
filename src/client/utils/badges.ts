@@ -523,6 +523,43 @@ export type BadgeType =
   | 'philosopher_stone_word'   // ≋·◉  Write "philosopher's stone" in journal (RARE)
   | 'prima_materia_signal_word'// ◉··∞ Write "prima materia" in journal (EPIC)
   | 'ouroboros'                // ○→○  Write "ouroboros" in journal (MYTHIC)
+  // ── Word Turn v16 — The Quantum Library ──────────────────────────────────────
+  | 'entanglement_signal'      // ∞≈∞  "entangled/entanglement" detected in text
+  | 'singularity_gate'         // ◉→∞  "singularity" detected in text
+  | 'matrix_signal'            // ▒·▒  "matrix" detected in text
+  | 'cortex_online'            // ≋·≋  "cortex" detected in text
+  | 'hologram_projection'      // ∘·∘·∘ "hologram/holographic" detected in text
+  | 'uplink_active'            // ↑·∘  "uplink" detected in text
+  | 'grid_secured'             // ╔·╗  "grid" detected in text
+  | 'override_sequence'        // →■→  "override" detected in text
+  | 'clone_signal'             // ◉≈◉  "clone/cloned" detected in text
+  | 'bandwidth_open'           // ≈→≈  "bandwidth" detected in text
+  | 'synthetic_awareness'      // ○·◎  "synthetic" detected in text
+  | 'cypher_unlocked'          // ▓→□  "cipher/cypher/decrypt/decode" detected in text
+  // ── Calendar Easter Eggs v13 — The Book of Days ──────────────────────────────
+  | 'tolkien_gate'             // ○→◉  January 3 — Tolkien born 1892 (EPIC)
+  | 'asimov_signal'            // ∞·∘  January 2 — Asimov born 1920 (EPIC)
+  | 'bloomsday'                // ≈·≈  June 16 — Bloomsday / James Joyce Ulysses (RARE)
+  // ── Behavioral Easter Eggs v13 — Terminal Patterns ───────────────────────────
+  | 'quantum_session'          // ∞·≋  3+ Quantum Library (v16) words in one journal entry
+  | 'library_run'              // ≋→∞  14 consecutive journal days
+  | 'deep_decoder'             // ▓→◉  Memory answer of 200+ characters
+  // ── Achievement RPG v14 — Quantum Class ──────────────────────────────────────
+  | 'quantum_entry'            // ∘→∞  Any 1 Word Turn v16 badge (COMMON)
+  | 'quantum_class'            // ≈→∞  Any 5 Word Turn v16 badges (UNCOMMON)
+  | 'quantum_complete'         // ≋→∞  All 12 Word Turn v16 badges (LEGENDARY)
+  | 'library_arc'              // ∞·◈  quantum_complete + all 3 Calendar v13 badges (LEGENDARY)
+  | 'sixteen_engines_arc'      // ◈·◈·◈ 1 badge from each Word Turn v1–v16 (LEGENDARY)
+  | 'entangled_opus'           // ∞·◉·∞ quantum_complete + library_run (LEGENDARY)
+  // ── Mastery Tier v16 — The Deep System ───────────────────────────────────────
+  | 'terminal_elder'           // ≋≋≋·  400+ distinct calendar days with check-in (EPIC)
+  | 'grand_librarian'          // ∞·≋·∞ 25,000+ total journal words (LEGENDARY)
+  | 'system_architect_age'     // ╔═╗·∞ Account age ≥ 6 years (LEGENDARY)
+  | 'sixteen_tongues'          // ◈·◈·≋ 1 badge from each of all 16 Word Turn engines (COSMIC)
+  // ── Secret Boss v13 — The Terminal Vault ─────────────────────────────────────
+  | 'dune_signal'              // ∘·◈   Write "spice" in journal — Dune (RARE, hidden)
+  | 'foundation_word'          // ≋·◉   Write "psychohistory" in journal — Foundation (EPIC)
+  | 'neuromancer_signal'       // ▓→◉   Write "cyberspace" in journal — Neuromancer (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -4788,6 +4825,294 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v16 — The Quantum Library ──────────────────────────────────────
+  entanglement_signal: {
+    id: 'entanglement_signal',
+    symbol: '∞≈∞',
+    name: 'Entanglement Signal',
+    description: 'Write "entangled" or "entanglement" in a journal or memory entry',
+    unlockMessage: '↳ Quantum entanglement: what affects one affects the other. You are woven in. ∞≈∞',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  singularity_gate: {
+    id: 'singularity_gate',
+    symbol: '◉→∞',
+    name: 'Singularity Gate',
+    description: 'Write "singularity" in a journal or memory entry',
+    unlockMessage: '↳ The convergence point. Everything before and after divides here. ◉→∞',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  matrix_signal: {
+    id: 'matrix_signal',
+    symbol: '▒·▒',
+    name: 'Matrix Signal',
+    description: 'Write "matrix" in a journal or memory entry',
+    unlockMessage: '↳ The matrix is the underlying structure. You found the pattern behind the pattern. ▒·▒',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  cortex_online: {
+    id: 'cortex_online',
+    symbol: '≋·≋',
+    name: 'Cortex Online',
+    description: 'Write "cortex" in a journal or memory entry',
+    unlockMessage: '↳ Neural architecture engaged. The cortex is the map and the territory. ≋·≋',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  hologram_projection: {
+    id: 'hologram_projection',
+    symbol: '∘·∘·∘',
+    name: 'Hologram Projection',
+    description: 'Write "hologram" or "holographic" in a journal or memory entry',
+    unlockMessage: '↳ Every fragment contains the whole. Holographic self: complete at any scale. ∘·∘·∘',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  uplink_active: {
+    id: 'uplink_active',
+    symbol: '↑·∘',
+    name: 'Uplink Active',
+    description: 'Write "uplink" in a journal or memory entry',
+    unlockMessage: '↳ Connection established to something larger. Signal ascending. ↑·∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  grid_secured: {
+    id: 'grid_secured',
+    symbol: '╔·╗',
+    name: 'Grid Secured',
+    description: 'Write "grid" in a journal or memory entry',
+    unlockMessage: '↳ The grid is live. Structure and flow, architecture and current. ╔·╗',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  override_sequence: {
+    id: 'override_sequence',
+    symbol: '→■→',
+    name: 'Override Sequence',
+    description: 'Write "override" in a journal or memory entry',
+    unlockMessage: '↳ Default behavior bypassed. You wrote the new instruction set. →■→',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  clone_signal: {
+    id: 'clone_signal',
+    symbol: '◉≈◉',
+    name: 'Clone Signal',
+    description: 'Write "clone" or "cloned" in a journal or memory entry',
+    unlockMessage: '↳ Which version is real? The one writing this is. ◉≈◉',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  bandwidth_open: {
+    id: 'bandwidth_open',
+    symbol: '≈→≈',
+    name: 'Bandwidth Open',
+    description: 'Write "bandwidth" in a journal or memory entry',
+    unlockMessage: '↳ Cognitive bandwidth: finite and precious. You named your capacity. ≈→≈',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  synthetic_awareness: {
+    id: 'synthetic_awareness',
+    symbol: '○·◎',
+    name: 'Synthetic Awareness',
+    description: 'Write "synthetic" in a journal or memory entry',
+    unlockMessage: '↳ The synthetic and the real are less different than you think. ○·◎',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  cypher_unlocked: {
+    id: 'cypher_unlocked',
+    symbol: '▓→□',
+    name: 'Cypher Unlocked',
+    description: 'Write "cipher", "cypher", "decrypt", or "decode" in a journal or memory entry',
+    unlockMessage: '↳ The code was always readable. You just learned the language. ▓→□',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  // ── Calendar Easter Eggs v13 — The Book of Days ───────────────────────────────
+  tolkien_gate: {
+    id: 'tolkien_gate',
+    symbol: '○→◉',
+    name: 'Tolkien Gate',
+    description: 'Check in on January 3 — J.R.R. Tolkien born 1892 (The Lord of the Rings)',
+    unlockMessage: '↳ Not all those who wander are lost. The Road goes ever on. Jan 3, 1892. ○→◉',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  asimov_signal: {
+    id: 'asimov_signal',
+    symbol: '∞·∘',
+    name: 'Asimov Signal',
+    description: 'Check in on January 2 — Isaac Asimov born 1920 (Foundation, I, Robot)',
+    unlockMessage: '↳ The three laws of self-care: 1. Do not harm yourself. 2. Function. 3. Persist. Jan 2. ∞·∘',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  bloomsday: {
+    id: 'bloomsday',
+    symbol: '≈·≈',
+    name: 'Bloomsday',
+    description: 'Check in on June 16 — James Joyce Ulysses day (Bloomsday, Dublin 1904)',
+    unlockMessage: '↳ June 16, 1904. One ordinary day made extraordinary by full attention. ≈·≈',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  // ── Behavioral Easter Eggs v13 — Terminal Patterns ────────────────────────────
+  quantum_session: {
+    id: 'quantum_session',
+    symbol: '∞·≋',
+    name: 'Quantum Session',
+    description: '3 or more Quantum Library (v16) words detected in a single journal entry',
+    unlockMessage: '↳ The library is alive inside you. Three signals in one session. ∞·≋',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  library_run: {
+    id: 'library_run',
+    symbol: '≋→∞',
+    name: 'Library Run',
+    description: '14 consecutive days with a journal entry — the reading marathon',
+    unlockMessage: '↳ Fourteen days straight. The chapter does not end here. ≋→∞',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  deep_decoder: {
+    id: 'deep_decoder',
+    symbol: '▓→◉',
+    name: 'Deep Decoder',
+    description: 'Submit a memory answer of 200 or more characters',
+    unlockMessage: '↳ The long answer. The real one. Two hundred characters of signal. ▓→◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  // ── Achievement RPG v14 — Quantum Class ───────────────────────────────────────
+  quantum_entry: {
+    id: 'quantum_entry',
+    symbol: '∘→∞',
+    name: 'Quantum Entry',
+    description: 'Earn any 1 Word Turn v16 (Quantum Library) badge',
+    unlockMessage: '↳ First quantum signal detected. The library opens. ∘→∞',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  quantum_class: {
+    id: 'quantum_class',
+    symbol: '≈→∞',
+    name: 'Quantum Class',
+    description: 'Earn any 5 Word Turn v16 (Quantum Library) badges',
+    unlockMessage: '↳ Five frequencies locked. Quantum class assigned. ≈→∞',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  quantum_complete: {
+    id: 'quantum_complete',
+    symbol: '≋→∞',
+    name: 'Quantum Complete',
+    description: 'Earn all 12 Word Turn v16 (Quantum Library) badges',
+    unlockMessage: '↳ All twelve quantum frequencies acquired. The library is complete. ≋→∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  library_arc: {
+    id: 'library_arc',
+    symbol: '∞·◈',
+    name: 'Library Arc',
+    description: 'Earn quantum_complete + all 3 Calendar v13 (Book of Days) badges',
+    unlockMessage: '↳ Complete archive: all twelve words, three sacred dates. The arc closes. ∞·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  sixteen_engines_arc: {
+    id: 'sixteen_engines_arc',
+    symbol: '◈·◈·◈',
+    name: 'Sixteen Engines Arc',
+    description: 'Earn at least 1 badge from each of Word Turn engines v1–v16',
+    unlockMessage: '↳ Sixteen engines running. Every vocabulary represented. The full machine. ◈·◈·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  entangled_opus: {
+    id: 'entangled_opus',
+    symbol: '∞·◉·∞',
+    name: 'Entangled Opus',
+    description: 'Earn quantum_complete + library_run (14 consecutive journal days)',
+    unlockMessage: '↳ Quantum complete. Fourteen days continuous. The great entangled work. ∞·◉·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v16 — The Deep System ────────────────────────────────────────
+  terminal_elder: {
+    id: 'terminal_elder',
+    symbol: '≋≋≋·',
+    name: 'Terminal Elder',
+    description: '400 or more distinct calendar days with any check-in',
+    unlockMessage: '↳ Four hundred distinct days. The terminal has been running a long time. ≋≋≋·',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  grand_librarian: {
+    id: 'grand_librarian',
+    symbol: '∞·≋·∞',
+    name: 'Grand Librarian',
+    description: '25,000 or more total journal words across all entries',
+    unlockMessage: '↳ Twenty-five thousand words. A library unto yourself. ∞·≋·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  system_architect_age: {
+    id: 'system_architect_age',
+    symbol: '╔═╗·∞',
+    name: 'System Architect',
+    description: 'Account age ≥ 6 years (2,190+ days since account creation)',
+    unlockMessage: '↳ Six years online. The architecture predates most software you use. ╔═╗·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  sixteen_tongues: {
+    id: 'sixteen_tongues',
+    symbol: '◈·◈·≋',
+    name: 'Sixteen Tongues',
+    description: 'Earn at least 1 badge from each of all 16 Word Turn engines (v1–v16)',
+    unlockMessage: '↳ Sixteen vocabularies. The self speaks every dialect the archive knows. ◈·◈·≋',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v13 — The Terminal Vault ──────────────────────────────────────
+  dune_signal: {
+    id: 'dune_signal',
+    symbol: '∘·◈',
+    name: 'Dune Signal',
+    description: 'Write "spice" in any journal or memory entry — Dune reference',
+    unlockMessage: '↳ The spice must flow. You found the most important substance in the universe. ∘·◈',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  foundation_word: {
+    id: 'foundation_word',
+    symbol: '≋·◉',
+    name: 'Foundation Word',
+    description: 'Write "psychohistory" in any journal or memory entry — Asimov Foundation',
+    unlockMessage: '↳ Psychohistory: the math of human behavior across centuries. You are part of the Plan. ≋·◉',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  neuromancer_signal: {
+    id: 'neuromancer_signal',
+    symbol: '▓→◉',
+    name: 'Neuromancer Signal',
+    description: 'Write "cyberspace" in any journal or memory entry — Neuromancer reference',
+    unlockMessage: '↳ "Cyberspace. A consensual hallucination." — William Gibson, 1984. You are in it. ▓→◉',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -5295,6 +5620,71 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     )
     if (allTwelveEngines && engineThirteenPresent && !hasBadge('thirteen_tongues')) {
       if (awardBadge('thirteen_tongues')) newBadges.push('thirteen_tongues')
+    }
+
+    // ── v16 Quantum Library — Achievement RPG v14 ─────────────────────────────
+    const quantumV16Badges: BadgeType[] = [
+      'entanglement_signal', 'singularity_gate', 'matrix_signal', 'cortex_online',
+      'hologram_projection', 'uplink_active', 'grid_secured', 'override_sequence',
+      'clone_signal', 'bandwidth_open', 'synthetic_awareness', 'cypher_unlocked',
+    ]
+    const quantumEarned = quantumV16Badges.filter(b => hasBadge(b))
+
+    if (quantumEarned.length >= 1 && !hasBadge('quantum_entry')) {
+      if (awardBadge('quantum_entry')) newBadges.push('quantum_entry')
+    }
+    if (quantumEarned.length >= 5 && !hasBadge('quantum_class')) {
+      if (awardBadge('quantum_class')) newBadges.push('quantum_class')
+    }
+    const quantumComplete = quantumEarned.length >= 12
+    if (quantumComplete && !hasBadge('quantum_complete')) {
+      if (awardBadge('quantum_complete')) newBadges.push('quantum_complete')
+    }
+
+    // entangled_opus: quantum_complete + library_run
+    if (quantumComplete && hasBadge('library_run') && !hasBadge('entangled_opus')) {
+      if (awardBadge('entangled_opus')) newBadges.push('entangled_opus')
+    }
+
+    // library_arc: quantum_complete + all 3 Calendar v13 badges
+    const calendarV13Badges: BadgeType[] = ['tolkien_gate', 'asimov_signal', 'bloomsday']
+    if (quantumComplete && calendarV13Badges.every(b => hasBadge(b)) && !hasBadge('library_arc')) {
+      if (awardBadge('library_arc')) newBadges.push('library_arc')
+    }
+
+    // sixteen_engines_arc: 1 badge from each Word Turn v1–v16
+    const engineSixteenPresent = quantumEarned.length >= 1
+    const allSixteenEngines = allTwelveEngines && engineThirteenPresent && engineSixteenPresent
+    if (allSixteenEngines && !hasBadge('sixteen_engines_arc')) {
+      if (awardBadge('sixteen_engines_arc')) newBadges.push('sixteen_engines_arc')
+    }
+
+    // Mastery v16: terminal_elder — 400+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 400 && !hasBadge('terminal_elder')) {
+        if (awardBadge('terminal_elder')) newBadges.push('terminal_elder')
+      }
+    }
+
+    // Mastery v16: grand_librarian — 25,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 25000 && !hasBadge('grand_librarian')) {
+        if (awardBadge('grand_librarian')) newBadges.push('grand_librarian')
+      }
+    }
+
+    // Mastery v16: system_architect_age — Account age ≥ 6 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupAge = new Date(stats.signupDate)
+      const yearsAge = (new Date().getTime() - signupAge.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsAge >= 6 && !hasBadge('system_architect_age')) {
+        if (awardBadge('system_architect_age')) newBadges.push('system_architect_age')
+      }
+    }
+
+    // Mastery v16: sixteen_tongues — 1 badge from all 16 Word Turn engines
+    if (allSixteenEngines && !hasBadge('sixteen_tongues')) {
+      if (awardBadge('sixteen_tongues')) newBadges.push('sixteen_tongues')
     }
 
   } catch (error) {
