@@ -286,11 +286,20 @@ always-visible meter.
 - **Click-to-expand:** reveals the four Chapter labels (§4) with the current
   chapter highlighted — pure client-side, reads the same `chapter` value
   `evolution.ts` already computes
-- **Month 12 → 13 transition:** rather than resetting or disappearing, the
-  bar fills completely and relabels itself once, permanently: `Year One:
-  Complete`. No further countdown is shown — this is deliberate; Year Two
-  should not feel like "13/24," it should feel like a closed chapter that
-  becomes part of the Story Archive (§7.2)
+- **Month 12 → 13 transition:** the counter does not reset or freeze. At
+  Month 12 the bar fills and the label reads `Months Unlocked: 12/12` for
+  the last time; from Month 13 onward the `/12` denominator drops and the
+  widget becomes a plain, ever-climbing count — `Months Unlocked: 13`,
+  `14`, `15`... — the same field, the same placement, just no longer
+  bounded. This is deliberate: freezing the number at a "Year One:
+  Complete" cap would flatten exactly the signal that makes Machiavelli's
+  demo profile feel evolved (`streak: 1469` reads as *enormity*, not
+  completion — see §3, §8). A subscriber's month-count should behave the
+  same way: it keeps counting for as long as they stay Usership, and the
+  rising number *is* the tenure flex, with no reset between Year One and
+  Year Two. The 12-segment bar itself stops advancing (it has nothing left
+  to fill), staying visually solid as a permanent marker that Year One's
+  chapter closed — but the number beside it keeps going
 
 ### 7.2 Monthly Memory Digest + Story Archive — the centerpiece proposal
 
