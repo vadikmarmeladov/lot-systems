@@ -964,6 +964,15 @@ export default async (fastify: FastifyInstance) => {
   fastify.post(
     '/chat-messages/like',
     async (req: FastifyRequest<{ Body: ChatMessageLikePayload }>, reply) => {
+      // Same participation gate as posting: suspended users and users without
+      // an allowed tag cannot interact with chat (including likes).
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+      if (!canAccessChat(req.user.tags || [])) {
+        return reply.status(403).send({ error: 'Chat requires Usership, Onyx, Legacy, R&D, or Admin' })
+      }
       const message = await fastify.models.ChatMessage.findByPk(
         req.body.messageId
       )
