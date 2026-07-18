@@ -160,10 +160,14 @@ export type LogContext = {
   temperature?: number | null;
   humidity?: number | null;
   weatherDescription?: string | null;
+  sky?: string | null;
   country?: string | null;
   city?: string | null;
   timeZone?: string | null;
   date?: string | null;
+  zodiacSign?: string | null;
+  moonPhase?: string | null;
+  moonIllumination?: number | null;
   [key: string]: any;
 };
 

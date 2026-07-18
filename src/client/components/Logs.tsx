@@ -22,7 +22,7 @@ import {
   USER_SETTING_NAMES,
   USER_SETTING_NAME_BY_ID,
 } from '#shared/constants'
-import { toCelsius } from '#shared/utils'
+import { toCelsius, getMoonEmoji } from '#shared/utils'
 import {
   playKeyClick,
   playSynthActivationChime,
@@ -2735,6 +2735,7 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [storyPeriod, setStoryPeriod] = React.useState<'day' | 'week' | 'month' | 'year'>('day')
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -3154,7 +3155,10 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compressed story of your day (default)',
+          '/story week   Compressed story of your week',
+          '/story month  Compressed story of your month',
+          '/story year   Compressed story of your year',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -3180,17 +3184,30 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const periodMatch = value.match(/\/story\s+(day|today|week|month|year)\b/i)
+          const period: 'day' | 'week' | 'month' | 'year' = periodMatch
+            ? (periodMatch[1].toLowerCase() === 'today' ? 'day' : periodMatch[1].toLowerCase() as 'day' | 'week' | 'month' | 'year')
+            : 'day'
+          setStoryPeriod(period)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            // Only strip the period token itself when it's a recognized
+            // keyword — otherwise the word right after /story is part of
+            // the operator's actual entry and must survive (e.g. "/story
+            // journaling was hard" keeps "journaling was hard").
+            const stripPattern = periodMatch
+              ? new RegExp(`\\/story\\s+${periodMatch[1]}`, 'i')
+              : /\/story/i
+            const logText = value.replace(stripPattern, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }
@@ -3200,6 +3217,9 @@ const NoteEditor = ({
   const contextText = React.useMemo(() => {
     if (!log?.context) return ''
     const weatherParts: string[] = []
+    if (log.context?.moonPhase) {
+      weatherParts.push(getMoonEmoji(log.context.moonPhase))
+    }
     if (log.context?.temperature) {
       const celsius = toCelsius(log.context.temperature)
       weatherParts.push(`${Math.round(celsius)}°C`)
@@ -3445,7 +3465,7 @@ const NoteEditor = ({
         )}
         {(storyLoading || storyResponse) && (
           <div className="mt-8">
-            <Block label="📖" blockView>
+            <Block label={`📖 ${storyPeriod.toUpperCase()}`} blockView>
               {storyLoading && !storyResponse && (
                 <div className="opacity-40 tracking-widest">...</div>
               )}
@@ -3471,6 +3491,9 @@ const LogContainer: React.FC<{
 }> = ({ log, dateFormat, children }) => {
   const contextText = React.useMemo(() => {
     const weatherParts: string[] = []
+    if (log.context?.moonPhase) {
+      weatherParts.push(getMoonEmoji(log.context.moonPhase))
+    }
     if (log.context?.temperature) {
       const celsius = toCelsius(log.context.temperature)
       weatherParts.push(`${Math.round(celsius)}°C`)
