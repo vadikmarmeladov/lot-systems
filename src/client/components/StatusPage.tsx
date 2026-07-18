@@ -110,12 +110,25 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
   const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
     switch (checkStatus) {
-      case 'ok':
-        return '✓'
-      case 'error':
-        return '✕'
-      case 'unknown':
-        return '?'
+      case 'ok': return '✓'
+      case 'error': return '✕'
+      case 'unknown': return '—'
+    }
+  }
+
+  const getStatusLabel = (checkStatus: 'ok' | 'error' | 'unknown') => {
+    switch (checkStatus) {
+      case 'ok': return 'Operational'
+      case 'error': return 'Error'
+      case 'unknown': return 'Degraded'
+    }
+  }
+
+  const getOverallLabel = (overall: 'ok' | 'degraded' | 'error') => {
+    switch (overall) {
+      case 'ok': return 'All systems operational'
+      case 'degraded': return 'Degraded performance'
+      case 'error': return 'System issues detected'
     }
   }
 
@@ -158,17 +171,32 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
       {status && (
         <>
+          <div
+            className={cn(
+              'h-px mb-16',
+              status.overall === 'ok' && 'bg-acc',
+              status.overall === 'degraded' && 'bg-acc/40',
+              status.overall === 'error' && 'bg-acc/70',
+            )}
+            role="status"
+            aria-label={getOverallLabel(status.overall)}
+          />
+
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+              <span className={cn(
+                status.overall === 'ok' && 'text-acc',
+                status.overall === 'degraded' && 'text-acc/60',
+                status.overall === 'error' && 'text-acc/80',
+              )}>
+                {getOverallLabel(status.overall)}
+              </span>
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
             <Block label="Last updated:" labelClassName="!pl-0" containsSmallButton>
               <div className="flex items-center gap-x-16">
-                <span>
+                <span aria-live="polite">
                   {formatDate(lastUpdate.toISOString())}
                   {status.cached && status.cacheAge && (
                     <span className="text-acc/40">
@@ -198,21 +226,32 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
-                  <span className={cn(
-                    check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
-                  )}>
-                    {check.status === 'ok' ? 'Ok' :
-                     check.status === 'error' ? 'Error' :
-                     'Unknown'}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      check.status === 'ok' && 'text-acc',
+                      check.status === 'error' && 'text-acc/80',
+                      check.status === 'unknown' && 'text-acc/40',
+                    )}
+                  >
+                    {getStatusIcon(check.status)}
+                  </span>
+                  <span
+                    className={cn(
+                      check.status === 'ok' && 'text-acc',
+                      check.status === 'error' && 'text-acc/80',
+                      check.status === 'unknown' && 'text-acc/40',
+                    )}
+                    aria-label={`${check.name}: ${getStatusLabel(check.status)}`}
+                  >
+                    {getStatusLabel(check.status)}
                   </span>
                   {check.duration !== undefined && (
-                    <span className="text-acc/40">({check.duration}ms)</span>
+                    <span className="text-acc/30">{check.duration}ms</span>
                   )}
                 </div>
                 {check.message && (
-                  <div className="text-acc/60 mt-4">{check.message}</div>
+                  <div className="text-acc/50 mt-4">{check.message}</div>
                 )}
               </Block>
             ))}

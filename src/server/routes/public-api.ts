@@ -61,7 +61,23 @@ async function checkDatabase(): Promise<SystemCheck> {
   }
 }
 
-async function checkWeatherAPI(): Promise<SystemCheck> {
+const CHECK_TIMEOUT_MS = 5000
+
+async function withTimeout(check: () => Promise<SystemCheck>, timeoutMs: number): Promise<SystemCheck> {
+  return Promise.race([
+    check(),
+    new Promise<SystemCheck>((resolve) =>
+      setTimeout(() => resolve({
+        name: 'unknown',
+        status: 'unknown',
+        message: `Check timed out after ${timeoutMs}ms`,
+        duration: timeoutMs,
+      }), timeoutMs)
+    ),
+  ])
+}
+
+async function checkEngineStack(): Promise<SystemCheck> {
   const start = Date.now()
   try {
     // Check Weather API
@@ -345,19 +361,20 @@ async function performHealthChecks(): Promise<{
   overall: 'ok' | 'degraded' | 'error'
 }> {
   const checks = await Promise.all([
-    checkAuth(),
-    checkSync(),
-    checkSettings(),
-    checkUsers(),
-    checkSystems(),
-    checkWeatherAPI(),
-    checkDatabase(),
-    checkMemory(),
+    withTimeout(() => checkAuth(), CHECK_TIMEOUT_MS),
+    withTimeout(() => checkSync(), CHECK_TIMEOUT_MS),
+    withTimeout(() => checkSettings(), CHECK_TIMEOUT_MS),
+    withTimeout(() => checkUsers(), CHECK_TIMEOUT_MS),
+    withTimeout(() => checkSystems(), CHECK_TIMEOUT_MS),
+    withTimeout(() => checkEngineStack(), CHECK_TIMEOUT_MS),
+    withTimeout(() => checkDatabase(), CHECK_TIMEOUT_MS),
+    withTimeout(() => checkMemory(), CHECK_TIMEOUT_MS),
   ])
 
-  // Determine overall status
+  // Determine overall status: any error → error, any timeout → degraded, else ok
   const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  const hasUnknown = checks.some((c) => c.status === 'unknown')
+  const overall: 'ok' | 'degraded' | 'error' = hasErrors ? 'error' : hasUnknown ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
