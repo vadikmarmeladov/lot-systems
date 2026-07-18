@@ -227,11 +227,15 @@ export const System = React.memo(function SystemInner() {
   }, [answerLogs])
 
   // Quantum state - analyze intentions and get current user state
-  const quantumState = React.useMemo(() => {
-    analyzeIntentions() // Trigger fresh analysis
-    recomputeAssembly() // Recompute self-assembly state from signals
-    return getUserState()
-  }, [logs]) // Recompute when logs change (new signals recorded)
+  // useEffect (not useMemo) so atom writes happen after paint, not during render.
+  // Writing to nanostores atoms inside useMemo cascades 10 synchronous re-renders
+  // before the browser can paint, causing visible UI lag on every logs change.
+  const [quantumState, setQuantumState] = React.useState(() => getUserState())
+  React.useEffect(() => {
+    analyzeIntentions()
+    recomputeAssembly()
+    setQuantumState(getUserState())
+  }, [logs])
 
   // Physiological cohort — live archetype classification from signal state
   const physiologicalCohort = React.useMemo(() => {
