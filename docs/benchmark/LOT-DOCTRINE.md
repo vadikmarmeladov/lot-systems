@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev M
+# LOT-DOCTRINE  rev N
 
 ## Render Isolation
 
@@ -124,6 +124,19 @@ updates on every audit; feature rows update when a new iteration supersedes.
 (SR-20260605-01: MANIFEST created, 115 branches cataloged, 8 BEST identified.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
 SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
+
+A BEST tag is not itself the artifact — it is a pointer to one. If the
+branch it points to is never cherry-picked to staging (Ship Mode Discipline)
+and is later pruned or lost, the MANIFEST row becomes the only remaining
+trace of work that otherwise no longer exists anywhere in the repository.
+The MANIFEST audit should flag any BEST-tagged branch that has gone more
+than a few audit cycles without shipping as at-risk, not just prunable
+clutter to reduce.
+(SR-20260718-01: COSMO Hardware / brave-lamport-t9z5u8, 14/14 iterations,
++2610 lines, tagged BEST in MANIFEST v2 [2026-06-12], never cherry-picked,
+branch no longer exists on remote, zero surviving content anywhere in the
+repo. Work restarted from zero on brave-lamport-n3e2nh as LOT Computer
+v1.0 — the loss cost one full design cycle.)
 
 ## Signal Momentum Architecture
 

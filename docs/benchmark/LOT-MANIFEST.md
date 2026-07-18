@@ -3,7 +3,7 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-27 (updated)
+DATE:     2026-07-18 (updated)
 ================================================================================
 
 Central catalog of all self-assembly routines across all branches.
@@ -28,7 +28,7 @@ LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
-COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
+LOT Computer HW  | brave-lamport-n3e2nh          | (pend)   | 1/1   | READY  | 5     | +~1450 | LOT Computer — hardware spec + BOM + firmware doc + connector doc + PDF manual v1.0 (see NOTE below)
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
 Badge RPG        | cool-hypatia-aqj7dg          | (head)   | 3/3   | BEST   | 4     | +1832  | Badge Codex v12 — 156 badges, character classes, codex markdown
 Self-Assembly v45| pensive-rubin-4jhgF           | 95d47fa  | 5/5   | BEST   | 8     | +677   | Patterns 63-66, Archetype 18, QOS Mode, Background Job 9
@@ -85,8 +85,8 @@ gallant-mayer    | 35    | GqGA0             | 34    | Same health check fix ite
 pensive-rubin    | 5     | 4jhgF             | 4     | Strict superset progression
 relaxed-hamilton | 8     | eRBVA             | 7     | LOT Mail iterations (SUPERSEDED by determined-turing)
 determined-turing| 6     | f6bw7r            | 5     | LOT Mail iterations (latest series)
-dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations (SUPERSEDED by brave-lamport)
-brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
+dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations (SUPERSEDED by brave-lamport, LOST)
+brave-lamport    | 6     | n3e2nh            | 5     | COSMO/LOT Computer hardware iterations (latest series — see NOTE)
 gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
 nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson)
 beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (latest series)
@@ -184,13 +184,35 @@ CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
-  COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
+  LOT Computer HW  | brave-lamport-n3e2nh        | +~1450 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
 
 NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
 they were incorporated into master in prior sessions. The ship queue will be
 re-populated as new BEST branches are designated from future assembly runs.
 The protocol above applies to all future merges.
+
+NOTE (2026-07-18, LOST WORK RECORD): The prior COSMO Hardware entry
+(brave-lamport-t9z5u8, c7d353ef, 14/14 iterations, 7 files, +2610 lines,
+"COSMO® Cube — complete hardware computer design v1.0") no longer exists on
+any remote branch and none of its content survives anywhere in this
+repository (grepped clean — zero hits for "COSMO Cube" or hardware-computer
+content prior to this entry). It was catalogued as BEST but was never
+cherry-picked to staging/master per the Sunday protocol, and the branch was
+later pruned or lost before that happened — the MANIFEST recorded its
+existence but the MANIFEST is not the artifact; the artifact lived only on
+the unmerged branch. This is the failure mode WIKI-GUARD and Manifest
+Hygiene (LOT-DOCTRINE.md) do not yet cover: a BEST-tagged branch can vanish
+between one audit and the next with no trace but its own MANIFEST row. This
+session (brave-lamport-n3e2nh) restarts the hardware-computer design from
+zero under the same branch family name and ships the full record as
+committed .md/.pdf docs on first pass rather than leaving it live only on
+an unmerged branch — see LOT-SR-20260718-01 for the session record and
+docs/technical/LOT-COMPUTER-HARDWARE-SPEC.md +
+docs/technical/LOT-COMPUTER-FIRMWARE.md +
+docs/technical/LOT-COMPUTER-SOFTWARE-CONNECTOR.md for the artifact. A
+BEST-tagged branch with no corresponding committed doc/session-report
+should be treated as at-risk in future audits.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
