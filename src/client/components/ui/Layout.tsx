@@ -32,9 +32,12 @@ const NavButton = React.memo(function NavButton({
       className={cn(
         'mb-4 flex-shrink-0',
         !link.route && 'opacity-30 pointer-events-none',
+        // Active tab: solid fill, no hover effect. before:!hidden fully
+        // disables the grid-fill-hover ::before (grid + opaque backdrop) so
+        // hovering the active button never overpaints its solid fill.
         isActive && (isMirrorOn
-          ? 'bg-white/20 hover:bg-white/20 hover:before:!opacity-0'
-          : 'bg-acc text-bac hover:bg-acc hover:text-bac hover:before:!opacity-0')
+          ? 'bg-white/20 hover:bg-white/20 before:!hidden'
+          : 'bg-acc text-bac before:!hidden')
       )}
       onClick={link.route ? () => goTo(link.route!) : undefined}
       disabled={!link.route}
