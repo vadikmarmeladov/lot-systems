@@ -38,6 +38,8 @@ import { IntentionsWidget } from './IntentionsWidget'
 import { SubscribeWidget } from './SubscribeWidget'
 import { PlannerWidget } from './PlannerWidget'
 import { PatternInsightsWidget } from './PatternInsightsWidget'
+import { MoodAnalytics } from './MoodAnalytics'
+import { GoalJourneyWidget } from './GoalJourneyWidget'
 import { ContextualPromptsWidget } from './ContextualPromptsWidget'
 import { EnergyCapacitor } from './EnergyCapacitor'
 import { NarrativeWidget } from './NarrativeWidget'
@@ -728,6 +730,9 @@ export const System = React.memo(function SystemInner() {
           {/* Narrative - Story progression and achievements */}
           <NarrativeWidget />
 
+          {/* Goal Journey - Detected goals, journey stages, and narrative arc */}
+          <GoalJourneyWidget />
+
           {/* Citizen Index - CQGS growth indicators */}
           <EvolutionWidget />
 
@@ -914,6 +919,9 @@ export const System = React.memo(function SystemInner() {
         <div className={cn('flex flex-col', density.stackGap)}>
           {/* Pattern Insights - Show user's discovered patterns and cohort matches */}
           <PatternInsightsWidget />
+
+          {/* Mood Analytics - Mood-time and mood-selfcare correlations from check-ins */}
+          <MoodAnalytics />
 
           {/* Cohort Connect - Browse and connect with cohort members */}
           <CohortConnectWidget />
