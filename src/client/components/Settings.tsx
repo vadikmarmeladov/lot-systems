@@ -19,7 +19,6 @@ import {
 } from '#shared/constants'
 import { cn } from '#client/utils'
 import { warmAudioContext } from '#client/utils/sovietChime'
-import { WorldCanvas } from './WorldCanvas'
 import { GrowthMilestones, BadgeUnlockFeed } from './stats'
 import { InvestmentSwitch } from './InvestmentSwitch'
 import { ProfileQRCode } from './ProfileQRCode'
