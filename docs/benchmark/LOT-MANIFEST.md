@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-afqz6n      | (pending)| 1/1   | BEST   | 7     | +~350  | LOT-FM-001 M1: OPEN TAB live — 23-item ration ledger, doctrine, price line, StatusLine, roadmap card. Prior iteration (56p7ov) pruned from remote before this session; rebuilt from LOT-FM-001 directive.
+Basics Tab       | beautiful-johnson-afqz6n      | b7f6dd3 | 1/1   | BEST   | 7     | +~350  | LOT-FM-001 M1: OPEN TAB live — 23-item ration ledger, doctrine, price line, StatusLine, roadmap card. Prior iteration (56p7ov) pruned from remote before this session; rebuilt from LOT-FM-001 directive.
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
