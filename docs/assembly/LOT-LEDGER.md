@@ -13,4 +13,4 @@ Format:
 YYYYMMDD-NN | CLASS | one-line summary | result | commit-hash | ratio X.X:1
 
 --------------------------------------------------------------------------------
-20260718-01 | SELF-ASSEMBLY | Bootstrap ledger/lexicon/doctrine; QI-46 Phase-0 status audit; manifest gap on lost cool-tesla-f8j0mr branch recorded | GREEN | PENDING | ratio 3.1:1
+20260718-01 | SELF-ASSEMBLY | Bootstrap ledger/lexicon/doctrine; QI-46 Phase-0 status audit; manifest gap on lost cool-tesla-f8j0mr branch recorded | GREEN | 9e7a64f | ratio 3.1:1
