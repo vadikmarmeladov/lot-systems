@@ -28,6 +28,8 @@ import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   USER_SETTING_NAMES,
   WEATHER_STALE_TIME_MINUTES,
+  isBlankMessage,
+  blankStrippedSql,
 } from '#shared/constants'
 import { sync } from '../sync.js'
 import * as weather from '#server/utils/weather'
@@ -840,14 +842,29 @@ export default async (fastify: FastifyInstance) => {
     let messages: InstanceType<typeof fastify.models.ChatMessage>[] = []
     try {
       messages = await fastify.models.ChatMessage.findAll({
-        where: Sequelize.literal(`TRIM(message) <> ''`),
+        where: Sequelize.literal(`${blankStrippedSql('message')} <> ''`),
         order: [['createdAt', 'DESC']],
         limit: fetchLimit,
       })
     } catch (err: any) {
-      console.error('chat-messages: findAll failed:', err?.message)
-      return []
+      // The blank-stripping regex is the only fragile part of this query. If it
+      // errors on this Postgres, fall back to a plain fetch rather than blanking
+      // the whole chat — the JS filter below still removes blank messages.
+      console.error('chat-messages: filtered findAll failed, falling back:', err?.message)
+      try {
+        messages = await fastify.models.ChatMessage.findAll({
+          order: [['createdAt', 'DESC']],
+          limit: fetchLimit,
+        })
+      } catch (err2: any) {
+        console.error('chat-messages: fallback findAll failed:', err2?.message)
+        return []
+      }
     }
+
+    // Belt-and-suspenders: also strip blanks in JS, so a message made of
+    // characters the SQL regex might miss can never reach the client.
+    messages = messages.filter((m) => !isBlankMessage(m.message))
 
     if (messages.length === 0) return []
 
@@ -913,7 +930,7 @@ export default async (fastify: FastifyInstance) => {
       }
 
       const message = req.body.message.trim().slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
-      if (!message) {
+      if (isBlankMessage(message)) {
         return reply.status(400).send({ error: 'Message cannot be empty' })
       }
       const chatMessage = await fastify.models.ChatMessage.create({

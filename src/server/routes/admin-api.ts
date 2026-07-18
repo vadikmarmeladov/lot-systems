@@ -10,6 +10,7 @@ import { Op, Sequelize, Filterable } from 'sequelize'
 import { Literal } from 'sequelize/types/utils'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import { AdminUsersSort, LogEvent, Paginated, User } from '#shared/types'
+import { blankStrippedSql } from '#shared/constants'
 import { fp } from '#shared/utils'
 import { buildPrompt, completeAndExtractQuestion, generateUserSummary, generateMemoryStory } from '#server/utils/memory'
 import { sync } from '../sync.js'
@@ -2184,9 +2185,39 @@ export default async (fastify: FastifyInstance) => {
         MAX(cm."createdAt") AS last_at
       FROM chat_messages cm
       JOIN users u ON u.id = cm."authorUserId"
-      WHERE TRIM(cm.message) = ''
+      WHERE ${blankStrippedSql('cm.message')} = ''
       GROUP BY cm."authorUserId", u."firstName", u."lastName", u.email, u.tags
       ORDER BY empty_count DESC
+    `) as any[]
+
+    // Burst posters — the same user sending many messages in a short window is
+    // another spam signal (even when the messages aren't empty). Surfaces the
+    // largest same-user run within any 5-minute window.
+    const [burstRows] = await fastify.sequelize.query(`
+      WITH ordered AS (
+        SELECT
+          cm."authorUserId",
+          cm."createdAt",
+          COUNT(*) OVER (
+            PARTITION BY cm."authorUserId"
+            ORDER BY cm."createdAt"
+            RANGE BETWEEN INTERVAL '5 minutes' PRECEDING AND CURRENT ROW
+          ) AS run_len
+        FROM chat_messages cm
+      )
+      SELECT
+        o."authorUserId",
+        u."firstName",
+        u."lastName",
+        u.email,
+        u.tags,
+        MAX(o.run_len)::int AS max_burst,
+        COUNT(*)::int AS total_msgs
+      FROM ordered o
+      JOIN users u ON u.id = o."authorUserId"
+      GROUP BY o."authorUserId", u."firstName", u."lastName", u.email, u.tags
+      HAVING MAX(o.run_len) >= 6
+      ORDER BY max_burst DESC
     `) as any[]
 
     const total = (rows as any[]).reduce((s: number, r: any) => s + r.empty_count, 0)
@@ -2208,6 +2239,28 @@ export default async (fastify: FastifyInstance) => {
               <input type="hidden" name="userId" value="${r.authorUserId}">
               <button type="submit" style="background:#dc3545;color:white;border:none;padding:6px 14px;border-radius:4px;cursor:pointer">
                 Suspend + Delete
+              </button>
+            </form>
+          `}</td>
+        </tr>`
+    }).join('')
+
+    const burstHtml = (burstRows as any[]).map((r: any) => {
+      const name = [r.firstName, r.lastName].filter(Boolean).join(' ') || '(no name)'
+      const tags: string[] = r.tags || []
+      const isSuspended = tags.some((t: string) => t.toLowerCase() === 'suspended')
+      return `
+        <tr>
+          <td>${escapeHtml(name)}</td>
+          <td>${escapeHtml(r.email)}</td>
+          <td style="text-align:center;font-weight:bold;color:#dc3545">${r.max_burst}</td>
+          <td style="text-align:center;color:#666">${r.total_msgs}</td>
+          <td>${isSuspended ? '<span style="color:orange">Already suspended</span>' : `
+            <form method="POST" action="/admin-api/chat-spam/suspend-and-delete" style="display:inline"
+              onsubmit="return confirm('Suspend ${escapeHtml(name)}? They posted a burst of ${r.max_burst} messages within 5 minutes.')">
+              <input type="hidden" name="userId" value="${r.authorUserId}">
+              <button type="submit" style="background:#dc3545;color:white;border:none;padding:6px 14px;border-radius:4px;cursor:pointer">
+                Suspend
               </button>
             </form>
           `}</td>
@@ -2247,7 +2300,19 @@ export default async (fastify: FastifyInstance) => {
       </tr>
     </thead>
     <tbody>${rowsHtml}</tbody>
-  </table>` : '<p class="empty">Nothing to do.</p>'}
+  </table>` : '<p class="empty">No empty messages.</p>'}
+
+  <h1 style="margin-top:40px">Burst Posters</h1>
+  <p class="meta">Users who sent 6+ messages within a 5-minute window — a possible spam signal even when messages aren't empty.</p>
+  ${(burstRows as any[]).length > 0 ? `
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th><th>Email</th><th>Max burst (5 min)</th><th>Total msgs</th><th>Action</th>
+      </tr>
+    </thead>
+    <tbody>${burstHtml}</tbody>
+  </table>` : '<p class="empty">No burst posters detected.</p>'}
 </body>
 </html>`)
   })
@@ -2269,7 +2334,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Delete this user's empty messages
       const [result] = await fastify.sequelize.query(
-        `DELETE FROM chat_messages WHERE "authorUserId" = :userId AND TRIM(message) = '' RETURNING id`,
+        `DELETE FROM chat_messages WHERE "authorUserId" = :userId AND ${blankStrippedSql('message')} = '' RETURNING id`,
         { replacements: { userId } }
       )
       const deleted = (result as any[]).length

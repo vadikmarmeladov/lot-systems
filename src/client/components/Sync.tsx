@@ -30,6 +30,7 @@ import { PublicChatMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
+  isBlankMessage,
 } from '#shared/constants'
 
 const CHAT_ALLOWED_TAGS: string[] = [
@@ -89,7 +90,7 @@ export const Sync = React.memo(function SyncInner() {
     const fetched = fetchedMessages || []
     const fetchedIds = new Set(fetched.map((m) => m.id))
     const fresh = sseMessages.filter((m) => !fetchedIds.has(m.id))
-    const combined = [...fresh, ...fetched].filter((m) => m.message?.replace(/\s/g, ''))
+    const combined = [...fresh, ...fetched].filter((m) => !isBlankMessage(m.message))
     return canAccessUserProfiles ? combined : combined.slice(0, SYNC_CHAT_MESSAGES_TO_SHOW)
   }, [fetchedMessages, sseMessages, canAccessUserProfiles])
 
