@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-afqz6n      | (pending)| 2/2   | BEST   | 9     | +~500  | LOT-FM-001 M1 rebuilt as $399/mo surprise box (AI $99 included, +$99/mo module upgrades): wardrobe every issue + Self-care/Home preview + 12mo BioStation constructor. Supersedes the flat 23-item $100/mo v1 from earlier same-day session (b7f6dd3).
+Basics Tab       | beautiful-johnson-afqz6n      | 9655879 | 2/2   | BEST   | 9     | +~500  | LOT-FM-001 M1 rebuilt as $399/mo surprise box (AI $99 included, +$99/mo module upgrades): wardrobe every issue + Self-care/Home preview + 12mo BioStation constructor. Supersedes the flat 23-item $100/mo v1 from earlier same-day session (b7f6dd3).
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
