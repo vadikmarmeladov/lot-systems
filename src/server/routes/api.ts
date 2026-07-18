@@ -1144,6 +1144,7 @@ export default async (fastify: FastifyInstance) => {
           : { event: { [Op.in]: displayableEvents } }),
       },
       order: [['createdAt', 'DESC']],
+      limit: 500,
     }).then((xs) =>
       xs.filter((x, i) => x.event !== 'note' || (x.text && x.text.length) || i === 0)
     )
