@@ -1148,6 +1148,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '112 patterns · 38 archetypes · 35 background jobs · 112+ handlers · 151+ dep nodes. Embodied cognition, intention completion, and community intelligence arcs deployed.',
     ],
   },
+  {
+    date: '2026-07-18',
+    session: 'Self-Assembly Session — v95 / P113–P115 · Arch39 Peak Window Operator · J36 Personal Peak Window · PPEAK: RMOM: INCEP: · Dep Map 154+',
+    assembled: [
+      'intentionEngine.ts: P113 personal-peak-window — energy + intentions + log cluster in repeatable 4h band across ≥2 of last 3 days. Recurring high-performance operating slot detected. Conf 0.65–0.88. suggestedWidget: energy.',
+      'intentionEngine.ts: P114 recovery-momentum — selfcare + resilience + energy signal density rising vs prior 48h AND no depletion. Directed restoration building forward velocity. Conf 0.62–0.87. suggestedWidget: selfcare.',
+      'intentionEngine.ts: P115 signal-inception — qos + memory + journal + intentions all present + ≥5 distinct sources in 24h. QIE observing its own observation loop. Full system awareness. Conf 0.60–0.90. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: Arch39 Peak Window Operator — energyBands high+moderate · dominantSources energy+intentions+log · patternConditions personal-peak-window+vitality-strategy-peak+intention-velocity. Protect the window. 39 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: peakWindowMonitor (3 deps) · recoveryMomentumNode (4 deps) · inceptionMonitor (5 deps). 154+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers added — recordPersonalPeakWindow · recordRecoveryMomentum · recordSignalInception.',
+      'Logs.tsx: PPEAK: handler (personal_peak_window: DAYS 3 + NRG 3D + INTENT 3D + LOG 3D + CONF). RMOM: handler (recovery_momentum: RECOVERY MOMENTUM + CARE 48H + RESIL 48H + NRG 48H + GAIN + CONF). INCEP: handler (signal_inception: QIE→SELF-AWARE + SOURCES 24H + TOTAL SIG + SOURCES LIST + CONF). COCKPIT-RULE compliant. 115+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — personal-peak-window (PPEAK WIN) · recovery-momentum (RMOM) · signal-inception (INCEP).',
+      'PatternRecognitionWidget.tsx: 3 new pattern name entries — personal-peak-window · recovery-momentum · signal-inception.',
+      'scheduled-jobs.ts: J36 daily-personal-peak-window — 08:00 UTC daily. Reads 3d logs per user. energy+intent+log → 4h band across ≥2 days → writes personal_peak_window. 36 background jobs total.',
+      'routes/api.ts: personal_peak_window + recovery_momentum + signal_inception added to displayableEvents (v95 block).',
+      '115 patterns · 39 archetypes · 36 background jobs · 115+ handlers · 154+ dep nodes. Peak window, recovery momentum, and signal inception arcs deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1185,19 +1203,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-06',
+  date: '2026-07-18',
   message: [
-    'ASSEMBLY RUN — 2026-07-06 · LOT-SR-20260706-02',
-    'P110 embodied-cognition-arc: selfcare + journal 150w+ + memory capture in 24h. Body fueling mind. Conf 0.72–0.86.',
-    'P111 intention-completion-loop: intention + planner + goal all in 24h. Full loop closed in one day. Conf 0.75–0.88.',
-    'P112 community-intelligence-peak: cohort + journal + memory + intentions in 48h. External signal anchored internally. Conf 0.68–0.84. 112 patterns total.',
-    'Arch38 Embodied Strategist: selfcare+journal+memory+intentions dominant · embodied-cognition-arc+vitality-cascade+creative-output-peak. Body integrated with mind. 38 archetypes total.',
-    'J35 daily-embodied-cognition-check: 11:00 UTC daily. selfcare + journal 150w+ + memory → writes embodied_cognition_arc. 35 background jobs total.',
-    'EMBCOG: INTCMP: COMINTEL: log handlers deployed (COCKPIT-RULE). 112+ handlers total.',
-    'Dep map: 151+ nodes. 3 new: embodiedCognitionNode + intentionCompletionNode + communityIntelligenceNode.',
-    'PATTERN_DISPLAY: EMBCOG ARC · INTCMP LOOP · COMINTEL added to QOS widget.',
-    '3 signal helpers added: recordEmbodiedCognitionArc · recordIntentionCompletionLoop · recordCommunityIntelligencePeak.',
-    '112 patterns · 38 archetypes · 35 jobs · 112+ handlers · 151+ dep nodes. Embodied cognition, intention completion, and community intelligence deployed.',
+    'ASSEMBLY RUN — 2026-07-18 · LOT-SR-20260718-01',
+    'P113 personal-peak-window: energy + intentions + log cluster in repeatable 4h band across ≥2 of last 3 days. Recurring peak operating slot confirmed. Conf 0.65–0.88.',
+    'P114 recovery-momentum: selfcare + resilience + energy rising vs prior 48h, no depletion. Directed restoration with forward velocity. Conf 0.62–0.87.',
+    'P115 signal-inception: qos + memory + journal + intentions + ≥5 sources in 24h. QIE observing own loop. Full system awareness. Conf 0.60–0.90. 115 patterns total.',
+    'Arch39 Peak Window Operator: energy+intentions+log dominant · personal-peak-window+vitality-strategy-peak+intention-velocity. Protect the window. 39 archetypes total.',
+    'J36 daily-personal-peak-window: 08:00 UTC daily. energy+intent+log → 4h band ≥2 days → writes personal_peak_window. 36 background jobs total.',
+    'PPEAK: RMOM: INCEP: log handlers deployed (COCKPIT-RULE). 115+ handlers total.',
+    'Dep map: 154+ nodes. 3 new: peakWindowMonitor + recoveryMomentumNode + inceptionMonitor.',
+    'PATTERN_DISPLAY: PPEAK WIN · RMOM · INCEP added to QOS widget.',
+    '3 signal helpers: recordPersonalPeakWindow · recordRecoveryMomentum · recordSignalInception.',
+    '115 patterns · 39 archetypes · 36 jobs · 115+ handlers · 154+ dep nodes. Peak window, recovery momentum, signal inception deployed.',
     'DEPLOYED.',
   ],
 }

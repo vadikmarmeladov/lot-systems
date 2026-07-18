@@ -1,7 +1,7 @@
 // Service Worker for LOT Systems PWA
-// Version: 2026-07-04-001
+// Version: 2026-07-18-001
 
-const CACHE_VERSION = 'v2026-07-04-001';
+const CACHE_VERSION = 'v2026-07-18-001';
 const CACHE_NAME = `lot-cache-${CACHE_VERSION}`;
 
 // Files to cache initially (only static assets)
@@ -65,8 +65,11 @@ self.addEventListener('fetch', (event) => {
     return; // Pass through to network, don't intercept
   }
 
-  // Network-first for all JavaScript files (including bundles)
-  if (url.pathname.endsWith('.js') || url.pathname.includes('/js/')) {
+  // Network-first for JS and CSS. Both are served at fixed, unhashed URLs
+  // (/js/... and /css/index.css) that change contents on each deploy, so
+  // cache-first would serve stale code/styles until the cache is manually
+  // busted. Network-first keeps them fresh, with cache as an offline fallback.
+  if (url.pathname.endsWith('.js') || url.pathname.includes('/js/') || url.pathname.endsWith('.css')) {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
@@ -115,8 +118,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first for CSS and static assets
-  if (url.pathname.endsWith('.css') || url.pathname.includes('/icon/') ||
+  // Cache-first for immutable static assets (icons, images) only
+  if (url.pathname.includes('/icon/') ||
       url.pathname.endsWith('.png') || url.pathname.endsWith('.jpg')) {
     event.respondWith(
       caches.match(event.request)

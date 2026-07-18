@@ -2518,6 +2518,90 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 113: Personal Peak Window — recurring high-performance window detected from energy
+  // + intentions + log density. Person has a repeatable peak operating slot in their day.
+  // Fires when ≥2 energy signals, ≥2 intention signals, and ≥2 log signals all cluster within
+  // the same 4-hour window across at least 2 of the last 3 days. Peak window is worth protecting.
+  const p113Window = 4 * 60 * 60 * 1000 // 4h window
+  const p113ThreeDays = now - 3 * 24 * 60 * 60 * 1000
+  const p113Energy    = signals.filter(s => s.source === 'energy'     && s.timestamp > p113ThreeDays)
+  const p113Intent    = signals.filter(s => s.source === 'intentions' && s.timestamp > p113ThreeDays)
+  const p113Log       = signals.filter(s => s.source === 'log'        && s.timestamp > p113ThreeDays)
+  // Group by calendar day, find days where energy+intent+log all cluster in a shared 4h band
+  const p113Days = [0, 1, 2].map(daysBack => {
+    const dayStart = new Date(now); dayStart.setDate(dayStart.getDate() - daysBack); dayStart.setHours(0,0,0,0)
+    const dayEnd   = dayStart.getTime() + 24 * 60 * 60 * 1000
+    const dE = p113Energy.filter(s => s.timestamp >= dayStart.getTime() && s.timestamp < dayEnd)
+    const dI = p113Intent.filter(s => s.timestamp >= dayStart.getTime() && s.timestamp < dayEnd)
+    const dL = p113Log.filter(s => s.timestamp >= dayStart.getTime() && s.timestamp < dayEnd)
+    if (dE.length === 0 || dI.length === 0 || dL.length === 0) return false
+    // Check if any 4h window contains ≥1 from each source
+    const allTs = [...dE, ...dI, ...dL].map(s => s.timestamp).sort((a,b) => a-b)
+    return allTs.some(anchor =>
+      dE.some(s => s.timestamp >= anchor && s.timestamp < anchor + p113Window) &&
+      dI.some(s => s.timestamp >= anchor && s.timestamp < anchor + p113Window) &&
+      dL.some(s => s.timestamp >= anchor && s.timestamp < anchor + p113Window)
+    )
+  })
+  const p113ActiveDays = p113Days.filter(Boolean).length
+  if (p113ActiveDays >= 2) {
+    const p113Conf = Math.min(0.65 + p113ActiveDays * 0.08 + p113Energy.length * 0.02, 0.88)
+    patterns.push({
+      pattern: 'personal-peak-window',
+      confidence: p113Conf,
+      suggestedWidget: 'energy',
+      suggestedTiming: 'passive',
+      reason: `PPEAK: Peak performance window detected across ${p113ActiveDays}/3 recent days. Energy ${p113Energy.length} · Intent ${p113Intent.length} · Log ${p113Log.length} signals cluster in recurring 4h band. Protect this window — it is your repeatable operating slot.`,
+    })
+  }
+
+  // Pattern 114: Recovery Momentum — active recovery building measurable forward motion.
+  // Fires when selfcare + resilience + energy signals are rising in density over the last
+  // 48h vs the prior 48h, AND no peak-depletion pattern is active. Recovery is not rest —
+  // it is directed restoration with detectable momentum.
+  const p114Window48 = 48 * 60 * 60 * 1000
+  const p114Recent   = signals.filter(s => s.timestamp > now - p114Window48)
+  const p114Prior    = signals.filter(s => s.timestamp > now - 2 * p114Window48 && s.timestamp <= now - p114Window48)
+  const p114RecSrc   = (bucket: IntentionSignal[]) => ({
+    sc: bucket.filter(s => s.source === 'selfcare').length,
+    rs: bucket.filter(s => s.source === 'resilience').length,
+    en: bucket.filter(s => s.source === 'energy').length,
+  })
+  const p114R = p114RecSrc(p114Recent); const p114P = p114RecSrc(p114Prior)
+  const p114RecoveryTotal  = p114R.sc + p114R.rs + p114R.en
+  const p114PriorTotal     = p114P.sc + p114P.rs + p114P.en
+  const p114NoDepletion    = !patterns.some(p => ['physiological-depletion','sleep-debt-accumulation'].includes(p.pattern))
+  if (p114RecoveryTotal >= 3 && p114RecoveryTotal > p114PriorTotal && p114NoDepletion) {
+    const p114Gain = p114RecoveryTotal - p114PriorTotal
+    const p114Conf = Math.min(0.62 + p114Gain * 0.06 + p114RecoveryTotal * 0.03, 0.87)
+    patterns.push({
+      pattern: 'recovery-momentum',
+      confidence: p114Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `RMOM: Recovery momentum active — selfcare ${p114R.sc} + resilience ${p114R.rs} + energy ${p114R.en} signals in 48h (vs ${p114PriorTotal} prior period, +${p114Gain}). No depletion present. Directed restoration building forward velocity.`,
+    })
+  }
+
+  // Pattern 115: Signal Inception — QIE observing its own observation loop. Fires when
+  // qos + memory + journal + intentions signals are all present in the last 24h AND
+  // ≥5 distinct sources reported in that window. System is aware of its own signal graph.
+  // This is the meta-pattern: the person is operating with conscious awareness of their QOS.
+  const p115Window = 24 * 60 * 60 * 1000
+  const p115Recent = signals.filter(s => s.timestamp > now - p115Window)
+  const p115Sources = new Set(p115Recent.map(s => s.source))
+  const p115HasCore = ['qos','memory','journal','intentions'].every(src => p115Sources.has(src as IntentionSignal['source']))
+  if (p115HasCore && p115Sources.size >= 5) {
+    const p115Conf = Math.min(0.60 + (p115Sources.size - 5) * 0.05 + p115Recent.length * 0.01, 0.90)
+    patterns.push({
+      pattern: 'signal-inception',
+      confidence: p115Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `INCEP: Signal inception active — ${p115Sources.size} distinct sources in 24h (${[...p115Sources].join(', ')}). QOS + memory + journal + intentions all present. QIE is observing its own observation loop. Operating with full system awareness.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3091,6 +3175,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   embodiedCognitionNode:      ['selfcare', 'journal', 'memory', 'log'],
   intentionCompletionNode:    ['intentions', 'planner', 'goals', 'log'],
   communityIntelligenceNode:  ['cohort', 'journal', 'memory', 'intentions', 'log'],
+
+  // ── Peak window + recovery momentum + signal inception nodes (2026-07-18 v95)
+  peakWindowMonitor:          ['energy', 'intentions', 'log'],
+  recoveryMomentumNode:       ['selfcare', 'resilience', 'energy', 'log'],
+  inceptionMonitor:           ['qos', 'memory', 'journal', 'intentions', 'log'],
 }
 
 /**
@@ -3424,6 +3513,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['selfcare', 'journal', 'memory', 'intentions'],
     patternConditions: ['embodied-cognition-arc', 'vitality-cascade', 'creative-output-peak'],
     directive: 'Body integrated with mind. Selfcare feeding cognition. Journal and memory active simultaneously. The biological substrate is executing the strategy.',
+  },
+  // ── Arch39: Peak Window Operator (2026-07-18 v95) ──────────────────────────────
+  {
+    archetype: 'Peak Window Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['energy', 'intentions', 'log'],
+    patternConditions: ['personal-peak-window', 'vitality-strategy-peak', 'intention-velocity'],
+    directive: 'Recurring peak performance window confirmed across multiple days. Energy, intention, and log density cluster in a repeatable 4-hour band. This window is your highest-leverage execution slot — protect it structurally.',
   },
 ]
 
@@ -4856,6 +4953,50 @@ export function recordCommunityIntelligencePeak(cohortCount: number, journalCoun
     memoryCount,
     intentionCount,
     window: '48h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a personal-peak-window signal — energy + intentions + log cluster in a 4h band
+ * across ≥2 of last 3 days. Feeds P113 detection. Repeatable peak operating slot identified.
+ */
+export function recordPersonalPeakWindow(activeDays: number, energyCount: number, intentCount: number, logCount: number) {
+  recordSignal('energy', 'personal_peak_window', {
+    activeDays,
+    energyCount,
+    intentCount,
+    logCount,
+    window: '4h-band-3d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a recovery-momentum signal — selfcare + resilience + energy signals rising vs prior 48h.
+ * Feeds P114 detection. Directed restoration building measurable forward velocity.
+ */
+export function recordRecoveryMomentum(selfcareCount: number, resilienceCount: number, energyCount: number, gain: number) {
+  recordSignal('selfcare', 'recovery_momentum', {
+    selfcareCount,
+    resilienceCount,
+    energyCount,
+    gain,
+    window: '48h-delta',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a signal-inception event — QIE observing its own signal loop with ≥5 sources in 24h.
+ * Feeds P115 detection. Full system awareness: qos + memory + journal + intentions all present.
+ */
+export function recordSignalInception(sourceCount: number, sources: string[], totalSignals: number) {
+  recordSignal('qos', 'signal_inception', {
+    sourceCount,
+    sources,
+    totalSignals,
+    window: '24h',
     hour: new Date().getHours(),
   })
 }
