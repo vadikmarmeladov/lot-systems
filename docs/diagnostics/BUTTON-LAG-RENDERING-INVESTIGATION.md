@@ -78,6 +78,57 @@ one store it actually needs (`theme` or `isMirrorOn`), rather than one
 monolithic `Button` re-rendering on every store change regardless of kind.
 No issues found here.
 
+## Update 2026-07-18: confirmed root cause found — sticky nav dead-zone
+
+Follow-up report: "Some widgets (with buttons), like the Planner, would
+appear at the right time but buttons wouldn't click through."
+
+### Root cause
+
+`src/client/components/ui/Layout.tsx` renders the bottom tab bar as
+`<div id="nav" className="sticky bottom-0 left-0 right-0 ... z-10">`, sitting
+after `<Page>{children}</Page>` in a `grid` container. Because it's
+`position: sticky; bottom: 0`, it stays pinned to the bottom of the viewport
+throughout scrolling, visually floating over whatever page content is
+scrolled underneath it — that's the intended footer behavior.
+
+The bug: `#nav` and its wrapper `<div>`/`<nav>` had **no `pointer-events`
+override**, and no background. Visually transparent, but a plain block/flex
+container still captures pointer events across its entire bounding box by
+default. Since the nav row only partially fills that box with actual
+`<button>` elements (padding, `flex` gaps, and — on narrow/mobile widths
+where up to 10 nav items wrap across 2–3 rows — large unused regions), any
+widget button that happened to scroll into the screen band occupied by
+`#nav` would have its click swallowed by the transparent nav wrapper instead
+of reaching the button underneath. This reproduces for **any** widget whose
+buttons land in that band, not just Planner — Planner's "Set Plan" and
+arrow-controller buttons (bottom of the widget, centered) are simply a
+common case since the System tab stacks many widgets and users scroll
+through them.
+
+Confirmed via a minimal reproduction of the exact grid/sticky-footer
+structure in a headless browser: `document.elementFromPoint()` at a widget
+button's coordinates, once scrolled behind the nav band, returned `#nav`
+instead of the button, and the click handler never fired.
+
+### Fix (applied)
+
+- `src/client/components/ui/Layout.tsx`: `#nav` now carries
+  `pointer-events-none` by default, so its transparent gaps pass clicks
+  through to page content. Each `NavButton` opts back in with
+  `pointer-events-auto` (only when it has a route; disabled items keep
+  `pointer-events-none` as before).
+- `src/client/index.css`: added `#nav.opacity-0.pointer-events-none * { pointer-events: none !important; }`.
+  This preserves `Logs.tsx`'s existing idle-timer behavior, which toggles
+  `opacity-0`/`pointer-events-none` on `#nav` directly to hide+disable the
+  whole bar while idle on the Logs tab — without this rule, the nav
+  buttons' own `pointer-events-auto` would have overridden the ancestor's
+  `none` (a child's explicit `pointer-events` value beats an inherited one),
+  leaving the bar invisible but still clickable during that state.
+- Verified all three scenarios in a headless-browser repro: (1) widget
+  buttons behind the nav band are now clickable, (2) nav buttons still work
+  normally, (3) nav buttons stay inert during the Logs idle-hide state.
+
 ## Unconfirmed area flagged for future profiling
 
 `SystemPulseWidget` (`src/client/components/SystemPulseWidget.tsx`)

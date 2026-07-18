@@ -31,7 +31,7 @@ const NavButton = React.memo(function NavButton({
       kind="secondary-rounded"
       className={cn(
         'mb-4 flex-shrink-0',
-        !link.route && 'opacity-30 pointer-events-none',
+        link.route ? 'pointer-events-auto' : 'opacity-30 pointer-events-none',
         isActive && (isMirrorOn
           ? 'bg-white/20 hover:bg-white/20 hover:before:!opacity-0'
           : 'bg-acc text-bac hover:bg-acc hover:text-bac hover:before:!opacity-0')
@@ -89,7 +89,7 @@ export const Layout: React.FC<Props> = ({ children, hideNav = false }) => {
       {!hideNav && (
         <div
           id="nav"
-          className="sticky bottom-0 left-0 right-0 self-end transition-opacity z-10"
+          className="sticky bottom-0 left-0 right-0 self-end transition-opacity z-10 pointer-events-none"
         >
           <div className="px-16 phone:px-32 tablet:px-48 desktop:px-64 mb-16 phone:mb-32 tablet:mb-48 desktop:mb-64">
             <nav

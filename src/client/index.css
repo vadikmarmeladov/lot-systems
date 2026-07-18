@@ -157,6 +157,17 @@ input:-webkit-autofill {
     background-size: 4px 4px, 4px 4px, 5.66px 5.66px;
   }
 
+  /* #nav is pointer-events-none by default so the sticky footer's transparent
+     gaps let clicks pass through to page content underneath; nav buttons opt
+     back in via pointer-events-auto. When Logs' idle-timer explicitly hides
+     the whole bar (adds pointer-events-none *again*, alongside opacity-0),
+     force every descendant inert too — a child's own pointer-events-auto
+     would otherwise override the ancestor's none and stay clickable while
+     invisible. */
+  #nav.opacity-0.pointer-events-none * {
+    pointer-events: none !important;
+  }
+
   /* Lighter grid pattern for subtle backgrounds */
   .grid-fill-light {
     background-image:
