@@ -7,58 +7,174 @@
  */
 
 /**
- * LOT-FM-001 / BASIC RATION — 23-item civilian ration load.
- * Nomenclature + cadence only. COGS withheld from this file by design —
- * it is never bundled to the client (LOT-FM-001: "the ledger is the
- * marketing; no layer between public and manifest," but cost is not
- * the manifest).
+ * LOT-FM-001 / BASICS — surprise-box physical subscription.
+ *
+ * Plan shape (per S-2 intake 2026-07-18):
+ *   AI (digital only)      $99/mo
+ *   BASICS (physical)      $399/mo, AI included — first physical module.
+ *                           A smart-curated surprise box: the operator does
+ *                           not know contents in advance. Pool is sampled
+ *                           from WARDROBE (native to Basics) plus preview
+ *                           items representing modules not yet subscribed
+ *                           to (SELF-CARE, HOME) — including the LOT®
+ *                           BioStation constructor shipping part-by-part.
+ *   Module upgrades        +$99/mo each. Swaps a module's "preview" sample
+ *                           for its full, dedicated, more granular stream.
+ *
+ * COGS withheld from this file by design — it is bundled to the client and
+ * must never carry cost data.
  */
 
 export type RationCadence = 'MONTHLY' | 'QUARTERLY' | 'ISSUE'
 
-export type RationCategory = 'DOCTRINE' | 'FIELD KIT' | 'RECOVERY' | 'IDENTITY'
+export type RationModule = 'WARDROBE' | 'SELF-CARE' | 'HOME'
 
 export type RationItem = {
   no: number
   nomenclature: string
-  category: RationCategory
+  module: RationModule
   cadence: RationCadence
+  /**
+   * True if this item can surprise-appear in the default BASICS box as a
+   * preview/representative of its module, even without that module's
+   * upgrade. WARDROBE items are always true (Basics IS the wardrobe
+   * stream). SELF-CARE/HOME items are a deliberately small representative
+   * subset — the rest only ship once the operator upgrades that module.
+   */
+  previewInBasics: boolean
 }
 
-export const BASIC_RATION: RationItem[] = [
-  { no: 1, nomenclature: 'FIELD MANUAL, LOT-FM-001', category: 'DOCTRINE', cadence: 'ISSUE' },
-  { no: 2, nomenclature: 'RATION CARD, PRINTED MANIFEST', category: 'DOCTRINE', cadence: 'MONTHLY' },
-  { no: 3, nomenclature: 'NOTEBOOK, FIELD, POCKET, 96PG', category: 'FIELD KIT', cadence: 'MONTHLY' },
-  { no: 4, nomenclature: 'PEN, ALL-WEATHER', category: 'FIELD KIT', cadence: 'QUARTERLY' },
-  { no: 5, nomenclature: 'MULTITOOL, COMPACT, 5-FUNCTION', category: 'FIELD KIT', cadence: 'ISSUE' },
-  { no: 6, nomenclature: 'FLASHLIGHT, EDC, RECHARGEABLE', category: 'FIELD KIT', cadence: 'ISSUE' },
-  { no: 7, nomenclature: 'COMPASS, ANALOG, BASEPLATE', category: 'FIELD KIT', cadence: 'ISSUE' },
-  { no: 8, nomenclature: 'CORD, PARACORD, 10FT', category: 'FIELD KIT', cadence: 'QUARTERLY' },
-  { no: 9, nomenclature: 'MATCHES, WATERPROOF, BOX', category: 'FIELD KIT', cadence: 'QUARTERLY' },
-  { no: 10, nomenclature: 'CHALK, GRIP, ANTI-SLIP, 2OZ', category: 'FIELD KIT', cadence: 'MONTHLY' },
-  { no: 11, nomenclature: 'SALT, SEA, BATH, 8OZ', category: 'RECOVERY', cadence: 'MONTHLY' },
-  { no: 12, nomenclature: 'CANDLE, BEESWAX, UNSCENTED, 4OZ', category: 'RECOVERY', cadence: 'MONTHLY' },
-  { no: 13, nomenclature: 'MASK, SLEEP, COTTON', category: 'RECOVERY', cadence: 'QUARTERLY' },
-  { no: 14, nomenclature: 'EARPLUGS, FOAM, PAIR X3', category: 'RECOVERY', cadence: 'MONTHLY' },
-  { no: 15, nomenclature: 'TEA, HERBAL, LOOSE, 2OZ', category: 'RECOVERY', cadence: 'MONTHLY' },
-  { no: 16, nomenclature: 'MAGNESIUM, GLYCINATE, 30CT', category: 'RECOVERY', cadence: 'MONTHLY' },
-  { no: 17, nomenclature: 'ELECTROLYTE, PACKET, UNFLAVORED, X10', category: 'RECOVERY', cadence: 'MONTHLY' },
-  { no: 18, nomenclature: 'BANDAGE, ADHESIVE, X10', category: 'RECOVERY', cadence: 'QUARTERLY' },
-  { no: 19, nomenclature: 'PACK, COLD, INSTANT, SINGLE-USE', category: 'RECOVERY', cadence: 'QUARTERLY' },
-  { no: 20, nomenclature: 'TOWEL, MICROFIBER, COMPACT', category: 'IDENTITY', cadence: 'ISSUE' },
-  { no: 21, nomenclature: 'BOTTLE, WATER, STEEL, 20OZ', category: 'IDENTITY', cadence: 'ISSUE' },
-  { no: 22, nomenclature: 'PATCH, LOT INSIGNIA, WOVEN', category: 'IDENTITY', cadence: 'ISSUE' },
-  { no: 23, nomenclature: 'CARD, ID, LOT OPERATOR, LAMINATED', category: 'IDENTITY', cadence: 'ISSUE' },
+export const RATION_POOL: RationItem[] = [
+  // WARDROBE — native to Basics, always in rotation
+  { no: 1, nomenclature: 'SOCKS, PAIR', module: 'WARDROBE', cadence: 'MONTHLY', previewInBasics: true },
+  { no: 2, nomenclature: 'UNDERWEAR, PAIR', module: 'WARDROBE', cadence: 'MONTHLY', previewInBasics: true },
+  { no: 3, nomenclature: 'T-SHIRT, LOT® UNIFORM', module: 'WARDROBE', cadence: 'MONTHLY', previewInBasics: true },
+  { no: 4, nomenclature: 'BACKPACK, LOT® ISSUE', module: 'WARDROBE', cadence: 'ISSUE', previewInBasics: true },
+  { no: 5, nomenclature: 'CAP, LOT® INSIGNIA', module: 'WARDROBE', cadence: 'QUARTERLY', previewInBasics: true },
+
+  // SELF-CARE — small preview set ships inside Basics; full stream requires
+  // the Self-care module upgrade (+$99/mo)
+  { no: 6, nomenclature: 'TOOTHBRUSH', module: 'SELF-CARE', cadence: 'MONTHLY', previewInBasics: true },
+  { no: 7, nomenclature: 'SOAP BAR, UNSCENTED', module: 'SELF-CARE', cadence: 'MONTHLY', previewInBasics: true },
+  { no: 8, nomenclature: 'TEA, HERBAL, LOOSE, 2OZ', module: 'SELF-CARE', cadence: 'MONTHLY', previewInBasics: false },
+  { no: 9, nomenclature: 'MAGNESIUM, GLYCINATE, 30CT', module: 'SELF-CARE', cadence: 'MONTHLY', previewInBasics: false },
+  { no: 10, nomenclature: 'ELECTROLYTE, PACKET, UNFLAVORED, X10', module: 'SELF-CARE', cadence: 'MONTHLY', previewInBasics: false },
+  { no: 11, nomenclature: 'SLEEP MASK, COTTON', module: 'SELF-CARE', cadence: 'QUARTERLY', previewInBasics: false },
+  { no: 12, nomenclature: 'EARPLUGS, FOAM, PAIR X3', module: 'SELF-CARE', cadence: 'MONTHLY', previewInBasics: false },
+  { no: 13, nomenclature: 'BANDAGE, ADHESIVE, X10', module: 'SELF-CARE', cadence: 'QUARTERLY', previewInBasics: false },
+
+  // HOME — candle previews in Basics ahead of the Home module launching;
+  // the BioStation constructor (below) is this module's flagship line
+  { no: 14, nomenclature: 'CANDLE, BEESWAX, UNSCENTED, 4OZ', module: 'HOME', cadence: 'MONTHLY', previewInBasics: true },
 ]
 
-export const BASIC_RATION_PRICE_USD = 100
-
-export function getRationsByCategory(category: RationCategory): RationItem[] {
-  return BASIC_RATION.filter(r => r.category === category)
+export function getRationPoolByModule(module: RationModule): RationItem[] {
+  return RATION_POOL.filter(r => r.module === module)
 }
 
+export function getBasicsPreviewPool(): RationItem[] {
+  return RATION_POOL.filter(r => r.previewInBasics)
+}
+
+/**
+ * LOT® BioStation™ — 12-month build-it-yourself weather station,
+ * shipping part-by-part inside the Basics box. Dependency-ordered, not
+ * alphabetical: the compute/power core ships first (immediately useful —
+ * pairs with the dashboard/API on arrival), then the mount, then sensors
+ * in ascending complexity, with the personalized data drive slotted in
+ * once there's real sensor data worth logging, and the final month closes
+ * the build with weatherproofing + calibration.
+ *
+ * PROVISIONAL: only months 1-4 were specified directly by S-2 (core,
+ * tripod, first sensor, personalized hard drive). Months 5-12 are this
+ * session's best-effort constructor sequence — supersede once a real
+ * BioStation bill of materials exists.
+ */
+export type BioStationPart = {
+  month: number
+  nomenclature: string
+}
+
+export const BIOSTATION_SEQUENCE: BioStationPart[] = [
+  { month: 1, nomenclature: 'BIOSTATION™ CORE, COMPUTE + POWER UNIT' },
+  { month: 2, nomenclature: 'BIOSTATION™ MOUNT, TRIPOD, ADJUSTABLE' },
+  { month: 3, nomenclature: 'BIOSTATION™ SENSOR, TEMPERATURE + HUMIDITY' },
+  { month: 4, nomenclature: 'BIOSTATION™ DRIVE, PERSONALIZED, DATA LOG' },
+  { month: 5, nomenclature: 'BIOSTATION™ SENSOR, WIND, ANEMOMETER' },
+  { month: 6, nomenclature: 'BIOSTATION™ SENSOR, RAIN GAUGE' },
+  { month: 7, nomenclature: 'BIOSTATION™ SENSOR, UV + LIGHT' },
+  { month: 8, nomenclature: 'BIOSTATION™ SENSOR, AIR QUALITY' },
+  { month: 9, nomenclature: 'BIOSTATION™ POWER, SOLAR PANEL' },
+  { month: 10, nomenclature: 'BIOSTATION™ POWER, BATTERY PACK' },
+  { month: 11, nomenclature: 'BIOSTATION™ CABLE + CONNECT KIT' },
+  { month: 12, nomenclature: 'BIOSTATION™ ENCLOSURE, WEATHERPROOF + CALIBRATION KIT' },
+]
+
+export type PlanId = 'AI' | 'BASICS' | 'SELF_CARE' | 'HOME' | 'KIDS'
+export type PlanStatus = 'LIVE' | 'COMING'
+export type PlanKind = 'DIGITAL' | 'PHYSICAL-DEFAULT' | 'MODULE-UPGRADE'
+
+export type Plan = {
+  id: PlanId
+  name: string
+  priceUsd: number
+  kind: PlanKind
+  includesAi: boolean
+  status: PlanStatus
+  description: string
+}
+
+export const PLANS: Plan[] = [
+  {
+    id: 'AI',
+    name: 'LOT® AI (Usership)',
+    priceUsd: 99,
+    kind: 'DIGITAL',
+    includesAi: true,
+    status: 'LIVE',
+    description: 'Digital only. No physical issue.',
+  },
+  {
+    id: 'BASICS',
+    name: 'LOT® BASICS',
+    priceUsd: 399,
+    kind: 'PHYSICAL-DEFAULT',
+    includesAi: true,
+    status: 'LIVE',
+    description:
+      'First physical module. Surprise box, smart-curated monthly — wardrobe every issue, plus a preview sample of Self-care and Home (including the BioStation™ build-out, part by part).',
+  },
+  {
+    id: 'SELF_CARE',
+    name: 'Self-care Module',
+    priceUsd: 99,
+    kind: 'MODULE-UPGRADE',
+    includesAi: false,
+    status: 'LIVE',
+    description: 'Deeper, more granular self-care refills beyond the Basics preview.',
+  },
+  {
+    id: 'HOME',
+    name: 'Home Module',
+    priceUsd: 99,
+    kind: 'MODULE-UPGRADE',
+    includesAi: false,
+    status: 'COMING',
+    description: 'Dedicated Home stream — full BioStation™ cadence + home goods. Items preview inside Basics before this module launches.',
+  },
+  {
+    id: 'KIDS',
+    name: 'Kids Module',
+    priceUsd: 99,
+    kind: 'MODULE-UPGRADE',
+    includesAi: false,
+    status: 'COMING',
+    description: 'Kids-specific monthly stream.',
+  },
+]
+
 export function getRationCadenceCounts(): Record<RationCadence, number> {
-  return BASIC_RATION.reduce(
+  return RATION_POOL.reduce(
     (acc, r) => {
       acc[r.cadence] += 1
       return acc
