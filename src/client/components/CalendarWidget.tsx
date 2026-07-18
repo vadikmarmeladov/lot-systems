@@ -21,6 +21,23 @@ type CalendarEntry = {
   date: string
   text: string
   type: EntryType
+  time?: string
+  plannedMinutes?: number
+  logId?: string
+}
+
+type ActiveTracker = {
+  entryKey: string
+  startedAt: number
+}
+
+const TRACKER_STORAGE_KEY = 'lot_calendar_tracker'
+
+function formatDuration(minutes: number): string {
+  if (minutes < 60) return `${minutes}m`
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return m > 0 ? `${h}h${m}m` : `${h}h`
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
@@ -59,6 +76,24 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [entryTime, setEntryTime] = React.useState('')
+  const [entryMinutes, setEntryMinutes] = React.useState('')
+
+  const [activeTracker, setActiveTracker] = React.useState<ActiveTracker | null>(null)
+  const [nowTick, setNowTick] = React.useState(() => Date.now())
+
+  React.useEffect(() => {
+    try {
+      const raw = window.localStorage.getItem(TRACKER_STORAGE_KEY)
+      if (raw) setActiveTracker(JSON.parse(raw))
+    } catch (_) {}
+  }, [])
+
+  React.useEffect(() => {
+    if (!activeTracker) return
+    const interval = window.setInterval(() => setNowTick(Date.now()), 1000)
+    return () => window.clearInterval(interval)
+  }, [activeTracker])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -67,9 +102,12 @@ export function CalendarWidget() {
         date: log.metadata?.date as string,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
+        time: log.metadata?.time as string | undefined,
+        plannedMinutes: log.metadata?.plannedMinutes as number | undefined,
+        logId: log.id,
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''))
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
@@ -109,14 +147,19 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeLabel = entryTime ? ` at ${entryTime}` : ''
+    const minutes = entryType === 'task' && entryMinutes ? parseInt(entryMinutes, 10) : undefined
+    const durationLabel = minutes ? ` · ${formatDuration(minutes)} planned` : ''
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel}${timeLabel}${durationLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
         text: entryText.trim(),
         entryType,
+        ...(entryTime ? { time: entryTime } : {}),
+        ...(minutes ? { plannedMinutes: minutes } : {}),
       },
     }, {
       onSuccess: () => {
@@ -126,7 +169,47 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
+    setEntryMinutes('')
     setIsAddingEntry(false)
+  }
+
+  const handleStartTracking = (entry: CalendarEntry) => {
+    if (!entry.logId) return
+    const tracker: ActiveTracker = { entryKey: entry.logId, startedAt: Date.now() }
+    setActiveTracker(tracker)
+    setNowTick(Date.now())
+    try { window.localStorage.setItem(TRACKER_STORAGE_KEY, JSON.stringify(tracker)) } catch (_) {}
+  }
+
+  const handleStopTracking = (entry: CalendarEntry) => {
+    if (!activeTracker || activeTracker.entryKey !== entry.logId) return
+
+    const actualMinutes = Math.max(1, Math.round((Date.now() - activeTracker.startedAt) / 60000))
+    const variance = entry.plannedMinutes ? actualMinutes - entry.plannedMinutes : undefined
+    const varianceLabel = variance !== undefined
+      ? ` (planned ${formatDuration(entry.plannedMinutes!)}, ${variance >= 0 ? '+' : ''}${variance}m)`
+      : ''
+
+    createLog({
+      text: `[TIME-LOG] ${entry.type}: ${entry.text} — ${formatDuration(actualMinutes)} tracked${varianceLabel}`,
+      event: 'calendar_time_logged',
+      metadata: {
+        date: entry.date,
+        text: entry.text,
+        entryType: entry.type,
+        actualMinutes,
+        ...(entry.plannedMinutes ? { plannedMinutes: entry.plannedMinutes, varianceMinutes: variance } : {}),
+      },
+    }, {
+      onSuccess: () => {
+        queryClient.refetchQueries(['/api/logs'])
+        try { recordCalendarSignal(entry.type, entry.date) } catch (_) {}
+      },
+    })
+
+    setActiveTracker(null)
+    try { window.localStorage.removeItem(TRACKER_STORAGE_KEY) } catch (_) {}
   }
 
   const handleToggleCalendar = () => {
@@ -237,6 +320,22 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40"
+                  />
+                  {entryType === 'task' && (
+                    <input
+                      type="number"
+                      min={1}
+                      value={entryMinutes}
+                      onChange={e => setEntryMinutes(e.target.value)}
+                      placeholder="min"
+                      className="bg-transparent border border-acc/20 text-acc px-4 py-2 w-[64px] outline-none focus:border-acc/40"
+                    />
+                  )}
                   <Button onClick={handleAddEntry}>Add</Button>
                 </div>
               </div>
@@ -247,11 +346,47 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
-                  </div>
-                ))}
+                {entriesOnDate.map((e, i) => {
+                  const isTracking = !!activeTracker && activeTracker.entryKey === e.logId
+                  const elapsedMinutes = isTracking
+                    ? Math.max(0, Math.round((nowTick - activeTracker!.startedAt) / 60000))
+                    : 0
+
+                  return (
+                    <div key={i} className="mb-1">
+                      <div className="flex items-baseline gap-8">
+                        {e.time && <span className="text-acc/40 tabular-nums">{e.time}</span>}
+                        <span className="text-acc/80">{e.text}</span>
+                        {e.plannedMinutes && (
+                          <span className="text-acc/30 tabular-nums">{formatDuration(e.plannedMinutes)}</span>
+                        )}
+                      </div>
+                      {e.type === 'task' && e.logId && (
+                        <div className="flex items-baseline gap-8 mt-0.5">
+                          {isTracking ? (
+                            <>
+                              <button
+                                className="text-acc/60 hover:text-acc transition-opacity"
+                                onClick={() => handleStopTracking(e)}
+                              >
+                                Stop
+                              </button>
+                              <span className="text-acc/40 tabular-nums">{formatDuration(elapsedMinutes)} elapsed</span>
+                            </>
+                          ) : (
+                            <button
+                              className="text-acc/30 hover:text-acc/60 transition-opacity"
+                              onClick={() => handleStartTracking(e)}
+                              disabled={!!activeTracker}
+                            >
+                              Start
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -263,9 +398,13 @@ export function CalendarWidget() {
               <div key={i} className="flex justify-between gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  {entry.time && <span className="text-acc/40"> {entry.time}</span>}
                 </span>
                 <span className="text-acc text-right">
                   {entry.text}
+                  {entry.plannedMinutes && (
+                    <span className="text-acc/30"> · {formatDuration(entry.plannedMinutes)}</span>
+                  )}
                 </span>
               </div>
             ))}

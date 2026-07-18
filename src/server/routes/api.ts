@@ -1165,6 +1165,8 @@ export default async (fastify: FastifyInstance) => {
       'personal_peak_window',
       'recovery_momentum',
       'signal_inception',
+      // Calendar time-tracking — actual duration logged on task Stop (companion to calendar_entry)
+      'calendar_time_logged',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

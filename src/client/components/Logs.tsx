@@ -42,6 +42,13 @@ const localStore = {
   logIds: atom<string[]>([]),
 }
 
+function formatMinutes(minutes: number): string {
+  if (minutes < 60) return `${minutes}m`
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return m > 0 ? `${h}h${m}m` : `${h}h`
+}
+
 export const Logs: React.FC = React.memo(function LogsInner() {
   const inputContainerRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -1582,11 +1589,56 @@ export const Logs: React.FC = React.memo(function LogsInner() {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const plannedMinutes = log.metadata?.plannedMinutes as number | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
                 <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
+                {date && (
+                  <div className="flex justify-between items-baseline mt-8">
+                    <span className="opacity-30">SCHED</span>
+                    <span className="tabular-nums">{date}{time ? ` ${time}` : ''}</span>
+                  </div>
+                )}
+                {plannedMinutes !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">PLAN</span>
+                    <span className="tabular-nums">{formatMinutes(plannedMinutes)}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_time_logged') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const actualMinutes = log.metadata?.actualMinutes as number | undefined
+          const plannedMinutes = log.metadata?.plannedMinutes as number | undefined
+          const varianceMinutes = log.metadata?.varianceMinutes as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TIME-LOG:" blockView>
+                <div className="uppercase tracking-widest">{entryType || 'TASK'}</div>
                 {date && <div className="opacity-40 mt-8">{date}</div>}
+                {actualMinutes !== undefined && (
+                  <div className="flex justify-between items-baseline mt-8">
+                    <span className="opacity-30">TRACKED</span>
+                    <span className="tabular-nums">{formatMinutes(actualMinutes)}</span>
+                  </div>
+                )}
+                {plannedMinutes !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">PLANNED</span>
+                    <span className="tabular-nums">{formatMinutes(plannedMinutes)}</span>
+                  </div>
+                )}
+                {varianceMinutes !== undefined && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">VARIANCE</span>
+                    <span className="tabular-nums">{varianceMinutes >= 0 ? '+' : ''}{varianceMinutes}m</span>
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )
