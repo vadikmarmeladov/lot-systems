@@ -1144,6 +1144,7 @@ export default async (fastify: FastifyInstance) => {
           : { event: { [Op.in]: displayableEvents } }),
       },
       order: [['createdAt', 'DESC']],
+      limit: 500,
     }).then((xs) =>
       xs.filter((x, i) => x.event !== 'note' || (x.text && x.text.length) || i === 0)
     )
@@ -2797,7 +2798,7 @@ export default async (fastify: FastifyInstance) => {
       try {
         const userId = req.user.id
 
-        const [answers, plannerLogs, recentLogs, memoryAnswers] = await Promise.all([
+        const [answers, plannerLogs, recentLogs, memoryAnswers, allAnswers, journalLogs] = await Promise.all([
           fastify.models.Answer.findAll({
             where: { userId },
             order: [['createdAt', 'DESC']],
@@ -2817,6 +2818,17 @@ export default async (fastify: FastifyInstance) => {
             where: { userId },
             order: [['createdAt', 'DESC']],
             limit: 50,
+          }),
+          fastify.models.Answer.findAll({
+            where: { userId },
+            attributes: ['createdAt'],
+            raw: true,
+          }),
+          fastify.models.Log.findAll({
+            where: { userId, text: { [Op.ne]: null } },
+            attributes: ['text'],
+            limit: 5000,
+            raw: true,
           }),
         ])
 
@@ -2883,6 +2895,17 @@ export default async (fastify: FastifyInstance) => {
         const uniqueOptions = new Set(memoryAnswers.map(a => a.metadata?.option).filter(Boolean))
         const diverseChoices = uniqueOptions.size
 
+        const distinctCheckInDays = new Set(
+          (allAnswers as any[]).map((a: any) => dayjs(a.createdAt).format('YYYY-MM-DD'))
+        ).size
+
+        const totalJournalWords = (journalLogs as any[]).reduce((sum: number, log: any) => {
+          if (!log.text) return sum
+          return sum + log.text.trim().split(/\s+/).filter(Boolean).length
+        }, 0)
+
+        const signupDate = (req.user as any).createdAt || null
+
         return {
           streak,
           balancedPlanner,
@@ -2890,6 +2913,9 @@ export default async (fastify: FastifyInstance) => {
           consistentTiming,
           deepReflection,
           diverseChoices,
+          distinctCheckInDays,
+          totalJournalWords,
+          signupDate,
         }
       } catch (error: any) {
         console.error('User stats calculation error:', error)

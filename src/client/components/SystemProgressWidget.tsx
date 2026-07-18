@@ -1247,7 +1247,9 @@ export function SystemProgressWidget() {
     recomputeAssembly()
     analyzeIntentions()
     setReport(getEnrichedPhysiologicalReport())
-    const interval = setInterval(recomputeAssembly, 60_000) // Every minute
+    const interval = setInterval(() => {
+      if (!document.hidden) recomputeAssembly()
+    }, 60_000) // Every minute — skipped when tab/window is not visible
     return () => clearInterval(interval)
   }, [])
 

@@ -29,6 +29,7 @@ import {
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
@@ -2765,6 +2766,20 @@ const NoteEditor = ({
     // This prevents race condition where user types more while save is in progress
     if (valueRef.current === debouncedValue) {
       setIsSaved(true)
+    }
+
+    // Track journal dates for streak badges + run behavioral easter eggs
+    if (primary && debouncedValue.trim().length > 0) {
+      try {
+        const today = dayjs().format('YYYY-MM-DD')
+        const stored = localStorage.getItem('journal_dates')
+        const dates: string[] = stored ? JSON.parse(stored) : []
+        if (!dates.includes(today)) {
+          dates.push(today)
+          localStorage.setItem('journal_dates', JSON.stringify(dates))
+        }
+        runJournalEasterEggs(debouncedValue)
+      } catch {}
     }
   }, [debouncedValue, onChange, log.text, primary])
 

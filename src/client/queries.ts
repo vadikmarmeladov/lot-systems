@@ -133,7 +133,7 @@ export const useVisitorStats = createQuery<{
 
 export const useLogs = createQuery<Log[]>('/api/logs', {
   refetchOnWindowFocus: false, // Prevent refetching on tab switch (was creating duplicate empty logs)
-  staleTime: 30 * 1000, // Cache for 30 seconds to prevent excessive refetching
+  staleTime: 5 * 60 * 1000, // Cache for 5 minutes — /api/logs has no LIMIT so keep fetches infrequent
 })
 
 export const useCreateLog = createMutation<{ text: string; event?: string; metadata?: Record<string, any> }, Log>(
@@ -598,7 +598,8 @@ export const useCollectiveStats = () =>
     careMoments: number
     lastUpdated: number
   }>('/api/stats/collective', {
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 120000, // Refetch every 2 minutes
+    refetchIntervalInBackground: false,
   })()
 
 export const useGrowthStats = () =>
@@ -617,7 +618,8 @@ export const useGrowthStats = () =>
     }
     lastUpdated: number
   }>('/api/stats/growth', {
-    refetchInterval: 60000, // Refetch every minute
+    refetchInterval: 120000, // Refetch every 2 minutes
+    refetchIntervalInBackground: false,
   })()
 
 export const usePatternStats = () =>
@@ -626,7 +628,8 @@ export const usePatternStats = () =>
     mostActive: string
     lastUpdated: number
   }>('/api/stats/patterns', {
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 120000, // Refetch every 2 minutes
+    refetchIntervalInBackground: false,
   })()
 
 export const useWellnessStats = () =>
@@ -639,7 +642,8 @@ export const useWellnessStats = () =>
     quietestHour: string
     lastUpdated: number
   }>('/api/stats/wellness', {
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 120000, // Refetch every 2 minutes
+    refetchIntervalInBackground: false,
   })()
 
 export const useBadgeStats = () =>
@@ -652,7 +656,8 @@ export const useBadgeStats = () =>
     totalToday: number
     lastUpdated: number
   }>('/api/stats/badges', {
-    refetchInterval: 60000, // Refetch every minute
+    refetchInterval: 120000, // Refetch every 2 minutes
+    refetchIntervalInBackground: false,
   })()
 
 export const useMemoryEngineStats = () =>
@@ -664,7 +669,8 @@ export const useMemoryEngineStats = () =>
     aiDiversityScore: number
     lastUpdated: number
   }>('/api/stats/memory-engine', {
-    refetchInterval: 60000, // Refetch every minute
+    refetchInterval: 120000, // Refetch every 2 minutes
+    refetchIntervalInBackground: false,
     retry: false, // Don't retry if user doesn't have access
   })()
 
@@ -684,7 +690,8 @@ export const useAIUsageStats = () =>
       startedAt: number
     }
   }>('/api/stats/ai-usage', {
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 120000, // Refetch every 2 minutes
+    refetchIntervalInBackground: false,
     retry: false,
   })()
 
