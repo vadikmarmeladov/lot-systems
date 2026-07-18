@@ -1135,6 +1135,10 @@ export default async (fastify: FastifyInstance) => {
       'embodied_cognition_arc',
       'intention_completion_loop',
       'community_intelligence_peak',
+      // v95: personal peak window · recovery momentum · signal inception (P113/P114/P115)
+      'personal_peak_window',
+      'recovery_momentum',
+      'signal_inception',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

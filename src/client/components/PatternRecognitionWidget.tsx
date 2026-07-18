@@ -133,6 +133,9 @@ export function PatternRecognitionWidget() {
       'quantum-presence-arc':       'Quantum presence arc — all 6 channels active across 48 hours (P101)',
       'planner-intention-sync':     'Planner-intention sync — intentions + plan aligned in 2h window (P102)',
       'resilience-cascade':         'Resilience cascade — depleted → selfcare → capture + positive mood (P103)',
+      'personal-peak-window':       'Personal peak window — repeatable 4h high-performance band across ≥2 days (P113)',
+      'recovery-momentum':          'Recovery momentum — selfcare + resilience + energy rising vs prior 48h (P114)',
+      'signal-inception':           'Signal inception — QIE observing own loop, ≥5 sources in 24h (P115)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

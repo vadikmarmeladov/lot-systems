@@ -1695,6 +1695,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyEmbodiedCognitionCheck()) {
     await executeDailyEmbodiedCognitionCheck()
   }
+  // Check daily personal peak window scan (08:00 UTC every day) — Job 36
+  if (shouldRunDailyPersonalPeakWindowScan()) {
+    await executeDailyPersonalPeakWindowScan()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -2166,6 +2170,111 @@ async function executeDailyEmbodiedCognitionCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily embodied cognition check failed:', error.message)
     isDailyEmbodiedCognitionRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Personal Peak Window Scan (Job 36 — 08:00 UTC every day) ──────────
+// Reads active users' 3-day logs (energy + intentions + log events). Detects whether
+// energy + intent + log signals cluster in a repeatable 4-hour band across ≥2 of 3 days.
+// Writes personal_peak_window event. Feeds P113 detection.
+
+let isDailyPersonalPeakWindowRunning = false
+let lastDailyPersonalPeakWindowRun: Date | null = null
+
+function shouldRunDailyPersonalPeakWindowScan(): boolean {
+  const now = dayjs()
+  if (isDailyPersonalPeakWindowRunning) return false
+  if (lastDailyPersonalPeakWindowRun) {
+    const lastRun = dayjs(lastDailyPersonalPeakWindowRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 8 // 08:00 UTC daily
+}
+
+async function executeDailyPersonalPeakWindowScan(): Promise<JobResult> {
+  const jobName = 'daily-personal-peak-window'
+  const executedAt = new Date().toISOString()
+  if (isDailyPersonalPeakWindowRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPersonalPeakWindowRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PERSONAL PEAK WINDOW SCAN — 08:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const threeDaysAgo = dayjs().subtract(3, 'days').toDate()
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+    const PEAK_WINDOW_MS = 4 * 60 * 60 * 1000 // 4h
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: threeDaysAgo },
+            event: { [Op.in]: ['energy_logged', 'intention_set', 'log_entry', 'energy_checkin', 'intention_created', 'intention_updated'] },
+          },
+          order: [['createdAt', 'ASC']],
+        })
+
+        // Group by calendar day
+        const byDay: Record<string, { energy: number[], intent: number[], log: number[] }> = {}
+        for (const entry of logs) {
+          const ts = new Date(entry.createdAt as Date).getTime()
+          const day = dayjs(ts).format('YYYY-MM-DD')
+          if (!byDay[day]) byDay[day] = { energy: [], intent: [], log: [] }
+          const ev = (entry as any).event as string
+          if (ev.startsWith('energy')) byDay[day].energy.push(ts)
+          else if (ev.startsWith('intention')) byDay[day].intent.push(ts)
+          else byDay[day].log.push(ts)
+        }
+
+        const days = Object.values(byDay)
+        let activeDays = 0
+        for (const day of days) {
+          if (!day.energy.length || !day.intent.length || !day.log.length) continue
+          const allTs = [...day.energy, ...day.intent, ...day.log].sort((a, b) => a - b)
+          const hasPeak = allTs.some(anchor =>
+            day.energy.some(t => t >= anchor && t < anchor + PEAK_WINDOW_MS) &&
+            day.intent.some(t => t >= anchor && t < anchor + PEAK_WINDOW_MS) &&
+            day.log.some(t => t >= anchor && t < anchor + PEAK_WINDOW_MS)
+          )
+          if (hasPeak) activeDays++
+        }
+
+        if (activeDays >= 2) {
+          const totalEnergy = days.reduce((s, d) => s + d.energy.length, 0)
+          const totalIntent = days.reduce((s, d) => s + d.intent.length, 0)
+          const totalLog    = days.reduce((s, d) => s + d.log.length, 0)
+          await Log.create({
+            userId: (user as any).id,
+            event: 'personal_peak_window' as any,
+            text: `Peak window confirmed: ${activeDays}/3 days show energy+intent+log cluster in 4h band.`,
+            metadata: { activeDays, energyCount: totalEnergy, intentCount: totalIntent, logCount: totalLog, window: '4h-band-3d' },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Personal peak window events written: ${written}`)
+    lastDailyPersonalPeakWindowRun = new Date()
+    isDailyPersonalPeakWindowRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily personal peak window scan failed:', error.message)
+    isDailyPersonalPeakWindowRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

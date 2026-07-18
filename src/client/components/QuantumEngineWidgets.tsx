@@ -75,6 +75,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'embodied-cognition-arc':      'EMBCOG ARC',
   'intention-completion-loop':   'INTCMP LOOP',
   'community-intelligence-peak': 'COMINTEL',
+  'personal-peak-window':        'PPEAK WIN',
+  'recovery-momentum':           'RMOM',
+  'signal-inception':            'INCEP',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

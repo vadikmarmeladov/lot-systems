@@ -752,6 +752,85 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'personal_peak_window') {
+          const activeDays  = log.metadata?.activeDays  as number | undefined
+          const energyCount = log.metadata?.energyCount as number | undefined
+          const intentCount = log.metadata?.intentCount as number | undefined
+          const logCount    = log.metadata?.logCount    as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PPEAK:" blockView>
+                {activeDays !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">DAYS: {activeDays}/3</div>
+                )}
+                {energyCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">NRG 3D: {energyCount}</div>
+                )}
+                {intentCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT 3D: {intentCount}</div>
+                )}
+                {logCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">LOG 3D: {logCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recovery_momentum') {
+          const selfcareCount   = log.metadata?.selfcareCount   as number | undefined
+          const resilienceCount = log.metadata?.resilienceCount as number | undefined
+          const energyCount     = log.metadata?.energyCount     as number | undefined
+          const gain            = log.metadata?.gain            as number | undefined
+          const confidence      = log.metadata?.confidence      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RMOM:" blockView>
+                <div className="uppercase tracking-widest mb-4">RECOVERY MOMENTUM</div>
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 48H: {selfcareCount}</div>
+                )}
+                {resilienceCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">RESIL 48H: {resilienceCount}</div>
+                )}
+                {energyCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">NRG 48H: {energyCount}</div>
+                )}
+                {gain !== undefined && (
+                  <div className="opacity-60 tabular-nums">GAIN VS PRIOR: +{gain}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_inception') {
+          const sourceCount   = log.metadata?.sourceCount   as number | undefined
+          const totalSignals  = log.metadata?.totalSignals  as number | undefined
+          const sources       = log.metadata?.sources       as string[] | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INCEP:" blockView>
+                <div className="uppercase tracking-widest mb-4">QIE → SELF-AWARE</div>
+                {sourceCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">SOURCES 24H: {sourceCount}</div>
+                )}
+                {totalSignals !== undefined && (
+                  <div className="opacity-60 tabular-nums">TOTAL SIG: {totalSignals}</div>
+                )}
+                {sources && sources.length > 0 && (
+                  <div className="opacity-40 tabular-nums uppercase text-xs">{sources.join(' · ')}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-40 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined
