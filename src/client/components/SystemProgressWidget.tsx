@@ -1266,8 +1266,14 @@ export function SystemProgressWidget() {
     analyzeIntentions()
     setReport(getEnrichedPhysiologicalReport())
     const interval = setInterval(() => {
-      if (!document.hidden) recomputeAssembly()
-    }, 60_000) // Every minute — skipped when tab/window is not visible
+      // Skip when the browser tab is hidden OR when the user is on another
+      // in-app tab. recomputeAssembly() is heavy and writes the selfAssembly
+      // atom (re-rendering several mounted-but-hidden widgets); pausing it off
+      // the System tab keeps tab switching responsive.
+      if (document.hidden) return
+      if (!stores.isRouteActive('system')) return
+      recomputeAssembly()
+    }, 60_000)
     return () => clearInterval(interval)
   }, [])
 

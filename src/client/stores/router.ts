@@ -39,3 +39,11 @@ export const goTo = <P extends keyof Routes>(
 ) => {
   openPage(router, page, params)
 }
+
+// Cheap, subscription-free check of the current route. Read inside interval
+// callbacks to pause heavy background work when its tab is not the one being
+// viewed. NOTE: this is stronger than document.hidden — switching between
+// in-app tabs keeps the browser tab visible (document.hidden === false), so
+// document.hidden alone does not pause work when the user leaves this tab.
+export const isRouteActive = (route: keyof Routes): boolean =>
+  router.get()?.route === route

@@ -163,6 +163,39 @@ export function hasCurrentIntention(): boolean {
 /**
  * Record a signal from any widget interaction
  */
+// Run heavy, non-urgent work off the current interaction tick — during browser
+// idle time when available, otherwise on the next macrotask.
+function deferHeavy(fn: () => void): void {
+  if (typeof window === 'undefined') return void fn()
+  const ric = (window as any).requestIdleCallback as
+    | ((cb: () => void, opts?: { timeout: number }) => void)
+    | undefined
+  if (ric) ric(fn, { timeout: 2000 })
+  else setTimeout(fn, 0)
+}
+
+// Coalesced localStorage persist: rapid signals schedule a single deferred
+// write of the latest signals array instead of stringifying up to 1000 objects
+// synchronously on every recordSignal call.
+let persistScheduled = false
+function schedulePersist(): void {
+  if (persistScheduled) return
+  persistScheduled = true
+  const write = () => {
+    persistScheduled = false
+    try {
+      localStorage.setItem(
+        'intention-signals',
+        JSON.stringify(intentionEngine.get().signals)
+      )
+    } catch (e) {
+      console.warn('Failed to persist intention signals:', e)
+    }
+  }
+  if (typeof window === 'undefined') return void write()
+  setTimeout(write, 250)
+}
+
 export function recordSignal(
   source: IntentionSignal['source'],
   signal: string,
@@ -195,12 +228,11 @@ export function recordSignal(
     signals: recentSignals
   })
 
-  // Persist to localStorage (protected)
-  try {
-    localStorage.setItem('intention-signals', JSON.stringify(recentSignals))
-  } catch (e) {
-    console.warn('Failed to persist intention signals:', e)
-  }
+  // Persist + analysis are the expensive parts (JSON.stringify of up to 1000
+  // objects; the 125-pattern analyzeIntentions scan). Defer them off the
+  // interaction tick so a widget button press stays responsive. schedulePersist
+  // coalesces bursts into a single write.
+  schedulePersist()
 
   // Trigger analysis if enough new signals AND cooldown has passed
   const now = Date.now()
@@ -208,7 +240,7 @@ export function recordSignal(
                         (now - state.lastAnalysis >= ANALYSIS_COOLDOWN)
 
   if (shouldAnalyze) {
-    analyzeIntentions()
+    deferHeavy(() => analyzeIntentions())
   }
 
   // Trigger server sync periodically

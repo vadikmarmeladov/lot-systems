@@ -9,6 +9,6 @@
 export * from './state.js'
 export * from './theme.js'
 export * from './layout.js'
-export { router, goTo } from './router.js'
+export { router, goTo, isRouteActive } from './router.js'
 // export * as actions from './actions'
 // export * from './cipher'
