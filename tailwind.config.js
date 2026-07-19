@@ -29,6 +29,8 @@ module.exports = {
     extend: {
       fontFamily: {
         base: ['Arial', 'Helvetica', 'sans-serif'],
+        // LOT-FM-001 terminal register — IBM 3270 grid, Basics module only.
+        terminal: ['"Liberation Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
       },
       lineHeight: {
         1: '1',
