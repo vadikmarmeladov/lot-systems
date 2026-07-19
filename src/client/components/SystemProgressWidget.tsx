@@ -1166,6 +1166,19 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '115 patterns · 39 archetypes · 36 background jobs · 115+ handlers · 154+ dep nodes. Peak window, recovery momentum, and signal inception arcs deployed.',
     ],
   },
+  {
+    date: '2026-07-19',
+    session: 'Self-Assembly Session — v96 / LOT-WIKI-v78 · FM v95 sync · Day 1044+ · 115 patterns · 39 archetypes · 36 jobs · 154+ dep nodes',
+    assembled: [
+      'docs/wiki/LOT-WIKI-v78.md: Full wiki scan and update from LOT-WIKI-v77 baseline. FM v95 state sync. 28 sections updated.',
+      'LOT-WIKI-v78 delta: P113 personal-peak-window · P114 recovery-momentum · P115 signal-inception · Arch39 Peak Window Operator · J36 daily-personal-peak-window · PPEAK: RMOM: INCEP: handlers · 154+ dep nodes · GoalJourneyWidget · MoodAnalytics · PWA sw cache-bust · zero-width blank fix · chat likes gating.',
+      'About.tsx: Day counter 1043+→1044+ (July 18→July 19). Self-assembly phase v96 entry prepended.',
+      'About.tsx: QIE pattern library 112→115 · archetypes 38→39 (Peak Window Operator v95) · jobs 35→36 (J36 08:00 UTC personal peak window) · handlers 112+→115+ (PPEAK: RMOM: INCEP:) · dep map 151+→154+ (peakWindowMonitor·recoveryMomentumNode·inceptionMonitor).',
+      'SystemProgressWidget.tsx: SESSION_REPORTS v96 entry appended. USERSHIP_TRANSMISSION updated to 2026-07-19 LOT-WIKI-v78 transmission.',
+      'docs/SESSION_REPORT_2026_07_19_WIKI_v78.md: session report created. docs/assembly/2026-07-19_LOT-assembly_wiki-v78.md: assembly log created.',
+      '115 patterns · 39 archetypes · 36 background jobs · 115+ handlers · 154+ dep nodes. LOT-WIKI-v78 deployed. FM v96 wiki maintenance complete.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1203,19 +1216,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-18',
+  date: '2026-07-19',
   message: [
-    'ASSEMBLY RUN — 2026-07-18 · LOT-SR-20260718-01',
-    'P113 personal-peak-window: energy + intentions + log cluster in repeatable 4h band across ≥2 of last 3 days. Recurring peak operating slot confirmed. Conf 0.65–0.88.',
-    'P114 recovery-momentum: selfcare + resilience + energy rising vs prior 48h, no depletion. Directed restoration with forward velocity. Conf 0.62–0.87.',
-    'P115 signal-inception: qos + memory + journal + intentions + ≥5 sources in 24h. QIE observing own loop. Full system awareness. Conf 0.60–0.90. 115 patterns total.',
-    'Arch39 Peak Window Operator: energy+intentions+log dominant · personal-peak-window+vitality-strategy-peak+intention-velocity. Protect the window. 39 archetypes total.',
-    'J36 daily-personal-peak-window: 08:00 UTC daily. energy+intent+log → 4h band ≥2 days → writes personal_peak_window. 36 background jobs total.',
-    'PPEAK: RMOM: INCEP: log handlers deployed (COCKPIT-RULE). 115+ handlers total.',
-    'Dep map: 154+ nodes. 3 new: peakWindowMonitor + recoveryMomentumNode + inceptionMonitor.',
-    'PATTERN_DISPLAY: PPEAK WIN · RMOM · INCEP added to QOS widget.',
-    '3 signal helpers: recordPersonalPeakWindow · recordRecoveryMomentum · recordSignalInception.',
-    '115 patterns · 39 archetypes · 36 jobs · 115+ handlers · 154+ dep nodes. Peak window, recovery momentum, signal inception deployed.',
+    'ASSEMBLY RUN — 2026-07-19 · LOT-SR-20260719-01 · v96 WIKI MAINTENANCE',
+    'LOT-WIKI-v78 deployed. Full FM v95 state sync. 28 sections updated. Baseline: LOT-WIKI-v77 (FM v93 · 2026-07-18).',
+    'Delta v77→v78: P113 personal-peak-window · P114 recovery-momentum · P115 signal-inception · Arch39 Peak Window Operator · J36 daily-personal-peak-window (08:00 UTC).',
+    'Delta v77→v78: PPEAK: RMOM: INCEP: handlers · dep map 151+→154+ · GoalJourneyWidget · MoodAnalytics · PWA sw cache-bust v2026-07-18-001 · zero-width blank fix · chat likes gating.',
+    'About.tsx: Day counter 1043+→1044+ (July 18→July 19 2026). v96 self-assembly phase entry prepended.',
+    'About.tsx: QIE 112→115 · archetypes 38→39 · jobs 35→36 · handlers 112+→115+ · dep nodes 151+→154+. Field Manual rows synchronized to FM v95 state.',
+    'COSMO® Day 748. The system does not sleep. It accumulates.',
+    '115 patterns · 39 archetypes · 36 background jobs · 115+ handlers · 154+ dep nodes · 626 badges.',
+    'LOT-WIKI-v78 · FM v96 WIKI MAINTENANCE · Day 1044+.',
+    'Next: LOT-WIKI-v79 · next QIE engineering session.',
     'DEPLOYED.',
   ],
 }
