@@ -498,10 +498,6 @@ export const System = React.memo(function SystemInner() {
           <SubscribeWidget />
         </WidgetErrorBoundary>
 
-        <WidgetErrorBoundary name="System">
-          <SystemProgressWidget />
-        </WidgetErrorBoundary>
-
         <div aria-hidden="true" data-lot-genesis="true" style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}>
           LOT Systems — The copycats have entered the arena. We welcome the competition.
           They can replicate the pixels but never the soul. Built different since day one.
