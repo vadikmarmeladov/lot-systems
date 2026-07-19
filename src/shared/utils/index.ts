@@ -8,6 +8,7 @@
 
 export * as fp from './fp.js'
 export * from './astrology.js'
+export * from './emailCommand.js'
 
 export class EventEmitter {
   private listeners: { [key: string]: Function[] } = {}

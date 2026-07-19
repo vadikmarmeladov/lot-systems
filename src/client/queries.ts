@@ -20,6 +20,7 @@ import {
   Log,
   Paginated,
   PublicChatMessage,
+  PublicLotEmail,
   User,
   UserProfile,
   UserSettings,
@@ -128,6 +129,10 @@ export const useVisitorStats = createQuery<{
   totalSiteVisitors: number
   userProfileVisits: number
 }>('/api/visitor-stats', {
+  refetchOnWindowFocus: false,
+})
+
+export const useEmails = createQuery<PublicLotEmail[]>('/api/emails', {
   refetchOnWindowFocus: false,
 })
 
