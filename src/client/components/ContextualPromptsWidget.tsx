@@ -23,6 +23,8 @@ export const ContextualPromptsWidget = () => {
   // Quantum variation: subtle shift on mount and every 15 seconds
   React.useEffect(() => {
     const interval = setInterval(() => {
+      // setState re-renders this widget; skip while it's on a hidden tab.
+      if (document.hidden || !stores.isRouteActive('system')) return
       setQuantumShift(prev => (prev + 1) % 5)
     }, 15000)
     return () => clearInterval(interval)
