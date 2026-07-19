@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://institute.lot-systems.com/qi46/corpus/tagging-schema.json",
+  "title": "QI·46 Corpus Tagging Schema",
+  "description": "Per docs/corporate/LOT_QI46_ENGINE.md, Section IV, Step 0.2. Applied to every document before it enters the training corpus.",
+  "type": "object",
+  "required": ["source", "type", "arc_position", "body_state", "cosmo_cleared"],
+  "properties": {
+    "source": {
+      "type": "string",
+      "enum": ["platform", "institute", "brand", "bioelectric", "consumable", "cosmo"]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["instruction", "example", "philosophy", "technical", "voice"]
+    },
+    "arc_position": {
+      "type": "string",
+      "enum": ["0-3mo", "3-6mo", "6-12mo", "12mo+", "n/a"],
+      "description": "n/a for corpus documents that are not subscriber-arc-scoped (white papers, brand copy, vision docs)."
+    },
+    "body_state": {
+      "type": "string",
+      "enum": ["calibration", "pattern", "coherence", "hardware", "n/a"]
+    },
+    "cosmo_cleared": {
+      "type": "boolean",
+      "description": "true only after a human (S-2) has reviewed the document for inclusion. This build sets cosmo_cleared: false on every record it emits — no document in this corpus has been through a human COSMO® review pass yet. Flip to true per-document only after that review happens."
+    }
+  }
+}

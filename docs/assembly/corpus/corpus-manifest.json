@@ -1,0 +1,113 @@
+{
+  "generated_by": "scripts/corpus/build-corpus.ts",
+  "spec_ref": "docs/corporate/LOT_QI46_ENGINE.md Section IV Phase 0",
+  "total_training_pairs": 14,
+  "total_words": 38393,
+  "by_source": {
+    "institute": 4,
+    "brand": 8,
+    "bioelectric": 2
+  },
+  "cosmo_cleared_count": 0,
+  "cosmo_flagged_count": 14,
+  "files": [
+    {
+      "path": "docs/corporate/CQGS-WHITE-PAPER-SNAPSHOT.md",
+      "source": "institute",
+      "type": "philosophy",
+      "words": 1859
+    },
+    {
+      "path": "docs/corporate/LOT-AI-PRODUCT-BRIEF.md",
+      "source": "brand",
+      "type": "voice",
+      "words": 1041
+    },
+    {
+      "path": "docs/corporate/LOT-AMBIENT-AI-VISION.md",
+      "source": "brand",
+      "type": "voice",
+      "words": 992
+    },
+    {
+      "path": "docs/corporate/LOT-CUBIQ-VISION.md",
+      "source": "brand",
+      "type": "voice",
+      "words": 476
+    },
+    {
+      "path": "docs/corporate/LOT-TERMINAL-VISION.md",
+      "source": "brand",
+      "type": "voice",
+      "words": 915
+    },
+    {
+      "path": "docs/corporate/LOT_Medical_Records.md",
+      "source": "brand",
+      "type": "voice",
+      "words": 970
+    },
+    {
+      "path": "docs/corporate/LOT_PTSD_Protocol.md",
+      "source": "brand",
+      "type": "voice",
+      "words": 1703
+    },
+    {
+      "path": "docs/corporate/LOT_QI46_ENGINE.md",
+      "source": "brand",
+      "type": "voice",
+      "words": 5355
+    },
+    {
+      "path": "docs/corporate/LOT_QUANTUM_AI_SYSTEM_PROMPT.md",
+      "source": "brand",
+      "type": "voice",
+      "words": 3234
+    },
+    {
+      "path": "docs/technical/LOT-FIELD-MANUAL-v53-SNAPSHOT.md",
+      "source": "bioelectric",
+      "type": "technical",
+      "words": 1940
+    },
+    {
+      "path": "docs/technical/LOT-self-care-proactive-context-AI-white-paper.txt",
+      "source": "institute",
+      "type": "philosophy",
+      "words": 3969
+    },
+    {
+      "path": "docs/technical/LOT_SYSTEMS_BRIEF.md",
+      "source": "bioelectric",
+      "type": "technical",
+      "words": 2730
+    },
+    {
+      "path": "docs/technical/MEMORY-ENGINE-WHITE-PAPER.md",
+      "source": "institute",
+      "type": "philosophy",
+      "words": 5521
+    },
+    {
+      "path": "docs/technical/QUANTUM-INTENT-ENGINE-WHITE-PAPER.md",
+      "source": "institute",
+      "type": "philosophy",
+      "words": 7688
+    }
+  ],
+  "gaps": [
+    {
+      "source": "platform",
+      "reason": "Subscriber journal entries and session logs live in the production PostgreSQL database, not this repository. This script has no DB credentials or access path in this session and did not attempt a connection. Not inventoried."
+    },
+    {
+      "source": "consumable",
+      "reason": "Consumable feedback records (sock/toothbrush/Quantum Cube ratings) are subscriber-submitted production data. Not present in this repo. Not inventoried."
+    },
+    {
+      "source": "cosmo",
+      "reason": "COSMO® event logs (detection -> FAX -> record) are runtime-generated production records. Not present in this repo. Not inventoried."
+    }
+  ]
+}
