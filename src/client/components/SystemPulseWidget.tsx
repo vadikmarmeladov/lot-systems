@@ -12,6 +12,7 @@ import { ProgressBars } from '#client/utils/progressBars'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { useStore } from '@nanostores/react'
 import { intentionEngine, classifyPhysiologicalCohort, getCircadianPhase, getUserState, getUserIndex } from '#client/stores/intentionEngine'
+import { isRouteActive } from '#client/stores/router'
 
 interface CommunityPulse {
   index: number | null
@@ -91,6 +92,10 @@ export function SystemPulseWidget() {
     fetchPulse()
 
     intervalRef.current = setInterval(() => {
+      // Pause polling (each fetch setStates → re-renders this hidden widget)
+      // when the browser tab is hidden or the user is on another in-app tab.
+      if (document.hidden) return
+      if (!isRouteActive('system')) return
       fetchPulse()
     }, 10_000)
 
