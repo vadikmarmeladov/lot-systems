@@ -247,3 +247,25 @@ or the `npm run` scripts after `npm ci`, never via `npx` before install.
 (SR-20260719-02: rediscovered from a clean container; GREEN-GATE step 02-04
 blocked twice by this before the true fix — npm ci, not a tsconfig edit —
 was identified.)
+
+## Tag-Push Scope Restriction (correction to prior session reports)
+
+`git push origin <tag>` returns HTTP 403 from this environment's git proxy
+even immediately after a successful `git push origin <branch>` with the same
+credentials — the push token is scoped to branch refs, not tag refs. Local
+`git tag` still succeeds and is harmless (useful within a session as a Plan-B
+rollback pointer), but it never reaches the remote. This explains a corpus-
+wide discrepancy: `git tag --list 'benchmark-*'` returns empty on a fresh
+clone even after `git fetch --tags`, despite 70+ prior session reports (back
+to SR-20260605-xx) recording `TAG: benchmark-YYYYMMDD-NN` as if it were
+pushed. Those reports were not dishonest — the push command was issued and
+the local tag did exist at commit time — but the remote push silently failed
+or was never separately verified. Going forward: do not report a TAG line as
+a completed remote artifact without confirming via
+`git ls-remote --tags origin`; if the confirmation 403s, record the tag as
+LOCAL-ONLY and cite this clause rather than presenting it as a durable
+Plan-B target.
+(SR-20260719-02: `git tag benchmark-20260719-02` + `git push origin
+benchmark-20260719-02` → 403; branch push to
+origin/claude/youthful-ritchie-gbyfcc succeeded with identical credentials
+moments earlier.)
