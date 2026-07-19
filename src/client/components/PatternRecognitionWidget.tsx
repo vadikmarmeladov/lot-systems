@@ -50,7 +50,12 @@ export function PatternRecognitionWidget() {
   const { data: logs = [] } = useLogs()
   const logCtx = useLogContext()
 
-  const qosHistory = React.useMemo(() => getQOSHistory(), [engine])
+  // Key on recognizedPatterns (a stable reference that only changes when an
+  // analysis actually updates it) rather than the whole `engine` object, whose
+  // reference changes on EVERY recordSignal — which made getQOSHistory()
+  // JSON.parse localStorage on every signal while this hidden widget stayed
+  // mounted. `view` is included so the QOS-Trend view refreshes when opened.
+  const qosHistory = React.useMemo(() => getQOSHistory(), [engine.recognizedPatterns, view])
 
   const cycleView = () => {
     setView(prev => {
@@ -65,7 +70,12 @@ export function PatternRecognitionWidget() {
   }
 
   const patterns = engine.recognizedPatterns
-  const optimal = getOptimalWidget()
+  // getOptimalWidget() calls analyzeIntentions(), which WRITES the
+  // intentionEngine atom — calling it in the render body meant a store write
+  // during render on every re-render, cascading re-renders across all
+  // subscribers. Memoize on the already-analyzed patterns so it does not
+  // re-run (and cannot write) on every signal.
+  const optimal = React.useMemo(() => getOptimalWidget(), [patterns])
 
   // Don't render if no patterns and no QOS history
   if (patterns.length === 0 && !optimal && qosHistory.length === 0) return null
