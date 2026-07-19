@@ -130,6 +130,12 @@ export const System = React.memo(function SystemInner() {
 
   const [isBreatheOn, setIsBreatheOn] = React.useState(false)
   const breatheState = useBreathe(isBreatheOn)
+
+  // Stable per-mount random seeds — must not be recomputed on re-render
+  const intentionsCooldownMs = React.useRef(
+    2 * 24 * 60 * 60 * 1000 + Math.random() * 24 * 60 * 60 * 1000
+  )
+  const showSubscribeRoll = React.useRef(Math.random() < 0.2)
   const [showRadio, setShowRadio] = React.useState(false)
   const [astrologyView, setAstrologyView] = React.useState<'astrology' | 'psychology' | 'journey' | 'quantum'>('astrology')
   const [showWeatherSuggestion, setShowWeatherSuggestion] = React.useState(false)
@@ -854,14 +860,9 @@ export const System = React.memo(function SystemInner() {
         {(() => {
           const hasIntention = !!localStorage.getItem('current-intention')
 
-          // Check cooldown (2-3 days since last shown)
+          // Check cooldown (2-3 days since last shown, randomised once at mount)
           const lastShown = localStorage.getItem('intentions-last-shown')
-          const twoDaysMs = 2 * 24 * 60 * 60 * 1000
-          const threeDaysMs = 3 * 24 * 60 * 60 * 1000
-
-          // Random cooldown between 2-3 days
-          const cooldownPeriod = twoDaysMs + Math.random() * (threeDaysMs - twoDaysMs)
-          const cooldownPassed = !lastShown || (Date.now() - parseInt(lastShown)) >= cooldownPeriod
+          const cooldownPassed = !lastShown || (Date.now() - parseInt(lastShown)) >= intentionsCooldownMs.current
 
           const intentionSuggestsIntentions = optimalWidget?.widget === 'intentions'
 
@@ -908,9 +909,8 @@ export const System = React.memo(function SystemInner() {
             return null
           }
 
-          // Random 20% chance to show when all conditions met
-          const shouldShow = Math.random() < 0.2
-          return shouldShow && <div><SubscribeWidget /></div>
+          // Stable 20% chance per mount — ref prevents re-roll on re-render
+          return showSubscribeRoll.current && <div><SubscribeWidget /></div>
         })()}
       </WidgetErrorBoundary>
 
