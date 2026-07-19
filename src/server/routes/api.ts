@@ -1169,6 +1169,8 @@ export default async (fastify: FastifyInstance) => {
       'focus_depth_arc',
       'sleep_signal_anchor',
       'care_intelligence_loop',
+      // Calendar due-time alerts (timed entries reaching their scheduled moment)
+      'calendar_alert',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
