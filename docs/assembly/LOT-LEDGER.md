@@ -18,4 +18,4 @@ YYYYMMDD-NN | CLASS | one-line summary | result | commit-hash | ratio X.X:1
 
 ---
 
-20260719-01 | SELF-ASSEMBLY | QI·46 Phase 0 corpus assembly scaffolding + tagging schema + honest gap flagging (14/10000 pairs, HOLD on Checkpoint 0) | GREEN | PENDING | ratio 1.0:1
+20260719-01 | SELF-ASSEMBLY | QI·46 Phase 0 corpus assembly scaffolding + tagging schema + honest gap flagging (14/10000 pairs, HOLD on Checkpoint 0) | GREEN | 6cf81a5 | ratio 1.0:1
