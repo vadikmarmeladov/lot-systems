@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev M
+# LOT-DOCTRINE  rev N
 
 ## Render Isolation
 
@@ -6,10 +6,29 @@ When a store subscription triggers a re-render, the blast radius is every
 component in the subscribing tree. Move subscriptions to the narrowest
 component that needs the value. Shared parent state that only toggles
 visibility belongs in lightweight wrapper components, not the root.
+Corollary: work that WRITES to a store must not run inside useMemo (render
+phase) — the writes schedule subscriber re-renders before the browser can
+paint. Move such work to useEffect so atom writes land after paint; seed
+the derived value with useState for an identical first render.
 (SR-20260602-01: router moved from App to TabPanel; System re-render
 eliminated on tab switch. SR-20260603-01: unused Block subscriptions
 removed; per-item subscriptions lifted to parent in Sync; nav buttons
-memoized so only active-state changes trigger re-render.)
+memoized so only active-state changes trigger re-render. SR-20260719-01:
+System quantumState analyzeIntentions()+recomputeAssembly() moved
+useMemo->useEffect — 10 subscriber re-renders no longer block paint;
+SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+
+## Client Cache Freshness
+
+Assets served at fixed, unhashed URLs (/css/index.css, /js/...) must be
+network-first in the service worker, never cache-first — cache-first serves
+stale code/styles indefinitely because the URL never changes. The SW's own
+CACHE_VERSION must change on any deploy that must reach users: a byte-
+identical sw.js is never reinstalled, so its activate step (old-cache purge)
+and the controllerchange auto-reload never fire. Immutable assets (icons,
+images) stay cache-first. (SR-20260719-01: CSS moved cache-first->network-
+first; CACHE_VERSION bumped v2026-07-04-001->v2026-07-18-001; stale
+active-tab hover CSS reached users only after the bump.)
 
 ## Subscription Minimization
 
