@@ -1699,6 +1699,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyPersonalPeakWindowScan()) {
     await executeDailyPersonalPeakWindowScan()
   }
+  // Check daily focus depth check (16:00 UTC every day) — Job 37
+  if (shouldRunDailyFocusDepthCheck()) {
+    await executeDailyFocusDepthCheck()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -2275,6 +2279,107 @@ async function executeDailyPersonalPeakWindowScan(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily personal peak window scan failed:', error.message)
     isDailyPersonalPeakWindowRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Focus Depth Check (Job 37 — 16:00 UTC every day) ─────────────────
+// Reads active users. Scans rolling 2h windows for journal entries ≥100w + memory
+// capture + planner entry all occurring within the same 2h band. Writes focus_depth_arc.
+// Feeds P116 detection. Co-located at 16:00 UTC with coherence index job.
+
+let isDailyFocusDepthRunning = false
+let lastDailyFocusDepthRun: Date | null = null
+
+function shouldRunDailyFocusDepthCheck(): boolean {
+  const now = dayjs()
+  if (isDailyFocusDepthRunning) return false
+  if (lastDailyFocusDepthRun) {
+    const lastRun = dayjs(lastDailyFocusDepthRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 16 // 16:00 UTC daily (co-located with coherence index)
+}
+
+async function executeDailyFocusDepthCheck(): Promise<JobResult> {
+  const jobName = 'daily-focus-depth-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyFocusDepthRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyFocusDepthRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY FOCUS DEPTH CHECK — 16:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+    const FOCUS_WINDOW_MS = 2 * 60 * 60 * 1000 // 2h
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: ['journal_entry', 'note', 'memory_created', 'memory_saved', 'plan_set', 'planner_entry'] },
+          },
+          order: [['createdAt', 'ASC']],
+        })
+
+        // Look for a 2h window containing journal (100+w) + memory + planner
+        const journalEntries = logs.filter(l => {
+          const ev = (l as any).event as string
+          const words = ((l as any).text ?? '').split(/\s+/).filter(Boolean).length
+          return (ev === 'journal_entry' || ev === 'note') && words >= 100
+        })
+        const memoryEntries  = logs.filter(l => ((l as any).event as string).startsWith('memory'))
+        const plannerEntries = logs.filter(l => ((l as any).event as string).startsWith('plan'))
+
+        let hasFocusWindow = false
+        for (const jEntry of journalEntries) {
+          const anchor = new Date(jEntry.createdAt as Date).getTime()
+          const inWindow = (arr: typeof logs) =>
+            arr.some(e => {
+              const t = new Date(e.createdAt as Date).getTime()
+              return t >= anchor - FOCUS_WINDOW_MS && t <= anchor + FOCUS_WINDOW_MS
+            })
+          if (inWindow(memoryEntries) && inWindow(plannerEntries)) { hasFocusWindow = true; break }
+        }
+
+        if (hasFocusWindow) {
+          await Log.create({
+            userId: (user as any).id,
+            event: 'focus_depth_arc' as any,
+            text: `Focus depth arc detected: journal 100+w + memory + planner aligned in 2h window.`,
+            metadata: {
+              journalCount: journalEntries.length,
+              memoryCount: memoryEntries.length,
+              plannerCount: plannerEntries.length,
+              window: '2h',
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Focus depth arc events written: ${written}`)
+    lastDailyFocusDepthRun = new Date()
+    isDailyFocusDepthRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily focus depth check failed:', error.message)
+    isDailyFocusDepthRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4353,6 +4458,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily cross-domain pulse: 7 PM UTC every day (Job 29)')
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
   console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
+  console.log('   - Daily focus depth check: 4 PM UTC every day (Job 37)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -4362,7 +4468,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

@@ -2634,6 +2634,67 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 116: Focus Depth Arc — journal 100+w + memory capture + planner all fired
+  // in a rolling 2h window. Short cognitive depth confirmed: the person is simultaneously
+  // writing, capturing, and structuring. Signals: journal + memory + planner in tight band.
+  const p116Window = 2 * 60 * 60 * 1000
+  const p116Recent = signals.filter(s => s.timestamp > now - p116Window)
+  const p116Journal   = p116Recent.filter(s => s.source === 'journal' && (s.metadata?.wordCount ?? 0) >= 100)
+  const p116Memory    = p116Recent.filter(s => s.source === 'memory')
+  const p116Planner   = p116Recent.filter(s => s.source === 'planner')
+  if (p116Journal.length >= 1 && p116Memory.length >= 1 && p116Planner.length >= 1) {
+    const p116Conf = Math.min(0.65 + p116Journal.length * 0.06 + p116Memory.length * 0.04 + p116Planner.length * 0.04, 0.85)
+    patterns.push({
+      pattern: 'focus-depth-arc',
+      confidence: p116Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `FDEP: Focus depth arc active — journal ${p116Journal.length} (100+w) + memory ${p116Memory.length} + planner ${p116Planner.length} in 2h window. Cognitive writing, capture, and structure aligned. Deep execution window confirmed.`,
+    })
+  }
+
+  // Pattern 117: Sleep Signal Anchor — first log entry after 07:00 + energy check-in
+  // before 09:00. Biological morning anchor confirmed. Person is grounding their day in
+  // biological signal before cognitive load. Steady operating baseline established.
+  const p117Today  = new Date(); p117Today.setHours(0, 0, 0, 0)
+  const p117TodayMs = p117Today.getTime()
+  const p117After7  = p117TodayMs + 7 * 60 * 60 * 1000
+  const p117Before9 = p117TodayMs + 9 * 60 * 60 * 1000
+  const p117Morning  = signals.filter(s => s.timestamp >= p117After7 && s.timestamp < p117Before9)
+  const p117HasFirst = signals.some(s => s.timestamp >= p117After7 && s.timestamp < p117TodayMs + 24 * 60 * 60 * 1000)
+  const p117Energy   = p117Morning.filter(s => s.source === 'energy')
+  const p117Log      = p117Morning.filter(s => s.source === 'log')
+  if (p117HasFirst && p117Energy.length >= 1 && (p117Log.length + p117Energy.length) >= 2) {
+    const p117Conf = Math.min(0.68 + p117Energy.length * 0.05 + p117Morning.length * 0.02, 0.82)
+    patterns.push({
+      pattern: 'sleep-signal-anchor',
+      confidence: p117Conf,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `SANCH: Sleep signal anchor confirmed — first entry after 07:00, energy check-in before 09:00. Biological baseline grounded before cognitive load. ${p117Morning.length} morning signals detected. Steady anchor active.`,
+    })
+  }
+
+  // Pattern 118: Care Intelligence Loop — selfcare + memory capture + journal all in
+  // the same 24h window. Body-mind knowledge integration: the person is simultaneously
+  // caring for the physical substrate and encoding the experience into structured memory
+  // and written reflection. Mind-body knowledge loop closed.
+  const p118Window = 24 * 60 * 60 * 1000
+  const p118Recent   = signals.filter(s => s.timestamp > now - p118Window)
+  const p118Selfcare = p118Recent.filter(s => s.source === 'selfcare')
+  const p118Memory   = p118Recent.filter(s => s.source === 'memory')
+  const p118Journal  = p118Recent.filter(s => s.source === 'journal')
+  if (p118Selfcare.length >= 1 && p118Memory.length >= 1 && p118Journal.length >= 1) {
+    const p118Conf = Math.min(0.62 + p118Selfcare.length * 0.05 + p118Memory.length * 0.05 + p118Journal.length * 0.04, 0.80)
+    patterns.push({
+      pattern: 'care-intelligence-loop',
+      confidence: p118Conf,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `CINTEL: Care intelligence loop active — selfcare ${p118Selfcare.length} + memory ${p118Memory.length} + journal ${p118Journal.length} in 24h. Body-mind knowledge integration confirmed. Physical care feeding cognitive encoding and reflective output.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3212,6 +3273,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   peakWindowMonitor:          ['energy', 'intentions', 'log'],
   recoveryMomentumNode:       ['selfcare', 'resilience', 'energy', 'log'],
   inceptionMonitor:           ['qos', 'memory', 'journal', 'intentions', 'log'],
+
+  // ── Focus depth + sleep anchor + care intelligence nodes (2026-07-19 v96)
+  focusDepthNode:             ['journal', 'memory', 'planner', 'log'],
+  sleepAnchorNode:            ['energy', 'log'],
+  careIntelligenceNode:       ['selfcare', 'memory', 'journal', 'log'],
 }
 
 /**
@@ -3553,6 +3619,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['energy', 'intentions', 'log'],
     patternConditions: ['personal-peak-window', 'vitality-strategy-peak', 'intention-velocity'],
     directive: 'Recurring peak performance window confirmed across multiple days. Energy, intention, and log density cluster in a repeatable 4-hour band. This window is your highest-leverage execution slot — protect it structurally.',
+  },
+  // ── Arch40: Focused Executor (2026-07-19 v96) ──────────────────────────────────
+  {
+    archetype: 'Focused Executor',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['planner', 'intentions', 'memory'],
+    patternConditions: ['personal-peak-window', 'focus-depth-arc', 'clarity-momentum-peak'],
+    directive: 'Window is live. Cognitive and structural alignment confirmed. Execute without delay.',
   },
 ]
 
@@ -5028,6 +5102,48 @@ export function recordSignalInception(sourceCount: number, sources: string[], to
     sourceCount,
     sources,
     totalSignals,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a focus-depth-arc signal — journal 100+w + memory + planner in a 2h window.
+ * Feeds P116 detection. Short-window cognitive depth and structural alignment confirmed.
+ */
+export function recordFocusDepthArc(journalWords: number, memoryCount: number, plannerCount: number) {
+  recordSignal('journal', 'focus_depth_arc', {
+    journalWords,
+    memoryCount,
+    plannerCount,
+    window: '2h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a sleep-signal-anchor event — first log + energy check-in between 07:00 and 09:00.
+ * Feeds P117 detection. Biological morning anchor grounded before cognitive load.
+ */
+export function recordSleepSignalAnchor(morningSignalCount: number, energyCount: number, firstHour: number) {
+  recordSignal('energy', 'sleep_signal_anchor', {
+    morningSignalCount,
+    energyCount,
+    firstHour,
+    window: '07-09h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a care-intelligence-loop signal — selfcare + memory + journal all in 24h.
+ * Feeds P118 detection. Body-mind knowledge integration loop closed.
+ */
+export function recordCareIntelligenceLoop(selfcareCount: number, memoryCount: number, journalCount: number) {
+  recordSignal('selfcare', 'care_intelligence_loop', {
+    selfcareCount,
+    memoryCount,
+    journalCount,
     window: '24h',
     hour: new Date().getHours(),
   })
