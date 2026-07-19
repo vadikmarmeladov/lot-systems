@@ -1165,6 +1165,10 @@ export default async (fastify: FastifyInstance) => {
       'personal_peak_window',
       'recovery_momentum',
       'signal_inception',
+      // v96: focus depth arc · sleep signal anchor · care intelligence loop (P116/P117/P118)
+      'focus_depth_arc',
+      'sleep_signal_anchor',
+      'care_intelligence_loop',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

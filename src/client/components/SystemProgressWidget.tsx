@@ -1166,6 +1166,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '115 patterns · 39 archetypes · 36 background jobs · 115+ handlers · 154+ dep nodes. Peak window, recovery momentum, and signal inception arcs deployed.',
     ],
   },
+  {
+    date: '2026-07-19',
+    session: 'Self-Assembly Session — v96 / P116–P118 · Arch40 Focused Executor · J37 Focus Depth Check · FDEP: SANCH: CINTEL: · Dep Map 157+',
+    assembled: [
+      'intentionEngine.ts: P116 focus-depth-arc — journal 100+w + memory + planner all in 2h rolling window. Short-window cognitive depth and structural alignment confirmed. Conf 0.65–0.85. suggestedWidget: memory.',
+      'intentionEngine.ts: P117 sleep-signal-anchor — first log entry after 07:00 + energy check-in before 09:00. Biological morning anchor grounded before cognitive load. Conf 0.68–0.82. suggestedWidget: planner.',
+      'intentionEngine.ts: P118 care-intelligence-loop — selfcare + memory + journal all in 24h. Body-mind knowledge integration loop confirmed. Conf 0.62–0.80. suggestedWidget: journal.',
+      'intentionEngine.ts: Arch40 Focused Executor — energyBands high+moderate · dominantSources planner+intentions+memory · patternConditions personal-peak-window+focus-depth-arc+clarity-momentum-peak. Directive: Window is live. Execute without delay. 40 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: focusDepthNode (4 deps) · sleepAnchorNode (2 deps) · careIntelligenceNode (4 deps). 157+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers added — recordFocusDepthArc · recordSleepSignalAnchor · recordCareIntelligenceLoop.',
+      'Logs.tsx: FDEP: handler (focus_depth_arc: FOCUS DEPTH ARC + JOURNAL + MEM + PLAN + WIN 2H + CONF). SANCH: handler (sleep_signal_anchor: SLEEP SIGNAL ANCHOR + FIRST + NRG 07-09 + SIG TOTAL + CONF). CINTEL: handler (care_intelligence_loop: CARE INTEL LOOP + CARE 24H + MEM + JRNL + CONF). COCKPIT-RULE compliant. 118+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — focus-depth-arc (FDEP ARC) · sleep-signal-anchor (SANCH) · care-intelligence-loop (CINTEL).',
+      'scheduled-jobs.ts: J37 daily-focus-depth-check — 16:00 UTC daily (co-located with coherence index). Reads 2h rolling windows. journal 100+w + memory + planner → writes focus_depth_arc. 37 background jobs total.',
+      'routes/api.ts: focus_depth_arc + sleep_signal_anchor + care_intelligence_loop added to displayableEvents (v96 block).',
+      '118 patterns · 40 archetypes · 37 background jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, and care intelligence arcs deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1203,19 +1220,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-18',
+  date: '2026-07-19',
   message: [
-    'ASSEMBLY RUN — 2026-07-18 · LOT-SR-20260718-01',
-    'P113 personal-peak-window: energy + intentions + log cluster in repeatable 4h band across ≥2 of last 3 days. Recurring peak operating slot confirmed. Conf 0.65–0.88.',
-    'P114 recovery-momentum: selfcare + resilience + energy rising vs prior 48h, no depletion. Directed restoration with forward velocity. Conf 0.62–0.87.',
-    'P115 signal-inception: qos + memory + journal + intentions + ≥5 sources in 24h. QIE observing own loop. Full system awareness. Conf 0.60–0.90. 115 patterns total.',
-    'Arch39 Peak Window Operator: energy+intentions+log dominant · personal-peak-window+vitality-strategy-peak+intention-velocity. Protect the window. 39 archetypes total.',
-    'J36 daily-personal-peak-window: 08:00 UTC daily. energy+intent+log → 4h band ≥2 days → writes personal_peak_window. 36 background jobs total.',
-    'PPEAK: RMOM: INCEP: log handlers deployed (COCKPIT-RULE). 115+ handlers total.',
-    'Dep map: 154+ nodes. 3 new: peakWindowMonitor + recoveryMomentumNode + inceptionMonitor.',
-    'PATTERN_DISPLAY: PPEAK WIN · RMOM · INCEP added to QOS widget.',
-    '3 signal helpers: recordPersonalPeakWindow · recordRecoveryMomentum · recordSignalInception.',
-    '115 patterns · 39 archetypes · 36 jobs · 115+ handlers · 154+ dep nodes. Peak window, recovery momentum, signal inception deployed.',
+    'ASSEMBLY RUN — 2026-07-19 · LOT-SR-20260719-01',
+    'P116 focus-depth-arc: journal 100+w + memory + planner in 2h rolling window. Cognitive depth and structural alignment confirmed. Conf 0.65–0.85.',
+    'P117 sleep-signal-anchor: first log after 07:00 + energy check-in before 09:00. Biological morning baseline grounded before cognitive load. Conf 0.68–0.82.',
+    'P118 care-intelligence-loop: selfcare + memory + journal all in 24h. Body-mind knowledge integration loop closed. Conf 0.62–0.80. 118 patterns total.',
+    'Arch40 Focused Executor: planner+intentions+memory dominant · personal-peak-window+focus-depth-arc+clarity-momentum-peak. Window live. Execute. 40 archetypes total.',
+    'J37 daily-focus-depth-check: 16:00 UTC daily (co-located). journal 100+w + memory + planner → 2h window → writes focus_depth_arc. 37 background jobs total.',
+    'FDEP: SANCH: CINTEL: log handlers deployed (COCKPIT-RULE). 118+ handlers total.',
+    'Dep map: 157+ nodes. 3 new: focusDepthNode + sleepAnchorNode + careIntelligenceNode.',
+    'PATTERN_DISPLAY: FDEP ARC · SANCH · CINTEL added to QOS widget.',
+    '3 signal helpers: recordFocusDepthArc · recordSleepSignalAnchor · recordCareIntelligenceLoop.',
+    '118 patterns · 40 archetypes · 37 jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, care intelligence deployed.',
     'DEPLOYED.',
   ],
 }

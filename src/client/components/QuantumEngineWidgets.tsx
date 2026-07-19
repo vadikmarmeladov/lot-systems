@@ -78,6 +78,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'personal-peak-window':        'PPEAK WIN',
   'recovery-momentum':           'RMOM',
   'signal-inception':            'INCEP',
+  'focus-depth-arc':             'FDEP ARC',
+  'sleep-signal-anchor':         'SANCH',
+  'care-intelligence-loop':      'CINTEL',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

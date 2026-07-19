@@ -831,6 +831,80 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'focus_depth_arc') {
+          const journalWords  = log.metadata?.journalWords  as number | undefined
+          const journalCount  = log.metadata?.journalCount  as number | undefined
+          const memoryCount   = log.metadata?.memoryCount   as number | undefined
+          const plannerCount  = log.metadata?.plannerCount  as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FDEP:" blockView>
+                <div className="uppercase tracking-widest mb-4">FOCUS DEPTH ARC</div>
+                {(journalWords !== undefined || journalCount !== undefined) && (
+                  <div className="opacity-60 tabular-nums">JOURNAL: {journalWords !== undefined ? `${journalWords}W` : `${journalCount} ENTRIES`}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM: {memoryCount}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN: {plannerCount}</div>
+                )}
+                <div className="opacity-40 tabular-nums">WIN: 2H</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'sleep_signal_anchor') {
+          const morningSignalCount  = log.metadata?.morningSignalCount  as number | undefined
+          const energyCount         = log.metadata?.energyCount         as number | undefined
+          const firstHour           = log.metadata?.firstHour           as number | undefined
+          const confidence          = log.metadata?.confidence          as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SANCH:" blockView>
+                <div className="uppercase tracking-widest mb-4">SLEEP SIGNAL ANCHOR</div>
+                {firstHour !== undefined && (
+                  <div className="opacity-60 tabular-nums">FIRST: {String(firstHour).padStart(2, '0')}:00</div>
+                )}
+                {energyCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">NRG 07-09: {energyCount}</div>
+                )}
+                {morningSignalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">SIG TOTAL: {morningSignalCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'care_intelligence_loop') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const memoryCount   = log.metadata?.memoryCount   as number | undefined
+          const journalCount  = log.metadata?.journalCount  as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CINTEL:" blockView>
+                <div className="uppercase tracking-widest mb-4">CARE INTEL LOOP</div>
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 24H: {selfcareCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM: {memoryCount}</div>
+                )}
+                {journalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">JRNL: {journalCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined
