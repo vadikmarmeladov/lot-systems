@@ -483,5 +483,30 @@ Widgets use a layered visibility system:
 
 ---
 
+## Arcade — the Gamified Evolution Layer (PROVISIONAL)
+
+LOT is a self-care company first — the Arcade is not a separate game bolted on
+top; it is the name for the subset of existing systems that make the
+operator's own progression legible and rewarding as they use the product for
+its real purpose (journaling, self-care, planning). "Arcade" formalizes a
+term S-2 has used informally; it is not yet a shipped route or brand surface,
+and this entry is marked PROVISIONAL until the term recurs enough to earn a
+LOT-LEXICON token (3+ session reports, per the self-assembly minting rule).
+
+**What composes the Arcade today** (all pre-existing, cross-referenced above):
+- **Badge System** (`src/client/utils/badges.ts`) — milestone badges (7/14/21/30/50/60/90/180/365-day), easter-egg badges (time, calendar, behavioral, word-trigger), dual water/architecture theming.
+- **Evolution System** (`src/client/stores/evolution.ts`) — 7-dimension progression (Exploration, Consistency, Depth, Connection, Intimacy, Care, Courage) that visually changes the interface itself (layout density, CSS effects) as the operator advances — the UI literally evolves with the person, not just a progress bar.
+- **Narrative System** (`/api/narrative`) — RPG-style story arc grounded in real engagement data, not scripted content.
+- **Evolution Milestone Toast** — the moment-of-unlock feedback loop.
+
+**Design constraint:** every Arcade surface must derive from real signal data
+(QIE, log history, badge criteria) — no points awarded for their own sake, no
+mechanic that rewards engagement the operator's actual self-care did not
+earn. The Arcade layer exists to make the operator's own consistency visible
+back to them, in a self-care product where the underlying loop (Log → context
+→ QIE → compressed story) still does the actual work.
+
+---
+
 *Vadik*
 *lot-systems.com/u/vadik*

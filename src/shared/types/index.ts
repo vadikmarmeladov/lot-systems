@@ -164,6 +164,9 @@ export type LogContext = {
   city?: string | null;
   timeZone?: string | null;
   date?: string | null;
+  moonPhase?: string | null;
+  moonIllumination?: number | null;
+  westernZodiac?: string | null;
   [key: string]: any;
 };
 

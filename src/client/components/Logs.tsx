@@ -23,6 +23,7 @@ import {
   USER_SETTING_NAME_BY_ID,
 } from '#shared/constants'
 import { toCelsius } from '#shared/utils'
+import { getMoonEmoji } from '#shared/utils/astrology'
 import {
   playKeyClick,
   playSynthActivationChime,
@@ -3228,7 +3229,11 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compressed story from recent data',
+          '/story day    Compressed story of your day',
+          '/story week   Compressed story of your week',
+          '/story month  Compressed story of your month',
+          '/story year   Compressed story of your year',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -3255,11 +3260,19 @@ const NoteEditor = ({
           setStoryLoading(true)
           setStoryResponse(null)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+            const period = periodMatch
+              ? (periodMatch[1].toLowerCase() as 'day' | 'week' | 'month' | 'year')
+              : undefined
+            const logText = value
+              .replace(/\/story(?:\s+(?:day|week|month|year))?/i, '')
+              .replace(/📖/g, '')
+              .trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
@@ -3280,6 +3293,12 @@ const NoteEditor = ({
     }
     if (log.context?.humidity) {
       weatherParts.push(`${Math.round(log.context.humidity)}%`)
+    }
+    if (log.context?.moonPhase) {
+      weatherParts.push(getMoonEmoji(log.context.moonPhase))
+    }
+    if (log.context?.westernZodiac) {
+      weatherParts.push(log.context.westernZodiac)
     }
     const weatherText = weatherParts.join(', ')
     if (log.context?.city) {

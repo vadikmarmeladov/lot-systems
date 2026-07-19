@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,24 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Fresh-Container Dependency Bootstrap (NPM-BOOTSTRAP, candidate)
+
+A fresh clone of this repo in the remote execution environment starts with
+zero `node_modules`. `yarn install` fails even against a valid `yarn.lock`
+because the agent proxy's policy blocks `registry.yarnpkg.com` (403 on
+CONNECT) while `registry.npmjs.org` is allow-listed (bypasses the proxy via
+`no_proxy`). Fix: `npm ci --legacy-peer-deps` (the `--legacy-peer-deps` flag
+is required independent of the registry issue — `@nanostores/react@0.4.1`
+declares a `nanostores@^0.7.0` peer but the root project pins
+`nanostores@^0.9.0`, a pre-existing conflict in package.json, not an
+environment artifact). Separately: a bare `npx tsc --version` run before
+`node_modules` exists can resolve a stray globally-cached TypeScript (seen:
+6.0.2) instead of the project's pinned compiler (5.9.3, per package.json
+`^5.9.3`). `tsconfig.server.json`'s `"ignoreDeprecations": "5.0"` is correct
+for the pinned 5.9.3 and must not be changed to chase errors produced by a
+different, uninstalled compiler — always diagnose via `node_modules/.bin/tsc`
+or the `npm run` scripts after `npm ci`, never via `npx` before install.
+(SR-20260719-02: rediscovered from a clean container; GREEN-GATE step 02-04
+blocked twice by this before the true fix — npm ci, not a tsconfig edit —
+was identified.)
