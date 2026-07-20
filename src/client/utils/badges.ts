@@ -560,6 +560,9 @@ export type BadgeType =
   | 'dune_signal'              // ∘·◈   Write "spice" in journal — Dune (RARE, hidden)
   | 'foundation_word'          // ≋·◉   Write "psychohistory" in journal — Foundation (EPIC)
   | 'neuromancer_signal'       // ▓→◉   Write "cyberspace" in journal — Neuromancer (MYTHIC)
+  // ── Log command badges ───────────────────────────────────────────────────
+  | 'chronicler'               // ◈·◉   Invoke /story — compressed narrative generated
+  | 'temporal_cartographer'    // ◈·◈·◈ Invoke /story with all 4 periods: day, week, month, year
 
 export interface Badge {
   id: BadgeType
@@ -5111,6 +5114,27 @@ export const BADGES: Record<BadgeType, Badge> = {
     unlockMessage: '↳ "Cyberspace. A consensual hallucination." — William Gibson, 1984. You are in it. ▓→◉',
     rarity: 'mythic',
     category: 'secret_boss',
+    hidden: true,
+  },
+  // ── Log command badges ─────────────────────────────────────────────────────
+  chronicler: {
+    id: 'chronicler',
+    symbol: '◈·◉',
+    name: 'Chronicler',
+    description: 'Invoke /story — compress your log into a personal narrative',
+    unlockMessage: '↳ The data became a story. The story became yours. ◈·◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: true,
+  },
+  temporal_cartographer: {
+    id: 'temporal_cartographer',
+    symbol: '◈·◈·◈',
+    name: 'Temporal Cartographer',
+    description: 'Invoke /story across all four windows — day, week, month, year',
+    unlockMessage: '↳ You mapped the whole shape of your time — near and far, at once. ◈·◈·◈',
+    rarity: 'epic',
+    category: 'achievement_rpg',
     hidden: true,
   },
 }

@@ -28,8 +28,8 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
-import { runJournalEasterEggs } from '#client/utils/easter-eggs'
+import { detectNewTriggers, parseStoryPeriod, type LogTrigger, type StoryPeriod } from '#client/utils/logTriggers'
+import { runJournalEasterEggs, recordStoryPeriodUse } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
@@ -2224,21 +2224,29 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           )
         } else if (log.event === 'lot_ai_story') {
           const weekNumber    = log.metadata?.weekNumber    as number | undefined
-          const weekTone      = log.metadata?.weekTone      as string | undefined
+          const monthNumber   = log.metadata?.monthNumber   as number | undefined
+          const yearNumber    = log.metadata?.yearNumber    as number | undefined
+          const period        = (log.metadata?.period as string | undefined)
+            || (weekNumber !== undefined ? 'week' : undefined)
+          const tone = (log.metadata?.weekTone || log.metadata?.monthTone || log.metadata?.yearTone) as string | undefined
           const dominantMood  = log.metadata?.dominantMood  as string | undefined
           const checkinsCount = log.metadata?.checkinsCount as number | undefined
           const selfCareCount = log.metadata?.selfCareCount as number | undefined
           const intentionsCount = log.metadata?.intentionsCount as number | undefined
+          const periodLabel =
+            period === 'month' && monthNumber !== undefined ? `M${monthNumber}` :
+            period === 'year' && yearNumber !== undefined ? `Y${yearNumber}` :
+            weekNumber !== undefined ? `W${weekNumber}` : undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="STORY:" blockView>
-                {weekNumber !== undefined && (
-                  <div className="uppercase tracking-widest mb-4">W{weekNumber}</div>
+                {periodLabel !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">{periodLabel}</div>
                 )}
-                {weekTone && (
+                {tone && (
                   <div className="flex justify-between items-baseline mb-4">
                     <span className="opacity-30">TONE</span>
-                    <span className="uppercase">{weekTone}</span>
+                    <span className="uppercase">{tone}</span>
                   </div>
                 )}
                 {dominantMood && (
@@ -2809,6 +2817,7 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [storyPeriod, setStoryPeriod] = React.useState<StoryPeriod>('week')
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -3228,7 +3237,7 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story [period] Compressed story: day / week / month / year (default week)',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -3254,17 +3263,21 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const period = parseStoryPeriod(value)
+          setStoryPeriod(period)
+          recordStoryPeriodUse(period)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story(\s+(day|week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }
@@ -3519,7 +3532,7 @@ const NoteEditor = ({
         )}
         {(storyLoading || storyResponse) && (
           <div className="mt-8">
-            <Block label="📖" blockView>
+            <Block label={`📖 ${storyPeriod.toUpperCase()}`} blockView>
               {storyLoading && !storyResponse && (
                 <div className="opacity-40 tracking-widest">...</div>
               )}

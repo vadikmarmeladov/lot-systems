@@ -115,3 +115,20 @@ export function detectNewTriggers(
   current.forEach(t => { if (!prior.has(t)) fresh.push(t) })
   return fresh
 }
+
+/**
+ * /story period scoping — day / week / month / year.
+ *
+ * `/story` alone compresses the past week (the historical default).
+ * `/story month` or `/story year` widens the window so the operator can
+ * pull a compressed story of a longer arc, not just recent entries.
+ */
+export type StoryPeriod = 'day' | 'week' | 'month' | 'year'
+
+const STORY_PERIOD_RE = /\/story\s+(day|week|month|year)\b/i
+
+export function parseStoryPeriod(text: string): StoryPeriod {
+  if (!text) return 'week'
+  const match = text.match(STORY_PERIOD_RE)
+  return (match?.[1].toLowerCase() as StoryPeriod) || 'week'
+}

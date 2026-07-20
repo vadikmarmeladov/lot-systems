@@ -5436,9 +5436,19 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
 
   // ============================================================================
   // STORY — Contextual AI Story
-  // Generates a 1-2 paragraph story based on recent logs, self-care events,
-  // and widget data. The story reflects the operator's recent journey.
+  // Generates a compressed story from recent logs, self-care events, and
+  // widget data, scoped to one of four periods: day / week / month / year.
+  // The story reflects the operator's journey across the requested window.
   // ============================================================================
+  const STORY_PERIOD_DAYS: Record<string, number> = { day: 1, week: 7, month: 30, year: 365 }
+  const STORY_PERIOD_LIMIT: Record<string, number> = { day: 200, week: 200, month: 400, year: 1000 }
+  const STORY_PERIOD_LABEL: Record<string, string> = {
+    day: "today",
+    week: "the past week",
+    month: "the past month",
+    year: "the past year",
+  }
+
   fastify.post(
     '/story',
     { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
@@ -5446,6 +5456,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          period?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5470,11 +5481,14 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       }
 
       const { logText, quantumState, userIndex } = req.body
+      const period: 'day' | 'week' | 'month' | 'year' =
+        req.body.period && STORY_PERIOD_DAYS[req.body.period] ? req.body.period : 'week'
+      const periodCutoff = new Date(Date.now() - STORY_PERIOD_DAYS[period] * 24 * 60 * 60 * 1000)
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: { userId: req.user.id, createdAt: { [Op.gte]: periodCutoff } },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: STORY_PERIOD_LIMIT[period],
       })
 
       const recentEntries = logs
@@ -5503,23 +5517,33 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      const STORY_WORD_TARGET: Record<string, string> = {
+        day: '80-150 words',
+        week: '100-200 words',
+        month: '150-250 words',
+        year: '200-300 words',
+      }
+      const periodLabel = STORY_PERIOD_LABEL[period]
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's data into a compressed narrative.
+
+The operator typed a log entry and invoked /story for ${periodLabel}. Your task: write a story (${STORY_WORD_TARGET[period]}) that compresses their journey across ${periodLabel} — mood trajectory, self-care patterns, and the intimate highs and lows that stand out. The story should feel personal, grounded, and real — not generic motivational writing.
 
 RULES:
 - Write in second person ("You...")
 - Draw from their actual log entries, moods, and self-care answers below
 - Reference specific details from their data — make it feel like THEIR story
+- Weight the narrative to the scale of the window: a day is a single arc, a year compresses several arcs into one throughline
 - If they've been consistent with check-ins, acknowledge the discipline
 - If there are gaps or struggle, acknowledge that with compassion
 - The tone should match their current energy: reflective if low, energized if high
 - End with a single forward-looking sentence — not a pep talk, just a quiet truth
-- Return ONLY the story paragraphs. No title. No commentary. No preamble.
-- Keep it under 200 words.`
+- Return ONLY the story paragraphs. No title. No commentary. No preamble.`
 
       const dataBlock = `
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
+
+PERIOD: ${periodLabel} (${logs.length} total signal${logs.length !== 1 ? 's' : ''} · ${moodLogs.length} mood check-in${moodLogs.length !== 1 ? 's' : ''} · ${selfCareLogs.length} self-care moment${selfCareLogs.length !== 1 ? 's' : ''})
 
 ${stateBlock ? stateBlock : 'STATE: unknown'}
 
@@ -5537,7 +5561,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         const { aiEngineManager } = await import('#server/utils/ai-engines.js')
         const engine = aiEngineManager.getEngine('together')
 
-        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+        console.log(`📖 Story generation (${period}) for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
 
         const story = await engine.generateCompletion(fullPrompt, 512)
 
@@ -5551,6 +5575,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           context,
           metadata: {
             story: cleaned,
+            period,
             logText: (logText || '').substring(0, 500),
             quantumState: quantumState || null,
             timestamp: new Date().toISOString(),
@@ -5559,12 +5584,14 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
         return {
           story: cleaned,
+          period,
           logId: storyLog.id,
         }
       } catch (error: any) {
         console.error('Story generation failed:', error)
         return {
           story: 'The system holds your data quietly. When the engine returns, your story will be here.',
+          period,
           logId: null,
         }
       }

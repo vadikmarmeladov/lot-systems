@@ -1273,6 +1273,8 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bspice(s)?\b/i,                        badge: 'dune_signal' },
   { patterns: /\bpsychohistory\b/i,                    badge: 'foundation_word' },
   { patterns: /\bcyberspace\b/i,                       badge: 'neuromancer_signal' },
+  // ── Log command word turns ─────────────────────────────────────────────
+  { patterns: /\/story\b|\bstory\b/i,                  badge: 'chronicler' },
 ]
 
 /**
@@ -2043,6 +2045,35 @@ export function checkDeepDecoder(answerText: string): BadgeType | null {
     awardBadge('deep_decoder')
     return 'deep_decoder'
   }
+  return null
+}
+
+// ── Log command badges — /story period coverage ──────────────────────────────
+
+const STORY_PERIODS_KEY = 'story_periods_used'
+const ALL_STORY_PERIODS = ['day', 'week', 'month', 'year']
+
+/**
+ * Record a /story invocation for the given period and award temporal_cartographer
+ * once all four periods (day/week/month/year) have each been used at least once.
+ * Call when a /story request is submitted, passing the resolved period.
+ */
+export function recordStoryPeriodUse(period: string): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (!ALL_STORY_PERIODS.includes(period)) return null
+
+  try {
+    const stored = localStorage.getItem(STORY_PERIODS_KEY)
+    const used = new Set<string>(stored ? JSON.parse(stored) : [])
+    used.add(period)
+    localStorage.setItem(STORY_PERIODS_KEY, JSON.stringify(Array.from(used)))
+
+    if (!hasBadge('temporal_cartographer') && ALL_STORY_PERIODS.every(p => used.has(p))) {
+      awardBadge('temporal_cartographer')
+      return 'temporal_cartographer'
+    }
+  } catch { /* non-critical */ }
+
   return null
 }
 

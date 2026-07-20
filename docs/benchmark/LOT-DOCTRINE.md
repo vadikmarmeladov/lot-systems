@@ -226,3 +226,23 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Period-Scoped Compression (PROVISIONAL — first appearance, not yet a clause)
+
+/story went from an unscoped "recent journey" pull to an explicit day/week/
+month/year window: the client parses the period from the command text, the
+server date-filters the log query to match, and the AI prompt's word-count
+target scales with the window (short for a day, longer for a year — a year
+compresses several arcs into one throughline, a day is a single arc). The
+scheduled weekly compression (Job 24) gained monthly (Job 38) and yearly
+(Job 39) siblings on the same template-based, no-AI-call pattern, gated on a
+higher minimum signal count so a thin month or year doesn't produce a hollow
+story (week: 3 logs, month: 8, year: 20).
+
+This is recorded as an observation, not yet folded into a numbered clause —
+it is this session's first appearance. If a future session adds a third
+period-scoped command (something beyond /story that also reads
+day/week/month/year), the shared shape should generalize into a doctrine
+clause and a STORY-PERIOD lexicon token minted, rather than each command
+re-inventing its own period parser and job triplet.
+(SR-20260720-01: parseStoryPeriod() + Job 38/39 + STORY-PERIOD candidate.)
