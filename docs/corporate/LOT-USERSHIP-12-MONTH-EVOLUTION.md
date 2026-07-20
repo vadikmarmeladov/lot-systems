@@ -1,7 +1,7 @@
 # LOT® Usership — The 15-Month Arc
 **3 Months Free Onboarding + 12 Months Usership → LOT® AI**
 LOT Systems Corporation · S-2: Vadim Marmeladov
-Design Brainstorm · Revision 5 · 19 July 2026 · brand.lot-systems.com
+Design Brainstorm · Revision 6 · 19 July 2026 · brand.lot-systems.com
 
 ---
 
@@ -17,7 +17,9 @@ Revision 4 resolves Part 12's first open question directly from S-2: the free ti
 
 Revision 5 does two things S-2 asked for directly: **simplifies** — Part 6.0 (new) folds three previously-separate widget proposals (Months Unlocked, Monthly Memoir, Tenure Mark) into one surface, the **Portrait**, built by reusing `PublicProfile.tsx`'s model rather than inventing parallel ones, per S-2's observation that the public profile page already reflects the Operator better than the private dashboard does; and **prepares the concept for merge** — new Part 14 gives a tight decided-vs-open recap and a smallest-diff build order for an engineering handoff. S-2 also noted a new test account is coming, from a fresh email, to exercise Day 1 directly — Part 14's build order is ordered so the first two steps are exactly what that account will see.
 
-No code was modified in Revisions 1–2, 4, or 5. Revision 3 made two direct pricing edits (`SubscribeWidget.tsx`, `About.tsx`), per explicit instruction. Everything else remains a specification for a future assembly session.
+Revision 6 develops S-2's follow-on to the Portrait: shared, the public half becomes a followable self-care/actualization routine, stated in the same military-grade institutional vocabulary the Board Profile already uses for soft content (Biofield State, Clearance level), astrology included. Confirms the voice is already correct and needs no new copywriting — but finds a real content gap: the Astrology block (zodiac, moon phase, rokuyo) exists only in the private free-tier layout and is absent from `PublicProfile.tsx`/`public-api.ts` entirely (Part 6.0). Names the sharing mechanic itself — a second person watching an Operator's Portrait deepen over the fifteen months — as a growth loop worth a future revision.
+
+No code was modified in Revisions 1–2, or 4 through 6. Revision 3 made two direct pricing edits (`SubscribeWidget.tsx`, `About.tsx`), per explicit instruction. Everything else remains a specification for a future assembly session.
 
 ---
 
@@ -142,6 +144,12 @@ S-2's observation, direct: the public profile page (`/u/:username`, `PublicProfi
 
 What the Portrait adds beyond a straight re-render: reachable without leaving the private System; never shows the "Profile: Private" fallback (an Operator is always allowed to see their own data, unlike a visitor); and its presence privately makes the existing profile QR code newly discoverable from the inside, not just by visitors. For a Day-1 test account, most of Portrait renders close to empty — no Board Profile (needs Usership), thin or absent Psychological Profile, the Memory Story gap Part 4.4 already found. That's correct, not a bug: an empty Portrait that fills in over time is this whole document's thesis, now given one coherent surface instead of forty scattered ones.
 
+**S-2's follow-on observation, direct: shared, the public half of the Portrait is a followable self-care/actualization routine — stated in military-grade vocabulary, astrology included.** Read literally against the actual code, this holds up and sharpens the design in two ways:
+
+- **The voice is already exactly this, and it's already correct.** `public-api.ts`'s Board Profile block doesn't hedge soft content — it states it with the same institutional bluntness it would use for infrastructure: *"Board Member #12 · Citizen since June 1469 · Powering 2,847 citizens · Board tenure 842 months"*, *"Biofield State: Focused · Purposeful · High energy"*, *"Clearance level: → Full (4,316 entries)"*. A Citizen Index and a security clearance are structurally the same sentence shape applied to a wellness metric. This is not a tonal accident to smooth over — it is the existing, working LOT® voice, and the Portrait (6.0) inherits it automatically since it renders the identical `ProfileBody`. No new copy work needed to satisfy this half of the observation.
+- **Astrology is the gap, not the voice.** The "Astrology:" block (western/hourly zodiac, moon phase, rokuyo — ambient cosmic conditions for the day, computed client-side in `System.tsx`, not a personal natal chart, no birth data involved) exists **only** in the private free-tier essentials layout (`System.tsx:434-440`) and is confirmed absent from `PublicProfile.tsx` and `public-api.ts`'s profile builder — grep for `astrology`/`zodiac`/`moonPhase`/`rokuyo` across both returns nothing. If the Portrait is meant to be the complete followable routine S-2 describes, this is a real omission: add an `Astrology:` block to `ProfileBody`, computed the same way `System.tsx` already does, formatted in the identical declarative `Block label:` shape as the Board Profile beside it — *"Astrology: Leo · 6th hour · Waning Gibbous · Taian."* No hedging, no "the stars suggest" — read like a clearance readout, because that's the house style already proven correct one block up.
+- **The mechanic this actually names is a growth loop, not just a display fix.** Shared, the Portrait lets someone else — a friend, a follower via the QR code or `/dm/:userId` button already on the page — watch an Operator's Level symbol advance, OS version tick past `v.003`, Citizen Index deepen, Memory Story lengthen, month over month. That is the fifteen-month arc becoming visible to a second person, not just the Operator. Worth stating as a named mechanic for a future revision, not built here: this document has so far treated the Portrait as a mirror for one person; S-2's observation reframes it as also a public instrument — the same tangibility this whole arc is built around, made witnessable.
+
 ### 6.2 Monthly Pulse (existing — keep as-is)
 The twelve canonical messages, unchanged. Extended only with the Day-0/Free-Month Welcome variant (Part 4.1), which now precedes it in the arc rather than substituting for it.
 
@@ -222,7 +230,7 @@ This document authorizes no code changes. If greenlit:
 1. **Welcome + Telemetry Ladder** — new logic in `System.tsx`'s free-account branch (`:383-506`): gate the current unconditional widget set behind `logs.length >= 3` (Time cluster) and `logs.length >= 8` (Users cluster); add the Day-1 generative welcome line above the name, sourced from `communityPulse.ts` generators + `me.firstName`.
 2. **Fix the dead-code tease** — move the working-but-unreachable block at `System.tsx:888-911` into the free-account branch where `isPaidAccount` is false, so its cooldown/chance logic actually executes; retire the static unconditional mount at `:497-499`; add the month-1/2/3 copy escalation from Part 4.3.
 3. **Differentiate Subscribe buttons** — `SubscribeWidget.tsx` still sends both buttons to the same handler/link; route each to its own PayPal destination per Part 13 once button embed codes/QR assets are provided.
-4. **The Portrait** (6.0) — extract `PublicProfile.tsx`'s body into a shared `ProfileBody` component; new `Portrait.tsx` fetches the Operator's own profile and renders it privately inside `System.tsx`. Replaces the three separate builds this document previously proposed (Months Unlocked, Monthly Memoir widget, Tenure Mark) — none of them need their own component once this ships.
+4. **The Portrait** (6.0) — extract `PublicProfile.tsx`'s body into a shared `ProfileBody` component; new `Portrait.tsx` fetches the Operator's own profile and renders it privately inside `System.tsx`. Replaces the three separate builds this document previously proposed (Months Unlocked, Monthly Memoir widget, Tenure Mark) — none of them need their own component once this ships. While in `ProfileBody`: add the missing `Astrology:` block (western/hourly zodiac, moon phase, rokuyo — reuse `System.tsx`'s existing client-side calculation, no new server data), matching the declarative `Block label:` format already used by the Board Profile beside it.
 5. `memory.ts` — change the existing Story generation cadence to fire on the Operator's month-turn for Usership accounts, writing to the same `user.metadata.lastMemoryStory` field the Portrait already renders — no new cache key.
 6. `interfaceEvolution.ts` — add `getTenureFloor(monthNumber)` and one `Math.max()` guard inside `calculateEvolutionState()`.
 7. `MonthlyPulseWidget.tsx` — add a `0` entry to `MONTH_MESSAGES`; relax the `monthNumber < 1` guard to `< 0`.
@@ -275,7 +283,7 @@ S-2-supplied canonical pricing, recorded verbatim. Distribution today is **dedic
 - Day-1 Welcome line (verbatim, 4.1), Telemetry Ladder thresholds — 3 Logs / 8 Logs (4.2), Tease copy per free month (4.3).
 - Free-tier preview compression — 1 real AI question + 1 real Memoir paragraph per free month (4.4), one lifetime PWA-install acknowledgment (4.5).
 - Free tier never hard-gates into a paywall (Part 12, Q1 — resolved by S-2).
-- The Portrait (6.0) — one surface, reusing `PublicProfile.tsx`'s model, replacing three previously-separate widget proposals.
+- The Portrait (6.0) — one surface, reusing `PublicProfile.tsx`'s model, replacing three previously-separate widget proposals; includes the newly-found missing Astrology block, in the same military-grade voice as the rest of the page.
 - Pricing: `R&D $30, one-time` already shipped in `SubscribeWidget.tsx` / `About.tsx` (Revision 3); full catalog recorded (Part 13).
 
 **Needs a decision before build, not blocking the design:**
@@ -287,11 +295,11 @@ S-2-supplied canonical pricing, recorded verbatim. Distribution today is **dedic
 **Smallest-diff build order** — each step independently useful, none blocks the next:
 1. Fix the dead-code Subscribe tease (Part 1) — pure bugfix, zero new UI, ships alone.
 2. Day-1 Welcome + Telemetry Ladder (4.1–4.2) — the first thing S-2's new test account will actually see.
-3. Extract `ProfileBody`, ship `Portrait.tsx` (6.0) — unlocks Months-Unlocked / Memoir / Tenure-Mark for free, no separate builds needed.
+3. Extract `ProfileBody`, ship `Portrait.tsx` (6.0), add the missing `Astrology:` block while in there — unlocks Months-Unlocked / Memoir / Tenure-Mark for free, no separate builds needed.
 4. Free-tier preview compression (4.4) — makes step 2's tease honest rather than aspirational.
 5. Usership tenure floor + Monthly Pulse Day-0 variant (6.5, 6.2) — the paid-year mechanics.
 6. Seasonal flavor layer (Part 7) — purely additive, ship whenever, pending Q4.
 
 ---
 
-*Design brainstorm per S-2's request. Every mechanism above is read from actual shipped code (`System.tsx`, `api.ts`, `interfaceEvolution.ts`, `evolution.ts`, `MonthlyPulseWidget.tsx`, `SubscribeWidget.tsx`, `EvolutionWidget.tsx`, `NarrativeWidget.tsx`, `MemoryWidget.tsx`, `PublicProfile.tsx`, `About.tsx`, `public-api.ts`, `memory.ts`, `badges.ts`, `communityPulse.ts`, `emailTemplates.ts`) and current Doctrine/Lexicon/Style Guide/Badge Codex/Memory Engine documentation, not from assumption. Revision 3 fixed the `R&D $15 → $30` pricing display. Revision 4 resolved the free-tier permanence question and added the character arc. Revision 5 consolidates three separate widget proposals into the Portrait (Part 6.0), reusing `PublicProfile.tsx`'s model per S-2's direct observation, and closes with a merge-readiness recap (Part 14).*
+*Design brainstorm per S-2's request. Every mechanism above is read from actual shipped code (`System.tsx`, `api.ts`, `interfaceEvolution.ts`, `evolution.ts`, `MonthlyPulseWidget.tsx`, `SubscribeWidget.tsx`, `EvolutionWidget.tsx`, `NarrativeWidget.tsx`, `MemoryWidget.tsx`, `PublicProfile.tsx`, `About.tsx`, `public-api.ts`, `memory.ts`, `badges.ts`, `communityPulse.ts`, `emailTemplates.ts`) and current Doctrine/Lexicon/Style Guide/Badge Codex/Memory Engine documentation, not from assumption. Revision 3 fixed the `R&D $15 → $30` pricing display. Revision 4 resolved the free-tier permanence question and added the character arc. Revision 5 consolidates three separate widget proposals into the Portrait (Part 6.0) and closes with a merge-readiness recap (Part 14). Revision 6 confirms the Portrait's institutional voice already correctly carries soft/spiritual content (Board Profile precedent), and finds and closes the one real gap in it — astrology, present in the private layout, absent from the public/Portrait model — while naming the shared-Portrait-as-growth-loop mechanic for a future pass.*
