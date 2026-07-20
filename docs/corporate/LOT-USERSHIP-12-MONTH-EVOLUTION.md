@@ -1,7 +1,7 @@
 # LOT® Usership — The 15-Month Arc
 **3 Months Free Onboarding + 12 Months Usership → LOT® AI**
 LOT Systems Corporation · S-2: Vadim Marmeladov
-Design Brainstorm · Revision 4 · 19 July 2026 · brand.lot-systems.com
+Design Brainstorm · Revision 5 · 19 July 2026 · brand.lot-systems.com
 
 ---
 
@@ -15,7 +15,9 @@ Revision 3 does two things: (1) **a real code change** — `R&D $15` → `R&D $3
 
 Revision 4 resolves Part 12's first open question directly from S-2: the free tier is permanent, "3 months" is narrative framing, not a technical boundary. It adds the arc's psychological throughline (new Part 4.0) — pacing an Operator away from social media in weeks 1–2, deeper into journaling in weeks 3–4 — and two concrete markers (new Part 4.5) that the relationship has become physical rather than merely habitual: return frequency (already computed, newly read narratively) and PWA installation (genuinely detectable, confirmed not yet implemented anywhere in the codebase).
 
-No code was modified in Revisions 1–2 or 4. Revision 3 made two direct pricing edits (`SubscribeWidget.tsx`, `About.tsx`), per explicit instruction. Everything else remains a specification for a future assembly session.
+Revision 5 does two things S-2 asked for directly: **simplifies** — Part 6.0 (new) folds three previously-separate widget proposals (Months Unlocked, Monthly Memoir, Tenure Mark) into one surface, the **Portrait**, built by reusing `PublicProfile.tsx`'s model rather than inventing parallel ones, per S-2's observation that the public profile page already reflects the Operator better than the private dashboard does; and **prepares the concept for merge** — new Part 14 gives a tight decided-vs-open recap and a smallest-diff build order for an engineering handoff. S-2 also noted a new test account is coming, from a fresh email, to exercise Day 1 directly — Part 14's build order is ordered so the first two steps are exactly what that account will see.
+
+No code was modified in Revisions 1–2, 4, or 5. Revision 3 made two direct pricing edits (`SubscribeWidget.tsx`, `About.tsx`), per explicit instruction. Everything else remains a specification for a future assembly session.
 
 ---
 
@@ -120,36 +122,34 @@ Closing 4.0's third beat — "the relationship becomes physical, not just habitu
 
 ---
 
-## Part 5 — Design Thesis, Restated for the Usership Half (Months 4–15)
+## Part 5 — Tenure, Specifically (continuing Part 3's thesis into the Usership half)
 
-**Mastery** (existing, behavior-earned, unlimited ceiling) stays exactly as it is. It must never be cheapened — badges and density earned through real engagement are the entire emotional payoff of the system, and Military Purity doctrine forbids anything that reads as flattery or a participation trophy.
-
-**Tenure** (Usership calendar-earned from `joinedAt`, capped at 12) is additive, not a replacement. It does three things only:
-
-1. Sets a **floor**, not a ceiling, on density and feature-unlock level — a quiet, low-activity Usership member still visibly moves forward every month.
-2. Unlocks **tenure-exclusive surfaces** (Months Unlocked, the Monthly Memoir, the twelve `MonthlyPulseWidget` messages) that no free or R&D-tier Operator sees, however active.
-3. Triggers a **once-a-month ceremony** (Part 7).
-
-Mastery can exceed Tenure. Tenure cannot exceed what Mastery has *actually earned* on the badge/feature axis — Usership buys a floor and a ceremony, never a shortcut into the 626-badge economy, which stays 100% behavior-gated.
+Part 3 already drew the line: Mastery stays exactly as it is, unlimited ceiling, never cheapened. Tenure (Usership calendar-earned from `joinedAt`, capped at 12) is additive, doing three things only: (1) sets a **floor**, not a ceiling, on density and feature-unlock level; (2) unlocks tenure-exclusive surfaces — the Portrait (6.0) at its fullest, the twelve `MonthlyPulseWidget` messages — that no free or R&D-tier Operator sees, however active; (3) triggers a once-a-month ceremony (Part 7). Mastery can exceed Tenure; Tenure cannot buy its way into the 626-badge economy, which stays 100% behavior-gated.
 
 ---
 
 ## Part 6 — New / Extended Surfaces (Usership Half)
 
-### 6.1 Months Unlocked (persistent, new)
-A permanent stat line, not a toast — living where the Board Profile's "OS v.NNN" already lives on the public profile, mirrored privately in the System dashboard stats stack. Literal copy: `Months unlocked: 3 / 12`. Reuses the exact `dayjs(joinedAt).diff(now, 'month')` calculation `MonthlyPulseWidget` already performs.
+### 6.0 The Portrait — Reusing PublicProfile's Model, Privately
+
+S-2's observation, direct: the public profile page (`/u/:username`, `PublicProfile.tsx`) reflects the Operator better than the private System dashboard does. Read side by side, this explains itself. `PublicProfile.tsx` is a single, calm, linear narrative — name → Team → Board Profile with Citizen Index → weather/local time → Memory Story → Psychological Profile (soul archetype, self-awareness, Level, core values, emotional patterns, behavioral cohort, pattern strength) → Correlated Indexes → Legacy Weather Station/Wallet → a QR code back to itself. `System.tsx`'s private dashboard is the opposite by design: 40+ independently-gated widgets in an instrument-grade grid, built for density, not synthesis. Both are correct for what they're for — but only one currently gives the Operator a single, coherent answer to "who am I becoming." That's the Portrait, and this document was already reaching for it without naming it: the canonical Pulse lines already say *"the portrait deepens"* (month 4) and *"the portrait is complete — and still evolving"* (month 12) — months before there was any actual portrait surface in the private product for those lines to point at.
+
+**Simplification: stop designing three separate small widgets, build one.** Extract `PublicProfile.tsx`'s body (everything from the Name block through the QR code) into a shared presentational component, `ProfileBody`, taking `profile` as a prop. `PublicProfile.tsx` keeps its fetch-by-URL wrapper; a new `Portrait.tsx` fetches the Operator's own profile (self-lookup, already authenticated) and renders the same `ProfileBody`. This one move absorbs three previously-separate proposals for free:
+
+- **Months Unlocked** — is the existing "Psychological Profile: OS v.NNN" line. Already computed, already rendered. No new widget.
+- **Monthly Memoir** — is the existing "Memory Story:" block. The only real change needed is *what* generates that text on *what* cadence (kept below, shortened) — not a second parallel story cache.
+- **Tenure Mark** — is the existing "Level:" row (`getLevelSymbol`). No new glyph, no new visual track; the prior draft was proposing to duplicate a field that already exists one line above it.
+
+What the Portrait adds beyond a straight re-render: reachable without leaving the private System; never shows the "Profile: Private" fallback (an Operator is always allowed to see their own data, unlike a visitor); and its presence privately makes the existing profile QR code newly discoverable from the inside, not just by visitors. For a Day-1 test account, most of Portrait renders close to empty — no Board Profile (needs Usership), thin or absent Psychological Profile, the Memory Story gap Part 4.4 already found. That's correct, not a bug: an empty Portrait that fills in over time is this whole document's thesis, now given one coherent surface instead of forty scattered ones.
 
 ### 6.2 Monthly Pulse (existing — keep as-is)
 The twelve canonical messages, unchanged. Extended only with the Day-0/Free-Month Welcome variant (Part 4.1), which now precedes it in the arc rather than substituting for it.
 
-### 6.3 Monthly Memoir (new)
-The weekly Story mechanism (`memory.ts`, Job 24, `lot_ai_story`) already compresses a week of Log entries into a first-person narrative. The Memoir applies the same compression one level up: ~4 cached weekly Stories → one paragraph, cached to `user.metadata.monthlyMemoir[N]`, generated on the Operator's month-turn. Direct answer to "a Memory widget displays a paragraph-long insight from last month" — a new cyclable view on `NarrativeWidget`, or a sibling `MonthlyMemoirWidget`.
-
-### 6.4 Tenure Mark (new, Usership-exclusive glyph)
-A minimal third visual track beside Water/Architecture badges — a single evolving glyph tied only to `monthNumber`, literally the zero-padded OS version already computed server-side (`v.001` → `v.012`). No new badge logic; a rendering treatment of a number the server already produces.
+### 6.3 Memoir Cadence (was "Monthly Memoir" — now just a cadence change on an existing field)
+The weekly Story mechanism (`memory.ts`, Job 24, `lot_ai_story`) already writes to the same `user.metadata.lastMemoryStory` field the Portrait renders as "Memory Story:". Proposal, simplified from the prior draft: for Usership months, that field regenerates on the Operator's *month*-turn instead of a shared calendar *week*, compressing the month's Logs into one paragraph — one field, one cadence appropriate to the Operator's stage, not two competing story caches.
 
 ### 6.5 Density Ramp — Tenure Floor
-Proposal: `monthNumber` establishes a **minimum** `visualRefinement` floor, via `Math.max(behaviorDerivedRefinement, tenureFloor(monthNumber))` in `calculateEvolutionState()`. No existing threshold or behavior-derived value changes — one guard clause is the entire code delta.
+Proposal: `monthNumber` establishes a **minimum** `visualRefinement` floor, via `Math.max(behaviorDerivedRefinement, tenureFloor(monthNumber))` in `calculateEvolutionState()`. No existing threshold or behavior-derived value changes — one guard clause is the entire code delta. Orthogonal to the Portrait — this governs the instrument-grade dashboard's spacing, not the Portrait's content.
 
 ---
 
@@ -183,18 +183,18 @@ Unchanged from Revision 1. Each row: the canonical Pulse line (verbatim) · the 
 | Mo. | Canonical Pulse (verbatim) | Density floor | Leaning dimension | What's newly tangible | Log / self-care rhythm |
 |---|---|---|---|---|---|
 | **0** | *(new)* "Usership begins. The system starts listening." | breathable | — | Welcome pulse fires once; `0/12`; widget stack present but quiet | No expectation set yet. Morning check-in offered, never required. |
-| **1** | "The first month. The system is beginning to know you." | breathable | exploration | First Monthly Memoir (thin); Tenure Mark `v.001` appears | Whatever the Operator naturally does. First Memory questions are WHAT-level. |
-| **2** | "Two months in. Patterns are starting to form." | breathable→comfortable | exploration/consistency | `Months unlocked: 2/12` visible in dashboard stats, not just profile | Memory questions shift toward HOW. Self-care widget appears at natural anxiety/pattern triggers. |
+| **1** | "The first month. The system is beginning to know you." | breathable | exploration | Portrait's Memory Story updates on first month-turn (thin); Portrait's OS version reads `v.001` | Whatever the Operator naturally does. First Memory questions are WHAT-level. |
+| **2** | "Two months in. Patterns are starting to form." | breathable→comfortable | exploration/consistency | Portrait reachable privately (6.0), not just at the public URL | Memory questions shift toward HOW. Self-care widget appears at natural anxiety/pattern triggers. |
 | **3** | "Three months. You have reached Active User status." | comfortable | consistency | Density floor visibly steps up; first badge-tier milestones realistic | Streak-based badges (7/14/21/30-day) land naturally if the Operator has been logging. |
 | **4** | "Four months. The portrait deepens." | comfortable | depth | `advancedMemory` floor-guaranteed regardless of activity | Memory questions reach WHY-level. Memoir reads less like summary, more like portrait. |
 | **5** | "Five months. Consistency is its own reward." | comfortable→compact | consistency | `plannerTemplates`, `customThemes` floor-guaranteed | Widget copy shifts toward earned informality. |
 | **6** | "Six months. The journey is half-declared." | compact | connection/care | Halfway ceremony — Memoir contrasts month-1 vs. month-6 | First affirmation drawing on a full half-year of dimension data. |
 | **7** | "Seven months in. The system has been listening." | compact | depth | `intentionHistory`, `moodPatterns` floor-guaranteed | — |
-| **8** | "Eight months. Rare air." | compact→dense | consistency | Density crosses into `dense` even for low-activity Operators | Tenure Mark and badge glyphs read clearly at a glance. |
+| **8** | "Eight months. Rare air." | compact→dense | consistency | Density crosses into `dense` even for low-activity Operators | Portrait's Level and badge glyphs read clearly at a glance. |
 | **9** | "Nine months. The self-care practice is a habit now." | dense | care | Self-care visibly the most-logged category by now | Headline affirmation is self-care by design — the canonical line already commits to this. |
 | **10** | "Ten months. Almost there." | dense | courage | `exportData`, `narrativeReflection` realistically online | Memoir starts previewing the month-12 close. |
 | **11** | "Eleven months. One more." | dense→instrument | — | Density floor reaches the edge of `instrument` | — |
-| **12** | "One year with LOT. The portrait is complete — and still evolving." | instrument | all seven | **Year-Close Memoir** — twelve months synthesized; Tenure Mark `v.012`; `Months unlocked: 12/12`, then the counter retires in favor of uncapped `v.013…` | The system stops framing itself as *arriving* and starts framing itself as *living*. |
+| **12** | "One year with LOT. The portrait is complete — and still evolving." | instrument | all seven | **Year-Close Memoir** — twelve months synthesized into the Portrait's Memory Story; OS version reads `v.012`, then keeps counting uncapped (`v.013…`) exactly as Machiavelli's `v.531` demonstrates | The system stops framing itself as *arriving* and starts framing itself as *living*. |
 
 ---
 
@@ -222,13 +222,12 @@ This document authorizes no code changes. If greenlit:
 1. **Welcome + Telemetry Ladder** — new logic in `System.tsx`'s free-account branch (`:383-506`): gate the current unconditional widget set behind `logs.length >= 3` (Time cluster) and `logs.length >= 8` (Users cluster); add the Day-1 generative welcome line above the name, sourced from `communityPulse.ts` generators + `me.firstName`.
 2. **Fix the dead-code tease** — move the working-but-unreachable block at `System.tsx:888-911` into the free-account branch where `isPaidAccount` is false, so its cooldown/chance logic actually executes; retire the static unconditional mount at `:497-499`; add the month-1/2/3 copy escalation from Part 4.3.
 3. **Differentiate Subscribe buttons** — `SubscribeWidget.tsx` still sends both buttons to the same handler/link; route each to its own PayPal destination per Part 13 once button embed codes/QR assets are provided.
-4. `interfaceEvolution.ts` — add `getTenureFloor(monthNumber)` and one `Math.max()` guard inside `calculateEvolutionState()`.
-5. `MonthlyPulseWidget.tsx` — add a `0` entry to `MONTH_MESSAGES`; relax the `monthNumber < 1` guard to `< 0`.
-6. New `MonthsUnlockedWidget.tsx` — reuses `MonthlyPulseWidget`'s `dayjs(joinedAt).diff(now,'month')` calculation; permanent stat line, not a toast.
-7. `memory.ts` — new `buildMonthlyMemoir()`, mirroring the existing weekly Story job, reading ~4 cached weekly Stories, writing to `user.metadata.monthlyMemoir[N]`.
+4. **The Portrait** (6.0) — extract `PublicProfile.tsx`'s body into a shared `ProfileBody` component; new `Portrait.tsx` fetches the Operator's own profile and renders it privately inside `System.tsx`. Replaces the three separate builds this document previously proposed (Months Unlocked, Monthly Memoir widget, Tenure Mark) — none of them need their own component once this ships.
+5. `memory.ts` — change the existing Story generation cadence to fire on the Operator's month-turn for Usership accounts, writing to the same `user.metadata.lastMemoryStory` field the Portrait already renders — no new cache key.
+6. `interfaceEvolution.ts` — add `getTenureFloor(monthNumber)` and one `Math.max()` guard inside `calculateEvolutionState()`.
+7. `MonthlyPulseWidget.tsx` — add a `0` entry to `MONTH_MESSAGES`; relax the `monthNumber < 1` guard to `< 0`.
 8. New `getSeasonalFlavor(date)` util (Part 7) — pure lookup, no state, appended as flavor text to whichever ceremony is already firing.
-9. `NarrativeWidget.tsx` — new `memoir` view, or a sibling `MonthlyMemoirWidget.tsx`.
-10. **Free-tier preview compression** (Part 4.4) — relax the `hasUsershipTag` gate in `api.ts`'s `/api/memory` (`:2132`) and `/api/memory/story` (`:2602-2610`) handlers to allow exactly one AI-routed question per free month and one preview Memoir at the month-2/month-3 tease moments, instead of the current hard wall for the full 3 free months.
+9. **Free-tier preview compression** (Part 4.4) — relax the `hasUsershipTag` gate in `api.ts`'s `/api/memory` (`:2132`) and `/api/memory/story` (`:2602-2610`) handlers to allow exactly one AI-routed question per free month and one preview Memoir at the month-2/month-3 tease moments, instead of the current hard wall for the full 3 free months.
 
 ---
 
@@ -238,7 +237,7 @@ This document authorizes no code changes. If greenlit:
 2. Should the density **floor** apply retroactively to existing Usership members, or only forward from ship date?
 3. Should the Year-Close Memoir (month 12) export via the existing Story API (`POST /api/story/:week_id/export`) to the Robot/Vehicle/Dashboard recipients in the Product Brief?
 4. **Seasonal flavor inclusivity** — the brief specifically names "Christian" alongside "year/seasons/holidays." Given LOT's audience is not exclusively Christian, should the liturgical theme words (Lent, Advent, Easter, All Saints) be the default texture for every Operator, or should the layer be configurable/opt-out, with the Gregorian/seasonal words as the universal default and the liturgical words as an optional overlay? The Lent Diet precedent suggests S-2's own preference leans toward including it directly; flagging rather than presuming.
-5. Harmonize naming: `EvolutionWidget`'s stage names (Bootstrapping → Transparent) and the Board Profile's Citizen Index stages (Observer → Elite) describe similar territory with different vocabularies — worth a single pass before the Tenure Mark ships alongside both.
+5. Harmonize naming: `EvolutionWidget`'s stage names (Bootstrapping → Transparent) and the Board Profile's Citizen Index stages (Observer → Elite) describe similar territory with different vocabularies — worth a single pass before the Portrait (6.0) puts both in front of the Operator on one surface.
 
 ---
 
@@ -269,4 +268,30 @@ S-2-supplied canonical pricing, recorded verbatim. Distribution today is **dedic
 
 ---
 
-*Design brainstorm per S-2's request. Every mechanism above is read from actual shipped code (`System.tsx`, `api.ts`, `interfaceEvolution.ts`, `evolution.ts`, `MonthlyPulseWidget.tsx`, `SubscribeWidget.tsx`, `EvolutionWidget.tsx`, `NarrativeWidget.tsx`, `MemoryWidget.tsx`, `PublicProfile.tsx`, `About.tsx`, `public-api.ts`, `memory.ts`, `badges.ts`, `communityPulse.ts`, `emailTemplates.ts`) and current Doctrine/Lexicon/Style Guide/Badge Codex/Memory Engine documentation, not from assumption. Revision 3 (this pass) fixed the `R&D $15 → $30` pricing display in `SubscribeWidget.tsx` and `About.tsx`, and traced S-2's mid-session observation on non-personalized Story/questions to its exact route-level cause (Part 1) with a proposed fix (Part 4.4).*
+## Part 14 — Merge Readiness
+
+**Decided, ready to build:**
+- The 15-month arc: 3 free months (narrative pacing, permanent tier, Part 4.0) + 12 Usership months (calendar tenure, Part 8).
+- Day-1 Welcome line (verbatim, 4.1), Telemetry Ladder thresholds — 3 Logs / 8 Logs (4.2), Tease copy per free month (4.3).
+- Free-tier preview compression — 1 real AI question + 1 real Memoir paragraph per free month (4.4), one lifetime PWA-install acknowledgment (4.5).
+- Free tier never hard-gates into a paywall (Part 12, Q1 — resolved by S-2).
+- The Portrait (6.0) — one surface, reusing `PublicProfile.tsx`'s model, replacing three previously-separate widget proposals.
+- Pricing: `R&D $30, one-time` already shipped in `SubscribeWidget.tsx` / `About.tsx` (Revision 3); full catalog recorded (Part 13).
+
+**Needs a decision before build, not blocking the design:**
+- Density-floor retroactivity for existing Usership members (Q2).
+- Year-Close Memoir export to the Story API (Q3).
+- Seasonal-flavor default-on vs. opt-out, given the liturgical layer (Q4).
+- `EvolutionWidget` / Citizen Index naming harmonization (Q5) — cosmetic, does not block shipping the rest.
+
+**Smallest-diff build order** — each step independently useful, none blocks the next:
+1. Fix the dead-code Subscribe tease (Part 1) — pure bugfix, zero new UI, ships alone.
+2. Day-1 Welcome + Telemetry Ladder (4.1–4.2) — the first thing S-2's new test account will actually see.
+3. Extract `ProfileBody`, ship `Portrait.tsx` (6.0) — unlocks Months-Unlocked / Memoir / Tenure-Mark for free, no separate builds needed.
+4. Free-tier preview compression (4.4) — makes step 2's tease honest rather than aspirational.
+5. Usership tenure floor + Monthly Pulse Day-0 variant (6.5, 6.2) — the paid-year mechanics.
+6. Seasonal flavor layer (Part 7) — purely additive, ship whenever, pending Q4.
+
+---
+
+*Design brainstorm per S-2's request. Every mechanism above is read from actual shipped code (`System.tsx`, `api.ts`, `interfaceEvolution.ts`, `evolution.ts`, `MonthlyPulseWidget.tsx`, `SubscribeWidget.tsx`, `EvolutionWidget.tsx`, `NarrativeWidget.tsx`, `MemoryWidget.tsx`, `PublicProfile.tsx`, `About.tsx`, `public-api.ts`, `memory.ts`, `badges.ts`, `communityPulse.ts`, `emailTemplates.ts`) and current Doctrine/Lexicon/Style Guide/Badge Codex/Memory Engine documentation, not from assumption. Revision 3 fixed the `R&D $15 → $30` pricing display. Revision 4 resolved the free-tier permanence question and added the character arc. Revision 5 consolidates three separate widget proposals into the Portrait (Part 6.0), reusing `PublicProfile.tsx`'s model per S-2's direct observation, and closes with a merge-readiness recap (Part 14).*
