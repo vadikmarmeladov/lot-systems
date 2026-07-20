@@ -6,4 +6,4 @@ Never edit or reorder existing lines. New lines only, appended at the bottom.
 
 ---
 
-20260720-01 | CORPORATE | QI·46 Node 2 — Calibration Loop mechanics spec | GREEN | (pending) | ratio n/a (bootstrap)
+20260720-01 | CORPORATE | QI·46 Node 2 — Calibration Loop mechanics spec | GREEN | 99250cc | ratio n/a (bootstrap)
