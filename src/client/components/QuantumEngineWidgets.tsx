@@ -83,6 +83,15 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'care-intelligence-loop':      'CINTEL',
 }
 
+const PRIORITY_PATTERN_SET = new Set([
+  'focus-depth-arc',
+  'sleep-signal-anchor',
+  'care-intelligence-loop',
+  'centennial-convergence',
+  'personal-peak-window',
+  'signal-inception',
+])
+
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
 
 function computeQOSMode(
@@ -259,6 +268,16 @@ export const QuantumEngineWidgets: React.FC = () => {
   const qosModeData = React.useMemo(
     () => computeQOSMode(energy, engineState.recognizedPatterns, assemblyState.overallAssembly),
     [energy, engineState.recognizedPatterns, assemblyState.overallAssembly]
+  )
+
+  const sortedPatterns = React.useMemo(
+    () => [...engineState.recognizedPatterns].sort((a, b) => {
+      const ap = PRIORITY_PATTERN_SET.has(a.pattern) ? 1 : 0
+      const bp = PRIORITY_PATTERN_SET.has(b.pattern) ? 1 : 0
+      if (bp !== ap) return bp - ap
+      return b.confidence - a.confidence
+    }),
+    [engineState.recognizedPatterns]
   )
 
   return (
@@ -517,12 +536,30 @@ export const QuantumEngineWidgets: React.FC = () => {
                   </div>
                 </div>
               )}
+              {engineState.recognizedPatterns.some(p => p.pattern === 'focus-depth-arc') && (
+                <div className="border-t border-acc-400/20 pt-8">
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase tracking-widest">FDEP</span>
+                    <span>WINDOW LIVE</span>
+                  </div>
+                  <div className="opacity-30 pt-4">2h cognitive window confirmed. Execute without delay.</div>
+                </div>
+              )}
+              {engineState.recognizedPatterns.some(p => p.pattern === 'sleep-signal-anchor') && (
+                <div className="border-t border-acc-400/20 pt-8">
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30 uppercase tracking-widest">SANCH</span>
+                    <span>BASELINE SET</span>
+                  </div>
+                  <div className="opacity-30 pt-4">Biological morning anchor confirmed.</div>
+                </div>
+              )}
               {engineState.recognizedPatterns.length > 0 && (
                 <div className="border-t border-acc-400/20 pt-8">
                   <div className="opacity-30 uppercase tracking-widest mb-6">Active signals</div>
-                  {engineState.recognizedPatterns.slice(0, 5).map(p => (
+                  {sortedPatterns.slice(0, 5).map(p => (
                     <div key={p.pattern} className="flex justify-between mb-2">
-                      <span className={`uppercase ${p.pattern === 'centennial-convergence' ? '' : 'opacity-50'}`}>
+                      <span className={`uppercase ${PRIORITY_PATTERN_SET.has(p.pattern) ? '' : 'opacity-50'}`}>
                         {PATTERN_DISPLAY[p.pattern] ?? p.pattern.replace(/-/g, ' ').slice(0, 14).toUpperCase()}
                       </span>
                       <span className="opacity-30 tabular-nums">{Math.round(p.confidence * 100)}%</span>
