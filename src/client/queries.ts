@@ -508,6 +508,18 @@ export interface ChatCatalyst {
   conversationStarters?: string[]
 }
 
+export interface LotAIResponse {
+  response: string
+  personalized: boolean
+}
+
+// LOT® AI — standalone AI engine used throughout the platform's widgets.
+// Personalization unlocks with Usership; the provider behind it is never exposed.
+export const useAskLotAI = createMutation<{ prompt: string }, LotAIResponse>(
+  'post',
+  '/api/lot-ai/ask'
+)
+
 export const useChatCatalysts = () =>
   createQuery<{
     catalysts: ChatCatalyst[]

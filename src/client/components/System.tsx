@@ -61,6 +61,7 @@ import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
 import { UserMetricsWidget } from './UserMetricsWidget'
 import { AIFeedbackWidget } from './AIFeedbackWidget'
+import { LotAIWidget } from './LotAIWidget'
 import { CorrelatedIndexesWidget } from './CorrelatedIndexesWidget'
 
 import { CollectiveConsciousness, WellnessPulse, MemoryEngineStats, IntentionPatterns, BadgeUnlockFeed, GrowthMilestones } from './stats'
@@ -966,6 +967,11 @@ export const System = React.memo(function SystemInner() {
           <DemoDayWidget />
           <FourDimensionalUI />
         </div>
+      </WidgetErrorBoundary>
+
+      {/* LOT® AI — standalone AI engine, provider stays on LOT®'s side. Personalization unlocks with Usership. */}
+      <WidgetErrorBoundary name="LOT AI">
+        <LotAIWidget />
       </WidgetErrorBoundary>
 
       {/* Quantum Engine Connect Widgets — lazy-mounted: subscriptions only start when widget enters viewport */}

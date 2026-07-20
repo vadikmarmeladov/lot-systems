@@ -36,6 +36,7 @@ import * as weather from '#server/utils/weather'
 import { getLogContext } from '#server/utils/logs'
 import { defaultQuestions, defaultReplies } from '#server/utils/questions'
 import { buildPrompt, completeAndExtractQuestion, generateMemoryStory, generateRecipeSuggestion, extractUserTraits, determineUserCohort, calculateIntelligentPacing } from '#server/utils/memory'
+import { askLotAI, buildCalibrationContext, hasLotAIPersonalization } from '#server/utils/lot-ai'
 import { analyzeUserPatterns, findCohortMatches, type PatternInsight } from '#server/utils/patterns'
 import { generateContextualPrompts, generatePatternAwareQuestion, analyzePatternEvolution } from '#server/utils/contextual-prompts'
 import { analyzeEnergyState, generateEnergySuggestions } from '#server/utils/energy'
@@ -2665,6 +2666,40 @@ export default async (fastify: FastifyInstance) => {
       }
     }
   })
+
+  // LOT® AI — standalone AI engine, used throughout the platform's widgets.
+  // Provider stays behind LOT®'s abstraction (see ai-engines.ts / lot-ai.ts) —
+  // no provider name ever reaches the response. Personalization unlocks with Usership.
+  fastify.post<{ Body: { prompt: string } }>(
+    '/lot-ai/ask',
+    { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
+    async (req: FastifyRequest<{ Body: { prompt: string } }>, reply) => {
+      const prompt = req.body?.prompt
+      if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
+        return reply.status(400).send({ error: 'prompt is required' })
+      }
+
+      const personalized = hasLotAIPersonalization(req.user)
+      let calibrationContext = ''
+
+      if (personalized) {
+        const logs = await fastify.models.Log.findAll({
+          where: { userId: req.user.id },
+          order: [['createdAt', 'DESC']],
+          limit: 20,
+        })
+        calibrationContext = buildCalibrationContext(logs)
+      }
+
+      const result = await askLotAI({
+        prompt: prompt.trim().slice(0, 2000),
+        user: req.user,
+        calibrationContext,
+      })
+
+      return result
+    }
+  )
 
   // Get user's cohort profile based on their answers
   fastify.get('/user-profile', async (req: FastifyRequest, reply) => {
