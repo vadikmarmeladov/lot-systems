@@ -2852,7 +2852,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="CUBIQ™"
-              value="Quantum cubic session model. Sessions of 5–11 minutes structured around a single focus cube. Four operator tiers: R&D ($15/month · early access · beta features · roadmap influence) · Usership ($99/month · full AI access · psychological profiling · Memory Engine · all widgets) · Legacy ($3,564/3 years · permanent access · one-time · no recurring charge) · Admin ($11,000/9 years · system administrator · tag authority · full backend access). The session is the unit. The cube is the container. Minimum viable time: 5 minutes."
+              value="Quantum cubic session model. Sessions of 5–11 minutes structured around a single focus cube. Four operator tiers: R&D ($30 one-time · early access · beta features · roadmap influence) · Usership ($99/month · full AI access · psychological profiling · Memory Engine · all widgets) · Legacy ($3,564/3 years · permanent access · one-time · no recurring charge) · Admin ($11,000/9 years · system administrator · tag authority · full backend access). The session is the unit. The cube is the container. Minimum viable time: 5 minutes."
             />
             <Row
               label="Field Guide"

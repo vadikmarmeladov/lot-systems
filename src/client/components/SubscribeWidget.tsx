@@ -29,7 +29,7 @@ export function SubscribeWidget() {
         <div className="mb-16">Consider subscribing!</div>
         <div className="flex gap-8">
           <Button onClick={handleSubscribe}>
-            R&D $15
+            R&D $30 · one-time
           </Button>
           <Button onClick={handleSubscribe}>
             Usership $99

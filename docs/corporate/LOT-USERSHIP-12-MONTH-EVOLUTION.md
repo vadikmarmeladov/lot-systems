@@ -1,7 +1,7 @@
 # LOT® Usership — The 15-Month Arc
 **3 Months Free Onboarding + 12 Months Usership → LOT® AI**
 LOT Systems Corporation · S-2: Vadim Marmeladov
-Design Brainstorm · Revision 2 · 19 July 2026 · brand.lot-systems.com
+Design Brainstorm · Revision 3 · 19 July 2026 · brand.lot-systems.com
 
 ---
 
@@ -9,9 +9,11 @@ Design Brainstorm · Revision 2 · 19 July 2026 · brand.lot-systems.com
 
 The full arc is fifteen months, not twelve: **3 free onboarding months**, where the interface reveals itself one telemetry signal at a time and the Operator is progressively, tastefully teased toward Usership — followed by **12 Usership months** ($99/month), where tenure and behavior compound into the full LOT® AI experience shown on the [Machiavelli demo account](https://lot-systems.com/u/machiavelli).
 
-Revision 2 adds three things S-2 asked for directly: (1) an investigation of the actual shipped "3+12" hardcode — findings below, and they are not what the framing assumed; (2) a Day-1 generative-welcome spec sourced from QIE / Memory / Community; (3) a Log-count-gated widget reveal ladder (3 Logs → Time, +5 more → Users) for the free months, plus a seasonal/holiday flavor layer for the paid year. Revision 1's twelve-month Usership design (Parts 5–9 below) is preserved with only light renumbering — it was already grounded and did not need rework.
+Revision 2 added three things S-2 asked for directly: (1) an investigation of the actual shipped "3+12" hardcode — findings below, and they are not what the framing assumed; (2) a Day-1 generative-welcome spec sourced from QIE / Memory / Community; (3) a Log-count-gated widget reveal ladder (3 Logs → Time, +5 more → Users) for the free months, plus a seasonal/holiday flavor layer for the paid year. Revision 1's twelve-month Usership design (Parts 5–9 below) is preserved with only light renumbering — it was already grounded and did not need rework.
 
-No code was modified. This remains a specification for a future assembly session.
+Revision 3 does two things: (1) **a real code change** — `R&D $15` → `R&D $30, one-time purchase` fixed in `SubscribeWidget.tsx` and `About.tsx`, both previously wrong (see Part 1); (2) traces S-2's direct observation — that the free-tier interface promises AI-generated, context-compressed Story and questions but doesn't actually deliver them — to its exact cause in `api.ts`'s route handlers, with a bounded fix proposed in Part 4.4. Part 13 records the full pricing catalog S-2 supplied as data intake, since no canonical pricing document existed in the repository before this.
+
+Two SubscribeWidget.tsx/About.tsx pricing edits were made directly to code in this revision, per explicit instruction. Everything else remains a specification for a future assembly session — not shipped.
 
 ---
 
@@ -22,8 +24,9 @@ S-2 asked to investigate the hardcoded free-trial/subscription-tease mechanism d
 - **`System.tsx:374-380`** — `isPaidAccount` is a flat tag check: `Usership` or `RND` present on the account, or not. Nothing about *when* the account was created factors in.
 - **`System.tsx:383-506`** — the non-paid ("essentials") layout. Every free account, from second one of signup, sees **everything at once**: name, week/date/city, Team tags, `Users online:` / `Total LOT® users:`, `TimeWidget`, weather (Sky / Temperature / Sunrise·Sunset), Astrology, Mirror / Sound·Radio / Breathe, Memory, MicroGame, Subscribe — all unconditional, all immediate, forever. There is no log-count gate anywhere in this block. Today's free experience is the *opposite* of barebone-then-revealed: it is maximally revealed on Day 1 and never changes shape again.
 - **The Subscribe tease is dead code.** `System.tsx:497-499` mounts `SubscribeWidget` unconditionally inside the free layout — same static "Consider subscribing!" prompt every visit, no cooldown, no escalation, no personalization. Separately, `System.tsx:888-911` contains an entire designed tease mechanism — 10+ answer logs required, 10-day cooldown, 20% random show chance — but it lives *inside* the paid-account branch, gated by `hasSubscription` (`:892-895`), which runs the *identical* tag check as `isPaidAccount`. Since this code only executes when `isPaidAccount` is already true, `hasSubscription` is always true, and the block always returns `null`. **No Operator, free or paid, can ever see this tease fire.** It is a fully-built, never-reachable feature.
-- **`SubscribeWidget.tsx`** — both buttons ("R&D $15" and "Usership $99") call the identical handler and open the same `brand.lot-systems.com` link; there is no differentiation in destination or copy between the two tiers.
+- **`SubscribeWidget.tsx`** — both buttons called the identical handler and opened the same `brand.lot-systems.com` link, with no differentiation in destination between tiers. **Fixed in this revision**: the R&D button now reads `R&D $30 · one-time` (was `$15`, incorrectly implied recurring — R&D is a one-time purchase per the Part 13 pricing catalog), matching the corresponding Field Guide entry in `About.tsx`, also corrected. The two buttons still share one destination — see Part 13.
 - **No welcome message exists in-app.** The only "Welcome to LOT" string in the repository is in the account-verification email template (`emailTemplates.ts`) and a legacy backup file — neither renders inside the product itself. A brand-new Operator's first authenticated screen is the full essentials block above, with no greeting at all.
+- **The Memory/Story "compression" gap — confirmed directly at the route layer.** `getMemoryEngine()` (`memory.ts:121-134`) and the `/api/memory` handler (`api.ts:2132-2219`) route context-aware, AI-generated questions (`buildPrompt` + `completeAndExtractQuestion`, up to 40 recent Logs + live quantum state) **only to accounts carrying the `Usership` tag** — not even R&D. Every free-tier Operator, for the entire 3 free months, receives the exact same deterministic fallback pool (`BACKUP_SELFCARE_QUESTIONS`, cycled by `dayOfYear + promptsShownToday`, zero context) that a paying Operator only falls back to when the AI call itself errors. The Story feature is stronger still: `/api/memory/story` (`api.ts:2602-2610`) returns `story: null` outright for non-Usership accounts, with the literal message *"Subscribe to start building your profile and generate your story."* — `NarrativeWidget` reads that `message` field and renders nothing at all. **The free-tier "personalized story, widgets, self-care plan" the Part 4.3 tease promises does not exist in any preview form today — it is a hard wall, not a taste.** This is the exact gap S-2 flagged: an interface meant to generate itself from user context and new Logs that, for three full months, does not.
 
 **Conclusion:** this document is not recovering hidden logic — it is specifying, for the first time, a mechanism that currently has zero time-based or log-count-based structure. Part 4 below designs it from the ground up, reusing the already-built (but currently unreachable) tease pattern at `System.tsx:888-911` rather than discarding it.
 
@@ -81,13 +84,21 @@ Memory, MicroGame, and Subscribe stay unconditional from Log 1, unchanged — th
 
 Reuses the already-built but currently-unreachable pattern at `System.tsx:888-911` (10+ answers, 10-day cooldown, 20% show chance) by relocating it into the free-account branch, where — unlike today — it can actually execute, replacing the static always-on mount at `:497-499`. Escalates by *calendar* month since signup (`dayjs(createdAt).diff(now, 'month')`, same primitive `MonthlyPulseWidget` already uses), independent of the Signal-Count ladder in 4.2:
 
-- **Free Month 1** — generic, as today: *"Consider subscribing!"* / `R&D $15` / `Usership $99`.
+- **Free Month 1** — generic, as today: *"Consider subscribing!"* / `R&D $30 · one-time` / `Usership $99`.
 - **Free Month 2** — personalized with the Operator's own accumulated data: *"N Memory answers logged. Usership compresses these into a weekly Story."*
 - **Free Month 3** — names what S-2 asked it to name explicitly — the personalized Story, the widgets, the self-care plan: *"Free access closes soon. Usership: your Story, your widgets, your self-care plan. $99/month."*
 
-No hype language, no urgency countdown clocks, no "Don't miss out" — Military Purity throughout: state what accrues, state the price, two buttons. The two Subscribe buttons should also stop sharing one handler (Part 1 finding) — `R&D $15` and `Usership $99` should route to their respective checkout destinations, not an identical generic link.
+No hype language, no urgency countdown clocks, no "Don't miss out" — Military Purity throughout: state what accrues, state the price, two buttons. The two Subscribe buttons should also stop sharing one handler (Part 1 finding) — `R&D $30 · one-time` and `Usership $99` should route to their respective checkout destinations (Part 13), not an identical generic link.
 
 What happens after Free Month 3 ends — a hard paywall, or an indefinitely-persistent Month-3-level tease — is not decided here; see Open Question in Part 12.
+
+### 4.4 Closing the Compression Gap — a Free-Tier Preview
+
+Part 4.3's tease sells a promise — "your Story, your widgets, your self-care plan" — that Part 1 shows the product cannot currently back up: free-tier Memory questions never reach the AI/context path at all, and Story is a hard `null` with a "Subscribe to start" message. This is the exact gap S-2 flagged directly: an interface meant to generate itself from user context and new Logs that, for three full months, does not. A tease that oversells what happens the moment someone pays makes the moment they *do* pay feel like a bait-and-switch. Proposal — a bounded, genuinely-compressing preview, distinct from full Usership cadence:
+
+- **Preview Questions** — once the Signal Count ladder (4.2) crosses 8 Logs, route Memory through `buildPrompt` / `completeAndExtractQuestion` for **one question per free month** (3 total across the whole free arc, against Usership's 10–15/day from `calculateIntelligentPacing()`), using the Operator's real recent Logs exactly as the Usership path already does. Every other question in the free months keeps using the static backup pool — this is a rate limit on an existing mechanism, not a cheaper simulation of it, so the one preview question that lands is honestly personalized.
+- **Preview Memoir, not Story** — at the Free-Month-2 and Free-Month-3 tease moments (4.3), generate one real paragraph via the existing `generateMemoryStory()` function, which — unlike its calling route — has no tier gate at all; the fix is narrower than it looks, it's in `api.ts`'s route handler, not `memory.ts`'s logic. Cap it to what the Operator has actually logged by then (thin, honestly so) rather than fabricating depth that isn't there.
+- **Why bounded, not full access** — this keeps Usership's real differentiator (daily-cadence, always-on compression) intact and un-cheapened, while making the tease evidence-based instead of aspirational. The Operator reads one real sentence the system wrote about *them* before being asked to pay for more of it — a stronger, more honest conversion mechanic than a generic price button.
 
 ---
 
@@ -192,13 +203,14 @@ This document authorizes no code changes. If greenlit:
 
 1. **Welcome + Telemetry Ladder** — new logic in `System.tsx`'s free-account branch (`:383-506`): gate the current unconditional widget set behind `logs.length >= 3` (Time cluster) and `logs.length >= 8` (Users cluster); add the Day-1 generative welcome line above the name, sourced from `communityPulse.ts` generators + `me.firstName`.
 2. **Fix the dead-code tease** — move the working-but-unreachable block at `System.tsx:888-911` into the free-account branch where `isPaidAccount` is false, so its cooldown/chance logic actually executes; retire the static unconditional mount at `:497-499`; add the month-1/2/3 copy escalation from Part 4.3.
-3. **Differentiate Subscribe buttons** — `SubscribeWidget.tsx` currently sends both `R&D $15` and `Usership $99` to the same handler/link; route each to its own destination.
+3. **Differentiate Subscribe buttons** — `SubscribeWidget.tsx` still sends both buttons to the same handler/link; route each to its own PayPal destination per Part 13 once button embed codes/QR assets are provided.
 4. `interfaceEvolution.ts` — add `getTenureFloor(monthNumber)` and one `Math.max()` guard inside `calculateEvolutionState()`.
 5. `MonthlyPulseWidget.tsx` — add a `0` entry to `MONTH_MESSAGES`; relax the `monthNumber < 1` guard to `< 0`.
 6. New `MonthsUnlockedWidget.tsx` — reuses `MonthlyPulseWidget`'s `dayjs(joinedAt).diff(now,'month')` calculation; permanent stat line, not a toast.
 7. `memory.ts` — new `buildMonthlyMemoir()`, mirroring the existing weekly Story job, reading ~4 cached weekly Stories, writing to `user.metadata.monthlyMemoir[N]`.
 8. New `getSeasonalFlavor(date)` util (Part 7) — pure lookup, no state, appended as flavor text to whichever ceremony is already firing.
 9. `NarrativeWidget.tsx` — new `memoir` view, or a sibling `MonthlyMemoirWidget.tsx`.
+10. **Free-tier preview compression** (Part 4.4) — relax the `hasUsershipTag` gate in `api.ts`'s `/api/memory` (`:2132`) and `/api/memory/story` (`:2602-2610`) handlers to allow exactly one AI-routed question per free month and one preview Memoir at the month-2/month-3 tease moments, instead of the current hard wall for the full 3 free months.
 
 ---
 
@@ -212,4 +224,31 @@ This document authorizes no code changes. If greenlit:
 
 ---
 
-*Design brainstorm per S-2's request. Every mechanism above is read from actual shipped code (`System.tsx`, `interfaceEvolution.ts`, `evolution.ts`, `MonthlyPulseWidget.tsx`, `SubscribeWidget.tsx`, `EvolutionWidget.tsx`, `NarrativeWidget.tsx`, `MemoryWidget.tsx`, `PublicProfile.tsx`, `public-api.ts`, `memory.ts`, `badges.ts`, `communityPulse.ts`, `emailTemplates.ts`) and current Doctrine/Lexicon/Style Guide/Badge Codex/Memory Engine documentation, not from assumption.*
+## Part 13 — Pricing Catalog (Data Intake, 19 July 2026)
+
+S-2-supplied canonical pricing, recorded verbatim. Distribution today is **dedicated PayPal buttons and QR codes**, not an in-app checkout flow — `SubscribeWidget.tsx` and any future Settings/pricing surface should link out to these, not attempt to process payment in-product. No canonical pricing document existed in the repository before this entry; this is now the source of truth pending an eventual dedicated pricing doc.
+
+**Enterprise, Subscribe:**
+- LOT® AI (1 year) → $1,188/year/user — download the Corporate Expense form (U.S. Federal R&D Tax Credit)
+- LOT® Design Lab (1 month) → $100k/month
+
+**Individual, Subscribe:**
+- LOT® AI (1 month) → $99/month
+- LOT® Usership (1 year) → $1,188/year
+- LOT® Products (1 month) → $399/month *(Made in USA, coming soon)*
+- LOT® Products (1 year) → $4,788/year
+
+**Buy:**
+- LOT® R&D → $30, one-time purchase *(was $15 — corrected in `SubscribeWidget.tsx` and `About.tsx`'s Field Guide CUBIQ™ entry in this revision)*
+- LOT® Legacy (3 years) → $3,564/3 years
+- LOT® Admin (9 years) → $11,000/9 years
+
+**Notes for a future engineering pass:**
+- `LOT® AI` (Individual, $99/month) and `LOT® Usership` (Individual, $1,188/year) are the same underlying tier at two billing cadences — $99 × 12 = $1,188 exactly — both should grant the same `Usership` tag; today's code only recognizes the tag, not the cadence, so no change needed there, only in how the two are *presented* as options rather than confused as separate products.
+- The Enterprise `LOT® AI (1 year)` line is priced identically to Individual `LOT® Usership (1 year)` ($1,188/year/user) but adds the Corporate Expense form / R&D Tax Credit angle — this is a documentation/paperwork differentiator, not a different product tier or tag.
+- `LOT® Design Lab` and `LOT® Products` are separate product lines already documented in `LOT_DESIGN_LAB_SUMMER_2026.md` and `LOT_FMCG_SUBSCRIPTION_PLAN_2027.md` respectively — out of scope for the Usership evolution arc this document designs, noted here only because they share the same pricing intake.
+- Actual PayPal button embed codes and QR code image assets were not provided in this intake — `SubscribeWidget.tsx`'s buttons still open the same generic `brand.lot-systems.com` link until those are supplied; Part 11, item 3 tracks this.
+
+---
+
+*Design brainstorm per S-2's request. Every mechanism above is read from actual shipped code (`System.tsx`, `api.ts`, `interfaceEvolution.ts`, `evolution.ts`, `MonthlyPulseWidget.tsx`, `SubscribeWidget.tsx`, `EvolutionWidget.tsx`, `NarrativeWidget.tsx`, `MemoryWidget.tsx`, `PublicProfile.tsx`, `About.tsx`, `public-api.ts`, `memory.ts`, `badges.ts`, `communityPulse.ts`, `emailTemplates.ts`) and current Doctrine/Lexicon/Style Guide/Badge Codex/Memory Engine documentation, not from assumption. Revision 3 (this pass) fixed the `R&D $15 → $30` pricing display in `SubscribeWidget.tsx` and `About.tsx`, and traced S-2's mid-session observation on non-personalized Story/questions to its exact route-level cause (Part 1) with a proposed fix (Part 4.4).*
