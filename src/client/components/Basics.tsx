@@ -89,7 +89,7 @@ export const Basics: React.FC = () => {
   const me = useStore(stores.me)
   const isMirrorOn = useStore(stores.isMirrorOn)
 
-  const isOnStrength = me?.tags?.includes('Basic') ?? false
+  const isOnStrength = me?.tags?.includes(UserTag.Basic) ?? false
   const isUsership = me?.tags?.includes(UserTag.Usership) ?? false
 
   const planLabel = isOnStrength
