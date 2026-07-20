@@ -76,10 +76,10 @@ export function getHourlyZodiac(date: Date): string {
 }
 
 /**
- * Get Rokuyo (六曜) - Japanese six-day cycle for determining auspicious days
- * Simplified calculation based on Gregorian calendar
+ * Get the Rokuyo (六曜) index (0-5) for a given date — the raw cycle position,
+ * shared by getRokuyo() and anything else that needs to key off the same cycle.
  */
-export function getRokuyo(date: Date): string {
+export function getRokuyoIndex(date: Date): number {
   // Known starting point: January 1, 2000 was Sensho (index 0)
   const knownDate = new Date('2000-01-01')
   const knownRokuyoIndex = 0
@@ -88,9 +88,15 @@ export function getRokuyo(date: Date): string {
   const daysDiff = Math.floor((date.getTime() - knownDate.getTime()) / (1000 * 60 * 60 * 24))
 
   // Calculate Rokuyo index (6-day cycle)
-  const rokuyoIndex = (knownRokuyoIndex + daysDiff) % 6
+  return (knownRokuyoIndex + daysDiff) % 6
+}
 
-  return ROKUYO[rokuyoIndex]
+/**
+ * Get Rokuyo (六曜) - Japanese six-day cycle for determining auspicious days
+ * Simplified calculation based on Gregorian calendar
+ */
+export function getRokuyo(date: Date): string {
+  return ROKUYO[getRokuyoIndex(date)]
 }
 
 /**
@@ -176,4 +182,124 @@ export function getMoonEmoji(phaseName: string): string {
     'Waning Crescent': '🌘',
   }
   return emojiMap[phaseName] || '🌑'
+}
+
+/**
+ * Get the day-of-year (1-366) for a given date. Shared so every widget that
+ * rotates daily content (patches, prompts, etc.) keys off the same count.
+ */
+export function getDayOfYear(date: Date): number {
+  return Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / 86400000)
+}
+
+export type AstrologySnapshot = {
+  westernZodiac: string
+  hourlyZodiac: string
+  rokuyo: string
+  rokuyoIndex: number
+  moonPhase: string
+  moonIllumination: number
+  moonEmoji: string
+  dayOfYear: number
+}
+
+/**
+ * Single source of truth for "ambient" astrology conditions — same for every
+ * user at a given moment. Widgets that render or key off zodiac/moon/rokuyo
+ * data should read this instead of recomputing it independently, so they stay
+ * in sync with each other.
+ */
+export function getAstrologySnapshot(date: Date = new Date()): AstrologySnapshot {
+  const moon = getMoonPhase(date)
+  return {
+    westernZodiac: getWesternZodiac(date),
+    hourlyZodiac: getHourlyZodiac(date),
+    rokuyo: getRokuyo(date),
+    rokuyoIndex: getRokuyoIndex(date),
+    moonPhase: moon.phase,
+    moonIllumination: moon.illumination,
+    moonEmoji: getMoonEmoji(moon.phase),
+    dayOfYear: getDayOfYear(date),
+  }
+}
+
+/**
+ * Minimal shape this module needs from a Log entry — kept decoupled from
+ * #shared/types so utils/astrology.ts has no dependency on the app's log model.
+ */
+export type AstrologyLogEntry = {
+  createdAt: Date | string
+  event: string
+  metadata?: Record<string, any> | null
+}
+
+// Rough valence (-2..+2) per logged emotional state, used only to correlate a
+// user's own mood history against the ambient Rokuyo cycle. Unlisted states
+// are ignored rather than guessed at.
+const EMOTIONAL_VALENCE: Record<string, number> = {
+  energized: 2, hopeful: 2, fulfilled: 2, grateful: 2, excited: 2,
+  content: 1, calm: 1, peaceful: 1,
+  uncertain: 0,
+  restless: -1, tired: -1,
+  anxious: -2, exhausted: -2, overwhelmed: -2,
+}
+
+export type RokuyoCorrelationBucket = {
+  label: string
+  avgValence: number
+  count: number
+}
+
+export type RokuyoCorrelation = {
+  best: RokuyoCorrelationBucket
+  challenging: RokuyoCorrelationBucket | null
+  sampleSize: number
+}
+
+const MIN_BUCKET_SAMPLES = 3
+const MIN_QUALIFYING_BUCKETS = 2
+
+/**
+ * Correlate a user's own emotional check-in logs against the Rokuyo day they
+ * were logged on. This is the personalization layer: the ambient Rokuyo cycle
+ * itself never changes per-user, but which day of that cycle tends to carry
+ * the user's brightest (or hardest) logged mood is derived entirely from
+ * their own Logs history. Returns null until there's enough data to say
+ * anything meaningful (at least two Rokuyo days with 3+ check-ins each).
+ */
+export function correlateLogsWithRokuyo(logs: AstrologyLogEntry[]): RokuyoCorrelation | null {
+  const buckets = new Map<string, number[]>()
+
+  for (const log of logs) {
+    if (log.event !== 'emotional_checkin') continue
+    const state = log.metadata?.emotionalState as string | undefined
+    if (!state || !(state in EMOTIONAL_VALENCE)) continue
+    const date = new Date(log.createdAt)
+    if (Number.isNaN(date.getTime())) continue
+
+    const rokuyo = getRokuyo(date)
+    const bucket = buckets.get(rokuyo) ?? []
+    bucket.push(EMOTIONAL_VALENCE[state])
+    buckets.set(rokuyo, bucket)
+  }
+
+  const qualifying: RokuyoCorrelationBucket[] = Array.from(buckets.entries())
+    .filter(([, values]) => values.length >= MIN_BUCKET_SAMPLES)
+    .map(([label, values]) => ({
+      label,
+      avgValence: values.reduce((sum, v) => sum + v, 0) / values.length,
+      count: values.length,
+    }))
+
+  if (qualifying.length < MIN_QUALIFYING_BUCKETS) return null
+
+  const sorted = [...qualifying].sort((a, b) => b.avgValence - a.avgValence)
+  const best = sorted[0]
+  const worst = sorted[sorted.length - 1]
+
+  return {
+    best,
+    challenging: worst.label !== best.label ? worst : null,
+    sampleSize: qualifying.reduce((sum, b) => sum + b.count, 0),
+  }
 }

@@ -226,3 +226,22 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Ambient Data Single-Source
+
+Any value that is the same for every user at a given moment (weather, the
+Astrology block's zodiac/moon/rokuyo, calendar-day cycles) must be computed by
+exactly one shared function. Widgets that need it call that function; they
+must never re-derive the same formula locally, even approximately — two
+independent day-of-year or rokuyo calculations will eventually disagree by one
+day at a timezone or leap-year boundary, and the user sees two widgets
+contradict each other in the same session. Personalization built on top of an
+ambient value (e.g. correlating a user's own Logs against it) is a separate,
+per-user layer that reads the shared ambient function's output — it never
+forks the ambient calculation itself, and it must degrade to "no opinion"
+(null / hidden) rather than a low-confidence guess when the user's own history
+is too thin to support one.
+(SR-20260720-01: getAstrologySnapshot() introduced as the shared source for
+zodiac/moon/rokuyo, replacing independent recomputation in System.tsx and
+QuantumSignWidget; correlateLogsWithRokuyo() introduced as the personalization
+layer, gated at 2 qualifying Rokuyo buckets x 3+ check-ins each.)

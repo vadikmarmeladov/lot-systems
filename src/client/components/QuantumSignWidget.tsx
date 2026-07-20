@@ -11,6 +11,7 @@ import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useLogs } from '#client/queries'
+import { getDayOfYear, getAstrologySnapshot } from '#shared/utils/astrology'
 
 /**
  * Quantum Sign Widget — For subscribers whose payment is their last money
@@ -60,10 +61,12 @@ export function QuantumSignWidget() {
     return signs[seed % signs.length]
   }, [])
 
-  // Astrology & Psychology patches
+  // Astrology & Psychology patches — astrology patch keys off the same Rokuyo
+  // cycle shown in the System Astrology block (via getAstrologySnapshot), so
+  // the two widgets never disagree about "today's" astrology state.
   const patches = React.useMemo(() => {
-    const today = new Date()
-    const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000)
+    const snapshot = getAstrologySnapshot()
+    const dayOfYear = getDayOfYear(new Date())
 
     const astrologyPatches = [
       { id: 'lunar-reset', name: 'Lunar Reset', desc: 'Moon phase alignment for emotional recalibration' },
@@ -79,8 +82,9 @@ export function QuantumSignWidget() {
       { id: 'growth-edge', name: 'Growth Edge', desc: 'Comfort zone expansion calibration' },
     ]
 
-    // Rotate patches based on day of year
-    const astroIdx = dayOfYear % astrologyPatches.length
+    // Astrology patch tracks the actual Rokuyo cycle (6-day) instead of an
+    // unrelated day-of-year rotation; psychology patch still rotates daily.
+    const astroIdx = snapshot.rokuyoIndex % astrologyPatches.length
     const psychIdx = dayOfYear % psychologyPatches.length
 
     return {

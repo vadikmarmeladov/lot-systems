@@ -22,7 +22,7 @@ import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
-import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
+import { getAstrologySnapshot, correlateLogsWithRokuyo } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
 import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
@@ -190,22 +190,15 @@ export const System = React.memo(function SystemInner() {
     return { sunrise, sunset }
   }, [weather, isTimeFormat12h])
 
-  // Astrology calculations
-  const astrology = React.useMemo(() => {
-    const now = new Date()
-    const hourlyZodiac = getHourlyZodiac(now)
-    const westernZodiac = getWesternZodiac(now)
-    const moonPhase = getMoonPhase(now)
-    const rokuyo = getRokuyo(now)
+  // Astrology calculations — ambient conditions, same for every user right now.
+  // Single source of truth lives in #shared/utils/astrology so other widgets
+  // (e.g. QuantumSignWidget) stay in sync instead of recomputing it.
+  const astrology = React.useMemo(() => getAstrologySnapshot(), [])
 
-    return {
-      hourlyZodiac,
-      westernZodiac,
-      moonPhase: moonPhase.phase,
-      moonIllumination: moonPhase.illumination,
-      rokuyo,
-    }
-  }, [])
+  // Personalization layer: correlate the user's own emotional check-in logs
+  // against the Rokuyo cycle. Null until there's enough logged history to
+  // say anything meaningful — never fabricated, never shown to other users.
+  const rokuyoCorrelation = React.useMemo(() => correlateLogsWithRokuyo(logs), [logs])
 
   const answerLogs = React.useMemo(() => {
     return logs.filter(log => log.event === 'answer')
@@ -640,7 +633,16 @@ export const System = React.memo(function SystemInner() {
         >
           {astrologyView === 'astrology' ? (
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              <div>
+                {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              </div>
+              {rokuyoCorrelation && (
+                <div className="mt-4 opacity-30">
+                  Your logged mood runs brightest on {rokuyoCorrelation.best.label} days
+                  {rokuyoCorrelation.challenging && `, hardest on ${rokuyoCorrelation.challenging.label}`}
+                  {' '}({rokuyoCorrelation.sampleSize} check-ins)
+                </div>
+              )}
             </div>
           ) : astrologyView === 'psychology' ? (
             <div>
