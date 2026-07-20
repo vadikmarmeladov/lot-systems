@@ -905,6 +905,81 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'morning_coherence_arc') {
+          const energyCount    = log.metadata?.energyCount    as number | undefined
+          const plannerCount   = log.metadata?.plannerCount   as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MCOHERE:" blockView>
+                <div className="uppercase tracking-widest mb-4">MORNING COHERENCE ARC</div>
+                {energyCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">NRG PRE-10: {energyCount}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN PRE-10: {plannerCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT PRE-10: {intentionCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_density_peak') {
+          const sourceCount  = log.metadata?.sourceCount  as number | undefined
+          const sources      = log.metadata?.sources      as string[] | undefined
+          const signalCount  = log.metadata?.signalCount  as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIGPEAK:" blockView>
+                {sourceCount !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">SRC 12H: {sourceCount}</div>
+                )}
+                {signalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">SIG 12H: {signalCount}</div>
+                )}
+                {sources && sources.length > 0 && (
+                  <div className="opacity-40 tabular-nums uppercase text-xs">{sources.join(' · ')}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'physiological_coherence_window') {
+          const energyBand   = log.metadata?.energyBand   as string | undefined
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const moodSignal   = log.metadata?.moodSignal   as string | undefined
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PCOHERE:" blockView>
+                <div className="uppercase tracking-widest mb-4">PHYS COHERENCE WINDOW</div>
+                {energyBand && (
+                  <div className="opacity-60 tabular-nums">ATP: {energyBand.toUpperCase()}</div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 12H: {selfcareCount}</div>
+                )}
+                {moodSignal && (
+                  <div className="opacity-60 tabular-nums">MOOD: {moodSignal.toUpperCase()}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 12H: {memoryCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined
@@ -1009,14 +1084,14 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           const selfCareCount = log.metadata?.selfCareCount as number | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="ARC:" blockView>
-                <div className="uppercase tracking-widest mb-4">Recovery arc closed</div>
+              <Block label="BIOARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">RECOVERY ARC CLOSED</div>
                 {selfCareCount !== undefined && (
-                  <div className="opacity-60">CARE 4h: {selfCareCount}</div>
+                  <div className="opacity-60 tabular-nums">CARE 4H: {selfCareCount}</div>
                 )}
-                <div className="opacity-40">Depleted → intervention → restored.</div>
+                <div className="opacity-40 tabular-nums uppercase">DEPLETE → INTERVENE → RESTORE</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
                 )}
               </Block>
             </LogContainer>
@@ -1028,16 +1103,16 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CEXP:" blockView>
-                <div className="uppercase tracking-widest mb-4">Cognitive expansion</div>
+                <div className="uppercase tracking-widest mb-4">COGNITIVE EXPANSION</div>
                 {wordCount !== undefined && (
-                  <div className="opacity-60">LOG DEPTH: {wordCount}w</div>
+                  <div className="opacity-60 tabular-nums">LOG DEPTH: {wordCount}W</div>
                 )}
                 {sourcesActive !== undefined && (
-                  <div className="opacity-60">SOURCES: {sourcesActive}</div>
+                  <div className="opacity-60 tabular-nums">SRC ACTIVE: {sourcesActive}</div>
                 )}
-                <div className="opacity-40">Memory + journal + goals simultaneous.</div>
+                <div className="opacity-40 tabular-nums uppercase">MEM · JRNL · GOALS</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
                 )}
               </Block>
             </LogContainer>

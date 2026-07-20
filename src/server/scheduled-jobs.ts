@@ -1703,6 +1703,100 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyFocusDepthCheck()) {
     await executeDailyFocusDepthCheck()
   }
+  // Check daily morning coherence check (06:00 UTC every day) — Job 38
+  if (shouldRunDailyMorningCoherenceCheck()) {
+    await executeDailyMorningCoherenceCheck()
+  }
+}
+
+// ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
+// Reads active users. Looks for energy check-in + planner entry + intention all
+// before 10:00 UTC today. When all three are present, writes morning_coherence_arc.
+// Confirms full dawn ramp: body read, plan set, direction confirmed before cognitive load.
+
+let isDailyMorningCoherenceRunning = false
+let lastDailyMorningCoherenceRun: Date | null = null
+
+function shouldRunDailyMorningCoherenceCheck(): boolean {
+  const now = dayjs()
+  if (isDailyMorningCoherenceRunning) return false
+  if (lastDailyMorningCoherenceRun) {
+    const lastRun = dayjs(lastDailyMorningCoherenceRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 6 // 06:00 UTC daily
+}
+
+async function executeDailyMorningCoherenceCheck(): Promise<JobResult> {
+  const jobName = 'daily-morning-coherence-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyMorningCoherenceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyMorningCoherenceRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY MORNING COHERENCE CHECK — 06:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    // Morning window: today 00:00–10:00 UTC
+    const todayStart = dayjs().startOf('day').toDate()
+    const todayMorningEnd = dayjs().startOf('day').add(10, 'hour').toDate()
+
+    for (const user of activeUsers) {
+      try {
+        const morningLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.between]: [todayStart, todayMorningEnd] },
+            event: { [Op.in]: ['energy_state', 'energy_update', 'energy_check', 'plan_set', 'planner_entry', 'intention'] },
+          },
+        })
+
+        const energyLogs    = morningLogs.filter(l => ['energy_state', 'energy_update', 'energy_check'].includes((l as any).event as string))
+        const plannerLogs   = morningLogs.filter(l => ['plan_set', 'planner_entry'].includes((l as any).event as string))
+        const intentionLogs = morningLogs.filter(l => (l as any).event === 'intention')
+
+        if (energyLogs.length >= 1 && plannerLogs.length >= 1 && intentionLogs.length >= 1) {
+          const total = energyLogs.length + plannerLogs.length + intentionLogs.length
+          await Log.create({
+            userId: (user as any).id,
+            event: 'morning_coherence_arc' as any,
+            text: `Morning coherence arc: energy + planner + intentions confirmed before 10:00.`,
+            metadata: {
+              energyCount: energyLogs.length,
+              plannerCount: plannerLogs.length,
+              intentionCount: intentionLogs.length,
+              totalMorning: total,
+              window: 'before-10:00',
+              confidence: Math.min(0.65 + total * 0.04, 0.87),
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Morning coherence arc events written: ${written}`)
+    lastDailyMorningCoherenceRun = new Date()
+    isDailyMorningCoherenceRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily morning coherence check failed:', error.message)
+    isDailyMorningCoherenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────

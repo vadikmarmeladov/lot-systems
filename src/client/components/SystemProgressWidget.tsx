@@ -1183,6 +1183,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '118 patterns · 40 archetypes · 37 background jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, and care intelligence arcs deployed.',
     ],
   },
+  {
+    date: '2026-07-20',
+    session: 'Self-Assembly Session — v99 / P119–P121 · Arch41 Signal Breadth Operator · J38 Morning Coherence Check · MCOHERE: SIGPEAK: PCOHERE: · Dep Map 160+',
+    assembled: [
+      'intentionEngine.ts: P119 morning-coherence-arc — energy + planner + intentions all before 10:00. Full dawn ramp: body read, plan set, direction confirmed before cognitive load. Conf 0.65–0.87. suggestedWidget: planner.',
+      'intentionEngine.ts: P120 signal-density-peak — 6+ distinct signal sources in 12h window. Maximum operating bandwidth confirmed. Full-spectrum engagement. Conf 0.68–0.90. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: P121 physiological-coherence-window — energy=high + selfcare 2+ + positive mood + memory in 12h. Body-mind coherence peak confirmed. Conf 0.70–0.88. suggestedWidget: energy. 121 patterns total.',
+      'intentionEngine.ts: Arch41 Signal Breadth Operator — energyBands high+moderate · dominantSources journal+memory+energy · patternConditions signal-density-peak+full-system-coherence+cross-domain-mastery. Directive: Full bandwidth. Six+ sources simultaneously. 41 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: morningCoherenceNode (4 deps) · signalDensityNode (8 deps) · physiologicalCoherenceNode (5 deps). 160+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers — recordMorningCoherenceArc · recordSignalDensityPeak · recordPhysiologicalCoherenceWindow.',
+      'Logs.tsx: MCOHERE: · SIGPEAK: · PCOHERE: handlers deployed. Military style tightened on CEXP: (all-caps tabular-nums) and BIOARC: (relabeled from ARC:, cockpit-rule sequence). 121+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 PATTERN_DISPLAY entries — morning-coherence-arc (MCOHERE) · signal-density-peak (SIGPEAK) · physiological-coherence-window (PCOHERE).',
+      'PatternRecognitionWidget.tsx: P116–P121 named (6 entries added).',
+      'scheduled-jobs.ts: J38 daily-morning-coherence-check — 06:00 UTC daily. energy + planner + intentions before 10:00 → morning_coherence_arc. 38 background jobs total.',
+      'routes/api.ts: morning_coherence_arc + signal_density_peak + physiological_coherence_window added to displayableEvents (v99 block).',
+      '121 patterns · 41 archetypes · 38 background jobs · 121+ handlers · 160+ dep nodes. Morning coherence, signal density, physiological coherence deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1220,19 +1238,20 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-19',
+  date: '2026-07-20',
   message: [
-    'ASSEMBLY RUN — 2026-07-19 · LOT-SR-20260719-01',
-    'P116 focus-depth-arc: journal 100+w + memory + planner in 2h rolling window. Cognitive depth and structural alignment confirmed. Conf 0.65–0.85.',
-    'P117 sleep-signal-anchor: first log after 07:00 + energy check-in before 09:00. Biological morning baseline grounded before cognitive load. Conf 0.68–0.82.',
-    'P118 care-intelligence-loop: selfcare + memory + journal all in 24h. Body-mind knowledge integration loop closed. Conf 0.62–0.80. 118 patterns total.',
-    'Arch40 Focused Executor: planner+intentions+memory dominant · personal-peak-window+focus-depth-arc+clarity-momentum-peak. Window live. Execute. 40 archetypes total.',
-    'J37 daily-focus-depth-check: 16:00 UTC daily (co-located). journal 100+w + memory + planner → 2h window → writes focus_depth_arc. 37 background jobs total.',
-    'FDEP: SANCH: CINTEL: log handlers deployed (COCKPIT-RULE). 118+ handlers total.',
-    'Dep map: 157+ nodes. 3 new: focusDepthNode + sleepAnchorNode + careIntelligenceNode.',
-    'PATTERN_DISPLAY: FDEP ARC · SANCH · CINTEL added to QOS widget.',
-    '3 signal helpers: recordFocusDepthArc · recordSleepSignalAnchor · recordCareIntelligenceLoop.',
-    '118 patterns · 40 archetypes · 37 jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, care intelligence deployed.',
+    'ASSEMBLY RUN — 2026-07-20 · v99 · LOT-SR-20260720-01',
+    'P119 morning-coherence-arc: energy + planner + intentions all before 10:00. Full dawn ramp — body, plan, direction locked before cognitive load. Conf 0.65–0.87.',
+    'P120 signal-density-peak: 6+ distinct signal sources in 12h. Full-spectrum operating bandwidth confirmed. Maximum engagement breadth. Conf 0.68–0.90.',
+    'P121 physiological-coherence-window: energy=high + selfcare 2+ + positive mood + memory in 12h. Body-mind substrate simultaneously at peak. Conf 0.70–0.88. 121 patterns total.',
+    'Arch41 Signal Breadth Operator: journal+memory+energy dominant · signal-density-peak+full-system-coherence+cross-domain-mastery. Full bandwidth. 41 archetypes total.',
+    'J38 daily-morning-coherence-check: 06:00 UTC daily. energy + planner + intentions before 10:00 → writes morning_coherence_arc. 38 background jobs total.',
+    'MCOHERE: SIGPEAK: PCOHERE: log handlers deployed (COCKPIT-RULE). Military style tightened: CEXP: + BIOARC:. 121+ handlers total.',
+    'Dep map: 160+ nodes. 3 new: morningCoherenceNode (4 deps) + signalDensityNode (8 deps) + physiologicalCoherenceNode (5 deps).',
+    'PATTERN_DISPLAY: MCOHERE · SIGPEAK · PCOHERE added to QOS widget.',
+    '3 signal helpers: recordMorningCoherenceArc · recordSignalDensityPeak · recordPhysiologicalCoherenceWindow.',
+    'PatternRecognitionWidget: P116–P121 named (6 entries). routes/api.ts: v99 block added.',
+    '121 patterns · 41 archetypes · 38 jobs · 121+ handlers · 160+ dep nodes. Morning coherence, signal density, physiological coherence window deployed.',
     'DEPLOYED.',
   ],
 }

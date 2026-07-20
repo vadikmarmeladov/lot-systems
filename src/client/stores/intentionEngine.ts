@@ -2695,6 +2695,65 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 119: Morning Coherence Arc — energy check-in + planner entry + intentions
+  // all confirmed in the morning window (before 10:00 local). Full dawn ramp: body read,
+  // plan set, direction confirmed. Structured launch baseline active before cognitive load.
+  const p119Today = new Date(); p119Today.setHours(0, 0, 0, 0)
+  const p119TodayMs = p119Today.getTime()
+  const p119Window = p119TodayMs + 10 * 60 * 60 * 1000 // before 10:00
+  const p119Morning = signals.filter(s => s.timestamp >= p119TodayMs && s.timestamp < p119Window)
+  const p119Energy    = p119Morning.filter(s => s.source === 'energy')
+  const p119Planner   = p119Morning.filter(s => s.source === 'planner')
+  const p119Intention = p119Morning.filter(s => s.source === 'intentions')
+  if (p119Energy.length >= 1 && p119Planner.length >= 1 && p119Intention.length >= 1) {
+    const p119Total = p119Energy.length + p119Planner.length + p119Intention.length
+    const p119Conf = Math.min(0.65 + p119Total * 0.04, 0.87)
+    patterns.push({
+      pattern: 'morning-coherence-arc',
+      confidence: p119Conf,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `MCOHERE: Morning coherence arc active — energy ${p119Energy.length} + planner ${p119Planner.length} + intentions ${p119Intention.length} all before 10:00. Body read, plan set, direction confirmed. Dawn execution baseline locked.`,
+    })
+  }
+
+  // Pattern 120: Signal Density Peak — 6+ distinct signal sources active in a 12h
+  // rolling window. Maximum operating bandwidth confirmed. Full-spectrum engagement
+  // across physiological, cognitive, and structural channels simultaneously.
+  const p120Window = 12 * 60 * 60 * 1000
+  const p120Recent = signals.filter(s => s.timestamp > now - p120Window)
+  const p120Sources = new Set(p120Recent.map(s => s.source))
+  if (p120Sources.size >= 6) {
+    const p120Conf = Math.min(0.68 + (p120Sources.size - 6) * 0.04, 0.90)
+    patterns.push({
+      pattern: 'signal-density-peak',
+      confidence: p120Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `SIGPEAK: Signal density peak — ${p120Sources.size} distinct sources active in 12h: ${[...p120Sources].join(' · ')}. Full-spectrum operating bandwidth confirmed. Maximum engagement breadth active.`,
+    })
+  }
+
+  // Pattern 121: Physiological Coherence Window — energy=high + selfcare 2+ + positive
+  // mood + memory capture all in a 12h window. Physical substrate and cognitive encoding
+  // simultaneously at peak. Body-mind coherence confirmed across all primary channels.
+  const p121Window = 12 * 60 * 60 * 1000
+  const p121Recent = signals.filter(s => s.timestamp > now - p121Window)
+  const p121Energy   = p121Recent.filter(s => s.source === 'energy' && s.signal === 'high')
+  const p121Selfcare = p121Recent.filter(s => s.source === 'selfcare')
+  const p121Mood     = p121Recent.filter(s => s.source === 'mood' && ['energized', 'hopeful', 'excited', 'calm'].includes(s.signal))
+  const p121Memory   = p121Recent.filter(s => s.source === 'memory')
+  if (p121Energy.length >= 1 && p121Selfcare.length >= 2 && p121Mood.length >= 1 && p121Memory.length >= 1) {
+    const p121Conf = Math.min(0.70 + p121Selfcare.length * 0.04 + p121Memory.length * 0.03, 0.88)
+    patterns.push({
+      pattern: 'physiological-coherence-window',
+      confidence: p121Conf,
+      suggestedWidget: 'energy',
+      suggestedTiming: 'passive',
+      reason: `PCOHERE: Physiological coherence window active — energy=high + selfcare ${p121Selfcare.length} + positive mood ${p121Mood.length} + memory ${p121Memory.length} in 12h. Physical and cognitive substrate at peak simultaneously. Body-mind coherence window confirmed.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3278,6 +3337,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   focusDepthNode:             ['journal', 'memory', 'planner', 'log'],
   sleepAnchorNode:            ['energy', 'log'],
   careIntelligenceNode:       ['selfcare', 'memory', 'journal', 'log'],
+
+  // ── Morning coherence + signal density + physiological coherence (2026-07-20 v99)
+  morningCoherenceNode:       ['energy', 'planner', 'intentions', 'log'],
+  signalDensityNode:          ['mood', 'energy', 'selfcare', 'journal', 'memory', 'planner', 'intentions', 'log'],
+  physiologicalCoherenceNode: ['energy', 'selfcare', 'mood', 'memory', 'log'],
 }
 
 /**
@@ -3627,6 +3691,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'memory'],
     patternConditions: ['personal-peak-window', 'focus-depth-arc', 'clarity-momentum-peak'],
     directive: 'Window is live. Cognitive and structural alignment confirmed. Execute without delay.',
+  },
+  // ── Arch41: Signal Breadth Operator (2026-07-20 v99) ───────────────────────────
+  {
+    archetype: 'Signal Breadth Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['journal', 'memory', 'energy'],
+    patternConditions: ['signal-density-peak', 'full-system-coherence', 'cross-domain-mastery'],
+    directive: 'Operating at full signal bandwidth. Six or more sources active simultaneously — broadest operational state the QIE can confirm. Maintain breadth without sacrificing depth in any individual domain.',
   },
 ]
 
@@ -5145,6 +5217,37 @@ export function recordCareIntelligenceLoop(selfcareCount: number, memoryCount: n
     memoryCount,
     journalCount,
     window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordMorningCoherenceArc(energyCount: number, plannerCount: number, intentionCount: number) {
+  recordSignal('energy', 'morning_coherence_arc', {
+    energyCount,
+    plannerCount,
+    intentionCount,
+    window: 'before-10:00',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordSignalDensityPeak(sourceCount: number, sources: string[], signalCount: number) {
+  recordSignal('qos', 'signal_density_peak', {
+    sourceCount,
+    sources,
+    signalCount,
+    window: '12h',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordPhysiologicalCoherenceWindow(energyBand: string, selfcareCount: number, moodSignal: string, memoryCount: number) {
+  recordSignal('energy', 'physiological_coherence_window', {
+    energyBand,
+    selfcareCount,
+    moodSignal,
+    memoryCount,
+    window: '12h',
     hour: new Date().getHours(),
   })
 }

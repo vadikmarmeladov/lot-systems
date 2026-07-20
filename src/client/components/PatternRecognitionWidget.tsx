@@ -146,6 +146,12 @@ export function PatternRecognitionWidget() {
       'personal-peak-window':       'Personal peak window — repeatable 4h high-performance band across ≥2 days (P113)',
       'recovery-momentum':          'Recovery momentum — selfcare + resilience + energy rising vs prior 48h (P114)',
       'signal-inception':           'Signal inception — QIE observing own loop, ≥5 sources in 24h (P115)',
+      'focus-depth-arc':            'Focus depth arc — journal 100+w + memory + planner in 2h window (P116)',
+      'sleep-signal-anchor':        'Sleep signal anchor — energy check-in before 09:00 + morning log (P117)',
+      'care-intelligence-loop':     'Care intelligence loop — selfcare + memory + journal in 24h (P118)',
+      'morning-coherence-arc':      'Morning coherence arc — energy + planner + intentions before 10:00 (P119)',
+      'signal-density-peak':        'Signal density peak — 6+ distinct sources active in 12h (P120)',
+      'physiological-coherence-window': 'Physiological coherence window — energy=high + selfcare + mood + memory in 12h (P121)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

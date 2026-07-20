@@ -1169,6 +1169,10 @@ export default async (fastify: FastifyInstance) => {
       'focus_depth_arc',
       'sleep_signal_anchor',
       'care_intelligence_loop',
+      // v99: morning coherence arc · signal density peak · physiological coherence window (P119/P120/P121)
+      'morning_coherence_arc',
+      'signal_density_peak',
+      'physiological_coherence_window',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
