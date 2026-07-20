@@ -1,8 +1,10 @@
 # Button Lag / Rendering Performance — Diagnostic
 
 **Date:** 2026-07-20
-**Type:** Investigation (no code changes in this pass)
-**Status:** 2 confirmed live regressions, same bug class as 3 recently-fixed commits
+**Type:** Investigation, then fix
+**Status:** All 5 confirmed findings below are FIXED as of the follow-up commit
+(see "Fix applied" note at the end of this document). This file is kept as the
+investigation record; the doctrine/lexicon update lives with the fix commit.
 
 ## Summary
 
@@ -125,3 +127,44 @@ message but not fully eliminated by it.
   guards; `new AudioContext(` outside a singleton pattern; other
   side-effecting `useMemo`s. Findings above were individually verified by
   reading the referenced source lines.
+
+## Fix applied
+
+All five findings fixed in the same session, `git log` after this file's
+initial commit:
+
+1. `System.tsx:346` and `MemoryWidget.tsx:268` — both moved from
+   `useMemo` to a `useState`(eager seed) + `useEffect` pair, mirroring
+   `b219cc3`'s exact fix for `System.tsx`'s own `quantumState`. The
+   store-writing call (`getOptimalWidget`/`getQuantumState`, both funnel
+   into `analyzeIntentions()`) now only ever runs after paint.
+2. `QuantumRandomWidget.tsx` — both `useQuantumNumber()` instances and the
+   `showPair` interval now take an `active` flag from
+   `useActiveViewport(containerRef)` (the same hook that already gates
+   `MicroGameWidget`'s loop) and skip their `setInterval` entirely while
+   inactive.
+3. `MicroCalculatorWidget.tsx` — its `check()` poll now short-circuits on
+   `document.hidden || !isRouteActive('system')`, the same idiom already
+   used in `ChakraErgonomicsWidget`/`ContextualPromptsWidget`.
+4. `ui/Clock.tsx` (the shared component) — fixed at the source instead of
+   per call-site. It now wraps its output in a ref'd `<span>` and gates its
+   own interval on `useActiveViewport`. This was the highest-severity find
+   discovered *while implementing* the fix, not caught in the original
+   sweep: `TimeWidget.tsx` renders `<Clock interval={100} />` for its
+   digital-clock display — a 100ms `setState` tick, worse than any of the
+   originally-flagged intervals — and it, along with `Clock`'s other three
+   call sites (`System.tsx` ×2 at 60s, `Sync.tsx`/`DirectMessageThread.tsx`
+   at 5s), is now covered by this one fix rather than needing five separate
+   patches.
+
+Design choice: `useActiveViewport` (IntersectionObserver-based) was used
+instead of `isRouteActive('system')` wherever the component always renders
+its own container unconditionally, because it also pauses widgets that are
+merely scrolled out of view *within* an active tab — directly addressing the
+"long single page with 42 widgets" concern (every widget below the fold was
+previously still fully live). `isRouteActive` was kept for
+`MicroCalculatorWidget` specifically because that widget conditionally
+renders `null` most of the time; a ref-based viewport hook can't observe an
+element that doesn't exist yet, and the widget's purpose (catch a specific
+timestamp) requires it to keep polling within the active tab regardless of
+current scroll position.

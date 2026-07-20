@@ -9,6 +9,7 @@
 import React from 'react'
 import { Block } from '#client/components/ui'
 import { recordSignal } from '#client/stores/intentionEngine'
+import { useActiveViewport } from '#client/hooks/useInViewport'
 
 /**
  * QuantumRandomWidget - Real-time quantum-random number generator.
@@ -30,12 +31,13 @@ function pickCountdown(): number {
   return COUNTDOWN_OPTIONS[quantumRandom(0, COUNTDOWN_OPTIONS.length - 1)]
 }
 
-function useQuantumNumber() {
+function useQuantumNumber(active: boolean) {
   const [number, setNumber] = React.useState(() => quantumRandom(0, 99))
   const [countdown, setCountdown] = React.useState(() => pickCountdown())
   const [remaining, setRemaining] = React.useState(countdown)
 
   React.useEffect(() => {
+    if (!active) return
     const iv = setInterval(() => {
       setRemaining((prev) => {
         if (prev <= 1) {
@@ -51,31 +53,39 @@ function useQuantumNumber() {
     }, 1000)
 
     return () => clearInterval(iv)
-  }, [])
+  }, [active])
 
   return { number, remaining }
 }
 
 export function QuantumRandomWidget() {
-  const a = useQuantumNumber()
-  const b = useQuantumNumber()
+  const containerRef = React.useRef<HTMLSpanElement>(null)
+  // Two 1s ticks + a 10s toggle ran forever once System had ever been
+  // mounted, regardless of tab or scroll position — pause them off-tab and
+  // off-screen the same way MicroGameWidget's loop pauses.
+  const active = useActiveViewport(containerRef)
+  const a = useQuantumNumber(active)
+  const b = useQuantumNumber(active)
   const [showPair, setShowPair] = React.useState(() => Math.random() < 0.5)
 
   React.useEffect(() => {
+    if (!active) return
     const iv = setInterval(() => {
       setShowPair(Math.random() < 0.5)
     }, 10000)
     return () => clearInterval(iv)
-  }, [])
+  }, [active])
 
   return (
     <Block label="Number:">
-      {a.number} <span className="opacity-30">({a.remaining}s)</span>
-      {showPair && (
-        <>
-          {' '}{b.number} <span className="opacity-30">({b.remaining}s)</span>
-        </>
-      )}
+      <span ref={containerRef}>
+        {a.number} <span className="opacity-30">({a.remaining}s)</span>
+        {showPair && (
+          <>
+            {' '}{b.number} <span className="opacity-30">({b.remaining}s)</span>
+          </>
+        )}
+      </span>
     </Block>
   )
 }

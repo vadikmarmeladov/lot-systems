@@ -265,7 +265,15 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
     }
   }
 
-  const quantumState = React.useMemo(getQuantumState, [question?.id])
+  // getQuantumState() calls analyzeIntentions(), which WRITES the
+  // intentionEngine atom — calling it in useMemo (render phase) risks a store
+  // write during render, cascading re-renders across every System subscriber
+  // widget. Deferred to useEffect so the write lands after paint; seeded
+  // eagerly via useState for an identical first render.
+  const [quantumState, setQuantumState] = React.useState(getQuantumState)
+  React.useEffect(() => {
+    setQuantumState(getQuantumState())
+  }, [question?.id])
 
   const hasError = !!error && !isLoading && !loadedQuestion
 

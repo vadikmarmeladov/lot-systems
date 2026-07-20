@@ -343,7 +343,15 @@ export const System = React.memo(function SystemInner() {
     return options[index]
   }, [weather])
 
-  const optimalWidget = React.useMemo(() => getOptimalWidget(), [logs])
+  // getOptimalWidget() calls analyzeIntentions(), which WRITES the
+  // intentionEngine atom — calling it in useMemo (render phase) risks a store
+  // write during render, cascading re-renders across every System subscriber
+  // widget. Deferred to useEffect so the write lands after paint; seeded
+  // eagerly via useState for an identical first render.
+  const [optimalWidget, setOptimalWidget] = React.useState(() => getOptimalWidget())
+  React.useEffect(() => {
+    setOptimalWidget(getOptimalWidget())
+  }, [logs])
 
   // Community pulse — atmosphere layer
   const convergence = React.useMemo(() => getConvergenceSignal(), [])

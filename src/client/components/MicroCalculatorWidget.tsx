@@ -10,6 +10,7 @@ import React from 'react'
 import { Block } from '#client/components/ui'
 import { cn } from '#client/utils'
 import { recordSignal } from '#client/stores/intentionEngine'
+import { isRouteActive } from '#client/stores/router'
 
 /**
  * MicroCalculatorWidget - ASCII calculator that surfaces at magical number times.
@@ -43,9 +44,12 @@ export function MicroCalculatorWidget() {
   const [fading, setFading] = React.useState(false)
   const signaledRef = React.useRef(false)
 
-  // Poll for magic time every 10 seconds
+  // Poll for magic time every 10 seconds. Mounted permanently inside System,
+  // so skip while System isn't the visible tab — otherwise this keeps
+  // ticking (and can setState) forever regardless of what tab is shown.
   React.useEffect(() => {
     const check = () => {
+      if (document.hidden || !isRouteActive('system')) return
       const mt = detectMagicTime()
       if (mt && !magicTime) {
         setMagicTime(mt)
