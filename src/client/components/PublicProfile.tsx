@@ -362,6 +362,20 @@ export const PublicProfile = () => {
           </div>
         )}
 
+        {/* Story Digest - compressed day/week/month/year LOT AI story (Usership) */}
+        {privacySettings.showMemoryStory && profile.storyDigest && (
+          <div>
+            <Block label={`Story: ${profile.storyDigest.period.toUpperCase()}${profile.storyDigest.periodNumber !== undefined ? ' ' + profile.storyDigest.periodNumber : ''}`} blockView>
+              <div className="whitespace-pre-wrap">{profile.storyDigest.text}</div>
+              {(profile.storyDigest.tone || profile.storyDigest.dominantMood) && (
+                <div className="mt-8 opacity-60">
+                  {[profile.storyDigest.tone, profile.storyDigest.dominantMood].filter(Boolean).join(' · ')}
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+
         {/* Psychological Profile - simplified single-column layout */}
         {profile.psychologicalProfile && profile.psychologicalProfile.hasUsership && (
           <div className="font-base">

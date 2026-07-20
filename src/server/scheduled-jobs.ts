@@ -58,6 +58,62 @@ function shouldRunMonthlyEmailJob(): boolean {
   return true
 }
 
+const STORY_DIGEST_MOOD_POSITIVE = new Set(['energized', 'calm', 'hopeful', 'grateful', 'fulfilled', 'content', 'peaceful', 'excited', 'grounded', 'focused', 'flowing', 'steady'])
+const STORY_DIGEST_MOOD_HARD = new Set(['tired', 'anxious', 'exhausted', 'overwhelmed', 'restless', 'uncertain', 'drained', 'depleted', 'unsettled', 'heavy'])
+
+/**
+ * Compress a user's last 30 days of logs into a short story digest, using the
+ * same template-compression shape as Job 38 (monthly-lot-ai-story). Used by
+ * the monthly email job so the email never depends on Job 38's own run
+ * timing on the same day — it derives the digest from logs it already has.
+ * Returns null when there isn't enough signal (fewer than 8 logs in 30d).
+ */
+function composeMonthlyStoryDigest(logs: any[]): string | null {
+  const thirtyDaysAgo = dayjs().subtract(30, 'day')
+  const monthLogs = logs.filter((l: any) => dayjs(l.createdAt).isAfter(thirtyDaysAgo))
+  if (monthLogs.length < 8) return null
+
+  const checkins = monthLogs.filter((l: any) => l.event === 'emotional_checkin')
+  const selfCare = monthLogs.filter((l: any) => ['self_care_complete', 'self_care_completed'].includes(l.event))
+  const intentions = monthLogs.filter((l: any) => l.event === 'intention')
+  const notes = monthLogs.filter((l: any) => ['note', 'journal'].includes(l.event))
+
+  let positiveCount = 0
+  let hardCount = 0
+  let dominantMood: string | null = null
+  const moodCounts: Record<string, number> = {}
+  for (const c of checkins) {
+    const mood = (c.metadata as any)?.emotionalState
+    if (!mood) continue
+    moodCounts[mood] = (moodCounts[mood] || 0) + 1
+    if (STORY_DIGEST_MOOD_POSITIVE.has(mood)) positiveCount++
+    if (STORY_DIGEST_MOOD_HARD.has(mood)) hardCount++
+  }
+  if (Object.keys(moodCounts).length > 0) {
+    dominantMood = Object.entries(moodCounts).sort(([, a], [, b]) => b - a)[0][0]
+  }
+
+  const tone = positiveCount > hardCount ? 'growth' : hardCount > positiveCount ? 'recovery' : 'steady'
+
+  const lines: string[] = []
+  if (checkins.length > 0 && dominantMood) {
+    const cap = dominantMood.charAt(0).toUpperCase() + dominantMood.slice(1)
+    lines.push(`${cap} was the dominant state across ${checkins.length} check-in${checkins.length !== 1 ? 's' : ''}.`)
+  }
+  if (selfCare.length > 0) lines.push(`${selfCare.length} self-care moment${selfCare.length !== 1 ? 's' : ''} completed.`)
+  if (intentions.length > 0) lines.push(`${intentions.length} intention${intentions.length !== 1 ? 's' : ''} set.`)
+  if (notes.length > 0) lines.push(`${notes.length} note${notes.length !== 1 ? 's' : ''} logged.`)
+
+  const closingLines: Record<string, string> = {
+    growth: 'The month leaned forward.',
+    recovery: 'The system held through the month.',
+    steady: 'Consistent across the month. The foundation holds.',
+  }
+  lines.push(closingLines[tone])
+
+  return lines.join(' ')
+}
+
 /**
  * Execute monthly email sending job
  */
@@ -215,6 +271,13 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
         console.log(`Generating summary for ${user.email}...`)
         const summary = await generateMonthlySummary(userPublic, logs.map((l: any) => l.toJSON()))
 
+        // Compress the last 30 days into a short story digest — computed
+        // inline from the logs already fetched above rather than read from
+        // user.metadata.monthlyStory, since Job 38 (which writes that field)
+        // has no fixed ordering guarantee relative to this email job on the
+        // same 1st-of-month day. Same template-compression shape as Job 38.
+        summary.storyDigest = composeMonthlyStoryDigest(logs)
+
         // Resolve user theme for email styling
         const userThemeName = metadata.theme || 'light'
         const isCustom = userThemeName === 'custom' && metadata.baseColor && metadata.accentColor
@@ -245,6 +308,7 @@ async function executeMonthlyEmailJob(): Promise<JobResult> {
           },
           growth: summary.growth,
           memoryStory: summary.memoryStory,
+          storyDigest: summary.storyDigest,
           forwardLook: summary.forwardLook,
           theme: emailTheme,
         })

@@ -1089,6 +1089,36 @@ export default async (fastify: FastifyInstance) => {
         }
       }
 
+      // Add compressed LOT AI story digest if enabled (only for Usership users).
+      // Reuses showMemoryStory — both are AI-generated narrative surfaces on the
+      // same profile toggle rather than a dedicated privacy flag.
+      if (privacy.showMemoryStory && hasUsershipTag) {
+        try {
+          const meta = user.metadata as any || {}
+          const candidates: Array<{ period: 'week' | 'month' | 'year'; data: any }> = []
+          if (meta.weeklyStory?.text) candidates.push({ period: 'week', data: meta.weeklyStory })
+          if (meta.monthlyStory?.text) candidates.push({ period: 'month', data: meta.monthlyStory })
+          if (meta.yearlyStory?.text) candidates.push({ period: 'year', data: meta.yearlyStory })
+
+          if (candidates.length > 0) {
+            candidates.sort((a, b) =>
+              new Date(b.data.generatedAt).getTime() - new Date(a.data.generatedAt).getTime()
+            )
+            const latest = candidates[0]
+            profile.storyDigest = {
+              text: latest.data.text,
+              period: latest.period,
+              periodNumber: latest.data.weekNumber ?? latest.data.monthNumber ?? latest.data.yearNumber,
+              tone: latest.data.weekTone ?? latest.data.monthTone ?? latest.data.yearTone,
+              dominantMood: latest.data.dominantMood,
+              generatedAt: latest.data.generatedAt,
+            }
+          }
+        } catch (error: any) {
+          console.error('[PUBLIC-PROFILE-API] Story digest failed:', error.message)
+        }
+      }
+
       // Add psychological profile (for Usership users)
       if (hasUsershipTag) {
         try {

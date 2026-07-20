@@ -59,6 +59,10 @@ export interface MonthlySummary {
   narrative: string
   forwardLook: string
   memoryStory: string | null
+  // Compressed LOT AI story digest for the closed month (template-compressed,
+  // same shape as Job 38's monthlyStory) — optional, attached by the caller
+  // since generateMonthlySummary() itself does not compute it.
+  storyDigest?: string | null
   osVersion: string
   osState: string
 }
@@ -623,6 +627,16 @@ export function generateMonthlyEmailBody(summary: MonthlySummary, userFirstName:
     sections.push('')
   }
 
+  // Compressed story digest for the month, if available
+  if (summary.storyDigest) {
+    sections.push('─'.repeat(40))
+    sections.push('')
+    sections.push('This Month, Compressed')
+    sections.push('')
+    sections.push(summary.storyDigest)
+    sections.push('')
+  }
+
   // Forward look
   sections.push(summary.forwardLook)
   sections.push('')
@@ -686,6 +700,7 @@ export interface MonthlyEmailData {
     notableProgress: string[]
   }
   memoryStory: string | null
+  storyDigest?: string | null
   forwardLook: string
   theme: MonthlyEmailTheme
 }
@@ -838,6 +853,16 @@ export function generateMonthlyEmailHtml(data: MonthlyEmailData): string {
               <div style="border-top:1px solid ${accentColor};opacity:0.15;margin-bottom:24px;"></div>
               <div style="color:${accentColor};font-size:13px;letter-spacing:0.5px;opacity:0.5;margin-bottom:12px;">Memory Story</div>
               <div style="color:${accentColor};font-size:14px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(data.memoryStory)}</div>
+            </td>
+          </tr>` : ''}
+
+          ${data.storyDigest ? `
+          <!-- Story Digest -->
+          <tr>
+            <td style="padding:32px 0 0 0;">
+              <div style="border-top:1px solid ${accentColor};opacity:0.15;margin-bottom:24px;"></div>
+              <div style="color:${accentColor};font-size:13px;letter-spacing:0.5px;opacity:0.5;margin-bottom:12px;">This Month, Compressed</div>
+              <div style="color:${accentColor};font-size:14px;line-height:1.6;white-space:pre-wrap;">${escapeHtml(data.storyDigest)}</div>
             </td>
           </tr>` : ''}
 

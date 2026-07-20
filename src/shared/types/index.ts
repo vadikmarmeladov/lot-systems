@@ -265,6 +265,16 @@ export type PublicProfile = {
   weather?: Weather;
   soundDescription?: string;
   memoryStory?: string;
+  // Compressed LOT AI story (Usership only) — most recently generated of
+  // weeklyStory/monthlyStory/yearlyStory in user.metadata
+  storyDigest?: {
+    text: string;
+    period: 'week' | 'month' | 'year';
+    periodNumber?: number;
+    tone?: string;
+    dominantMood?: string;
+    generatedAt: string;
+  };
   privacySettings: UserPrivacySettings;
   tags?: string[];
   profileVisits?: number;

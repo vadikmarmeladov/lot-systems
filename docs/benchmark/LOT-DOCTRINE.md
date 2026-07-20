@@ -246,3 +246,20 @@ day/week/month/year), the shared shape should generalize into a doctrine
 clause and a STORY-PERIOD lexicon token minted, rather than each command
 re-inventing its own period parser and job triplet.
 (SR-20260720-01: parseStoryPeriod() + Job 38/39 + STORY-PERIOD candidate.)
+
+Second appearance: exposing the compressed story on the Public Profile and in
+the monthly email surfaced a same-day ordering hazard. Job 38/39 write
+user.metadata.{monthly,yearly}Story on an hour-gated schedule (18:00 UTC), but
+the monthly email job runs on the same calendar day with NO hour gate — it
+fires whenever the hourly scheduler first observes day===1, which can be
+before Job 38 has run. A surface that reads the metadata field on that day
+would show last cycle's story, one period stale, with no error to signal it.
+The fix applied: the email job computes its own digest inline from logs it
+already has, rather than trusting the metadata field's freshness. General
+form, not yet a numbered clause (2 sessions, threshold is 3): any consumer of
+a scheduled job's metadata output that can run on the SAME trigger day as that
+job must either match its hour gate or recompute from source — never assume
+same-day metadata is current.
+(SR-20260720-02: composeMonthlyStoryDigest() computed inline in the monthly
+email job; Public Profile reads metadata directly since it has no same-day
+race — it's read-on-request, not another scheduled job.)
