@@ -13,16 +13,18 @@ import {
   ChatMessageLikeEventPayload,
   ChatMessageLikePayload,
   PublicChatMessage,
+  PublicLotEmail,
   UserSettings,
   UserTag,
 } from '#shared/types'
 import config from '#server/config'
-import { fp } from '#shared/utils'
+import { fp, parseEmailCommand } from '#shared/utils'
 import {
   COUNTRY_BY_ALPHA3,
   DATE_FORMAT,
   DATE_TIME_FORMAT,
   LOG_MESSAGE_STALE_TIME_MINUTES,
+  MAX_EMAIL_BODY_LENGTH,
   MAX_LOG_TEXT_LENGTH,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
   SYNC_CHAT_MESSAGES_TO_SHOW,
@@ -131,6 +133,54 @@ function generateCompassionateResponse(
 
   return responses[emotionalState]?.[checkInType] ||
     'Thank you for checking in with yourself. This awareness is self-care.'
+}
+
+/**
+ * LOT Email — if `text` contains a "/email to <name>" command, resolve the
+ * recipient by first name (case-insensitive), write a LotEmail row, and
+ * push it live over Sync when a recipient was found. Returns the metadata
+ * patch to merge into the originating Log row so the send fires once, or
+ * null when the text has no email command.
+ */
+async function maybeSendLotEmail(
+  fastify: FastifyInstance,
+  sender: { id: string; firstName: string | null; lastName: string | null },
+  text: string
+): Promise<{ emailId: string } | null> {
+  const parsed = parseEmailCommand(text)
+  if (!parsed) return null
+
+  const body = parsed.body.slice(0, MAX_EMAIL_BODY_LENGTH)
+  const recipient = parsed.recipientQuery
+    ? await fastify.models.User.findOne({
+        where: { firstName: { [Op.iLike]: parsed.recipientQuery } },
+      })
+    : null
+
+  const email = await fastify.models.LotEmail.create({
+    senderId: sender.id,
+    recipientId: recipient?.id || null,
+    recipientQuery: parsed.recipientQuery,
+    body,
+    status: recipient ? 'delivered' : 'unresolved',
+  })
+
+  if (recipient) {
+    const payload: PublicLotEmail = {
+      id: email.id,
+      senderId: sender.id,
+      recipientId: recipient.id,
+      recipientQuery: email.recipientQuery,
+      body: email.body,
+      status: email.status,
+      createdAt: email.createdAt,
+      updatedAt: email.updatedAt,
+      sender: { id: sender.id, firstName: sender.firstName, lastName: sender.lastName },
+    }
+    sync.emit('email', payload)
+  }
+
+  return { emailId: email.id }
 }
 
 export default async (fastify: FastifyInstance) => {
@@ -383,6 +433,13 @@ export default async (fastify: FastifyInstance) => {
         case 'settings_updated': {
           if (data.userId === req.user.id) {
             write({ event, data: {} })
+          }
+          break
+        }
+        case 'email': {
+          const payload = data as PublicLotEmail
+          if (payload.recipientId === req.user.id) {
+            write({ event, data: payload })
           }
           break
         }
@@ -1530,11 +1587,15 @@ export default async (fastify: FastifyInstance) => {
       // Get context before creating log to ensure consistency
       const context = await getLogContext(req.user)
 
+      const metadata = req.body.metadata || {}
+      const emailResult = await maybeSendLotEmail(fastify, req.user, text)
+      if (emailResult) metadata.emailId = emailResult.emailId
+
       const log = await fastify.models.Log.create({
         userId: req.user.id,
         text,
         event: req.body.event || 'note',
-        metadata: req.body.metadata || {},
+        metadata,
         context,
       })
 
@@ -1563,7 +1624,13 @@ export default async (fastify: FastifyInstance) => {
         return { id: log.id, deleted: true }
       }
 
-      await log.set({ text }).save()
+      const updates: { text: string; metadata?: Record<string, any> } = { text }
+      if (!log.metadata?.emailId) {
+        const emailResult = await maybeSendLotEmail(fastify, req.user, text)
+        if (emailResult) updates.metadata = { ...log.metadata, emailId: emailResult.emailId }
+      }
+
+      await log.set(updates).save()
       process.nextTick(async () => {
         if (!Object.keys(log.context).length) {
           const context = await getLogContext(req.user)
@@ -1573,6 +1640,41 @@ export default async (fastify: FastifyInstance) => {
       return log
     }
   )
+
+  // ============================================================================
+  // LOT EMAIL — inbox for the current user, delivered via "/email to <name>"
+  // ============================================================================
+  fastify.get('/emails', async (req: FastifyRequest, reply) => {
+    const emails = await fastify.models.LotEmail.findAll({
+      where: { recipientId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 50,
+    })
+    if (emails.length === 0) return []
+
+    const senderIds = [...new Set(emails.map((e) => e.senderId))]
+    const senders = await fastify.models.User.findAll({ where: { id: senderIds } })
+    const senderById = senders.reduce(fp.by('id'), {})
+
+    const result: PublicLotEmail[] = emails.map((e) => ({
+      id: e.id,
+      senderId: e.senderId,
+      recipientId: e.recipientId,
+      recipientQuery: e.recipientQuery,
+      body: e.body,
+      status: e.status,
+      createdAt: e.createdAt,
+      updatedAt: e.updatedAt,
+      sender: senderById[e.senderId]
+        ? {
+            id: senderById[e.senderId].id,
+            firstName: senderById[e.senderId].firstName,
+            lastName: senderById[e.senderId].lastName,
+          }
+        : null,
+    }))
+    return result
+  })
 
   // ============================================================================
   // EMOTIONAL CHECK-IN ENDPOINT

@@ -439,9 +439,33 @@ export type ChatMessageLikeEventPayload = {
   isLiked?: boolean;
 };
 
+// LOT Email Types
+// The simplest mail primitive: a "/email to <name>" command in a Log entry
+// resolves a recipient by first name and lands a row here. `recipientId` is
+// null when no user matched the query yet (status 'unresolved') — the row
+// stays queryable so a future LOT Community / Cohort Dating persona can
+// still be matched against it.
+export type LotEmailStatus = 'delivered' | 'unresolved';
+
+export type LotEmail = {
+  id: string;
+  senderId: string;
+  recipientId: string | null;
+  recipientQuery: string;
+  body: string;
+  status: LotEmailStatus;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type PublicLotEmail = LotEmail & {
+  sender: Pick<User, 'id' | 'firstName' | 'lastName'> | null;
+};
+
 // Sync Events
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
   settings_updated: Record<string, never>;
+  email: PublicLotEmail;
 };

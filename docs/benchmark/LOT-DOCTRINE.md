@@ -67,6 +67,15 @@ One feature per ship. Master never touched while red. Cherry-pick not
 merge (avoids dragging divergent branch history into the main line).
 (SR-20260605-01: 115 branches across 23 clusters; 69 redundant
 iterations identified; 8 features ready for ship-mode merge.)
+(SR-20260720-01: LOT-MAIL is the concrete failure case this clause predicts.
+Same feature request, rebuilt independently on a fresh branch roughly once a
+day for 7 weeks (~20 iterations, "determined-turing"/"relaxed-hamilton"
+clusters), never once cherry-picked to master because no session referenced
+LOT-MANIFEST before building. Fix applied this session: locate the most
+recent GREEN-verified iteration via LOT-MANIFEST + `git log --all`, cherry-
+pick it forward instead of rebuilding. Standing rule going forward: ORIENT
+must check LOT-MANIFEST for an existing BEST/READY candidate matching the
+requested feature before writing new code for it.)
 
 ## Operator RFI Pattern
 
