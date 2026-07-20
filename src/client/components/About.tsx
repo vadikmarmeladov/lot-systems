@@ -4047,9 +4047,10 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
           </div>
           <P>
             Entries persist as calendar_entry log events with date, text, and
-            type metadata. They participate in Quantum Intent Engine signal
-            collection and sync across devices through the database. The calendar
-            is not isolated. It feeds the system.
+            type metadata, plus an optional time (HH:mm). They participate in
+            Quantum Intent Engine signal collection and sync across devices
+            through the database. The calendar is not isolated. It feeds the
+            system.
           </P>
           <P>
             Month navigation uses text-glyph arrow style: {"<—"} and {"—>"}.
@@ -4057,9 +4058,29 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
           </P>
           <P>
             Design constraints: no color coding, no drag-and-drop, no recurring
-            events, no time slots. The calendar tracks dates, not hours. It
-            answers {'"'}what matters on this day{'"'} without becoming a
-            project manager.
+            events. Time is opt-in per entry, not a scheduling grid: the day
+            view still renders dates only, never hour slots. When set, time
+            drives due/overdue state and same-day ordering — nothing more.
+            The calendar answers {'"'}what matters on this day{'"'} without
+            becoming a project manager.
+          </P>
+          <P>
+            Entries with a time carry a status computed against the clock:
+            scheduled, due (within 15 minutes of the target), or overdue (past
+            it). The status renders as a plain uppercase tag next to the
+            entry — no color, no icon — consistent with military purity.
+            Untimed entries carry no status; nothing renders without cause.
+          </P>
+          <P>
+            Event notification: when a timed entry{"'"}s moment arrives, the
+            widget surfaces a single in-page toast — entry type, time, text,
+            fading in and out over several seconds. It fires once per entry
+            (tracked in localStorage) and only while the System tab is open,
+            visible, and foregrounded; off-page or off-tab, it stays silent
+            and catches up silently on return within its 30-minute window. No
+            OS notification, no permission prompt, no sound. Consistent with
+            Context Over Notification: the system surfaces at the right
+            moment, in place — it does not interrupt.
           </P>
 
           {/* ── TEMPORAL PLANNER ────────────────────────────────────── */}
@@ -4075,8 +4096,9 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             today or later are filtered, sorted chronologically, and the nearest
             is surfaced. The block hides automatically when no entries exist.
           </P>
-          <CodeBlock>{`Format: Next:    Fri, May 9 — call with Alex (+2 more)
+          <CodeBlock>{`Format: Next:    Fri, May 9 · 14:00 — call with Alex (+2 more)
 Source: calendar_entry log events, date >= today
+Sort:   date, then time — untimed entries sort before timed same-day entries
 Derived from: useLogs() — no new network request`}</CodeBlock>
           <P>
             The {'"'}Next:{'"'} block is not a reminder. It does not push

@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,54 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Toolchain Deprecation Drift
+
+Pinning a compiler deprecation-silencer to a fixed version string (e.g.
+tsconfig `ignoreDeprecations: "5.0"`) buys time, not a fix — it is a moving
+target that breaks again the next time the compiler is upgraded, and past a
+compiler major it can stop accepting any value at all. The durable fix is to
+migrate off the actual deprecated option once, not re-pin the ignore version
+on each recurrence:
+  - `moduleResolution: "node"` (alias for the deprecated `node10` strategy)
+    -> `"bundler"` for an ESM-output Node backend with a post-build import-
+    fixer step (this repo's `scripts/fix-esm-imports.js` pattern). Prefer
+    `"node16"`/`"nodenext"` only if the codebase already writes explicit
+    `.js` extensions on relative imports.
+  - `baseUrl` + non-relative `paths` values -> drop `baseUrl`, prefix every
+    `paths` entry with `./` (paths resolve against the tsconfig's own
+    directory once baseUrl is absent).
+  - A package deep-import that resolves under legacy `node` resolution but
+    not under `bundler`/`node16` (e.g. `sequelize/types`, valid only via
+    directory-index lookup) means the path is not actually in the package's
+    declared `exports` map — resolve it through the map's real subpath
+    instead (e.g. `sequelize/types/index`, covered by sequelize's
+    `"./types/*"` export) rather than reverting the resolution strategy.
+(SR-20260707-01: first pin, `ignoreDeprecations` "5.0". SR-20260720-01:
+TS 6.0.2 rejected the option outright — TS5103 invalid value, any value —
+so `ignoreDeprecations` was removed and the three items above fixed
+directly. Confirmed twice: pin-and-forget does not survive a compiler
+major; fix the underlying option.)
+
+## Calm Notification Pattern (Context Over Notification)
+
+The Field Manual's Context Over Notification principle (`About.tsx`: "the
+system surfaces at the right moment. No push. No alert. No interruption.")
+is not merely a constraint against building notifications — it names the
+shape a LOT notification takes when one is warranted. Two independent
+implementations now share it: EvolutionMilestoneToast (feature-unlock
+milestones) and CalendarWidget's due-event toast (SR-20260720-01). The
+pattern:
+  - In-page only. No OS `Notification` API, no permission prompt, no sound.
+  - Gated on presence: `!document.hidden && isRouteActive(<tab>)`. Silent
+    off-tab and off-page; a state-crossing event caught while away is still
+    surfaced on return within a bounded catch-up window, not dropped, not
+    queued as backlog.
+  - Fires once per event, deduplicated against a persisted key (localStorage
+    set, capped) so a reload never re-shows an already-seen notification.
+  - Fixed-position, low-decoration, opacity-transition in/out over ~0.5s,
+    auto-dismiss after ~6s. No color coding, no icon, no emoji — military
+    purity applies to notifications same as any other surface.
+This is the template for any future widget that needs to surface a
+time-sensitive event: reach for this pattern before reaching for a browser
+push notification.

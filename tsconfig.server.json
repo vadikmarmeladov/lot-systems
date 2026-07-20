@@ -4,25 +4,23 @@
     "module": "ESNext",
     "outDir": "./dist/server",
     "rootDir": "./src",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "declaration": false,
-    "baseUrl": ".",
     "paths": {
-      "#server": ["src/server"],
-      "#server/*": ["src/server/*"],
-      "#shared": ["src/shared"],
-      "#shared/*": ["src/shared/*"],
-      "#shared/types": ["src/shared/types"],
-      "#shared/constants": ["src/shared/constants"]
+      "#server": ["./src/server"],
+      "#server/*": ["./src/server/*"],
+      "#shared": ["./src/shared"],
+      "#shared/*": ["./src/shared/*"],
+      "#shared/types": ["./src/shared/types"],
+      "#shared/constants": ["./src/shared/constants"]
     },
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noEmitOnError": false,
-    "ignoreDeprecations": "5.0"
+    "noEmitOnError": false
   },
   "include": ["src/server", "src/shared"]
 }
