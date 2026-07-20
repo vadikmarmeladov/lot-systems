@@ -2792,7 +2792,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Usership"
-              value="Premium membership tier. Full AI access. Psychological profiling. $50/month."
+              value="Premium membership tier. Full AI access. Psychological profiling. $99/month as LOT® AI, or $1,188/year as LOT® Usership."
             />
             <Row
               label="R&D"
@@ -2852,7 +2852,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="CUBIQ™"
-              value="Quantum cubic session model. Sessions of 5–11 minutes structured around a single focus cube. Four operator tiers: R&D ($15/month · early access · beta features · roadmap influence) · Usership ($99/month · full AI access · psychological profiling · Memory Engine · all widgets) · Legacy ($3,564/3 years · permanent access · one-time · no recurring charge) · Admin ($11,000/9 years · system administrator · tag authority · full backend access). The session is the unit. The cube is the container. Minimum viable time: 5 minutes."
+              value="Quantum cubic session model. Sessions of 5–11 minutes structured around a single focus cube. Four operator tiers: R&D ($30 one-time · early access · beta features · roadmap influence) · Usership ($99/month or $1,188/year · full AI access · psychological profiling · Memory Engine · all widgets) · Legacy ($3,564/3 years · permanent access · one-time · no recurring charge) · Admin ($11,000/9 years · system administrator · tag authority · full backend access). The session is the unit. The cube is the container. Minimum viable time: 5 minutes."
             />
             <Row
               label="Field Guide"
@@ -4254,7 +4254,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             The system observes. The depth layer is offline.
           </P>
 
-          <SubHeading>Usership — $50/month</SubHeading>
+          <SubHeading>Usership — $99/month or $1,188/year</SubHeading>
           <P>
             Full system access. All four engines operational.
             Unlimited AI question generation with 120-log context.
@@ -4267,6 +4267,9 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
           <div className="mb-16">
             <Row label="Tag value" value="Usership — set in user record by admin" />
             <Row label="Gates" value="Memory Engine AI · profiling · QIE 65-pattern recommendations · weekly summary · Cosmic Update · Quantum Sign" />
+            <Row label="Individual — monthly" value="LOT® AI — $99/month" />
+            <Row label="Individual — annual" value="LOT® Usership — $1,188/year (= $99/month, billed once)" />
+            <Row label="Enterprise — annual" value="LOT® AI — $1,188/year/user · Corporate Expense form (U.S. Federal R&D Tax Credit)" />
             <Row label="Subscription platform" value="brand.lot-systems.com" />
           </div>
 
@@ -4284,7 +4287,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             <Row label="Suspended" value="Account suspended. All access revoked. Tag displays in red on public profile. Admin-set." />
           </div>
 
-          <SubHeading>R&D — Research & Development</SubHeading>
+          <SubHeading>R&D — $30 one-time</SubHeading>
           <P>
             Frontier access. Features under active development.
             Direct roadmap influence. Community engagement channel.
@@ -4293,6 +4296,7 @@ Derived from: useLogs() — no new network request`}</CodeBlock>
             they encounter its gaps before they are filled.
           </P>
           <P>
+            A one-time purchase, not a subscription.
             R&D and Usership are not mutually exclusive.
             Both tags can be held simultaneously.
             All admin-assigned. No self-service.

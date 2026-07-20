@@ -312,7 +312,7 @@ Analytical view of Quantum Intention Engine pattern data. Visualizes discovered 
 
 ### Subscribe Widget
 
-A subscription prompt offering R&D ($15/month) and Usership ($99/month) tiers. Links to the external subscription page at brand.lot-systems.com. Appears only after the user has answered 10+ Memory questions, is not yet subscribed, and passes a 10-day cooldown with 20% random chance.
+A subscription prompt offering R&D ($30 one-time) and Usership ($1,188/year — the annual commitment of LOT® AI, also available at $99/month) tiers. Links to the external subscription page at brand.lot-systems.com. Appears only after the user has answered 10+ Memory questions, is not yet subscribed, and passes a 10-day cooldown with 20% random chance.
 
 - **Data Source:** `localStorage` for cooldown tracking (`subscribe-clicked`)
 - **Connection:** Visibility controlled by System.tsx gating logic; directs to external subscription portal
