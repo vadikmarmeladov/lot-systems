@@ -1,7 +1,7 @@
 # LOT® Usership — The 15-Month Arc
 **3 Months Free Onboarding + 12 Months Usership → LOT® AI**
 LOT Systems Corporation · S-2: Vadim Marmeladov
-Design Brainstorm · Revision 3 · 19 July 2026 · brand.lot-systems.com
+Design Brainstorm · Revision 4 · 19 July 2026 · brand.lot-systems.com
 
 ---
 
@@ -13,7 +13,9 @@ Revision 2 added three things S-2 asked for directly: (1) an investigation of th
 
 Revision 3 does two things: (1) **a real code change** — `R&D $15` → `R&D $30, one-time purchase` fixed in `SubscribeWidget.tsx` and `About.tsx`, both previously wrong (see Part 1); (2) traces S-2's direct observation — that the free-tier interface promises AI-generated, context-compressed Story and questions but doesn't actually deliver them — to its exact cause in `api.ts`'s route handlers, with a bounded fix proposed in Part 4.4. Part 13 records the full pricing catalog S-2 supplied as data intake, since no canonical pricing document existed in the repository before this.
 
-Two SubscribeWidget.tsx/About.tsx pricing edits were made directly to code in this revision, per explicit instruction. Everything else remains a specification for a future assembly session — not shipped.
+Revision 4 resolves Part 12's first open question directly from S-2: the free tier is permanent, "3 months" is narrative framing, not a technical boundary. It adds the arc's psychological throughline (new Part 4.0) — pacing an Operator away from social media in weeks 1–2, deeper into journaling in weeks 3–4 — and two concrete markers (new Part 4.5) that the relationship has become physical rather than merely habitual: return frequency (already computed, newly read narratively) and PWA installation (genuinely detectable, confirmed not yet implemented anywhere in the codebase).
+
+No code was modified in Revisions 1–2 or 4. Revision 3 made two direct pricing edits (`SubscribeWidget.tsx`, `About.tsx`), per explicit instruction. Everything else remains a specification for a future assembly session.
 
 ---
 
@@ -57,6 +59,14 @@ Revision 1 established **Mastery** (behavior-earned, unlimited ceiling) and **Te
 
 ## Part 4 — Months 0–3: The Free Onboarding Arc
 
+### 4.0 The Character Arc — What Changes in the Person, Not Just the Interface
+
+S-2's framing, direct: the free months are not a technical trial with an expiry. They are narrative structure laid over what is otherwise a permanent free tier — this resolves Part 12's Open Question 1 (below). "3 months" describes a story the Operator moves through, not a clock that cuts them off. What the arc is actually shaped around is a change in the *person*, which the UI evolution exists to support rather than merely illustrate:
+
+- **Weeks 1–2 — paced away from the phone.** The free "essentials" layout (Part 1) is already, by accident of Military Purity doctrine, built for this: no infinite feed, no algorithmic ranking, no push-notification bait, no superlatives competing for attention, periods instead of exclamation marks. Where social media is engineered to maximize time-on-app, LOT's existing house style — quiet, instrument-grade, "suggests, doesn't command" — is the opposite engineering pointed at the opposite goal: not maximizing attention captured, but spending well what's given. The Telemetry Ladder (4.2) reinforces this on purpose: two thresholds, two calm one-time lines, not a gamified checklist competing for taps. This was already true before this revision; it should now be understood as deliberate, not incidental.
+- **Weeks 3–4 — deeper into mind and soul.** Here journaling volume becomes the headline signal, not widget-clicking. The existing Log/Memory/Story depth-progression language (WHAT → HOW → WHY, Part 2) describes exactly this shift, but Part 4.4 already found it Usership-gated — during the free weeks, the *free-tier proxy* for "going deeper" is Log frequency and length, not AI-graded question depth. The Telemetry Ladder's 8-Log threshold (Users cluster) should land roughly here for an Operator journaling regularly, by design: the free arc's two thresholds were chosen so a genuinely-engaging first month naturally crosses both.
+- **Ongoing — the relationship becomes physical, not just habitual.** See 4.5.
+
 ### 4.1 Day 1 — The Generative Welcome
 
 First authenticated load, zero Logs (`journeyData.answerCount === 0`, already computed at `System.tsx:216`). Before any widget mounts, one generated line, assembled from the three subsystems S-2 named — Quantum Intent Engine (ambient/ signal framing), Memory engine (personalizes once `me.firstName` resolves), Community (`communityPulse.ts`'s existing `getConvergenceSignal()` / `getDailyStoicAnchor()` generators, same functions, new call site, contributing the "you are joining a cohort" register already used elsewhere in the product). Canonical line, S-2's own copy, kept verbatim:
@@ -99,6 +109,14 @@ Part 4.3's tease sells a promise — "your Story, your widgets, your self-care p
 - **Preview Questions** — once the Signal Count ladder (4.2) crosses 8 Logs, route Memory through `buildPrompt` / `completeAndExtractQuestion` for **one question per free month** (3 total across the whole free arc, against Usership's 10–15/day from `calculateIntelligentPacing()`), using the Operator's real recent Logs exactly as the Usership path already does. Every other question in the free months keeps using the static backup pool — this is a rate limit on an existing mechanism, not a cheaper simulation of it, so the one preview question that lands is honestly personalized.
 - **Preview Memoir, not Story** — at the Free-Month-2 and Free-Month-3 tease moments (4.3), generate one real paragraph via the existing `generateMemoryStory()` function, which — unlike its calling route — has no tier gate at all; the fix is narrower than it looks, it's in `api.ts`'s route handler, not `memory.ts`'s logic. Cap it to what the Operator has actually logged by then (thin, honestly so) rather than fabricating depth that isn't there.
 - **Why bounded, not full access** — this keeps Usership's real differentiator (daily-cadence, always-on compression) intact and un-cheapened, while making the tease evidence-based instead of aspirational. The Operator reads one real sentence the system wrote about *them* before being asked to pay for more of it — a stronger, more honest conversion mechanic than a generic price button.
+
+### 4.5 Two Tangible Thresholds Beyond Logging
+
+Closing 4.0's third beat — "the relationship becomes physical, not just habitual" — in ascending order of how measurable each signal actually is today:
+
+1. **Return frequency** — already computed, nothing new to build. `System.tsx`'s `evolutionStreak` (consecutive days with an answer Log) is currently read only as badge-progress input. During the free arc it should also be read narratively — the system quietly noticing "you keep coming back" — independent of whether anything was answered that particular day.
+2. **Browser tab pin** — not directly detectable by any web API, and this document does not propose pretending otherwise. Treated as inferred, not measured: a short average gap between sessions plus a rising streak is the closest available proxy.
+3. **PWA install** — genuinely detectable, and confirmed **not currently implemented anywhere in the codebase**: the service worker and manifest infrastructure already ships (`app.tsx`), but no `display-mode: standalone` check or `appinstalled` listener exists anywhere. This is the single most concrete "the relationship became physical" signal available — an Operator who installs LOT as an app has made a decision qualitatively different from bookmarking a tab. Proposal: listen for the `appinstalled` event (and check `window.matchMedia('(display-mode: standalone)').matches` on load, for Operators who already installed before this shipped), record it once via the existing `recordSignal()` mechanism (`intentionEngine.ts:199`), and acknowledge it exactly once, quietly, in the house voice — e.g. *"Installed. LOT now lives beside your other tools."* — never repeated, matching the register of the Day-0 Welcome (4.1) and the Month-Turn Pulse (Part 5).
 
 ---
 
@@ -216,7 +234,7 @@ This document authorizes no code changes. If greenlit:
 
 ## Part 12 — Open Questions
 
-1. **After Free Month 3 ends, hard paywall or indefinite soft tease?** Not decided here — materially changes whether "3 free months" is a real boundary or a narrative framing over an otherwise-permanent free tier.
+1. ~~After Free Month 3 ends, hard paywall or indefinite soft tease?~~ **Resolved by S-2, Revision 4:** indefinite soft tease. The free tier is permanent; "3 months" is narrative framing over it, not a technical boundary — see Part 4.0. The Free-Month-3 tease register (4.3) is the steady state after month 3, not an escalation toward a cutoff; it does not get more urgent with time, it just stays where it landed.
 2. Should the density **floor** apply retroactively to existing Usership members, or only forward from ship date?
 3. Should the Year-Close Memoir (month 12) export via the existing Story API (`POST /api/story/:week_id/export`) to the Robot/Vehicle/Dashboard recipients in the Product Brief?
 4. **Seasonal flavor inclusivity** — the brief specifically names "Christian" alongside "year/seasons/holidays." Given LOT's audience is not exclusively Christian, should the liturgical theme words (Lent, Advent, Easter, All Saints) be the default texture for every Operator, or should the layer be configurable/opt-out, with the Gregorian/seasonal words as the universal default and the liturgical words as an optional overlay? The Lent Diet precedent suggests S-2's own preference leans toward including it directly; flagging rather than presuming.
