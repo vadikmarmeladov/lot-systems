@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
+Basics Tab       | beautiful-johnson-j9j6ux      | 39ba0440 | 9/9   | BEST   | 8     | +296   | BASICS M1: recovered from beautiful-johnson-56p7ov (never merged, now SUPERSEDED), ported to current TabPanel arch, UserTag.Basic formalized. Green-gated, not yet on master. LOT-SR-20260720-01.
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
@@ -88,8 +88,8 @@ determined-turing| 6     | f6bw7r            | 5     | LOT Mail iterations (late
 dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations (SUPERSEDED by brave-lamport)
 brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
 gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
-nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson)
-beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (latest series)
+nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson-j9j6ux)
+beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (SUPERSEDED by beautiful-johnson-j9j6ux — M1 ported forward 2026-07-20)
 gracious-gauss   | 7     | WnL0k             | 6     | QI-46 Engine iterations (SUPERSEDED by cool-tesla)
 upbeat-faraday   | 2     | xviFF             | 1     | Badge RPG iterations (SUPERSEDED by cool-hypatia)
 inspiring-volta  | 6     | 2hmidy            | 5     | Health check iterations

@@ -125,7 +125,10 @@ OTHER:
 
 PENDING (on feature branches, not yet on master):
   Mail                    In-app email system (relaxed-hamilton-eRBVA)
-  Basics                  Ration subscription tab (nifty-allen-jWyOe)
+  Basics                  M1 (OPEN TAB, read-only) live on beautiful-johnson-
+                          j9j6ux, green-gated, not yet on master. M2/M3
+                          (enrollment + billing, fulfillment) not built.
+                          LOT-FM-001, LOT-SR-20260720-01.
   MailWidget              System tab email indicator (relaxed-hamilton-eRBVA)
   EmailCompose            Email compose overlay (relaxed-hamilton-eRBVA)
 
