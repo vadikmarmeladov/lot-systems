@@ -232,10 +232,28 @@ Each month below specifies: the dominant feeling, what unlocks or intensifies, t
 
 ## 6. OPEN QUESTIONS FOR S-2
 
-1. **Pricing inconsistency found during research, unrelated to this brief but worth flagging:** `SubscribeWidget.tsx:35` and `Sync.tsx:617` both show Usership at $99/mo; `About.tsx:2795` and `About.tsx:4257` show $50/mo. These should agree before a 12-month `totalInvested` figure is shown to a real subscriber on their own public profile — a visible internal contradiction on the exact page this brief is designed to make trustworthy.
-2. **No dedicated `usershipStartAt` field exists.** `MonthlyPulseWidget` and the server's `boardProfile` both independently compute tenure from `user.joinedAt`, which is account-creation date, not upgrade-to-Usership date. For an operator who used the free tier for months before upgrading, "Month 1" of Usership would already show as "Month 4" or later. Recommend either (a) accepting `joinedAt` as the anchor deliberately — the brief above assumes this — or (b) adding a real `usershipStartAt` timestamp set on upgrade. This is a real product decision, not a design one; flagged here rather than decided.
-3. **Month 13 and beyond** — this brief stops at Month 12 as asked. A natural continuation exists via the `Legacy` tag (already in `UserTag` enum) for multi-year framing, but that's a separate brief.
-4. **Three overlapping staged-growth taxonomies (§0)** should eventually be reconciled into one canonical progression model rather than left to coexist — not urgent, but the longer they diverge the harder reconciliation gets.
+1. ~~**Pricing inconsistency found during research.**~~ **RESOLVED 2026-07-20 — final pricing confirmed by S-2:**
+
+   | Grouping | Tier | Price |
+   |---|---|---|
+   | Enterprise · Subscribe | LOT® AI (1 year/user) | $1,188/yr — Corporate Expense form / R&D Tax Credit |
+   | Enterprise · Subscribe | LOT® Design Lab (1 month) | $100,000/mo |
+   | Individual · Subscribe | LOT® AI (1 month) | $99/mo |
+   | Individual · Subscribe | **LOT® Usership (1 year)** | **$1,188/yr** |
+   | Individual · Subscribe | LOT® Products (1 month) | $399/mo — Made in USA, coming soon, LOT® AI included |
+   | Individual · Subscribe | LOT® Products (1 year) | $4,788/yr |
+   | Buy | LOT® R&D | $30 one-time (was $15/mo — now a purchase, not a subscription) |
+   | Buy | LOT® Legacy (3 years) | $3,564/3yr |
+   | Buy | LOT® Admin (9 years) | $11,000/9yr |
+
+   Two things this confirms for the brief above: (a) **$1,188/yr ÷ 12 = exactly $99/mo** — Usership is now explicitly *the annual commitment of LOT® AI*, not a separate product, which is the cleanest possible confirmation of this brief's premise that the 12-month calendar is the natural spine for the tier. (b) `totalInvested` (`public-api.ts:1258`, currently `boardTenureMonths * 99`) still produces the right number under the new structure and needs no change — but the Months Unlocked widget (§2.1) should now display the flat annual figure ($1,188) alongside the monthly-equivalent framing where it makes the commitment legible, not just the running monthly multiply.
+
+   **Still open:** the live UI — `SubscribeWidget.tsx:35` ($99, unchanged, fine), `Sync.tsx:617` ($99, unchanged, fine), `About.tsx:2795` and `About.tsx:4257` (currently $50/mo, now stale against both the old and new structure), and the WIDGETS.md-documented Subscribe copy ("R&D ($15/month) and Usership ($99/month)", `WIDGETS.md:313-318`, now stale on both the R&D price *and* the R&D billing model) — all need a follow-up code/copy pass to carry the finalized structure. Not done in this brief; flagged for the implementation session referenced at the end of this document. `LOT_DESIGN_LAB_SUMMER_2026.md` pricing ($100k/mo) already matched and needs no change.
+
+2. **No dedicated `usershipStartAt` field exists.** `MonthlyPulseWidget` and the server's `boardProfile` both independently compute tenure from `user.joinedAt`, which is account-creation date, not upgrade-to-Usership date. For an operator who used the free tier for months before upgrading, "Month 1" of Usership would already show as "Month 4" or later. Recommend either (a) accepting `joinedAt` as the anchor deliberately — the brief above assumes this — or (b) adding a real `usershipStartAt` timestamp set on upgrade. This is a real product decision, not a design one; flagged here rather than decided. Sharper now with confirmed pricing: since Usership bills as one annual charge rather than 12 monthly ones, the renewal date is a clean, unambiguous anchor if (b) is chosen — billing already has to track it for renewal regardless of what the UI does with it.
+3. **Month 13 and beyond** — this brief stops at Month 12 as asked. A natural continuation exists via the `Legacy` tag (3-year commitment, $3,564 = exactly $1,188/yr × 3, confirming Legacy is three renewed years of Usership, not a separate product) for multi-year framing, but that's a separate brief.
+4. **LOT® Products (physical, Made in USA, coming soon)** explicitly bundles LOT® AI into its $399/mo / $4,788/yr pricing. When that ships, this brief's calendar needs a hardware-arrival beat inserted somewhere (most naturally Month 1, "the device arrives") — out of scope until LOT® Products has a ship date, flagged here so it isn't forgotten.
+5. **Three overlapping staged-growth taxonomies (§0)** should eventually be reconciled into one canonical progression model rather than left to coexist — not urgent, but the longer they diverge the harder reconciliation gets.
 
 ---
 

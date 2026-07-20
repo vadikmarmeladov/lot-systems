@@ -92,12 +92,31 @@ The internal architecture stays below the surface. The operator experiences only
 
 ## Paid Tiers
 
+*Final pricing, confirmed by S-2, 2026-07-20. Supersedes prior $15/mo R&D and $50/mo Usership figures found elsewhere in the codebase — see `docs/corporate/LOT-USERSHIP-12-MONTH-EVOLUTION.md` §6 for the reconciliation note and the live-code locations that still need updating.*
+
+**Enterprise — Subscribe**
+
 | Tier | Price | Access |
 |------|-------|--------|
-| **R&D** | $15 / month | Contributors building the system · Full LOG access · Pattern sandbox |
-| **Usership** | $99 / month | Operators running the full OS · Complete LOT® AI · Story-Report · API |
-| **Legacy** | $3,564 / 3 years | Founders members · All Usership benefits · Priority hardware allocation · Founding attribution |
-| **Admin** | $11,000 / 9 years | System governance · LOT® 2036 roadmap access · Sovereign operator status |
+| **LOT® AI** | $1,188 / year / user | Enterprise seat · Download the Corporate Expense form (U.S. Federal R&D Tax Credit) |
+| **LOT® Design Lab** | $100,000 / month | Hands-on corporate workshops, full product delivery — see `LOT_DESIGN_LAB_SUMMER_2026.md` |
+
+**Individual — Subscribe**
+
+| Tier | Price | Access |
+|------|-------|--------|
+| **LOT® AI** | $99 / month | Complete LOT® AI · Story-Report · API — monthly commitment |
+| **LOT® Usership** | $1,188 / year | Same access as LOT® AI, annual commitment — exactly $99/month annualized. This is the tier the 12-month evolution brief is written for. |
+| **LOT® Products** | $399 / month | Made in USA physical hardware line, LOT® AI included · coming soon |
+| **LOT® Products** | $4,788 / year | Same, annual commitment |
+
+**Buy**
+
+| Tier | Price | Access |
+|------|-------|--------|
+| **LOT® R&D** | $30 (one-time) | Contributors building the system · Full LOG access · Pattern sandbox — no longer a subscription |
+| **LOT® Legacy** | $3,564 / 3 years | Founders members · All Usership benefits · Priority hardware allocation · Founding attribution |
+| **LOT® Admin** | $11,000 / 9 years | System governance · LOT® 2036 roadmap access · Sovereign operator status |
 
 ---
 
