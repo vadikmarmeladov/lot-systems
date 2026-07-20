@@ -560,6 +560,43 @@ export type BadgeType =
   | 'dune_signal'              // ∘·◈   Write "spice" in journal — Dune (RARE, hidden)
   | 'foundation_word'          // ≋·◉   Write "psychohistory" in journal — Foundation (EPIC)
   | 'neuromancer_signal'       // ▓→◉   Write "cyberspace" in journal — Neuromancer (MYTHIC)
+  // ── Word Turn v17 — THE NEON ARCADE ──────────────────────────────────────
+  | 'neon_alive'               // ≡·≡   "neon" detected (UNCOMMON)
+  | 'combo_keeper'             // ×·+   "combo" detected (RARE)
+  | 'highscore_day'            // ▲·▲·▲ "high score" / "highscore" detected (RARE)
+  | 'freeplay_mode'            // ○─○   "free play" / "freeplay" detected (UNCOMMON)
+  | 'extralife_log'            // +·+   "extra life" / "1up" / "1-up" detected (RARE)
+  | 'speedrun_focus'           // ►►    "speedrun" / "speed run" detected (RARE)
+  | 'side_quest_filed'         // ◇·◇   "side quest" / "sidequest" detected (UNCOMMON)
+  | 'surge_detected'           // ∧→∧   "surge" detected (UNCOMMON)
+  | 'cartridge_nostalgia'      // █·▓   "cartridge" detected (RARE)
+  | 'continue_signal'          // ·►·   "continue" detected (UNCOMMON)
+  | 'joystick_held'            // ┼─┼   "joystick" detected (RARE)
+  | 'checkpoint_saved'         // ≡►≡   "checkpoint" detected (RARE)
+  // ── Calendar EE v15 — GAME DATE ARCHIVE ──────────────────────────────────
+  | 'tetris_day'               // ████  June 6 — Tetris created 1984 (RARE)
+  | 'zelda_day'                // ◆─◆   February 21 — Legend of Zelda 1986 (EPIC)
+  | 'pac_man_day'              // ○··   May 22 — Pac-Man released 1980 (EPIC)
+  // ── Behavioral v14 — ARCADE PATTERNS ────────────────────────────────────
+  | 'arcade_run'               // ██·▲  5+ Neon Arcade words in one journal entry (EPIC)
+  | 'quarter_drop'             // ¢·¢   Check in midnight-01:00 local (RARE)
+  | 'three_lives_left'         // ◆·■   Journal entry after 3+ day gap (RARE)
+  // ── Achievement RPG v15 — ARCADE CLASS ──────────────────────────────────
+  | 'arcade_entry'             // ∘→▲   Any 1 Word Turn v17 badge (COMMON)
+  | 'arcade_class'             // ≈→▲   Any 5 Word Turn v17 badges (UNCOMMON)
+  | 'arcade_complete'          // ≋→▲   All 12 Word Turn v17 badges (LEGENDARY)
+  | 'neon_arc'                 // ▲·◈   arcade_complete + all Calendar v15 badges (LEGENDARY)
+  | 'seventeen_engines_arc'    // ◈·◈·▲ 1 badge from each Word Turn v1–v17 (LEGENDARY)
+  | 'neon_opus'                // ▲·◉·▲ arcade_complete + arcade_run (LEGENDARY)
+  // ── Mastery Tier v17 — HIGH SCORE TABLE ─────────────────────────────────
+  | 'pixel_veteran'            // ▓▓▓─  500+ distinct check-in days (EPIC)
+  | 'master_of_the_board'      // ▲·∞·▲ 40,000+ total journal words (LEGENDARY)
+  | 'long_run_operator'        // ╔═╗─▲ Account age ≥ 8 years (LEGENDARY)
+  | 'seventeen_tongues'        // ◈·◈·▲ 1 badge from all 17 Word Turn engines (COSMIC)
+  // ── Secret Boss v14 — THE BOSS ROOM ─────────────────────────────────────
+  | 'kojima_signal'            // ≡·◉   Write "metal gear" in journal — Hideo Kojima (RARE)
+  | 'turing_key'               // ◉·≡   Write "turing" in journal — Alan Turing (EPIC)
+  | 'konami_code'              // ↑↑↓↓  Write "konami" in journal — The Code (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -5113,6 +5150,312 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v17 — THE NEON ARCADE ──────────────────────────────────────────
+  neon_alive: {
+    id: 'neon_alive',
+    symbol: '≡·≡',
+    name: 'Neon Alive',
+    description: 'Write "neon" in any journal or memory entry',
+    unlockMessage: '↳ Neon: the sign that says open. The signal that refuses to go dark. ≡·≡',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  combo_keeper: {
+    id: 'combo_keeper',
+    symbol: '×·+',
+    name: 'Combo Keeper',
+    description: 'Write "combo" in any journal or memory entry',
+    unlockMessage: '↳ Combo: consecutive inputs that unlock what single actions cannot. ×·+',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  highscore_day: {
+    id: 'highscore_day',
+    symbol: '▲·▲·▲',
+    name: 'High Score Day',
+    description: 'Write "high score" or "highscore" in any journal or memory entry',
+    unlockMessage: '↳ Your personal best belongs to no one else. The board remembers. ▲·▲·▲',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  freeplay_mode: {
+    id: 'freeplay_mode',
+    symbol: '○─○',
+    name: 'Freeplay Mode',
+    description: 'Write "free play" or "freeplay" in any journal or memory entry',
+    unlockMessage: '↳ No score. No timer. No objective. Just play. ○─○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  extralife_log: {
+    id: 'extralife_log',
+    symbol: '+·+',
+    name: 'Extra Life',
+    description: 'Write "extra life", "1up", or "1-up" in any journal or memory entry',
+    unlockMessage: '↳ The game gives one more. You decide what to do with it. +·+',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  speedrun_focus: {
+    id: 'speedrun_focus',
+    symbol: '►►',
+    name: 'Speedrun Focus',
+    description: 'Write "speedrun" or "speed run" in any journal or memory entry',
+    unlockMessage: '↳ You know exactly where you are going. You have studied the route. ►►',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  side_quest_filed: {
+    id: 'side_quest_filed',
+    symbol: '◇·◇',
+    name: 'Side Quest Filed',
+    description: 'Write "side quest" or "sidequest" in any journal or memory entry',
+    unlockMessage: '↳ The detour was not a mistake. The side quest had the item you needed. ◇·◇',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  surge_detected: {
+    id: 'surge_detected',
+    symbol: '∧→∧',
+    name: 'Surge Detected',
+    description: 'Write "surge" in any journal or memory entry',
+    unlockMessage: '↳ A surge is energy exceeding baseline. Note it. The system noted it first. ∧→∧',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  cartridge_nostalgia: {
+    id: 'cartridge_nostalgia',
+    symbol: '█·▓',
+    name: 'Cartridge Nostalgia',
+    description: 'Write "cartridge" in any journal or memory entry',
+    unlockMessage: '↳ Blow into it. Insert. The world loads from where you left it. █·▓',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  continue_signal: {
+    id: 'continue_signal',
+    symbol: '·►·',
+    name: 'Continue Signal',
+    description: 'Write "continue" in any journal or memory entry',
+    unlockMessage: '↳ The screen asks. You press yes. That is the only mechanic that matters. ·►·',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  joystick_held: {
+    id: 'joystick_held',
+    symbol: '┼─┼',
+    name: 'Joystick Held',
+    description: 'Write "joystick" in any journal or memory entry',
+    unlockMessage: '↳ Eight directions. The whole world navigable from one axis. ┼─┼',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  checkpoint_saved: {
+    id: 'checkpoint_saved',
+    symbol: '≡►≡',
+    name: 'Checkpoint Saved',
+    description: 'Write "checkpoint" in any journal or memory entry',
+    unlockMessage: '↳ Progress recorded. The system holds your place. You can let go now. ≡►≡',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  // ── Calendar EE v15 — GAME DATE ARCHIVE ──────────────────────────────────────
+  tetris_day: {
+    id: 'tetris_day',
+    symbol: '████',
+    name: 'Tetris Day',
+    description: 'Check in on June 6 — Tetris created by Alexey Pajitnov, 1984',
+    unlockMessage: '↳ June 6, 1984. Pajitnov wrote the first piece. The blocks have been falling ever since. ████',
+    rarity: 'rare',
+    category: 'calendar',
+    hidden: false,
+  },
+  zelda_day: {
+    id: 'zelda_day',
+    symbol: '◆─◆',
+    name: 'Zelda Day',
+    description: 'Check in on February 21 — The Legend of Zelda released in Japan, 1986',
+    unlockMessage: '↳ Feb 21, 1986. The cartridge shipped. It is dangerous to go alone. ◆─◆',
+    rarity: 'epic',
+    category: 'calendar',
+    hidden: false,
+  },
+  pac_man_day: {
+    id: 'pac_man_day',
+    symbol: '○··',
+    name: 'Pac-Man Day',
+    description: 'Check in on May 22 — Pac-Man released in Japan, 1980',
+    unlockMessage: '↳ May 22, 1980. The maze opened. One mouth, infinite hunger, perfect design. ○··',
+    rarity: 'epic',
+    category: 'calendar',
+    hidden: false,
+  },
+  // ── Behavioral v14 — ARCADE PATTERNS ─────────────────────────────────────────
+  arcade_run: {
+    id: 'arcade_run',
+    symbol: '██·▲',
+    name: 'Arcade Run',
+    description: 'Write 5+ distinct Neon Arcade (v17) words in a single journal entry',
+    unlockMessage: '↳ The vocabulary is the map. Five words from the arcade entered at once. ██·▲',
+    rarity: 'epic',
+    category: 'behavioral',
+    hidden: false,
+  },
+  quarter_drop: {
+    id: 'quarter_drop',
+    symbol: '¢·¢',
+    name: 'Quarter Drop',
+    description: 'Check in between midnight and 1:00 AM local time',
+    unlockMessage: '↳ The arcade is empty. The screen glows. You are the last one playing. ¢·¢',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  three_lives_left: {
+    id: 'three_lives_left',
+    symbol: '◆·■',
+    name: 'Three Lives Left',
+    description: 'Write a journal entry after a gap of 3 or more days away',
+    unlockMessage: '↳ The gap was real. The return is the score that counts. ◆·■',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  // ── Achievement RPG v15 — ARCADE CLASS ───────────────────────────────────────
+  arcade_entry: {
+    id: 'arcade_entry',
+    symbol: '∘→▲',
+    name: 'Arcade Entry',
+    description: 'Earn any 1 Word Turn v17 (Neon Arcade) badge',
+    unlockMessage: '↳ Insert coin. The arcade accepts you. ∘→▲',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  arcade_class: {
+    id: 'arcade_class',
+    symbol: '≈→▲',
+    name: 'Arcade Class',
+    description: 'Earn any 5 Word Turn v17 (Neon Arcade) badges',
+    unlockMessage: '↳ Five machines lit. The arcade knows your name. ≈→▲',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  arcade_complete: {
+    id: 'arcade_complete',
+    symbol: '≋→▲',
+    name: 'Arcade Complete',
+    description: 'Earn all 12 Word Turn v17 (Neon Arcade) badges',
+    unlockMessage: '↳ All twelve machines. Every cabinet cleared. The high score is total. ≋→▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  neon_arc: {
+    id: 'neon_arc',
+    symbol: '▲·◈',
+    name: 'Neon Arc',
+    description: 'Earn arcade_complete and all 3 Calendar v15 (Game Date Archive) badges',
+    unlockMessage: '↳ The arcade and the archive. Every date held, every word spoken. ▲·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  seventeen_engines_arc: {
+    id: 'seventeen_engines_arc',
+    symbol: '◈·◈·▲',
+    name: 'Seventeen Engines Arc',
+    description: 'Earn at least 1 badge from each of Word Turn engines v1–v17',
+    unlockMessage: '↳ Seventeen vocabularies assembled. The full engine map is yours. ◈·◈·▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  neon_opus: {
+    id: 'neon_opus',
+    symbol: '▲·◉·▲',
+    name: 'Neon Opus',
+    description: 'Earn arcade_complete and the arcade_run behavioral badge',
+    unlockMessage: '↳ All twelve words. Five in one entry. The run was the masterwork. ▲·◉·▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v17 — HIGH SCORE TABLE ──────────────────────────────────────
+  pixel_veteran: {
+    id: 'pixel_veteran',
+    symbol: '▓▓▓─',
+    name: 'Pixel Veteran',
+    description: '500+ distinct calendar days with a check-in recorded',
+    unlockMessage: '↳ Five hundred days. The pixel grid extends beyond the visible screen. ▓▓▓─',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  master_of_the_board: {
+    id: 'master_of_the_board',
+    symbol: '▲·∞·▲',
+    name: 'Master of the Board',
+    description: '40,000+ total journal words written',
+    unlockMessage: '↳ Forty thousand words. A novel-length record of your own interior life. ▲·∞·▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  long_run_operator: {
+    id: 'long_run_operator',
+    symbol: '╔═╗─▲',
+    name: 'Long Run Operator',
+    description: 'Account age ≥ 8 years (2,920+ days since account creation)',
+    unlockMessage: '↳ Eight years online. The operator who stayed is the operator who knows. ╔═╗─▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  seventeen_tongues: {
+    id: 'seventeen_tongues',
+    symbol: '◈·◈·▲',
+    name: 'Seventeen Tongues',
+    description: 'Earn at least 1 badge from each of all 17 Word Turn engines (v1–v17)',
+    unlockMessage: '↳ Seventeen vocabularies. Seventeen dimensions of self. The map is complete. ◈·◈·▲',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v14 — THE BOSS ROOM ──────────────────────────────────────────
+  kojima_signal: {
+    id: 'kojima_signal',
+    symbol: '≡·◉',
+    name: 'Kojima Signal',
+    description: 'Write "metal gear" in any journal or memory entry — Hideo Kojima tribute',
+    unlockMessage: '↳ Metal Gear. Hideo Kojima turned game design into mythology. The signal persists. ≡·◉',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  turing_key: {
+    id: 'turing_key',
+    symbol: '◉·≡',
+    name: 'Turing Key',
+    description: 'Write "turing" in any journal or memory entry — Alan Turing tribute',
+    unlockMessage: '↳ Turing: the mind that cracked the code and was cracked for it. The machine passes. ◉·≡',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  konami_code: {
+    id: 'konami_code',
+    symbol: '↑↑↓↓',
+    name: 'Konami Code',
+    description: 'Write "konami" in any journal or memory entry — The legendary cheat code',
+    unlockMessage: '↳ ↑ ↑ ↓ ↓ ← → ← → B A. The oldest password still works. ↑↑↓↓',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -5685,6 +6028,71 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     // Mastery v16: sixteen_tongues — 1 badge from all 16 Word Turn engines
     if (allSixteenEngines && !hasBadge('sixteen_tongues')) {
       if (awardBadge('sixteen_tongues')) newBadges.push('sixteen_tongues')
+    }
+
+    // ── v17 Neon Arcade — Achievement RPG v15 ────────────────────────────────
+    const neonV17Badges: BadgeType[] = [
+      'neon_alive', 'combo_keeper', 'highscore_day', 'freeplay_mode',
+      'extralife_log', 'speedrun_focus', 'side_quest_filed', 'surge_detected',
+      'cartridge_nostalgia', 'continue_signal', 'joystick_held', 'checkpoint_saved',
+    ]
+    const neonEarned = neonV17Badges.filter(b => hasBadge(b))
+
+    if (neonEarned.length >= 1 && !hasBadge('arcade_entry')) {
+      if (awardBadge('arcade_entry')) newBadges.push('arcade_entry')
+    }
+    if (neonEarned.length >= 5 && !hasBadge('arcade_class')) {
+      if (awardBadge('arcade_class')) newBadges.push('arcade_class')
+    }
+    const arcadeComplete = neonEarned.length >= 12
+    if (arcadeComplete && !hasBadge('arcade_complete')) {
+      if (awardBadge('arcade_complete')) newBadges.push('arcade_complete')
+    }
+
+    // neon_opus: arcade_complete + arcade_run
+    if (arcadeComplete && hasBadge('arcade_run') && !hasBadge('neon_opus')) {
+      if (awardBadge('neon_opus')) newBadges.push('neon_opus')
+    }
+
+    // neon_arc: arcade_complete + all 3 Calendar v15 badges
+    const calendarV15Badges: BadgeType[] = ['tetris_day', 'zelda_day', 'pac_man_day']
+    if (arcadeComplete && calendarV15Badges.every(b => hasBadge(b)) && !hasBadge('neon_arc')) {
+      if (awardBadge('neon_arc')) newBadges.push('neon_arc')
+    }
+
+    // seventeen_engines_arc: 1 badge from each Word Turn v1–v17
+    const engineSeventeenPresent = neonEarned.length >= 1
+    const allSeventeenEngines = allSixteenEngines && engineSeventeenPresent
+    if (allSeventeenEngines && !hasBadge('seventeen_engines_arc')) {
+      if (awardBadge('seventeen_engines_arc')) newBadges.push('seventeen_engines_arc')
+    }
+
+    // Mastery v17: pixel_veteran — 500+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 500 && !hasBadge('pixel_veteran')) {
+        if (awardBadge('pixel_veteran')) newBadges.push('pixel_veteran')
+      }
+    }
+
+    // Mastery v17: master_of_the_board — 40,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 40000 && !hasBadge('master_of_the_board')) {
+        if (awardBadge('master_of_the_board')) newBadges.push('master_of_the_board')
+      }
+    }
+
+    // Mastery v17: long_run_operator — Account age ≥ 8 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupLong = new Date(stats.signupDate)
+      const yearsLong = (new Date().getTime() - signupLong.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsLong >= 8 && !hasBadge('long_run_operator')) {
+        if (awardBadge('long_run_operator')) newBadges.push('long_run_operator')
+      }
+    }
+
+    // Mastery v17: seventeen_tongues — 1 badge from all 17 Word Turn engines
+    if (allSeventeenEngines && !hasBadge('seventeen_tongues')) {
+      if (awardBadge('seventeen_tongues')) newBadges.push('seventeen_tongues')
     }
 
   } catch (error) {

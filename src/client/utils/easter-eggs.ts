@@ -763,6 +763,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('bloomsday')
   }
 
+  // ── Calendar v15 — GAME DATE ARCHIVE ──────────────────────────────────────
+
+  // Tetris Day: June 6 — Tetris created by Alexey Pajitnov, 1984
+  if (!hasBadge('tetris_day') && month === 6 && day === 6) {
+    awardBadge('tetris_day')
+    awarded.push('tetris_day')
+  }
+
+  // Zelda Day: February 21 — The Legend of Zelda released in Japan, 1986
+  if (!hasBadge('zelda_day') && month === 2 && day === 21) {
+    awardBadge('zelda_day')
+    awarded.push('zelda_day')
+  }
+
+  // Pac-Man Day: May 22 — Pac-Man released in Japan, 1980
+  if (!hasBadge('pac_man_day') && month === 5 && day === 22) {
+    awardBadge('pac_man_day')
+    awarded.push('pac_man_day')
+  }
+
   return awarded
 }
 
@@ -1273,6 +1293,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bspice(s)?\b/i,                        badge: 'dune_signal' },
   { patterns: /\bpsychohistory\b/i,                    badge: 'foundation_word' },
   { patterns: /\bcyberspace\b/i,                       badge: 'neuromancer_signal' },
+  // ── v17 — THE NEON ARCADE ──────────────────────────────────────────────────
+  { patterns: /\bneon\b/i,                             badge: 'neon_alive' },
+  { patterns: /\bcombo(s)?\b/i,                        badge: 'combo_keeper' },
+  { patterns: /\bhigh[\s-]?score(s)?\b/i,              badge: 'highscore_day' },
+  { patterns: /\bfree[\s-]?play\b/i,                   badge: 'freeplay_mode' },
+  { patterns: /\b(extra[\s-]?life|1[\s-]?up)\b/i,      badge: 'extralife_log' },
+  { patterns: /\bspeed[\s-]?run(s|ning|ner)?\b/i,      badge: 'speedrun_focus' },
+  { patterns: /\bside[\s-]?quest(s)?\b/i,              badge: 'side_quest_filed' },
+  { patterns: /\bsurge(d|s|ing)?\b/i,                  badge: 'surge_detected' },
+  { patterns: /\bcartridge(s)?\b/i,                    badge: 'cartridge_nostalgia' },
+  { patterns: /\bcontinue(d|s|ing)?\b/i,               badge: 'continue_signal' },
+  { patterns: /\bjoystick(s)?\b/i,                     badge: 'joystick_held' },
+  { patterns: /\bcheckpoint(s|ed)?\b/i,                badge: 'checkpoint_saved' },
+  // ── v14 Secret Boss — THE BOSS ROOM word triggers ──────────────────────────
+  { patterns: /\bmetal[\s-]?gear\b/i,                  badge: 'kojima_signal' },
+  { patterns: /\bturing\b/i,                           badge: 'turing_key' },
+  { patterns: /\bkonami\b/i,                           badge: 'konami_code' },
 ]
 
 /**
@@ -1713,6 +1750,18 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const libraryRun = checkLibraryRun()
   if (libraryRun) awarded.push(libraryRun)
 
+  // Behavioral v14: arcade run (5+ Neon Arcade words in one entry)
+  const arcadeRun = checkArcadeRun(journalText)
+  if (arcadeRun) awarded.push(arcadeRun)
+
+  // Behavioral v14: quarter drop (check in midnight–01:00)
+  const quarterDrop = checkQuarterDrop()
+  if (quarterDrop) awarded.push(quarterDrop)
+
+  // Behavioral v14: three lives left (journal after 3+ day gap)
+  const threeLives = checkThreeLivesLeft()
+  if (threeLives) awarded.push(threeLives)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -2043,6 +2092,79 @@ export function checkDeepDecoder(answerText: string): BadgeType | null {
     awardBadge('deep_decoder')
     return 'deep_decoder'
   }
+  return null
+}
+
+// ── Behavioral Easter Egg v14 — Arcade Patterns ──────────────────────────────
+
+const ARCADE_WORDS_V17 = [
+  /\bneon\b/i,
+  /\bcombo(s)?\b/i,
+  /\bhigh[\s-]?score(s)?\b/i,
+  /\bfree[\s-]?play\b/i,
+  /\b(extra[\s-]?life|1[\s-]?up)\b/i,
+  /\bspeed[\s-]?run(s|ning|ner)?\b/i,
+  /\bside[\s-]?quest(s)?\b/i,
+  /\bsurge(d|s|ing)?\b/i,
+  /\bcartridge(s)?\b/i,
+  /\bcontinue(d|s|ing)?\b/i,
+  /\bjoystick(s)?\b/i,
+  /\bcheckpoint(s|ed)?\b/i,
+]
+
+/**
+ * Award arcade_run badge if 5+ distinct Neon Arcade (v17) words appear in one entry.
+ * Call when a journal entry is saved.
+ */
+export function checkArcadeRun(journalText: string): BadgeType | null {
+  if (hasBadge('arcade_run')) return null
+  const matchCount = ARCADE_WORDS_V17.filter(r => r.test(journalText)).length
+  if (matchCount >= 5) {
+    awardBadge('arcade_run')
+    return 'arcade_run'
+  }
+  return null
+}
+
+/**
+ * Award quarter_drop badge when checking in between midnight and 01:00 local.
+ * Call at check-in time.
+ */
+export function checkQuarterDrop(): BadgeType | null {
+  if (hasBadge('quarter_drop')) return null
+  const h = new Date().getHours()
+  if (h === 0) {
+    awardBadge('quarter_drop')
+    return 'quarter_drop'
+  }
+  return null
+}
+
+/**
+ * Award three_lives_left badge when a journal entry is written after a 3+ day gap.
+ * Reads journal_dates localStorage key (array of ISO date strings).
+ * Call when a journal entry is saved.
+ */
+export function checkThreeLivesLeft(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('three_lives_left')) return null
+
+  try {
+    const stored = localStorage.getItem('journal_dates')
+    if (!stored) return null
+    const raw: string[] = JSON.parse(stored)
+    const dates = Array.from(new Set(raw.map(d => d.slice(0, 10)))).sort().reverse()
+    if (dates.length < 2) return null
+
+    const latest = new Date(dates[0])
+    const previous = new Date(dates[1])
+    const gapDays = Math.round((latest.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24))
+    if (gapDays >= 3) {
+      awardBadge('three_lives_left')
+      return 'three_lives_left'
+    }
+  } catch { /* non-critical */ }
+
   return null
 }
 
