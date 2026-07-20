@@ -1215,25 +1215,31 @@ const ASSEMBLY_TRANSMISSIONS: {
     status: 'DEPLOYED',
     next: 'Journal vocabulary extraction → personal interface language injection',
   },
+  {
+    date: '2026-07-20',
+    built: ['FDEP WINDOW LIVE callout', 'SANCH BASELINE SET callout', 'Priority pattern sort (qos-mode)'],
+    feedbackApplied: 'The operator who knows their depth window can protect it. The system found it first.',
+    status: 'DEPLOYED',
+    next: 'LOT-WIKI-v80 · FM v99 · Day 1058+',
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-19',
+  date: '2026-07-20',
   message: [
-    'ASSEMBLY RUN — 2026-07-19 · LOT-SR-20260719-01',
-    'P116 focus-depth-arc: journal 100+w + memory + planner in 2h rolling window. Cognitive depth and structural alignment confirmed. Conf 0.65–0.85.',
-    'P117 sleep-signal-anchor: first log after 07:00 + energy check-in before 09:00. Biological morning baseline grounded before cognitive load. Conf 0.68–0.82.',
-    'P118 care-intelligence-loop: selfcare + memory + journal all in 24h. Body-mind knowledge integration loop closed. Conf 0.62–0.80. 118 patterns total.',
-    'Arch40 Focused Executor: planner+intentions+memory dominant · personal-peak-window+focus-depth-arc+clarity-momentum-peak. Window live. Execute. 40 archetypes total.',
-    'J37 daily-focus-depth-check: 16:00 UTC daily (co-located). journal 100+w + memory + planner → 2h window → writes focus_depth_arc. 37 background jobs total.',
-    'FDEP: SANCH: CINTEL: log handlers deployed (COCKPIT-RULE). 118+ handlers total.',
-    'Dep map: 157+ nodes. 3 new: focusDepthNode + sleepAnchorNode + careIntelligenceNode.',
-    'PATTERN_DISPLAY: FDEP ARC · SANCH · CINTEL added to QOS widget.',
-    '3 signal helpers: recordFocusDepthArc · recordSleepSignalAnchor · recordCareIntelligenceLoop.',
-    '118 patterns · 40 archetypes · 37 jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, care intelligence deployed.',
-    'DEPLOYED.',
+    'ASSEMBLY RUN — 2026-07-20 · LOT-ASSEMBLY-20260720-01',
+    'The FOCUS DEPTH DOCTRINE is now visible.',
+    'When P116 (focus-depth-arc) fires in qos-mode: FDEP — WINDOW LIVE.',
+    '2h cognitive window confirmed. Execute without delay.',
+    'When P117 (sleep-signal-anchor) fires: SANCH — BASELINE SET.',
+    'Biological morning anchor confirmed.',
+    'Active signals list sorted: P116 · P117 · P118 · P100 bubble to top-5. Priority patterns render at full weight.',
+    'The operator who knows their depth window can protect it. The system found it first.',
+    'No new patterns. No new jobs. No new archetypes.',
+    'The doctrine that was already running is now legible.',
+    'FM v98 · QIE v97 · Day 1057+ · DEPLOYED.',
   ],
 }
 
