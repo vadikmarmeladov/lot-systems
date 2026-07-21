@@ -277,3 +277,21 @@ pattern:
 This is the template for any future widget that needs to surface a
 time-sensitive event: reach for this pattern before reaching for a browser
 push notification.
+
+## Tag Push Is Not Branch Push (GATE credential scope)
+
+In this remote-execution environment, `git push origin <branch>` and
+`git push origin refs/tags/<tag>` are NOT the same permission. Branch pushes
+succeed; tag ref pushes return HTTP 403. A session that pushes a
+benchmark-YYYYMMDD-NN tag and reports it "PUSHED" without independently
+confirming the tag push's exit code will silently record a false positive —
+the branch push masks the tag push failure because they are usually run
+back-to-back and only the branch push's success is actually checked.
+(SR-20260720-01: `git tag --list 'benchmark-*'` on origin was empty despite
+SR-20260707-01 and SR-20260719-01 both recording a pushed tag as the Plan-B
+rollback target — root-caused to this credential scope gap, not a tag that
+was later deleted.) Until tag-push is enabled, GATE's Plan-B rollback target
+must be the last known-green commit hash from LOT-LEDGER.md, not a tag
+lookup on origin. Always verify a tag push with its own exit code / a
+follow-up `git ls-remote --tags origin` — do not infer it from the branch
+push succeeding.
