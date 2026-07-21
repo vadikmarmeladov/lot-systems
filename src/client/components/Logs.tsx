@@ -980,6 +980,77 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'action_to_memory_loop') {
+          const plannerCount   = log.metadata?.plannerCount   as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const memoryCount    = log.metadata?.memoryCount    as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ACTMEM:" blockView>
+                <div className="uppercase tracking-widest mb-4">ACTION-TO-MEMORY LOOP</div>
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN 6H: {plannerCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT 6H: {intentionCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 6H: {memoryCount}</div>
+                )}
+                <div className="opacity-40">PIPELINE: ACT → ENC → ARC</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'sustained_resilience_arc') {
+          const activeDays      = log.metadata?.activeDays      as number | undefined
+          const resilienceCount = log.metadata?.resilienceCount as number | undefined
+          const confidence      = log.metadata?.confidence      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RECARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">SUSTAINED RESILIENCE ARC</div>
+                {activeDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">DAYS 7D: {activeDays}</div>
+                )}
+                {resilienceCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">RES-SIG: {resilienceCount}</div>
+                )}
+                <div className="opacity-40">WINDOW: 7D</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'mood_energy_convergence') {
+          const moodSignal    = log.metadata?.moodSignal    as string | undefined
+          const energyBand    = log.metadata?.energyBand    as string | undefined
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MOEARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">MOOD-ENERGY CONVERGENCE</div>
+                {moodSignal && (
+                  <div className="opacity-60 tabular-nums">MOOD: {moodSignal.toUpperCase()}</div>
+                )}
+                {energyBand && (
+                  <div className="opacity-60 tabular-nums">ATP: {energyBand.toUpperCase()}</div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 8H: {selfcareCount}</div>
+                )}
+                <div className="opacity-40">DUAL-SUBSTRATE PEAK</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

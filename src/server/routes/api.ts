@@ -1173,6 +1173,10 @@ export default async (fastify: FastifyInstance) => {
       'morning_coherence_arc',
       'signal_density_peak',
       'physiological_coherence_window',
+      // v100: action-to-memory loop · sustained resilience arc · mood-energy convergence (P122/P123/P124)
+      'action_to_memory_loop',
+      'sustained_resilience_arc',
+      'mood_energy_convergence',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

@@ -1201,6 +1201,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '121 patterns · 41 archetypes · 38 background jobs · 121+ handlers · 160+ dep nodes. Morning coherence, signal density, physiological coherence deployed.',
     ],
   },
+  {
+    date: '2026-07-21',
+    session: 'Self-Assembly Session — v100 / P122–P124 · Arch42 Knowledge Crystallizer · J39 Action-Memory Scan · ACTMEM: RECARC: MOEARC: · Dep Map 163+',
+    assembled: [
+      'intentionEngine.ts: P122 action-to-memory-loop — planner/intentions + memory in 6h window. Execution crystallized into retrievable knowledge. Action → encoding → archive pipeline. Conf 0.64–0.86. suggestedWidget: memory.',
+      'intentionEngine.ts: P123 sustained-resilience-arc — resilience on 3+ distinct days in 7d. Structural durability confirmed. Not episodic coping — a built-in operational recovery pattern. Conf 0.62–0.86. suggestedWidget: selfcare.',
+      'intentionEngine.ts: P124 mood-energy-convergence — positive mood + high/moderate energy + selfcare in 8h. Physical and affective substrates simultaneously aligned. Dual-substrate peak. Conf 0.67–0.88. suggestedWidget: energy. 124 patterns total.',
+      'intentionEngine.ts: Arch42 Knowledge Crystallizer — energyBands high+moderate · dominantSources memory+planner+journal · patternConditions action-to-memory-loop+intention-completion-loop+embodied-cognition-arc. Directive: Crystallize. 42 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: actionMemoryNode (5 deps) · sustainedResilienceNode (3 deps) · moodEnergyConvergeNode (4 deps). 163+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers — recordActionToMemoryLoop · recordSustainedResilienceArc · recordMoodEnergyConvergence.',
+      'Logs.tsx: ACTMEM: · RECARC: · MOEARC: handlers deployed (COCKPIT-RULE). Military header + opacity hierarchy. 124+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 PATTERN_DISPLAY entries — action-to-memory-loop (ACTMEM) · sustained-resilience-arc (RECARC) · mood-energy-convergence (MOEARC).',
+      'scheduled-jobs.ts: J39 daily-action-memory-scan — 20:00 UTC daily. planner/intention + memory in 6h → action_to_memory_loop. 39 background jobs total.',
+      'routes/api.ts: action_to_memory_loop + sustained_resilience_arc + mood_energy_convergence added to displayableEvents (v100 block).',
+      '124 patterns · 42 archetypes · 39 background jobs · 124+ handlers · 163+ dep nodes. Action-memory crystallization, sustained resilience, mood-energy convergence deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1238,20 +1255,20 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-20',
+  date: '2026-07-21',
   message: [
-    'ASSEMBLY RUN — 2026-07-20 · v99 · LOT-SR-20260720-01',
-    'P119 morning-coherence-arc: energy + planner + intentions all before 10:00. Full dawn ramp — body, plan, direction locked before cognitive load. Conf 0.65–0.87.',
-    'P120 signal-density-peak: 6+ distinct signal sources in 12h. Full-spectrum operating bandwidth confirmed. Maximum engagement breadth. Conf 0.68–0.90.',
-    'P121 physiological-coherence-window: energy=high + selfcare 2+ + positive mood + memory in 12h. Body-mind substrate simultaneously at peak. Conf 0.70–0.88. 121 patterns total.',
-    'Arch41 Signal Breadth Operator: journal+memory+energy dominant · signal-density-peak+full-system-coherence+cross-domain-mastery. Full bandwidth. 41 archetypes total.',
-    'J38 daily-morning-coherence-check: 06:00 UTC daily. energy + planner + intentions before 10:00 → writes morning_coherence_arc. 38 background jobs total.',
-    'MCOHERE: SIGPEAK: PCOHERE: log handlers deployed (COCKPIT-RULE). Military style tightened: CEXP: + BIOARC:. 121+ handlers total.',
-    'Dep map: 160+ nodes. 3 new: morningCoherenceNode (4 deps) + signalDensityNode (8 deps) + physiologicalCoherenceNode (5 deps).',
-    'PATTERN_DISPLAY: MCOHERE · SIGPEAK · PCOHERE added to QOS widget.',
-    '3 signal helpers: recordMorningCoherenceArc · recordSignalDensityPeak · recordPhysiologicalCoherenceWindow.',
-    'PatternRecognitionWidget: P116–P121 named (6 entries). routes/api.ts: v99 block added.',
-    '121 patterns · 41 archetypes · 38 jobs · 121+ handlers · 160+ dep nodes. Morning coherence, signal density, physiological coherence window deployed.',
+    'ASSEMBLY RUN — 2026-07-21 · v100 · LOT-SR-20260721-01',
+    'P122 action-to-memory-loop: planner/intentions + memory in 6h. Every action crystallized into retrievable knowledge. ACT → ENC → ARC pipeline. Conf 0.64–0.86.',
+    'P123 sustained-resilience-arc: resilience active on 3+ distinct days in 7d. Structural durability. Not episodic coping — a built-in operational recovery pattern. Conf 0.62–0.86.',
+    'P124 mood-energy-convergence: positive mood + high/moderate energy + selfcare in 8h. Physical and affective substrates simultaneously aligned. Dual-substrate peak. Conf 0.67–0.88. 124 patterns total.',
+    'Arch42 Knowledge Crystallizer: memory+planner+journal dominant · action-to-memory-loop+intention-completion-loop+embodied-cognition-arc. Directive: Crystallize. 42 archetypes total.',
+    'J39 daily-action-memory-scan: 20:00 UTC daily. planner/intention + memory in 6h → writes action_to_memory_loop. 39 background jobs total.',
+    'ACTMEM: RECARC: MOEARC: log handlers deployed (COCKPIT-RULE). Military header + opacity hierarchy. 124+ handlers total.',
+    'Dep map: 163+ nodes. 3 new: actionMemoryNode (5 deps) + sustainedResilienceNode (3 deps) + moodEnergyConvergeNode (4 deps).',
+    'PATTERN_DISPLAY: ACTMEM · RECARC · MOEARC added to QOS widget.',
+    '3 signal helpers: recordActionToMemoryLoop · recordSustainedResilienceArc · recordMoodEnergyConvergence.',
+    'routes/api.ts: v100 block — action_to_memory_loop + sustained_resilience_arc + mood_energy_convergence.',
+    '124 patterns · 42 archetypes · 39 jobs · 124+ handlers · 163+ dep nodes. Action-memory crystallization, sustained resilience, mood-energy convergence deployed.',
     'DEPLOYED.',
   ],
 }

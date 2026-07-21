@@ -1707,6 +1707,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyMorningCoherenceCheck()) {
     await executeDailyMorningCoherenceCheck()
   }
+  // Check daily action-memory scan (20:00 UTC every day) — Job 39
+  if (shouldRunDailyActionMemoryScan()) {
+    await executeDailyActionMemoryScan()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -1795,6 +1799,93 @@ async function executeDailyMorningCoherenceCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily morning coherence check failed:', error.message)
     isDailyMorningCoherenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Action-Memory Scan (Job 39 — 20:00 UTC every day) ─────────────────
+// Reads active users. Looks for planner/intention + memory logs in a 6h rolling
+// window. When both action and memory are present, writes action_to_memory_loop.
+// Confirms knowledge crystallization pipeline: action → encoding → archive.
+
+let isDailyActionMemoryRunning = false
+let lastDailyActionMemoryRun: Date | null = null
+
+function shouldRunDailyActionMemoryScan(): boolean {
+  const now = dayjs()
+  if (isDailyActionMemoryRunning) return false
+  if (lastDailyActionMemoryRun) {
+    const lastRun = dayjs(lastDailyActionMemoryRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 20 // 20:00 UTC daily
+}
+
+async function executeDailyActionMemoryScan(): Promise<JobResult> {
+  const jobName = 'daily-action-memory-scan'
+  const executedAt = new Date().toISOString()
+  if (isDailyActionMemoryRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyActionMemoryRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY ACTION-MEMORY SCAN — 20:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    const sixHoursAgo = dayjs().subtract(6, 'hour').toDate()
+
+    for (const user of activeUsers) {
+      try {
+        const recentLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: sixHoursAgo },
+            event: { [Op.in]: ['plan_set', 'planner_entry', 'intention', 'memory_question', 'memory_answer', 'memory_capture'] },
+          },
+        })
+
+        const plannerLogs   = recentLogs.filter(l => ['plan_set', 'planner_entry'].includes((l as any).event as string))
+        const intentionLogs = recentLogs.filter(l => (l as any).event === 'intention')
+        const memoryLogs    = recentLogs.filter(l => ['memory_question', 'memory_answer', 'memory_capture'].includes((l as any).event as string))
+        const actionCount   = plannerLogs.length + intentionLogs.length
+
+        if (actionCount >= 1 && memoryLogs.length >= 1) {
+          await Log.create({
+            userId: (user as any).id,
+            event: 'action_to_memory_loop' as any,
+            text: `Action-to-memory loop: planner/intention + memory capture confirmed in 6h window.`,
+            metadata: {
+              plannerCount: plannerLogs.length,
+              intentionCount: intentionLogs.length,
+              memoryCount: memoryLogs.length,
+              window: '6h',
+              confidence: Math.min(0.64 + memoryLogs.length * 0.05 + actionCount * 0.03, 0.86),
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Action-to-memory loop events written: ${written}`)
+    lastDailyActionMemoryRun = new Date()
+    isDailyActionMemoryRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily action-memory scan failed:', error.message)
+    isDailyActionMemoryRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

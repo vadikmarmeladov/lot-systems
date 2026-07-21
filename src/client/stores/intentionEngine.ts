@@ -2754,6 +2754,62 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 122: Action-to-Memory Loop — planner/intentions + memory capture in a 6h
+  // rolling window. Execution crystallized immediately into retrievable knowledge. The
+  // fastest knowledge compression pathway: action → encoding → archive in one session.
+  const p122Window    = 6 * 60 * 60 * 1000
+  const p122Recent    = signals.filter(s => s.timestamp > now - p122Window)
+  const p122Planner   = p122Recent.filter(s => s.source === 'planner')
+  const p122Intention = p122Recent.filter(s => s.source === 'intentions')
+  const p122Memory    = p122Recent.filter(s => s.source === 'memory')
+  const p122Action    = p122Planner.length + p122Intention.length
+  if (p122Action >= 1 && p122Memory.length >= 1) {
+    const p122Conf = Math.min(0.64 + p122Memory.length * 0.05 + p122Action * 0.03, 0.86)
+    patterns.push({
+      pattern: 'action-to-memory-loop',
+      confidence: p122Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `ACTMEM: Action-to-memory loop — planner ${p122Planner.length} + intentions ${p122Intention.length} → memory ${p122Memory.length} in 6h. Execution crystallized into retrievable knowledge. Action → encoding → archive pipeline confirmed.`,
+    })
+  }
+
+  // Pattern 123: Sustained Resilience Arc — resilience signals on 3+ distinct days within
+  // a 7-day window. Not episodic coping — a structural durability pattern. Repeated
+  // recovery across a week confirms built-in operational resilience, not single response.
+  const p123Window  = 7 * 24 * 60 * 60 * 1000
+  const p123Recent  = signals.filter(s => s.timestamp > now - p123Window && s.source === 'resilience')
+  const p123Days    = new Set(p123Recent.map(s => new Date(s.timestamp).toDateString()))
+  if (p123Days.size >= 3) {
+    const p123Conf = Math.min(0.62 + (p123Days.size - 3) * 0.06, 0.86)
+    patterns.push({
+      pattern: 'sustained-resilience-arc',
+      confidence: p123Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `RECARC: Sustained resilience arc — resilience active on ${p123Days.size} distinct days in 7d (${p123Recent.length} total signals). Structural durability confirmed. Not episodic — a repeating operational recovery pattern.`,
+    })
+  }
+
+  // Pattern 124: Mood-Energy Convergence — positive mood + high/moderate energy + selfcare
+  // all in an 8h window. Physical substrate and affective state simultaneously aligned.
+  // Rarest dual-substrate peak: body and emotional condition both confirm optimal state.
+  const p124Window = 8 * 60 * 60 * 1000
+  const p124Recent = signals.filter(s => s.timestamp > now - p124Window)
+  const p124Mood   = p124Recent.filter(s => s.source === 'mood' && ['energized', 'hopeful', 'excited', 'calm', 'happy'].includes(s.signal))
+  const p124Energy = p124Recent.filter(s => s.source === 'energy' && ['high', 'moderate'].includes(s.signal))
+  const p124Care   = p124Recent.filter(s => s.source === 'selfcare')
+  if (p124Mood.length >= 1 && p124Energy.length >= 1 && p124Care.length >= 1) {
+    const p124Conf = Math.min(0.67 + p124Care.length * 0.04 + p124Mood.length * 0.03, 0.88)
+    patterns.push({
+      pattern: 'mood-energy-convergence',
+      confidence: p124Conf,
+      suggestedWidget: 'energy',
+      suggestedTiming: 'passive',
+      reason: `MOEARC: Mood-energy convergence — mood=${p124Mood[0].signal} + energy=${p124Energy[0].signal} + selfcare ${p124Care.length} in 8h. Physical and affective substrates simultaneously aligned. Dual-substrate peak confirmed.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3342,6 +3398,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   morningCoherenceNode:       ['energy', 'planner', 'intentions', 'log'],
   signalDensityNode:          ['mood', 'energy', 'selfcare', 'journal', 'memory', 'planner', 'intentions', 'log'],
   physiologicalCoherenceNode: ['energy', 'selfcare', 'mood', 'memory', 'log'],
+
+  // ── Action-to-memory + sustained resilience + mood-energy convergence (2026-07-21 v100)
+  actionMemoryNode:          ['planner', 'intentions', 'memory', 'journal', 'log'],
+  sustainedResilienceNode:   ['resilience', 'energy', 'log'],
+  moodEnergyConvergeNode:    ['mood', 'energy', 'selfcare', 'log'],
 }
 
 /**
@@ -3699,6 +3760,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['journal', 'memory', 'energy'],
     patternConditions: ['signal-density-peak', 'full-system-coherence', 'cross-domain-mastery'],
     directive: 'Operating at full signal bandwidth. Six or more sources active simultaneously — broadest operational state the QIE can confirm. Maintain breadth without sacrificing depth in any individual domain.',
+  },
+  // ── Arch42: Knowledge Crystallizer (2026-07-21 v100) ──────────────────────────
+  {
+    archetype: 'Knowledge Crystallizer',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['memory', 'planner', 'journal'],
+    patternConditions: ['action-to-memory-loop', 'intention-completion-loop', 'embodied-cognition-arc'],
+    directive: 'Execution and knowledge capture are unified. Every completed action becomes a retrievable insight. You are not just doing — you are building a compressible operating system from each day. Crystallize.',
   },
 ]
 
@@ -5248,6 +5317,35 @@ export function recordPhysiologicalCoherenceWindow(energyBand: string, selfcareC
     moodSignal,
     memoryCount,
     window: '12h',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordActionToMemoryLoop(plannerCount: number, memoryCount: number, intentionCount: number) {
+  recordSignal('memory', 'action_to_memory_loop', {
+    plannerCount,
+    memoryCount,
+    intentionCount,
+    window: '6h',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordSustainedResilienceArc(activeDays: number, resilienceCount: number) {
+  recordSignal('resilience', 'sustained_resilience_arc', {
+    activeDays,
+    resilienceCount,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordMoodEnergyConvergence(moodSignal: string, energyBand: string, selfcareCount: number) {
+  recordSignal('mood', 'mood_energy_convergence', {
+    moodSignal,
+    energyBand,
+    selfcareCount,
+    window: '8h',
     hour: new Date().getHours(),
   })
 }
