@@ -783,6 +783,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('pac_man_day')
   }
 
+  // ── Calendar v16 — THE SIGNAL ARCHIVE ──────────────────────────────────────
+
+  // Sputnik Day: October 4 — Sputnik 1 launched 1957, first signal from orbit
+  if (!hasBadge('sputnik_day') && month === 10 && day === 4) {
+    awardBadge('sputnik_day')
+    awarded.push('sputnik_day')
+  }
+
+  // Arecibo Day: November 16 — Arecibo message broadcast 1974
+  if (!hasBadge('arecibo_day') && month === 11 && day === 16) {
+    awardBadge('arecibo_day')
+    awarded.push('arecibo_day')
+  }
+
+  // Pioneer Plaque: March 2 — Pioneer 10 launched 1972
+  if (!hasBadge('pioneer_plaque') && month === 3 && day === 2) {
+    awardBadge('pioneer_plaque')
+    awarded.push('pioneer_plaque')
+  }
+
   return awarded
 }
 
@@ -1310,6 +1330,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bmetal[\s-]?gear\b/i,                  badge: 'kojima_signal' },
   { patterns: /\bturing\b/i,                           badge: 'turing_key' },
   { patterns: /\bkonami\b/i,                           badge: 'konami_code' },
+  // ── v18 — THE MIDNIGHT RADIO ──────────────────────────────────────────────
+  { patterns: /\bfrequenc(y|ies)\b/i,                  badge: 'frequency_held' },
+  { patterns: /\bbroadcast(ing|s|ed)?\b/i,             badge: 'broadcast_live' },
+  { patterns: /\bwavelength(s)?\b/i,                   badge: 'wavelength_match' },
+  { patterns: /\bantenna(s|e)?\b/i,                    badge: 'antenna_raised' },
+  { patterns: /\breception\b/i,                        badge: 'reception_strong' },
+  { patterns: /\btransmit(s|ted|ting)?|transmission(s)?\b/i, badge: 'transmission_sent' },
+  { patterns: /\btuned?\s*(in)?\b|\btuning\b/i,        badge: 'tuned_in' },
+  { patterns: /\bchannel(s|ed|ing)?\b/i,               badge: 'channel_open' },
+  { patterns: /\bcarrier(s)?\b/i,                      badge: 'carrier_active' },
+  { patterns: /\bamplif(y|ied|ies|ying)|amplitude(s)?\b/i, badge: 'amplitude_rising' },
+  { patterns: /\binterference\b/i,                     badge: 'interference_noted' },
+  { patterns: /\bmodulat(e|es|ed|ing|ion)\b/i,         badge: 'modulation_set' },
+  // ── v15 Secret Boss — THE DEEP SIGNAL word triggers ─────────────────────────
+  { patterns: /\bcosmos\b/i,                           badge: 'sagan_signal' },
+  { patterns: /\btesla\b/i,                            badge: 'tesla_current' },
+  { patterns: /\barecibo\b/i,                          badge: 'arecibo_response' },
 ]
 
 /**
@@ -1762,6 +1799,18 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const threeLives = checkThreeLivesLeft()
   if (threeLives) awarded.push(threeLives)
 
+  // Behavioral v15: signal peak (5+ Midnight Radio words)
+  const signalPeak = checkSignalPeak(journalText)
+  if (signalPeak) awarded.push(signalPeak)
+
+  // Behavioral v15: midnight broadcast (journal written 23:00–00:00)
+  const midnightBroadcast = checkMidnightBroadcast()
+  if (midnightBroadcast) awarded.push(midnightBroadcast)
+
+  // Behavioral v15: static clear (return after 7+ day gap)
+  const staticClear = checkStaticClear()
+  if (staticClear) awarded.push(staticClear)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -2162,6 +2211,79 @@ export function checkThreeLivesLeft(): BadgeType | null {
     if (gapDays >= 3) {
       awardBadge('three_lives_left')
       return 'three_lives_left'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Behavioral Easter Egg v15 — Broadcast Patterns ───────────────────────────
+
+const RADIO_WORDS_V18 = [
+  /\bfrequenc(y|ies)\b/i,
+  /\bbroadcast(ing|s|ed)?\b/i,
+  /\bwavelength(s)?\b/i,
+  /\bantenna(s|e)?\b/i,
+  /\breception\b/i,
+  /\btransmit(s|ted|ting)?|transmission(s)?\b/i,
+  /\btuned?\s*(in)?\b|\btuning\b/i,
+  /\bchannel(s|ed|ing)?\b/i,
+  /\bcarrier(s)?\b/i,
+  /\bamplif(y|ied|ies|ying)|amplitude(s)?\b/i,
+  /\binterference\b/i,
+  /\bmodulat(e|es|ed|ing|ion)\b/i,
+]
+
+/**
+ * Award signal_peak badge if 5+ distinct Midnight Radio (v18) words appear in one entry.
+ * Call when a journal entry is saved.
+ */
+export function checkSignalPeak(journalText: string): BadgeType | null {
+  if (hasBadge('signal_peak')) return null
+  const matchCount = RADIO_WORDS_V18.filter(r => r.test(journalText)).length
+  if (matchCount >= 5) {
+    awardBadge('signal_peak')
+    return 'signal_peak'
+  }
+  return null
+}
+
+/**
+ * Award midnight_broadcast badge when a journal entry is written between 23:00–00:00 local.
+ * Call when a journal entry is saved.
+ */
+export function checkMidnightBroadcast(): BadgeType | null {
+  if (hasBadge('midnight_broadcast')) return null
+  const h = new Date().getHours()
+  if (h === 23) {
+    awardBadge('midnight_broadcast')
+    return 'midnight_broadcast'
+  }
+  return null
+}
+
+/**
+ * Award static_clear badge when returning to journaling after a 7+ day gap.
+ * Reads journal_dates localStorage key (array of ISO date strings).
+ * Call when a journal entry is saved.
+ */
+export function checkStaticClear(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('static_clear')) return null
+
+  try {
+    const stored = localStorage.getItem('journal_dates')
+    if (!stored) return null
+    const raw: string[] = JSON.parse(stored)
+    const dates = Array.from(new Set(raw.map(d => d.slice(0, 10)))).sort().reverse()
+    if (dates.length < 2) return null
+
+    const latest = new Date(dates[0])
+    const previous = new Date(dates[1])
+    const gapDays = Math.round((latest.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24))
+    if (gapDays >= 7) {
+      awardBadge('static_clear')
+      return 'static_clear'
     }
   } catch { /* non-critical */ }
 

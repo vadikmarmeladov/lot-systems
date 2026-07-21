@@ -597,6 +597,43 @@ export type BadgeType =
   | 'kojima_signal'            // ≡·◉   Write "metal gear" in journal — Hideo Kojima (RARE)
   | 'turing_key'               // ◉·≡   Write "turing" in journal — Alan Turing (EPIC)
   | 'konami_code'              // ↑↑↓↓  Write "konami" in journal — The Code (MYTHIC)
+  // ── Word Turn v18 — THE MIDNIGHT RADIO ──────────────────────────────────────
+  | 'frequency_held'          // ≋·≋·≋  "frequency/frequencies" detected (RARE)
+  | 'broadcast_live'          // ◉→◉→◉  "broadcast/broadcasting" detected (RARE)
+  | 'wavelength_match'        // ∿·∿    "wavelength" detected (RARE)
+  | 'antenna_raised'          // ↑·≡    "antenna" detected (UNCOMMON)
+  | 'reception_strong'        // ≡≡→◉   "reception" detected (RARE)
+  | 'transmission_sent'       // ◉→∞    "transmission/transmit" detected (RARE)
+  | 'tuned_in'                // ○·≋    "tuned/tuning/tune in" detected (UNCOMMON)
+  | 'channel_open'            // ≡·▒    "channel" detected (UNCOMMON)
+  | 'carrier_active'          // ∿→◉    "carrier" detected (UNCOMMON)
+  | 'amplitude_rising'        // ▲·▲·▲  "amplify/amplitude" detected (RARE)
+  | 'interference_noted'      // ≋·✕·≋  "interference" detected (RARE)
+  | 'modulation_set'          // ≋·○·≋  "modulate/modulation" detected (RARE)
+  // ── Calendar Easter Egg v16 — THE SIGNAL ARCHIVE ────────────────────────────
+  | 'sputnik_day'             // ∘·∘·∘  Oct 4  Sputnik 1, 1957 (EPIC)
+  | 'arecibo_day'             // ∞→∞    Nov 16 Arecibo message, 1974 (MYTHIC)
+  | 'pioneer_plaque'          // ○→∞    Mar 2  Pioneer 10 launch, 1972 (RARE)
+  // ── Behavioral Easter Egg v15 — BROADCAST PATTERNS ──────────────────────────
+  | 'signal_peak'             // ≋→∞    5+ Midnight Radio words in one entry (RARE)
+  | 'midnight_broadcast'      // ◉·▒    Journal written 23:00–00:00 local (RARE)
+  | 'static_clear'            // ░→□·◉  Return to journal after 7+ day gap (RARE)
+  // ── Achievement RPG v16 — BROADCAST CLASS ────────────────────────────────────
+  | 'radio_entry'             // ○→≋    Any 1 Word Turn v18 badge (COMMON)
+  | 'radio_class'             // ≈→≋    Any 5 Word Turn v18 badges (UNCOMMON)
+  | 'radio_complete'          // ≋→∞·≋  All 12 Word Turn v18 badges (LEGENDARY)
+  | 'signal_arc'              // ∞·◈·≋  radio_complete + all Calendar v16 badges (LEGENDARY)
+  | 'eighteen_engines_arc'    // ◈·◈·≋  1 badge from each Word Turn v1–v18 (LEGENDARY)
+  | 'broadcast_opus'          // ≋·◉·∞  radio_complete + signal_peak (LEGENDARY)
+  // ── Mastery Tier v18 — THE TOWER ─────────────────────────────────────────────
+  | 'signal_tower'            // ↑·≋·∞  600+ distinct calendar check-in days (EPIC)
+  | 'grand_broadcaster'       // ◉·∞·◉  60,000+ total journal words (LEGENDARY)
+  | 'transmission_age'        // ∿→∞    Account age ≥ 10 years (LEGENDARY)
+  | 'eighteen_frequencies'    // ◈·◈·≋·∞ 1 badge from all 18 Word Turn engines (COSMIC)
+  // ── Secret Boss v15 — THE DEEP SIGNAL ────────────────────────────────────────
+  | 'sagan_signal'            // ∘·∞    Write "cosmos" in journal — Carl Sagan (RARE)
+  | 'tesla_current'           // ≋·◉    Write "tesla" in journal — Nikola Tesla (EPIC)
+  | 'arecibo_response'        // ∞·∞·∞  Write "arecibo" in journal — The Great Dish (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -5456,6 +5493,322 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v18 — THE MIDNIGHT RADIO ──────────────────────────────────────
+  frequency_held: {
+    id: 'frequency_held',
+    symbol: '≋·≋·≋',
+    name: 'Frequency Held',
+    description: 'Write "frequency" or "frequencies" in any journal or memory entry',
+    unlockMessage: '↳ You found your rhythm. The signal holds at your frequency. ≋·≋·≋',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  broadcast_live: {
+    id: 'broadcast_live',
+    symbol: '◉→◉→◉',
+    name: 'Broadcast Live',
+    description: 'Write "broadcast" or "broadcasting" in any journal or memory entry',
+    unlockMessage: '↳ The journal is a transmitter. You have been on the air this whole time. ◉→◉→◉',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  wavelength_match: {
+    id: 'wavelength_match',
+    symbol: '∿·∿',
+    name: 'Wavelength Match',
+    description: 'Write "wavelength" in any journal or memory entry',
+    unlockMessage: '↳ No translation required. You are understood at the source. ∿·∿',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  antenna_raised: {
+    id: 'antenna_raised',
+    symbol: '↑·≡',
+    name: 'Antenna Raised',
+    description: 'Write "antenna" in any journal or memory entry',
+    unlockMessage: '↳ Open posture. Raised toward signal. Ready to receive. ↑·≡',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  reception_strong: {
+    id: 'reception_strong',
+    symbol: '≡≡→◉',
+    name: 'Reception Strong',
+    description: 'Write "reception" in any journal or memory entry',
+    unlockMessage: '↳ The signal is getting through. Your reception is clear. ≡≡→◉',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  transmission_sent: {
+    id: 'transmission_sent',
+    symbol: '◉→∞',
+    name: 'Transmission Sent',
+    description: 'Write "transmission" or "transmit" in any journal or memory entry',
+    unlockMessage: '↳ Sent. The signal is in the medium now. ◉→∞',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  tuned_in: {
+    id: 'tuned_in',
+    symbol: '○·≋',
+    name: 'Tuned In',
+    description: 'Write "tuned", "tuning", or "tune in" in any journal or memory entry',
+    unlockMessage: '↳ Before you play, you tune. That is the practice. ○·≋',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  channel_open: {
+    id: 'channel_open',
+    symbol: '≡·▒',
+    name: 'Channel Open',
+    description: 'Write "channel" in any journal or memory entry',
+    unlockMessage: '↳ The channel is clear. The path your energy flows through is open. ≡·▒',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  carrier_active: {
+    id: 'carrier_active',
+    symbol: '∿→◉',
+    name: 'Carrier Active',
+    description: 'Write "carrier" in any journal or memory entry',
+    unlockMessage: '↳ You are the carrier wave. The content changes. The carrier persists. ∿→◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  amplitude_rising: {
+    id: 'amplitude_rising',
+    symbol: '▲·▲·▲',
+    name: 'Amplitude Rising',
+    description: 'Write "amplify" or "amplitude" in any journal or memory entry',
+    unlockMessage: '↳ Choose what gets volume. Amplify the signal that matters. ▲·▲·▲',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  interference_noted: {
+    id: 'interference_noted',
+    symbol: '≋·✕·≋',
+    name: 'Interference Noted',
+    description: 'Write "interference" in any journal or memory entry',
+    unlockMessage: '↳ You named the noise. Naming interference is the first step to clarity. ≋·✕·≋',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  modulation_set: {
+    id: 'modulation_set',
+    symbol: '≋·○·≋',
+    name: 'Modulation Set',
+    description: 'Write "modulate" or "modulation" in any journal or memory entry',
+    unlockMessage: '↳ The signal bends. The practice of changing how you broadcast. ≋·○·≋',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  // ── Calendar Easter Egg v16 — THE SIGNAL ARCHIVE ────────────────────────────
+  sputnik_day: {
+    id: 'sputnik_day',
+    symbol: '∘·∘·∘',
+    name: 'Sputnik Day',
+    description: 'Check in on October 4 — Sputnik 1 launched 1957, the first signal from orbit',
+    unlockMessage: '↳ Beep. Beep. Beep. The first human signal from orbit. October 4, 1957. ∘·∘·∘',
+    rarity: 'epic',
+    category: 'calendar',
+    hidden: false,
+  },
+  arecibo_day: {
+    id: 'arecibo_day',
+    symbol: '∞→∞',
+    name: 'Arecibo Day',
+    description: 'Check in on November 16 — Arecibo message broadcast 1974',
+    unlockMessage: '↳ 1,679 bits aimed at M13. We called the cosmos. No answer. We sent it anyway. ∞→∞',
+    rarity: 'mythic',
+    category: 'calendar',
+    hidden: false,
+  },
+  pioneer_plaque: {
+    id: 'pioneer_plaque',
+    symbol: '○→∞',
+    name: 'Pioneer Plaque',
+    description: 'Check in on March 2 — Pioneer 10 launched 1972, first message to the stars',
+    unlockMessage: '↳ A gold plate etched with our shape, our star, our greeting. Still moving. ○→∞',
+    rarity: 'rare',
+    category: 'calendar',
+    hidden: false,
+  },
+  // ── Behavioral Easter Egg v15 — BROADCAST PATTERNS ──────────────────────────
+  signal_peak: {
+    id: 'signal_peak',
+    symbol: '≋→∞',
+    name: 'Signal Peak',
+    description: 'Write 5+ distinct Midnight Radio (v18) vocabulary words in a single journal entry',
+    unlockMessage: '↳ Signal peak. Your journal is the broadcast tonight. ≋→∞',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  midnight_broadcast: {
+    id: 'midnight_broadcast',
+    symbol: '◉·▒',
+    name: 'Midnight Broadcast',
+    description: 'Write a journal entry between 23:00 and 00:00 local time',
+    unlockMessage: '↳ 11 PM. The noise is lowest now. The signal comes through cleanest at the edge. ◉·▒',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  static_clear: {
+    id: 'static_clear',
+    symbol: '░→□·◉',
+    name: 'Static Clear',
+    description: 'Return to journaling after a 7+ day absence',
+    unlockMessage: '↳ The gap was real. The return is the signal breaking through. Static cleared. ░→□·◉',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  // ── Achievement RPG v16 — BROADCAST CLASS ────────────────────────────────────
+  radio_entry: {
+    id: 'radio_entry',
+    symbol: '○→≋',
+    name: 'Radio Entry',
+    description: 'Earn any 1 Word Turn v18 (Midnight Radio) badge',
+    unlockMessage: '↳ The dial moved. The frequency registered. First signal in. ○→≋',
+    rarity: 'common',
+    category: 'achievement',
+    hidden: false,
+  },
+  radio_class: {
+    id: 'radio_class',
+    symbol: '≈→≋',
+    name: 'Radio Class',
+    description: 'Earn any 5 Word Turn v18 (Midnight Radio) badges',
+    unlockMessage: '↳ Five frequencies identified. The broadcast has range. ≈→≋',
+    rarity: 'uncommon',
+    category: 'achievement',
+    hidden: false,
+  },
+  radio_complete: {
+    id: 'radio_complete',
+    symbol: '≋→∞·≋',
+    name: 'Radio Complete',
+    description: 'Earn all 12 Word Turn v18 (Midnight Radio) badges',
+    unlockMessage: '↳ Full spectrum. All twelve frequencies of the Midnight Radio, logged. ≋→∞·≋',
+    rarity: 'legendary',
+    category: 'achievement',
+    hidden: false,
+  },
+  signal_arc: {
+    id: 'signal_arc',
+    symbol: '∞·◈·≋',
+    name: 'Signal Arc',
+    description: 'Earn radio_complete and all 3 Calendar v16 (Signal Archive) badges',
+    unlockMessage: '↳ The full signal arc: Sputnik, Arecibo, Pioneer. And you. ∞·◈·≋',
+    rarity: 'legendary',
+    category: 'achievement',
+    hidden: false,
+  },
+  eighteen_engines_arc: {
+    id: 'eighteen_engines_arc',
+    symbol: '◈·◈·≋',
+    name: 'Eighteen Engines Arc',
+    description: 'Earn at least 1 badge from each of the 18 Word Turn engines (v1–v18)',
+    unlockMessage: '↳ Eighteen vocabularies assembled. The full engine map is yours. ◈·◈·≋',
+    rarity: 'legendary',
+    category: 'achievement',
+    hidden: false,
+  },
+  broadcast_opus: {
+    id: 'broadcast_opus',
+    symbol: '≋·◉·∞',
+    name: 'Broadcast Opus',
+    description: 'Earn radio_complete and the signal_peak behavioral badge',
+    unlockMessage: '↳ Complete vocabulary. Peak broadcast achieved. The opus is the signal. ≋·◉·∞',
+    rarity: 'legendary',
+    category: 'achievement',
+    hidden: false,
+  },
+  // ── Mastery Tier v18 — THE TOWER ─────────────────────────────────────────────
+  signal_tower: {
+    id: 'signal_tower',
+    symbol: '↑·≋·∞',
+    name: 'Signal Tower',
+    description: '600+ distinct calendar days with a check-in',
+    unlockMessage: '↳ 600 days. The tallest mast. The signal reaches further from here. ↑·≋·∞',
+    rarity: 'epic',
+    category: 'mastery',
+    hidden: false,
+  },
+  grand_broadcaster: {
+    id: 'grand_broadcaster',
+    symbol: '◉·∞·◉',
+    name: 'Grand Broadcaster',
+    description: '60,000+ total journal words written',
+    unlockMessage: '↳ 60,000 words transmitted. The archive is the broadcast. ◉·∞·◉',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: false,
+  },
+  transmission_age: {
+    id: 'transmission_age',
+    symbol: '∿→∞',
+    name: 'Transmission Age',
+    description: 'Account age of 10+ years (3,650+ days)',
+    unlockMessage: '↳ Ten years of signal. The transmission predates most of what you know now. ∿→∞',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: false,
+  },
+  eighteen_frequencies: {
+    id: 'eighteen_frequencies',
+    symbol: '◈·◈·≋·∞',
+    name: 'Eighteen Frequencies',
+    description: 'Earn at least 1 badge from each of all 18 Word Turn engines',
+    unlockMessage: '↳ Eighteen frequencies. The full spectrum assembled. You hold every wavelength the archive has named. ◈·◈·≋·∞',
+    rarity: 'cosmic',
+    category: 'mastery',
+    hidden: false,
+  },
+  // ── Secret Boss v15 — THE DEEP SIGNAL ────────────────────────────────────────
+  sagan_signal: {
+    id: 'sagan_signal',
+    symbol: '∘·∞',
+    name: 'Sagan Signal',
+    description: 'Write "cosmos" in any journal or memory entry — Carl Sagan',
+    unlockMessage: '↳ "The cosmos is within us. We are made of star-stuff." — Sagan, 1980. ∘·∞',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  tesla_current: {
+    id: 'tesla_current',
+    symbol: '≋·◉',
+    name: 'Tesla Current',
+    description: 'Write "tesla" in any journal or memory entry — Nikola Tesla',
+    unlockMessage: '↳ Tesla tried to broadcast free energy to the whole world. No receiver required. ≋·◉',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  arecibo_response: {
+    id: 'arecibo_response',
+    symbol: '∞·∞·∞',
+    name: 'Arecibo Response',
+    description: 'Write "arecibo" in any journal or memory entry — The Great Dish, 1974',
+    unlockMessage: '↳ We broadcast in 1974. Still waiting. You wrote "arecibo". The system responds. ∞·∞·∞',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -6093,6 +6446,71 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     // Mastery v17: seventeen_tongues — 1 badge from all 17 Word Turn engines
     if (allSeventeenEngines && !hasBadge('seventeen_tongues')) {
       if (awardBadge('seventeen_tongues')) newBadges.push('seventeen_tongues')
+    }
+
+    // ── v18 Midnight Radio — Achievement RPG v16 ─────────────────────────────
+    const radioV18Badges: BadgeType[] = [
+      'frequency_held', 'broadcast_live', 'wavelength_match', 'antenna_raised',
+      'reception_strong', 'transmission_sent', 'tuned_in', 'channel_open',
+      'carrier_active', 'amplitude_rising', 'interference_noted', 'modulation_set',
+    ]
+    const radioEarned = radioV18Badges.filter(b => hasBadge(b))
+
+    if (radioEarned.length >= 1 && !hasBadge('radio_entry')) {
+      if (awardBadge('radio_entry')) newBadges.push('radio_entry')
+    }
+    if (radioEarned.length >= 5 && !hasBadge('radio_class')) {
+      if (awardBadge('radio_class')) newBadges.push('radio_class')
+    }
+    const radioComplete = radioEarned.length >= 12
+    if (radioComplete && !hasBadge('radio_complete')) {
+      if (awardBadge('radio_complete')) newBadges.push('radio_complete')
+    }
+
+    // broadcast_opus: radio_complete + signal_peak
+    if (radioComplete && hasBadge('signal_peak') && !hasBadge('broadcast_opus')) {
+      if (awardBadge('broadcast_opus')) newBadges.push('broadcast_opus')
+    }
+
+    // signal_arc: radio_complete + all 3 Calendar v16 badges
+    const calendarV16Badges: BadgeType[] = ['sputnik_day', 'arecibo_day', 'pioneer_plaque']
+    if (radioComplete && calendarV16Badges.every(b => hasBadge(b)) && !hasBadge('signal_arc')) {
+      if (awardBadge('signal_arc')) newBadges.push('signal_arc')
+    }
+
+    // eighteen_engines_arc: 1 badge from each Word Turn v1–v18
+    const engineEighteenPresent = radioEarned.length >= 1
+    const allEighteenEngines = allSeventeenEngines && engineEighteenPresent
+    if (allEighteenEngines && !hasBadge('eighteen_engines_arc')) {
+      if (awardBadge('eighteen_engines_arc')) newBadges.push('eighteen_engines_arc')
+    }
+
+    // Mastery v18: signal_tower — 600+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 600 && !hasBadge('signal_tower')) {
+        if (awardBadge('signal_tower')) newBadges.push('signal_tower')
+      }
+    }
+
+    // Mastery v18: grand_broadcaster — 60,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 60000 && !hasBadge('grand_broadcaster')) {
+        if (awardBadge('grand_broadcaster')) newBadges.push('grand_broadcaster')
+      }
+    }
+
+    // Mastery v18: transmission_age — Account age ≥ 10 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupTx = new Date(stats.signupDate)
+      const yearsTx = (new Date().getTime() - signupTx.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsTx >= 10 && !hasBadge('transmission_age')) {
+        if (awardBadge('transmission_age')) newBadges.push('transmission_age')
+      }
+    }
+
+    // Mastery v18: eighteen_frequencies — 1 badge from all 18 Word Turn engines
+    if (allEighteenEngines && !hasBadge('eighteen_frequencies')) {
+      if (awardBadge('eighteen_frequencies')) newBadges.push('eighteen_frequencies')
     }
 
   } catch (error) {
