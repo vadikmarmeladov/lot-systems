@@ -210,6 +210,11 @@ integrity:
    have an explicit case in formatLog(). If the case is absent, the log entry
    returns empty string, is filtered out, and becomes invisible to the AI —
    even though it was passed in the logs array. Silent erasure, no error.
+   GENERALIZATION: this failure shape is not unique to formatLog() — any
+   route that filters Log rows by `event === '<string>'` silently drops data
+   if the string doesn't match what the write path actually stores, with no
+   error anywhere in the chain. Audit both ends (the filter and the create
+   call) whenever a route claims to read a specific event type.
 
 2. The prompt assembly order is:
      head + quantumContext + plannerContext + goalContext + '\n\n' + formattedLogs
@@ -225,4 +230,9 @@ ollama → together (already failed) → gemini → mistral → claude → opena
 automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
-to formatLog(); Together AI restored as primary.)
+to formatLog(); Together AI restored as primary. SR-20260721-01: second
+confirmed instance of the silent-erasure shape — /api/story's recentEntries
+filter checked event === 'log_entry' || 'journal', values never written by
+any create call in the codebase; POST /logs defaults to event: 'note'. The
+operator's own journal text never reached the /story prompt in production
+until this fix. Generalization clause added above.)

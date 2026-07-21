@@ -3224,28 +3224,36 @@ const NoteEditor = ({
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
       } else if (trigger === 'system-help') {
+        let arcadeLine = 'ARCADE        UNAVAILABLE'
+        try {
+          const badges = getEarnedBadges()
+          const totalBadges = Object.keys(BADGES).length
+          arcadeLine = `ARCADE        ${badges.length}/${totalBadges} badges earned — every entry scores`
+        } catch {}
         const lines = [
           'AVAILABLE COMMANDS',
           '',
-          '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
-          '/scan         System status overview',
-          '/qi [query]   Ask the Quantum Intelligence engine',
-          '/assembly     Self-assembly module status',
-          '/phys         Physiological cohort report',
-          '/qos          Quantum OS state analysis',
-          '/fast         Orthodox fasting calendar',
-          '/breathe      4-2-6 breathing exercise',
-          '/freeze       Pause and reflect protocol',
-          '/silent       Signal silence check',
-          '/synth        Toggle keyboard sound',
-          '/radio        Toggle radio',
-          '/night        Dark mode',
-          '/how          Open LOT AI check-in (System tab)',
-          '/system       This help screen',
+          '/prayer               Generate contextual scripture',
+          '/story [period]       Compressed story — day (default), week, month, or year',
+          '/scan                 System status overview',
+          '/qi [query]           Ask the Quantum Intelligence engine',
+          '/assembly             Self-assembly module status',
+          '/phys                 Physiological cohort report',
+          '/qos                  Quantum OS state analysis',
+          '/fast                 Orthodox fasting calendar',
+          '/breathe              4-2-6 breathing exercise',
+          '/freeze               Pause and reflect protocol',
+          '/silent               Signal silence check',
+          '/synth                Toggle keyboard sound',
+          '/radio                Toggle radio',
+          '/night                Dark mode',
+          '/how                  Open LOT AI check-in (System tab)',
+          '/system               This help screen',
+          '',
+          arcadeLine,
           '',
           'SHORTCUTS',
-          'Ctrl+Enter    Save log immediately',
+          'Ctrl+Enter            Save log immediately',
         ]
         setSystemHelp(lines.join('\n'))
       } else if (trigger === 'how-checkin') {
@@ -3254,17 +3262,24 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const periodMatch = value.match(/\/story\s+(day|today|week|month|year)\b/i)
+          const period = (periodMatch ? periodMatch[1].toLowerCase() : 'day').replace('today', 'day') as
+            | 'day'
+            | 'week'
+            | 'month'
+            | 'year'
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story(\s+\w+)?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }

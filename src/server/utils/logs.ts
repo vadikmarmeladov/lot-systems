@@ -10,13 +10,19 @@ import { Op } from 'sequelize'
 import dayjs from '#server/utils/dayjs'
 import { LogContext, User } from '#shared/types'
 import { DATE_TIME_FORMAT, WEATHER_STALE_TIME_MINUTES } from '#shared/constants'
+import { getWesternZodiac, getMoonPhase } from '#shared/utils'
 import { models } from '../models/index.js'
 
 export async function getLogContext(user: User): Promise<LogContext> {
+  const localNow = user.timeZone ? dayjs().tz(user.timeZone).toDate() : new Date()
+  const moon = getMoonPhase(localNow)
   const context: LogContext = {
     temperature: null,
     humidity: null,
     weatherDescription: null,
+    zodiacSign: getWesternZodiac(localNow),
+    moonPhase: moon.phase,
+    moonIllumination: moon.illumination,
     country: user.country,
     city: user.city,
     timeZone: user.timeZone,
