@@ -1169,6 +1169,10 @@ export default async (fastify: FastifyInstance) => {
       'focus_depth_arc',
       'sleep_signal_anchor',
       'care_intelligence_loop',
+      // v98: output streak depth · structural cadence · discovery retention loop (P119/P120/P121)
+      'output_streak_depth',
+      'structural_cadence',
+      'discovery_retention_loop',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

@@ -2695,6 +2695,123 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 119: Output Streak Depth — journal entries with 150+w recorded on 3+
+  // consecutive calendar days. Detects sustained written expression at depth: not
+  // just single-session writing, but a multi-day pattern of output. The difference
+  // from P108 (creative-output-peak, single-day 200+w) is the temporal streak dimension.
+  // The person is writing deeply every day — the output channel has become structural.
+  {
+    const p119Window = 7 * 24 * 60 * 60 * 1000 // 7 days lookback
+    const p119JournalSignals = signals
+      .filter(s => s.source === 'journal' && s.timestamp > now - p119Window)
+      .sort((a, b) => a.timestamp - b.timestamp)
+
+    // Group by calendar day (UTC)
+    const p119ByDay: Record<string, number> = {}
+    for (const sig of p119JournalSignals) {
+      const day = new Date(sig.timestamp).toISOString().slice(0, 10)
+      const words = (sig.metadata?.wordCount as number | undefined) ?? 0
+      if (words >= 150) {
+        p119ByDay[day] = (p119ByDay[day] ?? 0) + 1
+      }
+    }
+
+    const p119Days = Object.keys(p119ByDay).sort()
+    let p119MaxStreak = 0
+    let p119Streak = 1
+    for (let i = 1; i < p119Days.length; i++) {
+      const prev = new Date(p119Days[i - 1])
+      const curr = new Date(p119Days[i])
+      const diffDays = Math.round((curr.getTime() - prev.getTime()) / (24 * 60 * 60 * 1000))
+      if (diffDays === 1) {
+        p119Streak++
+      } else {
+        p119Streak = 1
+      }
+      if (p119Streak > p119MaxStreak) p119MaxStreak = p119Streak
+    }
+    if (p119Days.length === 1) p119MaxStreak = 1
+
+    if (p119MaxStreak >= 3) {
+      const p119Conf = Math.min(0.65 + (p119MaxStreak - 3) * 0.05, 0.88)
+      const p119TotalWords = p119JournalSignals.reduce((sum, s) => sum + ((s.metadata?.wordCount as number | undefined) ?? 0), 0)
+      const p119AvgWords = p119Days.length > 0 ? Math.round(p119TotalWords / p119Days.length) : 0
+      const p119PeakWords = Math.max(...p119JournalSignals.map(s => (s.metadata?.wordCount as number | undefined) ?? 0), 0)
+      patterns.push({
+        pattern: 'output-streak-depth',
+        confidence: p119Conf,
+        suggestedWidget: 'memory',
+        suggestedTiming: 'passive',
+        reason: `OSTK: Output streak depth confirmed — ${p119MaxStreak} consecutive days journal 150+w. Peak: ${p119PeakWords}w · Avg: ${p119AvgWords}w. Written expression at sustained depth. The record is growing.`,
+      })
+    }
+  }
+
+  // Pattern 120: Structural Cadence — planner AND intentions both recorded on 3+
+  // consecutive calendar days. Detects when daily planning and intention-setting have
+  // become a repeating architectural behavior, not an occasional act. The person is
+  // running a daily structure that anchors both direction (intentions) and execution
+  // (planner) every day. The cadence is structural, not motivational.
+  {
+    const p120Window = 7 * 24 * 60 * 60 * 1000
+    const p120PlannerSignals = signals.filter(s => s.source === 'planner' && s.timestamp > now - p120Window)
+    const p120IntentSignals  = signals.filter(s => s.source === 'intentions' && s.timestamp > now - p120Window)
+
+    const p120PlannerDays = new Set(p120PlannerSignals.map(s => new Date(s.timestamp).toISOString().slice(0, 10)))
+    const p120IntentDays  = new Set(p120IntentSignals.map(s => new Date(s.timestamp).toISOString().slice(0, 10)))
+    const p120BothDays    = [...p120PlannerDays].filter(d => p120IntentDays.has(d)).sort()
+
+    let p120MaxStreak = 0
+    let p120Streak = 1
+    for (let i = 1; i < p120BothDays.length; i++) {
+      const prev = new Date(p120BothDays[i - 1])
+      const curr = new Date(p120BothDays[i])
+      const diffDays = Math.round((curr.getTime() - prev.getTime()) / (24 * 60 * 60 * 1000))
+      if (diffDays === 1) {
+        p120Streak++
+      } else {
+        p120Streak = 1
+      }
+      if (p120Streak > p120MaxStreak) p120MaxStreak = p120Streak
+    }
+    if (p120BothDays.length === 1) p120MaxStreak = 1
+
+    if (p120MaxStreak >= 3) {
+      const p120Conf = Math.min(0.66 + (p120MaxStreak - 3) * 0.05, 0.86)
+      patterns.push({
+        pattern: 'structural-cadence',
+        confidence: p120Conf,
+        suggestedWidget: 'planner',
+        suggestedTiming: 'passive',
+        reason: `SCAD: Structural cadence confirmed — ${p120MaxStreak} consecutive days with planner + intentions. Plan total: ${p120PlannerSignals.length} · Intent total: ${p120IntentSignals.length}. Daily architecture repeating. The system runs on schedule.`,
+      })
+    }
+  }
+
+  // Pattern 121: Discovery Retention Loop — badge_unlock + word_turn signal + memory
+  // capture all in the same 24h window. The full curiosity-to-retention arc: the system
+  // rewarded discovery (badge), the user found new vocabulary (word_turn), and encoded
+  // knowledge into memory (memory). These three together signal a day where exploration,
+  // recognition, and retention all completed in a single cycle.
+  {
+    const p121Window = 24 * 60 * 60 * 1000
+    const p121Recent     = signals.filter(s => s.timestamp > now - p121Window)
+    const p121Badge      = p121Recent.filter(s => s.source === 'badges')
+    const p121WordTurn   = p121Recent.filter(s => s.signal === 'word_turn' || s.signal === 'word_turn_hit' || s.signal === 'word_turn_progress')
+    const p121Memory     = p121Recent.filter(s => s.source === 'memory')
+
+    if (p121Badge.length >= 1 && p121WordTurn.length >= 1 && p121Memory.length >= 1) {
+      const p121Conf = Math.min(0.68 + p121Badge.length * 0.04 + p121WordTurn.length * 0.04 + p121Memory.length * 0.04, 0.86)
+      patterns.push({
+        pattern: 'discovery-retention-loop',
+        confidence: p121Conf,
+        suggestedWidget: 'journal',
+        suggestedTiming: 'passive',
+        reason: `DRET: Discovery retention loop closed — badge ${p121Badge.length} + word-turn ${p121WordTurn.length} + memory ${p121Memory.length} in 24h. Discovery rewarded, vocabulary found, knowledge captured. Full curiosity-to-retention arc complete.`,
+      })
+    }
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3278,6 +3395,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   focusDepthNode:             ['journal', 'memory', 'planner', 'log'],
   sleepAnchorNode:            ['energy', 'log'],
   careIntelligenceNode:       ['selfcare', 'memory', 'journal', 'log'],
+
+  // ── Output streak + structural cadence + discovery retention nodes (2026-07-21 v98)
+  outputStreakNode:            ['journal', 'log'],
+  structuralCadenceNode:      ['planner', 'intentions', 'log'],
+  discoveryRetentionNode:     ['badges', 'memory', 'log'],
 }
 
 /**
@@ -3627,6 +3749,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'memory'],
     patternConditions: ['personal-peak-window', 'focus-depth-arc', 'clarity-momentum-peak'],
     directive: 'Window is live. Cognitive and structural alignment confirmed. Execute without delay.',
+  },
+  // ── Arch41: Sustained Writer (2026-07-21 v98) ──────────────────────────────────
+  {
+    archetype: 'Sustained Writer',
+    energyBands: ['moderate', 'high', 'low'],
+    dominantSources: ['journal', 'memory', 'planner'],
+    patternConditions: ['output-streak-depth', 'focus-depth-arc', 'cognitive-depth-arc'],
+    directive: 'Writing streak confirmed across consecutive days. Journal depth and cognitive capture active simultaneously. The output channel is open — sustain the stream, it is compiling the record.',
   },
 ]
 
@@ -5144,6 +5274,48 @@ export function recordCareIntelligenceLoop(selfcareCount: number, memoryCount: n
     selfcareCount,
     memoryCount,
     journalCount,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an output-streak-depth signal — journal 150+w on 3+ consecutive calendar days.
+ * Feeds P119 detection. Sustained written expression at depth confirmed.
+ */
+export function recordOutputStreakDepth(streakDays: number, peakWordCount: number, avgWordCount: number) {
+  recordSignal('journal', 'output_streak_depth', {
+    streakDays,
+    peakWordCount,
+    avgWordCount,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a structural-cadence signal — planner + intentions both filed on 3+ consecutive days.
+ * Feeds P120 detection. Daily planning and intention-setting have become architectural.
+ */
+export function recordStructuralCadence(cadenceDays: number, plannerTotal: number, intentionsTotal: number) {
+  recordSignal('planner', 'structural_cadence', {
+    cadenceDays,
+    plannerTotal,
+    intentionsTotal,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a discovery-retention-loop signal — badge + word_turn + memory all in 24h.
+ * Feeds P121 detection. Full curiosity-to-retention arc complete.
+ */
+export function recordDiscoveryRetentionLoop(badgeCount: number, wordTurnCount: number, memoryCount: number) {
+  recordSignal('badges', 'discovery_retention_loop', {
+    badgeCount,
+    wordTurnCount,
+    memoryCount,
     window: '24h',
     hour: new Date().getHours(),
   })

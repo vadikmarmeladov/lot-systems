@@ -81,6 +81,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'focus-depth-arc':             'FDEP ARC',
   'sleep-signal-anchor':         'SANCH',
   'care-intelligence-loop':      'CINTEL',
+  'output-streak-depth':         'OSTK',
+  'structural-cadence':          'SCAD',
+  'discovery-retention-loop':    'DRET',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

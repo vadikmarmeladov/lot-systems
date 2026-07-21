@@ -1703,6 +1703,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyFocusDepthCheck()) {
     await executeDailyFocusDepthCheck()
   }
+  // Check daily output streak check (10:00 UTC every day) — Job 38
+  if (shouldRunDailyOutputStreakCheck()) {
+    await executeDailyOutputStreakCheck()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -2380,6 +2384,121 @@ async function executeDailyFocusDepthCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily focus depth check failed:', error.message)
     isDailyFocusDepthRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Output Streak Check (Job 38 — 10:00 UTC every day) ───────────────
+// Reads active users. For each user, pulls journal/note log entries from last 7 days
+// and groups them by calendar day. Identifies days with total word count ≥150.
+// If 3+ consecutive such days are found, writes output_streak_depth event.
+// Feeds P119 detection. Co-located at 10:00 UTC with temporal alignment check (J34).
+
+let isDailyOutputStreakRunning = false
+let lastDailyOutputStreakRun: Date | null = null
+
+function shouldRunDailyOutputStreakCheck(): boolean {
+  const now = dayjs()
+  if (isDailyOutputStreakRunning) return false
+  if (lastDailyOutputStreakRun) {
+    const lastRun = dayjs(lastDailyOutputStreakRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 10 // 10:00 UTC daily (co-located with temporal alignment check)
+}
+
+async function executeDailyOutputStreakCheck(): Promise<JobResult> {
+  const jobName = 'daily-output-streak-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyOutputStreakRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyOutputStreakRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY OUTPUT STREAK CHECK — 10:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: sevenDaysAgo },
+            event: { [Op.in]: ['journal_entry', 'note'] },
+          },
+          order: [['createdAt', 'ASC']],
+        })
+
+        // Group by calendar day, summing word counts
+        const wordsByDay: Record<string, number> = {}
+        for (const log of logs) {
+          const day = dayjs(log.createdAt as Date).format('YYYY-MM-DD')
+          const words = ((log as any).text ?? '').split(/\s+/).filter(Boolean).length
+          wordsByDay[day] = (wordsByDay[day] ?? 0) + words
+        }
+
+        // Find days with 150+ words and compute max consecutive streak
+        const qualifyingDays = Object.keys(wordsByDay).filter(d => wordsByDay[d] >= 150).sort()
+        if (qualifyingDays.length < 3) continue
+
+        let maxStreak = 0
+        let streak = 1
+        let peakWords = 0
+        let totalWords = 0
+        for (const day of qualifyingDays) {
+          if (wordsByDay[day] > peakWords) peakWords = wordsByDay[day]
+          totalWords += wordsByDay[day]
+        }
+        const avgWords = Math.round(totalWords / qualifyingDays.length)
+
+        for (let i = 1; i < qualifyingDays.length; i++) {
+          const prev = dayjs(qualifyingDays[i - 1])
+          const curr = dayjs(qualifyingDays[i])
+          if (curr.diff(prev, 'day') === 1) {
+            streak++
+          } else {
+            streak = 1
+          }
+          if (streak > maxStreak) maxStreak = streak
+        }
+        if (qualifyingDays.length === 1) maxStreak = 1
+
+        if (maxStreak >= 3) {
+          await Log.create({
+            userId: (user as any).id,
+            event: 'output_streak_depth' as any,
+            text: `Output streak depth: ${maxStreak} consecutive days journal 150+w. Peak: ${peakWords}w · Avg: ${avgWords}w.`,
+            metadata: {
+              streakDays: maxStreak,
+              peakWordCount: peakWords,
+              avgWordCount: avgWords,
+              window: '7d',
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Output streak depth events written: ${written}`)
+    lastDailyOutputStreakRun = new Date()
+    isDailyOutputStreakRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily output streak check failed:', error.message)
+    isDailyOutputStreakRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4459,6 +4578,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
   console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
   console.log('   - Daily focus depth check: 4 PM UTC every day (Job 37)')
+  console.log('   - Daily output streak check: 10 AM UTC every day (Job 38)')
   console.log('')
 
   // Check every hour for scheduled jobs

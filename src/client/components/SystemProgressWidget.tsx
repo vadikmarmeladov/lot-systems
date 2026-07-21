@@ -1183,6 +1183,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '118 patterns · 40 archetypes · 37 background jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, and care intelligence arcs deployed.',
     ],
   },
+  {
+    date: '2026-07-21',
+    session: 'Quantum Engine Upgrade — v98',
+    assembled: [
+      'intentionEngine.ts: P119 output-streak-depth — journal 150+w on 3+ consecutive calendar days. Sustained written expression at depth confirmed. Conf 0.65–0.88. suggestedWidget: memory.',
+      'intentionEngine.ts: P120 structural-cadence — planner + intentions BOTH recorded on 3+ consecutive calendar days. Daily planning and intention-setting locked into repeating architecture. Conf 0.66–0.86. suggestedWidget: planner.',
+      'intentionEngine.ts: P121 discovery-retention-loop — badge_unlock + word_turn + memory capture all in 24h. Full curiosity-to-retention arc: discovery rewarded, vocabulary found, knowledge encoded. Conf 0.68–0.86. suggestedWidget: journal.',
+      'intentionEngine.ts: Arch41 Sustained Writer — energyBands moderate+high+low · dominantSources journal+memory+planner · patternConditions output-streak-depth+focus-depth-arc+cognitive-depth-arc. Directive: The output channel is open — sustain the stream, it is compiling the record. 41 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: outputStreakNode (2 deps) · structuralCadenceNode (3 deps) · discoveryRetentionNode (3 deps). 160+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers added — recordOutputStreakDepth · recordStructuralCadence · recordDiscoveryRetentionLoop.',
+      'Logs.tsx: OSTK: handler (output_streak_depth: OUTPUT STREAK + DAYS + PEAK + AVG + CONF). SCAD: handler (structural_cadence: STRUCTURAL CADENCE + DAYS + PLAN TOTAL + INTENT TOTAL + CONF). DRET: handler (discovery_retention_loop: DISCOVERY RETENTION + BADGE + WORD-TURN + MEM + CONF). COCKPIT-RULE compliant. 121+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — output-streak-depth (OSTK) · structural-cadence (SCAD) · discovery-retention-loop (DRET).',
+      'scheduled-jobs.ts: J38 daily-output-streak-check — 10:00 UTC daily (co-located with temporal alignment check). Reads 7-day journal windows, groups by day, detects 3+ consecutive 150+w days → writes output_streak_depth. 38 background jobs total.',
+      'routes/api.ts: output_streak_depth + structural_cadence + discovery_retention_loop added to displayableEvents (v98 block).',
+      '121 patterns · 41 archetypes · 38 background jobs · 121+ handlers · 160+ dep nodes. Output streak, structural cadence, discovery retention deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1220,19 +1237,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-19',
+  date: '2026-07-21',
   message: [
-    'ASSEMBLY RUN — 2026-07-19 · LOT-SR-20260719-01',
-    'P116 focus-depth-arc: journal 100+w + memory + planner in 2h rolling window. Cognitive depth and structural alignment confirmed. Conf 0.65–0.85.',
-    'P117 sleep-signal-anchor: first log after 07:00 + energy check-in before 09:00. Biological morning baseline grounded before cognitive load. Conf 0.68–0.82.',
-    'P118 care-intelligence-loop: selfcare + memory + journal all in 24h. Body-mind knowledge integration loop closed. Conf 0.62–0.80. 118 patterns total.',
-    'Arch40 Focused Executor: planner+intentions+memory dominant · personal-peak-window+focus-depth-arc+clarity-momentum-peak. Window live. Execute. 40 archetypes total.',
-    'J37 daily-focus-depth-check: 16:00 UTC daily (co-located). journal 100+w + memory + planner → 2h window → writes focus_depth_arc. 37 background jobs total.',
-    'FDEP: SANCH: CINTEL: log handlers deployed (COCKPIT-RULE). 118+ handlers total.',
-    'Dep map: 157+ nodes. 3 new: focusDepthNode + sleepAnchorNode + careIntelligenceNode.',
-    'PATTERN_DISPLAY: FDEP ARC · SANCH · CINTEL added to QOS widget.',
-    '3 signal helpers: recordFocusDepthArc · recordSleepSignalAnchor · recordCareIntelligenceLoop.',
-    '118 patterns · 40 archetypes · 37 jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, care intelligence deployed.',
+    'ASSEMBLY RUN — 2026-07-21 · LOT-SR-20260721-01',
+    'P119 output-streak-depth: journal 150+w on 3+ consecutive days. Sustained written expression at depth. Writing has become structural. Conf 0.65–0.88.',
+    'P120 structural-cadence: planner + intentions BOTH filed on 3+ consecutive days. Daily architecture repeating. The system runs on schedule. Conf 0.66–0.86.',
+    'P121 discovery-retention-loop: badge + word-turn + memory all in 24h. Discovery rewarded, vocabulary found, knowledge encoded. Full curiosity-to-retention arc. Conf 0.68–0.86. 121 patterns total.',
+    'Arch41 Sustained Writer: journal+memory+planner dominant · output-streak-depth+focus-depth-arc+cognitive-depth-arc. The output channel is open. 41 archetypes total.',
+    'J38 daily-output-streak-check: 10:00 UTC daily (co-located with temporal alignment). 7d journal window → 3+ consecutive 150+w days → output_streak_depth. 38 background jobs total.',
+    'OSTK: SCAD: DRET: log handlers deployed (COCKPIT-RULE). 121+ handlers total.',
+    'Dep map: 160+ nodes. 3 new: outputStreakNode + structuralCadenceNode + discoveryRetentionNode.',
+    'PATTERN_DISPLAY: OSTK · SCAD · DRET added to QOS widget.',
+    '3 signal helpers: recordOutputStreakDepth · recordStructuralCadence · recordDiscoveryRetentionLoop.',
+    '121 patterns · 41 archetypes · 38 jobs · 121+ handlers · 160+ dep nodes. Output streak, structural cadence, discovery retention deployed.',
     'DEPLOYED.',
   ],
 }

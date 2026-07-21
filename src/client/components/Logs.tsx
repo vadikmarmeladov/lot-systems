@@ -905,6 +905,78 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'output_streak_depth') {
+          const streakDays    = log.metadata?.streakDays    as number | undefined
+          const peakWordCount = log.metadata?.peakWordCount as number | undefined
+          const avgWordCount  = log.metadata?.avgWordCount  as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="OSTK:" blockView>
+                <div className="uppercase tracking-widest mb-4">OUTPUT STREAK</div>
+                {streakDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">DAYS: {streakDays}</div>
+                )}
+                {peakWordCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PEAK: {peakWordCount}W</div>
+                )}
+                {avgWordCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">AVG: {avgWordCount}W</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'structural_cadence') {
+          const cadenceDays    = log.metadata?.cadenceDays    as number | undefined
+          const plannerTotal   = log.metadata?.plannerTotal   as number | undefined
+          const intentionsTotal = log.metadata?.intentionsTotal as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SCAD:" blockView>
+                <div className="uppercase tracking-widest mb-4">STRUCTURAL CADENCE</div>
+                {cadenceDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">DAYS: {cadenceDays}</div>
+                )}
+                {plannerTotal !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN TOTAL: {plannerTotal}</div>
+                )}
+                {intentionsTotal !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT TOTAL: {intentionsTotal}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'discovery_retention_loop') {
+          const badgeCount    = log.metadata?.badgeCount    as number | undefined
+          const wordTurnCount = log.metadata?.wordTurnCount as number | undefined
+          const memoryCount   = log.metadata?.memoryCount   as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DRET:" blockView>
+                <div className="uppercase tracking-widest mb-4">DISCOVERY RETENTION</div>
+                {badgeCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">BADGE: {badgeCount}</div>
+                )}
+                {wordTurnCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">WORD-TURN: {wordTurnCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM: {memoryCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined
