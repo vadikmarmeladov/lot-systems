@@ -55,7 +55,10 @@ deferred to allow immediate visual response.)
 
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
-(SR-20260604-01: calendar_entry saved but never returned.)
+(SR-20260604-01: calendar_entry saved but never returned. SR-20260721-01:
+same failure mode recurred on the new calendar_alert_fired event — caught
+during CHECK B, before push, by checking this clause against the new event
+type; the widget's own reload-dedup read depends on the same whitelist.)
 
 ## Ship Mode Discipline
 
