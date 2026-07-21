@@ -283,10 +283,10 @@ export function About() {
             </div>
             <P>
               The original quantum-intent personal operating system.
-              v1.3.0. Day 1056+. Continuous operation since launch.
-              115 behavioral patterns active. 18 modules assembled.
-              6 index dimensions. 6 ecosystem nodes. 39 physiological archetypes.
-              154+ dependency nodes. 36 background jobs.
+              v1.3.0. Day 1057+. Continuous operation since launch.
+              118 behavioral patterns active. 18 modules assembled.
+              6 index dimensions. 6 ecosystem nodes. 40 physiological archetypes.
+              157+ dependency nodes. 37 background jobs.
               118+ log event handlers. 125 active branches scanned.
               626 badges catalogued. 70+ categories. 560+ hidden. The system does not sleep. It accumulates.
             </P>

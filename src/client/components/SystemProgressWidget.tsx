@@ -1168,7 +1168,7 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
   },
   {
     date: '2026-07-19',
-    session: 'Self-Assembly Session — v96 / P116–P118 · Arch40 Focused Executor · J37 Focus Depth Check · FDEP: SANCH: CINTEL: · Dep Map 157+',
+    session: 'Self-Assembly Session — v97 / P116–P118 · Arch40 Focused Executor · J37 Focus Depth Check · FDEP: SANCH: CINTEL: · Dep Map 157+',
     assembled: [
       'intentionEngine.ts: P116 focus-depth-arc — journal 100+w + memory + planner all in 2h rolling window. Short-window cognitive depth and structural alignment confirmed. Conf 0.65–0.85. suggestedWidget: memory.',
       'intentionEngine.ts: P117 sleep-signal-anchor — first log entry after 07:00 + energy check-in before 09:00. Biological morning anchor grounded before cognitive load. Conf 0.68–0.82. suggestedWidget: planner.',
@@ -1179,7 +1179,7 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       'Logs.tsx: FDEP: handler (focus_depth_arc: FOCUS DEPTH ARC + JOURNAL + MEM + PLAN + WIN 2H + CONF). SANCH: handler (sleep_signal_anchor: SLEEP SIGNAL ANCHOR + FIRST + NRG 07-09 + SIG TOTAL + CONF). CINTEL: handler (care_intelligence_loop: CARE INTEL LOOP + CARE 24H + MEM + JRNL + CONF). COCKPIT-RULE compliant. 118+ handlers total.',
       'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — focus-depth-arc (FDEP ARC) · sleep-signal-anchor (SANCH) · care-intelligence-loop (CINTEL).',
       'scheduled-jobs.ts: J37 daily-focus-depth-check — 16:00 UTC daily (co-located with coherence index). Reads 2h rolling windows. journal 100+w + memory + planner → writes focus_depth_arc. 37 background jobs total.',
-      'routes/api.ts: focus_depth_arc + sleep_signal_anchor + care_intelligence_loop added to displayableEvents (v96 block).',
+      'routes/api.ts: focus_depth_arc + sleep_signal_anchor + care_intelligence_loop added to displayableEvents (v97 block).',
       '118 patterns · 40 archetypes · 37 background jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, and care intelligence arcs deployed.',
     ],
   },
