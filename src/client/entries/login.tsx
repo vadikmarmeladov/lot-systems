@@ -8,12 +8,15 @@
 
 import * as React from 'react'
 import axios, { AxiosError } from 'axios'
+import { useStore } from '@nanostores/react'
 import { Button, ErrorLine, Input, Link, P } from '#client/components/ui'
 import { cn } from '#client/utils'
 import { render } from '#client/utils/render'
 import config from '#client/config'
 import '#client/stores/theme'
 import { Layout } from '#client/components/ui'
+import { router } from '#client/stores/router'
+import { Basics } from '#client/components/Basics'
 
 const LOT_ONELINERS = [
   'LOT is the subscription for basic essentials.',
@@ -41,6 +44,17 @@ function LotOneliner() {
 }
 
 const App = () => {
+  const routerState = useStore(router)
+  const currentRoute = routerState?.route ?? 'system'
+
+  if (currentRoute === 'basics') {
+    return (
+      <Layout>
+        <Basics />
+      </Layout>
+    )
+  }
+
   return (
     <Layout>
       <div className="mb-24">

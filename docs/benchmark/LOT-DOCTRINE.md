@@ -226,3 +226,27 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Basics Tab Terminal Spec (LOT-FM-001)
+
+The Basics tab (physical ration subscription, LOT-FM-001) is styled apart
+from the rest of the app's opacity/acc-theme system: fixed white ground /
+black ink, inversion-only hierarchy (black block = header/emphasis, never a
+third color), 2px black rules, square corners, font-mono font-bold
+uppercase. This is deliberate — it reads as an issued military manifest,
+not a themed widget, and must not inherit user theme customization. The
+token set lives as the `TERMINAL` const at the top of
+src/client/components/Basics.tsx — Month 2 (UPGRADE/ROSTER) and Month 3
+(ISSUE/FULFILLMENT) builds import from there rather than re-deriving the
+grid.
+
+The tab is a genuine public surface, not auth-gated: it renders both inside
+the authenticated SPA (app.tsx TabPanels, route `basics`) and on the
+logged-out login screen (login.tsx renders <Basics/> when route === 
+'basics' instead of the login form). The nav placeholder for this tab
+already existed in both of Layout.tsx's nav arrays before this session —
+it was reserved public-first, and the build honored that.
+
+(SR-20260721-01: Basics Tab Month 1 — OPEN TAB ledger, doctrine, price
+line, status line. Corrected a stale MANIFEST BEST-branch claim that
+referenced code which was never actually present in the repo.)
