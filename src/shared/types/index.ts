@@ -164,6 +164,15 @@ export type LogContext = {
   city?: string | null;
   timeZone?: string | null;
   date?: string | null;
+  // Ambient astrological conditions at the moment the log was created —
+  // stamped the same way weather is, so entries can later be correlated
+  // against the day's rokuyo / moon phase / zodiac hour.
+  westernZodiac?: string | null;
+  hourlyZodiac?: string | null;
+  rokuyo?: string | null;
+  rokuyoAuspiciousness?: string | null;
+  moonPhase?: string | null;
+  moonIllumination?: number | null;
   [key: string]: any;
 };
 

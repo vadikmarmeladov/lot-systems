@@ -26,7 +26,7 @@ import { atom } from 'nanostores'
 // Intention signals collected from all widgets and background monitors
 export type IntentionSignal = {
   timestamp: number
-  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals' | 'qos' | 'medical' | 'resilience' | 'badges'
+  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals' | 'qos' | 'medical' | 'resilience' | 'badges' | 'astrology'
   signal: string
   metadata?: Record<string, any>
 }
@@ -2695,6 +2695,26 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 119: Auspicious Day Engagement — today's rokuyo (六曜, the
+  // Japanese six-day calendar cycle) reads Taian or Tomobiki (traditionally
+  // auspicious) and the operator has produced 3+ signals across 2+ distinct
+  // sources today. Ties an external, deterministic calendar fact to actually
+  // measured engagement — correlation against real signals, not a reading.
+  const p119TodayStart = new Date(); p119TodayStart.setHours(0, 0, 0, 0)
+  const p119Today = signals.filter(s => s.timestamp >= p119TodayStart.getTime())
+  const p119Astrology = p119Today.find(s => s.source === 'astrology')
+  const p119OtherSources = new Set(p119Today.filter(s => s.source !== 'astrology').map(s => s.source))
+  if (p119Astrology?.metadata?.auspiciousness === 'auspicious' && p119Today.length >= 3 && p119OtherSources.size >= 2) {
+    const p119Conf = Math.min(0.6 + p119OtherSources.size * 0.05 + p119Today.length * 0.02, 0.78)
+    patterns.push({
+      pattern: 'auspicious-day-engagement',
+      confidence: p119Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `AUSDAY: Auspicious day engagement — today is ${p119Astrology.metadata.rokuyo}, ${p119OtherSources.size} distinct sources active (${p119Today.length} signals). Calendar rhythm and operator activity aligned.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3095,12 +3115,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   interventions:     ['mood', 'selfcare', 'journal', 'energy'],
   userMetrics:       ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort'],
   systemProgress:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log', 'calculator'],
-  system:            ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log', 'qos'],
+  system:            ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log', 'qos', 'astrology'],
 
   // ── Tier 2+: additional consumer widgets
   patternInsights:   ['mood', 'memory', 'journal', 'energy', 'cohort', 'planner'],
   cosmic:            ['mood', 'energy', 'intentions'],
-  quantumSign:       ['intentions', 'memory'],
+  quantumSign:       ['intentions', 'memory', 'astrology'],
   microGame:         ['calculator', 'time'],
 
   // ── QOS / Ecosystem layer (2026-04-25 audit)
@@ -3278,6 +3298,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   focusDepthNode:             ['journal', 'memory', 'planner', 'log'],
   sleepAnchorNode:            ['energy', 'log'],
   careIntelligenceNode:       ['selfcare', 'memory', 'journal', 'log'],
+
+  // ── Astrology signal source + auspicious-day engagement node (2026-07-21 v98)
+  astrology:                  [],
+  auspiciousDayNode:          ['astrology', 'mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'log'],
 }
 
 /**
@@ -3878,6 +3902,20 @@ export function recordEnergySignal(
  */
 export function recordLogSignal(wordCount: number, hasContext: boolean) {
   recordSignal('log', 'field_entry', { wordCount, hasContext, hour: new Date().getHours() })
+}
+
+/**
+ * Record today's ambient astrology conditions once per day (called from
+ * System.tsx). Lets downstream patterns correlate the day's rokuyo
+ * auspiciousness against actual measured engagement.
+ */
+export function recordAstrologySignal(rokuyo: string, auspiciousness: string, moonPhase: string) {
+  recordSignal('astrology', auspiciousness === 'auspicious' ? 'auspicious_day' : 'ordinary_day', {
+    rokuyo,
+    auspiciousness,
+    moonPhase,
+    hour: new Date().getHours(),
+  })
 }
 
 /**

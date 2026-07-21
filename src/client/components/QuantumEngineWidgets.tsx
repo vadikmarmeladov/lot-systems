@@ -81,6 +81,7 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'focus-depth-arc':             'FDEP ARC',
   'sleep-signal-anchor':         'SANCH',
   'care-intelligence-loop':      'CINTEL',
+  'auspicious-day-engagement':   'AUSDAY',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

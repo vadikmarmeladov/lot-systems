@@ -177,3 +177,43 @@ export function getMoonEmoji(phaseName: string): string {
   }
   return emojiMap[phaseName] || '🌑'
 }
+
+/**
+ * Rokuyo (六曜) auspiciousness classification, per the traditional meanings
+ * documented alongside the ROKUYO cycle above. Deterministic — not a per-user
+ * reading, just the calendar day's known category.
+ */
+export type RokuyoAuspiciousness = 'auspicious' | 'neutral' | 'caution' | 'inauspicious'
+
+export function getRokuyoAuspiciousness(rokuyo: string): RokuyoAuspiciousness {
+  switch (rokuyo) {
+    case 'Taian':
+      return 'auspicious'
+    case 'Tomobiki':
+      return 'auspicious'
+    case 'Shakku':
+      return 'caution'
+    case 'Butsumetsu':
+      return 'inauspicious'
+    default: // Sensho, Senpu — time-of-day dependent, neither favored nor avoided
+      return 'neutral'
+  }
+}
+
+/**
+ * Snapshot of today's ambient astrological conditions, consolidated so both
+ * the Astrology block and any Log entry stamped at the same moment agree on
+ * one shared source of truth.
+ */
+export function getAstrologySnapshot(date: Date) {
+  const moon = getMoonPhase(date)
+  const rokuyo = getRokuyo(date)
+  return {
+    westernZodiac: getWesternZodiac(date),
+    hourlyZodiac: getHourlyZodiac(date),
+    rokuyo,
+    rokuyoAuspiciousness: getRokuyoAuspiciousness(rokuyo),
+    moonPhase: moon.phase,
+    moonIllumination: moon.illumination,
+  }
+}

@@ -22,7 +22,7 @@ import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
-import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
+import { getAstrologySnapshot } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
 import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
@@ -55,7 +55,7 @@ import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, recordAstrologySignal } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
@@ -190,22 +190,20 @@ export const System = React.memo(function SystemInner() {
     return { sunrise, sunset }
   }, [weather, isTimeFormat12h])
 
-  // Astrology calculations
-  const astrology = React.useMemo(() => {
-    const now = new Date()
-    const hourlyZodiac = getHourlyZodiac(now)
-    const westernZodiac = getWesternZodiac(now)
-    const moonPhase = getMoonPhase(now)
-    const rokuyo = getRokuyo(now)
+  // Astrology calculations — one shared snapshot so the Log context stamped
+  // server-side and the QuantumSignWidget patch agree with what's shown here.
+  const astrology = React.useMemo(() => getAstrologySnapshot(new Date()), [])
 
-    return {
-      hourlyZodiac,
-      westernZodiac,
-      moonPhase: moonPhase.phase,
-      moonIllumination: moonPhase.illumination,
-      rokuyo,
-    }
-  }, [])
+  // Publish today's astrology conditions to the QIE signal bus once per day.
+  // useEffect (not useMemo) — atom writes must happen after paint, not during
+  // render (see Render Isolation doctrine: intentionEngine.ts recomputeAssembly).
+  React.useEffect(() => {
+    const today = dayjs().format('YYYY-MM-DD')
+    const lastRecorded = localStorage.getItem('astrology-signal-date')
+    if (lastRecorded === today) return
+    recordAstrologySignal(astrology.rokuyo, astrology.rokuyoAuspiciousness, astrology.moonPhase)
+    localStorage.setItem('astrology-signal-date', today)
+  }, [astrology])
 
   const answerLogs = React.useMemo(() => {
     return logs.filter(log => log.event === 'answer')
@@ -434,7 +432,7 @@ export const System = React.memo(function SystemInner() {
         <div>
           <Block label="Astrology:">
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              {`${astrology.westernZodiac} • ${astrology.hourlyZodiac} • ${astrology.rokuyo}${astrology.rokuyoAuspiciousness !== 'neutral' ? ` (${astrology.rokuyoAuspiciousness})` : ''} • ${astrology.moonPhase} ${astrology.moonIllumination}%`}
             </div>
           </Block>
         </div>
@@ -640,7 +638,7 @@ export const System = React.memo(function SystemInner() {
         >
           {astrologyView === 'astrology' ? (
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              {`${astrology.westernZodiac} • ${astrology.hourlyZodiac} • ${astrology.rokuyo}${astrology.rokuyoAuspiciousness !== 'neutral' ? ` (${astrology.rokuyoAuspiciousness})` : ''} • ${astrology.moonPhase} ${astrology.moonIllumination}%`}
             </div>
           ) : astrologyView === 'psychology' ? (
             <div>

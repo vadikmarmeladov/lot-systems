@@ -16,7 +16,11 @@ removed; per-item subscriptions lifted to parent in Sync; nav buttons
 memoized so only active-state changes trigger re-render. SR-20260719-01:
 System quantumState analyzeIntentions()+recomputeAssembly() moved
 useMemo->useEffect — 10 subscriber re-renders no longer block paint;
-SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+SystemProgressWidget 60s recompute interval gated on !document.hidden.
+SR-20260721-01: astrology signal publish (recordAstrologySignal) given the
+same shape — useEffect, not the useMemo that computes the display value,
+with a localStorage date key so the once-daily write doesn't refire on
+every render.)
 
 ## Client Cache Freshness
 

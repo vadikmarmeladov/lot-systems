@@ -11,6 +11,7 @@ import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useLogs } from '#client/queries'
+import { getAstrologySnapshot } from '#shared/utils/astrology'
 
 /**
  * Quantum Sign Widget — For subscribers whose payment is their last money
@@ -65,12 +66,18 @@ export function QuantumSignWidget() {
     const today = new Date()
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000)
 
-    const astrologyPatches = [
-      { id: 'lunar-reset', name: 'Lunar Reset', desc: 'Moon phase alignment for emotional recalibration' },
-      { id: 'solar-return', name: 'Solar Return', desc: 'Birthday energy cycle — annual self-renewal' },
-      { id: 'mercury-direct', name: 'Mercury Direct', desc: 'Communication clarity restored' },
-      { id: 'venus-transit', name: 'Venus Transit', desc: 'Relationship pattern recognition active' },
-    ]
+    // Real ambient conditions — same source of truth as System.tsx's Astrology
+    // block, so the two widgets never disagree about what today actually is.
+    const astro = getAstrologySnapshot(today)
+    const astrologyPatch = {
+      id: 'ambient-conditions',
+      name: `${astro.moonPhase} • ${astro.rokuyo}`,
+      desc: astro.rokuyoAuspiciousness === 'auspicious'
+        ? `${astro.moonIllumination}% lit — ${astro.rokuyo} favors starting things today.`
+        : astro.rokuyoAuspiciousness === 'inauspicious'
+        ? `${astro.moonIllumination}% lit — ${astro.rokuyo} favors rest over new starts today.`
+        : `${astro.moonIllumination}% lit, ${astro.westernZodiac} sun, ${astro.hourlyZodiac} hour.`,
+    }
 
     const psychologyPatches = [
       { id: 'shadow-work', name: 'Shadow Integration', desc: 'Unconscious pattern surfacing protocol' },
@@ -79,12 +86,11 @@ export function QuantumSignWidget() {
       { id: 'growth-edge', name: 'Growth Edge', desc: 'Comfort zone expansion calibration' },
     ]
 
-    // Rotate patches based on day of year
-    const astroIdx = dayOfYear % astrologyPatches.length
+    // Rotate psychology patches based on day of year
     const psychIdx = dayOfYear % psychologyPatches.length
 
     return {
-      astrology: astrologyPatches[astroIdx],
+      astrology: astrologyPatch,
       psychology: psychologyPatches[psychIdx],
     }
   }, [])
