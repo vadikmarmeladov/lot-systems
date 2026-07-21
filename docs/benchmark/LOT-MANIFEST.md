@@ -26,7 +26,7 @@ FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | F
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
-Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
+Calendar Alerts  | dreamy-babbage-nebo88         | (SR-20260721-01) | 1/1 | BEST | 3 | +388 | Live clock, T-minus countdown, military overlay, CAL-ALERT: log handler, today panel — ported onto current master (2026-07-21); supersedes stale gifted-lovelace-cZOWR
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
@@ -87,7 +87,7 @@ relaxed-hamilton | 8     | eRBVA             | 7     | LOT Mail iterations (SUPE
 determined-turing| 6     | f6bw7r            | 5     | LOT Mail iterations (latest series)
 dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations (SUPERSEDED by brave-lamport)
 brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
-gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
+gifted-lovelace  | 6     | cZOWR             | 6     | Calendar alert iterations — SUPERSEDED by dreamy-babbage-nebo88 (SR-20260721-01), all 6 now prunable
 nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson)
 beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (latest series)
 gracious-gauss   | 7     | WnL0k             | 6     | QI-46 Engine iterations (SUPERSEDED by cool-tesla)

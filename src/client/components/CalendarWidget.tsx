@@ -14,13 +14,21 @@ import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
 import { recordCalendarSignal } from '#client/stores/intentionEngine'
+import { isRouteActive } from '#client/stores/router'
 
 type EntryType = 'note' | 'task' | 'call'
+type AlertStatus = 'EXECUTE' | 'ALERT'
 
 type CalendarEntry = {
   date: string
+  time?: string
   text: string
   type: EntryType
+}
+
+type ActiveAlert = {
+  entry: CalendarEntry
+  status: AlertStatus
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
@@ -48,36 +56,164 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
   return weeks
 }
 
+// A timed entry resolves to the exact minute; an all-day entry resolves to
+// end-of-day so it never reads as ELAPSED until the day is actually over.
+function getEventDayjs(entry: CalendarEntry): Dayjs {
+  return entry.time
+    ? dayjs(`${entry.date} ${entry.time}`, 'YYYY-MM-DD HH:mm')
+    : dayjs(entry.date).endOf('day')
+}
+
+function getStatus(entry: CalendarEntry, now: Dayjs): AlertStatus | 'STANDBY' | 'ELAPSED' | null {
+  if (!entry.time) {
+    const todayStr = now.format('YYYY-MM-DD')
+    if (entry.date < todayStr) return 'ELAPSED'
+    if (entry.date === todayStr) return 'STANDBY'
+    return null
+  }
+  const diffMin = getEventDayjs(entry).diff(now, 'minute')
+  if (diffMin < -120) return null
+  if (diffMin < 0) return 'ELAPSED'
+  if (diffMin <= 15) return 'EXECUTE'
+  if (diffMin <= 60) return 'ALERT'
+  if (diffMin <= 1440) return 'STANDBY'
+  return null
+}
+
+function formatCountdown(entry: CalendarEntry, now: Dayjs): string {
+  const diffSec = getEventDayjs(entry).diff(now, 'second')
+  const sign = diffSec < 0 ? '+' : '-'
+  const abs = Math.abs(diffSec)
+  const h = Math.floor(abs / 3600)
+  const m = Math.floor((abs % 3600) / 60)
+  const s = abs % 60
+  return `T${sign}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
+function statusClass(status: ReturnType<typeof getStatus>): string {
+  if (status === 'EXECUTE') return 'text-acc'
+  if (status === 'ALERT') return 'text-acc/70'
+  if (status === 'STANDBY') return 'text-acc/50'
+  if (status === 'ELAPSED') return 'text-acc/25'
+  return 'text-acc/40'
+}
+
+function alertKey(entry: CalendarEntry): string {
+  return `${entry.date}|${entry.time}|${entry.text}`
+}
+
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
 
+  const [now, setNow] = React.useState(() => dayjs())
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
+  const [entryTime, setEntryTime] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [activeAlert, setActiveAlert] = React.useState<ActiveAlert | null>(null)
+  const alertedRef = React.useRef<Set<string>>(new Set())
+
+  // Live clock — gated to the visible System tab (matches the interval
+  // pattern used across System's widgets: an ungated 1s tick here is exactly
+  // the class of bug fixed in ee88f4c / 6e5007a — pause off-tab, don't churn).
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      if (document.hidden || !isRouteActive('system')) return
+      setNow(dayjs())
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  // Auto-dismiss the alert overlay after 30 seconds; ACK dismisses sooner.
+  React.useEffect(() => {
+    if (!activeAlert) return
+    const timer = setTimeout(() => setActiveAlert(null), 30000)
+    return () => clearTimeout(timer)
+  }, [activeAlert])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
         date: log.metadata?.date as string,
+        time: log.metadata?.time as string | undefined,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => {
+        const aKey = `${a.date}${a.time ?? '23:59'}`
+        const bKey = `${b.date}${b.time ?? '23:59'}`
+        return aKey.localeCompare(bKey)
+      })
   }, [logs])
 
-  const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
-    return entries
-      .filter(e => e.date >= today)
-      .slice(0, 10)
-  }, [entries])
+  // Entries the server already recorded an alert for — survives reloads so a
+  // remount never re-fires (and re-logs) an alert that already fired.
+  const firedAlertKeys = React.useMemo(() => {
+    const set = new Set<string>()
+    logs.forEach(log => {
+      if (log.event === 'calendar_alert_fired' && log.metadata) {
+        set.add(`${log.metadata.date}|${log.metadata.time}|${log.metadata.text}`)
+      }
+    })
+    return set
+  }, [logs])
+
+  // Fire a military-grade event notification for timed entries entering the
+  // 60-minute window. Logs the alert to Log (calendar_alert_fired) exactly
+  // once per entry, deduped against both this session's ref and prior Log
+  // history, so it survives reloads without re-notifying or re-logging.
+  React.useEffect(() => {
+    const check = () => {
+      if (document.hidden || !isRouteActive('system')) return
+      const n = dayjs()
+      for (const entry of entries) {
+        if (!entry.time) continue
+        const key = alertKey(entry)
+        if (alertedRef.current.has(key) || firedAlertKeys.has(key)) continue
+        const diffMin = getEventDayjs(entry).diff(n, 'minute')
+        if (diffMin >= 0 && diffMin <= 60) {
+          alertedRef.current.add(key)
+          const status: AlertStatus = diffMin <= 15 ? 'EXECUTE' : 'ALERT'
+          setActiveAlert({ entry, status })
+          createLog({
+            text: `[ALERT] ${entry.type.toUpperCase()}: ${entry.text} (T-${diffMin}m)`,
+            event: 'calendar_alert_fired',
+            metadata: {
+              date: entry.date,
+              time: entry.time,
+              text: entry.text,
+              entryType: entry.type,
+              minutesOut: diffMin,
+              status,
+            },
+          })
+          break
+        }
+      }
+    }
+    check()
+    const timer = setInterval(check, 60000)
+    return () => clearInterval(timer)
+  }, [entries, firedAlertKeys, createLog])
+
+  const today = now.format('YYYY-MM-DD')
+
+  const todayEntries = React.useMemo(
+    () => entries.filter(e => e.date === today),
+    [entries, today]
+  )
+
+  const upcomingEntries = React.useMemo(
+    () => entries.filter(e => e.date > today).slice(0, 10),
+    [entries, today]
+  )
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,7 +226,13 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
+  // Next timed event still ahead of now — recomputed each render since `now`
+  // ticks; drives the header countdown.
+  const nextTimedEvent = React.useMemo(
+    () => entries.find(e => e.time && getEventDayjs(e).isAfter(now)) ?? null,
+    [entries, now]
+  )
+
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
@@ -103,18 +245,21 @@ export function CalendarWidget() {
     } else {
       setSelectedDate(key)
     }
+    setIsAddingEntry(false)
   }
 
   const handleAddEntry = () => {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeLabel = entryTime ? ` at ${entryTime}` : ''
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel}${timeLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
+        ...(entryTime ? { time: entryTime } : {}),
         text: entryText.trim(),
         entryType,
       },
@@ -126,6 +271,7 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
   }
 
@@ -137,145 +283,229 @@ export function CalendarWidget() {
   }
 
   return (
-    <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
-      <div className="w-full">
-        <div className="mb-16">
-          <Button onClick={handleToggleCalendar}>
-            Add date
-          </Button>
-        </div>
-
-        {isCalendarOpen && (
-          <div className="mb-16">
-            <div className="flex items-center gap-8 mb-8">
-              <button
-                className="text-acc/40 hover:text-acc transition-opacity"
-                onClick={() => setViewMonth(viewMonth.subtract(1, 'month'))}
-              >
-                {'<—'}
-              </button>
-              <span className="text-acc">
-                {viewMonth.format('MMMM, YYYY')}
+    <>
+      <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
+        <div className="w-full">
+          <div className="flex justify-between items-baseline mb-16">
+            <span className="text-acc tabular-nums tracking-widest">
+              {now.format('HH:mm:ss')}
+            </span>
+            {nextTimedEvent && (
+              <span className={cn('tabular-nums', statusClass(getStatus(nextTimedEvent, now)))}>
+                {formatCountdown(nextTimedEvent, now)}
               </span>
-              <button
-                className="text-acc/40 hover:text-acc transition-opacity"
-                onClick={() => setViewMonth(viewMonth.add(1, 'month'))}
-              >
-                {'—>'}
-              </button>
-            </div>
-
-            <div className="space-y-1">
-              {weeks.map((week, wi) => (
-                <div key={wi} className="flex gap-0">
-                  {week.map((d, di) => {
-                    const key = d.format('YYYY-MM-DD')
-                    const isToday = key === today
-                    const isCurrentMonth = d.month() === viewMonth.month()
-                    const isSelected = key === selectedDate
-                    const hasEntry = datesWithEntries.has(key)
-
-                    return (
-                      <button
-                        key={key}
-                        onClick={() => handleDateClick(d)}
-                        className={cn(
-                          'py-0.5 px-0.5 transition-opacity whitespace-nowrap',
-                          'min-w-[2.5em] text-left',
-                          isToday && 'font-bold',
-                          isSelected && 'underline',
-                          !isCurrentMonth && 'text-acc/20',
-                          isCurrentMonth && !isToday && 'text-acc/40',
-                          isToday && 'text-acc',
-                          hasEntry && isCurrentMonth && !isToday && 'text-acc/60',
-                        )}
-                      >
-                        {DAY_LETTERS[di]}{d.date()}
-                      </button>
-                    )
-                  })}
-
-                  {wi === 0 && (
-                    <div className="text-acc/30 flex items-center ml-4 whitespace-nowrap">
-                      {selectedDate && !isAddingEntry && (
-                        <button
-                          className="text-acc/30 hover:text-acc/60 transition-opacity"
-                          onClick={() => setIsAddingEntry(true)}
-                        >
-                          Note / Task / Call
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {isAddingEntry && selectedDate && (
-              <div className="mt-8">
-                <div className="flex gap-8 mb-8">
-                  {(['note', 'task', 'call'] as EntryType[]).map(t => (
-                    <button
-                      key={t}
-                      onClick={() => setEntryType(t)}
-                      className={cn(
-                        'transition-opacity capitalize',
-                        entryType === t ? 'text-acc' : 'text-acc/40 hover:text-acc/60'
-                      )}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-8 items-center">
-                  <input
-                    type="text"
-                    value={entryText}
-                    onChange={e => setEntryText(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
-                    placeholder={`Add ${entryType}...`}
-                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
-                    autoFocus
-                  />
-                  <Button onClick={handleAddEntry}>Add</Button>
-                </div>
-              </div>
             )}
+          </div>
 
-            {selectedDate && entriesOnDate.length > 0 && (
-              <div className="mt-8">
-                <div className="text-acc/40 mb-4">
-                  {dayjs(selectedDate).format('dddd, MMMM D')}
-                </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+          {todayEntries.length > 0 && (
+            <div className="mb-16">
+              <div className="text-acc/25 uppercase tracking-widest mb-4">Today</div>
+              {todayEntries.map((e, i) => {
+                const status = getStatus(e, now)
+                return (
+                  <div key={i} className="flex items-baseline gap-8 mb-1">
+                    {e.time
+                      ? <span className="text-acc/40 tabular-nums shrink-0">{e.time}</span>
+                      : <span className="text-acc/20 shrink-0">—</span>
+                    }
+                    <span className={cn('uppercase tracking-widest shrink-0', statusClass(status))}>
+                      {e.type[0]}
+                    </span>
+                    <span className={cn('flex-1', statusClass(status))}>{e.text}</span>
+                    {(status === 'EXECUTE' || status === 'ALERT') && (
+                      <span className={cn('tabular-nums shrink-0', statusClass(status))}>
+                        {formatCountdown(e, now)}
+                      </span>
+                    )}
+                    {status === 'ELAPSED' && (
+                      <span className="text-acc/20 shrink-0 uppercase tracking-widest">done</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          <div className="mb-16">
+            <Button onClick={handleToggleCalendar}>
+              Add date
+            </Button>
+          </div>
+
+          {isCalendarOpen && (
+            <div className="mb-16">
+              <div className="flex items-center gap-8 mb-8">
+                <button
+                  className="text-acc/40 hover:text-acc transition-opacity"
+                  onClick={() => setViewMonth(viewMonth.subtract(1, 'month'))}
+                >
+                  {'<—'}
+                </button>
+                <span className="text-acc">
+                  {viewMonth.format('MMMM, YYYY')}
+                </span>
+                <button
+                  className="text-acc/40 hover:text-acc transition-opacity"
+                  onClick={() => setViewMonth(viewMonth.add(1, 'month'))}
+                >
+                  {'—>'}
+                </button>
+              </div>
+
+              <div className="space-y-1">
+                {weeks.map((week, wi) => (
+                  <div key={wi} className="flex gap-0">
+                    {week.map((d, di) => {
+                      const key = d.format('YYYY-MM-DD')
+                      const isToday = key === today
+                      const isCurrentMonth = d.month() === viewMonth.month()
+                      const isSelected = key === selectedDate
+                      const hasEntry = datesWithEntries.has(key)
+
+                      return (
+                        <button
+                          key={key}
+                          onClick={() => handleDateClick(d)}
+                          className={cn(
+                            'py-0.5 px-0.5 transition-opacity whitespace-nowrap',
+                            'min-w-[2.5em] text-left',
+                            isToday && 'font-bold',
+                            isSelected && 'underline',
+                            !isCurrentMonth && 'text-acc/20',
+                            isCurrentMonth && !isToday && 'text-acc/40',
+                            isToday && 'text-acc',
+                            hasEntry && isCurrentMonth && !isToday && 'text-acc/60',
+                          )}
+                        >
+                          {DAY_LETTERS[di]}{d.date()}
+                        </button>
+                      )
+                    })}
+
+                    {wi === 0 && (
+                      <div className="text-acc/30 flex items-center ml-4 whitespace-nowrap">
+                        {selectedDate && !isAddingEntry && (
+                          <button
+                            className="text-acc/30 hover:text-acc/60 transition-opacity"
+                            onClick={() => setIsAddingEntry(true)}
+                          >
+                            Note / Task / Call
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
-            )}
-          </div>
-        )}
 
-        {upcomingEntries.length > 0 && (
-          <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
+              {isAddingEntry && selectedDate && (
+                <div className="mt-8">
+                  <div className="flex gap-8 mb-8">
+                    {(['note', 'task', 'call'] as EntryType[]).map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setEntryType(t)}
+                        className={cn(
+                          'transition-opacity capitalize',
+                          entryType === t ? 'text-acc' : 'text-acc/40 hover:text-acc/60'
+                        )}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex gap-8 items-center mb-8">
+                    <input
+                      type="time"
+                      value={entryTime}
+                      onChange={e => setEntryTime(e.target.value)}
+                      className="bg-transparent border border-acc/20 text-acc/60 px-4 py-1 outline-none focus:border-acc/40 tabular-nums"
+                    />
+                    <span className="text-acc/20">time optional</span>
+                  </div>
+                  <div className="flex gap-8 items-center">
+                    <input
+                      type="text"
+                      value={entryText}
+                      onChange={e => setEntryText(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
+                      placeholder={`Add ${entryType}...`}
+                      className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
+                      autoFocus
+                    />
+                    <Button onClick={handleAddEntry}>Add</Button>
+                  </div>
+                </div>
+              )}
 
-        {upcomingEntries.length === 0 && !isCalendarOpen && (
-          <div className="text-acc/40">No upcoming dates.</div>
-        )}
-      </div>
-    </Block>
+              {selectedDate && entriesOnDate.length > 0 && !isAddingEntry && (
+                <div className="mt-8">
+                  <div className="text-acc/40 mb-4">
+                    {dayjs(selectedDate).format('dddd, MMMM D')}
+                  </div>
+                  {entriesOnDate.map((e, i) => (
+                    <div key={i} className="flex gap-8 items-baseline text-acc/80 mb-1">
+                      {e.time && <span className="text-acc/40 tabular-nums">{e.time}</span>}
+                      <span>{e.text}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {upcomingEntries.length > 0 && (
+            <div className="space-y-1">
+              {upcomingEntries.map((entry, i) => (
+                <div key={i} className="flex justify-between gap-16">
+                  <span className="text-acc whitespace-nowrap">
+                    {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                    {entry.time && ` · ${entry.time}`}
+                  </span>
+                  <span className="text-acc text-right">
+                    {entry.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {upcomingEntries.length === 0 && todayEntries.length === 0 && !isCalendarOpen && (
+            <div className="text-acc/40">No upcoming dates.</div>
+          )}
+        </div>
+      </Block>
+
+      {activeAlert && (
+        <div className="fixed bottom-32 right-16 z-50">
+          <div className="border border-acc/40 bg-[var(--base-color)] grid-fill-light p-16 max-w-64">
+            <div className="flex justify-between items-baseline mb-8">
+              <span className={cn(
+                'uppercase tracking-widest font-bold',
+                statusClass(activeAlert.status)
+              )}>
+                CAL [{activeAlert.status}]
+              </span>
+              <button
+                className="text-acc/30 hover:text-acc/70 ml-16 uppercase tracking-widest transition-opacity"
+                onClick={() => setActiveAlert(null)}
+              >
+                ACK
+              </button>
+            </div>
+            <div className="text-acc uppercase tracking-widest mb-4 leading-tight">
+              {activeAlert.entry.type}: {activeAlert.entry.text}
+            </div>
+            <div className="text-acc/40 uppercase tracking-widest">
+              {dayjs(activeAlert.entry.date).format('ddd D MMM').toUpperCase()}
+              {activeAlert.entry.time && ` · ${activeAlert.entry.time}`}
+            </div>
+            <div className={cn('tabular-nums mt-4', statusClass(activeAlert.status))}>
+              {formatCountdown(activeAlert.entry, now)}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }
