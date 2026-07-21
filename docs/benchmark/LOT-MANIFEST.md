@@ -3,7 +3,7 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-27 (updated)
+DATE:     2026-07-21 (updated)
 ================================================================================
 
 Central catalog of all self-assembly routines across all branches.
@@ -24,7 +24,7 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
+LOT Mail         | determined-turing-w17wnq     | (SR-20260721-01) | 11/11+ | SHIPPED| 12  | +571   | In-app email: /email trigger, Sync Mail tab, Cohort integration — ported from determined-turing-f6bw7r onto current master (2 months drift, 3 conflicting files hand-resolved) + server-side canAccessChat gate added
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
@@ -126,9 +126,10 @@ upbeat-curie-1s8bgb                | DRAFT      | QIE v54 self-assembly session 
 TOTAL REMOTE BRANCHES:     144
 CLAUDE FEATURE BRANCHES:   144
 SESSION CLUSTERS:          32
-SHIP-READY FEATURES:       10 (BEST)
+SHIP-READY FEATURES:       9 (BEST)
 READY ON CURRENT BRANCH:   7 (evolution gates, density, button perf, CQGS, LOG v56, integrity, viewport)
-ALREADY SHIPPED:           3 (on quantum-engine-widgets-RgFfC → master via PR #63)
+ALREADY SHIPPED:           4 (3 on quantum-engine-widgets-RgFfC → master via PR #63;
+                           1 LOT Mail, ported determined-turing-f6bw7r → w17wnq, SR-20260721-01)
 PRUNABLE BRANCHES:         ~90
 DEAD BRANCHES:             2 (January-2026, deploy-status-page already merged)
 
@@ -180,17 +181,22 @@ PROTECTED FILES (always restore from master during any branch merge):
   docs/benchmark/LOT-MANIFEST.md      — session-managed, never merge from branch
 
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
-  LOT Mail         | determined-turing-f6bw7r  | +504 lines
   Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
   COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
 
-NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
-they were incorporated into master in prior sessions. The ship queue will be
-re-populated as new BEST branches are designated from future assembly runs.
-The protocol above applies to all future merges.
+NOTE (2026-07-21): The 2026-06-27 note below claimed all queued branches "no
+longer exist on the remote." That was false for at least determined-turing-
+f6bw7r (LOT Mail) — it was still live on origin, unmerged, code never on
+master. SR-20260721-01 shipped it. Re-verify remote existence per-branch
+before trusting this section; do not assume a queued branch is gone.
+
+NOTE (2026-06-27, unverified — see above): As of that date, some branches in
+this queue were believed incorporated into master in prior sessions. The ship
+queue will be re-populated as new BEST branches are designated from future
+assembly runs. The protocol above applies to all future merges.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.

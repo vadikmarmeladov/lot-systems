@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -67,6 +67,43 @@ One feature per ship. Master never touched while red. Cherry-pick not
 merge (avoids dragging divergent branch history into the main line).
 (SR-20260605-01: 115 branches across 23 clusters; 69 redundant
 iterations identified; 8 features ready for ship-mode merge.)
+
+COROLLARY — branch-push constraint: a scheduled/automated session is
+frequently pinned to push only its own assigned feature branch, with no
+authorization to write master. Ship Mode's final step (merge to master)
+then cannot fire inside that session no matter how green the build is.
+The session must say so explicitly in its report and STATUS field — never
+self-mark SHIPPED for a feature that only reached an isolated branch. A
+false SHIPPED mark is worse than an honest BEST/awaiting-merge mark: it
+tells the next session (and MANIFEST) the work is done when it silently
+is not, which is exactly the failure STALE-SHIP (below) exists to catch.
+(SR-20260612-01 marked LOT Mail SHIPPED on a branch that was never merged;
+MANIFEST still listed it BEST 5 weeks later; SR-20260718-01 caught the gap,
+re-shipped GREEN to a different isolated branch, hit the same push
+constraint, still didn't reach master; SR-20260721-01 is the third correct-
+but-unmerged pass — see STALE-SHIP.)
+
+## STALE-SHIP
+
+Before building a feature from a mission brief, check whether the mission
+has already run: search LOT-MANIFEST.md for a matching feature row, and
+search remote branches / git log for a commit whose message matches the
+brief. A recurring scheduled task can fire the identical mission text more
+than once (verbatim) across sessions that don't share memory. If a prior
+attempt exists, port the newest available iteration onto the current base
+via cherry-pick (freshest base = fewest conflicts, per Manifest Hygiene's
+BEST-selection criteria) rather than re-designing from scratch — but
+porting cleanly and building GREEN does not by itself close the loop; see
+Ship Mode Discipline's branch-push corollary for why. Record the full
+recurrence chain (session IDs, branches, what each one found) in the new
+report so a future session inherits the true state instead of trusting a
+stale MANIFEST row or an aspirational STATUS: SHIPPED line at face value.
+(SR-20260718-01: first caught SR-20260612-01's false SHIPPED mark.
+SR-20260721-01: third occurrence of the same mission; confirms this is a
+structural gap — not a one-off — in how scheduled sessions and MANIFEST
+interact; STALE-SHIP minted at 2+ prior occurrences on doctrine-fold, one
+short of the 3-report LEXICON token threshold, held as PROVISIONAL prose
+until a 3rd distinct report cites it.)
 
 ## Operator RFI Pattern
 
