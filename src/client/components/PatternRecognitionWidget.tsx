@@ -158,6 +158,9 @@ export function PatternRecognitionWidget() {
       'evening-reflection-loop':    'Evening reflection loop — journal after 18:00 + memory + intentions same day (P125)',
       'weekly-rhythm-anchor':       'Weekly rhythm anchor — active on 5+ of last 7 calendar days (P126)',
       'depth-breadth-convergence':  'Depth-breadth convergence — focus-depth-arc + signal-density-peak co-active (P127)',
+      'morning-intention-lock':     'Morning intention lock — intentions + planner + log in 06–10h window (P128)',
+      'multi-day-care-arc':         'Multi-day care arc — selfcare on 3+ consecutive days (P129)',
+      'cognitive-output-continuity':'Cognitive output continuity — journal on 4+/7 days (P130)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

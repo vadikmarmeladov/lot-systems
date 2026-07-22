@@ -90,6 +90,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'evening-reflection-loop':        'EVEFL',
   'weekly-rhythm-anchor':           'WEEKA',
   'depth-breadth-convergence':      'DEPBR',
+  'morning-intention-lock':         'MINTLK',
+  'multi-day-care-arc':             'MARC',
+  'cognitive-output-continuity':    'COGCONT',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

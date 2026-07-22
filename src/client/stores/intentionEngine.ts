@@ -2865,6 +2865,90 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 128: Morning Intention Lock — intentions + planner + log all fire in the
+  // 06:00–10:00 window on the current day. Cognitive OS booted at day's first moment.
+  // The person is structuring direction, plan, and field signal in a single morning band.
+  // Distinct from P119 (morning-coherence-arc: energy+planner+intentions) — P128 adds log field signal
+  // and narrows to the 06:00 start, confirming field presence alongside structural intent.
+  const p128Today = new Date(); p128Today.setHours(0, 0, 0, 0)
+  const p128Morning6  = p128Today.getTime() + 6 * 60 * 60 * 1000
+  const p128Morning10 = p128Today.getTime() + 10 * 60 * 60 * 1000
+  const p128MorningSig  = signals.filter(s => s.timestamp >= p128Morning6 && s.timestamp < p128Morning10)
+  const p128Intentions  = p128MorningSig.filter(s => s.source === 'intentions')
+  const p128Planner     = p128MorningSig.filter(s => s.source === 'planner')
+  const p128Log         = p128MorningSig.filter(s => s.source === 'log')
+  if (p128Intentions.length >= 1 && p128Planner.length >= 1 && p128Log.length >= 1 && hour < 14) {
+    const p128Conf = Math.min(0.70 + (p128Intentions.length - 1) * 0.05 + (p128Planner.length - 1) * 0.04 + (p128Log.length - 1) * 0.03, 0.88)
+    patterns.push({
+      pattern: 'morning-intention-lock',
+      confidence: p128Conf,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `MINTLK: Morning intention lock — intentions ${p128Intentions.length} + planner ${p128Planner.length} + log ${p128Log.length} in 06:00–10:00 window. Cognitive OS booted at day's first moment. Direction, structure, and field signal aligned before momentum builds.`,
+    })
+  }
+
+  // Pattern 129: Multi-Day Care Arc — selfcare signals present on 3+ consecutive calendar
+  // days. Restoration is a maintained practice, not a reaction to depletion. Sustained
+  // body protocol confirmed across multiple days.
+  // Distinct from P49 (care-momentum: 2+ same day), P118 (care-intelligence-loop: body+mind+writing in 24h),
+  // P123 (sustained-resilience-arc: resilience source, not selfcare). P129 is pure selfcare channel continuity.
+  const p129Window7d = 7 * 24 * 60 * 60 * 1000
+  const p129SelfcareSignals = signals.filter(s => s.source === 'selfcare' && s.timestamp > now - p129Window7d)
+  const p129DaySet: Record<string, boolean> = {}
+  p129SelfcareSignals.forEach(s => {
+    const d = new Date(s.timestamp)
+    const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    p129DaySet[ds] = true
+  })
+  const p129DaysSorted = Object.keys(p129DaySet).sort()
+  let p129ConsecutiveStreak = 0
+  let p129MaxStreak = 0
+  for (let i = 0; i < p129DaysSorted.length; i++) {
+    if (i === 0) { p129ConsecutiveStreak = 1 }
+    else {
+      const prev = new Date(p129DaysSorted[i - 1]).getTime()
+      const curr = new Date(p129DaysSorted[i]).getTime()
+      const diffDays = Math.round((curr - prev) / 86400000)
+      if (diffDays === 1) p129ConsecutiveStreak++
+      else p129ConsecutiveStreak = 1
+    }
+    if (p129ConsecutiveStreak > p129MaxStreak) p129MaxStreak = p129ConsecutiveStreak
+  }
+  if (p129MaxStreak >= 3) {
+    const p129Conf = Math.min(0.72 + (p129MaxStreak - 3) * 0.06, 0.90)
+    patterns.push({
+      pattern: 'multi-day-care-arc',
+      confidence: p129Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `MARC: Multi-day care arc — ${p129MaxStreak} consecutive days with active care signals. Restoration is a maintained practice, not a reaction. The body is a consistent priority.`,
+    })
+  }
+
+  // Pattern 130: Cognitive Output Continuity — journal entries detected on 4+ distinct
+  // calendar days in the last 7 days. Writing is not an event — it is an operating
+  // condition. Sustained articulation channel confirmed across the week.
+  // Distinct from P126 (weekly-rhythm-anchor: any source, 5+/7d). P130 is pure writing-channel continuity.
+  const p130Window7d = 7 * 24 * 60 * 60 * 1000
+  const p130JournalSignals = signals.filter(s => s.source === 'journal' && s.timestamp > now - p130Window7d)
+  const p130JournalDays = new Set(
+    p130JournalSignals.map(s => {
+      const d = new Date(s.timestamp)
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    })
+  )
+  if (p130JournalDays.size >= 4) {
+    const p130Conf = Math.min(0.68 + (p130JournalDays.size - 4) * 0.07, 0.88)
+    patterns.push({
+      pattern: 'cognitive-output-continuity',
+      confidence: p130Conf,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `COGCONT: Cognitive output continuity — journal entries on ${p130JournalDays.size}/7 days. Writing is not an event — it is an operating condition. Sustained articulation channel confirmed.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3463,6 +3547,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   eveningReflectionNode:     ['journal', 'memory', 'intentions', 'log'],
   weeklyRhythmNode:          ['log', 'planner', 'intentions', 'energy', 'mood', 'journal', 'memory'],
   depthBreadthNode:          ['journal', 'memory', 'planner', 'mood', 'energy', 'selfcare', 'log'],
+
+  // ── Morning intention lock + multi-day care arc + cognitive output continuity (2026-07-22 v102)
+  morningIntentionLockNode:   ['intentions', 'planner', 'log'],
+  multiDayCareArcNode:        ['selfcare', 'mood', 'log'],
+  cogOutputContinuityNode:    ['journal', 'log'],
 }
 
 /**
@@ -3836,6 +3925,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['journal', 'memory', 'intentions'],
     patternConditions: ['evening-reflection-loop', 'weekly-rhythm-anchor', 'depth-breadth-convergence'],
     directive: 'Evening integration cycle confirmed. Reflection, memory capture, and rhythm anchor all present. You are closing the loop daily — the practice is structural now. Each day filed, each insight preserved.',
+  },
+  // ── Arch44: Sustained Care Operator (2026-07-22 v102) ───────────────────────────
+  {
+    archetype: 'Sustained Care Operator',
+    energyBands: ['low', 'moderate', 'high'],
+    dominantSources: ['selfcare', 'mood', 'journal'],
+    patternConditions: ['multi-day-care-arc', 'care-intelligence-loop', 'biofield-recovery-arc'],
+    directive: 'Care is the infrastructure. Sustained care arc confirmed. Physical maintenance and cognitive output aligned. Keep this cadence.',
   },
 ]
 
@@ -5442,6 +5539,46 @@ export function recordDepthBreadthConvergence(focusDepthConf: number, signalDens
     focusDepthConf,
     signalDensityConf,
     window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a morning-intention-lock signal — intentions + planner + log all in 06:00–10:00 window.
+ * Feeds P128 detection. Cognitive OS booted at day's first moment.
+ */
+export function recordMorningIntentionLock(intentionCount: number, plannerCount: number, logCount: number) {
+  recordSignal('intentions', 'morning_intention_lock', {
+    intentionCount,
+    plannerCount,
+    logCount,
+    window: '06-10h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a multi-day-care-arc signal — selfcare present on 3+ consecutive calendar days.
+ * Feeds P129 detection. Sustained restoration practice confirmed.
+ */
+export function recordMultiDayCareArc(streakDays: number, totalCareActs: number) {
+  recordSignal('selfcare', 'multi_day_care_arc', {
+    streakDays,
+    totalCareActs,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a cognitive-output-continuity signal — journal entries on 4+ of last 7 days.
+ * Feeds P130 detection. Sustained articulation channel confirmed.
+ */
+export function recordCognitiveOutputContinuity(journalDays: number, journalEntries: number) {
+  recordSignal('journal', 'cognitive_output_continuity', {
+    journalDays,
+    journalEntries,
+    window: '7d',
     hour: new Date().getHours(),
   })
 }

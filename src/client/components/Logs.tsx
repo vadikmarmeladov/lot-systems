@@ -1051,6 +1051,51 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'morning_intention_lock') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const plannerCount   = log.metadata?.plannerCount   as number | undefined
+          const logCount       = log.metadata?.logCount       as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MINTLK:" blockView>
+                <div className="uppercase tracking-widest mb-4">MORNING INTENT LOCK</div>
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT: {intentionCount}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN: {plannerCount}</div>
+                )}
+                {logCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">LOG: {logCount}</div>
+                )}
+                <div className="opacity-40 tabular-nums">WIN: 06-10H</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'multi_day_care_arc') {
+          const streakDays    = log.metadata?.streakDays    as number | undefined
+          const totalCareActs = log.metadata?.totalCareActs as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">MULTI-DAY CARE ARC</div>
+                {streakDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">STREAK: {streakDays}D</div>
+                )}
+                {totalCareActs !== undefined && (
+                  <div className="opacity-60 tabular-nums">ACTS 7D: {totalCareActs}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'evening_reflection_loop') {
           const journalCount   = log.metadata?.journalCount   as number | undefined
           const memoryCount    = log.metadata?.memoryCount    as number | undefined
@@ -1112,6 +1157,26 @@ export const Logs: React.FC = React.memo(function LogsInner() {
                   <div className="opacity-60 tabular-nums">SIGPEAK CONF: {Math.round(signalDensityConf * 100)}%</div>
                 )}
                 <div className="opacity-40">DEPTH + BREADTH SIMULTANEOUS</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_output_continuity') {
+          const journalDays    = log.metadata?.journalDays    as number | undefined
+          const journalEntries = log.metadata?.journalEntries as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COGCONT:" blockView>
+                <div className="uppercase tracking-widest mb-4">COGNITIVE OUTPUT CONT</div>
+                {journalDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">DAYS 7D: {journalDays}</div>
+                )}
+                {journalEntries !== undefined && (
+                  <div className="opacity-60 tabular-nums">ENTRIES: {journalEntries}</div>
+                )}
                 {confidence !== undefined && (
                   <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
                 )}

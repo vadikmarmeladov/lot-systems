@@ -1181,6 +1181,10 @@ export default async (fastify: FastifyInstance) => {
       'evening_reflection_loop',
       'weekly_rhythm_anchor',
       'depth_breadth_convergence',
+      // v102: morning intention lock · multi-day care arc · cognitive output continuity (P128/P129/P130)
+      'morning_intention_lock',
+      'multi_day_care_arc',
+      'cognitive_output_continuity',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

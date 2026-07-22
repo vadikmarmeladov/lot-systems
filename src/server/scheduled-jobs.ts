@@ -1715,6 +1715,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyEveningReflectionCheck()) {
     await executeDailyEveningReflectionCheck()
   }
+  // Check daily care arc check (20:00 UTC every day) — Job 41
+  if (shouldRunDailyCareArcCheck()) {
+    await executeDailyCareArcCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -2683,6 +2687,97 @@ async function executeDailyFocusDepthCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily focus depth check failed:', error.message)
     isDailyFocusDepthRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Care Arc Check (Job 38 — 20:00 UTC every day) ────────────────────
+// Reads active users. Checks selfcare signals across the last 3 calendar days.
+// If selfcare signal present on each of the 3 consecutive days, writes multi_day_care_arc.
+// Feeds P120 detection. Sustained restoration practice confirmed.
+
+let isDailyCareArcRunning = false
+let lastDailyCareArcRun: Date | null = null
+
+function shouldRunDailyCareArcCheck(): boolean {
+  const now = dayjs()
+  if (isDailyCareArcRunning) return false
+  if (lastDailyCareArcRun) {
+    const lastRun = dayjs(lastDailyCareArcRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 20 // 20:00 UTC daily
+}
+
+async function executeDailyCareArcCheck(): Promise<JobResult> {
+  const jobName = 'daily-care-arc-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyCareArcRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCareArcRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY CARE ARC CHECK — 20:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const threeDaysAgo = dayjs().subtract(3, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const careLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: threeDaysAgo },
+            event: { [Op.in]: ['selfcare_logged', 'self_care_logged', 'care_act', 'cleanness_logged', 'rest_logged', 'recovery_act'] },
+          },
+          attributes: ['createdAt'],
+          order: [['createdAt', 'ASC']],
+        })
+
+        // Build set of distinct UTC calendar days with care signals
+        const careDays = new Set<string>()
+        for (const log of careLogs) {
+          const d = new Date(log.createdAt)
+          careDays.add(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`)
+        }
+
+        // Check 3 most recent consecutive days (today-2, today-1, today)
+        const d2 = dayjs().subtract(2, 'day').format('YYYY-MM-DD')
+        const d1 = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+        const d0 = dayjs().format('YYYY-MM-DD')
+
+        if (careDays.has(d2) && careDays.has(d1) && careDays.has(d0)) {
+          const streakDays = 3
+          const totalCareActs = careLogs.length
+          await (Log as any).create({
+            userId,
+            event: 'multi_day_care_arc',
+            text: `Multi-day care arc: ${streakDays} consecutive days with active care signals. Sustained restoration practice confirmed.`,
+            metadata: { streakDays, totalCareActs, window: '3d', hour: 20 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Multi-day care arc events written: ${written}`)
+    lastDailyCareArcRun = new Date()
+    isDailyCareArcRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily care arc check failed:', error.message)
+    isDailyCareArcRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4763,6 +4858,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
   console.log('   - Daily focus depth check: 4 PM UTC every day (Job 37)')
   console.log('   - Daily evening reflection check: 10 PM UTC every day (Job 40)')
+  console.log('   - Daily care arc check: 8 PM UTC every day (Job 41)')
   console.log('')
 
   // Check every hour for scheduled jobs
