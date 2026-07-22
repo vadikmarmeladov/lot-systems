@@ -217,6 +217,15 @@ Generates random numbers (0–99) at randomized countdown intervals between 1 an
 
 ## System & Metrics Widgets
 
+### Astrology Block
+
+Ambient time-and-date conditions, not a personal natal chart — no birth data is used. Shown to every account (free layout gets a static line; paid layout gets a cycling view with more depth): today's Western zodiac season, the current 2-hour zodiac hour, today's rokuyo (六曜, six-day auspicious-day cycle), and the moon phase with illumination %. The paid view also adds a personalization line — it checks whether the user's own past Log entries cluster around the same zodiac hour or rokuyo as today (from `getResonantLogWindows`), surfacing only once there's enough sample (5+ stamped logs).
+
+Every new Log entry is stamped server-side with the astrology snapshot active at write time (`LogContext.hourlyZodiac` / `rokuyo` / `moonPhase` / `moonEmoji` / `moonIllumination`), computed in the user's own timezone. `Logs.tsx` surfaces that stamp next to each entry (hover tooltip and the `system_snapshot` detail block), the same way it already surfaces the weather stamp.
+
+- **Data Source:** `getAstrologySnapshot()` in `#shared/utils/astrology` (pure date math, no external API); `useTodayAstrology()` client hook wraps it and refreshes hourly; `getLogContext()` server-side stamps it onto every new Log's `context`
+- **Connection:** Single snapshot shared by System.tsx and Quantum Sign Widget so the two never contradict each other; Log entries carry their own astrology stamp for later personalization and display in Logs.tsx
+
 ### User Metrics Widget (CQGS Dashboard)
 
 Personal operating system metrics dashboard. Cycles through Status, Performance, and Version views. Status shows health percentage, system state, uptime, streak, and interaction counts. Performance shows consistency and engagement scores. Version shows runtime progression.
@@ -319,10 +328,10 @@ A subscription prompt offering R&D ($15/month) and Usership ($99/month) tiers. L
 
 ### Quantum Sign Widget
 
-A daily "quantum sign" message for subscribers (Usership or R&D tier). The message is stable per day using a date-based seed, ensuring consistency across sessions. Displays astrology and psychology "patches" available. Only surfaces for users with lower recent activity.
+A daily "quantum sign" message for subscribers (Usership or R&D tier). The message is stable per day using a date-based seed, ensuring consistency across sessions. Displays astrology and psychology "patches." The astrology patch reads the shared `useTodayAstrology()` snapshot (rokuyo, moon phase/illumination) — same source as the System tab's Astrology block, so the two never contradict each other. Only surfaces for users with lower recent activity.
 
-- **Data Source:** System date for deterministic daily randomization; `/api/logs` to check recent activity levels; `user.tags` for subscription verification
-- **Connection:** Subscription-gated; activity-aware visibility logic
+- **Data Source:** System date for deterministic daily randomization; `/api/logs` to check recent activity levels; `user.tags` for subscription verification; `useTodayAstrology()` for the astrology patch
+- **Connection:** Subscription-gated; activity-aware visibility logic; synchronized with the System tab's Astrology block via the shared hook
 
 ### Cosmic Update Widget
 

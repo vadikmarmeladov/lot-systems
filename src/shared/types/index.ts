@@ -164,6 +164,14 @@ export type LogContext = {
   city?: string | null;
   timeZone?: string | null;
   date?: string | null;
+  // Ambient astrology conditions at the moment the log was written —
+  // zodiac hour, zodiac season, moon phase, rokuyo. Not a natal chart.
+  hourlyZodiac?: string | null;
+  westernZodiac?: string | null;
+  moonPhase?: string | null;
+  moonIllumination?: number | null;
+  moonEmoji?: string | null;
+  rokuyo?: string | null;
   [key: string]: any;
 };
 

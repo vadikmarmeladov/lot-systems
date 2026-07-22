@@ -22,7 +22,8 @@ import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
-import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
+import { getResonantLogWindows } from '#shared/utils/astrology'
+import { useTodayAstrology } from '#client/hooks/useTodayAstrology'
 import { useBreathe } from '#client/utils/breathe'
 import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
@@ -190,22 +191,18 @@ export const System = React.memo(function SystemInner() {
     return { sunrise, sunset }
   }, [weather, isTimeFormat12h])
 
-  // Astrology calculations
-  const astrology = React.useMemo(() => {
-    const now = new Date()
-    const hourlyZodiac = getHourlyZodiac(now)
-    const westernZodiac = getWesternZodiac(now)
-    const moonPhase = getMoonPhase(now)
-    const rokuyo = getRokuyo(now)
+  // Astrology — shared snapshot (System.tsx and QuantumSignWidget both read
+  // this, so the two widgets never show contradicting conditions)
+  const astrology = useTodayAstrology()
 
-    return {
-      hourlyZodiac,
-      westernZodiac,
-      moonPhase: moonPhase.phase,
-      moonIllumination: moonPhase.illumination,
-      rokuyo,
-    }
-  }, [])
+  // Personalization: which of the user's own logs (stamped with astrology
+  // conditions at write time) cluster around a given zodiac hour or rokuyo.
+  // Ambient-conditions based, not a natal chart — it only ever reflects the
+  // user's own logged history against today.
+  const astrologyAffinity = React.useMemo(
+    () => getResonantLogWindows(logs, astrology),
+    [logs, astrology]
+  )
 
   const answerLogs = React.useMemo(() => {
     return logs.filter(log => log.event === 'answer')
@@ -434,7 +431,7 @@ export const System = React.memo(function SystemInner() {
         <div>
           <Block label="Astrology:">
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonEmoji} {astrology.moonPhase}
             </div>
           </Block>
         </div>
@@ -640,7 +637,21 @@ export const System = React.memo(function SystemInner() {
         >
           {astrologyView === 'astrology' ? (
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              <div>
+                {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonEmoji} {astrology.moonPhase}
+              </div>
+              {astrology.rokuyoMeaning && (
+                <div className="opacity-30">{astrology.rokuyoMeaning}</div>
+              )}
+              {astrologyAffinity.sampleSize >= 5 && (astrologyAffinity.matchesHour || astrologyAffinity.matchesRokuyo) && (
+                <div className="mt-4 opacity-30">
+                  {astrologyAffinity.matchesHour && astrologyAffinity.matchesRokuyo
+                    ? `You tend to log during ${astrologyAffinity.dominantHour} hour on ${astrologyAffinity.dominantRokuyo} — today matches both.`
+                    : astrologyAffinity.matchesHour
+                      ? `You tend to log during ${astrologyAffinity.dominantHour} hour — today matches.`
+                      : `You tend to log on ${astrologyAffinity.dominantRokuyo} — today matches.`}
+                </div>
+              )}
             </div>
           ) : astrologyView === 'psychology' ? (
             <div>

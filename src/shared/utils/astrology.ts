@@ -177,3 +177,105 @@ export function getMoonEmoji(phaseName: string): string {
   }
   return emojiMap[phaseName] || '🌑'
 }
+
+// One-line ambient meaning per Rokuyo day — not fortune-telling, just the
+// traditional gloss, kept short enough to sit next to the widget's other segments.
+const ROKUYO_MEANING: Record<string, string> = {
+  Sensho: 'favors morning action',
+  Tomobiki: 'favors connection',
+  Senpu: 'favors afternoon action',
+  Butsumetsu: 'favors quiet, low-key days',
+  Taian: 'favors starting things',
+  Shakku: 'favors caution around midday',
+}
+
+export function getRokuyoMeaning(rokuyo: string): string {
+  return ROKUYO_MEANING[rokuyo] || ''
+}
+
+export type AstrologySnapshot = {
+  hourlyZodiac: string
+  westernZodiac: string
+  moonPhase: string
+  moonIllumination: number
+  moonEmoji: string
+  rokuyo: string
+  rokuyoMeaning: string
+}
+
+/**
+ * Single source of truth for "today's ambient conditions" — zodiac hour,
+ * zodiac season, moon phase, and rokuyo. Callers on client and server should
+ * compute from this instead of calling the individual functions separately,
+ * so every widget and every Log's context reads from the same snapshot.
+ */
+export function getAstrologySnapshot(date: Date): AstrologySnapshot {
+  const hourlyZodiac = getHourlyZodiac(date)
+  const westernZodiac = getWesternZodiac(date)
+  const moon = getMoonPhase(date)
+  const rokuyo = getRokuyo(date)
+
+  return {
+    hourlyZodiac,
+    westernZodiac,
+    moonPhase: moon.phase,
+    moonIllumination: moon.illumination,
+    moonEmoji: getMoonEmoji(moon.phase),
+    rokuyo,
+    rokuyoMeaning: getRokuyoMeaning(rokuyo),
+  }
+}
+
+/**
+ * Personalization from ambient conditions — not a natal chart, just a read
+ * on which of the user's own past Log entries (stamped with an astrology
+ * snapshot at write time) tend to land under which conditions. Requires
+ * logs whose `context` already carries hourlyZodiac/rokuyo — older logs
+ * written before this stamping existed simply don't count toward the sample.
+ */
+export function getResonantLogWindows(
+  logs: Array<{ context?: Record<string, any> | null }>,
+  today: Pick<AstrologySnapshot, 'hourlyZodiac' | 'rokuyo'>
+): {
+  dominantHour: string | null
+  dominantRokuyo: string | null
+  matchesHour: boolean
+  matchesRokuyo: boolean
+  sampleSize: number
+} {
+  const hourCounts: Record<string, number> = {}
+  const rokuyoCounts: Record<string, number> = {}
+  let sampleSize = 0
+
+  for (const log of logs) {
+    const hour = log.context?.hourlyZodiac
+    const rokuyo = log.context?.rokuyo
+    if (!hour && !rokuyo) continue
+    sampleSize++
+    if (hour) hourCounts[hour] = (hourCounts[hour] || 0) + 1
+    if (rokuyo) rokuyoCounts[rokuyo] = (rokuyoCounts[rokuyo] || 0) + 1
+  }
+
+  const topOf = (counts: Record<string, number>): string | null => {
+    let best: string | null = null
+    let bestCount = 0
+    for (const key of Object.keys(counts)) {
+      if (counts[key] > bestCount) {
+        best = key
+        bestCount = counts[key]
+      }
+    }
+    return best
+  }
+
+  const dominantHour = topOf(hourCounts)
+  const dominantRokuyo = topOf(rokuyoCounts)
+
+  return {
+    dominantHour,
+    dominantRokuyo,
+    matchesHour: !!dominantHour && dominantHour === today.hourlyZodiac,
+    matchesRokuyo: !!dominantRokuyo && dominantRokuyo === today.rokuyo,
+    sampleSize,
+  }
+}

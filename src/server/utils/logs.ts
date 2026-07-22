@@ -10,9 +10,15 @@ import { Op } from 'sequelize'
 import dayjs from '#server/utils/dayjs'
 import { LogContext, User } from '#shared/types'
 import { DATE_TIME_FORMAT, WEATHER_STALE_TIME_MINUTES } from '#shared/constants'
+import { getAstrologySnapshot } from '#shared/utils/astrology'
 import { models } from '../models/index.js'
 
 export async function getLogContext(user: User): Promise<LogContext> {
+  // Ambient astrology conditions in the user's own local time, so the zodiac
+  // hour stamped on the log matches the hour they actually wrote it in.
+  const localNow = user.timeZone ? dayjs().tz(user.timeZone).toDate() : new Date()
+  const astrology = getAstrologySnapshot(localNow)
+
   const context: LogContext = {
     temperature: null,
     humidity: null,
@@ -23,6 +29,12 @@ export async function getLogContext(user: User): Promise<LogContext> {
     date: user.timeZone
       ? dayjs().tz(user.timeZone).format(DATE_TIME_FORMAT)
       : null,
+    hourlyZodiac: astrology.hourlyZodiac,
+    westernZodiac: astrology.westernZodiac,
+    moonPhase: astrology.moonPhase,
+    moonIllumination: astrology.moonIllumination,
+    moonEmoji: astrology.moonEmoji,
+    rokuyo: astrology.rokuyo,
   }
   if (user.country && user.city) {
     const cachedWeather = await models.WeatherResponse.findOne({

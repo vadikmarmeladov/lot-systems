@@ -362,6 +362,9 @@ export const Logs: React.FC = React.memo(function LogsInner() {
                 {log.context?.humidity && (
                   <div>HUM: {log.context.humidity}%</div>
                 )}
+                {log.context?.rokuyo && (
+                  <div>MOON: {log.context.moonEmoji} {log.context.rokuyo}</div>
+                )}
                 {log.metadata?.sound && (
                   <div>SND: {log.metadata.sound}</div>
                 )}
@@ -2756,6 +2759,29 @@ export const Logs: React.FC = React.memo(function LogsInner() {
   )
 })
 
+// Weather + ambient astrology stamp shown on hover for a log entry — reads
+// straight from log.context, which the server stamps at write time, so this
+// stays in sync with whatever conditions were live when the entry was made.
+function formatLogContext(context: Log['context'] | undefined | null): string {
+  if (!context) return ''
+  const weatherParts: string[] = []
+  if (context.temperature) {
+    const celsius = toCelsius(context.temperature)
+    weatherParts.push(`${Math.round(celsius)}°C`)
+  }
+  if (context.humidity) {
+    weatherParts.push(`${Math.round(context.humidity)}%`)
+  }
+  const weatherText = weatherParts.join(', ')
+
+  const parts = [weatherText]
+  if (context.city) parts.push(context.city)
+  if (context.rokuyo) {
+    parts.push(`${context.moonEmoji || ''} ${context.rokuyo}`.trim())
+  }
+  return parts.filter(Boolean).join(' – ')
+}
+
 const NoteEditor = ({
   log,
   primary,
@@ -3271,22 +3297,7 @@ const NoteEditor = ({
     }
   }, [value])
 
-  const contextText = React.useMemo(() => {
-    if (!log?.context) return ''
-    const weatherParts: string[] = []
-    if (log.context?.temperature) {
-      const celsius = toCelsius(log.context.temperature)
-      weatherParts.push(`${Math.round(celsius)}°C`)
-    }
-    if (log.context?.humidity) {
-      weatherParts.push(`${Math.round(log.context.humidity)}%`)
-    }
-    const weatherText = weatherParts.join(', ')
-    if (log.context?.city) {
-      return `${weatherText} – ${log.context.city}`
-    }
-    return weatherText
-  }, [log?.context])
+  const contextText = React.useMemo(() => formatLogContext(log?.context), [log?.context])
 
   return (
     <div className="relative group">
@@ -3543,21 +3554,7 @@ const LogContainer: React.FC<{
   log: Log
   dateFormat: string
 }> = ({ log, dateFormat, children }) => {
-  const contextText = React.useMemo(() => {
-    const weatherParts: string[] = []
-    if (log.context?.temperature) {
-      const celsius = toCelsius(log.context.temperature)
-      weatherParts.push(`${Math.round(celsius)}°C`)
-    }
-    if (log.context?.humidity) {
-      weatherParts.push(`${Math.round(log.context.humidity)}%`)
-    }
-    const weatherText = weatherParts.join(', ')
-    if (log.context?.city) {
-      return `${weatherText} – ${log.context.city}`
-    }
-    return weatherText
-  }, [log.context])
+  const contextText = React.useMemo(() => formatLogContext(log.context), [log.context])
 
   return (
     <div className="relative group">
