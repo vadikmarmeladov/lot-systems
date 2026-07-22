@@ -560,6 +560,43 @@ export type BadgeType =
   | 'dune_signal'              // ∘·◈   Write "spice" in journal — Dune (RARE, hidden)
   | 'foundation_word'          // ≋·◉   Write "psychohistory" in journal — Foundation (EPIC)
   | 'neuromancer_signal'       // ▓→◉   Write "cyberspace" in journal — Neuromancer (MYTHIC)
+  // ── Word Turn v17 — The Arcade Protocol ──────────────────────────────────────
+  | 'respawn_ritual'           // ▶·▶  "respawn" detected in text
+  | 'highscore_moment'         // ↑■↑  "high score/highscore" detected in text
+  | 'power_up_active'          // +·►  "power-up/powerup" detected in text
+  | 'cheat_code_found'         // ←↑→  "cheat code/cheatcode" detected in text
+  | 'extra_life_earned'        // ◎·I  "extra life" detected in text
+  | 'pixel_perfect'            // ▪:▪  "pixel" detected in text
+  | 'boss_pattern'             // ◆→▶  "boss fight/boss battle/final boss" detected
+  | 'combo_cascade'            // ×·×  "combo" detected in text
+  | 'arcade_coin'              // (·)  "quarter/token/coin" detected in text
+  | 'save_state'               // ▓·▪  "save state/savestate/checkpoint" detected
+  | 'side_quest_complete'      // →·◇  "side quest/sidequest" detected in text
+  | 'glitch_found'             // ▒:░  "glitch" detected in text
+  // ── Calendar Easter Eggs v14 — The Cartridge Dates ───────────────────────────
+  | 'pac_man_day'              // ·●·  May 22 — Pac-Man arcade release 1980 (RARE)
+  | 'ibm_personal_day'         // ■·■  August 12 — IBM PC launched 1981 (EPIC)
+  | 'wikipedia_day'            // ○·○·○ January 15 — Wikipedia launched 2001 (RARE)
+  // ── Behavioral Easter Eggs v14 — The Controller Patterns ─────────────────────
+  | 'konami_marathon'          // ↑↑·↓↓  10 consecutive journal days (EPIC)
+  | 'full_map_session'         // ▶▶▶  Journal entry ≥ 1500 characters (RARE)
+  | 'speedrun_dawn'            // →→→  Journal entry before 5:00 AM (RARE)
+  // ── Achievement RPG v15 — The Arcade Class ───────────────────────────────────
+  | 'arcade_entry'             // ▶·∘  Any 1 Word Turn v17 badge (COMMON)
+  | 'arcade_class'             // ▶·■  Any 5 Word Turn v17 badges (UNCOMMON)
+  | 'arcade_complete'          // ▶·◈  All 12 Word Turn v17 badges (LEGENDARY)
+  | 'arcade_arc'               // ◈·▶·◈ arcade_complete + all 3 Calendar v14 badges (LEGENDARY)
+  | 'seventeen_engines_arc'    // ◈·◈·▶ 1 badge from each Word Turn v1–v17 (LEGENDARY)
+  | 'perfect_run'              // ▶·◉·▶ arcade_complete + konami_marathon (LEGENDARY)
+  // ── Mastery Tier v17 — The Cabinet ───────────────────────────────────────────
+  | 'arcade_veteran'           // ▶▶▶·  500+ distinct calendar days with check-in (EPIC)
+  | 'word_hoard'               // ∞·▪·∞ 40,000+ total journal words (LEGENDARY)
+  | 'seven_year_loop'          // ◈→◈   Account age ≥ 7 years (LEGENDARY)
+  | 'seventeen_tongues'        // ◈·◈·▶ 1 badge from all 17 Word Turn engines (COSMIC)
+  // ── Secret Boss v14 — The Hidden Level ───────────────────────────────────────
+  | 'hadouken_signal'          // →↓↘●  Write "hadouken" in journal — Street Fighter (RARE)
+  | 'all_your_base'            // ∘ZERO∘ Write "all your base" in journal — Zero Wing (MYTHIC)
+  | 'leeroy_signal'            // !·!·!  Write "leeroy" in journal — World of Warcraft (RARE)
 
 export interface Badge {
   id: BadgeType
@@ -5113,6 +5150,294 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v17 — The Arcade Protocol ──────────────────────────────────────
+  respawn_ritual: {
+    id: 'respawn_ritual',
+    symbol: '▶·▶',
+    name: 'Respawn Ritual',
+    description: 'Write "respawn" in a journal or memory entry',
+    unlockMessage: '↳ Coming back online. Every respawn is a reset. Every reset is a choice. ▶·▶',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  highscore_moment: {
+    id: 'highscore_moment',
+    symbol: '↑■↑',
+    name: 'High Score Moment',
+    description: 'Write "high score" or "highscore" in a journal or memory entry',
+    unlockMessage: '↳ Personal best recorded. The best opponent is always yesterday. ↑■↑',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  power_up_active: {
+    id: 'power_up_active',
+    symbol: '+·►',
+    name: 'Power-Up Active',
+    description: 'Write "power-up" or "powerup" in a journal or memory entry',
+    unlockMessage: '↳ The pickup. The boost. The resource you didn\'t know you\'d find until you did. +·►',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  cheat_code_found: {
+    id: 'cheat_code_found',
+    symbol: '←↑→',
+    name: 'Cheat Code Found',
+    description: 'Write "cheat code" or "cheatcode" in a journal or memory entry',
+    unlockMessage: '↳ There is no cheating in self-care. There are only shortcuts you earned. ←↑→',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  extra_life_earned: {
+    id: 'extra_life_earned',
+    symbol: '◎·I',
+    name: 'Extra Life Earned',
+    description: 'Write "extra life" in a journal or memory entry',
+    unlockMessage: '↳ One more life. Not luck — the system knew you needed it. ◎·I',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  pixel_perfect: {
+    id: 'pixel_perfect',
+    symbol: '▪:▪',
+    name: 'Pixel Perfect',
+    description: 'Write "pixel" in a journal or memory entry',
+    unlockMessage: '↳ The smallest unit of display. Everything is made of them. So are you. ▪:▪',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  boss_pattern: {
+    id: 'boss_pattern',
+    symbol: '◆→▶',
+    name: 'Boss Pattern Read',
+    description: 'Write "boss fight", "boss battle", or "final boss" in a journal or memory entry',
+    unlockMessage: '↳ You saw the pattern. You know when to dodge. The boss was always the obstacle inside. ◆→▶',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  combo_cascade: {
+    id: 'combo_cascade',
+    symbol: '×·×',
+    name: 'Combo Cascade',
+    description: 'Write "combo" in a journal or memory entry',
+    unlockMessage: '↳ When acts stack into flow. The chain that builds itself from nothing. ×·×',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  arcade_coin: {
+    id: 'arcade_coin',
+    symbol: '(·)',
+    name: 'Arcade Coin',
+    description: 'Write "quarter", "token", or "coin" in a journal or memory entry',
+    unlockMessage: '↳ The cost of play. You showed up. That was the coin in the slot. (·)',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  save_state: {
+    id: 'save_state',
+    symbol: '▓·▪',
+    name: 'Save State',
+    description: 'Write "save state", "savestate", or "checkpoint" in a journal or memory entry',
+    unlockMessage: '↳ Checkpoint reached. Progress locked in. You can rest here. ▓·▪',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  side_quest_complete: {
+    id: 'side_quest_complete',
+    symbol: '→·◇',
+    name: 'Side Quest Complete',
+    description: 'Write "side quest" or "sidequest" in a journal or memory entry',
+    unlockMessage: '↳ The detour that became the story. The main quest never taught you this. →·◇',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  glitch_found: {
+    id: 'glitch_found',
+    symbol: '▒:░',
+    name: 'Glitch Found',
+    description: 'Write "glitch" in a journal or memory entry',
+    unlockMessage: '↳ The error that revealed the system. Most secrets live in the glitch. ▒:░',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  // ── Calendar Easter Eggs v14 — The Cartridge Dates ───────────────────────────
+  pac_man_day: {
+    id: 'pac_man_day',
+    symbol: '·●·',
+    name: 'Pac-Man Day',
+    description: 'Check in on May 22 — Pac-Man arcade release 1980',
+    unlockMessage: '↳ May 22, 1980. The arcade hero was born. Eat the dots. Avoid the ghosts. ·●·',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  ibm_personal_day: {
+    id: 'ibm_personal_day',
+    symbol: '■·■',
+    name: 'IBM Personal Day',
+    description: 'Check in on August 12 — IBM PC launched 1981',
+    unlockMessage: '↳ August 12, 1981. The personal computer became personal. The desk changed. ■·■',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  wikipedia_day: {
+    id: 'wikipedia_day',
+    symbol: '○·○·○',
+    name: 'Wikipedia Day',
+    description: 'Check in on January 15 — Wikipedia launched 2001',
+    unlockMessage: '↳ January 15, 2001. Open knowledge for everyone. The world wrote itself down. ○·○·○',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  // ── Behavioral Easter Eggs v14 — The Controller Patterns ─────────────────────
+  konami_marathon: {
+    id: 'konami_marathon',
+    symbol: '↑↑·↓↓',
+    name: 'Konami Marathon',
+    description: '10 consecutive days with a journal entry',
+    unlockMessage: '↳ ↑↑↓↓←→←→. The Konami Code: 10 inputs. 10 days entered. Bonus life granted. ↑↑·↓↓',
+    rarity: 'epic',
+    category: 'pattern',
+  },
+  full_map_session: {
+    id: 'full_map_session',
+    symbol: '▶▶▶',
+    name: 'Full Map Session',
+    description: 'Write a journal entry of 1,500 or more characters',
+    unlockMessage: '↳ Full map explored. You didn\'t skim the level — you played it to completion. ▶▶▶',
+    rarity: 'rare',
+    category: 'pattern',
+  },
+  speedrun_dawn: {
+    id: 'speedrun_dawn',
+    symbol: '→→→',
+    name: 'Speedrun Dawn',
+    description: 'Submit a journal entry before 5:00 AM',
+    unlockMessage: '↳ Early start. Full run. The day belongs to the player who boots before dawn. →→→',
+    rarity: 'rare',
+    category: 'pattern',
+  },
+  // ── Achievement RPG v15 — The Arcade Class ───────────────────────────────────
+  arcade_entry: {
+    id: 'arcade_entry',
+    symbol: '▶·∘',
+    name: 'Arcade Entry',
+    description: 'Earn any 1 Word Turn v17 (Arcade Protocol) badge',
+    unlockMessage: '↳ Insert coin. The arcade is open. ▶·∘',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  arcade_class: {
+    id: 'arcade_class',
+    symbol: '▶·■',
+    name: 'Arcade Class',
+    description: 'Earn any 5 Word Turn v17 (Arcade Protocol) badges',
+    unlockMessage: '↳ You know the controls. You read the cabinet art. You are playing. ▶·■',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  arcade_complete: {
+    id: 'arcade_complete',
+    symbol: '▶·◈',
+    name: 'Arcade Complete',
+    description: 'Earn all 12 Word Turn v17 (Arcade Protocol) badges',
+    unlockMessage: '↳ ALL 12 ARCADE PROTOCOLS UNLOCKED. 1CC. One-credit clear. You finished. ▶·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  arcade_arc: {
+    id: 'arcade_arc',
+    symbol: '◈·▶·◈',
+    name: 'Arcade Arc',
+    description: 'Earn arcade_complete + all 3 Calendar v14 (Cartridge Dates) badges',
+    unlockMessage: '↳ The full arc: word patterns + key dates. The cabinet and the calendar aligned. ◈·▶·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  seventeen_engines_arc: {
+    id: 'seventeen_engines_arc',
+    symbol: '◈·◈·▶',
+    name: 'Seventeen Engines Arc',
+    description: 'Earn at least 1 badge from each of Word Turn engines v1–v17',
+    unlockMessage: '↳ All 17 word engines ignited. Every vocabulary system touched. ◈·◈·▶',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  perfect_run: {
+    id: 'perfect_run',
+    symbol: '▶·◉·▶',
+    name: 'Perfect Run',
+    description: 'Earn arcade_complete + konami_marathon behavioral badge',
+    unlockMessage: '↳ 1CC + 10-day streak. Flawless execution. No continues used. ▶·◉·▶',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v17 — The Cabinet ───────────────────────────────────────────
+  arcade_veteran: {
+    id: 'arcade_veteran',
+    symbol: '▶▶▶·',
+    name: 'Arcade Veteran',
+    description: '500+ distinct calendar days with a check-in',
+    unlockMessage: '↳ 500 sessions. The high-score screen has your initials on every line. ▶▶▶·',
+    rarity: 'epic',
+    category: 'pattern',
+  },
+  word_hoard: {
+    id: 'word_hoard',
+    symbol: '∞·▪·∞',
+    name: 'Word Hoard',
+    description: '40,000+ total journal words written',
+    unlockMessage: '↳ 40,000 words. A library of self. You wrote more than most books contain. ∞·▪·∞',
+    rarity: 'legendary',
+    category: 'pattern',
+  },
+  seven_year_loop: {
+    id: 'seven_year_loop',
+    symbol: '◈→◈',
+    name: 'Seven-Year Loop',
+    description: 'Account age ≥ 7 years',
+    unlockMessage: '↳ Seven orbits complete. You have been here through seven full cycles of the year. ◈→◈',
+    rarity: 'legendary',
+    category: 'pattern',
+  },
+  seventeen_tongues: {
+    id: 'seventeen_tongues',
+    symbol: '◈·◈·▶',
+    name: 'Seventeen Tongues',
+    description: 'Earn at least 1 badge from each of all 17 Word Turn engines',
+    unlockMessage: '↳ All 17 vocabularies inhabited. You speak every dialect of self. ◈·◈·▶',
+    rarity: 'cosmic',
+    category: 'pattern',
+  },
+  // ── Secret Boss v14 — The Hidden Level ───────────────────────────────────────
+  hadouken_signal: {
+    id: 'hadouken_signal',
+    symbol: '→↓↘●',
+    name: 'Hadouken Signal',
+    description: 'Write "hadouken" in any journal or memory entry — Street Fighter (1987)',
+    unlockMessage: '↳ →↓↘ + punch. The Hadouken: a projectile of pure self-expression. →↓↘●',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  all_your_base: {
+    id: 'all_your_base',
+    symbol: '∘ZERO∘',
+    name: 'All Your Base',
+    description: 'Write "all your base" in any journal or memory entry — Zero Wing (1989)',
+    unlockMessage: '↳ "All your base are belong to us." — Zero Wing, 1989. The meme that became a signal. ∘ZERO∘',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  leeroy_signal: {
+    id: 'leeroy_signal',
+    symbol: '!·!·!',
+    name: 'Leeroy Signal',
+    description: 'Write "leeroy" in any journal or memory entry — World of Warcraft (2005)',
+    unlockMessage: '↳ LEEEEEEEEROY JENKINS! The moment you abandoned the plan and just went for it. !·!·!',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -5657,6 +5982,71 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     const allSixteenEngines = allTwelveEngines && engineThirteenPresent && engineSixteenPresent
     if (allSixteenEngines && !hasBadge('sixteen_engines_arc')) {
       if (awardBadge('sixteen_engines_arc')) newBadges.push('sixteen_engines_arc')
+    }
+
+    // ── v17 Arcade Protocol — Achievement RPG v15 ────────────────────────────
+    const arcadeV17Badges: BadgeType[] = [
+      'respawn_ritual', 'highscore_moment', 'power_up_active', 'cheat_code_found',
+      'extra_life_earned', 'pixel_perfect', 'boss_pattern', 'combo_cascade',
+      'arcade_coin', 'save_state', 'side_quest_complete', 'glitch_found',
+    ]
+    const arcadeEarned = arcadeV17Badges.filter(b => hasBadge(b))
+
+    if (arcadeEarned.length >= 1 && !hasBadge('arcade_entry')) {
+      if (awardBadge('arcade_entry')) newBadges.push('arcade_entry')
+    }
+    if (arcadeEarned.length >= 5 && !hasBadge('arcade_class')) {
+      if (awardBadge('arcade_class')) newBadges.push('arcade_class')
+    }
+    const arcadeComplete = arcadeEarned.length >= 12
+    if (arcadeComplete && !hasBadge('arcade_complete')) {
+      if (awardBadge('arcade_complete')) newBadges.push('arcade_complete')
+    }
+
+    // perfect_run: arcade_complete + konami_marathon
+    if (arcadeComplete && hasBadge('konami_marathon') && !hasBadge('perfect_run')) {
+      if (awardBadge('perfect_run')) newBadges.push('perfect_run')
+    }
+
+    // arcade_arc: arcade_complete + all 3 Calendar v14 badges
+    const calendarV14Badges: BadgeType[] = ['pac_man_day', 'ibm_personal_day', 'wikipedia_day']
+    if (arcadeComplete && calendarV14Badges.every(b => hasBadge(b)) && !hasBadge('arcade_arc')) {
+      if (awardBadge('arcade_arc')) newBadges.push('arcade_arc')
+    }
+
+    // seventeen_engines_arc: 1 badge from each Word Turn v1–v17
+    const engineSeventeenPresent = arcadeEarned.length >= 1
+    const allSeventeenEngines = allSixteenEngines && engineSeventeenPresent
+    if (allSeventeenEngines && !hasBadge('seventeen_engines_arc')) {
+      if (awardBadge('seventeen_engines_arc')) newBadges.push('seventeen_engines_arc')
+    }
+
+    // Mastery v17: arcade_veteran — 500+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 500 && !hasBadge('arcade_veteran')) {
+        if (awardBadge('arcade_veteran')) newBadges.push('arcade_veteran')
+      }
+    }
+
+    // Mastery v17: word_hoard — 40,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 40000 && !hasBadge('word_hoard')) {
+        if (awardBadge('word_hoard')) newBadges.push('word_hoard')
+      }
+    }
+
+    // Mastery v17: seven_year_loop — Account age ≥ 7 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupForLoop = new Date(stats.signupDate)
+      const yearsForLoop = (new Date().getTime() - signupForLoop.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsForLoop >= 7 && !hasBadge('seven_year_loop')) {
+        if (awardBadge('seven_year_loop')) newBadges.push('seven_year_loop')
+      }
+    }
+
+    // Mastery v17: seventeen_tongues — 1 badge from all 17 Word Turn engines
+    if (allSeventeenEngines && !hasBadge('seventeen_tongues')) {
+      if (awardBadge('seventeen_tongues')) newBadges.push('seventeen_tongues')
     }
 
     // Mastery v16: terminal_elder — 400+ distinct calendar days

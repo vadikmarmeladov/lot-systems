@@ -763,6 +763,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('bloomsday')
   }
 
+  // ── Calendar v14 — The Cartridge Dates ────────────────────────────────────
+
+  // Wikipedia Day: January 15 — Wikipedia launched 2001
+  if (!hasBadge('wikipedia_day') && month === 1 && day === 15) {
+    awardBadge('wikipedia_day')
+    awarded.push('wikipedia_day')
+  }
+
+  // Pac-Man Day: May 22 — Pac-Man arcade release (Japan, 1980)
+  if (!hasBadge('pac_man_day') && month === 5 && day === 22) {
+    awardBadge('pac_man_day')
+    awarded.push('pac_man_day')
+  }
+
+  // IBM Personal Day: August 12 — IBM PC launched 1981
+  if (!hasBadge('ibm_personal_day') && month === 8 && day === 12) {
+    awardBadge('ibm_personal_day')
+    awarded.push('ibm_personal_day')
+  }
+
   return awarded
 }
 
@@ -1273,6 +1293,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bspice(s)?\b/i,                        badge: 'dune_signal' },
   { patterns: /\bpsychohistory\b/i,                    badge: 'foundation_word' },
   { patterns: /\bcyberspace\b/i,                       badge: 'neuromancer_signal' },
+  // ── v17 — The Arcade Protocol ─────────────────────────────────────────────
+  { patterns: /\brespawn(s|ed|ing)?\b/i,               badge: 'respawn_ritual' },
+  { patterns: /\bhigh[- ]?score(s)?\b/i,               badge: 'highscore_moment' },
+  { patterns: /\bpower[- ]up(s)?\b/i,                  badge: 'power_up_active' },
+  { patterns: /\bcheat[- ]code(s)?\b/i,                badge: 'cheat_code_found' },
+  { patterns: /\bextra\s+life\b/i,                     badge: 'extra_life_earned' },
+  { patterns: /\bpixel(s|ated|ation)?\b/i,             badge: 'pixel_perfect' },
+  { patterns: /\bboss\s+(fight|battle|mode)\b|\bfinal\s+boss\b/i, badge: 'boss_pattern' },
+  { patterns: /\bcombo(s|ed)?\b/i,                     badge: 'combo_cascade' },
+  { patterns: /\b(quarter|token|arcade\s+coin)(s)?\b/i,badge: 'arcade_coin' },
+  { patterns: /\bsave[- ]?state(s)?\b|\bcheckpoint(s|ed)?\b/i, badge: 'save_state' },
+  { patterns: /\bside[- ]?quest(s)?\b/i,               badge: 'side_quest_complete' },
+  { patterns: /\bglitch(es|ed|ing)?\b/i,               badge: 'glitch_found' },
+  // ── v14 Secret Boss — The Hidden Level word triggers ──────────────────────────
+  { patterns: /\bhadouken\b/i,                         badge: 'hadouken_signal' },
+  { patterns: /all\s+your\s+base/i,                    badge: 'all_your_base' },
+  { patterns: /\bleeroy\b/i,                           badge: 'leeroy_signal' },
 ]
 
 /**
@@ -1713,6 +1750,18 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const libraryRun = checkLibraryRun()
   if (libraryRun) awarded.push(libraryRun)
 
+  // Behavioral v14: konami marathon (10+ consecutive journal days)
+  const konamiMarathon = checkKonamiMarathon()
+  if (konamiMarathon) awarded.push(konamiMarathon)
+
+  // Behavioral v14: full map session (journal entry >= 1500 chars)
+  const fullMapSession = checkFullMapSession(journalText)
+  if (fullMapSession) awarded.push(fullMapSession)
+
+  // Behavioral v14: speedrun dawn (journal entry before 5:00 AM)
+  const speedrunDawn = checkSpeedrunDawn()
+  if (speedrunDawn) awarded.push(speedrunDawn)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -2042,6 +2091,71 @@ export function checkDeepDecoder(answerText: string): BadgeType | null {
   if (answerText.length >= 200) {
     awardBadge('deep_decoder')
     return 'deep_decoder'
+  }
+  return null
+}
+
+// ── Behavioral Easter Egg v14 — The Controller Patterns ──────────────────────
+
+/**
+ * Award konami_marathon badge for 10 consecutive journal days.
+ * Reads the journal_dates localStorage key (array of ISO date strings).
+ * Call when a journal entry is saved.
+ */
+export function checkKonamiMarathon(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('konami_marathon')) return null
+
+  try {
+    const stored = localStorage.getItem('journal_dates')
+    if (!stored) return null
+    const raw: string[] = JSON.parse(stored)
+    const dates = Array.from(new Set(raw.map(d => d.slice(0, 10)))).sort().reverse()
+    if (dates.length < 10) return null
+
+    let consecutive = 1
+    for (let i = 0; i < dates.length - 1; i++) {
+      const a = new Date(dates[i])
+      const b = new Date(dates[i + 1])
+      const diff = Math.round((a.getTime() - b.getTime()) / (1000 * 60 * 60 * 24))
+      if (diff === 1) {
+        consecutive++
+        if (consecutive >= 10) {
+          awardBadge('konami_marathon')
+          return 'konami_marathon'
+        }
+      } else {
+        consecutive = 1
+      }
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+/**
+ * Award full_map_session badge for a journal entry of 1,500+ characters.
+ * Call when a journal entry is saved, passing the entry text.
+ */
+export function checkFullMapSession(journalText: string): BadgeType | null {
+  if (hasBadge('full_map_session')) return null
+  if (journalText.length >= 1500) {
+    awardBadge('full_map_session')
+    return 'full_map_session'
+  }
+  return null
+}
+
+/**
+ * Award speedrun_dawn badge for a journal entry submitted before 5:00 AM.
+ * Call when a journal entry is saved.
+ */
+export function checkSpeedrunDawn(): BadgeType | null {
+  if (hasBadge('speedrun_dawn')) return null
+  const now = new Date()
+  if (now.getHours() < 5) {
+    awardBadge('speedrun_dawn')
+    return 'speedrun_dawn'
   }
   return null
 }
