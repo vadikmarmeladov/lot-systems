@@ -20,6 +20,8 @@ Core technical documentation about system architecture, engines, and implementat
 - Memory Engine Documentation - Complete Memory Engine system docs
 - Psychological Depth Analysis - User analysis engine documentation
 - Quantum Intent Engine - Intent pattern recognition system
+- NODE-0 Rig Spec - Self-hosted AI server hardware + stack spec
+- NODE-1 Signal Spec - LOT hardware pager: BOM, LOT API connector, 100-unit production roadmap
 
 ### [Deployment Documentation](./deployment/)
 Guides for deploying and managing the application in production.
