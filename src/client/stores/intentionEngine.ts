@@ -2810,6 +2810,61 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 125: Evening Reflection Loop — journal entry after 18:00 UTC + memory capture +
+  // intentions all within the same calendar day. The system closes itself each evening:
+  // action reviewed, memory encoded, intention acknowledged. Daily loop completion confirmed.
+  const p125TodayStart = new Date(); p125TodayStart.setHours(0, 0, 0, 0)
+  const p125EveningStart = new Date(); p125EveningStart.setHours(18, 0, 0, 0)
+  const p125TodayMs = p125TodayStart.getTime()
+  const p125EveMs   = p125EveningStart.getTime()
+  const p125Journal   = signals.filter(s => s.timestamp >= p125EveMs && s.source === 'journal')
+  const p125Memory    = signals.filter(s => s.timestamp >= p125TodayMs && s.source === 'memory')
+  const p125Intention = signals.filter(s => s.timestamp >= p125TodayMs && s.source === 'intentions')
+  if (p125Journal.length >= 1 && p125Memory.length >= 1 && p125Intention.length >= 1) {
+    const p125Conf = Math.min(0.65 + p125Journal.length * 0.04 + p125Memory.length * 0.03, 0.87)
+    patterns.push({
+      pattern: 'evening-reflection-loop',
+      confidence: p125Conf,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `EVEFL: Evening reflection loop — journal ${p125Journal.length} after 18:00 + memory ${p125Memory.length} + intentions ${p125Intention.length} today. Loop closed: reflection → encoding → acknowledgment. Daily completion confirmed.`,
+    })
+  }
+
+  // Pattern 126: Weekly Rhythm Anchor — any signal activity on 5+ of the last 7 calendar
+  // days. Not streaks, not scores. Structural recurrence. The system has taken root in the
+  // week — not as discipline, but as operating rhythm. Rhythm confirmed.
+  const p126Window7d = 7 * 24 * 60 * 60 * 1000
+  const p126Recent   = signals.filter(s => s.timestamp > now - p126Window7d)
+  const p126Days     = new Set(p126Recent.map(s => new Date(s.timestamp).toDateString()))
+  if (p126Days.size >= 5) {
+    const p126Conf = Math.min(0.68 + (p126Days.size - 5) * 0.06, 0.88)
+    patterns.push({
+      pattern: 'weekly-rhythm-anchor',
+      confidence: p126Conf,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `WEEKA: Weekly rhythm anchor — ${p126Days.size}/7 days active in rolling 7d window. Structural recurrence confirmed. Operating rhythm established — not episodic engagement, but persistent weekly presence.`,
+    })
+  }
+
+  // Pattern 127: Depth-Breadth Convergence — meta-pattern. P116 (focus-depth-arc) and P120
+  // (signal-density-peak) co-active in the same analysis pass. Deep single-domain execution
+  // and full-spectrum breadth simultaneously confirmed. Both modes live at once — the rarest
+  // dual-mode state: depth without tunnel, breadth without scatter.
+  const p127FocusDepth   = patterns.find(p => p.pattern === 'focus-depth-arc')
+  const p127SignalDensity = patterns.find(p => p.pattern === 'signal-density-peak')
+  if (p127FocusDepth && p127SignalDensity) {
+    const p127Conf = Math.min(0.70 + (p127FocusDepth.confidence + p127SignalDensity.confidence) * 0.10, 0.90)
+    patterns.push({
+      pattern: 'depth-breadth-convergence',
+      confidence: p127Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `DEPBR: Depth-breadth convergence — focus-depth-arc (${Math.round(p127FocusDepth.confidence * 100)}% conf) + signal-density-peak (${Math.round(p127SignalDensity.confidence * 100)}% conf) co-active. Deep execution and full-spectrum breadth confirmed simultaneously. Both modes live at once.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3403,6 +3458,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   actionMemoryNode:          ['planner', 'intentions', 'memory', 'journal', 'log'],
   sustainedResilienceNode:   ['resilience', 'energy', 'log'],
   moodEnergyConvergeNode:    ['mood', 'energy', 'selfcare', 'log'],
+
+  // ── Evening reflection + weekly rhythm + depth-breadth convergence (2026-07-22 v101)
+  eveningReflectionNode:     ['journal', 'memory', 'intentions', 'log'],
+  weeklyRhythmNode:          ['log', 'planner', 'intentions', 'energy', 'mood', 'journal', 'memory'],
+  depthBreadthNode:          ['journal', 'memory', 'planner', 'mood', 'energy', 'selfcare', 'log'],
 }
 
 /**
@@ -3768,6 +3828,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['memory', 'planner', 'journal'],
     patternConditions: ['action-to-memory-loop', 'intention-completion-loop', 'embodied-cognition-arc'],
     directive: 'Execution and knowledge capture are unified. Every completed action becomes a retrievable insight. You are not just doing — you are building a compressible operating system from each day. Crystallize.',
+  },
+  // ── Arch43: Evening Integrator (2026-07-22 v101) ──────────────────────────────
+  {
+    archetype: 'Evening Integrator',
+    energyBands: ['high', 'moderate', 'low'],
+    dominantSources: ['journal', 'memory', 'intentions'],
+    patternConditions: ['evening-reflection-loop', 'weekly-rhythm-anchor', 'depth-breadth-convergence'],
+    directive: 'Evening integration cycle confirmed. Reflection, memory capture, and rhythm anchor all present. You are closing the loop daily — the practice is structural now. Each day filed, each insight preserved.',
   },
 ]
 
@@ -5346,6 +5414,34 @@ export function recordMoodEnergyConvergence(moodSignal: string, energyBand: stri
     energyBand,
     selfcareCount,
     window: '8h',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordEveningReflectionLoop(journalCount: number, memoryCount: number, intentionCount: number) {
+  recordSignal('journal', 'evening_reflection_loop', {
+    journalCount,
+    memoryCount,
+    intentionCount,
+    window: 'evening',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordWeeklyRhythmAnchor(activeDays: number, totalSignals: number) {
+  recordSignal('planner', 'weekly_rhythm_anchor', {
+    activeDays,
+    totalSignals,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+export function recordDepthBreadthConvergence(focusDepthConf: number, signalDensityConf: number) {
+  recordSignal('memory', 'depth_breadth_convergence', {
+    focusDepthConf,
+    signalDensityConf,
+    window: '24h',
     hour: new Date().getHours(),
   })
 }

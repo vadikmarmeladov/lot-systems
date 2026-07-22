@@ -1051,6 +1051,73 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'evening_reflection_loop') {
+          const journalCount   = log.metadata?.journalCount   as number | undefined
+          const memoryCount    = log.metadata?.memoryCount    as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EVEFL:" blockView>
+                <div className="uppercase tracking-widest mb-4">EVENING REFLECTION LOOP</div>
+                {journalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">JOUR EVE: {journalCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM TODAY: {memoryCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT TODAY: {intentionCount}</div>
+                )}
+                <div className="opacity-40">LOOP: REFLECT → ENC → ACK</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'weekly_rhythm_anchor') {
+          const activeDays   = log.metadata?.activeDays   as number | undefined
+          const totalSignals = log.metadata?.totalSignals as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="WEEKA:" blockView>
+                <div className="uppercase tracking-widest mb-4">WEEKLY RHYTHM ANCHOR</div>
+                {activeDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">DAYS 7D: {activeDays}/7</div>
+                )}
+                {totalSignals !== undefined && (
+                  <div className="opacity-60 tabular-nums">SIG-TOTAL: {totalSignals}</div>
+                )}
+                <div className="opacity-40">STRUCTURAL RECURRENCE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'depth_breadth_convergence') {
+          const focusDepthConf    = log.metadata?.focusDepthConf    as number | undefined
+          const signalDensityConf = log.metadata?.signalDensityConf as number | undefined
+          const confidence        = log.metadata?.confidence        as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DEPBR:" blockView>
+                <div className="uppercase tracking-widest mb-4">DEPTH-BREADTH CONVERGENCE</div>
+                {focusDepthConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">FDEP CONF: {Math.round(focusDepthConf * 100)}%</div>
+                )}
+                {signalDensityConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">SIGPEAK CONF: {Math.round(signalDensityConf * 100)}%</div>
+                )}
+                <div className="opacity-40">DEPTH + BREADTH SIMULTANEOUS</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

@@ -152,6 +152,12 @@ export function PatternRecognitionWidget() {
       'morning-coherence-arc':      'Morning coherence arc — energy + planner + intentions before 10:00 (P119)',
       'signal-density-peak':        'Signal density peak — 6+ distinct sources active in 12h (P120)',
       'physiological-coherence-window': 'Physiological coherence window — energy=high + selfcare + mood + memory in 12h (P121)',
+      'action-to-memory-loop':      'Action-to-memory loop — planner/intentions + memory capture in 6h window (P122)',
+      'sustained-resilience-arc':   'Sustained resilience arc — resilience active on 3+ distinct days in 7d (P123)',
+      'mood-energy-convergence':    'Mood-energy convergence — positive mood + high/moderate energy + selfcare in 8h (P124)',
+      'evening-reflection-loop':    'Evening reflection loop — journal after 18:00 + memory + intentions same day (P125)',
+      'weekly-rhythm-anchor':       'Weekly rhythm anchor — active on 5+ of last 7 calendar days (P126)',
+      'depth-breadth-convergence':  'Depth-breadth convergence — focus-depth-arc + signal-density-peak co-active (P127)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

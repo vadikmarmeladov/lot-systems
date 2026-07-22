@@ -1177,6 +1177,10 @@ export default async (fastify: FastifyInstance) => {
       'action_to_memory_loop',
       'sustained_resilience_arc',
       'mood_energy_convergence',
+      // v101: evening reflection loop · weekly rhythm anchor · depth-breadth convergence (P125/P126/P127)
+      'evening_reflection_loop',
+      'weekly_rhythm_anchor',
+      'depth_breadth_convergence',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

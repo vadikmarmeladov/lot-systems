@@ -87,6 +87,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'action-to-memory-loop':          'ACTMEM',
   'sustained-resilience-arc':       'RECARC',
   'mood-energy-convergence':        'MOEARC',
+  'evening-reflection-loop':        'EVEFL',
+  'weekly-rhythm-anchor':           'WEEKA',
+  'depth-breadth-convergence':      'DEPBR',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

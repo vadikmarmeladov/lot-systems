@@ -1218,6 +1218,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '124 patterns · 42 archetypes · 39 background jobs · 124+ handlers · 163+ dep nodes. Action-memory crystallization, sustained resilience, mood-energy convergence deployed.',
     ],
   },
+  {
+    date: '2026-07-22',
+    session: 'Self-Assembly Session — v101 / P125–P127 · Arch43 Evening Integrator · J40 Evening Reflection Check · EVEFL: WEEKA: DEPBR: · Dep Map 166+',
+    assembled: [
+      'intentionEngine.ts: P125 evening-reflection-loop — journal after 18:00 + memory + intentions same calendar day. Daily loop closure: reflect → encode → acknowledge. Conf 0.65–0.87. suggestedWidget: journal.',
+      'intentionEngine.ts: P126 weekly-rhythm-anchor — active on 5+ of last 7 calendar days. Structural recurrence. Not episodic — operating rhythm established. Conf 0.68–0.88. suggestedWidget: planner.',
+      'intentionEngine.ts: P127 depth-breadth-convergence — meta-pattern: focus-depth-arc + signal-density-peak co-active in same analysis pass. Depth without tunnel, breadth without scatter. Conf 0.70–0.90. suggestedWidget: memory. 127 patterns total.',
+      'intentionEngine.ts: Arch43 Evening Integrator — energyBands high+moderate+low · dominantSources journal+memory+intentions · patternConditions evening-reflection-loop+weekly-rhythm-anchor+depth-breadth-convergence. Directive: Loop closed. 43 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: eveningReflectionNode (4 deps) · weeklyRhythmNode (7 deps) · depthBreadthNode (7 deps). 166+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers — recordEveningReflectionLoop · recordWeeklyRhythmAnchor · recordDepthBreadthConvergence.',
+      'Logs.tsx: EVEFL: · WEEKA: · DEPBR: handlers deployed (COCKPIT-RULE). Military header + opacity hierarchy. 127+ handlers total.',
+      'PatternRecognitionWidget.tsx: P122–P127 named (6 entries added — P122/P123/P124 were missing, completed in this session).',
+      'QuantumEngineWidgets.tsx: 3 PATTERN_DISPLAY entries — evening-reflection-loop (EVEFL) · weekly-rhythm-anchor (WEEKA) · depth-breadth-convergence (DEPBR).',
+      'scheduled-jobs.ts: J40 daily-evening-reflection-check — 22:00 UTC daily. journal after 18:00 + memory + intentions → evening_reflection_loop. 40 background jobs total.',
+      'routes/api.ts: evening_reflection_loop + weekly_rhythm_anchor + depth_breadth_convergence added to displayableEvents (v101 block).',
+      '127 patterns · 43 archetypes · 40 background jobs · 127+ handlers · 166+ dep nodes. Evening integration, weekly rhythm, depth-breadth convergence deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1255,20 +1273,21 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-21',
+  date: '2026-07-22',
   message: [
-    'ASSEMBLY RUN — 2026-07-21 · v100 · LOT-SR-20260721-01',
-    'P122 action-to-memory-loop: planner/intentions + memory in 6h. Every action crystallized into retrievable knowledge. ACT → ENC → ARC pipeline. Conf 0.64–0.86.',
-    'P123 sustained-resilience-arc: resilience active on 3+ distinct days in 7d. Structural durability. Not episodic coping — a built-in operational recovery pattern. Conf 0.62–0.86.',
-    'P124 mood-energy-convergence: positive mood + high/moderate energy + selfcare in 8h. Physical and affective substrates simultaneously aligned. Dual-substrate peak. Conf 0.67–0.88. 124 patterns total.',
-    'Arch42 Knowledge Crystallizer: memory+planner+journal dominant · action-to-memory-loop+intention-completion-loop+embodied-cognition-arc. Directive: Crystallize. 42 archetypes total.',
-    'J39 daily-action-memory-scan: 20:00 UTC daily. planner/intention + memory in 6h → writes action_to_memory_loop. 39 background jobs total.',
-    'ACTMEM: RECARC: MOEARC: log handlers deployed (COCKPIT-RULE). Military header + opacity hierarchy. 124+ handlers total.',
-    'Dep map: 163+ nodes. 3 new: actionMemoryNode (5 deps) + sustainedResilienceNode (3 deps) + moodEnergyConvergeNode (4 deps).',
-    'PATTERN_DISPLAY: ACTMEM · RECARC · MOEARC added to QOS widget.',
-    '3 signal helpers: recordActionToMemoryLoop · recordSustainedResilienceArc · recordMoodEnergyConvergence.',
-    'routes/api.ts: v100 block — action_to_memory_loop + sustained_resilience_arc + mood_energy_convergence.',
-    '124 patterns · 42 archetypes · 39 jobs · 124+ handlers · 163+ dep nodes. Action-memory crystallization, sustained resilience, mood-energy convergence deployed.',
+    'ASSEMBLY RUN — 2026-07-22 · v101 · QIE Engineering July 22',
+    'P125 evening-reflection-loop: journal after 18:00 + memory + intentions same day. Daily loop closed: reflect → encode → acknowledge. Conf 0.65–0.87.',
+    'P126 weekly-rhythm-anchor: active on 5+ of last 7 calendar days. Structural recurrence confirmed. Not episodic — operating rhythm established. Conf 0.68–0.88.',
+    'P127 depth-breadth-convergence: meta-pattern — focus-depth-arc + signal-density-peak co-active. Depth without tunnel, breadth without scatter. Both modes live at once. Conf 0.70–0.90. 127 patterns total.',
+    'Arch43 Evening Integrator: journal+memory+intentions dominant · evening-reflection-loop+weekly-rhythm-anchor+depth-breadth-convergence. Directive: Loop closed. Each day filed, each insight preserved. 43 archetypes total.',
+    'J40 daily-evening-reflection-check: 22:00 UTC daily. journal after 18:00 + memory + intentions → writes evening_reflection_loop. 40 background jobs total.',
+    'EVEFL: WEEKA: DEPBR: log handlers deployed (COCKPIT-RULE). Military header + opacity hierarchy. 127+ handlers total.',
+    'Dep map: 166+ nodes. 3 new: eveningReflectionNode (4 deps) + weeklyRhythmNode (7 deps) + depthBreadthNode (7 deps).',
+    'PatternRecognitionWidget: P122–P127 named (P122/P123/P124 were missing — completed this session).',
+    'PATTERN_DISPLAY: EVEFL · WEEKA · DEPBR added to QOS widget.',
+    '3 signal helpers: recordEveningReflectionLoop · recordWeeklyRhythmAnchor · recordDepthBreadthConvergence.',
+    'routes/api.ts: v101 block — evening_reflection_loop + weekly_rhythm_anchor + depth_breadth_convergence.',
+    '127 patterns · 43 archetypes · 40 jobs · 127+ handlers · 166+ dep nodes. Evening integration, weekly rhythm anchor, depth-breadth convergence deployed.',
     'DEPLOYED.',
   ],
 }
