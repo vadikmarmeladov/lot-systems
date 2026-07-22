@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -16,7 +16,18 @@ removed; per-item subscriptions lifted to parent in Sync; nav buttons
 memoized so only active-state changes trigger re-render. SR-20260719-01:
 System quantumState analyzeIntentions()+recomputeAssembly() moved
 useMemo->useEffect — 10 subscriber re-renders no longer block paint;
-SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+SystemProgressWidget 60s recompute interval gated on !document.hidden.
+SR-20260722-01: off-tab guard widened beyond network polling — ANY recurring
+client-side setInterval (canvas game loops, pure-local ticks with no server
+call) must also check document.hidden, since IntersectionObserver-based
+viewport gates do not detect tab visibility. MicroGameWidget's 150ms canvas
+loop and QuantumRandomWidget's ungated 1s/10s ticks were the fourth and
+fifth recurrence of this exact class after SystemProgressWidget,
+SystemPulseWidget, ChakraErgonomicsWidget, EvolutionMilestoneToast, and
+ContextualPromptsWidget — pattern is now recurrent enough to name plainly as
+"the off-tab guard," though not yet minted as a standalone lexicon token
+since RENDER-ISOLATION already covers the render/subscription-hygiene family
+this belongs to.)
 
 ## Client Cache Freshness
 

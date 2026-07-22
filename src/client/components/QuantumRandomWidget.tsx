@@ -37,6 +37,9 @@ function useQuantumNumber() {
 
   React.useEffect(() => {
     const iv = setInterval(() => {
+      // Tab hidden: skip the tick — this widget has no viewport gate, so
+      // without this it re-renders and records signals forever off-tab.
+      if (document.hidden) return
       setRemaining((prev) => {
         if (prev <= 1) {
           const next = quantumRandom(0, 99)

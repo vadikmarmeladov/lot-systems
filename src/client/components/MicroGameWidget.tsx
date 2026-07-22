@@ -789,6 +789,9 @@ export function MicroGameWidget() {
 
     const iv = setInterval(() => {
       if (pausedRef.current) return
+      // Tab hidden: skip the tick (canvas draw + sound triggers) rather than
+      // tearing down the interval — matches SystemPulseWidget's off-tab guard.
+      if (document.hidden) return
       const { fg, bg } = getMonoColors(canvas)
       clearGrid(ctx, bg, SIZE, SIZE)
 
