@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
+Basics Tab       | beautiful-johnson-ccifjw     | 5a54a83  | 1/1   | READY  | 5     | +281   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
@@ -181,7 +181,7 @@ PROTECTED FILES (always restore from master during any branch merge):
 
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   LOT Mail         | determined-turing-f6bw7r  | +504 lines
-  Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
+  Basics Tab       | beautiful-johnson-ccifjw   | +281 lines (READY, not yet BEST — see note below)
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
   COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
@@ -195,6 +195,17 @@ The protocol above applies to all future merges.
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
 Ship sequentially across Sundays, not all at once.
+
+CORRECTION (2026-07-22): the Basics Tab row previously cited branch
+beautiful-johnson-56p7ov / hash 6815f550 as BEST/shipped. That branch does
+not exist on the remote and master carries no Basics implementation — the
+nav tab was disabled (no route, no href). Treat any manifest row for a
+branch that isn't in `git branch -a` as unverified until re-confirmed.
+Basics Tab M1 (OPEN TAB — 23-item ration ledger, doctrine, status line) is
+now real, on claude/beautiful-johnson-ccifjw @ 5a54a83, and correctly
+logged as READY (not benchmark-verified — sandbox had no network to run
+`yarn install`/the client build). Run the benchmark pipeline before
+promoting to BEST/SHIPPED. See LOT-SR-20260722-01.md for the full session.
 
 ================================================================================
 AUTHORIZED BY: S-2 // VADIK MARMELADOV
