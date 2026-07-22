@@ -24,7 +24,7 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | claude/determined-turing-l6p7k0 | (pending tag) | 1/1 | SHIPPED| 5     | +256   | Rebuilt minimal (prior branches deleted, never merged): /email trigger, DirectMessage+Sync delivery, Cohort-aware resolution via findCohortMatches, fixed missing direct_message SSE relay case
+LOT Mail         | claude/determined-turing-l6p7k0 | c1cf57b | 1/1 | SHIPPED| 5     | +256   | Rebuilt minimal (prior branches deleted, never merged): /email trigger, DirectMessage+Sync delivery, Cohort-aware resolution via findCohortMatches, fixed missing direct_message SSE relay case
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
