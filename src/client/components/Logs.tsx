@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendMail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -2816,6 +2816,26 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [mailResult, setMailResult] = React.useState<string | null>(null)
+  const [mailSending, setMailSending] = React.useState(false)
+  const { mutate: sendMail } = useSendMail({
+    onSuccess: (data) => {
+      const lines = [
+        `TO              ${data.receiverName.toUpperCase()}`,
+        `STATUS          DELIVERED`,
+        typeof data.cohortSimilarity === 'number'
+          ? `COHORT MATCH    ${Math.round(data.cohortSimilarity * 100)}%`
+          : null,
+      ].filter(Boolean) as string[]
+      setMailResult(lines.join('\n'))
+      setMailSending(false)
+    },
+    onError: (err) => {
+      const apiError = (err.response?.data as { error?: string } | undefined)?.error
+      setMailResult(`DELIVERY FAILED — ${apiError || 'Recipient not found.'}`)
+      setMailSending(false)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -3154,6 +3174,13 @@ const NoteEditor = ({
             submitQi({ query })
           }
         }
+      } else if (trigger === 'mail-send') {
+        const mailMatch = value.match(/\/email\s+to\s+(\S+)\s*([\s\S]*)/i)
+        if (mailMatch && mailMatch[1].trim() && !mailSending) {
+          setMailSending(true)
+          setMailResult(null)
+          sendMail({ name: mailMatch[1].trim(), message: mailMatch[2].trim() })
+        }
       } else if (trigger === 'breathe') {
         setBreatheEnabled(prev => !prev)
       } else if (trigger === 'silent-mode') {
@@ -3231,6 +3258,7 @@ const NoteEditor = ({
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
+          '/email to <name> [msg]  Send LOT Mail — delivered via Sync',
           '/assembly     Self-assembly module status',
           '/phys         Physiological cohort report',
           '/qos          Quantum OS state analysis',
@@ -3487,6 +3515,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(mailSending || mailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              {mailSending && !mailResult && (
+                <div className="opacity-60">SENDING...</div>
+              )}
+              {mailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{mailResult}</div>
+              )}
             </Block>
           </div>
         )}

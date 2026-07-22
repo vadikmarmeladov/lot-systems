@@ -52,6 +52,14 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Mail arrivals (/email to <name>) for this session — session-only,
+  // cleared on navigation. Open the DM thread to read the full history.
+  const [mailAlerts, setMailAlerts] = React.useState<{
+    id: string
+    senderId: string
+    senderName: string
+    message: string
+  }[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -117,11 +125,26 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeMailListener } = sync.listen('direct_message', (data) => {
+      if (!me || data.receiverId !== me.id) return
+      setMailAlerts((prev) => {
+        if (prev.some((x) => x.id === data.id)) return prev
+        return [
+          { id: data.id, senderId: data.senderId, senderName: data.senderName, message: data.message },
+          ...prev,
+        ].slice(0, 5)
+      })
+    })
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeMailListener()
     }
   }, [me?.id])
+
+  const onOpenMail = React.useCallback((senderId: string) => () => {
+    window.location.href = `/dm/${senderId}`
+  }, [])
 
   const onChangeMessage = React.useCallback((value: string) => setMessage(value), [])
 
@@ -213,6 +236,23 @@ export const Sync = React.memo(function SyncInner() {
           </div>
         </form>
       </div>
+
+      {mailAlerts.length > 0 && (
+        <div className="mb-16">
+          {mailAlerts.map((mail) => (
+            <div
+              key={mail.id}
+              className="flex items-center gap-x-8 mb-4 cursor-pointer opacity-80 hover:opacity-100"
+              onClick={onOpenMail(mail.senderId)}
+            >
+              <Tag fill={false}>MAIL</Tag>
+              <span className="truncate">
+                {mail.senderName}: {mail.message.replace(/^✉ LOT MAIL — /, '')}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

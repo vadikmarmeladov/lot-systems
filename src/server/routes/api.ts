@@ -386,6 +386,14 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'direct_message': {
+          // Private channel — only the two participants may see it, never
+          // broadcast to every connected client like chat_message.
+          if (data.receiverId === req.user.id || data.senderId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
       }
     })
 
@@ -4038,6 +4046,154 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // LOT Mail — /email to <name> [message] Log command. Resolves the
+  // recipient by name (firstName + lastName), preferring a Cohort/Community
+  // match when the name is ambiguous, then delivers over the same
+  // DirectMessage + Sync channel as a regular direct message.
+  fastify.post('/mail/send', async (req: FastifyRequest<{
+    Body: { name: string; message: string }
+  }>, reply) => {
+    try {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+
+      const name = (req.body.name || '').trim()
+      const message = (req.body.message || '').trim()
+      if (!name) {
+        return reply.status(400).send({ error: 'Recipient name is required' })
+      }
+
+      const candidates = await fastify.models.User.findAll({
+        where: {
+          id: { [Op.ne]: req.user.id },
+          [Op.and]: [
+            Sequelize.where(
+              Sequelize.fn('CONCAT', Sequelize.col('firstName'), ' ', Sequelize.col('lastName')),
+              { [Op.iLike]: `%${name}%` }
+            ),
+          ],
+        },
+        attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata', 'tags'],
+        order: [['lastSeenAt', 'DESC']],
+        limit: 5,
+      })
+      const eligible = candidates.filter(
+        (u) => !u.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      )
+
+      if (eligible.length === 0) {
+        return reply.status(404).send({ error: `No LOT operator found matching "${name}"` })
+      }
+
+      // Default to the most recently active match. When the name is
+      // ambiguous, prefer whichever candidate is closest in the sender's
+      // Cohort — the same pattern-similarity engine behind /api/cohorts and
+      // LOT Community, scoped here to just the candidates instead of the
+      // full 200-user pool. Best-effort: any failure here falls back to the
+      // recency default rather than blocking delivery (graceful degradation).
+      let receiver = eligible[0]
+      let cohortSimilarity: number | undefined
+      let sharedPatterns: string[] | undefined
+      if (eligible.length > 1) {
+        try {
+          const senderLogs = await fastify.models.Log.findAll({
+            where: { userId: req.user.id },
+            order: [['createdAt', 'DESC']],
+            limit: 100,
+          })
+          if (senderLogs.length >= 10) {
+            const senderPatterns = await analyzeUserPatterns(req.user, senderLogs)
+            if (senderPatterns.length > 0) {
+              const patternCache = new Map<string, PatternInsight[]>()
+              const matches = await findCohortMatches(
+                req.user,
+                senderPatterns,
+                eligible,
+                async (userId: string) => {
+                  if (patternCache.has(userId)) return patternCache.get(userId)!
+                  const candidate = eligible.find((u) => u.id === userId)
+                  const logs = await fastify.models.Log.findAll({
+                    where: { userId },
+                    order: [['createdAt', 'DESC']],
+                    limit: 100,
+                  })
+                  if (!candidate || logs.length < 5) return []
+                  const patterns = await analyzeUserPatterns(candidate, logs)
+                  patternCache.set(userId, patterns)
+                  return patterns
+                }
+              )
+              if (matches.length > 0) {
+                const top = matches[0]
+                receiver = eligible.find((u) => u.id === top.user.id) || receiver
+                cohortSimilarity = top.similarity
+                sharedPatterns = top.sharedPatterns
+              }
+            }
+          }
+        } catch (cohortError) {
+          console.error('LOT Mail cohort disambiguation skipped:', cohortError)
+        }
+      }
+
+      const envelope = message
+        ? `✉ LOT MAIL — ${message}`
+        : `✉ LOT MAIL — ${req.user.firstName} sent you mail.`
+      const directMessage = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        message: envelope.slice(0, 2000),
+      })
+
+      // Same delivery path as a regular direct message — Sync/SSE relay +
+      // LOT Chat both read this channel.
+      sync.emit('direct_message', {
+        id: directMessage.id,
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        message: directMessage.message,
+        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        createdAt: directMessage.createdAt,
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'email_sent',
+            text: '',
+            metadata: {
+              directMessageId: directMessage.id,
+              receiverId: receiver.id,
+              receiverName: `${receiver.firstName} ${receiver.lastName}`.trim(),
+              message: directMessage.message,
+              cohortSimilarity,
+              sharedPatterns,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging LOT Mail send:', logError)
+        }
+      })
+
+      return reply.send({
+        id: directMessage.id,
+        receiverId: receiver.id,
+        receiverName: `${receiver.firstName} ${receiver.lastName}`.trim(),
+        message: directMessage.message,
+        cohortSimilarity,
+        createdAt: directMessage.createdAt,
+      })
+    } catch (error) {
+      console.error('Error sending LOT Mail:', error)
+      return reply.status(500).send({ error: 'Failed to send LOT Mail' })
     }
   })
 

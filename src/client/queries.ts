@@ -120,6 +120,23 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+export interface SendMailResponse {
+  id: string
+  receiverId: string
+  receiverName: string
+  message: string
+  cohortSimilarity?: number
+  createdAt: string
+}
+
+// LOT Mail — /email to <name> [message] Log command. Server resolves the
+// recipient by name (preferring a Cohort match when the name is ambiguous)
+// and delivers over the same direct-message + Sync channel as a DM.
+export const useSendMail = createMutation<
+  { name: string; message: string },
+  SendMailResponse
+>('post', '/api/mail/send')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

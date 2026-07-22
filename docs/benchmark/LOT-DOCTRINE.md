@@ -226,3 +226,42 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Sync Delivery Gate (SSE Relay Whitelist)
+
+`sync.emit(event, ...)` fires on the server's internal EventEmitter regardless
+of whether any connected client will ever see it — delivery is a second,
+separate step. The `/api/sync` SSE endpoint holds one `switch(event)` per
+connection that explicitly whitelists which emitted events get written to that
+client's wire. An event emitted but absent from the switch is silently
+dropped: no error, no log, the sender's request still returns 200. This is the
+same failure shape as Graceful Degradation above, but on the delivery side
+rather than the computation side — the fix is symmetric: add the missing
+`case`, and scope private (non-broadcast) events to the connected identity via
+a receiverId/senderId check inside the case, matching the existing
+`settings_updated` pattern. Any new 1:1 event added to `sync.emit` must add its
+switch case in the same commit, or it silently never reaches a live client.
+
+(SR-20260722-01: `direct_message` had been emitted since the DM feature
+shipped but was never relayed — no case existed. Added the missing case with
+identity scoping while building LOT Mail, which rides this channel.)
+
+## LOT Mail — Ride Existing Rails, Cohort Breaks Ties
+
+LOT Mail (`/email to <name> [msg]` Log trigger, MAIL: lexicon) introduces no
+new table, model, or delivery channel. It resolves the recipient by name
+(CONCAT firstName+lastName ILIKE — the same pattern as admin user search),
+then writes to the existing DirectMessage model over the existing
+create+sync.emit path: the same rails a manual DM uses. When a name matches
+more than one operator, disambiguation reuses findCohortMatches() — the same
+similarity engine behind /api/cohorts and LOT Community — scoped to just the
+matched candidates instead of the full 200-user pool, so cohort-adjacency
+breaks the tie cheaply without a new relationship table. No "Dating"
+match/connection table exists in this codebase; Cohort similarity is computed
+on request, not stored, and this feature does not change that — record what
+is real, not what the feature name implies.
+
+(SR-20260722-01: first ship, after 4 prior sessions — SR-20260605-01/02,
+20260606-02, 20260612-06 — named LOT Mail as a planning artifact / ship
+candidate on branches relaxed-hamilton-eRBVA and determined-turing-f6bw7r,
+both since deleted, neither ever merged to master.)
