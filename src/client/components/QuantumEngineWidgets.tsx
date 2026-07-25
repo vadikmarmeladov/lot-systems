@@ -93,6 +93,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'morning-intention-lock':         'MINTLK',
   'multi-day-care-arc':             'MARC',
   'cognitive-output-continuity':    'COGCONT',
+  'daily-coherence-seal':           'DCSAL',
+  'quantum-rhythm-lock':            'QLOCK',
+  'biofield-integration-peak':      'BFINT',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

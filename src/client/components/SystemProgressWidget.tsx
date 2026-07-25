@@ -1271,6 +1271,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '719 badges · 19 Word Turn engines · 210 word turns · 64 calendar dates · 69 behavioral patterns · 96 RPG achievements · 76 mastery tiers · 74 secret boss triggers. Bio-Terminal deployed.',
     ],
   },
+  {
+    date: '2026-07-25',
+    session: 'Self-Assembly Session — v104 / QIE Engineering · P131–P133 · Arch45 Sealed Daily Operator · J42 Daily Coherence Seal Check · DCSAL: QLOCK: BFINT: · Dep Map 172+',
+    assembled: [
+      'intentionEngine.ts: P131 daily-coherence-seal — morning launch (P128/P119) + evening close (P125/P79) same calendar day. Conf 0.75–0.92. Full-day circuit: booted at dawn, sealed at dusk.',
+      'intentionEngine.ts: P132 quantum-rhythm-lock — weekly-rhythm-anchor + cognitive-output-continuity + circadian-anchor simultaneously active. Conf 0.72–0.90. Full temporal OS live.',
+      'intentionEngine.ts: P133 biofield-integration-peak — multi-day-care-arc + mood-energy-convergence co-active. Conf 0.72–0.88. Biological + emotional fields integrated.',
+      'intentionEngine.ts: Arch45 Sealed Daily Operator — energyBands all, dominantSources [intentions, journal, selfcare, mood], patternConditions [daily-coherence-seal, evening-reflection-loop, morning-intention-lock, multi-day-care-arc]. Daily seal confirmed.',
+      'intentionEngine.ts: 3 dep map nodes added — dailyCoherenceSealNode [intentions,journal,planner,log] · quantumRhythmLockNode [journal,planner,log,energy] · biofieldIntegrationNode [selfcare,mood,energy,log]. 172+ nodes total.',
+      'intentionEngine.ts: 3 signal helpers added — recordDailyCoherenceSeal · recordQuantumRhythmLock · recordBiofieldIntegrationPeak.',
+      'Logs.tsx: DCSAL: · QLOCK: · BFINT: handlers added (COCKPIT-RULE). 133+ handlers total.',
+      'QuantumEngineWidgets.tsx: PATTERN_DISPLAY entries added — daily-coherence-seal:DCSAL · quantum-rhythm-lock:QLOCK · biofield-integration-peak:BFINT.',
+      'scheduled-jobs.ts: J42 daily-coherence-seal-check (23:00 UTC) — scans morning launch + evening close same day → writes daily_coherence_seal. 42 jobs total.',
+      'routes/api.ts: daily_coherence_seal + quantum_rhythm_lock + biofield_integration_peak added to displayableEvents (v104 block).',
+      '133 patterns · 45 archetypes · 42 jobs · 133+ handlers · 172+ dep nodes. QIE v104 deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1310,17 +1327,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 export const USERSHIP_TRANSMISSION = {
   date: '2026-07-25',
   message: [
-    'ASSEMBLY RUN — 2026-07-25 · v103 · Badge Engine v29 The Bio-Terminal',
-    'THE BIO-TERMINAL: Biology as computing vocabulary. The body as the first self-care terminal. Neuroscience as the operating manual.',
-    'Word Turn v19 +12: pulse_signal · cortisol_log · circadian_gate · rem_active · dopamine_loop · serotonin_wave · neuroplastic · vagal_anchor · cortex_engaged · endorphin_run · rhythm_locked · homeostasis.',
-    'Calendar EE v17 Science Circuit +3: dna_day (Apr 25 — Watson & Crick 1953) · brain_day (Jul 22 — World Brain Day) · darwin_manuscript (Nov 24 — Origin of Species 1859).',
-    'Behavioral v16 Bio Patterns +3: bio_session (3+ v19 words in one entry) · morning_pulse (5× before 08:00 in 7d) · body_signal (300+ word entry).',
-    'Achievement RPG v17 Bio Class +6: bio_entry · bio_class · bio_complete · neural_arc · nineteen_engines_arc · bio_opus.',
-    'Mastery v19 Living System +4: long_signal (700+d) · body_of_work (75k+ words) · decade_operator (10+yr) · nineteen_registers (COSMIC — all 19 engines).',
-    'Secret Boss v16 Neural Vault +3: cajal_signal · kandel_key · ramachandran_rx (MYTHIC: phantom limb).',
-    'LOT_BADGES_ACHIEVEMENTS_MASTER_CODEX_v29.md: Complete accounting. Full accounting v1–v19.',
-    'LOT-BADGES-ACHIEVEMENTS-MASTER-CODEX-v29.pdf: Generated (26KB). Bio-Terminal green theme.',
-    '719 badges · 19 engines · 210 word turns · 64 calendar dates · 74 secret boss triggers. Bio-Terminal deployed.',
+    'ASSEMBLY RUN — 2026-07-25 · v104 · QIE Engineering · P131–P133 · Arch45 · J42',
+    'P131 DAILY-COHERENCE-SEAL: Morning launch + evening close same day. Full circuit confirmed. Day opened from intention, sealed in reflection.',
+    'P132 QUANTUM-RHYTHM-LOCK: Weekly-rhythm + cognitive-output-continuity + circadian-anchor simultaneously live. The full temporal OS is running.',
+    'P133 BIOFIELD-INTEGRATION-PEAK: Multi-day care arc + mood-energy convergence co-active. Biological and emotional fields integrated and reinforcing.',
+    'ARCH45 SEALED DAILY OPERATOR: Daily seal confirmed. Morning launched from intention, evening closed in reflection. Care sustained. This is not one good day — this is the practice becoming the protocol.',
+    'J42 DAILY-COHERENCE-SEAL-CHECK: 23:00 UTC. Scans morning launch + evening close same day → writes daily_coherence_seal. 42 jobs total.',
+    'HANDLERS: DCSAL: · QLOCK: · BFINT: deployed (COCKPIT-RULE). 133+ handlers total.',
+    'DEP MAP: dailyCoherenceSealNode · quantumRhythmLockNode · biofieldIntegrationNode. 172+ nodes total.',
+    '133 patterns · 45 archetypes · 42 jobs · 133+ handlers · 172+ dep nodes.',
     'DEPLOYED.',
   ],
 }

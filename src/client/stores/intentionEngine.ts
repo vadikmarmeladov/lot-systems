@@ -2949,6 +2949,70 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 131: Daily Coherence Seal — both a morning launch AND an evening close
+  // detected on the same calendar day. The day opened with intention; it closed with
+  // reflection. Morning launch = P128 (morning-intention-lock) OR P119 (morning-coherence-arc).
+  // Evening close = P125 (evening-reflection-loop) OR P79 (evening-coherence-close).
+  // This is the full-day coherence circuit: booted at dawn, sealed at dusk.
+  const p131Today = new Date(); p131Today.setHours(0, 0, 0, 0)
+  const p131TodayMs = p131Today.getTime()
+  const p131TodayEnd = p131TodayMs + 24 * 60 * 60 * 1000
+  const p131TodaySignals = signals.filter(s => s.timestamp >= p131TodayMs && s.timestamp < p131TodayEnd)
+  const p131MorningLaunch = p131TodaySignals.some(s =>
+    (s.source === 'intentions' || s.source === 'planner') && s.signal.includes('morning')
+  ) || patterns.some(p => p.pattern === 'morning-intention-lock' || p.pattern === 'morning-coherence-arc')
+  const p131EveningClose = p131TodaySignals.some(s =>
+    s.source === 'journal' && s.signal.includes('evening')
+  ) || patterns.some(p => p.pattern === 'evening-reflection-loop' || p.pattern === 'evening-coherence-close')
+  if (p131MorningLaunch && p131EveningClose && hour >= 20) {
+    const p131Conf = Math.min(0.75 + (p131TodaySignals.length * 0.01), 0.92)
+    patterns.push({
+      pattern: 'daily-coherence-seal',
+      confidence: p131Conf,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `DCSAL: Daily coherence seal — morning launch and evening close both confirmed today. The circuit is complete. Day opened from intention, sealed in reflection. This is not one good day — this is the practice becoming the protocol.`,
+    })
+  }
+
+  // Pattern 132: Quantum Rhythm Lock — P126 (weekly-rhythm-anchor) + P130 (cognitive-output-continuity)
+  // + P56 (circadian-anchor) all simultaneously active. Weekly cadence, daily writing, and
+  // circadian anchoring all confirmed at once. The full temporal operating system is live.
+  const p132HasWeeklyRhythm = patterns.some(p => p.pattern === 'weekly-rhythm-anchor')
+  const p132HasCogOutput    = patterns.some(p => p.pattern === 'cognitive-output-continuity')
+  const p132HasCircadian    = patterns.some(p => p.pattern === 'circadian-anchor')
+  if (p132HasWeeklyRhythm && p132HasCogOutput && p132HasCircadian) {
+    const p132WeekConf   = patterns.find(p => p.pattern === 'weekly-rhythm-anchor')?.confidence ?? 0.72
+    const p132CogConf    = patterns.find(p => p.pattern === 'cognitive-output-continuity')?.confidence ?? 0.72
+    const p132CircConf   = patterns.find(p => p.pattern === 'circadian-anchor')?.confidence ?? 0.72
+    const p132Conf = Math.min((p132WeekConf + p132CogConf + p132CircConf) / 3 + 0.05, 0.90)
+    patterns.push({
+      pattern: 'quantum-rhythm-lock',
+      confidence: p132Conf,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `QLOCK: Quantum rhythm lock — weekly-rhythm-anchor + cognitive-output-continuity + circadian-anchor all simultaneously active. The full temporal OS is live: weekly cadence, daily writing, circadian anchoring. Rhythm is not a habit — it is infrastructure.`,
+    })
+  }
+
+  // Pattern 133: Biofield Integration Peak — P129 (multi-day-care-arc) + P124 (mood-energy-convergence)
+  // both active. Sustained body care and mood-energy alignment confirmed simultaneously.
+  // The biological and emotional fields are integrated and mutually reinforcing.
+  const p133HasCareArc       = patterns.some(p => p.pattern === 'multi-day-care-arc')
+  const p133HasMoodEnergy    = patterns.some(p => p.pattern === 'mood-energy-convergence')
+  if (p133HasCareArc && p133HasMoodEnergy) {
+    const p133CareConf  = patterns.find(p => p.pattern === 'multi-day-care-arc')?.confidence ?? 0.72
+    const p133MoodConf  = patterns.find(p => p.pattern === 'mood-energy-convergence')?.confidence ?? 0.72
+    const p133Conf = Math.min((p133CareConf + p133MoodConf) / 2 + 0.06, 0.88)
+    patterns.push({
+      pattern: 'biofield-integration-peak',
+      confidence: p133Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `BFINT: Biofield integration peak — multi-day care arc + mood-energy convergence both active. The biological and emotional fields are integrated and mutually reinforcing. Care sustains energy. Energy enables care.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3552,6 +3616,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   morningIntentionLockNode:   ['intentions', 'planner', 'log'],
   multiDayCareArcNode:        ['selfcare', 'mood', 'log'],
   cogOutputContinuityNode:    ['journal', 'log'],
+
+  // ── Daily coherence seal + quantum rhythm lock + biofield integration peak (2026-07-25 v104)
+  dailyCoherenceSealNode:     ['intentions', 'journal', 'planner', 'log'],
+  quantumRhythmLockNode:      ['journal', 'planner', 'log', 'energy'],
+  biofieldIntegrationNode:    ['selfcare', 'mood', 'energy', 'log'],
 }
 
 /**
@@ -3933,6 +4002,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['selfcare', 'mood', 'journal'],
     patternConditions: ['multi-day-care-arc', 'care-intelligence-loop', 'biofield-recovery-arc'],
     directive: 'Care is the infrastructure. Sustained care arc confirmed. Physical maintenance and cognitive output aligned. Keep this cadence.',
+  },
+  // ── Arch45: Sealed Daily Operator (2026-07-25 v104) ─────────────────────────────
+  {
+    archetype: 'Sealed Daily Operator',
+    energyBands: ['high', 'moderate', 'low'],
+    dominantSources: ['intentions', 'journal', 'selfcare', 'mood'],
+    patternConditions: ['daily-coherence-seal', 'evening-reflection-loop', 'morning-intention-lock', 'multi-day-care-arc'],
+    directive: 'Daily seal confirmed. Morning launched from intention, evening closed in reflection. Care sustained. This is not one good day — this is the practice becoming the protocol.',
   },
 ]
 
@@ -5578,6 +5655,46 @@ export function recordCognitiveOutputContinuity(journalDays: number, journalEntr
   recordSignal('journal', 'cognitive_output_continuity', {
     journalDays,
     journalEntries,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a daily-coherence-seal signal — morning launch + evening close both confirmed same day.
+ * Feeds P131 detection. Full-day coherence circuit: booted at dawn, sealed at dusk.
+ */
+export function recordDailyCoherenceSeal(morningPattern: string, eveningPattern: string) {
+  recordSignal('intentions', 'daily_coherence_seal', {
+    morningPattern,
+    eveningPattern,
+    window: '1d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-rhythm-lock signal — weekly-rhythm + cognitive-output + circadian all active.
+ * Feeds P132 detection. Full temporal operating system confirmed live.
+ */
+export function recordQuantumRhythmLock(weeklyConf: number, cogConf: number, circConf: number) {
+  recordSignal('journal', 'quantum_rhythm_lock', {
+    weeklyConf,
+    cogConf,
+    circConf,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a biofield-integration-peak signal — multi-day care arc + mood-energy convergence both active.
+ * Feeds P133 detection. Biological and emotional fields integrated and mutually reinforcing.
+ */
+export function recordBiofieldIntegrationPeak(careConf: number, moodEnergyConf: number) {
+  recordSignal('selfcare', 'biofield_integration_peak', {
+    careConf,
+    moodEnergyConf,
     window: '7d',
     hour: new Date().getHours(),
   })

@@ -1185,6 +1185,10 @@ export default async (fastify: FastifyInstance) => {
       'morning_intention_lock',
       'multi_day_care_arc',
       'cognitive_output_continuity',
+      // v104: daily coherence seal · quantum rhythm lock · biofield integration peak (P131/P132/P133)
+      'daily_coherence_seal',
+      'quantum_rhythm_lock',
+      'biofield_integration_peak',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

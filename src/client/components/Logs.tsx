@@ -1183,6 +1183,73 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'daily_coherence_seal') {
+          const morningPattern = log.metadata?.morningPattern as string | undefined
+          const eveningPattern = log.metadata?.eveningPattern as string | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DCSAL:" blockView>
+                <div className="uppercase tracking-widest mb-4">DAILY COHERENCE SEAL</div>
+                {morningPattern !== undefined && (
+                  <div className="opacity-60 tabular-nums">MORNING: {morningPattern.toUpperCase()}</div>
+                )}
+                {eveningPattern !== undefined && (
+                  <div className="opacity-60 tabular-nums">EVENING: {eveningPattern.toUpperCase()}</div>
+                )}
+                <div className="opacity-40 tabular-nums">CIRCUIT: DAY SEALED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_rhythm_lock') {
+          const weeklyConf = log.metadata?.weeklyConf as number | undefined
+          const cogConf    = log.metadata?.cogConf    as number | undefined
+          const circConf   = log.metadata?.circConf   as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QLOCK:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM RHYTHM LOCK</div>
+                {weeklyConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">WEEKLY: {Math.round(weeklyConf * 100)}%</div>
+                )}
+                {cogConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">COG: {Math.round(cogConf * 100)}%</div>
+                )}
+                {circConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">CIRC: {Math.round(circConf * 100)}%</div>
+                )}
+                <div className="opacity-40 tabular-nums">TEMPORAL OS: LIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biofield_integration_peak') {
+          const careConf       = log.metadata?.careConf       as number | undefined
+          const moodEnergyConf = log.metadata?.moodEnergyConf as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BFINT:" blockView>
+                <div className="uppercase tracking-widest mb-4">BIOFIELD INTEGRATION PK</div>
+                {careConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE: {Math.round(careConf * 100)}%</div>
+                )}
+                {moodEnergyConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">MOOD-E: {Math.round(moodEnergyConf * 100)}%</div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELDS: INTEGRATED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

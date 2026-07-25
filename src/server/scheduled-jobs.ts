@@ -1719,6 +1719,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyCareArcCheck()) {
     await executeDailyCareArcCheck()
   }
+  // Check daily coherence seal check (23:00 UTC every day) — Job 42
+  if (shouldRunDailyCoherenceSealCheck()) {
+    await executeDailyCoherenceSealCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -2778,6 +2782,96 @@ async function executeDailyCareArcCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily care arc check failed:', error.message)
     isDailyCareArcRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Coherence Seal Check (Job 42 — 23:00 UTC every day) ───────────────
+// Reads active users. Checks for a morning launch signal (morning_intention_lock OR
+// morning_coherence_arc) AND an evening close signal (evening_reflection_loop OR
+// evening_coherence_close) both present in the current calendar day.
+// When both gates are confirmed, writes daily_coherence_seal.
+// Feeds P131 detection. Full-day coherence circuit: booted at dawn, sealed at dusk.
+
+let isDailyCoherenceSealRunning = false
+let lastDailyCoherenceSealRun: Date | null = null
+
+function shouldRunDailyCoherenceSealCheck(): boolean {
+  const now = dayjs()
+  if (isDailyCoherenceSealRunning) return false
+  if (lastDailyCoherenceSealRun) {
+    const lastRun = dayjs(lastDailyCoherenceSealRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 23 // 23:00 UTC daily
+}
+
+async function executeDailyCoherenceSealCheck(): Promise<JobResult> {
+  const jobName = 'daily-coherence-seal-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyCoherenceSealRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCoherenceSealRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY COHERENCE SEAL CHECK — 23:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const todayStart = dayjs().startOf('day').toDate()
+    const todayEnd   = dayjs().endOf('day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const todayLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.between]: [todayStart, todayEnd] },
+            event: {
+              [Op.in]: [
+                'morning_intention_lock', 'morning_coherence_arc',
+                'evening_reflection_loop', 'evening_coherence_close',
+              ],
+            },
+          },
+          attributes: ['event'],
+        })
+
+        const eventSet = new Set(todayLogs.map((l: any) => l.event))
+        const hasMorningLaunch = eventSet.has('morning_intention_lock') || eventSet.has('morning_coherence_arc')
+        const hasEveningClose  = eventSet.has('evening_reflection_loop')  || eventSet.has('evening_coherence_close')
+
+        if (hasMorningLaunch && hasEveningClose) {
+          const morningPattern = eventSet.has('morning_intention_lock') ? 'morning-intention-lock' : 'morning-coherence-arc'
+          const eveningPattern = eventSet.has('evening_reflection_loop')  ? 'evening-reflection-loop'  : 'evening-coherence-close'
+          await (Log as any).create({
+            userId,
+            event: 'daily_coherence_seal',
+            text: `Daily coherence seal: morning launched via ${morningPattern}, evening closed via ${eveningPattern}. Full-day circuit confirmed.`,
+            metadata: { morningPattern, eveningPattern, window: '1d', hour: 23 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Daily coherence seal events written: ${written}`)
+    lastDailyCoherenceSealRun = new Date()
+    isDailyCoherenceSealRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily coherence seal check failed:', error.message)
+    isDailyCoherenceSealRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4859,6 +4953,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily focus depth check: 4 PM UTC every day (Job 37)')
   console.log('   - Daily evening reflection check: 10 PM UTC every day (Job 40)')
   console.log('   - Daily care arc check: 8 PM UTC every day (Job 41)')
+  console.log('   - Daily coherence seal check: 11 PM UTC every day (Job 42)')
   console.log('')
 
   // Check every hour for scheduled jobs
