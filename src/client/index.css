@@ -82,6 +82,14 @@ input:-webkit-autofill {
   *:focus {
     @apply outline-none;
   }
+
+  /* Keyboard-navigation focus ring — visible only when navigating by keyboard,
+     hidden for mouse/touch (focus-visible spec). Required for WCAG 2.1 AA. */
+  *:focus-visible {
+    outline: 2px solid rgb(var(--acc-color-default) / 0.55);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
 }
 
 @layer components {
@@ -418,4 +426,16 @@ td:last-child {
 [data-lot-genesis]::after {
   content: 'built different since day one';
   display: none;
+}
+
+/* Respect users' OS motion preference — required for vestibular health and WCAG 2.1 SC 2.3.3 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
