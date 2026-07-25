@@ -36,7 +36,6 @@ export type LogTrigger =
   | 'qos-report'        // /qos — surface Quantum OS state in current log session
   | 'assembly-check'    // /assembly — trigger self-assembly module status check
   | 'phys-report'       // /phys — generate physiological cohort report
-  | 'sil-check'         // /sil — check for signal silence pattern
   | 'qi-rfi'            // /qi — Quantum Intelligence RFI (Request for Information)
   | 'system-help'       // /system — list all available slash commands
   | 'story-mode'        // /story — generate contextual story from recent data
@@ -51,7 +50,7 @@ interface TriggerRule {
 const RULES: TriggerRule[] = [
   { trigger: 'toggle-synth',   emojis: ['🎹'],    keywords: ['synth', 'keyboard'] },
   { trigger: 'ai-scan',        emojis: [],       keywords: ['scan', 'ai'] },
-  { trigger: 'silent-mode',    emojis: [],       keywords: ['silent', 'quiet'] },
+  { trigger: 'silent-mode',    emojis: [],       keywords: ['silent', 'quiet', 'sil', 'silence-check'] },
   { trigger: 'breathe',        emojis: [],       keywords: ['breathe', 'breath'] },
   { trigger: 'force-fast',     emojis: [],       keywords: ['fast'] },
   { trigger: 'radio-toggle',   emojis: ['🎧'],    keywords: ['radio'] },
@@ -62,7 +61,6 @@ const RULES: TriggerRule[] = [
   { trigger: 'qos-report',     emojis: [],        keywords: ['qos', 'os-report'] },
   { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
   { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
-  { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
   { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'] },
   { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'] },
   { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'] },

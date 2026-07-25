@@ -3237,7 +3237,7 @@ const NoteEditor = ({
           '/fast         Orthodox fasting calendar',
           '/breathe      4-2-6 breathing exercise',
           '/freeze       Pause and reflect protocol',
-          '/silent       Signal silence check',
+          '/silent, /sil Signal silence check',
           '/synth        Toggle keyboard sound',
           '/radio        Toggle radio',
           '/night        Dark mode',
