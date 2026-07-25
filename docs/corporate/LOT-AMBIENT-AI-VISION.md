@@ -37,7 +37,7 @@ The Usership tier is the threshold where ambient intelligence becomes personal:
 | Weather from GPS location | Weather calibrated to circadian state |
 | Sound: time-of-day preset | Sound: brainwave target matched to logged energy |
 | Memory questions: general | Memory questions: earned from 30+ days of signal |
-| Hardware: not connected | Hardware: LOT® Station + LOT® Brush live data |
+| Hardware: not connected | Hardware: LOT® Station + LOT® Brush + LOT® Signal live data |
 
 The system does not change its appearance. The intelligence deepens underneath the same minimal UI.
 
@@ -67,6 +67,19 @@ First hardware shipment: replacement heads arriving **July 3, 2026**.
 
 The brush data feeds the Self-Care module in the Self-Assembly engine. Brushing consistency becomes a coherence signal like any other. The module assembles silently.
 
+### LOT® Signal — Physical Notification Terminal
+A two-part stainless steel object (polished base + camera/screen/button
+face) that carries a single compressed line from the Memory Engine onto a
+desk or nightstand — no phone, no badge count. Pressing **Copy** writes the
+acknowledgment straight back into the Log tab on lot-systems.com, closing
+the loop in the other direction from Station and Brush: those report the
+room and the routine; Signal delivers the system's judgment and records
+whether it landed.
+
+Full plan, BOM, firmware, and API connector: see
+`docs/technical/LOT-SIGNAL-HARDWARE-SPEC.md` and its companion documents.
+Status: Phase 0 (concept locked, prototype build not yet started).
+
 ---
 
 ## 4D UX — The Ambient Dimension
@@ -95,6 +108,7 @@ This is Quantum IoT (QIoT™): not just connected devices, but physical-digital 
 | **QIoT™ (Quantum IoT)** | Physical hardware signal (Station, Brush) fused with behavioral signal into a unified personal context model. |
 | **LOT® Station** | Hardware weather + air quality sensor. Ships with Usership kit. |
 | **LOT® Brush** | Connected toothbrush. Self-care signal without manual logging. |
+| **LOT® Signal** | Physical notification terminal. One compressed line + a Copy button, no phone. |
 
 ---
 
