@@ -15,7 +15,7 @@ import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
 import { Log, LogSettingsChangeMetadata } from '#shared/types'
-import { cn } from '#client/utils'
+import { cn, formatMilitaryTime } from '#client/utils'
 import { atom, map } from 'nanostores'
 import {
   COUNTRY_BY_ALPHA3,
@@ -1656,11 +1656,21 @@ export const Logs: React.FC = React.memo(function LogsInner() {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const text = log.metadata?.text as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="uppercase tracking-widest">{entryType || 'ENTRY'}</span>
+                  <span className="opacity-60">{formatMilitaryTime(time)}</span>
+                </div>
+                {text && <div className="opacity-80 mb-4">{text}</div>}
+                {date && (
+                  <div className="opacity-30 uppercase tracking-widest">
+                    {dayjs(date).format('ddd, MMM D YYYY')}
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )

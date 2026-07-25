@@ -823,6 +823,16 @@ function formatLog(log: Log): string {
       if (state) body = `Biofield check-in: ${state}`
       break
     }
+    case 'calendar_entry': {
+      const entryType = log.metadata.entryType || 'note'
+      const entryDate = log.metadata.date || ''
+      const entryTime = log.metadata.time
+      const text = log.metadata.text || log.text || ''
+      if (text) {
+        body = `${entryType}: ${text}${entryDate ? ` — ${entryDate}${entryTime ? ` ${entryTime}` : ''}` : ''}`
+      }
+      break
+    }
   }
   body = body.trim()
   if (!body) return ''

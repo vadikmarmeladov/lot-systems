@@ -31,3 +31,11 @@ export const generateId = (length: number = 16, prefix?: string): string => {
 export function formatNumberWithCommas(x: number | string) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
 }
+
+// 24h clock notation, e.g. "09:30" -> "0930H". No time -> "ALL-DAY".
+export function formatMilitaryTime(time?: string | null): string {
+  if (!time) return 'ALL-DAY'
+  const [h, m] = time.split(':')
+  if (h === undefined || m === undefined) return 'ALL-DAY'
+  return `${h.padStart(2, '0')}${m.padStart(2, '0')}H`
+}

@@ -10,7 +10,7 @@ import * as React from 'react'
 import { useQueryClient } from 'react-query'
 import { Block, Button } from '#client/components/ui'
 import { useCreateLog, useLogs } from '#client/queries'
-import { cn } from '#client/utils'
+import { cn, formatMilitaryTime } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
 import { recordCalendarSignal } from '#client/stores/intentionEngine'
@@ -18,7 +18,9 @@ import { recordCalendarSignal } from '#client/stores/intentionEngine'
 type EntryType = 'note' | 'task' | 'call'
 
 type CalendarEntry = {
+  id: string
   date: string
+  time?: string
   text: string
   type: EntryType
 }
@@ -59,25 +61,61 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [entryTime, setEntryTime] = React.useState('')
+
+  // Ticks once a minute so "today" and the T-MINUS countdown stay live without a remount.
+  const [now, setNow] = React.useState(() => dayjs())
+  React.useEffect(() => {
+    const id = setInterval(() => setNow(dayjs()), 60_000)
+    return () => clearInterval(id)
+  }, [])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
+        id: log.id,
         date: log.metadata?.date as string,
+        time: log.metadata?.time as string | undefined,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => {
+        const aKey = `${a.date} ${a.time || '00:00'}`
+        const bKey = `${b.date} ${b.time || '00:00'}`
+        return aKey.localeCompare(bKey)
+      })
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
+    const today = now.format('YYYY-MM-DD')
     return entries
       .filter(e => e.date >= today)
       .slice(0, 10)
-  }, [entries])
+  }, [entries, now])
+
+  const nextEntry = upcomingEntries[0]
+
+  const countdownLabel = React.useMemo(() => {
+    if (!nextEntry) return null
+    let target = dayjs(nextEntry.date)
+    if (nextEntry.time) {
+      const [h, m] = nextEntry.time.split(':').map(Number)
+      target = target.hour(h).minute(m).second(0)
+    } else {
+      target = target.endOf('day')
+    }
+
+    const diffMinutes = target.diff(now, 'minute')
+    if (diffMinutes <= 0) return 'T-MINUS NOW'
+    const days = Math.floor(diffMinutes / 1440)
+    const hours = Math.floor((diffMinutes % 1440) / 60)
+    const minutes = diffMinutes % 60
+    if (days > 0) return `T-MINUS ${days}D`
+    if (hours > 0) return `T-MINUS ${hours}H`
+    return `T-MINUS ${minutes}M`
+  }, [nextEntry, now])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,7 +128,7 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
+  const today = now.format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
@@ -109,12 +147,14 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeLabel = formatMilitaryTime(entryTime)
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType.toUpperCase()}: ${entryText.trim()} — ${dateLabel} @ ${timeLabel}`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
+        time: entryTime || undefined,
         text: entryText.trim(),
         entryType,
       },
@@ -126,6 +166,7 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
   }
 
@@ -229,6 +270,12 @@ export function CalendarWidget() {
                 </div>
                 <div className="flex gap-8 items-center">
                   <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 w-[110px] outline-none focus:border-acc/40"
+                  />
+                  <input
                     type="text"
                     value={entryText}
                     onChange={e => setEntryText(e.target.value)}
@@ -247,9 +294,12 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                {entriesOnDate.map(e => (
+                  <div key={e.id} className="flex gap-8 mb-1">
+                    <span className="text-acc/40 whitespace-nowrap">
+                      {formatMilitaryTime(e.time)}
+                    </span>
+                    <span className="text-acc/80">{e.text}</span>
                   </div>
                 ))}
               </div>
@@ -257,12 +307,19 @@ export function CalendarWidget() {
           </div>
         )}
 
+        {nextEntry && countdownLabel && (
+          <div className="text-acc/30 uppercase tracking-widest mb-4">
+            {countdownLabel} · NEXT
+          </div>
+        )}
+
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
+            {upcomingEntries.map(entry => (
+              <div key={entry.id} className="flex justify-between gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  <span className="text-acc/40"> {formatMilitaryTime(entry.time)}</span>
                 </span>
                 <span className="text-acc text-right">
                   {entry.text}
