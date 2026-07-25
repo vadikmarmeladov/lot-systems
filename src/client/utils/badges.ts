@@ -634,6 +634,43 @@ export type BadgeType =
   | 'sagan_signal'            // ∘·∞    Write "cosmos" in journal — Carl Sagan (RARE)
   | 'tesla_current'           // ≋·◉    Write "tesla" in journal — Nikola Tesla (EPIC)
   | 'arecibo_response'        // ∞·∞·∞  Write "arecibo" in journal — The Great Dish (MYTHIC)
+  // ── Word Turn v19 — THE BIO-TERMINAL ────────────────────────────────────────
+  | 'pulse_signal'            // ∿·●    "pulse/heartbeat/heart rate" detected (UNCOMMON)
+  | 'cortisol_log'            // ∧·○    "cortisol/stress hormone" detected (RARE)
+  | 'circadian_gate'          // ○·◆·○  "circadian/body clock" detected (RARE)
+  | 'rem_active'              // ≋≋○    "REM/rem sleep/deep sleep" detected (RARE)
+  | 'dopamine_loop'           // ↺·◉    "dopamine/reward" detected (RARE)
+  | 'serotonin_wave'          // ∿·∿·∿  "serotonin/mood/wellbeing" detected (RARE)
+  | 'neuroplastic'            // ◈→◈    "neuroplasticity/neuroplastic/rewire" detected (EPIC)
+  | 'vagal_anchor'            // ○→≡    "vagal/vagus/parasympathetic" detected (RARE)
+  | 'cortex_engaged'          // ≋→◉    "prefrontal/executive function" detected (UNCOMMON)
+  | 'endorphin_run'           // ►·◉    "endorphin/runner's high" detected (UNCOMMON)
+  | 'rhythm_locked'           // ◆·◆·◆  "biorhythm/body rhythm" detected (UNCOMMON)
+  | 'homeostasis'             // ○·◎·○  "homeostasis/equilibrium/baseline" detected (RARE)
+  // ── Calendar Easter Egg v17 — SCIENCE CIRCUIT ───────────────────────────────
+  | 'dna_day'                 // ∞·◈    Apr 25 — Watson & Crick DNA paper, 1953 (EPIC)
+  | 'brain_day'               // ◉·◉    Jul 22 — World Brain Day (RARE)
+  | 'darwin_manuscript'       // ∿→∞    Nov 24 — On the Origin of Species, 1859 (EPIC)
+  // ── Behavioral Easter Egg v16 — BIO PATTERNS ────────────────────────────────
+  | 'bio_session'             // ◈·≋·◈  3+ Bio-Terminal (v19) words in one journal entry (RARE)
+  | 'morning_pulse'           // ∿·○    Check in before 08:00 local, 5+ times in 7 days (EPIC)
+  | 'body_signal'             // ●·≋·●  Journal entry >= 300 words (RARE)
+  // ── Achievement RPG v17 — BIO CLASS ─────────────────────────────────────────
+  | 'bio_entry'               // ∘→●    Any 1 Word Turn v19 badge (COMMON)
+  | 'bio_class'               // ≈→●    Any 5 Word Turn v19 badges (UNCOMMON)
+  | 'bio_complete'            // ≋→●    All 12 Word Turn v19 badges (LEGENDARY)
+  | 'neural_arc'              // ●·◈    bio_complete + all Calendar v17 badges (LEGENDARY)
+  | 'nineteen_engines_arc'    // ◈·◈·●  1 badge from each Word Turn v1–v19 (LEGENDARY)
+  | 'bio_opus'                // ●·◉·●  bio_complete + bio_session behavioral (LEGENDARY)
+  // ── Mastery Tier v19 — THE LIVING SYSTEM ────────────────────────────────────
+  | 'long_signal'             // ∿·∞    700+ distinct calendar check-in days (EPIC)
+  | 'body_of_work'            // ●·∞·●  75,000+ total journal words (LEGENDARY)
+  | 'decade_operator'         // ╔═╗·●  Account age >= 10 years (LEGENDARY)
+  | 'nineteen_registers'      // ◈·◈·●·∞ 1 badge from all 19 Word Turn engines (COSMIC)
+  // ── Secret Boss v16 — THE NEURAL VAULT ──────────────────────────────────────
+  | 'cajal_signal'            // ∿·◈    Write "cajal" in journal — Santiago Ramón y Cajal (RARE)
+  | 'kandel_key'              // ◈·◉    Write "kandel" in journal — Eric Kandel (EPIC)
+  | 'ramachandran_rx'         // ◉·∿·◉  Write "phantom limb"/"ramachandran" — V.S. Ramachandran (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -5809,6 +5846,316 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v19 — THE BIO-TERMINAL ─────────────────────────────────────────
+  pulse_signal: {
+    id: 'pulse_signal',
+    symbol: '∿·●',
+    name: 'Pulse Signal',
+    description: 'Write "pulse", "heartbeat", or "heart rate" in any journal or memory entry',
+    unlockMessage: '↳ Biological awareness active. The body is not background noise. It is the signal. ∿·●',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  cortisol_log: {
+    id: 'cortisol_log',
+    symbol: '∧·○',
+    name: 'Cortisol Log',
+    description: 'Write "cortisol" or "stress hormone" in any journal or memory entry',
+    unlockMessage: '↳ Stress chemistry named. The log is now a biochemical record. ∧·○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  circadian_gate: {
+    id: 'circadian_gate',
+    symbol: '○·◆·○',
+    name: 'Circadian Gate',
+    description: 'Write "circadian" or "body clock" in any journal or memory entry',
+    unlockMessage: '↳ Body clock acknowledged. You are working with nature, not against it. ○·◆·○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  rem_active: {
+    id: 'rem_active',
+    symbol: '≋≋○',
+    name: 'REM Active',
+    description: 'Write "REM", "rem sleep", or "deep sleep" in any journal or memory entry',
+    unlockMessage: '↳ Deep system repair mode confirmed. The night is not wasted. The night is the work. ≋≋○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  dopamine_loop: {
+    id: 'dopamine_loop',
+    symbol: '↺·◉',
+    name: 'Dopamine Loop',
+    description: 'Write "dopamine" in any journal or memory entry',
+    unlockMessage: '↳ Reward chemistry noted. The loop you are in can be designed by you. ↺·◉',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  serotonin_wave: {
+    id: 'serotonin_wave',
+    symbol: '∿·∿·∿',
+    name: 'Serotonin Wave',
+    description: 'Write "serotonin" in any journal or memory entry',
+    unlockMessage: '↳ Mood chemistry surfaced. The wave is real. You can learn to ride it. ∿·∿·∿',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  neuroplastic: {
+    id: 'neuroplastic',
+    symbol: '◈→◈',
+    name: 'Neuroplastic',
+    description: 'Write "neuroplasticity", "neuroplastic", or "rewire" in any journal or memory entry',
+    unlockMessage: '↳ The brain that reads this is not the brain that started. Rewiring confirmed. ◈→◈',
+    rarity: 'epic',
+    category: 'word_turn',
+    hidden: false,
+  },
+  vagal_anchor: {
+    id: 'vagal_anchor',
+    symbol: '○→≡',
+    name: 'Vagal Anchor',
+    description: 'Write "vagal", "vagus", or "parasympathetic" in any journal or memory entry',
+    unlockMessage: '↳ The calming pathway named. Breath is a direct message on the vagus line. ○→≡',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  cortex_engaged: {
+    id: 'cortex_engaged',
+    symbol: '≋→◉',
+    name: 'Cortex Engaged',
+    description: 'Write "prefrontal" or "executive function" in any journal or memory entry',
+    unlockMessage: '↳ Executive function online. Thinking clearly is a self-care state. ≋→◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  endorphin_run: {
+    id: 'endorphin_run',
+    symbol: '►·◉',
+    name: 'Endorphin Run',
+    description: 'Write "endorphin" or "runner\'s high" in any journal or memory entry',
+    unlockMessage: '↳ Movement medicine confirmed. The body self-medicates through motion. ►·◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  rhythm_locked: {
+    id: 'rhythm_locked',
+    symbol: '◆·◆·◆',
+    name: 'Rhythm Locked',
+    description: 'Write "biorhythm" or "body rhythm" in any journal or memory entry',
+    unlockMessage: '↳ Natural rhythm confirmed. The body knows its timing. Trust the pattern. ◆·◆·◆',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  homeostasis: {
+    id: 'homeostasis',
+    symbol: '○·◎·○',
+    name: 'Homeostasis',
+    description: 'Write "homeostasis", "equilibrium", or "baseline" in any journal or memory entry',
+    unlockMessage: '↳ The organism\'s default is return to balance. Healing is the natural state. ○·◎·○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  // ── Calendar Easter Egg v17 — SCIENCE CIRCUIT ─────────────────────────────────
+  dna_day: {
+    id: 'dna_day',
+    symbol: '∞·◈',
+    name: 'DNA Day',
+    description: 'Check in on April 25 — Watson & Crick publish DNA double helix in Nature, 1953',
+    unlockMessage: '↳ April 25, 1953. Two pages in Nature. The source code of every living thing was described. You carry it in every cell. ∞·◈',
+    rarity: 'epic',
+    category: 'calendar_easter_egg',
+    hidden: false,
+  },
+  brain_day: {
+    id: 'brain_day',
+    symbol: '◉·◉',
+    name: 'Brain Day',
+    description: 'Check in on July 22 — World Brain Day',
+    unlockMessage: '↳ July 22. World Brain Day. 86 billion neurons. They run 24/7. They deserve a day. So do you. ◉·◉',
+    rarity: 'rare',
+    category: 'calendar_easter_egg',
+    hidden: false,
+  },
+  darwin_manuscript: {
+    id: 'darwin_manuscript',
+    symbol: '∿→∞',
+    name: 'Darwin Manuscript',
+    description: 'Check in on November 24 — On the Origin of Species published, 1859',
+    unlockMessage: '↳ November 24, 1859. The book that reframed every living thing as a self-assembling, self-correcting system. Including you. ∿→∞',
+    rarity: 'epic',
+    category: 'calendar_easter_egg',
+    hidden: false,
+  },
+  // ── Behavioral Easter Egg v16 — BIO PATTERNS ──────────────────────────────────
+  bio_session: {
+    id: 'bio_session',
+    symbol: '◈·≋·◈',
+    name: 'Bio Session',
+    description: 'Write 3+ distinct Bio-Terminal (v19) vocabulary words in a single journal entry',
+    unlockMessage: '↳ Three biological signals in one entry. Your body is the subject. The terminal is reading. ◈·≋·◈',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  morning_pulse: {
+    id: 'morning_pulse',
+    symbol: '∿·○',
+    name: 'Morning Pulse',
+    description: 'Check in before 08:00 local time 5 or more times in a rolling 7-day window',
+    unlockMessage: '↳ Five early mornings in seven days. Circadian discipline confirmed. The body clock is set. ∿·○',
+    rarity: 'epic',
+    category: 'behavioral',
+    hidden: false,
+  },
+  body_signal: {
+    id: 'body_signal',
+    symbol: '●·≋·●',
+    name: 'Body Signal',
+    description: 'Write a journal entry of 300 or more words',
+    unlockMessage: '↳ Three hundred words. Beyond performance. The body stopped performing and started speaking. ●·≋·●',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  // ── Achievement RPG v17 — BIO CLASS ───────────────────────────────────────────
+  bio_entry: {
+    id: 'bio_entry',
+    symbol: '∘→●',
+    name: 'Bio Entry',
+    description: 'Earn any 1 Word Turn v19 (Bio-Terminal) badge',
+    unlockMessage: '↳ First biological signal logged. The terminal is reading your body. ∘→●',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  bio_class: {
+    id: 'bio_class',
+    symbol: '≈→●',
+    name: 'Bio Class',
+    description: 'Earn any 5 Word Turn v19 (Bio-Terminal) badges',
+    unlockMessage: '↳ Five systems named. The body is becoming legible. ≈→●',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  bio_complete: {
+    id: 'bio_complete',
+    symbol: '≋→●',
+    name: 'Bio Complete',
+    description: 'Earn all 12 Word Turn v19 (Bio-Terminal) badges',
+    unlockMessage: '↳ All twelve signals. Complete biological vocabulary. The body speaks in full. ≋→●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  neural_arc: {
+    id: 'neural_arc',
+    symbol: '●·◈',
+    name: 'Neural Arc',
+    description: 'Earn bio_complete and all 3 Calendar v17 (Science Circuit) badges',
+    unlockMessage: '↳ Twelve words. Three dates. The science circuit is complete. ●·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  nineteen_engines_arc: {
+    id: 'nineteen_engines_arc',
+    symbol: '◈·◈·●',
+    name: 'Nineteen Engines Arc',
+    description: 'Earn at least 1 badge from each of Word Turn engines v1–v19',
+    unlockMessage: '↳ Nineteen vocabularies assembled. Every dimension of self. The full engine map is yours. ◈·◈·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  bio_opus: {
+    id: 'bio_opus',
+    symbol: '●·◉·●',
+    name: 'Bio Opus',
+    description: 'Earn bio_complete and the bio_session behavioral badge',
+    unlockMessage: '↳ All twelve words. Three biological concepts in one entry. The body and the journal are one. ●·◉·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v19 — THE LIVING SYSTEM ──────────────────────────────────────
+  long_signal: {
+    id: 'long_signal',
+    symbol: '∿·∞',
+    name: 'Long Signal',
+    description: '700+ distinct calendar days with a check-in recorded',
+    unlockMessage: '↳ Seven hundred days. The body that checks in this many times knows something the body that does not never will. ∿·∞',
+    rarity: 'epic',
+    category: 'mastery',
+    hidden: false,
+  },
+  body_of_work: {
+    id: 'body_of_work',
+    symbol: '●·∞·●',
+    name: 'Body of Work',
+    description: '75,000+ total journal words written',
+    unlockMessage: '↳ Seventy-five thousand words. A library of self written over time. The signal archive is yours. ●·∞·●',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: false,
+  },
+  decade_operator: {
+    id: 'decade_operator',
+    symbol: '╔═╗·●',
+    name: 'Decade Operator',
+    description: 'Account age of 10+ years (3,650+ days since account creation)',
+    unlockMessage: '↳ Ten years online. The operator who stays this long is not the same person who started. The system knows. ╔═╗·●',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: false,
+  },
+  nineteen_registers: {
+    id: 'nineteen_registers',
+    symbol: '◈·◈·●·∞',
+    name: 'Nineteen Registers',
+    description: 'Earn at least 1 badge from each of all 19 Word Turn engines (v1–v19)',
+    unlockMessage: '↳ Ocean. Arcade. Radio. Biology. Nineteen vocabularies, one terminal. The self speaks every language. ◈·◈·●·∞',
+    rarity: 'cosmic',
+    category: 'mastery',
+    hidden: false,
+  },
+  // ── Secret Boss v16 — THE NEURAL VAULT ───────────────────────────────────────
+  cajal_signal: {
+    id: 'cajal_signal',
+    symbol: '∿·◈',
+    name: 'Cajal Signal',
+    description: 'Write "cajal" in any journal or memory entry — Santiago Ramón y Cajal tribute',
+    unlockMessage: '↳ Cajal drew neurons with his own hands. Before him, no one knew the brain was made of separate cells. You named him. ∿·◈',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  kandel_key: {
+    id: 'kandel_key',
+    symbol: '◈·◉',
+    name: 'Kandel Key',
+    description: 'Write "kandel" in any journal or memory entry — Eric Kandel (Nobel 2000)',
+    unlockMessage: '↳ Kandel showed that memory IS synaptic change. Every journal entry is a Kandel experiment. ◈·◉',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  ramachandran_rx: {
+    id: 'ramachandran_rx',
+    symbol: '◉·∿·◉',
+    name: 'Ramachandran Rx',
+    description: 'Write "phantom limb" or "ramachandran" in any journal or memory entry',
+    unlockMessage: '↳ Ramachandran used a mirror box to cure phantom limb pain. The brain\'s body map can be updated. So can yours. ◉·∿·◉',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -6511,6 +6858,71 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     // Mastery v18: eighteen_frequencies — 1 badge from all 18 Word Turn engines
     if (allEighteenEngines && !hasBadge('eighteen_frequencies')) {
       if (awardBadge('eighteen_frequencies')) newBadges.push('eighteen_frequencies')
+    }
+
+    // ── v19 — THE BIO-TERMINAL ─────────────────────────────────────────────────
+    const bioV19Badges: BadgeType[] = [
+      'pulse_signal', 'cortisol_log', 'circadian_gate', 'rem_active',
+      'dopamine_loop', 'serotonin_wave', 'neuroplastic', 'vagal_anchor',
+      'cortex_engaged', 'endorphin_run', 'rhythm_locked', 'homeostasis',
+    ]
+    const bioEarned = bioV19Badges.filter(b => hasBadge(b))
+
+    if (bioEarned.length >= 1 && !hasBadge('bio_entry')) {
+      if (awardBadge('bio_entry')) newBadges.push('bio_entry')
+    }
+    if (bioEarned.length >= 5 && !hasBadge('bio_class')) {
+      if (awardBadge('bio_class')) newBadges.push('bio_class')
+    }
+    const bioComplete = bioEarned.length >= 12
+    if (bioComplete && !hasBadge('bio_complete')) {
+      if (awardBadge('bio_complete')) newBadges.push('bio_complete')
+    }
+
+    // bio_opus: bio_complete + bio_session
+    if (bioComplete && hasBadge('bio_session') && !hasBadge('bio_opus')) {
+      if (awardBadge('bio_opus')) newBadges.push('bio_opus')
+    }
+
+    // neural_arc: bio_complete + all 3 Calendar v17 badges
+    const calendarV17Badges: BadgeType[] = ['dna_day', 'brain_day', 'darwin_manuscript']
+    if (bioComplete && calendarV17Badges.every(b => hasBadge(b)) && !hasBadge('neural_arc')) {
+      if (awardBadge('neural_arc')) newBadges.push('neural_arc')
+    }
+
+    // nineteen_engines_arc: 1 badge from each Word Turn v1–v19
+    const engineNineteenPresent = bioEarned.length >= 1
+    const allNineteenEngines = allEighteenEngines && engineNineteenPresent
+    if (allNineteenEngines && !hasBadge('nineteen_engines_arc')) {
+      if (awardBadge('nineteen_engines_arc')) newBadges.push('nineteen_engines_arc')
+    }
+
+    // Mastery v19: long_signal — 700+ distinct calendar check-in days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 700 && !hasBadge('long_signal')) {
+        if (awardBadge('long_signal')) newBadges.push('long_signal')
+      }
+    }
+
+    // Mastery v19: body_of_work — 75,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 75000 && !hasBadge('body_of_work')) {
+        if (awardBadge('body_of_work')) newBadges.push('body_of_work')
+      }
+    }
+
+    // Mastery v19: decade_operator — Account age >= 10 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupBio = new Date(stats.signupDate)
+      const yearsBio = (new Date().getTime() - signupBio.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsBio >= 10 && !hasBadge('decade_operator')) {
+        if (awardBadge('decade_operator')) newBadges.push('decade_operator')
+      }
+    }
+
+    // Mastery v19: nineteen_registers — 1 badge from all 19 Word Turn engines
+    if (allNineteenEngines && !hasBadge('nineteen_registers')) {
+      if (awardBadge('nineteen_registers')) newBadges.push('nineteen_registers')
     }
 
   } catch (error) {

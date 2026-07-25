@@ -803,6 +803,23 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('pioneer_plaque')
   }
 
+  // ── Calendar v17 — THE SCIENCE CIRCUIT ──────────────────────────────────────
+  // DNA Day: April 25 — Watson & Crick publish double helix, 1953
+  if (!hasBadge('dna_day') && month === 4 && day === 25) {
+    awardBadge('dna_day')
+    awarded.push('dna_day')
+  }
+  // World Brain Day: July 22
+  if (!hasBadge('brain_day') && month === 7 && day === 22) {
+    awardBadge('brain_day')
+    awarded.push('brain_day')
+  }
+  // Darwin Manuscript: November 24 — On the Origin of Species published, 1859
+  if (!hasBadge('darwin_manuscript') && month === 11 && day === 24) {
+    awardBadge('darwin_manuscript')
+    awarded.push('darwin_manuscript')
+  }
+
   return awarded
 }
 
@@ -1347,6 +1364,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bcosmos\b/i,                           badge: 'sagan_signal' },
   { patterns: /\btesla\b/i,                            badge: 'tesla_current' },
   { patterns: /\barecibo\b/i,                          badge: 'arecibo_response' },
+  // ── v19 — THE BIO-TERMINAL ────────────────────────────────────────────────────
+  { patterns: /\b(pulse|heartbeat|heart[\s-]?rate)\b/i,                badge: 'pulse_signal' },
+  { patterns: /\b(cortisol|stress[\s-]?hormone|fight[\s-]?or[\s-]?flight)\b/i, badge: 'cortisol_log' },
+  { patterns: /\b(circadian|body[\s-]?clock|circadian[\s-]?rhythm)\b/i, badge: 'circadian_gate' },
+  { patterns: /\b(rem[\s-]?sleep|deep[\s-]?sleep|restorative[\s-]?sleep)\b|\bREM\b/, badge: 'rem_active' },
+  { patterns: /\bdopamine\b/i,                                          badge: 'dopamine_loop' },
+  { patterns: /\b(serotonin|wellbeing)\b/i,                             badge: 'serotonin_wave' },
+  { patterns: /\b(neuroplasticit(y|ies)|neuroplastic|rewir(e|es|ed|ing))\b/i, badge: 'neuroplastic' },
+  { patterns: /\b(vagal|vagus|vagus[\s-]?nerve|parasympathetic)\b/i,    badge: 'vagal_anchor' },
+  { patterns: /\b(prefrontal|executive[\s-]?function|frontal[\s-]?lobe)\b/i, badge: 'cortex_engaged' },
+  { patterns: /\b(endorphin(s)?|runner[’']?s[\s-]?high)\b/i,       badge: 'endorphin_run' },
+  { patterns: /\b(biorhythm(s)?|body[\s-]?rhythm|natural[\s-]?rhythm)\b/i, badge: 'rhythm_locked' },
+  { patterns: /\b(homeostasis|equilibrium|baseline)\b/i,                badge: 'homeostasis' },
+  // ── v16 Secret Boss — THE NEURAL VAULT word triggers ─────────────────────────
+  { patterns: /\bcajal\b/i,                                             badge: 'cajal_signal' },
+  { patterns: /\bkandel\b/i,                                            badge: 'kandel_key' },
+  { patterns: /\b(phantom[\s-]?limb|ramachandran)\b/i,                  badge: 'ramachandran_rx' },
 ]
 
 /**
@@ -1810,6 +1844,14 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   // Behavioral v15: static clear (return after 7+ day gap)
   const staticClear = checkStaticClear()
   if (staticClear) awarded.push(staticClear)
+
+  // Behavioral v16: bio session (3+ Bio-Terminal v19 words in one entry)
+  const bioSession = checkBioSession(journalText)
+  if (bioSession) awarded.push(bioSession)
+
+  // Behavioral v16: body signal (journal entry >= 300 words)
+  const bodySignal = checkBodySignal(journalText)
+  if (bodySignal) awarded.push(bodySignal)
 
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
@@ -2284,6 +2326,82 @@ export function checkStaticClear(): BadgeType | null {
     if (gapDays >= 7) {
       awardBadge('static_clear')
       return 'static_clear'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Bio-Terminal v19 behavioral checks ───────────────────────────────────────
+
+const BIO_WORDS_V19 = [
+  /\b(pulse|heartbeat|heart[\s-]?rate)\b/i,
+  /\b(cortisol|stress[\s-]?hormone)\b/i,
+  /\b(circadian|body[\s-]?clock)\b/i,
+  /\b(rem[\s-]?sleep|deep[\s-]?sleep)\b|\bREM\b/,
+  /\bdopamine\b/i,
+  /\b(serotonin|wellbeing)\b/i,
+  /\b(neuroplasticit(y|ies)|neuroplastic|rewir(e|es|ed|ing))\b/i,
+  /\b(vagal|vagus|parasympathetic)\b/i,
+  /\b(prefrontal|executive[\s-]?function)\b/i,
+  /\b(endorphin(s)?|runner['']?s[\s-]?high)\b/i,
+  /\b(biorhythm(s)?|body[\s-]?rhythm)\b/i,
+  /\b(homeostasis|equilibrium|baseline)\b/i,
+]
+
+/**
+ * Award bio_session badge if 3+ distinct Bio-Terminal (v19) words appear in one entry.
+ */
+export function checkBioSession(journalText: string): BadgeType | null {
+  if (hasBadge('bio_session')) return null
+  const matchCount = BIO_WORDS_V19.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('bio_session')
+    return 'bio_session'
+  }
+  return null
+}
+
+/**
+ * Award body_signal badge if journal entry is 300+ words.
+ */
+export function checkBodySignal(journalText: string): BadgeType | null {
+  if (hasBadge('body_signal')) return null
+  const wordCount = journalText.trim().split(/\s+/).filter(w => w.length > 0).length
+  if (wordCount >= 300) {
+    awardBadge('body_signal')
+    return 'body_signal'
+  }
+  return null
+}
+
+/**
+ * Award morning_pulse badge if user checked in before 08:00 local time 5+ times in 7 days.
+ * Call this on each check-in event.
+ */
+export function checkMorningPulse(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('morning_pulse')) return null
+
+  const now = new Date()
+  const hour = now.getHours()
+  if (hour >= 8) return null
+
+  try {
+    const key = 'checkin_timestamps'
+    const stored = localStorage.getItem(key)
+    const timestamps: string[] = stored ? JSON.parse(stored) : []
+    timestamps.push(now.toISOString())
+    localStorage.setItem(key, JSON.stringify(timestamps.slice(-100)))
+
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const earlyMornings = timestamps.filter(ts => {
+      const d = new Date(ts)
+      return d >= sevenDaysAgo && d.getHours() < 8
+    })
+    if (earlyMornings.length >= 5) {
+      awardBadge('morning_pulse')
+      return 'morning_pulse'
     }
   } catch { /* non-critical */ }
 

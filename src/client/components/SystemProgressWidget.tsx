@@ -1254,6 +1254,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '130 patterns · 44 archetypes · 41 background jobs · 130+ handlers · 169+ dep nodes. Morning intention lock, sustained care arc, cognitive output continuity deployed.',
     ],
   },
+  {
+    date: '2026-07-25',
+    session: 'Self-Assembly Session — v103 / Badge Engine v29 The Bio-Terminal · +31 badges (688→719) · Word Turn v19 · Science Circuit Calendar · Bio Patterns Behavioral · Bio Class Achievement · Living System Mastery · Neural Vault Secret Boss',
+    assembled: [
+      'badges.ts: 31 new BadgeType union entries added (after arecibo_response) — Word Turn v19 (12: pulse_signal/cortisol_log/circadian_gate/rem_active/dopamine_loop/serotonin_wave/neuroplastic/vagal_anchor/cortex_engaged/endorphin_run/rhythm_locked/homeostasis), Calendar v17 (3: dna_day/brain_day/darwin_manuscript), Behavioral v16 (3: bio_session/morning_pulse/body_signal), Achievement RPG v17 (6: bio_entry/bio_class/bio_complete/neural_arc/nineteen_engines_arc/bio_opus), Mastery v19 (4: long_signal/body_of_work/decade_operator/nineteen_registers), Secret Boss v16 (3: cajal_signal/kandel_key/ramachandran_rx).',
+      'badges.ts: 31 full BADGES registry entries added with unlock messages, symbols, rarity, category. Bio-Terminal color: deep biology green.',
+      'badges.ts: checkAndAwardBadges() — v19 Bio Class achievement logic (bio_entry/bio_class/bio_complete/bio_opus/neural_arc/nineteen_engines_arc) + Mastery v19 checks (long_signal ≥700d / body_of_work ≥75k words / decade_operator ≥10yr / nineteen_registers) added.',
+      'easter-eggs.ts: 12 new WORD_TURNS entries for v19 Bio-Terminal (pulse/heartbeat/cortisol/circadian/rem/dopamine/serotonin/neuroplasticity/vagal/prefrontal/endorphin/biorhythm/homeostasis) + 3 Secret Boss v16 triggers (cajal/kandel/phantom limb/ramachandran).',
+      'easter-eggs.ts: Calendar v17 — Science Circuit checks: dna_day (Apr 25), brain_day (Jul 22), darwin_manuscript (Nov 24) added to checkCalendarEasterEggs().',
+      'easter-eggs.ts: Behavioral v16 — checkBioSession() (3+ v19 words in one entry), checkBodySignal() (300+ word entry), checkMorningPulse() (5× before 08:00 in 7d) + BIO_WORDS_V19 array.',
+      'easter-eggs.ts: runJournalEasterEggs() updated to call checkBioSession() + checkBodySignal().',
+      'docs/badges/LOT_BADGES_ACHIEVEMENTS_MASTER_CODEX_v29.md: Full codex written — Theme: THE BIO-TERMINAL. 719 total badges. Complete accounting v1–v19.',
+      'docs/badges/LOT-BADGES-ACHIEVEMENTS-MASTER-CODEX-v29.pdf: Generated via reportlab (26KB). Full PDF with Bio-Terminal green theme.',
+      'scripts/generate_badge_pdf_v29.py: PDF generation script written and executed.',
+      '719 badges · 19 Word Turn engines · 210 word turns · 64 calendar dates · 69 behavioral patterns · 96 RPG achievements · 76 mastery tiers · 74 secret boss triggers. Bio-Terminal deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1291,21 +1308,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-22',
+  date: '2026-07-25',
   message: [
-    'ASSEMBLY RUN — 2026-07-22 · v102 · QIE Engineering July 22',
-    'P128 morning-intention-lock: intentions + planner + log all fire in 06:00–10:00 window. Cognitive OS booted at day\'s first moment. Direction + structure + field signal before momentum. Conf 0.70–0.88.',
-    'P129 multi-day-care-arc: selfcare signals on 3+ consecutive calendar days. Restoration is a maintained practice. The body is a consistent priority. Conf 0.72–0.90.',
-    'P130 cognitive-output-continuity: journal entries on 4+/7 days. Writing as operating condition, not event. Sustained articulation channel confirmed. Conf 0.68–0.88. 130 patterns total.',
-    'Arch44 Sustained Care Operator: selfcare+mood+journal dominant · multi-day-care-arc+care-intelligence-loop+biofield-recovery-arc. Care is the infrastructure. Sustained care arc confirmed. Physical maintenance + cognitive output aligned. 44 archetypes total.',
-    'J41 daily-care-arc-check: 20:00 UTC daily. selfcare on 3 consecutive days → writes multi_day_care_arc signal. 41 background jobs total.',
-    'MINTLK: MARC: COGCONT: log handlers deployed (COCKPIT-RULE). Military header + opacity hierarchy. 130+ handlers total.',
-    'Dep map: 169+ nodes. 3 new: morningIntentionLockNode (3 deps) + multiDayCareArcNode (3 deps) + cogOutputContinuityNode (2 deps).',
-    'PatternRecognitionWidget: morning-intention-lock · multi-day-care-arc · cognitive-output-continuity named (P128/P129/P130).',
-    'PATTERN_DISPLAY: MINTLK · MARC · COGCONT added to QOS widget.',
-    '3 signal helpers: recordMorningIntentionLock · recordMultiDayCareArc · recordCognitiveOutputContinuity.',
-    'routes/api.ts: v102 block — morning_intention_lock + multi_day_care_arc + cognitive_output_continuity.',
-    '130 patterns · 44 archetypes · 41 jobs · 130+ handlers · 169+ dep nodes. Morning lock, care arc, cognitive continuity deployed.',
+    'ASSEMBLY RUN — 2026-07-25 · v103 · Badge Engine v29 The Bio-Terminal',
+    'THE BIO-TERMINAL: Biology as computing vocabulary. The body as the first self-care terminal. Neuroscience as the operating manual.',
+    'Word Turn v19 +12: pulse_signal · cortisol_log · circadian_gate · rem_active · dopamine_loop · serotonin_wave · neuroplastic · vagal_anchor · cortex_engaged · endorphin_run · rhythm_locked · homeostasis.',
+    'Calendar EE v17 Science Circuit +3: dna_day (Apr 25 — Watson & Crick 1953) · brain_day (Jul 22 — World Brain Day) · darwin_manuscript (Nov 24 — Origin of Species 1859).',
+    'Behavioral v16 Bio Patterns +3: bio_session (3+ v19 words in one entry) · morning_pulse (5× before 08:00 in 7d) · body_signal (300+ word entry).',
+    'Achievement RPG v17 Bio Class +6: bio_entry · bio_class · bio_complete · neural_arc · nineteen_engines_arc · bio_opus.',
+    'Mastery v19 Living System +4: long_signal (700+d) · body_of_work (75k+ words) · decade_operator (10+yr) · nineteen_registers (COSMIC — all 19 engines).',
+    'Secret Boss v16 Neural Vault +3: cajal_signal · kandel_key · ramachandran_rx (MYTHIC: phantom limb).',
+    'LOT_BADGES_ACHIEVEMENTS_MASTER_CODEX_v29.md: Complete accounting. Full accounting v1–v19.',
+    'LOT-BADGES-ACHIEVEMENTS-MASTER-CODEX-v29.pdf: Generated (26KB). Bio-Terminal green theme.',
+    '719 badges · 19 engines · 210 word turns · 64 calendar dates · 74 secret boss triggers. Bio-Terminal deployed.',
     'DEPLOYED.',
   ],
 }
