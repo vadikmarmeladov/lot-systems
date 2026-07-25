@@ -1703,6 +1703,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyFocusDepthCheck()) {
     await executeDailyFocusDepthCheck()
   }
+  // Check daily deep recall check (17:00 UTC every day) — Job 38
+  if (shouldRunDailyDeepRecallCheck()) {
+    await executeDailyDeepRecallCheck()
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -2380,6 +2384,111 @@ async function executeDailyFocusDepthCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily focus depth check failed:', error.message)
     isDailyFocusDepthRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Deep Recall Check (Job 38 — 17:00 UTC every day) ──────────────────
+// Reads active users. For each user, scans the last 24h for any 4h window that
+// contains a journal entry ≥200w AND ≥5 memory entries. Writes deep_recall_session.
+// Feeds P119 detection. Dense cognitive compression: high-word writing + dense capture.
+
+let isDailyDeepRecallRunning = false
+let lastDailyDeepRecallRun: Date | null = null
+
+function shouldRunDailyDeepRecallCheck(): boolean {
+  const now = dayjs()
+  if (isDailyDeepRecallRunning) return false
+  if (lastDailyDeepRecallRun) {
+    const lastRun = dayjs(lastDailyDeepRecallRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 17 // 17:00 UTC daily
+}
+
+async function executeDailyDeepRecallCheck(): Promise<JobResult> {
+  const jobName = 'daily-deep-recall-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyDeepRecallRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyDeepRecallRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY DEEP RECALL CHECK — 17:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+    const RECALL_WINDOW_MS = 4 * 60 * 60 * 1000 // 4h
+
+    for (const user of activeUsers) {
+      try {
+        const logs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: oneDayAgo },
+            event: { [Op.in]: ['journal_entry', 'note', 'memory_created', 'memory_saved'] },
+          },
+          order: [['createdAt', 'ASC']],
+        })
+
+        // Find journal entries with 200+ words
+        const journalEntries = logs.filter(l => {
+          const ev = (l as any).event as string
+          const words = ((l as any).text ?? '').split(/\s+/).filter(Boolean).length
+          return (ev === 'journal_entry' || ev === 'note') && words >= 200
+        })
+        const memoryEntries = logs.filter(l => ((l as any).event as string).startsWith('memory'))
+
+        // Check if any journal anchor has ≥5 memory entries within ±4h
+        let hasDeepRecall = false
+        let bestJournalWords = 0
+        for (const jEntry of journalEntries) {
+          const anchor = new Date(jEntry.createdAt as Date).getTime()
+          const nearMemory = memoryEntries.filter(e => {
+            const t = new Date(e.createdAt as Date).getTime()
+            return t >= anchor - RECALL_WINDOW_MS && t <= anchor + RECALL_WINDOW_MS
+          })
+          if (nearMemory.length >= 5) {
+            hasDeepRecall = true
+            const words = ((jEntry as any).text ?? '').split(/\s+/).filter(Boolean).length
+            bestJournalWords = Math.max(bestJournalWords, words)
+            break
+          }
+        }
+
+        if (hasDeepRecall) {
+          await Log.create({
+            userId: (user as any).id,
+            event: 'deep_recall_session' as any,
+            text: `Deep recall session detected: journal 200+w + 5+ memory entries in 4h window.`,
+            metadata: {
+              journalWords: bestJournalWords,
+              memoryCount: memoryEntries.length,
+              window: '4h',
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Deep recall session events written: ${written}`)
+    lastDailyDeepRecallRun = new Date()
+    isDailyDeepRecallRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily deep recall check failed:', error.message)
+    isDailyDeepRecallRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4459,6 +4568,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
   console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
   console.log('   - Daily focus depth check: 4 PM UTC every day (Job 37)')
+  console.log('   - Daily deep recall check: 5 PM UTC every day (Job 38)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -4468,7 +4578,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast+deep-recall-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

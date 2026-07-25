@@ -905,6 +905,68 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'deep_recall_session') {
+          const journalWords = log.metadata?.journalWords as number | undefined
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DREC:" blockView>
+                <div className="uppercase tracking-widest mb-4">DEEP RECALL SESSION</div>
+                {journalWords !== undefined && (
+                  <div className="opacity-60 tabular-nums">JRNL: {journalWords}W</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM: {memoryCount}</div>
+                )}
+                <div className="opacity-40 tabular-nums">WIN: 4H</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'planner_momentum_lock') {
+          const plannerCount  = log.metadata?.plannerCount  as number | undefined
+          const distinctHours = log.metadata?.distinctHours as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PMOM:" blockView>
+                <div className="uppercase tracking-widest mb-4">PLANNER MOMENTUM</div>
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN 24H: {plannerCount}</div>
+                )}
+                {distinctHours !== undefined && (
+                  <div className="opacity-60 tabular-nums">HRS: {distinctHours}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'longitudinal_depth_anchor') {
+          const dayCount   = log.metadata?.dayCount   as number | undefined
+          const entryCount = log.metadata?.entryCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="LDANCH:" blockView>
+                <div className="uppercase tracking-widest mb-4">DEPTH ANCHOR</div>
+                {dayCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">DAYS: {dayCount}/5</div>
+                )}
+                {entryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">ENTRIES: {entryCount}</div>
+                )}
+                <div className="opacity-40 tabular-nums">WIN: 5D · 100+W</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

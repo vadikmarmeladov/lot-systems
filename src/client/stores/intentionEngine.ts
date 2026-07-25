@@ -2695,6 +2695,60 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 119: Deep Recall Session — journal 200+w + memory ≥5 entries in a rolling
+  // 4h window. Dense cognitive compression: high-word-count writing paired with high-density
+  // memory capture in a short window. Not just depth — density. The encoding is compressing.
+  const p119Window = 4 * 60 * 60 * 1000
+  const p119Recent   = signals.filter(s => s.timestamp > now - p119Window)
+  const p119Journal  = p119Recent.filter(s => s.source === 'journal' && (s.metadata?.wordCount ?? 0) >= 200)
+  const p119Memory   = p119Recent.filter(s => s.source === 'memory')
+  if (p119Journal.length >= 1 && p119Memory.length >= 5) {
+    const p119Conf = Math.min(0.66 + p119Journal.length * 0.04 + p119Memory.length * 0.03, 0.88)
+    patterns.push({
+      pattern: 'deep-recall-session',
+      confidence: p119Conf,
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `DREC: Deep recall session active — journal ${p119Journal.length} (200+w) + memory ${p119Memory.length} entries in 4h window. High-word writing and high-density capture simultaneous. Cognitive compression in progress. Architecture assembling from what gets written and encoded.`,
+    })
+  }
+
+  // Pattern 120: Planner Momentum Lock — ≥7 planner signals in 24h. The planner is
+  // not just draining — it is churning: items being added and actioned at high velocity.
+  // Sustained forward structure generation, not just task completion.
+  const p120Window = 24 * 60 * 60 * 1000
+  const p120Recent  = signals.filter(s => s.timestamp > now - p120Window)
+  const p120Planner = p120Recent.filter(s => s.source === 'planner')
+  // Count distinct hours the planner was used (≥3 hours = spread activity, not a single burst)
+  const p120Hours   = new Set(p120Planner.map(s => new Date(s.timestamp).getHours())).size
+  if (p120Planner.length >= 7 && p120Hours >= 2) {
+    const p120Conf = Math.min(0.64 + p120Planner.length * 0.025 + p120Hours * 0.03, 0.84)
+    patterns.push({
+      pattern: 'planner-momentum-lock',
+      confidence: p120Conf,
+      suggestedWidget: 'planner',
+      suggestedTiming: 'passive',
+      reason: `PMOM: Planner momentum lock — ${p120Planner.length} planner signals in 24h across ${p120Hours} distinct hours. Structure is being generated continuously, not exhausted. Planning velocity sustained.`,
+    })
+  }
+
+  // Pattern 121: Longitudinal Depth Anchor — journal 100+w entries on ≥3 of the last
+  // 5 days. Multi-day writing depth sustained. The voice is finding its rhythm — not
+  // a single deep session, but a sequence of them. Depth becoming habit.
+  const p121FiveDays = 5 * 24 * 60 * 60 * 1000
+  const p121Recent   = signals.filter(s => s.timestamp > now - p121FiveDays && s.source === 'journal' && (s.metadata?.wordCount ?? 0) >= 100)
+  const p121Days     = new Set(p121Recent.map(s => new Date(s.timestamp).toDateString())).size
+  if (p121Days >= 3) {
+    const p121Conf = Math.min(0.68 + (p121Days - 3) * 0.06 + p121Recent.length * 0.02, 0.88)
+    patterns.push({
+      pattern: 'longitudinal-depth-anchor',
+      confidence: p121Conf,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `LDANCH: Longitudinal depth anchor — journal 100+w on ${p121Days} of last 5 days (${p121Recent.length} qualifying entries). Multi-day writing depth sustained. Depth is becoming structural habit, not episodic.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3278,6 +3332,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   focusDepthNode:             ['journal', 'memory', 'planner', 'log'],
   sleepAnchorNode:            ['energy', 'log'],
   careIntelligenceNode:       ['selfcare', 'memory', 'journal', 'log'],
+
+  // ── Deep recall + planner momentum + longitudinal depth nodes (2026-07-25 v98)
+  deepRecallNode:             ['journal', 'memory', 'log'],
+  plannerMomentumNode:        ['planner', 'log'],
+  longitudinalDepthNode:      ['journal', 'log'],
 }
 
 /**
@@ -3627,6 +3686,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['planner', 'intentions', 'memory'],
     patternConditions: ['personal-peak-window', 'focus-depth-arc', 'clarity-momentum-peak'],
     directive: 'Window is live. Cognitive and structural alignment confirmed. Execute without delay.',
+  },
+  // ── Arch41: Deep Encoder (2026-07-25 v98) ──────────────────────────────────────
+  {
+    archetype: 'Deep Encoder',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['journal', 'memory', 'planner'],
+    patternConditions: ['deep-recall-session', 'longitudinal-depth-anchor', 'focus-depth-arc'],
+    directive: 'Compression active. High-word writing and dense memory capture running together. Record everything. What gets written today becomes architecture tomorrow.',
   },
 ]
 
@@ -5145,6 +5212,45 @@ export function recordCareIntelligenceLoop(selfcareCount: number, memoryCount: n
     memoryCount,
     journalCount,
     window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a deep-recall-session signal — journal 200+w + memory ≥5 in a 4h window.
+ * Feeds P119 detection. Dense cognitive compression: high-word writing + dense memory capture.
+ */
+export function recordDeepRecallSession(journalWords: number, memoryCount: number) {
+  recordSignal('journal', 'deep_recall_session', {
+    journalWords,
+    memoryCount,
+    window: '4h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a planner-momentum-lock signal — ≥7 planner signals in 24h across ≥2 hours.
+ * Feeds P120 detection. Sustained forward structure generation, not just task completion.
+ */
+export function recordPlannerMomentumLock(plannerCount: number, distinctHours: number) {
+  recordSignal('planner', 'planner_momentum_lock', {
+    plannerCount,
+    distinctHours,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a longitudinal-depth-anchor signal — journal 100+w on ≥3 of last 5 days.
+ * Feeds P121 detection. Multi-day writing depth sustained. Depth becoming structural habit.
+ */
+export function recordLongitudinalDepthAnchor(dayCount: number, entryCount: number) {
+  recordSignal('journal', 'longitudinal_depth_anchor', {
+    dayCount,
+    entryCount,
+    window: '5d',
     hour: new Date().getHours(),
   })
 }

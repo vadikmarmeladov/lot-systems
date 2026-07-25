@@ -1183,6 +1183,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '118 patterns · 40 archetypes · 37 background jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, and care intelligence arcs deployed.',
     ],
   },
+  {
+    date: '2026-07-25',
+    session: 'Self-Assembly Session — v98 / P119–P121 · Arch41 Deep Encoder · J38 Deep Recall Check · DREC: PMOM: LDANCH: · Dep Map 160+',
+    assembled: [
+      'intentionEngine.ts: P119 deep-recall-session — journal 200+w + memory 5+ all in 4h window. Deep recall session: high-word writing and high-density capture simultaneous. Conf 0.66–0.88. suggestedWidget: memory.',
+      'intentionEngine.ts: P120 planner-momentum-lock — 7+ planner signals in 24h across 2+ distinct hours. Planning velocity sustained continuously. Conf 0.64–0.84. suggestedWidget: planner.',
+      'intentionEngine.ts: P121 longitudinal-depth-anchor — journal 100+w on 3+ of last 5 days. Multi-day writing depth structural habit, not episodic. Conf 0.68–0.88. suggestedWidget: journal.',
+      'intentionEngine.ts: Arch41 Deep Encoder — energyBands high+moderate · dominantSources journal+memory+planner · patternConditions deep-recall-session+longitudinal-depth-anchor+focus-depth-arc. Directive: Compression active. Record everything. What gets written today becomes architecture tomorrow. 41 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: deepRecallNode (3 deps) · plannerMomentumNode (2 deps) · longitudinalDepthNode (2 deps). 160+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers added — recordDeepRecallSession · recordPlannerMomentumLock · recordLongitudinalDepthAnchor.',
+      'Logs.tsx: DREC: handler (deep_recall_session: JRNL: {words}W · MEM: {count} · WIN: 4H · CONF: %). PMOM: handler (planner_momentum_lock: PLAN 24H: {count} · HRS: {hours} · CONF: %). LDANCH: handler (longitudinal_depth_anchor: DAYS: n/5 · ENTRIES: n · WIN: 5D · 100+W · CONF: %). COCKPIT-RULE compliant. 121+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 new PATTERN_DISPLAY entries — deep-recall-session (DREC) · planner-momentum-lock (PMOM) · longitudinal-depth-anchor (LDANCH).',
+      'scheduled-jobs.ts: J38 daily-deep-recall-check — 17:00 UTC daily (co-located with cohort broadcast). Reads 4h windows per user. journal 200+w + memory 5+ → writes deep_recall_session. 38 background jobs total.',
+      'routes/api.ts: deep_recall_session + planner_momentum_lock + longitudinal_depth_anchor added to displayableEvents (v98 block).',
+      '121 patterns · 41 archetypes · 38 background jobs · 121+ handlers · 160+ dep nodes. Deep recall, planner momentum, longitudinal depth arcs deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1220,19 +1237,19 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-19',
+  date: '2026-07-25',
   message: [
-    'ASSEMBLY RUN — 2026-07-19 · LOT-SR-20260719-01',
-    'P116 focus-depth-arc: journal 100+w + memory + planner in 2h rolling window. Cognitive depth and structural alignment confirmed. Conf 0.65–0.85.',
-    'P117 sleep-signal-anchor: first log after 07:00 + energy check-in before 09:00. Biological morning baseline grounded before cognitive load. Conf 0.68–0.82.',
-    'P118 care-intelligence-loop: selfcare + memory + journal all in 24h. Body-mind knowledge integration loop closed. Conf 0.62–0.80. 118 patterns total.',
-    'Arch40 Focused Executor: planner+intentions+memory dominant · personal-peak-window+focus-depth-arc+clarity-momentum-peak. Window live. Execute. 40 archetypes total.',
-    'J37 daily-focus-depth-check: 16:00 UTC daily (co-located). journal 100+w + memory + planner → 2h window → writes focus_depth_arc. 37 background jobs total.',
-    'FDEP: SANCH: CINTEL: log handlers deployed (COCKPIT-RULE). 118+ handlers total.',
-    'Dep map: 157+ nodes. 3 new: focusDepthNode + sleepAnchorNode + careIntelligenceNode.',
-    'PATTERN_DISPLAY: FDEP ARC · SANCH · CINTEL added to QOS widget.',
-    '3 signal helpers: recordFocusDepthArc · recordSleepSignalAnchor · recordCareIntelligenceLoop.',
-    '118 patterns · 40 archetypes · 37 jobs · 118+ handlers · 157+ dep nodes. Focus depth, sleep anchor, care intelligence deployed.',
+    'ASSEMBLY RUN — 2026-07-25 · LOT-SR-20260725-01',
+    'P119 deep-recall-session: journal 200+w + memory 5+ in 4h window. Cognitive compression active. High-word writing and dense memory capture running together. Conf 0.66–0.88.',
+    'P120 planner-momentum-lock: 7+ planner signals in 24h across 2+ distinct hours. Planning velocity sustained continuously, not exhausted. Conf 0.64–0.84.',
+    'P121 longitudinal-depth-anchor: journal 100+w on 3+ of last 5 days. Multi-day writing depth structural. Depth becoming habit, not episodic. Conf 0.68–0.88. 121 patterns total.',
+    'Arch41 Deep Encoder: journal+memory+planner dominant · deep-recall-session+longitudinal-depth-anchor+focus-depth-arc. Compression active. Record everything. What gets written today becomes architecture tomorrow. 41 archetypes total.',
+    'J38 daily-deep-recall-check: 17:00 UTC daily (co-located with cohort broadcast). journal 200+w + memory 5+ → 4h window → writes deep_recall_session. 38 background jobs total.',
+    'DREC: PMOM: LDANCH: log handlers deployed (COCKPIT-RULE). 121+ handlers total.',
+    'Dep map: 160+ nodes. 3 new: deepRecallNode + plannerMomentumNode + longitudinalDepthNode.',
+    'PATTERN_DISPLAY: DREC · PMOM · LDANCH added to QOS widget.',
+    '3 signal helpers: recordDeepRecallSession · recordPlannerMomentumLock · recordLongitudinalDepthAnchor.',
+    '121 patterns · 41 archetypes · 38 jobs · 121+ handlers · 160+ dep nodes. Deep recall, planner momentum, longitudinal depth deployed.',
     'DEPLOYED.',
   ],
 }

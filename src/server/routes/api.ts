@@ -1169,6 +1169,10 @@ export default async (fastify: FastifyInstance) => {
       'focus_depth_arc',
       'sleep_signal_anchor',
       'care_intelligence_loop',
+      // v98: deep recall session · planner momentum lock · longitudinal depth anchor (P119/P120/P121)
+      'deep_recall_session',
+      'planner_momentum_lock',
+      'longitudinal_depth_anchor',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
