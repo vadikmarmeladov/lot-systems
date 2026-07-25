@@ -226,3 +226,21 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Command Registry Single Source
+
+A slash-command help screen must never hand-maintain a second list of the
+commands it documents — it must derive that list from the same registry
+that drives detection. Two lists for one set of commands are two lists that
+can silently drift apart, and drift here is invisible until an operator
+types a real command and gets told it doesn't exist. The fix is structural,
+not vigilance: add the help text (description, argument usage) as fields on
+the detection rule itself, and have the help screen map over the registry
+at render time. There is then exactly one place a command can be added,
+renamed, or removed, and the help screen cannot fall out of sync because it
+has nothing of its own to fall out of.
+(SR-20260725-01: logTriggers.ts RULES gained description/usage fields;
+/system's hand-written 17-line array replaced with listCommands() mapping
+over RULES. The hand-written copy had silently omitted /sil since the
+sil-check trigger was added — invisible until this session compared the
+two lists directly.)

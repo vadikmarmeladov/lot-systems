@@ -46,27 +46,33 @@ interface TriggerRule {
   trigger: LogTrigger
   emojis: string[]
   keywords: string[] // lower-case slash commands (without leading slash)
+  // Shown by /system as the command's help line. Omitted for triggers that
+  // are reactive/emoji-only rather than typed commands (e.g. cohort-support),
+  // so they don't clutter the help screen with something the operator can't type.
+  description?: string
+  // Argument hint appended after the command in the help line, e.g. '[query]'.
+  usage?: string
 }
 
 const RULES: TriggerRule[] = [
-  { trigger: 'toggle-synth',   emojis: ['🎹'],    keywords: ['synth', 'keyboard'] },
-  { trigger: 'ai-scan',        emojis: [],       keywords: ['scan', 'ai'] },
-  { trigger: 'silent-mode',    emojis: [],       keywords: ['silent', 'quiet'] },
-  { trigger: 'breathe',        emojis: [],       keywords: ['breathe', 'breath'] },
-  { trigger: 'force-fast',     emojis: [],       keywords: ['fast'] },
-  { trigger: 'radio-toggle',   emojis: ['🎧'],    keywords: ['radio'] },
-  { trigger: 'night-mode',     emojis: ['🌙'],    keywords: ['night'] },
-  { trigger: 'prayer-mode',    emojis: ['🕯️', '🕯'], keywords: ['prayer', 'candle'] },
-  { trigger: 'freeze-widgets', emojis: ['🧊'],    keywords: ['freeze', 'pause'] },
+  { trigger: 'toggle-synth',   emojis: ['🎹'],    keywords: ['synth', 'keyboard'], description: 'Toggle keyboard sound' },
+  { trigger: 'ai-scan',        emojis: [],       keywords: ['scan', 'ai'], description: 'System status overview' },
+  { trigger: 'silent-mode',    emojis: [],       keywords: ['silent', 'quiet'], description: 'Signal silence check' },
+  { trigger: 'breathe',        emojis: [],       keywords: ['breathe', 'breath'], description: '4-2-6 breathing exercise' },
+  { trigger: 'force-fast',     emojis: [],       keywords: ['fast'], description: 'Orthodox fasting calendar' },
+  { trigger: 'radio-toggle',   emojis: ['🎧'],    keywords: ['radio'], description: 'Toggle radio' },
+  { trigger: 'night-mode',     emojis: ['🌙'],    keywords: ['night'], description: 'Dark mode' },
+  { trigger: 'prayer-mode',    emojis: ['🕯️', '🕯'], keywords: ['prayer', 'candle'], description: 'Generate contextual scripture' },
+  { trigger: 'freeze-widgets', emojis: ['🧊'],    keywords: ['freeze', 'pause'], description: 'Pause and reflect protocol' },
   { trigger: 'cohort-support', emojis: ['❗', '‼️', '‼'], keywords: [] },
-  { trigger: 'qos-report',     emojis: [],        keywords: ['qos', 'os-report'] },
-  { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
-  { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
-  { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
-  { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'] },
-  { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'] },
-  { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'] },
-  { trigger: 'how-checkin',    emojis: [],        keywords: ['how'] },
+  { trigger: 'qos-report',     emojis: [],        keywords: ['qos', 'os-report'], description: 'Quantum OS state analysis' },
+  { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'], description: 'Self-assembly module status' },
+  { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'], description: 'Physiological cohort report' },
+  { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'], description: 'Signal silence pattern check' },
+  { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'], description: 'Ask the Quantum Intelligence engine', usage: '[query]' },
+  { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'], description: 'This help screen' },
+  { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'], description: 'Compress recent data into a personal story', usage: '[day|week|month|year]' },
+  { trigger: 'how-checkin',    emojis: [],        keywords: ['how'], description: 'Open LOT AI check-in (System tab)' },
 ]
 
 /**
@@ -96,6 +102,20 @@ export function detectTriggers(text: string): LogTrigger[] {
   }
 
   return hits
+}
+
+/**
+ * Every typed slash command, derived straight from RULES — this is what
+ * /system renders. Reactive/emoji-only triggers (no keywords, e.g.
+ * cohort-support) are excluded since the operator can't type them anyway.
+ * Deriving from RULES instead of hand-maintaining a second list is what
+ * keeps /system from drifting out of sync with what actually fires
+ * (a hand-written copy previously omitted /sil for this exact reason).
+ */
+export function listCommands(): { command: string; usage?: string; description: string }[] {
+  return RULES
+    .filter((r): r is TriggerRule & { description: string } => !!r.description && r.keywords.length > 0)
+    .map(r => ({ command: `/${r.keywords[0]}`, usage: r.usage, description: r.description }))
 }
 
 /**

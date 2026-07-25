@@ -28,7 +28,7 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, listCommands, type LogTrigger } from '#client/utils/logTriggers'
 import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
@@ -2809,6 +2809,7 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [storyPeriod, setStoryPeriod] = React.useState<'day' | 'week' | 'month' | 'year' | null>(null)
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -2845,6 +2846,7 @@ const NoteEditor = ({
   const { mutate: submitStory } = useStoryGeneration({
     onSuccess: (data) => {
       setStoryResponse(data.story)
+      setStoryPeriod(data.period)
       setStoryLoading(false)
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
@@ -3224,25 +3226,16 @@ const NoteEditor = ({
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
       } else if (trigger === 'system-help') {
+        // Derived from logTriggers.ts RULES so this list can never drift out
+        // of sync with what actually fires (see listCommands() doc comment).
+        const commandLines = listCommands().map(({ command, usage, description }) => {
+          const label = usage ? `${command} ${usage}` : command
+          return `${label.padEnd(14)}  ${description}`
+        })
         const lines = [
           'AVAILABLE COMMANDS',
           '',
-          '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
-          '/scan         System status overview',
-          '/qi [query]   Ask the Quantum Intelligence engine',
-          '/assembly     Self-assembly module status',
-          '/phys         Physiological cohort report',
-          '/qos          Quantum OS state analysis',
-          '/fast         Orthodox fasting calendar',
-          '/breathe      4-2-6 breathing exercise',
-          '/freeze       Pause and reflect protocol',
-          '/silent       Signal silence check',
-          '/synth        Toggle keyboard sound',
-          '/radio        Toggle radio',
-          '/night        Dark mode',
-          '/how          Open LOT AI check-in (System tab)',
-          '/system       This help screen',
+          ...commandLines,
           '',
           'SHORTCUTS',
           'Ctrl+Enter    Save log immediately',
@@ -3254,17 +3247,25 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          // /story alone reflects "recent" (legacy behavior); /story
+          // day|week|month|year compresses that fixed calendar window instead.
+          const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+          const period = periodMatch
+            ? (periodMatch[1].toLowerCase() as 'day' | 'week' | 'month' | 'year')
+            : null
+          setStoryPeriod(period)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story\s*(day|week|month|year)?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period: period ?? undefined,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period: period ?? undefined })
           }
         }
       }
@@ -3519,7 +3520,7 @@ const NoteEditor = ({
         )}
         {(storyLoading || storyResponse) && (
           <div className="mt-8">
-            <Block label="📖" blockView>
+            <Block label={storyPeriod ? `📖 ${storyPeriod.toUpperCase()}` : '📖'} blockView>
               {storyLoading && !storyResponse && (
                 <div className="opacity-40 tracking-widest">...</div>
               )}
