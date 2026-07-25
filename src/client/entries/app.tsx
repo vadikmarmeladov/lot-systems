@@ -145,12 +145,23 @@ type PersistentRoute = 'system' | 'logs' | 'sync' | 'settings' | 'api'
 const TabPanel = React.memo(function TabPanel({
   active,
   children,
+  unmountWhenInactive = false,
 }: {
   active: boolean
   children: React.ReactNode
+  unmountWhenInactive?: boolean
 }) {
   const visitedRef = React.useRef(active)
   if (active) visitedRef.current = true
+  // Heavy tabs (System) fully UNMOUNT when inactive. Keeping them mounted with
+  // display:none left their ~7 intentionEngine-subscriber widgets alive, so any
+  // recordSignal from any tab re-rendered them in the background until the main
+  // thread saturated and navigation froze (needing a hard reload). Unmounting
+  // stops all that background work; signal data lives in a module-level atom, so
+  // nothing is lost — the tab re-renders fresh when reopened.
+  if (unmountWhenInactive) {
+    return active ? <>{children}</> : null
+  }
   if (!visitedRef.current) return null
   return (
     <div style={{ display: active ? 'contents' : 'none' }}>
@@ -173,7 +184,7 @@ const TabPanels = React.memo(function TabPanels() {
 
   return (
     <>
-      <TabPanel active={currentRoute === 'system'}>
+      <TabPanel active={currentRoute === 'system'} unmountWhenInactive>
         <System />
       </TabPanel>
       <TabPanel active={currentRoute === 'logs'}>
