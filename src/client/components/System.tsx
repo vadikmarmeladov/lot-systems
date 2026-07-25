@@ -958,14 +958,16 @@ export const System = React.memo(function SystemInner() {
         <FlashDriveManifest />
       </WidgetErrorBoundary>
 
-      {/* Investor stack — Visible when Investment switch is On in Settings */}
+      {/* Investor stack — Visible when Investment switch is On in Settings; lazy-mounted below the fold */}
       <WidgetErrorBoundary name="Investor">
-        <div className={cn('flex flex-col', density.stackGap)}>
-          <AngelInvestorWidget />
-          <CorporatePlanWidget />
-          <DemoDayWidget />
-          <FourDimensionalUI />
-        </div>
+        <LazyMount>
+          <div className={cn('flex flex-col', density.stackGap)}>
+            <AngelInvestorWidget />
+            <CorporatePlanWidget />
+            <DemoDayWidget />
+            <FourDimensionalUI />
+          </div>
+        </LazyMount>
       </WidgetErrorBoundary>
 
       {/* Quantum Engine Connect Widgets — lazy-mounted: subscriptions only start when widget enters viewport */}
@@ -975,15 +977,17 @@ export const System = React.memo(function SystemInner() {
         </LazyMount>
       </WidgetErrorBoundary>
 
-      {/* CQGS Biofield Engine Widgets */}
+      {/* CQGS Biofield Engine Widgets — lazy-mounted: subscriptions only start when widget enters viewport */}
       <WidgetErrorBoundary name="Biofield Engine">
-        <div className={cn('flex flex-col', density.sectionGap)}>
-          <QuantumStateWidget />
-          <PatternRecognitionWidget />
-          <AIFeedbackWidget />
-          <SignalStreamWidget />
-          <IntegrityWidget />
-        </div>
+        <LazyMount>
+          <div className={cn('flex flex-col', density.sectionGap)}>
+            <QuantumStateWidget />
+            <PatternRecognitionWidget />
+            <AIFeedbackWidget />
+            <SignalStreamWidget />
+            <IntegrityWidget />
+          </div>
+        </LazyMount>
       </WidgetErrorBoundary>
 
       {/* CQGS Dashboard stack */}
@@ -1008,16 +1012,18 @@ export const System = React.memo(function SystemInner() {
         <ArchitectWidget />
       </WidgetErrorBoundary>
 
-      {/* Stats stack */}
+      {/* Stats stack — lazy-mounted: subscriptions only start when widget enters viewport */}
       <WidgetErrorBoundary name="Stats">
-        <div className={cn('flex flex-col', density.sectionGap)}>
-          <IntentionPatterns />
-          <CollectiveConsciousness />
-          <WellnessPulse />
-          <MemoryEngineStats />
-          <GrowthMilestones />
-          <BadgeUnlockFeed />
-        </div>
+        <LazyMount>
+          <div className={cn('flex flex-col', density.sectionGap)}>
+            <IntentionPatterns />
+            <CollectiveConsciousness />
+            <WellnessPulse />
+            <MemoryEngineStats />
+            <GrowthMilestones />
+            <BadgeUnlockFeed />
+          </div>
+        </LazyMount>
       </WidgetErrorBoundary>
 
       {/* Calendar — Personal date planner */}
