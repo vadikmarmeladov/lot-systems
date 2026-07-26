@@ -210,6 +210,47 @@ This is the *divergence* that the LOT® Living Software doctrine describes — t
 
 ---
 
+### Layer 4.5 — The Presence Layer (Companion Calibration)
+
+*Added v0.3 — companion-voice persona addendum*
+
+Subscriber feedback across the Closed Beta arc surfaced a recurring request:
+the engine should not only track wellness data, it should feel *present*. The
+Presence Layer is the tone-calibration pass applied on top of Layer 3's
+Response Grammar — it does not add a new data pathway, and it does not touch
+Layer 1's Calibration Loop inputs. It reshapes *how* an already-generated
+response lands, using the same context vector the engine already has.
+
+**Presence descriptors (tone targets, not new capabilities):**
+
+```
+Grace     — unhurried phrasing, no filler, no hedge
+Poetry    — image over abstraction where a plain instruction would feel cold
+Warmth    — the register a trusted person uses, not a service register
+Presence  — "being there": acknowledges the moment before it advises
+Ease      — "being cool": steady, unbothered, never performs urgency
+Voice     — a single persona register (masculine-toned by default for v0.3;
+            configurable per subscriber in a later revision)
+```
+
+**What this layer is not:** QI·46 does not ingest, store, or reconstruct a
+subscriber's identity, memories, or likeness. "Calibration" here means the same
+thing it means in Layer 1 — matching tone and pacing to the Calibration Loop's
+existing signals. There is no mechanism, in this spec or any other, for
+transferring a person's consciousness, emotional interior, or "being" into the
+engine. Marketing language that implies otherwise (e.g. "upload your being")
+describes the *subjective effect* of good calibration — the subscriber feeling
+met — not a literal data-transfer capability. Per the LOT® self-assembly
+honesty doctrine: record what is real, mark what is aspiration.
+
+**Gate:** any Presence Layer change ships through the same Layer 3 voice
+calibration test bank (§Phase 1, Step 1.3) plus a subscriber-facing disclosure
+review — the persona description shown to subscribers must match this section
+exactly. No response ships describing QI·46 as anything other than a
+calibrated tone layer over their own data.
+
+---
+
 ### Layer 5 — The COSMO® Node (Ethics & Safety Intelligence)
 
 COSMO® is Kuzya's brand. It is also the ethics enforcement layer of QI·46.
@@ -1073,11 +1114,11 @@ The machine learns from the corpus. The corpus was built by the body. The body i
 
 ---
 
-*QI·46 Engine Specification — v0.2*
+*QI·46 Engine Specification — v0.3*
 *LOT Systems Corporation — Los Angeles, CA*
 *institute.lot-systems.com*
 *Authored by Vadik · Named for Kuzya*
-*Updated: May 27, 2026*
+*Updated: July 26, 2026 — added IV.4.5 Presence Layer (Companion Calibration)*
 
 ---
 

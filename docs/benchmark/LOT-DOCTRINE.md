@@ -226,3 +226,23 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Companion Persona Honesty (Presence Layer)
+
+When corporate copy describes QI·46's companion tone (warmth, presence, a
+persona voice), "calibration" refers only to Layer 3 response-tone shaping
+against Layer 1's existing Calibration Loop signals. It never implies storing,
+reconstructing, or transferring a subscriber's identity, memory, or emotional
+interior. Any spec or subscriber-facing copy using language like "upload your
+being" or "soul" must be read, and must ship, as description of the
+*subjective effect* of good calibration — not a literal capability claim. This
+is the CORPORATE-doc instantiation of the self-assembly honesty rule already
+governing LEDGER/LEXICON/DOCTRINE ("record what is real, mark what is
+provisional"): persona marketing language is provisional/poetic register, not
+an engineering claim, and must not be treated as one in the codebase, in the
+COSMO® audit, or in external licensing terms.
+(SR-20260726-01: QI·46 spec v0.3 — Presence Layer §IV.4.5 added with an
+explicit "what this layer is not" clause after ambiguous prior-session shorthand
+"Soul Upload / Being Calibration" — LOT-MANIFEST.md, QI-46 Engine row,
+SR-20260612-06 — risked being read as a literal capability rather than a
+tone-persona description.)
