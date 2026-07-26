@@ -48,7 +48,7 @@ const fastify = Fastify({
   bodyLimit: 1_048_576,
 })
 
-const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/sync', '/log']
+const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/sync', '/log', '/basics']
 
 // ==============================================================================
 // SECURITY PLUGINS
@@ -226,6 +226,16 @@ fastify.register(publicApiRoutes, { prefix: '/api/public' })
 fastify.get('/status', async (req, reply) => {
   return reply.view('generic-spa', {
     scriptName: 'status',
+    scriptNonce: reply.cspNonce.script,
+    styleNonce: reply.cspNonce.style,
+  })
+})
+
+// Public OPEN TAB route (no authentication required) — LOT-FM-001 MONTH 1.
+// A stranger reads the BASIC ration ledger, doctrine, and price line here.
+fastify.get('/open-tab', async (req, reply) => {
+  return reply.view('generic-spa', {
+    scriptName: 'open-tab',
     scriptNonce: reply.cspNonce.script,
     styleNonce: reply.cspNonce.style,
   })

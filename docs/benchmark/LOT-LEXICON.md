@@ -72,4 +72,7 @@ COMINTEL:          Community Intelligence Peak — log block label; cohort + jou
 EMBODIED-COGNITION-ARC   QIE P110 — selfcare + journal 150+w + memory capture all in 24h; biological grounding and cognitive expression confirmed simultaneously; body feeding mind  B  20260706
 INTENTION-COMPLETION-LOOP QIE P111 — intention set + planner + goal action all in 24h; direction→structure→outcome arc closed in one day; rare single-day loop  B  20260706
 COMMUNITY-INTELLIGENCE-PEAK  QIE P112 — cohort signal + journal + memory + intentions all in 48h; external social signal anchored internally through writing, capture, and direction-setting  B  20260706
+LOT-FM-001         BASIC ration module self-assembly directive — 90-day, 3-month build (ledger → upgrade → issue). Referenced in SR-20260605-01, SR-20260605-02, SR-20260612-06; module built this session.  B  20260726
+OPEN TAB           The public, no-login, read-only surface of the BASIC ration ledger (/open-tab). PROVISIONAL — first occurrence this session; track for 2 more before promoting from prose.  B  20260726
+ON STRENGTH        Roster state: a Usership/AI member who has completed BASIC ration intake and is actively issued. PROVISIONAL — first occurrence this session.  B  20260726
 ```

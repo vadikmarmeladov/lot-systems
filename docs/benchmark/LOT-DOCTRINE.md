@@ -226,3 +226,21 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Dual-Surface Component Reuse
+
+When a feature needs both a public, no-login page and an authenticated in-app
+tab showing the same content, build one shared presentational component and
+mount it from two thin wrappers — a standalone entry (mirrors status.tsx →
+StatusPage pattern) for the public route, and a tab component for the SPA
+router. The public wrapper owns its own page chrome (no Layout/nav); the
+in-app wrapper renders inside the existing TabPanel shell. Never fork the
+content itself — a second copy drifts from the first the next time either
+one changes. This generalizes the /status pattern (StatusPage rendered via
+both `noWrapper` prop and the standalone status.tsx entry) to any feature
+that is both a marketing-facing public surface and a member-facing tab.
+(StatusPage/status.tsx already carried this shape pre-existing in the repo,
+undocumented as doctrine until now. SR-20260726-01 confirmed it as a
+repeatable pattern building BasicsLedger, consumed by both OpenTabPage
+[public, /open-tab] and Basics [in-app tab, /basics] — same component,
+zero content fork.)
