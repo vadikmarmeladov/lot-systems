@@ -26,7 +26,7 @@ FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | F
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
-Calendar Alerts  | dreamy-babbage-nebo88         | (SR-20260721-01) | 1/1 | BEST | 3 | +388 | Live clock, T-minus countdown, military overlay, CAL-ALERT: log handler, today panel — ported onto current master (2026-07-21); supersedes stale gifted-lovelace-cZOWR
+Calendar Alerts  | dreamy-babbage-nebo88         | (SR-20260721-01) | 1/1 | SHIPPED | 3 | +388 | Live clock, T-minus countdown, military overlay, CAL-ALERT: log handler, today panel — ported onto current master (2026-07-21); also delivered to claude/dreamy-babbage-be5mdm (2026-07-26, SR-20260726-01); supersedes stale gifted-lovelace-cZOWR
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
