@@ -1288,6 +1288,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '133 patterns · 45 archetypes · 42 jobs · 133+ handlers · 172+ dep nodes. QIE v104 deployed.',
     ],
   },
+  {
+    date: '2026-07-26',
+    session: 'Self-Assembly Session — v105 / Full Wiki Scan · LOT-WIKI-v81 · QIE v101–v104 Delta Sync · Badge Engine v29 (The Bio-Terminal) · 3 New Doctrines · FM v105',
+    assembled: [
+      'docs/wiki/LOT-WIKI-v81.md: Full wiki scan produced. v80→v81 transformation. Header, system state, TOC, all sections updated to current state.',
+      'LOT-WIKI-v81 delta from v80: 124→133 patterns (+9: P125–P133) · 42→45 archetypes (+3: Arch43–Arch45) · 39→42 background jobs (+3: J40–J42) · 163+→172+ dep nodes (+9) · 124+→133+ handlers (+9: EVEFL/WEEKA/DEPBR/MINTLK/MARC/COGCONT/DCSAL/QLOCK/BFINT) · v28→v29 badge engine (688→719) · v18→v19 word turn (222→234) · 15→18 secret boss triggers.',
+      'QIE v101 synchronized: P125 evening-reflection-loop · P126 weekly-rhythm-anchor · P127 depth-breadth-convergence · Arch43 Evening Integrator · J40 · EVEFL: WEEKA: DEPBR: · 166+ dep nodes.',
+      'QIE v102 synchronized: P128 morning-intention-lock · P129 multi-day-care-arc · P130 cognitive-output-continuity · Arch44 Sustained Care Operator · J41 · MINTLK: MARC: COGCONT: · 169+ dep nodes.',
+      'QIE v104 synchronized: P131 daily-coherence-seal · P132 quantum-rhythm-lock · P133 biofield-integration-peak · Arch45 Sealed Daily Operator · J42 · DCSAL: QLOCK: BFINT: · 172+ dep nodes.',
+      'Badge Engine v29 The Bio-Terminal synchronized: 719 total badges · Word Turn v19 (12 bio words) · Calendar EE v17 · Behavioral v16 · RPG v17 · Mastery v19 · Secret Boss v16.',
+      '3 new engineering doctrines added: Evening Integration Doctrine (J40·P125·Arch43) · Sustained Care Doctrine (J41·P129·Arch44) · Daily Coherence Seal Doctrine (J42·P131·Arch45).',
+      'About.tsx: FM v104→v105 · Day 1062+→1063+ · self-assembly Row updated · background jobs 40→42 · handlers 127+→133+ · dep map 166+→172+.',
+      'SystemProgressWidget.tsx: v105 session entry added · USERSHIP_TRANSMISSION updated to v105.',
+      'docs/assembly/2026-07-26_LOT-assembly_wiki-v81-fm-v105.md: Assembly report written.',
+      'docs/SESSION_REPORT_2026_07_26_WIKI_v81.md: Session report written.',
+      '133 patterns · 45 archetypes · 42 jobs · 133+ handlers · 172+ dep nodes · 234 word turns · 719 badges · Day 1063+. Wiki v81 + FM v105 deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1325,17 +1343,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-25',
+  date: '2026-07-26',
   message: [
-    'ASSEMBLY RUN — 2026-07-25 · v104 · QIE Engineering · P131–P133 · Arch45 · J42',
-    'P131 DAILY-COHERENCE-SEAL: Morning launch + evening close same day. Full circuit confirmed. Day opened from intention, sealed in reflection.',
-    'P132 QUANTUM-RHYTHM-LOCK: Weekly-rhythm + cognitive-output-continuity + circadian-anchor simultaneously live. The full temporal OS is running.',
-    'P133 BIOFIELD-INTEGRATION-PEAK: Multi-day care arc + mood-energy convergence co-active. Biological and emotional fields integrated and reinforcing.',
-    'ARCH45 SEALED DAILY OPERATOR: Daily seal confirmed. Morning launched from intention, evening closed in reflection. Care sustained. This is not one good day — this is the practice becoming the protocol.',
-    'J42 DAILY-COHERENCE-SEAL-CHECK: 23:00 UTC. Scans morning launch + evening close same day → writes daily_coherence_seal. 42 jobs total.',
-    'HANDLERS: DCSAL: · QLOCK: · BFINT: deployed (COCKPIT-RULE). 133+ handlers total.',
-    'DEP MAP: dailyCoherenceSealNode · quantumRhythmLockNode · biofieldIntegrationNode. 172+ nodes total.',
-    '133 patterns · 45 archetypes · 42 jobs · 133+ handlers · 172+ dep nodes.',
+    'ASSEMBLY RUN — 2026-07-26 · v105 · Full Wiki Scan · LOT-WIKI-v81 · FM v105 · Day 1063+',
+    'WIKI v81: QIE v101–v104 delta synchronized. 124→133 patterns. 42→45 archetypes. 39→42 background jobs. 163+→172+ dep nodes. Badge Engine v28→v29 (688→719). Word Turn v18→v19 (222→234).',
+    'QIE v101 (P125–P127): evening-reflection-loop · weekly-rhythm-anchor · depth-breadth-convergence. Arch43 Evening Integrator. J40 22:00 UTC. EVEFL: WEEKA: DEPBR:',
+    'QIE v102 (P128–P130): morning-intention-lock · multi-day-care-arc · cognitive-output-continuity. Arch44 Sustained Care Operator. J41 20:00 UTC. MINTLK: MARC: COGCONT:',
+    'QIE v104 (P131–P133): daily-coherence-seal · quantum-rhythm-lock · biofield-integration-peak. Arch45 Sealed Daily Operator. J42 23:00 UTC. DCSAL: QLOCK: BFINT:',
+    'BADGE ENGINE v29 THE BIO-TERMINAL: +31 badges (688→719). Word Turn v19 — biology/neuroscience. cajal · kandel · phantom limb secret bosses. The body is the instrument.',
+    '3 NEW DOCTRINES: Evening Integration (the day has an end) · Sustained Care (care is the infrastructure) · Daily Coherence Seal (the practice is the protocol).',
+    'FIELD MANUAL v105. Day 1063+. 133 patterns · 45 archetypes · 42 jobs · 133+ handlers · 172+ dep nodes · 234 word turns · 719 badges.',
     'DEPLOYED.',
   ],
 }
