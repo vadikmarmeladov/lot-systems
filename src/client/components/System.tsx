@@ -22,7 +22,7 @@ import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
-import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
+import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo, getMoonEmoji, getPersonalRhythm } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
 import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
@@ -206,6 +206,13 @@ export const System = React.memo(function SystemInner() {
       rokuyo,
     }
   }, [])
+
+  // Personal rhythm — when this user actually tends to log, read against the
+  // same ambient cycles. Descriptive only; requires enough history to mean
+  // anything, so it stays quiet for brand-new accounts.
+  const personalRhythm = React.useMemo(() => {
+    return getPersonalRhythm(logs.map((log) => new Date(log.createdAt)))
+  }, [logs])
 
   const answerLogs = React.useMemo(() => {
     return logs.filter(log => log.event === 'answer')
@@ -434,7 +441,7 @@ export const System = React.memo(function SystemInner() {
         <div>
           <Block label="Astrology:">
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              {getMoonEmoji(astrology.moonPhase)} {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
             </div>
           </Block>
         </div>
@@ -640,7 +647,14 @@ export const System = React.memo(function SystemInner() {
         >
           {astrologyView === 'astrology' ? (
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              <div>
+                {getMoonEmoji(astrology.moonPhase)} {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              </div>
+              {personalRhythm.sampleSize >= 5 && personalRhythm.dominantHourZodiac && (
+                <div className="opacity-30 mt-4">
+                  Your rhythm: {personalRhythm.dominantHourZodiac} hour ({personalRhythm.dominantHourShare}%) • {personalRhythm.taianEntries} Taian {personalRhythm.taianEntries === 1 ? 'entry' : 'entries'}
+                </div>
+              )}
             </div>
           ) : astrologyView === 'psychology' ? (
             <div>

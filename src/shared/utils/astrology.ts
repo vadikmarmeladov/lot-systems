@@ -177,3 +177,47 @@ export function getMoonEmoji(phaseName: string): string {
   }
   return emojiMap[phaseName] || '🌑'
 }
+
+export type PersonalRhythm = {
+  dominantHourZodiac: string | null
+  dominantHourShare: number // 0-100, share of entries logged in that hourly zodiac window
+  taianEntries: number // count of entries logged on a Taian (most auspicious Rokuyo) day
+  sampleSize: number
+}
+
+/**
+ * Derive a personal rhythm from the user's own log timestamps — reads the
+ * same hourly-zodiac and Rokuyo cycles against when the user actually shows
+ * up. This is observed behavior, not a forecast: it answers "when do I tend
+ * to log," never "what should happen to me."
+ */
+export function getPersonalRhythm(logTimestamps: Date[]): PersonalRhythm {
+  if (logTimestamps.length === 0) {
+    return { dominantHourZodiac: null, dominantHourShare: 0, taianEntries: 0, sampleSize: 0 }
+  }
+
+  const hourCounts = new Map<string, number>()
+  let taianEntries = 0
+
+  for (const timestamp of logTimestamps) {
+    const zodiac = getHourlyZodiac(timestamp)
+    hourCounts.set(zodiac, (hourCounts.get(zodiac) ?? 0) + 1)
+    if (getRokuyo(timestamp) === 'Taian') taianEntries += 1
+  }
+
+  let dominantHourZodiac: string | null = null
+  let dominantHourCount = 0
+  for (const [zodiac, count] of hourCounts) {
+    if (count > dominantHourCount) {
+      dominantHourZodiac = zodiac
+      dominantHourCount = count
+    }
+  }
+
+  return {
+    dominantHourZodiac,
+    dominantHourShare: Math.round((dominantHourCount / logTimestamps.length) * 100),
+    taianEntries,
+    sampleSize: logTimestamps.length,
+  }
+}

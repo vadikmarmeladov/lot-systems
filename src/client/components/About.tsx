@@ -3976,7 +3976,19 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
           <SubHeading>Moon Phase</SubHeading>
           <P>
             Current lunar phase with illumination percentage. Computed from
-            astronomical algorithms, not API calls. Updates daily.
+            astronomical algorithms, not API calls. Updates daily. The phase
+            emoji now renders alongside the text reading.
+          </P>
+
+          <SubHeading>Personal Rhythm</SubHeading>
+          <P>
+            For R&D and Usership accounts with enough log history, a second
+            line reads the same hourly-zodiac and Rokuyo cycles against the
+            user{'’'}s own timestamps: which two-hour window they tend to log
+            in, and how many entries landed on a Taian day. This is observed
+            behavior from the user{'’'}s log history, not a forecast — it
+            answers when you tend to show up, never what should happen to
+            you.
           </P>
 
           {/* ── WEATHER SOUND SYSTEM ────────────────────────────────── */}

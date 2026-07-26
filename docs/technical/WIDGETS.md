@@ -60,6 +60,13 @@ Suggests meals based on time of day — breakfast (5–9 AM), lunch (11 AM–2 P
 - **Persistence:** Activity logged to `/api/logs`
 - **Connection:** Tied to System tab visibility; uses Quantum Intention Engine signals for timing optimization
 
+### Astrology Widget
+
+Ambient temporal awareness, layered from three traditions: Western zodiac (solar position), Japanese hourly zodiac (12 animals in 2-hour windows), and Rokuyo (六曜, the Japanese 6-day fortune cycle), plus lunar phase with illumination and emoji. All computed locally from astronomical/calendar algorithms — no external API. Free-tier accounts see this static ambient reading only. R&D and Usership accounts additionally get a "Personal Rhythm" line once they have 5+ logged entries: their dominant hourly-zodiac logging window (with share %) and a count of entries logged on Taian days, derived by replaying `getHourlyZodiac`/`getRokuyo` over the user's own log timestamps. Deliberately descriptive, not predictive — it reads the calendar and the user's own history, never a fortune.
+
+- **Data Source:** `#shared/utils/astrology.ts` (`getWesternZodiac`, `getHourlyZodiac`, `getRokuyo`, `getMoonPhase`, `getMoonEmoji`, `getPersonalRhythm`); `/api/logs` timestamps for the personal-rhythm layer
+- **Connection:** Shares its `astrologyView` cycling slot in `System.tsx` with Psychology, Journey, and Biofield (Quantum) views; personal rhythm reads the same `useLogs()` data the Journey and Quantum views already consume, so all four views stay in sync off one log fetch
+
 ---
 
 ## Biofield & Evolution Widgets
