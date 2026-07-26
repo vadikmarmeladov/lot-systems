@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -17,6 +17,19 @@ memoized so only active-state changes trigger re-render. SR-20260719-01:
 System quantumState analyzeIntentions()+recomputeAssembly() moved
 useMemo->useEffect — 10 subscriber re-renders no longer block paint;
 SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+(SR-20260726-01: 3rd confirmed recurrence — the useMemo-write hazard is not
+always the literal call site fixed before; System.tsx optimalWidget sat 4
+lines below the already-fixed quantumState and called the same
+analyzeIntentions() write path through getOptimalWidget(), missed in
+6e5007a. Same pattern found independently in MemoryWidget.tsx. Rule:
+audit the full call chain of every useMemo/useState-initializer for a
+store write, not just the literal function body. Also folding the sibling
+off-tab-interval hazard under this clause: any setInterval/setTimeout
+loop mounted from a component the router keeps display:none-alive (i.e.
+anything under System.tsx, which is never unmounted after first visit)
+must gate its tick on document.hidden + isRouteActive('system') or it
+runs forever in the background — QuantumRandomWidget had 3 unguarded
+intervals doing exactly this.)
 
 ## Client Cache Freshness
 
@@ -226,3 +239,14 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+(SR-20260726-01: 2nd confirmed recurrence of rule 1's silent-erasure gap —
+calendar_entry, self_care_complete, self_care_completed, self_care_skip
+were all written via useCreateLog(), all rendered in the Logs UI via
+displayableEvents, and none had a formatLog() case; all four added.
+Standing rule going forward: adding a new event string to useCreateLog()
+anywhere in a widget requires adding its formatLog() case in the same
+change — this has now caused two separate silent-erasure incidents by
+omission. Also found: the displayableEvents whitelist carries entries
+(goal_set/goal_update/goal_complete/goal_journey) with no writer anywhere
+in src — dead whitelist, not a formatLog gap, left as-is pending S-2 scope
+decision on the Goal feature.)

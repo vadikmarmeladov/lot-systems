@@ -226,9 +226,9 @@ function defineAchievements(logs: Log[]): Achievement[] {
       id: 'gentle_with_self',
       title: 'Gentle With Self',
       description: 'Practiced self-care 10 times',
-      unlocked: logs.filter(l => l.event === 'self_care_completed').length >= 10,
-      unlockedAt: logs.filter(l => l.event === 'self_care_completed').length >= 10 ?
-        logs.filter(l => l.event === 'self_care_completed')[9].createdAt.toISOString() : null,
+      unlocked: logs.filter(l => l.event === 'self_care_complete' || l.event === 'self_care_completed').length >= 10,
+      unlockedAt: logs.filter(l => l.event === 'self_care_complete' || l.event === 'self_care_completed').length >= 10 ?
+        logs.filter(l => l.event === 'self_care_complete' || l.event === 'self_care_completed')[9].createdAt.toISOString() : null,
       category: 'care',
       rarity: 'uncommon',
       icon: 'Warm Bath'

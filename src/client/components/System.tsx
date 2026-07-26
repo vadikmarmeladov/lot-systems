@@ -343,7 +343,16 @@ export const System = React.memo(function SystemInner() {
     return options[index]
   }, [weather])
 
-  const optimalWidget = React.useMemo(() => getOptimalWidget(), [logs])
+  // useEffect (not useMemo, and not called from the useState initializer either)
+  // — getOptimalWidget() calls analyzeIntentions(), which writes to the
+  // intentionEngine atom synchronously once its 5-min cooldown has passed. Same
+  // render-phase-write hazard as quantumState above; it must not run during
+  // render (including the initial one) or it re-triggers the atom-write render
+  // cascade on logs change.
+  const [optimalWidget, setOptimalWidget] = React.useState<ReturnType<typeof getOptimalWidget>>(null)
+  React.useEffect(() => {
+    setOptimalWidget(getOptimalWidget())
+  }, [logs])
 
   // Community pulse — atmosphere layer
   const convergence = React.useMemo(() => getConvergenceSignal(), [])

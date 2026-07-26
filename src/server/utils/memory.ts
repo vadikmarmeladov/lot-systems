@@ -823,6 +823,16 @@ function formatLog(log: Log): string {
       if (state) body = `Biofield check-in: ${state}`
       break
     }
+    case 'calendar_entry': {
+      body = log.text || ''
+      break
+    }
+    case 'self_care_complete':
+    case 'self_care_completed':
+    case 'self_care_skip': {
+      body = log.text || ''
+      break
+    }
   }
   body = body.trim()
   if (!body) return ''
