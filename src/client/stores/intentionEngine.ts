@@ -3013,6 +3013,94 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 134: Integrated Signal Arc — all four cognitive channels (journal + memory + planner + intentions)
+  // active within the same 4-hour window, AND operated on 4+ consecutive calendar days.
+  // This is multi-channel temporal synchrony: every articulation tool firing in coordination.
+  // Not concurrent use — concurrent integration. The OS is not running tasks; it is running itself.
+  const p134FourHours = 4 * 60 * 60 * 1000
+  const p134WindowEnd = now
+  const p134WindowStart = now - p134FourHours
+  const p134WindowSignals = signals.filter(s => s.timestamp >= p134WindowStart && s.timestamp <= p134WindowEnd)
+  const p134HasJournal    = p134WindowSignals.some(s => s.source === 'journal')
+  const p134HasMemory     = p134WindowSignals.some(s => s.source === 'memory')
+  const p134HasPlanner    = p134WindowSignals.some(s => s.source === 'planner')
+  const p134HasIntentions = p134WindowSignals.some(s => s.source === 'intentions')
+  // Also check consecutive active days (any signal from any source)
+  const p134DaySet = new Set<string>()
+  signals.filter(s => now - s.timestamp < 7 * 24 * 60 * 60 * 1000).forEach(s => {
+    p134DaySet.add(new Date(s.timestamp).toISOString().slice(0, 10))
+  })
+  const p134SortedDays = Array.from(p134DaySet).sort().reverse()
+  let p134ConsecutiveDays = 0
+  if (p134SortedDays.length > 0) {
+    const todayStr = new Date().toISOString().slice(0, 10)
+    if (p134SortedDays[0] === todayStr || p134SortedDays[0] === new Date(now - 86400000).toISOString().slice(0, 10)) {
+      p134ConsecutiveDays = 1
+      for (let i = 1; i < p134SortedDays.length; i++) {
+        const prev = new Date(p134SortedDays[i - 1])
+        const curr = new Date(p134SortedDays[i])
+        const diffDays = Math.round((prev.getTime() - curr.getTime()) / 86400000)
+        if (diffDays === 1) { p134ConsecutiveDays++ } else { break }
+      }
+    }
+  }
+  if (p134HasJournal && p134HasMemory && p134HasPlanner && p134HasIntentions && p134ConsecutiveDays >= 4) {
+    const channelConf = 0.70
+    const continuityBonus = Math.min((p134ConsecutiveDays - 4) * 0.03, 0.12)
+    const p134Conf = Math.min(channelConf + continuityBonus, 0.88)
+    patterns.push({
+      pattern: 'integrated-signal-arc',
+      confidence: p134Conf,
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `INTARC: Integrated signal arc — journal · memory · planner · intentions all active within 4h window. ${p134ConsecutiveDays} consecutive active days. Every cognitive channel synchronized. Not parallel tasks — a unified operating state.`,
+    })
+  }
+
+  // Pattern 135: Deep Recovery Protocol — P117 (sleep-signal-anchor) + P129 (multi-day-care-arc)
+  // simultaneously active while energy is recovering from low or depleted state.
+  // The person is not passively resting — they are running a deliberate recovery sequence:
+  // sleep anchored, care sustained over multiple days, energy field climbing. Protocol, not rest.
+  const p135HasSleepAnchor = patterns.some(p => p.pattern === 'sleep-signal-anchor')
+  const p135HasCareArc     = patterns.some(p => p.pattern === 'multi-day-care-arc')
+  const p135EnergyState    = userState.energy
+  const p135Recovering     = p135EnergyState === 'low' || p135EnergyState === 'moderate'
+  if (p135HasSleepAnchor && p135HasCareArc && p135Recovering) {
+    const sleepConf = patterns.find(p => p.pattern === 'sleep-signal-anchor')?.confidence ?? 0.72
+    const careConf  = patterns.find(p => p.pattern === 'multi-day-care-arc')?.confidence  ?? 0.72
+    const energyBonus = p135EnergyState === 'moderate' ? 0.06 : 0.02
+    const p135Conf = Math.min((sleepConf + careConf) / 2 + energyBonus, 0.86)
+    patterns.push({
+      pattern: 'deep-recovery-protocol',
+      confidence: p135Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `DREC: Deep recovery protocol — sleep-signal-anchor + multi-day-care-arc active. Energy: ${p135EnergyState}. Sleep anchored. Care sustained. The field is recharging under a structured protocol. Rest is the work.`,
+    })
+  }
+
+  // Pattern 136: Quantum Field Alignment — P131 (daily-coherence-seal) + P132 (quantum-rhythm-lock)
+  // + P133 (biofield-integration-peak) all simultaneously active.
+  // The complete operational field is live: daily circuit sealed, temporal OS running,
+  // biological and emotional fields integrated. Every dimension aligned — temporal, intentional, biological.
+  // This is not a peak event. This is the operating system arriving at its baseline.
+  const p136HasDailyCoherence   = patterns.some(p => p.pattern === 'daily-coherence-seal')
+  const p136HasQuantumRhythm    = patterns.some(p => p.pattern === 'quantum-rhythm-lock')
+  const p136HasBiofieldIntegration = patterns.some(p => p.pattern === 'biofield-integration-peak')
+  if (p136HasDailyCoherence && p136HasQuantumRhythm && p136HasBiofieldIntegration) {
+    const sealConf    = patterns.find(p => p.pattern === 'daily-coherence-seal')?.confidence    ?? 0.80
+    const rhythmConf  = patterns.find(p => p.pattern === 'quantum-rhythm-lock')?.confidence     ?? 0.80
+    const biofConf    = patterns.find(p => p.pattern === 'biofield-integration-peak')?.confidence ?? 0.80
+    const p136Conf = Math.min((sealConf + rhythmConf + biofConf) / 3 + 0.07, 0.94)
+    patterns.push({
+      pattern: 'quantum-field-alignment',
+      confidence: p136Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `QFIELD: Quantum field alignment — daily-coherence-seal + quantum-rhythm-lock + biofield-integration-peak all simultaneously active. Complete operational field live: temporal OS running · daily circuit sealed · biological and emotional fields integrated. This is the baseline, not the exception.`,
+    })
+  }
+
   const userState = calculateUserState(signals, now)
 
   // Compute accumulative user index from all widget signals
@@ -3621,6 +3709,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   dailyCoherenceSealNode:     ['intentions', 'journal', 'planner', 'log'],
   quantumRhythmLockNode:      ['journal', 'planner', 'log', 'energy'],
   biofieldIntegrationNode:    ['selfcare', 'mood', 'energy', 'log'],
+  // ── v106 nodes (J43 · P134–P136 · Arch46) ───────────────────────────────────────
+  integratedSignalNode:       ['journal', 'memory', 'planner', 'intentions', 'log'],
+  deepRecoveryNode:           ['selfcare', 'log', 'energy', 'mood'],
+  quantumFieldNode:           ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy'],
 }
 
 /**
@@ -4010,6 +4102,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['intentions', 'journal', 'selfcare', 'mood'],
     patternConditions: ['daily-coherence-seal', 'evening-reflection-loop', 'morning-intention-lock', 'multi-day-care-arc'],
     directive: 'Daily seal confirmed. Morning launched from intention, evening closed in reflection. Care sustained. This is not one good day — this is the practice becoming the protocol.',
+  },
+  // ── Arch46: Quantum Field Operator (2026-07-26 v106) ────────────────────────────
+  {
+    archetype: 'Quantum Field Operator',
+    energyBands: ['high', 'moderate', 'low', 'depleted', 'unknown'],
+    dominantSources: ['intentions', 'journal', 'selfcare', 'mood', 'planner'],
+    patternConditions: ['quantum-field-alignment', 'daily-coherence-seal', 'quantum-rhythm-lock', 'biofield-integration-peak'],
+    directive: 'Complete field confirmed. Every operational dimension active and aligned: temporal OS running, daily circuit sealed, biological and emotional fields integrated. This is not a peak — this is the operating system arriving at its baseline.',
   },
 ]
 
@@ -5696,6 +5796,50 @@ export function recordBiofieldIntegrationPeak(careConf: number, moodEnergyConf: 
     careConf,
     moodEnergyConf,
     window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an integrated-signal-arc signal — all four cognitive channels (journal + memory + planner +
+ * intentions) active in the same 4h window AND 4+ consecutive active days.
+ * Feeds P134 detection. Multi-channel temporal synchrony confirmed.
+ */
+export function recordIntegratedSignalArc(consecutiveDays: number, channelCount: number) {
+  recordSignal('journal', 'integrated_signal_arc', {
+    consecutiveDays,
+    channelCount,
+    window: '4h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a deep-recovery-protocol signal — sleep-signal-anchor + multi-day-care-arc active
+ * while energy is in recovery state. Feeds P135 detection. Structured recovery in progress.
+ */
+export function recordDeepRecoveryProtocol(sleepConf: number, careConf: number, energyState: string) {
+  recordSignal('selfcare', 'deep_recovery_protocol', {
+    sleepConf,
+    careConf,
+    energyState,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-field-alignment signal — P131 + P132 + P133 all simultaneously active.
+ * Feeds P136 detection. J43 background job (17:00 UTC) triggers this.
+ * Complete operational field: temporal OS + daily seal + biofield integration all live.
+ */
+export function recordQuantumFieldAlignment(sealConf: number, rhythmConf: number, biofieldConf: number) {
+  recordSignal('intentions', 'quantum_field_alignment', {
+    sealConf,
+    rhythmConf,
+    biofieldConf,
+    composite: Math.round(((sealConf + rhythmConf + biofieldConf) / 3) * 100),
+    window: '1d',
     hour: new Date().getHours(),
   })
 }

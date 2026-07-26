@@ -1723,6 +1723,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyCoherenceSealCheck()) {
     await executeDailyCoherenceSealCheck()
   }
+  // Check daily quantum field alignment (17:00 UTC every day) — Job 43
+  if (shouldRunDailyQuantumFieldCheck()) {
+    await executeDailyQuantumFieldCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -2872,6 +2876,101 @@ async function executeDailyCoherenceSealCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily coherence seal check failed:', error.message)
     isDailyCoherenceSealRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Quantum Field Check (Job 43 — 17:00 UTC every day) ────────────────
+// Reads active users. Checks if P131 (daily_coherence_seal), P132 (quantum_rhythm_lock),
+// and P133 (biofield_integration_peak) are all present today (any of last 24h).
+// When all three gates are confirmed, writes quantum_field_alignment.
+// Feeds P136 detection. Complete operational field: temporal OS + daily seal + biofield integration all live.
+
+let isDailyQuantumFieldRunning = false
+let lastDailyQuantumFieldRun: Date | null = null
+
+function shouldRunDailyQuantumFieldCheck(): boolean {
+  const now = dayjs()
+  if (isDailyQuantumFieldRunning) return false
+  if (lastDailyQuantumFieldRun) {
+    const lastRun = dayjs(lastDailyQuantumFieldRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 17 // 17:00 UTC daily
+}
+
+async function executeDailyQuantumFieldCheck(): Promise<JobResult> {
+  const jobName = 'daily-quantum-field-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyQuantumFieldRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyQuantumFieldRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY QUANTUM FIELD CHECK — 17:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const dayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: dayAgo },
+            event: {
+              [Op.in]: [
+                'daily_coherence_seal',
+                'quantum_rhythm_lock',
+                'biofield_integration_peak',
+              ],
+            },
+          },
+          attributes: ['event', 'metadata'],
+        })
+
+        const eventSet = new Set(recentLogs.map((l: any) => l.event))
+        const hasSeal    = eventSet.has('daily_coherence_seal')
+        const hasRhythm  = eventSet.has('quantum_rhythm_lock')
+        const hasBiofield = eventSet.has('biofield_integration_peak')
+
+        if (hasSeal && hasRhythm && hasBiofield) {
+          const sealLog     = recentLogs.find((l: any) => l.event === 'daily_coherence_seal')
+          const rhythmLog   = recentLogs.find((l: any) => l.event === 'quantum_rhythm_lock')
+          const biofieldLog = recentLogs.find((l: any) => l.event === 'biofield_integration_peak')
+          const sealConf    = sealLog?.metadata?.confidence     ?? 0.80
+          const rhythmConf  = rhythmLog?.metadata?.confidence   ?? 0.80
+          const biofieldConf = biofieldLog?.metadata?.confidence ?? 0.80
+          const composite   = Math.round(((sealConf + rhythmConf + biofieldConf) / 3) * 100)
+          await (Log as any).create({
+            userId,
+            event: 'quantum_field_alignment',
+            text: `Quantum field alignment: daily coherence seal + quantum rhythm lock + biofield integration peak all confirmed. Complete operational field live. Composite: ${composite}%.`,
+            metadata: { sealConf, rhythmConf, biofieldConf, composite, window: '24h', hour: 17 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Quantum field alignment events written: ${written}`)
+    lastDailyQuantumFieldRun = new Date()
+    isDailyQuantumFieldRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily quantum field check failed:', error.message)
+    isDailyQuantumFieldRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4954,6 +5053,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily evening reflection check: 10 PM UTC every day (Job 40)')
   console.log('   - Daily care arc check: 8 PM UTC every day (Job 41)')
   console.log('   - Daily coherence seal check: 11 PM UTC every day (Job 42)')
+  console.log('   - Daily quantum field check: 5 PM UTC every day (Job 43)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -4963,7 +5063,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory, 21=presence-arc, 22=evening-coherence-close+evening-reflection, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory, 21=presence-arc, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

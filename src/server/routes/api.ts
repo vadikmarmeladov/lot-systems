@@ -1189,6 +1189,10 @@ export default async (fastify: FastifyInstance) => {
       'daily_coherence_seal',
       'quantum_rhythm_lock',
       'biofield_integration_peak',
+      // v106: integrated signal arc · deep recovery protocol · quantum field alignment (P134/P135/P136)
+      'integrated_signal_arc',
+      'deep_recovery_protocol',
+      'quantum_field_alignment',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

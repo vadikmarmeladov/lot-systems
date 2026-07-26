@@ -1250,6 +1250,81 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'integrated_signal_arc') {
+          const consecutiveDays = log.metadata?.consecutiveDays as number | undefined
+          const channelCount    = log.metadata?.channelCount    as number | undefined
+          const confidence      = log.metadata?.confidence      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">INTEGRATED SIGNAL ARC</div>
+                {channelCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CHANNELS: {channelCount}/4</div>
+                )}
+                {consecutiveDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">STREAK: {consecutiveDays}D</div>
+                )}
+                <div className="opacity-40 tabular-nums">SYNC: COGNITIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'deep_recovery_protocol') {
+          const sleepConf   = log.metadata?.sleepConf   as number | undefined
+          const careConf    = log.metadata?.careConf    as number | undefined
+          const energyState = log.metadata?.energyState as string | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DREC:" blockView>
+                <div className="uppercase tracking-widest mb-4">DEEP RECOVERY PROTOCOL</div>
+                {sleepConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">SLEEP: {Math.round(sleepConf * 100)}%</div>
+                )}
+                {careConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE: {Math.round(careConf * 100)}%</div>
+                )}
+                {energyState && (
+                  <div className="opacity-60 tabular-nums">ATP: {energyState.toUpperCase()}</div>
+                )}
+                <div className="opacity-40 tabular-nums">PROTOCOL: ACTIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_field_alignment') {
+          const sealConf     = log.metadata?.sealConf     as number | undefined
+          const rhythmConf   = log.metadata?.rhythmConf   as number | undefined
+          const biofieldConf = log.metadata?.biofieldConf as number | undefined
+          const composite    = log.metadata?.composite    as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QFIELD:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM FIELD ALIGNMENT</div>
+                {sealConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">SEAL: {Math.round(sealConf * 100)}%</div>
+                )}
+                {rhythmConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">RHYTHM: {Math.round(rhythmConf * 100)}%</div>
+                )}
+                {biofieldConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">BIOFIELD: {Math.round(biofieldConf * 100)}%</div>
+                )}
+                {composite !== undefined && (
+                  <div className="opacity-50 tabular-nums">COMPOSITE: {composite}%</div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELD: COMPLETE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined

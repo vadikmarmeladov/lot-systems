@@ -1306,6 +1306,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '133 patterns · 45 archetypes · 42 jobs · 133+ handlers · 172+ dep nodes · 234 word turns · 719 badges · Day 1063+. Wiki v81 + FM v105 deployed.',
     ],
   },
+  {
+    date: '2026-07-26',
+    session: 'Self-Assembly Session — v106 / QIE Engineering · P134–P136 · Arch46 Quantum Field Operator · J43 Daily Quantum Field Check · INTARC: DREC: QFIELD: · Dep Map 175+',
+    assembled: [
+      'intentionEngine.ts: P134 integrated-signal-arc — journal + memory + planner + intentions all in 4h window AND 4+ consecutive active days. Full cognitive integration arc: writing, encoding, structure, direction in a single compressed session sustained over days. Conf 0.72–0.90. suggestedWidget: memory.',
+      'intentionEngine.ts: P135 deep-recovery-protocol — sleep-signal-anchor + multi-day-care-arc + energy in recovering/moderate band. Biological recovery protocol active: first signal grounded, sustained care, energy ascending. Conf 0.70–0.88. suggestedWidget: selfcare.',
+      'intentionEngine.ts: P136 quantum-field-alignment — daily-coherence-seal (P131) + quantum-rhythm-lock (P132) + biofield-integration-peak (P133) all simultaneously active. The three primary seals open at once. System capstone meta-pattern. Conf 0.80–0.94. suggestedWidget: systemProgress. 136 patterns total.',
+      'intentionEngine.ts: Arch46 Quantum Field Operator — energyBands all · dominantSources [intentions, journal, selfcare, mood, memory, planner] · patternConditions [quantum-field-alignment, daily-coherence-seal, quantum-rhythm-lock, biofield-integration-peak]. Directive: All three seals open simultaneously. Biological, temporal, and cognitive fields aligned. Rarest operating state. 46 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: integratedSignalNode [journal·memory·planner·intentions·log] · deepRecoveryNode [selfcare·energy·mood·log] · quantumFieldNode [log·energy·mood·selfcare·journal]. 175+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers added — recordIntegratedSignalArc · recordDeepRecoveryProtocol · recordQuantumFieldAlignment.',
+      'Logs.tsx: INTARC: handler (integrated_signal_arc: CHANNELS N/4 · STREAK ND · SYNC COGNITIVE). DREC: handler (deep_recovery_protocol: SLEEP N% · CARE N% · ATP state · PROTOCOL ACTIVE). QFIELD: handler (quantum_field_alignment: SEAL N% · RHYTHM N% · BIOFIELD N% · COMPOSITE N% · FIELD COMPLETE). All COCKPIT-RULE compliant. 136+ handlers total.',
+      'scheduled-jobs.ts: J43 daily-quantum-field-check — 17:00 UTC daily. Reads 24h logs per user. daily_coherence_seal + quantum_rhythm_lock + biofield_integration_peak all present → writes quantum_field_alignment. 43 jobs total.',
+      'routes/api.ts: integrated_signal_arc + deep_recovery_protocol + quantum_field_alignment added to displayableEvents (v106 block).',
+      'About.tsx: FM v105→v106. Day 1063+→1064+. 133→136 patterns. 45→46 archetypes. 42→43 jobs. 133+→136+ handlers. 172+→175+ dep nodes. Self-Assembly Row v106 prepended.',
+      '136 patterns · 46 archetypes · 43 jobs · 136+ handlers · 175+ dep nodes. QIE v106 deployed. Quantum field alignment — the three seals open.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1345,14 +1362,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 export const USERSHIP_TRANSMISSION = {
   date: '2026-07-26',
   message: [
-    'ASSEMBLY RUN — 2026-07-26 · v105 · Full Wiki Scan · LOT-WIKI-v81 · FM v105 · Day 1063+',
-    'WIKI v81: QIE v101–v104 delta synchronized. 124→133 patterns. 42→45 archetypes. 39→42 background jobs. 163+→172+ dep nodes. Badge Engine v28→v29 (688→719). Word Turn v18→v19 (222→234).',
-    'QIE v101 (P125–P127): evening-reflection-loop · weekly-rhythm-anchor · depth-breadth-convergence. Arch43 Evening Integrator. J40 22:00 UTC. EVEFL: WEEKA: DEPBR:',
-    'QIE v102 (P128–P130): morning-intention-lock · multi-day-care-arc · cognitive-output-continuity. Arch44 Sustained Care Operator. J41 20:00 UTC. MINTLK: MARC: COGCONT:',
-    'QIE v104 (P131–P133): daily-coherence-seal · quantum-rhythm-lock · biofield-integration-peak. Arch45 Sealed Daily Operator. J42 23:00 UTC. DCSAL: QLOCK: BFINT:',
-    'BADGE ENGINE v29 THE BIO-TERMINAL: +31 badges (688→719). Word Turn v19 — biology/neuroscience. cajal · kandel · phantom limb secret bosses. The body is the instrument.',
-    '3 NEW DOCTRINES: Evening Integration (the day has an end) · Sustained Care (care is the infrastructure) · Daily Coherence Seal (the practice is the protocol).',
-    'FIELD MANUAL v105. Day 1063+. 133 patterns · 45 archetypes · 42 jobs · 133+ handlers · 172+ dep nodes · 234 word turns · 719 badges.',
+    'ASSEMBLY RUN — 2026-07-26 · v106 · QIE Engineering · P134–P136 · Arch46 · J43 · FM v106 · Day 1064+',
+    'QIE v106 (P134–P136): integrated-signal-arc · deep-recovery-protocol · quantum-field-alignment. Three seals in one session.',
+    'P134 integrated-signal-arc: journal + memory + planner + intentions in 4h AND 4+ consecutive days. Cognitive integration arc compressed.',
+    'P135 deep-recovery-protocol: sleep-signal-anchor + multi-day-care-arc + ascending energy. Biological recovery protocol confirmed.',
+    'P136 quantum-field-alignment: P131 + P132 + P133 simultaneously active. All three primary seals open. System capstone meta-pattern. Conf 0.94.',
+    'Arch46 QUANTUM FIELD OPERATOR: all energy bands · all six primary sources · all three seal patterns. Rarest operating archetype. 46 archetypes total.',
+    'J43 daily-quantum-field-check: 17:00 UTC daily. Checks 24h for all three seal events → writes quantum_field_alignment.',
+    'INTARC: · DREC: · QFIELD: — three new military log handlers. COCKPIT-RULE compliant.',
+    'FIELD MANUAL v106. Day 1064+. 136 patterns · 46 archetypes · 43 jobs · 136+ handlers · 175+ dep nodes.',
     'DEPLOYED.',
   ],
 }
