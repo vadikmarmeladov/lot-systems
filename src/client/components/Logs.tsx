@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
-import { getEarnedBadges, BADGES } from '#client/utils/badges'
+import { getEarnedBadges, BADGES, hasBadge, awardBadge } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
@@ -2809,6 +2809,7 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [storyPeriod, setStoryPeriod] = React.useState<'day' | 'week' | 'month' | 'year'>('day')
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -2853,6 +2854,19 @@ const NoteEditor = ({
       valueRef.current = updated
       onChangeRef.current(updated)
       setIsSaved(true)
+      // Chronicle Keeper: earned once /story has compressed all four windows —
+      // depth of reflection across timescales, not a repetition count.
+      try {
+        const usedPeriod = data.period || storyPeriod
+        const stored = localStorage.getItem('story_periods_used') || ''
+        const used = new Set(stored.split(',').filter(Boolean))
+        used.add(usedPeriod)
+        localStorage.setItem('story_periods_used', Array.from(used).join(','))
+        const ALL_PERIODS = ['day', 'week', 'month', 'year']
+        if (ALL_PERIODS.every(p => used.has(p)) && !hasBadge('chronicle_keeper')) {
+          awardBadge('chronicle_keeper')
+        }
+      } catch {}
     },
     onError: () => {
       const fallback = 'The system holds your data quietly. When the engine returns, your story will be here.'
@@ -3228,7 +3242,7 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story [period]  Compressed story — day (default), week, month, year',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -3254,17 +3268,23 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          // /story alone compresses today; /story week|month|year widens the window.
+          const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+          const period = (periodMatch ? periodMatch[1].toLowerCase() : 'day') as
+            'day' | 'week' | 'month' | 'year'
+          setStoryPeriod(period)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story(\s+(day|week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }
@@ -3519,9 +3539,9 @@ const NoteEditor = ({
         )}
         {(storyLoading || storyResponse) && (
           <div className="mt-8">
-            <Block label="📖" blockView>
+            <Block label={`📖 ${storyPeriod.toUpperCase()}`} blockView>
               {storyLoading && !storyResponse && (
-                <div className="opacity-40 tracking-widest">...</div>
+                <div className="opacity-40 tracking-widest">Compressing {storyPeriod}...</div>
               )}
               {storyResponse && (
                 <div className="opacity-60">

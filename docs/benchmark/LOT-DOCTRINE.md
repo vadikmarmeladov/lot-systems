@@ -55,7 +55,15 @@ deferred to allow immediate visual response.)
 
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
-(SR-20260604-01: calendar_entry saved but never returned.)
+A command that manually splices its own output into the client's editable
+text (rather than relying purely on the GET feed) can mask this gap for an
+entire session — the omission only surfaces on a fresh reload with no local
+state. Check whitelist membership at review time, not just "does it look
+right in the same session."
+(SR-20260604-01: calendar_entry saved but never returned. SR-20260726-01:
+generated_story — the /story command's own log event — was absent from the
+whitelist since the route shipped; masked because the client splices the
+story text directly into the note body.)
 
 ## Ship Mode Discipline
 

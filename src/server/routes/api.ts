@@ -1169,6 +1169,8 @@ export default async (fastify: FastifyInstance) => {
       'focus_depth_arc',
       'sleep_signal_anchor',
       'care_intelligence_loop',
+      // v98: /story command output — was silently dropped from the LOG feed
+      'generated_story',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -5446,6 +5448,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          period?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5470,15 +5473,31 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       }
 
       const { logText, quantumState, userIndex } = req.body
+      const period: 'day' | 'week' | 'month' | 'year' =
+        ['day', 'week', 'month', 'year'].includes(req.body.period as string)
+          ? (req.body.period as 'day' | 'week' | 'month' | 'year')
+          : 'day'
+
+      // Bounded lookback window + query limit per period — never an unbounded findAll.
+      const PERIOD_WINDOW: Record<typeof period, { days: number; limit: number; label: string }> = {
+        day: { days: 1, limit: 200, label: 'today' },
+        week: { days: 7, limit: 500, label: 'this week' },
+        month: { days: 30, limit: 1000, label: 'this month' },
+        year: { days: 365, limit: 2000, label: 'this year' },
+      }
+      const window = PERIOD_WINDOW[period]
+      const since = dayjs().subtract(window.days, 'day').toDate()
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: { userId: req.user.id, createdAt: { [Op.gte]: since } },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: window.limit,
       })
 
+      // 'note' is the actual journal-entry event (see displayableEvents) — logs
+      // filtered on the old 'log_entry'/'journal' names never matched anything.
       const recentEntries = logs
-        .filter(l => l.event === 'log_entry' || l.event === 'journal')
+        .filter(l => l.event === 'note' && (l.text || '').length > 20)
         .slice(0, 10)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
@@ -5495,6 +5514,27 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         return q && a ? `${q}: ${a}` : ''
       }).filter(Boolean)
 
+      // Dominant mood + tone across the period (same compression the weekly
+      // LOT AI Story cron job uses — see scheduled-jobs.ts Job 24) so day/week/
+      // month/year all read as the same family of compression, not a one-off.
+      const MOOD_POSITIVE = new Set(['energized', 'calm', 'hopeful', 'grateful', 'fulfilled', 'content', 'peaceful', 'excited', 'grounded', 'focused', 'flowing', 'steady'])
+      const MOOD_HARD = new Set(['tired', 'anxious', 'exhausted', 'overwhelmed', 'restless', 'uncertain', 'drained', 'depleted', 'unsettled', 'heavy'])
+      const moodCounts: Record<string, number> = {}
+      let positiveCount = 0
+      let hardCount = 0
+      for (const l of moodLogs) {
+        const mood = (l.metadata?.emotionalState as string || '').toLowerCase()
+        if (!mood) continue
+        moodCounts[mood] = (moodCounts[mood] || 0) + 1
+        if (MOOD_POSITIVE.has(mood)) positiveCount++
+        if (MOOD_HARD.has(mood)) hardCount++
+      }
+      const dominantMood = Object.entries(moodCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || null
+      const periodTone: 'growth' | 'recovery' | 'steady' =
+        positiveCount > hardCount ? 'growth' : hardCount > positiveCount ? 'recovery' : 'steady'
+      const selfCareCount = logs.filter(l => l.event === 'self_care_complete' || l.event === 'self_care_completed').length
+      const intentionCount = logs.filter(l => l.event === 'intention').length
+
       let stateBlock = ''
       if (quantumState && quantumState.energy) {
         stateBlock = `OPERATOR STATE: ${quantumState.energy} energy, ${quantumState.clarity} clarity, ${quantumState.alignment} alignment`
@@ -5505,7 +5545,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
 
       const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+The operator typed a log entry and invoked /story ${period}. Your task: write 1-2 paragraphs (100-200 words) that compress ${window.label} into a personal narrative — mood trajectory, self-care patterns, the shape of the period. The story should feel personal, grounded, and real — not generic motivational writing.
 
 RULES:
 - Write in second person ("You...")
@@ -5520,6 +5560,7 @@ RULES:
 
       const dataBlock = `
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
+COMPRESSION WINDOW: ${window.label} (${logs.length} logs, dominant mood: ${dominantMood || 'none logged'}, tone: ${periodTone})
 
 ${stateBlock ? stateBlock : 'STATE: unknown'}
 
@@ -5533,16 +5574,26 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
       const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
 
-      try {
-        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
-        const engine = aiEngineManager.getEngine('together')
+      // Honest local fallback if the AI engine is unavailable — composed from
+      // the same period stats rather than a generic placeholder string.
+      const localFallback = (): string => {
+        const lines: string[] = []
+        const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+        lines.push(`Compressing ${window.label}:`)
+        if (dominantMood) lines.push(`${cap(dominantMood)} carried the period across ${moodLogs.length} check-in${moodLogs.length !== 1 ? 's' : ''}.`)
+        if (selfCareCount > 0) lines.push(`${selfCareCount} self-care moment${selfCareCount !== 1 ? 's' : ''} completed.`)
+        if (intentionCount > 0) lines.push(`${intentionCount} intention${intentionCount !== 1 ? 's' : ''} set.`)
+        if (recentEntries.length > 0) lines.push(`${recentEntries.length} journal entr${recentEntries.length !== 1 ? 'ies' : 'y'} logged.`)
+        const closing: Record<typeof periodTone, string> = {
+          growth: 'The signal was forward.',
+          recovery: 'The system held.',
+          steady: 'Consistent. The foundation holds.',
+        }
+        lines.push(closing[periodTone])
+        return lines.join(' ')
+      }
 
-        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
-
-        const story = await engine.generateCompletion(fullPrompt, 512)
-
-        const cleaned = story.trim().replace(/^["']|["']$/g, '')
-
+      const persistStory = async (cleaned: string, fallback: boolean) => {
         const context = await getLogContext(req.user)
         const storyLog = await fastify.models.Log.create({
           userId: req.user.id,
@@ -5552,21 +5603,30 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           metadata: {
             story: cleaned,
             logText: (logText || '').substring(0, 500),
+            period,
+            dominantMood,
+            periodTone,
             quantumState: quantumState || null,
             timestamp: new Date().toISOString(),
+            ...(fallback ? { fallback: true } : {}),
           },
         })
+        return { story: cleaned, logId: storyLog.id, period }
+      }
 
-        return {
-          story: cleaned,
-          logId: storyLog.id,
-        }
+      try {
+        const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+        const engine = aiEngineManager.getEngine('together')
+
+        console.log(`📖 Story generation (${period}) for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+
+        const story = await engine.generateCompletion(fullPrompt, 512)
+        const cleaned = story.trim().replace(/^["']|["']$/g, '')
+
+        return await persistStory(cleaned, false)
       } catch (error: any) {
         console.error('Story generation failed:', error)
-        return {
-          story: 'The system holds your data quietly. When the engine returns, your story will be here.',
-          logId: null,
-        }
+        return await persistStory(localFallback(), true)
       }
     }
   )

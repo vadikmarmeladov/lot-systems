@@ -560,6 +560,7 @@ export type BadgeType =
   | 'dune_signal'              // ∘·◈   Write "spice" in journal — Dune (RARE, hidden)
   | 'foundation_word'          // ≋·◉   Write "psychohistory" in journal — Foundation (EPIC)
   | 'neuromancer_signal'       // ▓→◉   Write "cyberspace" in journal — Neuromancer (MYTHIC)
+  | 'chronicle_keeper'         // ◇·◇   /story requested across all 4 compression periods (day/week/month/year)
 
 export interface Badge {
   id: BadgeType
@@ -5112,6 +5113,17 @@ export const BADGES: Record<BadgeType, Badge> = {
     rarity: 'mythic',
     category: 'secret_boss',
     hidden: true,
+  },
+
+  // ── Reflection depth (story compression) ────────────────────────────────
+  chronicle_keeper: {
+    id: 'chronicle_keeper',
+    symbol: '◇·◇',
+    name: 'Chronicle Keeper',
+    description: 'Requested /story across all four compression windows — day, week, month, year',
+    unlockMessage: '↳ Every timescale examined. The chronicle is complete. ◇·◇',
+    rarity: 'rare',
+    category: 'achievement_rpg',
   },
 }
 
