@@ -99,9 +99,10 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
     fetchStatus()
   }, [fetchStatus])
 
-  // Auto-refresh every 2 minutes
+  // Auto-refresh every 2 minutes (paused while the tab is hidden)
   React.useEffect(() => {
     const interval = setInterval(() => {
+      if (document.hidden) return
       fetchStatus()
     }, 2 * 60 * 1000) // 2 minutes
 

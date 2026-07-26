@@ -16,7 +16,7 @@ import { fp } from '#shared/utils'
 import { MemoryQuestion } from '#shared/types'
 import * as stores from '#client/stores'
 import { $featureUnlocks } from '#client/stores/evolution'
-import { recordSignal, getUserState, analyzeIntentions } from '#client/stores/intentionEngine'
+import { recordSignal, getUserState, analyzeIntentions, type UserState } from '#client/stores/intentionEngine'
 import { getMemoryReflectionPrompt, getStoicReflection } from '#client/utils/narrative'
 import dayjs from '#client/utils/dayjs'
 import { getNextBadgeUnlock, checkAndAwardBadges } from '#client/utils/badges'
@@ -249,8 +249,13 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
     }
   }, [response])
 
-  // Quantum state for reflection prompt
-  const getQuantumState = () => {
+  // Quantum state for reflection prompt.
+  // useEffect (not useMemo) — analyzeIntentions() writes to the intentionEngine
+  // atom synchronously once its 5-min cooldown has passed. Calling it from a
+  // useMemo (or a useState initializer) runs it during render, cascading the
+  // same atom-write render-lag hazard fixed elsewhere (System.tsx optimalWidget).
+  // Must only run in an effect.
+  const getQuantumState = React.useCallback(() => {
     try {
       analyzeIntentions()
       return getUserState()
@@ -263,9 +268,18 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
         lastUpdated: Date.now()
       }
     }
-  }
+  }, [])
 
-  const quantumState = React.useMemo(getQuantumState, [question?.id])
+  const [quantumState, setQuantumState] = React.useState<UserState>(() => ({
+    energy: 'moderate',
+    clarity: 'clear',
+    alignment: 'aligned',
+    needsSupport: 'none',
+    lastUpdated: Date.now()
+  }))
+  React.useEffect(() => {
+    setQuantumState(getQuantumState())
+  }, [question?.id, getQuantumState])
 
   const hasError = !!error && !isLoading && !loadedQuestion
 
