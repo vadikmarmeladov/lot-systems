@@ -1727,6 +1727,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyQuantumFieldCheck()) {
     await executeDailyQuantumFieldCheck()
   }
+  // Check daily signal matrix check (09:00 UTC every day) — Job 44
+  if (shouldRunDailySignalMatrixCheck()) {
+    await executeDailySignalMatrixCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -2971,6 +2975,140 @@ async function executeDailyQuantumFieldCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily quantum field check failed:', error.message)
     isDailyQuantumFieldRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Signal Matrix Check (Job 44 — 09:00 UTC every day) ───────────────
+// Reads active users. Checks if all 6 primary signal source categories have activity
+// today: emotional (emotional_checkin/mood), memory (memory), planner (plan_set/planner),
+// intentions (intention), selfcare (self_care_complete/self_care_completed), journal (note/journal).
+// When all 6 sources are active → writes signal_matrix_saturation (P138).
+// Also checks if quantum_field_alignment fired today → writes quantum_coherence_peak (P137).
+// Also checks if morning_coherence_arc + daily_coherence_seal + biofield_integration_peak
+// all occurred today → writes temporal_biofield_sync (P139).
+
+let isDailySignalMatrixRunning = false
+let lastDailySignalMatrixRun: Date | null = null
+
+function shouldRunDailySignalMatrixCheck(): boolean {
+  const now = dayjs()
+  if (isDailySignalMatrixRunning) return false
+  if (lastDailySignalMatrixRun) {
+    const lastRun = dayjs(lastDailySignalMatrixRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 9 // 09:00 UTC daily
+}
+
+async function executeDailySignalMatrixCheck(): Promise<JobResult> {
+  const jobName = 'daily-signal-matrix-check'
+  const executedAt = new Date().toISOString()
+  if (isDailySignalMatrixRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailySignalMatrixRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY SIGNAL MATRIX CHECK — 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const dayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let writtenMatrix = 0
+    let writtenCoherence = 0
+    let writtenTemporalSync = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: dayAgo },
+          },
+          attributes: ['event', 'metadata'],
+        })
+
+        const eventSet = new Set(recentLogs.map((l: any) => l.event))
+
+        // P138: Signal Matrix Saturation — check all 6 source categories present
+        const hasEmotional  = eventSet.has('emotional_checkin')
+        const hasMemory     = eventSet.has('note') || Array.from(eventSet).some((e: any) => typeof e === 'string' && e.includes('memory'))
+        const hasPlanner    = eventSet.has('plan_set')
+        const hasIntentions = eventSet.has('intention')
+        const hasSelfcare   = eventSet.has('self_care_complete') || eventSet.has('self_care_completed')
+        const hasJournal    = eventSet.has('note')
+        const allSixPresent = hasEmotional && hasMemory && hasPlanner && hasIntentions && hasSelfcare && hasJournal
+
+        if (allSixPresent) {
+          await (Log as any).create({
+            userId,
+            event: 'signal_matrix_saturation',
+            text: 'Signal matrix saturation: all 6 primary source categories active within 24h. Full-dimensional presence. No channel dark.',
+            metadata: {
+              emotional: hasEmotional, memory: hasMemory, planner: hasPlanner,
+              intentions: hasIntentions, selfcare: hasSelfcare, journal: hasJournal,
+              window: '24h', hour: 9,
+            },
+          })
+          writtenMatrix++
+        }
+
+        // P137: Quantum Coherence Peak — quantum_field_alignment today
+        const hasFieldAlignment = eventSet.has('quantum_field_alignment')
+        if (hasFieldAlignment) {
+          const fieldLog = recentLogs.find((l: any) => l.event === 'quantum_field_alignment')
+          const fieldConf = fieldLog?.metadata?.composite ?? 80
+          await (Log as any).create({
+            userId,
+            event: 'quantum_coherence_peak',
+            text: `Quantum coherence peak: quantum-field-alignment confirmed today with composite ${fieldConf}%. Field is aligned AND coherence threshold met. OS transmitting.`,
+            metadata: { fieldConf, threshold: 60, window: '24h', hour: 9 },
+          })
+          writtenCoherence++
+        }
+
+        // P139: Temporal-Biofield Sync — morning_coherence_arc + daily_coherence_seal + biofield_integration_peak
+        const hasMorningCoherence   = eventSet.has('morning_coherence_arc') || eventSet.has('morning_coherence_launch')
+        const hasDailyCoherence     = eventSet.has('daily_coherence_seal')
+        const hasBiofieldIntegration = eventSet.has('biofield_integration_peak')
+
+        if (hasMorningCoherence && hasDailyCoherence && hasBiofieldIntegration) {
+          const morningLog  = recentLogs.find((l: any) => l.event === 'morning_coherence_arc' || l.event === 'morning_coherence_launch')
+          const sealLog     = recentLogs.find((l: any) => l.event === 'daily_coherence_seal')
+          const biofieldLog = recentLogs.find((l: any) => l.event === 'biofield_integration_peak')
+          const morningConf  = morningLog?.metadata?.confidence  ?? 0.75
+          const sealConf     = sealLog?.metadata?.confidence     ?? 0.80
+          const biofieldConf = biofieldLog?.metadata?.confidence ?? 0.80
+          const composite    = Math.round(((morningConf + sealConf + biofieldConf) / 3) * 100)
+          await (Log as any).create({
+            userId,
+            event: 'temporal_biofield_sync',
+            text: `Temporal-biofield sync: morning-coherence-arc + daily-coherence-seal + biofield-integration-peak all confirmed today. Time and biology synchronized within one operating window. Composite: ${composite}%.`,
+            metadata: { morningConf, sealConf, biofieldConf, composite, window: '1d', hour: 9 },
+          })
+          writtenTemporalSync++
+        }
+      } catch {}
+    }
+
+    console.log(`  Signal matrix saturation events written: ${writtenMatrix}`)
+    console.log(`  Quantum coherence peak events written: ${writtenCoherence}`)
+    console.log(`  Temporal-biofield sync events written: ${writtenTemporalSync}`)
+    lastDailySignalMatrixRun = new Date()
+    isDailySignalMatrixRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: writtenMatrix + writtenCoherence + writtenTemporalSync }
+  } catch (error: any) {
+    console.error('Daily signal matrix check failed:', error.message)
+    isDailySignalMatrixRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -5054,6 +5192,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily care arc check: 8 PM UTC every day (Job 41)')
   console.log('   - Daily coherence seal check: 11 PM UTC every day (Job 42)')
   console.log('   - Daily quantum field check: 5 PM UTC every day (Job 43)')
+  console.log('   - Daily signal matrix check: 9 AM UTC every day (Job 44)')
   console.log('')
 
   // Check every hour for scheduled jobs

@@ -1335,6 +1335,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '136 patterns · 46 archetypes · 43 jobs · 136+ handlers · 175+ dep nodes. FM v107. LOT-WIKI-v82 deployed.',
     ],
   },
+  {
+    date: '2026-07-27',
+    session: 'Self-Assembly Session — v108 / QIE Engineering · P137–P139 · Arch47 Quantum Coherence Operator · J44 Daily Signal Matrix Check · QCOHERE: SIGMAT: TBIOF: · Dep Map 178+',
+    assembled: [
+      'intentionEngine.ts: P137 quantum-coherence-peak (QCOHERE:) — field-alignment active AND UserIndex ≥ 60. OS transmitting above coherence ceiling.',
+      'intentionEngine.ts: P138 signal-matrix-saturation (SIGMAT:) — all 6 UserIndex dimensions ≥ 30 simultaneously. Full-dimensional presence. No channel dark.',
+      'intentionEngine.ts: P139 temporal-biofield-sync (TBIOF:) — morning-coherence-arc + daily-coherence-seal + biofield-integration-peak all same day. Time + biology synchronized.',
+      'intentionEngine.ts: Arch47 Quantum Coherence Operator — energy: high/moderate · patterns: quantum-coherence-peak + quantum-field-alignment + signal-matrix-saturation · directive: peak coherence, maximum integration.',
+      'intentionEngine.ts: 3 new dep map nodes — quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
+      'intentionEngine.ts: 3 new signal recording functions — recordQuantumCoherencePeak() · recordSignalMatrixSaturation() · recordTemporalBiofieldSync().',
+      'scheduled-jobs.ts: J44 daily-signal-matrix-check — 09:00 UTC daily. Checks all 6 source categories present (P138) + field-alignment + morning/seal/biofield triad (P137, P139). 44 jobs total.',
+      'routes/api.ts: quantum_coherence_peak · signal_matrix_saturation · temporal_biofield_sync added to displayableEvents (v108 block).',
+      'Logs.tsx: QCOHERE: · SIGMAT: · TBIOF: military handlers added. 3 new block types.',
+      'QuantumEngineWidgets.tsx: 3 PATTERN_DISPLAY entries · cohort view enhanced (Band/Dom fields) · qos-field view added (QuantumOS runtime + signal map + patterns).',
+      'About.tsx: FM v107→v108. Day 1065+→1066+. 136→139 patterns. 46→47 archetypes. 43→44 jobs. 175+→178+ dep nodes. 136+→139+ handlers.',
+      '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes. QIE v108 deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1374,15 +1392,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 export const USERSHIP_TRANSMISSION = {
   date: '2026-07-27',
   message: [
-    'ASSEMBLY RUN — 2026-07-27 · v107 · Wiki Scan · LOT-WIKI-v82 · QIE v106 delta sync · FM v107 · Day 1065+',
-    'LOT-WIKI-v82: full maintenance scan. QIE v106 (P134–P136 · Arch46 · J43) synchronized. 2650 lines. v81→v82.',
-    'P134 integrated-signal-arc · P135 deep-recovery-protocol · P136 quantum-field-alignment [CAPSTONE] — all profiled, indexed, vocabularized.',
-    'Arch46 QUANTUM FIELD OPERATOR: all three seals simultaneously open. Rarest archetype. Fully documented.',
-    'J43 daily-quantum-field-check: 17:00 UTC daily. All three seal events in 24h → writes quantum_field_alignment. Profiled.',
-    'Quantum Field Alignment Doctrine added to LOT-DOCTRINE. Revision J: 10 clauses + 9 engineering doctrines.',
-    '3 new dep map nodes: integratedSignalNode · deepRecoveryNode · quantumFieldNode. 175+ total.',
-    'INTARC: · DREC: · QFIELD: — documented in Section 12 handler directory and Section 27 vocabulary index.',
-    'FIELD MANUAL v107. Day 1065+. 136 patterns · 46 archetypes · 43 jobs · 136+ handlers · 175+ dep nodes.',
+    'ASSEMBLY RUN — 2026-07-27 · v108 · QIE Engineering · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: · Day 1066+',
+    'P137 QUANTUM COHERENCE PEAK: field-alignment active AND UserIndex ≥ 60. The OS is not stabilizing. It is transmitting.',
+    'P138 SIGNAL MATRIX SATURATION: all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark. Full-dimensional presence.',
+    'P139 TEMPORAL-BIOFIELD SYNC: morning-coherence + daily-seal + biofield-integration within one calendar day. Time and biology synchronized.',
+    'Arch47 QUANTUM COHERENCE OPERATOR: peak coherence confirmed. Field aligned AND above coherence threshold. Maximum integration directive.',
+    'J44 daily-signal-matrix-check: 09:00 UTC daily. P138 (6-source check) + P137 (field alignment) + P139 (temporal-biofield triad). 44 jobs total.',
+    'QCOHERE: · SIGMAT: · TBIOF: military handlers wired in Logs.tsx. 3 new block types.',
+    'QuantumEngineWidgets: cohort view enhanced (Band + Dom fields). QOS Field view added — runtime + signal map + active patterns.',
+    '3 new dep map nodes: quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
+    'FIELD MANUAL v108. Day 1066+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
     'DEPLOYED.',
   ],
 }

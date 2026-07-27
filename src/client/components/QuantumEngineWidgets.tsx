@@ -17,6 +17,7 @@ import {
   getUserIndex,
   getWidgetDependencies,
   classifyPhysiologicalCohort,
+  getQuantumOS,
 } from '#client/stores/intentionEngine'
 import { getEcosystemNarrative } from '#client/utils/narrative'
 import { useEnergy } from '#client/queries'
@@ -38,7 +39,7 @@ function usePersistedState(key: string): [boolean, React.Dispatch<React.SetState
 
 const TOTAL_DEVICES = 6
 
-type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index' | 'assembly' | 'qos-mode'
+type QOSView = 'ecosystem' | 'biofield' | 'cohort' | 'index' | 'assembly' | 'qos-mode' | 'qos-field'
 
 const PATTERN_DISPLAY: Record<string, string> = {
   'intent-to-action-gap':        'INTENT GAP',
@@ -96,6 +97,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'daily-coherence-seal':           'DCSAL',
   'quantum-rhythm-lock':            'QLOCK',
   'biofield-integration-peak':      'BFINT',
+  'quantum-coherence-peak':         'QCOHERE',
+  'signal-matrix-saturation':       'SIGMAT',
+  'temporal-biofield-sync':         'TBIOF',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
@@ -256,6 +260,7 @@ export const QuantumEngineWidgets: React.FC = () => {
       prev === 'cohort'    ? 'index' :
       prev === 'index'     ? 'assembly' :
       prev === 'assembly'  ? 'qos-mode' :
+      prev === 'qos-mode'  ? 'qos-field' :
       'ecosystem'
     )
   }
@@ -266,6 +271,7 @@ export const QuantumEngineWidgets: React.FC = () => {
     view === 'cohort'    ? 'Cohort:' :
     view === 'assembly'  ? 'Self-Assembly:' :
     view === 'qos-mode'  ? 'Mode:' :
+    view === 'qos-field' ? 'QOS Field:' :
     'Index:'
 
   const { energy, clarity, alignment, needsSupport } = engineState.userState
@@ -354,75 +360,71 @@ export const QuantumEngineWidgets: React.FC = () => {
 
           {view === 'cohort' && (
             <>
-              {cohortData?.archetype ? (
-                <>
-                  <div className="flex justify-between items-baseline">
-                    <span className="opacity-30 uppercase tracking-widest">Archetype</span>
-                    <span>{cohortData.archetype}</span>
-                  </div>
-                  {cohortData.behavioralCohort && (
+              {(() => {
+                const live = engineState.signals.length > 0
+                  ? classifyPhysiologicalCohort(engineState.signals, getUserState(), engineState.recognizedPatterns ?? [])
+                  : null
+                const archetype = cohortData?.archetype ?? live?.archetype
+                const directive = cohortDirective ?? live?.directive
+                return archetype ? (
+                  <>
                     <div className="flex justify-between items-baseline">
-                      <span className="opacity-30 uppercase tracking-widest">Cohort</span>
-                      <span>{cohortData.behavioralCohort}</span>
+                      <span className="opacity-30 uppercase tracking-widest">Arch</span>
+                      <span className="text-right max-w-[60%]">{archetype}</span>
                     </div>
-                  )}
-                  {readiness !== null && (
-                    <div className="flex justify-between items-baseline">
-                      <span className="opacity-30 uppercase tracking-widest">Readiness</span>
-                      <span className="tabular-nums">
-                        {readiness}%{' '}
-                        <span className="opacity-30">
-                          {readiness >= 70 ? '▲' : readiness >= 40 ? '—' : '▼'}
+                    {cohortData?.behavioralCohort && (
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-30 uppercase tracking-widest">Cohort</span>
+                        <span>{cohortData.behavioralCohort}</span>
+                      </div>
+                    )}
+                    {live?.energyBand && (
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-30 uppercase tracking-widest">Band</span>
+                        <span className="capitalize">{live.energyBand}</span>
+                      </div>
+                    )}
+                    {live?.dominantModule && (
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-30 uppercase tracking-widest">Dom</span>
+                        <span className="uppercase">{live.dominantModule}</span>
+                      </div>
+                    )}
+                    {live?.confidence !== undefined && (
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-30 uppercase tracking-widest">Conf</span>
+                        <span className="tabular-nums">{live.confidence}%</span>
+                      </div>
+                    )}
+                    {readiness !== null && (
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-30 uppercase tracking-widest">Ready</span>
+                        <span className="tabular-nums">
+                          {readiness}%{' '}
+                          <span className="opacity-30">
+                            {readiness >= 70 ? '▲' : readiness >= 40 ? '—' : '▼'}
+                          </span>
                         </span>
-                      </span>
-                    </div>
-                  )}
-                  {energyData?.energyState?.needsReplenishment?.[0] && (
-                    <div className="flex justify-between items-baseline">
-                      <span className="opacity-30 uppercase tracking-widest">Priority</span>
-                      <span className="capitalize">
-                        {energyData.energyState.needsReplenishment[0].category}
-                      </span>
-                    </div>
-                  )}
-                  {cohortDirective && (
-                    <div className="border-t border-acc-400/20 pt-8 mt-4">
-                      <div className="opacity-40">{cohortDirective}</div>
-                    </div>
-                  )}
-                </>
-              ) : engineState.signals.length > 0 ? (
-                <>
-                  {(() => {
-                    const live = classifyPhysiologicalCohort(engineState.signals, getUserState(), engineState.recognizedPatterns ?? [])
-                    return live ? (
-                      <>
-                        <div className="flex justify-between items-baseline">
-                          <span className="opacity-30 uppercase tracking-widest">Live</span>
-                          <span>{live.archetype}</span>
-                        </div>
-                        <div className="flex justify-between items-baseline">
-                          <span className="opacity-30 uppercase tracking-widest">Conf</span>
-                          <span className="tabular-nums">{live.confidence}%</span>
-                        </div>
-                        <div className="flex justify-between items-baseline">
-                          <span className="opacity-30 uppercase tracking-widest">Energy</span>
-                          <span className="capitalize">{live.energyBand}</span>
-                        </div>
-                        {live.directive && (
-                          <div className="border-t border-acc-400/20 pt-8 mt-4">
-                            <div className="opacity-40">{live.directive}</div>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="opacity-30">Cohort pending. Engage more widgets to surface pattern.</div>
-                    )
-                  })()}
-                </>
-              ) : (
-                <div className="opacity-30">Cohort pending. Engage more widgets to surface pattern.</div>
-              )}
+                      </div>
+                    )}
+                    {energyData?.energyState?.needsReplenishment?.[0] && (
+                      <div className="flex justify-between items-baseline">
+                        <span className="opacity-30 uppercase tracking-widest">Priority</span>
+                        <span className="capitalize">
+                          {energyData.energyState.needsReplenishment[0].category}
+                        </span>
+                      </div>
+                    )}
+                    {directive && (
+                      <div className="border-t border-acc-400/20 pt-8 mt-4">
+                        <div className="opacity-40">{directive}</div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="opacity-30">Cohort pending. Engage more widgets to surface pattern.</div>
+                )
+              })()}
             </>
           )}
 
@@ -547,6 +549,53 @@ export const QuantumEngineWidgets: React.FC = () => {
               )}
             </div>
           )}
+
+          {view === 'qos-field' && (() => {
+            const qos = getQuantumOS()
+            const signalEntries = Object.entries(qos.signalMap).filter(([, count]) => count > 0).sort((a, b) => b[1] - a[1])
+            return (
+              <div className="flex flex-col gap-y-4 font-mono text-xs">
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Status</span>
+                  <span className={`uppercase tracking-widest ${qos.operationalStatus === 'peak' ? '' : qos.operationalStatus === 'nominal' ? 'opacity-70' : 'opacity-40'}`}>{qos.operationalStatus}</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Coherence</span>
+                  <span className="tabular-nums">{qos.coherence}%</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Phase</span>
+                  <span className="uppercase">{qos.runtime.circadianPhase}</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="opacity-30 uppercase tracking-widest">Overall</span>
+                  <span className="tabular-nums">{qos.index.overall}</span>
+                </div>
+                {signalEntries.length > 0 && (
+                  <div className="border-t border-acc-400/20 pt-8 mt-4">
+                    <div className="opacity-30 uppercase tracking-widest mb-6">Signal Map 7d</div>
+                    {signalEntries.slice(0, 6).map(([src, count]) => (
+                      <div key={src} className="flex justify-between mb-2">
+                        <span className="opacity-50 uppercase">{src.slice(0, 8)}</span>
+                        <span className="opacity-60 tabular-nums">{count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {qos.patterns.length > 0 && (
+                  <div className="border-t border-acc-400/20 pt-8 mt-2">
+                    <div className="opacity-30 uppercase tracking-widest mb-6">Active Patterns</div>
+                    {qos.patterns.slice(0, 4).map(p => (
+                      <div key={p.id} className="flex justify-between mb-2">
+                        <span className="opacity-50 uppercase">{(PATTERN_DISPLAY[p.id] ?? p.id.slice(0, 10).toUpperCase())}</span>
+                        <span className="opacity-30 tabular-nums">{p.confidence}%</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
 
         </div>
       </Block>
