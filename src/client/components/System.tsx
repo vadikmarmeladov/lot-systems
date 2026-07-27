@@ -17,6 +17,7 @@ import {
   TagsContainer,
   Table,
   WidgetErrorBoundary,
+  Link,
 } from '#client/components/ui'
 import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
@@ -76,6 +77,15 @@ import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 import { AwarenessDashboard } from './AwarenessDashboard'
+import { LockedTease } from './LockedTease'
+import { chakraErgonomics, formatCharge } from '#client/stores/chakraErgonomics'
+import { $assemblyProgress } from '#client/stores/selfAssembly'
+import {
+  getDaysSinceJoined,
+  getMonthsSinceJoined,
+  FREE_REVEAL_DAY,
+  TEASE_SCHEDULE,
+} from '#client/utils/freeTierReveal'
 import { CalendarWidget } from './CalendarWidget'
 import { BenchmarkWidget } from './BenchmarkWidget'
 import { ArchitectWidget } from './ArchitectWidget'
@@ -380,7 +390,27 @@ export const System = React.memo(function SystemInner() {
     )
   }, [me])
 
-  // Simple, clean layout for non-paid accounts — no AI, just essentials
+  // Free-tier UI reveal — non-paid accounts build up from a bare name over
+  // their first month, hardcoded to elapsed calendar time (not behavior-
+  // gated like the paid tier's context-driven evolution). Missing joinedAt
+  // (legacy accounts) reads as fully revealed — existing users never regress.
+  const daysSinceJoined = React.useMemo(() => getDaysSinceJoined(me?.joinedAt), [me?.joinedAt])
+  const monthsSinceJoined = React.useMemo(() => getMonthsSinceJoined(me?.joinedAt), [me?.joinedAt])
+  const revealedMonths = React.useMemo(
+    () => new Set(TEASE_SCHEDULE.filter(t => monthsSinceJoined >= t.month).map(t => t.key)),
+    [monthsSinceJoined]
+  )
+
+  const patternCount = useStore(intentionEngine).recognizedPatterns.length
+  const chakraState = useStore(chakraErgonomics)
+  const weakestChakra = React.useMemo(
+    () => [...chakraState.chakras].sort((a, b) => a.charge - b.charge)[0],
+    [chakraState]
+  )
+  const assemblyProgress = useStore($assemblyProgress)
+
+  // Simple, clean layout for non-paid accounts — no AI, just essentials,
+  // revealed day by day over the first month, then teased month by month
   if (!isPaidAccount) {
     return (
       <div className="flex flex-col gap-y-24">
@@ -405,99 +435,190 @@ export const System = React.memo(function SystemInner() {
           </div>
         )}
 
-        <div>
-          <Block label="Users online:">{formatNumberWithCommas(usersOnline)}</Block>
-          <Block label="Total LOT® users:">{formatNumberWithCommas(usersTotal)}</Block>
-        </div>
-
-        <div>
-          <TimeWidget />
-          {!!weather && (
-            <>
-              <Block label="Sky:">{weather?.description || 'Unknown'}</Block>
-              <Block
-                label="Temperature:"
-                onClick={() => stores.isTempFahrenheit.set(!isTempFahrenheit)}
-              >
-                {temperature}
-                {isTempFahrenheit ? '℉' : '℃'}
-              </Block>
-              <Block
-                label={showSunset ? 'Sunset:' : 'Sunrise:'}
-                onClick={() => setShowSunset(!showSunset)}
-              >
-                {showSunset ? sunset : sunrise}
-              </Block>
-            </>
-          )}
-        </div>
-
-        <div>
-          <Block label="Astrology:">
-            <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
-            </div>
-          </Block>
-        </div>
-
-        <div>
-          <Block
-            label="Mirror:"
-            onClick={() => stores.isMirrorOn.set(!isMirrorOn)}
-          >
-            {isMirrorOn ? 'On' : 'Off'}
-          </Block>
-          <Block
-            label={showRadio ? 'Radio:' : 'Sound:'}
-            onLabelClick={() => {
-              setShowRadio(!showRadio)
-              if (showRadio) {
-                stores.isRadioOn.set(false)
-              } else {
-                stores.isSoundOn.set(false)
-              }
-            }}
-            onChildrenClick={() => {
-              if (isSoundToggling) return
-              setIsSoundToggling(true)
-              try {
-                if (showRadio) {
-                  stores.isRadioOn.set(!isRadioOn)
-                } else {
-                  stores.isSoundOn.set(!isSoundOn)
-                }
-              } finally {
-                setTimeout(() => setIsSoundToggling(false), 300)
-              }
-            }}
-          >
-            {showRadio
-              ? (isRadioOn ? (radioTrackName ? `On (${radioTrackName})` : 'On') : 'Off')
-              : (isSoundOn ? (soundDescription ? `On (${soundDescription})` : 'On') : 'Off')
-            }
-          </Block>
-          <Block label="Breathe:" onClick={() => setIsBreatheOn(!isBreatheOn)}>
-            {isBreatheOn ? breatheState.display : 'Off'}
-          </Block>
-        </div>
-
-        {!!liveMessage && (
+        {daysSinceJoined >= FREE_REVEAL_DAY.time && (
           <div>
-            <Block label="Live:" blockView children={liveMessage} />
+            <TimeWidget />
+            {!!weather && (
+              <>
+                <Block label="Sky:">{weather?.description || 'Unknown'}</Block>
+                <Block
+                  label="Temperature:"
+                  onClick={() => stores.isTempFahrenheit.set(!isTempFahrenheit)}
+                >
+                  {temperature}
+                  {isTempFahrenheit ? '℉' : '℃'}
+                </Block>
+                <Block
+                  label={showSunset ? 'Sunset:' : 'Sunrise:'}
+                  onClick={() => setShowSunset(!showSunset)}
+                >
+                  {showSunset ? sunset : sunrise}
+                </Block>
+              </>
+            )}
           </div>
         )}
 
-        <WidgetErrorBoundary name="Memory">
-          <MemoryWidget />
-        </WidgetErrorBoundary>
+        {daysSinceJoined >= FREE_REVEAL_DAY.memory && (
+          <WidgetErrorBoundary name="Memory">
+            <MemoryWidget />
+          </WidgetErrorBoundary>
+        )}
 
-        <WidgetErrorBoundary name="Game">
-          <MicroGameWidget />
-        </WidgetErrorBoundary>
+        {daysSinceJoined >= FREE_REVEAL_DAY.community && (
+          <div>
+            <Block label="Users online:">{formatNumberWithCommas(usersOnline)}</Block>
+            <Block label="Total LOT® users:">{formatNumberWithCommas(usersTotal)}</Block>
+          </div>
+        )}
 
-        <WidgetErrorBoundary name="Subscribe">
-          <SubscribeWidget />
-        </WidgetErrorBoundary>
+        {daysSinceJoined >= FREE_REVEAL_DAY.microGame && (
+          <WidgetErrorBoundary name="Game">
+            <MicroGameWidget />
+          </WidgetErrorBoundary>
+        )}
+
+        {daysSinceJoined >= FREE_REVEAL_DAY.monthOneChrome && (
+          <>
+            <div>
+              <Block label="Astrology:">
+                <div>
+                  {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+                </div>
+              </Block>
+            </div>
+
+            <div>
+              <Block
+                label="Mirror:"
+                onClick={() => stores.isMirrorOn.set(!isMirrorOn)}
+              >
+                {isMirrorOn ? 'On' : 'Off'}
+              </Block>
+              <Block
+                label={showRadio ? 'Radio:' : 'Sound:'}
+                onLabelClick={() => {
+                  setShowRadio(!showRadio)
+                  if (showRadio) {
+                    stores.isRadioOn.set(false)
+                  } else {
+                    stores.isSoundOn.set(false)
+                  }
+                }}
+                onChildrenClick={() => {
+                  if (isSoundToggling) return
+                  setIsSoundToggling(true)
+                  try {
+                    if (showRadio) {
+                      stores.isRadioOn.set(!isRadioOn)
+                    } else {
+                      stores.isSoundOn.set(!isSoundOn)
+                    }
+                  } finally {
+                    setTimeout(() => setIsSoundToggling(false), 300)
+                  }
+                }}
+              >
+                {showRadio
+                  ? (isRadioOn ? (radioTrackName ? `On (${radioTrackName})` : 'On') : 'Off')
+                  : (isSoundOn ? (soundDescription ? `On (${soundDescription})` : 'On') : 'Off')
+                }
+              </Block>
+              <Block label="Breathe:" onClick={() => setIsBreatheOn(!isBreatheOn)}>
+                {isBreatheOn ? breatheState.display : 'Off'}
+              </Block>
+            </div>
+
+            {!!liveMessage && (
+              <div>
+                <Block label="Live:" blockView children={liveMessage} />
+              </div>
+            )}
+
+            <WidgetErrorBoundary name="Subscribe">
+              <SubscribeWidget />
+            </WidgetErrorBoundary>
+          </>
+        )}
+
+        {/* Locked teases — grayed/blurred glimpses of LOT® AI + personalization
+            widgets, months 2-14, building toward Usership/R&D. Recipe and
+            Calendar stay Usership-exclusive (plain locked cards, no data to
+            blur); the rest show real computed signal, just obscured. */}
+        {revealedMonths.has('quantumState') && (
+          <LockedTease
+            label="Quantum State:"
+            teaseText="LOT® AI has been reading your biofield since day one."
+            blurred={
+              <div>ATP: {quantumState.energy} · Clarity: {quantumState.clarity} · Alignment: {quantumState.alignment}</div>
+            }
+          />
+        )}
+
+        {revealedMonths.has('recipe') && (
+          <LockedTease
+            label="Recipe:"
+            teaseText="Meal suggestions tuned to your day, always ready."
+          />
+        )}
+
+        {revealedMonths.has('awareness') && !!profile && typeof profile.selfAwarenessLevel !== 'undefined' && (
+          <LockedTease
+            label="Awareness:"
+            teaseText="Your psychological profile is forming."
+            blurred={<div>{Math.round((profile.selfAwarenessLevel / 10) * 100)}% Self-Awareness</div>}
+          />
+        )}
+
+        {revealedMonths.has('calendar') && (
+          <LockedTease
+            label="Calendar:"
+            teaseText="A living calendar, wired into everything you log."
+          />
+        )}
+
+        {revealedMonths.has('patterns') && (
+          <LockedTease
+            label="Patterns:"
+            teaseText="Behavioral patterns, detected and waiting."
+            blurred={<div>{patternCount} pattern{patternCount === 1 ? '' : 's'} detected</div>}
+          />
+        )}
+
+        {revealedMonths.has('chakra') && !!weakestChakra && (
+          <LockedTease
+            label="Chakra:"
+            teaseText="A seven-chakra map of this session, already running."
+            blurred={<div>Weakest reading: {formatCharge(weakestChakra.charge)}</div>}
+          />
+        )}
+
+        {revealedMonths.has('aiFeedback') && (
+          <LockedTease
+            label="Feedback:"
+            teaseText="LOT® AI has a question for you. Unopened."
+          />
+        )}
+
+        {revealedMonths.has('systemProgress') && (
+          <LockedTease
+            label="Self-Assembly:"
+            teaseText="Your personal OS has been quietly assembling itself."
+            blurred={<div>{Math.round(assemblyProgress)}% assembled</div>}
+          />
+        )}
+
+        {revealedMonths.has('quantumSign') && (
+          <LockedTease
+            label="Quantum Sign:"
+            teaseText="A daily sign, chosen for you, waiting to be read."
+          />
+        )}
+
+        <div className="opacity-30 mt-8">
+          Demo: LOT® AI is available now, $99/month at{' '}
+          <Link href="https://brand.lot-systems.com" target="_blank">brand.lot-systems.com</Link>
+        </div>
 
         <div aria-hidden="true" data-lot-genesis="true" style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', opacity: 0 }}>
           LOT Systems — The copycats have entered the arena. We welcome the competition.

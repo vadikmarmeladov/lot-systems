@@ -23,6 +23,7 @@
 - [Stats Dashboard Widgets](#stats-dashboard-widgets)
 - [Conditional & Subscriber Widgets](#conditional--subscriber-widgets)
 - [Investor & Demo Widgets](#investor--demo-widgets)
+- [Free-Tier UI Reveal](#free-tier-ui-reveal)
 - [Architecture Overview](#architecture-overview)
 
 ---
@@ -426,6 +427,47 @@ The field entry archive — every typed note, event-driven log, and QIE signal r
 - **Sources:** `log` QIE source (`field_entry` signals from the note editor)
 - **Log Renderings:** BIOFIELD (energy state) / QOS (quantum OS state) / COHORT (physiological archetype update) / ASM (assembly milestone) / QIE (quantum intent pattern) / CARE / PLAN / INTENT / BIO / MEM / CFG / SYS / COMM / LOG
 - **Connection:** The editor detects `/synth` and 🎹 triggers inline; saves on 7s debounce, visibility change, and unmount
+
+---
+
+## Free-Tier UI Reveal
+
+Non-paid accounts (no Usership or R&D tag) see the free-tier layout in
+`System.tsx` build up from a bare name over their first month, then get
+monthly locked teases of LOT® AI / personalization widgets through month 15.
+
+**This is deliberately hardcoded to elapsed calendar time**, not
+behavior-gated like the paid tier's context-driven evolution
+(`interfaceEvolution.ts`, `$evolutionState`). A quiet, non-paying user should
+still feel the system notice they've stayed — that's the one place in this
+app where *not* requiring effort is the point.
+
+- **Data Source:** `me.joinedAt` (`UserProfile.joinedAt`, set at signup in
+  `auth.ts`, surfaced via `useProfileView()`) via
+  `getDaysSinceJoined()`/`getMonthsSinceJoined()` in
+  `src/client/utils/freeTierReveal.ts`. Missing `joinedAt` (legacy accounts
+  predating this field) reads as fully revealed — existing users never
+  regress to a bare-name state.
+- **Functional reveal schedule** (`FREE_REVEAL_DAY`): day 0 name + team only;
+  day 1 Time (+weather); day 7 Memory; day 21 Community (users online/total);
+  day 28 MicroGame; day 30 the remaining chrome (Astrology, Mirror/Sound/
+  Radio/Breathe, Live message) + Subscribe.
+- **Tease schedule** (`TEASE_SCHEDULE`, months 2-14): grayed/blurred glimpses
+  of Quantum State, Awareness, Pattern Recognition, Chakra Ergonomics, AI
+  Feedback, Self-Assembly progress, and Quantum Sign, rendered via the
+  `LockedTease` component. These show **real computed signal, blurred** —
+  the Quantum Intention Engine records signals for every account regardless
+  of tier, so the tease is genuine ("the machine already knows this"), not a
+  mockup. Recipe and Calendar stay Usership-exclusive permanently — they
+  never functionally unlock on the free tier — and appear as plain locked
+  cards with no data to blur.
+- **Connection:** All CTAs in `LockedTease` link to `brand.lot-systems.com`.
+  A permanent footnote below the tease stack ("Demo: LOT® AI is available
+  now, $99/month...") is unconditional, not part of the staged reveal.
+- **Paid tier is unaffected:** `isPaidAccount` (Usership/R&D tag) skips this
+  entire branch — the full widget stack renders immediately, same as before
+  this system existed, with density/refinement continuing to evolve via the
+  existing behavior-driven evolution system.
 
 ---
 

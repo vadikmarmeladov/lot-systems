@@ -16,3 +16,4 @@ Format: `YYYYMMDD-NN | <CLASS> | <one-line summary> | <result> | <commit-hash> |
 
 20260727-01 | ENGINEERING | Widget wiring/lag health scan: 5 render-phase atom writes fixed to useEffect, 2 unrecorded QIE signal gaps closed, 1 union-type gap fixed, 3 doc/code mismatches corrected | GREEN | tag:benchmark-20260727-01 | ratio 3.1:1
 20260727-02 | ENGINEERING | Wire AwarenessDashboard into CQGS Bioethics stack (S-2 approved from SR-20260727-01 open item 1) | GREEN | tag:benchmark-20260727-02 | ratio n/a
+20260727-03 | ENGINEERING | Build free-tier UI reveal (hardcoded day-1-to-month-15 arc) + 9-item LOT AI/Usership tease stack; fixed dead joinedAt wiring (MonthlyPulseWidget revived as a side effect) | GREEN | tag:benchmark-20260727-03 | ratio 3.4:1
