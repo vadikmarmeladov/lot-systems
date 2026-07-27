@@ -30,7 +30,7 @@ import {
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { runJournalEasterEggs } from '#client/utils/easter-eggs'
-import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
+import { recordLogSignal, recordJournalSignal, recordBadgeSignal, recordSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
@@ -3233,6 +3233,8 @@ const NoteEditor = ({
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
   const [silentResult, setSilentResult] = React.useState<string | null>(null)
+  const [silPatternResult, setSilPatternResult] = React.useState<string | null>(null)
+  const [supportResult, setSupportResult] = React.useState<string | null>(null)
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
@@ -3594,6 +3596,45 @@ const NoteEditor = ({
         } catch {
           setSilentResult('SIGNAL STREAM QUIET\nRESPONSE        STANDBY')
         }
+      } else if (trigger === 'sil-check') {
+        // Distinct from silent-mode: classifies the SILENCE PATTERN over a longer
+        // window rather than just echoing "last signal N hours ago".
+        try {
+          const eng = intentionEngine.get()
+          const signals = (eng as any).signals || []
+          const lastSignal = signals.length > 0 ? signals[signals.length - 1] : null
+          const hoursSince = lastSignal ? (Date.now() - lastSignal.timestamp) / (1000 * 60 * 60) : null
+          const pattern =
+            hoursSince === null ? 'NO DATA' :
+            hoursSince < 24  ? 'ACTIVE' :
+            hoursSince < 72  ? 'QUIET — 1-3D' :
+            hoursSince < 168 ? 'SILENT — 3-7D' :
+                               'DORMANT — 7D+'
+          const recentSources = Array.from(
+            new Set(signals.slice(-20).map((s: any) => s.source))
+          ) as string[]
+          const lines = [
+            `PATTERN         ${pattern}`,
+            hoursSince !== null ? `GAP             ${Math.round(hoursSince)}H` : 'GAP             UNKNOWN',
+            `RECENT SOURCES  ${recentSources.length ? recentSources.join(', ').toUpperCase() : 'NONE'}`,
+          ]
+          setSilPatternResult(lines.join('\n'))
+        } catch {
+          setSilPatternResult('SIL PATTERN CHECK UNAVAILABLE')
+        }
+      } else if (trigger === 'cohort-support') {
+        // ❗ / ‼️ — the operator flags this entry as needing support. Records a
+        // 'cohort' signal (feeds Pattern 1: Anxiety Pattern detection) and gives
+        // a terse in-editor acknowledgment. No AI round-trip — this fires instantly.
+        try {
+          recordSignal('cohort', 'support_flag', { hour: new Date().getHours() })
+        } catch {}
+        const lines = [
+          'SIGNAL          URGENT',
+          'LOGGED          SUPPORT FLAG',
+          'ACK             THIS ENTRY IS MARKED',
+        ]
+        setSupportResult(lines.join('\n'))
       } else if (trigger === 'freeze-widgets') {
         const now = new Date()
         const hh = now.getHours().toString().padStart(2, '0')
@@ -3658,6 +3699,7 @@ const NoteEditor = ({
           '/breathe      4-2-6 breathing exercise',
           '/freeze       Pause and reflect protocol',
           '/silent       Signal silence check',
+          '/sil          Signal silence pattern classification',
           '/synth        Toggle keyboard sound',
           '/radio        Toggle radio',
           '/night        Dark mode',
@@ -3886,6 +3928,20 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="SIL [PROTOCOL]:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{silentResult}</div>
+            </Block>
+          </div>
+        )}
+        {silPatternResult && (
+          <div className="mt-8">
+            <Block label="SIL [PATTERN]:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{silPatternResult}</div>
+            </Block>
+          </div>
+        )}
+        {supportResult && (
+          <div className="mt-8">
+            <Block label="SUPPORT:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{supportResult}</div>
             </Block>
           </div>
         )}
