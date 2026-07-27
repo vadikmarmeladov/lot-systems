@@ -52,6 +52,22 @@ A four-dimensional daily planning interface organized around Intent, Today, How,
 - **Data Source:** `plannerWidget` nanostore for state and values; `/api/logs` endpoint for plan persistence
 - **Connection:** Records `plan_set` signals to the Quantum Intention Engine; integrates with the log-based activity tracking system
 
+### Calendar Widget
+
+A minimalist month-grid date planner for notes, tasks, and calls. Entries carry an optional time-of-day alongside the date, sorted date-then-time throughout the widget, the "Next:" summary line, and the Log timeline. Confirms each save inline with a terse `CAL: ENTRY LOGGED` acknowledgement.
+
+- **Data Source:** `/api/logs` (entries persist as `calendar_entry` log events with `date`, `time`, `text`, and `entryType` metadata); `isTimeFormat12h` store for 12/24-hour display
+- **Persistence:** Fully log-derived — no separate calendar table; entries are computed client-side from the Log feed
+- **Connection:** Records `calendar_entry` signals to the Quantum Intention Engine on save; feeds the Temporal Planner "Next:" summary in `System.tsx` and the `CAL:` field-report renderer in `Logs.tsx`; paired with the Calendar Event Toast for due-time reminders (see below)
+
+### Calendar Event Toast
+
+A Terminal Grid readout that fires when a timed Calendar entry comes due — polls the Log feed every 30 seconds for today's `calendar_entry` rows with a `time`, surfaces the first one whose 10-minute due window has opened, and auto-dismisses after 9 seconds. Deduplicated via `localStorage` so a reminder never repeats.
+
+- **Data Source:** `/api/logs` (`calendar_entry` events with `date`/`time` metadata)
+- **Persistence:** `localStorage` (`calendar_notified_v1`) tracks acknowledged reminders, capped at the 200 most recent
+- **Connection:** Reads the same Log feed as the Calendar Widget; gated to the System tab and visible-tab polling like the Evolution Milestone Toast
+
 ### Recipe Widget
 
 Suggests meals based on time of day — breakfast (5–9 AM), lunch (11 AM–2 PM), dinner (5–8 PM), and snacks (2–5 PM). Automatically logs the recipe when viewed on the System tab and displays a farewell phrase on dismissal.
