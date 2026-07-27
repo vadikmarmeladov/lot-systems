@@ -12,6 +12,7 @@ import { useQueryClient } from 'react-query'
 import * as stores from '#client/stores'
 import { $featureUnlocks } from '#client/stores/evolution'
 import {
+  Block,
   Button,
   Clock,
   GhostButton,
@@ -24,6 +25,8 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useMailInbox,
+  MailInboxThread,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -52,6 +55,20 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+
+  // LOT Mail inbox — threads composed via /email in Log, or direct-messaged
+  // from a Cohort match. Fetched once, then kept live via the same
+  // 'direct_message' SSE channel DirectMessageThread already listens on.
+  const { data: mailInboxData } = useMailInbox()
+  const [mailThreads, setMailThreads] = React.useState<MailInboxThread[]>([])
+  const hasLoadedMailInbox = React.useRef(false)
+
+  React.useEffect(() => {
+    if (mailInboxData?.threads && !hasLoadedMailInbox.current) {
+      setMailThreads(mailInboxData.threads)
+      hasLoadedMailInbox.current = true
+    }
+  }, [mailInboxData])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -117,9 +134,34 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeDirectMessageListener } = sync.listen(
+      'direct_message',
+      (data: any) => {
+        if (!me?.id) return
+        if (data.senderId !== me.id && data.receiverId !== me.id) return
+        const partnerId = data.senderId === me.id ? data.receiverId : data.senderId
+        const partnerName = data.senderId === me.id ? null : (data.senderName || null)
+
+        setMailThreads((prev) => {
+          const existing = prev.find((t) => t.userId === partnerId)
+          const [firstName, ...rest] = (partnerName || '').split(' ')
+          const updated: MailInboxThread = {
+            userId: partnerId,
+            firstName: existing?.firstName ?? (firstName || null),
+            lastName: existing?.lastName ?? (rest.join(' ') || null),
+            lastMessage: data.message,
+            isMine: data.senderId === me.id,
+            createdAt: data.createdAt,
+          }
+          return [updated, ...prev.filter((t) => t.userId !== partnerId)]
+        })
+      }
+    )
+
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeDirectMessageListener()
     }
   }, [me?.id])
 
@@ -164,6 +206,11 @@ export const Sync = React.memo(function SyncInner() {
       }
     },
     [onSubmitMessage]
+  )
+
+  const onOpenMailThread = React.useCallback(
+    (userId: string) => () => stores.goTo('dm', { userId }),
+    []
   )
 
   React.useEffect(() => {
@@ -277,6 +324,40 @@ export const Sync = React.memo(function SyncInner() {
           )
         })}
       </div>
+
+      {mailThreads.length > 0 && (
+        <div className="mt-80">
+          <Block label="Mail:" blockView>
+            <div className="opacity-30 mb-8">
+              Composed via /email in Log. New messages appear here live.
+            </div>
+            <div className="space-y-2">
+              {mailThreads.slice(0, 10).map((t) => {
+                const name = `${t.firstName || ''} ${t.lastName || ''}`.trim() || 'Unknown'
+                return (
+                  <div
+                    key={t.userId}
+                    className="group flex items-start gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
+                    onClick={onOpenMailThread(t.userId)}
+                  >
+                    <span className="whitespace-nowrap pr-4">{name}</span>
+                    <div
+                      className={cn('flex-1 truncate', t.isMine && 'opacity-30')}
+                    >
+                      {t.isMine ? 'You: ' : ''}{t.lastMessage}
+                    </div>
+                    {!isTouchDevice && (
+                      <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40">
+                        <MessageTimeLabel dateString={t.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </Block>
+        </div>
+      )}
     </div>
   )
 })

@@ -120,6 +120,36 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+export interface MailInboxThread {
+  userId: string
+  firstName: string | null
+  lastName: string | null
+  lastMessage: string
+  isMine: boolean
+  createdAt: string
+}
+
+export const useMailInbox = createQuery<{ threads: MailInboxThread[] }>(
+  '/api/direct-messages',
+  { refetchOnWindowFocus: false, staleTime: 60 * 1000 }
+)
+
+export interface UserLookupMatch {
+  id: string
+  firstName: string | null
+  lastName: string | null
+}
+
+// Plain promise, not a mutation hook — the /email trigger fires once inside
+// a useEffect (see logTriggers.ts), so it awaits this directly rather than
+// going through react-query's hook-only mutation API.
+export const lookupUserByName = async (name: string): Promise<UserLookupMatch[]> => {
+  const response = await api.get<{ matches: UserLookupMatch[] }>('/api/users/lookup', {
+    params: { name },
+  })
+  return response.data.matches
+}
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

@@ -123,7 +123,9 @@ export const CohortConnectWidget: React.FC = () => {
       connectionReadiness,
       hour: new Date().getHours()
     })
-    stores.goTo('sync')
+    // Opens the existing 1:1 DirectMessageThread (also reachable via
+    // /email in Log — same DirectMessage channel, same Sync inbox).
+    stores.goTo('dm', { userId })
   }
 
   const handleToggleExpand = (userId: string) => {

@@ -4042,6 +4042,87 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   })
 
   // ============================================================================
+  // LOT MAIL — /email trigger (Log) -> DirectMessage -> Sync inbox
+  // Reuses the existing DirectMessage model/SSE channel; adds only what was
+  // missing: name -> user resolution, and an inbox summary for Sync.
+  // ============================================================================
+
+  // Resolve a first-name (as typed after "/email to ") to candidate users.
+  // Excludes self and suspended accounts, same participation gate as chat.
+  fastify.get('/users/lookup', async (req: FastifyRequest<{
+    Querystring: { name?: string }
+  }>, reply) => {
+    try {
+      const name = (req.query.name || '').trim()
+      if (name.length < 2) {
+        return reply.status(400).send({ error: 'name must be at least 2 characters' })
+      }
+
+      const candidates = await fastify.models.User.findAll({
+        where: {
+          id: { [Op.not]: req.user.id },
+          firstName: { [Op.iLike]: `${name}%` },
+        },
+        attributes: ['id', 'firstName', 'lastName', 'tags'],
+        limit: 6,
+      })
+
+      const matches = candidates
+        .filter((u: any) => !u.tags?.some((t: string) => t.toLowerCase() === 'suspended'))
+        .map((u: any) => ({ id: u.id, firstName: u.firstName, lastName: u.lastName }))
+
+      return reply.send({ matches })
+    } catch (error) {
+      console.error('Error looking up user by name:', error)
+      return reply.status(500).send({ error: 'Lookup failed' })
+    }
+  })
+
+  // Inbox summary: most recent message per conversation partner, newest first.
+  fastify.get('/direct-messages', async (req, reply) => {
+    try {
+      const recent = await fastify.models.DirectMessage.findAll({
+        where: {
+          [Op.or]: [{ senderId: req.user.id }, { receiverId: req.user.id }],
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 200,
+      })
+
+      const threadByPartner = new Map<string, typeof recent[number]>()
+      for (const m of recent) {
+        const partnerId = m.senderId === req.user.id ? m.receiverId : m.senderId
+        if (!threadByPartner.has(partnerId)) threadByPartner.set(partnerId, m)
+      }
+
+      const partnerIds = Array.from(threadByPartner.keys()).slice(0, 20)
+      const partners = await fastify.models.User.findAll({
+        where: { id: { [Op.in]: partnerIds } },
+        attributes: ['id', 'firstName', 'lastName'],
+      })
+      const partnerById = new Map(partners.map((u: any) => [u.id, u]))
+
+      const threads = partnerIds.map((partnerId) => {
+        const m = threadByPartner.get(partnerId)!
+        const partner = partnerById.get(partnerId) as any
+        return {
+          userId: partnerId,
+          firstName: partner?.firstName || null,
+          lastName: partner?.lastName || null,
+          lastMessage: m.message,
+          isMine: m.senderId === req.user.id,
+          createdAt: m.createdAt,
+        }
+      }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+      return reply.send({ threads })
+    } catch (error) {
+      console.error('Error building mail inbox:', error)
+      return reply.status(500).send({ error: 'Failed to load inbox' })
+    }
+  })
+
+  // ============================================================================
   // STATS API - Real-time metrics and community insights
   // ============================================================================
 

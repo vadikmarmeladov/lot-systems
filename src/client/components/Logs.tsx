@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendDirectMessage, lookupUserByName } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -2816,6 +2816,15 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [mailResult, setMailResult] = React.useState<string | null>(null)
+  const [mailSending, setMailSending] = React.useState(false)
+  const { mutate: sendMail } = useSendDirectMessage({
+    onSuccess: () => setMailSending(false),
+    onError: () => {
+      setMailResult('MAIL: send failed — try again')
+      setMailSending(false)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -3242,6 +3251,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Send LOT Mail to X (appears in Sync)',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -3266,6 +3276,56 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'email-compose') {
+        // "/email to <name> <message>" — name is the first word after "to";
+        // whatever remains once the trigger substring is stripped becomes
+        // the message body (same convention as /prayer and /story, which
+        // strip their own keyword and send the rest of the log).
+        const emailMatch = value.match(/(?:\/email|\/mail|✉️|✉)\s*(?:to\s+)?(\S+)/i)
+        if (emailMatch && !mailSending) {
+          const recipientName = emailMatch[1].replace(/[.,!?:;]+$/, '')
+          const messageBody = value.replace(emailMatch[0], '').replace(/[✉️✉]/g, '').trim()
+
+          setMailSending(true)
+          setMailResult(`MAIL: looking up "${recipientName}"...`)
+
+          lookupUserByName(recipientName)
+            .then((matches) => {
+              if (matches.length === 0) {
+                setMailResult(`MAIL: no match for "${recipientName}"`)
+                setMailSending(false)
+                return
+              }
+              if (matches.length > 1) {
+                const names = matches
+                  .map((m) => `${m.firstName || ''} ${m.lastName || ''}`.trim())
+                  .join(', ')
+                setMailResult(`MAIL: multiple matches for "${recipientName}" — ${names}`)
+                setMailSending(false)
+                return
+              }
+
+              const recipient = matches[0]
+              const recipientLabel = `${recipient.firstName || ''} ${recipient.lastName || ''}`.trim()
+
+              if (!messageBody) {
+                setMailResult(`MAIL: opening thread with ${recipientLabel}`)
+                setMailSending(false)
+                stores.goTo('dm', { userId: recipient.id })
+                return
+              }
+
+              setMailResult(`MAIL: sending to ${recipientLabel}...`)
+              sendMail(
+                { receiverId: recipient.id, message: messageBody },
+                { onSuccess: () => setMailResult(`MAIL: sent to ${recipientLabel} — see Sync`) }
+              )
+            })
+            .catch(() => {
+              setMailResult(`MAIL: lookup failed — try again`)
+              setMailSending(false)
+            })
         }
       }
     }
@@ -3487,6 +3547,15 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(mailSending || mailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                {mailResult}
+              </div>
             </Block>
           </div>
         )}
