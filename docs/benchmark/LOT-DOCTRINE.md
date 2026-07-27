@@ -226,3 +226,20 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Manifest Ground Truth
+
+LOT-MANIFEST.md entries describing a branch as merged/incorporated are a
+claim, not a fact — verify against `git log --all` / `git branch -a
+--contains <hash>` before building on top of that assumption. A manifest
+row and the live repo can drift silently: a prior session's 06-27 audit
+marked LOT Mail (determined-turing-f6bw7r, 11 iterations, +504 lines) as
+absorbed into master alongside five other pruned branches; the branch and
+every one of its commits were in fact unrecoverable, and the shipped code
+never existed outside the manifest's own description. Treat "no longer on
+remote" as ambiguous between merged and lost until confirmed — the
+manifest cannot self-verify.
+(SR-20260727-01: LOT Mail rebuilt from the manifest's one-line description
+after confirming fa622a25 is unreachable from any local or remote ref; the
+other five branches named in the same 06-27 note were not re-verified and
+carry the same unconfirmed risk.)

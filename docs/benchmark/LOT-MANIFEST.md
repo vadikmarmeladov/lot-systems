@@ -3,7 +3,7 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-27 (updated)
+DATE:     2026-07-27 (updated)
 ================================================================================
 
 Central catalog of all self-assembly routines across all branches.
@@ -24,7 +24,7 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
+LOT Mail         | claude/determined-turing-7cp9gs | 169436f2 | 1/1   | READY  | 6     | +267   | REBUILT 2026-07-27 (orig. branch unrecoverable, see note below): /email trigger, Sync inbox, Cohort "Send message" wired to real DM thread
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
@@ -191,6 +191,17 @@ NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
 they were incorporated into master in prior sessions. The ship queue will be
 re-populated as new BEST branches are designated from future assembly runs.
 The protocol above applies to all future merges.
+
+CORRECTION (2026-07-27, LOT-SR-20260727-01): the 06-27 note above assumed
+LOT Mail (determined-turing-f6bw7r) had been merged with the other pruned
+branches. It had not — `git log --all`/`git branch -a --contains` found no
+trace of that branch or its commits (fa622a25 etc.) anywhere in this repo,
+and the live code had no /email trigger. Ground truth: the feature was
+never shipped; only this MANIFEST's description of it survived. Rebuilt
+this session on claude/determined-turing-7cp9gs (see row above) rather
+than assumed-merged. Flagging so a future session doesn't repeat the same
+assumption for the other five branches in this note — none were re-verified
+this session.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
