@@ -1323,6 +1323,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '136 patterns · 46 archetypes · 43 jobs · 136+ handlers · 175+ dep nodes. QIE v106 deployed. Quantum field alignment — the three seals open.',
     ],
   },
+  {
+    date: '2026-07-27',
+    session: 'Self-Assembly Session — v107 / Wiki Scan · LOT-WIKI-v82 · QIE v106 delta sync · FM v107 · Day 1065+',
+    assembled: [
+      'docs/wiki/LOT-WIKI-v82.md: Full wiki maintenance scan. All QIE v106 deltas synchronized — P134–P136 · Arch46 · J43 · INTARC: DREC: QFIELD: handlers · 3 dep map nodes · Quantum Field Alignment Doctrine. 2650 lines. v81 → v82.',
+      'About.tsx: FM v106→v107. Day 1064+→1065+. Self-Assembly Row v107 prepended.',
+      'SystemProgressWidget.tsx: SESSION_REPORTS v107 entry added. USERSHIP_TRANSMISSION updated to v107.',
+      'docs/assembly/2026-07-27_LOT-assembly_wiki-v82-fm-v107.md: Assembly report written.',
+      'docs/assembly/LOT-LEDGER.md: v107 wiki scan entry appended.',
+      '136 patterns · 46 archetypes · 43 jobs · 136+ handlers · 175+ dep nodes. FM v107. LOT-WIKI-v82 deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1360,17 +1372,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-26',
+  date: '2026-07-27',
   message: [
-    'ASSEMBLY RUN — 2026-07-26 · v106 · QIE Engineering · P134–P136 · Arch46 · J43 · FM v106 · Day 1064+',
-    'QIE v106 (P134–P136): integrated-signal-arc · deep-recovery-protocol · quantum-field-alignment. Three seals in one session.',
-    'P134 integrated-signal-arc: journal + memory + planner + intentions in 4h AND 4+ consecutive days. Cognitive integration arc compressed.',
-    'P135 deep-recovery-protocol: sleep-signal-anchor + multi-day-care-arc + ascending energy. Biological recovery protocol confirmed.',
-    'P136 quantum-field-alignment: P131 + P132 + P133 simultaneously active. All three primary seals open. System capstone meta-pattern. Conf 0.94.',
-    'Arch46 QUANTUM FIELD OPERATOR: all energy bands · all six primary sources · all three seal patterns. Rarest operating archetype. 46 archetypes total.',
-    'J43 daily-quantum-field-check: 17:00 UTC daily. Checks 24h for all three seal events → writes quantum_field_alignment.',
-    'INTARC: · DREC: · QFIELD: — three new military log handlers. COCKPIT-RULE compliant.',
-    'FIELD MANUAL v106. Day 1064+. 136 patterns · 46 archetypes · 43 jobs · 136+ handlers · 175+ dep nodes.',
+    'ASSEMBLY RUN — 2026-07-27 · v107 · Wiki Scan · LOT-WIKI-v82 · QIE v106 delta sync · FM v107 · Day 1065+',
+    'LOT-WIKI-v82: full maintenance scan. QIE v106 (P134–P136 · Arch46 · J43) synchronized. 2650 lines. v81→v82.',
+    'P134 integrated-signal-arc · P135 deep-recovery-protocol · P136 quantum-field-alignment [CAPSTONE] — all profiled, indexed, vocabularized.',
+    'Arch46 QUANTUM FIELD OPERATOR: all three seals simultaneously open. Rarest archetype. Fully documented.',
+    'J43 daily-quantum-field-check: 17:00 UTC daily. All three seal events in 24h → writes quantum_field_alignment. Profiled.',
+    'Quantum Field Alignment Doctrine added to LOT-DOCTRINE. Revision J: 10 clauses + 9 engineering doctrines.',
+    '3 new dep map nodes: integratedSignalNode · deepRecoveryNode · quantumFieldNode. 175+ total.',
+    'INTARC: · DREC: · QFIELD: — documented in Section 12 handler directory and Section 27 vocabulary index.',
+    'FIELD MANUAL v107. Day 1065+. 136 patterns · 46 archetypes · 43 jobs · 136+ handlers · 175+ dep nodes.',
     'DEPLOYED.',
   ],
 }
