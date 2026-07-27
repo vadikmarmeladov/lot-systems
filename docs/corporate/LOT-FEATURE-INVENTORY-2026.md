@@ -585,7 +585,9 @@ LOT Mail                            Email system with /email trigger. Feature   
                                     branch (8 iterations).
 
 Basics Tab                          Physical supply subscription layer                 IN-DEV
-                                    (LOT-FM-001).
+                                    (LOT-FM-001). M1 OPEN TAB live at /basics
+                                    (read-only ledger); M2 upgrade/roster and
+                                    M3 fulfillment not yet built.
 
 COSMO Hardware                      Personal robotics division. Behavioral              IN-DEV
                                     signature transfer (Soul Sync Protocol).
