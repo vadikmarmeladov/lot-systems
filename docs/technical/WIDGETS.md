@@ -172,7 +172,7 @@ Surfaces self-care suggestions during key times of day (10 AM–12 PM, 2–5 PM,
 A clickable, cycling display of the user's psychological profile. Shows self-awareness percentage, archetype, values, emotional patterns, dominant needs, sentiment breakdown, and introspection depth.
 
 - **Data Source:** `/api/user-profile` endpoint via the `useProfile` hook
-- **Connection:** Displays profile-derived awareness metrics. Built but currently **not imported anywhere** (not in System.tsx, not on the profile page) — orphaned pending a reveal decision, not a build error
+- **Connection:** Displays profile-derived awareness metrics; mounted in the CQGS Bioethics stack in System.tsx, next to Chakra Ergonomics — both are self-mapping widgets (energetic map vs. psychological map). Self-gates on `profile.selfAwarenessLevel` (prompts the user to answer more Memory questions until then)
 
 ---
 
@@ -440,7 +440,7 @@ All widgets are orchestrated by `System.tsx`, the master dashboard component. Wi
 3. **Tags & Team** — User affiliations and team display
 4. **Time & Environment** — Clock, quantum random, weather, astrology/psychology cycling
 5. **Context Stack** — Contextual prompts, chat catalysts, interventions
-6. **Bioethics Stack** — Energy, narrative, evolution, interface evolution, milestones
+6. **Bioethics Stack** — Energy, chakra ergonomics, awareness dashboard, narrative, goal journey, evolution, interface evolution, milestones
 7. **Settings** — Mirror, sound/radio toggle, breathe mode
 8. **Lifestyle Stack** — Recipes, emotional check-in, self-care
 9. **Intentions & Planning** — Intentions, planner, memory, micro tools

@@ -75,6 +75,7 @@ import { MicroGameWidget } from './MicroGameWidget'
 import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
+import { AwarenessDashboard } from './AwarenessDashboard'
 import { CalendarWidget } from './CalendarWidget'
 import { BenchmarkWidget } from './BenchmarkWidget'
 import { ArchitectWidget } from './ArchitectWidget'
@@ -722,6 +723,11 @@ export const System = React.memo(function SystemInner() {
 
           {/* Chakra Ergonomics - Seven-chakra energy map + session ergonomics */}
           <ChakraErgonomicsWidget />
+
+          {/* Awareness Dashboard - Clickable psychological profile (archetype, values, patterns, needs, sentiment, reflection) */}
+          <WidgetErrorBoundary name="Awareness">
+            <AwarenessDashboard />
+          </WidgetErrorBoundary>
 
           {/* Narrative - Story progression and achievements */}
           <NarrativeWidget />
