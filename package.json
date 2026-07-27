@@ -65,7 +65,7 @@
     "@nanostores/persistent": "^0.9.1",
     "@nanostores/react": "^0.4.1",
     "@nanostores/router": "^0.9.1",
-    "axios": "^0.27.2",
+    "axios": "^1.12.2",
     "color-convert": "^3.1.2",
     "dayjs": "^1.11.10",
     "dotenv": "^17.2.3",

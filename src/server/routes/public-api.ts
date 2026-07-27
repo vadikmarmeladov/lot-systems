@@ -355,9 +355,13 @@ async function performHealthChecks(): Promise<{
     checkMemory(),
   ])
 
-  // Determine overall status
+  // Determine overall status: critical checks failing = error, non-critical = degraded
+  const criticalChecks = ['Database stack', 'Authentication engine']
+  const hasCriticalError = checks.some(
+    (c) => c.status === 'error' && criticalChecks.includes(c.name)
+  )
   const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  const overall = hasCriticalError ? 'error' : hasErrors ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
