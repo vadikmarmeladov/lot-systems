@@ -560,6 +560,43 @@ export type BadgeType =
   | 'dune_signal'              // ∘·◈   Write "spice" in journal — Dune (RARE, hidden)
   | 'foundation_word'          // ≋·◉   Write "psychohistory" in journal — Foundation (EPIC)
   | 'neuromancer_signal'       // ▓→◉   Write "cyberspace" in journal — Neuromancer (MYTHIC)
+  // ── Word Turn v17 — The Neural Arcade ────────────────────────────────────────
+  | 'synapse_fire'             // ≋→∘   "synapse/synaptic" detected in text
+  | 'dopamine_loop'            // ∘↓∘   "dopamine" detected in text
+  | 'cortisol_flag'            // ▒·▒   "cortisol" detected in text
+  | 'rewire_active'            // →■→   "rewire/rewiring/rewired" detected in text
+  | 'habit_stack'              // ▓→●   "habit/habitual/habits" detected in text
+  | 'flow_mode'                // ≈→∞   "flow/flow state" detected in text
+  | 'plasticity_open'          // ∘≋∘   "plasticity/neuroplasticity" detected in text
+  | 'neural_pattern'           // ▒→◈   "pattern/patterns" detected in text
+  | 'feedback_signal'          // ↺·∘   "feedback" detected in text
+  | 'serotonin_rise'           // ∘↑∘   "serotonin" detected in text
+  | 'amygdala_gate'            // ◉·▒   "amygdala" detected in text
+  | 'mind_wander'              // ─◐─   "daydream/mind wander/wandering" detected
+  // ── Calendar Easter Eggs v14 — The Science Dates ─────────────────────────────
+  | 'arpanet_day'              // ∘···∘  October 29 — ARPANET first message 1969 (EPIC)
+  | 'dna_signal'               // ∞·∘   April 25 — DNA double helix 1953 (RARE)
+  | 'smiley_face'              // :·)   September 19 — First emoticon 1982 (UNCOMMON)
+  // ── Behavioral Easter Eggs v14 — Neural Patterns ─────────────────────────────
+  | 'neural_session'           // ≋·∘   3+ v17 Neural Arcade words in one journal entry (RARE)
+  | 'game_save_night'          // ░·◐   Journal entry between 22:00 and 23:29 (UNCOMMON)
+  | 'weekend_writer'           // ░·░   Journal on both Sat AND Sun same calendar week (UNCOMMON)
+  // ── Achievement RPG v15 — Neural Commander ────────────────────────────────────
+  | 'neural_entry'             // ∘·≋   Any 1 Word Turn v17 badge (COMMON)
+  | 'neural_class'             // ≈·≋   Any 5 Word Turn v17 badges (UNCOMMON)
+  | 'neural_complete'          // ≋·∞   All 12 Word Turn v17 badges (LEGENDARY)
+  | 'arcade_arc'               // ≋·◈   neural_complete + all 3 Calendar v14 badges (LEGENDARY)
+  | 'seventeen_engines_arc'    // ◈·◈·◈·◈ 1 badge from each Word Turn v1–v17 (LEGENDARY)
+  | 'neural_opus'              // ∞·≋·◉  neural_complete + neural_session (LEGENDARY)
+  // ── Mastery Tier v17 — The Deep Arcade ───────────────────────────────────────
+  | 'arcade_keeper'            // ≋·▒   500+ distinct calendar days with any check-in (LEGENDARY)
+  | 'archive_thirty'           // ∞·◉·∞  30,000+ total journal words (LEGENDARY)
+  | 'ancient_system'           // ╔═╗·≋  Account age ≥ 8 years (2,920+ days) (MYTHIC)
+  | 'seventeen_tongues'        // ◈·◈·◈  1 badge from each of all 17 Word Turn engines (COSMIC)
+  // ── Secret Boss v15 — The Neural Vault ───────────────────────────────────────
+  | 'eniac_signal'             // ∘·∞   Write "ENIAC" in journal — first computer (RARE, hidden)
+  | 'turing_complete'          // ∞·∞   Write "Turing complete" in journal (EPIC, hidden)
+  | 'halting_problem'          // ─○─   Write "halting problem" in journal (MYTHIC, hidden)
 
 export interface Badge {
   id: BadgeType
@@ -5113,6 +5150,294 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v17 — The Neural Arcade ─────────────────────────────────────────
+  synapse_fire: {
+    id: 'synapse_fire',
+    symbol: '≋→∘',
+    name: 'Synapse Fire',
+    description: '"synapse" or "synaptic" detected in journal or memory entry',
+    unlockMessage: '↳ The signal crossed the gap. Every thought you have is electricity and hope. ≋→∘',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  dopamine_loop: {
+    id: 'dopamine_loop',
+    symbol: '∘↓∘',
+    name: 'Dopamine Loop',
+    description: '"dopamine" detected in journal or memory entry',
+    unlockMessage: '↳ You named the reward circuit. Now you can choose what to feed it. ∘↓∘',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  cortisol_flag: {
+    id: 'cortisol_flag',
+    symbol: '▒·▒',
+    name: 'Cortisol Flag',
+    description: '"cortisol" detected in journal or memory entry',
+    unlockMessage: '↳ The stress hormone named. Body intelligence online. You heard the signal. ▒·▒',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  rewire_active: {
+    id: 'rewire_active',
+    symbol: '→■→',
+    name: 'Rewire Active',
+    description: '"rewire" or "rewiring" or "rewired" detected in text',
+    unlockMessage: '↳ Neuroplasticity confirmed. The circuit is changing. You are doing it. →■→',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  habit_stack: {
+    id: 'habit_stack',
+    symbol: '▓→●',
+    name: 'Habit Stack',
+    description: '"habit" or "habitual" or "habits" detected in text',
+    unlockMessage: '↳ A habit is just a saved game. The neural path is worn. Walk it enough and it becomes road. ▓→●',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  flow_mode: {
+    id: 'flow_mode',
+    symbol: '≈→∞',
+    name: 'Flow Mode',
+    description: '"flow" or "flow state" detected in journal or memory entry',
+    unlockMessage: '↳ The state where time disappears and the work does itself. You named it. Now find it again. ≈→∞',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  plasticity_open: {
+    id: 'plasticity_open',
+    symbol: '∘≋∘',
+    name: 'Plasticity Open',
+    description: '"plasticity" or "neuroplasticity" detected in text',
+    unlockMessage: '↳ The brain is not fixed. You knew the word. The word proves the thing. ∘≋∘',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  neural_pattern: {
+    id: 'neural_pattern',
+    symbol: '▒→◈',
+    name: 'Neural Pattern',
+    description: '"pattern" or "patterns" detected in journal or memory entry',
+    unlockMessage: '↳ A pattern recognized is a pattern you can change. The grid becomes visible. ▒→◈',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  feedback_signal: {
+    id: 'feedback_signal',
+    symbol: '↺·∘',
+    name: 'Feedback Signal',
+    description: '"feedback" detected in journal or memory entry',
+    unlockMessage: '↳ Self-correction is the highest skill. The system that hears itself can grow. ↺·∘',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  serotonin_rise: {
+    id: 'serotonin_rise',
+    symbol: '∘↑∘',
+    name: 'Serotonin Rise',
+    description: '"serotonin" detected in journal or memory entry',
+    unlockMessage: '↳ The molecule of mood. You are tracking your own neurochemistry. That is self-care at the root. ∘↑∘',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  amygdala_gate: {
+    id: 'amygdala_gate',
+    symbol: '◉·▒',
+    name: 'Amygdala Gate',
+    description: '"amygdala" detected in journal or memory entry',
+    unlockMessage: '↳ The gate between thought and feeling. You named the guardian. Now you can speak to it. ◉·▒',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  mind_wander: {
+    id: 'mind_wander',
+    symbol: '─◐─',
+    name: 'Mind Wander',
+    description: '"daydream" or "mind wander" detected in journal or memory entry',
+    unlockMessage: '↳ The Default Mode Network is active. This is not idle time — it is integration. ─◐─',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  // ── Calendar Easter Eggs v14 — The Science Dates ──────────────────────────────
+  arpanet_day: {
+    id: 'arpanet_day',
+    symbol: '∘···∘',
+    name: 'ARPANET Day',
+    description: 'Check in on October 29 — first ARPANET message sent 1969',
+    unlockMessage: '↳ The first internet message was "lo" — a crash before "login" completed. Even the internet\'s hello was imperfect. ∘···∘',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  dna_signal: {
+    id: 'dna_signal',
+    symbol: '∞·∘',
+    name: 'DNA Signal',
+    description: 'Check in on April 25 — Watson & Crick DNA paper published 1953',
+    unlockMessage: '↳ The double helix. The code of life. April 25, 1953 — the day the instruction set was found. ∞·∘',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  smiley_face: {
+    id: 'smiley_face',
+    symbol: ':·)',
+    name: 'Smiley Face',
+    description: 'Check in on September 19 — first emoticon :-)  used 1982',
+    unlockMessage: '↳ September 19, 1982. Scott Fahlman typed :-) and the internet learned to express itself. :·)',
+    rarity: 'uncommon',
+    category: 'easter_egg',
+  },
+  // ── Behavioral Easter Eggs v14 — Neural Patterns ─────────────────────────────
+  neural_session: {
+    id: 'neural_session',
+    symbol: '≋·∘',
+    name: 'Neural Session',
+    description: '3 or more distinct Neural Arcade (v17) words detected in one journal entry',
+    unlockMessage: '↳ Your journal has become a neuroscience text. The self-study goes deep. ≋·∘',
+    rarity: 'rare',
+    category: 'pattern',
+  },
+  game_save_night: {
+    id: 'game_save_night',
+    symbol: '░·◐',
+    name: 'Game Save Night',
+    description: 'Journal entry submitted between 22:00 and 23:29',
+    unlockMessage: '↳ Late night save point. Before midnight, after dark — the quietest hour for reflection. ░·◐',
+    rarity: 'uncommon',
+    category: 'pattern',
+  },
+  weekend_writer: {
+    id: 'weekend_writer',
+    symbol: '░·░',
+    name: 'Weekend Writer',
+    description: 'Journal entries on both Saturday and Sunday in the same calendar week',
+    unlockMessage: '↳ The weekend was not wasted. Both days, the log was open. The self does not take days off. ░·░',
+    rarity: 'uncommon',
+    category: 'pattern',
+  },
+  // ── Achievement RPG v15 — Neural Commander ────────────────────────────────────
+  neural_entry: {
+    id: 'neural_entry',
+    symbol: '∘·≋',
+    name: 'Neural Entry',
+    description: 'Earn any 1 Word Turn v17 (Neural Arcade) badge',
+    unlockMessage: '↳ The neural arcade is open. Insert coin. ∘·≋',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  neural_class: {
+    id: 'neural_class',
+    symbol: '≈·≋',
+    name: 'Neural Class',
+    description: 'Earn any 5 Word Turn v17 (Neural Arcade) badges',
+    unlockMessage: '↳ Five neural triggers. The brain vocabulary is forming. ≈·≋',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  neural_complete: {
+    id: 'neural_complete',
+    symbol: '≋·∞',
+    name: 'Neural Complete',
+    description: 'Earn all 12 Word Turn v17 (Neural Arcade) badges',
+    unlockMessage: '↳ All twelve neural pathways mapped. The arcade has been fully surveyed. ≋·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  arcade_arc: {
+    id: 'arcade_arc',
+    symbol: '≋·◈',
+    name: 'Arcade Arc',
+    description: 'Earn neural_complete + all 3 Calendar v14 (Science Dates) badges',
+    unlockMessage: '↳ The neural arcade + the science calendar. DNA, ARPANET, the first smiley. You were there. ≋·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  seventeen_engines_arc: {
+    id: 'seventeen_engines_arc',
+    symbol: '◈·◈·◈·◈',
+    name: 'Seventeen Engines Arc',
+    description: 'Earn at least 1 badge from each of all 17 Word Turn engines (v1–v17)',
+    unlockMessage: '↳ Seventeen vocabularies. Seventeen engines. The self speaks every dialect the system knows. ◈·◈·◈·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  neural_opus: {
+    id: 'neural_opus',
+    symbol: '∞·≋·◉',
+    name: 'Neural Opus',
+    description: 'Earn neural_complete + neural_session (3+ v17 words in one entry)',
+    unlockMessage: '↳ Twelve neural badges and a journal entry that reads like a brain scan. The opus is alive. ∞·≋·◉',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v17 — The Deep Arcade ───────────────────────────────────────
+  arcade_keeper: {
+    id: 'arcade_keeper',
+    symbol: '≋·▒',
+    name: 'Arcade Keeper',
+    description: '500 or more distinct calendar days with any check-in',
+    unlockMessage: '↳ Five hundred days. The arcade never closes when you keep showing up. ≋·▒',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  archive_thirty: {
+    id: 'archive_thirty',
+    symbol: '∞·◉·∞',
+    name: 'Archive Thirty',
+    description: '30,000 or more total journal words across all entries',
+    unlockMessage: '↳ Thirty thousand words. A novel. A library wing. All of it — yours. ∞·◉·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  ancient_system: {
+    id: 'ancient_system',
+    symbol: '╔═╗·≋',
+    name: 'Ancient System',
+    description: 'Account age ≥ 8 years (2,920+ days since creation)',
+    unlockMessage: '↳ Eight years. The system predates most apps you use. It was never a trend. ╔═╗·≋',
+    rarity: 'mythic',
+    category: 'achievement_rpg',
+  },
+  seventeen_tongues: {
+    id: 'seventeen_tongues',
+    symbol: '◈·◈·◈',
+    name: 'Seventeen Tongues',
+    description: 'Earn at least 1 badge from each of all 17 Word Turn engines (v1–v17)',
+    unlockMessage: '↳ Seventeen vocabularies. The signal speaks in every frequency the archive knows. ◈·◈·◈',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v15 — The Neural Vault ───────────────────────────────────────
+  eniac_signal: {
+    id: 'eniac_signal',
+    symbol: '∘·∞',
+    name: 'ENIAC Signal',
+    description: 'Write "ENIAC" in any journal or memory entry — first electronic computer',
+    unlockMessage: '↳ ENIAC: 1945. Filled a room. Weighed 30 tons. Ran at 5,000 ops/sec. You are running faster. ∘·∞',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  turing_complete: {
+    id: 'turing_complete',
+    symbol: '∞·∞',
+    name: 'Turing Complete',
+    description: 'Write "Turing complete" or "Turing-complete" in any journal or memory entry',
+    unlockMessage: '↳ A system is Turing complete if it can compute anything computable. You named the concept. What are you computing? ∞·∞',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  halting_problem: {
+    id: 'halting_problem',
+    symbol: '─○─',
+    name: 'Halting Problem',
+    description: 'Write "halting problem" in any journal or memory entry — Turing\'s undecidable question',
+    unlockMessage: '↳ The halting problem: no algorithm can tell if a program will stop. Sometimes you can\'t know when to stop either. That is wisdom, not failure. ─○─',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -5685,6 +6010,71 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     // Mastery v16: sixteen_tongues — 1 badge from all 16 Word Turn engines
     if (allSixteenEngines && !hasBadge('sixteen_tongues')) {
       if (awardBadge('sixteen_tongues')) newBadges.push('sixteen_tongues')
+    }
+
+    // ── v17 Neural Arcade — Achievement RPG v15 ───────────────────────────────
+    const neuralV17Badges: BadgeType[] = [
+      'synapse_fire', 'dopamine_loop', 'cortisol_flag', 'rewire_active',
+      'habit_stack', 'flow_mode', 'plasticity_open', 'neural_pattern',
+      'feedback_signal', 'serotonin_rise', 'amygdala_gate', 'mind_wander',
+    ]
+    const neuralEarned = neuralV17Badges.filter(b => hasBadge(b))
+
+    if (neuralEarned.length >= 1 && !hasBadge('neural_entry')) {
+      if (awardBadge('neural_entry')) newBadges.push('neural_entry')
+    }
+    if (neuralEarned.length >= 5 && !hasBadge('neural_class')) {
+      if (awardBadge('neural_class')) newBadges.push('neural_class')
+    }
+    const neuralComplete = neuralEarned.length >= 12
+    if (neuralComplete && !hasBadge('neural_complete')) {
+      if (awardBadge('neural_complete')) newBadges.push('neural_complete')
+    }
+
+    // neural_opus: neural_complete + neural_session behavioral
+    if (neuralComplete && hasBadge('neural_session') && !hasBadge('neural_opus')) {
+      if (awardBadge('neural_opus')) newBadges.push('neural_opus')
+    }
+
+    // arcade_arc: neural_complete + all 3 Calendar v14 badges
+    const calendarV14Badges: BadgeType[] = ['arpanet_day', 'dna_signal', 'smiley_face']
+    if (neuralComplete && calendarV14Badges.every(b => hasBadge(b)) && !hasBadge('arcade_arc')) {
+      if (awardBadge('arcade_arc')) newBadges.push('arcade_arc')
+    }
+
+    // seventeen_engines_arc: 1 badge from each Word Turn v1–v17
+    const engineSeventeenPresent = neuralEarned.length >= 1
+    const allSeventeenEngines = allSixteenEngines && engineSeventeenPresent
+    if (allSeventeenEngines && !hasBadge('seventeen_engines_arc')) {
+      if (awardBadge('seventeen_engines_arc')) newBadges.push('seventeen_engines_arc')
+    }
+
+    // Mastery v17: arcade_keeper — 500+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 500 && !hasBadge('arcade_keeper')) {
+        if (awardBadge('arcade_keeper')) newBadges.push('arcade_keeper')
+      }
+    }
+
+    // Mastery v17: archive_thirty — 30,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 30000 && !hasBadge('archive_thirty')) {
+        if (awardBadge('archive_thirty')) newBadges.push('archive_thirty')
+      }
+    }
+
+    // Mastery v17: ancient_system — Account age ≥ 8 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupAncient = new Date(stats.signupDate)
+      const yearsAncient = (new Date().getTime() - signupAncient.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsAncient >= 8 && !hasBadge('ancient_system')) {
+        if (awardBadge('ancient_system')) newBadges.push('ancient_system')
+      }
+    }
+
+    // Mastery v17: seventeen_tongues — 1 badge from all 17 Word Turn engines
+    if (allSeventeenEngines && !hasBadge('seventeen_tongues')) {
+      if (awardBadge('seventeen_tongues')) newBadges.push('seventeen_tongues')
     }
 
   } catch (error) {

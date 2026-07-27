@@ -763,6 +763,26 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('bloomsday')
   }
 
+  // ── Calendar v14 — The Science Dates ───────────────────────────────────────
+
+  // DNA Signal: April 25 — Watson & Crick double helix paper published 1953
+  if (!hasBadge('dna_signal') && month === 4 && day === 25) {
+    awardBadge('dna_signal')
+    awarded.push('dna_signal')
+  }
+
+  // Smiley Face: September 19 — First emoticon :-) used 1982 (Scott Fahlman)
+  if (!hasBadge('smiley_face') && month === 9 && day === 19) {
+    awardBadge('smiley_face')
+    awarded.push('smiley_face')
+  }
+
+  // ARPANET Day: October 29 — First ARPANET message sent 1969
+  if (!hasBadge('arpanet_day') && month === 10 && day === 29) {
+    awardBadge('arpanet_day')
+    awarded.push('arpanet_day')
+  }
+
   return awarded
 }
 
@@ -1273,6 +1293,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bspice(s)?\b/i,                        badge: 'dune_signal' },
   { patterns: /\bpsychohistory\b/i,                    badge: 'foundation_word' },
   { patterns: /\bcyberspace\b/i,                       badge: 'neuromancer_signal' },
+  // ── v17 — The Neural Arcade ────────────────────────────────────────────────
+  { patterns: /\bsynapse(s|tic)?\b/i,                  badge: 'synapse_fire' },
+  { patterns: /\bdopamine\b/i,                         badge: 'dopamine_loop' },
+  { patterns: /\bcortisol\b/i,                         badge: 'cortisol_flag' },
+  { patterns: /\brewire(d|s|ing)?\b/i,                 badge: 'rewire_active' },
+  { patterns: /\bhabit(s|ual)?\b/i,                    badge: 'habit_stack' },
+  { patterns: /\bflow(\s+state)?\b/i,                  badge: 'flow_mode' },
+  { patterns: /\bneuroplasticity\b|\bplasticity\b/i,   badge: 'plasticity_open' },
+  { patterns: /\bpattern(s)?\b/i,                      badge: 'neural_pattern' },
+  { patterns: /\bfeedback\b/i,                         badge: 'feedback_signal' },
+  { patterns: /\bserotonin\b/i,                        badge: 'serotonin_rise' },
+  { patterns: /\bamygdala\b/i,                         badge: 'amygdala_gate' },
+  { patterns: /\b(daydream(s|ed|ing)?|mind.?wander(s|ed|ing)?)\b/i, badge: 'mind_wander' },
+  // ── v15 Secret Boss — The Neural Vault word triggers ──────────────────────────
+  { patterns: /\bENIAC\b/,                             badge: 'eniac_signal' },
+  { patterns: /turing.?complete(ness)?\b/i,             badge: 'turing_complete' },
+  { patterns: /halting\s+problem\b/i,                  badge: 'halting_problem' },
 ]
 
 /**
@@ -1713,6 +1750,18 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const libraryRun = checkLibraryRun()
   if (libraryRun) awarded.push(libraryRun)
 
+  // Behavioral v14: neural session (3+ Neural Arcade v17 words in one entry)
+  const neuralSess = checkNeuralSession(journalText)
+  if (neuralSess) awarded.push(neuralSess)
+
+  // Behavioral v14: game save night (journal between 22:00 and 23:29)
+  const gameSaveNight = checkGameSaveNight()
+  if (gameSaveNight) awarded.push(gameSaveNight)
+
+  // Behavioral v14: weekend writer (journal on both Sat and Sun same week)
+  const weekendWriter = checkWeekendWriter()
+  if (weekendWriter) awarded.push(weekendWriter)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -2043,6 +2092,92 @@ export function checkDeepDecoder(answerText: string): BadgeType | null {
     awardBadge('deep_decoder')
     return 'deep_decoder'
   }
+  return null
+}
+
+// ── Behavioral Easter Egg v14 — Neural Patterns ──────────────────────────────
+
+const NEURAL_WORDS_V17 = [
+  /\bsynapse(s|tic)?\b/i,
+  /\bdopamine\b/i,
+  /\bcortisol\b/i,
+  /\brewire(d|s|ing)?\b/i,
+  /\bhabit(s|ual)?\b/i,
+  /\bflow(\s+state)?\b/i,
+  /\bneuroplasticity\b|\bplasticity\b/i,
+  /\bpattern(s)?\b/i,
+  /\bfeedback\b/i,
+  /\bserotonin\b/i,
+  /\bamygdala\b/i,
+  /\b(daydream(s|ed|ing)?|mind.?wander(s|ed|ing)?)\b/i,
+]
+
+/**
+ * Award neural_session badge if 3+ distinct Neural Arcade (v17) words appear in one entry.
+ * Call when a journal entry is saved.
+ */
+export function checkNeuralSession(journalText: string): BadgeType | null {
+  if (hasBadge('neural_session')) return null
+  const matchCount = NEURAL_WORDS_V17.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('neural_session')
+    return 'neural_session'
+  }
+  return null
+}
+
+/**
+ * Award game_save_night badge for a journal entry between 22:00 and 23:29.
+ * Call when a journal entry is saved.
+ */
+export function checkGameSaveNight(): BadgeType | null {
+  if (hasBadge('game_save_night')) return null
+  const h = new Date().getHours()
+  const m = new Date().getMinutes()
+  if (h === 22 || (h === 23 && m < 30)) {
+    awardBadge('game_save_night')
+    return 'game_save_night'
+  }
+  return null
+}
+
+/**
+ * Award weekend_writer badge for journal entries on both Saturday and Sunday in the same week.
+ * Reads the journal_dates localStorage key (array of ISO date strings).
+ * Call when a journal entry is saved.
+ */
+export function checkWeekendWriter(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('weekend_writer')) return null
+
+  try {
+    const stored = localStorage.getItem('journal_dates')
+    if (!stored) return null
+    const raw: string[] = JSON.parse(stored)
+    const dates = Array.from(new Set(raw.map(d => d.slice(0, 10))))
+
+    // Build a set of (year, weekNumber) pairs that have both Sat and Sun entries
+    const weekMap = new Map<string, Set<number>>()
+    for (const dateStr of dates) {
+      const d = new Date(dateStr)
+      const dow = d.getDay() // 0=Sun, 6=Sat
+      if (dow === 0 || dow === 6) {
+        // ISO week key: use Monday-anchored week
+        const thursday = new Date(d)
+        thursday.setDate(d.getDate() + (4 - (d.getDay() || 7)))
+        const weekKey = `${thursday.getFullYear()}-W${Math.ceil((thursday.getTime() - new Date(thursday.getFullYear(), 0, 1).getTime()) / 604800000)}`
+        if (!weekMap.has(weekKey)) weekMap.set(weekKey, new Set())
+        weekMap.get(weekKey)!.add(dow)
+      }
+    }
+    for (const days of weekMap.values()) {
+      if (days.has(0) && days.has(6)) {
+        awardBadge('weekend_writer')
+        return 'weekend_writer'
+      }
+    }
+  } catch { /* non-critical */ }
+
   return null
 }
 
