@@ -1703,6 +1703,321 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyFocusDepthCheck()) {
     await executeDailyFocusDepthCheck()
   }
+  // Check daily morning coherence check (06:00 UTC every day) — Job 38
+  if (shouldRunDailyMorningCoherenceCheck()) {
+    await executeDailyMorningCoherenceCheck()
+  }
+  // Check daily action-memory scan (20:00 UTC every day) — Job 39
+  if (shouldRunDailyActionMemoryScan()) {
+    await executeDailyActionMemoryScan()
+  }
+  // Check daily evening reflection check (22:00 UTC every day) — Job 40
+  if (shouldRunDailyEveningReflectionCheck()) {
+    await executeDailyEveningReflectionCheck()
+  }
+  // Check daily care arc check (20:00 UTC every day) — Job 41
+  if (shouldRunDailyCareArcCheck()) {
+    await executeDailyCareArcCheck()
+  }
+  // Check daily coherence seal check (23:00 UTC every day) — Job 42
+  if (shouldRunDailyCoherenceSealCheck()) {
+    await executeDailyCoherenceSealCheck()
+  }
+  // Check daily quantum field alignment (17:00 UTC every day) — Job 43
+  if (shouldRunDailyQuantumFieldCheck()) {
+    await executeDailyQuantumFieldCheck()
+  }
+}
+
+// ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
+// Reads active users. Looks for energy check-in + planner entry + intention all
+// before 10:00 UTC today. When all three are present, writes morning_coherence_arc.
+// Confirms full dawn ramp: body read, plan set, direction confirmed before cognitive load.
+
+let isDailyMorningCoherenceRunning = false
+let lastDailyMorningCoherenceRun: Date | null = null
+
+function shouldRunDailyMorningCoherenceCheck(): boolean {
+  const now = dayjs()
+  if (isDailyMorningCoherenceRunning) return false
+  if (lastDailyMorningCoherenceRun) {
+    const lastRun = dayjs(lastDailyMorningCoherenceRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 6 // 06:00 UTC daily
+}
+
+async function executeDailyMorningCoherenceCheck(): Promise<JobResult> {
+  const jobName = 'daily-morning-coherence-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyMorningCoherenceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyMorningCoherenceRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY MORNING COHERENCE CHECK — 06:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    // Morning window: today 00:00–10:00 UTC
+    const todayStart = dayjs().startOf('day').toDate()
+    const todayMorningEnd = dayjs().startOf('day').add(10, 'hour').toDate()
+
+    for (const user of activeUsers) {
+      try {
+        const morningLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.between]: [todayStart, todayMorningEnd] },
+            event: { [Op.in]: ['energy_state', 'energy_update', 'energy_check', 'plan_set', 'planner_entry', 'intention'] },
+          },
+        })
+
+        const energyLogs    = morningLogs.filter(l => ['energy_state', 'energy_update', 'energy_check'].includes((l as any).event as string))
+        const plannerLogs   = morningLogs.filter(l => ['plan_set', 'planner_entry'].includes((l as any).event as string))
+        const intentionLogs = morningLogs.filter(l => (l as any).event === 'intention')
+
+        if (energyLogs.length >= 1 && plannerLogs.length >= 1 && intentionLogs.length >= 1) {
+          const total = energyLogs.length + plannerLogs.length + intentionLogs.length
+          await Log.create({
+            userId: (user as any).id,
+            event: 'morning_coherence_arc' as any,
+            text: `Morning coherence arc: energy + planner + intentions confirmed before 10:00.`,
+            metadata: {
+              energyCount: energyLogs.length,
+              plannerCount: plannerLogs.length,
+              intentionCount: intentionLogs.length,
+              totalMorning: total,
+              window: 'before-10:00',
+              confidence: Math.min(0.65 + total * 0.04, 0.87),
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Morning coherence arc events written: ${written}`)
+    lastDailyMorningCoherenceRun = new Date()
+    isDailyMorningCoherenceRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily morning coherence check failed:', error.message)
+    isDailyMorningCoherenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Action-Memory Scan (Job 39 — 20:00 UTC every day) ─────────────────
+// Reads active users. Looks for planner/intention + memory logs in a 6h rolling
+// window. When both action and memory are present, writes action_to_memory_loop.
+// Confirms knowledge crystallization pipeline: action → encoding → archive.
+
+let isDailyActionMemoryRunning = false
+let lastDailyActionMemoryRun: Date | null = null
+
+function shouldRunDailyActionMemoryScan(): boolean {
+  const now = dayjs()
+  if (isDailyActionMemoryRunning) return false
+  if (lastDailyActionMemoryRun) {
+    const lastRun = dayjs(lastDailyActionMemoryRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 20 // 20:00 UTC daily
+}
+
+async function executeDailyActionMemoryScan(): Promise<JobResult> {
+  const jobName = 'daily-action-memory-scan'
+  const executedAt = new Date().toISOString()
+  if (isDailyActionMemoryRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyActionMemoryRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY ACTION-MEMORY SCAN — 20:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const oneDayAgo = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    const sixHoursAgo = dayjs().subtract(6, 'hour').toDate()
+
+    for (const user of activeUsers) {
+      try {
+        const recentLogs = await Log.findAll({
+          where: {
+            userId: (user as any).id,
+            createdAt: { [Op.gte]: sixHoursAgo },
+            event: { [Op.in]: ['plan_set', 'planner_entry', 'intention', 'memory_question', 'memory_answer', 'memory_capture'] },
+          },
+        })
+
+        const plannerLogs   = recentLogs.filter(l => ['plan_set', 'planner_entry'].includes((l as any).event as string))
+        const intentionLogs = recentLogs.filter(l => (l as any).event === 'intention')
+        const memoryLogs    = recentLogs.filter(l => ['memory_question', 'memory_answer', 'memory_capture'].includes((l as any).event as string))
+        const actionCount   = plannerLogs.length + intentionLogs.length
+
+        if (actionCount >= 1 && memoryLogs.length >= 1) {
+          await Log.create({
+            userId: (user as any).id,
+            event: 'action_to_memory_loop' as any,
+            text: `Action-to-memory loop: planner/intention + memory capture confirmed in 6h window.`,
+            metadata: {
+              plannerCount: plannerLogs.length,
+              intentionCount: intentionLogs.length,
+              memoryCount: memoryLogs.length,
+              window: '6h',
+              confidence: Math.min(0.64 + memoryLogs.length * 0.05 + actionCount * 0.03, 0.86),
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Action-to-memory loop events written: ${written}`)
+    lastDailyActionMemoryRun = new Date()
+    isDailyActionMemoryRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily action-memory scan failed:', error.message)
+    isDailyActionMemoryRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Evening Reflection Check (Job 40 — 22:00 UTC every day) ───────────
+// Scans active users for journal entry after 18:00 UTC today + memory capture today
+// + intentions today. When all three are present, writes evening_reflection_loop.
+// Confirms daily loop closure: reflection → encoding → acknowledgment (P125).
+
+let isDailyEveningReflectionRunning = false
+let lastDailyEveningReflectionRun: Date | null = null
+
+function shouldRunDailyEveningReflectionCheck(): boolean {
+  const now = dayjs()
+  if (isDailyEveningReflectionRunning) return false
+  if (lastDailyEveningReflectionRun) {
+    const lastRun = dayjs(lastDailyEveningReflectionRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 22 // 22:00 UTC daily
+}
+
+async function executeDailyEveningReflectionCheck(): Promise<JobResult> {
+  const jobName = 'daily-evening-reflection-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyEveningReflectionRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyEveningReflectionRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY EVENING REFLECTION CHECK — 22:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const oneDayAgo   = dayjs().subtract(1, 'day').toDate()
+    const todayStart  = dayjs().startOf('day').toDate()
+    const eveningStart = dayjs().startOf('day').add(18, 'hour').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: oneDayAgo } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        // Journal entry after 18:00 today
+        const journalLogs = await Log.findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: eveningStart },
+            event: { [Op.in]: ['note', 'journal_entry'] },
+          },
+          attributes: ['id'],
+        })
+
+        if (journalLogs.length === 0) continue
+
+        // Memory capture today
+        const memoryLogs = await Log.findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: todayStart },
+            event: { [Op.in]: ['memory_question', 'memory_answer', 'memory_capture'] },
+          },
+          attributes: ['id'],
+        })
+
+        if (memoryLogs.length === 0) continue
+
+        // Intentions today
+        const intentionLogs = await Log.findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: todayStart },
+            event: 'intention',
+          },
+          attributes: ['id'],
+        })
+
+        if (intentionLogs.length === 0) continue
+
+        const confidence = Math.min(0.65 + journalLogs.length * 0.04 + memoryLogs.length * 0.03, 0.87)
+
+        await Log.create({
+          userId,
+          event: 'evening_reflection_loop' as any,
+          text: `Evening reflection loop: journal after 18:00 + memory + intentions confirmed today.`,
+          metadata: {
+            journalCount:   journalLogs.length,
+            memoryCount:    memoryLogs.length,
+            intentionCount: intentionLogs.length,
+            window:         'evening',
+            confidence,
+          },
+        })
+        written++
+      } catch {}
+    }
+
+    console.log(`  Evening reflection loop events written: ${written}`)
+    lastDailyEveningReflectionRun = new Date()
+    isDailyEveningReflectionRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily evening reflection check failed:', error.message)
+    isDailyEveningReflectionRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
 }
 
 // ─── Daily Intent Gap Pulse (Job 31 — 02:00 UTC every day) ──────────────────
@@ -2380,6 +2695,282 @@ async function executeDailyFocusDepthCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily focus depth check failed:', error.message)
     isDailyFocusDepthRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Care Arc Check (Job 38 — 20:00 UTC every day) ────────────────────
+// Reads active users. Checks selfcare signals across the last 3 calendar days.
+// If selfcare signal present on each of the 3 consecutive days, writes multi_day_care_arc.
+// Feeds P120 detection. Sustained restoration practice confirmed.
+
+let isDailyCareArcRunning = false
+let lastDailyCareArcRun: Date | null = null
+
+function shouldRunDailyCareArcCheck(): boolean {
+  const now = dayjs()
+  if (isDailyCareArcRunning) return false
+  if (lastDailyCareArcRun) {
+    const lastRun = dayjs(lastDailyCareArcRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 20 // 20:00 UTC daily
+}
+
+async function executeDailyCareArcCheck(): Promise<JobResult> {
+  const jobName = 'daily-care-arc-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyCareArcRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCareArcRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY CARE ARC CHECK — 20:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const threeDaysAgo = dayjs().subtract(3, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const careLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: threeDaysAgo },
+            event: { [Op.in]: ['selfcare_logged', 'self_care_logged', 'care_act', 'cleanness_logged', 'rest_logged', 'recovery_act'] },
+          },
+          attributes: ['createdAt'],
+          order: [['createdAt', 'ASC']],
+        })
+
+        // Build set of distinct UTC calendar days with care signals
+        const careDays = new Set<string>()
+        for (const log of careLogs) {
+          const d = new Date(log.createdAt)
+          careDays.add(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-${String(d.getUTCDate()).padStart(2, '0')}`)
+        }
+
+        // Check 3 most recent consecutive days (today-2, today-1, today)
+        const d2 = dayjs().subtract(2, 'day').format('YYYY-MM-DD')
+        const d1 = dayjs().subtract(1, 'day').format('YYYY-MM-DD')
+        const d0 = dayjs().format('YYYY-MM-DD')
+
+        if (careDays.has(d2) && careDays.has(d1) && careDays.has(d0)) {
+          const streakDays = 3
+          const totalCareActs = careLogs.length
+          await (Log as any).create({
+            userId,
+            event: 'multi_day_care_arc',
+            text: `Multi-day care arc: ${streakDays} consecutive days with active care signals. Sustained restoration practice confirmed.`,
+            metadata: { streakDays, totalCareActs, window: '3d', hour: 20 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Multi-day care arc events written: ${written}`)
+    lastDailyCareArcRun = new Date()
+    isDailyCareArcRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily care arc check failed:', error.message)
+    isDailyCareArcRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Coherence Seal Check (Job 42 — 23:00 UTC every day) ───────────────
+// Reads active users. Checks for a morning launch signal (morning_intention_lock OR
+// morning_coherence_arc) AND an evening close signal (evening_reflection_loop OR
+// evening_coherence_close) both present in the current calendar day.
+// When both gates are confirmed, writes daily_coherence_seal.
+// Feeds P131 detection. Full-day coherence circuit: booted at dawn, sealed at dusk.
+
+let isDailyCoherenceSealRunning = false
+let lastDailyCoherenceSealRun: Date | null = null
+
+function shouldRunDailyCoherenceSealCheck(): boolean {
+  const now = dayjs()
+  if (isDailyCoherenceSealRunning) return false
+  if (lastDailyCoherenceSealRun) {
+    const lastRun = dayjs(lastDailyCoherenceSealRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 23 // 23:00 UTC daily
+}
+
+async function executeDailyCoherenceSealCheck(): Promise<JobResult> {
+  const jobName = 'daily-coherence-seal-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyCoherenceSealRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCoherenceSealRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY COHERENCE SEAL CHECK — 23:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const todayStart = dayjs().startOf('day').toDate()
+    const todayEnd   = dayjs().endOf('day').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const todayLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.between]: [todayStart, todayEnd] },
+            event: {
+              [Op.in]: [
+                'morning_intention_lock', 'morning_coherence_arc',
+                'evening_reflection_loop', 'evening_coherence_close',
+              ],
+            },
+          },
+          attributes: ['event'],
+        })
+
+        const eventSet = new Set(todayLogs.map((l: any) => l.event))
+        const hasMorningLaunch = eventSet.has('morning_intention_lock') || eventSet.has('morning_coherence_arc')
+        const hasEveningClose  = eventSet.has('evening_reflection_loop')  || eventSet.has('evening_coherence_close')
+
+        if (hasMorningLaunch && hasEveningClose) {
+          const morningPattern = eventSet.has('morning_intention_lock') ? 'morning-intention-lock' : 'morning-coherence-arc'
+          const eveningPattern = eventSet.has('evening_reflection_loop')  ? 'evening-reflection-loop'  : 'evening-coherence-close'
+          await (Log as any).create({
+            userId,
+            event: 'daily_coherence_seal',
+            text: `Daily coherence seal: morning launched via ${morningPattern}, evening closed via ${eveningPattern}. Full-day circuit confirmed.`,
+            metadata: { morningPattern, eveningPattern, window: '1d', hour: 23 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Daily coherence seal events written: ${written}`)
+    lastDailyCoherenceSealRun = new Date()
+    isDailyCoherenceSealRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily coherence seal check failed:', error.message)
+    isDailyCoherenceSealRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Quantum Field Check (Job 43 — 17:00 UTC every day) ────────────────
+// Reads active users. Checks if P131 (daily_coherence_seal), P132 (quantum_rhythm_lock),
+// and P133 (biofield_integration_peak) are all present today (any of last 24h).
+// When all three gates are confirmed, writes quantum_field_alignment.
+// Feeds P136 detection. Complete operational field: temporal OS + daily seal + biofield integration all live.
+
+let isDailyQuantumFieldRunning = false
+let lastDailyQuantumFieldRun: Date | null = null
+
+function shouldRunDailyQuantumFieldCheck(): boolean {
+  const now = dayjs()
+  if (isDailyQuantumFieldRunning) return false
+  if (lastDailyQuantumFieldRun) {
+    const lastRun = dayjs(lastDailyQuantumFieldRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 17 // 17:00 UTC daily
+}
+
+async function executeDailyQuantumFieldCheck(): Promise<JobResult> {
+  const jobName = 'daily-quantum-field-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyQuantumFieldRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyQuantumFieldRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY QUANTUM FIELD CHECK — 17:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const dayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: dayAgo },
+            event: {
+              [Op.in]: [
+                'daily_coherence_seal',
+                'quantum_rhythm_lock',
+                'biofield_integration_peak',
+              ],
+            },
+          },
+          attributes: ['event', 'metadata'],
+        })
+
+        const eventSet = new Set(recentLogs.map((l: any) => l.event))
+        const hasSeal    = eventSet.has('daily_coherence_seal')
+        const hasRhythm  = eventSet.has('quantum_rhythm_lock')
+        const hasBiofield = eventSet.has('biofield_integration_peak')
+
+        if (hasSeal && hasRhythm && hasBiofield) {
+          const sealLog     = recentLogs.find((l: any) => l.event === 'daily_coherence_seal')
+          const rhythmLog   = recentLogs.find((l: any) => l.event === 'quantum_rhythm_lock')
+          const biofieldLog = recentLogs.find((l: any) => l.event === 'biofield_integration_peak')
+          const sealConf    = sealLog?.metadata?.confidence     ?? 0.80
+          const rhythmConf  = rhythmLog?.metadata?.confidence   ?? 0.80
+          const biofieldConf = biofieldLog?.metadata?.confidence ?? 0.80
+          const composite   = Math.round(((sealConf + rhythmConf + biofieldConf) / 3) * 100)
+          await (Log as any).create({
+            userId,
+            event: 'quantum_field_alignment',
+            text: `Quantum field alignment: daily coherence seal + quantum rhythm lock + biofield integration peak all confirmed. Complete operational field live. Composite: ${composite}%.`,
+            metadata: { sealConf, rhythmConf, biofieldConf, composite, window: '24h', hour: 17 },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Quantum field alignment events written: ${written}`)
+    lastDailyQuantumFieldRun = new Date()
+    isDailyQuantumFieldRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily quantum field check failed:', error.message)
+    isDailyQuantumFieldRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -4459,6 +5050,10 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily systemic readiness check: 1 AM UTC every day (Job 30)')
   console.log('   - Daily intent gap pulse: 2 AM UTC every day (Job 31)')
   console.log('   - Daily focus depth check: 4 PM UTC every day (Job 37)')
+  console.log('   - Daily evening reflection check: 10 PM UTC every day (Job 40)')
+  console.log('   - Daily care arc check: 8 PM UTC every day (Job 41)')
+  console.log('   - Daily coherence seal check: 11 PM UTC every day (Job 42)')
+  console.log('   - Daily quantum field check: 5 PM UTC every day (Job 43)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -4468,7 +5063,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum, 21=presence-arc, 22=evening-coherence-close, 23=pattern coverage
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory, 21=presence-arc, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

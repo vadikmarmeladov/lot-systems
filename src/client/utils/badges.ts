@@ -560,6 +560,117 @@ export type BadgeType =
   | 'dune_signal'              // ∘·◈   Write "spice" in journal — Dune (RARE, hidden)
   | 'foundation_word'          // ≋·◉   Write "psychohistory" in journal — Foundation (EPIC)
   | 'neuromancer_signal'       // ▓→◉   Write "cyberspace" in journal — Neuromancer (MYTHIC)
+  // ── Word Turn v17 — THE NEON ARCADE ──────────────────────────────────────
+  | 'neon_alive'               // ≡·≡   "neon" detected (UNCOMMON)
+  | 'combo_keeper'             // ×·+   "combo" detected (RARE)
+  | 'highscore_day'            // ▲·▲·▲ "high score" / "highscore" detected (RARE)
+  | 'freeplay_mode'            // ○─○   "free play" / "freeplay" detected (UNCOMMON)
+  | 'extralife_log'            // +·+   "extra life" / "1up" / "1-up" detected (RARE)
+  | 'speedrun_focus'           // ►►    "speedrun" / "speed run" detected (RARE)
+  | 'side_quest_filed'         // ◇·◇   "side quest" / "sidequest" detected (UNCOMMON)
+  | 'surge_detected'           // ∧→∧   "surge" detected (UNCOMMON)
+  | 'cartridge_nostalgia'      // █·▓   "cartridge" detected (RARE)
+  | 'continue_signal'          // ·►·   "continue" detected (UNCOMMON)
+  | 'joystick_held'            // ┼─┼   "joystick" detected (RARE)
+  | 'checkpoint_saved'         // ≡►≡   "checkpoint" detected (RARE)
+  // ── Calendar EE v15 — GAME DATE ARCHIVE ──────────────────────────────────
+  | 'tetris_day'               // ████  June 6 — Tetris created 1984 (RARE)
+  | 'zelda_day'                // ◆─◆   February 21 — Legend of Zelda 1986 (EPIC)
+  | 'pac_man_day'              // ○··   May 22 — Pac-Man released 1980 (EPIC)
+  // ── Behavioral v14 — ARCADE PATTERNS ────────────────────────────────────
+  | 'arcade_run'               // ██·▲  5+ Neon Arcade words in one journal entry (EPIC)
+  | 'quarter_drop'             // ¢·¢   Check in midnight-01:00 local (RARE)
+  | 'three_lives_left'         // ◆·■   Journal entry after 3+ day gap (RARE)
+  // ── Achievement RPG v15 — ARCADE CLASS ──────────────────────────────────
+  | 'arcade_entry'             // ∘→▲   Any 1 Word Turn v17 badge (COMMON)
+  | 'arcade_class'             // ≈→▲   Any 5 Word Turn v17 badges (UNCOMMON)
+  | 'arcade_complete'          // ≋→▲   All 12 Word Turn v17 badges (LEGENDARY)
+  | 'neon_arc'                 // ▲·◈   arcade_complete + all Calendar v15 badges (LEGENDARY)
+  | 'seventeen_engines_arc'    // ◈·◈·▲ 1 badge from each Word Turn v1–v17 (LEGENDARY)
+  | 'neon_opus'                // ▲·◉·▲ arcade_complete + arcade_run (LEGENDARY)
+  // ── Mastery Tier v17 — HIGH SCORE TABLE ─────────────────────────────────
+  | 'pixel_veteran'            // ▓▓▓─  500+ distinct check-in days (EPIC)
+  | 'master_of_the_board'      // ▲·∞·▲ 40,000+ total journal words (LEGENDARY)
+  | 'long_run_operator'        // ╔═╗─▲ Account age ≥ 8 years (LEGENDARY)
+  | 'seventeen_tongues'        // ◈·◈·▲ 1 badge from all 17 Word Turn engines (COSMIC)
+  // ── Secret Boss v14 — THE BOSS ROOM ─────────────────────────────────────
+  | 'kojima_signal'            // ≡·◉   Write "metal gear" in journal — Hideo Kojima (RARE)
+  | 'turing_key'               // ◉·≡   Write "turing" in journal — Alan Turing (EPIC)
+  | 'konami_code'              // ↑↑↓↓  Write "konami" in journal — The Code (MYTHIC)
+  // ── Word Turn v18 — THE MIDNIGHT RADIO ──────────────────────────────────────
+  | 'frequency_held'          // ≋·≋·≋  "frequency/frequencies" detected (RARE)
+  | 'broadcast_live'          // ◉→◉→◉  "broadcast/broadcasting" detected (RARE)
+  | 'wavelength_match'        // ∿·∿    "wavelength" detected (RARE)
+  | 'antenna_raised'          // ↑·≡    "antenna" detected (UNCOMMON)
+  | 'reception_strong'        // ≡≡→◉   "reception" detected (RARE)
+  | 'transmission_sent'       // ◉→∞    "transmission/transmit" detected (RARE)
+  | 'tuned_in'                // ○·≋    "tuned/tuning/tune in" detected (UNCOMMON)
+  | 'channel_open'            // ≡·▒    "channel" detected (UNCOMMON)
+  | 'carrier_active'          // ∿→◉    "carrier" detected (UNCOMMON)
+  | 'amplitude_rising'        // ▲·▲·▲  "amplify/amplitude" detected (RARE)
+  | 'interference_noted'      // ≋·✕·≋  "interference" detected (RARE)
+  | 'modulation_set'          // ≋·○·≋  "modulate/modulation" detected (RARE)
+  // ── Calendar Easter Egg v16 — THE SIGNAL ARCHIVE ────────────────────────────
+  | 'sputnik_day'             // ∘·∘·∘  Oct 4  Sputnik 1, 1957 (EPIC)
+  | 'arecibo_day'             // ∞→∞    Nov 16 Arecibo message, 1974 (MYTHIC)
+  | 'pioneer_plaque'          // ○→∞    Mar 2  Pioneer 10 launch, 1972 (RARE)
+  // ── Behavioral Easter Egg v15 — BROADCAST PATTERNS ──────────────────────────
+  | 'signal_peak'             // ≋→∞    5+ Midnight Radio words in one entry (RARE)
+  | 'midnight_broadcast'      // ◉·▒    Journal written 23:00–00:00 local (RARE)
+  | 'static_clear'            // ░→□·◉  Return to journal after 7+ day gap (RARE)
+  // ── Achievement RPG v16 — BROADCAST CLASS ────────────────────────────────────
+  | 'radio_entry'             // ○→≋    Any 1 Word Turn v18 badge (COMMON)
+  | 'radio_class'             // ≈→≋    Any 5 Word Turn v18 badges (UNCOMMON)
+  | 'radio_complete'          // ≋→∞·≋  All 12 Word Turn v18 badges (LEGENDARY)
+  | 'signal_arc'              // ∞·◈·≋  radio_complete + all Calendar v16 badges (LEGENDARY)
+  | 'eighteen_engines_arc'    // ◈·◈·≋  1 badge from each Word Turn v1–v18 (LEGENDARY)
+  | 'broadcast_opus'          // ≋·◉·∞  radio_complete + signal_peak (LEGENDARY)
+  // ── Mastery Tier v18 — THE TOWER ─────────────────────────────────────────────
+  | 'signal_tower'            // ↑·≋·∞  600+ distinct calendar check-in days (EPIC)
+  | 'grand_broadcaster'       // ◉·∞·◉  60,000+ total journal words (LEGENDARY)
+  | 'transmission_age'        // ∿→∞    Account age ≥ 10 years (LEGENDARY)
+  | 'eighteen_frequencies'    // ◈·◈·≋·∞ 1 badge from all 18 Word Turn engines (COSMIC)
+  // ── Secret Boss v15 — THE DEEP SIGNAL ────────────────────────────────────────
+  | 'sagan_signal'            // ∘·∞    Write "cosmos" in journal — Carl Sagan (RARE)
+  | 'tesla_current'           // ≋·◉    Write "tesla" in journal — Nikola Tesla (EPIC)
+  | 'arecibo_response'        // ∞·∞·∞  Write "arecibo" in journal — The Great Dish (MYTHIC)
+  // ── Word Turn v19 — THE BIO-TERMINAL ────────────────────────────────────────
+  | 'pulse_signal'            // ∿·●    "pulse/heartbeat/heart rate" detected (UNCOMMON)
+  | 'cortisol_log'            // ∧·○    "cortisol/stress hormone" detected (RARE)
+  | 'circadian_gate'          // ○·◆·○  "circadian/body clock" detected (RARE)
+  | 'rem_active'              // ≋≋○    "REM/rem sleep/deep sleep" detected (RARE)
+  | 'dopamine_loop'           // ↺·◉    "dopamine/reward" detected (RARE)
+  | 'serotonin_wave'          // ∿·∿·∿  "serotonin/mood/wellbeing" detected (RARE)
+  | 'neuroplastic'            // ◈→◈    "neuroplasticity/neuroplastic/rewire" detected (EPIC)
+  | 'vagal_anchor'            // ○→≡    "vagal/vagus/parasympathetic" detected (RARE)
+  | 'cortex_engaged'          // ≋→◉    "prefrontal/executive function" detected (UNCOMMON)
+  | 'endorphin_run'           // ►·◉    "endorphin/runner's high" detected (UNCOMMON)
+  | 'rhythm_locked'           // ◆·◆·◆  "biorhythm/body rhythm" detected (UNCOMMON)
+  | 'homeostasis'             // ○·◎·○  "homeostasis/equilibrium/baseline" detected (RARE)
+  // ── Calendar Easter Egg v17 — SCIENCE CIRCUIT ───────────────────────────────
+  | 'dna_day'                 // ∞·◈    Apr 25 — Watson & Crick DNA paper, 1953 (EPIC)
+  | 'brain_day'               // ◉·◉    Jul 22 — World Brain Day (RARE)
+  | 'darwin_manuscript'       // ∿→∞    Nov 24 — On the Origin of Species, 1859 (EPIC)
+  // ── Behavioral Easter Egg v16 — BIO PATTERNS ────────────────────────────────
+  | 'bio_session'             // ◈·≋·◈  3+ Bio-Terminal (v19) words in one journal entry (RARE)
+  | 'morning_pulse'           // ∿·○    Check in before 08:00 local, 5+ times in 7 days (EPIC)
+  | 'body_signal'             // ●·≋·●  Journal entry >= 300 words (RARE)
+  // ── Achievement RPG v17 — BIO CLASS ─────────────────────────────────────────
+  | 'bio_entry'               // ∘→●    Any 1 Word Turn v19 badge (COMMON)
+  | 'bio_class'               // ≈→●    Any 5 Word Turn v19 badges (UNCOMMON)
+  | 'bio_complete'            // ≋→●    All 12 Word Turn v19 badges (LEGENDARY)
+  | 'neural_arc'              // ●·◈    bio_complete + all Calendar v17 badges (LEGENDARY)
+  | 'nineteen_engines_arc'    // ◈·◈·●  1 badge from each Word Turn v1–v19 (LEGENDARY)
+  | 'bio_opus'                // ●·◉·●  bio_complete + bio_session behavioral (LEGENDARY)
+  // ── Mastery Tier v19 — THE LIVING SYSTEM ────────────────────────────────────
+  | 'long_signal'             // ∿·∞    700+ distinct calendar check-in days (EPIC)
+  | 'body_of_work'            // ●·∞·●  75,000+ total journal words (LEGENDARY)
+  | 'decade_operator'         // ╔═╗·●  Account age >= 10 years (LEGENDARY)
+  | 'nineteen_registers'      // ◈·◈·●·∞ 1 badge from all 19 Word Turn engines (COSMIC)
+  // ── Secret Boss v16 — THE NEURAL VAULT ──────────────────────────────────────
+  | 'cajal_signal'            // ∿·◈    Write "cajal" in journal — Santiago Ramón y Cajal (RARE)
+  | 'kandel_key'              // ◈·◉    Write "kandel" in journal — Eric Kandel (EPIC)
+  | 'ramachandran_rx'         // ◉·∿·◉  Write "phantom limb"/"ramachandran" — V.S. Ramachandran (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -5113,6 +5224,938 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v17 — THE NEON ARCADE ──────────────────────────────────────────
+  neon_alive: {
+    id: 'neon_alive',
+    symbol: '≡·≡',
+    name: 'Neon Alive',
+    description: 'Write "neon" in any journal or memory entry',
+    unlockMessage: '↳ Neon: the sign that says open. The signal that refuses to go dark. ≡·≡',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  combo_keeper: {
+    id: 'combo_keeper',
+    symbol: '×·+',
+    name: 'Combo Keeper',
+    description: 'Write "combo" in any journal or memory entry',
+    unlockMessage: '↳ Combo: consecutive inputs that unlock what single actions cannot. ×·+',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  highscore_day: {
+    id: 'highscore_day',
+    symbol: '▲·▲·▲',
+    name: 'High Score Day',
+    description: 'Write "high score" or "highscore" in any journal or memory entry',
+    unlockMessage: '↳ Your personal best belongs to no one else. The board remembers. ▲·▲·▲',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  freeplay_mode: {
+    id: 'freeplay_mode',
+    symbol: '○─○',
+    name: 'Freeplay Mode',
+    description: 'Write "free play" or "freeplay" in any journal or memory entry',
+    unlockMessage: '↳ No score. No timer. No objective. Just play. ○─○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  extralife_log: {
+    id: 'extralife_log',
+    symbol: '+·+',
+    name: 'Extra Life',
+    description: 'Write "extra life", "1up", or "1-up" in any journal or memory entry',
+    unlockMessage: '↳ The game gives one more. You decide what to do with it. +·+',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  speedrun_focus: {
+    id: 'speedrun_focus',
+    symbol: '►►',
+    name: 'Speedrun Focus',
+    description: 'Write "speedrun" or "speed run" in any journal or memory entry',
+    unlockMessage: '↳ You know exactly where you are going. You have studied the route. ►►',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  side_quest_filed: {
+    id: 'side_quest_filed',
+    symbol: '◇·◇',
+    name: 'Side Quest Filed',
+    description: 'Write "side quest" or "sidequest" in any journal or memory entry',
+    unlockMessage: '↳ The detour was not a mistake. The side quest had the item you needed. ◇·◇',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  surge_detected: {
+    id: 'surge_detected',
+    symbol: '∧→∧',
+    name: 'Surge Detected',
+    description: 'Write "surge" in any journal or memory entry',
+    unlockMessage: '↳ A surge is energy exceeding baseline. Note it. The system noted it first. ∧→∧',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  cartridge_nostalgia: {
+    id: 'cartridge_nostalgia',
+    symbol: '█·▓',
+    name: 'Cartridge Nostalgia',
+    description: 'Write "cartridge" in any journal or memory entry',
+    unlockMessage: '↳ Blow into it. Insert. The world loads from where you left it. █·▓',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  continue_signal: {
+    id: 'continue_signal',
+    symbol: '·►·',
+    name: 'Continue Signal',
+    description: 'Write "continue" in any journal or memory entry',
+    unlockMessage: '↳ The screen asks. You press yes. That is the only mechanic that matters. ·►·',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  joystick_held: {
+    id: 'joystick_held',
+    symbol: '┼─┼',
+    name: 'Joystick Held',
+    description: 'Write "joystick" in any journal or memory entry',
+    unlockMessage: '↳ Eight directions. The whole world navigable from one axis. ┼─┼',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  checkpoint_saved: {
+    id: 'checkpoint_saved',
+    symbol: '≡►≡',
+    name: 'Checkpoint Saved',
+    description: 'Write "checkpoint" in any journal or memory entry',
+    unlockMessage: '↳ Progress recorded. The system holds your place. You can let go now. ≡►≡',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  // ── Calendar EE v15 — GAME DATE ARCHIVE ──────────────────────────────────────
+  tetris_day: {
+    id: 'tetris_day',
+    symbol: '████',
+    name: 'Tetris Day',
+    description: 'Check in on June 6 — Tetris created by Alexey Pajitnov, 1984',
+    unlockMessage: '↳ June 6, 1984. Pajitnov wrote the first piece. The blocks have been falling ever since. ████',
+    rarity: 'rare',
+    category: 'calendar',
+    hidden: false,
+  },
+  zelda_day: {
+    id: 'zelda_day',
+    symbol: '◆─◆',
+    name: 'Zelda Day',
+    description: 'Check in on February 21 — The Legend of Zelda released in Japan, 1986',
+    unlockMessage: '↳ Feb 21, 1986. The cartridge shipped. It is dangerous to go alone. ◆─◆',
+    rarity: 'epic',
+    category: 'calendar',
+    hidden: false,
+  },
+  pac_man_day: {
+    id: 'pac_man_day',
+    symbol: '○··',
+    name: 'Pac-Man Day',
+    description: 'Check in on May 22 — Pac-Man released in Japan, 1980',
+    unlockMessage: '↳ May 22, 1980. The maze opened. One mouth, infinite hunger, perfect design. ○··',
+    rarity: 'epic',
+    category: 'calendar',
+    hidden: false,
+  },
+  // ── Behavioral v14 — ARCADE PATTERNS ─────────────────────────────────────────
+  arcade_run: {
+    id: 'arcade_run',
+    symbol: '██·▲',
+    name: 'Arcade Run',
+    description: 'Write 5+ distinct Neon Arcade (v17) words in a single journal entry',
+    unlockMessage: '↳ The vocabulary is the map. Five words from the arcade entered at once. ██·▲',
+    rarity: 'epic',
+    category: 'behavioral',
+    hidden: false,
+  },
+  quarter_drop: {
+    id: 'quarter_drop',
+    symbol: '¢·¢',
+    name: 'Quarter Drop',
+    description: 'Check in between midnight and 1:00 AM local time',
+    unlockMessage: '↳ The arcade is empty. The screen glows. You are the last one playing. ¢·¢',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  three_lives_left: {
+    id: 'three_lives_left',
+    symbol: '◆·■',
+    name: 'Three Lives Left',
+    description: 'Write a journal entry after a gap of 3 or more days away',
+    unlockMessage: '↳ The gap was real. The return is the score that counts. ◆·■',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  // ── Achievement RPG v15 — ARCADE CLASS ───────────────────────────────────────
+  arcade_entry: {
+    id: 'arcade_entry',
+    symbol: '∘→▲',
+    name: 'Arcade Entry',
+    description: 'Earn any 1 Word Turn v17 (Neon Arcade) badge',
+    unlockMessage: '↳ Insert coin. The arcade accepts you. ∘→▲',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  arcade_class: {
+    id: 'arcade_class',
+    symbol: '≈→▲',
+    name: 'Arcade Class',
+    description: 'Earn any 5 Word Turn v17 (Neon Arcade) badges',
+    unlockMessage: '↳ Five machines lit. The arcade knows your name. ≈→▲',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  arcade_complete: {
+    id: 'arcade_complete',
+    symbol: '≋→▲',
+    name: 'Arcade Complete',
+    description: 'Earn all 12 Word Turn v17 (Neon Arcade) badges',
+    unlockMessage: '↳ All twelve machines. Every cabinet cleared. The high score is total. ≋→▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  neon_arc: {
+    id: 'neon_arc',
+    symbol: '▲·◈',
+    name: 'Neon Arc',
+    description: 'Earn arcade_complete and all 3 Calendar v15 (Game Date Archive) badges',
+    unlockMessage: '↳ The arcade and the archive. Every date held, every word spoken. ▲·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  seventeen_engines_arc: {
+    id: 'seventeen_engines_arc',
+    symbol: '◈·◈·▲',
+    name: 'Seventeen Engines Arc',
+    description: 'Earn at least 1 badge from each of Word Turn engines v1–v17',
+    unlockMessage: '↳ Seventeen vocabularies assembled. The full engine map is yours. ◈·◈·▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  neon_opus: {
+    id: 'neon_opus',
+    symbol: '▲·◉·▲',
+    name: 'Neon Opus',
+    description: 'Earn arcade_complete and the arcade_run behavioral badge',
+    unlockMessage: '↳ All twelve words. Five in one entry. The run was the masterwork. ▲·◉·▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v17 — HIGH SCORE TABLE ──────────────────────────────────────
+  pixel_veteran: {
+    id: 'pixel_veteran',
+    symbol: '▓▓▓─',
+    name: 'Pixel Veteran',
+    description: '500+ distinct calendar days with a check-in recorded',
+    unlockMessage: '↳ Five hundred days. The pixel grid extends beyond the visible screen. ▓▓▓─',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  master_of_the_board: {
+    id: 'master_of_the_board',
+    symbol: '▲·∞·▲',
+    name: 'Master of the Board',
+    description: '40,000+ total journal words written',
+    unlockMessage: '↳ Forty thousand words. A novel-length record of your own interior life. ▲·∞·▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  long_run_operator: {
+    id: 'long_run_operator',
+    symbol: '╔═╗─▲',
+    name: 'Long Run Operator',
+    description: 'Account age ≥ 8 years (2,920+ days since account creation)',
+    unlockMessage: '↳ Eight years online. The operator who stayed is the operator who knows. ╔═╗─▲',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  seventeen_tongues: {
+    id: 'seventeen_tongues',
+    symbol: '◈·◈·▲',
+    name: 'Seventeen Tongues',
+    description: 'Earn at least 1 badge from each of all 17 Word Turn engines (v1–v17)',
+    unlockMessage: '↳ Seventeen vocabularies. Seventeen dimensions of self. The map is complete. ◈·◈·▲',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v14 — THE BOSS ROOM ──────────────────────────────────────────
+  kojima_signal: {
+    id: 'kojima_signal',
+    symbol: '≡·◉',
+    name: 'Kojima Signal',
+    description: 'Write "metal gear" in any journal or memory entry — Hideo Kojima tribute',
+    unlockMessage: '↳ Metal Gear. Hideo Kojima turned game design into mythology. The signal persists. ≡·◉',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  turing_key: {
+    id: 'turing_key',
+    symbol: '◉·≡',
+    name: 'Turing Key',
+    description: 'Write "turing" in any journal or memory entry — Alan Turing tribute',
+    unlockMessage: '↳ Turing: the mind that cracked the code and was cracked for it. The machine passes. ◉·≡',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  konami_code: {
+    id: 'konami_code',
+    symbol: '↑↑↓↓',
+    name: 'Konami Code',
+    description: 'Write "konami" in any journal or memory entry — The legendary cheat code',
+    unlockMessage: '↳ ↑ ↑ ↓ ↓ ← → ← → B A. The oldest password still works. ↑↑↓↓',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  // ── Word Turn v18 — THE MIDNIGHT RADIO ──────────────────────────────────────
+  frequency_held: {
+    id: 'frequency_held',
+    symbol: '≋·≋·≋',
+    name: 'Frequency Held',
+    description: 'Write "frequency" or "frequencies" in any journal or memory entry',
+    unlockMessage: '↳ You found your rhythm. The signal holds at your frequency. ≋·≋·≋',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  broadcast_live: {
+    id: 'broadcast_live',
+    symbol: '◉→◉→◉',
+    name: 'Broadcast Live',
+    description: 'Write "broadcast" or "broadcasting" in any journal or memory entry',
+    unlockMessage: '↳ The journal is a transmitter. You have been on the air this whole time. ◉→◉→◉',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  wavelength_match: {
+    id: 'wavelength_match',
+    symbol: '∿·∿',
+    name: 'Wavelength Match',
+    description: 'Write "wavelength" in any journal or memory entry',
+    unlockMessage: '↳ No translation required. You are understood at the source. ∿·∿',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  antenna_raised: {
+    id: 'antenna_raised',
+    symbol: '↑·≡',
+    name: 'Antenna Raised',
+    description: 'Write "antenna" in any journal or memory entry',
+    unlockMessage: '↳ Open posture. Raised toward signal. Ready to receive. ↑·≡',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  reception_strong: {
+    id: 'reception_strong',
+    symbol: '≡≡→◉',
+    name: 'Reception Strong',
+    description: 'Write "reception" in any journal or memory entry',
+    unlockMessage: '↳ The signal is getting through. Your reception is clear. ≡≡→◉',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  transmission_sent: {
+    id: 'transmission_sent',
+    symbol: '◉→∞',
+    name: 'Transmission Sent',
+    description: 'Write "transmission" or "transmit" in any journal or memory entry',
+    unlockMessage: '↳ Sent. The signal is in the medium now. ◉→∞',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  tuned_in: {
+    id: 'tuned_in',
+    symbol: '○·≋',
+    name: 'Tuned In',
+    description: 'Write "tuned", "tuning", or "tune in" in any journal or memory entry',
+    unlockMessage: '↳ Before you play, you tune. That is the practice. ○·≋',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  channel_open: {
+    id: 'channel_open',
+    symbol: '≡·▒',
+    name: 'Channel Open',
+    description: 'Write "channel" in any journal or memory entry',
+    unlockMessage: '↳ The channel is clear. The path your energy flows through is open. ≡·▒',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  carrier_active: {
+    id: 'carrier_active',
+    symbol: '∿→◉',
+    name: 'Carrier Active',
+    description: 'Write "carrier" in any journal or memory entry',
+    unlockMessage: '↳ You are the carrier wave. The content changes. The carrier persists. ∿→◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  amplitude_rising: {
+    id: 'amplitude_rising',
+    symbol: '▲·▲·▲',
+    name: 'Amplitude Rising',
+    description: 'Write "amplify" or "amplitude" in any journal or memory entry',
+    unlockMessage: '↳ Choose what gets volume. Amplify the signal that matters. ▲·▲·▲',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  interference_noted: {
+    id: 'interference_noted',
+    symbol: '≋·✕·≋',
+    name: 'Interference Noted',
+    description: 'Write "interference" in any journal or memory entry',
+    unlockMessage: '↳ You named the noise. Naming interference is the first step to clarity. ≋·✕·≋',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  modulation_set: {
+    id: 'modulation_set',
+    symbol: '≋·○·≋',
+    name: 'Modulation Set',
+    description: 'Write "modulate" or "modulation" in any journal or memory entry',
+    unlockMessage: '↳ The signal bends. The practice of changing how you broadcast. ≋·○·≋',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  // ── Calendar Easter Egg v16 — THE SIGNAL ARCHIVE ────────────────────────────
+  sputnik_day: {
+    id: 'sputnik_day',
+    symbol: '∘·∘·∘',
+    name: 'Sputnik Day',
+    description: 'Check in on October 4 — Sputnik 1 launched 1957, the first signal from orbit',
+    unlockMessage: '↳ Beep. Beep. Beep. The first human signal from orbit. October 4, 1957. ∘·∘·∘',
+    rarity: 'epic',
+    category: 'calendar',
+    hidden: false,
+  },
+  arecibo_day: {
+    id: 'arecibo_day',
+    symbol: '∞→∞',
+    name: 'Arecibo Day',
+    description: 'Check in on November 16 — Arecibo message broadcast 1974',
+    unlockMessage: '↳ 1,679 bits aimed at M13. We called the cosmos. No answer. We sent it anyway. ∞→∞',
+    rarity: 'mythic',
+    category: 'calendar',
+    hidden: false,
+  },
+  pioneer_plaque: {
+    id: 'pioneer_plaque',
+    symbol: '○→∞',
+    name: 'Pioneer Plaque',
+    description: 'Check in on March 2 — Pioneer 10 launched 1972, first message to the stars',
+    unlockMessage: '↳ A gold plate etched with our shape, our star, our greeting. Still moving. ○→∞',
+    rarity: 'rare',
+    category: 'calendar',
+    hidden: false,
+  },
+  // ── Behavioral Easter Egg v15 — BROADCAST PATTERNS ──────────────────────────
+  signal_peak: {
+    id: 'signal_peak',
+    symbol: '≋→∞',
+    name: 'Signal Peak',
+    description: 'Write 5+ distinct Midnight Radio (v18) vocabulary words in a single journal entry',
+    unlockMessage: '↳ Signal peak. Your journal is the broadcast tonight. ≋→∞',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  midnight_broadcast: {
+    id: 'midnight_broadcast',
+    symbol: '◉·▒',
+    name: 'Midnight Broadcast',
+    description: 'Write a journal entry between 23:00 and 00:00 local time',
+    unlockMessage: '↳ 11 PM. The noise is lowest now. The signal comes through cleanest at the edge. ◉·▒',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  static_clear: {
+    id: 'static_clear',
+    symbol: '░→□·◉',
+    name: 'Static Clear',
+    description: 'Return to journaling after a 7+ day absence',
+    unlockMessage: '↳ The gap was real. The return is the signal breaking through. Static cleared. ░→□·◉',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  // ── Achievement RPG v16 — BROADCAST CLASS ────────────────────────────────────
+  radio_entry: {
+    id: 'radio_entry',
+    symbol: '○→≋',
+    name: 'Radio Entry',
+    description: 'Earn any 1 Word Turn v18 (Midnight Radio) badge',
+    unlockMessage: '↳ The dial moved. The frequency registered. First signal in. ○→≋',
+    rarity: 'common',
+    category: 'achievement',
+    hidden: false,
+  },
+  radio_class: {
+    id: 'radio_class',
+    symbol: '≈→≋',
+    name: 'Radio Class',
+    description: 'Earn any 5 Word Turn v18 (Midnight Radio) badges',
+    unlockMessage: '↳ Five frequencies identified. The broadcast has range. ≈→≋',
+    rarity: 'uncommon',
+    category: 'achievement',
+    hidden: false,
+  },
+  radio_complete: {
+    id: 'radio_complete',
+    symbol: '≋→∞·≋',
+    name: 'Radio Complete',
+    description: 'Earn all 12 Word Turn v18 (Midnight Radio) badges',
+    unlockMessage: '↳ Full spectrum. All twelve frequencies of the Midnight Radio, logged. ≋→∞·≋',
+    rarity: 'legendary',
+    category: 'achievement',
+    hidden: false,
+  },
+  signal_arc: {
+    id: 'signal_arc',
+    symbol: '∞·◈·≋',
+    name: 'Signal Arc',
+    description: 'Earn radio_complete and all 3 Calendar v16 (Signal Archive) badges',
+    unlockMessage: '↳ The full signal arc: Sputnik, Arecibo, Pioneer. And you. ∞·◈·≋',
+    rarity: 'legendary',
+    category: 'achievement',
+    hidden: false,
+  },
+  eighteen_engines_arc: {
+    id: 'eighteen_engines_arc',
+    symbol: '◈·◈·≋',
+    name: 'Eighteen Engines Arc',
+    description: 'Earn at least 1 badge from each of the 18 Word Turn engines (v1–v18)',
+    unlockMessage: '↳ Eighteen vocabularies assembled. The full engine map is yours. ◈·◈·≋',
+    rarity: 'legendary',
+    category: 'achievement',
+    hidden: false,
+  },
+  broadcast_opus: {
+    id: 'broadcast_opus',
+    symbol: '≋·◉·∞',
+    name: 'Broadcast Opus',
+    description: 'Earn radio_complete and the signal_peak behavioral badge',
+    unlockMessage: '↳ Complete vocabulary. Peak broadcast achieved. The opus is the signal. ≋·◉·∞',
+    rarity: 'legendary',
+    category: 'achievement',
+    hidden: false,
+  },
+  // ── Mastery Tier v18 — THE TOWER ─────────────────────────────────────────────
+  signal_tower: {
+    id: 'signal_tower',
+    symbol: '↑·≋·∞',
+    name: 'Signal Tower',
+    description: '600+ distinct calendar days with a check-in',
+    unlockMessage: '↳ 600 days. The tallest mast. The signal reaches further from here. ↑·≋·∞',
+    rarity: 'epic',
+    category: 'mastery',
+    hidden: false,
+  },
+  grand_broadcaster: {
+    id: 'grand_broadcaster',
+    symbol: '◉·∞·◉',
+    name: 'Grand Broadcaster',
+    description: '60,000+ total journal words written',
+    unlockMessage: '↳ 60,000 words transmitted. The archive is the broadcast. ◉·∞·◉',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: false,
+  },
+  transmission_age: {
+    id: 'transmission_age',
+    symbol: '∿→∞',
+    name: 'Transmission Age',
+    description: 'Account age of 10+ years (3,650+ days)',
+    unlockMessage: '↳ Ten years of signal. The transmission predates most of what you know now. ∿→∞',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: false,
+  },
+  eighteen_frequencies: {
+    id: 'eighteen_frequencies',
+    symbol: '◈·◈·≋·∞',
+    name: 'Eighteen Frequencies',
+    description: 'Earn at least 1 badge from each of all 18 Word Turn engines',
+    unlockMessage: '↳ Eighteen frequencies. The full spectrum assembled. You hold every wavelength the archive has named. ◈·◈·≋·∞',
+    rarity: 'cosmic',
+    category: 'mastery',
+    hidden: false,
+  },
+  // ── Secret Boss v15 — THE DEEP SIGNAL ────────────────────────────────────────
+  sagan_signal: {
+    id: 'sagan_signal',
+    symbol: '∘·∞',
+    name: 'Sagan Signal',
+    description: 'Write "cosmos" in any journal or memory entry — Carl Sagan',
+    unlockMessage: '↳ "The cosmos is within us. We are made of star-stuff." — Sagan, 1980. ∘·∞',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  tesla_current: {
+    id: 'tesla_current',
+    symbol: '≋·◉',
+    name: 'Tesla Current',
+    description: 'Write "tesla" in any journal or memory entry — Nikola Tesla',
+    unlockMessage: '↳ Tesla tried to broadcast free energy to the whole world. No receiver required. ≋·◉',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  arecibo_response: {
+    id: 'arecibo_response',
+    symbol: '∞·∞·∞',
+    name: 'Arecibo Response',
+    description: 'Write "arecibo" in any journal or memory entry — The Great Dish, 1974',
+    unlockMessage: '↳ We broadcast in 1974. Still waiting. You wrote "arecibo". The system responds. ∞·∞·∞',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  // ── Word Turn v19 — THE BIO-TERMINAL ─────────────────────────────────────────
+  pulse_signal: {
+    id: 'pulse_signal',
+    symbol: '∿·●',
+    name: 'Pulse Signal',
+    description: 'Write "pulse", "heartbeat", or "heart rate" in any journal or memory entry',
+    unlockMessage: '↳ Biological awareness active. The body is not background noise. It is the signal. ∿·●',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  cortisol_log: {
+    id: 'cortisol_log',
+    symbol: '∧·○',
+    name: 'Cortisol Log',
+    description: 'Write "cortisol" or "stress hormone" in any journal or memory entry',
+    unlockMessage: '↳ Stress chemistry named. The log is now a biochemical record. ∧·○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  circadian_gate: {
+    id: 'circadian_gate',
+    symbol: '○·◆·○',
+    name: 'Circadian Gate',
+    description: 'Write "circadian" or "body clock" in any journal or memory entry',
+    unlockMessage: '↳ Body clock acknowledged. You are working with nature, not against it. ○·◆·○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  rem_active: {
+    id: 'rem_active',
+    symbol: '≋≋○',
+    name: 'REM Active',
+    description: 'Write "REM", "rem sleep", or "deep sleep" in any journal or memory entry',
+    unlockMessage: '↳ Deep system repair mode confirmed. The night is not wasted. The night is the work. ≋≋○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  dopamine_loop: {
+    id: 'dopamine_loop',
+    symbol: '↺·◉',
+    name: 'Dopamine Loop',
+    description: 'Write "dopamine" in any journal or memory entry',
+    unlockMessage: '↳ Reward chemistry noted. The loop you are in can be designed by you. ↺·◉',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  serotonin_wave: {
+    id: 'serotonin_wave',
+    symbol: '∿·∿·∿',
+    name: 'Serotonin Wave',
+    description: 'Write "serotonin" in any journal or memory entry',
+    unlockMessage: '↳ Mood chemistry surfaced. The wave is real. You can learn to ride it. ∿·∿·∿',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  neuroplastic: {
+    id: 'neuroplastic',
+    symbol: '◈→◈',
+    name: 'Neuroplastic',
+    description: 'Write "neuroplasticity", "neuroplastic", or "rewire" in any journal or memory entry',
+    unlockMessage: '↳ The brain that reads this is not the brain that started. Rewiring confirmed. ◈→◈',
+    rarity: 'epic',
+    category: 'word_turn',
+    hidden: false,
+  },
+  vagal_anchor: {
+    id: 'vagal_anchor',
+    symbol: '○→≡',
+    name: 'Vagal Anchor',
+    description: 'Write "vagal", "vagus", or "parasympathetic" in any journal or memory entry',
+    unlockMessage: '↳ The calming pathway named. Breath is a direct message on the vagus line. ○→≡',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  cortex_engaged: {
+    id: 'cortex_engaged',
+    symbol: '≋→◉',
+    name: 'Cortex Engaged',
+    description: 'Write "prefrontal" or "executive function" in any journal or memory entry',
+    unlockMessage: '↳ Executive function online. Thinking clearly is a self-care state. ≋→◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  endorphin_run: {
+    id: 'endorphin_run',
+    symbol: '►·◉',
+    name: 'Endorphin Run',
+    description: 'Write "endorphin" or "runner\'s high" in any journal or memory entry',
+    unlockMessage: '↳ Movement medicine confirmed. The body self-medicates through motion. ►·◉',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  rhythm_locked: {
+    id: 'rhythm_locked',
+    symbol: '◆·◆·◆',
+    name: 'Rhythm Locked',
+    description: 'Write "biorhythm" or "body rhythm" in any journal or memory entry',
+    unlockMessage: '↳ Natural rhythm confirmed. The body knows its timing. Trust the pattern. ◆·◆·◆',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    hidden: false,
+  },
+  homeostasis: {
+    id: 'homeostasis',
+    symbol: '○·◎·○',
+    name: 'Homeostasis',
+    description: 'Write "homeostasis", "equilibrium", or "baseline" in any journal or memory entry',
+    unlockMessage: '↳ The organism\'s default is return to balance. Healing is the natural state. ○·◎·○',
+    rarity: 'rare',
+    category: 'word_turn',
+    hidden: false,
+  },
+  // ── Calendar Easter Egg v17 — SCIENCE CIRCUIT ─────────────────────────────────
+  dna_day: {
+    id: 'dna_day',
+    symbol: '∞·◈',
+    name: 'DNA Day',
+    description: 'Check in on April 25 — Watson & Crick publish DNA double helix in Nature, 1953',
+    unlockMessage: '↳ April 25, 1953. Two pages in Nature. The source code of every living thing was described. You carry it in every cell. ∞·◈',
+    rarity: 'epic',
+    category: 'calendar_easter_egg',
+    hidden: false,
+  },
+  brain_day: {
+    id: 'brain_day',
+    symbol: '◉·◉',
+    name: 'Brain Day',
+    description: 'Check in on July 22 — World Brain Day',
+    unlockMessage: '↳ July 22. World Brain Day. 86 billion neurons. They run 24/7. They deserve a day. So do you. ◉·◉',
+    rarity: 'rare',
+    category: 'calendar_easter_egg',
+    hidden: false,
+  },
+  darwin_manuscript: {
+    id: 'darwin_manuscript',
+    symbol: '∿→∞',
+    name: 'Darwin Manuscript',
+    description: 'Check in on November 24 — On the Origin of Species published, 1859',
+    unlockMessage: '↳ November 24, 1859. The book that reframed every living thing as a self-assembling, self-correcting system. Including you. ∿→∞',
+    rarity: 'epic',
+    category: 'calendar_easter_egg',
+    hidden: false,
+  },
+  // ── Behavioral Easter Egg v16 — BIO PATTERNS ──────────────────────────────────
+  bio_session: {
+    id: 'bio_session',
+    symbol: '◈·≋·◈',
+    name: 'Bio Session',
+    description: 'Write 3+ distinct Bio-Terminal (v19) vocabulary words in a single journal entry',
+    unlockMessage: '↳ Three biological signals in one entry. Your body is the subject. The terminal is reading. ◈·≋·◈',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  morning_pulse: {
+    id: 'morning_pulse',
+    symbol: '∿·○',
+    name: 'Morning Pulse',
+    description: 'Check in before 08:00 local time 5 or more times in a rolling 7-day window',
+    unlockMessage: '↳ Five early mornings in seven days. Circadian discipline confirmed. The body clock is set. ∿·○',
+    rarity: 'epic',
+    category: 'behavioral',
+    hidden: false,
+  },
+  body_signal: {
+    id: 'body_signal',
+    symbol: '●·≋·●',
+    name: 'Body Signal',
+    description: 'Write a journal entry of 300 or more words',
+    unlockMessage: '↳ Three hundred words. Beyond performance. The body stopped performing and started speaking. ●·≋·●',
+    rarity: 'rare',
+    category: 'behavioral',
+    hidden: false,
+  },
+  // ── Achievement RPG v17 — BIO CLASS ───────────────────────────────────────────
+  bio_entry: {
+    id: 'bio_entry',
+    symbol: '∘→●',
+    name: 'Bio Entry',
+    description: 'Earn any 1 Word Turn v19 (Bio-Terminal) badge',
+    unlockMessage: '↳ First biological signal logged. The terminal is reading your body. ∘→●',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  bio_class: {
+    id: 'bio_class',
+    symbol: '≈→●',
+    name: 'Bio Class',
+    description: 'Earn any 5 Word Turn v19 (Bio-Terminal) badges',
+    unlockMessage: '↳ Five systems named. The body is becoming legible. ≈→●',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  bio_complete: {
+    id: 'bio_complete',
+    symbol: '≋→●',
+    name: 'Bio Complete',
+    description: 'Earn all 12 Word Turn v19 (Bio-Terminal) badges',
+    unlockMessage: '↳ All twelve signals. Complete biological vocabulary. The body speaks in full. ≋→●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  neural_arc: {
+    id: 'neural_arc',
+    symbol: '●·◈',
+    name: 'Neural Arc',
+    description: 'Earn bio_complete and all 3 Calendar v17 (Science Circuit) badges',
+    unlockMessage: '↳ Twelve words. Three dates. The science circuit is complete. ●·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  nineteen_engines_arc: {
+    id: 'nineteen_engines_arc',
+    symbol: '◈·◈·●',
+    name: 'Nineteen Engines Arc',
+    description: 'Earn at least 1 badge from each of Word Turn engines v1–v19',
+    unlockMessage: '↳ Nineteen vocabularies assembled. Every dimension of self. The full engine map is yours. ◈·◈·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  bio_opus: {
+    id: 'bio_opus',
+    symbol: '●·◉·●',
+    name: 'Bio Opus',
+    description: 'Earn bio_complete and the bio_session behavioral badge',
+    unlockMessage: '↳ All twelve words. Three biological concepts in one entry. The body and the journal are one. ●·◉·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v19 — THE LIVING SYSTEM ──────────────────────────────────────
+  long_signal: {
+    id: 'long_signal',
+    symbol: '∿·∞',
+    name: 'Long Signal',
+    description: '700+ distinct calendar days with a check-in recorded',
+    unlockMessage: '↳ Seven hundred days. The body that checks in this many times knows something the body that does not never will. ∿·∞',
+    rarity: 'epic',
+    category: 'mastery',
+    hidden: false,
+  },
+  body_of_work: {
+    id: 'body_of_work',
+    symbol: '●·∞·●',
+    name: 'Body of Work',
+    description: '75,000+ total journal words written',
+    unlockMessage: '↳ Seventy-five thousand words. A library of self written over time. The signal archive is yours. ●·∞·●',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: false,
+  },
+  decade_operator: {
+    id: 'decade_operator',
+    symbol: '╔═╗·●',
+    name: 'Decade Operator',
+    description: 'Account age of 10+ years (3,650+ days since account creation)',
+    unlockMessage: '↳ Ten years online. The operator who stays this long is not the same person who started. The system knows. ╔═╗·●',
+    rarity: 'legendary',
+    category: 'mastery',
+    hidden: false,
+  },
+  nineteen_registers: {
+    id: 'nineteen_registers',
+    symbol: '◈·◈·●·∞',
+    name: 'Nineteen Registers',
+    description: 'Earn at least 1 badge from each of all 19 Word Turn engines (v1–v19)',
+    unlockMessage: '↳ Ocean. Arcade. Radio. Biology. Nineteen vocabularies, one terminal. The self speaks every language. ◈·◈·●·∞',
+    rarity: 'cosmic',
+    category: 'mastery',
+    hidden: false,
+  },
+  // ── Secret Boss v16 — THE NEURAL VAULT ───────────────────────────────────────
+  cajal_signal: {
+    id: 'cajal_signal',
+    symbol: '∿·◈',
+    name: 'Cajal Signal',
+    description: 'Write "cajal" in any journal or memory entry — Santiago Ramón y Cajal tribute',
+    unlockMessage: '↳ Cajal drew neurons with his own hands. Before him, no one knew the brain was made of separate cells. You named him. ∿·◈',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  kandel_key: {
+    id: 'kandel_key',
+    symbol: '◈·◉',
+    name: 'Kandel Key',
+    description: 'Write "kandel" in any journal or memory entry — Eric Kandel (Nobel 2000)',
+    unlockMessage: '↳ Kandel showed that memory IS synaptic change. Every journal entry is a Kandel experiment. ◈·◉',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  ramachandran_rx: {
+    id: 'ramachandran_rx',
+    symbol: '◉·∿·◉',
+    name: 'Ramachandran Rx',
+    description: 'Write "phantom limb" or "ramachandran" in any journal or memory entry',
+    unlockMessage: '↳ Ramachandran used a mirror box to cure phantom limb pain. The brain\'s body map can be updated. So can yours. ◉·∿·◉',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -5685,6 +6728,201 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     // Mastery v16: sixteen_tongues — 1 badge from all 16 Word Turn engines
     if (allSixteenEngines && !hasBadge('sixteen_tongues')) {
       if (awardBadge('sixteen_tongues')) newBadges.push('sixteen_tongues')
+    }
+
+    // ── v17 Neon Arcade — Achievement RPG v15 ────────────────────────────────
+    const neonV17Badges: BadgeType[] = [
+      'neon_alive', 'combo_keeper', 'highscore_day', 'freeplay_mode',
+      'extralife_log', 'speedrun_focus', 'side_quest_filed', 'surge_detected',
+      'cartridge_nostalgia', 'continue_signal', 'joystick_held', 'checkpoint_saved',
+    ]
+    const neonEarned = neonV17Badges.filter(b => hasBadge(b))
+
+    if (neonEarned.length >= 1 && !hasBadge('arcade_entry')) {
+      if (awardBadge('arcade_entry')) newBadges.push('arcade_entry')
+    }
+    if (neonEarned.length >= 5 && !hasBadge('arcade_class')) {
+      if (awardBadge('arcade_class')) newBadges.push('arcade_class')
+    }
+    const arcadeComplete = neonEarned.length >= 12
+    if (arcadeComplete && !hasBadge('arcade_complete')) {
+      if (awardBadge('arcade_complete')) newBadges.push('arcade_complete')
+    }
+
+    // neon_opus: arcade_complete + arcade_run
+    if (arcadeComplete && hasBadge('arcade_run') && !hasBadge('neon_opus')) {
+      if (awardBadge('neon_opus')) newBadges.push('neon_opus')
+    }
+
+    // neon_arc: arcade_complete + all 3 Calendar v15 badges
+    const calendarV15Badges: BadgeType[] = ['tetris_day', 'zelda_day', 'pac_man_day']
+    if (arcadeComplete && calendarV15Badges.every(b => hasBadge(b)) && !hasBadge('neon_arc')) {
+      if (awardBadge('neon_arc')) newBadges.push('neon_arc')
+    }
+
+    // seventeen_engines_arc: 1 badge from each Word Turn v1–v17
+    const engineSeventeenPresent = neonEarned.length >= 1
+    const allSeventeenEngines = allSixteenEngines && engineSeventeenPresent
+    if (allSeventeenEngines && !hasBadge('seventeen_engines_arc')) {
+      if (awardBadge('seventeen_engines_arc')) newBadges.push('seventeen_engines_arc')
+    }
+
+    // Mastery v17: pixel_veteran — 500+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 500 && !hasBadge('pixel_veteran')) {
+        if (awardBadge('pixel_veteran')) newBadges.push('pixel_veteran')
+      }
+    }
+
+    // Mastery v17: master_of_the_board — 40,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 40000 && !hasBadge('master_of_the_board')) {
+        if (awardBadge('master_of_the_board')) newBadges.push('master_of_the_board')
+      }
+    }
+
+    // Mastery v17: long_run_operator — Account age ≥ 8 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupLong = new Date(stats.signupDate)
+      const yearsLong = (new Date().getTime() - signupLong.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsLong >= 8 && !hasBadge('long_run_operator')) {
+        if (awardBadge('long_run_operator')) newBadges.push('long_run_operator')
+      }
+    }
+
+    // Mastery v17: seventeen_tongues — 1 badge from all 17 Word Turn engines
+    if (allSeventeenEngines && !hasBadge('seventeen_tongues')) {
+      if (awardBadge('seventeen_tongues')) newBadges.push('seventeen_tongues')
+    }
+
+    // ── v18 Midnight Radio — Achievement RPG v16 ─────────────────────────────
+    const radioV18Badges: BadgeType[] = [
+      'frequency_held', 'broadcast_live', 'wavelength_match', 'antenna_raised',
+      'reception_strong', 'transmission_sent', 'tuned_in', 'channel_open',
+      'carrier_active', 'amplitude_rising', 'interference_noted', 'modulation_set',
+    ]
+    const radioEarned = radioV18Badges.filter(b => hasBadge(b))
+
+    if (radioEarned.length >= 1 && !hasBadge('radio_entry')) {
+      if (awardBadge('radio_entry')) newBadges.push('radio_entry')
+    }
+    if (radioEarned.length >= 5 && !hasBadge('radio_class')) {
+      if (awardBadge('radio_class')) newBadges.push('radio_class')
+    }
+    const radioComplete = radioEarned.length >= 12
+    if (radioComplete && !hasBadge('radio_complete')) {
+      if (awardBadge('radio_complete')) newBadges.push('radio_complete')
+    }
+
+    // broadcast_opus: radio_complete + signal_peak
+    if (radioComplete && hasBadge('signal_peak') && !hasBadge('broadcast_opus')) {
+      if (awardBadge('broadcast_opus')) newBadges.push('broadcast_opus')
+    }
+
+    // signal_arc: radio_complete + all 3 Calendar v16 badges
+    const calendarV16Badges: BadgeType[] = ['sputnik_day', 'arecibo_day', 'pioneer_plaque']
+    if (radioComplete && calendarV16Badges.every(b => hasBadge(b)) && !hasBadge('signal_arc')) {
+      if (awardBadge('signal_arc')) newBadges.push('signal_arc')
+    }
+
+    // eighteen_engines_arc: 1 badge from each Word Turn v1–v18
+    const engineEighteenPresent = radioEarned.length >= 1
+    const allEighteenEngines = allSeventeenEngines && engineEighteenPresent
+    if (allEighteenEngines && !hasBadge('eighteen_engines_arc')) {
+      if (awardBadge('eighteen_engines_arc')) newBadges.push('eighteen_engines_arc')
+    }
+
+    // Mastery v18: signal_tower — 600+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 600 && !hasBadge('signal_tower')) {
+        if (awardBadge('signal_tower')) newBadges.push('signal_tower')
+      }
+    }
+
+    // Mastery v18: grand_broadcaster — 60,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 60000 && !hasBadge('grand_broadcaster')) {
+        if (awardBadge('grand_broadcaster')) newBadges.push('grand_broadcaster')
+      }
+    }
+
+    // Mastery v18: transmission_age — Account age ≥ 10 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupTx = new Date(stats.signupDate)
+      const yearsTx = (new Date().getTime() - signupTx.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsTx >= 10 && !hasBadge('transmission_age')) {
+        if (awardBadge('transmission_age')) newBadges.push('transmission_age')
+      }
+    }
+
+    // Mastery v18: eighteen_frequencies — 1 badge from all 18 Word Turn engines
+    if (allEighteenEngines && !hasBadge('eighteen_frequencies')) {
+      if (awardBadge('eighteen_frequencies')) newBadges.push('eighteen_frequencies')
+    }
+
+    // ── v19 — THE BIO-TERMINAL ─────────────────────────────────────────────────
+    const bioV19Badges: BadgeType[] = [
+      'pulse_signal', 'cortisol_log', 'circadian_gate', 'rem_active',
+      'dopamine_loop', 'serotonin_wave', 'neuroplastic', 'vagal_anchor',
+      'cortex_engaged', 'endorphin_run', 'rhythm_locked', 'homeostasis',
+    ]
+    const bioEarned = bioV19Badges.filter(b => hasBadge(b))
+
+    if (bioEarned.length >= 1 && !hasBadge('bio_entry')) {
+      if (awardBadge('bio_entry')) newBadges.push('bio_entry')
+    }
+    if (bioEarned.length >= 5 && !hasBadge('bio_class')) {
+      if (awardBadge('bio_class')) newBadges.push('bio_class')
+    }
+    const bioComplete = bioEarned.length >= 12
+    if (bioComplete && !hasBadge('bio_complete')) {
+      if (awardBadge('bio_complete')) newBadges.push('bio_complete')
+    }
+
+    // bio_opus: bio_complete + bio_session
+    if (bioComplete && hasBadge('bio_session') && !hasBadge('bio_opus')) {
+      if (awardBadge('bio_opus')) newBadges.push('bio_opus')
+    }
+
+    // neural_arc: bio_complete + all 3 Calendar v17 badges
+    const calendarV17Badges: BadgeType[] = ['dna_day', 'brain_day', 'darwin_manuscript']
+    if (bioComplete && calendarV17Badges.every(b => hasBadge(b)) && !hasBadge('neural_arc')) {
+      if (awardBadge('neural_arc')) newBadges.push('neural_arc')
+    }
+
+    // nineteen_engines_arc: 1 badge from each Word Turn v1–v19
+    const engineNineteenPresent = bioEarned.length >= 1
+    const allNineteenEngines = allEighteenEngines && engineNineteenPresent
+    if (allNineteenEngines && !hasBadge('nineteen_engines_arc')) {
+      if (awardBadge('nineteen_engines_arc')) newBadges.push('nineteen_engines_arc')
+    }
+
+    // Mastery v19: long_signal — 700+ distinct calendar check-in days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 700 && !hasBadge('long_signal')) {
+        if (awardBadge('long_signal')) newBadges.push('long_signal')
+      }
+    }
+
+    // Mastery v19: body_of_work — 75,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 75000 && !hasBadge('body_of_work')) {
+        if (awardBadge('body_of_work')) newBadges.push('body_of_work')
+      }
+    }
+
+    // Mastery v19: decade_operator — Account age >= 10 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupBio = new Date(stats.signupDate)
+      const yearsBio = (new Date().getTime() - signupBio.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsBio >= 10 && !hasBadge('decade_operator')) {
+        if (awardBadge('decade_operator')) newBadges.push('decade_operator')
+      }
+    }
+
+    // Mastery v19: nineteen_registers — 1 badge from all 19 Word Turn engines
+    if (allNineteenEngines && !hasBadge('nineteen_registers')) {
+      if (awardBadge('nineteen_registers')) newBadges.push('nineteen_registers')
     }
 
   } catch (error) {

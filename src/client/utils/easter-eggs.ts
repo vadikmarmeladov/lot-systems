@@ -763,6 +763,63 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('bloomsday')
   }
 
+  // ── Calendar v15 — GAME DATE ARCHIVE ──────────────────────────────────────
+
+  // Tetris Day: June 6 — Tetris created by Alexey Pajitnov, 1984
+  if (!hasBadge('tetris_day') && month === 6 && day === 6) {
+    awardBadge('tetris_day')
+    awarded.push('tetris_day')
+  }
+
+  // Zelda Day: February 21 — The Legend of Zelda released in Japan, 1986
+  if (!hasBadge('zelda_day') && month === 2 && day === 21) {
+    awardBadge('zelda_day')
+    awarded.push('zelda_day')
+  }
+
+  // Pac-Man Day: May 22 — Pac-Man released in Japan, 1980
+  if (!hasBadge('pac_man_day') && month === 5 && day === 22) {
+    awardBadge('pac_man_day')
+    awarded.push('pac_man_day')
+  }
+
+  // ── Calendar v16 — THE SIGNAL ARCHIVE ──────────────────────────────────────
+
+  // Sputnik Day: October 4 — Sputnik 1 launched 1957, first signal from orbit
+  if (!hasBadge('sputnik_day') && month === 10 && day === 4) {
+    awardBadge('sputnik_day')
+    awarded.push('sputnik_day')
+  }
+
+  // Arecibo Day: November 16 — Arecibo message broadcast 1974
+  if (!hasBadge('arecibo_day') && month === 11 && day === 16) {
+    awardBadge('arecibo_day')
+    awarded.push('arecibo_day')
+  }
+
+  // Pioneer Plaque: March 2 — Pioneer 10 launched 1972
+  if (!hasBadge('pioneer_plaque') && month === 3 && day === 2) {
+    awardBadge('pioneer_plaque')
+    awarded.push('pioneer_plaque')
+  }
+
+  // ── Calendar v17 — THE SCIENCE CIRCUIT ──────────────────────────────────────
+  // DNA Day: April 25 — Watson & Crick publish double helix, 1953
+  if (!hasBadge('dna_day') && month === 4 && day === 25) {
+    awardBadge('dna_day')
+    awarded.push('dna_day')
+  }
+  // World Brain Day: July 22
+  if (!hasBadge('brain_day') && month === 7 && day === 22) {
+    awardBadge('brain_day')
+    awarded.push('brain_day')
+  }
+  // Darwin Manuscript: November 24 — On the Origin of Species published, 1859
+  if (!hasBadge('darwin_manuscript') && month === 11 && day === 24) {
+    awardBadge('darwin_manuscript')
+    awarded.push('darwin_manuscript')
+  }
+
   return awarded
 }
 
@@ -1273,6 +1330,57 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bspice(s)?\b/i,                        badge: 'dune_signal' },
   { patterns: /\bpsychohistory\b/i,                    badge: 'foundation_word' },
   { patterns: /\bcyberspace\b/i,                       badge: 'neuromancer_signal' },
+  // ── v17 — THE NEON ARCADE ──────────────────────────────────────────────────
+  { patterns: /\bneon\b/i,                             badge: 'neon_alive' },
+  { patterns: /\bcombo(s)?\b/i,                        badge: 'combo_keeper' },
+  { patterns: /\bhigh[\s-]?score(s)?\b/i,              badge: 'highscore_day' },
+  { patterns: /\bfree[\s-]?play\b/i,                   badge: 'freeplay_mode' },
+  { patterns: /\b(extra[\s-]?life|1[\s-]?up)\b/i,      badge: 'extralife_log' },
+  { patterns: /\bspeed[\s-]?run(s|ning|ner)?\b/i,      badge: 'speedrun_focus' },
+  { patterns: /\bside[\s-]?quest(s)?\b/i,              badge: 'side_quest_filed' },
+  { patterns: /\bsurge(d|s|ing)?\b/i,                  badge: 'surge_detected' },
+  { patterns: /\bcartridge(s)?\b/i,                    badge: 'cartridge_nostalgia' },
+  { patterns: /\bcontinue(d|s|ing)?\b/i,               badge: 'continue_signal' },
+  { patterns: /\bjoystick(s)?\b/i,                     badge: 'joystick_held' },
+  { patterns: /\bcheckpoint(s|ed)?\b/i,                badge: 'checkpoint_saved' },
+  // ── v14 Secret Boss — THE BOSS ROOM word triggers ──────────────────────────
+  { patterns: /\bmetal[\s-]?gear\b/i,                  badge: 'kojima_signal' },
+  { patterns: /\bturing\b/i,                           badge: 'turing_key' },
+  { patterns: /\bkonami\b/i,                           badge: 'konami_code' },
+  // ── v18 — THE MIDNIGHT RADIO ──────────────────────────────────────────────
+  { patterns: /\bfrequenc(y|ies)\b/i,                  badge: 'frequency_held' },
+  { patterns: /\bbroadcast(ing|s|ed)?\b/i,             badge: 'broadcast_live' },
+  { patterns: /\bwavelength(s)?\b/i,                   badge: 'wavelength_match' },
+  { patterns: /\bantenna(s|e)?\b/i,                    badge: 'antenna_raised' },
+  { patterns: /\breception\b/i,                        badge: 'reception_strong' },
+  { patterns: /\btransmit(s|ted|ting)?|transmission(s)?\b/i, badge: 'transmission_sent' },
+  { patterns: /\btuned?\s*(in)?\b|\btuning\b/i,        badge: 'tuned_in' },
+  { patterns: /\bchannel(s|ed|ing)?\b/i,               badge: 'channel_open' },
+  { patterns: /\bcarrier(s)?\b/i,                      badge: 'carrier_active' },
+  { patterns: /\bamplif(y|ied|ies|ying)|amplitude(s)?\b/i, badge: 'amplitude_rising' },
+  { patterns: /\binterference\b/i,                     badge: 'interference_noted' },
+  { patterns: /\bmodulat(e|es|ed|ing|ion)\b/i,         badge: 'modulation_set' },
+  // ── v15 Secret Boss — THE DEEP SIGNAL word triggers ─────────────────────────
+  { patterns: /\bcosmos\b/i,                           badge: 'sagan_signal' },
+  { patterns: /\btesla\b/i,                            badge: 'tesla_current' },
+  { patterns: /\barecibo\b/i,                          badge: 'arecibo_response' },
+  // ── v19 — THE BIO-TERMINAL ────────────────────────────────────────────────────
+  { patterns: /\b(pulse|heartbeat|heart[\s-]?rate)\b/i,                badge: 'pulse_signal' },
+  { patterns: /\b(cortisol|stress[\s-]?hormone|fight[\s-]?or[\s-]?flight)\b/i, badge: 'cortisol_log' },
+  { patterns: /\b(circadian|body[\s-]?clock|circadian[\s-]?rhythm)\b/i, badge: 'circadian_gate' },
+  { patterns: /\b(rem[\s-]?sleep|deep[\s-]?sleep|restorative[\s-]?sleep)\b|\bREM\b/, badge: 'rem_active' },
+  { patterns: /\bdopamine\b/i,                                          badge: 'dopamine_loop' },
+  { patterns: /\b(serotonin|wellbeing)\b/i,                             badge: 'serotonin_wave' },
+  { patterns: /\b(neuroplasticit(y|ies)|neuroplastic|rewir(e|es|ed|ing))\b/i, badge: 'neuroplastic' },
+  { patterns: /\b(vagal|vagus|vagus[\s-]?nerve|parasympathetic)\b/i,    badge: 'vagal_anchor' },
+  { patterns: /\b(prefrontal|executive[\s-]?function|frontal[\s-]?lobe)\b/i, badge: 'cortex_engaged' },
+  { patterns: /\b(endorphin(s)?|runner[’']?s[\s-]?high)\b/i,       badge: 'endorphin_run' },
+  { patterns: /\b(biorhythm(s)?|body[\s-]?rhythm|natural[\s-]?rhythm)\b/i, badge: 'rhythm_locked' },
+  { patterns: /\b(homeostasis|equilibrium|baseline)\b/i,                badge: 'homeostasis' },
+  // ── v16 Secret Boss — THE NEURAL VAULT word triggers ─────────────────────────
+  { patterns: /\bcajal\b/i,                                             badge: 'cajal_signal' },
+  { patterns: /\bkandel\b/i,                                            badge: 'kandel_key' },
+  { patterns: /\b(phantom[\s-]?limb|ramachandran)\b/i,                  badge: 'ramachandran_rx' },
 ]
 
 /**
@@ -1713,6 +1821,38 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const libraryRun = checkLibraryRun()
   if (libraryRun) awarded.push(libraryRun)
 
+  // Behavioral v14: arcade run (5+ Neon Arcade words in one entry)
+  const arcadeRun = checkArcadeRun(journalText)
+  if (arcadeRun) awarded.push(arcadeRun)
+
+  // Behavioral v14: quarter drop (check in midnight–01:00)
+  const quarterDrop = checkQuarterDrop()
+  if (quarterDrop) awarded.push(quarterDrop)
+
+  // Behavioral v14: three lives left (journal after 3+ day gap)
+  const threeLives = checkThreeLivesLeft()
+  if (threeLives) awarded.push(threeLives)
+
+  // Behavioral v15: signal peak (5+ Midnight Radio words)
+  const signalPeak = checkSignalPeak(journalText)
+  if (signalPeak) awarded.push(signalPeak)
+
+  // Behavioral v15: midnight broadcast (journal written 23:00–00:00)
+  const midnightBroadcast = checkMidnightBroadcast()
+  if (midnightBroadcast) awarded.push(midnightBroadcast)
+
+  // Behavioral v15: static clear (return after 7+ day gap)
+  const staticClear = checkStaticClear()
+  if (staticClear) awarded.push(staticClear)
+
+  // Behavioral v16: bio session (3+ Bio-Terminal v19 words in one entry)
+  const bioSession = checkBioSession(journalText)
+  if (bioSession) awarded.push(bioSession)
+
+  // Behavioral v16: body signal (journal entry >= 300 words)
+  const bodySignal = checkBodySignal(journalText)
+  if (bodySignal) awarded.push(bodySignal)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -2043,6 +2183,228 @@ export function checkDeepDecoder(answerText: string): BadgeType | null {
     awardBadge('deep_decoder')
     return 'deep_decoder'
   }
+  return null
+}
+
+// ── Behavioral Easter Egg v14 — Arcade Patterns ──────────────────────────────
+
+const ARCADE_WORDS_V17 = [
+  /\bneon\b/i,
+  /\bcombo(s)?\b/i,
+  /\bhigh[\s-]?score(s)?\b/i,
+  /\bfree[\s-]?play\b/i,
+  /\b(extra[\s-]?life|1[\s-]?up)\b/i,
+  /\bspeed[\s-]?run(s|ning|ner)?\b/i,
+  /\bside[\s-]?quest(s)?\b/i,
+  /\bsurge(d|s|ing)?\b/i,
+  /\bcartridge(s)?\b/i,
+  /\bcontinue(d|s|ing)?\b/i,
+  /\bjoystick(s)?\b/i,
+  /\bcheckpoint(s|ed)?\b/i,
+]
+
+/**
+ * Award arcade_run badge if 5+ distinct Neon Arcade (v17) words appear in one entry.
+ * Call when a journal entry is saved.
+ */
+export function checkArcadeRun(journalText: string): BadgeType | null {
+  if (hasBadge('arcade_run')) return null
+  const matchCount = ARCADE_WORDS_V17.filter(r => r.test(journalText)).length
+  if (matchCount >= 5) {
+    awardBadge('arcade_run')
+    return 'arcade_run'
+  }
+  return null
+}
+
+/**
+ * Award quarter_drop badge when checking in between midnight and 01:00 local.
+ * Call at check-in time.
+ */
+export function checkQuarterDrop(): BadgeType | null {
+  if (hasBadge('quarter_drop')) return null
+  const h = new Date().getHours()
+  if (h === 0) {
+    awardBadge('quarter_drop')
+    return 'quarter_drop'
+  }
+  return null
+}
+
+/**
+ * Award three_lives_left badge when a journal entry is written after a 3+ day gap.
+ * Reads journal_dates localStorage key (array of ISO date strings).
+ * Call when a journal entry is saved.
+ */
+export function checkThreeLivesLeft(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('three_lives_left')) return null
+
+  try {
+    const stored = localStorage.getItem('journal_dates')
+    if (!stored) return null
+    const raw: string[] = JSON.parse(stored)
+    const dates = Array.from(new Set(raw.map(d => d.slice(0, 10)))).sort().reverse()
+    if (dates.length < 2) return null
+
+    const latest = new Date(dates[0])
+    const previous = new Date(dates[1])
+    const gapDays = Math.round((latest.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24))
+    if (gapDays >= 3) {
+      awardBadge('three_lives_left')
+      return 'three_lives_left'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Behavioral Easter Egg v15 — Broadcast Patterns ───────────────────────────
+
+const RADIO_WORDS_V18 = [
+  /\bfrequenc(y|ies)\b/i,
+  /\bbroadcast(ing|s|ed)?\b/i,
+  /\bwavelength(s)?\b/i,
+  /\bantenna(s|e)?\b/i,
+  /\breception\b/i,
+  /\btransmit(s|ted|ting)?|transmission(s)?\b/i,
+  /\btuned?\s*(in)?\b|\btuning\b/i,
+  /\bchannel(s|ed|ing)?\b/i,
+  /\bcarrier(s)?\b/i,
+  /\bamplif(y|ied|ies|ying)|amplitude(s)?\b/i,
+  /\binterference\b/i,
+  /\bmodulat(e|es|ed|ing|ion)\b/i,
+]
+
+/**
+ * Award signal_peak badge if 5+ distinct Midnight Radio (v18) words appear in one entry.
+ * Call when a journal entry is saved.
+ */
+export function checkSignalPeak(journalText: string): BadgeType | null {
+  if (hasBadge('signal_peak')) return null
+  const matchCount = RADIO_WORDS_V18.filter(r => r.test(journalText)).length
+  if (matchCount >= 5) {
+    awardBadge('signal_peak')
+    return 'signal_peak'
+  }
+  return null
+}
+
+/**
+ * Award midnight_broadcast badge when a journal entry is written between 23:00–00:00 local.
+ * Call when a journal entry is saved.
+ */
+export function checkMidnightBroadcast(): BadgeType | null {
+  if (hasBadge('midnight_broadcast')) return null
+  const h = new Date().getHours()
+  if (h === 23) {
+    awardBadge('midnight_broadcast')
+    return 'midnight_broadcast'
+  }
+  return null
+}
+
+/**
+ * Award static_clear badge when returning to journaling after a 7+ day gap.
+ * Reads journal_dates localStorage key (array of ISO date strings).
+ * Call when a journal entry is saved.
+ */
+export function checkStaticClear(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('static_clear')) return null
+
+  try {
+    const stored = localStorage.getItem('journal_dates')
+    if (!stored) return null
+    const raw: string[] = JSON.parse(stored)
+    const dates = Array.from(new Set(raw.map(d => d.slice(0, 10)))).sort().reverse()
+    if (dates.length < 2) return null
+
+    const latest = new Date(dates[0])
+    const previous = new Date(dates[1])
+    const gapDays = Math.round((latest.getTime() - previous.getTime()) / (1000 * 60 * 60 * 24))
+    if (gapDays >= 7) {
+      awardBadge('static_clear')
+      return 'static_clear'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Bio-Terminal v19 behavioral checks ───────────────────────────────────────
+
+const BIO_WORDS_V19 = [
+  /\b(pulse|heartbeat|heart[\s-]?rate)\b/i,
+  /\b(cortisol|stress[\s-]?hormone)\b/i,
+  /\b(circadian|body[\s-]?clock)\b/i,
+  /\b(rem[\s-]?sleep|deep[\s-]?sleep)\b|\bREM\b/,
+  /\bdopamine\b/i,
+  /\b(serotonin|wellbeing)\b/i,
+  /\b(neuroplasticit(y|ies)|neuroplastic|rewir(e|es|ed|ing))\b/i,
+  /\b(vagal|vagus|parasympathetic)\b/i,
+  /\b(prefrontal|executive[\s-]?function)\b/i,
+  /\b(endorphin(s)?|runner['']?s[\s-]?high)\b/i,
+  /\b(biorhythm(s)?|body[\s-]?rhythm)\b/i,
+  /\b(homeostasis|equilibrium|baseline)\b/i,
+]
+
+/**
+ * Award bio_session badge if 3+ distinct Bio-Terminal (v19) words appear in one entry.
+ */
+export function checkBioSession(journalText: string): BadgeType | null {
+  if (hasBadge('bio_session')) return null
+  const matchCount = BIO_WORDS_V19.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('bio_session')
+    return 'bio_session'
+  }
+  return null
+}
+
+/**
+ * Award body_signal badge if journal entry is 300+ words.
+ */
+export function checkBodySignal(journalText: string): BadgeType | null {
+  if (hasBadge('body_signal')) return null
+  const wordCount = journalText.trim().split(/\s+/).filter(w => w.length > 0).length
+  if (wordCount >= 300) {
+    awardBadge('body_signal')
+    return 'body_signal'
+  }
+  return null
+}
+
+/**
+ * Award morning_pulse badge if user checked in before 08:00 local time 5+ times in 7 days.
+ * Call this on each check-in event.
+ */
+export function checkMorningPulse(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('morning_pulse')) return null
+
+  const now = new Date()
+  const hour = now.getHours()
+  if (hour >= 8) return null
+
+  try {
+    const key = 'checkin_timestamps'
+    const stored = localStorage.getItem(key)
+    const timestamps: string[] = stored ? JSON.parse(stored) : []
+    timestamps.push(now.toISOString())
+    localStorage.setItem(key, JSON.stringify(timestamps.slice(-100)))
+
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const earlyMornings = timestamps.filter(ts => {
+      const d = new Date(ts)
+      return d >= sevenDaysAgo && d.getHours() < 8
+    })
+    if (earlyMornings.length >= 5) {
+      awardBadge('morning_pulse')
+      return 'morning_pulse'
+    }
+  } catch { /* non-critical */ }
+
   return null
 }
 

@@ -905,6 +905,426 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'morning_coherence_arc') {
+          const energyCount    = log.metadata?.energyCount    as number | undefined
+          const plannerCount   = log.metadata?.plannerCount   as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MCOHERE:" blockView>
+                <div className="uppercase tracking-widest mb-4">MORNING COHERENCE ARC</div>
+                {energyCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">NRG PRE-10: {energyCount}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN PRE-10: {plannerCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT PRE-10: {intentionCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_density_peak') {
+          const sourceCount  = log.metadata?.sourceCount  as number | undefined
+          const sources      = log.metadata?.sources      as string[] | undefined
+          const signalCount  = log.metadata?.signalCount  as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIGPEAK:" blockView>
+                {sourceCount !== undefined && (
+                  <div className="uppercase tracking-widest mb-4">SRC 12H: {sourceCount}</div>
+                )}
+                {signalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">SIG 12H: {signalCount}</div>
+                )}
+                {sources && sources.length > 0 && (
+                  <div className="opacity-40 tabular-nums uppercase text-xs">{sources.join(' · ')}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'physiological_coherence_window') {
+          const energyBand   = log.metadata?.energyBand   as string | undefined
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const moodSignal   = log.metadata?.moodSignal   as string | undefined
+          const memoryCount  = log.metadata?.memoryCount  as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PCOHERE:" blockView>
+                <div className="uppercase tracking-widest mb-4">PHYS COHERENCE WINDOW</div>
+                {energyBand && (
+                  <div className="opacity-60 tabular-nums">ATP: {energyBand.toUpperCase()}</div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 12H: {selfcareCount}</div>
+                )}
+                {moodSignal && (
+                  <div className="opacity-60 tabular-nums">MOOD: {moodSignal.toUpperCase()}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 12H: {memoryCount}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'action_to_memory_loop') {
+          const plannerCount   = log.metadata?.plannerCount   as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const memoryCount    = log.metadata?.memoryCount    as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ACTMEM:" blockView>
+                <div className="uppercase tracking-widest mb-4">ACTION-TO-MEMORY LOOP</div>
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN 6H: {plannerCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT 6H: {intentionCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM 6H: {memoryCount}</div>
+                )}
+                <div className="opacity-40">PIPELINE: ACT → ENC → ARC</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'sustained_resilience_arc') {
+          const activeDays      = log.metadata?.activeDays      as number | undefined
+          const resilienceCount = log.metadata?.resilienceCount as number | undefined
+          const confidence      = log.metadata?.confidence      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RECARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">SUSTAINED RESILIENCE ARC</div>
+                {activeDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">DAYS 7D: {activeDays}</div>
+                )}
+                {resilienceCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">RES-SIG: {resilienceCount}</div>
+                )}
+                <div className="opacity-40">WINDOW: 7D</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'mood_energy_convergence') {
+          const moodSignal    = log.metadata?.moodSignal    as string | undefined
+          const energyBand    = log.metadata?.energyBand    as string | undefined
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MOEARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">MOOD-ENERGY CONVERGENCE</div>
+                {moodSignal && (
+                  <div className="opacity-60 tabular-nums">MOOD: {moodSignal.toUpperCase()}</div>
+                )}
+                {energyBand && (
+                  <div className="opacity-60 tabular-nums">ATP: {energyBand.toUpperCase()}</div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE 8H: {selfcareCount}</div>
+                )}
+                <div className="opacity-40">DUAL-SUBSTRATE PEAK</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'morning_intention_lock') {
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const plannerCount   = log.metadata?.plannerCount   as number | undefined
+          const logCount       = log.metadata?.logCount       as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MINTLK:" blockView>
+                <div className="uppercase tracking-widest mb-4">MORNING INTENT LOCK</div>
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT: {intentionCount}</div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">PLAN: {plannerCount}</div>
+                )}
+                {logCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">LOG: {logCount}</div>
+                )}
+                <div className="opacity-40 tabular-nums">WIN: 06-10H</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'multi_day_care_arc') {
+          const streakDays    = log.metadata?.streakDays    as number | undefined
+          const totalCareActs = log.metadata?.totalCareActs as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">MULTI-DAY CARE ARC</div>
+                {streakDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">STREAK: {streakDays}D</div>
+                )}
+                {totalCareActs !== undefined && (
+                  <div className="opacity-60 tabular-nums">ACTS 7D: {totalCareActs}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'evening_reflection_loop') {
+          const journalCount   = log.metadata?.journalCount   as number | undefined
+          const memoryCount    = log.metadata?.memoryCount    as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EVEFL:" blockView>
+                <div className="uppercase tracking-widest mb-4">EVENING REFLECTION LOOP</div>
+                {journalCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">JOUR EVE: {journalCount}</div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">MEM TODAY: {memoryCount}</div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">INTENT TODAY: {intentionCount}</div>
+                )}
+                <div className="opacity-40">LOOP: REFLECT → ENC → ACK</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'weekly_rhythm_anchor') {
+          const activeDays   = log.metadata?.activeDays   as number | undefined
+          const totalSignals = log.metadata?.totalSignals as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="WEEKA:" blockView>
+                <div className="uppercase tracking-widest mb-4">WEEKLY RHYTHM ANCHOR</div>
+                {activeDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">DAYS 7D: {activeDays}/7</div>
+                )}
+                {totalSignals !== undefined && (
+                  <div className="opacity-60 tabular-nums">SIG-TOTAL: {totalSignals}</div>
+                )}
+                <div className="opacity-40">STRUCTURAL RECURRENCE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'depth_breadth_convergence') {
+          const focusDepthConf    = log.metadata?.focusDepthConf    as number | undefined
+          const signalDensityConf = log.metadata?.signalDensityConf as number | undefined
+          const confidence        = log.metadata?.confidence        as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DEPBR:" blockView>
+                <div className="uppercase tracking-widest mb-4">DEPTH-BREADTH CONVERGENCE</div>
+                {focusDepthConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">FDEP CONF: {Math.round(focusDepthConf * 100)}%</div>
+                )}
+                {signalDensityConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">SIGPEAK CONF: {Math.round(signalDensityConf * 100)}%</div>
+                )}
+                <div className="opacity-40">DEPTH + BREADTH SIMULTANEOUS</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_output_continuity') {
+          const journalDays    = log.metadata?.journalDays    as number | undefined
+          const journalEntries = log.metadata?.journalEntries as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COGCONT:" blockView>
+                <div className="uppercase tracking-widest mb-4">COGNITIVE OUTPUT CONT</div>
+                {journalDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">DAYS 7D: {journalDays}</div>
+                )}
+                {journalEntries !== undefined && (
+                  <div className="opacity-60 tabular-nums">ENTRIES: {journalEntries}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'daily_coherence_seal') {
+          const morningPattern = log.metadata?.morningPattern as string | undefined
+          const eveningPattern = log.metadata?.eveningPattern as string | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DCSAL:" blockView>
+                <div className="uppercase tracking-widest mb-4">DAILY COHERENCE SEAL</div>
+                {morningPattern !== undefined && (
+                  <div className="opacity-60 tabular-nums">MORNING: {morningPattern.toUpperCase()}</div>
+                )}
+                {eveningPattern !== undefined && (
+                  <div className="opacity-60 tabular-nums">EVENING: {eveningPattern.toUpperCase()}</div>
+                )}
+                <div className="opacity-40 tabular-nums">CIRCUIT: DAY SEALED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_rhythm_lock') {
+          const weeklyConf = log.metadata?.weeklyConf as number | undefined
+          const cogConf    = log.metadata?.cogConf    as number | undefined
+          const circConf   = log.metadata?.circConf   as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QLOCK:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM RHYTHM LOCK</div>
+                {weeklyConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">WEEKLY: {Math.round(weeklyConf * 100)}%</div>
+                )}
+                {cogConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">COG: {Math.round(cogConf * 100)}%</div>
+                )}
+                {circConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">CIRC: {Math.round(circConf * 100)}%</div>
+                )}
+                <div className="opacity-40 tabular-nums">TEMPORAL OS: LIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biofield_integration_peak') {
+          const careConf       = log.metadata?.careConf       as number | undefined
+          const moodEnergyConf = log.metadata?.moodEnergyConf as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BFINT:" blockView>
+                <div className="uppercase tracking-widest mb-4">BIOFIELD INTEGRATION PK</div>
+                {careConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE: {Math.round(careConf * 100)}%</div>
+                )}
+                {moodEnergyConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">MOOD-E: {Math.round(moodEnergyConf * 100)}%</div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELDS: INTEGRATED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'integrated_signal_arc') {
+          const consecutiveDays = log.metadata?.consecutiveDays as number | undefined
+          const channelCount    = log.metadata?.channelCount    as number | undefined
+          const confidence      = log.metadata?.confidence      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">INTEGRATED SIGNAL ARC</div>
+                {channelCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CHANNELS: {channelCount}/4</div>
+                )}
+                {consecutiveDays !== undefined && (
+                  <div className="opacity-60 tabular-nums">STREAK: {consecutiveDays}D</div>
+                )}
+                <div className="opacity-40 tabular-nums">SYNC: COGNITIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'deep_recovery_protocol') {
+          const sleepConf   = log.metadata?.sleepConf   as number | undefined
+          const careConf    = log.metadata?.careConf    as number | undefined
+          const energyState = log.metadata?.energyState as string | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DREC:" blockView>
+                <div className="uppercase tracking-widest mb-4">DEEP RECOVERY PROTOCOL</div>
+                {sleepConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">SLEEP: {Math.round(sleepConf * 100)}%</div>
+                )}
+                {careConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">CARE: {Math.round(careConf * 100)}%</div>
+                )}
+                {energyState && (
+                  <div className="opacity-60 tabular-nums">ATP: {energyState.toUpperCase()}</div>
+                )}
+                <div className="opacity-40 tabular-nums">PROTOCOL: ACTIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_field_alignment') {
+          const sealConf     = log.metadata?.sealConf     as number | undefined
+          const rhythmConf   = log.metadata?.rhythmConf   as number | undefined
+          const biofieldConf = log.metadata?.biofieldConf as number | undefined
+          const composite    = log.metadata?.composite    as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QFIELD:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM FIELD ALIGNMENT</div>
+                {sealConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">SEAL: {Math.round(sealConf * 100)}%</div>
+                )}
+                {rhythmConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">RHYTHM: {Math.round(rhythmConf * 100)}%</div>
+                )}
+                {biofieldConf !== undefined && (
+                  <div className="opacity-60 tabular-nums">BIOFIELD: {Math.round(biofieldConf * 100)}%</div>
+                )}
+                {composite !== undefined && (
+                  <div className="opacity-50 tabular-nums">COMPOSITE: {composite}%</div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELD: COMPLETE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'care_momentum') {
           const careCount = log.metadata?.careCount as number | undefined
           const confidence = log.metadata?.confidence as number | undefined
@@ -1009,14 +1429,14 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           const selfCareCount = log.metadata?.selfCareCount as number | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="ARC:" blockView>
-                <div className="uppercase tracking-widest mb-4">Recovery arc closed</div>
+              <Block label="BIOARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">RECOVERY ARC CLOSED</div>
                 {selfCareCount !== undefined && (
-                  <div className="opacity-60">CARE 4h: {selfCareCount}</div>
+                  <div className="opacity-60 tabular-nums">CARE 4H: {selfCareCount}</div>
                 )}
-                <div className="opacity-40">Depleted → intervention → restored.</div>
+                <div className="opacity-40 tabular-nums uppercase">DEPLETE → INTERVENE → RESTORE</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
                 )}
               </Block>
             </LogContainer>
@@ -1028,16 +1448,16 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CEXP:" blockView>
-                <div className="uppercase tracking-widest mb-4">Cognitive expansion</div>
+                <div className="uppercase tracking-widest mb-4">COGNITIVE EXPANSION</div>
                 {wordCount !== undefined && (
-                  <div className="opacity-60">LOG DEPTH: {wordCount}w</div>
+                  <div className="opacity-60 tabular-nums">LOG DEPTH: {wordCount}W</div>
                 )}
                 {sourcesActive !== undefined && (
-                  <div className="opacity-60">SOURCES: {sourcesActive}</div>
+                  <div className="opacity-60 tabular-nums">SRC ACTIVE: {sourcesActive}</div>
                 )}
-                <div className="opacity-40">Memory + journal + goals simultaneous.</div>
+                <div className="opacity-40 tabular-nums uppercase">MEM · JRNL · GOALS</div>
                 {confidence !== undefined && (
-                  <div className="opacity-30">CONF: {Math.round(confidence * 100)}%</div>
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
                 )}
               </Block>
             </LogContainer>

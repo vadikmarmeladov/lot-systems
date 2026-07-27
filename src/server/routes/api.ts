@@ -1169,6 +1169,30 @@ export default async (fastify: FastifyInstance) => {
       'focus_depth_arc',
       'sleep_signal_anchor',
       'care_intelligence_loop',
+      // v99: morning coherence arc · signal density peak · physiological coherence window (P119/P120/P121)
+      'morning_coherence_arc',
+      'signal_density_peak',
+      'physiological_coherence_window',
+      // v100: action-to-memory loop · sustained resilience arc · mood-energy convergence (P122/P123/P124)
+      'action_to_memory_loop',
+      'sustained_resilience_arc',
+      'mood_energy_convergence',
+      // v101: evening reflection loop · weekly rhythm anchor · depth-breadth convergence (P125/P126/P127)
+      'evening_reflection_loop',
+      'weekly_rhythm_anchor',
+      'depth_breadth_convergence',
+      // v102: morning intention lock · multi-day care arc · cognitive output continuity (P128/P129/P130)
+      'morning_intention_lock',
+      'multi_day_care_arc',
+      'cognitive_output_continuity',
+      // v104: daily coherence seal · quantum rhythm lock · biofield integration peak (P131/P132/P133)
+      'daily_coherence_seal',
+      'quantum_rhythm_lock',
+      'biofield_integration_peak',
+      // v106: integrated signal arc · deep recovery protocol · quantum field alignment (P134/P135/P136)
+      'integrated_signal_arc',
+      'deep_recovery_protocol',
+      'quantum_field_alignment',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
