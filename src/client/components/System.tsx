@@ -55,7 +55,7 @@ import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, recordAstrologySignal } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
@@ -190,7 +190,20 @@ export const System = React.memo(function SystemInner() {
     return { sunrise, sunset }
   }, [weather, isTimeFormat12h])
 
-  // Astrology calculations
+  // Astrology recompute cadence — a plain [] useMemo only ever reads the
+  // clock at mount, so a tab left open drifts stale across zodiac-hour/day
+  // boundaries. Re-tick every 15 min, paused off-tab per the established
+  // background-work-off-tab doctrine (see SystemProgressWidget).
+  const [astrologyTick, setAstrologyTick] = React.useState(0)
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      if (!document.hidden) setAstrologyTick(t => t + 1)
+    }, 15 * 60 * 1000)
+    return () => clearInterval(id)
+  }, [])
+
+  // Astrology calculations — ambient conditions (zodiac hour, moon phase,
+  // rokuyo), not a personal natal chart.
   const astrology = React.useMemo(() => {
     const now = new Date()
     const hourlyZodiac = getHourlyZodiac(now)
@@ -205,7 +218,25 @@ export const System = React.memo(function SystemInner() {
       moonIllumination: moonPhase.illumination,
       rokuyo,
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [astrologyTick])
+
+  // Synchronize the ambient astrology reading into the QIE signal bus once
+  // per calendar day, so other widgets (cosmic, system) can react to it.
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    const today = dayjs().format('YYYY-MM-DD')
+    const lastRecordedKey = 'astrology_signal_date'
+    if (localStorage.getItem(lastRecordedKey) === today) return
+    recordAstrologySignal(
+      astrology.rokuyo,
+      astrology.moonPhase,
+      astrology.moonIllumination,
+      astrology.hourlyZodiac,
+      astrology.westernZodiac
+    )
+    localStorage.setItem(lastRecordedKey, today)
+  }, [astrology.rokuyo, astrology.moonPhase, astrology.moonIllumination, astrology.hourlyZodiac, astrology.westernZodiac])
 
   const answerLogs = React.useMemo(() => {
     return logs.filter(log => log.event === 'answer')
@@ -434,7 +465,7 @@ export const System = React.memo(function SystemInner() {
         <div>
           <Block label="Astrology:">
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase} ({astrology.moonIllumination}%)
             </div>
           </Block>
         </div>
@@ -640,7 +671,7 @@ export const System = React.memo(function SystemInner() {
         >
           {astrologyView === 'astrology' ? (
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase} ({astrology.moonIllumination}%)
             </div>
           ) : astrologyView === 'psychology' ? (
             <div>
