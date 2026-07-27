@@ -11,6 +11,7 @@ import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useLogs } from '#client/queries'
+import { recordSignal } from '#client/stores/intentionEngine'
 
 /**
  * Quantum Sign Widget — For subscribers whose payment is their last money
@@ -100,6 +101,11 @@ export function QuantumSignWidget() {
     )
   }
 
+  const chooseAction = (action: 'journal' | 'create' | 'connect' | 'rest') => {
+    localStorage.setItem('quantum-sign-action', action)
+    recordSignal('selfcare', 'quantum_sign_action', { action, hour: new Date().getHours() })
+  }
+
   const label =
     view === 'sign' ? 'Quantum Sign:' :
     view === 'actions' ? 'Your Actions:' :
@@ -123,19 +129,19 @@ export function QuantumSignWidget() {
           </div>
           <div className="flex flex-col gap-4">
             <div className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
-                 onClick={() => localStorage.setItem('quantum-sign-action', 'journal')}>
+                 onClick={() => chooseAction('journal')}>
               Journal — Write what you feel right now
             </div>
             <div className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
-                 onClick={() => localStorage.setItem('quantum-sign-action', 'create')}>
+                 onClick={() => chooseAction('create')}>
               Create — Build something, anything
             </div>
             <div className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
-                 onClick={() => localStorage.setItem('quantum-sign-action', 'connect')}>
+                 onClick={() => chooseAction('connect')}>
               Connect — Talk to another user
             </div>
             <div className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
-                 onClick={() => localStorage.setItem('quantum-sign-action', 'rest')}>
+                 onClick={() => chooseAction('rest')}>
               Rest — Self-care and rest, here, now
             </div>
           </div>

@@ -33,15 +33,16 @@ export function InterventionsWidget() {
   const intervention = data.interventions[currentIndex]
   const hasMultiple = data.interventions.length > 1
 
-  // Record intervention signal once per mount
-  if (!hasRecordedRef.current) {
+  // Record intervention signal once per mount (after paint, not during render)
+  React.useEffect(() => {
+    if (hasRecordedRef.current) return
     recordSignal('mood', `intervention_${intervention.severity}`, {
       type: intervention.type,
       severity: intervention.severity,
       hour: new Date().getHours()
     })
     hasRecordedRef.current = true
-  }
+  }, [intervention])
 
   const getSeverityIndicator = () => {
     switch (intervention.severity) {

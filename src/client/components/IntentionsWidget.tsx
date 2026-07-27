@@ -34,6 +34,7 @@ export function IntentionsWidget() {
   const logCtx = useLogContext()
   const featureUnlocks = useStore($featureUnlocks)
   const hasIntentionHistory = featureUnlocks?.intentionHistory ?? false
+  const hasIntegratedRef = React.useRef(false)
 
   // Load intention from localStorage
   React.useEffect(() => {
@@ -52,6 +53,20 @@ export function IntentionsWidget() {
       setView('set') // If no intention, start with set view
     }
   }, [])
+
+  // Record integration signal once the alignment view shows the intention has
+  // converged into daily runtime (7+ day streak) — completes the documented
+  // intention_set / integrate signal pair for the Quantum Intention Engine.
+  React.useEffect(() => {
+    if (hasIntegratedRef.current) return
+    if (view === 'alignment' && intention && logCtx.streak >= 7) {
+      recordSignal('intentions', 'integrate', {
+        focus: intention.focus,
+        streak: logCtx.streak
+      })
+      hasIntegratedRef.current = true
+    }
+  }, [view, intention, logCtx.streak])
 
   const cycleView = () => {
     if (!intention && view !== 'set') {

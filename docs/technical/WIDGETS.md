@@ -144,7 +144,7 @@ Prompts users to connect with cohort members who share similar patterns. Shows s
 A pattern compiler that surfaces discovered behavioral patterns and cohort matches. Cycles through Patterns, Cohort, and Evolution views. Shows pattern delta across multiple time windows.
 
 - **Data Source:** `/api/patterns`, `/api/cohorts`, and `/api/pattern-evolution` endpoints
-- **Connection:** Records `pattern_checkin` / `reflect` / `integrate` signals; links to matching user profiles
+- **Connection:** Records `pattern_checkin` / `pattern_reflect` / `pattern_integrate` signals; links to matching user profiles
 
 ### Cohort Connect Widget
 
@@ -171,8 +171,8 @@ Surfaces self-care suggestions during key times of day (10 AM–12 PM, 2–5 PM,
 
 A clickable, cycling display of the user's psychological profile. Shows self-awareness percentage, archetype, values, emotional patterns, dominant needs, sentiment breakdown, and introspection depth.
 
-- **Data Source:** `/api/profile` endpoint via the `useProfile` hook
-- **Connection:** Displays profile-derived awareness metrics; integrated into the System.tsx layout
+- **Data Source:** `/api/user-profile` endpoint via the `useProfile` hook
+- **Connection:** Displays profile-derived awareness metrics. Built but currently **not imported anywhere** (not in System.tsx, not on the profile page) — orphaned pending a reveal decision, not a build error
 
 ---
 
@@ -258,7 +258,7 @@ An ASCII-styled calculator that appears during "magical" timestamp moments (e.g.
 A 2×2 cm monochromatic pixel game rendered on a 32×32 canvas grid. Three games rotate by time of day: Micro Tetris (morning), Pixel Invaders (afternoon), and Dot Snake (evening).
 
 - **Data Source:** Local game state; system time for game selection logic
-- **Connection:** Records gameplay signals for engagement metrics tracking
+- **Connection:** Records a signal on game switch (`micro_game_switched`). Per-move input (arrow keys) is intentionally NOT signaled — logging every keystroke would flood the Quantum Intention Engine and reintroduce the polling/render lag this system has previously had to fix
 
 ---
 

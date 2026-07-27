@@ -42,8 +42,9 @@ export function GoalJourneyWidget() {
   const { progression } = data
   const { goals, overallJourney, narrative } = progression
 
-  // Record goal signal once per mount
-  if (!hasRecordedRef.current) {
+  // Record goal signal once per mount (after paint, not during render)
+  React.useEffect(() => {
+    if (hasRecordedRef.current) return
     const activeGoals = goals?.filter((g: any) => g.state === 'active' || g.state === 'progressing') || []
     recordSignal('intentions', 'goals_viewed', {
       activeGoalCount: activeGoals.length,
@@ -51,7 +52,7 @@ export function GoalJourneyWidget() {
       hour: new Date().getHours()
     })
     hasRecordedRef.current = true
-  }
+  }, [goals, overallJourney])
 
   const label =
     view === 'journey' ? 'Journey:' :

@@ -245,7 +245,9 @@ export const MicroImageWidget: React.FC = () => {
   }, [composition, density, seed])
 
   // Record a signal once when the widget mounts with meaningful context
-  if (!hasRecordedRef.current && punctuation.sampleSize > 0) {
+  // (after paint, not during render)
+  React.useEffect(() => {
+    if (hasRecordedRef.current || punctuation.sampleSize <= 0) return
     recordSignal('intentions', 'microimage_rendered', {
       composition,
       tone: punctuation.aggregate.tone,
@@ -255,7 +257,7 @@ export const MicroImageWidget: React.FC = () => {
       hour: new Date().getHours(),
     })
     hasRecordedRef.current = true
-  }
+  }, [composition, punctuation])
 
   const handleRegenerate = () => {
     setSeed(Math.floor(Math.random() * 1e6) + 1)
