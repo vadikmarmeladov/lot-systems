@@ -3172,6 +3172,35 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 140: Auspicious Day Alignment — Taian rokuyo confirmed + intentions set today.
+  // Taian (大安, "great peace") is the most favorable day in the six-cycle Japanese rokuyo wheel.
+  // When the ambient environmental field is auspicious AND the operator has directed intentions,
+  // the external cycle and the internal signal are in phase. The system surfaces this alignment.
+  // Confidence is intentionally modest — this is ambient/environmental signal, not physiological output.
+  const p140TodayStart = new Date(now)
+  p140TodayStart.setHours(0, 0, 0, 0)
+  const p140AstrologySignals = signals.filter(s =>
+    s.source === 'astrology' &&
+    s.type === 'ambient_reading' &&
+    s.timestamp > dayAgo &&
+    (s.metadata as any)?.auspicious === true
+  )
+  const p140IntentionsToday = signals.filter(s =>
+    s.source === 'intentions' &&
+    s.timestamp >= p140TodayStart.getTime()
+  )
+  if (p140AstrologySignals.length > 0 && p140IntentionsToday.length > 0) {
+    const intentionBonus = Math.min(p140IntentionsToday.length * 0.02, 0.08)
+    const p140Conf = Math.min(0.70 + intentionBonus, 0.78)
+    patterns.push({
+      pattern: 'auspicious-day-alignment',
+      confidence: p140Conf,
+      suggestedWidget: 'intentions',
+      suggestedTiming: 'passive',
+      reason: `TAIAN: Auspicious day alignment — Taian rokuyo confirmed. ${p140IntentionsToday.length} intention${p140IntentionsToday.length !== 1 ? 's' : ''} set. The most favorable day in the six-cycle wheel aligns with directed operation. The ambient field and the intentional field are in phase.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3788,6 +3817,9 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumCoherencePeakNode:   ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy', 'log'],
   signalMatrixSaturationNode: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
   temporalBiofieldSyncNode:   ['energy', 'selfcare', 'mood', 'planner', 'intentions', 'log'],
+
+  // ── v109 nodes (P140) ────────────────────────────────────────────────────────────
+  auspiciousDayNode:          ['astrology', 'intentions'],            // (2026-07-28 audit) Taian-day ambient + directed intentions
 }
 
 /**

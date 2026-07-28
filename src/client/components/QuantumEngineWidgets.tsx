@@ -100,6 +100,7 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'quantum-coherence-peak':         'QCOHERE',
   'signal-matrix-saturation':       'SIGMAT',
   'temporal-biofield-sync':         'TBIOF',
+  'auspicious-day-alignment':       'TAIAN',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

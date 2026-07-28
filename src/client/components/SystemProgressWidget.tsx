@@ -1353,6 +1353,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes. QIE v108 deployed.',
     ],
   },
+  {
+    date: '2026-07-28',
+    session: 'Self-Assembly Session — v109 / QIE Engineering + Wiki Sync · P140 auspicious-day-alignment · TAIAN: · LOT-WIKI-v83 · Astrology→QIE · Day 1067+',
+    assembled: [
+      'intentionEngine.ts: P140 auspicious-day-alignment (TAIAN:) — Taian rokuyo confirmed (astrology signal auspicious:true) + intentions set today. Confidence 0.70–0.78. The ambient field and the intentional field are in phase.',
+      'intentionEngine.ts: auspiciousDayNode added to WIDGET_DEPENDENCY_MAP — deps: [astrology, intentions]. Tier 1. 179+ dep nodes total.',
+      'QuantumEngineWidgets.tsx: TAIAN added to PATTERN_DISPLAY for auspicious-day-alignment.',
+      'About.tsx: FM v108→v109. Day 1066+→1067+. 139→140 patterns. 178+→179+ dep nodes. QIE description 136→140 patterns fixed.',
+      'docs/wiki/LOT-WIKI-v83.md: Full wiki sync v82→v83. Adds P137–P140 + astrology source + Day 1067+. FM v108→v109.',
+      '140 patterns · 47 archetypes · 44 jobs · 139+ handlers · 179+ dep nodes. QIE v109 deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1390,18 +1402,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-27',
+  date: '2026-07-28',
   message: [
-    'ASSEMBLY RUN — 2026-07-27 · v108 · QIE Engineering · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: · Day 1066+',
-    'P137 QUANTUM COHERENCE PEAK: field-alignment active AND UserIndex ≥ 60. The OS is not stabilizing. It is transmitting.',
-    'P138 SIGNAL MATRIX SATURATION: all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark. Full-dimensional presence.',
-    'P139 TEMPORAL-BIOFIELD SYNC: morning-coherence + daily-seal + biofield-integration within one calendar day. Time and biology synchronized.',
-    'Arch47 QUANTUM COHERENCE OPERATOR: peak coherence confirmed. Field aligned AND above coherence threshold. Maximum integration directive.',
-    'J44 daily-signal-matrix-check: 09:00 UTC daily. P138 (6-source check) + P137 (field alignment) + P139 (temporal-biofield triad). 44 jobs total.',
-    'QCOHERE: · SIGMAT: · TBIOF: military handlers wired in Logs.tsx. 3 new block types.',
-    'QuantumEngineWidgets: cohort view enhanced (Band + Dom fields). QOS Field view added — runtime + signal map + active patterns.',
-    '3 new dep map nodes: quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
-    'FIELD MANUAL v108. Day 1066+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
+    'ASSEMBLY RUN — 2026-07-28 · v109 · QIE Engineering + Wiki Sync · P140 · TAIAN: · LOT-WIKI-v83 · Day 1067+',
+    'P140 AUSPICIOUS DAY ALIGNMENT: Taian rokuyo (大安) confirmed + intentions set. The ambient field and the intentional field are in phase.',
+    'TAIAN: — the most favorable day in the six-cycle Japanese rokuyo wheel. Client-side detection. Fires when astrology signal marks auspicious:true AND the operator has set intentions today.',
+    'auspiciousDayNode wired in dep map: [astrology, intentions]. Tier 1. 179+ nodes total.',
+    'LOT-WIKI-v83 deployed: P137–P140 + astrology source documented. FM v109 sync complete.',
+    'About.tsx: QIE description corrected 136→140 (stale ref from v108 session). Day 1066+→1067+.',
+    'FIELD MANUAL v109. Day 1067+. 140 patterns · 47 archetypes · 44 jobs · 139+ handlers · 179+ dep nodes.',
     'DEPLOYED.',
   ],
 }
