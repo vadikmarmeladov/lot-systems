@@ -1516,17 +1516,26 @@ export function SystemProgressWidget() {
   }
 
   const handleGenerateReport = React.useCallback(() => {
-    analyzeIntentions()
-    const r = getEnrichedPhysiologicalReport()
-    setReport(r)
-    setQos(getQuantumOS())
-    setLogDeps(getLogDependencySummary())
-    recordQOSSignal('report_generated', {
-      systemHealth: r.systemHealth,
-      assembledModules: assembly.assembledCount,
-      totalModules: assembly.totalModules,
-      archetype: r.cohortSignals.archetype ?? cohortData?.archetype,
-    })
+    // analyzeIntentions() is a no-op within its 5-min cooldown but, on a
+    // cache miss, runs a full ~139-pattern scan synchronously. Running it
+    // (plus the report builders) inside the click handler blocked the click
+    // from responding until it finished — the classic "click, then a beat,
+    // then it happens" button lag. Defer the whole build one macrotask so the
+    // button paints its response immediately, then compute off the click path.
+    const build = () => {
+      analyzeIntentions()
+      const r = getEnrichedPhysiologicalReport()
+      setReport(r)
+      setQos(getQuantumOS())
+      setLogDeps(getLogDependencySummary())
+      recordQOSSignal('report_generated', {
+        systemHealth: r.systemHealth,
+        assembledModules: assembly.assembledCount,
+        totalModules: assembly.totalModules,
+        archetype: r.cohortSignals.archetype ?? cohortData?.archetype,
+      })
+    }
+    setTimeout(build, 0)
   }, [assembly, cohortData])
 
   // Load latest deployment info

@@ -250,9 +250,8 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
   }, [response])
 
   // Quantum state for reflection prompt
-  const getQuantumState = () => {
+  const readQuantumState = () => {
     try {
-      analyzeIntentions()
       return getUserState()
     } catch (e) {
       return {
@@ -265,7 +264,16 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
     }
   }
 
-  const quantumState = React.useMemo(getQuantumState, [question?.id])
+  // analyzeIntentions() WRITES the intentionEngine atom. Running it inside a
+  // useMemo (render phase) cascaded re-renders across every subscriber before
+  // the browser could paint (LOT-DOCTRINE "Render Isolation"). Seed state for
+  // an identical first paint, then run the analysis in an effect (after paint)
+  // keyed on the question — matching the System.tsx quantumState pattern.
+  const [quantumState, setQuantumState] = React.useState(readQuantumState)
+  React.useEffect(() => {
+    try { analyzeIntentions() } catch (e) { /* ignore */ }
+    setQuantumState(readQuantumState())
+  }, [question?.id])
 
   const hasError = !!error && !isLoading && !loadedQuestion
 
