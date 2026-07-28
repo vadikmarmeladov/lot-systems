@@ -20,6 +20,19 @@ export function InterventionsWidget() {
   const [currentIndex, setCurrentIndex] = React.useState(0)
   const { data, isLoading } = useInterventions()
   const hasRecordedRef = React.useRef(false)
+  const topIntervention = data && !data.message && data.interventions.length > 0 ? data.interventions[0] : undefined
+
+  // Record intervention signal once per mount (after paint, not during render)
+  React.useEffect(() => {
+    if (!hasRecordedRef.current && topIntervention) {
+      recordSignal('mood', `intervention_${topIntervention.severity}`, {
+        type: topIntervention.type,
+        severity: topIntervention.severity,
+        hour: new Date().getHours()
+      })
+      hasRecordedRef.current = true
+    }
+  }, [topIntervention])
 
   const cycleIntervention = () => {
     if (!data || data.interventions.length === 0) return
@@ -32,16 +45,6 @@ export function InterventionsWidget() {
 
   const intervention = data.interventions[currentIndex]
   const hasMultiple = data.interventions.length > 1
-
-  // Record intervention signal once per mount
-  if (!hasRecordedRef.current) {
-    recordSignal('mood', `intervention_${intervention.severity}`, {
-      type: intervention.type,
-      severity: intervention.severity,
-      hour: new Date().getHours()
-    })
-    hasRecordedRef.current = true
-  }
 
   const getSeverityIndicator = () => {
     switch (intervention.severity) {

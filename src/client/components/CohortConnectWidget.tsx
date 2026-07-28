@@ -38,19 +38,22 @@ export const CohortConnectWidget: React.FC = () => {
   const energyLevel = energyData?.energyState?.currentLevel
   const energyTrajectory = energyData?.energyState?.trajectory
 
-  // Record cohort widget view signal once. Include punctuation tone
-  // so the intent engine can correlate cohort engagement with the
-  // user's current intonation.
-  if (!hasRecordedRef.current && cohortData?.matches?.length) {
-    recordSignal('mood', 'cohort_widget_viewed', {
-      matchCount: cohortData.matches.length,
-      hour: new Date().getHours(),
-      punctuationTone: punctuation.aggregate.tone,
-      punctuationIntensity: punctuation.aggregate.intensity,
-      callForHelp: punctuation.callForHelp,
-    })
-    hasRecordedRef.current = true
-  }
+  // Record cohort widget view signal once (after paint, not during render).
+  // Include punctuation tone so the intent engine can correlate cohort
+  // engagement with the user's current intonation.
+  const matchCount = cohortData?.matches?.length
+  React.useEffect(() => {
+    if (!hasRecordedRef.current && matchCount) {
+      recordSignal('mood', 'cohort_widget_viewed', {
+        matchCount,
+        hour: new Date().getHours(),
+        punctuationTone: punctuation.aggregate.tone,
+        punctuationIntensity: punctuation.aggregate.intensity,
+        callForHelp: punctuation.callForHelp,
+      })
+      hasRecordedRef.current = true
+    }
+  }, [matchCount, punctuation.aggregate.tone, punctuation.aggregate.intensity, punctuation.callForHelp])
 
   if (isLoading || !cohortData?.matches || cohortData.matches.length === 0) {
     return null

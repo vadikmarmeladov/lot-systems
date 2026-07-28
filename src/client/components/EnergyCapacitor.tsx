@@ -27,6 +27,19 @@ export function EnergyCapacitor() {
   const { data, isLoading } = useEnergy()
   const logCtx = useLogContext()
   const hasRecordedRef = React.useRef(false)
+  const loadedEnergyState = data && !data.message ? data.energyState : undefined
+
+  // Record energy signal once per mount (after paint, not during render)
+  React.useEffect(() => {
+    if (!hasRecordedRef.current && loadedEnergyState) {
+      recordSignal('selfcare', `energy_${loadedEnergyState.status}`, {
+        level: loadedEnergyState.currentLevel,
+        trajectory: loadedEnergyState.trajectory,
+        hour: new Date().getHours()
+      })
+      hasRecordedRef.current = true
+    }
+  }, [loadedEnergyState?.status, loadedEnergyState?.currentLevel, loadedEnergyState?.trajectory])
 
   const cycleView = () => {
     setView(prev => {
@@ -45,16 +58,6 @@ export function EnergyCapacitor() {
   if (!data.energyState) return null
 
   const { energyState, suggestions } = data
-
-  // Record energy signal once per mount
-  if (!hasRecordedRef.current && energyState) {
-    recordSignal('selfcare', `energy_${energyState.status}`, {
-      level: energyState.currentLevel,
-      trajectory: energyState.trajectory,
-      hour: new Date().getHours()
-    })
-    hasRecordedRef.current = true
-  }
 
   // Correlate energy with mood
   const getMoodEnergyCorrelation = (): string | null => {

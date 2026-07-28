@@ -23,6 +23,20 @@ export function GoalJourneyWidget() {
   const [view, setView] = React.useState<GoalView>('journey')
   const { data, isLoading } = useGoalProgression()
   const hasRecordedRef = React.useRef(false)
+  const progressionForSignal = data && !data.message ? data.progression : undefined
+
+  // Record goal signal once per mount (after paint, not during render)
+  React.useEffect(() => {
+    if (!hasRecordedRef.current && progressionForSignal) {
+      const activeGoals = progressionForSignal.goals?.filter((g: any) => g.state === 'active' || g.state === 'progressing') || []
+      recordSignal('intentions', 'goals_viewed', {
+        activeGoalCount: activeGoals.length,
+        primaryGoal: progressionForSignal.overallJourney?.primaryGoal?.title || null,
+        hour: new Date().getHours()
+      })
+      hasRecordedRef.current = true
+    }
+  }, [progressionForSignal])
 
   const cycleView = () => {
     setView(prev => {
@@ -41,17 +55,6 @@ export function GoalJourneyWidget() {
 
   const { progression } = data
   const { goals, overallJourney, narrative } = progression
-
-  // Record goal signal once per mount
-  if (!hasRecordedRef.current) {
-    const activeGoals = goals?.filter((g: any) => g.state === 'active' || g.state === 'progressing') || []
-    recordSignal('intentions', 'goals_viewed', {
-      activeGoalCount: activeGoals.length,
-      primaryGoal: overallJourney?.primaryGoal?.title || null,
-      hour: new Date().getHours()
-    })
-    hasRecordedRef.current = true
-  }
 
   const label =
     view === 'journey' ? 'Journey:' :
