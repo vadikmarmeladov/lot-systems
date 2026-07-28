@@ -91,13 +91,16 @@ export function UserMetricsWidget() {
     recordOSSignal('health_check', { health: status.health, state: status.state, uptime: status.uptime })
   }, [status])
 
+  // Memoize the heavy derivations BEFORE the early returns (Rules of Hooks) so
+  // they only recompute when signals actually change — not on every re-render
+  // this mounted widget receives from unrelated intentionEngine writes.
+  const userIndex = React.useMemo(() => getUserIndex(), [engineState.signals])
+  const qieCohort = React.useMemo(() => classifyPhysiologicalCohort(), [engineState.signals])
+
   // Don't render while loading all data
   if (statusLoading && perfLoading && versionLoading) return null
   // Need at least status to show anything
   if (!status) return null
-
-  const userIndex = getUserIndex()
-  const qieCohort = classifyPhysiologicalCohort()
 
   const label =
     view === 'status' ? 'CQGS Health:' :
