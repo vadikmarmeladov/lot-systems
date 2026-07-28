@@ -362,6 +362,9 @@ export const Logs: React.FC = React.memo(function LogsInner() {
                 {log.context?.humidity && (
                   <div>HUM: {log.context.humidity}%</div>
                 )}
+                {log.context?.astroRokuyo && (
+                  <div>ASTRO: {log.context.astroRokuyo} · {log.context.astroMoonPhase}</div>
+                )}
                 {log.metadata?.sound && (
                   <div>SND: {log.metadata.sound}</div>
                 )}

@@ -26,7 +26,7 @@ import { atom } from 'nanostores'
 // Intention signals collected from all widgets and background monitors
 export type IntentionSignal = {
   timestamp: number
-  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals' | 'qos' | 'medical' | 'resilience' | 'badges'
+  source: 'mood' | 'memory' | 'planner' | 'intentions' | 'selfcare' | 'journal' | 'calculator' | 'log' | 'energy' | 'cohort' | 'recipe' | 'goals' | 'qos' | 'medical' | 'resilience' | 'badges' | 'astrology'
   signal: string
   metadata?: Record<string, any>
 }
@@ -3541,6 +3541,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   log:               [],
   time:              [],
   quantum_random:    [],
+  astrology:         [], // (2026-07-27 audit) ambient rokuyo/moon-phase/zodiac-hour reading, no upstream deps
 
   // ── Tier 1: single-source consumers
   selfcare:          ['mood'],
@@ -3570,11 +3571,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   interventions:     ['mood', 'selfcare', 'journal', 'energy'],
   userMetrics:       ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort'],
   systemProgress:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log', 'calculator'],
-  system:            ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log', 'qos'],
+  system:            ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log', 'qos', 'astrology'],
 
   // ── Tier 2+: additional consumer widgets
   patternInsights:   ['mood', 'memory', 'journal', 'energy', 'cohort', 'planner'],
-  cosmic:            ['mood', 'energy', 'intentions'],
+  cosmic:            ['mood', 'energy', 'intentions', 'astrology'],
   quantumSign:       ['intentions', 'memory'],
   microGame:         ['calculator', 'time'],
 
@@ -4550,6 +4551,29 @@ export function checkFullStackSession(): boolean {
  */
 export function recordCalendarSignal(entryType: string, date: string) {
   recordSignal('log', 'calendar_entry', { entryType, date, hour: new Date().getHours() })
+}
+
+/**
+ * Record the day's ambient astrology reading — rokuyo, moon phase, and
+ * zodiac hour. Ambient/environmental conditions only, not a personal
+ * natal chart. Called once per calendar day from the System dashboard so
+ * other widgets (cosmic, system) can synchronize against Tier 0 'astrology'.
+ */
+export function recordAstrologySignal(
+  rokuyo: string,
+  moonPhase: string,
+  moonIllumination: number,
+  hourlyZodiac: string,
+  westernZodiac: string
+) {
+  recordSignal('astrology', 'ambient_reading', {
+    rokuyo,
+    moonPhase,
+    moonIllumination,
+    hourlyZodiac,
+    westernZodiac,
+    auspicious: rokuyo === 'Taian',
+  })
 }
 
 /**
