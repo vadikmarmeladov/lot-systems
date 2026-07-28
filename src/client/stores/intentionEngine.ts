@@ -3063,7 +3063,11 @@ export function analyzeIntentions(): IntentionPattern[] {
   // sleep anchored, care sustained over multiple days, energy field climbing. Protocol, not rest.
   const p135HasSleepAnchor = patterns.some(p => p.pattern === 'sleep-signal-anchor')
   const p135HasCareArc     = patterns.some(p => p.pattern === 'multi-day-care-arc')
-  const p135EnergyState    = userState.energy
+  // Use state.userState (the stored state, like every other pattern above) —
+  // the local `userState` const is not declared until further down, so reading
+  // the bare `userState` here is a temporal-dead-zone access that throws
+  // "Cannot access 'userState' before initialization" and crashes the app.
+  const p135EnergyState    = state.userState.energy
   const p135Recovering     = p135EnergyState === 'low' || p135EnergyState === 'moderate'
   if (p135HasSleepAnchor && p135HasCareArc && p135Recovering) {
     const sleepConf = patterns.find(p => p.pattern === 'sleep-signal-anchor')?.confidence ?? 0.72

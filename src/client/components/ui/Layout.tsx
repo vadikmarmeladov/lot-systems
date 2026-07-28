@@ -10,7 +10,14 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { goTo } from '#client/stores/router'
-import { Button, Page } from '#client/components/ui'
+// Import directly from the component files, NOT the barrel (#client/components/ui).
+// Layout is itself re-exported by that barrel, so importing the barrel here
+// creates a circular dependency (ui/index -> Layout -> ui/index). With esbuild
+// code-splitting that cycle can initialize a chunk binding out of order and
+// throw "Cannot access uninitialized variable" at render — and since Layout
+// wraps every page, it takes down the whole app.
+import { Button } from './Button'
+import { Page } from './Page'
 import { cn } from '#client/utils'
 
 type RouteName = 'sync' | 'logs' | 'system' | 'api' | 'settings'
