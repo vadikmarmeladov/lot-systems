@@ -177,3 +177,58 @@ export function getMoonEmoji(phaseName: string): string {
   }
   return emojiMap[phaseName] || '🌑'
 }
+
+/**
+ * Resonance between today's ambient conditions (rokuyo, moon phase) and the
+ * user's own logged emotional check-ins under matching conditions in the past.
+ * This is not a horoscope or natal chart — it only ever reflects what the user
+ * has actually recorded. A mood is only surfaced once it has recurred (2+
+ * occurrences) under the same ambient condition, so a single coincidence never
+ * reads as a "pattern."
+ */
+export type LogResonanceMatch = { mood: string; count: number }
+
+export interface LogResonance {
+  rokuyo: LogResonanceMatch | null
+  moonPhase: LogResonanceMatch | null
+}
+
+const RESONANCE_MIN_OCCURRENCES = 2
+
+function topMood(counts: Record<string, number>): LogResonanceMatch | null {
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1])
+  if (entries.length === 0) return null
+  const [mood, count] = entries[0]
+  if (count < RESONANCE_MIN_OCCURRENCES) return null
+  return { mood, count }
+}
+
+export function getAstrologyLogResonance(
+  logs: Array<{ event: string; metadata?: Record<string, any> | null; createdAt: Date | string }>,
+  now: Date
+): LogResonance {
+  const currentRokuyo = getRokuyo(now)
+  const currentMoonPhase = getMoonPhase(now).phase
+
+  const rokuyoMoods: Record<string, number> = {}
+  const moonMoods: Record<string, number> = {}
+
+  for (const log of logs) {
+    if (log.event !== 'emotional_checkin') continue
+    const mood = log.metadata?.emotionalState
+    if (!mood) continue
+
+    const logDate = new Date(log.createdAt)
+    if (getRokuyo(logDate) === currentRokuyo) {
+      rokuyoMoods[mood] = (rokuyoMoods[mood] || 0) + 1
+    }
+    if (getMoonPhase(logDate).phase === currentMoonPhase) {
+      moonMoods[mood] = (moonMoods[mood] || 0) + 1
+    }
+  }
+
+  return {
+    rokuyo: topMood(rokuyoMoods),
+    moonPhase: topMood(moonMoods),
+  }
+}

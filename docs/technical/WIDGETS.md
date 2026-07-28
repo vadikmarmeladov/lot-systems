@@ -438,7 +438,7 @@ All widgets are orchestrated by `System.tsx`, the master dashboard component. Wi
 1. **Header** — User identity, week number, date, location
 2. **Community Pulse** — Convergence atmosphere with narrative
 3. **Tags & Team** — User affiliations and team display
-4. **Time & Environment** — Clock, quantum random, weather, astrology/psychology cycling
+4. **Time & Environment** — Clock, quantum random, weather, astrology/psychology cycling. The Astrology view (zodiac hour, moon phase, rokuyo — ambient conditions only, never a natal chart) surfaces log resonance: moods the user has logged 2+ times under the same rokuyo day or moon phase, and records a `log` QIE signal on view so other widgets can factor ambient conditions into pattern/archetype computation
 5. **Context Stack** — Contextual prompts, chat catalysts, interventions
 6. **Bioethics Stack** — Energy, narrative, evolution, interface evolution, milestones
 7. **Settings** — Mirror, sound/radio toggle, breathe mode

@@ -22,7 +22,7 @@ import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
-import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
+import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo, getAstrologyLogResonance } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
 import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
@@ -55,7 +55,7 @@ import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, recordSignal } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
@@ -190,13 +190,16 @@ export const System = React.memo(function SystemInner() {
     return { sunrise, sunset }
   }, [weather, isTimeFormat12h])
 
-  // Astrology calculations
+  // Astrology calculations — ambient conditions only (zodiac hour, moon phase,
+  // rokuyo). Personalization comes from resonance with the user's own logged
+  // emotional check-ins under matching conditions, never a fabricated chart.
   const astrology = React.useMemo(() => {
     const now = new Date()
     const hourlyZodiac = getHourlyZodiac(now)
     const westernZodiac = getWesternZodiac(now)
     const moonPhase = getMoonPhase(now)
     const rokuyo = getRokuyo(now)
+    const logResonance = getAstrologyLogResonance(logs, now)
 
     return {
       hourlyZodiac,
@@ -204,8 +207,9 @@ export const System = React.memo(function SystemInner() {
       moonPhase: moonPhase.phase,
       moonIllumination: moonPhase.illumination,
       rokuyo,
+      logResonance,
     }
-  }, [])
+  }, [logs])
 
   const answerLogs = React.useMemo(() => {
     return logs.filter(log => log.event === 'answer')
@@ -630,6 +634,15 @@ export const System = React.memo(function SystemInner() {
           }
           onLabelClick={() => {
             // Cycle through: Astrology → Psychology → Journey → Quantum → Astrology
+            if (astrologyView === 'astrology') {
+              // Sync ambient conditions into the shared signal stream so other
+              // widgets (Quantum State, Pattern Insights) can factor them in.
+              recordSignal('log', 'astrology_ambient_view', {
+                rokuyo: astrology.rokuyo,
+                moonPhase: astrology.moonPhase,
+                hour: new Date().getHours(),
+              })
+            }
             setAstrologyView(prev =>
               prev === 'astrology' ? 'psychology' :
               prev === 'psychology' ? 'journey' :
@@ -640,7 +653,23 @@ export const System = React.memo(function SystemInner() {
         >
           {astrologyView === 'astrology' ? (
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              <div>
+                {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase}
+              </div>
+              {!!(astrology.logResonance.rokuyo || astrology.logResonance.moonPhase) && (
+                <div className="mt-4 opacity-30">
+                  {astrology.logResonance.rokuyo && (
+                    <div>
+                      Usually {astrology.logResonance.rokuyo.mood} on {astrology.rokuyo} days ({astrology.logResonance.rokuyo.count} logs)
+                    </div>
+                  )}
+                  {astrology.logResonance.moonPhase && (
+                    <div>
+                      Usually {astrology.logResonance.moonPhase.mood} during {astrology.moonPhase} ({astrology.logResonance.moonPhase.count} logs)
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ) : astrologyView === 'psychology' ? (
             <div>
