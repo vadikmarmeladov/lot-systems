@@ -3107,6 +3107,30 @@ export function analyzeIntentions(): IntentionPattern[] {
 
   const userState = calculateUserState(signals, now)
 
+  // Pattern 140: Auspicious Day Alignment — today's astrology reading came back
+  // auspicious (Taian rokuyo) AND a goals or intentions signal fired within the
+  // same 24h window. Ambient conditions favorable + the person is already
+  // setting direction. A gentle nudge, not a prescription — the astrology
+  // block stays strictly ambient (no natal-chart data feeds this).
+  const p140AstroSignal = recentSignals
+    .filter(s => s.source === 'astrology' && s.signal === 'ambient_reading')
+    .sort((a, b) => b.timestamp - a.timestamp)[0]
+  const p140Auspicious = p140AstroSignal?.metadata?.auspicious === true
+  const p140HasGoal = recentSignals.some(s => s.source === 'goals')
+  const p140HasIntention = recentSignals.some(s => s.source === 'intentions')
+  if (p140Auspicious && (p140HasGoal || p140HasIntention)) {
+    const p140Rokuyo = p140AstroSignal?.metadata?.rokuyo ?? 'Taian'
+    const p140Both = p140HasGoal && p140HasIntention
+    const p140Conf = Math.min(0.60 + (p140Both ? 0.12 : 0.06), 0.78)
+    patterns.push({
+      pattern: 'auspicious-day-alignment',
+      confidence: p140Conf,
+      suggestedWidget: 'goals',
+      suggestedTiming: 'passive',
+      reason: `AUSDAY: Auspicious day alignment — ${p140Rokuyo} rokuyo reading active AND ${p140Both ? 'goals and intentions' : p140HasGoal ? 'a goal' : 'an intention'} recorded within the same 24h window. Ambient conditions favorable; intention-setting energy already present.`,
+    })
+  }
+
   // Pattern 137: Quantum Coherence Peak — P136 (quantum-field-alignment) active AND UserIndex overall ≥ 60.
   // Field alignment is the prerequisite; coherence is the threshold. Not merely aligned —
   // operating above the quantitative integration ceiling. The OS is no longer stabilizing. It is transmitting.
@@ -3555,7 +3579,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   memory:            ['mood', 'journal'],
   intentions:        ['mood', 'memory'],
   journal:           ['mood', 'planner'],
-  goals:             ['planner', 'intentions', 'memory', 'journal'],
+  goals:             ['planner', 'intentions', 'memory', 'journal', 'astrology'], // (2026-07-28 audit) P140 auspicious-day-alignment joins astrology + goals/intentions
   chakra:            ['mood', 'energy', 'selfcare', 'journal'],
   cohort:            ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
   narrative:         ['mood', 'memory', 'journal', 'intentions'],
