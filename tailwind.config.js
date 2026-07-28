@@ -29,6 +29,11 @@ module.exports = {
     extend: {
       fontFamily: {
         base: ['Arial', 'Helvetica', 'sans-serif'],
+        // LOT-FM-001 terminal register (Basic/Ration module, and any future
+        // module using the same IBM 3270 house style). Liberation Mono is
+        // metric-compatible with Courier New; falls back to the platform
+        // monospace stack where it isn't installed.
+        term: ['Liberation Mono', 'Courier New', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       lineHeight: {
         1: '1',

@@ -226,3 +226,28 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Basic (Ration) Module — House Style Isolation
+
+A module built to a distinct spec (LOT-FM-001: LiberationMono, white
+ground/black ink, inversion-only hierarchy, 2px rules, square corners, IBM
+3270 register) is a deliberate departure from the rest of the app's design
+system — not a style inconsistency to reconcile. The rest of LOT uses Arial,
+rounded/pill controls, and an opacity hierarchy driven by the operator's
+theme (MILITARY PURITY still governs both: no decoration, no emojis, no
+superlatives — the token applies at every register, not just this one).
+
+Rule: a module with its own house style gets its own scoped tokens, additive
+to the shared design system, never overriding it. `font-term` was added to
+`tailwind.config.js` alongside `font-base` (not replacing it). `--lot-term-
+ink` / `--lot-term-ground` / `--lot-term-rule` were added to `index.css` as
+new custom properties, fixed values independent of `--base-color` / `--acc-
+color-*` — this register renders the same in every theme (dark, light,
+custom, mirror) because it represents a printed manifest, not a themed
+surface. Future modules that need a similarly isolated register should
+follow the same pattern: additive tokens, a scoped prefix, no shared-system
+override.
+
+(SR-20260728-01: Basics tab M1 — font-term + --lot-term-* introduced;
+StatusLine component built to the isolated register as the first reusable
+piece.)

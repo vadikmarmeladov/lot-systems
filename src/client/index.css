@@ -50,6 +50,14 @@
   --theme-pattern-scale: 1;
   --theme-edge-sharpness: 1px;
   --evolution-background-pattern: none;
+
+  /* LOT-FM-001 terminal register — house tokens for the Basic (Ration)
+     module and any future module built to the same IBM 3270 spec.
+     Fixed ink/ground, independent of the operator's theme selection:
+     this register is a printed manifest, not a themed surface. */
+  --lot-term-ink: #000;
+  --lot-term-ground: #fff;
+  --lot-term-rule: 2px;
 }
 
 input:-webkit-autofill {
