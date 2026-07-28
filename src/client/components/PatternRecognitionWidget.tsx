@@ -161,6 +161,18 @@ export function PatternRecognitionWidget() {
       'morning-intention-lock':     'Morning intention lock — intentions + planner + log in 06–10h window (P128)',
       'multi-day-care-arc':         'Multi-day care arc — selfcare on 3+ consecutive days (P129)',
       'cognitive-output-continuity':'Cognitive output continuity — journal on 4+/7 days (P130)',
+      'daily-coherence-seal':       'Daily coherence seal — morning launch + evening close in one day (P131)',
+      'quantum-rhythm-lock':        'Quantum rhythm lock — weekly rhythm + cognitive output continuity co-active (P132)',
+      'biofield-integration-peak':  'Biofield integration peak — multi-day care arc + mood-energy convergence (P133)',
+      'integrated-signal-arc':      'Integrated signal arc — all four cognitive channels in 8h window (P134)',
+      'deep-recovery-protocol':     'Deep recovery protocol — sleep anchor + multi-day care arc active (P135)',
+      'quantum-field-alignment':    'Quantum field alignment — daily seal + quantum rhythm + biofield integration (P136)',
+      'quantum-coherence-peak':     'Quantum coherence peak — field aligned AND UserIndex ≥ 60 (P137)',
+      'signal-matrix-saturation':   'Signal matrix saturation — all six dimensions ≥ 30 simultaneously (P138)',
+      'temporal-biofield-sync':     'Temporal-biofield sync — morning + seal + biofield integration same day (P139)',
+      'quantum-os-pulse':           'Quantum OS pulse — full OS at operational capacity, all dimensions ≥ 40 (P140)',
+      'resonance-depth-arc':        'Resonance depth arc — coherence peak + temporal sync cross-domain (P141)',
+      'circadian-signal-integration':'Circadian signal integration — tri-phase diurnal presence confirmed (P142)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -523,6 +535,27 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'resilience-cascade') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Resilience cascade. Recovery + knowledge arc closed.
+                </div>
+              )}
+
+              {/* Quantum OS pulse — P140 */}
+              {patterns.some(p => p.pattern === 'quantum-os-pulse') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Full OS operational. All dimensions ≥ 40. Baseline confirmed.
+                </div>
+              )}
+
+              {/* Resonance depth arc — P141 */}
+              {patterns.some(p => p.pattern === 'resonance-depth-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Cross-domain resonance. Coherence + temporal sync co-active.
+                </div>
+              )}
+
+              {/* Circadian signal integration — P142 */}
+              {patterns.some(p => p.pattern === 'circadian-signal-integration') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Tri-phase diurnal arc. Morning · midday · evening all engaged.
                 </div>
               )}
 

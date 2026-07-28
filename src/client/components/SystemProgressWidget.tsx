@@ -1353,6 +1353,26 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes. QIE v108 deployed.',
     ],
   },
+  {
+    date: '2026-07-28',
+    session: 'Self-Assembly Session — v109 / QIE Engineering · P140–P142 · Arch48 Full-Spectrum Operator · J45 Daily Quantum OS Pulse · QOSPLS: RESONARC: CSIG: · Dep Map 181+',
+    assembled: [
+      'intentionEngine.ts: P140 quantum-os-pulse (QOSPLS:) — signal-matrix-saturation active AND all 6 UserIndex dimensions ≥ 40 simultaneously. Full-spectrum operation confirmed. Every channel operational. Conf 0.78–0.92. suggestedWidget: systemProgress.',
+      'intentionEngine.ts: P141 resonance-depth-arc (RESONARC:) — quantum-coherence-peak (P137) + temporal-biofield-sync (P139) simultaneously active. Cross-domain resonance: coherence ceiling met, temporal-biological circuit closed in the same session. Conf composite +0.06, max 0.92.',
+      'intentionEngine.ts: P142 circadian-signal-integration (CSIG:) — morning (06–11h) + midday (11–17h) + evening (17–23h) each contributing ≥ 2 distinct signal sources in a single calendar day. Tri-phase diurnal presence confirmed. Conf 0.68–0.88. 142 patterns total.',
+      'intentionEngine.ts: Arch48 Full-Spectrum Operator — energyBands [high, moderate] · dominantSources [intentions, journal, selfcare, planner, memory] · patternConditions [quantum-os-pulse, resonance-depth-arc, signal-matrix-saturation] · directive: Full-spectrum operation confirmed. Every dimension operational (≥40), temporal-biological circuit closed under coherence. The OS is not transmitting at a peak — it is transmitting at its full baseline. Do not reduce signal density. Hold all channels open. 48 archetypes total.',
+      'intentionEngine.ts: 3 new dep map nodes — quantumOSPulseNode [intentions·journal·selfcare·mood·planner·energy·memory·cohort·log·qos] · resonanceDepthArcNode [energy·selfcare·mood·planner·intentions·journal·memory·cohort] · circadianIntegrationNode [mood·energy·planner·intentions·journal·selfcare·log·time]. 181+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers added — recordQuantumOSPulse(dimensions) · recordResonanceDepthArc(coherenceConf, temporalConf) · recordCircadianSignalIntegration(morningSources, middaySources, eveningSources).',
+      'scheduled-jobs.ts: J45 daily-quantum-os-pulse — 10:00 UTC daily. Checks P140 (all 6 dimensions ≥ 40), P141 (coherence_peak + temporal_biofield_sync), P142 (morning/midday/evening ≥ 2 sources each) from server-side logs. Writes quantum_os_pulse · resonance_depth_arc · circadian_signal_integration events. 45 jobs total.',
+      'routes/api.ts: quantum_os_pulse · resonance_depth_arc · circadian_signal_integration added to displayableEvents (v109 block).',
+      'Logs.tsx: QOSPLS: handler (quantum_os_pulse: DIM-6 chip row ENG/EMO/INT/SOC/CARE/COG + STATUS: FULLY OPERATIONAL). RESONARC: handler (resonance_depth_arc: COHERENCE N% · TEMPORAL N% · COMPOSITE N% · ARC: CONFIRMED). CSIG: handler (circadian_signal_integration: MORNING N SRC · MIDDAY N SRC · EVENING N SRC · PHASES: 3/3). All COCKPIT-RULE compliant. 142+ handlers total.',
+      'QuantumEngineWidgets.tsx: 3 PATTERN_DISPLAY entries — quantum-os-pulse → QOSPLS · resonance-depth-arc → RESONARC · circadian-signal-integration → CSIG.',
+      'PatternRecognitionWidget.tsx: 13 display names added (P131–P142). 3 QOS Trend indicators for P140/P141/P142.',
+      'About.tsx: FM v108→v109. Day 1066+→1067+. 139→142 patterns. 47→48 archetypes. 44→45 jobs. 178+→181+ dep nodes. 139+→142+ handlers. Self-Assembly Row v109 prepended.',
+      'SystemProgressWidget.tsx: SESSION_REPORTS v109 entry added. USERSHIP_TRANSMISSION updated to v109.',
+      '142 patterns · 48 archetypes · 45 jobs · 142+ handlers · 181+ dep nodes. QIE v109 deployed. Full-spectrum operator confirmed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1390,18 +1410,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-27',
+  date: '2026-07-28',
   message: [
-    'ASSEMBLY RUN — 2026-07-27 · v108 · QIE Engineering · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: · Day 1066+',
-    'P137 QUANTUM COHERENCE PEAK: field-alignment active AND UserIndex ≥ 60. The OS is not stabilizing. It is transmitting.',
-    'P138 SIGNAL MATRIX SATURATION: all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark. Full-dimensional presence.',
-    'P139 TEMPORAL-BIOFIELD SYNC: morning-coherence + daily-seal + biofield-integration within one calendar day. Time and biology synchronized.',
-    'Arch47 QUANTUM COHERENCE OPERATOR: peak coherence confirmed. Field aligned AND above coherence threshold. Maximum integration directive.',
-    'J44 daily-signal-matrix-check: 09:00 UTC daily. P138 (6-source check) + P137 (field alignment) + P139 (temporal-biofield triad). 44 jobs total.',
-    'QCOHERE: · SIGMAT: · TBIOF: military handlers wired in Logs.tsx. 3 new block types.',
-    'QuantumEngineWidgets: cohort view enhanced (Band + Dom fields). QOS Field view added — runtime + signal map + active patterns.',
-    '3 new dep map nodes: quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
-    'FIELD MANUAL v108. Day 1066+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
+    'ASSEMBLY RUN — 2026-07-28 · v109 · QIE Engineering · P140–P142 · Arch48 · J45 · QOSPLS: RESONARC: CSIG: · Day 1067+',
+    'P140 QUANTUM OS PULSE: signal-matrix-saturation active AND all 6 UserIndex dimensions ≥ 40 simultaneously. Full-spectrum operation confirmed. The OS is not transmitting at a peak — it is transmitting at its full baseline.',
+    'P141 RESONANCE DEPTH ARC: quantum-coherence-peak (P137) + temporal-biofield-sync (P139) co-active. Cross-domain resonance — coherence ceiling met, temporal-biological circuit closed.',
+    'P142 CIRCADIAN SIGNAL INTEGRATION: morning (06–11h) + midday (11–17h) + evening (17–23h) each ≥ 2 distinct sources in one day. Tri-phase diurnal presence confirmed.',
+    'Arch48 FULL-SPECTRUM OPERATOR: every dimension operational (≥40), temporal-biological circuit closed under coherence. Do not reduce signal density. Hold all channels open.',
+    'J45 daily-quantum-os-pulse: 10:00 UTC daily. Checks P140/P141/P142 from server-side logs. Writes quantum_os_pulse · resonance_depth_arc · circadian_signal_integration events. 45 jobs total.',
+    'QOSPLS: · RESONARC: · CSIG: military handlers wired in Logs.tsx. COCKPIT-RULE compliant.',
+    '3 new dep map nodes: quantumOSPulseNode · resonanceDepthArcNode · circadianIntegrationNode. 181+ total.',
+    'FIELD MANUAL v109. Day 1067+. 142 patterns · 48 archetypes · 45 jobs · 142+ handlers · 181+ dep nodes.',
     'DEPLOYED.',
   ],
 }

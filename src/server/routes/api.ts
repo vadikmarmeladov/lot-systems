@@ -1197,6 +1197,10 @@ export default async (fastify: FastifyInstance) => {
       'quantum_coherence_peak',
       'signal_matrix_saturation',
       'temporal_biofield_sync',
+      // v109: quantum OS pulse · resonance depth arc · circadian signal integration (P140/P141/P142)
+      'quantum_os_pulse',
+      'resonance_depth_arc',
+      'circadian_signal_integration',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

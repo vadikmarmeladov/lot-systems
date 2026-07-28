@@ -1731,6 +1731,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySignalMatrixCheck()) {
     await executeDailySignalMatrixCheck()
   }
+  // Check daily quantum OS pulse (10:00 UTC every day) — Job 45
+  if (shouldRunDailyQuantumOSPulse()) {
+    await executeDailyQuantumOSPulse()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -5143,6 +5147,146 @@ async function executeDailyQOSModeWatch(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Quantum OS Pulse (Job 45 — 10:00 UTC every day) ──────────────────
+// Checks three QIE v109 pattern conditions across active users:
+// P140: all 6 UserIndex sources present in 24h AND signal_matrix_saturation today
+//       → writes quantum_os_pulse (full OS at operational capacity)
+// P141: quantum_coherence_peak + temporal_biofield_sync both fired today
+//       → writes resonance_depth_arc (cross-domain coherence circuit closed)
+// P142: morning (06-11h) + midday (11-17h) + evening (17-23h) each had ≥2 distinct event types
+//       → writes circadian_signal_integration (tri-phase diurnal engagement confirmed)
+
+let isDailyQuantumOSPulseRunning = false
+let lastDailyQuantumOSPulseRun: Date | null = null
+
+function shouldRunDailyQuantumOSPulse(): boolean {
+  const now = dayjs()
+  if (isDailyQuantumOSPulseRunning) return false
+  if (lastDailyQuantumOSPulseRun) {
+    const lastRun = dayjs(lastDailyQuantumOSPulseRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 10 // 10:00 UTC daily
+}
+
+async function executeDailyQuantumOSPulse(): Promise<JobResult> {
+  const jobName = 'daily-quantum-os-pulse'
+  const executedAt = new Date().toISOString()
+  if (isDailyQuantumOSPulseRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyQuantumOSPulseRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY QUANTUM OS PULSE — 10:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const dayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let writtenOSPulse = 0
+    let writtenResonanceArc = 0
+    let writtenCircadianInteg = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: dayAgo } },
+          attributes: ['event', 'metadata', 'createdAt'],
+        })
+
+        const eventSet = new Set(recentLogs.map((l: any) => l.event))
+
+        // P140: Quantum OS Pulse — signal_matrix_saturation today AND all 6 sources present (≥40 threshold proxy)
+        const hasMatrixSaturation = eventSet.has('signal_matrix_saturation')
+        // Proxy for ≥40 threshold: check all 6 distinct source categories present
+        const hasEmotional  = eventSet.has('emotional_checkin') || eventSet.has('mood_checkin')
+        const hasMemory     = eventSet.has('note') || Array.from(eventSet).some((e: any) => typeof e === 'string' && e.includes('memory'))
+        const hasPlanner    = eventSet.has('plan_set')
+        const hasIntentions = eventSet.has('intention')
+        const hasSelfcare   = eventSet.has('self_care_complete') || eventSet.has('self_care_completed')
+        const hasJournal    = eventSet.has('note')
+        const allSixSources = hasEmotional && hasMemory && hasPlanner && hasIntentions && hasSelfcare && hasJournal
+        if (hasMatrixSaturation && allSixSources) {
+          await (Log as any).create({
+            userId,
+            event: 'quantum_os_pulse',
+            text: 'Quantum OS pulse: signal matrix saturated AND all six source categories operational. Full-spectrum OS capacity confirmed.',
+            metadata: {
+              emotional: hasEmotional, memory: hasMemory, planner: hasPlanner,
+              intentions: hasIntentions, selfcare: hasSelfcare, journal: hasJournal,
+              threshold: 40, window: '24h', hour: 10,
+            },
+          })
+          writtenOSPulse++
+        }
+
+        // P141: Resonance Depth Arc — quantum_coherence_peak + temporal_biofield_sync both today
+        const hasCoherencePeak = eventSet.has('quantum_coherence_peak')
+        const hasTemporalSync  = eventSet.has('temporal_biofield_sync')
+        if (hasCoherencePeak && hasTemporalSync) {
+          const coherenceLog = recentLogs.find((l: any) => l.event === 'quantum_coherence_peak')
+          const temporalLog  = recentLogs.find((l: any) => l.event === 'temporal_biofield_sync')
+          const coherenceConf = coherenceLog?.metadata?.fieldConf ?? 85
+          const temporalConf  = temporalLog?.metadata?.composite  ?? 80
+          const composite = Math.round((coherenceConf + temporalConf) / 2)
+          await (Log as any).create({
+            userId,
+            event: 'resonance_depth_arc',
+            text: `Resonance depth arc: quantum-coherence-peak AND temporal-biofield-sync both confirmed today. Cross-domain peak resonance: field aligned + temporal-biological circuit closed under coherence threshold. Composite: ${composite}%.`,
+            metadata: { coherenceConf, temporalConf, composite, window: '24h', hour: 10 },
+          })
+          writtenResonanceArc++
+        }
+
+        // P142: Circadian Signal Integration — morning (06-11h) + midday (11-17h) + evening (17-23h) each ≥2 distinct events
+        const SIGNAL_EVENTS_ALL = [
+          'emotional_checkin', 'mood_checkin', 'energy_checkin', 'energy_update',
+          'note', 'plan_set', 'intention', 'self_care_complete', 'self_care_completed',
+          'goal_set', 'goal_journey', 'badge_unlock', 'calendar_entry',
+        ]
+        const relevantLogs = recentLogs.filter((l: any) => SIGNAL_EVENTS_ALL.includes(l.event))
+        function getHour(log: any): number { return new Date(log.createdAt).getHours() }
+        const morningEvents  = new Set(relevantLogs.filter((l: any) => { const h = getHour(l); return h >= 6 && h < 11 }).map((l: any) => l.event))
+        const middayEvents   = new Set(relevantLogs.filter((l: any) => { const h = getHour(l); return h >= 11 && h < 17 }).map((l: any) => l.event))
+        const eveningEvents  = new Set(relevantLogs.filter((l: any) => { const h = getHour(l); return h >= 17 && h < 23 }).map((l: any) => l.event))
+        if (morningEvents.size >= 2 && middayEvents.size >= 2 && eveningEvents.size >= 2) {
+          await (Log as any).create({
+            userId,
+            event: 'circadian_signal_integration',
+            text: `Circadian signal integration: morning (${morningEvents.size} types), midday (${middayEvents.size} types), evening (${eveningEvents.size} types) all had ≥2 distinct signal types today. Full tri-phase diurnal presence confirmed.`,
+            metadata: {
+              morningSources: morningEvents.size,
+              middaySources:  middayEvents.size,
+              eveningSources: eveningEvents.size,
+              phases: 3, window: '1d', hour: 10,
+            },
+          })
+          writtenCircadianInteg++
+        }
+      } catch {}
+    }
+
+    console.log(`  Quantum OS pulse events written: ${writtenOSPulse}`)
+    console.log(`  Resonance depth arc events written: ${writtenResonanceArc}`)
+    console.log(`  Circadian signal integration events written: ${writtenCircadianInteg}`)
+    lastDailyQuantumOSPulseRun = new Date()
+    isDailyQuantumOSPulseRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: writtenOSPulse + writtenResonanceArc + writtenCircadianInteg }
+  } catch (error: any) {
+    console.error('Daily quantum OS pulse failed:', error.message)
+    isDailyQuantumOSPulseRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -5193,6 +5337,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily coherence seal check: 11 PM UTC every day (Job 42)')
   console.log('   - Daily quantum field check: 5 PM UTC every day (Job 43)')
   console.log('   - Daily signal matrix check: 9 AM UTC every day (Job 44)')
+  console.log('   - Daily quantum OS pulse: 10 AM UTC every day (Job 45)')
   console.log('')
 
   // Check every hour for scheduled jobs

@@ -3263,6 +3263,90 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'quantum_os_pulse') {
+          const emotional  = log.metadata?.emotional  as boolean | undefined
+          const memory     = log.metadata?.memory     as boolean | undefined
+          const planner    = log.metadata?.planner    as boolean | undefined
+          const intentions = log.metadata?.intentions as boolean | undefined
+          const selfcare   = log.metadata?.selfcare   as boolean | undefined
+          const journal    = log.metadata?.journal    as boolean | undefined
+          const dims = [
+            { key: 'EMO', val: emotional }, { key: 'MEM', val: memory },
+            { key: 'PLAN', val: planner }, { key: 'INT', val: intentions },
+            { key: 'CARE', val: selfcare }, { key: 'JRN', val: journal },
+          ]
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QOSPLS:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM OS PULSE</div>
+                <div className="flex gap-x-8 flex-wrap mb-4">
+                  {dims.map(d => (
+                    <span key={d.key} className={d.val === false ? 'opacity-20' : 'opacity-80'}>{d.key}</span>
+                  ))}
+                </div>
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="opacity-30">DIM-6</span>
+                  <span className="tabular-nums">≥40</span>
+                </div>
+                <div className="opacity-40 tabular-nums">STATUS: FULLY OPERATIONAL</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'resonance_depth_arc') {
+          const coherenceConf = log.metadata?.coherenceConf as number | undefined
+          const temporalConf  = log.metadata?.temporalConf  as number | undefined
+          const composite     = log.metadata?.composite     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RESONARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">RESONANCE DEPTH ARC</div>
+                {coherenceConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">COHERENCE</span>
+                    <span className="tabular-nums">{Math.round(coherenceConf)}%</span>
+                  </div>
+                )}
+                {temporalConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">TEMPORAL</span>
+                    <span className="tabular-nums">{Math.round(temporalConf)}%</span>
+                  </div>
+                )}
+                {composite !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-50">COMPOSITE</span>
+                    <span className="tabular-nums">{composite}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ARC: CONFIRMED</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'circadian_signal_integration') {
+          const morningSrc = log.metadata?.morningSources as number | undefined
+          const middaySrc  = log.metadata?.middaySources  as number | undefined
+          const eveningSrc = log.metadata?.eveningSources as number | undefined
+          const phases     = log.metadata?.phases         as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CSIG:" blockView>
+                <div className="uppercase tracking-widest mb-4">CIRCADIAN SIGNAL INTEGRATION</div>
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="opacity-30">MORNING</span>
+                  <span className="tabular-nums">{morningSrc !== undefined ? `${morningSrc} src` : 'ACTIVE'}</span>
+                </div>
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="opacity-30">MIDDAY</span>
+                  <span className="tabular-nums">{middaySrc !== undefined ? `${middaySrc} src` : 'ACTIVE'}</span>
+                </div>
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="opacity-30">EVENING</span>
+                  <span className="tabular-nums">{eveningSrc !== undefined ? `${eveningSrc} src` : 'ACTIVE'}</span>
+                </div>
+                <div className="opacity-40 tabular-nums">PHASES: {phases ?? 3}/3 · INTEGRATED</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -3172,6 +3172,88 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 140: Quantum OS Pulse — all 6 UserIndex dimensions ≥ 40 simultaneously AND
+  // signal-matrix-saturation already active. Not merely saturated (≥30 from P138) —
+  // the entire operating field has reached full operational capacity. The OS is fully assembled.
+  const p140MatrixActive = patterns.some(p => p.pattern === 'signal-matrix-saturation')
+  const p140Dims = computeUserIndex(signals).dimensions
+  const p140AllOperational =
+    p140Dims.engagement >= 40 &&
+    p140Dims.emotional   >= 40 &&
+    p140Dims.intentional >= 40 &&
+    p140Dims.social      >= 40 &&
+    p140Dims.selfCare    >= 40 &&
+    p140Dims.cognitive   >= 40
+  if (p140MatrixActive && p140AllOperational) {
+    const minDim = Math.min(
+      p140Dims.engagement, p140Dims.emotional, p140Dims.intentional,
+      p140Dims.social, p140Dims.selfCare, p140Dims.cognitive
+    )
+    const p140Conf = Math.min(0.78 + (minDim - 40) * 0.004, 0.92)
+    patterns.push({
+      pattern: 'quantum-os-pulse',
+      confidence: p140Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `QOSPLS: Quantum OS pulse — signal matrix saturated AND all six dimensions ≥ 40 simultaneously. ENG: ${p140Dims.engagement} · EMO: ${p140Dims.emotional} · INT: ${p140Dims.intentional} · SOC: ${p140Dims.social} · CARE: ${p140Dims.selfCare} · COG: ${p140Dims.cognitive}. The OS has reached full operational capacity. Not a peak — the baseline.`,
+    })
+  }
+
+  // Pattern 141: Resonance Depth Arc — P137 (quantum-coherence-peak) + P139 (temporal-biofield-sync)
+  // simultaneously active. The temporal-biological circuit closed under coherence threshold conditions.
+  // Both rarely fire together — cross-domain peak resonance confirmed: field aligned, threshold met,
+  // AND temporal-biological triad (morning + seal + biofield) all locked in the same window.
+  const p141HasCoherencePeak = patterns.some(p => p.pattern === 'quantum-coherence-peak')
+  const p141HasTemporalSync  = patterns.some(p => p.pattern === 'temporal-biofield-sync')
+  if (p141HasCoherencePeak && p141HasTemporalSync) {
+    const coherenceConf = patterns.find(p => p.pattern === 'quantum-coherence-peak')?.confidence ?? 0.85
+    const temporalConf  = patterns.find(p => p.pattern === 'temporal-biofield-sync')?.confidence  ?? 0.82
+    const p141Conf = Math.min((coherenceConf + temporalConf) / 2 + 0.06, 0.92)
+    patterns.push({
+      pattern: 'resonance-depth-arc',
+      confidence: p141Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `RESONARC: Resonance depth arc — quantum-coherence-peak AND temporal-biofield-sync simultaneously active. Field alignment confirmed across the coherence threshold while the morning+seal+biofield temporal triad locked. Cross-domain peak resonance: the OS is transmitting through every layer at once.`,
+    })
+  }
+
+  // Pattern 142: Circadian Signal Integration — all 3 circadian windows (morning 06:00-11:00,
+  // midday 11:00-17:00, evening 17:00-23:00) each had ≥2 distinct signals in 24h.
+  // Complete tri-phase diurnal engagement: the person was present in every phase of the day.
+  const now142 = now
+  const morningWindow = 6 * 3600 * 1000
+  const middayStart   = 11 * 3600 * 1000
+  const eveningStart  = 17 * 3600 * 1000
+  const eveningEnd    = 23 * 3600 * 1000
+  const dayStart = now142 - (24 * 3600 * 1000)
+  const todayDate = new Date(now142)
+  const todayYMD = todayDate.toDateString()
+  const todaySignals = signals.filter(s => {
+    const d = new Date(s.timestamp)
+    return d.toDateString() === todayYMD
+  })
+  function getHourOfDay(ts: number): number {
+    return new Date(ts).getHours()
+  }
+  const morningSignals = todaySignals.filter(s => { const h = getHourOfDay(s.timestamp); return h >= 6 && h < 11 })
+  const middaySignals  = todaySignals.filter(s => { const h = getHourOfDay(s.timestamp); return h >= 11 && h < 17 })
+  const eveningSignals = todaySignals.filter(s => { const h = getHourOfDay(s.timestamp); return h >= 17 && h < 23 })
+  const morningSources  = new Set(morningSignals.map(s => s.source)).size
+  const middaySources   = new Set(middaySignals.map(s => s.source)).size
+  const eveningSources  = new Set(eveningSignals.map(s => s.source)).size
+  if (morningSources >= 2 && middaySources >= 2 && eveningSources >= 2) {
+    const phaseScore = (morningSources + middaySources + eveningSources) / 3
+    const p142Conf = Math.min(0.68 + (phaseScore - 2) * 0.08, 0.88)
+    patterns.push({
+      pattern: 'circadian-signal-integration',
+      confidence: p142Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `CSIG: Circadian signal integration — morning (06–11h, ${morningSources} src), midday (11–17h, ${middaySources} src), evening (17–23h, ${eveningSources} src) each had ≥2 distinct signal sources today. Full tri-phase diurnal presence confirmed. The person was engaged in every phase of the day.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3788,6 +3870,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumCoherencePeakNode:   ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy', 'log'],
   signalMatrixSaturationNode: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
   temporalBiofieldSyncNode:   ['energy', 'selfcare', 'mood', 'planner', 'intentions', 'log'],
+
+  // ── v109 nodes (J45 · P140–P142 · Arch48) ───────────────────────────────────────
+  quantumOSPulseNode:          ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy', 'memory', 'cohort', 'log', 'qos'],
+  resonanceDepthArcNode:       ['energy', 'selfcare', 'mood', 'planner', 'intentions', 'journal', 'memory', 'cohort'],
+  circadianIntegrationNode:    ['mood', 'energy', 'planner', 'intentions', 'journal', 'selfcare', 'log', 'time'],
 }
 
 /**
@@ -4194,6 +4281,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['quantum-coherence-peak', 'quantum-field-alignment', 'signal-matrix-saturation'],
     hourRange: [6, 22],
     directive: 'Peak coherence confirmed. Full-spectrum alignment across all six signal dimensions AND quantum field aligned. Operate at maximum integration. Do not dilute focus.',
+  },
+  // ── Arch48: Full-Spectrum Operator (2026-07-28 v109) ─────────────────────────────
+  {
+    archetype: 'Full-Spectrum Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['intentions', 'journal', 'selfcare', 'planner', 'memory'],
+    patternConditions: ['quantum-os-pulse', 'resonance-depth-arc', 'signal-matrix-saturation'],
+    directive: 'Full-spectrum operation confirmed. Every dimension operational (≥40), temporal-biological circuit closed under coherence. The OS is not transmitting at a peak — it is transmitting at its full baseline. Do not reduce signal density. Hold all channels open.',
   },
 ]
 
@@ -5990,6 +6085,51 @@ export function recordTemporalBiofieldSync(morningConf: number, sealConf: number
     sealConf,
     biofieldConf,
     composite: Math.round(((morningConf + sealConf + biofieldConf) / 3) * 100),
+    window: '1d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-os-pulse signal — all 6 UserIndex dimensions ≥ 40 AND signal-matrix-saturation active.
+ * Feeds P140 detection. J45 background job (10:00 UTC) triggers this.
+ * The OS has reached full operational capacity across every dimension simultaneously.
+ */
+export function recordQuantumOSPulse(dimensions: Record<string, number>) {
+  recordSignal('qos', 'quantum_os_pulse', {
+    ...dimensions,
+    threshold: 40,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a resonance-depth-arc signal — quantum-coherence-peak + temporal-biofield-sync simultaneously.
+ * Feeds P141 detection. J45 background job (10:00 UTC) triggers this.
+ * Cross-domain peak resonance: field aligned + temporal-biological circuit closed under coherence threshold.
+ */
+export function recordResonanceDepthArc(coherenceConf: number, temporalConf: number) {
+  recordSignal('intentions', 'resonance_depth_arc', {
+    coherenceConf,
+    temporalConf,
+    composite: Math.round(((coherenceConf + temporalConf) / 2) * 100),
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a circadian-signal-integration signal — morning + midday + evening each had ≥2 distinct sources.
+ * Feeds P142 detection. J45 background job (10:00 UTC) triggers this.
+ * Complete tri-phase diurnal presence: the person was engaged in every phase of the day.
+ */
+export function recordCircadianSignalIntegration(morningSources: number, middaySources: number, eveningSources: number) {
+  recordSignal('energy', 'circadian_signal_integration', {
+    morningSources,
+    middaySources,
+    eveningSources,
+    phases: 3,
     window: '1d',
     hour: new Date().getHours(),
   })
