@@ -3063,7 +3063,11 @@ export function analyzeIntentions(): IntentionPattern[] {
   // sleep anchored, care sustained over multiple days, energy field climbing. Protocol, not rest.
   const p135HasSleepAnchor = patterns.some(p => p.pattern === 'sleep-signal-anchor')
   const p135HasCareArc     = patterns.some(p => p.pattern === 'multi-day-care-arc')
-  const p135EnergyState    = userState.energy
+  // Use state.userState (the stored state, like every other pattern above) —
+  // the local `userState` const is not declared until further down, so reading
+  // the bare `userState` here is a temporal-dead-zone access that throws
+  // "Cannot access 'userState' before initialization" and crashes the app.
+  const p135EnergyState    = state.userState.energy
   const p135Recovering     = p135EnergyState === 'low' || p135EnergyState === 'moderate'
   if (p135HasSleepAnchor && p135HasCareArc && p135Recovering) {
     const sleepConf = patterns.find(p => p.pattern === 'sleep-signal-anchor')?.confidence ?? 0.72
@@ -3102,6 +3106,71 @@ export function analyzeIntentions(): IntentionPattern[] {
   }
 
   const userState = calculateUserState(signals, now)
+
+  // Pattern 137: Quantum Coherence Peak — P136 (quantum-field-alignment) active AND UserIndex overall ≥ 60.
+  // Field alignment is the prerequisite; coherence is the threshold. Not merely aligned —
+  // operating above the quantitative integration ceiling. The OS is no longer stabilizing. It is transmitting.
+  const p137HasFieldAlignment = patterns.some(p => p.pattern === 'quantum-field-alignment')
+  const p137UserIndexSnapshot = computeUserIndex(signals)
+  if (p137HasFieldAlignment && p137UserIndexSnapshot.overall >= 60) {
+    const fieldConf = patterns.find(p => p.pattern === 'quantum-field-alignment')?.confidence ?? 0.85
+    const indexBonus = Math.min((p137UserIndexSnapshot.overall - 60) * 0.005, 0.06)
+    const p137Conf = Math.min(fieldConf + indexBonus, 0.96)
+    patterns.push({
+      pattern: 'quantum-coherence-peak',
+      confidence: p137Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `QCOHERE: Quantum coherence peak — quantum-field-alignment active AND UserIndex ${p137UserIndexSnapshot.overall} ≥ 60. The field is aligned AND the system is operating above the coherence ceiling. All dimensions integrating. The OS is transmitting.`,
+    })
+  }
+
+  // Pattern 138: Signal Matrix Saturation — all 6 UserIndex dimensions (engagement, emotional,
+  // intentional, social, selfCare, cognitive) each ≥ 30 simultaneously.
+  // Full-dimensional signal presence. No channel dark. Every dimension of the person active.
+  const p138Dims = computeUserIndex(signals).dimensions
+  const p138AllSaturated =
+    p138Dims.engagement >= 30 &&
+    p138Dims.emotional   >= 30 &&
+    p138Dims.intentional >= 30 &&
+    p138Dims.social      >= 30 &&
+    p138Dims.selfCare    >= 30 &&
+    p138Dims.cognitive   >= 30
+  if (p138AllSaturated) {
+    const minDim = Math.min(
+      p138Dims.engagement, p138Dims.emotional, p138Dims.intentional,
+      p138Dims.social, p138Dims.selfCare, p138Dims.cognitive
+    )
+    const p138Conf = Math.min(0.68 + (minDim - 30) * 0.005, 0.88)
+    patterns.push({
+      pattern: 'signal-matrix-saturation',
+      confidence: p138Conf,
+      suggestedWidget: 'userMetrics',
+      suggestedTiming: 'passive',
+      reason: `SIGMAT: Signal matrix saturation — all six UserIndex dimensions each ≥ 30 simultaneously. ENG: ${p138Dims.engagement} · EMO: ${p138Dims.emotional} · INT: ${p138Dims.intentional} · SOC: ${p138Dims.social} · CARE: ${p138Dims.selfCare} · COG: ${p138Dims.cognitive}. No channel dark. Full-dimensional presence.`,
+    })
+  }
+
+  // Pattern 139: Temporal-Biofield Sync — morning-coherence-arc + daily-coherence-seal +
+  // biofield-integration-peak all simultaneously active. Time and biology in sync on the same day.
+  // Not field alignment (which requires rhythm lock too) — this is the temporal+biological pair:
+  // the morning coherence launched the day, the daily seal closed it, and the biological field stayed integrated.
+  const p139HasMorningCoherence = patterns.some(p => p.pattern === 'morning-coherence-arc')
+  const p139HasDailyCoherence   = patterns.some(p => p.pattern === 'daily-coherence-seal')
+  const p139HasBiofieldIntegration = patterns.some(p => p.pattern === 'biofield-integration-peak')
+  if (p139HasMorningCoherence && p139HasDailyCoherence && p139HasBiofieldIntegration) {
+    const morningConf  = patterns.find(p => p.pattern === 'morning-coherence-arc')?.confidence   ?? 0.72
+    const sealConf     = patterns.find(p => p.pattern === 'daily-coherence-seal')?.confidence    ?? 0.72
+    const biofieldConf = patterns.find(p => p.pattern === 'biofield-integration-peak')?.confidence ?? 0.72
+    const p139Conf = Math.min((morningConf + sealConf + biofieldConf) / 3 + 0.08, 0.90)
+    patterns.push({
+      pattern: 'temporal-biofield-sync',
+      confidence: p139Conf,
+      suggestedWidget: 'selfcare',
+      suggestedTiming: 'passive',
+      reason: `TBIOF: Temporal-biofield sync — morning-coherence-arc + daily-coherence-seal + biofield-integration-peak all active. Time and biology synchronized within one operating window. The day launched from clarity, sealed in reflection, while the biological field stayed integrated throughout.`,
+    })
+  }
 
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
@@ -3713,6 +3782,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   integratedSignalNode:       ['journal', 'memory', 'planner', 'intentions', 'log'],
   deepRecoveryNode:           ['selfcare', 'log', 'energy', 'mood'],
   quantumFieldNode:           ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy'],
+
+  // ── v108 nodes (J44 · P137–P139 · Arch47) ───────────────────────────────────────
+  quantumCoherencePeakNode:   ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy', 'log'],
+  signalMatrixSaturationNode: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
+  temporalBiofieldSyncNode:   ['energy', 'selfcare', 'mood', 'planner', 'intentions', 'log'],
 }
 
 /**
@@ -4110,6 +4184,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     dominantSources: ['intentions', 'journal', 'selfcare', 'mood', 'planner'],
     patternConditions: ['quantum-field-alignment', 'daily-coherence-seal', 'quantum-rhythm-lock', 'biofield-integration-peak'],
     directive: 'Complete field confirmed. Every operational dimension active and aligned: temporal OS running, daily circuit sealed, biological and emotional fields integrated. This is not a peak — this is the operating system arriving at its baseline.',
+  },
+  // ── Arch47: Quantum Coherence Operator (2026-07-27 v108) ─────────────────────────
+  {
+    archetype: 'Quantum Coherence Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['intentions', 'journal', 'selfcare', 'planner', 'memory'],
+    patternConditions: ['quantum-coherence-peak', 'quantum-field-alignment', 'signal-matrix-saturation'],
+    hourRange: [6, 22],
+    directive: 'Peak coherence confirmed. Full-spectrum alignment across all six signal dimensions AND quantum field aligned. Operate at maximum integration. Do not dilute focus.',
   },
 ]
 
@@ -5839,6 +5922,50 @@ export function recordQuantumFieldAlignment(sealConf: number, rhythmConf: number
     rhythmConf,
     biofieldConf,
     composite: Math.round(((sealConf + rhythmConf + biofieldConf) / 3) * 100),
+    window: '1d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-coherence-peak signal — P136 (quantum-field-alignment) confirmed AND UserIndex ≥ 60.
+ * Feeds P137 detection. J44 background job (09:00 UTC) triggers this.
+ * Field is aligned AND the system is operating above the coherence ceiling. OS is transmitting.
+ */
+export function recordQuantumCoherencePeak(fieldConf: number, userIndex: number) {
+  recordSignal('intentions', 'quantum_coherence_peak', {
+    fieldConf,
+    userIndex,
+    threshold: 60,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a signal-matrix-saturation event — all 6 UserIndex dimensions each ≥ 30.
+ * Feeds P138 detection. J44 background job (09:00 UTC) triggers this.
+ * Every cognitive channel saturated simultaneously. Full-dimensional presence confirmed.
+ */
+export function recordSignalMatrixSaturation(dimensions: Record<string, number>) {
+  recordSignal('qos', 'signal_matrix_saturation', {
+    ...dimensions,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a temporal-biofield-sync signal — morning-coherence-arc + daily-coherence-seal +
+ * biofield-integration-peak all active within the same calendar day.
+ * Feeds P139 detection. Time and biology synchronized within one operating window.
+ */
+export function recordTemporalBiofieldSync(morningConf: number, sealConf: number, biofieldConf: number) {
+  recordSignal('energy', 'temporal_biofield_sync', {
+    morningConf,
+    sealConf,
+    biofieldConf,
+    composite: Math.round(((morningConf + sealConf + biofieldConf) / 3) * 100),
     window: '1d',
     hour: new Date().getHours(),
   })

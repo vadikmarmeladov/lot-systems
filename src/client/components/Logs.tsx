@@ -3152,6 +3152,114 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'quantum_coherence_peak') {
+          const fieldConf  = log.metadata?.fieldConf  as number | undefined
+          const userIndex  = log.metadata?.userIndex  as number | undefined
+          const threshold  = log.metadata?.threshold  as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QCOHERE:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM COHERENCE PEAK</div>
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="opacity-30">FIELD</span>
+                  <span className="tabular-nums">{fieldConf !== undefined ? `${Math.round(fieldConf)}%` : 'CONFIRMED'}</span>
+                </div>
+                {userIndex !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">INDEX</span>
+                    <span className="tabular-nums">{userIndex} <span className="opacity-30">/ {threshold ?? 60}+</span></span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="opacity-30">STATUS</span>
+                  <span>TRANSMITTING</span>
+                </div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_matrix_saturation') {
+          const emotional  = log.metadata?.emotional  as boolean | undefined
+          const memory     = log.metadata?.memory     as boolean | undefined
+          const planner    = log.metadata?.planner    as boolean | undefined
+          const intentions = log.metadata?.intentions as boolean | undefined
+          const selfcare   = log.metadata?.selfcare   as boolean | undefined
+          const journal    = log.metadata?.journal    as boolean | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const dims = [
+            { key: 'EMO',   val: emotional  },
+            { key: 'MEM',   val: memory     },
+            { key: 'PLAN',  val: planner    },
+            { key: 'INT',   val: intentions },
+            { key: 'CARE',  val: selfcare   },
+            { key: 'JRN',   val: journal    },
+          ]
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIGMAT:" blockView>
+                <div className="uppercase tracking-widest mb-4">SIGNAL MATRIX SATURATION</div>
+                <div className="flex gap-x-8 flex-wrap mb-4">
+                  {dims.map(d => (
+                    <span key={d.key} className={d.val === false ? 'opacity-20' : 'opacity-80'}>
+                      {d.key}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="opacity-30">CHANNELS</span>
+                  <span className="tabular-nums">6/6</span>
+                </div>
+                <div className="opacity-40 tabular-nums">MATRIX: FULL</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'temporal_biofield_sync') {
+          const morningConf  = log.metadata?.morningConf  as number | undefined
+          const sealConf     = log.metadata?.sealConf     as number | undefined
+          const biofieldConf = log.metadata?.biofieldConf as number | undefined
+          const composite    = log.metadata?.composite    as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TBIOF:" blockView>
+                <div className="uppercase tracking-widest mb-4">TEMPORAL-BIOFIELD SYNC</div>
+                {morningConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">MORNING</span>
+                    <span className="tabular-nums">{Math.round(morningConf * 100)}%</span>
+                  </div>
+                )}
+                {sealConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">SEAL</span>
+                    <span className="tabular-nums">{Math.round(sealConf * 100)}%</span>
+                  </div>
+                )}
+                {biofieldConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">BIOFIELD</span>
+                    <span className="tabular-nums">{Math.round(biofieldConf * 100)}%</span>
+                  </div>
+                )}
+                {composite !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-50">COMPOSITE</span>
+                    <span className="tabular-nums">{composite}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SYNC: CONFIRMED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

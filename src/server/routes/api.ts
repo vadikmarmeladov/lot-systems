@@ -1193,6 +1193,10 @@ export default async (fastify: FastifyInstance) => {
       'integrated_signal_arc',
       'deep_recovery_protocol',
       'quantum_field_alignment',
+      // v108: quantum coherence peak · signal matrix saturation · temporal biofield sync (P137/P138/P139)
+      'quantum_coherence_peak',
+      'signal_matrix_saturation',
+      'temporal_biofield_sync',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
