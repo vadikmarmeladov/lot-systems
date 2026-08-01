@@ -119,6 +119,39 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
     }
   }
 
+  const getStatusColor = (checkStatus: 'ok' | 'error' | 'unknown') => {
+    switch (checkStatus) {
+      case 'ok':
+        return 'text-green'
+      case 'error':
+        return 'text-red'
+      case 'unknown':
+        return 'text-acc/60'
+    }
+  }
+
+  const getStatusLabel = (checkStatus: 'ok' | 'error' | 'unknown') => {
+    switch (checkStatus) {
+      case 'ok':
+        return 'Operational'
+      case 'error':
+        return 'Error'
+      case 'unknown':
+        return 'Unknown'
+    }
+  }
+
+  const getOverallColor = (overall: 'ok' | 'degraded' | 'error') => {
+    switch (overall) {
+      case 'ok':
+        return 'text-green'
+      case 'degraded':
+        return 'text-yellow-dark'
+      case 'error':
+        return 'text-red'
+    }
+  }
+
   const formatDate = (dateString: string) => {
     try {
       const date = new Date(dateString)
@@ -143,13 +176,14 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
         <GhostButton href="/">← Home</GhostButton>
       </div>
 
+      <div aria-live="polite" aria-atomic="true">
       {loading && !status && (
-        <div className="text-acc/40">Loading...</div>
+        <div className="text-acc/40">Checking systems...</div>
       )}
 
       {error && !status && (
         <div className="mb-32">
-          <div className="mb-16 text-acc/80">Error: {error}</div>
+          <div className="mb-16 text-red">Error: {error}</div>
           <Button kind="secondary" size="small" onClick={fetchStatus}>
             Retry
           </Button>
@@ -160,22 +194,17 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
         <>
           <div className="mb-16">
             <Block label="Status:" labelClassName="!pl-0">
-              {status.overall === 'ok' ? 'All systems operational' :
-               status.overall === 'degraded' ? 'Degraded performance' :
-               'System issues detected'}
+              <span className={getOverallColor(status.overall)}>
+                {status.overall === 'ok' ? 'All systems operational' :
+                 status.overall === 'degraded' ? 'Degraded performance' :
+                 'System issues detected'}
+              </span>
             </Block>
             <Block label="Version:" labelClassName="!pl-0">v{status.version}</Block>
             <Block label="Environment:" labelClassName="!pl-0">{status.environment}</Block>
             <Block label="Last updated:" labelClassName="!pl-0" containsSmallButton>
               <div className="flex items-center gap-x-16">
-                <span>
-                  {formatDate(lastUpdate.toISOString())}
-                  {status.cached && status.cacheAge && (
-                    <span className="text-acc/40">
-                      {' '}(cached {status.cacheAge}s ago)
-                    </span>
-                  )}
-                </span>
+                <span>{formatDate(lastUpdate.toISOString())}</span>
                 <Button
                   kind="secondary"
                   size="small"
@@ -198,21 +227,18 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
                 className="mb-8"
               >
                 <div className="flex items-center gap-x-8">
-                  <span>{getStatusIcon(check.status)}</span>
-                  <span className={cn(
-                    check.status === 'ok' && 'text-acc',
-                    check.status === 'error' && 'text-acc/60'
-                  )}>
-                    {check.status === 'ok' ? 'Ok' :
-                     check.status === 'error' ? 'Error' :
-                     'Unknown'}
+                  <span className={getStatusColor(check.status)}>{getStatusIcon(check.status)}</span>
+                  <span className={getStatusColor(check.status)}>
+                    {getStatusLabel(check.status)}
                   </span>
                   {check.duration !== undefined && (
-                    <span className="text-acc/40">({check.duration}ms)</span>
+                    <span className={cn(
+                      check.duration > 500 ? 'text-yellow-dark' : 'text-acc/40'
+                    )}>({check.duration}ms)</span>
                   )}
                 </div>
                 {check.message && (
-                  <div className="text-acc/60 mt-4">{check.message}</div>
+                  <div className="text-red mt-4">{check.message}</div>
                 )}
               </Block>
             ))}
@@ -242,10 +268,10 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
               </Block>
               <Block label="Next prompt:" labelClassName="!pl-0">
                 <div className="flex items-center gap-x-8">
-                  <span>{memoryStatus.nextPromptAvailable ? '✓' : '✕'}</span>
-                  <span className={cn(
-                    memoryStatus.nextPromptAvailable ? 'text-acc' : 'text-acc/60'
-                  )}>
+                  <span className={memoryStatus.nextPromptAvailable ? 'text-green' : 'text-acc/60'}>
+                    {memoryStatus.nextPromptAvailable ? '✓' : '✕'}
+                  </span>
+                  <span className={memoryStatus.nextPromptAvailable ? 'text-green' : 'text-acc/60'}>
                     {memoryStatus.nextPromptAvailable ? 'Available now' : 'Not available'}
                   </span>
                 </div>
@@ -259,11 +285,15 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
           <div className="text-acc/40 pt-32 border-t border-acc/20">
             <div>Build: {formatDate(status.buildDate)}</div>
             <div className="mt-8">
-              Status checks cached for 2 minutes
+              Auto-refreshes every 2 minutes
+              {status.cached && status.cacheAge !== undefined && (
+                <span> · Cache: {status.cacheAge}s old</span>
+              )}
             </div>
           </div>
         </>
       )}
+      </div>
     </div>
   )
 
