@@ -895,6 +895,7 @@ export const usePrayerScripture = createMutation<
 export const useStoryGeneration = createMutation<
   {
     logText: string
+    timeframe?: 'day' | 'week' | 'month' | 'year'
     quantumState?: {
       energy?: string
       clarity?: string
@@ -909,6 +910,16 @@ export const useStoryGeneration = createMutation<
   },
   {
     story: string
+    timeframe: 'day' | 'week' | 'month' | 'year'
     logId: string | null
   }
 >('post', '/api/story')
+
+// ============================================================================
+// CONTEXT SNAPSHOT — click-to-record the environment (no photo, no sound)
+// ============================================================================
+
+export const useContextSnapshot = createMutation<
+  { source?: string },
+  { logId: string; context: Record<string, any> }
+>('post', '/api/context-snapshot')

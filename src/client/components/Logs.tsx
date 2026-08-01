@@ -374,6 +374,37 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'context_snapshot') {
+          // User-initiated moment capture — a click on the environment
+          // display, not the automated midnight system_snapshot job.
+          // No photo, no sound: the environment reading IS the record.
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MOMENT:" blockView>
+                {log.context?.city && (
+                  <div>
+                    POS: {log.context.city}
+                    {log.context.country && `, ${log.context.country}`}
+                  </div>
+                )}
+                {log.context?.temperature && (
+                  <div>TMP: {Math.round(toCelsius(log.context.temperature))}°C</div>
+                )}
+                {log.context?.humidity && (
+                  <div>HUM: {log.context.humidity}%</div>
+                )}
+                {log.context?.weatherDescription && (
+                  <div>SKY: {log.context.weatherDescription}</div>
+                )}
+                {log.context?.astroRokuyo && (
+                  <div>ASTRO: {log.context.astroRokuyo} · {log.context.astroMoonPhase}</div>
+                )}
+                {log.context?.astroWesternZodiac && (
+                  <div>ZODIAC: {log.context.astroWesternZodiac}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'quantum_intent_signal') {
           const pattern = log.metadata?.pattern as string | undefined
           const source = log.metadata?.source as string | undefined
@@ -3759,7 +3790,10 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compress today into a story (day is default)',
+          '/story week   Compress the last 7 days',
+          '/story month  Compress the last 30 days',
+          '/story year   Compress the last 365 days',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -3786,16 +3820,21 @@ const NoteEditor = ({
           setStoryLoading(true)
           setStoryResponse(null)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            // /story defaults to a same-day compression; /story week|month|year
+            // widens the window the compressed narrative draws from.
+            const timeframeMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+            const timeframe = (timeframeMatch?.[1]?.toLowerCase() as 'day' | 'week' | 'month' | 'year') || 'day'
+            const logText = value.replace(/\/story(\s+(day|week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              timeframe,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, timeframe: 'day' })
           }
         }
       }

@@ -1197,6 +1197,8 @@ export default async (fastify: FastifyInstance) => {
       'quantum_coherence_peak',
       'signal_matrix_saturation',
       'temporal_biofield_sync',
+      // Log entry system continuation: user-initiated moment capture
+      'context_snapshot',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -3334,6 +3336,13 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       }
 
       const patterns = await analyzeUserPatterns(req.user, logs)
+
+      // Passive Journal follow-up: the Log tab never prompts while the
+      // user is writing, but a shape-of-behavior spike (sudden length
+      // change, or a burst after days of silence) earns one contextual
+      // prompt on their next visit — the machine's only follow-up.
+      const { detectJournalSpike } = await import('#server/utils/journal-spike.js')
+      patterns.push(...detectJournalSpike(logs))
 
       console.log(`Pattern Analysis for user ${req.user.id}:`, {
         totalLogs: logs.length,
@@ -5474,6 +5483,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          timeframe?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5493,30 +5503,44 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       if (!hasUsership) {
         return reply.code(403).send({
           story: 'Story generation is available for Usership members.',
+          timeframe: 'day',
           logId: null,
         })
       }
 
       const { logText, quantumState, userIndex } = req.body
+      const timeframe: 'day' | 'week' | 'month' | 'year' =
+        (['day', 'week', 'month', 'year'] as const).includes(req.body.timeframe as any)
+          ? (req.body.timeframe as 'day' | 'week' | 'month' | 'year')
+          : 'day'
+
+      // Compression window: LOT Quantum Intent Engine narrows the lookback,
+      // Together AI compresses it — day/week/month/year are the four
+      // compression grains the operator can request via /story <grain>.
+      const WINDOW_DAYS: Record<typeof timeframe, number> = { day: 1, week: 7, month: 30, year: 365 }
+      const windowStart = new Date(Date.now() - WINDOW_DAYS[timeframe] * 24 * 60 * 60 * 1000)
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: { userId: req.user.id, createdAt: { [Op.gte]: windowStart } },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: timeframe === 'day' ? 200 : 500,
       })
 
-      const recentEntries = logs
-        .filter(l => l.event === 'log_entry' || l.event === 'journal')
-        .slice(0, 10)
+      // 'note' is the live event name for real typed Journal/Log entries
+      // (see POST/PUT /logs); 'log_entry'/'journal' are kept for older data.
+      const journalEntries = logs.filter(l => l.event === 'note' || l.event === 'log_entry' || l.event === 'journal')
+      const entryCap = timeframe === 'day' ? 10 : timeframe === 'week' ? 20 : 30
+      const recentEntries = journalEntries
+        .slice(0, entryCap)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
 
-      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, entryCap)
       const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
 
       const selfCareLogs = logs.filter(l =>
         l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
-      ).slice(0, 10)
+      ).slice(0, entryCap)
       const selfCareNotes = selfCareLogs.map(l => {
         const q = (l.metadata?.question as string || '')
         const a = (l.metadata?.option as string || l.metadata?.answer as string || '')
@@ -5531,9 +5555,22 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      const TIMEFRAME_LABEL: Record<typeof timeframe, string> = {
+        day: 'today',
+        week: 'the past week',
+        month: 'the past month',
+        year: 'the past year',
+      }
+      const TIMEFRAME_LENGTH: Record<typeof timeframe, string> = {
+        day: '1 paragraph (60-120 words)',
+        week: '1-2 paragraphs (100-200 words)',
+        month: '2 paragraphs (150-250 words)',
+        year: '2-3 paragraphs (200-320 words)',
+      }
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that compresses the operator's own data into a short narrative. Your source data has already passed through the LOT Quantum Intent Engine (real-time energy/clarity/alignment state below); you are the final compression step before the story is written back into the operator's own record.
+
+The operator invoked /story ${timeframe}. Your task: compress ${TIMEFRAME_LABEL[timeframe]} into ${TIMEFRAME_LENGTH[timeframe]} that reflect their journey, mood trajectory, and self-care patterns across that window. The longer the window, the more you must compress — pull out the throughline and the peaks/lows, don't just list entries. The story should feel personal, grounded, and real — not generic motivational writing.
 
 RULES:
 - Write in second person ("You...")
@@ -5544,20 +5581,21 @@ RULES:
 - The tone should match their current energy: reflective if low, energized if high
 - End with a single forward-looking sentence — not a pep talk, just a quiet truth
 - Return ONLY the story paragraphs. No title. No commentary. No preamble.
-- Keep it under 200 words.`
+- Stay within the length given above.`
 
       const dataBlock = `
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
+COMPRESSION WINDOW: ${timeframe} (${WINDOW_DAYS[timeframe]} day${WINDOW_DAYS[timeframe] === 1 ? '' : 's'}, ${journalEntries.length} journal/log entries in range)
 
 ${stateBlock ? stateBlock : 'STATE: unknown'}
 
-RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+RECENT MOODS: ${recentMoods.slice(0, entryCap).join(', ') || 'NO DATA'}
 
 RECENT LOG ENTRIES:
-${recentEntries.slice(0, 5).map(e => `- ${e}`).join('\n') || '- (none)'}
+${recentEntries.map(e => `- ${e}`).join('\n') || '- (none)'}
 
 SELF-CARE DATA:
-${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
+${selfCareNotes.map(n => `- ${n}`).join('\n') || '- (none)'}`
 
       const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
 
@@ -5565,7 +5603,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         const { aiEngineManager } = await import('#server/utils/ai-engines.js')
         const engine = aiEngineManager.getEngine('together')
 
-        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+        console.log(`📖 Story generation (${timeframe}) for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
 
         const story = await engine.generateCompletion(fullPrompt, 512)
 
@@ -5579,6 +5617,8 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           context,
           metadata: {
             story: cleaned,
+            timeframe,
+            entriesCompressed: journalEntries.length,
             logText: (logText || '').substring(0, 500),
             quantumState: quantumState || null,
             timestamp: new Date().toISOString(),
@@ -5587,14 +5627,46 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
         return {
           story: cleaned,
+          timeframe,
           logId: storyLog.id,
         }
       } catch (error: any) {
         console.error('Story generation failed:', error)
         return {
           story: 'The system holds your data quietly. When the engine returns, your story will be here.',
+          timeframe,
           logId: null,
         }
+      }
+    }
+  )
+
+  // ============================================================================
+  // CONTEXT SNAPSHOT — click-to-record the environment, no text required
+  // A click anywhere on the ambient environment display (weather, time,
+  // humidity, sky, location, astrology) records that moment's context —
+  // no photo, no sound, just the environment snapshot itself as the record.
+  // ============================================================================
+  fastify.post(
+    '/context-snapshot',
+    { config: { rateLimit: { max: 20, timeWindow: '1 minute' } } },
+    async (req: FastifyRequest<{ Body?: { source?: string } }>, reply) => {
+      const context = await getLogContext(req.user)
+      const snapshotLog = await fastify.models.Log.create({
+        userId: req.user.id,
+        text: '',
+        event: 'context_snapshot',
+        context,
+        metadata: {
+          snapshot: true,
+          source: req.body?.source || 'unknown',
+          timestamp: new Date().toISOString(),
+        },
+      })
+
+      return {
+        logId: snapshotLog.id,
+        context,
       }
     }
   )

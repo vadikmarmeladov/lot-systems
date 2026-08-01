@@ -10,7 +10,7 @@ import type { Log, User } from '#shared/types'
 import dayjs from '#server/utils/dayjs'
 
 export interface PatternInsight {
-  type: 'weather-mood' | 'temporal' | 'social-emotional' | 'streak' | 'behavioral'
+  type: 'weather-mood' | 'temporal' | 'social-emotional' | 'streak' | 'behavioral' | 'journal-spike'
   title: string
   description: string
   confidence: number // 0-1, how confident we are in this pattern

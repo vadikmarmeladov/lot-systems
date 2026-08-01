@@ -167,6 +167,41 @@ export function generateContextualPrompts(
       }
     }
 
+    // Journal spike patterns — passive follow-up on a shape-of-behavior
+    // change in the Log tab (never on content/meaning, only length/cadence)
+    if (pattern.type === 'journal-spike') {
+      const direction = pattern.metadata?.direction
+
+      if (direction === 'up') {
+        prompts.push({
+          type: 'check-in',
+          title: 'Noticed something',
+          message: 'Your last entry ran long. Whatever moved through you today, it took more words than usual.',
+          action: { label: 'Continue', target: 'log' },
+          priority: 6,
+          triggeredBy: pattern.title
+        })
+      } else if (direction === 'down') {
+        prompts.push({
+          type: 'check-in',
+          title: 'Short today',
+          message: "Today's entry was short compared to your usual. No need to explain — just noting the shift.",
+          priority: 5,
+          triggeredBy: pattern.title
+        })
+      } else if (direction === 'burst') {
+        const gapDays = pattern.metadata?.gapDays
+        prompts.push({
+          type: 'check-in',
+          title: 'Welcome back',
+          message: `It's been ${gapDays ? `${gapDays} days` : 'a while'} since your last entry. No catch-up needed — just glad you're back.`,
+          action: { label: 'Continue', target: 'log' },
+          priority: 6,
+          triggeredBy: pattern.title
+        })
+      }
+    }
+
     // Behavioral patterns
     if (pattern.type === 'behavioral') {
       const avgPerDay = pattern.metadata?.avgPerDay

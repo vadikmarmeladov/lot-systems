@@ -24,7 +24,7 @@ import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
 import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
-import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
+import { useProfile, useLogs, useCommunityEmotion, useContextSnapshot } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
 import { UserTag } from '#shared/types'
 import { TimeWidget } from './TimeWidget'
@@ -115,6 +115,18 @@ export const System = React.memo(function SystemInner() {
   const { data: profile } = useProfile()
   const { data: logs = [] } = useLogs()
   const { data: communityEmotion } = useCommunityEmotion()
+
+  // Moment capture — a click on the environment reading (weather, time,
+  // humidity, sky, astrology) records that instant with no photo/sound,
+  // the reading itself is the record. Cooldown guards against click-spam.
+  const { mutate: captureMoment } = useContextSnapshot()
+  const lastSnapshotAtRef = React.useRef(0)
+  const onCaptureMoment = React.useCallback(() => {
+    const now = Date.now()
+    if (now - lastSnapshotAtRef.current < 60_000) return
+    lastSnapshotAtRef.current = now
+    captureMoment({ source: 'astrology-block' })
+  }, [captureMoment])
 
 
   const isTempFahrenheit = useStore(stores.isTempFahrenheit)
@@ -670,7 +682,7 @@ export const System = React.memo(function SystemInner() {
           }}
         >
           {astrologyView === 'astrology' ? (
-            <div>
+            <div onClick={onCaptureMoment} className="cursor-pointer" title="Click to record this moment">
               {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase} ({astrology.moonIllumination}%)
             </div>
           ) : astrologyView === 'psychology' ? (

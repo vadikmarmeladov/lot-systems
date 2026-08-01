@@ -47,7 +47,12 @@ postcss.config.*.backup
 *.working-backup
 
 # Compiled output (should not be in repo)
-server/
+# Anchored to repo root — un-anchored "server/" was silently blackholing
+# every new file under src/server/** (any dir named "server" at any depth
+# matches an un-anchored gitignore pattern). No top-level server/ dir has
+# existed since the dist/server/ build layout landed; dist/ (line 2)
+# already covers the real compiled output.
+/server/
 *.js.map
 
 # Archive files
