@@ -3172,6 +3172,69 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 140: Physiological Presence Arc — morning mood check-in (before 12:00) + selfcare
+  // completion + evening mood check-in (after 17:00) all within the same 24h window.
+  // The biological loop from signal to signal: the person was present at dawn and at dusk.
+  // Distinct from P124 (mood-energy-convergence): P140 requires temporal spread — morning AND evening.
+  const p140MorningMood = recentSignals.find(s => s.source === 'mood' && new Date(s.timestamp).getHours() < 12)
+  const p140HasSelfcare = recentSignals.some(s => s.source === 'selfcare')
+  const p140EveningMood = recentSignals.find(s => s.source === 'mood' && new Date(s.timestamp).getHours() >= 17)
+  if (p140MorningMood && p140HasSelfcare && p140EveningMood) {
+    const selfcareCount = recentSignals.filter(s => s.source === 'selfcare').length
+    const spreadBonus = Math.min(selfcareCount * 0.03, 0.10)
+    const p140Conf = Math.min(0.70 + spreadBonus, 0.88)
+    patterns.push({
+      pattern: 'physiological-presence-arc',
+      confidence: p140Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `PHYARC: Physiological presence arc — morning mood signal + selfcare (${selfcareCount} acts) + evening mood signal all present within 24h. Biological loop confirmed: the field was present from dawn to dusk.`,
+    })
+  }
+
+  // Pattern 141: Quantum Signal Emergence — quantum-coherence-peak pattern has fired 3+ times
+  // within the 7-day signal window. Not a peak anymore — a repeating pattern. The system has
+  // stabilized at its highest coherence state. This is emergence: the exception becomes the norm.
+  const weekMs = 7 * 24 * 60 * 60 * 1000
+  const weekSignals141 = signals.filter(s => now - s.timestamp < weekMs)
+  const coherencePeakCount = weekSignals141.filter(
+    s => s.source === 'energy' && s.signal === 'quantum_coherence_peak'
+  ).length
+  if (coherencePeakCount >= 3) {
+    const countBonus = Math.min((coherencePeakCount - 3) * 0.04, 0.12)
+    const p141Conf = Math.min(0.72 + countBonus, 0.90)
+    patterns.push({
+      pattern: 'quantum-signal-emergence',
+      confidence: p141Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `QEMERG: Quantum signal emergence — quantum-coherence-peak has fired ${coherencePeakCount}× in the last 7 days. The exception is becoming the baseline. The OS has stabilized above the coherence ceiling.`,
+    })
+  }
+
+  // Pattern 142: Adaptive Signal Web — all 6 UserIndex dimensions ≥ 20 + 8+ unique sources
+  // active in 7d + 5+ active patterns simultaneously. The full web of signals held simultaneously.
+  // Not merely coherent — structurally diverse AND dimensionally present AND pattern-rich at once.
+  const p142IndexSnapshot = computeUserIndex(signals)
+  const p142Dims = p142IndexSnapshot.dimensions
+  const p142AllDimsPresent =
+    p142Dims.engagement >= 20 && p142Dims.emotional  >= 20 &&
+    p142Dims.intentional >= 20 && p142Dims.social     >= 20 &&
+    p142Dims.selfCare    >= 20 && p142Dims.cognitive  >= 20
+  const weekSignals142 = signals.filter(s => now - s.timestamp < weekMs)
+  const p142UniqueSources = new Set(weekSignals142.map(s => s.source)).size
+  if (p142AllDimsPresent && p142UniqueSources >= 8 && patterns.length >= 5) {
+    const webDepth = Math.min((patterns.length - 5) * 0.02 + (p142UniqueSources - 8) * 0.03, 0.14)
+    const p142Conf = Math.min(0.75 + webDepth, 0.92)
+    patterns.push({
+      pattern: 'adaptive-signal-web',
+      confidence: p142Conf,
+      suggestedWidget: 'userMetrics',
+      suggestedTiming: 'passive',
+      reason: `SIGEWEB: Adaptive signal web — all 6 UserIndex dimensions ≥ 20 · ${p142UniqueSources} unique sources active in 7d · ${patterns.length} active patterns. The full web of signals is live simultaneously. No dimension dark. No channel unengaged.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3787,6 +3850,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumCoherencePeakNode:   ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy', 'log'],
   signalMatrixSaturationNode: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
   temporalBiofieldSyncNode:   ['energy', 'selfcare', 'mood', 'planner', 'intentions', 'log'],
+
+  // ── v110 nodes (J45 · P140–P142 · Arch48) ───────────────────────────────────────
+  physiologicalPresenceNode:  ['mood', 'energy', 'selfcare', 'log'],
+  quantumEmergenceNode:       ['qos', 'log', 'energy', 'mood', 'intentions'],
+  adaptiveSignalWebNode:      ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
 }
 
 /**
@@ -4193,6 +4261,16 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['quantum-coherence-peak', 'quantum-field-alignment', 'signal-matrix-saturation'],
     hourRange: [6, 22],
     directive: 'Peak coherence confirmed. Full-spectrum alignment across all six signal dimensions AND quantum field aligned. Operate at maximum integration. Do not dilute focus.',
+  },
+
+  // ── Arch48: Quantum Presence Master (2026-08-01 v110) ────────────────────────────
+  {
+    archetype: 'Quantum Presence Master',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['mood', 'selfcare', 'intentions', 'journal', 'energy'],
+    patternConditions: ['physiological-presence-arc', 'signal-matrix-saturation', 'quantum-coherence-peak'],
+    hourRange: [6, 22],
+    directive: 'Biological arc confirmed. Field coherent. Matrix saturated. The operating system has stabilized at peak. This is no longer exceptional — it is your baseline.',
   },
 ]
 
@@ -5967,6 +6045,50 @@ export function recordTemporalBiofieldSync(morningConf: number, sealConf: number
     biofieldConf,
     composite: Math.round(((morningConf + sealConf + biofieldConf) / 3) * 100),
     window: '1d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a physiological-presence-arc signal — morning mood + selfcare + evening mood
+ * all present within 24h. Full biological loop confirmed.
+ * Feeds P140 detection.
+ */
+export function recordPhysiologicalPresenceArc(selfcareCount: number, morningPresent: boolean, eveningPresent: boolean) {
+  recordSignal('energy', 'physiological_presence_arc', {
+    selfcareCount,
+    morningPresent,
+    eveningPresent,
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-signal-emergence signal — quantum-coherence-peak has fired 3+ times in 7d.
+ * The exception is becoming the baseline.
+ * Feeds P141 detection.
+ */
+export function recordQuantumSignalEmergence(peakCount: number, windowDays: number) {
+  recordSignal('energy', 'quantum_signal_emergence', {
+    peakCount,
+    windowDays,
+    emergenceRate: Math.round((peakCount / windowDays) * 100) / 100,
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an adaptive-signal-web signal — all 6 UserIndex dimensions ≥ 20 + 8+ unique sources
+ * + 5+ active patterns. The full web of signals live simultaneously.
+ * Feeds P142 detection.
+ */
+export function recordAdaptiveSignalWeb(sourceCount: number, patternCount: number, minDimension: number) {
+  recordSignal('energy', 'adaptive_signal_web', {
+    sourceCount,
+    patternCount,
+    minDimension,
+    webDensity: Math.round((sourceCount * patternCount) / 10),
     hour: new Date().getHours(),
   })
 }

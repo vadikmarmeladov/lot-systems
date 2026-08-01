@@ -3260,6 +3260,104 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'physiological_presence_arc') {
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const morningPresent = log.metadata?.morningPresent as boolean | undefined
+          const eveningPresent = log.metadata?.eveningPresent as boolean | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PHYARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">BIOLOGICAL ARC</div>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">MORNING</span>
+                  <span className="tabular-nums">{morningPresent ? 'PRESENT' : '—'}</span>
+                </div>
+                {selfcareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE</span>
+                    <span className="tabular-nums">{selfcareCount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">EVENING</span>
+                  <span className="tabular-nums">{eveningPresent ? 'PRESENT' : '—'}</span>
+                </div>
+                <div className="opacity-40 tabular-nums">LOOP: DAWN → DUSK</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_signal_emergence') {
+          const peakCount = log.metadata?.peakCount as number | undefined
+          const windowDays = log.metadata?.windowDays as number | undefined
+          const emergenceRate = log.metadata?.emergenceRate as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QEMERG:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM EMERGENCE</div>
+                {peakCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PEAKS 7D</span>
+                    <span className="tabular-nums">{peakCount}</span>
+                  </div>
+                )}
+                {windowDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WINDOW</span>
+                    <span className="tabular-nums">{windowDays}D</span>
+                  </div>
+                )}
+                {emergenceRate !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RATE</span>
+                    <span className="tabular-nums">{emergenceRate}/D</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">EXCEPTION → BASELINE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'adaptive_signal_web') {
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const patternCount = log.metadata?.patternCount as number | undefined
+          const minDimension = log.metadata?.minDimension as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIGEWEB:" blockView>
+                <div className="uppercase tracking-widest mb-4">ADAPTIVE SIGNAL WEB</div>
+                {sourceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SRC 7D</span>
+                    <span className="tabular-nums">{sourceCount}</span>
+                  </div>
+                )}
+                {patternCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PATTERNS</span>
+                    <span className="tabular-nums">{patternCount}</span>
+                  </div>
+                )}
+                {minDimension !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MIN DIM</span>
+                    <span className="tabular-nums">{minDimension}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">6 DIM · ALL LIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

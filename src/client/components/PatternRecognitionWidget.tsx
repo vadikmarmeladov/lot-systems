@@ -161,6 +161,18 @@ export function PatternRecognitionWidget() {
       'morning-intention-lock':     'Morning intention lock — intentions + planner + log in 06–10h window (P128)',
       'multi-day-care-arc':         'Multi-day care arc — selfcare on 3+ consecutive days (P129)',
       'cognitive-output-continuity':'Cognitive output continuity — journal on 4+/7 days (P130)',
+      'daily-coherence-seal':       'Daily coherence seal — morning launch + evening close same day (P131)',
+      'quantum-rhythm-lock':        'Quantum rhythm lock — weekly rhythm + cognitive output + circadian anchor (P132)',
+      'biofield-integration-peak':  'Biofield integration peak — multi-day care arc + mood-energy convergence (P133)',
+      'integrated-signal-arc':      'Integrated signal arc — 4 cognitive channels in 4h window × 4+ days (P134)',
+      'deep-recovery-protocol':     'Deep recovery protocol — sleep anchor + care arc during recovery (P135)',
+      'quantum-field-alignment':    'Quantum field alignment — coherence seal + rhythm lock + biofield all active (P136)',
+      'quantum-coherence-peak':     'Quantum coherence peak — field alignment + UserIndex ≥ 60 (P137)',
+      'signal-matrix-saturation':   'Signal matrix saturation — all 6 primary source categories active in 24h (P138)',
+      'temporal-biofield-sync':     'Temporal-biofield sync — morning coherence + daily seal + biofield same day (P139)',
+      'physiological-presence-arc': 'Physiological presence arc — morning mood + selfcare + evening mood (P140)',
+      'quantum-signal-emergence':   'Quantum signal emergence — coherence peak 3× in 7d window (P141)',
+      'adaptive-signal-web':        'Adaptive signal web — all 6 UserIndex dimensions ≥ 20 + 8+ sources (P142)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

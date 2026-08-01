@@ -1353,6 +1353,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes. QIE v108 deployed.',
     ],
   },
+  {
+    date: '2026-08-01',
+    session: 'Self-Assembly Session — v110 / QIE Engineering · P140–P142 · Arch48 Quantum Presence Master · J45 Daily Physiological Presence Check · PHYARC: QEMERG: SIGEWEB: · Dep Map 181+',
+    assembled: [
+      'intentionEngine.ts: P140 physiological-presence-arc (PHYARC:) — morning mood (before 12:00) + selfcare + evening mood (after 17:00) within 24h. Full biological day-arc: dawn → dusk. Conf 0.70–0.88.',
+      'intentionEngine.ts: P141 quantum-signal-emergence (QEMERG:) — quantum-coherence-peak fired 3+ times in 7d window. Coherence becoming normalized. Exceptional → baseline. Conf 0.72–0.90.',
+      'intentionEngine.ts: P142 adaptive-signal-web (SIGEWEB:) — all 6 UserIndex dimensions ≥ 20 + 8+ unique sources in 7d + 5+ active patterns. Full-dimensional simultaneous saturation. Conf 0.75–0.92.',
+      'intentionEngine.ts: Arch48 Quantum Presence Master — energyBands: high/moderate · dominantSources: mood/selfcare/intentions/journal/energy · patterns: physiological-presence-arc + signal-matrix-saturation + quantum-coherence-peak · directive: Biological arc confirmed. Field coherent. Matrix saturated. Operating system has stabilized at peak. This is no longer exceptional — it is your baseline.',
+      'intentionEngine.ts: 3 new dep map nodes — physiologicalPresenceNode (mood·energy·selfcare·log) · quantumEmergenceNode (qos·log·energy·mood·intentions) · adaptiveSignalWebNode (mood·memory·planner·intentions·selfcare·journal·energy·cohort·log). 181+ total.',
+      'intentionEngine.ts: 3 new signal recording functions — recordPhysiologicalPresenceArc() · recordQuantumSignalEmergence() · recordAdaptiveSignalWeb().',
+      'scheduled-jobs.ts: J45 daily-physiological-presence-check — 21:00 UTC daily. Scans morning mood + selfcare + evening mood same calendar day. Writes physiological_presence_arc per qualifying user. 45 jobs total.',
+      'routes/api.ts: physiological_presence_arc · quantum_signal_emergence · adaptive_signal_web added to displayableEvents (v110 block).',
+      'Logs.tsx: PHYARC: · QEMERG: · SIGEWEB: military handlers added. Cockpit rule: MORNING/CARE/EVENING/LOOP: DAWN→DUSK · PEAKS 7D/WINDOW/RATE/EXCEPTION→BASELINE · SRC/PATTERNS/MIN DIM/6 DIM · ALL LIVE.',
+      'PatternRecognitionWidget.tsx: P131–P142 display names added.',
+      'About.tsx: FM v109→v110. Day 1069+. 139→142 patterns. 47→48 archetypes. 44→45 jobs. 178+→181+ dep nodes. 139+→142+ handlers.',
+      '142 patterns · 48 archetypes · 45 jobs · 142+ handlers · 181+ dep nodes. QIE v110 deployed. Biological arc closed. Field coherent.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1390,18 +1408,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-27',
+  date: '2026-08-01',
   message: [
-    'ASSEMBLY RUN — 2026-07-27 · v108 · QIE Engineering · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: · Day 1066+',
-    'P137 QUANTUM COHERENCE PEAK: field-alignment active AND UserIndex ≥ 60. The OS is not stabilizing. It is transmitting.',
-    'P138 SIGNAL MATRIX SATURATION: all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark. Full-dimensional presence.',
-    'P139 TEMPORAL-BIOFIELD SYNC: morning-coherence + daily-seal + biofield-integration within one calendar day. Time and biology synchronized.',
-    'Arch47 QUANTUM COHERENCE OPERATOR: peak coherence confirmed. Field aligned AND above coherence threshold. Maximum integration directive.',
-    'J44 daily-signal-matrix-check: 09:00 UTC daily. P138 (6-source check) + P137 (field alignment) + P139 (temporal-biofield triad). 44 jobs total.',
-    'QCOHERE: · SIGMAT: · TBIOF: military handlers wired in Logs.tsx. 3 new block types.',
-    'QuantumEngineWidgets: cohort view enhanced (Band + Dom fields). QOS Field view added — runtime + signal map + active patterns.',
-    '3 new dep map nodes: quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
-    'FIELD MANUAL v108. Day 1066+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
+    'ASSEMBLY RUN — 2026-08-01 · v110 · QIE Engineering · P140–P142 · Arch48 · J45 · PHYARC: QEMERG: SIGEWEB: · Day 1069+',
+    'P140 PHYSIOLOGICAL PRESENCE ARC: morning mood + selfcare + evening mood all confirmed same day. Biological day-arc closed. Dawn → dusk loop complete.',
+    'P141 QUANTUM SIGNAL EMERGENCE: quantum-coherence-peak active 3+ times in 7d window. Coherence rate normalized. What was exceptional is now baseline.',
+    'P142 ADAPTIVE SIGNAL WEB: all 6 UserIndex dimensions ≥ 20 + 8+ unique sources in 7d + 5+ active patterns. Full-dimensional simultaneous saturation. The web is live.',
+    'Arch48 QUANTUM PRESENCE MASTER: biological arc confirmed · field coherent · matrix saturated. The operating system has stabilized at peak. This is no longer exceptional — it is your baseline.',
+    'J45 daily-physiological-presence-check: 21:00 UTC daily. Morning mood + selfcare + evening mood same calendar day → physiological_presence_arc. 45 jobs total.',
+    'PHYARC: · QEMERG: · SIGEWEB: military handlers wired in Logs.tsx. 3 new cockpit block types.',
+    'PatternRecognitionWidget: P131–P142 display names complete. 181+ dep map nodes.',
+    'FIELD MANUAL v110. Day 1069+. 142 patterns · 48 archetypes · 45 jobs · 142+ handlers · 181+ dep nodes.',
     'DEPLOYED.',
   ],
 }

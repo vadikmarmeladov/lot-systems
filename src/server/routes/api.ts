@@ -1197,6 +1197,10 @@ export default async (fastify: FastifyInstance) => {
       'quantum_coherence_peak',
       'signal_matrix_saturation',
       'temporal_biofield_sync',
+      // v110: physiological presence arc · quantum signal emergence · adaptive signal web (P140/P141/P142)
+      'physiological_presence_arc',
+      'quantum_signal_emergence',
+      'adaptive_signal_web',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
