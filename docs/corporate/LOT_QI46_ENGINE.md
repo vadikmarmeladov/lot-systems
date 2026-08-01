@@ -1073,11 +1073,58 @@ The machine learns from the corpus. The corpus was built by the body. The body i
 
 ---
 
-*QI·46 Engine Specification — v0.2*
+## IX. SESSION ADDENDUM — 2026-08-01
+
+**Naming re-review.** Five candidate names were weighed against the LOT `_I`
+naming grammar: `LOT·SC·46`, `BIONODE-46`, `SELFWARE·46`, `CARE·OS·46`,
+`QI·46`. `QI·46` is reconfirmed as the engine designation — it was already
+the standing name in this specification (§I, since v0.1). `SELFWARE` remains
+the codename (§I). No rename executed; no other document in the repo
+referenced an alternate name, so there is nothing to migrate.
+
+**Phase 0 initiated (Corpus Assembly, §IV).** Step 0.1 — Source inventory —
+was run against the repository as it exists today, not against a simulated
+or placeholder corpus:
+
+```
+SOURCE INVENTORY — 2026-08-01
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+docs/corporate/    25 documents
+docs/technical/    29 documents
+docs/benchmark/    79 documents  (session report lineage)
+docs/assembly/     94 documents  (self-assembly log lineage)
+docs/wiki/         28 documents
+docs/deployment/   21 documents
+docs/badges/       29 documents
+docs/releases/     10 documents
+docs/setup/         7 documents
+docs/diagnostics/   8 documents
+docs/security/      3 documents
+docs/backup/        4 documents
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Total cataloged:  337 documents
+```
+
+**Scope note, stated plainly per LOT self-assembly doctrine:** this inventory
+catalogs LOT's existing *written* corpus — specification, session reports,
+brand and field-manual language. It is a documentation-assembly step, not a
+machine-learning training run. This repository has no model-training
+pipeline, no `/corpus` directory, and no fine-tuning infrastructure; §IV
+Phase 1 (Fine-Tuning Run) has a hard dependency on that infrastructure
+existing first and has not been started. Checkpoint 0 in §IV remains
+correctly gated: `COSMO® cleared` and `> 10,000 training pairs` are not yet
+evaluable because no training-pair extraction has been built. Recording this
+honestly is the point — a HOLD that is real is worth more than a PASS that
+is not. See `docs/assembly/2026-08-01_QI46-assembly_phase-0-corpus.md` for
+the full Phase 0 log.
+
+---
+
+*QI·46 Engine Specification — v0.3*
 *LOT Systems Corporation — Los Angeles, CA*
 *institute.lot-systems.com*
 *Authored by Vadik · Named for Kuzya*
-*Updated: May 27, 2026*
+*Updated: August 1, 2026*
 
 ---
 
