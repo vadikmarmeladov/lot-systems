@@ -71,11 +71,15 @@ export function PatternRecognitionWidget() {
 
   const patterns = engine.recognizedPatterns
   // getOptimalWidget() calls analyzeIntentions(), which WRITES the
-  // intentionEngine atom — calling it in the render body meant a store write
-  // during render on every re-render, cascading re-renders across all
-  // subscribers. Memoize on the already-analyzed patterns so it does not
-  // re-run (and cannot write) on every signal.
-  const optimal = React.useMemo(() => getOptimalWidget(), [patterns])
+  // intentionEngine atom. useEffect (not useMemo) so that write happens after
+  // paint, not during render — same hazard/fix as System.tsx's quantumState.
+  // The useState initializer still runs once at mount (unavoidable for a
+  // non-null first paint) but no longer re-runs — and re-writes — on every
+  // `patterns` change.
+  const [optimal, setOptimal] = React.useState(() => getOptimalWidget())
+  React.useEffect(() => {
+    setOptimal(getOptimalWidget())
+  }, [patterns])
 
   // Don't render if no patterns and no QOS history
   if (patterns.length === 0 && !optimal && qosHistory.length === 0) return null

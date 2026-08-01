@@ -134,8 +134,8 @@ export function calculateEvolutionState(
 ): EvolutionState {
   // Achievement category scoring (0-1 normalized)
   const exploration = calculateCategoryScore(achievements, [
-    'first_breath',
-    'mirror_gazer',
+    'first_checkin',
+    'first_answer',
     'community_voice'
   ], 3);
 

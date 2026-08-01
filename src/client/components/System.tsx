@@ -374,7 +374,12 @@ export const System = React.memo(function SystemInner() {
     return options[index]
   }, [weather])
 
-  const optimalWidget = React.useMemo(() => getOptimalWidget(), [logs])
+  // useEffect (not useMemo) so atom writes happen after paint, not during render —
+  // getOptimalWidget() calls analyzeIntentions() internally, same hazard as quantumState above.
+  const [optimalWidget, setOptimalWidget] = React.useState<{ widget: string; reason: string } | null>(() => getOptimalWidget())
+  React.useEffect(() => {
+    setOptimalWidget(getOptimalWidget())
+  }, [logs])
 
   // Community pulse — atmosphere layer
   const convergence = React.useMemo(() => getConvergenceSignal(), [])
@@ -441,7 +446,9 @@ export const System = React.memo(function SystemInner() {
         </div>
 
         <div>
-          <TimeWidget />
+          <WidgetErrorBoundary name="Time">
+            <TimeWidget />
+          </WidgetErrorBoundary>
           {!!weather && (
             <>
               <Block label="Sky:">{weather?.description || 'Unknown'}</Block>
@@ -613,8 +620,12 @@ export const System = React.memo(function SystemInner() {
       </div>
 
       <div>
-        <TimeWidget />
-        <QuantumRandomWidget />
+        <WidgetErrorBoundary name="Time">
+          <TimeWidget />
+        </WidgetErrorBoundary>
+        <WidgetErrorBoundary name="Quantum Random">
+          <QuantumRandomWidget />
+        </WidgetErrorBoundary>
         {!!weather && (
           <>
             <Block label="Sky:">{weather?.description || 'Unknown'}</Block>

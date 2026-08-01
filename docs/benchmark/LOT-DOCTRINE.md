@@ -16,7 +16,14 @@ removed; per-item subscriptions lifted to parent in Sync; nav buttons
 memoized so only active-state changes trigger re-render. SR-20260719-01:
 System quantumState analyzeIntentions()+recomputeAssembly() moved
 useMemo->useEffect — 10 subscriber re-renders no longer block paint;
-SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+SystemProgressWidget 60s recompute interval gated on !document.hidden.
+SR-20260801-01: a getOptimalWidget() fix pass had missed 2 of 3 known
+call sites — System.tsx optimalWidget and PatternRecognitionWidget.tsx
+optimal both still wrote the intentionEngine atom inside useMemo. Both
+moved to the same useState-lazy-init + useEffect[deps] shape as
+quantumState. All 3 known call sites of this anti-pattern are now closed;
+if a 4th surfaces, promote "write-inside-useMemo" to a lint rule instead
+of a 4th manual audit find.)
 
 ## Client Cache Freshness
 
@@ -225,4 +232,11 @@ ollama → together (already failed) → gemini → mistral → claude → opena
 automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
-to formatLog(); Together AI restored as primary.)
+to formatLog(); Together AI restored as primary. SR-20260801-01: rule 1's
+"silent erasure" risk confirmed live and wider than recorded — 3 divergent
+formatLog() implementations exist [memory.ts, question-generator.ts,
+story-generator.ts], and none has a case for any of the ~50 QIE
+arc/peak/lock pattern-signal event types scheduled-jobs v52-v108 actively
+write. Not yet fixed — unifying 3 dispatchers + extending coverage is
+follow-up scope (see SR-20260801-01 finding F8), noted here so the risk
+doesn't have to be rediscovered from scratch next time.)

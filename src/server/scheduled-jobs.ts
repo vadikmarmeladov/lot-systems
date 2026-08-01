@@ -891,6 +891,8 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
     for (const [userId, logs] of Object.entries(byUser)) {
       if (logs.length < 3) continue // Not enough signal for a story
 
+      try {
+
       const checkins = logs.filter((l: any) => l.event === 'emotional_checkin')
       const selfCare  = logs.filter((l: any) => ['self_care_complete', 'self_care_completed'].includes(l.event))
       const intentions = logs.filter((l: any) => l.event === 'intention')
@@ -949,8 +951,11 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
       const storyText = lines.join(' ')
 
       // Write lot_ai_story log event
+      // userId is a UUID string (Log.userId / User.id are UUID columns) —
+      // do NOT parseInt() it, that silently truncates to a bogus small
+      // integer and throws "invalid input syntax for type uuid" on insert.
       await Log.create({
-        userId: parseInt(userId),
+        userId,
         event: 'lot_ai_story',
         text: storyText,
         metadata: {
@@ -967,7 +972,7 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
 
       // Store in user metadata for API access
       try {
-        const user = await User.findOne({ where: { id: parseInt(userId) } })
+        const user = await User.findOne({ where: { id: userId } })
         if (user) {
           const meta = (user.metadata as any) || {}
           await user.set({
@@ -987,6 +992,11 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
       } catch (_) {}
 
       generated++
+      } catch (userError: any) {
+        // Isolate per-user failures — one bad record must not abort the
+        // whole run and silently skip every remaining user's story.
+        console.error(`Weekly LOT® AI story failed for user ${userId}:`, userError.message)
+      }
     }
 
     console.log(`LOT® AI STORY GENERATION COMPLETE — ${generated} stories written`)

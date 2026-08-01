@@ -46,6 +46,7 @@ export function MicroCalculatorWidget() {
   // Poll for magic time every 10 seconds
   React.useEffect(() => {
     const check = () => {
+      if (document.hidden) return
       const mt = detectMagicTime()
       if (mt && !magicTime) {
         setMagicTime(mt)
@@ -69,7 +70,13 @@ export function MicroCalculatorWidget() {
     }
     check()
     const iv = setInterval(check, 10000)
-    return () => clearInterval(iv)
+    // Catch up immediately on tab-focus so a magic-minute window isn't
+    // missed for up to 10s just because the interval tick was skipped hidden.
+    document.addEventListener('visibilitychange', check)
+    return () => {
+      clearInterval(iv)
+      document.removeEventListener('visibilitychange', check)
+    }
   }, [magicTime, fading])
 
   if (!magicTime) return null
