@@ -80,7 +80,10 @@ CANDIDATES (provisional — env facts / structural ideas, not yet 3x recurrence)
                     when something is imminent) + localStorage dedup keyed on natural
                     identity + write-then-whitelist in the same commit. First instance:
                     CalendarWidget T-MINUS/ALERT:. 20260801.
-  YARN1-ECONNRESET  yarn classic v1.22 on Node 22 crashes with an unhandled ECONNRESET
-                    during package resolution even when the registry is reachable
-                    (verified via curl); npm install --legacy-peer-deps is the working
-                    fallback in this environment. 20260801.
+  YARN1-ECONNRESET  yarn classic v1.22 resolves against registry.yarnpkg.com, which
+                    this session's egress policy 403-denies at the proxy (confirmed via
+                    /__agentproxy/status recentRelayFailures) — yarn's error handling
+                    turns that into an unhandled ECONNRESET crash rather than a legible
+                    403. registry.npmjs.org is allowlisted, so npm install
+                    --legacy-peer-deps is the working fallback in this environment.
+                    20260801.
