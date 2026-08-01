@@ -10,7 +10,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button } from '#client/components/ui'
-import { useCohorts, useEnergy, useProfile } from '#client/queries'
+import { useCohorts, useEnergy, useProfile, useSendEmail } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { usePunctuationContext } from '#client/hooks/usePunctuationContext'
 import { recordSignal, getUserState } from '#client/stores/intentionEngine'
@@ -28,9 +28,17 @@ export const CohortConnectWidget: React.FC = () => {
   const { data: energyData } = useEnergy()
   const { data: profileData } = useProfile()
   const [expandedMemberId, setExpandedMemberId] = React.useState<string | null>(null)
+  const [emailedMemberIds, setEmailedMemberIds] = React.useState<Set<string>>(new Set())
   const logCtx = useLogContext()
   const punctuation = usePunctuationContext()
   const hasRecordedRef = React.useRef(false)
+  const { mutate: sendEmail } = useSendEmail({
+    onSuccess: (data) => {
+      if (data.recipientId) {
+        setEmailedMemberIds((prev) => new Set(prev).add(data.recipientId as string))
+      }
+    },
+  })
 
   // Resolved physiological classification from profile (server-derived archetype)
   const physiologicalArchetype = profileData?.archetype
@@ -124,6 +132,19 @@ export const CohortConnectWidget: React.FC = () => {
       hour: new Date().getHours()
     })
     stores.goTo('sync')
+  }
+
+  const handleSendEmail = (userId: string, similarity: number) => {
+    recordSignal('mood', 'cohort_email_initiated', {
+      userId,
+      similarity,
+      connectionReadiness,
+      hour: new Date().getHours()
+    })
+    sendEmail({
+      recipientId: userId,
+      body: 'Reaching out through LOT Community — would love to connect.',
+    })
   }
 
   const handleToggleExpand = (userId: string) => {
@@ -268,6 +289,16 @@ export const CohortConnectWidget: React.FC = () => {
                         }}
                       >
                         Send message
+                      </Button>
+                      <Button
+                        size="small"
+                        disabled={emailedMemberIds.has(match.user.id)}
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation()
+                          handleSendEmail(match.user.id, match.similarity)
+                        }}
+                      >
+                        {emailedMemberIds.has(match.user.id) ? 'Emailed' : 'Email'}
                       </Button>
                     </div>
                   </div>

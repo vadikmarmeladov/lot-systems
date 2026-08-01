@@ -200,6 +200,35 @@ export type DirectMessage = {
   updatedAt: Date;
 };
 
+// Email Type — LOT Email: composed in Log via "/email to <Name>", sent through
+// Resend, and surfaced live in Sync (Lot Chat) to the two parties involved.
+export type EmailStatus = 'sent' | 'unresolved' | 'failed';
+
+export type Email = {
+  id: string;
+  senderId: string;
+  recipientId: string | null;
+  recipientName: string;
+  subject: string;
+  body: string;
+  status: EmailStatus;
+  resendMessageId: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type EmailEventPayload = {
+  id: string;
+  senderId: string;
+  senderName: string;
+  recipientId: string | null;
+  recipientName: string;
+  subject: string;
+  body: string;
+  status: EmailStatus;
+  createdAt: Date;
+};
+
 // Chat Message Types
 export type ChatMessage = {
   id: string;
@@ -450,4 +479,5 @@ export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
   settings_updated: Record<string, never>;
+  email: EmailEventPayload;
 };

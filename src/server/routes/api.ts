@@ -23,6 +23,8 @@ import {
   DATE_FORMAT,
   DATE_TIME_FORMAT,
   LOG_MESSAGE_STALE_TIME_MINUTES,
+  MAX_EMAIL_BODY_LENGTH,
+  MAX_EMAIL_SUBJECT_LENGTH,
   MAX_LOG_TEXT_LENGTH,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
   SYNC_CHAT_MESSAGES_TO_SHOW,
@@ -34,6 +36,7 @@ import {
 import { sync } from '../sync.js'
 import * as weather from '#server/utils/weather'
 import { getLogContext } from '#server/utils/logs'
+import { sendEmail } from '#server/utils/email'
 import { defaultQuestions, defaultReplies } from '#server/utils/questions'
 import { buildPrompt, completeAndExtractQuestion, generateMemoryStory, generateRecipeSuggestion, extractUserTraits, determineUserCohort, calculateIntelligentPacing } from '#server/utils/memory'
 import { analyzeUserPatterns, findCohortMatches, type PatternInsight } from '#server/utils/patterns'
@@ -383,6 +386,13 @@ export default async (fastify: FastifyInstance) => {
         case 'settings_updated': {
           if (data.userId === req.user.id) {
             write({ event, data: {} })
+          }
+          break
+        }
+        case 'email': {
+          // Private to the two parties — never fan out to every connected client.
+          if (data.senderId === req.user.id || data.recipientId === req.user.id) {
+            write({ event, data })
           }
           break
         }
@@ -4066,6 +4076,184 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // ============================================================================
+  // LOT EMAIL - composed in Log via "/email to <Name>", dispatched through
+  // Resend, and pushed live to Sync for the sender and the resolved recipient.
+  // ============================================================================
+
+  fastify.get('/emails', async (req: FastifyRequest, reply) => {
+    try {
+      const emails = await fastify.models.Email.findAll({
+        where: {
+          [Op.or]: [
+            { senderId: req.user.id },
+            { recipientId: req.user.id },
+          ],
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 100,
+      })
+
+      const senderIds = Array.from(new Set(emails.map((e) => e.senderId)))
+      const senders = senderIds.length
+        ? await fastify.models.User.findAll({
+            where: { id: { [Op.in]: senderIds } },
+            attributes: ['id', 'firstName', 'lastName'],
+          })
+        : []
+      const senderById = new Map(senders.map((u) => [u.id, u]))
+
+      return reply.send({
+        emails: emails.map((e) => {
+          const sender = senderById.get(e.senderId)
+          return {
+            id: e.id,
+            senderId: e.senderId,
+            senderName: sender ? `${sender.firstName || ''} ${sender.lastName || ''}`.trim() : 'Unknown',
+            recipientId: e.recipientId,
+            recipientName: e.recipientName,
+            subject: e.subject,
+            body: e.body,
+            status: e.status,
+            createdAt: e.createdAt,
+            updatedAt: e.updatedAt,
+            isMine: e.senderId === req.user.id,
+          }
+        }),
+      })
+    } catch (error) {
+      console.error('Error fetching LOT Emails:', error)
+      return reply.status(500).send({ error: 'Failed to fetch emails' })
+    }
+  })
+
+  fastify.post('/emails', async (req: FastifyRequest<{
+    Body: { to?: string; recipientId?: string; body: string; subject?: string }
+  }>, reply) => {
+    try {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+
+      const { to, recipientId, subject } = req.body
+      const body = (req.body.body || '').trim().slice(0, MAX_EMAIL_BODY_LENGTH)
+      if (isBlankMessage(body)) {
+        return reply.status(400).send({ error: 'Email body cannot be empty' })
+      }
+      if (!to?.trim() && !recipientId) {
+        return reply.status(400).send({ error: '"to" (recipient name) or recipientId is required' })
+      }
+
+      // Resolve the recipient — an explicit recipientId (e.g. from a Cohort
+      // Connect match) wins; otherwise fuzzy-match the "/email to <Name>"
+      // name against active members' first names.
+      let recipient: any = null
+      if (recipientId) {
+        const found = await fastify.models.User.findByPk(recipientId)
+        if (found && found.id !== req.user.id) recipient = found
+      } else if (to) {
+        recipient = await fastify.models.User.findOne({
+          where: {
+            id: { [Op.not]: req.user.id },
+            firstName: { [Op.iLike]: `%${to.trim()}%` },
+          },
+          order: [['lastSeenAt', 'DESC']],
+        })
+      }
+
+      const recipientName = recipient
+        ? `${recipient.firstName || ''} ${recipient.lastName || ''}`.trim()
+        : (to || '').trim() || 'Unknown'
+
+      const emailSubject = (subject?.trim() || `A message from ${req.user.firstName || 'a LOT member'}`)
+        .slice(0, MAX_EMAIL_SUBJECT_LENGTH)
+
+      let status: 'sent' | 'unresolved' | 'failed' = 'unresolved'
+      let resendMessageId: string | null = null
+
+      if (recipient?.email) {
+        try {
+          const result = await sendEmail({
+            to: recipient.email,
+            subject: emailSubject,
+            text: body,
+            html: `<p>${body.replace(/\n/g, '<br/>')}</p><p style="opacity:0.5">— sent via LOT Email</p>`,
+          })
+          if (result.success) {
+            status = 'sent'
+            resendMessageId = result.messageId || null
+          } else {
+            status = 'failed'
+          }
+        } catch (sendError) {
+          console.error('LOT Email dispatch failed:', sendError)
+          status = 'failed'
+        }
+      }
+
+      const emailRecord = await fastify.models.Email.create({
+        senderId: req.user.id,
+        recipientId: recipient?.id || null,
+        recipientName,
+        subject: emailSubject,
+        body,
+        status,
+        resendMessageId,
+      })
+
+      // Push to Sync — the /sync SSE endpoint only forwards this to the
+      // sender and the resolved recipient (see the 'email' case there).
+      sync.emit('email', {
+        id: emailRecord.id,
+        senderId: req.user.id,
+        senderName: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim(),
+        recipientId: recipient?.id || null,
+        recipientName,
+        subject: emailSubject,
+        body,
+        status,
+        createdAt: emailRecord.createdAt,
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'email_sent',
+            text: '',
+            metadata: {
+              emailId: emailRecord.id,
+              recipientId: recipient?.id || null,
+              recipientName,
+              subject: emailSubject,
+              status,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging email:', logError)
+        }
+      })
+
+      return reply.send({
+        id: emailRecord.id,
+        senderId: emailRecord.senderId,
+        recipientId: emailRecord.recipientId,
+        recipientName: emailRecord.recipientName,
+        subject: emailRecord.subject,
+        body: emailRecord.body,
+        status: emailRecord.status,
+        createdAt: emailRecord.createdAt,
+        updatedAt: emailRecord.updatedAt,
+      })
+    } catch (error) {
+      console.error('Error sending LOT Email:', error)
+      return reply.status(500).send({ error: 'Failed to send email' })
     }
   })
 

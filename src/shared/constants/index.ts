@@ -36,6 +36,10 @@ export const blankStrippedSql = (col: string): string =>
 
 export const MAX_LOG_TEXT_LENGTH = 3000
 
+export const MAX_EMAIL_BODY_LENGTH = 4000
+
+export const MAX_EMAIL_SUBJECT_LENGTH = 200
+
 export const USER_TAGS_BY_ID: Record<UserTag, { name: string; color?: Color }> = {
   [UserTag.Admin]: { name: 'Admin' },
   [UserTag.RND]: { name: 'R&D' },

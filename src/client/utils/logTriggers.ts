@@ -41,6 +41,7 @@ export type LogTrigger =
   | 'system-help'       // /system — list all available slash commands
   | 'story-mode'        // /story — generate contextual story from recent data
   | 'how-checkin'       // /how — open LOT AI check-in (navigates to System tab)
+  | 'email-command'     // /email to <Name> — compose a LOT Email, see parseEmailCommand()
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -67,6 +68,7 @@ const RULES: TriggerRule[] = [
   { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'] },
   { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'] },
   { trigger: 'how-checkin',    emojis: [],        keywords: ['how'] },
+  { trigger: 'email-command',  emojis: [],        keywords: ['email'] },
 ]
 
 /**
@@ -114,4 +116,24 @@ export function detectNewTriggers(
   const fresh: LogTrigger[] = []
   current.forEach(t => { if (!prior.has(t)) fresh.push(t) })
   return fresh
+}
+
+/**
+ * Parses a "/email to <Name>." command out of a log entry. The recipient
+ * name is the word(s) immediately after "to"; everything else in the log
+ * becomes the email body (the command itself is stripped out first).
+ *
+ * Returns null when no "/email to <Name>" command is present — the caller
+ * treats this as an incomplete command (e.g. "/email" typed alone).
+ */
+export function parseEmailCommand(text: string): { to: string; body: string } | null {
+  if (!text) return null
+  const match = text.match(/\/email\s+to\s+([A-Za-z][A-Za-z'-]*)\.?/i)
+  if (!match) return null
+
+  const to = match[1]
+  const body = (text.slice(0, match.index) + text.slice(match.index! + match[0].length))
+    .trim()
+
+  return { to, body: body || `Reaching out via LOT Email.` }
 }

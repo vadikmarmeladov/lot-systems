@@ -24,9 +24,11 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useEmails,
+  EmailRecord,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { EmailEventPayload, PublicChatMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -69,6 +71,10 @@ export const Sync = React.memo(function SyncInner() {
     if (me.isAdmin) return true
     return me.tags.some((tag) => CHAT_ALLOWED_TAGS.includes(tag.toLowerCase()))
   }, [me])
+
+  const { data: emailData } = useEmails()
+  // SSE-received LOT Emails not yet reflected in the API response
+  const [sseEmails, setSseEmails] = React.useState<EmailEventPayload[]>([])
 
   const { data: fetchedMessages } = useChatMessages()
   const { mutate: createChatMessage } = useCreateChatMessage({
@@ -123,6 +129,41 @@ export const Sync = React.memo(function SyncInner() {
     }
   }, [me?.id])
 
+  React.useEffect(() => {
+    const { dispose } = sync.listen('email', (data: EmailEventPayload) => {
+      setSseEmails((prev) => (prev.some((x) => x.id === data.id) ? prev : [data, ...prev]))
+    })
+    return () => dispose()
+  }, [])
+
+  // Merge: SSE-only emails (not yet in API response) prepended to API list
+  const emails = React.useMemo(() => {
+    const fetched = (emailData?.emails || []).map((e) => ({
+      id: e.id,
+      senderName: e.senderName,
+      recipientName: e.recipientName,
+      subject: e.subject,
+      body: e.body,
+      status: e.status,
+      createdAt: e.createdAt,
+      isMine: e.isMine,
+    }))
+    const fetchedIds = new Set(fetched.map((e) => e.id))
+    const fresh = sseEmails
+      .filter((e) => !fetchedIds.has(e.id))
+      .map((e) => ({
+        id: e.id,
+        senderName: e.senderName,
+        recipientName: e.recipientName,
+        subject: e.subject,
+        body: e.body,
+        status: e.status,
+        createdAt: e.createdAt,
+        isMine: e.senderId === me?.id,
+      }))
+    return [...fresh, ...fetched]
+  }, [emailData, sseEmails, me?.id])
+
   const onChangeMessage = React.useCallback((value: string) => setMessage(value), [])
 
   const onSubmitMessage = React.useCallback(
@@ -172,8 +213,11 @@ export const Sync = React.memo(function SyncInner() {
 
   if (!canAccessChat) {
     return (
-      <div className="max-w-[700px] text-acc/40 py-8">
-        Sync is available for Usership, Onyx, Legacy, R&D, and Admin members.
+      <div className="max-w-[700px]">
+        <div className="text-acc/40 py-8">
+          Sync is available for Usership, Onyx, Legacy, R&D, and Admin members.
+        </div>
+        <EmailFeed emails={emails} isTimeFormat12h={isTimeFormat12h} />
       </div>
     )
   }
@@ -277,9 +321,59 @@ export const Sync = React.memo(function SyncInner() {
           )
         })}
       </div>
+
+      <EmailFeed emails={emails} isTimeFormat12h={isTimeFormat12h} />
     </div>
   )
 })
+
+interface SyncEmail {
+  id: string
+  senderName: string
+  recipientName: string
+  subject: string
+  body: string
+  status: 'sent' | 'unresolved' | 'failed'
+  createdAt: string | Date
+  isMine: boolean
+}
+
+// LOT Email — composed via "/email to <Name>" in Log, delivered through
+// Resend, and surfaced here for the sender and resolved recipient only
+// (the /sync SSE endpoint already scopes delivery to those two people).
+const EmailFeed: React.FC<{ emails: SyncEmail[]; isTimeFormat12h: boolean }> = ({ emails, isTimeFormat12h }) => {
+  if (!emails.length) return null
+  return (
+    <div className="mt-24 pt-16 border-t border-acc/10">
+      <div className="opacity-30 mb-8 uppercase tracking-widest text-xs">Email</div>
+      <div className="space-y-4">
+        {emails.map((x) => (
+          <div key={x.id} className="flex items-start gap-x-8 -mx-4 px-4 py-2">
+            <span className="whitespace-nowrap opacity-60">
+              {x.isMine ? `→ ${x.recipientName}` : `${x.senderName} →`}
+            </span>
+            <div className="flex-1 whitespace-breakspaces" style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
+              {x.subject}
+              {x.body && <div className="opacity-60">{x.body}</div>}
+            </div>
+            <Tag
+              className={cn(
+                'select-none -mt-[2px] whitespace-nowrap',
+                x.status === 'sent' ? 'text-acc/40 border-acc/20' : 'text-acc/40 border-acc/10'
+              )}
+              fill={false}
+            >
+              {x.status.toUpperCase()}
+            </Tag>
+            <div className="text-acc/40 whitespace-nowrap">
+              <MessageTimeLabel dateString={x.createdAt} isTimeFormat12h={isTimeFormat12h} />
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 const MessageTimeLabel: React.FC<{ dateString: string | Date; isTimeFormat12h: boolean }> = ({ dateString, isTimeFormat12h }) => {
   const date = dayjs(dateString)
