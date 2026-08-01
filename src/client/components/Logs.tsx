@@ -3339,6 +3339,7 @@ const NoteEditor = ({
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
+  const [storyScope, setStoryScope] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
@@ -3376,6 +3377,7 @@ const NoteEditor = ({
   const { mutate: submitStory } = useStoryGeneration({
     onSuccess: (data) => {
       setStoryResponse(data.story)
+      setStoryScope(data.scope || null)
       setStoryLoading(false)
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
@@ -3759,7 +3761,8 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compressed story from recent data',
+          '/story [day|week|month|year]  Compressed story of that period',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -3786,11 +3789,21 @@ const NoteEditor = ({
           setStoryLoading(true)
           setStoryResponse(null)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            // /story alone compresses the recent tail; /story day|week|month|year
+            // narrows the compression window to that period.
+            const scopeMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+            const scope = scopeMatch
+              ? (scopeMatch[1].toLowerCase() as 'day' | 'week' | 'month' | 'year')
+              : undefined
+            const logText = value
+              .replace(/\/story(\s+(?:day|week|month|year))?/i, '')
+              .replace(/📖/g, '')
+              .trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              scope,
               quantumState: state,
               userIndex: index,
             })
@@ -4050,7 +4063,7 @@ const NoteEditor = ({
         )}
         {(storyLoading || storyResponse) && (
           <div className="mt-8">
-            <Block label="📖" blockView>
+            <Block label={storyScope ? `📖 ${storyScope.toUpperCase()}` : '📖'} blockView>
               {storyLoading && !storyResponse && (
                 <div className="opacity-40 tracking-widest">...</div>
               )}

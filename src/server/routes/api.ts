@@ -5474,6 +5474,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          scope?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5498,29 +5499,64 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       }
 
       const { logText, quantumState, userIndex } = req.body
+      const scope = (['day', 'week', 'month', 'year'] as const).includes(req.body.scope as any)
+        ? (req.body.scope as 'day' | 'week' | 'month' | 'year')
+        : null
+
+      // Compression window — /story alone reads the recent tail (unbounded),
+      // /story day|week|month|year narrows to that period so the narrative
+      // compresses the whole window instead of just the last few entries.
+      const SCOPE_DAYS: Record<'day' | 'week' | 'month' | 'year', number> = {
+        day: 1, week: 7, month: 30, year: 365,
+      }
+      const cutoff = scope ? dayjs().subtract(SCOPE_DAYS[scope], 'day').toDate() : null
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: {
+          userId: req.user.id,
+          ...(cutoff ? { createdAt: { [Op.gte]: cutoff } } : {}),
+        },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: scope ? 500 : 200,
       })
 
-      const recentEntries = logs
-        .filter(l => l.event === 'log_entry' || l.event === 'journal')
-        .slice(0, 10)
+      // Sample size scales with the requested window — a year compresses
+      // more source material than a day, within a prompt-safe cap.
+      const sampleSize = scope === 'month' || scope === 'year' ? 20 : scope === 'week' ? 15 : 10
+
+      // NOTE: primary Log/Journal entries persist with event 'note' (see
+      // PUT /logs/:id) — 'log_entry'/'journal' never occur, so they matched
+      // nothing here. Fixed to the real event name.
+      const noteLogs = logs.filter(l => l.event === 'note' && (l.text || '').trim().length > 0)
+      const recentEntries = noteLogs
+        .slice(0, sampleSize)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
 
-      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, sampleSize)
       const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
 
+      // NOTE: real event names are 'answer' (Memory), 'self_care_complete'/
+      // 'self_care_completed', and 'energy_state'/'energy_update' — the
+      // previous filter ('memory_answer', 'self_care_checkin',
+      // 'energy_checkin') matched none of them.
       const selfCareLogs = logs.filter(l =>
-        l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
-      ).slice(0, 10)
+        l.event === 'answer' ||
+        l.event === 'self_care_complete' || l.event === 'self_care_completed' ||
+        l.event === 'energy_state' || l.event === 'energy_update'
+      ).slice(0, sampleSize)
       const selfCareNotes = selfCareLogs.map(l => {
-        const q = (l.metadata?.question as string || '')
-        const a = (l.metadata?.option as string || l.metadata?.answer as string || '')
-        return q && a ? `${q}: ${a}` : ''
+        if (l.event === 'answer') {
+          const q = (l.metadata?.question as string || '')
+          const a = (l.metadata?.answer as string || '')
+          return q && a ? `${q}: ${a}` : ''
+        }
+        if (l.event === 'self_care_complete' || l.event === 'self_care_completed') {
+          const action = (l.metadata?.action as string || l.metadata?.practice as string || '')
+          return `Self-care: ${action || 'protocol executed'}`
+        }
+        const status = (l.metadata?.status as string || '')
+        return status ? `Energy: ${status}` : ''
       }).filter(Boolean)
 
       let stateBlock = ''
@@ -5531,33 +5567,40 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      const PERIOD_LABEL: Record<'day' | 'week' | 'month' | 'year', string> = {
+        day: 'the last 24 hours', week: 'the last 7 days', month: 'the last 30 days', year: 'the last year',
+      }
+      const periodBlock = scope
+        ? `PERIOD REQUESTED: ${scope.toUpperCase()} (${PERIOD_LABEL[scope]})\nSIGNALS IN PERIOD: ${noteLogs.length} journal entries · ${moodLogs.length} mood check-ins · ${selfCareLogs.length} self-care/energy signals`
+        : ''
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's data into a short narrative.
+
+The operator typed a log entry and invoked /story${scope ? ` ${scope}` : ''}. Your task: write ${scope ? '2-3 paragraphs (150-250 words) that compress' : '1-2 paragraphs (100-200 words) that reflect'} their${scope ? ` ${PERIOD_LABEL[scope]}` : ' recent'} journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
 
 RULES:
 - Write in second person ("You...")
 - Draw from their actual log entries, moods, and self-care answers below
 - Reference specific details from their data — make it feel like THEIR story
-- If they've been consistent with check-ins, acknowledge the discipline
+${scope ? '- Synthesize the ARC across the whole period — do not just describe the most recent entry\n' : ''}- If they've been consistent with check-ins, acknowledge the discipline
 - If there are gaps or struggle, acknowledge that with compassion
 - The tone should match their current energy: reflective if low, energized if high
 - End with a single forward-looking sentence — not a pep talk, just a quiet truth
 - Return ONLY the story paragraphs. No title. No commentary. No preamble.
-- Keep it under 200 words.`
+- Keep it under ${scope ? '250' : '200'} words.`
 
       const dataBlock = `
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
 
-${stateBlock ? stateBlock : 'STATE: unknown'}
+${periodBlock ? periodBlock + '\n\n' : ''}${stateBlock ? stateBlock : 'STATE: unknown'}
 
-RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+RECENT MOODS: ${recentMoods.slice(0, 8).join(', ') || 'NO DATA'}
 
 RECENT LOG ENTRIES:
-${recentEntries.slice(0, 5).map(e => `- ${e}`).join('\n') || '- (none)'}
+${recentEntries.slice(0, 8).map(e => `- ${e}`).join('\n') || '- (none)'}
 
 SELF-CARE DATA:
-${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
+${selfCareNotes.slice(0, 8).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
       const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
 
@@ -5565,9 +5608,9 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         const { aiEngineManager } = await import('#server/utils/ai-engines.js')
         const engine = aiEngineManager.getEngine('together')
 
-        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+        console.log(`📖 Story generation for ${req.user.email}${scope ? ` [${scope}]` : ''}: "${(logText || '').substring(0, 80)}"`)
 
-        const story = await engine.generateCompletion(fullPrompt, 512)
+        const story = await engine.generateCompletion(fullPrompt, scope ? 700 : 512)
 
         const cleaned = story.trim().replace(/^["']|["']$/g, '')
 
@@ -5579,6 +5622,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           context,
           metadata: {
             story: cleaned,
+            scope: scope || null,
             logText: (logText || '').substring(0, 500),
             quantumState: quantumState || null,
             timestamp: new Date().toISOString(),
@@ -5587,6 +5631,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
         return {
           story: cleaned,
+          scope,
           logId: storyLog.id,
         }
       } catch (error: any) {
