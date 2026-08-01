@@ -3172,6 +3172,33 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 140: Auspicious Day Alignment — ambient astrology source records Taian (大安, most auspicious
+  // rokuyo in the six-day cycle) AND directed intention is active today. The external ambient field
+  // and the operator's directed will converge on the same day. First cross-layer pattern: astronomical
+  // ambient (astrology Tier 0 source) + behavioral intentional (intentions source).
+  // Not a compositional pattern (no pattern preconditions) — a direct convergence of two independent signal streams.
+  const p140AstrologySignal = signals.find(
+    s => s.source === 'astrology' &&
+         s.signal === 'ambient_reading' &&
+         s.metadata?.auspicious === true &&
+         (now - s.timestamp) < 36 * 60 * 60 * 1000 // 36h window — covers readings across timezone midnight
+  )
+  const p140HasIntention = signals.some(
+    s => s.source === 'intentions' && (now - s.timestamp) < 24 * 60 * 60 * 1000
+  )
+  if (p140AstrologySignal && p140HasIntention) {
+    const p140Rokuyo    = p140AstrologySignal.metadata?.rokuyo as string | undefined
+    const p140GoalsActive = signals.some(s => s.source === 'goals' && (now - s.timestamp) < 24 * 60 * 60 * 1000)
+    const p140Conf      = p140GoalsActive ? 0.85 : 0.75
+    patterns.push({
+      pattern: 'auspicious-day-alignment',
+      confidence: p140Conf,
+      suggestedWidget: 'intentions',
+      suggestedTiming: 'passive',
+      reason: `AUSP: Auspicious day alignment — ${p140Rokuyo ?? 'Taian'} (大安, most auspicious rokuyo) confirmed AND directed intention active today. The ambient field and the directed will are synchronized. Act with full commitment.${p140GoalsActive ? ' Goal signal also present — three channels aligned: astronomical · intentional · goal.' : ''}`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3788,6 +3815,9 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumCoherencePeakNode:   ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy', 'log'],
   signalMatrixSaturationNode: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
   temporalBiofieldSyncNode:   ['energy', 'selfcare', 'mood', 'planner', 'intentions', 'log'],
+
+  // ── v109 nodes (J45 · P140) ──────────────────────────────────────────────────────
+  auspiciousDayAlignmentNode: ['astrology', 'intentions', 'goals'],
 }
 
 /**

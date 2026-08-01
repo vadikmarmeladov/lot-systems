@@ -1353,6 +1353,21 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes. QIE v108 deployed.',
     ],
   },
+  {
+    date: '2026-08-01',
+    session: 'Self-Assembly Session — v109 / Wiki v83 + QIE Engineering · P140 auspicious-day-alignment · J45 Daily Auspicious Day Check · AUSP: handler · Astrology Tier 0 registered · Dep Map 179+',
+    assembled: [
+      'intentionEngine.ts: P140 auspicious-day-alignment — astrology signal auspicious:true (Taian 大安) AND intentions active today. Ambient field + directed will synchronized. Conf 0.75–0.85 (goals boost).',
+      'intentionEngine.ts: auspiciousDayAlignmentNode [astrology·intentions·goals] added to WIDGET_DEPENDENCY_MAP. 179+ dep nodes total.',
+      'scheduled-jobs.ts: J45 daily-auspicious-day-check — 10:00 UTC daily. Imports getRokuyo. Skips non-Taian days. Finds active users with intention signal in 24h. Writes auspicious_day_alignment log event.',
+      'routes/api.ts: auspicious_day_alignment added to displayableEvents (v109 block).',
+      'Logs.tsx: AUSP: handler added — AUSPICIOUS DAY ALIGNMENT · ROKUYO · INTENTIONS · FIELD: SYNCHRONIZED · CONF.',
+      'QuantumEngineWidgets.tsx: auspicious-day-alignment → AUSP in PATTERN_DISPLAY map.',
+      'About.tsx: FM v108→v109. Day 1066+→1071+. 136→140 patterns (Li). 139→140 patterns (QIE library Row). 43→45 jobs. 175+→179+ dep nodes. Self-Assembly Row v109 prepended.',
+      'docs/wiki/LOT-WIKI-v83.md: Full wiki maintenance scan. P137–P140 · Arch47 · J44–J45 · QCOHERE: SIGMAT: TBIOF: AUSP: · astrology Tier 0 · 179+ dep nodes synchronized.',
+      '140 patterns · 47 archetypes · 45 jobs · 140+ handlers · 179+ dep nodes. QIE v109 deployed. The astronomical and intentional channels are now linked.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1390,18 +1405,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-27',
+  date: '2026-08-01',
   message: [
-    'ASSEMBLY RUN — 2026-07-27 · v108 · QIE Engineering · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: · Day 1066+',
-    'P137 QUANTUM COHERENCE PEAK: field-alignment active AND UserIndex ≥ 60. The OS is not stabilizing. It is transmitting.',
-    'P138 SIGNAL MATRIX SATURATION: all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark. Full-dimensional presence.',
-    'P139 TEMPORAL-BIOFIELD SYNC: morning-coherence + daily-seal + biofield-integration within one calendar day. Time and biology synchronized.',
-    'Arch47 QUANTUM COHERENCE OPERATOR: peak coherence confirmed. Field aligned AND above coherence threshold. Maximum integration directive.',
-    'J44 daily-signal-matrix-check: 09:00 UTC daily. P138 (6-source check) + P137 (field alignment) + P139 (temporal-biofield triad). 44 jobs total.',
-    'QCOHERE: · SIGMAT: · TBIOF: military handlers wired in Logs.tsx. 3 new block types.',
-    'QuantumEngineWidgets: cohort view enhanced (Band + Dom fields). QOS Field view added — runtime + signal map + active patterns.',
-    '3 new dep map nodes: quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
-    'FIELD MANUAL v108. Day 1066+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
+    'ASSEMBLY RUN — 2026-08-01 · v109 · QIE Engineering · P140 · J45 · AUSP: · Day 1071+',
+    'P140 AUSPICIOUS DAY ALIGNMENT: Taian 大安 rokuyo confirmed AND directed intention active. The ambient astronomical field and the directed will are synchronized. Act with full commitment.',
+    'J45 DAILY AUSPICIOUS DAY CHECK: 10:00 UTC daily. Imports getRokuyo — server-side Taian detection. Active users with intention signal in 24h window receive auspicious_day_alignment log event.',
+    'AUSP: handler live in Logs.tsx: ROKUYO · 大安 · INTENTIONS · FIELD: SYNCHRONIZED · CONF.',
+    'auspiciousDayAlignmentNode [astrology·intentions·goals] registered. 179+ dep map nodes. Astrology confirmed as Tier 0 signal source.',
+    'LOT-WIKI-v83 generated. P137–P140 · Arch47 · J44–J45 · all QIE v108–v109 deltas synchronized.',
+    'FIELD MANUAL v109. Day 1071+. 140 patterns · 47 archetypes · 45 jobs · 140+ handlers · 179+ dep nodes.',
     'DEPLOYED.',
   ],
 }

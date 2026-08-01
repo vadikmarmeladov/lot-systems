@@ -1197,6 +1197,8 @@ export default async (fastify: FastifyInstance) => {
       'quantum_coherence_peak',
       'signal_matrix_saturation',
       'temporal_biofield_sync',
+      // v109: auspicious day alignment — Taian rokuyo + directed intention (P140)
+      'auspicious_day_alignment',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

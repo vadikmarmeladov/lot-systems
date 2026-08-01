@@ -3263,6 +3263,34 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'auspicious_day_alignment') {
+          const rokuyo        = log.metadata?.rokuyo         as string | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence    = log.metadata?.confidence     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="AUSP:" blockView>
+                <div className="uppercase tracking-widest mb-4">AUSPICIOUS DAY ALIGNMENT</div>
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="opacity-30">ROKUYO</span>
+                  <span>{rokuyo ?? 'TAIAN'} 大安</span>
+                </div>
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">INTENTIONS</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                <div className="flex justify-between items-baseline mb-2">
+                  <span className="opacity-30">FIELD</span>
+                  <span>SYNCHRONIZED</span>
+                </div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
