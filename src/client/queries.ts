@@ -141,7 +141,7 @@ export const useCreateLog = createMutation<{ text: string; event?: string; metad
   '/api/logs'
 )
 
-export const useUpdateLog = createMutation<{ id: string; text: string }, Log>(
+export const useUpdateLog = createMutation<{ id: string; text?: string; metadata?: Record<string, any> }, Log>(
   'put',
   (data) => `/api/logs/${data.id}`
 )

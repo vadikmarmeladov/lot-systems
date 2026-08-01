@@ -1575,13 +1575,25 @@ export default async (fastify: FastifyInstance) => {
     async (
       req: FastifyRequest<{
         Params: { id: string }
-        Body: { text: string }
+        Body: { text?: string; metadata?: Record<string, any> }
       }>,
       reply
     ) => {
-      const text = (req.body.text || '').trim().slice(0, MAX_LOG_TEXT_LENGTH)
       const log = await fastify.models.Log.findByPk(req.params.id)
-      if (!log) return reply.throw.notFound()
+      if (!log || log.userId !== req.user.id) return reply.throw.notFound()
+
+      // Calendar entries carry structured metadata (date, time, tracking, done)
+      // updated in place — separate from the note-editing path below.
+      if (log.event === 'calendar_entry') {
+        const metadata = { ...log.metadata, ...(req.body.metadata || {}) }
+        const text = typeof req.body.text === 'string'
+          ? req.body.text.trim().slice(0, MAX_LOG_TEXT_LENGTH)
+          : log.text
+        await log.set({ text, metadata }).save()
+        return log
+      }
+
+      const text = (req.body.text || '').trim().slice(0, MAX_LOG_TEXT_LENGTH)
       if (log.event !== 'note') return log
 
       // If user backspaced all content, delete the log instead of saving empty text
