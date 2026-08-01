@@ -72,4 +72,15 @@ COMINTEL:          Community Intelligence Peak — log block label; cohort + jou
 EMBODIED-COGNITION-ARC   QIE P110 — selfcare + journal 150+w + memory capture all in 24h; biological grounding and cognitive expression confirmed simultaneously; body feeding mind  B  20260706
 INTENTION-COMPLETION-LOOP QIE P111 — intention set + planner + goal action all in 24h; direction→structure→outcome arc closed in one day; rare single-day loop  B  20260706
 COMMUNITY-INTELLIGENCE-PEAK  QIE P112 — cohort signal + journal + memory + intentions all in 48h; external social signal anchored internally through writing, capture, and direction-setting  B  20260706
+CAL-ALERT:         Log block label for calendar_alert events; renders EVENT DUE — TYPE, entry text, date/time  C  20260801
 ```
+
+CANDIDATES (provisional — env facts / structural ideas, not yet 3x recurrence):
+  T-MINUS PATTERN   Once-only alert firing: bounded tracking-window memo (tick fast only
+                    when something is imminent) + localStorage dedup keyed on natural
+                    identity + write-then-whitelist in the same commit. First instance:
+                    CalendarWidget T-MINUS/ALERT:. 20260801.
+  YARN1-ECONNRESET  yarn classic v1.22 on Node 22 crashes with an unhandled ECONNRESET
+                    during package resolution even when the registry is reachable
+                    (verified via curl); npm install --legacy-peer-deps is the working
+                    fallback in this environment. 20260801.

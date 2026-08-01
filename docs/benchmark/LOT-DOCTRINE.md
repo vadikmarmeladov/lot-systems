@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -55,7 +55,30 @@ deferred to allow immediate visual response.)
 
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
-(SR-20260604-01: calendar_entry saved but never returned.)
+(SR-20260604-01: calendar_entry saved but never returned. SR-20260801-01:
+applied proactively — calendar_alert added to the whitelist in the same
+commit as its first writer, closing the gap before it could open, rather
+than discovering it after the fact.)
+
+## Once-Only Alert Firing (T-Minus Pattern)
+
+A widget that must notify exactly once when a scheduled target time arrives
+needs three parts working together: (1) a bounded tracking-window memo
+(e.g. -5min..+24h of "now") so the live tick only runs at high frequency
+(1s) while something is actually imminent, falling back to a cheap pulse
+(60s, gated on !document.hidden) otherwise — see Render Isolation for why
+unconditional fast intervals are a cost; (2) a localStorage-backed
+notified-key set, keyed on the entry's natural identity, checked before
+firing so a reload never re-sends an alert already sent, plus an in-memory
+ref guard against same-session double-fire races; (3) the alert write is a
+new log event and must clear Backend Whitelist Hygiene before first use.
+(SR-20260801-01: CalendarWidget T-MINUS countdown + ALERT: overlay +
+calendar_alert log — first instance. Also closed a second, older gap: the
+'calendar_update' signal has been checked by Pattern 46
+(temporal-coherence-window) and mapped in WIDGET_DEPENDENCY_MAP since
+inception with no emitter; recordCalendarUpdateSignal() now fires it at
+the moment an entry's alert goes live — the semantically correct trigger
+for a signal named "update".)
 
 ## Ship Mode Discipline
 

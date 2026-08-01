@@ -4554,6 +4554,18 @@ export function recordCalendarSignal(entryType: string, date: string) {
 }
 
 /**
+ * Record a calendar-update signal when a scheduled entry's alert fires (its target
+ * time arrives). Distinct from calendar_entry (the act of scheduling) — this marks
+ * the moment the event goes live. Wires the previously-declared but unemitted
+ * 'calendar_update' signal (see WIDGET_DEPENDENCY_MAP 'calendar' module and Pattern 46
+ * temporal-coherence-window, which has checked for calendar_entry OR calendar_update
+ * since inception with no emitter for the latter until now).
+ */
+export function recordCalendarUpdateSignal(entryType: string, date: string) {
+  recordSignal('log', 'calendar_update', { entryType, date, hour: new Date().getHours() })
+}
+
+/**
  * Record the day's ambient astrology reading — rokuyo, moon phase, and
  * zodiac hour. Ambient/environmental conditions only, not a personal
  * natal chart. Called once per calendar day from the System dashboard so
