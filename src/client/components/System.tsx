@@ -51,6 +51,7 @@ import { EvolutionWidget } from './EvolutionWidget'
 import { CohortConnectWidget } from './CohortConnectWidget'
 import { InterfaceEvolutionWidget } from './InterfaceEvolutionWidget'
 import { EvolutionMilestoneToast } from './EvolutionMilestoneToast'
+import { CalendarEventToast } from './CalendarEventToast'
 import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
@@ -1054,6 +1055,7 @@ export const System = React.memo(function SystemInner() {
       {/* Calendar — Personal date planner */}
       <WidgetErrorBoundary name="Calendar">
         <CalendarWidget />
+        <CalendarEventToast />
       </WidgetErrorBoundary>
 
       <WidgetErrorBoundary name="Benchmark">

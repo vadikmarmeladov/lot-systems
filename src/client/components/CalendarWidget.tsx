@@ -14,38 +14,56 @@ import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
 import { recordCalendarSignal } from '#client/stores/intentionEngine'
+import { emitCalendarEvent, hasSeenReminder, markReminderSeen } from '#client/utils/calendarEvents'
 
 type EntryType = 'note' | 'task' | 'call'
+type EntryStatus = 'overdue' | 'due' | 'upcoming'
 
 type CalendarEntry = {
+  id: string
   date: string
+  time: string | null
   text: string
   type: EntryType
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/
 
+// Always renders a fixed 6-week (42-day) ISO grid so every month's layout
+// is deterministic — no edge-case month produces a short or ragged grid.
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
-  const first = dayjs().year(year).month(month).startOf('month')
-  const last = dayjs().year(year).month(month).endOf('month')
-
-  let isoDay = first.day() === 0 ? 6 : first.day() - 1
+  const first = dayjs().year(year).month(month).date(1).startOf('day')
+  const isoDay = first.day() === 0 ? 6 : first.day() - 1
   const start = first.subtract(isoDay, 'day')
 
   const weeks: Dayjs[][] = []
   let current = start
-
-  while (current.isBefore(last) || current.isSame(last, 'day') || weeks.length < 5) {
+  for (let w = 0; w < 6; w++) {
     const week: Dayjs[] = []
     for (let i = 0; i < 7; i++) {
       week.push(current)
       current = current.add(1, 'day')
     }
     weeks.push(week)
-    if (weeks.length >= 6) break
   }
-
   return weeks
+}
+
+// Entry due-status relative to now — powers the [OVERDUE] / [DUE] bracket
+// tags and the reminder toast. Entries without a time are treated as
+// all-day: due for the whole calendar day, overdue only once the day passes.
+function getEntryStatus(entry: CalendarEntry, now: Dayjs): EntryStatus {
+  const entryDay = dayjs(entry.date)
+  if (entryDay.isBefore(now, 'day')) return 'overdue'
+  if (!entryDay.isSame(now, 'day')) return 'upcoming'
+
+  if (entry.time && TIME_RE.test(entry.time)) {
+    const [h, m] = entry.time.split(':').map(Number)
+    const entryMoment = entryDay.hour(h).minute(m)
+    if (entryMoment.isBefore(now)) return 'overdue'
+  }
+  return 'due'
 }
 
 export function CalendarWidget() {
@@ -59,25 +77,43 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [entryTime, setEntryTime] = React.useState('')
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+
+  // Live clock, minute-resolution — drives OVERDUE/DUE status transitions
+  // without requiring a remount. Paused on hidden tabs to avoid idle churn.
+  const [now, setNow] = React.useState(() => dayjs())
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (document.hidden) return
+      setNow(dayjs())
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
-      .map(log => ({
-        date: log.metadata?.date as string,
-        text: log.metadata?.text as string || log.text || '',
-        type: (log.metadata?.entryType as EntryType) || 'note',
-      }))
+      .map(log => {
+        const time = log.metadata?.time as string | undefined
+        return {
+          id: log.id,
+          date: log.metadata?.date as string,
+          time: time && TIME_RE.test(time) ? time : null,
+          text: log.metadata?.text as string || log.text || '',
+          type: (log.metadata?.entryType as EntryType) || 'note',
+        }
+      })
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''))
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
+    const today = now.format('YYYY-MM-DD')
     return entries
       .filter(e => e.date >= today)
       .slice(0, 10)
-  }, [entries])
+  }, [entries, now])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -90,11 +126,32 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
+  const today = now.format('YYYY-MM-DD')
+  const isViewingCurrentMonth = viewMonth.isSame(now, 'month')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
   )
+
+  // Sweep due/overdue entries and fire a toast once per entry per day —
+  // this is the "reliable ... reminders" half of the widget: the log is
+  // the source of truth, this is just the notification layer on top of it.
+  React.useEffect(() => {
+    entries.forEach(entry => {
+      const status = getEntryStatus(entry, now)
+      if (status === 'upcoming') return
+      if (hasSeenReminder(entry.id, today)) return
+
+      markReminderSeen(entry.id, today)
+      const dateLabel = dayjs(entry.date).format('MMM D')
+      const timeLabel = entry.time ? ` ${entry.time}Z` : ''
+      emitCalendarEvent({
+        code: status === 'overdue' ? 'REMINDER OVERDUE' : 'REMINDER DUE',
+        message: `${entry.type.toUpperCase()} · ${dateLabel}${timeLabel} · ${entry.text}`,
+        tone: status === 'overdue' ? 'overdue' : 'due',
+      })
+    })
+  }, [entries, now, today])
 
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
@@ -103,35 +160,48 @@ export function CalendarWidget() {
     } else {
       setSelectedDate(key)
     }
+    setIsAddingEntry(false)
   }
 
   const handleAddEntry = () => {
-    if (!selectedDate || !entryText.trim()) return
+    const trimmed = entryText.trim()
+    if (!selectedDate || !trimmed || isSubmitting) return
 
+    const time = entryTime && TIME_RE.test(entryTime) ? entryTime : null
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeLabel = time ? ` at ${time}` : ''
 
+    setIsSubmitting(true)
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${trimmed} (${dateLabel}${timeLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
-        text: entryText.trim(),
+        time,
+        text: trimmed,
         entryType,
       },
     }, {
       onSuccess: () => {
         queryClient.refetchQueries(['/api/logs'])
         try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        emitCalendarEvent({
+          code: 'ENTRY LOGGED',
+          message: `${entryType.toUpperCase()} · ${dayjs(selectedDate).format('MMM D')}${timeLabel} · ${trimmed}`,
+          tone: 'ok',
+        })
       },
+      onSettled: () => setIsSubmitting(false),
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
   }
 
   const handleToggleCalendar = () => {
     if (!isCalendarOpen) {
-      setViewMonth(dayjs())
+      setViewMonth(now)
     }
     setIsCalendarOpen(!isCalendarOpen)
   }
@@ -163,6 +233,14 @@ export function CalendarWidget() {
               >
                 {'—>'}
               </button>
+              {!isViewingCurrentMonth && (
+                <button
+                  className="text-acc/30 hover:text-acc/60 transition-opacity"
+                  onClick={() => setViewMonth(now)}
+                >
+                  Today
+                </button>
+              )}
             </div>
 
             <div className="space-y-1">
@@ -232,12 +310,28 @@ export function CalendarWidget() {
                     type="text"
                     value={entryText}
                     onChange={e => setEntryText(e.target.value)}
-                    onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') handleAddEntry()
+                      if (e.key === 'Escape') setIsAddingEntry(false)
+                    }}
                     placeholder={`Add ${entryType}...`}
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
-                  <Button onClick={handleAddEntry}>Add</Button>
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter') handleAddEntry()
+                      if (e.key === 'Escape') setIsAddingEntry(false)
+                    }}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40"
+                    aria-label="Time (optional)"
+                  />
+                  <Button onClick={handleAddEntry} disabled={!entryText.trim() || isSubmitting}>
+                    {isSubmitting ? 'Adding...' : 'Add'}
+                  </Button>
                 </div>
               </div>
             )}
@@ -247,11 +341,20 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
-                  </div>
-                ))}
+                {entriesOnDate.map(e => {
+                  const status = getEntryStatus(e, now)
+                  return (
+                    <div key={e.id} className="text-acc/80 mb-1">
+                      {status !== 'upcoming' && (
+                        <span className={cn('font-bold mr-4', status === 'overdue' ? 'text-red' : 'text-gold')}>
+                          [{status === 'overdue' ? 'OVERDUE' : 'DUE'}]
+                        </span>
+                      )}
+                      {e.time && <span className="text-acc/40 mr-4">{e.time}Z</span>}
+                      {e.text}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -259,16 +362,25 @@ export function CalendarWidget() {
 
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+            {upcomingEntries.map(entry => {
+              const status = getEntryStatus(entry, now)
+              return (
+                <div key={entry.id} className="flex justify-between gap-16">
+                  <span className="text-acc whitespace-nowrap">
+                    {status !== 'upcoming' && (
+                      <span className={cn('font-bold mr-4', status === 'overdue' ? 'text-red' : 'text-gold')}>
+                        [{status === 'overdue' ? 'OVERDUE' : 'DUE'}]
+                      </span>
+                    )}
+                    {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                    {entry.time && <span className="text-acc/40"> {entry.time}Z</span>}
+                  </span>
+                  <span className="text-acc text-right">
+                    {entry.text}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 
