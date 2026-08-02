@@ -4,14 +4,25 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-08-02 (Cycle 2 — originated 2026-07-28)
+VERSION:  0.2 — DEVELOPMENT CYCLE 2
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
 --------------------------------------------------------------------------------
 00 // READING LOG — SOURCES THIS DOCUMENT IS BUILT ON
 --------------------------------------------------------------------------------
+
+CYCLE 2 ADDENDUM (2026-08-02) — Per this document's own Section 07 rule
+("future sessions read this document first... and append the next entry"),
+this cycle re-read LOT-CUBIQ-QUANTUM-CUBE-v0.md (v0.1, 2026-07-28) in full
+before touching it, plus a re-pass on LOT_QI46_ENGINE.md Step 3.3 ("Quantum
+Cube sync") to keep Section 05's signal loop accurate, and
+LOT-CUBIQ-OPERATOR.md Section 03 (Index of Systems — signal sources,
+archetype trajectory, chakra state) to source Use Case 02 below from a real
+signal class already on record, not an invented one. No prior cycle
+specified firmware-level gesture logic or a bill of materials. Section 09
+of this cycle is the first to do so.
 
 This is the first hardware-specification document for the physical Quantum
 Cube. It is not a new invention — it is the next layer poured on top of
@@ -279,13 +290,111 @@ assumed.
     levitating future in mind rather than foreclosing it.
 
 --------------------------------------------------------------------------------
-07 // CONSUMER USE CASES
+07 // DEVELOPMENT CYCLE 2 — FIRST ENGINEERING ARTIFACTS (2026-08-02)
 --------------------------------------------------------------------------------
 
-This section accumulates one new consumer use case per development
-cycle. Each entry is dated and numbered. Future sessions read this
-document first (per the reading log in Section 00) and append the next
-entry — never editing or removing a prior one.
+Cycle 1 (v0.1) locked the mechanical architecture and the safety gate. It
+specified no code and no parts list — every actuator, sensor, and gesture
+was named as a component class, not a sourced part or a control loop. Cycle
+2 does not change any Cycle 1 decision. It adds the first layer underneath
+those decisions: the firmware state machine the driver board actually runs,
+and a bill-of-materials skeleton the physical build (v.0 prototype run) will
+be priced against.
+
+  07.1 — GESTURE DRIVER STATE MACHINE (FIRMWARE, PSEUDOCODE)
+
+    This is the code that lives between "Index of Systems signal fires"
+    and "actuator moves" in the Section 05 diagram. It is pseudocode, not
+    a target-language implementation — the MCU/RTOS choice is a Cycle 3
+    decision — but it is precise enough to build the driver board test
+    harness against.
+
+    ```
+    state CUBE_IDLE
+      on signal(type, rarity) -> gesture = mapSignalToGesture(type, rarity)
+      -> CUBE_ARMED(gesture)
+
+    state CUBE_ARMED(gesture)
+      edge = tofSensor.distanceToEdge()
+      if edge < EDGE_INHIBIT_MM (20mm):
+        gesture = GESTURE_SHUDDER          // Section 03 safety substitution
+        log(event: "edge_inhibit", edge_mm: edge)
+      -> CUBE_ACTUATING(gesture)
+
+    state CUBE_ACTUATING(gesture)
+      actuator.fire(gesture.strokeProfile)
+      if gesture.biasEnabled:
+        piezoBimorph.fireDelayed(gesture.biasAngleDeg, delay_ms: 1)
+      -> CUBE_LANDING
+
+    state CUBE_LANDING
+      imu.sample(window_ms: 400)
+      tiltDeg = imu.tiltFromVertical()
+      if tiltDeg > RECOVERY_THRESHOLD_DEG (25):
+        actuator.correctivePulse(direction: -tiltDeg)
+        log(event: "landing_recovery", tilt_deg: tiltDeg)
+      telemetry.emit(HAPTIC_PREFERENCE_SIGNAL,       // QI46 line 757
+        pressure: actuator.peakForce,
+        duration: actuator.strokeDuration_ms,
+        cadence: sinceLastGesture_ms)
+      -> CUBE_IDLE
+
+    function mapSignalToGesture(type, rarity):
+      match type:
+        MEMORY_QUESTION_READY      -> GESTURE_NUDGE
+        BADGE_UNLOCK where rarity in {common, uncommon} -> GESTURE_HOP
+        BADGE_UNLOCK where rarity in {rare, epic, legendary, mythic, cosmic}
+                                    -> GESTURE_LEAP
+        ASSEMBLY_PHASE_ADVANCED    -> GESTURE_SETTLE
+    ```
+
+    GATE CARRIED FORWARD FROM v0.1: this state machine is what the 500/500
+    hop-and-recover trial (Section 06) runs against. A trial counts as a
+    pass only if CUBE_LANDING telemetry shows tiltDeg <= 25 without a
+    corrective pulse, or a single corrective pulse resolves it.
+
+  07.2 — BILL OF MATERIALS, v.0 PROTOTYPE SKELETON
+
+    Component classes only — no vendor or part number is locked in Cycle
+    2. Sourcing and vendor selection is Cycle 3 scope. This table exists so
+    the first prototype build has a priced skeleton to build a BOM against,
+    not so it can be ordered from as-is.
+
+    COMPONENT CLASS              QTY   NOTES
+    ───────────────────          ───   -----
+    Voice-coil linear actuator    1    Vertical hop primitive (Section 03).
+                                        Candidate stroke: 3-6mm, peak force
+                                        class sized to <120g shell mass.
+    Piezoelectric bimorph strip   1    Forward-bias element, 5-15° angle
+                                        mount (Section 03).
+    6-axis IMU (accel + gyro)     1    Geometric center, landing recovery
+                                        + haptic-preference telemetry.
+    Time-of-flight edge sensor    1    Base face, forward-facing, v.0
+                                        (Section 03 safety gate).
+    Qi-class inductive coil       1    Base face, charge + table-as-power
+                                        interface (Section 02).
+    LED indicator ring            1    Pairing/charge state only.
+    MCU + BLE/Wi-Fi radio         1    Driver board — runs 07.1 state
+                                        machine, talks to Index of Systems.
+    LiPo cell, low-profile        1    Sized to actuator peak draw, not
+                                        yet capacity-specified.
+    Nano-ceramic composite shell  1    45x45x45mm, matte, LOT® black
+                                        (Section 02).
+    Elastomer feet, passive       4    Non-actuated in v.0 (Section 02).
+
+    NEXT (CYCLE 3): resolve actuator stroke/force numbers against the
+    <120g mass target with a real supplier datasheet, not a placeholder
+    range; this is the long-pole item — every other line item is
+    downstream of what the actuator ends up weighing.
+
+--------------------------------------------------------------------------------
+08 // CONSUMER USE CASES
+--------------------------------------------------------------------------------
+
+This section accumulates one new consumer use case per development cycle.
+Each entry is dated and numbered. Future sessions read this document first
+(per the reading log in Section 00) and append the next entry — never
+editing or removing a prior one.
 
   USE CASE 01 — THE DESK MIGRATION                          2026-07-28
   ─────────────────────────────────────────────────────────────────
@@ -321,8 +430,52 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE SILENT WAKE                              2026-08-02
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect" (v67),
+  cohabiting partner, 200+ day sustained engagement, CUBIQ charging pad
+  moved to the nightstand — not the desk — six weeks into ownership. The
+  operator did this unprompted; it is not a documented placement in any
+  prior version of this spec.
+
+  The Index of Systems already tracks circadian rhythm (LOT-CUBIQ-OPERATOR.md,
+  Section 01, PRESENCE) and fires pattern P76, morning-launch, most mornings
+  between 06:00-07:00. Under the software-only cubic, the operator's first
+  signal of the day was always a phone alarm — audio, bright screen, a
+  device shared with every other app competing for the first seconds of
+  their attention, and loud enough to also wake their partner.
+
+  With CUBIQ hardware v.0 on the nightstand: at the operator's usual
+  morning-launch window, the Index fires a MEMORY_QUESTION_READY signal
+  (Section 07.1, mapSignalToGesture) instead of routing through a phone
+  alarm at all. The cube performs THE NUDGE — sub-threshold, felt through
+  the nightstand's wood surface if a hand is resting near it, silent to
+  the room, invisible to a sleeping partner. No screen lights the ceiling.
+  No chime crosses the mattress. The operator wakes, or does not; the
+  gesture asks, it does not insist. Section 03's edge-detection gate is
+  load-bearing here in a way the desk use case never tested — a nightstand
+  is narrower than a desk, and a shudder substitution (not a leap) is the
+  gesture that fires when the ToF sensor reads a tight surface, exactly as
+  designed.
+
+  When the operator does stir and reaches for the cube, THE HOP fires —
+  a small, felt, in-place confirmation, then Section 04's THE SETTLE holds
+  once the phone (checked later, on the operator's own terms) shows the
+  Memory Engine question already waiting in the cubic. The first signal of
+  the day came from an object that could not also serve them an unrelated
+  push notification, an ad, or a feed. Section 05's telemetry loop logs
+  the wake-to-cube-interaction latency as a new haptic-preference signal —
+  the Index of Systems now knows this operator's morning-launch window
+  more precisely than the phone alarm it replaced ever reported back.
+
+  This use case is why Section 02's "table" framing was written broad
+  enough to include a nightstand from the start: the object that replaces
+  a desk notification and the object that replaces a phone alarm are the
+  same v.0 hop primitive, unmodified, placed somewhere else by the
+  operator's own judgment.
+
 --------------------------------------------------------------------------------
-08 // BRAND
+09 // BRAND
 --------------------------------------------------------------------------------
 
 LOT® Quantum Cube             The object
