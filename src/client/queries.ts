@@ -120,6 +120,31 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+// LOT Email — composed in Log via "/email to <name>", delivered through Sync.
+// Recipient is resolved through LOT Community's cohort-match graph.
+export interface EmailMessageRecord {
+  id: string
+  senderId: string
+  senderName: string
+  recipientId: string
+  recipientName: string
+  body: string
+  read: boolean
+  isMine: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+export const useEmailMessages = createQuery<{ messages: EmailMessageRecord[] }>(
+  '/api/email-messages',
+  { refetchOnWindowFocus: false }
+)
+
+export const useSendEmailMessage = createMutation<
+  { to: string; body: string },
+  { id: string; senderId: string; recipientId: string; recipientName: string; body: string }
+>('post', '/api/email-messages')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

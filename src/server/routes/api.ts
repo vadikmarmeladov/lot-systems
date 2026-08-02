@@ -386,6 +386,12 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'email_message': {
+          if (data.senderId === req.user.id || data.recipientId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
       }
     })
 
@@ -3954,6 +3960,63 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     }
   })
 
+  // Resolve a "/email to <name>" recipient. First-name match against LOT
+  // Community members; when several people share a first name, disambiguate
+  // through the same cohort-match graph that powers Cohort Dating so the
+  // email reaches whoever the sender is actually aligned with.
+  async function resolveEmailRecipient(
+    req: FastifyRequest,
+    rawName: string
+  ): Promise<{ id: string; firstName: string | null; lastName: string | null } | null> {
+    const { User } = await import('#server/models/user')
+    const { Log } = await import('#server/models/log')
+    const name = rawName.trim()
+    if (!name) return null
+
+    const candidates = await User.findAll({
+      where: {
+        firstName: { [Op.iLike]: `${name}%` },
+        id: { [Op.not]: req.user.id },
+      },
+      attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata', 'lastSeenAt'],
+      order: [['lastSeenAt', 'DESC']],
+      limit: 10,
+    })
+
+    if (candidates.length <= 1) return candidates[0] || null
+
+    try {
+      const userLogs = await Log.findAll({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'DESC']],
+        limit: 100,
+      })
+      if (userLogs.length < 10) return candidates[0]
+
+      const userPatterns = await analyzeUserPatterns(req.user, userLogs)
+      if (userPatterns.length === 0) return candidates[0]
+
+      const patternCache = new Map<string, PatternInsight[]>()
+      const getUserPatterns = async (userId: string): Promise<PatternInsight[]> => {
+        if (patternCache.has(userId)) return patternCache.get(userId)!
+        const logs = await Log.findAll({ where: { userId }, order: [['createdAt', 'DESC']], limit: 100 })
+        const user = candidates.find((u: any) => u.id === userId)
+        if (!user || logs.length < 5) return []
+        const patterns = await analyzeUserPatterns(user, logs)
+        patternCache.set(userId, patterns)
+        return patterns
+      }
+
+      const matches = await findCohortMatches(req.user, userPatterns, candidates as any, getUserPatterns)
+      const best = [...matches].sort((a, b) => b.similarity - a.similarity)[0]
+      const bestMatch = best && candidates.find((u: any) => u.id === best.user.id)
+      return bestMatch || candidates[0]
+    } catch {
+      // Cohort disambiguation is best-effort — fall back to the most recently active namesake.
+      return candidates[0]
+    }
+  }
+
   // Get direct message thread with another user
   fastify.get('/direct-messages/:userId', async (req: FastifyRequest<{
     Params: { userId: string }
@@ -4066,6 +4129,132 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // ============================================================================
+  // LOT EMAIL — composed in Log via "/email to <name>", delivered through Sync
+  // ============================================================================
+
+  // List the current user's LOT Email — sent and received, newest first
+  fastify.get('/email-messages', async (req, reply) => {
+    try {
+      const messages = await fastify.models.EmailMessage.findAll({
+        where: {
+          [Op.or]: [{ senderId: req.user.id }, { recipientId: req.user.id }],
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 100,
+      })
+
+      const userIds = new Set<string>()
+      messages.forEach((m) => {
+        userIds.add(m.senderId)
+        userIds.add(m.recipientId)
+      })
+      const { User } = await import('#server/models/user')
+      const users = await User.findAll({
+        where: { id: Array.from(userIds) },
+        attributes: ['id', 'firstName', 'lastName'],
+      })
+      const userById = new Map(users.map((u) => [u.id, u]))
+
+      return reply.send({
+        messages: messages.map((m) => {
+          const sender = userById.get(m.senderId)
+          const recipient = userById.get(m.recipientId)
+          return {
+            id: m.id,
+            senderId: m.senderId,
+            senderName: sender ? `${sender.firstName} ${sender.lastName}`.trim() : 'Unknown',
+            recipientId: m.recipientId,
+            recipientName: recipient
+              ? `${recipient.firstName} ${recipient.lastName}`.trim()
+              : m.recipientName,
+            body: m.body,
+            read: m.read,
+            isMine: m.senderId === req.user.id,
+            createdAt: m.createdAt,
+            updatedAt: m.updatedAt,
+          }
+        }),
+      })
+    } catch (error) {
+      console.error('Error fetching email messages:', error)
+      return reply.status(500).send({ error: 'Failed to fetch LOT Email' })
+    }
+  })
+
+  // Send a LOT Email — recipient resolved by first name through LOT Community
+  fastify.post('/email-messages', async (req: FastifyRequest<{
+    Body: { to: string; body: string }
+  }>, reply) => {
+    try {
+      const { to, body } = req.body
+
+      if (!to || !to.trim() || !body || !body.trim()) {
+        return reply.status(400).send({ error: 'Recipient name and message body are required' })
+      }
+
+      const recipient = await resolveEmailRecipient(req, to)
+      if (!recipient) {
+        return reply.status(404).send({
+          error: `No one named "${to.trim()}" found in LOT Community`,
+        })
+      }
+
+      const emailMessage = await fastify.models.EmailMessage.create({
+        senderId: req.user.id,
+        recipientId: recipient.id,
+        recipientName: `${recipient.firstName} ${recipient.lastName}`.trim(),
+        body: body.trim().slice(0, 2000),
+      })
+
+      const senderName = `${req.user.firstName} ${req.user.lastName}`.trim()
+
+      sync.emit('email_message', {
+        id: emailMessage.id,
+        senderId: req.user.id,
+        senderName,
+        recipientId: recipient.id,
+        recipientName: emailMessage.recipientName,
+        body: emailMessage.body,
+        read: emailMessage.read,
+        createdAt: emailMessage.createdAt,
+        updatedAt: emailMessage.updatedAt,
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'email_message_sent',
+            text: '',
+            metadata: {
+              emailMessageId: emailMessage.id,
+              recipientId: recipient.id,
+              recipientName: emailMessage.recipientName,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging email message:', logError)
+        }
+      })
+
+      return reply.send({
+        id: emailMessage.id,
+        senderId: emailMessage.senderId,
+        recipientId: emailMessage.recipientId,
+        recipientName: emailMessage.recipientName,
+        body: emailMessage.body,
+        createdAt: emailMessage.createdAt,
+        updatedAt: emailMessage.updatedAt,
+      })
+    } catch (error) {
+      console.error('Error sending email message:', error)
+      return reply.status(500).send({ error: 'Failed to send LOT Email' })
     }
   })
 

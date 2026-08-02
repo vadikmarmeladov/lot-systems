@@ -24,6 +24,8 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useEmailMessages,
+  EmailMessageRecord,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -52,6 +54,8 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Email — composed elsewhere (Log's "/email to <name>"), appears here live
+  const [sseEmailMessages, setSseEmailMessages] = React.useState<EmailMessageRecord[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -71,6 +75,7 @@ export const Sync = React.memo(function SyncInner() {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: emailData } = useEmailMessages()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -93,6 +98,14 @@ export const Sync = React.memo(function SyncInner() {
     const combined = [...fresh, ...fetched].filter((m) => !isBlankMessage(m.message))
     return canAccessUserProfiles ? combined : combined.slice(0, SYNC_CHAT_MESSAGES_TO_SHOW)
   }, [fetchedMessages, sseMessages, canAccessUserProfiles])
+
+  // Merge: SSE-only LOT Email (not yet in API response) prepended to API list
+  const emailMessages = React.useMemo(() => {
+    const fetched = emailData?.messages || []
+    const fetchedIds = new Set(fetched.map((m) => m.id))
+    const fresh = sseEmailMessages.filter((m) => !fetchedIds.has(m.id))
+    return [...fresh, ...fetched]
+  }, [emailData, sseEmailMessages])
 
   React.useEffect(() => {
     const { dispose: disposeChatMessageListener } = sync.listen(
@@ -117,9 +130,20 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeEmailMessageListener } = sync.listen(
+      'email_message',
+      (data) => {
+        setSseEmailMessages((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [{ ...data, isMine: data.senderId === me?.id }, ...prev]
+        })
+        queryClient.invalidateQueries(['/api/email-messages'])
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeEmailMessageListener()
     }
   }, [me?.id])
 
@@ -180,6 +204,31 @@ export const Sync = React.memo(function SyncInner() {
 
   return (
     <div className="max-w-[700px]">
+      {emailMessages.length > 0 && (
+        <div className="mb-80">
+          <div className="text-acc/40 uppercase tracking-widest text-[11px] mb-8">
+            LOT Email
+          </div>
+          {emailMessages.slice(0, 20).map((x) => (
+            <div key={x.id} className="flex items-start gap-x-8 -mx-4 px-4 py-2">
+              <span className="whitespace-nowrap opacity-60">
+                {x.isMine ? `→ ${x.recipientName}` : `${x.senderName} →`}
+              </span>
+              <div
+                className="whitespace-breakspaces"
+                style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+              >
+                {x.body}
+              </div>
+              {!isTouchDevice && (
+                <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40 ml-auto">
+                  <MessageTimeLabel dateString={x.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}

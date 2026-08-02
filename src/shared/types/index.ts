@@ -200,6 +200,19 @@ export type DirectMessage = {
   updatedAt: Date;
 };
 
+// LOT Email Type — composed in Log via "/email to <name>", delivered through Sync.
+// Recipient is resolved through LOT Community's cohort-match graph.
+export type EmailMessage = {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  recipientName: string;
+  body: string;
+  read: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 // Chat Message Types
 export type ChatMessage = {
   id: string;
@@ -446,8 +459,11 @@ export type ChatMessageLikeEventPayload = {
 };
 
 // Sync Events
+export type EmailMessageEventPayload = EmailMessage & { senderName: string };
+
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
   settings_updated: Record<string, never>;
+  email_message: EmailMessageEventPayload;
 };
