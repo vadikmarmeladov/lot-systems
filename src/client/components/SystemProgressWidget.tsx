@@ -1353,6 +1353,22 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes. QIE v108 deployed.',
     ],
   },
+  {
+    date: '2026-08-02',
+    session: 'Self-Assembly Session — v109 / Wiki Scan · LOT-WIKI-v83 · QIE v108 delta sync · FM v108 · Day 1072+',
+    assembled: [
+      'docs/wiki/LOT-WIKI-v83.md: Full wiki maintenance scan. All QIE v108 deltas synchronized — P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: handlers · 3 dep map nodes · Quantum Coherence Doctrine. v82 → v83.',
+      'Section 5 (QOS): 6 views → 7 views. VIEW 7 QOS Field added (QuantumOS runtime · signal map 7d · active patterns).',
+      'Section 6 (Archetypes): 46 types → 47 types. Arch47 Quantum Coherence Operator detail block added.',
+      'Section 11 (Background Jobs): 43 → 44 jobs. J44 daily-signal-matrix-check (09:00 UTC) full profile added.',
+      'Section 12 (Log Events): 136+ → 139+ handlers. QCOHERE: SIGMAT: TBIOF: directory entries + v108 handler format block added.',
+      'Section 28 (State Snapshot): All counters updated to v83 — FM v108 · 139 patterns · 47 archetypes · 44 jobs · 178+ nodes · 139+ handlers · 7 QOS views · COSMO® 762 days · Day 1072+. P137/P138/P139 milestone rows added.',
+      'About.tsx: Day 1066+→1072+. Self-Assembly phase v109 prepended. v99–v109 table rows added. Background jobs 43→44. Log handlers 136+→139+. Dep map 175+→178+.',
+      'SystemProgressWidget.tsx: v109 session entry added. USERSHIP_TRANSMISSION updated to v109.',
+      'docs/assembly/2026-08-02_LOT-assembly_wiki-v83.md: Assembly report written.',
+      '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes · 7 QOS views. FM v108. LOT-WIKI-v83 deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1390,19 +1406,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-27',
+  date: '2026-08-02',
   message: [
-    'ASSEMBLY RUN — 2026-07-27 · v108 · QIE Engineering · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: · Day 1066+',
-    'P137 QUANTUM COHERENCE PEAK: field-alignment active AND UserIndex ≥ 60. The OS is not stabilizing. It is transmitting.',
-    'P138 SIGNAL MATRIX SATURATION: all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark. Full-dimensional presence.',
-    'P139 TEMPORAL-BIOFIELD SYNC: morning-coherence + daily-seal + biofield-integration within one calendar day. Time and biology synchronized.',
-    'Arch47 QUANTUM COHERENCE OPERATOR: peak coherence confirmed. Field aligned AND above coherence threshold. Maximum integration directive.',
-    'J44 daily-signal-matrix-check: 09:00 UTC daily. P138 (6-source check) + P137 (field alignment) + P139 (temporal-biofield triad). 44 jobs total.',
-    'QCOHERE: · SIGMAT: · TBIOF: military handlers wired in Logs.tsx. 3 new block types.',
-    'QuantumEngineWidgets: cohort view enhanced (Band + Dom fields). QOS Field view added — runtime + signal map + active patterns.',
-    '3 new dep map nodes: quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
-    'FIELD MANUAL v108. Day 1066+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
-    'DEPLOYED.',
+    'ASSEMBLY RUN — 2026-08-02 · v109 · Full Wiki Scan · LOT-WIKI-v83 · QIE v108 sync · FM v108 · Day 1072+',
+    'Built: LOT-WIKI-v83 · QIE v108 (P137–P139, Arch47, J44) synchronized · Quantum Coherence Doctrine added.',
+    'Feedback applied: "Peak coherence confirmed. Field aligned AND above coherence threshold. Operate at maximum integration. Do not dilute focus."',
+    '7 QOS views confirmed. VIEW 7 QOS Field: QuantumOS runtime · signal map 7d · active patterns.',
+    '47 archetypes confirmed. Arch47 Quantum Coherence Operator: high/moderate energy · intentions · journal · selfcare · planner · memory dominant.',
+    '44 background jobs confirmed. J44 daily-signal-matrix-check: 09:00 UTC daily · QCOHERE: SIGMAT: TBIOF:.',
+    '139+ log handlers confirmed. v108 formats: QCOHERE: FIELD: ALIGNED · SIGMAT: CHANNELS: 6/6 · TBIOF: SYNC: CONFIRMED.',
+    'FIELD MANUAL v108. Day 1072+. COSMO® 762 days. 139 patterns · 47 archetypes · 44 jobs · 178+ dep nodes.',
+    'Status: DEPLOYED.',
+    'Next: Badge Engine v30 — Word Turn engine v20.',
   ],
 }
 
