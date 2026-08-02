@@ -177,3 +177,27 @@ export function getMoonEmoji(phaseName: string): string {
   }
   return emojiMap[phaseName] || '🌑'
 }
+
+/**
+ * Build a Date whose local getHours()/getMonth()/getDate() readers (which
+ * every function above relies on) reflect a given IANA timeZone's wall-clock
+ * time, regardless of the runtime's own timeZone. Isomorphic — Intl is
+ * available in both the browser and Node, so this is the client-side
+ * counterpart to the server's dayjs-based toWallClockDate() in
+ * server/utils/logs.ts, used so the dashboard's ambient reading matches the
+ * user's saved timeZone rather than the viewing device's local clock.
+ */
+export function getWallClockDateInTimeZone(timeZone: string, referenceDate: Date = new Date()): Date {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+  }).formatToParts(referenceDate)
+  const get = (type: string) => Number(parts.find((p) => p.type === type)?.value)
+  return new Date(get('year'), get('month') - 1, get('day'), get('hour') % 24, get('minute'), get('second'))
+}
