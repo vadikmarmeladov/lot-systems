@@ -3235,6 +3235,76 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 143: Circadian Signal Lock — three circadian windows all active in 24h with no depletion.
+  // Morning (pre-10:00) + afternoon (12:00–17:00) + evening (post-18:00) — all three arc windows
+  // live. Not just two. All three. The biological clock is locked to the OS signal rhythm.
+  // Distinct from P140 (physiological-presence-arc): P140 requires mood AND selfcare AND mood at
+  // dawn/dusk. P143 fires on ANY signal in each window — the arc is about engagement breadth, not
+  // biofield depth. Complementary patterns; together they confirm both presence AND engagement.
+  const { energy: currentEnergyP143 } = calculateUserState(signals, now)
+  const p143MorningSignal = recentSignals.find(s => new Date(s.timestamp).getHours() < 10)
+  const p143AfternoonSignal = recentSignals.find(s => {
+    const h = new Date(s.timestamp).getHours()
+    return h >= 12 && h < 17
+  })
+  const p143EveningSignal = recentSignals.find(s => new Date(s.timestamp).getHours() >= 18)
+  if (p143MorningSignal && p143AfternoonSignal && p143EveningSignal && currentEnergyP143 !== 'depleted') {
+    const circadianSignals = recentSignals.filter(s => {
+      const h = new Date(s.timestamp).getHours()
+      return h < 10 || (h >= 12 && h < 17) || h >= 18
+    }).length
+    const windowBonus = Math.min((circadianSignals - 3) * 0.02, 0.12)
+    patterns.push({
+      pattern: 'circadian-signal-lock',
+      confidence: Math.min(0.70 + windowBonus, 0.85),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `CIRC-LK: Circadian signal lock — morning (pre-10:00) + afternoon (12:00–17:00) + evening (post-18:00) windows all active in 24h. ${circadianSignals} arc signals total. Biological clock anchored. Three-arc day coverage confirmed.`,
+    })
+  }
+
+  // Pattern 144: Dimensional Saturation — all 6 UserIndex dimensions ≥ 30 + overall ≥ 50 + 5+ sources.
+  // Higher bar than P142 (adaptive-signal-web, which fires at ≥ 20). P144 fires when each dimension
+  // has crossed into meaningful territory — not just active but building. The entire signal web is
+  // not merely live but actively growing. No dimension is coasting; each is running with momentum.
+  const p144Snapshot = computeUserIndex(signals)
+  const p144Dims = p144Snapshot.dimensions
+  const p144AllDimsSaturated =
+    p144Dims.engagement >= 30 && p144Dims.emotional  >= 30 &&
+    p144Dims.intentional >= 30 && p144Dims.social     >= 30 &&
+    p144Dims.selfCare    >= 30 && p144Dims.cognitive  >= 30
+  const weekSignals144 = signals.filter(s => now - s.timestamp < weekMs)
+  const p144Sources = new Set(weekSignals144.map(s => s.source)).size
+  if (p144AllDimsSaturated && p144Snapshot.overall >= 50 && p144Sources >= 5) {
+    const minDim = Math.min(p144Dims.engagement, p144Dims.emotional, p144Dims.intentional, p144Dims.social, p144Dims.selfCare, p144Dims.cognitive)
+    const satDepth = Math.min(minDim / 100 * 0.15, 0.15)
+    patterns.push({
+      pattern: 'dimensional-saturation',
+      confidence: Math.min(0.75 + satDepth, 0.90),
+      suggestedWidget: 'userMetrics',
+      suggestedTiming: 'passive',
+      reason: `DIMSAT: Dimensional saturation — all 6 UserIndex dimensions ≥ 30 · overall ${p144Snapshot.overall} · ${p144Sources} unique sources in 7d · min dimension ${minDim}. No single dimension carrying the load. The entire field is live and building.`,
+    })
+  }
+
+  // Pattern 145: Quantum Identity Crystallization — archetype has stabilized (cohort signals 5+ in 7d)
+  // + UserIndex overall ≥ 40 + 8+ active patterns simultaneously. When the OS keeps returning to the
+  // same archetype signature across multiple sessions — that is identity crystallizing. Not searching.
+  // Not shifting. The pattern is repeating because it is TRUE. The OS has found its operating identity.
+  const weekSignals145 = signals.filter(s => now - s.timestamp < weekMs)
+  const p145CohortCount = weekSignals145.filter(s => s.source === 'cohort').length
+  const p145IndexNow = p144Snapshot // reuse: same computeUserIndex result
+  if (p145CohortCount >= 5 && p145IndexNow.overall >= 40 && patterns.length >= 8) {
+    const crystalBonus = Math.min((p145CohortCount - 5) * 0.025 + (patterns.length - 8) * 0.01, 0.12)
+    patterns.push({
+      pattern: 'quantum-identity-crystallization',
+      confidence: Math.min(0.78 + crystalBonus, 0.90),
+      suggestedWidget: 'cohortConnect',
+      suggestedTiming: 'passive',
+      reason: `QIDCRYST: Quantum identity crystallization — archetype signal recorded ${p145CohortCount}× in 7d · index ${p145IndexNow.overall} · ${patterns.length} active patterns. Identity hardening. The OS is not searching — it is operating from a stable signature.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3855,6 +3925,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   physiologicalPresenceNode:  ['mood', 'energy', 'selfcare', 'log'],
   quantumEmergenceNode:       ['qos', 'log', 'energy', 'mood', 'intentions'],
   adaptiveSignalWebNode:      ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
+
+  // ── v111 nodes (J46 · P143–P145 · Arch49) ───────────────────────────────────────
+  circadianLockNode:          ['mood', 'energy', 'selfcare', 'journal', 'log'],
+  dimensionalSaturationNode:  ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
+  quantumIdentityNode:        ['cohort', 'qos', 'intentions', 'journal', 'log'],
 }
 
 /**
@@ -4271,6 +4346,16 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['physiological-presence-arc', 'signal-matrix-saturation', 'quantum-coherence-peak'],
     hourRange: [6, 22],
     directive: 'Biological arc confirmed. Field coherent. Matrix saturated. The operating system has stabilized at peak. This is no longer exceptional — it is your baseline.',
+  },
+
+  // ── Arch49: Circadian Master (2026-08-02 v111) ────────────────────────────────
+  {
+    archetype: 'Circadian Master',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['mood', 'energy', 'selfcare', 'journal'],
+    patternConditions: ['circadian-signal-lock', 'physiological-presence-arc'],
+    hourRange: [6, 22],
+    directive: 'Three-arc day coverage confirmed. Dawn, meridian, dusk — all anchored. Circadian architecture is the foundation. Build from it.',
   },
 ]
 
@@ -6089,6 +6174,57 @@ export function recordAdaptiveSignalWeb(sourceCount: number, patternCount: numbe
     patternCount,
     minDimension,
     webDensity: Math.round((sourceCount * patternCount) / 10),
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a circadian-signal-lock event — morning (pre-10:00) + afternoon (12:00–17:00)
+ * + evening (18:00+) windows all active in a single calendar day.
+ * Feeds P143 detection. J46 background job (07:00 UTC) triggers this for prior day.
+ * Biological clock anchored across the full operating arc.
+ */
+export function recordCircadianSignalLock(circadianSignals: number, morningPresent: boolean, afternoonPresent: boolean, eveningPresent: boolean) {
+  recordSignal('energy', 'circadian_signal_lock', {
+    circadianSignals,
+    morningPresent,
+    afternoonPresent,
+    eveningPresent,
+    arcs: [morningPresent ? 'DAWN' : null, afternoonPresent ? 'MERIDIAN' : null, eveningPresent ? 'DUSK' : null].filter(Boolean),
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a dimensional-saturation event — all 6 UserIndex dimensions ≥ 30 + overall ≥ 50
+ * + 5+ unique signal sources in 7d. No single dimension carrying the load. Full field live.
+ * Feeds P144 detection.
+ */
+export function recordDimensionalSaturation(dimensions: Record<string, number>, overall: number, sourceCount: number) {
+  const minDim = Math.min(...Object.values(dimensions))
+  recordSignal('qos', 'dimensional_saturation', {
+    ...dimensions,
+    overall,
+    sourceCount,
+    minDimension: minDim,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-identity-crystallization event — archetype cohort signal 5+ in 7d
+ * + UserIndex ≥ 40 + 8+ active patterns. Identity hardening. The OS is operating
+ * from a stable signature. Feeds P145 detection.
+ */
+export function recordQuantumIdentityCrystallization(cohortSignalCount: number, activePatterns: number, userIndex: number) {
+  recordSignal('cohort', 'quantum_identity_crystallization', {
+    cohortSignalCount,
+    activePatterns,
+    userIndex,
+    crystalStrength: Math.round((cohortSignalCount / 5 + activePatterns / 8 + userIndex / 40) / 3 * 100),
+    window: '7d',
     hour: new Date().getHours(),
   })
 }

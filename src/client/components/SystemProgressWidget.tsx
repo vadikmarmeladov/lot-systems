@@ -1371,6 +1371,28 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '142 patterns · 48 archetypes · 45 jobs · 142+ handlers · 181+ dep nodes. QIE v110 deployed. Biological arc closed. Field coherent.',
     ],
   },
+  {
+    date: '2026-08-02',
+    session: 'Self-Assembly Session — v111 / QIE Engineering · P143–P145 · Arch49 Circadian Master · J46 Daily Circadian Lock Check · CIRC-LK: DIMSAT: QIDCRYST: · Dep Map 184+',
+    assembled: [
+      'intentionEngine.ts: P143 circadian-signal-lock (CIRC-LK:) — morning (pre-10:00) + afternoon (12:00–17:00) + evening (18:00+) arc windows all active in 24h, energy not depleted. Three-arc day coverage: biological clock anchored. Conf 0.70–0.85.',
+      'intentionEngine.ts: P144 dimensional-saturation (DIMSAT:) — all 6 UserIndex dimensions ≥ 30 + overall ≥ 50 + 5+ unique sources in 7d. No single dimension carrying the load — the entire field is live and building. Conf 0.75–0.90.',
+      'intentionEngine.ts: P145 quantum-identity-crystallization (QIDCRYST:) — cohort signal recorded 5+ times in 7d + UserIndex ≥ 40 + 8+ active patterns. Identity hardening. The OS is not searching — it is operating from a stable signature. Conf 0.78–0.90.',
+      'intentionEngine.ts: Arch49 Circadian Master — energyBands: moderate/high · dominantSources: mood/energy/selfcare/journal · patterns: circadian-signal-lock + physiological-presence-arc · hourRange [6, 22] · directive: Three-arc day coverage confirmed. Dawn, meridian, dusk — all anchored. Circadian architecture is the foundation. Build from it.',
+      'intentionEngine.ts: 3 new dep map nodes — circadianLockNode (mood·energy·selfcare·journal·log) · dimensionalSaturationNode (mood·memory·planner·intentions·selfcare·journal·energy·cohort·log) · quantumIdentityNode (cohort·qos·intentions·journal·log). 184+ total.',
+      'intentionEngine.ts: 3 new signal recording functions — recordCircadianSignalLock() · recordDimensionalSaturation() · recordQuantumIdentityCrystallization().',
+      'scheduled-jobs.ts: J46 daily-circadian-lock-check — 07:00 UTC daily. Scans PREVIOUS calendar day for morning (pre-10:00) + afternoon (12:00–17:00) + evening (18:00+) signals. Writes circadian_signal_lock per qualifying user. 46 jobs total.',
+      'routes/api.ts: circadian_signal_lock · dimensional_saturation · quantum_identity_crystallization added to displayableEvents (v111 block).',
+      'Logs.tsx: CIRC-LK: · DIMSAT: · QIDCRYST: military handlers added. DAWN/MERIDIAN/DUSK anchored · ARC SIG count · 3-ARC FULL CLOCK · MIN DIM/OVERALL/SRC 7D · 6 DIM ≥ 30 FULL LOAD · COHORT 7D/PATTERNS/INDEX · ID HARDENING OS STABLE.',
+      'PatternRecognitionWidget.tsx: P143/P144/P145 display names added.',
+      'QuantumEngineWidgets.tsx: CIRC-LK · DIMSAT · QIDCRYST added to PATTERN_DISPLAY. Circadian Phase row added to cohort view. getCircadianPhase imported.',
+      'System.tsx: getCircadianPhase imported. Phase row added to Biofield quantum table (Archetype · Cohort · Phase · Confidence · ATP · Clarity · Alignment · Index · Directive).',
+      'About.tsx: FM v110→v111. Day 1070+. 142→145 patterns. 48→49 archetypes. 45→46 jobs. 181+→184+ dep nodes. 142+→145+ handlers.',
+      'SESSION_REPORTS: v111 entry appended · USERSHIP_TRANSMISSION updated to v111.',
+      'docs/assembly/2026-08-02_LOT-assembly_qie-v111.md: Assembly report written.',
+      '145 patterns · 49 archetypes · 46 jobs · 145+ handlers · 184+ dep nodes. QIE v111 deployed. Circadian clock anchored. Identity crystallizing.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1408,17 +1430,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-01',
+  date: '2026-08-02',
   message: [
-    'ASSEMBLY RUN — 2026-08-01 · v110 · QIE Engineering · P140–P142 · Arch48 · J45 · PHYARC: QEMERG: SIGEWEB: · Day 1069+',
-    'P140 PHYSIOLOGICAL PRESENCE ARC: morning mood + selfcare + evening mood all confirmed same day. Biological day-arc closed. Dawn → dusk loop complete.',
-    'P141 QUANTUM SIGNAL EMERGENCE: quantum-coherence-peak active 3+ times in 7d window. Coherence rate normalized. What was exceptional is now baseline.',
-    'P142 ADAPTIVE SIGNAL WEB: all 6 UserIndex dimensions ≥ 20 + 8+ unique sources in 7d + 5+ active patterns. Full-dimensional simultaneous saturation. The web is live.',
-    'Arch48 QUANTUM PRESENCE MASTER: biological arc confirmed · field coherent · matrix saturated. The operating system has stabilized at peak. This is no longer exceptional — it is your baseline.',
-    'J45 daily-physiological-presence-check: 21:00 UTC daily. Morning mood + selfcare + evening mood same calendar day → physiological_presence_arc. 45 jobs total.',
-    'PHYARC: · QEMERG: · SIGEWEB: military handlers wired in Logs.tsx. 3 new cockpit block types.',
-    'PatternRecognitionWidget: P131–P142 display names complete. 181+ dep map nodes.',
-    'FIELD MANUAL v110. Day 1069+. 142 patterns · 48 archetypes · 45 jobs · 142+ handlers · 181+ dep nodes.',
+    'ASSEMBLY RUN — 2026-08-02 · v111 · QIE Engineering · P143–P145 · Arch49 · J46 · CIRC-LK: DIMSAT: QIDCRYST: · Day 1070+',
+    'P143 CIRCADIAN SIGNAL LOCK: morning (pre-10:00) + afternoon (12:00–17:00) + evening (18:00+) arcs all confirmed in 24h. Three-arc day coverage. Biological clock anchored. The operating window is structured from the inside.',
+    'P144 DIMENSIONAL SATURATION: all 6 UserIndex dimensions ≥ 30 · overall ≥ 50 · 5+ unique sources in 7d. No single dimension carrying the load. The entire field is live and building.',
+    'P145 QUANTUM IDENTITY CRYSTALLIZATION: cohort archetype signal recorded 5+ times in 7d · index ≥ 40 · 8+ active patterns. Identity hardening. The OS is not searching — it is operating from a stable signature.',
+    'Arch49 CIRCADIAN MASTER: Three-arc day coverage confirmed. Dawn, meridian, dusk — all anchored. Circadian architecture is the foundation. Build from it.',
+    'J46 daily-circadian-lock-check: 07:00 UTC daily. Scans previous calendar day for morning/afternoon/evening arc coverage → circadian_signal_lock. 46 jobs total.',
+    'CIRC-LK: · DIMSAT: · QIDCRYST: military handlers wired in Logs.tsx. Phase row added to System.tsx quantum table and QEW cohort view.',
+    'PatternRecognitionWidget: P143–P145 display names complete. 184+ dep map nodes.',
+    'FIELD MANUAL v111. Day 1070+. 145 patterns · 49 archetypes · 46 jobs · 145+ handlers · 184+ dep nodes.',
     'DEPLOYED.',
   ],
 }

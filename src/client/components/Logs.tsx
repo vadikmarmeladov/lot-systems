@@ -3358,6 +3358,109 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'circadian_signal_lock') {
+          const circadianSignals = log.metadata?.circadianSignals as number | undefined
+          const morningPresent = log.metadata?.morningPresent as boolean | undefined
+          const afternoonPresent = log.metadata?.afternoonPresent as boolean | undefined
+          const eveningPresent = log.metadata?.eveningPresent as boolean | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CIRC-LK:" blockView>
+                <div className="uppercase tracking-widest mb-4">CIRCADIAN SIGNAL LOCK</div>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">DAWN</span>
+                  <span className="tabular-nums">{morningPresent ? 'ANCHORED' : '—'}</span>
+                </div>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">MERIDIAN</span>
+                  <span className="tabular-nums">{afternoonPresent ? 'ANCHORED' : '—'}</span>
+                </div>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">DUSK</span>
+                  <span className="tabular-nums">{eveningPresent ? 'ANCHORED' : '—'}</span>
+                </div>
+                {circadianSignals !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARC SIG</span>
+                    <span className="tabular-nums">{circadianSignals}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">3-ARC · FULL CLOCK</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'dimensional_saturation') {
+          const minDimension = log.metadata?.minDimension as number | undefined
+          const overall = log.metadata?.overall as number | undefined
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DIMSAT:" blockView>
+                <div className="uppercase tracking-widest mb-4">DIMENSIONAL SATURATION</div>
+                {minDimension !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MIN DIM</span>
+                    <span className="tabular-nums">{minDimension}</span>
+                  </div>
+                )}
+                {overall !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">OVERALL</span>
+                    <span className="tabular-nums">{overall}%</span>
+                  </div>
+                )}
+                {sourceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SRC 7D</span>
+                    <span className="tabular-nums">{sourceCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">6 DIM ≥ 30 · FULL LOAD</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_identity_crystallization') {
+          const cohortSignalCount = log.metadata?.cohortSignalCount as number | undefined
+          const activePatterns = log.metadata?.activePatterns as number | undefined
+          const userIndex = log.metadata?.userIndex as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QIDCRYST:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM IDENTITY CRYSTALLIZATION</div>
+                {cohortSignalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">COHORT 7D</span>
+                    <span className="tabular-nums">{cohortSignalCount}</span>
+                  </div>
+                )}
+                {activePatterns !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PATTERNS</span>
+                    <span className="tabular-nums">{activePatterns}</span>
+                  </div>
+                )}
+                {userIndex !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INDEX</span>
+                    <span className="tabular-nums">{userIndex}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ID HARDENING · OS STABLE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -18,6 +18,7 @@ import {
   getWidgetDependencies,
   classifyPhysiologicalCohort,
   getQuantumOS,
+  getCircadianPhase,
 } from '#client/stores/intentionEngine'
 import { getEcosystemNarrative } from '#client/utils/narrative'
 import { useEnergy } from '#client/queries'
@@ -100,6 +101,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'quantum-coherence-peak':         'QCOHERE',
   'signal-matrix-saturation':       'SIGMAT',
   'temporal-biofield-sync':         'TBIOF',
+  'circadian-signal-lock':            'CIRC-LK',
+  'dimensional-saturation':           'DIMSAT',
+  'quantum-identity-crystallization': 'QIDCRYST',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
@@ -366,6 +370,7 @@ export const QuantumEngineWidgets: React.FC = () => {
                   : null
                 const archetype = cohortData?.archetype ?? live?.archetype
                 const directive = cohortDirective ?? live?.directive
+                const circadianPhase = getCircadianPhase()
                 return archetype ? (
                   <>
                     <div className="flex justify-between items-baseline">
@@ -378,6 +383,10 @@ export const QuantumEngineWidgets: React.FC = () => {
                         <span>{cohortData.behavioralCohort}</span>
                       </div>
                     )}
+                    <div className="flex justify-between items-baseline">
+                      <span className="opacity-30 uppercase tracking-widest">Phase</span>
+                      <span className="uppercase">{circadianPhase}</span>
+                    </div>
                     {live?.energyBand && (
                       <div className="flex justify-between items-baseline">
                         <span className="opacity-30 uppercase tracking-widest">Band</span>

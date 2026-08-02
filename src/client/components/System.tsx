@@ -55,7 +55,7 @@ import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, getCircadianPhase } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
@@ -661,6 +661,7 @@ export const System = React.memo(function SystemInner() {
               data={[
                 { metric: 'Archetype', value: physiologicalCohort?.archetype ?? '—' },
                 { metric: 'Cohort', value: physiologicalCohort?.dominantModule ?? '—' },
+                { metric: 'Phase', value: getCircadianPhase() },
                 { metric: 'Confidence', value: physiologicalCohort ? `${physiologicalCohort.confidence}%` : '—' },
                 { metric: 'ATP', value: quantumState.energy },
                 { metric: 'Clarity', value: quantumState.clarity },

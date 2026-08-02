@@ -173,6 +173,9 @@ export function PatternRecognitionWidget() {
       'physiological-presence-arc': 'Physiological presence arc — morning mood + selfcare + evening mood (P140)',
       'quantum-signal-emergence':   'Quantum signal emergence — coherence peak 3× in 7d window (P141)',
       'adaptive-signal-web':        'Adaptive signal web — all 6 UserIndex dimensions ≥ 20 + 8+ sources (P142)',
+      'circadian-signal-lock':            'Circadian signal lock — morning + afternoon + evening arc windows all active in 24h (P143)',
+      'dimensional-saturation':           'Dimensional saturation — all 6 UserIndex dimensions ≥ 30 + overall ≥ 50 (P144)',
+      'quantum-identity-crystallization': 'Quantum identity crystallization — archetype stabilized, cohort 5+ in 7d (P145)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

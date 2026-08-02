@@ -1201,6 +1201,10 @@ export default async (fastify: FastifyInstance) => {
       'physiological_presence_arc',
       'quantum_signal_emergence',
       'adaptive_signal_web',
+      // v111: circadian signal lock · dimensional saturation · quantum identity crystallization (P143/P144/P145)
+      'circadian_signal_lock',
+      'dimensional_saturation',
+      'quantum_identity_crystallization',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
