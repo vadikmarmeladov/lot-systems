@@ -303,7 +303,7 @@ export type BadgeType =
   | 'high_score_badge'  // ▓→∗   New personal longest-streak record
   | 'extra_life'        // ◉→○   Return after 7+ days, prior streak 30+
   // ── Achievement RPG v6 — Arcade Class ────────────────────────────────────────
-  | 'quarter_drop'      // ○→◉  First easter egg unlocked (any type)
+  | 'quarter_drop_first' // ○→◉  First easter egg unlocked (any type)
   | 'insert_coin_badge' // ↺·○  Return after 30+ consecutive days away
   | 'arcade_champion'   // ≈·≋  Earn badge from every Word Turn engine v1–v9
   | 'game_over_retry'   // ◐→◆  3 different return-after-absence badges
@@ -3100,8 +3100,8 @@ export const BADGES: Record<BadgeType, Badge> = {
   },
 
   // ── Achievement RPG v6 — Arcade Class ─────────────────────────────────────
-  quarter_drop: {
-    id: 'quarter_drop',
+  quarter_drop_first: {
+    id: 'quarter_drop_first',
     symbol: '○→◉',
     name: 'Quarter Drop',
     description: 'Unlock your first easter egg badge of any type',

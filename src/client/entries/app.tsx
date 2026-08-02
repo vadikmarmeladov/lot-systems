@@ -248,8 +248,8 @@ const App = () => {
       stores.me.set(user)
 
       // Seed counters immediately so System widget never shows 0 on first paint
-      if ((user as any).usersTotal) stores.usersTotal.set((user as any).usersTotal)
-      if ((user as any).usersOnline) stores.usersOnline.set((user as any).usersOnline)
+      if (user.usersTotal) stores.usersTotal.set(user.usersTotal)
+      if (user.usersOnline) stores.usersOnline.set(user.usersOnline)
 
       // Sync theme from user metadata (server) to local stores
       if (user.metadata?.theme) {

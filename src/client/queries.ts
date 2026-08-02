@@ -18,10 +18,10 @@ import {
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
+  MeProfile,
   Paginated,
   PublicChatMessage,
   User,
-  UserProfile,
   UserSettings,
   WeatherRecord,
 } from '#shared/types'
@@ -66,8 +66,8 @@ function createMutation<R, T>(
 }
 
 // User API
-export async function getMe(): Promise<UserProfile> {
-  const { data } = await api.get<UserProfile>('/api/me')
+export async function getMe(): Promise<MeProfile> {
+  const { data } = await api.get<MeProfile>('/api/me')
   return data
 }
 

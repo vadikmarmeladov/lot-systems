@@ -2220,7 +2220,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       pattern: 'intent-to-action-gap',
       confidence: Math.min(0.60 + p95Intentions.length * 0.06, 0.78),
       suggestedWidget: 'planner',
-      suggestedTiming: 'active',
+      suggestedTiming: 'immediate',
       reason: `INTENT GAP: ${p95Intentions.length} intention(s) set — no plan or goal in 24h. Gap: ${gapMinutes}m. Bridge intention to structure now.`,
     })
   }
@@ -2237,7 +2237,7 @@ export function analyzeIntentions(): IntentionPattern[] {
       pattern: 'recovery-initiation',
       confidence: 0.72,
       suggestedWidget: 'selfcare',
-      suggestedTiming: 'active',
+      suggestedTiming: 'immediate',
       reason: `RECOVERY ARC: First selfcare signal detected after depleted/low energy today. Arc begins — ${p96TodaySelfcare.length} signal(s). Support the re-entry.`,
     })
   }
@@ -3796,7 +3796,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
  * tracked separately in the physiological report log-dependency audit.
  */
 export const LOG_DEPENDENCY_SOURCES: IntentionSignal['source'][] = [
-  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience', 'badges', 'calculator', 'ecosystem',
+  'log', 'energy', 'cohort', 'recipe', 'goals', 'qos', 'intentions', 'memory', 'planner', 'selfcare', 'journal', 'medical', 'resilience', 'badges', 'calculator',
 ]
 
 /** Returns which signal sources a given widget depends on. */

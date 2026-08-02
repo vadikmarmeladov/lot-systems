@@ -8,10 +8,10 @@
 
 import { atom, computed } from 'nanostores'
 import { persistentAtom } from '@nanostores/persistent'
-import { UserProfile, WeatherRecord } from '#shared/types'
+import { MeProfile, WeatherRecord } from '#shared/types'
 
 // static
-export const me = atom<UserProfile | null>(null)
+export const me = atom<MeProfile | null>(null)
 export const isTouchDevice = atom<boolean>(
   'ontouchstart' in window || navigator.maxTouchPoints > 0
 )

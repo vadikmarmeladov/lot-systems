@@ -73,6 +73,15 @@ export type UserProfile = {
   timeChime?: boolean;
   memoryEngine?: 'ai' | 'standard';
   isAdmin?: boolean;
+  joinedAt: Date | null;
+};
+
+// Shape returned by GET /api/me — UserProfile plus server-computed fields
+// (own-account metadata and live user counters) not present on other users' profiles.
+export type MeProfile = UserProfile & {
+  metadata: Record<string, any>;
+  usersTotal: number;
+  usersOnline: number;
 };
 
 export type User = {
