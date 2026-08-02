@@ -76,6 +76,17 @@ export const useUpdateSettings = createMutation<UserSettings, void>(
   '/api/settings'
 )
 
+// BASIC ration — UPGRADE / STAND DOWN (LOT-FM-001 Month 2)
+export const useEnrollBasics = createMutation<
+  { operators: number; cadenceDay: number },
+  void
+>('post', '/api/basics/enroll')
+
+export const useStandDownBasics = createMutation<void, void>(
+  'post',
+  '/api/basics/stand-down'
+)
+
 export const useLiveMessage = createQuery<{ message: string }>(
   '/api/live-message'
 )

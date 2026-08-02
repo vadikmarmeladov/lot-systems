@@ -226,3 +226,31 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## BASIC Ration Module (LOT-FM-001)
+
+A genuinely PUBLIC surface cannot be a tab inside app.tsx. app.tsx's App
+component redirects any visitor without a valid session to /login before
+Layout — or anything nested inside it — ever renders, regardless of what a
+nav item claims to link to. A route that must be readable by an
+unauthenticated stranger (the OPEN TAB doctrine: "the ledger is the
+marketing, no layer between public and manifest") needs its own standalone
+client entry + its own unauthenticated fastify.get route, mirroring the
+existing /status and /about pattern: no #client/stores dependency, no
+QueryClientProvider, plain fetch or static constants only. Check this before
+building any future public-facing tab — the earlier BEST candidate for this
+same feature missed it and shipped a page that looked public but redirected
+every anonymous visitor away.
+
+State-machine honesty rule: when a transition (e.g. PENDING) collapses into
+the next state in the same request because no real external gate exists yet
+(payment, fulfillment, approval), still write BOTH transitions to the
+issue/audit log rather than skipping the intermediate state silently. The
+log is what lets a later session tell "this state never existed" apart from
+"this state existed for zero seconds because nothing blocks it yet." Applies
+beyond BASIC — any staged state machine built ahead of its real gate should
+follow the same rule.
+
+(SR-20260802-01: BASIC ration module Month 1 [OPEN TAB, public, /open-tab]
++ Month 2 [UPGRADE/ROSTER state machine] built; corrected prior BEST
+candidate's non-public Month 1 gap.)

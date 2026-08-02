@@ -5598,4 +5598,95 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
       }
     }
   )
+
+  // ============================================================================
+  // BASIC RATION — UPGRADE / ROSTER (LOT-FM-001, Month 2)
+  // USERSHIP/AI -> PENDING -> ON STRENGTH -> STEADY STATE. STAND DOWN drops the
+  // ration, retains the AI base layer. No external billing gate exists yet —
+  // PENDING resolves in the same request (Month 3 fulfillment build introduces
+  // the real gate); both transitions are still written to the issue log so the
+  // state machine is real, not skipped.
+  // ============================================================================
+
+  fastify.post(
+    '/basics/enroll',
+    async (
+      req: FastifyRequest<{ Body: { operators?: number; cadenceDay?: number } }>,
+      reply
+    ) => {
+      const hasUsership = req.user.tags.some((t) => t.toLowerCase() === 'usership')
+      if (!hasUsership) {
+        return reply.throw.accessDenied('BASIC requires USERSHIP / AI as base layer')
+      }
+      const isOnStrength = req.user.tags.some((t) => t.toLowerCase() === 'basic')
+      if (isOnStrength) {
+        return reply.throw.conflict('Already ON STRENGTH')
+      }
+      if (!req.user.address || !req.user.city || !req.user.country) {
+        return reply.throw.badParams('Ship-to address required — complete Settings before enrollment')
+      }
+
+      const operators = Math.min(Math.max(Number(req.body.operators) || 1, 1), 8)
+      const cadenceDay = Math.min(Math.max(Number(req.body.cadenceDay) || 1, 1), 28)
+      const now = new Date().toISOString()
+
+      const meta = (req.user.metadata as any) || {}
+      const issueLog = [
+        ...(meta.basics?.issueLog || []),
+        { at: now, event: 'PENDING — ROSTER INTAKE RECEIVED' },
+        { at: now, event: 'ON STRENGTH — ENROLLED' },
+      ]
+
+      await req.user
+        .set({
+          tags: [...req.user.tags, UserTag.Basic],
+          metadata: {
+            ...meta,
+            basics: {
+              state: 'ON_STRENGTH',
+              operators,
+              cadenceDay,
+              enrolledAt: now,
+              standDownAt: null,
+              issueLog,
+            },
+          },
+        })
+        .save()
+
+      sync.emit('settings_updated', { userId: req.user.id })
+      reply.ok('ON STRENGTH')
+    }
+  )
+
+  fastify.post('/basics/stand-down', async (req: FastifyRequest, reply) => {
+    const isOnStrength = req.user.tags.some((t) => t.toLowerCase() === 'basic')
+    if (!isOnStrength) {
+      return reply.throw.conflict('Not currently ON STRENGTH')
+    }
+    const now = new Date().toISOString()
+    const meta = (req.user.metadata as any) || {}
+    const issueLog = [
+      ...(meta.basics?.issueLog || []),
+      { at: now, event: 'STAND DOWN — RATION DROPPED, AI RETAINED' },
+    ]
+
+    await req.user
+      .set({
+        tags: req.user.tags.filter((t) => t.toLowerCase() !== 'basic'),
+        metadata: {
+          ...meta,
+          basics: {
+            ...(meta.basics || {}),
+            state: 'NONE',
+            standDownAt: now,
+            issueLog,
+          },
+        },
+      })
+      .save()
+
+    sync.emit('settings_updated', { userId: req.user.id })
+    reply.ok('STAND DOWN COMPLETE')
+  })
 }

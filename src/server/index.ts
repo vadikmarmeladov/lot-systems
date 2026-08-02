@@ -48,7 +48,7 @@ const fastify = Fastify({
   bodyLimit: 1_048_576,
 })
 
-const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/sync', '/log']
+const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/sync', '/log', '/basics']
 
 // ==============================================================================
 // SECURITY PLUGINS
@@ -226,6 +226,16 @@ fastify.register(publicApiRoutes, { prefix: '/api/public' })
 fastify.get('/status', async (req, reply) => {
   return reply.view('generic-spa', {
     scriptName: 'status',
+    scriptNonce: reply.cspNonce.script,
+    styleNonce: reply.cspNonce.style,
+  })
+})
+
+// BASIC ration OPEN TAB — public read-only ledger (LOT-FM-001 Month 1).
+// No authentication required: a stranger can read what LOT issues.
+fastify.get('/open-tab', async (req, reply) => {
+  return reply.view('generic-spa', {
+    scriptName: 'basics-open',
     scriptNonce: reply.cspNonce.script,
     styleNonce: reply.cspNonce.style,
   })
