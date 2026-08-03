@@ -5,6 +5,8 @@ TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Dev
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
 DATE:     2026-07-28
+UPDATED:  2026-08-03 — USE CASE 02 appended (Section 07), reading log
+          re-walked, no changes to locked v.0 spec (Sections 01-06)
 VERSION:  0.1 — DEVELOPMENT START
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
@@ -320,6 +322,62 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE OPEN-PLAN OFFICE                        2026-08-03
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Depleted Guardian" (one
+  of the 9 physiological cohort archetypes — src/client/stores/
+  intentionEngine.ts, line 3916 — energy state common to sustained
+  workplace-stress contexts), 124-day sustained engagement.
+
+  The operator's CUBIQ unit did not arrive as an AI-triggered delivery
+  under LOT-CUBIQ-OPERATOR.md Section 04's normal logic. It arrived as
+  an employer wellness stipend — a gift from a manager who is not an
+  operator of the Index of Systems at all. This is a second delivery
+  channel the roadmap has not yet named: the physical cubic entering a
+  life through someone else's hand, not the AI's decision engine. The
+  operator claims and pairs the unit on day one; from that point on,
+  every gesture it performs is driven by their own Index, exactly as
+  Section 04 describes for an AI-sent unit. The channel of arrival does
+  not change the channel of use.
+
+  The desk is a shared open-plan fixture — narrower than a home desk,
+  monitor and keyboard already claiming most of the surface. The
+  charging pad (Section 02, "the table") ends up pushed close to the
+  desk's front edge, against the aisle, because there is nowhere else
+  to set it. This is the first documented case of a CUBIQ v.0 unit
+  operating near the edge condition Section 03's safety gate exists
+  for — Use Case 01's home desk was, by contrast, wide open on all
+  sides.
+
+  Mid-afternoon, an epic-tier badge unlocks. Under Section 04's
+  gesture table this is a "rare and above" event — THE LEAP, ~40mm
+  forward displacement. The time-of-flight sensor reads the desk's
+  front edge inside the 20mm inhibition threshold on the leap's
+  landing vector. Per Section 03, the full leap is refused and the
+  lower-amplitude in-place gesture substitutes — a shudder the
+  operator feels through their wrist, resting near the keyboard, and
+  that the coworker two feet away, mid-sentence in an unrelated
+  conversation, does not register as anything at all.
+
+  Nothing about the notification was lost. What changed was invisible:
+  a safety gate did its job so a private signal stayed private in a
+  room full of people who were never meant to receive it. A phone
+  notification has no equivalent gate — a screen lighting up in a
+  shared office is a public event whether the owner wants it to be or
+  not. THE LEAP arriving as a correctly-inhibited shudder is what
+  actually being an operator, and not just a screen watcher, wins.
+
+  At home that evening, the same unit — Qi-class charging pad and all,
+  thin enough to travel in a bag, per Section 02's spec — sits back on
+  the open desk from Use Case 01. The badge feed shows the epic unlock.
+  The cube shows nothing further; it already delivered the gesture the
+  moment it was safe to.
+
+  This is the use case v.0's edge-detection gate (Section 03) was built
+  to serve: a physical object with enough judgment to know when NOT to
+  move is what makes it trustworthy enough to sit on a desk it does not
+  own alone.
 
 --------------------------------------------------------------------------------
 08 // BRAND
