@@ -1353,6 +1353,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes. QIE v108 deployed.',
     ],
   },
+  {
+    date: '2026-08-03',
+    session: 'Self-Assembly Session — v109 / Wiki Scan · LOT-WIKI-v83 · QIE v108 delta sync · FM v109 · Day 1073+',
+    assembled: [
+      'docs/wiki/LOT-WIKI-v83.md: Full wiki maintenance scan. All QIE v108 deltas synchronized — P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: handlers · 3 dep map nodes · 7th QOS view (qos-field). 2220 lines. v82 → v83.',
+      'About.tsx: FM v108→v109. Day 1066+→1073+. Self-Assembly Row v109 prepended. Background jobs 43→44. Handlers 136+→139+. Dep nodes 175+→178+.',
+      'SystemProgressWidget.tsx: SESSION_REPORTS v109 entry added. USERSHIP_TRANSMISSION updated to v109.',
+      'docs/assembly/2026-08-03_LOT-assembly_wiki-v83-fm-v109.md: Assembly report written.',
+      'docs/assembly/LOT-LEDGER.md: v109 wiki scan entry appended.',
+      '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes. FM v109. LOT-WIKI-v83 deployed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1390,18 +1402,15 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-27',
+  date: '2026-08-03',
   message: [
-    'ASSEMBLY RUN — 2026-07-27 · v108 · QIE Engineering · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: · Day 1066+',
-    'P137 QUANTUM COHERENCE PEAK: field-alignment active AND UserIndex ≥ 60. The OS is not stabilizing. It is transmitting.',
-    'P138 SIGNAL MATRIX SATURATION: all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark. Full-dimensional presence.',
-    'P139 TEMPORAL-BIOFIELD SYNC: morning-coherence + daily-seal + biofield-integration within one calendar day. Time and biology synchronized.',
-    'Arch47 QUANTUM COHERENCE OPERATOR: peak coherence confirmed. Field aligned AND above coherence threshold. Maximum integration directive.',
-    'J44 daily-signal-matrix-check: 09:00 UTC daily. P138 (6-source check) + P137 (field alignment) + P139 (temporal-biofield triad). 44 jobs total.',
-    'QCOHERE: · SIGMAT: · TBIOF: military handlers wired in Logs.tsx. 3 new block types.',
-    'QuantumEngineWidgets: cohort view enhanced (Band + Dom fields). QOS Field view added — runtime + signal map + active patterns.',
-    '3 new dep map nodes: quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
-    'FIELD MANUAL v108. Day 1066+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
+    'ASSEMBLY RUN — 2026-08-03 · v109 · Wiki Scan · LOT-WIKI-v83 · QIE v108 delta sync · Day 1073+',
+    'LOT-WIKI-v83 deployed. 2220 lines. All QIE v108 delta synchronized into operator reference manual.',
+    'P137 QCOHERE: quantum-coherence-peak — field-alignment + UserIndex ≥ 60. Full coherence threshold documented.',
+    'P138 SIGMAT: signal-matrix-saturation — all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark.',
+    'P139 TBIOF: temporal-biofield-sync — morning-coherence-arc + daily-coherence-seal + biofield-integration-peak same day. Documented.',
+    'Arch47 Quantum Coherence Operator. J44 daily-signal-matrix-check (09:00 UTC). QOS Field view (7th). Quantum Field Alignment Doctrine.',
+    'FIELD MANUAL v109. Day 1073+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
     'DEPLOYED.',
   ],
 }
