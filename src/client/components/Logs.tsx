@@ -3773,6 +3773,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Send a LOT Email to Community member X, appears in Sync',
           '/system       This help screen',
           '',
           'SHORTCUTS',

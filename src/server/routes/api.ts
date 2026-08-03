@@ -42,6 +42,7 @@ import { analyzeEnergyState, generateEnergySuggestions } from '#server/utils/ene
 import { generateUserNarrative } from '#server/utils/rpg-narrative'
 import { generateChatCatalysts, generateConversationStarters, shouldShowChatCatalyst } from '#server/utils/cohort-chat-catalyst'
 import { generateCompassionateInterventions, shouldShowIntervention } from '#server/utils/compassionate-interventions'
+import { parseEmailCommand } from '#server/utils/email-command'
 import dayjs from '#server/utils/dayjs'
 import { registerOSRoutes } from './os-api.js'
 
@@ -383,6 +384,14 @@ export default async (fastify: FastifyInstance) => {
         case 'settings_updated': {
           if (data.userId === req.user.id) {
             write({ event, data: {} })
+          }
+          break
+        }
+        case 'email_message': {
+          // Scoped to the recipient only — LOT Email is private mail, not
+          // a broadcast like chat_message (Cross-Device Sync doctrine).
+          if (data.recipientId === req.user.id) {
+            write({ event, data })
           }
           break
         }
@@ -1197,6 +1206,8 @@ export default async (fastify: FastifyInstance) => {
       'quantum_coherence_peak',
       'signal_matrix_saturation',
       'temporal_biofield_sync',
+      // LOT Email — "/email to <name>" Log command confirmation (MAIL: block)
+      'email_sent',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -1544,6 +1555,74 @@ export default async (fastify: FastifyInstance) => {
     }
   })
 
+  // LOT Email — detects "/email to <name>" inside a saved Log entry,
+  // resolves <name> against the LOT Community pool (the same discoverable
+  // -user base the Cohort system matches against), and delivers the rest
+  // of the entry as the message body. Fire-and-forget from the /logs
+  // handlers, same as chat/direct-message dual-write logging elsewhere in
+  // this file — never blocks the note save on mail delivery.
+  async function dispatchEmailCommand(sender: any, text: string, logId: string) {
+    const parsed = parseEmailCommand(text)
+    if (!parsed) return
+
+    try {
+      // Dedup key: re-saving a note that still contains the command (an
+      // unrelated later edit to the same log) must never resend the mail.
+      const already = await fastify.models.EmailMessage.findOne({
+        where: { sourceLogId: logId },
+        attributes: ['id'],
+      })
+      if (already) return
+
+      const candidates = await fastify.models.User.findAll({
+        where: {
+          firstName: { [Op.not]: null },
+          id: { [Op.not]: sender.id },
+        },
+        attributes: ['id', 'firstName', 'lastName', 'tags'],
+        limit: 500,
+      })
+      const nameLower = parsed.name.toLowerCase()
+      const recipient = candidates.find((u: any) => {
+        const isSuspended = u.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+        return !isSuspended && (u.firstName || '').toLowerCase() === nameLower
+      })
+      if (!recipient) return
+
+      const emailMessage = await fastify.models.EmailMessage.create({
+        senderId: sender.id,
+        recipientId: recipient.id,
+        body: parsed.body,
+        sourceLogId: logId,
+      })
+
+      sync.emit('email_message', {
+        id: emailMessage.id,
+        senderId: sender.id,
+        senderName: `${sender.firstName} ${sender.lastName}`.trim(),
+        recipientId: recipient.id,
+        body: emailMessage.body,
+        createdAt: emailMessage.createdAt,
+      })
+
+      const context = await getLogContext(sender)
+      await fastify.models.Log.create({
+        userId: sender.id,
+        event: 'email_sent',
+        text: '',
+        metadata: {
+          emailMessageId: emailMessage.id,
+          recipientId: recipient.id,
+          recipientName: recipient.firstName,
+          chars: parsed.body.length,
+        },
+        context,
+      })
+    } catch (error) {
+      console.error('Error dispatching LOT Email command:', error)
+    }
+  }
+
   fastify.post(
     '/logs',
     async (
@@ -1565,6 +1644,10 @@ export default async (fastify: FastifyInstance) => {
         metadata: req.body.metadata || {},
         context,
       })
+
+      if (log.event === 'note') {
+        process.nextTick(() => dispatchEmailCommand(req.user, text, log.id))
+      }
 
       return log
     }
@@ -1598,6 +1681,7 @@ export default async (fastify: FastifyInstance) => {
           await log.set({ context }).save()
         }
       })
+      process.nextTick(() => dispatchEmailCommand(req.user, text, log.id))
       return log
     }
   )
@@ -4067,6 +4151,48 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
     }
+  })
+
+  // LOT Email inbox — messages composed via "/email to <name>" in Log,
+  // surfaced in Sync. Marks the fetched page read (simplest read model:
+  // viewing the inbox clears the unread state, no per-message toggle).
+  fastify.get('/email-messages', async (req: FastifyRequest, reply) => {
+    const messages = await fastify.models.EmailMessage.findAll({
+      where: { recipientId: req.user.id },
+      order: [['createdAt', 'DESC']],
+      limit: 100,
+    })
+
+    const senderIds = [...new Set(messages.map((m) => m.senderId))]
+    const senders = senderIds.length
+      ? await fastify.models.User.findAll({
+          where: { id: senderIds },
+          attributes: ['id', 'firstName', 'lastName'],
+        })
+      : []
+    const senderById = new Map(senders.map((u: any) => [u.id, u]))
+
+    const unreadIds = messages.filter((m) => !m.read).map((m) => m.id)
+    if (unreadIds.length) {
+      await fastify.models.EmailMessage.update(
+        { read: true },
+        { where: { id: unreadIds } }
+      )
+    }
+
+    return reply.send({
+      messages: messages.map((m) => {
+        const sender = senderById.get(m.senderId) as any
+        return {
+          id: m.id,
+          senderId: m.senderId,
+          senderName: sender ? `${sender.firstName} ${sender.lastName}`.trim() : 'Unknown',
+          body: m.body,
+          read: m.read,
+          createdAt: m.createdAt,
+        }
+      }),
+    })
   })
 
   // ============================================================================

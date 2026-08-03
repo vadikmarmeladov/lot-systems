@@ -226,3 +226,20 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Command Dispatch at the Commit Point
+
+When a Log slash-command's action is irreversible or user-visible to a third
+party (sends something, notifies someone else — as opposed to toggling a
+local UI mode), parse and dispatch it at the point the text is actually
+persisted, not in the client's per-keystroke trigger-detection effect that
+existing toggle-style commands (/prayer, /qi, /assembly) use. Log's save
+path already funnels every commit (blur, Cmd+Enter, tab-switch, unmount)
+through one debounced write, so hooking the command there gets the finished
+text for free with no new client-side debounce logic, and avoids the
+double-send risk a per-keystroke hook would carry for an action that can't
+be un-sent. Reserve the per-keystroke path in logTriggers.ts for commands
+whose worst failure mode is an early or duplicate UI-local toggle.
+(SR-20260803-01: /email to <name> parsed server-side inside POST /logs and
+PUT /logs/:id, guarded by an EmailMessage.sourceLogId dedup lookup so a
+later unrelated edit to the same note can never resend the mail.)

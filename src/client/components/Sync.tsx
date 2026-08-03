@@ -24,6 +24,8 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useEmailMessages,
+  EmailMessageRecord,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -80,6 +82,16 @@ export const Sync = React.memo(function SyncInner() {
     }
   })
 
+  // LOT Email — composed via "/email to <name>" in Log, delivered here.
+  const { data: emailData } = useEmailMessages()
+  const [sseEmailMessages, setSseEmailMessages] = React.useState<EmailMessageRecord[]>([])
+  const emailMessages = React.useMemo(() => {
+    const fetched = emailData?.messages || []
+    const fetchedIds = new Set(fetched.map((m) => m.id))
+    const fresh = sseEmailMessages.filter((m) => !fetchedIds.has(m.id))
+    return [...fresh, ...fetched]
+  }, [emailData, sseEmailMessages])
+
   // Ensure fresh data on mount (filters suspended users)
   React.useEffect(() => {
     queryClient.invalidateQueries(['/api/chat-messages'])
@@ -122,6 +134,26 @@ export const Sync = React.memo(function SyncInner() {
       disposeChatMessageLikeListener()
     }
   }, [me?.id])
+
+  React.useEffect(() => {
+    const { dispose } = sync.listen('email_message', (data: any) => {
+      setSseEmailMessages((prev) => {
+        if (prev.some((x) => x.id === data.id)) return prev
+        return [
+          {
+            id: data.id,
+            senderId: data.senderId,
+            senderName: data.senderName || 'Unknown',
+            body: data.body,
+            read: false,
+            createdAt: data.createdAt,
+          },
+          ...prev,
+        ]
+      })
+    })
+    return () => dispose()
+  }, [])
 
   const onChangeMessage = React.useCallback((value: string) => setMessage(value), [])
 
@@ -180,6 +212,28 @@ export const Sync = React.memo(function SyncInner() {
 
   return (
     <div className="max-w-[700px]">
+      {!!emailMessages.length && (
+        <div className="mb-80">
+          <div className="text-acc/40 mb-8 select-none">MAIL:</div>
+          {emailMessages.map((x) => (
+            <div key={x.id} className="flex items-start gap-x-8 py-2">
+              <span className="whitespace-nowrap -ml-4 px-4 pr-8">{x.senderName}</span>
+              <div
+                className="whitespace-breakspaces"
+                style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+              >
+                {x.body || '(no message)'}
+              </div>
+              {!isTouchDevice && (
+                <div className="text-acc/40 whitespace-nowrap">
+                  <MessageTimeLabel dateString={x.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}
