@@ -10,6 +10,8 @@
  * Astrology utility functions for Japanese zodiac, moon phase, and Western zodiac
  */
 
+import type { Dayjs } from 'dayjs'
+
 // Japanese zodiac animals (12-year cycle starting from 1900 = Rat)
 const JAPANESE_ZODIAC = [
   'Rat', 'Ox', 'Tiger', 'Rabbit', 'Dragon', 'Snake',
@@ -176,4 +178,16 @@ export function getMoonEmoji(phaseName: string): string {
     'Waning Crescent': '🌘',
   }
   return emojiMap[phaseName] || '🌑'
+}
+
+/**
+ * Build a Date from a moment's local (timeZone-aware) wall-clock fields via
+ * the plain Date constructor. This round-trips correctly through the
+ * getHours()/getMonth()/getDate() readers the functions above use, regardless
+ * of the runtime's own local timeZone (server process or viewing device) — so
+ * a reading built from `dayjs().tz(user.timeZone)` reflects the user's saved
+ * timeZone rather than wherever the code happens to execute.
+ */
+export function toWallClockDate(moment: Dayjs): Date {
+  return new Date(moment.year(), moment.month(), moment.date(), moment.hour(), moment.minute(), moment.second())
 }

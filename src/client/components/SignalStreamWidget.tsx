@@ -79,6 +79,17 @@ export function SignalStreamWidget() {
     return signal.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase())
   }
 
+  // The astrology signal (Tier 0, one 'ambient_reading' per calendar day)
+  // carries its actual reading in metadata rather than the signal name —
+  // surface rokuyo/moon phase here so this is a real consumer of the
+  // signal, not just a generic "Ambient reading" line.
+  const formatAstrologySignal = (signal: IntentionSignal): string => {
+    const meta = signal.metadata
+    if (!meta?.rokuyo) return formatSignal(signal.signal)
+    const auspicious = meta.auspicious ? ' ✨' : ''
+    return `${meta.rokuyo} · ${meta.moonPhase}${auspicious}`
+  }
+
   // Calculate signal rate (signals per hour over last 24h)
   const signalRate = React.useMemo(() => {
     const dayAgo = Date.now() - 24 * 60 * 60 * 1000
@@ -125,7 +136,7 @@ export function SignalStreamWidget() {
                 {signal.source}
               </span>
               <span className="min-w-0">
-                {formatSignal(signal.signal)}
+                {signal.source === 'astrology' ? formatAstrologySignal(signal) : formatSignal(signal.signal)}
               </span>
             </div>
           ))}

@@ -427,6 +427,16 @@ The field entry archive — every typed note, event-driven log, and QIE signal r
 - **Log Renderings:** BIOFIELD (energy state) / QOS (quantum OS state) / COHORT (physiological archetype update) / ASM (assembly milestone) / QIE (quantum intent pattern) / CARE / PLAN / INTENT / BIO / MEM / CFG / SYS / COMM / LOG
 - **Connection:** The editor detects `/synth` and 🎹 triggers inline; saves on 7s debounce, visibility change, and unmount
 
+### Astrology (Ambient Conditions)
+
+Not a standalone widget component — inlined into `System.tsx`'s Time & Environment stack and into the "pro" cycling block (Astrology → Psychology → My Journey → Biofield). Shows today's Western zodiac sign, hourly (Japanese) zodiac animal, rokuyo (六曜 six-day auspicious cycle), and moon phase with illumination % and emoji. Pure date-math, computed from `src/shared/utils/astrology.ts` — no external API call and no personal natal-chart data (no birth date/time/place is collected anywhere in the `User` model); deliberately ambient/environmental only.
+
+- **Assembly Module:** none directly — declared as a Tier 0 (raw input) QIE source consumed by the `system` and `cosmic` dependency entries
+- **Sources:** `astrology` QIE source — `ambient_reading` signal, recorded once per calendar day (`recordAstrologySignal`), carrying `rokuyo` / `moonPhase` / `moonIllumination` / `hourlyZodiac` / `westernZodiac` / `auspicious` (Taian-day flag) in metadata
+- **Personalization:** timeZone-aware — reads from the user's saved profile `timeZone` when set (client dashboard and server-side Logs snapshot alike), falling back to device-local time only when no timeZone is on file. Recomputes every 15 minutes while the tab is visible, off-tab paused.
+- **Log Rendering:** `SYS:` block — `ASTRO: {rokuyo} · {moonPhase} {moonEmoji}`; every new log entry's `context` JSONB snapshots the reading at creation time (`astroRokuyo`, `astroMoonPhase`, `astroMoonIllumination`, `astroHourlyZodiac`, `astroWesternZodiac`)
+- **Connection:** Signal Stream Widget renders the daily `ambient_reading` signal with its rokuyo/moon-phase readout (and a ✨ mark on auspicious/Taian days) instead of a generic label — the first widget to actually consume the `astrology` QIE source rather than merely declare a dependency on it
+
 ---
 
 ## Architecture Overview
