@@ -257,7 +257,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
           )}
 
           <div className="text-acc/40 pt-32 border-t border-acc/20">
-            <div>Build: {formatDate(status.buildDate)}</div>
+            <div>Build: {status.buildDate ? formatDate(status.buildDate) : 'N/A'}</div>
             <div className="mt-8">
               Status checks cached for 2 minutes
             </div>

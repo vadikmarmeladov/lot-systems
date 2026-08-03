@@ -64,6 +64,7 @@ export class WidgetErrorBoundary extends React.Component<
           <div className="opacity-30">
             Failed to load.{' '}
             <button
+              type="button"
               onClick={() => this.setState({ hasError: false, error: null })}
               className="underline cursor-pointer"
               style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', padding: 0 }}
