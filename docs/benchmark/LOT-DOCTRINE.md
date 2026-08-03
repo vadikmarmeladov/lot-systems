@@ -226,3 +226,20 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Ledger-Is-The-Marketing (LOT-FM-001)
+
+A public surface that quotes price, doctrine, or a manifest must source those
+fields from the same constant the private/internal code uses — never a
+hand-copied duplicate of the content. The BASIC ration OPEN TAB
+(`GET /basics`, `GET /api/public/basics-manifest`) reads
+`RATION_MANIFEST` / `RATION_DOCTRINE` / `RATION_PRICE_USD` directly from
+`src/shared/constants/basicsRation.ts`; there is no separate marketing copy
+that could drift from what actually ships. Fields that must never reach a
+public surface (COGS, margin) are withheld at the API layer, not filtered in
+the UI — a public endpoint is the trust boundary, not the page that renders
+it.
+
+(SR-20260803-01: OPEN TAB shipped as the first surface built under this
+clause; doctrine minted from the LOT-FM-001 directive's own "the ledger is
+the marketing" line.)

@@ -17,6 +17,14 @@ import { aiEngineManager } from '#server/utils/ai-engines'
 import { AI_ENGINE_PREFERENCE } from '#server/utils/memory/constants'
 import config from '#server/config'
 import { toCelsius } from '#shared/utils'
+import {
+  RATION_MODULE_ID,
+  RATION_MODULE_NAME,
+  RATION_PRICE_USD,
+  RATION_BILLING_CADENCE,
+  RATION_MANIFEST,
+  RATION_DOCTRINE,
+} from '#shared/constants/basicsRation'
 import fs from 'fs'
 import path from 'path'
 import dayjs from 'dayjs'
@@ -526,6 +534,28 @@ export default async (fastify: FastifyInstance) => {
     return {
       ...status,
       cached: false,
+    }
+  })
+
+  // OPEN TAB — public BASIC ration ledger. LOT-FM-001, Month 1.
+  // Nomenclature + cadence only. COGS is never returned here — the ledger is
+  // the marketing, not the margin.
+  fastify.get('/basics-manifest', async (req, reply) => {
+    return {
+      module: RATION_MODULE_ID,
+      name: RATION_MODULE_NAME,
+      price: {
+        amountUsd: RATION_PRICE_USD,
+        cadence: RATION_BILLING_CADENCE,
+      },
+      doctrine: RATION_DOCTRINE,
+      manifest: RATION_MANIFEST.map(({ code, category, nomenclature, cadence }) => ({
+        code,
+        category,
+        nomenclature,
+        cadence,
+      })),
+      itemCount: RATION_MANIFEST.length,
     }
   })
 

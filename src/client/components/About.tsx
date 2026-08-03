@@ -3797,7 +3797,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="Basics Tab"
-              value="Physical supply subscription layer, LOT-FM-001 ration program. Feature branch nifty-allen-jWyOe (6 iterations, BEST). 24 files, +1725 lines. Three-month build cycle: ledger, roster, fulfillment. The intelligence layer applied to material need: the Memory Engine knows what the operator uses. The supply chain aligns with the profile. Not a store — a ration distribution system."
+              value="Physical supply subscription layer, LOT-FM-001 BASIC ration. Three-month build cycle: Month 1 — OPEN TAB (public ledger, read-only) LIVE at /basics: 23-item ration manifest, doctrine statement, $100/month price line. Month 2 — UPGRADE control and roster intake (Usership AI → BASIC), NOT YET LIVE. Month 3 — fulfillment and first issue, NOT YET LIVE. Not a store — a ration distribution system. Status: MONTH 1 OF 3 — IN-DEV."
             />
             <Row
               label="Badge RPG Codex"
