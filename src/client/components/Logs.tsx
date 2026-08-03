@@ -28,7 +28,7 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, parseStoryPeriod, type LogTrigger } from '#client/utils/logTriggers'
 import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
@@ -3760,6 +3760,9 @@ const NoteEditor = ({
           '',
           '/prayer       Generate contextual scripture',
           '/story        Generate a personal story from recent data',
+          '/story week   Compress the last 7 days into a story',
+          '/story month  Compress the last 30 days into a story',
+          '/story year   Compress the last 365 days into a story',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -3786,11 +3789,13 @@ const NoteEditor = ({
           setStoryLoading(true)
           setStoryResponse(null)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const period = parseStoryPeriod(value)
+            const logText = value.replace(/\/story\s*(day|week|month|year)?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period: period || undefined,
               quantumState: state,
               userIndex: index,
             })

@@ -69,6 +69,19 @@ const RULES: TriggerRule[] = [
   { trigger: 'how-checkin',    emojis: [],        keywords: ['how'] },
 ]
 
+export type StoryPeriod = 'day' | 'week' | 'month' | 'year'
+
+/**
+ * Parses an optional period argument off a `/story` command —
+ * `/story week` compresses the last 7 days, `/story month` the last
+ * 30, `/story year` the last 365. Bare `/story` (no argument) keeps
+ * the original "recent activity" behavior for backward compatibility.
+ */
+export function parseStoryPeriod(text: string): StoryPeriod | null {
+  const match = text.match(/\/story\s+(day|week|month|year)\b/i)
+  return match ? (match[1].toLowerCase() as StoryPeriod) : null
+}
+
 /**
  * Returns every trigger present in `text`. An empty array means the
  * text is ordinary. Order reflects the order of `RULES`, not the
