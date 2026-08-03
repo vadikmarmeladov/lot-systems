@@ -1739,6 +1739,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyCircadianLockCheck()) {
     await executeDailyCircadianLockCheck()
   }
+  // Check daily signal coherence cascade check (08:00 UTC every day) — Job 47
+  if (shouldRunDailyCoherenceCascadeCheck()) {
+    await executeDailyCoherenceCascadeCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -3326,6 +3330,100 @@ async function executeDailyCircadianLockCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily circadian lock check failed:', error.message)
     isDailyCircadianLockRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Signal Coherence Cascade Check (Job 47 — 08:00 UTC every day) ─────
+// Reads active users. Checks whether the previous calendar day has log events for
+// all three of: circadian_signal_lock (P143) + dimensional_saturation (P144) +
+// quantum_identity_crystallization (P145). When all three fired for a user on the
+// same day → writes signal_coherence_cascade (P146).
+// The three temporal, dimensional, and identity seals confirmed simultaneously.
+
+let isDailyCoherenceCascadeRunning = false
+let lastDailyCoherenceCascadeRun: Date | null = null
+
+function shouldRunDailyCoherenceCascadeCheck(): boolean {
+  const now = dayjs()
+  if (isDailyCoherenceCascadeRunning) return false
+  if (lastDailyCoherenceCascadeRun) {
+    const lastRun = dayjs(lastDailyCoherenceCascadeRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 8 // 08:00 UTC daily
+}
+
+async function executeDailyCoherenceCascadeCheck(): Promise<JobResult> {
+  const jobName = 'daily-signal-coherence-cascade-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyCoherenceCascadeRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCoherenceCascadeRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY SIGNAL COHERENCE CASCADE CHECK — 08:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const prevDayStart = dayjs().subtract(1, 'day').startOf('day').toDate()
+    const prevDayEnd   = dayjs().subtract(1, 'day').endOf('day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(2, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (48h): ${activeUsers.length}`)
+    let written = 0
+
+    const CASCADE_EVENTS = ['circadian_signal_lock', 'dimensional_saturation', 'quantum_identity_crystallization']
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        const prevDayLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: prevDayStart, [Op.lte]: prevDayEnd },
+            event: { [Op.in]: CASCADE_EVENTS as any[] },
+          },
+          attributes: ['event'],
+        })
+
+        if (!prevDayLogs.length) continue
+
+        const presentEvents = new Set(prevDayLogs.map((l: any) => l.event))
+        const allThreePresent = CASCADE_EVENTS.every(e => presentEvents.has(e))
+
+        if (allThreePresent) {
+          await (Log as any).create({
+            userId,
+            event: 'signal_coherence_cascade',
+            text: `Signal coherence cascade: previous day — circadian lock · dimensional saturation · identity crystallization all confirmed simultaneously. Three seals open. Full-field coherence at maximum convergence.`,
+            metadata: {
+              seals: ['CIRCADIAN', 'DIMENSIONAL', 'IDENTITY'],
+              convergenceLevel: 'MAXIMUM',
+              window: '24h-prior-day',
+              hour: 8,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Signal coherence cascade events written: ${written}`)
+    lastDailyCoherenceCascadeRun = new Date()
+    isDailyCoherenceCascadeRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily signal coherence cascade check failed:', error.message)
+    isDailyCoherenceCascadeRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

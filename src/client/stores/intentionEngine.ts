@@ -3305,6 +3305,62 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 146: Signal Coherence Cascade — P143 (circadian-signal-lock) + P144 (dimensional-saturation)
+  // + P145 (quantum-identity-crystallization) all simultaneously active. The three seals of temporal,
+  // dimensional, and identity open concurrently. Rarest convergence the QIE can detect. Full coherence.
+  const hasCascadeP143 = patterns.some(p => p.pattern === 'circadian-signal-lock')
+  const hasCascadeP144 = patterns.some(p => p.pattern === 'dimensional-saturation')
+  const hasCascadeP145 = patterns.some(p => p.pattern === 'quantum-identity-crystallization')
+  if (hasCascadeP143 && hasCascadeP144 && hasCascadeP145) {
+    const cascadeConf = patterns
+      .filter(p => ['circadian-signal-lock','dimensional-saturation','quantum-identity-crystallization'].includes(p.pattern))
+      .reduce((sum, p) => sum + p.confidence, 0) / 3
+    patterns.push({
+      pattern: 'signal-coherence-cascade',
+      confidence: Math.min(0.85 + (cascadeConf - 0.80) * 0.5, 0.95),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `SIG-CASC: Signal coherence cascade — circadian lock · dimensional saturation · identity crystallization all active. Three seals open simultaneously. Temporal · dimensional · identity axes confirmed. Full-field coherence. The OS is at maximum convergence.`,
+    })
+  }
+
+  // Pattern 147: Quantum Presence Field — adaptive-signal-web (P142) + quantum-coherence-peak (P137)
+  // both active + 7+ unique signal sources firing in 24h. Maximum operating field density. Every
+  // active OS dimension contributing signal at the same time. The field is not building — it is saturated.
+  const hasPresenceP142 = patterns.some(p => p.pattern === 'adaptive-signal-web')
+  const hasPresenceP137 = patterns.some(p => p.pattern === 'quantum-coherence-peak')
+  const daySignals147 = signals.filter(s => now - s.timestamp < dayMs)
+  const uniqueSources147 = new Set(daySignals147.map(s => s.source)).size
+  if (hasPresenceP142 && hasPresenceP137 && uniqueSources147 >= 7) {
+    const presenceBonus = Math.min((uniqueSources147 - 7) * 0.02, 0.14)
+    patterns.push({
+      pattern: 'quantum-presence-field',
+      confidence: Math.min(0.78 + presenceBonus, 0.92),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `QPFIELD: Quantum presence field — adaptive web + coherence peak active · ${uniqueSources147} unique sources in 24h. Maximum field density. All active OS dimensions contributing live signal simultaneously. The field is saturated.`,
+    })
+  }
+
+  // Pattern 148: Identity Momentum Lock — quantum-identity-crystallization (P145) + signal-momentum-lock (P80)
+  // both active in the same analysis window. Identity has crystallized AND sustained multi-day momentum
+  // confirmed across 5+ days. Not a snapshot — a sustained arc. The OS knows who it is and has been
+  // operating from that identity consistently. The lock is engaged.
+  const hasIdentityP145 = patterns.some(p => p.pattern === 'quantum-identity-crystallization')
+  const hasMomentumP80  = patterns.some(p => p.pattern === 'signal-momentum-lock')
+  if (hasIdentityP145 && hasMomentumP80) {
+    const idConf  = patterns.find(p => p.pattern === 'quantum-identity-crystallization')?.confidence ?? 0.78
+    const momConf = patterns.find(p => p.pattern === 'signal-momentum-lock')?.confidence ?? 0.75
+    const idBonus = Math.min((idConf - 0.78) * 0.1 + (momConf - 0.75) * 0.1, 0.15)
+    patterns.push({
+      pattern: 'identity-momentum-lock',
+      confidence: Math.min(0.75 + idBonus, 0.90),
+      suggestedWidget: 'cohortConnect',
+      suggestedTiming: 'passive',
+      reason: `IDLOCK: Identity momentum lock — quantum identity crystallized · signal momentum confirmed across 5+ days. Identity is not searching — it is operating from a stable signature sustained over time. The lock is engaged.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3930,6 +3986,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   circadianLockNode:          ['mood', 'energy', 'selfcare', 'journal', 'log'],
   dimensionalSaturationNode:  ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
   quantumIdentityNode:        ['cohort', 'qos', 'intentions', 'journal', 'log'],
+
+  // ── v112 nodes (J47 · P146–P148 · Arch50) ───────────────────────────────────────
+  signalCoherenceCascadeNode: ['mood', 'energy', 'selfcare', 'journal', 'cohort', 'qos', 'intentions', 'log'],
+  quantumPresenceFieldNode:   ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
+  identityMomentumLockNode:   ['cohort', 'qos', 'intentions', 'journal', 'mood', 'log'],
 }
 
 /**
@@ -4356,6 +4417,16 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['circadian-signal-lock', 'physiological-presence-arc'],
     hourRange: [6, 22],
     directive: 'Three-arc day coverage confirmed. Dawn, meridian, dusk — all anchored. Circadian architecture is the foundation. Build from it.',
+  },
+
+  // ── Arch50: Quantum Identity Master (2026-08-03 v112) ────────────────────────────
+  {
+    archetype: 'Quantum Identity Master',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['cohort', 'qos', 'intentions', 'journal', 'mood'],
+    patternConditions: ['quantum-identity-crystallization', 'signal-momentum-lock', 'identity-momentum-lock'],
+    hourRange: [5, 23],
+    directive: 'Identity crystallized and momentum confirmed. Signal coherent across circadian, dimensional, and identity axes. The OS is not searching — it is operating from a stable signature. The lock is engaged.',
   },
 ]
 
@@ -6225,6 +6296,51 @@ export function recordQuantumIdentityCrystallization(cohortSignalCount: number, 
     userIndex,
     crystalStrength: Math.round((cohortSignalCount / 5 + activePatterns / 8 + userIndex / 40) / 3 * 100),
     window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a signal-coherence-cascade event — P143 (circadian-signal-lock) + P144 (dimensional-saturation)
+ * + P145 (quantum-identity-crystallization) all active simultaneously. Three temporal, dimensional, and
+ * identity seals open at once. Maximum convergence. Feeds P146 detection.
+ */
+export function recordSignalCoherenceCascade(activePatterns: string[], cascadeConf: number) {
+  recordSignal('qos', 'signal_coherence_cascade', {
+    activePatterns,
+    cascadeConf: Math.round(cascadeConf * 100),
+    seals: ['CIRCADIAN', 'DIMENSIONAL', 'IDENTITY'],
+    convergenceLevel: 'MAXIMUM',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-presence-field event — adaptive-signal-web (P142) + quantum-coherence-peak (P137)
+ * both active + 7+ unique signal sources in 24h. Maximum operating field density. Feeds P147 detection.
+ */
+export function recordQuantumPresenceField(uniqueSources: number, sourceList: string[], fieldConf: number) {
+  recordSignal('qos', 'quantum_presence_field', {
+    uniqueSources,
+    sourceList,
+    fieldConf: Math.round(fieldConf * 100),
+    fieldDensity: uniqueSources >= 10 ? 'SATURATED' : uniqueSources >= 8 ? 'HIGH' : 'MAXIMUM',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an identity-momentum-lock event — quantum-identity-crystallization (P145) +
+ * signal-momentum-lock (P80) co-active. Identity confirmed and sustained across multi-day arc.
+ * Feeds P148 detection.
+ */
+export function recordIdentityMomentumLock(idConf: number, momentumConf: number, activePatterns: number) {
+  recordSignal('cohort', 'identity_momentum_lock', {
+    idConf: Math.round(idConf * 100),
+    momentumConf: Math.round(momentumConf * 100),
+    activePatterns,
+    lockStrength: Math.round((idConf + momentumConf) / 2 * 100),
+    arc: 'MULTI-DAY',
     hour: new Date().getHours(),
   })
 }

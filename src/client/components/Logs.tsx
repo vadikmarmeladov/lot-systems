@@ -3461,6 +3461,79 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'signal_coherence_cascade') {
+          const seals = log.metadata?.seals as string[] | undefined
+          const convergenceLevel = log.metadata?.convergenceLevel as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIG-CASC:" blockView>
+                <div className="uppercase tracking-widest mb-4">SIGNAL COHERENCE CASCADE</div>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">SEALS</span>
+                  <span className="tabular-nums">{seals ? seals.join(' · ') : 'CIRCADIAN · DIMENSIONAL · IDENTITY'}</span>
+                </div>
+                <div className="opacity-40 tabular-nums">THREE SEALS OPEN · FULL CONVERGENCE</div>
+                {convergenceLevel && (
+                  <div className="opacity-30 tabular-nums">LEVEL: {convergenceLevel}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_presence_field') {
+          const uniqueSources = log.metadata?.uniqueSources as number | undefined
+          const fieldDensity = log.metadata?.fieldDensity as string | undefined
+          const fieldConf = log.metadata?.fieldConf as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QPFIELD:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM PRESENCE FIELD</div>
+                {uniqueSources !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SRC 24H</span>
+                    <span className="tabular-nums">{uniqueSources}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ADAPTIVE WEB · COHERENCE PEAK · FIELD LIVE</div>
+                {fieldDensity && (
+                  <div className="opacity-30 tabular-nums">DENSITY: {fieldDensity}</div>
+                )}
+                {fieldConf !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {fieldConf}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'identity_momentum_lock') {
+          const lockStrength = log.metadata?.lockStrength as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          const idConf = log.metadata?.idConf as number | undefined
+          const momentumConf = log.metadata?.momentumConf as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="IDLOCK:" blockView>
+                <div className="uppercase tracking-widest mb-4">IDENTITY MOMENTUM LOCK</div>
+                {idConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ID CONF</span>
+                    <span className="tabular-nums">{idConf}%</span>
+                  </div>
+                )}
+                {momentumConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MOM CONF</span>
+                    <span className="tabular-nums">{momentumConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ID CRYSTALLIZED · MOMENTUM SUSTAINED</div>
+                {arc && (
+                  <div className="opacity-30 tabular-nums">ARC: {arc}</div>
+                )}
+                {lockStrength !== undefined && (
+                  <div className="opacity-30 tabular-nums">LOCK: {lockStrength}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

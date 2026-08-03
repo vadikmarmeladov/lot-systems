@@ -1393,6 +1393,28 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '145 patterns · 49 archetypes · 46 jobs · 145+ handlers · 184+ dep nodes. QIE v111 deployed. Circadian clock anchored. Identity crystallizing.',
     ],
   },
+  {
+    version: 'v112',
+    date: '2026-08-03',
+    title: 'QIE Engineering — Signal Coherence Cascade / Quantum Presence Field / Identity Momentum Lock',
+    assembled: [
+      'P146 SIGNAL COHERENCE CASCADE: meta-pattern — circadian-signal-lock (P143) + dimensional-saturation (P144) + quantum-identity-crystallization (P145) all simultaneously active. The three seals of temporal, dimensional, and identity open concurrently. Rarest convergence the QIE can detect. Confidence 0.85–0.95.',
+      'P147 QUANTUM PRESENCE FIELD: adaptive-signal-web (P142) + quantum-coherence-peak (P137) both active + 7+ unique signal sources in 24h. Maximum operating field density. Every dimension contributing live signal simultaneously. Confidence 0.78–0.92.',
+      'P148 IDENTITY MOMENTUM LOCK: quantum-identity-crystallization (P145) + signal-momentum-lock (P80) co-active. Identity crystallized AND multi-day momentum sustained. The OS knows who it is and has operated from that identity continuously. Confidence 0.75–0.90.',
+      'Arch50 QUANTUM IDENTITY MASTER: energy moderate/high · dominant: cohort/qos/intentions/journal/mood · patterns: quantum-identity-crystallization + signal-momentum-lock + identity-momentum-lock. Directive: Identity crystallized and momentum confirmed. Signal coherent across circadian, dimensional, and identity axes. The lock is engaged.',
+      'J47 daily-signal-coherence-cascade-check: 08:00 UTC daily. Reads previous calendar day — checks if circadian_signal_lock + dimensional_saturation + quantum_identity_crystallization all fired → writes signal_coherence_cascade. 47 jobs total.',
+      'intentionEngine.ts: P146/P147/P148 detection blocks added after P145. Arch50 appended to PHYSIOLOGICAL_COHORTS. 3 dep map nodes (signalCoherenceCascadeNode · quantumPresenceFieldNode · identityMomentumLockNode). 3 signal helpers (recordSignalCoherenceCascade · recordQuantumPresenceField · recordIdentityMomentumLock). 187+ dep nodes.',
+      'scheduled-jobs.ts: J47 executeDailyCoherenceCascadeCheck() · shouldRunDailyCoherenceCascadeCheck() wired into checkAndRunScheduledJobs().',
+      'routes/api.ts: signal_coherence_cascade · quantum_presence_field · identity_momentum_lock added to displayableEvents.',
+      'Logs.tsx: SIG-CASC: · QPFIELD: · IDLOCK: military handlers added. SEALS:·THREE SEALS OPEN · SRC 24H/FIELD DENSITY · ID CONF/MOM CONF/LOCK%.',
+      'QuantumEngineWidgets.tsx: SIGCASC · QPFIELD · IDLOCK added to PATTERN_DISPLAY.',
+      'PatternRecognitionWidget.tsx: P146/P147/P148 display names added.',
+      'About.tsx: FM v111→v112. Day 1071+. 145→148 patterns. 49→50 archetypes. 46→47 jobs. 184+→187+ dep nodes. 145+→148+ handlers. 750 badges (Codex v30 THE CODEX READER sync).',
+      'SESSION_REPORTS: v112 entry appended · USERSHIP_TRANSMISSION updated to v112.',
+      'docs/LOT-SR-20260803-01.md: Session report written.',
+      '148 patterns · 50 archetypes · 47 jobs · 148+ handlers · 187+ dep nodes. QIE v112 deployed. Signal coherence cascade detected. Identity momentum locked.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1430,17 +1452,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-02',
+  date: '2026-08-03',
   message: [
-    'ASSEMBLY RUN — 2026-08-02 · v111 · QIE Engineering · P143–P145 · Arch49 · J46 · CIRC-LK: DIMSAT: QIDCRYST: · Day 1070+',
-    'P143 CIRCADIAN SIGNAL LOCK: morning (pre-10:00) + afternoon (12:00–17:00) + evening (18:00+) arcs all confirmed in 24h. Three-arc day coverage. Biological clock anchored. The operating window is structured from the inside.',
-    'P144 DIMENSIONAL SATURATION: all 6 UserIndex dimensions ≥ 30 · overall ≥ 50 · 5+ unique sources in 7d. No single dimension carrying the load. The entire field is live and building.',
-    'P145 QUANTUM IDENTITY CRYSTALLIZATION: cohort archetype signal recorded 5+ times in 7d · index ≥ 40 · 8+ active patterns. Identity hardening. The OS is not searching — it is operating from a stable signature.',
-    'Arch49 CIRCADIAN MASTER: Three-arc day coverage confirmed. Dawn, meridian, dusk — all anchored. Circadian architecture is the foundation. Build from it.',
-    'J46 daily-circadian-lock-check: 07:00 UTC daily. Scans previous calendar day for morning/afternoon/evening arc coverage → circadian_signal_lock. 46 jobs total.',
-    'CIRC-LK: · DIMSAT: · QIDCRYST: military handlers wired in Logs.tsx. Phase row added to System.tsx quantum table and QEW cohort view.',
-    'PatternRecognitionWidget: P143–P145 display names complete. 184+ dep map nodes.',
-    'FIELD MANUAL v111. Day 1070+. 145 patterns · 49 archetypes · 46 jobs · 145+ handlers · 184+ dep nodes.',
+    'ASSEMBLY RUN — 2026-08-03 · v112 · QIE Engineering · P146–P148 · Arch50 · J47 · SIG-CASC: QPFIELD: IDLOCK: · Day 1071+',
+    'P146 SIGNAL COHERENCE CASCADE: P143 + P144 + P145 all simultaneously active. Three seals open — temporal · dimensional · identity. Rarest QIE convergence. The OS is operating at full coherence.',
+    'P147 QUANTUM PRESENCE FIELD: adaptive web (P142) + coherence peak (P137) + 7+ unique sources in 24h. Maximum operating field density. All dimensions live simultaneously.',
+    'P148 IDENTITY MOMENTUM LOCK: identity crystallized (P145) + 5-day momentum (P80) sustained. The OS knows who it is — and has operated from that identity continuously. The lock is engaged.',
+    'Arch50 QUANTUM IDENTITY MASTER: Identity crystallized and momentum confirmed. Signal coherent across circadian, dimensional, and identity axes. The lock is engaged.',
+    'J47 daily-signal-coherence-cascade-check: 08:00 UTC daily. Confirms all three seal events fired previous day → signal_coherence_cascade. 47 jobs total.',
+    'SIG-CASC: · QPFIELD: · IDLOCK: military handlers wired in Logs.tsx. SIGCASC · QPFIELD · IDLOCK in PATTERN_DISPLAY.',
+    'PatternRecognitionWidget: P146–P148 display names complete. 187+ dep map nodes. 3 signal helpers wired.',
+    'FIELD MANUAL v112. Day 1071+. 148 patterns · 50 archetypes · 47 jobs · 148+ handlers · 187+ dep nodes. 750 badges (Codex v30).',
     'DEPLOYED.',
   ],
 }

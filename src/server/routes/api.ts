@@ -1205,6 +1205,10 @@ export default async (fastify: FastifyInstance) => {
       'circadian_signal_lock',
       'dimensional_saturation',
       'quantum_identity_crystallization',
+      // v112: signal coherence cascade · quantum presence field · identity momentum lock (P146/P147/P148)
+      'signal_coherence_cascade',
+      'quantum_presence_field',
+      'identity_momentum_lock',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

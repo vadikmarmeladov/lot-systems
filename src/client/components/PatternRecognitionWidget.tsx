@@ -176,6 +176,9 @@ export function PatternRecognitionWidget() {
       'circadian-signal-lock':            'Circadian signal lock — morning + afternoon + evening arc windows all active in 24h (P143)',
       'dimensional-saturation':           'Dimensional saturation — all 6 UserIndex dimensions ≥ 30 + overall ≥ 50 (P144)',
       'quantum-identity-crystallization': 'Quantum identity crystallization — archetype stabilized, cohort 5+ in 7d (P145)',
+      'signal-coherence-cascade':         'Signal coherence cascade — P143 + P144 + P145 all active simultaneously, three seals open (P146)',
+      'quantum-presence-field':           'Quantum presence field — adaptive web + coherence peak + 7+ sources in 24h (P147)',
+      'identity-momentum-lock':           'Identity momentum lock — identity crystallized + multi-day momentum sustained (P148)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

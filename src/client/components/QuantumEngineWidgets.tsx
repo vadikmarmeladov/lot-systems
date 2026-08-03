@@ -104,6 +104,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'circadian-signal-lock':            'CIRC-LK',
   'dimensional-saturation':           'DIMSAT',
   'quantum-identity-crystallization': 'QIDCRYST',
+  'signal-coherence-cascade':         'SIGCASC',
+  'quantum-presence-field':           'QPFIELD',
+  'identity-momentum-lock':           'IDLOCK',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
