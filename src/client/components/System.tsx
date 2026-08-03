@@ -374,7 +374,13 @@ export const System = React.memo(function SystemInner() {
     return options[index]
   }, [weather])
 
-  const optimalWidget = React.useMemo(() => getOptimalWidget(), [logs])
+  // getOptimalWidget() calls analyzeIntentions(), which WRITES the intentionEngine
+  // atom on a cache miss — calling it in the render body cascades re-renders across
+  // all subscribers before the browser can paint (same class of bug fixed in
+  // PatternRecognitionWidget). Key on quantumState instead of logs: it only updates
+  // from the useEffect above, after analyzeIntentions() has already run and the
+  // 5-min cooldown makes this call a cache read, not a write.
+  const optimalWidget = React.useMemo(() => getOptimalWidget(), [quantumState])
 
   // Community pulse — atmosphere layer
   const convergence = React.useMemo(() => getConvergenceSignal(), [])
