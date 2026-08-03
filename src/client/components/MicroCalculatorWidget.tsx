@@ -34,6 +34,29 @@ function detectMagicTime(): string | null {
   return MAGIC_TIMES.has(key) ? key : null
 }
 
+// Module-scope (not defined inside MicroCalculatorWidget) so React keeps the
+// same component identity across renders — a per-render definition here
+// remounts every button's DOM node on each keypress instead of updating it.
+const Key = ({ label, onClick, wide, active }: {
+  label: string
+  onClick: () => void
+  wide?: boolean
+  active?: boolean
+}) => (
+  <button
+    onClick={onClick}
+    className={cn(
+      'py-4 border cursor-pointer select-none',
+      active
+        ? 'border-acc text-acc'
+        : 'border-acc/60 grid-fill-hover',
+      wide && 'col-span-2'
+    )}
+  >
+    {label}
+  </button>
+)
+
 export function MicroCalculatorWidget() {
   const [display, setDisplay] = React.useState('0')
   const [buffer, setBuffer] = React.useState<number | null>(null)
@@ -139,26 +162,6 @@ export function MicroCalculatorWidget() {
     setOp(null)
     setFresh(true)
   }
-
-  const Key = ({ label, onClick, wide, active }: {
-    label: string
-    onClick: () => void
-    wide?: boolean
-    active?: boolean
-  }) => (
-    <button
-      onClick={onClick}
-      className={cn(
-        'py-4 border cursor-pointer select-none',
-        active
-          ? 'border-acc text-acc'
-          : 'border-acc/60 grid-fill-hover',
-        wide && 'col-span-2'
-      )}
-    >
-      {label}
-    </button>
-  )
 
   return (
     <div className={cn(

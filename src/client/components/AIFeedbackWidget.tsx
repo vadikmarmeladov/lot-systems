@@ -9,7 +9,7 @@
 import React from 'react'
 import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
-import { intentionEngine, getUserState, type UserState } from '#client/stores/intentionEngine'
+import { intentionEngine, type UserState } from '#client/stores/intentionEngine'
 import { useOSDiagnostics, useProfile, useLogs } from '#client/queries'
 import { useLogContext } from '#client/hooks/useLogContext'
 
@@ -29,7 +29,7 @@ export function AIFeedbackWidget() {
   const { data: logs = [] } = useLogs()
   const logCtx = useLogContext()
 
-  const userState = getUserState()
+  const userState = engine.userState
 
   const cycleView = () => {
     setView(prev => {
@@ -41,6 +41,13 @@ export function AIFeedbackWidget() {
       }
     })
   }
+
+  // High-confidence pattern count, computed once and reused (was filtered
+  // twice inline in the signal-summary JSX below).
+  const highConfidencePatternCount = React.useMemo(
+    () => engine.recognizedPatterns.filter(p => p.confidence >= 0.5).length,
+    [engine.recognizedPatterns]
+  )
 
   // Need some data to show meaningful feedback
   if (engine.signals.length === 0 && !diagnostics && !profile?.hasUsership) return null
