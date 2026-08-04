@@ -4,8 +4,8 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-08-04 (Cycle 2 — see Section 00 addendum)
+VERSION:  0.2 — DEVELOPMENT CYCLE 2
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -57,6 +57,19 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  CYCLE 2 ADDENDUM (2026-08-04)
+    This document was re-read in full, start to finish, before writing
+    anything further — the standing rule for every development cycle:
+    read the prior record, extend it, remove nothing. No other corporate
+    .md has added a CUBIQ hardware reference since Cycle 1 (2026-07-28);
+    the reading log above still names every source this spec is built on.
+    This cycle adds an engineering progress log opening the bench-
+    validation protocol referenced in Section 06 (v.0's 500/500 gate),
+    and the second entry in the Consumer Use Cases ledger, Section 07.
+    The v.0 scope boundary fixed in Section 01 — one gesture class, the
+    controlled hop, nothing else — is unchanged and not up for revision
+    mid-cycle.
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -278,6 +291,49 @@ assumed.
     mass budget, table-as-power-surface architecture) are made with a
     levitating future in mind rather than foreclosing it.
 
+  CYCLE 2 — v.0 ENGINEERING PROGRESS LOG (2026-08-04)
+    Development on v.0 begins with the actuator and sensing stack named
+    in Section 03. This cycle opens the bench-validation protocol that
+    the 500/500 gate above depends on, and records the candidate
+    component classes under evaluation. Nothing here is a final part
+    selection — it is the engineering opened for the next cycle to close.
+
+    ACTUATOR CANDIDATES (voice-coil class, Section 03)
+      Reference part class: linear resonant voice-coil, 6-9mm stroke,
+      rated for high cycle-life at the drive duty this application
+      requires (single hop-and-recover event, sub-50ms actuation
+      window). Selection order: (1) audible noise floor low enough that
+      the hop is felt through the desk before it is heard across the
+      room — a loud actuator breaks the "felt, not seen" principle in
+      Section 04 — (2) rated cycle-life against the 500/500 gate plus
+      margin for v.1-v.2 re-tuning, (3) peak current draw per hop
+      against the Qi-charge budget fixed in Section 02.
+
+    SENSING STACK
+      6-axis IMU and time-of-flight edge sensor candidates are being
+      screened against parts already qualified for the COSMO® hardware
+      track (LOT_ROBOTICS_COSMO.md) — shared BOM discipline across
+      LOT®'s two hardware lines reduces vendor-qualification overhead
+      for both. The 20mm edge-inhibit threshold (Section 03) is kept a
+      firmware constant, tunable post-silicon without a board respin.
+
+    BENCH TEST PROTOCOL (draft — opens the 500/500 gate, above)
+      RIG          Flat reference surface, three material coupons (wood,
+                   glass, laminate — the same three the v.1 gate uses)
+                   on a load cell logging landing-impact force.
+      CYCLE        Trigger hop -> log liftoff time, apex height, landing
+                   offset from origin, tip angle, recovery-pulse count
+                   (if any) -> 5s settle -> repeat.
+      PASS/FAIL    A cycle fails if landing falls outside the 40mm
+                   displacement radius (Section 01), tip exceeds 25°
+                   with no successful recovery pulse, or the edge-
+                   inhibit gate (Section 03) does not fire on a staged
+                   edge-approach trial interleaved every 25 cycles.
+      STATUS       0/500 logged. This document opens the protocol; it
+                   does not report bench results yet. The next
+                   development cycle reports the first logged block, or
+                   the engineering reason none were logged.
+
 --------------------------------------------------------------------------------
 07 // CONSUMER USE CASES
 --------------------------------------------------------------------------------
@@ -320,6 +376,42 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE STUDIO SIGN-OFF                          2026-08-04
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect,"
+  independent musician/producer, works late in a home studio with the
+  CUBIQ charging pad on the mixing desk beside the monitor controller.
+  House rule during sessions: phone stays in another room.
+
+  Two hours into a late-night session, the operator crosses a threshold
+  the system has been tracking quietly all week: their self-assembly
+  module for sustained late-session engagement advances a phase, forming
+  -> assembled (LOT-CUBIQ-OPERATOR.md, Section 03, ASSEMBLY STATE). This
+  is precisely the trigger Section 04 assigns to THE SETTLE — a gesture
+  built for real progress that does not want a banner.
+
+  The cube performs THE SETTLE: 2s of light standing pressure, caught
+  only because the operator's hand happens to rest near the charging pad
+  while reaching for a fader. No screen lights up. No sound crosses the
+  monitors. Just a change in the object's stance, gone before it could be
+  called a distraction. The operator finishes the take.
+
+  Forty minutes later, mixing done, a badge fires — rare tier, tied to a
+  pattern the QIE has been building across the week's late sessions
+  (LOT-CUBIQ-OPERATOR.md, Section 03, PATTERN LIBRARY). THE HOP fires: a
+  single controlled vertical hop, landing in place. The operator glances
+  up from the desk, sees the cube settled back down, and knows without
+  opening the cubic that something was earned tonight. They check the
+  badge on lot-systems.com in the morning, over coffee, on their own
+  schedule — not because a red dot demanded it at 1am.
+
+  This is the case v.0's SETTLE and HOP gestures were built to
+  distinguish from each other: not every signal deserves the same
+  motion. Quiet progress gets quiet presence; an earned badge gets a
+  small, felt event. Neither one asks the operator to look at a screen
+  at the exact moment a phone notification would have insisted on it —
+  the studio's no-phone rule holds, and the system still reaches them.
 
 --------------------------------------------------------------------------------
 08 // BRAND
