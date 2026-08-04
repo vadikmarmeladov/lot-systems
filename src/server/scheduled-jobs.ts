@@ -1731,6 +1731,18 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySignalMatrixCheck()) {
     await executeDailySignalMatrixCheck()
   }
+  // Check daily physiological presence check (21:00 UTC every day) — Job 45
+  if (shouldRunDailyPhysiologicalPresenceCheck()) {
+    await executeDailyPhysiologicalPresenceCheck()
+  }
+  // Check daily circadian lock check (07:00 UTC every day) — Job 46
+  if (shouldRunDailyCircadianLockCheck()) {
+    await executeDailyCircadianLockCheck()
+  }
+  // Check daily signal coherence cascade check (08:00 UTC every day) — Job 47
+  if (shouldRunDailyCoherenceCascadeCheck()) {
+    await executeDailyCoherenceCascadeCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -3109,6 +3121,309 @@ async function executeDailySignalMatrixCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily signal matrix check failed:', error.message)
     isDailySignalMatrixRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Physiological Presence Check (Job 45 — 21:00 UTC every day) ──────
+// Reads active users. Looks for morning mood/emotional signal (before 12:00 UTC today),
+// selfcare signal (any time today), and evening mood/emotional signal (after 17:00 UTC today).
+// When all three are present → writes physiological_presence_arc (P140).
+// Confirms the full biological day-arc: dawn signal + care completion + dusk signal.
+
+let isDailyPhysiologicalPresenceRunning = false
+let lastDailyPhysiologicalPresenceRun: Date | null = null
+
+function shouldRunDailyPhysiologicalPresenceCheck(): boolean {
+  const now = dayjs()
+  if (isDailyPhysiologicalPresenceRunning) return false
+  if (lastDailyPhysiologicalPresenceRun) {
+    const lastRun = dayjs(lastDailyPhysiologicalPresenceRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 21 // 21:00 UTC daily
+}
+
+async function executeDailyPhysiologicalPresenceCheck(): Promise<JobResult> {
+  const jobName = 'daily-physiological-presence-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyPhysiologicalPresenceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPhysiologicalPresenceRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PHYSIOLOGICAL PRESENCE CHECK — 21:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const dayStart       = dayjs().startOf('day').toDate()
+    const morningCutoff  = dayjs().startOf('day').add(12, 'hour').toDate()
+    const eveningStart   = dayjs().startOf('day').add(17, 'hour').toDate()
+    const nowDate        = dayjs().toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let written = 0
+
+    const MOOD_EVENTS = ['mood_checkin', 'emotional_checkin', 'mood_update', 'energy_checkin', 'energy_state']
+    const CARE_EVENTS = ['self_care_complete', 'self_care_completed']
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        const todayLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: dayStart, [Op.lte]: nowDate },
+            event: { [Op.in]: [...MOOD_EVENTS, ...CARE_EVENTS] as any[] },
+          },
+          attributes: ['event', 'createdAt'],
+          order: [['createdAt', 'ASC']],
+        })
+
+        const morningMood = todayLogs.some((l: any) => MOOD_EVENTS.includes(l.event) && new Date(l.createdAt) < morningCutoff)
+        const selfcareHit = todayLogs.some((l: any) => CARE_EVENTS.includes(l.event))
+        const eveningMood = todayLogs.some((l: any) => MOOD_EVENTS.includes(l.event) && new Date(l.createdAt) >= eveningStart)
+
+        if (morningMood && selfcareHit && eveningMood) {
+          const selfcareCount = todayLogs.filter((l: any) => CARE_EVENTS.includes(l.event)).length
+          await (Log as any).create({
+            userId,
+            event: 'physiological_presence_arc',
+            text: `Physiological presence arc: morning mood + ${selfcareCount} selfcare + evening mood confirmed today. Full biological day-arc complete. Dawn → dusk presence loop closed.`,
+            metadata: {
+              morningPresent: true,
+              eveningPresent: true,
+              selfcareCount,
+              window: '1d',
+              hour: 21,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Physiological presence arc events written: ${written}`)
+    lastDailyPhysiologicalPresenceRun = new Date()
+    isDailyPhysiologicalPresenceRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily physiological presence check failed:', error.message)
+    isDailyPhysiologicalPresenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Circadian Lock Check (Job 46 — 07:00 UTC every day) ──────────────
+// Reads active users. Looks for signals from the PREVIOUS calendar day spanning
+// all three circadian arcs: morning (before 10:00), afternoon (12:00–17:00),
+// and evening (18:00+). When all three are present → writes circadian_signal_lock (P143).
+// Confirms biological clock coverage across the full day arc.
+
+let isDailyCircadianLockRunning = false
+let lastDailyCircadianLockRun: Date | null = null
+
+function shouldRunDailyCircadianLockCheck(): boolean {
+  const now = dayjs()
+  if (isDailyCircadianLockRunning) return false
+  if (lastDailyCircadianLockRun) {
+    const lastRun = dayjs(lastDailyCircadianLockRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 7 // 07:00 UTC daily
+}
+
+async function executeDailyCircadianLockCheck(): Promise<JobResult> {
+  const jobName = 'daily-circadian-lock-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyCircadianLockRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCircadianLockRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY CIRCADIAN LOCK CHECK — 07:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    // Check PREVIOUS calendar day to ensure all arcs are complete
+    const prevDayStart     = dayjs().subtract(1, 'day').startOf('day').toDate()
+    const prevMorningCutoff = dayjs().subtract(1, 'day').startOf('day').add(10, 'hour').toDate()
+    const prevAfternoonStart = dayjs().subtract(1, 'day').startOf('day').add(12, 'hour').toDate()
+    const prevAfternoonEnd   = dayjs().subtract(1, 'day').startOf('day').add(17, 'hour').toDate()
+    const prevEveningStart   = dayjs().subtract(1, 'day').startOf('day').add(18, 'hour').toDate()
+    const prevDayEnd         = dayjs().subtract(1, 'day').endOf('day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(2, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (48h): ${activeUsers.length}`)
+    let written = 0
+
+    const SIGNAL_EVENTS = [
+      'mood_checkin', 'emotional_checkin', 'mood_update', 'energy_checkin', 'energy_state',
+      'self_care_complete', 'self_care_completed', 'journal_entry', 'note',
+      'memory_created', 'intention_created', 'planner_entry',
+    ]
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        const prevDayLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: prevDayStart, [Op.lte]: prevDayEnd },
+            event: { [Op.in]: SIGNAL_EVENTS as any[] },
+          },
+          attributes: ['event', 'createdAt'],
+          order: [['createdAt', 'ASC']],
+        })
+
+        if (!prevDayLogs.length) continue
+
+        const morningSignal   = prevDayLogs.some((l: any) => new Date(l.createdAt) >= prevDayStart && new Date(l.createdAt) < prevMorningCutoff)
+        const afternoonSignal = prevDayLogs.some((l: any) => new Date(l.createdAt) >= prevAfternoonStart && new Date(l.createdAt) < prevAfternoonEnd)
+        const eveningSignal   = prevDayLogs.some((l: any) => new Date(l.createdAt) >= prevEveningStart && new Date(l.createdAt) <= prevDayEnd)
+
+        if (morningSignal && afternoonSignal && eveningSignal) {
+          const circadianSignals = prevDayLogs.filter((l: any) => {
+            const h = new Date(l.createdAt).getHours()
+            return h < 10 || (h >= 12 && h < 17) || h >= 18
+          }).length
+          await (Log as any).create({
+            userId,
+            event: 'circadian_signal_lock',
+            text: `Circadian signal lock: previous day — dawn (pre-10:00) + meridian (12:00–17:00) + dusk (18:00+) all confirmed. ${circadianSignals} arc signals total. Biological clock anchored across the full operating day.`,
+            metadata: {
+              morningPresent: true,
+              afternoonPresent: true,
+              eveningPresent: true,
+              circadianSignals,
+              window: '24h-prior-day',
+              arcs: ['DAWN', 'MERIDIAN', 'DUSK'],
+              hour: 7,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Circadian lock events written: ${written}`)
+    lastDailyCircadianLockRun = new Date()
+    isDailyCircadianLockRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily circadian lock check failed:', error.message)
+    isDailyCircadianLockRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Signal Coherence Cascade Check (Job 47 — 08:00 UTC every day) ─────
+// Reads active users. Checks whether the previous calendar day has log events for
+// all three of: circadian_signal_lock (P143) + dimensional_saturation (P144) +
+// quantum_identity_crystallization (P145). When all three fired for a user on the
+// same day → writes signal_coherence_cascade (P146).
+// The three temporal, dimensional, and identity seals confirmed simultaneously.
+
+let isDailyCoherenceCascadeRunning = false
+let lastDailyCoherenceCascadeRun: Date | null = null
+
+function shouldRunDailyCoherenceCascadeCheck(): boolean {
+  const now = dayjs()
+  if (isDailyCoherenceCascadeRunning) return false
+  if (lastDailyCoherenceCascadeRun) {
+    const lastRun = dayjs(lastDailyCoherenceCascadeRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 8 // 08:00 UTC daily
+}
+
+async function executeDailyCoherenceCascadeCheck(): Promise<JobResult> {
+  const jobName = 'daily-signal-coherence-cascade-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyCoherenceCascadeRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCoherenceCascadeRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY SIGNAL COHERENCE CASCADE CHECK — 08:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const prevDayStart = dayjs().subtract(1, 'day').startOf('day').toDate()
+    const prevDayEnd   = dayjs().subtract(1, 'day').endOf('day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(2, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (48h): ${activeUsers.length}`)
+    let written = 0
+
+    const CASCADE_EVENTS = ['circadian_signal_lock', 'dimensional_saturation', 'quantum_identity_crystallization']
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        const prevDayLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: prevDayStart, [Op.lte]: prevDayEnd },
+            event: { [Op.in]: CASCADE_EVENTS as any[] },
+          },
+          attributes: ['event'],
+        })
+
+        if (!prevDayLogs.length) continue
+
+        const presentEvents = new Set(prevDayLogs.map((l: any) => l.event))
+        const allThreePresent = CASCADE_EVENTS.every(e => presentEvents.has(e))
+
+        if (allThreePresent) {
+          await (Log as any).create({
+            userId,
+            event: 'signal_coherence_cascade',
+            text: `Signal coherence cascade: previous day — circadian lock · dimensional saturation · identity crystallization all confirmed simultaneously. Three seals open. Full-field coherence at maximum convergence.`,
+            metadata: {
+              seals: ['CIRCADIAN', 'DIMENSIONAL', 'IDENTITY'],
+              convergenceLevel: 'MAXIMUM',
+              window: '24h-prior-day',
+              hour: 8,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Signal coherence cascade events written: ${written}`)
+    lastDailyCoherenceCascadeRun = new Date()
+    isDailyCoherenceCascadeRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily signal coherence cascade check failed:', error.message)
+    isDailyCoherenceCascadeRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -5193,6 +5508,8 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily coherence seal check: 11 PM UTC every day (Job 42)')
   console.log('   - Daily quantum field check: 5 PM UTC every day (Job 43)')
   console.log('   - Daily signal matrix check: 9 AM UTC every day (Job 44)')
+  console.log('   - Daily physiological presence check: 9 PM UTC every day (Job 45)')
+  console.log('   - Daily circadian lock check: 7 AM UTC every day (Job 46)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -5202,7 +5519,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory, 21=presence-arc, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory, 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
