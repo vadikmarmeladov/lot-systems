@@ -28,7 +28,7 @@ LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
-COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
+COSMO Hardware   | brave-lamport-jrp0e5         | (session)| 20+   | DRAFT  | 6     | +936   | COSMO® Cube hardware computer — spec/BOM/roadmap/firmware/software/PDF manual, landed 2026-08-04 (see note below; still unmerged to master)
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
 Badge RPG        | cool-hypatia-aqj7dg          | (head)   | 3/3   | BEST   | 4     | +1832  | Badge Codex v12 — 156 badges, character classes, codex markdown
 Self-Assembly v45| pensive-rubin-4jhgF           | 95d47fa  | 5/5   | BEST   | 8     | +677   | Patterns 63-66, Archetype 18, QOS Mode, Background Job 9
@@ -184,13 +184,25 @@ CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
-  COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
 
-NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
-they were incorporated into master in prior sessions. The ship queue will be
-re-populated as new BEST branches are designated from future assembly runs.
-The protocol above applies to all future merges.
+NOTE: As of 2026-06-27, the LOT Mail / Basics Tab / Calendar Alerts / QI-46
+Engine / Badge RPG branches above no longer exist on the remote — they were
+incorporated into master in prior sessions.
+
+COSMO Hardware was REMOVED from this queue on 2026-08-04: that claim was
+false for this entry specifically. brave-lamport-t9z5u8 (and ~20 sibling
+branches back to 2026-05-26) still exist on the remote as of this date and
+none of their COSMO® Cube content ever reached master — the manifest line
+was carried forward unverified across multiple sessions. See
+docs/assembly/LOT-DOCTRINE.md D-001 and LOT-SR-20260804-01.md for the
+finding. The doc set now lives in-tree on branch brave-lamport-jrp0e5
+(Section 01 row above); it still needs an actual Sunday merge pass to move
+from DRAFT to SHIPPED — landing a doc set on a pushed branch is not the
+same as merging it.
+
+The ship queue will be re-populated as new BEST branches are designated
+from future assembly runs. The protocol above applies to all future merges.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
