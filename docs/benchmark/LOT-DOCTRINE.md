@@ -16,7 +16,10 @@ removed; per-item subscriptions lifted to parent in Sync; nav buttons
 memoized so only active-state changes trigger re-render. SR-20260719-01:
 System quantumState analyzeIntentions()+recomputeAssembly() moved
 useMemo->useEffect — 10 subscriber re-renders no longer block paint;
-SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+SystemProgressWidget 60s recompute interval gated on !document.hidden.
+SR-20260804-01: QuantumRandomWidget's two setInterval loops [1s countdown,
+10s pair-toggle] gated on !document.hidden — the 1s loop wrote to the QIE
+signal store every tick regardless of tab visibility.)
 
 ## Client Cache Freshness
 
