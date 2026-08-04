@@ -16,6 +16,7 @@ import type { Dayjs } from '#client/utils/dayjs'
 import { recordCalendarSignal } from '#client/stores/intentionEngine'
 
 type EntryType = 'note' | 'task' | 'call'
+type ReminderStatus = 'upcoming' | 'due' | 'overdue'
 
 type CalendarEntry = {
   date: string
@@ -24,6 +25,22 @@ type CalendarEntry = {
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+const REMINDER_STATUS_LABEL: Record<ReminderStatus, string> = {
+  upcoming: 'T-MINUS 1D',
+  due: 'DUE TODAY',
+  overdue: 'OVERDUE',
+}
+
+function daysUntil(date: string): number {
+  return dayjs(date).startOf('day').diff(dayjs().startOf('day'), 'day')
+}
+
+function formatCountdown(delta: number): string {
+  if (delta === 0) return 'TODAY'
+  if (delta > 0) return `T-${delta}D`
+  return `OVERDUE +${Math.abs(delta)}D`
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -78,6 +95,54 @@ export function CalendarWidget() {
       .filter(e => e.date >= today)
       .slice(0, 10)
   }, [entries])
+
+  const firedReminderKeys = React.useMemo(() => {
+    const set = new Set<string>()
+    logs.forEach(log => {
+      if (log.event !== 'calendar_reminder' || !log.metadata) return
+      const date = log.metadata.date as string
+      const text = log.metadata.text as string
+      const status = log.metadata.status as string
+      if (date && text && status) set.add(`${date}|${text}|${status}`)
+    })
+    return set
+  }, [logs])
+
+  // A reminder fires exactly once, only on the day its trigger window is open
+  // (T-1 heads-up, due-today, first day overdue) — this deliberately skips
+  // older entries that were already overdue before the widget last checked,
+  // so shipping this logic never floods the Log with a historic backfill.
+  const firingRef = React.useRef<Set<string>>(new Set())
+
+  React.useEffect(() => {
+    entries.forEach(entry => {
+      const delta = daysUntil(entry.date)
+      const status: ReminderStatus | null =
+        delta === 1 ? 'upcoming' : delta === 0 ? 'due' : delta === -1 ? 'overdue' : null
+      if (!status) return
+
+      const key = `${entry.date}|${entry.text}|${status}`
+      if (firedReminderKeys.has(key) || firingRef.current.has(key)) return
+      firingRef.current.add(key)
+
+      const dateLabel = dayjs(entry.date).format('dddd, MMMM D, YYYY')
+      createLog({
+        text: `[ALERT] ${REMINDER_STATUS_LABEL[status]}: ${entry.type} — ${entry.text} (${dateLabel})`,
+        event: 'calendar_reminder',
+        metadata: {
+          date: entry.date,
+          text: entry.text,
+          entryType: entry.type,
+          status,
+          daysUntil: delta,
+        },
+      }, {
+        onSuccess: () => {
+          queryClient.refetchQueries(['/api/logs'])
+        },
+      })
+    })
+  }, [entries, firedReminderKeys, createLog, queryClient])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -259,16 +324,22 @@ export function CalendarWidget() {
 
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+            {upcomingEntries.map((entry, i) => {
+              const delta = daysUntil(entry.date)
+              return (
+                <div key={i} className="flex justify-between gap-16">
+                  <span className="text-acc whitespace-nowrap">
+                    {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  </span>
+                  <span className="text-acc text-right">
+                    {entry.text}
+                  </span>
+                  <span className="text-acc/40 text-right whitespace-nowrap tabular-nums uppercase tracking-widest">
+                    {formatCountdown(delta)}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 

@@ -2079,11 +2079,39 @@ export const Logs: React.FC = React.memo(function LogsInner() {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="uppercase tracking-widest mb-4">{entryType || 'ENTRY'}</div>
+                {text && <div className="opacity-60">{text}</div>}
+                {date && <div className="opacity-40 mt-4 tabular-nums">{date}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_reminder') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
+          const status = log.metadata?.status as 'upcoming' | 'due' | 'overdue' | undefined
+          const daysOut = log.metadata?.daysUntil as number | undefined
+          const statusLabel =
+            status === 'due' ? 'DUE TODAY' :
+            status === 'overdue' ? 'OVERDUE' :
+            status === 'upcoming' ? 'T-MINUS 1D' :
+            'ALERT'
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                <div className="uppercase tracking-widest mb-4">{statusLabel}</div>
+                {entryType && <div className="opacity-60 uppercase tracking-widest">{entryType}</div>}
+                {text && <div className="opacity-60 mt-4">{text}</div>}
+                {date && <div className="opacity-40 mt-4 tabular-nums">{date}</div>}
+                {daysOut !== undefined && (
+                  <div className="opacity-30 tabular-nums mt-4">
+                    {daysOut === 0 ? 'D-DAY' : daysOut > 0 ? `T-${daysOut}D` : `OVERDUE +${Math.abs(daysOut)}D`}
+                  </div>
+                )}
               </Block>
             </LogContainer>
           )
