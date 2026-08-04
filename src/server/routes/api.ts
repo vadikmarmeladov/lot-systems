@@ -5474,6 +5474,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          period?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5499,28 +5500,61 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
 
       const { logText, quantumState, userIndex } = req.body
 
+      // /story [day|week|month|year] — compression window. Defaults to
+      // "day" (recent activity) to preserve prior single-shot behavior.
+      const PERIOD_DAYS: Record<'day' | 'week' | 'month' | 'year', number> = {
+        day: 1,
+        week: 7,
+        month: 30,
+        year: 365,
+      }
+      const period: 'day' | 'week' | 'month' | 'year' =
+        req.body.period && req.body.period in PERIOD_DAYS ? req.body.period : 'day'
+      const PERIOD_LABEL: Record<typeof period, string> = {
+        day: 'today',
+        week: 'this week',
+        month: 'this month',
+        year: 'this year',
+      }
+      const sampleSize = period === 'day' ? 5 : period === 'week' ? 10 : period === 'month' ? 15 : 20
+      const fetchLimit = period === 'day' ? 200 : period === 'week' ? 500 : period === 'month' ? 1500 : 4000
+      const since = new Date(Date.now() - PERIOD_DAYS[period] * 24 * 60 * 60 * 1000)
+
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: { userId: req.user.id, createdAt: { [Op.gte]: since } },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: fetchLimit,
       })
 
+      // Journal/Log entries are recorded under the 'note' event — the
+      // prior 'log_entry' / 'journal' filter never matched a real Log row.
       const recentEntries = logs
-        .filter(l => l.event === 'log_entry' || l.event === 'journal')
-        .slice(0, 10)
+        .filter(l => l.event === 'note' && l.text && l.text.trim().length > 0)
+        .slice(0, sampleSize)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
 
-      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, sampleSize)
       const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
 
+      // Memory answers ('answer'), self-care completions ('self_care'), and
+      // energy check-ins (event naming has drifted across call sites, so we
+      // match every variant in use) — the prior filter referenced event
+      // names ('memory_answer', 'self_care_checkin', 'energy_checkin') that
+      // no Log row is ever written with.
       const selfCareLogs = logs.filter(l =>
-        l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
-      ).slice(0, 10)
+        l.event === 'answer' ||
+        l.event === 'self_care' ||
+        l.event === 'energy_state' ||
+        l.event === 'energy_update' ||
+        l.event === 'energy_checkin'
+      ).slice(0, sampleSize)
       const selfCareNotes = selfCareLogs.map(l => {
         const q = (l.metadata?.question as string || '')
         const a = (l.metadata?.option as string || l.metadata?.answer as string || '')
-        return q && a ? `${q}: ${a}` : ''
+        if (q && a) return `${q}: ${a}`
+        const status = (l.metadata?.status as string || l.metadata?.action as string || l.metadata?.practice as string || '')
+        return status || ''
       }).filter(Boolean)
 
       let stateBlock = ''
@@ -5531,9 +5565,9 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that compresses the operator's data into a short narrative.
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+The operator typed a log entry and invoked /story${period !== 'day' ? ` ${period}` : ''}. Your task: write 1-2 paragraphs (100-200 words) that compress their journey ${PERIOD_LABEL[period]} — mood trajectory and self-care patterns — into a short narrative. The story should feel personal, grounded, and real — not generic motivational writing. The longer the window, the more it should read as compression, not a longer story: still under 200 words.
 
 RULES:
 - Write in second person ("You...")
@@ -5549,15 +5583,17 @@ RULES:
       const dataBlock = `
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
 
+WINDOW: ${PERIOD_LABEL[period]}
+
 ${stateBlock ? stateBlock : 'STATE: unknown'}
 
-RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+RECENT MOODS: ${recentMoods.slice(0, sampleSize).join(', ') || 'NO DATA'}
 
 RECENT LOG ENTRIES:
-${recentEntries.slice(0, 5).map(e => `- ${e}`).join('\n') || '- (none)'}
+${recentEntries.slice(0, sampleSize).map(e => `- ${e}`).join('\n') || '- (none)'}
 
 SELF-CARE DATA:
-${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
+${selfCareNotes.slice(0, sampleSize).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
       const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
 
@@ -5579,6 +5615,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           context,
           metadata: {
             story: cleaned,
+            period,
             logText: (logText || '').substring(0, 500),
             quantumState: quantumState || null,
             timestamp: new Date().toISOString(),
