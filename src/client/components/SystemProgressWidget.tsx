@@ -1390,19 +1390,14 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-27',
+  date: '2026-08-04',
   message: [
-    'ASSEMBLY RUN — 2026-07-27 · v108 · QIE Engineering · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: · Day 1066+',
-    'P137 QUANTUM COHERENCE PEAK: field-alignment active AND UserIndex ≥ 60. The OS is not stabilizing. It is transmitting.',
-    'P138 SIGNAL MATRIX SATURATION: all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark. Full-dimensional presence.',
-    'P139 TEMPORAL-BIOFIELD SYNC: morning-coherence + daily-seal + biofield-integration within one calendar day. Time and biology synchronized.',
-    'Arch47 QUANTUM COHERENCE OPERATOR: peak coherence confirmed. Field aligned AND above coherence threshold. Maximum integration directive.',
-    'J44 daily-signal-matrix-check: 09:00 UTC daily. P138 (6-source check) + P137 (field alignment) + P139 (temporal-biofield triad). 44 jobs total.',
-    'QCOHERE: · SIGMAT: · TBIOF: military handlers wired in Logs.tsx. 3 new block types.',
-    'QuantumEngineWidgets: cohort view enhanced (Band + Dom fields). QOS Field view added — runtime + signal map + active patterns.',
-    '3 new dep map nodes: quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
-    'FIELD MANUAL v108. Day 1066+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
-    'DEPLOYED.',
+    'HEALTH CHECK — 2026-08-04 · Day 1074+ · CI GREEN · 0 open issues · PR #93 open (conflict — calendar widget)',
+    'Last assembly: v108 · QIE Engineering 2026-07-27 · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF:',
+    'CI: Weekly Rebuild ✓ (2026-08-02) · Benchmark Tag Lattice ✓ (5 runs since v108) · All green.',
+    'PR #93 open since 2026-07-28: CalendarWidget time tracking + CalendarEventToast. Mergeable: dirty (conflict on docs/LOT-SR-20260727-02.md — same filename used by v108 branch).',
+    'FIELD MANUAL v108. Day 1074+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
+    'SYSTEM NOMINAL.',
   ],
 }
 
