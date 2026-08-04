@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -257,6 +257,16 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COMM:" blockView>
                 ACK{'\n'}{log.metadata.message as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'email_sent') {
+          const recipientName = log.metadata?.recipientName as string
+          const resolved = log.metadata?.resolved as boolean
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="✉️ EMAIL:" blockView>
+                {`→ ${recipientName}${resolved ? '' : ' (unresolved)'}\n${log.metadata?.body as string}`}
               </Block>
             </LogContainer>
           )
@@ -3341,6 +3351,8 @@ const NoteEditor = ({
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
   const [silentResult, setSilentResult] = React.useState<string | null>(null)
@@ -3396,6 +3408,21 @@ const NoteEditor = ({
       valueRef.current = updated
       onChangeRef.current(updated)
       setIsSaved(true)
+    },
+  })
+  const { mutate: submitEmail } = useSendEmail({
+    onSuccess: (data) => {
+      const who = data.recipient?.firstName || 'recipient'
+      setEmailResult(
+        data.resolved
+          ? `SENT           → ${who.toUpperCase()}\nDELIVERED      Sync + Direct`
+          : `SENT           → ${who.toUpperCase()} (UNRESOLVED)\nDELIVERED      Sync only — no matching community member`
+      )
+      setEmailLoading(false)
+    },
+    onError: () => {
+      setEmailResult('EMAIL OFFLINE  Message not sent — try again shortly.')
+      setEmailLoading(false)
     },
   })
   const debounceTime = 7000  // 7s for all logs
@@ -3773,6 +3800,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Send a LOT Email — appears in Sync',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -3796,6 +3824,20 @@ const NoteEditor = ({
             })
           } catch {
             submitStory({ logText: value })
+          }
+        }
+      } else if (trigger === 'email-send') {
+        const emailMatch = value.match(/\/email\s+to\s+(\S+)/i)
+        if (emailMatch && !emailLoading) {
+          const recipientName = emailMatch[1].replace(/[.,:;!?]+$/, '')
+          const body = value
+            .replace(/\/email\s+to\s+\S+/i, '')
+            .replace(/✉️?/g, '')
+            .trim()
+          if (body.length >= 1) {
+            setEmailLoading(true)
+            setEmailResult(null)
+            submitEmail({ recipientName, body })
           }
         }
       }
@@ -4060,6 +4102,18 @@ const NoteEditor = ({
                     <div key={idx}>{line || <br />}</div>
                   ))}
                 </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="✉️ EMAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
               )}
             </Block>
           </div>

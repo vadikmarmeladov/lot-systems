@@ -912,3 +912,20 @@ export const useStoryGeneration = createMutation<
     logId: string | null
   }
 >('post', '/api/story')
+
+// ============================================================================
+// EMAIL — LOT Email (Log -> Sync, resolved through LOT Community)
+// ============================================================================
+
+export const useSendEmail = createMutation<
+  {
+    recipientName: string
+    body: string
+  },
+  {
+    resolved: boolean
+    recipient?: { id: string; firstName: string }
+    chatMessageId: string
+    directMessageId?: string
+  }
+>('post', '/api/email')

@@ -4070,6 +4070,124 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
   })
 
   // ============================================================================
+  // EMAIL — LOT Email
+  //
+  // The simplest possible mail primitive: composed in Log via "/email to
+  // <name>", it resolves the recipient through LOT Community (same signal
+  // Cohort Connect uses — shared city/country first, any active member as
+  // fallback), then rides the existing Sync pipeline: one ChatMessage so it
+  // appears in Sync for everyone, one DirectMessage to the resolved person
+  // so it reaches them privately, and one Log echo — exactly how a Sync
+  // chat message already round-trips into Log (see POST /chat-messages).
+  // ============================================================================
+
+  fastify.post('/email', async (req: FastifyRequest<{
+    Body: { recipientName: string; body: string }
+  }>, reply) => {
+    const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+    if (isSuspended) {
+      return reply.status(403).send({ error: 'Account suspended' })
+    }
+    if (!canAccessChat(req.user.tags || [])) {
+      return reply.status(403).send({ error: 'LOT Email requires Usership, Onyx, Legacy, R&D, or Admin' })
+    }
+
+    const recipientName = (req.body.recipientName || '').trim().slice(0, 80)
+    const body = (req.body.body || '').trim().slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
+    if (!recipientName) {
+      return reply.status(400).send({ error: 'Recipient name is required' })
+    }
+    if (isBlankMessage(body)) {
+      return reply.status(400).send({ error: 'Message cannot be empty' })
+    }
+
+    const { User } = await import('#server/models/user')
+
+    // Resolve the recipient through LOT Community: prefer someone who
+    // shares the sender's city/country (the same locality signal
+    // findCohortMatches uses for its "same location" bonus), then fall
+    // back to any active member with a matching first name.
+    const baseWhere = {
+      id: { [Op.ne]: req.user.id },
+      firstName: { [Op.iLike]: `${recipientName}%` },
+    }
+    let recipient = req.user.city && req.user.country
+      ? await User.findOne({
+          where: { ...baseWhere, city: req.user.city, country: req.user.country },
+          order: [['lastSeenAt', 'DESC']],
+        })
+      : null
+    if (!recipient) {
+      recipient = await User.findOne({
+        where: baseWhere,
+        order: [['lastSeenAt', 'DESC']],
+      })
+    }
+    if (recipient?.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')) {
+      recipient = null
+    }
+
+    const resolved = !!recipient
+    const displayName = resolved ? (recipient!.firstName || recipientName) : `${recipientName} (unresolved)`
+
+    // Post to Sync — every LOT Email is visible there, same as any chat message.
+    const chatMessage = await fastify.models.ChatMessage.create({
+      authorUserId: req.user.id,
+      message: `✉️ ${req.user.firstName || 'Someone'} → ${displayName}: ${body}`,
+    })
+    sync.emit('chat_message', {
+      id: chatMessage.id,
+      message: chatMessage.message,
+      author: req.user.firstName,
+      createdAt: chatMessage.createdAt,
+      likes: 0,
+      isLiked: false,
+    })
+
+    // If resolved, also deliver privately — a LOT Email is mail, not just a
+    // broadcast — reusing the exact DirectMessage + SSE pattern above.
+    let directMessage: InstanceType<typeof fastify.models.DirectMessage> | null = null
+    if (recipient) {
+      directMessage = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: `✉️ ${body}`,
+      })
+      sync.emit('direct_message', {
+        id: directMessage.id,
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: directMessage.message,
+        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        createdAt: directMessage.createdAt,
+      })
+    }
+
+    const context = await getLogContext(req.user)
+    await fastify.models.Log.create({
+      userId: req.user.id,
+      event: 'email_sent',
+      text: '',
+      metadata: {
+        recipientName,
+        recipientUserId: recipient?.id ?? null,
+        resolved,
+        body,
+        chatMessageId: chatMessage.id,
+        directMessageId: directMessage?.id ?? null,
+      },
+      context,
+    })
+
+    return reply.send({
+      resolved,
+      recipient: recipient ? { id: recipient.id, firstName: recipient.firstName || recipientName } : undefined,
+      chatMessageId: chatMessage.id,
+      directMessageId: directMessage?.id,
+    })
+  })
+
+  // ============================================================================
   // STATS API - Real-time metrics and community insights
   // ============================================================================
 
