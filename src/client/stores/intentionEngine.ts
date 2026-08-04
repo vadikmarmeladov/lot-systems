@@ -4577,6 +4577,47 @@ export function recordAstrologySignal(
 }
 
 /**
+ * Check for auspicious-day alignment: today's ambient reading is a Taian
+ * (大安, most auspicious) rokuyo day AND the user has active goals/
+ * intentions engagement in the trailing 24h. This is the first derived
+ * signal correlating the ambient astrology reading with a second module
+ * rather than just recording the raw reading — self-contained, reads the
+ * signal bus directly (same idiom as checkCentennialConvergence /
+ * recordQOSCoherence) rather than requiring counts threaded in from a
+ * specific widget. Call once per day, after recordAstrologySignal.
+ * Returns true if the alignment signal was recorded.
+ */
+export function checkAuspiciousAlignment(): boolean {
+  const state = intentionEngine.get()
+  const now = Date.now()
+  const dayAgo = now - 24 * 60 * 60 * 1000
+  const daySignals = state.signals.filter(s => s.timestamp > dayAgo)
+
+  const todaysReading = [...daySignals]
+    .reverse()
+    .find(s => s.source === 'astrology' && s.signal === 'ambient_reading')
+  if (!todaysReading?.metadata?.auspicious) return false
+
+  const engagedSources = Array.from(
+    new Set(daySignals.filter(s => s.source === 'goals' || s.source === 'intentions').map(s => s.source))
+  )
+  if (engagedSources.length === 0) return false
+
+  const alreadyRecordedToday = daySignals.some(
+    s => s.source === 'intentions' && s.signal === 'auspicious_alignment'
+  )
+  if (alreadyRecordedToday) return false
+
+  recordSignal('intentions', 'auspicious_alignment', {
+    rokuyo: todaysReading.metadata.rokuyo,
+    moonPhase: todaysReading.metadata.moonPhase,
+    engagedSources,
+    hour: new Date().getHours(),
+  })
+  return true
+}
+
+/**
  * Record a journal depth signal when a field entry is saved with word count.
  * Feeds Reflection Layer (journal module) density in self-assembly.
  * Deep entries (>100 words) awaken and advance the Reflection Layer faster.

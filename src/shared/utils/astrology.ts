@@ -10,6 +10,29 @@
  * Astrology utility functions for Japanese zodiac, moon phase, and Western zodiac
  */
 
+// Minimal duck-typed surface shared by client and server dayjs instances —
+// avoids importing dayjs (and its plugin config) into this isomorphic module.
+type WallClockMoment = {
+  year(): number
+  month(): number
+  date(): number
+  hour(): number
+  minute(): number
+  second(): number
+}
+
+/**
+ * Convert a timezone-aware moment into a plain Date whose getHours()/
+ * getMonth()/getDate() etc. read back the moment's local wall-clock fields,
+ * regardless of the process/device's own runtime timezone. This lets the
+ * astrology functions above (which all read via those getters) produce a
+ * reading anchored to a user's saved timeZone instead of server- or
+ * device-local time.
+ */
+export function toWallClockDate(moment: WallClockMoment): Date {
+  return new Date(moment.year(), moment.month(), moment.date(), moment.hour(), moment.minute(), moment.second())
+}
+
 // Japanese zodiac animals (12-year cycle starting from 1900 = Rat)
 const JAPANESE_ZODIAC = [
   'Rat', 'Ox', 'Tiger', 'Rabbit', 'Dragon', 'Snake',

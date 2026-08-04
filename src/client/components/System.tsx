@@ -22,7 +22,7 @@ import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
-import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
+import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo, toWallClockDate } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
 import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
@@ -55,7 +55,7 @@ import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, recordAstrologySignal } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, recordAstrologySignal, checkAuspiciousAlignment } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
@@ -203,9 +203,15 @@ export const System = React.memo(function SystemInner() {
   }, [])
 
   // Astrology calculations — ambient conditions (zodiac hour, moon phase,
-  // rokuyo), not a personal natal chart.
+  // rokuyo), not a personal natal chart. Anchored to the user's saved
+  // timeZone when known (same source Logs entries already snapshot from),
+  // so the reading reflects where the user lives rather than the device
+  // they happen to be viewing the dashboard from; falls back to
+  // device-local time for users with no city/country on file yet.
   const astrology = React.useMemo(() => {
-    const now = new Date()
+    const now = me?.timeZone
+      ? toWallClockDate(dayjs().tz(me.timeZone))
+      : new Date()
     const hourlyZodiac = getHourlyZodiac(now)
     const westernZodiac = getWesternZodiac(now)
     const moonPhase = getMoonPhase(now)
@@ -219,7 +225,7 @@ export const System = React.memo(function SystemInner() {
       rokuyo,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [astrologyTick])
+  }, [astrologyTick, me?.timeZone])
 
   // Synchronize the ambient astrology reading into the QIE signal bus once
   // per calendar day, so other widgets (cosmic, system) can react to it.
@@ -235,6 +241,7 @@ export const System = React.memo(function SystemInner() {
       astrology.hourlyZodiac,
       astrology.westernZodiac
     )
+    checkAuspiciousAlignment()
     localStorage.setItem(lastRecordedKey, today)
   }, [astrology.rokuyo, astrology.moonPhase, astrology.moonIllumination, astrology.hourlyZodiac, astrology.westernZodiac])
 
