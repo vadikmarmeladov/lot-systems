@@ -231,6 +231,16 @@ fastify.get('/status', async (req, reply) => {
   })
 })
 
+// OPEN TAB — public Basics ration ledger (no authentication required)
+// LOT-FM-001. A stranger reads the manifest and doctrine without signing in.
+fastify.get('/basics', async (req, reply) => {
+  return reply.view('generic-spa', {
+    scriptName: 'basics',
+    scriptNonce: reply.cspNonce.script,
+    styleNonce: reply.cspNonce.style,
+  })
+})
+
 // Database
 fastify.addHook('onClose', () => sequelize.close())
 
