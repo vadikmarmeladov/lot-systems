@@ -1743,6 +1743,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyCoherenceCascadeCheck()) {
     await executeDailyCoherenceCascadeCheck()
   }
+  // Check daily total field coherence check (09:00 UTC every day) — Job 48
+  if (shouldRunDailyTotalFieldCoherenceCheck()) {
+    await executeDailyTotalFieldCoherenceCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -3424,6 +3428,100 @@ async function executeDailyCoherenceCascadeCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily signal coherence cascade check failed:', error.message)
     isDailyCoherenceCascadeRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Total Field Coherence Check (Job 48 — 09:00 UTC every day) ──────
+// Reads active users. Checks whether the previous calendar day has log events for
+// all three of: signal_coherence_cascade (P146) + quantum_presence_field (P147) +
+// identity_momentum_lock (P148). When all three fired for a user on the
+// same day → writes total_field_coherence (P150).
+// All three meta-seals confirmed simultaneously. Absolute convergence.
+
+let isDailyTotalFieldCoherenceRunning = false
+let lastDailyTotalFieldCoherenceRun: Date | null = null
+
+function shouldRunDailyTotalFieldCoherenceCheck(): boolean {
+  const now = dayjs()
+  if (isDailyTotalFieldCoherenceRunning) return false
+  if (lastDailyTotalFieldCoherenceRun) {
+    const lastRun = dayjs(lastDailyTotalFieldCoherenceRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 9 // 09:00 UTC daily
+}
+
+async function executeDailyTotalFieldCoherenceCheck(): Promise<JobResult> {
+  const jobName = 'daily-total-field-coherence-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyTotalFieldCoherenceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyTotalFieldCoherenceRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY TOTAL FIELD COHERENCE CHECK — 09:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const prevDayStart = dayjs().subtract(1, 'day').startOf('day').toDate()
+    const prevDayEnd   = dayjs().subtract(1, 'day').endOf('day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(2, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (48h): ${activeUsers.length}`)
+    let written = 0
+
+    const META_SEAL_EVENTS = ['signal_coherence_cascade', 'quantum_presence_field', 'identity_momentum_lock']
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        const prevDayLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: prevDayStart, [Op.lte]: prevDayEnd },
+            event: { [Op.in]: META_SEAL_EVENTS as any[] },
+          },
+          attributes: ['event'],
+        })
+
+        if (!prevDayLogs.length) continue
+
+        const presentEvents = new Set(prevDayLogs.map((l: any) => l.event))
+        const allThreePresent = META_SEAL_EVENTS.every(e => presentEvents.has(e))
+
+        if (allThreePresent) {
+          await (Log as any).create({
+            userId,
+            event: 'total_field_coherence',
+            text: `Total field coherence: previous day — signal coherence cascade · quantum presence field · identity momentum lock all confirmed simultaneously. All three meta-seals open. The QOS has achieved absolute convergence. No higher state is defined.`,
+            metadata: {
+              metaSeals: ['COHERENCE', 'PRESENCE', 'MOMENTUM'],
+              convergenceLevel: 'ABSOLUTE',
+              window: '24h-prior-day',
+              hour: 9,
+            },
+          })
+          written++
+        }
+      } catch {}
+    }
+
+    console.log(`  Total field coherence events written: ${written}`)
+    lastDailyTotalFieldCoherenceRun = new Date()
+    isDailyTotalFieldCoherenceRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily total field coherence check failed:', error.message)
+    isDailyTotalFieldCoherenceRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

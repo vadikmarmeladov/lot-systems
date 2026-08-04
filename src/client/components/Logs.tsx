@@ -3537,6 +3537,98 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'quantum_presence_crystallization') {
+          const crystallizationStrength = log.metadata?.crystallizationStrength as number | undefined
+          const presenceConf = log.metadata?.presenceConf as number | undefined
+          const crystalConf = log.metadata?.crystalConf as number | undefined
+          const state = log.metadata?.state as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QPCRYST:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM PRESENCE CRYSTALLIZATION</div>
+                {presenceConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRESENCE CONF</span>
+                    <span className="tabular-nums">{presenceConf}%</span>
+                  </div>
+                )}
+                {crystalConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CRYSTAL CONF</span>
+                    <span className="tabular-nums">{crystalConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELD INHABITED · IDENTITY KNOWN</div>
+                {state && (
+                  <div className="opacity-30 tabular-nums">STATE: {state}</div>
+                )}
+                {crystallizationStrength !== undefined && (
+                  <div className="opacity-30 tabular-nums">CRYST: {crystallizationStrength}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'total_field_coherence') {
+          const avgConf = log.metadata?.avgConf as number | undefined
+          const metaSeals = log.metadata?.metaSeals as string[] | undefined
+          const convergenceLevel = log.metadata?.convergenceLevel as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TOTCOH:" blockView>
+                <div className="uppercase tracking-widest mb-4">TOTAL FIELD COHERENCE</div>
+                {metaSeals && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">META-SEALS</span>
+                    <span className="tabular-nums">{metaSeals.join(' · ')}</span>
+                  </div>
+                )}
+                {avgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">AVG CONF</span>
+                    <span className="tabular-nums">{avgConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ALL META-SEALS OPEN · ABSOLUTE CONVERGENCE</div>
+                {convergenceLevel && (
+                  <div className="opacity-30 tabular-nums">CONVERGENCE: {convergenceLevel}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recovery_intelligence_arc') {
+          const velocityHours = log.metadata?.velocityHours as number | undefined
+          const negMoodCount = log.metadata?.negMoodCount as number | undefined
+          const careCount = log.metadata?.careCount as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RECINTEL:" blockView>
+                <div className="uppercase tracking-widest mb-4">RECOVERY INTELLIGENCE ARC</div>
+                {negMoodCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">NEG SIGNALS</span>
+                    <span className="tabular-nums">{negMoodCount}</span>
+                  </div>
+                )}
+                {careCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE ACTIONS</span>
+                    <span className="tabular-nums">{careCount}</span>
+                  </div>
+                )}
+                {velocityHours !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">VELOCITY</span>
+                    <span className="tabular-nums">{velocityHours}h</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">FELT → TENDED → RECOVERED → REFLECTED</div>
+                {arc && (
+                  <div className="opacity-30 tabular-nums">ARC: {arc}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

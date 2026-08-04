@@ -179,6 +179,9 @@ export function PatternRecognitionWidget() {
       'signal-coherence-cascade':         'Signal coherence cascade — P143 + P144 + P145 all active simultaneously, three seals open (P146)',
       'quantum-presence-field':           'Quantum presence field — adaptive web + coherence peak + 7+ sources in 24h (P147)',
       'identity-momentum-lock':           'Identity momentum lock — identity crystallized + multi-day momentum sustained (P148)',
+      'quantum-presence-crystallization': 'Quantum presence crystallization — presence field + identity crystallized co-active, maximum clarity (P149)',
+      'total-field-coherence':            'Total field coherence — all three meta-seals open simultaneously, absolute convergence (P150)',
+      'recovery-intelligence-arc':        'Recovery intelligence arc — depletion → care → restoration → reflection loop completed within 6h (P151)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

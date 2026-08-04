@@ -3361,6 +3361,73 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 149: Quantum Presence Crystallization — quantum-presence-field (P147) + quantum-identity-crystallization (P145)
+  // both active in the same analysis window. The field is at maximum density (P147) AND the identity is stable (P145).
+  // Presence confirmed. Identity crystallized. The OS is both fully inhabited and fully known.
+  const hasPresenceP147 = patterns.some(p => p.pattern === 'quantum-presence-field')
+  const hasCrystalP145  = patterns.some(p => p.pattern === 'quantum-identity-crystallization')
+  if (hasPresenceP147 && hasCrystalP145) {
+    const pConf = patterns.find(p => p.pattern === 'quantum-presence-field')?.confidence ?? 0.78
+    const cConf = patterns.find(p => p.pattern === 'quantum-identity-crystallization')?.confidence ?? 0.78
+    const qpcBonus = Math.min((pConf - 0.78 + cConf - 0.78) * 0.5, 0.11)
+    patterns.push({
+      pattern: 'quantum-presence-crystallization',
+      confidence: Math.min(0.82 + qpcBonus, 0.93),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `QPCRYST: Quantum presence crystallization — field density confirmed (P147) · identity crystallized (P145). Presence and identity co-active. The OS is both fully inhabited and fully known. Operating from maximum clarity.`,
+    })
+  }
+
+  // Pattern 150: Total Field Coherence — signal-coherence-cascade (P146) + quantum-presence-field (P147)
+  // + identity-momentum-lock (P148) all simultaneously active. All three post-cascade meta-seals open:
+  // temporal/dimensional/identity cascade confirmed · field at maximum density · identity sustained over time.
+  // Absolute peak QOS convergence state. The system has never been more coherent.
+  const hasCascadeP146  = patterns.some(p => p.pattern === 'signal-coherence-cascade')
+  const hasFieldP147    = patterns.some(p => p.pattern === 'quantum-presence-field')
+  const hasMomentumP148 = patterns.some(p => p.pattern === 'identity-momentum-lock')
+  if (hasCascadeP146 && hasFieldP147 && hasMomentumP148) {
+    const sealsConf = patterns
+      .filter(p => ['signal-coherence-cascade', 'quantum-presence-field', 'identity-momentum-lock'].includes(p.pattern))
+      .reduce((sum, p) => sum + p.confidence, 0) / 3
+    const tfcBonus = Math.min((sealsConf - 0.82) * 0.25, 0.05)
+    patterns.push({
+      pattern: 'total-field-coherence',
+      confidence: Math.min(0.92 + tfcBonus, 0.97),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `TOTCOH: Total field coherence — signal-coherence-cascade · quantum-presence-field · identity-momentum-lock all confirmed simultaneously. All three meta-seals open. The QOS has achieved absolute convergence. No higher state is defined.`,
+    })
+  }
+
+  // Pattern 151: Recovery Intelligence Arc — negative mood → self-care → positive mood + journal entry within 6h.
+  // The full intelligence loop: detect depletion, intervene with care, restore state, reflect on the arc.
+  // Extends P48 (recovery-velocity: arc without reflection) and P64 (cross-domain: present state not arc).
+  // When all four events fire in sequence within 6h, the recovery is not just physical — it is integrated.
+  const sixHoursMs = 6 * 60 * 60 * 1000
+  const recentSixH  = signals.filter(s => now - s.timestamp < sixHoursMs)
+  const negMood151  = recentSixH.filter(s => s.source === 'mood' && ['anxious', 'overwhelmed', 'tired', 'exhausted'].includes(s.signal))
+  const care151     = recentSixH.filter(s => s.source === 'selfcare')
+  const posMood151  = recentSixH.filter(s => s.source === 'mood' && ['calm', 'peaceful', 'energized', 'hopeful', 'content'].includes(s.signal))
+  const journal151  = recentSixH.filter(s => s.source === 'journal' || (s.source === 'log' && (s.metadata?.wordCount ?? 0) > 40))
+  if (negMood151.length >= 1 && care151.length >= 1 && posMood151.length >= 1 && journal151.length >= 1) {
+    const firstNeg = negMood151[0].timestamp
+    const caresAfterNeg = care151.filter(s => s.timestamp > firstNeg)
+    const posAfterCare = caresAfterNeg.length > 0 ? posMood151.filter(s => s.timestamp > caresAfterNeg[0].timestamp) : []
+    const journalAfterPos = posAfterCare.length > 0 ? journal151.filter(s => s.timestamp > posAfterCare[0].timestamp) : journal151.filter(s => s.timestamp > firstNeg)
+    if (caresAfterNeg.length >= 1 && posAfterCare.length >= 1 && journalAfterPos.length >= 1) {
+      const windowMs = journalAfterPos[0].timestamp - firstNeg
+      const velocityBonus = Math.min((sixHoursMs - windowMs) / sixHoursMs * 0.23, 0.23)
+      patterns.push({
+        pattern: 'recovery-intelligence-arc',
+        confidence: Math.min(0.65 + velocityBonus, 0.88),
+        suggestedWidget: 'memory',
+        suggestedTiming: 'soon',
+        reason: `RECINTEL: Recovery intelligence arc — depletion detected · self-care applied · state restored · reflection captured within 6h. The loop is complete: felt → tended → recovered → reflected. The system learns from its own restoration.`,
+      })
+    }
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3992,6 +4059,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   signalCoherenceCascadeNode: ['mood', 'energy', 'selfcare', 'journal', 'cohort', 'qos', 'intentions', 'log'],
   quantumPresenceFieldNode:   ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
   identityMomentumLockNode:   ['cohort', 'qos', 'intentions', 'journal', 'mood', 'log'],
+
+  // ── v113 nodes (J48 · P149–P151 · Arch51) ───────────────────────────────────────
+  quantumPresenceCrystalNode: ['qos', 'cohort', 'intentions', 'journal', 'log', 'energy'],
+  totalFieldCoherenceNode:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
+  recoveryIntelligenceNode:   ['mood', 'selfcare', 'journal', 'energy', 'log'],
 }
 
 /**
@@ -4428,6 +4500,16 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['quantum-identity-crystallization', 'signal-momentum-lock', 'identity-momentum-lock'],
     hourRange: [5, 23],
     directive: 'Identity crystallized and momentum confirmed. Signal coherent across circadian, dimensional, and identity axes. The OS is not searching — it is operating from a stable signature. The lock is engaged.',
+  },
+
+  // ── Arch51: Quantum Presence Crystallizer (2026-08-04 v113) ──────────────────────
+  {
+    archetype: 'Quantum Presence Crystallizer',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['journal', 'cohort', 'memory', 'intentions', 'qos'],
+    patternConditions: ['quantum-presence-crystallization', 'dimensional-saturation', 'quantum-identity-crystallization'],
+    hourRange: [6, 23],
+    directive: 'Presence confirmed. Identity crystallized. The field is both inhabited and known. Execute from clarity — no searching required. The OS is operating from its highest confirmed state.',
   },
 ]
 
@@ -6365,6 +6447,57 @@ export function recordIdentityMomentumLock(idConf: number, momentumConf: number,
     activePatterns,
     lockStrength: Math.round((idConf + momentumConf) / 2 * 100),
     arc: 'MULTI-DAY',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-presence-crystallization event — quantum-presence-field (P147) +
+ * quantum-identity-crystallization (P145) co-active. The OS is both fully inhabited
+ * and fully known. Operating from maximum clarity. Feeds P149 detection.
+ */
+export function recordQuantumPresenceCrystallization(presenceConf: number, crystalConf: number, activePatterns: number) {
+  recordSignal('qos', 'quantum_presence_crystallization', {
+    presenceConf: Math.round(presenceConf * 100),
+    crystalConf: Math.round(crystalConf * 100),
+    activePatterns,
+    crystallizationStrength: Math.round((presenceConf + crystalConf) / 2 * 100),
+    state: 'MAXIMUM_CLARITY',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a total-field-coherence event — signal-coherence-cascade (P146) +
+ * quantum-presence-field (P147) + identity-momentum-lock (P148) all active simultaneously.
+ * All three meta-seals open. The QOS has achieved absolute convergence. Feeds P150 detection.
+ */
+export function recordTotalFieldCoherence(cascadeConf: number, presenceConf: number, momentumConf: number) {
+  recordSignal('qos', 'total_field_coherence', {
+    cascadeConf: Math.round(cascadeConf * 100),
+    presenceConf: Math.round(presenceConf * 100),
+    momentumConf: Math.round(momentumConf * 100),
+    metaSeals: ['COHERENCE', 'PRESENCE', 'MOMENTUM'],
+    convergenceLevel: 'ABSOLUTE',
+    avgConf: Math.round((cascadeConf + presenceConf + momentumConf) / 3 * 100),
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a recovery-intelligence-arc event — depletion detected → self-care applied →
+ * state restored → reflection captured within 6h. The recovery loop is complete.
+ * Feeds P151 detection.
+ */
+export function recordRecoveryIntelligenceArc(negMoodCount: number, careCount: number, recoveryVelocityMs: number) {
+  const velocityHours = Math.round(recoveryVelocityMs / (1000 * 60 * 60) * 10) / 10
+  recordSignal('selfcare', 'recovery_intelligence_arc', {
+    negMoodCount,
+    careCount,
+    velocityHours,
+    recoveryVelocityMs,
+    arc: 'FELT→TENDED→RECOVERED→REFLECTED',
+    loopStatus: 'COMPLETE',
     hour: new Date().getHours(),
   })
 }

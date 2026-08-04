@@ -107,6 +107,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'signal-coherence-cascade':         'SIGCASC',
   'quantum-presence-field':           'QPFIELD',
   'identity-momentum-lock':           'IDLOCK',
+  'quantum-presence-crystallization': 'QPCRYST',
+  'total-field-coherence':            'TOTCOH',
+  'recovery-intelligence-arc':        'RECINTEL',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
