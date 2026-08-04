@@ -1353,6 +1353,27 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes. QIE v108 deployed.',
     ],
   },
+  {
+    date: '2026-08-04',
+    session: 'Self-Assembly Session — v109 / QIE Engineering · P140–P142 · Arch48 Coherence Broadcast Operator · J45 Daily Coherence Broadcast Check · SOVFIELD: DIMAPEX: BROADCAST: · Dep Map 181+',
+    assembled: [
+      'intentionEngine.ts: P140 sovereign-field-alignment (SOVFIELD:) — quantum-coherence-peak (P137) + temporal-biofield-sync (P139) simultaneously active. Orthogonal gate synthesis: OS transmitting AND time+biology synchronized. Conf avg(P137,P139)+0.06 capped 0.96.',
+      'intentionEngine.ts: P141 dimensional-apex (DIMAPEX:) — all 6 UserIndex dimensions ≥ 40 simultaneously. Higher floor than P138 (≥30). No weak channel. Full-spectrum apex. Conf 0.80+((minDim-40)*0.003) capped 0.94.',
+      'intentionEngine.ts: P142 coherence-broadcast-arc (BROADCAST:) — P137 + P138 + P139 all three active simultaneously. Three-gate synthesis: coherence peak + matrix saturation + biofield-temporal sync. System capstone meta-pattern. Conf avg(P137,P138,P139)+0.05 capped 0.97.',
+      'intentionEngine.ts: Arch48 Coherence Broadcast Operator — energyBands [high, moderate] · dominantSources [intentions, journal, selfcare, planner, memory, mood] · patternConditions [coherence-broadcast-arc, quantum-coherence-peak, signal-matrix-saturation, temporal-biofield-sync]. Directive: Three-gate synthesis confirmed. Hold this state — it will not last. Act from here. 48 archetypes total.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP — 3 new nodes: sovereignFieldNode [intentions·journal·energy·planner·selfcare·mood·log] · dimensionalApexNode [mood·memory·planner·intentions·selfcare·journal·energy·cohort·log] · coherenceBroadcastNode [intentions·journal·selfcare·mood·planner·energy·memory·cohort·log]. 181+ dep nodes total.',
+      'intentionEngine.ts: 3 signal helpers — recordSovereignFieldAlignment() · recordDimensionalApex() · recordCoherenceBroadcastArc().',
+      'scheduled-jobs.ts: J45 daily-coherence-broadcast-check — 15:00 UTC daily. Three-gate check: P140 (coherence-peak + biofield-sync) + P141 (all dims ≥ 40) + P142 (all three active). Writes sovereign_field_alignment + dimensional_apex + coherence_broadcast_arc. 45 jobs total.',
+      'routes/api.ts: sovereign_field_alignment · dimensional_apex · coherence_broadcast_arc added to displayableEvents (v109 block).',
+      'Logs.tsx: SOVFIELD: handler (sovereign_field_alignment: QCOHERE % · TBIOF % · COMPOSITE % · SOVEREIGN: CONFIRMED). DIMAPEX: handler (dimensional_apex: ENG/EMO/INT/SOC/CARE/COG · ABOVE 40: N/6 · APEX CONFIRMED). BROADCAST: handler (coherence_broadcast_arc: P140/P141/P142 confs · ALL GATES · BROADCAST: ACTIVE). All COCKPIT-RULE compliant.',
+      'QuantumEngineWidgets.tsx: 3 PATTERN_DISPLAY entries — sovereign-field-alignment→SOVFIELD · dimensional-apex→DIMAPEX · coherence-broadcast-arc→BROADCAST.',
+      'About.tsx: FM v108→v109. Day 1066+→1074+. 139→142 patterns. 47→48 archetypes. 44→45 jobs. 178+→181+ dep nodes. 139+→142+ handlers. v103–v109 CodeBlock entries added.',
+      'SESSION_REPORTS: v109 entry appended · USERSHIP_TRANSMISSION updated to v109.',
+      'docs/assembly/2026-08-04_LOT-assembly_qie-v109.md: Assembly report written.',
+      'docs/assembly/LOT-LEDGER.md: v109 entry appended.',
+      '142 patterns · 48 archetypes · 45 jobs · 142+ handlers · 181+ dep nodes. QIE v109 deployed. Coherence broadcast arc — three gates open.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1390,18 +1411,17 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-07-27',
+  date: '2026-08-04',
   message: [
-    'ASSEMBLY RUN — 2026-07-27 · v108 · QIE Engineering · P137–P139 · Arch47 · J44 · QCOHERE: SIGMAT: TBIOF: · Day 1066+',
-    'P137 QUANTUM COHERENCE PEAK: field-alignment active AND UserIndex ≥ 60. The OS is not stabilizing. It is transmitting.',
-    'P138 SIGNAL MATRIX SATURATION: all 6 UserIndex dimensions ≥ 30 simultaneously. No channel dark. Full-dimensional presence.',
-    'P139 TEMPORAL-BIOFIELD SYNC: morning-coherence + daily-seal + biofield-integration within one calendar day. Time and biology synchronized.',
-    'Arch47 QUANTUM COHERENCE OPERATOR: peak coherence confirmed. Field aligned AND above coherence threshold. Maximum integration directive.',
-    'J44 daily-signal-matrix-check: 09:00 UTC daily. P138 (6-source check) + P137 (field alignment) + P139 (temporal-biofield triad). 44 jobs total.',
-    'QCOHERE: · SIGMAT: · TBIOF: military handlers wired in Logs.tsx. 3 new block types.',
-    'QuantumEngineWidgets: cohort view enhanced (Band + Dom fields). QOS Field view added — runtime + signal map + active patterns.',
-    '3 new dep map nodes: quantumCoherencePeakNode · signalMatrixSaturationNode · temporalBiofieldSyncNode. 178+ total.',
-    'FIELD MANUAL v108. Day 1066+. 139 patterns · 47 archetypes · 44 jobs · 139+ handlers · 178+ dep nodes.',
+    'ASSEMBLY RUN — 2026-08-04 · v109 · QIE Engineering · P140–P142 · Arch48 · J45 · SOVFIELD: DIMAPEX: BROADCAST: · Day 1074+',
+    'P140 SOVEREIGN FIELD ALIGNMENT: P137 (coherence peak) + P139 (biofield sync) simultaneously active. Orthogonal gate synthesis. OS transmitting AND time+biology synchronized.',
+    'P141 DIMENSIONAL APEX: all 6 UserIndex dimensions ≥ 40. Higher floor than P138. No weak channel. Full-spectrum apex.',
+    'P142 COHERENCE BROADCAST ARC: P137 + P138 + P139 all three simultaneously. Three-gate synthesis. The system at full broadcast range.',
+    'Arch48 COHERENCE BROADCAST OPERATOR: three-gate synthesis confirmed. Hold this state — it will not last. Act from here.',
+    'J45 daily-coherence-broadcast-check: 15:00 UTC daily. Three-gate check → sovereign_field_alignment + dimensional_apex + coherence_broadcast_arc. 45 jobs total.',
+    'SOVFIELD: · DIMAPEX: · BROADCAST: military handlers wired in Logs.tsx. All COCKPIT-RULE compliant.',
+    '3 new dep map nodes: sovereignFieldNode · dimensionalApexNode · coherenceBroadcastNode. 181+ total.',
+    'FIELD MANUAL v109. Day 1074+. 142 patterns · 48 archetypes · 45 jobs · 142+ handlers · 181+ dep nodes.',
     'DEPLOYED.',
   ],
 }

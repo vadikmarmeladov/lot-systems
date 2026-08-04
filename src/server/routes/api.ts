@@ -1197,6 +1197,10 @@ export default async (fastify: FastifyInstance) => {
       'quantum_coherence_peak',
       'signal_matrix_saturation',
       'temporal_biofield_sync',
+      // v109: sovereign field alignment · dimensional apex · coherence broadcast arc (P140/P141/P142)
+      'sovereign_field_alignment',
+      'dimensional_apex',
+      'coherence_broadcast_arc',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

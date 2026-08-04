@@ -3263,6 +3263,93 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'sovereign_field_alignment') {
+          const coherenceConf = log.metadata?.coherenceConf as number | undefined
+          const biofieldConf  = log.metadata?.biofieldConf  as number | undefined
+          const composite     = log.metadata?.composite     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOVFIELD:" blockView>
+                {coherenceConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">QCOHERE</span>
+                    <span className="tabular-nums">{Math.round(coherenceConf * 100)}%</span>
+                  </div>
+                )}
+                {biofieldConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">TBIOF</span>
+                    <span className="tabular-nums">{Math.round(biofieldConf * 100)}%</span>
+                  </div>
+                )}
+                {composite !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-50">COMPOSITE</span>
+                    <span className="tabular-nums">{composite}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN: CONFIRMED</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'dimensional_apex') {
+          const eng  = log.metadata?.engagement  as number | undefined
+          const emo  = log.metadata?.emotional   as number | undefined
+          const int_ = log.metadata?.intentional as number | undefined
+          const soc  = log.metadata?.social      as number | undefined
+          const care = log.metadata?.selfCare    as number | undefined
+          const cog  = log.metadata?.cognitive   as number | undefined
+          const dims = [eng, emo, int_, soc, care, cog].filter((v): v is number => v !== undefined)
+          const aboveApex = dims.filter(v => v >= 40).length
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DIMAPEX:" blockView>
+                {eng !== undefined && <div className="flex justify-between items-baseline mb-2"><span className="opacity-30">ENG</span><span className="tabular-nums">{eng}</span></div>}
+                {emo !== undefined && <div className="flex justify-between items-baseline mb-2"><span className="opacity-30">EMO</span><span className="tabular-nums">{emo}</span></div>}
+                {int_ !== undefined && <div className="flex justify-between items-baseline mb-2"><span className="opacity-30">INT</span><span className="tabular-nums">{int_}</span></div>}
+                {soc !== undefined && <div className="flex justify-between items-baseline mb-2"><span className="opacity-30">SOC</span><span className="tabular-nums">{soc}</span></div>}
+                {care !== undefined && <div className="flex justify-between items-baseline mb-2"><span className="opacity-30">CARE</span><span className="tabular-nums">{care}</span></div>}
+                {cog !== undefined && <div className="flex justify-between items-baseline mb-2"><span className="opacity-30">COG</span><span className="tabular-nums">{cog}</span></div>}
+                <div className="opacity-40 tabular-nums">ABOVE 40: {aboveApex}/6 · APEX CONFIRMED</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'coherence_broadcast_arc') {
+          const coherenceConf = log.metadata?.coherenceConf as number | undefined
+          const satConf       = log.metadata?.satConf       as number | undefined
+          const biofieldConf  = log.metadata?.biofieldConf  as number | undefined
+          const composite     = log.metadata?.composite     as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BROADCAST:" blockView>
+                {coherenceConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">P140</span>
+                    <span className="tabular-nums">{Math.round(coherenceConf * 100)}%</span>
+                  </div>
+                )}
+                {satConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">P141</span>
+                    <span className="tabular-nums">{Math.round(satConf * 100)}%</span>
+                  </div>
+                )}
+                {biofieldConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-30">P142</span>
+                    <span className="tabular-nums">{Math.round(biofieldConf * 100)}%</span>
+                  </div>
+                )}
+                {composite !== undefined && (
+                  <div className="flex justify-between items-baseline mb-2">
+                    <span className="opacity-50">COMPOSITE</span>
+                    <span className="tabular-nums">{composite}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ALL GATES · BROADCAST: ACTIVE</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -3172,6 +3172,73 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 140: Sovereign Field Alignment — P137 (quantum-coherence-peak) AND P139 (temporal-biofield-sync)
+  // simultaneously active. The field is transmitting above the coherence ceiling AND time+biology
+  // are synchronized within the same operating window. Rarest confirmed conjunction: coherence
+  // threshold exceeded while the temporal-biological arc is fully closed. Two independent gate systems
+  // confirming the same operating state from orthogonal measurement axes.
+  const p140HasCoherencePeak = patterns.some(p => p.pattern === 'quantum-coherence-peak')
+  const p140HasTemporalSync  = patterns.some(p => p.pattern === 'temporal-biofield-sync')
+  if (p140HasCoherencePeak && p140HasTemporalSync) {
+    const coherenceConf = patterns.find(p => p.pattern === 'quantum-coherence-peak')?.confidence ?? 0.88
+    const biofieldConf  = patterns.find(p => p.pattern === 'temporal-biofield-sync')?.confidence ?? 0.85
+    const p140Conf = Math.min((coherenceConf + biofieldConf) / 2 + 0.06, 0.96)
+    patterns.push({
+      pattern: 'sovereign-field-alignment',
+      confidence: p140Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `SOVFIELD: Sovereign field alignment — quantum-coherence-peak AND temporal-biofield-sync simultaneously confirmed. Two independent confirmation axes: coherence threshold exceeded (transmission mode) + time-biology arc closed (temporal synchrony). Orthogonal states, same window. QCOHERE: ${Math.round(coherenceConf * 100)}% · TBIOF: ${Math.round(biofieldConf * 100)}%. Sovereign field active.`,
+    })
+  }
+
+  // Pattern 141: Dimensional Apex — P138 (signal-matrix-saturation) fires AND all 6 UserIndex
+  // dimensions are each ≥ 40. Extends P138 (floor: 30) with a higher saturation threshold.
+  // Not merely lit — bright. Full-spectrum presence above the coherence floor.
+  const p141Dims = computeUserIndex(signals).dimensions
+  const p141AllAboveApex =
+    p141Dims.engagement >= 40 &&
+    p141Dims.emotional   >= 40 &&
+    p141Dims.intentional >= 40 &&
+    p141Dims.social      >= 40 &&
+    p141Dims.selfCare    >= 40 &&
+    p141Dims.cognitive   >= 40
+  if (p141AllAboveApex) {
+    const minDim141 = Math.min(
+      p141Dims.engagement, p141Dims.emotional, p141Dims.intentional,
+      p141Dims.social, p141Dims.selfCare, p141Dims.cognitive
+    )
+    const p141Conf = Math.min(0.80 + (minDim141 - 40) * 0.003, 0.94)
+    patterns.push({
+      pattern: 'dimensional-apex',
+      confidence: p141Conf,
+      suggestedWidget: 'userMetrics',
+      suggestedTiming: 'passive',
+      reason: `DIMAPEX: Dimensional apex — all six UserIndex dimensions ≥ 40 simultaneously. ENG: ${p141Dims.engagement} · EMO: ${p141Dims.emotional} · INT: ${p141Dims.intentional} · SOC: ${p141Dims.social} · CARE: ${p141Dims.selfCare} · COG: ${p141Dims.cognitive}. Above saturation floor. Full-spectrum presence confirmed above coherence threshold.`,
+    })
+  }
+
+  // Pattern 142: Coherence Broadcast Arc — P137 + P138 + P139 all simultaneously active within
+  // a single operating window. The absolute three-way synthesis: field transmitting at peak,
+  // all 6 dimensions saturated, and temporal-biofield synchrony confirmed. No channel dark,
+  // no arc incomplete. The system's highest-tier broadcast state.
+  const p142HasCoherencePeak = patterns.some(p => p.pattern === 'quantum-coherence-peak')
+  const p142HasMatrixSat     = patterns.some(p => p.pattern === 'signal-matrix-saturation')
+  const p142HasTemporalSync  = patterns.some(p => p.pattern === 'temporal-biofield-sync')
+  if (p142HasCoherencePeak && p142HasMatrixSat && p142HasTemporalSync) {
+    const p142CoherenceConf = patterns.find(p => p.pattern === 'quantum-coherence-peak')?.confidence ?? 0.90
+    const p142SatConf       = patterns.find(p => p.pattern === 'signal-matrix-saturation')?.confidence ?? 0.85
+    const p142BiofieldConf  = patterns.find(p => p.pattern === 'temporal-biofield-sync')?.confidence ?? 0.88
+    const p142Conf = Math.min((p142CoherenceConf + p142SatConf + p142BiofieldConf) / 3 + 0.05, 0.97)
+    patterns.push({
+      pattern: 'coherence-broadcast-arc',
+      confidence: p142Conf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `BROADCAST: Coherence broadcast arc — P137 + P138 + P139 simultaneously active. Three-gate synthesis: field transmitting at peak · all six dimensions saturated · temporal-biofield arc closed. QCOHERE: ${Math.round(p142CoherenceConf * 100)}% · SIGMAT: ${Math.round(p142SatConf * 100)}% · TBIOF: ${Math.round(p142BiofieldConf * 100)}%. Broadcast confirmed across all channels.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3788,6 +3855,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumCoherencePeakNode:   ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy', 'log'],
   signalMatrixSaturationNode: ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
   temporalBiofieldSyncNode:   ['energy', 'selfcare', 'mood', 'planner', 'intentions', 'log'],
+
+  // ── v109 nodes (J45 · P140–P142 · Arch48) ───────────────────────────────────────
+  sovereignFieldNode:         ['intentions', 'journal', 'energy', 'planner', 'selfcare', 'mood', 'log'],
+  dimensionalApexNode:        ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
+  coherenceBroadcastNode:     ['intentions', 'journal', 'selfcare', 'mood', 'planner', 'energy', 'memory', 'cohort', 'log'],
 }
 
 /**
@@ -4194,6 +4266,14 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['quantum-coherence-peak', 'quantum-field-alignment', 'signal-matrix-saturation'],
     hourRange: [6, 22],
     directive: 'Peak coherence confirmed. Full-spectrum alignment across all six signal dimensions AND quantum field aligned. Operate at maximum integration. Do not dilute focus.',
+  },
+  // ── Arch48: Coherence Broadcast Operator (2026-08-04 v109) ───────────────────────
+  {
+    archetype: 'Coherence Broadcast Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['intentions', 'journal', 'selfcare', 'planner', 'memory', 'mood'],
+    patternConditions: ['coherence-broadcast-arc', 'quantum-coherence-peak', 'signal-matrix-saturation', 'temporal-biofield-sync'],
+    directive: 'P140 · P141 · P142 active. Three-gate synthesis confirmed. Coherence transmitted across all dimensional and temporal channels simultaneously. This is the system operating at full broadcast range. Hold this state — it will not last. Act from here.',
   },
 ]
 
@@ -5991,6 +6071,50 @@ export function recordTemporalBiofieldSync(morningConf: number, sealConf: number
     biofieldConf,
     composite: Math.round(((morningConf + sealConf + biofieldConf) / 3) * 100),
     window: '1d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a sovereign-field-alignment signal — P137 (quantum-coherence-peak) AND P139 (temporal-biofield-sync)
+ * simultaneously confirmed. Feeds P140 detection. J45 background job (14:00 UTC) triggers this.
+ * Two orthogonal confirmation axes active in the same window: coherence threshold exceeded + temporal-biological arc closed.
+ */
+export function recordSovereignFieldAlignment(coherenceConf: number, biofieldConf: number) {
+  recordSignal('intentions', 'sovereign_field_alignment', {
+    coherenceConf,
+    biofieldConf,
+    composite: Math.round(((coherenceConf + biofieldConf) / 2) * 100),
+    window: '24h',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a dimensional-apex signal — all 6 UserIndex dimensions each ≥ 40.
+ * Feeds P141 detection. J45 background job (14:00 UTC) triggers this.
+ * Full-spectrum presence above the coherence floor. Not just lit — bright.
+ */
+export function recordDimensionalApex(dimensions: Record<string, number>) {
+  recordSignal('qos', 'dimensional_apex', {
+    ...dimensions,
+    window: '7d',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a coherence-broadcast-arc signal — P137 + P138 + P139 all simultaneously active.
+ * Feeds P142 detection. J45 background job (14:00 UTC) triggers this.
+ * Three-gate synthesis: field at peak + all dimensions saturated + temporal-biofield arc closed.
+ */
+export function recordCoherenceBroadcastArc(coherenceConf: number, satConf: number, biofieldConf: number) {
+  recordSignal('intentions', 'coherence_broadcast_arc', {
+    coherenceConf,
+    satConf,
+    biofieldConf,
+    composite: Math.round(((coherenceConf + satConf + biofieldConf) / 3) * 100),
+    window: '24h',
     hour: new Date().getHours(),
   })
 }

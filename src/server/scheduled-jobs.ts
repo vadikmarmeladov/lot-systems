@@ -1731,6 +1731,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySignalMatrixCheck()) {
     await executeDailySignalMatrixCheck()
   }
+  // Check daily coherence broadcast check (15:00 UTC every day) — Job 45
+  if (shouldRunDailyCoherenceBroadcastCheck()) {
+    await executeDailyCoherenceBroadcastCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -3109,6 +3113,140 @@ async function executeDailySignalMatrixCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily signal matrix check failed:', error.message)
     isDailySignalMatrixRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Coherence Broadcast Check (Job 45 — 15:00 UTC every day) ─────────
+// Reads active users. Checks if quantum_coherence_peak + signal_matrix_saturation +
+// temporal_biofield_sync all fired within the past 24 hours for the same user.
+// When all three gates are confirmed → writes coherence_broadcast_arc (P142).
+// Also writes sovereign_field_alignment (P140) when quantum_coherence_peak + temporal_biofield_sync
+// are both present, and dimensional_apex (P141) when signal_matrix_saturation is present with
+// all metadata dimensions ≥ 40. 45 jobs total.
+
+let isDailyCoherenceBroadcastRunning = false
+let lastDailyCoherenceBroadcastRun: Date | null = null
+
+function shouldRunDailyCoherenceBroadcastCheck(): boolean {
+  const now = dayjs()
+  if (isDailyCoherenceBroadcastRunning) return false
+  if (lastDailyCoherenceBroadcastRun) {
+    const lastRun = dayjs(lastDailyCoherenceBroadcastRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 15 // 15:00 UTC daily
+}
+
+async function executeDailyCoherenceBroadcastCheck(): Promise<JobResult> {
+  const jobName = 'daily-coherence-broadcast-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyCoherenceBroadcastRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyCoherenceBroadcastRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY COHERENCE BROADCAST CHECK — 15:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const dayAgo = dayjs().subtract(24, 'hour').toDate()
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(1, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (24h): ${activeUsers.length}`)
+    let writtenBroadcast = 0
+    let writtenSovereign = 0
+    let writtenApex = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+        const recentLogs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: dayAgo } },
+          attributes: ['event', 'metadata'],
+        })
+
+        const eventSet = new Set(recentLogs.map((l: any) => l.event))
+        const hasCoherencePeak = eventSet.has('quantum_coherence_peak')
+        const hasMatrixSat     = eventSet.has('signal_matrix_saturation')
+        const hasTemporalSync  = eventSet.has('temporal_biofield_sync')
+
+        // P140: sovereign-field-alignment — quantum_coherence_peak + temporal_biofield_sync
+        if (hasCoherencePeak && hasTemporalSync && !eventSet.has('sovereign_field_alignment')) {
+          const coherenceLog = recentLogs.find((l: any) => l.event === 'quantum_coherence_peak')
+          const biofieldLog  = recentLogs.find((l: any) => l.event === 'temporal_biofield_sync')
+          const coherenceConf = (coherenceLog?.metadata?.composite ?? 85) / 100
+          const biofieldConf  = (biofieldLog?.metadata?.composite  ?? 85) / 100
+          const composite = Math.round(((coherenceConf + biofieldConf) / 2) * 100)
+          await (Log as any).create({
+            userId,
+            event: 'sovereign_field_alignment',
+            text: `Sovereign field alignment: quantum-coherence-peak AND temporal-biofield-sync confirmed within 24h. Orthogonal states, same window. QCOHERE: ${Math.round(coherenceConf * 100)}% · TBIOF: ${Math.round(biofieldConf * 100)}%. Composite: ${composite}%.`,
+            metadata: { coherenceConf, biofieldConf, composite, window: '24h', hour: 15 },
+          })
+          writtenSovereign++
+        }
+
+        // P141: dimensional-apex — signal_matrix_saturation with all dims ≥ 40
+        if (hasMatrixSat && !eventSet.has('dimensional_apex')) {
+          const satLog = recentLogs.find((l: any) => l.event === 'signal_matrix_saturation')
+          const md = satLog?.metadata ?? {}
+          const dims: Record<string, number> = {
+            engagement: md.engagement ?? 0,
+            emotional:  md.emotional  ?? 0,
+            intentional: md.intentional ?? 0,
+            social:     md.social     ?? 0,
+            selfCare:   md.selfCare   ?? 0,
+            cognitive:  md.cognitive  ?? 0,
+          }
+          const allAboveApex = Object.values(dims).every(v => v >= 40)
+          if (allAboveApex) {
+            const minDim = Math.min(...Object.values(dims))
+            const apexConf = Math.min(0.80 + (minDim - 40) * 0.003, 0.94)
+            await (Log as any).create({
+              userId,
+              event: 'dimensional_apex',
+              text: `Dimensional apex: all six UserIndex dimensions ≥ 40. ENG: ${dims.engagement} · EMO: ${dims.emotional} · INT: ${dims.intentional} · SOC: ${dims.social} · CARE: ${dims.selfCare} · COG: ${dims.cognitive}. Full-spectrum presence above coherence floor.`,
+              metadata: { ...dims, confidence: apexConf, window: '7d', hour: 15 },
+            })
+            writtenApex++
+          }
+        }
+
+        // P142: coherence-broadcast-arc — all three gates
+        if (hasCoherencePeak && hasMatrixSat && hasTemporalSync && !eventSet.has('coherence_broadcast_arc')) {
+          const coherenceLog = recentLogs.find((l: any) => l.event === 'quantum_coherence_peak')
+          const satLog       = recentLogs.find((l: any) => l.event === 'signal_matrix_saturation')
+          const biofieldLog  = recentLogs.find((l: any) => l.event === 'temporal_biofield_sync')
+          const coherenceConf = (coherenceLog?.metadata?.composite ?? 88) / 100
+          const satConf       = (satLog?.metadata?.confidence      ?? 0.85)
+          const biofieldConf  = (biofieldLog?.metadata?.composite  ?? 88) / 100
+          const composite = Math.round(((coherenceConf + satConf + biofieldConf) / 3) * 100)
+          await (Log as any).create({
+            userId,
+            event: 'coherence_broadcast_arc',
+            text: `Coherence broadcast arc: P137 + P138 + P139 simultaneously confirmed. Three-gate synthesis: field transmitting at peak · all six dimensions saturated · temporal-biofield arc closed. Composite: ${composite}%. Broadcast confirmed across all channels.`,
+            metadata: { coherenceConf, satConf, biofieldConf, composite, window: '24h', hour: 15 },
+          })
+          writtenBroadcast++
+        }
+      } catch {}
+    }
+
+    console.log(`  Sovereign field alignment events written: ${writtenSovereign}`)
+    console.log(`  Dimensional apex events written: ${writtenApex}`)
+    console.log(`  Coherence broadcast arc events written: ${writtenBroadcast}`)
+    lastDailyCoherenceBroadcastRun = new Date()
+    isDailyCoherenceBroadcastRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: writtenSovereign + writtenApex + writtenBroadcast }
+  } catch (error: any) {
+    console.error('Daily coherence broadcast check failed:', error.message)
+    isDailyCoherenceBroadcastRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -5202,7 +5340,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check, 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory, 21=presence-arc, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity, 8=biofield+peak-window, 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+signal-matrix-check, 10=archetype shift, 11=morning-intention-launch, 12=vitality-peak, 13=QOS sig pulse, 14=QOS mode watch, 15=QOS convergence audit+coherence-broadcast-check, 16=coherence index+focus-depth-check, 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory, 21=presence-arc, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()
