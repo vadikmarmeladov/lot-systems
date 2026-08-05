@@ -162,6 +162,32 @@ export function getMoonPhase(date: Date): { phase: string; illumination: number 
 }
 
 /**
+ * Convert a moment to the "wall-clock" Date as it reads in a given IANA
+ * timeZone, so the getHours()/getMonth()/getDate()-based functions above
+ * (which always read in the runtime's own local timezone) can be pointed at
+ * a user's saved timeZone instead of wherever the code happens to execute.
+ * Falls back to the input date unchanged if timeZone is invalid/unsupported.
+ */
+export function toTimeZoneWallClock(date: Date, timeZone: string): Date {
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      hourCycle: 'h23',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }).formatToParts(date)
+    const get = (type: string) => Number(parts.find(p => p.type === type)?.value)
+    return new Date(get('year'), get('month') - 1, get('day'), get('hour'), get('minute'), get('second'))
+  } catch {
+    return date
+  }
+}
+
+/**
  * Get moon emoji based on phase
  */
 export function getMoonEmoji(phaseName: string): string {
