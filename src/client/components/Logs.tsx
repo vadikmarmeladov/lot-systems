@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3347,6 +3347,18 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { mutate: submitEmail } = useSendEmail({
+    onSuccess: (data) => {
+      setEmailResult(`SENT TO ${data.recipientName.toUpperCase()}`)
+      setEmailLoading(false)
+    },
+    onError: () => {
+      setEmailResult('EMAIL FAILED — RECIPIENT NOT FOUND')
+      setEmailLoading(false)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -3760,6 +3772,7 @@ const NoteEditor = ({
           '',
           '/prayer       Generate contextual scripture',
           '/story        Generate a personal story from recent data',
+          '/email to X   Send this entry as a LOT Email to X',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -3796,6 +3809,19 @@ const NoteEditor = ({
             })
           } catch {
             submitStory({ logText: value })
+          }
+        }
+      } else if (trigger === 'email-compose') {
+        const nameMatch = value.match(/\/e?mail\s+to\s+([a-z][a-z'-]*)/i)
+        if (nameMatch && !emailLoading) {
+          const recipientName = nameMatch[1]
+          const body = value.replace(nameMatch[0], '').replace(/✉️?/g, '').trim()
+          if (body.length >= 1) {
+            setEmailLoading(true)
+            setEmailResult(null)
+            submitEmail({ recipientName, message: body })
+          } else {
+            setEmailResult(`WRITE YOUR MESSAGE, THEN ADD /email to ${recipientName}`)
           }
         }
       }
@@ -4018,6 +4044,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="✉️ MAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
+              )}
             </Block>
           </div>
         )}

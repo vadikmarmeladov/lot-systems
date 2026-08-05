@@ -4069,6 +4069,91 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     }
   })
 
+  // LOT Email — composed from a Log entry via "/email to <Name>". Resolves the
+  // recipient by first name within LOT Community and delivers as a Direct
+  // Message (envelope-tagged) so it rides the existing DM pipe into Sync.
+  fastify.post('/email', async (req: FastifyRequest<{
+    Body: { recipientName: string; message: string }
+  }>, reply) => {
+    try {
+      const recipientName = (req.body.recipientName || '').trim()
+      const body = (req.body.message || '').trim()
+
+      if (!recipientName || !body) {
+        return reply.status(400).send({ error: 'Recipient and message are required' })
+      }
+
+      const recipient =
+        (await fastify.models.User.findOne({
+          where: {
+            firstName: { [Op.iLike]: recipientName },
+            id: { [Op.not]: req.user.id },
+          },
+          order: [['lastSeenAt', 'DESC']],
+        })) ||
+        (await fastify.models.User.findOne({
+          where: {
+            firstName: { [Op.iLike]: `${recipientName}%` },
+            id: { [Op.not]: req.user.id },
+          },
+          order: [['lastSeenAt', 'DESC']],
+        }))
+
+      if (!recipient) {
+        return reply.status(404).send({ error: `No one named "${recipientName}" found in LOT Community.` })
+      }
+
+      const envelope = `✉️ ${body.slice(0, 2000)}`
+
+      const directMessage = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: envelope,
+      })
+
+      // Emit on the shared DM channel — DirectMessageThread and Sync both
+      // filter this by sender/receiver identity client-side.
+      sync.emit('direct_message', {
+        id: directMessage.id,
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: directMessage.message,
+        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        createdAt: directMessage.createdAt,
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'email_sent',
+            text: '',
+            metadata: {
+              directMessageId: directMessage.id,
+              receiverId: recipient.id,
+              recipientName: recipient.firstName,
+              message: directMessage.message,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging email:', logError)
+        }
+      })
+
+      return reply.send({
+        id: directMessage.id,
+        receiverId: recipient.id,
+        recipientName: recipient.firstName,
+        createdAt: directMessage.createdAt,
+      })
+    } catch (error) {
+      console.error('Error sending email:', error)
+      return reply.status(500).send({ error: 'Failed to send email' })
+    }
+  })
+
   // ============================================================================
   // STATS API - Real-time metrics and community insights
   // ============================================================================

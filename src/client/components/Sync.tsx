@@ -33,6 +33,17 @@ import {
   isBlankMessage,
 } from '#shared/constants'
 
+interface MailNotice {
+  id: string
+  otherUserId: string
+  otherUserName: string
+  snippet: string
+  createdAt: string
+}
+
+const MAIL_ENVELOPE_PREFIX = '✉️'
+const MAX_MAIL_NOTICES = 5
+
 const CHAT_ALLOWED_TAGS: string[] = [
   UserTag.Admin,
   UserTag.RND,
@@ -52,6 +63,9 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Email notices (direct messages sent/received via /email in Log) —
+  // client-filtered to this user, never broadcast to the shared feed.
+  const [mailNotices, setMailNotices] = React.useState<MailNotice[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -117,9 +131,34 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    // LOT Email rides the shared direct-message channel — only render the
+    // envelope-tagged ones that involve me, as a mail (not a chat) notice.
+    const { dispose: disposeDirectMessageListener } = sync.listen(
+      'direct_message',
+      (data: any) => {
+        if (!me?.id) return
+        // Only surface mail I *received* here — my own sends are confirmed
+        // inline in Log where they were composed.
+        if (data.receiverId !== me.id || data.senderId === me.id) return
+        if (typeof data.message !== 'string' || !data.message.startsWith(MAIL_ENVELOPE_PREFIX)) return
+
+        setMailNotices((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          const next: MailNotice = {
+            id: data.id,
+            otherUserId: data.senderId,
+            otherUserName: data.senderName || 'Someone',
+            snippet: data.message.slice(MAIL_ENVELOPE_PREFIX.length).trim(),
+            createdAt: data.createdAt,
+          }
+          return [next, ...prev].slice(0, MAX_MAIL_NOTICES)
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeDirectMessageListener()
     }
   }, [me?.id])
 
@@ -213,6 +252,22 @@ export const Sync = React.memo(function SyncInner() {
           </div>
         </form>
       </div>
+
+      {mailNotices.length > 0 && (
+        <div className="mb-40 space-y-4">
+          {mailNotices.map((notice) => (
+            <div
+              key={notice.id}
+              className="flex items-start gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
+              onClick={() => { window.location.href = `/dm/${notice.otherUserId}` }}
+            >
+              <span className="whitespace-nowrap">{MAIL_ENVELOPE_PREFIX}</span>
+              <span className="whitespace-nowrap">{notice.otherUserName}</span>
+              <div className="opacity-40 truncate">{notice.snippet}</div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

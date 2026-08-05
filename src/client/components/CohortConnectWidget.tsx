@@ -123,7 +123,10 @@ export const CohortConnectWidget: React.FC = () => {
       connectionReadiness,
       hour: new Date().getHours()
     })
-    stores.goTo('sync')
+    // Open the direct thread with this cohort member — the same pipe /email
+    // in Log delivers into, so a Log-composed LOT Email and a Cohort "Send
+    // message" click land in the same conversation.
+    window.location.href = `/dm/${userId}`
   }
 
   const handleToggleExpand = (userId: string) => {
