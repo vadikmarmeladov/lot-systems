@@ -10,7 +10,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { cn } from '#client/utils'
-import { UserTag } from '#shared/types'
+import { getMe, useBasicsUpgrade, useBasicsStandDown } from '#client/queries'
 import {
   RATION_MANIFEST,
   DOCTRINE_LINES,
@@ -20,6 +20,14 @@ import {
   type RationItem,
   type RationCadence,
 } from './basics/doctrine'
+import { RosterIntake } from './basics/RosterIntake'
+import {
+  BASICS_EMPTY,
+  isUsershipTag,
+  isOnStrength,
+  type BasicsRecord,
+  type BasicsShipping,
+} from '#shared/constants/basics'
 
 // ─── terminal grid constants ──────────────────────────────────────────────────
 const RULE = '─'
@@ -89,16 +97,46 @@ export const Basics: React.FC = () => {
   const me = useStore(stores.me)
   const isMirrorOn = useStore(stores.isMirrorOn)
 
-  const isOnStrength = me?.tags?.includes('Basic') ?? false
-  const isUsership = me?.tags?.includes(UserTag.Usership) ?? false
+  const [showIntake, setShowIntake] = React.useState(false)
+  const [intakeError, setIntakeError] = React.useState<string | null>(null)
+  const upgrade = useBasicsUpgrade()
+  const standDown = useBasicsStandDown()
 
-  const planLabel = isOnStrength
-    ? 'BASIC / ON STRENGTH'
-    : isUsership
-    ? 'USERSHIP / AI'
-    : 'NONE'
+  const basics: BasicsRecord = { ...BASICS_EMPTY, ...((me as any)?.metadata?.basics || {}) }
+  const isUsership = isUsershipTag(me?.tags)
+  const onStrengthNow = isOnStrength(basics.state)
 
-  const rationStatus = isOnStrength
+  const refreshMe = () => getMe().then((user) => stores.me.set(user)).catch(() => {})
+
+  const handleConfirmIntake = (payload: { shipping: BasicsShipping; householdSize: number; cadenceStartDay: number }) => {
+    setIntakeError(null)
+    upgrade.mutate(payload, {
+      onSuccess: () => {
+        setShowIntake(false)
+        refreshMe()
+      },
+      onError: (err: any) => {
+        setIntakeError(err?.response?.data?.message || 'ENROLLMENT FAILED')
+      },
+    })
+  }
+
+  const handleStandDown = () => {
+    standDown.mutate(undefined, { onSuccess: refreshMe })
+  }
+
+  const planLabel =
+    basics.state === 'STEADY_STATE'
+      ? 'BASIC / STEADY STATE'
+      : basics.state === 'ON_STRENGTH'
+      ? 'BASIC / ON STRENGTH'
+      : basics.state === 'PENDING'
+      ? 'BASIC / PENDING'
+      : isUsership
+      ? 'USERSHIP / AI'
+      : 'NONE'
+
+  const rationStatus = onStrengthNow
     ? 'ACTIVE — NEXT ISSUE PENDING'
     : 'NOT ON STRENGTH'
 
@@ -199,27 +237,96 @@ export const Basics: React.FC = () => {
         <StatusLine plan={planLabel} rationsStatus={rationStatus} />
       </div>
 
-      {/* ── UPGRADE PROMPT (Month 2 will activate) ────────── */}
-      {!isOnStrength && (
-        <div className="mt-4">
-          <div
-            className={cn(
-              'border-2 border-acc/20 p-16 font-mono text-[12px]',
-              'flex flex-col gap-y-8'
-            )}
-          >
-            <div className="text-acc/50 uppercase tracking-widest text-[10px]">
-              UPGRADE PATH — USERSHIP → BASIC
+      {/* ── ON STRENGTH — ROSTER + STAND DOWN ─────────────── */}
+      {onStrengthNow && basics.roster && (
+        <div className="mt-4 flex flex-col gap-y-16">
+          <SectionLabel>SECTION 3 — ROSTER</SectionLabel>
+          <div className="font-mono text-[12px] flex flex-col gap-y-4">
+            <div className="grid gap-x-16" style={{ gridTemplateColumns: '140px 1fr' }}>
+              <span className="text-acc/50 uppercase tracking-wider">SHIP TO</span>
+              <span className="text-acc uppercase">
+                {basics.roster.shipping.city}, {basics.roster.shipping.region} {basics.roster.shipping.postal}, {basics.roster.shipping.country}
+              </span>
             </div>
-            <div className="text-acc leading-snug">
-              {isUsership
-                ? 'USERSHIP AI confirmed. BASIC ration available as additive layer (+USD 100.00/MO).'
-                : 'Requires USERSHIP / AI plan as base layer.'}
+            <div className="grid gap-x-16" style={{ gridTemplateColumns: '140px 1fr' }}>
+              <span className="text-acc/50 uppercase tracking-wider">HOUSEHOLD</span>
+              <span className="text-acc uppercase">{basics.roster.householdSize} OPERATOR(S)</span>
             </div>
-            <div className="text-acc/40 text-[11px] mt-4">
-              ENROLLMENT OPENS — M2 BUILD CYCLE
+            <div className="grid gap-x-16" style={{ gridTemplateColumns: '140px 1fr' }}>
+              <span className="text-acc/50 uppercase tracking-wider">CADENCE START</span>
+              <span className="text-acc uppercase">DAY {basics.roster.cadenceStartDay} OF MONTH</span>
+            </div>
+            <div className="grid gap-x-16" style={{ gridTemplateColumns: '140px 1fr' }}>
+              <span className="text-acc/50 uppercase tracking-wider">BILLING</span>
+              <span className="text-acc/60 uppercase">
+                {PRICE_LINE} ADDITIVE — ON STRENGTH SINCE {basics.billing.startedAt?.slice(0, 10)}
+              </span>
             </div>
           </div>
+
+          <ThinRule />
+
+          <SectionLabel>SECTION 4 — ISSUE LOG</SectionLabel>
+          <div className="font-mono text-[12px] text-acc/50 uppercase tracking-wide">
+            {basics.issueLog.length === 0
+              ? 'NO ISSUES RECORDED — FULFILLMENT ENGINE ARRIVES M3 BUILD CYCLE'
+              : basics.issueLog.map((entry, i) => (
+                  <div key={i}>{entry.at.slice(0, 10)} — {entry.summary}</div>
+                ))}
+          </div>
+
+          <div>
+            <button
+              type="button"
+              disabled={standDown.isLoading}
+              onClick={handleStandDown}
+              className="font-mono text-[12px] uppercase tracking-widest px-16 py-8 border-2 border-acc/30 text-acc/50 hover:text-acc hover:border-acc"
+            >
+              {standDown.isLoading ? 'PROCESSING…' : 'STAND DOWN'}
+            </button>
+            <div className="text-acc/40 text-[11px] mt-4">
+              STAND DOWN drops the ration. USERSHIP / AI base layer is retained.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── UPGRADE PATH ───────────────────────────────────── */}
+      {!onStrengthNow && (
+        <div className="mt-4">
+          {showIntake ? (
+            <RosterIntake
+              onConfirm={handleConfirmIntake}
+              onAbort={() => { setShowIntake(false); setIntakeError(null) }}
+              submitting={upgrade.isLoading}
+              error={intakeError}
+            />
+          ) : (
+            <div
+              className={cn(
+                'border-2 border-acc/20 p-16 font-mono text-[12px]',
+                'flex flex-col gap-y-8'
+              )}
+            >
+              <div className="text-acc/50 uppercase tracking-widest text-[10px]">
+                UPGRADE PATH — USERSHIP → BASIC
+              </div>
+              <div className="text-acc leading-snug">
+                {isUsership
+                  ? 'USERSHIP AI confirmed. BASIC ration available as additive layer (+USD 100.00/MO).'
+                  : 'Requires USERSHIP / AI plan as base layer.'}
+              </div>
+              {isUsership && (
+                <button
+                  type="button"
+                  onClick={() => setShowIntake(true)}
+                  className="font-mono text-[12px] uppercase tracking-widest px-16 py-8 border-2 border-acc bg-acc text-bac hover:bg-transparent hover:text-acc w-fit mt-4"
+                >
+                  UPGRADE
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

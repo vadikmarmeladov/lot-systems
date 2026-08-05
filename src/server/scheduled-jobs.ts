@@ -1731,6 +1731,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySignalMatrixCheck()) {
     await executeDailySignalMatrixCheck()
   }
+  // Check daily BASIC ration steady-state promotion (00:00 UTC every day) — Job 45
+  if (shouldRunBasicsSteadyStateJob()) {
+    await executeBasicsSteadyStateJob()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -5143,6 +5147,66 @@ async function executeDailyQOSModeWatch(): Promise<JobResult> {
   }
 }
 
+// ─── Daily BASIC Ration Steady-State Check (Job 45 — 00:00 UTC every day) ────
+// LOT-FM-001 Month 2. Promotes operators ON_STRENGTH for BASICS_STEADY_STATE_DAYS
+// consecutive days to STEADY_STATE — the cadence has run a full cycle without
+// a STAND DOWN. Read-only over the roster; never touches billing or the ration
+// itself, only the state label.
+
+let isBasicsSteadyStateRunning = false
+let lastBasicsSteadyStateRun: Date | null = null
+
+function shouldRunBasicsSteadyStateJob(): boolean {
+  const now = dayjs()
+  if (isBasicsSteadyStateRunning) return false
+  if (lastBasicsSteadyStateRun) {
+    const lastRun = dayjs(lastBasicsSteadyStateRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+async function executeBasicsSteadyStateJob(): Promise<JobResult> {
+  const jobName = 'basics-steady-state-check'
+  const executedAt = new Date().toISOString()
+  isBasicsSteadyStateRunning = true
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Op } = await import('sequelize')
+    const { BASICS_STEADY_STATE_DAYS } = await import('#shared/constants/basics')
+    const cutoff = dayjs().subtract(BASICS_STEADY_STATE_DAYS, 'day')
+
+    const candidates = await User.findAll({
+      where: { tags: { [Op.contains]: ['usership'] } },
+      limit: 5000,
+    })
+    let promoted = 0
+    for (const user of candidates) {
+      const metadata = (user as any).metadata as any || {}
+      const basics = metadata.basics
+      if (!basics || basics.state !== 'ON_STRENGTH' || !basics.billing?.startedAt) continue
+      if (!dayjs(basics.billing.startedAt).isBefore(cutoff)) continue
+
+      const now = new Date().toISOString()
+      const updatedBasics = {
+        ...basics,
+        state: 'STEADY_STATE',
+        history: [...(basics.history || []), { state: 'STEADY_STATE', at: now }],
+      }
+      await user.set({ metadata: { ...metadata, basics: updatedBasics } }).save()
+      promoted++
+    }
+
+    lastBasicsSteadyStateRun = new Date()
+    isBasicsSteadyStateRunning = false
+    return { jobName, executedAt, success: true, result: { scanned: candidates.length, promoted } }
+  } catch (error: any) {
+    console.error('BASIC ration steady-state job failed:', error.message)
+    isBasicsSteadyStateRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 /**
  * Manually trigger monthly email job (bypasses time checks)
  * Used for testing and manual sends
@@ -5193,6 +5257,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily coherence seal check: 11 PM UTC every day (Job 42)')
   console.log('   - Daily quantum field check: 5 PM UTC every day (Job 43)')
   console.log('   - Daily signal matrix check: 9 AM UTC every day (Job 44)')
+  console.log('   - Daily BASIC ration steady-state check: midnight UTC every day (Job 45)')
   console.log('')
 
   // Check every hour for scheduled jobs

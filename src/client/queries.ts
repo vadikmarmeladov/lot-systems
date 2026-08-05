@@ -27,6 +27,7 @@ import {
 } from '#shared/types'
 import dayjs from '#client/utils/dayjs'
 import { DATE_TIME_FORMAT } from '#shared/constants'
+import type { BasicsShipping } from '#shared/constants/basics'
 
 const api = axios.create({
   baseURL: '/',
@@ -74,6 +75,16 @@ export async function getMe(): Promise<UserProfile> {
 export const useUpdateSettings = createMutation<UserSettings, void>(
   'post',
   '/api/settings'
+)
+
+export const useBasicsUpgrade = createMutation<
+  { shipping: BasicsShipping; householdSize: number; cadenceStartDay: number },
+  void
+>('post', '/api/basics-upgrade')
+
+export const useBasicsStandDown = createMutation<void, void>(
+  'post',
+  '/api/basics-standdown'
 )
 
 export const useLiveMessage = createQuery<{ message: string }>(

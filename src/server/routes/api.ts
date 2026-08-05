@@ -31,6 +31,13 @@ import {
   isBlankMessage,
   blankStrippedSql,
 } from '#shared/constants'
+import {
+  BASICS_EMPTY,
+  isUsershipTag,
+  isOnStrength,
+  type BasicsRecord,
+  type BasicsShipping,
+} from '#shared/constants/basics'
 import { sync } from '../sync.js'
 import * as weather from '#server/utils/weather'
 import { getLogContext } from '#server/utils/logs'
@@ -659,6 +666,100 @@ export default async (fastify: FastifyInstance) => {
       }
       await req.user.set({ metadata: updatedMetadata }).save()
       sync.emit('settings_updated', { userId: req.user.id })
+
+      reply.ok()
+    }
+  )
+
+  // LOT-FM-001 / BASIC RATION MODULE — Month 2: UPGRADE + roster intake.
+  // USERSHIP/AI is the required base layer. Enrollment is instant here (no
+  // fulfillment queue yet — that lands with the Month 3 issue engine), so the
+  // state machine walks NONE -> PENDING -> ON_STRENGTH in one request, both
+  // steps recorded to history for an honest audit trail.
+  fastify.post<{
+    Body: {
+      shipping: BasicsShipping
+      householdSize: number
+      cadenceStartDay: number
+    }
+  }>(
+    '/basics-upgrade',
+    async (req: FastifyRequest<{
+      Body: {
+        shipping: BasicsShipping
+        householdSize: number
+        cadenceStartDay: number
+      }
+    }>, reply) => {
+      if (!isUsershipTag(req.user.tags)) {
+        return reply.throw.badParams('USERSHIP/AI required as base layer')
+      }
+
+      const currentMetadata = req.user.metadata || {}
+      const current: BasicsRecord = { ...BASICS_EMPTY, ...(currentMetadata.basics || {}) }
+      if (isOnStrength(current.state)) {
+        return reply.throw.badParams('Already on strength')
+      }
+
+      const { shipping, householdSize, cadenceStartDay } = req.body
+      if (!shipping || !shipping.name || !shipping.address1 || !shipping.city || !shipping.region || !shipping.postal || !shipping.country) {
+        return reply.throw.badParams('Shipping address incomplete')
+      }
+      if (!Number.isInteger(householdSize) || householdSize < 1 || householdSize > 12) {
+        return reply.throw.badParams('Household size out of range')
+      }
+      if (!Number.isInteger(cadenceStartDay) || cadenceStartDay < 1 || cadenceStartDay > 28) {
+        return reply.throw.badParams('Cadence start day out of range')
+      }
+
+      const now = new Date().toISOString()
+      const updated: BasicsRecord = {
+        state: 'ON_STRENGTH',
+        history: [
+          ...current.history,
+          { state: 'PENDING', at: now },
+          { state: 'ON_STRENGTH', at: now },
+        ],
+        roster: { shipping, householdSize, cadenceStartDay },
+        billing: {
+          ...current.billing,
+          startedAt: now,
+          standDownAt: null,
+        },
+        issueLog: current.issueLog,
+      }
+
+      const updatedMetadata = { ...currentMetadata, basics: updated }
+      await req.user.set({ metadata: updatedMetadata }).save()
+      sync.emit('basics_updated', { userId: req.user.id })
+
+      reply.ok()
+    }
+  )
+
+  // STAND DOWN — drops the ration, retains the AI/Usership base layer. The
+  // roster and issue log are kept (historical record), only state + billing
+  // reflect the downgrade.
+  fastify.post(
+    '/basics-standdown',
+    async (req: FastifyRequest, reply) => {
+      const currentMetadata = req.user.metadata || {}
+      const current: BasicsRecord = { ...BASICS_EMPTY, ...(currentMetadata.basics || {}) }
+      if (!isOnStrength(current.state)) {
+        return reply.throw.badParams('Not on strength')
+      }
+
+      const now = new Date().toISOString()
+      const updated: BasicsRecord = {
+        ...current,
+        state: 'NONE',
+        history: [...current.history, { state: 'NONE', at: now }],
+        billing: { ...current.billing, standDownAt: now },
+      }
+
+      const updatedMetadata = { ...currentMetadata, basics: updated }
+      await req.user.set({ metadata: updatedMetadata }).save()
+      sync.emit('basics_updated', { userId: req.user.id })
 
       reply.ok()
     }
