@@ -128,6 +128,10 @@ export function updateEvolutionState(params: {
     if (!styleElement) {
       styleElement = document.createElement('style');
       styleElement.id = 'theme-evolution-animations';
+      // CSP style-src requires a matching nonce for injected <style> tags —
+      // without it the browser silently drops the rules (no error, just no effect).
+      const nonce = document.querySelector('meta[name="csp-style-nonce"]')?.getAttribute('content')
+      if (nonce) (styleElement as HTMLStyleElement).nonce = nonce
       document.head.appendChild(styleElement);
     }
     styleElement.textContent = animationCSS;

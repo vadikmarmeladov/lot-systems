@@ -3904,7 +3904,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         },
         order: [['createdAt', 'DESC']],
         limit: 100, // Sample last 100 check-ins for performance
-        attributes: ['emotionalState', 'createdAt']
+        attributes: ['metadata', 'createdAt']
       })
 
       if (recentEmotions.length === 0) {
@@ -3919,7 +3919,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       // Count emotional states
       const emotionCounts: Record<string, number> = {}
       recentEmotions.forEach((log: any) => {
-        const emotion = log.emotionalState
+        const emotion = log.metadata?.emotionalState
         if (emotion) {
           emotionCounts[emotion] = (emotionCounts[emotion] || 0) + 1
         }

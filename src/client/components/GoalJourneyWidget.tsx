@@ -35,23 +35,27 @@ export function GoalJourneyWidget() {
     })
   }
 
+  // Record goal signal once per mount. Deferred to an effect (after paint)
+  // rather than during render — a store write during another component's
+  // render triggers React's cross-component update warning.
+  const activeProgression = data?.progression
+  React.useEffect(() => {
+    if (hasRecordedRef.current || !activeProgression) return
+    const activeGoals = activeProgression.goals?.filter((g: any) => g.state === 'active' || g.state === 'progressing') || []
+    recordSignal('intentions', 'goals_viewed', {
+      activeGoalCount: activeGoals.length,
+      primaryGoal: activeProgression.overallJourney?.primaryGoal?.title || null,
+      hour: new Date().getHours()
+    })
+    hasRecordedRef.current = true
+  }, [activeProgression])
+
   if (isLoading) return null
   if (!data || data.message) return null // Not enough data yet
   if (!data.progression) return null
 
   const { progression } = data
   const { goals, overallJourney, narrative } = progression
-
-  // Record goal signal once per mount
-  if (!hasRecordedRef.current) {
-    const activeGoals = goals?.filter((g: any) => g.state === 'active' || g.state === 'progressing') || []
-    recordSignal('intentions', 'goals_viewed', {
-      activeGoalCount: activeGoals.length,
-      primaryGoal: overallJourney?.primaryGoal?.title || null,
-      hour: new Date().getHours()
-    })
-    hasRecordedRef.current = true
-  }
 
   const label =
     view === 'journey' ? 'Journey:' :

@@ -244,8 +244,12 @@ export const MicroImageWidget: React.FC = () => {
     }
   }, [composition, density, seed])
 
-  // Record a signal once when the widget mounts with meaningful context
-  if (!hasRecordedRef.current && punctuation.sampleSize > 0) {
+  // Record a signal once when the widget mounts with meaningful context.
+  // Deferred to an effect (after paint) rather than during render — a store
+  // write during another component's render triggers React's
+  // cross-component update warning.
+  React.useEffect(() => {
+    if (hasRecordedRef.current || punctuation.sampleSize === 0) return
     recordSignal('intentions', 'microimage_rendered', {
       composition,
       tone: punctuation.aggregate.tone,
@@ -255,7 +259,7 @@ export const MicroImageWidget: React.FC = () => {
       hour: new Date().getHours(),
     })
     hasRecordedRef.current = true
-  }
+  }, [punctuation.sampleSize])
 
   const handleRegenerate = () => {
     setSeed(Math.floor(Math.random() * 1e6) + 1)

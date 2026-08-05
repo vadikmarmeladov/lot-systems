@@ -10,13 +10,33 @@ Corollary: work that WRITES to a store must not run inside useMemo (render
 phase) — the writes schedule subscriber re-renders before the browser can
 paint. Move such work to useEffect so atom writes land after paint; seed
 the derived value with useState for an identical first render.
+Second corollary, confirmed by a 3rd occurrence (SR-20260805-01): a store
+write guarded by a "run once per mount" ref inside the render body is the
+SAME violation as the useMemo case above — the ref guard controls how many
+times it fires, not WHEN in the render cycle it fires. Move it into
+useEffect regardless of the guard. A state-updater function
+(setX(prev => ...)) is equally render-adjacent and must stay pure — a store
+write inside one produces the same symptom (React: "Cannot update a
+component while rendering a different component") and the fix is the same:
+call the write in the handler body, not inside the updater.
 (SR-20260602-01: router moved from App to TabPanel; System re-render
 eliminated on tab switch. SR-20260603-01: unused Block subscriptions
 removed; per-item subscriptions lifted to parent in Sync; nav buttons
 memoized so only active-state changes trigger re-render. SR-20260719-01:
 System quantumState analyzeIntentions()+recomputeAssembly() moved
 useMemo->useEffect — 10 subscriber re-renders no longer block paint;
-SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+SystemProgressWidget 60s recompute interval gated on !document.hidden.
+SR-20260805-01: 4 more widgets [InterventionsWidget, EnergyCapacitor,
+GoalJourneyWidget, MicroImageWidget] had the ref-guarded render-body
+variant; QuantumEngineWidgets had the state-updater variant across 6
+handlers; all moved to useEffect / handler-body. Related but distinct:
+a hook placed AFTER an early `return null` makes hook count vary with data-
+load state — "Rendered more hooks than during the previous render"
+[SignalStreamWidget, EvolutionWidget]. Not the same defect as the atom-write
+corollary, but the same root cause class: a 2026-07-28 perf pass applied
+the "hooks before early return" rule in some files and not others in the
+same commit. Tracked as CAND-HOOKORDER in the lexicon pending a 2nd
+independent occurrence.)
 
 ## Client Cache Freshness
 

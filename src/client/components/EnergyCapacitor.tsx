@@ -40,21 +40,25 @@ export function EnergyCapacitor() {
     })
   }
 
+  // Record energy signal once per mount. Deferred to an effect (after paint)
+  // rather than during render — a store write during another component's
+  // render triggers React's cross-component update warning.
+  const activeEnergyState = data?.energyState
+  React.useEffect(() => {
+    if (hasRecordedRef.current || !activeEnergyState) return
+    recordSignal('selfcare', `energy_${activeEnergyState.status}`, {
+      level: activeEnergyState.currentLevel,
+      trajectory: activeEnergyState.trajectory,
+      hour: new Date().getHours()
+    })
+    hasRecordedRef.current = true
+  }, [activeEnergyState])
+
   if (isLoading) return null
   if (!data || data.message) return null // Not enough data yet
   if (!data.energyState) return null
 
   const { energyState, suggestions } = data
-
-  // Record energy signal once per mount
-  if (!hasRecordedRef.current && energyState) {
-    recordSignal('selfcare', `energy_${energyState.status}`, {
-      level: energyState.currentLevel,
-      trajectory: energyState.trajectory,
-      hour: new Date().getHours()
-    })
-    hasRecordedRef.current = true
-  }
 
   // Correlate energy with mood
   const getMoodEnergyCorrelation = (): string | null => {

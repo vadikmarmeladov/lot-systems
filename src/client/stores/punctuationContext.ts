@@ -122,6 +122,13 @@ export function updatePunctuationFromLogs(
     .slice(0, 20) // analyze the last 20 texted entries — enough signal, bounded cost
 
   if (withText.length === 0) {
+    const prev = punctuationContext.get()
+    // Skip no-op updates (see the same guard below) — without this, calling
+    // with an empty/not-yet-loaded logs list on every render sets a fresh
+    // object (lastUpdated always ticks) and never settles.
+    if (prev.sampleSize === 0 && prev.aggregate.intensity === DEFAULT_STATE.aggregate.intensity) {
+      return prev
+    }
     const next: PunctuationContextState = {
       ...DEFAULT_STATE,
       lastUpdated: Date.now(),

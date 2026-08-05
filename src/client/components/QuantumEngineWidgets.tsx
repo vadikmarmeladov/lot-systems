@@ -194,52 +194,43 @@ export const QuantumEngineWidgets: React.FC = () => {
     return result?.directive ?? null
   }, [engineState.signals.length, engineState.recognizedPatterns?.length])
 
+  // recordSignal is a store write, called directly in each click handler
+  // (not inside the setState updater) — a state updater must stay pure,
+  // and can re-run outside the commit it was scheduled in.
   const handleCarConnect = () => {
-    setCarConnected((prev) => {
-      const next = !prev
-      recordSignal('intentions', next ? 'car_connected' : 'car_disconnected', { timestamp: Date.now() })
-      return next
-    })
+    const next = !carConnected
+    setCarConnected(next)
+    recordSignal('intentions', next ? 'car_connected' : 'car_disconnected', { timestamp: Date.now() })
   }
 
   const handleHomeConnect = () => {
-    setHomeConnected((prev) => {
-      const next = !prev
-      recordSignal('intentions', next ? 'home_connected' : 'home_disconnected', { timestamp: Date.now() })
-      return next
-    })
+    const next = !homeConnected
+    setHomeConnected(next)
+    recordSignal('intentions', next ? 'home_connected' : 'home_disconnected', { timestamp: Date.now() })
   }
 
   const handleComputerConnect = () => {
-    setComputerConnected((prev) => {
-      const next = !prev
-      recordSignal('intentions', next ? 'computer_connected' : 'computer_disconnected', { timestamp: Date.now() })
-      return next
-    })
+    const next = !computerConnected
+    setComputerConnected(next)
+    recordSignal('intentions', next ? 'computer_connected' : 'computer_disconnected', { timestamp: Date.now() })
   }
 
   const handlePhoneConnect = () => {
-    setPhoneConnected((prev) => {
-      const next = !prev
-      recordSignal('intentions', next ? 'phone_connected' : 'phone_disconnected', { timestamp: Date.now() })
-      return next
-    })
+    const next = !phoneConnected
+    setPhoneConnected(next)
+    recordSignal('intentions', next ? 'phone_connected' : 'phone_disconnected', { timestamp: Date.now() })
   }
 
   const handleWatchConnect = () => {
-    setWatchConnected((prev) => {
-      const next = !prev
-      recordSignal('intentions', next ? 'watch_connected' : 'watch_disconnected', { timestamp: Date.now() })
-      return next
-    })
+    const next = !watchConnected
+    setWatchConnected(next)
+    recordSignal('intentions', next ? 'watch_connected' : 'watch_disconnected', { timestamp: Date.now() })
   }
 
   const handleRobotConnect = () => {
-    setRobotConnected((prev) => {
-      const next = !prev
-      recordSignal('intentions', next ? 'robot_connected' : 'robot_disconnected', { timestamp: Date.now() })
-      return next
-    })
+    const next = !robotConnected
+    setRobotConnected(next)
+    recordSignal('intentions', next ? 'robot_connected' : 'robot_disconnected', { timestamp: Date.now() })
   }
 
   React.useEffect(() => {

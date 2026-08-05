@@ -26,22 +26,27 @@ export function InterventionsWidget() {
     setCurrentIndex(prev => (prev + 1) % data.interventions.length)
   }
 
+  const activeIntervention = data?.interventions?.[currentIndex]
+
+  // Record intervention signal once per mount. Deferred to an effect (after
+  // paint) rather than during render — a store write during another
+  // component's render triggers React's cross-component update warning.
+  React.useEffect(() => {
+    if (hasRecordedRef.current || !activeIntervention) return
+    recordSignal('mood', `intervention_${activeIntervention.severity}`, {
+      type: activeIntervention.type,
+      severity: activeIntervention.severity,
+      hour: new Date().getHours()
+    })
+    hasRecordedRef.current = true
+  }, [activeIntervention])
+
   if (isLoading) return null
   if (!data || data.message) return null // Not enough data yet
   if (data.interventions.length === 0) return null // No interventions needed
 
   const intervention = data.interventions[currentIndex]
   const hasMultiple = data.interventions.length > 1
-
-  // Record intervention signal once per mount
-  if (!hasRecordedRef.current) {
-    recordSignal('mood', `intervention_${intervention.severity}`, {
-      type: intervention.type,
-      severity: intervention.severity,
-      hour: new Date().getHours()
-    })
-    hasRecordedRef.current = true
-  }
 
   const getSeverityIndicator = () => {
     switch (intervention.severity) {

@@ -35,13 +35,12 @@ export function SignalStreamWidget() {
     prevCountRef.current = engine.signals.length
   }, [engine.signals.length])
 
-  // Don't show if fewer than 3 signals
-  if (engine.signals.length < 3) return null
-
   // Get last 12 signals, newest first. Memoized on engine.signals so the
   // full copy+sort of up to 1000 signals only runs when signals actually
   // change — not on every re-render this mounted widget receives from other
   // intentionEngine writes (analyzeIntentions keeps the same signals ref).
+  // Placed before the early return below (Rules of Hooks): hook count and
+  // order must stay identical across renders regardless of signal count.
   const recentSignals = React.useMemo(
     () => [...engine.signals].sort((a, b) => b.timestamp - a.timestamp).slice(0, 12),
     [engine.signals]
@@ -91,6 +90,10 @@ export function SignalStreamWidget() {
 
     return (daySignals.length / hours).toFixed(1)
   }, [engine.signals])
+
+  // Don't show if fewer than 3 signals. Placed after all hooks above
+  // (Rules of Hooks) so hook count/order stays identical every render.
+  if (engine.signals.length < 3) return null
 
   return (
     <Block label="Signal Bus:" blockView>

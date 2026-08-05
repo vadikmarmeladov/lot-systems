@@ -121,5 +121,9 @@ style.textContent = `
 `;
 
 if (typeof document !== 'undefined') {
+  // CSP style-src requires a matching nonce for injected <style> tags —
+  // without it the browser silently drops the rules (no error, just no effect).
+  const nonce = document.querySelector('meta[name="csp-style-nonce"]')?.getAttribute('content')
+  if (nonce) style.nonce = nonce
   document.head.appendChild(style);
 }

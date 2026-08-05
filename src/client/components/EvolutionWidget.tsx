@@ -34,6 +34,11 @@ export const EvolutionWidget: React.FC = () => {
     setView(prev => prev === 'metrics' ? 'activity' : 'metrics')
   }
 
+  // Hooks must run unconditionally on every render (Rules of Hooks) — placed
+  // before the early return below so hook count/order stays identical
+  // whether narrativeData/logs are loaded yet or not.
+  const stoicAnchor = React.useMemo(() => getDailyStoicAnchor(), [])
+
   if (!narrativeData?.narrative || !logs) {
     return null
   }
@@ -95,7 +100,6 @@ export const EvolutionWidget: React.FC = () => {
   }
 
   const stage = getEvolutionStage(currentLevel)
-  const stoicAnchor = React.useMemo(() => getDailyStoicAnchor(), [])
 
   // Activity breakdown labels (CQGS module mapping)
   const activityLabels: Record<string, string> = {

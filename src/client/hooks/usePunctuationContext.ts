@@ -14,6 +14,7 @@ import {
   updatePunctuationFromLogs,
   type PunctuationContextState,
 } from '#client/stores/punctuationContext'
+import type { Log } from '#shared/types'
 
 /**
  * usePunctuationContext
@@ -27,12 +28,17 @@ import {
  * Returns the full PunctuationContextState (aggregate, latest, trend,
  * callForHelp flag, etc.).
  */
+const EMPTY_LOGS: Log[] = []
+
 export function usePunctuationContext(): PunctuationContextState {
-  const { data: logs = [] } = useLogs()
+  const { data: logs = EMPTY_LOGS } = useLogs()
   const snapshot = useStore(punctuationContext)
 
   // Recompute whenever logs change. The store short-circuits on no-op
-  // updates so this does not spam re-renders.
+  // updates so this does not spam re-renders. logs must stay referentially
+  // stable across renders when there's no data yet (EMPTY_LOGS, not a
+  // fresh `[]` default) — otherwise this effect's dep array never settles
+  // and it re-fires every render, which can cascade into an update loop.
   React.useEffect(() => {
     updatePunctuationFromLogs(logs)
   }, [logs])
