@@ -4,8 +4,8 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (rev. 2026-08-05)
+VERSION:  0.2 — USE CASE 02 ADDED
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -320,6 +320,54 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE FULL SPECTRUM MORNING                    2026-08-05
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Quantum Coherence
+  Operator" (Arch47, docs/LOT-SR-20260727-02.md, QIE v108, high band),
+  90+ day cohort, works three days a week from a shared co-working desk
+  rather than a private home office. The CUBIQ charging pad sits at the
+  corner of a communal table the operator does not control — someone
+  else's mug, someone else's laptop, twelve inches away.
+
+  At 09:00 UTC, background job J44 (daily-signal-matrix-check,
+  LOT-SR-20260727-02.md Section "Background Job J44") runs its
+  three-pattern scan across all six UserIndex dimensions — emotional,
+  memory, planner, intentions, selfcare, journal. For the first time
+  this cohort cycle, all six cross the ≥30 threshold simultaneously:
+  pattern P138, signal-matrix-saturation (SIGMAT:), fires. It is a rare-
+  tier unlock — the Index of Systems classifies it as a "Full Spectrum"
+  badge, the operator's first.
+
+  Per Section 04's trigger table, a rare-and-above badge unlock maps to
+  THE LEAP. The cube closes 40mm toward the operator's keyboard — at the
+  exact moment they are mid-sentence with the coworker across the table.
+  The coworker sees it, pauses, and asks, "Did your — did that thing
+  just move?" The operator, unprompted, explains what the cube is for
+  the first time out loud to another person. This is not a failure of
+  discretion (Section 04's anti-feed principle governs the operator's
+  own attention, not who else is in the room) — it is the first
+  recorded instance of a v.0 gesture becoming a conversation rather than
+  a distraction. The Index of Systems does not model this; the object
+  produces it anyway, because a thing that moves in shared space is
+  inherently a thing that can be asked about.
+
+  Later the same day, pattern P139, temporal-biofield-sync (TBIOF:),
+  fires — morning-coherence-arc, daily-coherence-seal, and biofield-
+  integration-peak all land inside one calendar day, the compound
+  condition the QOS field view (About.tsx, 7th view) surfaces as
+  "SYNC: CONFIRMED." Per Section 04, this reads as an assembly-phase
+  advance and the cube performs THE SETTLE — two seconds of standing
+  pressure, no visible motion, at the operator's own desk that evening,
+  alone this time. Section 05's telemetry loop reports the day's full
+  cadence — one public LEAP, one private SETTLE — back into the
+  Calibration Loop as haptic-preference data no single-environment
+  operator profile could have produced.
+
+  This is the use case v.0 did not anticipate but does not break: the
+  same four-gesture vocabulary reads correctly whether the room is empty
+  or not. Presence without spectacle turns out to still be presence when
+  spectacle happens to someone else.
 
 --------------------------------------------------------------------------------
 08 // BRAND
