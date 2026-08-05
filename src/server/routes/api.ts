@@ -269,39 +269,19 @@ export default async (fastify: FastifyInstance) => {
       </head>
       <body>
         <div class="success">
-          <h1>February 2025 Deployment Live!</h1>
+          <h1>LOT Systems — API Online</h1>
 
           <div class="info">
             <strong>User:</strong> ${req.user.email}<br>
             <strong>Tags:</strong> ${req.user.tags.join(', ')}<br>
             <strong>Timestamp:</strong> ${new Date().toISOString()}<br>
-            <strong>Route:</strong> /api/ping<br>
-            <strong>Branch:</strong> claude/february-2025-updates-HZZTF
+            <strong>Route:</strong> /api/ping
           </div>
 
-          <h2>🧠 Memory Engine Refactoring</h2>
+          <h2>Memory Engine</h2>
           <div class="module-info">
             <strong>Status:</strong> ${memoryModuleStatus}<br>
-            <strong>Architecture:</strong> Modular (9 focused modules)<br><br>
             ${moduleDetails}
-          </div>
-
-          <h2>🎮 RPG Quantum Badges System</h2>
-          <div class="module-info">
-            <strong>Water Badges (Oceanic Mayan):</strong> ○∿ ≋○≋ ≈○≈<br>
-            • Organic matter growth & healing<br>
-            • Memory Engine integration<br><br>
-            <strong>Architecture Badges:</strong> Coming soon<br>
-            • Intent manifestation & rendering<br>
-            • Quantum Intent Engine integration
-          </div>
-
-          <h2>February Features</h2>
-          <div class="module-info">
-            Monthly Email System<br>
-            Evolution Widget<br>
-            Cohort-Connect Widget<br>
-            Memory Engine Modularization (Phase 1)
           </div>
 
           <div class="links">
@@ -324,15 +304,11 @@ export default async (fastify: FastifyInstance) => {
   })
 
   fastify.get('/sync', async (req, reply) => {
-    // const id = String(Math.ceil(Math.random() * 99)).padStart(2, '0')
     reply.raw.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
       Connection: 'keep-alive',
     })
-    // if (config.admins.includes(req.user.email)) {
-    //   console.log(`~~> SSE ${id}: connected`)
-    // }
 
     const write = (data: object) => {
       const message = JSON.stringify(data)

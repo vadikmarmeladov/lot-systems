@@ -183,9 +183,9 @@ export const QuantumEngineWidgets: React.FC = () => {
     setReadiness((report as any).physiologicalReadiness ?? null)
   }, [engineState.signals.length])
 
-  // Live user state + index for Index view
-  const userState = React.useMemo(() => getUserState(), [view])
-  const userIndex = React.useMemo(() => getUserIndex(), [view])
+  // Live user state + index for Index view — also recompute when signals change
+  const userState = React.useMemo(() => getUserState(), [view, engineState.signals.length])
+  const userIndex = React.useMemo(() => getUserIndex(), [view, engineState.signals.length])
 
   // Live physiological cohort directive for cohort view
   const cohortDirective = React.useMemo(() => {

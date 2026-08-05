@@ -128,6 +128,10 @@ export const System = React.memo(function SystemInner() {
   // Layout density — progressive condensation from breathable to instrument
   const density = useStore($layoutDensity)
 
+  // Stable random values seeded once at mount — not recomputed on every render
+  const intentionsCooldownRef = React.useRef(2 * 24 * 60 * 60 * 1000 + Math.random() * (24 * 60 * 60 * 1000))
+  const subscribeShouldShowRef = React.useRef(Math.random() < 0.2)
+
   const [isBreatheOn, setIsBreatheOn] = React.useState(false)
   const breatheState = useBreathe(isBreatheOn)
   const [showRadio, setShowRadio] = React.useState(false)
@@ -853,7 +857,9 @@ export const System = React.memo(function SystemInner() {
               if (parsed.date === today) {
                 completedToday = parsed.count
               }
-            } catch (e) {}
+            } catch (e) {
+              localStorage.removeItem('self-care-completed')
+            }
           }
 
           const intentionSuggestsSelfCare = optimalWidget?.widget === 'selfcare'
@@ -886,8 +892,8 @@ export const System = React.memo(function SystemInner() {
           const twoDaysMs = 2 * 24 * 60 * 60 * 1000
           const threeDaysMs = 3 * 24 * 60 * 60 * 1000
 
-          // Random cooldown between 2-3 days
-          const cooldownPeriod = twoDaysMs + Math.random() * (threeDaysMs - twoDaysMs)
+          // Random cooldown between 2-3 days — seeded once at mount via ref to avoid per-render variance
+          const cooldownPeriod = intentionsCooldownRef.current
           const cooldownPassed = !lastShown || (Date.now() - parseInt(lastShown)) >= cooldownPeriod
 
           const intentionSuggestsIntentions = optimalWidget?.widget === 'intentions'
@@ -935,9 +941,8 @@ export const System = React.memo(function SystemInner() {
             return null
           }
 
-          // Random 20% chance to show when all conditions met
-          const shouldShow = Math.random() < 0.2
-          return shouldShow && <div><SubscribeWidget /></div>
+          // 20% chance seeded at mount — ref prevents re-roll on every render
+          return subscribeShouldShowRef.current && <div><SubscribeWidget /></div>
         })()}
       </WidgetErrorBoundary>
 
