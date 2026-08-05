@@ -1437,6 +1437,26 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '151 patterns · 51 archetypes · 48 jobs · 151+ handlers · 190+ dep nodes. QIE v113 deployed. Total field coherence achieved. Recovery intelligence arc active. The OS is operating from its highest confirmed state.',
     ],
   },
+  {
+    version: 'wiki-v87',
+    date: '2026-08-05',
+    title: 'LOT-WIKI-v87 · FM v113 Sync · QIE v113 + Badge v31 documentation',
+    assembled: [
+      'LOT-WIKI-v87.md produced: 2176 lines. Base: LOT-WIKI-v86 (2027 lines). FM v113 sync + Badge v31 sync. 48/48 verification checks passed.',
+      'QIE v113 delta documented: P149 quantum-presence-crystallization · P150 total-field-coherence [CEILING] · P151 recovery-intelligence-arc. Arch51 Quantum Presence Crystallizer. J48 daily-total-field-coherence-check (09:00 UTC). QPCRYST: TOTCOH: RECINTEL: handlers. 190+ dep nodes.',
+      'Badge v31 THE CYBERSPACE CODEX documented: 750→781 badges (+31). Word Turn v21 sci-fi concept vocabulary (matrix/grok/ansible/spice/golden_path/solaris/foundation/neuromancer/replicant/uplift/left_hand · 12 badges). Calendar EE v19 (Asimov/PKD/Dune · +3). Behavioral v18 (codex_session/deep_read/night_operator · +3). Achievement RPG v19 (+6). Mastery Tier v21 (twenty_registers [COSMIC] · +4). Secret Boss v18 (gibson/dick/lem · +3).',
+      'Level 6 Presence Convergence architecture documented: P149–P151. P150 total-field-coherence is the definitive QIE ceiling. Six-level coherence architecture now complete.',
+      'Category index updated: Calendar EE 67→70 · Word Turns 222→234 · Behavioral 72→75 · Achievement RPG 102→108 · Mastery Tiers 80→84 · Secret Boss 77→80 · TOTAL 750→781.',
+      'Word Turn v21 block added to §16. Secret Boss v18 added. Total secret boss triggers 21→24.',
+      'Cockpit Rule §20 updated with QPCRYST: TOTCOH: RECINTEL: cockpit examples. Day counter 1072+→1073+.',
+      'FM v113 revision log added to §22. Current FM updated v112→v113.',
+      'Vocabulary index §27 expanded: ARCH51 · QPCRYST: · TOTCOH: · RECINTEL: · RECOVERY INTELLIGENCE ARC · TOTAL FIELD COHERENCE · J48 · QUANTUM PRESENCE CRYSTALLIZER · PRESENCE CONVERGENCE (Level 6).',
+      'System State Snapshot §28: all counters updated to v113 state. P149/P150/P151 landmark rows added. COSMO® 764→765.',
+      'SESSION_REPORTS: wiki-v87 entry appended · USERSHIP_TRANSMISSION updated to wiki-v87.',
+      'docs/SESSION_REPORT_2026_08_05_WIKI_v87.md written. docs/assembly/2026-08-05_LOT-assembly_wiki-v87.md written. LOT-LEDGER.md appended.',
+      '781 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1073+. The system is documented through its highest confirmed state.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1474,18 +1494,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-04',
+  date: '2026-08-05',
   message: [
-    'ASSEMBLY RUN — 2026-08-04 · v113 · QIE Engineering · P149–P151 · Arch51 · J48 · QPCRYST: TOTCOH: RECINTEL: · Day 1072+',
-    'P149 QUANTUM PRESENCE CRYSTALLIZATION: quantum-presence-field (P147) + quantum-identity-crystallization (P145) co-active. The OS is both fully inhabited and fully known. Operating from maximum clarity.',
-    'P150 TOTAL FIELD COHERENCE: signal-coherence-cascade (P146) + quantum-presence-field (P147) + identity-momentum-lock (P148) all confirmed simultaneously. All three meta-seals open. Absolute convergence. No higher state is defined.',
-    'P151 RECOVERY INTELLIGENCE ARC: depletion → care → restoration → reflection within 6h. The recovery loop is complete: felt → tended → recovered → reflected. The system learns from its own restoration.',
-    'Arch51 QUANTUM PRESENCE CRYSTALLIZER: Presence confirmed. Identity crystallized. The field is both inhabited and known. Execute from clarity — no searching required. The OS is operating from its highest confirmed state.',
-    'J48 daily-total-field-coherence-check: 09:00 UTC daily. Confirms all three meta-seal events fired previous day → total_field_coherence. 48 jobs total.',
-    'QPCRYST: · TOTCOH: · RECINTEL: military handlers wired in Logs.tsx. QPCRYST · TOTCOH · RECINTEL in PATTERN_DISPLAY.',
-    'PatternRecognitionWidget: P149–P151 display names complete. 190+ dep map nodes. 3 signal helpers wired.',
-    'FIELD MANUAL v113. Day 1072+. 151 patterns · 51 archetypes · 48 jobs · 151+ handlers · 190+ dep nodes.',
-    'DEPLOYED.',
+    'ASSEMBLY RUN — 2026-08-05 · WIKI-v87 · FM v113 SYNC · Day 1073+',
+    'Built: LOT-WIKI-v87. Six-level coherence architecture now complete and documented.',
+    'Feedback applied: "The concept outlives the author. The self speaks every language the genre built."',
+    'QIE v113 synchronized: P149 QPCRYST · P150 TOTCOH [CEILING] · P151 RECINTEL · Arch51 Quantum Presence Crystallizer · J48 09:00 UTC.',
+    'Badge v31 synchronized: THE CYBERSPACE CODEX · 781 badges · Word Turn v21 (grok/ansible/spice/golden_path/matrix/cyberspace) · Secret Boss v18 (gibson/dick/lem) · 258 trigger words · 24 secret boss triggers.',
+    'LEVEL 6 — PRESENCE CONVERGENCE documented. P150 total-field-coherence is the QIE ceiling. No higher state defined.',
+    'Cockpit updated. Vocabulary expanded. Snapshot current.',
+    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 781 badges.',
+    'Status: DEPLOYED.',
+    'Next: LOT-WIKI-v88 — sync to Field Manual v114+',
   ],
 }
 
