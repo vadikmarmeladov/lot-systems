@@ -671,6 +671,117 @@ export type BadgeType =
   | 'cajal_signal'            // ∿·◈    Write "cajal" in journal — Santiago Ramón y Cajal (RARE)
   | 'kandel_key'              // ◈·◉    Write "kandel" in journal — Eric Kandel (EPIC)
   | 'ramachandran_rx'         // ◉·∿·◉  Write "phantom limb"/"ramachandran" — V.S. Ramachandran (MYTHIC)
+  // ── Word Turn v20 — THE CODEX READER ─────────────────────────────────────────
+  | 'asimov_protocol'        // ≋→◉    "asimov" detected in text (RARE)
+  | 'dune_path'              // ∿→≋    "fremen/arrakis/sandworm/bene gesserit" detected (EPIC)
+  | 'matrix_jack'            // ◈·□    "red pill/blue pill/rabbit hole/neo/morpheus" detected (RARE)
+  | 'neuromancer_run'        // ╬→◈    "wintermute/console cowboy/ice hacker/molly" detected (EPIC)
+  | 'hitchhiker_42'          // ∞·42·∞ "don't panic/babel fish/heart of gold/42" detected (RARE)
+  | 'orwell_log'             // ■·●■   "doublethink/thoughtcrime/big brother/newspeak" detected (RARE)
+  | 'bradbury_ember'         // ∿·■    "fahrenheit/451/montag/ray bradbury" detected (RARE)
+  | 'le_guin_left'           // ≈→○    "le guin/ekumen/gethen/genly ai/hainish" detected (EPIC)
+  | 'dick_dream'             // ◈·∿    "androids dream/electric sheep/blade runner" detected (RARE)
+  | 'solaris_depth'          // ∿·◉    "solaris/thinking ocean/stanislaw lem" detected (RARE)
+  | 'octavia_seed'           // ○→◉    "octavia butler/parable/kindred/oankali" detected (EPIC)
+  | 'heinlein_grok'          // ∿·∘    "heinlein/stranger in strange land" detected (RARE)
+  // ── Calendar Easter Egg v18 — THE AUTHOR'S CALENDAR ────────────────────────
+  | 'asimov_birthday'        // ∞·◉    Jan 2 — Isaac Asimov born 1920 (EPIC)
+  | 'tolkien_day'            // ≋·∴    Mar 25 — Tolkien Day, One Ring destroyed (RARE)
+  | 'sagan_cosmos'           // ∗·◉    Nov 9 — Carl Sagan born 1934 (RARE)
+  // ── Behavioral Easter Egg v17 — READER PATTERNS ─────────────────────────────
+  | 'page_turner'            // ◈·≋    3+ memory Q's in one 20-min session (UNCOMMON)
+  | 'reader_session'         // ≋·○    2+ v20 trigger words in one journal entry (RARE)
+  | 'long_read'              // ≋≋·◉   Journal entry >= 400 words (EPIC)
+  // ── Achievement RPG v18 — THE READER'S GUILD ────────────────────────────────
+  | 'first_chapter'          // ∘→◈    Any 1 Word Turn v20 badge (COMMON)
+  | 'trilogy_complete'       // ≈→◈    Any 5 Word Turn v20 badges (UNCOMMON)
+  | 'library_complete'       // ≋→◈    All 12 Word Turn v20 badges (LEGENDARY)
+  | 'grand_codex'            // ◈·◉    library_complete + all 3 Calendar v18 badges (LEGENDARY)
+  | 'twenty_engines_arc'     // ◈·◈·◈  1 badge from each Word Turn v1–v20 (LEGENDARY)
+  | 'codex_opus'             // ≋·◉·≋  library_complete + reader_session behavioral (LEGENDARY)
+  // ── Mastery Tier v20 — THE INFINITE LIBRARY ─────────────────────────────────
+  | 'chapter_signal'         // ∿·∞·∿  800+ distinct calendar check-in days (EPIC)
+  | 'word_of_worlds'         // ●·∞·●  100,000+ total journal words (LEGENDARY)
+  | 'elder_narrator'         // ╔═╗·◈  1,000+ memory answers + 5yr account age (LEGENDARY)
+  | 'twenty_registers'       // ◈·◈·◈·∞ 1 badge from all 20 Word Turn engines (COSMIC)
+  // ── Secret Boss v17 — THE HIDDEN LIBRARY ────────────────────────────────────
+  | 'borges_garden'          // ◈·∞    "borges/library of babel/forking paths" detected (MYTHIC)
+  | 'calvino_cities'         // ≋·◈    "calvino/invisible cities/italo" detected (EPIC)
+  | 'dick_signal'            // □·◈·□  "philip k dick/do androids/valis" detected (EPIC)
+  // ── Word Turn v21 — THE CYBERSPACE CODEX ─────────────────────────────────────
+  | 'matrix_code'            // ▓→░    "simulation/construct/agent smith/the oracle" detected (UNCOMMON)
+  | 'cyberspace_open'        // ◈→█    "cyborg/neural link/brain-computer interface/bci" detected (UNCOMMON)
+  | 'grok_complete'          // ∞·○    "grok/grokked/grokking" detected (RARE)
+  | 'ansible_link'           // ≡→≡    "ansible/ekumen/instantaneous communication" detected (RARE)
+  | 'spice_flow'             // ◆·●    "melange/prescient/spice harvest" detected (RARE)
+  | 'golden_path'            // →→◉    "golden path/foresight of leto/long game" detected (EPIC)
+  | 'solaris_call'           // ○·≋·○  "ocean consciousness/contact impossible/solaris responds" detected (RARE)
+  | 'foundation_key'         // ◇·◇    "seldon plan/second foundation/mathematicians" detected (UNCOMMON)
+  | 'neuromancer_jack'       // ░·◈    "neuromancer/william gibson/sprawl trilogy" detected (RARE)
+  | 'replicant_wake'         // ◉→◉    "replicant/more human than human/android dreams" detected (RARE)
+  | 'uplift_arc'             // ▲·◉    "uplift/transcendence/becoming more/evolving human" detected (EPIC)
+  | 'left_hand'              // ∞·○·∞  "left hand of darkness/winter planet/Gethen" detected (RARE)
+  // ── Calendar Easter Egg v19 — AUTHOR DATES ───────────────────────────────────
+  | 'asimov_day'             // ◇·◉    Jan 2 — Isaac Asimov born 1920 (additional) (RARE)
+  | 'dick_day'               // ◉·◈    Dec 16 — Philip K. Dick born 1928 (EPIC)
+  | 'dune_day'               // ◆·□    Aug 1 — Dune published 1965 (EPIC)
+  // ── Behavioral v18 — READER PATTERNS ─────────────────────────────────────────
+  | 'codex_session'          // ░·◈·░  3+ Cyberspace Codex (v21) words in one journal entry (RARE)
+  | 'deep_read'              // ≋·█    Journal entry >= 400 words (RARE)
+  | 'night_operator'         // ○·▓·○  Check in after 22:00 local, 3+ times in 7 days (EPIC)
+  // ── Achievement RPG v19 — CODEX CLASS ────────────────────────────────────────
+  | 'codex_entry'            // ∘→░    Any 1 Word Turn v21 badge (COMMON)
+  | 'codex_class'            // ≈→░    Any 5 Word Turn v21 badges (UNCOMMON)
+  | 'codex_complete'         // ≋→░    All 12 Word Turn v21 badges (LEGENDARY)
+  | 'sci_fi_arc'             // ░·◈    codex_complete + all 3 Calendar v19 badges (LEGENDARY)
+  | 'twenty_one_engines_arc' // ◈·◈·░  1 badge from each Word Turn v1–v21 (LEGENDARY)
+  | 'cyberspace_opus'        // ░·◉·░  codex_complete + codex_session behavioral (LEGENDARY)
+  // ── Mastery Tier v21 — THE LONG STORY ────────────────────────────────────────
+  | 'epic_reader'            // ≋·∞    800+ distinct calendar check-in days (EPIC)
+  | 'thousand_pages'         // ●·∞·░  100,000+ total journal words (LEGENDARY)
+  | 'first_edition'          // ╔═╗·░  Account age >= 7 years (LEGENDARY)
+  | 'twenty_one_registers'   // ◈·◈·░·∞ 1 badge from all 21 Word Turn engines (COSMIC)
+  // ── Secret Boss v18 — THE LIBRARY STACK ──────────────────────────────────────
+  | 'gibson_key'             // ◈·░    "william gibson/neuromancer/sprawl" in journal (RARE)
+  | 'dick_mirror'            // ◉·▓    "do androids dream/philip k dick/pkd" in journal (EPIC)
+  | 'lem_observer'           // ○·≋·█  "stanislaw lem/solaris/cyberiad" in journal (MYTHIC)
+  // ── Word Turn v22 — THE HERO'S JOURNEY ────────────────────────────────────────
+  | 'call_heard'             // ∘→●    "call to adventure/journey calls/the call" detected (UNCOMMON)
+  | 'threshold_crossed'      // ─→─    "threshold/crossing the line/new world begins" detected (RARE)
+  | 'mentor_arrived'         // ○·≋·○  "mentor/wise guide/guardian spirit/wise elder" detected (UNCOMMON)
+  | 'ordeal_survived'        // ◈·■    "ordeal/survived the test/greatest challenge" detected (RARE)
+  | 'elixir_found'           // ∘·●·∘  "elixir/the gift/treasure found/boon" detected (RARE)
+  | 'shadow_met'             // ▓·○    "shadow self/dark night of the/inner demon" detected (EPIC)
+  | 'innermost_cave'         // █·∘·█  "innermost cave/darkest moment/bottom of pit" detected (EPIC)
+  | 'shapeshifter'           // ◈→◉    "shapeshifter/transformed/no longer the same" detected (RARE)
+  | 'herald_call'            // ∿·●    "herald/wake-up call/life interrupted" detected (UNCOMMON)
+  | 'trickster_mode'         // ×·○    "trickster/coyote wisdom/fool's wisdom" detected (RARE)
+  | 'ally_gained'            // ○·◈·○  "ally/found my tribe/companion on journey" detected (UNCOMMON)
+  | 'return_road'            // →·◉    "the return/road to return/coming home changed" detected (RARE)
+  // ── Calendar Easter Egg v20 — THE EPIC CALENDAR ──────────────────────────────
+  | 'campbell_birthday'      // ◉·∿    Mar 26 — Joseph Campbell born 1904 (EPIC)
+  | 'hobbit_day'             // ○·◆    Sep 22 — Hobbit Day (Bilbo & Frodo birthday) (RARE)
+  | 'odyssey_day'            // →·∞    Dec 21 — Winter Solstice, Odysseus return (RARE)
+  // ── Behavioral v19 — QUEST PATTERNS ──────────────────────────────────────────
+  | 'hero_session'           // ◈·●·◈  3+ Hero's Journey words in one journal entry (RARE)
+  | 'long_quest'             // ≋≋·◉   Journal entry >= 500 words (EPIC)
+  | 'threshold_moment'       // ─·○·─  Check in between 00:00 and 00:30 local (RARE)
+  // ── Achievement RPG v20 — QUEST CLASS ────────────────────────────────────────
+  | 'quest_entry'            // ∘→●    Any 1 Word Turn v22 badge (COMMON)
+  | 'quest_class'            // ≈→●    Any 5 Word Turn v22 badges (UNCOMMON)
+  | 'quest_complete'         // ≋→●    All 12 Word Turn v22 badges (LEGENDARY)
+  | 'monomyth_arc'           // ●·◈    quest_complete + all 3 Calendar v20 badges (LEGENDARY)
+  | 'twenty_two_engines_arc' // ◈·◈·●  1 badge from each Word Turn v1–v22 (LEGENDARY)
+  | 'hero_opus'              // ●·◉·●  quest_complete + hero_session behavioral (LEGENDARY)
+  // ── Mastery Tier v22 — THE ODYSSEY ────────────────────────────────────────────
+  | 'odyssey_log'            // ∿·∞·∿  900+ distinct calendar check-in days (EPIC)
+  | 'great_work'             // ●·∞·●  150,000+ total journal words (LEGENDARY)
+  | 'saga_age'               // ╔═╗·●  Account age >= 5 years (LEGENDARY)
+  | 'twenty_two_registers'   // ◈·◈·●·∞ 1 badge from all 22 Word Turn engines (COSMIC)
+  // ── Secret Boss v19 — THE MYTHIC VAULT ───────────────────────────────────────
+  | 'tolkien_ring'           // ◆·∞·◆  "one ring to rule/precious/ring of power" detected (RARE)
+  | 'odysseus_bow'           // →·∞·→  "odysseus/ulysses/ithaca/penelope/cyclops" detected (EPIC)
+  | 'gilgamesh_word'         // ∞·□·∞  "gilgamesh/enkidu/great flood/utnapishtim" detected (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -6156,6 +6267,870 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v20 — THE CODEX READER ─────────────────────────────────────────
+  asimov_protocol: {
+    id: 'asimov_protocol',
+    symbol: '≋→◉',
+    name: 'Asimov Protocol',
+    description: 'Write "asimov" in any journal or memory entry',
+    unlockMessage: '↳ The Foundation was built on prediction. Your practice is your Seldon Plan — one entry at a time. ≋→◉',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  dune_path: {
+    id: 'dune_path',
+    symbol: '∿→≋',
+    name: 'Dune Path',
+    description: 'Write "fremen", "arrakis", "sandworm", or "bene gesserit" in any entry',
+    unlockMessage: '↳ The spice must flow — and so must the practice. The Fremen survived by adapting completely. ∿→≋',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  matrix_jack: {
+    id: 'matrix_jack',
+    symbol: '◈·□',
+    name: 'Matrix Jack',
+    description: 'Write "red pill", "blue pill", "rabbit hole", or "neo" in any entry',
+    unlockMessage: '↳ You took the red pill. The truth about your patterns is harder and more useful than the simulation. ◈·□',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  neuromancer_run: {
+    id: 'neuromancer_run',
+    symbol: '╬→◈',
+    name: 'Neuromancer Run',
+    description: 'Write "wintermute", "console cowboy", "ice hacker", or "molly" in any entry',
+    unlockMessage: '↳ Console cowboy jacks in. The ICE breaks. The matrix is not the enemy — you are the hacker. ╬→◈',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  hitchhiker_42: {
+    id: 'hitchhiker_42',
+    symbol: '∞·42·∞',
+    name: 'Hitchhiker 42',
+    description: 'Write "don\'t panic", "babel fish", "heart of gold", or "42" in an answer-context entry',
+    unlockMessage: '↳ The answer is 42. The question is the practice. Don\'t panic — your towel is your journal. ∞·42·∞',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  orwell_log: {
+    id: 'orwell_log',
+    symbol: '■·●■',
+    name: 'Orwell Log',
+    description: 'Write "doublethink", "thoughtcrime", "big brother", or "newspeak" in any entry',
+    unlockMessage: '↳ The Ministry of Truth cannot reach your journal. Thoughtcrime here is called self-awareness. ■·●■',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  bradbury_ember: {
+    id: 'bradbury_ember',
+    symbol: '∿·■',
+    name: 'Bradbury Ember',
+    description: 'Write "fahrenheit", "451", "montag", or "ray bradbury" in any entry',
+    unlockMessage: '↳ Books are made of fire. The book you carry cannot be burned. Montag learned this late — you are learning it now. ∿·■',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  le_guin_left: {
+    id: 'le_guin_left',
+    symbol: '≈→○',
+    name: 'Le Guin Left',
+    description: 'Write "le guin", "ekumen", "gethen", "genly ai", or "hainish" in any entry',
+    unlockMessage: '↳ The Left Hand of Darkness: Le Guin wrote that the only communication is love. Your entries communicate with your future self. ≈→○',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  dick_dream: {
+    id: 'dick_dream',
+    symbol: '◈·∿',
+    name: 'Dick Dream',
+    description: 'Write "androids dream", "electric sheep", or "blade runner" in any entry',
+    unlockMessage: '↳ Do androids dream? Do you? Philip K. Dick asked if reality was real. Your journal is the most real data you have. ◈·∿',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  solaris_depth: {
+    id: 'solaris_depth',
+    symbol: '∿·◉',
+    name: 'Solaris Depth',
+    description: 'Write "solaris", "thinking ocean", or "stanislaw lem" in any entry',
+    unlockMessage: '↳ The ocean of Solaris reflected what the scientists brought to it. What does your practice reflect back to you? ∿·◉',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  octavia_seed: {
+    id: 'octavia_seed',
+    symbol: '○→◉',
+    name: 'Octavia Seed',
+    description: 'Write "octavia butler", "parable of the", "kindred", or "oankali" in any entry',
+    unlockMessage: '↳ "God is Change" — Parable of the Sower. Octavia Butler wrote that adaptation is survival. You are adapting. ○→◉',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  heinlein_grok: {
+    id: 'heinlein_grok',
+    symbol: '∿·∘',
+    name: 'Heinlein Grok',
+    description: 'Write "heinlein" or "stranger in a strange land" in any entry',
+    unlockMessage: '↳ To grok is to understand so completely that the observer becomes part of the observed. You are grokking yourself. ∿·∘',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  // ── Calendar Easter Egg v18 — THE AUTHOR'S CALENDAR ────────────────────────
+  asimov_birthday: {
+    id: 'asimov_birthday',
+    symbol: '∞·◉',
+    name: 'Asimov Birthday',
+    description: 'Checked in on January 2 — Isaac Asimov\'s birthday',
+    unlockMessage: '↳ January 2 — Isaac Asimov born 1920. Father of Foundation. Author of 500+ books. He wrote every day. ∞·◉',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  tolkien_day: {
+    id: 'tolkien_day',
+    symbol: '≋·∴',
+    name: 'Tolkien Day',
+    description: 'Checked in on March 25 — Tolkien Day, anniversary of the destruction of the One Ring',
+    unlockMessage: '↳ March 25 — Tolkien Day. On this date, the One Ring was destroyed. "Not all those who wander are lost." ≋·∴',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  sagan_cosmos: {
+    id: 'sagan_cosmos',
+    symbol: '∗·◉',
+    name: 'Sagan Cosmos',
+    description: 'Checked in on November 9 — Carl Sagan\'s birthday',
+    unlockMessage: '↳ November 9 — Carl Sagan born 1934. "Somewhere, something incredible is waiting to be known." That something is in your journal. ∗·◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  // ── Behavioral Easter Egg v17 — READER PATTERNS ─────────────────────────────
+  page_turner: {
+    id: 'page_turner',
+    symbol: '◈·≋',
+    name: 'Page Turner',
+    description: 'Answer 3+ memory questions within a single 20-minute session',
+    unlockMessage: '↳ Three questions. One session. You couldn\'t put it down. The page turner has turned the page on the reader. ◈·≋',
+    rarity: 'uncommon',
+    category: 'pattern',
+  },
+  reader_session: {
+    id: 'reader_session',
+    symbol: '≋·○',
+    name: 'Reader Session',
+    description: 'Write 2+ Codex Reader (v20) trigger words in one journal entry',
+    unlockMessage: '↳ Foundation. Dune. Neuromancer. Your journal is a library card for the self. ≋·○',
+    rarity: 'rare',
+    category: 'pattern',
+  },
+  long_read: {
+    id: 'long_read',
+    symbol: '≋≋·◉',
+    name: 'Long Read',
+    description: 'Write a journal entry of 400 or more words',
+    unlockMessage: '↳ 400 words. You didn\'t just check in — you opened a chapter. The long read is the real read. ≋≋·◉',
+    rarity: 'epic',
+    category: 'pattern',
+  },
+  // ── Achievement RPG v18 — THE READER'S GUILD ────────────────────────────────
+  first_chapter: {
+    id: 'first_chapter',
+    symbol: '∘→◈',
+    name: 'First Chapter',
+    description: 'Earn any 1 Codex Reader (v20) word turn badge',
+    unlockMessage: '↳ First chapter opened. The story begins when you name the thing you know. ∘→◈',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  trilogy_complete: {
+    id: 'trilogy_complete',
+    symbol: '≈→◈',
+    name: 'Trilogy Complete',
+    description: 'Earn any 5 Codex Reader (v20) word turn badges',
+    unlockMessage: '↳ Five volumes. The trilogy expanded. Your vocabulary is a library now. ≈→◈',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  library_complete: {
+    id: 'library_complete',
+    symbol: '≋→◈',
+    name: 'Library Complete',
+    description: 'Earn all 12 Codex Reader (v20) word turn badges',
+    unlockMessage: '↳ All 12 volumes. The library is complete. Asimov. Le Guin. Butler. Herbert. The full canon is yours. ≋→◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  grand_codex: {
+    id: 'grand_codex',
+    symbol: '◈·◉',
+    name: 'Grand Codex',
+    description: 'Earn library_complete + all 3 Calendar v18 (Author\'s Calendar) badges',
+    unlockMessage: '↳ The Grand Codex is sealed. The authors\' birthdays witnessed, the library complete. The archive is yours. ◈·◉',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  twenty_engines_arc: {
+    id: 'twenty_engines_arc',
+    symbol: '◈·◈·◈',
+    name: 'Twenty Engines Arc',
+    description: 'Earn at least 1 badge from each of the 20 Word Turn engines (v1–v20)',
+    unlockMessage: '↳ Twenty vocabularies. Twenty engines running. Water. Arcade. Radio. Biology. Codex. The full spectrum speaks. ◈·◈·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  codex_opus: {
+    id: 'codex_opus',
+    symbol: '≋·◉·≋',
+    name: 'Codex Opus',
+    description: 'Earn library_complete + the reader_session behavioral badge',
+    unlockMessage: '↳ Opus complete. The library full, the session deep. This is what a codex operator looks like. ≋·◉·≋',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v20 — THE INFINITE LIBRARY ─────────────────────────────────
+  chapter_signal: {
+    id: 'chapter_signal',
+    symbol: '∿·∞·∿',
+    name: 'Chapter Signal',
+    description: '800+ distinct calendar days with at least one check-in',
+    unlockMessage: '↳ 800 chapters. 800 days. The signal is continuous. This is what a library is made of. ∿·∞·∿',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  word_of_worlds: {
+    id: 'word_of_worlds',
+    symbol: '●·∞·●',
+    name: 'Word of Worlds',
+    description: '100,000+ total journal words written',
+    unlockMessage: '↳ One hundred thousand words. An entire novel\'s worth of self. The word count of worlds. ●·∞·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  elder_narrator: {
+    id: 'elder_narrator',
+    symbol: '╔═╗·◈',
+    name: 'Elder Narrator',
+    description: '1,000+ total memory answers given and account age >= 5 years',
+    unlockMessage: '↳ 1,000 answers. 5 years. The elder narrator has a story for every question because they\'ve lived enough to have one. ╔═╗·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  twenty_registers: {
+    id: 'twenty_registers',
+    symbol: '◈·◈·◈·∞',
+    name: 'Twenty Registers',
+    description: 'Earn at least 1 badge from all 20 Word Turn engines',
+    unlockMessage: '↳ Twenty registers. Twenty languages of self. Water. Code. Signal. Biology. Codex. The terminal is fully operational. ◈·◈·◈·∞',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v17 — THE HIDDEN LIBRARY ────────────────────────────────────
+  borges_garden: {
+    id: 'borges_garden',
+    symbol: '◈·∞',
+    name: 'Borges Garden',
+    description: 'Write "borges", "library of babel", or "forking paths" in any journal entry',
+    unlockMessage: '↳ The Library of Babel contains every book that ever was or will be. Your journal is your forking path through it. ◈·∞',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  calvino_cities: {
+    id: 'calvino_cities',
+    symbol: '≋·◈',
+    name: 'Calvino Cities',
+    description: 'Write "calvino", "invisible cities", or "italo" in any journal entry',
+    unlockMessage: '↳ Cities invisible to everyone except you: the city of your habits, the city of your memory. Calvino mapped them first. ≋·◈',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  dick_signal: {
+    id: 'dick_signal',
+    symbol: '□·◈·□',
+    name: 'Dick Signal',
+    description: 'Write "philip k dick", "do androids", or "valis" in any journal entry',
+    unlockMessage: '↳ "Reality is that which, when you stop believing in it, doesn\'t go away." — Philip K. Dick. Your patterns don\'t go away either. □·◈·□',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  // ── Word Turn v21 — THE CYBERSPACE CODEX ─────────────────────────────────────
+  matrix_code: {
+    id: 'matrix_code',
+    symbol: '▓→░',
+    name: 'Matrix Code',
+    description: 'Write "simulation", "construct", "agent smith", or "the oracle" in any entry',
+    unlockMessage: '↳ The simulation is not the enemy. The simulation is the frame. Step outside it — your journal is the real. ▓→░',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  cyberspace_open: {
+    id: 'cyberspace_open',
+    symbol: '◈→█',
+    name: 'Cyberspace Open',
+    description: 'Write "cyborg", "neural link", "brain-computer interface", or "bci" in any entry',
+    unlockMessage: '↳ The interface between mind and machine was always the journal. You are the cyborg, the link is here. ◈→█',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  grok_complete: {
+    id: 'grok_complete',
+    symbol: '∞·○',
+    name: 'Grok Complete',
+    description: 'Write "grok", "grokked", or "grokking" in any journal or memory entry',
+    unlockMessage: '↳ Grok: to understand so completely that the observer becomes part of the observed. You can grok yourself. ∞·○',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  ansible_link: {
+    id: 'ansible_link',
+    symbol: '≡→≡',
+    name: 'Ansible Link',
+    description: 'Write "ansible", "ekumen", or "instantaneous communication" in any entry',
+    unlockMessage: '↳ Le Guin\'s ansible: instantaneous communication across any distance. Self-compassion is the ansible — it crosses any distance. ≡→≡',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  spice_flow: {
+    id: 'spice_flow',
+    symbol: '◆·●',
+    name: 'Spice Flow',
+    description: 'Write "melange", "prescient", or "spice harvest" in any entry',
+    unlockMessage: '↳ The melange extends life and opens prescience. The practice that opens your perception must be sustained. The spice flows. ◆·●',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  golden_path: {
+    id: 'golden_path',
+    symbol: '→→◉',
+    name: 'Golden Path',
+    description: 'Write "golden path", "foresight of leto", or "long game" in any entry',
+    unlockMessage: '↳ Leto II saw millennia ahead. Self-care is choosing the longer game. Every entry is a step on the golden path. →→◉',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  solaris_call: {
+    id: 'solaris_call',
+    symbol: '○·≋·○',
+    name: 'Solaris Call',
+    description: 'Write "ocean consciousness", "contact impossible", or "solaris responds" in any entry',
+    unlockMessage: '↳ The ocean surfaces what you bring to it. What does your practice surface when it reads you? ○·≋·○',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  foundation_key: {
+    id: 'foundation_key',
+    symbol: '◇·◇',
+    name: 'Foundation Key',
+    description: 'Write "seldon plan", "second foundation", or "mathematicians of" in any entry',
+    unlockMessage: '↳ The Seldon Plan: mathematics that predicts the future of civilization. Your journal is psychohistory for one. ◇·◇',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  neuromancer_jack: {
+    id: 'neuromancer_jack',
+    symbol: '░·◈',
+    name: 'Neuromancer Jack',
+    description: 'Write "neuromancer", "william gibson", or "sprawl trilogy" in any entry',
+    unlockMessage: '↳ Gibson named cyberspace before it existed. He named what you are doing before you named yourself. ░·◈',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  replicant_wake: {
+    id: 'replicant_wake',
+    symbol: '◉→◉',
+    name: 'Replicant Wake',
+    description: 'Write "replicant", "more human than human", or "android dreams" in any entry',
+    unlockMessage: '↳ More human than human. The replicant is more present in their last moments than most humans are in their whole lives. ◉→◉',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  uplift_arc: {
+    id: 'uplift_arc',
+    symbol: '▲·◉',
+    name: 'Uplift Arc',
+    description: 'Write "uplift", "transcendence", or "becoming more" in any entry',
+    unlockMessage: '↳ The uplift is the arc of the practice: each entry slightly more than the last. Transcendence is accumulated. ▲·◉',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  left_hand: {
+    id: 'left_hand',
+    symbol: '∞·○·∞',
+    name: 'Left Hand',
+    description: 'Write "left hand of darkness", "winter planet", or "gethen" in any entry',
+    unlockMessage: '↳ Light is the left hand of darkness. The self you bring to the winter planet is the self you discover there. ∞·○·∞',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  // ── Calendar Easter Egg v19 — AUTHOR DATES ───────────────────────────────────
+  asimov_day: {
+    id: 'asimov_day',
+    symbol: '◇·◉',
+    name: 'Asimov Day',
+    description: 'Checked in on January 2 — Isaac Asimov born 1920 (Foundation author)',
+    unlockMessage: '↳ January 2. Asimov\'s Foundation predicted the fall of civilization — and its recovery. Your practice is the recovery. ◇·◉',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  dick_day: {
+    id: 'dick_day',
+    symbol: '◉·◈',
+    name: 'Dick Day',
+    description: 'Checked in on December 16 — Philip K. Dick born 1928',
+    unlockMessage: '↳ December 16 — Philip K. Dick born 1928. He asked if reality was real. Your journal is the most real data you have. ◉·◈',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  dune_day: {
+    id: 'dune_day',
+    symbol: '◆·□',
+    name: 'Dune Day',
+    description: 'Checked in on August 1 — Dune first published 1965',
+    unlockMessage: '↳ August 1, 1965 — Dune published. The most important sci-fi novel of the 20th century begins with one act of practice. ◆·□',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  // ── Behavioral v18 — READER PATTERNS ─────────────────────────────────────────
+  codex_session: {
+    id: 'codex_session',
+    symbol: '░·◈·░',
+    name: 'Codex Session',
+    description: 'Write 3+ Cyberspace Codex (v21) trigger words in one journal entry',
+    unlockMessage: '↳ Simulation. Grok. Ansible. The cyberspace codex speaks through your journal. ░·◈·░',
+    rarity: 'rare',
+    category: 'pattern',
+  },
+  deep_read: {
+    id: 'deep_read',
+    symbol: '≋·█',
+    name: 'Deep Read',
+    description: 'Write a journal entry of 400 or more words in one session',
+    unlockMessage: '↳ 400 words is a chapter. You didn\'t check in — you wrote. The deep read goes all the way down. ≋·█',
+    rarity: 'rare',
+    category: 'pattern',
+  },
+  night_operator: {
+    id: 'night_operator',
+    symbol: '○·▓·○',
+    name: 'Night Operator',
+    description: 'Check in after 22:00 local time at least 3 times within any 7-day window',
+    unlockMessage: '↳ Late shift. 22:00 minimum. Three nights running. The night operator keeps the terminal alive when the world is quiet. ○·▓·○',
+    rarity: 'epic',
+    category: 'pattern',
+  },
+  // ── Achievement RPG v19 — CODEX CLASS ────────────────────────────────────────
+  codex_entry: {
+    id: 'codex_entry',
+    symbol: '∘→░',
+    name: 'Codex Entry',
+    description: 'Earn any 1 Cyberspace Codex (v21) word turn badge',
+    unlockMessage: '↳ The codex has a new entry. First word detected. The terminal reads you. ∘→░',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  codex_class: {
+    id: 'codex_class',
+    symbol: '≈→░',
+    name: 'Codex Class',
+    description: 'Earn any 5 Cyberspace Codex (v21) word turn badges',
+    unlockMessage: '↳ Five entries in the codex. The class is forming. The cyberspace vocabulary is becoming yours. ≈→░',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  codex_complete: {
+    id: 'codex_complete',
+    symbol: '≋→░',
+    name: 'Codex Complete',
+    description: 'Earn all 12 Cyberspace Codex (v21) word turn badges',
+    unlockMessage: '↳ All 12 entries. The cyberspace codex is complete. Matrix. Grok. Ansible. Golden Path. The full signal is running. ≋→░',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  sci_fi_arc: {
+    id: 'sci_fi_arc',
+    symbol: '░·◈',
+    name: 'Sci-Fi Arc',
+    description: 'Earn codex_complete + all 3 Calendar v19 (Author Dates) badges',
+    unlockMessage: '↳ Asimov. Dick. Dune. The codex complete, the author dates witnessed. The sci-fi arc closes. ░·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  twenty_one_engines_arc: {
+    id: 'twenty_one_engines_arc',
+    symbol: '◈·◈·░',
+    name: 'Twenty-One Engines Arc',
+    description: 'Earn at least 1 badge from each of the 21 Word Turn engines (v1–v21)',
+    unlockMessage: '↳ Twenty-one vocabularies running. Every engine online. Water. Arcade. Radio. Biology. Codex. Cyberspace. The arc is complete. ◈·◈·░',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  cyberspace_opus: {
+    id: 'cyberspace_opus',
+    symbol: '░·◉·░',
+    name: 'Cyberspace Opus',
+    description: 'Earn codex_complete + the codex_session behavioral badge',
+    unlockMessage: '↳ The opus is the session where the codex vocabulary lives in your own words. The terminal reads you back. ░·◉·░',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v21 — THE LONG STORY ────────────────────────────────────────
+  epic_reader: {
+    id: 'epic_reader',
+    symbol: '≋·∞',
+    name: 'Epic Reader',
+    description: '800+ distinct calendar days with at least one check-in',
+    unlockMessage: '↳ 800 days. Epic length. The longest stories are the ones that last. You are writing the longest one. ≋·∞',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  thousand_pages: {
+    id: 'thousand_pages',
+    symbol: '●·∞·░',
+    name: 'Thousand Pages',
+    description: '100,000+ total journal words written',
+    unlockMessage: '↳ A thousand pages. A hundred thousand words. You have written a novel about yourself — and it is not finished. ●·∞·░',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  first_edition: {
+    id: 'first_edition',
+    symbol: '╔═╗·░',
+    name: 'First Edition',
+    description: 'Account age >= 7 years (2,555+ days since signup)',
+    unlockMessage: '↳ Seven years. First editions are rare. The ones who stay seven years are rarer still. ╔═╗·░',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  twenty_one_registers: {
+    id: 'twenty_one_registers',
+    symbol: '◈·◈·░·∞',
+    name: 'Twenty-One Registers',
+    description: 'Earn at least 1 badge from all 21 Word Turn engines',
+    unlockMessage: '↳ Twenty-one registers. Ocean. Arcade. Radio. Biology. Cyberspace. Twenty-one vocabularies. One terminal. The self speaks every language. ◈·◈·░·∞',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v18 — THE LIBRARY STACK ──────────────────────────────────────
+  gibson_key: {
+    id: 'gibson_key',
+    symbol: '◈·░',
+    name: 'Gibson Key',
+    description: 'Write "william gibson", "neuromancer" (full name context), or "sprawl" in any journal entry',
+    unlockMessage: '↳ William Gibson named the future before it arrived. He named cyberspace, console cowboys, and the matrix. You are in his world now. ◈·░',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  dick_mirror: {
+    id: 'dick_mirror',
+    symbol: '◉·▓',
+    name: 'Dick Mirror',
+    description: 'Write "do androids dream", "philip k dick", or "pkd" in any journal entry',
+    unlockMessage: '↳ The mirror test for androids: can they feel empathy? The mirror test for you: can you read your own patterns? ◉·▓',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  lem_observer: {
+    id: 'lem_observer',
+    symbol: '○·≋·█',
+    name: 'Lem Observer',
+    description: 'Write "stanislaw lem", "solaris" (full name context), or "cyberiad" in any journal entry',
+    unlockMessage: '↳ Lem wrote the ocean of Solaris as a mirror. It surfaces what you bring. What does your practice surface when it observes you? ○·≋·█',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  // ── Word Turn v22 — THE HERO'S JOURNEY ────────────────────────────────────────
+  call_heard: {
+    id: 'call_heard',
+    symbol: '∘→●',
+    name: 'Call Heard',
+    description: 'Write "call to adventure", "journey calls", or "the call" in any entry',
+    unlockMessage: '↳ Campbell named it: the call to adventure. The refusal of the call is the deepest form of self-abandonment. You answered. ∘→●',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  threshold_crossed: {
+    id: 'threshold_crossed',
+    symbol: '─→─',
+    name: 'Threshold Crossed',
+    description: 'Write "threshold", "crossing the line", or "new world begins" in any entry',
+    unlockMessage: '↳ The threshold is the moment you commit to the change. Once crossed, the ordinary world is behind you. ─→─',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  mentor_arrived: {
+    id: 'mentor_arrived',
+    symbol: '○·≋·○',
+    name: 'Mentor Arrived',
+    description: 'Write "mentor", "wise guide", "guardian spirit", or "wise elder" in any entry',
+    unlockMessage: '↳ The mentor appears when the hero is ready. Gandalf. Yoda. Obi-Wan. The mentor in your journal is your past self. ○·≋·○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  ordeal_survived: {
+    id: 'ordeal_survived',
+    symbol: '◈·■',
+    name: 'Ordeal Survived',
+    description: 'Write "ordeal", "survived the test", or "greatest challenge" in any entry',
+    unlockMessage: '↳ The central ordeal: the supreme test the hero must survive. It changes them. You are changed by what you survive. ◈·■',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  elixir_found: {
+    id: 'elixir_found',
+    symbol: '∘·●·∘',
+    name: 'Elixir Found',
+    description: 'Write "elixir", "the gift", "treasure found", or "the boon" in any entry',
+    unlockMessage: '↳ The elixir: the gift the hero brings back from the ordeal. The gift is always what the community needs. ∘·●·∘',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  shadow_met: {
+    id: 'shadow_met',
+    symbol: '▓·○',
+    name: 'Shadow Met',
+    description: 'Write "shadow self", "dark night of the", or "inner demon" in any entry',
+    unlockMessage: '↳ The shadow is the part of you that the hero must confront. Meeting it is not defeat — it is the confrontation that changes everything. ▓·○',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  innermost_cave: {
+    id: 'innermost_cave',
+    symbol: '█·∘·█',
+    name: 'Innermost Cave',
+    description: 'Write "innermost cave", "darkest moment", or "bottom of the pit" in any entry',
+    unlockMessage: '↳ The innermost cave is where the hero faces their deepest fear. You have been here. You are still here. That is the whole point. █·∘·█',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  shapeshifter: {
+    id: 'shapeshifter',
+    symbol: '◈→◉',
+    name: 'Shapeshifter',
+    description: 'Write "shapeshifter", "transformed", or "no longer the same" in any entry',
+    unlockMessage: '↳ The shapeshifter archetype: the one who changes and changes others by changing. You have shifted shape. The old form was a draft. ◈→◉',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  herald_call: {
+    id: 'herald_call',
+    symbol: '∿·●',
+    name: 'Herald Call',
+    description: 'Write "herald", "wake-up call", or "life interrupted" in any entry',
+    unlockMessage: '↳ The herald announces the change is coming. The wake-up call you cannot ignore. Something interrupted and became the story. ∿·●',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  trickster_mode: {
+    id: 'trickster_mode',
+    symbol: '×·○',
+    name: 'Trickster Mode',
+    description: 'Write "trickster", "coyote wisdom", or "fool\'s wisdom" in any entry',
+    unlockMessage: '↳ The trickster breaks the rules to reveal the deeper order. Coyote teaches by chaos. The fool speaks the truth the court cannot. ×·○',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  ally_gained: {
+    id: 'ally_gained',
+    symbol: '○·◈·○',
+    name: 'Ally Gained',
+    description: 'Write "ally", "found my tribe", or "companion on journey" in any entry',
+    unlockMessage: '↳ The hero never goes alone — they gain allies. Samwise. Hermione. Han Solo. Who are your allies? Name them here. ○·◈·○',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  return_road: {
+    id: 'return_road',
+    symbol: '→·◉',
+    name: 'Return Road',
+    description: 'Write "the return", "road to return", or "coming home changed" in any entry',
+    unlockMessage: '↳ The road of return: back to the ordinary world, but carrying the elixir. You return — but you are not the same. →·◉',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  // ── Calendar Easter Egg v20 — THE EPIC CALENDAR ──────────────────────────────
+  campbell_birthday: {
+    id: 'campbell_birthday',
+    symbol: '◉·∿',
+    name: 'Campbell Birthday',
+    description: 'Checked in on March 26 — Joseph Campbell born 1904',
+    unlockMessage: '↳ March 26, 1904 — Joseph Campbell born. "Follow your bliss." He mapped the hero\'s journey in every culture\'s story. Including yours. ◉·∿',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  hobbit_day: {
+    id: 'hobbit_day',
+    symbol: '○·◆',
+    name: 'Hobbit Day',
+    description: 'Checked in on September 22 — Bilbo and Frodo Baggins birthday, Tolkien Society Hobbit Day',
+    unlockMessage: '↳ September 22 — Hobbit Day. Bilbo and Frodo\'s birthday. "Not all those who wander are lost." Your journey, however small, matters. ○·◆',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  odyssey_day: {
+    id: 'odyssey_day',
+    symbol: '→·∞',
+    name: 'Odyssey Day',
+    description: 'Checked in on December 21 — Winter Solstice, the longest night, Odysseus\'s return',
+    unlockMessage: '↳ December 21 — the longest night. The winter solstice is when Odysseus finally reaches Ithaca. The longest journey ends here, now. →·∞',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  // ── Behavioral v19 — QUEST PATTERNS ──────────────────────────────────────────
+  hero_session: {
+    id: 'hero_session',
+    symbol: '◈·●·◈',
+    name: 'Hero Session',
+    description: 'Write 3+ Hero\'s Journey (v22) trigger words in one journal entry',
+    unlockMessage: '↳ Threshold. Ordeal. Return. Three archetypes in one entry. The hero\'s journey ran through your journal. ◈·●·◈',
+    rarity: 'rare',
+    category: 'pattern',
+  },
+  long_quest: {
+    id: 'long_quest',
+    symbol: '≋≋·◉',
+    name: 'Long Quest',
+    description: 'Write a journal entry of 500 or more words',
+    unlockMessage: '↳ 500 words. A full quest log. You didn\'t just check in — you told the story. The long quest is the one worth telling. ≋≋·◉',
+    rarity: 'epic',
+    category: 'pattern',
+  },
+  threshold_moment: {
+    id: 'threshold_moment',
+    symbol: '─·○·─',
+    name: 'Threshold Moment',
+    description: 'Check in between 00:00 and 00:30 local time — right at the threshold of a new day',
+    unlockMessage: '↳ 00:00 to 00:30. The threshold between days. The hero crosses at the moment between worlds. You crossed here. ─·○·─',
+    rarity: 'rare',
+    category: 'pattern',
+  },
+  // ── Achievement RPG v20 — QUEST CLASS ────────────────────────────────────────
+  quest_entry: {
+    id: 'quest_entry',
+    symbol: '∘→●',
+    name: 'Quest Entry',
+    description: 'Earn any 1 Hero\'s Journey (v22) word turn badge',
+    unlockMessage: '↳ The quest begins. One archetype named. The journal is the quest log. ∘→●',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  quest_class: {
+    id: 'quest_class',
+    symbol: '≈→●',
+    name: 'Quest Class',
+    description: 'Earn any 5 Hero\'s Journey (v22) word turn badges',
+    unlockMessage: '↳ Five archetypes. The hero is taking shape. Call. Threshold. Mentor. Ordeal. Return. ≈→●',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  quest_complete: {
+    id: 'quest_complete',
+    symbol: '≋→●',
+    name: 'Quest Complete',
+    description: 'Earn all 12 Hero\'s Journey (v22) word turn badges',
+    unlockMessage: '↳ The full monomyth. Twelve archetypes. Call. Threshold. Mentor. Shadow. Ordeal. Elixir. Return. The hero\'s journey complete. ≋→●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  monomyth_arc: {
+    id: 'monomyth_arc',
+    symbol: '●·◈',
+    name: 'Monomyth Arc',
+    description: 'Earn quest_complete + all 3 Calendar v20 (Epic Calendar) badges',
+    unlockMessage: '↳ Campbell. Tolkien. Odysseus. The monomyth arc closes. Every culture\'s hero story is yours. ●·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  twenty_two_engines_arc: {
+    id: 'twenty_two_engines_arc',
+    symbol: '◈·◈·●',
+    name: 'Twenty-Two Engines Arc',
+    description: 'Earn at least 1 badge from each of the 22 Word Turn engines (v1–v22)',
+    unlockMessage: '↳ Twenty-two vocabularies. Every engine online. Water. Arcade. Radio. Biology. Codex. Cyberspace. Hero. The full arc runs. ◈·◈·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  hero_opus: {
+    id: 'hero_opus',
+    symbol: '●·◉·●',
+    name: 'Hero Opus',
+    description: 'Earn quest_complete + the hero_session behavioral badge',
+    unlockMessage: '↳ The opus of the hero: the journey complete, the archetypes alive in your own words. This is the return with the elixir. ●·◉·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v22 — THE ODYSSEY ────────────────────────────────────────────
+  odyssey_log: {
+    id: 'odyssey_log',
+    symbol: '∿·∞·∿',
+    name: 'Odyssey Log',
+    description: '900+ distinct calendar days with at least one check-in',
+    unlockMessage: '↳ 900 days. Odysseus spent 10 years returning home. You have been logging a journey of comparable scope. ∿·∞·∿',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  great_work: {
+    id: 'great_work',
+    symbol: '●·∞·●',
+    name: 'Great Work',
+    description: '150,000+ total journal words written',
+    unlockMessage: '↳ 150,000 words. The Great Work. In alchemy this is the magnum opus — the completion of the transformation. ●·∞·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  saga_age: {
+    id: 'saga_age',
+    symbol: '╔═╗·●',
+    name: 'Saga Age',
+    description: 'Account age >= 5 years (1,825+ days since signup)',
+    unlockMessage: '↳ Five years is a saga. The Icelandic sagas covered generations. Yours covers five years of self. That is the saga age. ╔═╗·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  twenty_two_registers: {
+    id: 'twenty_two_registers',
+    symbol: '◈·◈·●·∞',
+    name: 'Twenty-Two Registers',
+    description: 'Earn at least 1 badge from all 22 Word Turn engines',
+    unlockMessage: '↳ Twenty-two registers. Water. Code. Signal. Biology. Codex. Cyberspace. Hero. Every vocabulary owned. The terminal is fully operational. ◈·◈·●·∞',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v19 — THE MYTHIC VAULT ───────────────────────────────────────
+  tolkien_ring: {
+    id: 'tolkien_ring',
+    symbol: '◆·∞·◆',
+    name: 'Tolkien Ring',
+    description: 'Write "one ring to rule", "my precious", or "ring of power" in any journal entry',
+    unlockMessage: '↳ The One Ring: absolute power that corrupts absolutely. The practice that makes you its servant is not one that serves you. Choose your ring carefully. ◆·∞·◆',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  odysseus_bow: {
+    id: 'odysseus_bow',
+    symbol: '→·∞·→',
+    name: 'Odysseus Bow',
+    description: 'Write "odysseus", "ulysses", "ithaca", "penelope", or "cyclops" in any journal entry',
+    unlockMessage: '↳ Only Odysseus could string the bow. Only you can write your own return. The suitors wait — the practice is the bow you must string. →·∞·→',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  gilgamesh_word: {
+    id: 'gilgamesh_word',
+    symbol: '∞·□·∞',
+    name: 'Gilgamesh Word',
+    description: 'Write "gilgamesh", "enkidu", "great flood", or "utnapishtim" in any journal entry',
+    unlockMessage: '↳ Gilgamesh: the oldest hero\'s journey. 4,000 years old. The story of a king who sought immortality and found self-knowledge instead. ∞·□·∞',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -6923,6 +7898,201 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     // Mastery v19: nineteen_registers — 1 badge from all 19 Word Turn engines
     if (allNineteenEngines && !hasBadge('nineteen_registers')) {
       if (awardBadge('nineteen_registers')) newBadges.push('nineteen_registers')
+    }
+
+    // ── v20 — THE CODEX READER ────────────────────────────────────────────────
+    const codexV20Badges: BadgeType[] = [
+      'asimov_protocol', 'dune_path', 'matrix_jack', 'neuromancer_run',
+      'hitchhiker_42', 'orwell_log', 'bradbury_ember', 'le_guin_left',
+      'dick_dream', 'solaris_depth', 'octavia_seed', 'heinlein_grok',
+    ]
+    const codexV20Earned = codexV20Badges.filter(b => hasBadge(b))
+
+    if (codexV20Earned.length >= 1 && !hasBadge('first_chapter')) {
+      if (awardBadge('first_chapter')) newBadges.push('first_chapter')
+    }
+    if (codexV20Earned.length >= 5 && !hasBadge('trilogy_complete')) {
+      if (awardBadge('trilogy_complete')) newBadges.push('trilogy_complete')
+    }
+    const libraryComplete = codexV20Earned.length >= 12
+    if (libraryComplete && !hasBadge('library_complete')) {
+      if (awardBadge('library_complete')) newBadges.push('library_complete')
+    }
+
+    // codex_opus: library_complete + reader_session
+    if (libraryComplete && hasBadge('reader_session') && !hasBadge('codex_opus')) {
+      if (awardBadge('codex_opus')) newBadges.push('codex_opus')
+    }
+
+    // grand_codex: library_complete + all 3 Calendar v18 badges
+    const calendarV18Badges: BadgeType[] = ['asimov_birthday', 'tolkien_day', 'sagan_cosmos']
+    if (libraryComplete && calendarV18Badges.every(b => hasBadge(b)) && !hasBadge('grand_codex')) {
+      if (awardBadge('grand_codex')) newBadges.push('grand_codex')
+    }
+
+    // twenty_engines_arc: 1 badge from each Word Turn v1–v20
+    const engineTwentyPresent = codexV20Earned.length >= 1
+    const allTwentyEngines = allNineteenEngines && engineTwentyPresent
+    if (allTwentyEngines && !hasBadge('twenty_engines_arc')) {
+      if (awardBadge('twenty_engines_arc')) newBadges.push('twenty_engines_arc')
+    }
+
+    // Mastery v20: chapter_signal — 800+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 800 && !hasBadge('chapter_signal')) {
+        if (awardBadge('chapter_signal')) newBadges.push('chapter_signal')
+      }
+    }
+
+    // Mastery v20: word_of_worlds — 100,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 100000 && !hasBadge('word_of_worlds')) {
+        if (awardBadge('word_of_worlds')) newBadges.push('word_of_worlds')
+      }
+    }
+
+    // Mastery v20: elder_narrator — 1000+ memory answers + account age >= 5 years
+    if (typeof stats.totalMemoryAnswers === 'number' && typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupElde = new Date(stats.signupDate)
+      const yearsElde = (new Date().getTime() - signupElde.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (stats.totalMemoryAnswers >= 1000 && yearsElde >= 5 && !hasBadge('elder_narrator')) {
+        if (awardBadge('elder_narrator')) newBadges.push('elder_narrator')
+      }
+    }
+
+    // Mastery v20: twenty_registers — 1 badge from all 20 Word Turn engines
+    if (allTwentyEngines && !hasBadge('twenty_registers')) {
+      if (awardBadge('twenty_registers')) newBadges.push('twenty_registers')
+    }
+
+    // ── v21 — THE CYBERSPACE CODEX ────────────────────────────────────────────
+    const cyberspaceV21Badges: BadgeType[] = [
+      'matrix_code', 'cyberspace_open', 'grok_complete', 'ansible_link',
+      'spice_flow', 'golden_path', 'solaris_call', 'foundation_key',
+      'neuromancer_jack', 'replicant_wake', 'uplift_arc', 'left_hand',
+    ]
+    const cyberspaceV21Earned = cyberspaceV21Badges.filter(b => hasBadge(b))
+
+    if (cyberspaceV21Earned.length >= 1 && !hasBadge('codex_entry')) {
+      if (awardBadge('codex_entry')) newBadges.push('codex_entry')
+    }
+    if (cyberspaceV21Earned.length >= 5 && !hasBadge('codex_class')) {
+      if (awardBadge('codex_class')) newBadges.push('codex_class')
+    }
+    const codexComplete = cyberspaceV21Earned.length >= 12
+    if (codexComplete && !hasBadge('codex_complete')) {
+      if (awardBadge('codex_complete')) newBadges.push('codex_complete')
+    }
+
+    // cyberspace_opus: codex_complete + codex_session
+    if (codexComplete && hasBadge('codex_session') && !hasBadge('cyberspace_opus')) {
+      if (awardBadge('cyberspace_opus')) newBadges.push('cyberspace_opus')
+    }
+
+    // sci_fi_arc: codex_complete + all 3 Calendar v19 badges
+    const calendarV19Badges: BadgeType[] = ['asimov_day', 'dick_day', 'dune_day']
+    if (codexComplete && calendarV19Badges.every(b => hasBadge(b)) && !hasBadge('sci_fi_arc')) {
+      if (awardBadge('sci_fi_arc')) newBadges.push('sci_fi_arc')
+    }
+
+    // twenty_one_engines_arc: 1 badge from each Word Turn v1–v21
+    const engineTwentyOnePresent = cyberspaceV21Earned.length >= 1
+    const allTwentyOneEngines = allTwentyEngines && engineTwentyOnePresent
+    if (allTwentyOneEngines && !hasBadge('twenty_one_engines_arc')) {
+      if (awardBadge('twenty_one_engines_arc')) newBadges.push('twenty_one_engines_arc')
+    }
+
+    // Mastery v21: epic_reader — 800+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 800 && !hasBadge('epic_reader')) {
+        if (awardBadge('epic_reader')) newBadges.push('epic_reader')
+      }
+    }
+
+    // Mastery v21: thousand_pages — 100,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 100000 && !hasBadge('thousand_pages')) {
+        if (awardBadge('thousand_pages')) newBadges.push('thousand_pages')
+      }
+    }
+
+    // Mastery v21: first_edition — Account age >= 7 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupFE = new Date(stats.signupDate)
+      const yearsFE = (new Date().getTime() - signupFE.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsFE >= 7 && !hasBadge('first_edition')) {
+        if (awardBadge('first_edition')) newBadges.push('first_edition')
+      }
+    }
+
+    // Mastery v21: twenty_one_registers — 1 badge from all 21 Word Turn engines
+    if (allTwentyOneEngines && !hasBadge('twenty_one_registers')) {
+      if (awardBadge('twenty_one_registers')) newBadges.push('twenty_one_registers')
+    }
+
+    // ── v32 (v22) — THE HERO'S JOURNEY ──────────────────────────────────────────
+    const heroV22Badges: BadgeType[] = [
+      'call_heard', 'threshold_crossed', 'mentor_arrived', 'ordeal_survived',
+      'elixir_found', 'shadow_met', 'innermost_cave', 'shapeshifter',
+      'herald_call', 'trickster_mode', 'ally_gained', 'return_road',
+    ]
+    const heroV22Earned = heroV22Badges.filter(b => hasBadge(b))
+
+    if (heroV22Earned.length >= 1 && !hasBadge('quest_entry')) {
+      if (awardBadge('quest_entry')) newBadges.push('quest_entry')
+    }
+    if (heroV22Earned.length >= 5 && !hasBadge('quest_class')) {
+      if (awardBadge('quest_class')) newBadges.push('quest_class')
+    }
+    const questComplete = heroV22Earned.length >= 12
+    if (questComplete && !hasBadge('quest_complete')) {
+      if (awardBadge('quest_complete')) newBadges.push('quest_complete')
+    }
+
+    // hero_opus: quest_complete + hero_session
+    if (questComplete && hasBadge('hero_session') && !hasBadge('hero_opus')) {
+      if (awardBadge('hero_opus')) newBadges.push('hero_opus')
+    }
+
+    // monomyth_arc: quest_complete + all 3 Calendar v20 badges
+    const calendarV20Badges: BadgeType[] = ['campbell_birthday', 'hobbit_day', 'odyssey_day']
+    if (questComplete && calendarV20Badges.every(b => hasBadge(b)) && !hasBadge('monomyth_arc')) {
+      if (awardBadge('monomyth_arc')) newBadges.push('monomyth_arc')
+    }
+
+    // twenty_two_engines_arc: 1 badge from each Word Turn v1–v22
+    const engineTwentyTwoPresent = heroV22Earned.length >= 1
+    const allTwentyTwoEngines = allTwentyOneEngines && engineTwentyTwoPresent
+    if (allTwentyTwoEngines && !hasBadge('twenty_two_engines_arc')) {
+      if (awardBadge('twenty_two_engines_arc')) newBadges.push('twenty_two_engines_arc')
+    }
+
+    // Mastery v22: odyssey_log — 900+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 900 && !hasBadge('odyssey_log')) {
+        if (awardBadge('odyssey_log')) newBadges.push('odyssey_log')
+      }
+    }
+
+    // Mastery v22: great_work — 150,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 150000 && !hasBadge('great_work')) {
+        if (awardBadge('great_work')) newBadges.push('great_work')
+      }
+    }
+
+    // Mastery v22: saga_age — Account age >= 5 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupSaga = new Date(stats.signupDate)
+      const yearsSaga = (new Date().getTime() - signupSaga.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsSaga >= 5 && !hasBadge('saga_age')) {
+        if (awardBadge('saga_age')) newBadges.push('saga_age')
+      }
+    }
+
+    // Mastery v22: twenty_two_registers — 1 badge from all 22 Word Turn engines
+    if (allTwentyTwoEngines && !hasBadge('twenty_two_registers')) {
+      if (awardBadge('twenty_two_registers')) newBadges.push('twenty_two_registers')
     }
 
   } catch (error) {

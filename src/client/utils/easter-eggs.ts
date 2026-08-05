@@ -820,6 +820,57 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('darwin_manuscript')
   }
 
+  // ── Calendar v18 — THE AUTHOR'S CALENDAR ────────────────────────────────────
+  // Asimov Birthday: January 2 — Isaac Asimov born 1920
+  if (!hasBadge('asimov_birthday') && month === 1 && day === 2) {
+    awardBadge('asimov_birthday')
+    awarded.push('asimov_birthday')
+  }
+  // Tolkien Day: March 25 — fan-designated Tolkien Day (One Ring destroyed)
+  if (!hasBadge('tolkien_day') && month === 3 && day === 25) {
+    awardBadge('tolkien_day')
+    awarded.push('tolkien_day')
+  }
+  // Sagan Cosmos: November 9 — Carl Sagan born 1934
+  if (!hasBadge('sagan_cosmos') && month === 11 && day === 9) {
+    awardBadge('sagan_cosmos')
+    awarded.push('sagan_cosmos')
+  }
+
+  // ── Calendar v19 — AUTHOR DATES ──────────────────────────────────────────────
+  // Asimov Day: January 2 — Isaac Asimov born 1920 (additional recognition)
+  if (!hasBadge('asimov_day') && month === 1 && day === 2) {
+    awardBadge('asimov_day')
+    awarded.push('asimov_day')
+  }
+  // Dick Day: December 16 — Philip K. Dick born 1928
+  if (!hasBadge('dick_day') && month === 12 && day === 16) {
+    awardBadge('dick_day')
+    awarded.push('dick_day')
+  }
+  // Dune Day: August 1 — Dune published by Chilton Books, 1965
+  if (!hasBadge('dune_day') && month === 8 && day === 1) {
+    awardBadge('dune_day')
+    awarded.push('dune_day')
+  }
+
+  // ── Calendar v20 — THE EPIC CALENDAR ─────────────────────────────────────────
+  // Campbell Birthday: March 26 — Joseph Campbell born 1904
+  if (!hasBadge('campbell_birthday') && month === 3 && day === 26) {
+    awardBadge('campbell_birthday')
+    awarded.push('campbell_birthday')
+  }
+  // Hobbit Day: September 22 — Bilbo & Frodo Baggins birthday / Tolkien Society Hobbit Day
+  if (!hasBadge('hobbit_day') && month === 9 && day === 22) {
+    awardBadge('hobbit_day')
+    awarded.push('hobbit_day')
+  }
+  // Odyssey Day: December 21 — Winter Solstice
+  if (!hasBadge('odyssey_day') && month === 12 && day === 21) {
+    awardBadge('odyssey_day')
+    awarded.push('odyssey_day')
+  }
+
   return awarded
 }
 
@@ -1381,6 +1432,57 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /\bcajal\b/i,                                             badge: 'cajal_signal' },
   { patterns: /\bkandel\b/i,                                            badge: 'kandel_key' },
   { patterns: /\b(phantom[\s-]?limb|ramachandran)\b/i,                  badge: 'ramachandran_rx' },
+  // ── v20 — THE CODEX READER ────────────────────────────────────────────────────
+  { patterns: /\basimov\b/i,                                            badge: 'asimov_protocol' },
+  { patterns: /\b(fremen|arrakis|sandworm|bene[\s-]?gesserit|paul[\s-]?atreides)\b/i, badge: 'dune_path' },
+  { patterns: /\b(red[\s-]?pill|blue[\s-]?pill|rabbit[\s-]?hole|morpheus)\b/i,        badge: 'matrix_jack' },
+  { patterns: /\b(wintermute|console[\s-]?cowboy|molly[\s-]?millions)\b/i,            badge: 'neuromancer_run' },
+  { patterns: /\bdon'?t\s+panic\b|\bbabel[\s-]?fish\b|\bheart[\s-]?of[\s-]?gold\b|\b42\s+(is\s+the\s+answer|percent)\b/i, badge: 'hitchhiker_42' },
+  { patterns: /\b(doublethink|thoughtcrime|newspeak|big[\s-]?brother|room[\s-]?101)\b/i, badge: 'orwell_log' },
+  { patterns: /\b(fahrenheit|montag|firemen[\s-]?burn|ray[\s-]?bradbury)\b|\b451\b/i,    badge: 'bradbury_ember' },
+  { patterns: /\b(le[\s-]?guin|ekumen|gethen|genly[\s-]?ai|hainish)\b/i,              badge: 'le_guin_left' },
+  { patterns: /\b(androids[\s-]?dream|electric[\s-]?sheep|blade[\s-]?runner)\b/i,     badge: 'dick_dream' },
+  { patterns: /\b(thinking[\s-]?ocean|stanislaw[\s-]?lem)\b/i,                        badge: 'solaris_depth' },
+  { patterns: /\b(octavia[\s-]?butler|parable[\s-]?of[\s-]?the|oankali|bloodchild)\b/i, badge: 'octavia_seed' },
+  { patterns: /\b(heinlein|stranger[\s-]?in[\s-]?a[\s-]?strange[\s-]?land|starship[\s-]?troopers)\b/i, badge: 'heinlein_grok' },
+  // ── v17 Secret Boss — THE HIDDEN LIBRARY word triggers ───────────────────────
+  { patterns: /\b(borges|library[\s-]?of[\s-]?babel|forking[\s-]?paths)\b/i,          badge: 'borges_garden' },
+  { patterns: /\b(calvino|invisible[\s-]?cities|italo[\s-]?calvino)\b/i,              badge: 'calvino_cities' },
+  { patterns: /\b(philip[\s-]?k[\s-]?dick|do[\s-]?androids|valis)\b/i,               badge: 'dick_signal' },
+  // ── v21 — THE CYBERSPACE CODEX ────────────────────────────────────────────────
+  { patterns: /\b(simulation|construct|agent[\s-]?smith|the[\s-]?oracle)\b/i,         badge: 'matrix_code' },
+  { patterns: /\b(cyborg|neural[\s-]?link|brain[\s-]?computer[\s-]?interface|bci)\b/i, badge: 'cyberspace_open' },
+  { patterns: /\bgrok(ked|king|s)?\b/i,                                               badge: 'grok_complete' },
+  { patterns: /\b(ansible|ekumen|instantaneous[\s-]?communication)\b/i,               badge: 'ansible_link' },
+  { patterns: /\b(melange|prescient|spice[\s-]?(flow|harvest|trade))\b/i,             badge: 'spice_flow' },
+  { patterns: /\bgolden[\s-]?path\b|\bforesight[\s-]?of[\s-]?leto\b/i,               badge: 'golden_path' },
+  { patterns: /\b(ocean[\s-]?consciousness|contact[\s-]?impossible|solaris[\s-]?responds)\b/i, badge: 'solaris_call' },
+  { patterns: /\b(seldon[\s-]?plan|second[\s-]?foundation|mathematicians[\s-]?of)\b/i, badge: 'foundation_key' },
+  { patterns: /\bneuromancer\b|\bwilliam[\s-]?gibson\b|\bsprawl[\s-]?trilogy\b/i,    badge: 'neuromancer_jack' },
+  { patterns: /\breplicant\b|\bmore[\s-]?human[\s-]?than[\s-]?human\b|\bandroid[\s-]?dreams\b/i, badge: 'replicant_wake' },
+  { patterns: /\b(uplift|transcendence|transcending|becoming[\s-]?more)\b/i,          badge: 'uplift_arc' },
+  { patterns: /\bleft[\s-]?hand[\s-]?of[\s-]?darkness\b|\bwinter[\s-]?planet\b|\bgethen\b/i, badge: 'left_hand' },
+  // ── v18 Secret Boss — THE LIBRARY STACK word triggers ────────────────────────
+  { patterns: /\bwilliam[\s-]?gibson\b|\bsprawl\b|\bneuromancer\b.*\bgibson\b/i,       badge: 'gibson_key' },
+  { patterns: /\bdo[\s-]?androids[\s-]?dream\b|\bphilip[\s-]?k[\s-]?dick\b|\bpkd\b/i, badge: 'dick_mirror' },
+  { patterns: /\bstanislaw[\s-]?lem\b|\bcyberiad\b|\bsolaris\b.*\blem\b/i,             badge: 'lem_observer' },
+  // ── v22 — THE HERO'S JOURNEY ──────────────────────────────────────────────────
+  { patterns: /\bcall[\s-]?to[\s-]?adventure\b|\bjourney[\s-]?calls?\b/i,              badge: 'call_heard' },
+  { patterns: /\bthreshold\b|\bcrossing[\s-]?the[\s-]?line\b|\bnew[\s-]?world[\s-]?(begins|started)\b/i, badge: 'threshold_crossed' },
+  { patterns: /\bmentor\b|\bwise[\s-]?(guide|advisor|teacher|elder)\b|\bguardian[\s-]?spirit\b/i, badge: 'mentor_arrived' },
+  { patterns: /\bordeal\b|\bsurvived[\s-]?(the[\s-])?test\b|\bgreatest[\s-]?challenge\b/i, badge: 'ordeal_survived' },
+  { patterns: /\belixir\b|\bthe[\s-]?boon\b|\btreasure[\s-]?(found|carried|home)\b/i,  badge: 'elixir_found' },
+  { patterns: /\bshadow[\s-]?self\b|\bdark[\s-]?night[\s-]?of[\s-]?the\b|\binner[\s-]?demon\b/i, badge: 'shadow_met' },
+  { patterns: /\binnermost[\s-]?cave\b|\bdarkest[\s-]?moment\b|\bbottom[\s-]?of[\s-]?(the[\s-])?pit\b/i, badge: 'innermost_cave' },
+  { patterns: /\bshapeshifter\b|\btransformed\b|\bno[\s-]?longer[\s-]?the[\s-]?same\b/i, badge: 'shapeshifter' },
+  { patterns: /\bherald\b|\bwake[\s-]?up[\s-]?call\b|\blife[\s-]?interrupted\b/i,     badge: 'herald_call' },
+  { patterns: /\btrickster\b|\bcoyote[\s-]?wisdom\b|\bfool'?s[\s-]?wisdom\b/i,         badge: 'trickster_mode' },
+  { patterns: /\bally\b|\bfound[\s-]?my[\s-]?tribe\b|\bcompanion[\s-]?on[\s-]?(the[\s-])?journey\b/i, badge: 'ally_gained' },
+  { patterns: /\bthe[\s-]?return\b|\broad[\s-]?to[\s-]?return\b|\bcoming[\s-]?home[\s-]?(changed|different|wiser)\b/i, badge: 'return_road' },
+  // ── v19 Secret Boss — THE MYTHIC VAULT word triggers ─────────────────────────
+  { patterns: /one[\s-]?ring[\s-]?(to[\s-]?rule|to[\s-]?find)|my[\s-]?precious|\bring[\s-]?of[\s-]?power/i, badge: 'tolkien_ring' },
+  { patterns: /\b(odysseus|ulysses|ithaca|penelope|telemachus|cyclops)\b/i,             badge: 'odysseus_bow' },
+  { patterns: /\b(gilgamesh|enkidu|great[\s-]?flood|utnapishtim|cedar[\s-]?forest)\b/i, badge: 'gilgamesh_word' },
 ]
 
 /**
@@ -2405,6 +2507,211 @@ export function checkMorningPulse(): BadgeType | null {
     }
   } catch { /* non-critical */ }
 
+  return null
+}
+
+// ── Codex Reader v20 behavioral checks ───────────────────────────────────────
+
+const CODEX_WORDS_V20 = [
+  /\basimov\b/i,
+  /\b(fremen|arrakis|sandworm|bene[\s-]?gesserit)\b/i,
+  /\b(red[\s-]?pill|blue[\s-]?pill|rabbit[\s-]?hole|morpheus)\b/i,
+  /\b(wintermute|console[\s-]?cowboy|molly[\s-]?millions)\b/i,
+  /\bdon'?t\s+panic\b|\bbabel[\s-]?fish\b/i,
+  /\b(doublethink|thoughtcrime|newspeak)\b/i,
+  /\b(fahrenheit|montag|bradbury)\b|\b451\b/i,
+  /\b(le[\s-]?guin|ekumen|gethen)\b/i,
+  /\b(androids[\s-]?dream|electric[\s-]?sheep)\b/i,
+  /\b(thinking[\s-]?ocean|stanislaw[\s-]?lem)\b/i,
+  /\b(octavia[\s-]?butler|parable[\s-]?of[\s-]?the|oankali)\b/i,
+  /\b(heinlein|stranger[\s-]?in[\s-]?a[\s-]?strange)\b/i,
+]
+
+/**
+ * Award reader_session badge if 2+ Codex Reader (v20) words appear in one journal entry.
+ */
+export function checkReaderSession(journalText: string): BadgeType | null {
+  if (hasBadge('reader_session')) return null
+  const matchCount = CODEX_WORDS_V20.filter(r => r.test(journalText)).length
+  if (matchCount >= 2) {
+    awardBadge('reader_session')
+    return 'reader_session'
+  }
+  return null
+}
+
+/**
+ * Award long_read badge if journal entry is 400+ words.
+ */
+export function checkLongRead(journalText: string): BadgeType | null {
+  if (hasBadge('long_read')) return null
+  const wordCount = journalText.trim().split(/\s+/).filter(w => w.length > 0).length
+  if (wordCount >= 400) {
+    awardBadge('long_read')
+    return 'long_read'
+  }
+  return null
+}
+
+/**
+ * Award page_turner badge if user answers 3+ memory questions within a 20-minute window.
+ * Call this after each memory answer is submitted; tracks timestamps in localStorage.
+ */
+export function checkPageTurner(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('page_turner')) return null
+
+  try {
+    const key = 'memory_answer_timestamps'
+    const now = Date.now()
+    const stored = localStorage.getItem(key)
+    const timestamps: number[] = stored ? JSON.parse(stored) : []
+    timestamps.push(now)
+    localStorage.setItem(key, JSON.stringify(timestamps.slice(-50)))
+
+    const twentyMin = 20 * 60 * 1000
+    const recent = timestamps.filter(t => now - t <= twentyMin)
+    if (recent.length >= 3) {
+      awardBadge('page_turner')
+      return 'page_turner'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Cyberspace Codex v21 behavioral checks ────────────────────────────────────
+
+const CYBERSPACE_WORDS_V21 = [
+  /\b(simulation|construct|agent[\s-]?smith)\b/i,
+  /\b(cyborg|neural[\s-]?link|brain[\s-]?computer[\s-]?interface|bci)\b/i,
+  /\bgrok(ked|king|s)?\b/i,
+  /\b(ansible|ekumen|instantaneous[\s-]?communication)\b/i,
+  /\b(melange|prescient|spice[\s-]?(flow|harvest))\b/i,
+  /\bgolden[\s-]?path\b|\bforesight[\s-]?of[\s-]?leto\b/i,
+  /\bocean[\s-]?consciousness\b|\bcontact[\s-]?impossible\b/i,
+  /\b(seldon[\s-]?plan|second[\s-]?foundation)\b/i,
+  /\bneuromancer\b|\bwilliam[\s-]?gibson\b/i,
+  /\breplicant\b|\bmore[\s-]?human[\s-]?than[\s-]?human\b/i,
+  /\b(uplift|transcendence|transcending)\b/i,
+  /\bleft[\s-]?hand[\s-]?of[\s-]?darkness\b|\bgethen\b/i,
+]
+
+/**
+ * Award codex_session badge if 3+ Cyberspace Codex (v21) words appear in one journal entry.
+ */
+export function checkCodexSession(journalText: string): BadgeType | null {
+  if (hasBadge('codex_session')) return null
+  const matchCount = CYBERSPACE_WORDS_V21.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('codex_session')
+    return 'codex_session'
+  }
+  return null
+}
+
+/**
+ * Award deep_read badge if journal entry is 400+ words.
+ */
+export function checkDeepRead(journalText: string): BadgeType | null {
+  if (hasBadge('deep_read')) return null
+  const wordCount = journalText.trim().split(/\s+/).filter(w => w.length > 0).length
+  if (wordCount >= 400) {
+    awardBadge('deep_read')
+    return 'deep_read'
+  }
+  return null
+}
+
+/**
+ * Award night_operator badge if user checks in after 22:00 local time 3+ times in any 7-day window.
+ */
+export function checkNightOperator(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('night_operator')) return null
+
+  const now = new Date()
+  const hour = now.getHours()
+  if (hour < 22) return null
+
+  try {
+    const key = 'night_checkin_timestamps'
+    const stored = localStorage.getItem(key)
+    const timestamps: string[] = stored ? JSON.parse(stored) : []
+    timestamps.push(now.toISOString())
+    localStorage.setItem(key, JSON.stringify(timestamps.slice(-100)))
+
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+    const nightCheckins = timestamps.filter(ts => {
+      const d = new Date(ts)
+      return d >= sevenDaysAgo && d.getHours() >= 22
+    })
+    if (nightCheckins.length >= 3) {
+      awardBadge('night_operator')
+      return 'night_operator'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+
+// ── Hero's Journey v22 behavioral checks ─────────────────────────────────────
+
+const HERO_WORDS_V22 = [
+  /\bcall[\s-]?to[\s-]?adventure\b|\bjourney[\s-]?calls?\b/i,
+  /\bthreshold\b|\bcrossing[\s-]?the[\s-]?line\b/i,
+  /\bmentor\b|\bwise[\s-]?(guide|advisor|elder)\b/i,
+  /\bordeal\b|\bsurvived[\s-]?(the[\s-])?test\b/i,
+  /\belixir\b|\bthe[\s-]?boon\b|\btreasure[\s-]?found\b/i,
+  /\bshadow[\s-]?self\b|\bdark[\s-]?night[\s-]?of[\s-]?the\b/i,
+  /\binnermost[\s-]?cave\b|\bdarkest[\s-]?moment\b/i,
+  /\bshapeshifter\b|\btransformed\b/i,
+  /\bherald\b|\bwake[\s-]?up[\s-]?call\b/i,
+  /\btrickster\b|\bcoyote[\s-]?wisdom\b/i,
+  /\bally\b|\bfound[\s-]?my[\s-]?tribe\b/i,
+  /\bthe[\s-]?return\b|\broad[\s-]?to[\s-]?return\b/i,
+]
+
+/**
+ * Award hero_session badge if 3+ Hero's Journey (v22) words appear in one journal entry.
+ */
+export function checkHeroSession(journalText: string): BadgeType | null {
+  if (hasBadge('hero_session')) return null
+  const matchCount = HERO_WORDS_V22.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('hero_session')
+    return 'hero_session'
+  }
+  return null
+}
+
+/**
+ * Award long_quest badge if journal entry is 500+ words.
+ */
+export function checkLongQuest(journalText: string): BadgeType | null {
+  if (hasBadge('long_quest')) return null
+  const wordCount = journalText.trim().split(/\s+/).filter(w => w.length > 0).length
+  if (wordCount >= 500) {
+    awardBadge('long_quest')
+    return 'long_quest'
+  }
+  return null
+}
+
+/**
+ * Award threshold_moment badge if user checks in between 00:00 and 00:30 local time.
+ */
+export function checkThresholdMoment(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('threshold_moment')) return null
+
+  const now = new Date()
+  const hour = now.getHours()
+  const minute = now.getMinutes()
+  if (hour === 0 && minute <= 30) {
+    awardBadge('threshold_moment')
+    return 'threshold_moment'
+  }
   return null
 }
 

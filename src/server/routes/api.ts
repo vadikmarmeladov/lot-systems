@@ -1197,6 +1197,22 @@ export default async (fastify: FastifyInstance) => {
       'quantum_coherence_peak',
       'signal_matrix_saturation',
       'temporal_biofield_sync',
+      // v110: physiological presence arc · quantum signal emergence · adaptive signal web (P140/P141/P142)
+      'physiological_presence_arc',
+      'quantum_signal_emergence',
+      'adaptive_signal_web',
+      // v111: circadian signal lock · dimensional saturation · quantum identity crystallization (P143/P144/P145)
+      'circadian_signal_lock',
+      'dimensional_saturation',
+      'quantum_identity_crystallization',
+      // v112: signal coherence cascade · quantum presence field · identity momentum lock (P146/P147/P148)
+      'signal_coherence_cascade',
+      'quantum_presence_field',
+      'identity_momentum_lock',
+      // v113: quantum presence crystallization · total field coherence · recovery intelligence arc (P149/P150/P151)
+      'quantum_presence_crystallization',
+      'total_field_coherence',
+      'recovery_intelligence_arc',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
