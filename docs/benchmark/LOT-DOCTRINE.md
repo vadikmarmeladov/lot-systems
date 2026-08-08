@@ -55,7 +55,10 @@ deferred to allow immediate visual response.)
 
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
-(SR-20260604-01: calendar_entry saved but never returned.)
+(SR-20260604-01: calendar_entry saved but never returned. SR-20260808-01:
+calendar_alert — new CAL-ALERT: military notification event — added to the
+whitelist in the same commit that introduced the handler, before push,
+closing the gap proactively rather than as a later CRITICAL FIX.)
 
 ## Ship Mode Discipline
 
