@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
-import { getEarnedBadges, BADGES } from '#client/utils/badges'
+import { getEarnedBadges, BADGES, awardBadge, type BadgeType } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
@@ -3743,6 +3743,13 @@ const NoteEditor = ({
     onSuccess: (data) => {
       setStoryResponse(data.story)
       setStoryLoading(false)
+      const chroniclerBadge: Record<'day' | 'week' | 'month' | 'year', BadgeType> = {
+        day: 'chronicler_day',
+        week: 'chronicler_week',
+        month: 'chronicler_month',
+        year: 'chronicler_year',
+      }
+      awardBadge(chroniclerBadge[data.period] || 'chronicler_day')
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
       const updated = current + separator + '📖 ' + data.story
@@ -4125,7 +4132,10 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compress recent entries into a personal story',
+          '/story week   Compress the last 7 days into a story',
+          '/story month  Compress the last 30 days into a story',
+          '/story year   Compress the last 365 days into a story',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4151,17 +4161,21 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const periodMatch = value.match(/\/story\s+(day|today|week|month|year)\b/i)
+          const rawPeriod = periodMatch ? periodMatch[1].toLowerCase() : 'day'
+          const period: 'day' | 'week' | 'month' | 'year' = rawPeriod === 'today' ? 'day' : (rawPeriod as any)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story(\s+(day|today|week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }

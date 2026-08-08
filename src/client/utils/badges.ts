@@ -782,6 +782,11 @@ export type BadgeType =
   | 'tolkien_ring'           // ◆·∞·◆  "one ring to rule/precious/ring of power" detected (RARE)
   | 'odysseus_bow'           // →·∞·→  "odysseus/ulysses/ithaca/penelope/cyclops" detected (EPIC)
   | 'gilgamesh_word'         // ∞·□·∞  "gilgamesh/enkidu/great flood/utnapishtim" detected (MYTHIC)
+  // ── Achievement RPG v23 — THE CHRONICLER ARC (/story compression) ────────────
+  | 'chronicler_day'         // ◇      First /story day — a single day compressed into narrative (COMMON)
+  | 'chronicler_week'        // ◇·◇    First /story week — a week's arc compressed into narrative (UNCOMMON)
+  | 'chronicler_month'       // ◇·◇·◇  First /story month — a month's arc compressed into narrative (RARE)
+  | 'chronicler_year'        // ◇·∞·◇  First /story year — a full year compressed into narrative (EPIC)
 
 export interface Badge {
   id: BadgeType
@@ -7130,6 +7135,44 @@ export const BADGES: Record<BadgeType, Badge> = {
     rarity: 'mythic',
     category: 'secret_boss',
     hidden: true,
+  },
+
+  // ── Achievement RPG v23 — THE CHRONICLER ARC (/story compression) ──────────
+  chronicler_day: {
+    id: 'chronicler_day',
+    symbol: '◇',
+    name: 'Chronicler',
+    description: 'Run /story day — compress a single day into narrative',
+    unlockMessage: '↳ One day, compressed. The archive learns to tell it back to you. ◇',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  chronicler_week: {
+    id: 'chronicler_week',
+    symbol: '◇·◇',
+    name: 'Weekly Chronicler',
+    description: 'Run /story week — compress a week\'s arc into narrative',
+    unlockMessage: '↳ Seven days folded into one arc. The pattern was there the whole time. ◇·◇',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  chronicler_month: {
+    id: 'chronicler_month',
+    symbol: '◇·◇·◇',
+    name: 'Monthly Chronicler',
+    description: 'Run /story month — compress a month\'s arc into narrative',
+    unlockMessage: '↳ A month compressed to a page. The highs and lows both kept. ◇·◇·◇',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+  },
+  chronicler_year: {
+    id: 'chronicler_year',
+    symbol: '◇·∞·◇',
+    name: 'Annual Chronicler',
+    description: 'Run /story year — compress a full year into narrative',
+    unlockMessage: '↳ A year, held in one story. This is the loop the system was built to close. ◇·∞·◇',
+    rarity: 'epic',
+    category: 'achievement_rpg',
   },
 }
 
