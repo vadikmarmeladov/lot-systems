@@ -226,3 +226,22 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Dependency Ground Truth
+
+A CHECK run means nothing unless it runs against the repo's actual pinned
+tool versions. `npx <tool>` with no local `node_modules` does not fail loud —
+it silently fetches the latest version of that tool from the registry and
+runs against it. This produces false-negative gate failures (deprecation
+errors, API differences) that look identical to a real regression but are
+purely an artifact of a cold container, not of any code change. Before
+recording CHECK A/B results, confirm `node_modules` is populated from the
+committed lockfile (`npm ci`; add `--legacy-peer-deps` if the lockfile
+carries a known pre-existing peer conflict — do not silently "fix" the
+conflict itself unless that is the session's actual task). Only then do
+tsc/build/test results reflect the repo as committed.
+(SR-20260808-01: fresh container had zero node_modules; `npx tsc` silently
+ran TypeScript 6.0.2 against a config pinned with `ignoreDeprecations: "5.0"`,
+producing 2 false errors. `npm ci --legacy-peer-deps` installed the pinned
+5.9.3 — typecheck, client CSS, client JS, and server build all passed clean
+with zero code changes required.)

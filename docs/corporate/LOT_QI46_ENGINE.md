@@ -1081,5 +1081,38 @@ The machine learns from the corpus. The corpus was built by the body. The body i
 
 ---
 
+## IX. ASSEMBLY STATUS LOG
+
+*Appended by the LOT Benchmark self-assembly protocol. This section is a running,
+honest status ledger — it records what has actually been built against this
+spec, not what the spec describes. See `docs/benchmark/LOT-SR-*.md` for the
+full session record of every entry below.*
+
+```
+2026-08-08  LOT-SR-20260808-01
+QI·46 registered as the first tracked Self-Assembly node in the LOT Benchmark
+protocol (docs/benchmark/LOT-LEDGER.md, docs/benchmark/LOT-DOCTRINE.md).
+
+PHASE 0 — CORPUS ASSEMBLY:  NOT STARTED
+  No /corpus/ directories exist in the repo. No JSONL training set. No
+  cosmo_cleared tagging pass has run. This phase remains spec-only.
+
+PHASE 1–4:                  NOT STARTED
+  No lot-qi-46 inference endpoint, no /qi46/infer route, no fine-tuning run,
+  no model weights. The LOT platform itself (Fastify + PostgreSQL + client)
+  is live and green — the substrate QI·46 would eventually integrate into —
+  but QI·46 as an inference engine does not yet exist in code.
+
+WHAT THIS SESSION ACTUALLY DID:
+  Verified the live platform builds clean end-to-end (typecheck, client CSS,
+  client JS, server build) as the honest precondition for any future QI·46
+  wiring. Found and fixed a real environment gap (dependency install state)
+  that would have silently broken every check in this and future sessions —
+  see Dependency Ground Truth in LOT-DOCTRINE.md. No corpus, training, or
+  inference code was fabricated to simulate progress that has not happened.
+```
+
+---
+
 > *There is hope for this world.*
 > *~ Mother Goddess (CQGS, institute.lot-systems.com)*
