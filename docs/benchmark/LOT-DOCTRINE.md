@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,22 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Command-Triggered Endpoint Reuse
+
+When a new Log slash-command's side effect already has an existing
+authenticated server endpoint, wire the trigger to call that endpoint
+directly instead of building a parallel route, model, or SSE event. The
+Log trigger framework (logTriggers.ts + the NoteEditor if/else-if chain in
+Logs.tsx) is transport-agnostic — it only needs a mutation to call and a
+local result string to render in a COCKPIT-RULE block. Duplicating server
+logic to give a feature "its own" endpoint adds a table/migration/route
+surface with no behavioral gain when the target action (e.g. "send this
+person a message") is already served correctly by an existing route.
+This keeps feature branches small and green-gate risk low (compare: the
+superseded LOT Mail design at MANIFEST 2026-06 proposed a new DB table +
+new SSE event + new route for the same outcome this session reached with
+zero server changes).
+(SR-20260808-01: /email slash command resolves recipient via existing
+useCohorts() client data, then calls the existing POST /direct-messages
+mutation unmodified — no new table, route, or SSE event.)

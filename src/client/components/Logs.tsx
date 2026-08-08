@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useCohorts, useSendDirectMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,15 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailSending, setEmailSending] = React.useState(false)
+  const { data: mailCohortData } = useCohorts()
+  const { mutate: sendLotMail } = useSendDirectMessage({
+    onError: () => {
+      setEmailSending(false)
+      setEmailResult('STATUS          DELIVERY FAILED')
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4120,6 +4129,47 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'email-send') {
+        const emailMatch = value.match(/\/email\s+to\s+([A-Za-z][\w'-]*)/i)
+        if (emailMatch && !emailSending) {
+          const toName = emailMatch[1]
+          const messageBody = value
+            .replace(emailMatch[0], '')
+            .replace(/^[\s.,!?:;-]+|[\s.,!?:;-]+$/g, '')
+            .trim()
+          const matches = mailCohortData?.matches || []
+          const recipient =
+            matches.find((m) => m.user.firstName?.toLowerCase() === toName.toLowerCase()) ||
+            matches.find((m) => m.user.firstName?.toLowerCase().startsWith(toName.toLowerCase()))
+
+          if (recipient) {
+            setEmailSending(true)
+            setEmailResult(null)
+            sendLotMail(
+              { receiverId: recipient.user.id, message: messageBody || 'Sent via LOT Mail.' },
+              {
+                onSuccess: () => {
+                  setEmailSending(false)
+                  setEmailResult(
+                    [
+                      `TO              ${recipient.user.firstName.toUpperCase()}`,
+                      'STATUS          DELIVERED',
+                      'ROUTE           SYNC INBOX',
+                    ].join('\n')
+                  )
+                },
+              }
+            )
+          } else {
+            setEmailResult(
+              [
+                `TO              ${toName.toUpperCase()}`,
+                'STATUS          NOT FOUND',
+                'NOTE            RECIPIENT MUST BE A COHORT MATCH',
+              ].join('\n')
+            )
+          }
+        }
       } else if (trigger === 'system-help') {
         const lines = [
           'AVAILABLE COMMANDS',
@@ -4128,6 +4178,7 @@ const NoteEditor = ({
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
+          '/email to [Name]  Send LOT Mail to a cohort match (Sync inbox)',
           '/assembly     Self-assembly module status',
           '/phys         Physiological cohort report',
           '/qos          Quantum OS state analysis',
@@ -4384,6 +4435,20 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailSending || emailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              {emailSending && !emailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Routing...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                  {emailResult}
+                </div>
+              )}
             </Block>
           </div>
         )}
