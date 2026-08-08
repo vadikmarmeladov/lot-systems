@@ -245,3 +245,17 @@ ran TypeScript 6.0.2 against a config pinned with `ignoreDeprecations: "5.0"`,
 producing 2 false errors. `npm ci --legacy-peer-deps` installed the pinned
 5.9.3 — typecheck, client CSS, client JS, and server build all passed clean
 with zero code changes required.)
+
+## Tag Ground Truth
+
+A fresh clone's local `git tag --list` can be empty even when the remote
+holds a complete tag history — tags are not guaranteed to come down with a
+plain `git fetch`/`git clone` in every environment. Before ORIENT concludes
+"no prior benchmark tag" / "first benchmark," run `git fetch origin --tags`
+and re-check. Treating an empty local tag list as ground truth risks writing
+a false claim into a session report and picking the wrong Plan-B rollback
+target (or none at all, when one exists).
+(SR-20260808-01: local clone had 0 benchmark-* tags; origin had the full
+chain back to benchmark-20260601-01, last-green benchmark-20260805-01.
+Caught and corrected within the same session before any rollback depended
+on it.)
