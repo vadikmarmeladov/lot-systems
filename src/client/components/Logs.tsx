@@ -4125,7 +4125,10 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compressed story of your day (recent data)',
+          '/story week   Compressed story of your week',
+          '/story month  Compressed story of your month',
+          '/story year   Compressed story of your year',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4135,6 +4138,7 @@ const NoteEditor = ({
           '/breathe      4-2-6 breathing exercise',
           '/freeze       Pause and reflect protocol',
           '/silent       Signal silence check',
+          '/sil          Signal silence check (alias)',
           '/synth        Toggle keyboard sound',
           '/radio        Toggle radio',
           '/night        Dark mode',
@@ -4151,18 +4155,44 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          // /story compresses the last day by default; /story week|month|year
+          // widens the window to compress that period instead.
+          const periodMatch = value.match(/\/story\s+(day|week|month|year)/i)
+          const period = (periodMatch ? periodMatch[1].toLowerCase() : 'day') as 'day' | 'week' | 'month' | 'year'
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story(\s+(day|week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
+            const badges = getEarnedBadges()
+            const totalBadges = Object.keys(BADGES).length
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
+              badgeProgress: { earned: badges.length, total: totalBadges },
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
+        }
+      } else if (trigger === 'sil-check') {
+        try {
+          const eng = intentionEngine.get()
+          const signals = (eng as any).signals || []
+          const lastSignal = signals.length > 0 ? signals[signals.length - 1] : null
+          const silenceHours = lastSignal
+            ? Math.round((Date.now() - lastSignal.timestamp) / (1000 * 60 * 60))
+            : null
+          const lines = [
+            'SIGNAL STREAM   QUIET',
+            silenceHours !== null ? `LAST SIGNAL     ${silenceHours}H AGO` : 'LAST SIGNAL     UNKNOWN',
+            'RESPONSE        STANDBY',
+            'PROTOCOL        SIGNAL SILENCE ACKNOWLEDGED',
+          ]
+          setSilentResult(lines.join('\n'))
+        } catch {
+          setSilentResult('SIGNAL STREAM QUIET\nRESPONSE        STANDBY')
         }
       }
     }

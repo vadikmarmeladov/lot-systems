@@ -5490,6 +5490,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          period?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5501,6 +5502,10 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
             dimensions?: Record<string, number>
             trend?: string
           }
+          badgeProgress?: {
+            earned?: number
+            total?: number
+          }
         }
       }>,
       reply
@@ -5510,29 +5515,39 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         return reply.code(403).send({
           story: 'Story generation is available for Usership members.',
           logId: null,
+          period: 'day',
         })
       }
 
-      const { logText, quantumState, userIndex } = req.body
+      const { logText, quantumState, userIndex, badgeProgress } = req.body
+
+      // Compression window — /story defaults to "day"; /story week|month|year
+      // widens the lookback so the same command scales from a daily recap
+      // to a full-year compression of the operator's data.
+      const PERIOD_DAYS: Record<string, number> = { day: 1, week: 7, month: 30, year: 365 }
+      const period = PERIOD_DAYS[req.body.period || ''] ? req.body.period! : 'day'
+      const since = new Date(Date.now() - PERIOD_DAYS[period] * 24 * 60 * 60 * 1000)
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: { userId: req.user.id, createdAt: { [Op.gte]: since } },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: 1000,
       })
 
+      const entryCap = period === 'day' ? 5 : period === 'week' ? 8 : period === 'month' ? 10 : 14
       const recentEntries = logs
-        .filter(l => l.event === 'log_entry' || l.event === 'journal')
-        .slice(0, 10)
+        // Free-text journal entries are saved with event: 'note' (see POST /logs).
+        .filter(l => l.event === 'note')
+        .slice(0, entryCap)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
 
-      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, entryCap)
       const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
 
       const selfCareLogs = logs.filter(l =>
         l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
-      ).slice(0, 10)
+      ).slice(0, entryCap)
       const selfCareNotes = selfCareLogs.map(l => {
         const q = (l.metadata?.question as string || '')
         const a = (l.metadata?.option as string || l.metadata?.answer as string || '')
@@ -5546,16 +5561,25 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       if (userIndex && userIndex.overall !== undefined) {
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
+      if (badgeProgress && badgeProgress.total) {
+        stateBlock += `\nPROGRESSION: ${badgeProgress.earned || 0}/${badgeProgress.total} badges unlocked`
+      }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      const PERIOD_LABEL: Record<string, string> = {
+        day: 'day', week: 'week', month: 'month', year: 'year',
+      }
+      const periodLabel = PERIOD_LABEL[period]
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that compresses the operator's ${periodLabel} of data into a short narrative.
+
+The operator typed a log entry and invoked /story${period !== 'day' ? ` ${period}` : ''}. Your task: write 1-2 paragraphs (100-200 words) that compress their ${periodLabel} — journey, mood trajectory, and self-care patterns — into a single passage. The story should feel personal, grounded, and real — not generic motivational writing.
 
 RULES:
 - Write in second person ("You...")
 - Draw from their actual log entries, moods, and self-care answers below
-- Reference specific details from their data — make it feel like THEIR story
-- If they've been consistent with check-ins, acknowledge the discipline
+- Reference specific details from their data — make it feel like THEIR ${periodLabel}, not a template
+- Surface the actual highs and lows of the ${periodLabel} rather than smoothing them into a single mood
+- If they've been consistent with check-ins, acknowledge the discipline; if a PROGRESSION line is present, you may note it in passing — briefly, never as a scoreboard
 - If there are gaps or struggle, acknowledge that with compassion
 - The tone should match their current energy: reflective if low, energized if high
 - End with a single forward-looking sentence — not a pep talk, just a quiet truth
@@ -5565,15 +5589,17 @@ RULES:
       const dataBlock = `
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
 
+COMPRESSION WINDOW: past ${periodLabel} (since ${since.toISOString()})
+
 ${stateBlock ? stateBlock : 'STATE: unknown'}
 
 RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
 
 RECENT LOG ENTRIES:
-${recentEntries.slice(0, 5).map(e => `- ${e}`).join('\n') || '- (none)'}
+${recentEntries.slice(0, entryCap).map(e => `- ${e}`).join('\n') || '- (none)'}
 
 SELF-CARE DATA:
-${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
+${selfCareNotes.slice(0, entryCap).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
       const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
 
@@ -5581,7 +5607,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         const { aiEngineManager } = await import('#server/utils/ai-engines.js')
         const engine = aiEngineManager.getEngine('together')
 
-        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+        console.log(`📖 Story generation (${period}) for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
 
         const story = await engine.generateCompletion(fullPrompt, 512)
 
@@ -5595,8 +5621,10 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           context,
           metadata: {
             story: cleaned,
+            period,
             logText: (logText || '').substring(0, 500),
             quantumState: quantumState || null,
+            badgeProgress: badgeProgress || null,
             timestamp: new Date().toISOString(),
           },
         })
@@ -5604,12 +5632,14 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         return {
           story: cleaned,
           logId: storyLog.id,
+          period,
         }
       } catch (error: any) {
         console.error('Story generation failed:', error)
         return {
           story: 'The system holds your data quietly. When the engine returns, your story will be here.',
           logId: null,
+          period,
         }
       }
     }
