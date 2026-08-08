@@ -19,8 +19,13 @@ type EntryType = 'note' | 'task' | 'call'
 
 type CalendarEntry = {
   date: string
+  time: string | null
   text: string
   type: EntryType
+}
+
+function entrySortKey(e: { date: string; time: string | null }): string {
+  return `${e.date} ${e.time || '99:99'}`
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
@@ -58,24 +63,29 @@ export function CalendarWidget() {
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
+  const [entryTime, setEntryTime] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
         date: log.metadata?.date as string,
+        time: (log.metadata?.time as string) || null,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => entrySortKey(a).localeCompare(entrySortKey(b)))
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
+    const now = dayjs()
+    const today = now.format('YYYY-MM-DD')
+    const nowKey = entrySortKey({ date: today, time: now.format('HH:mm') })
     return entries
-      .filter(e => e.date >= today)
+      .filter(e => e.date > today || (e.date === today && entrySortKey(e) >= nowKey))
       .slice(0, 10)
   }, [entries])
 
@@ -98,6 +108,9 @@ export function CalendarWidget() {
 
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
+    setIsAddingEntry(false)
+    setEntryText('')
+    setEntryTime('')
     if (selectedDate === key) {
       setSelectedDate(null)
     } else {
@@ -106,15 +119,19 @@ export function CalendarWidget() {
   }
 
   const handleAddEntry = () => {
-    if (!selectedDate || !entryText.trim()) return
+    if (!selectedDate || !entryText.trim() || isSubmitting) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const time = entryTime.trim() || null
+    const timeLabel = time ? ` · ${time}` : ''
 
+    setIsSubmitting(true)
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel}${timeLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
+        time,
         text: entryText.trim(),
         entryType,
       },
@@ -123,9 +140,11 @@ export function CalendarWidget() {
         queryClient.refetchQueries(['/api/logs'])
         try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
       },
+      onSettled: () => setIsSubmitting(false),
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
   }
 
@@ -237,7 +256,14 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
-                  <Button onClick={handleAddEntry}>Add</Button>
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40 tabular-nums"
+                  />
+                  <Button onClick={handleAddEntry} disabled={isSubmitting}>Add</Button>
                 </div>
               </div>
             )}
@@ -248,8 +274,9 @@ export function CalendarWidget() {
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
                 {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                  <div key={i} className="text-acc/80 mb-1 flex gap-8">
+                    {e.time && <span className="text-acc/50 tabular-nums">{e.time}</span>}
+                    <span>{e.text}</span>
                   </div>
                 ))}
               </div>
@@ -263,6 +290,7 @@ export function CalendarWidget() {
               <div key={i} className="flex justify-between gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  {entry.time && <span className="text-acc/50 tabular-nums"> · {entry.time}</span>}
                 </span>
                 <span className="text-acc text-right">
                   {entry.text}
