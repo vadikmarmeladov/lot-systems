@@ -73,6 +73,9 @@ Security documentation and repository maintenance.
 - Security Fixes - Security issue resolution
 - Repository Issues Summary - Known issues and fixes
 
+### [Brand Review](./brand-review/)
+Daily digests reviewing LOT® AI docs, LOT® Design System / COSMO® Style guidelines, and brand standards against the current repo state.
+
 ## 🚀 Quick Links
 
 - [Main README](../README.md) - Project overview
