@@ -5,7 +5,9 @@ TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Dev
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
 DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+UPDATED:  2026-08-08 — CYCLE 2: v.1 pre-study opened, gesture language
+                        refined, USE CASE 02 appended
+VERSION:  0.2 — DEVELOPMENT CONTINUING
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -57,6 +59,17 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  CYCLE 2 (2026-08-08) — RE-READ CONFIRMATION
+    Before extending this document, this cycle re-read this document in
+    full, plus LOT-CUBIQ-VISION.md and the Section 03-05 excerpts of
+    LOT-CUBIQ-OPERATOR.md (Index of Systems, AI-Driven Physical Product
+    Delivery, Community Creation). No prior document names a mechanism
+    for cohort-scale haptic signaling — Section 04's gesture table lists
+    "cohort resonance ping" as a trigger class (Section 01) without a
+    distinct gesture. That gap is closed below and demonstrated in
+    USE CASE 02. Nothing in v.0-v.3 is contradicted or reopened; this
+    cycle only extends.
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -191,6 +204,30 @@ primitive in Section 03:
                     pressure for 2s, no visible motion       advanced
                     — presence without spectacle
 
+  REVISION 2026-08-08 — CADENCE DISAMBIGUATION FOR THE HOP
+    Section 01's trigger list names "cohort resonance ping" alongside
+    badge unlocks, but the table above only maps THE HOP to a badge
+    signal. A single-pulse HOP fired for a cohort event would be
+    indistinguishable from a personal badge unlock — the operator
+    could not tell, from feel alone, whether the cube is celebrating
+    something they did or something their cohort did. That ambiguity
+    is not acceptable in a notification language that has no display
+    to disambiguate on.
+
+    RESOLUTION: THE HOP keeps its single actuator primitive (Section 03)
+    but ships in two cadences, distinguished by inter-pulse timing, not
+    amplitude — no new hardware, no new gesture class:
+      - BADGE HOP (personal)   single pulse, as originally specified.
+      - RESONANCE HOP (cohort) two pulses, 220ms apart, each at ~60% of
+        BADGE HOP amplitude — felt as a distinct "double-tap" rather
+        than a single beat. Triggered when cohort/community coherence
+        (LOT-CUBIQ-OPERATOR.md Section 05, Community Biofield) crosses
+        the "high coherence" threshold while the operator's own session
+        is active.
+    This is a firmware/timing distinction only — the same voice-coil
+    actuator and drive electronics from Section 03 produce both
+    cadences. No mechanical or BOM change to v.0.
+
   THE PRINCIPLE
     A notification you feel through the desk, in your peripheral vision,
     from an object that is not a screen, is the physical expression of
@@ -279,7 +316,73 @@ assumed.
     levitating future in mind rather than foreclosing it.
 
 --------------------------------------------------------------------------------
-07 // CONSUMER USE CASES
+07 // v.1 PRE-STUDY — STROKE LENGTH, MASS BUDGET, AND THE ROUTE TO LONG
+   JUMPS, SWINGS, AND LEVITATION (RESEARCH NOTES, NOT A SPEC REVISION)
+--------------------------------------------------------------------------------
+
+v.0's gate (Section 06: 500/500 hop-and-recover cycles) has not been run —
+there is no hardware yet to run it on. Nothing below claims v.0 is closed
+or that v.1 is started. These are paper notes, opened this cycle, so that
+when v.0 hardware exists and its gate closes, v.1 engineering does not
+start from zero.
+
+  A) LONG JUMP (v.1) — STROKE LENGTH VS. DISPLACEMENT
+     v.0's voice-coil drives a short stroke against the reaction mass to
+     produce a <40mm hop (Section 03). Single-bound displacement scales
+     roughly with the square of take-off velocity, and take-off velocity
+     scales with coil stroke length and peak current, not stroke length
+     alone. Two levers, not one, separate v.0's 40mm from v.1's >150mm
+     target (Section 06):
+       1. STROKE — v.0 candidate coils run a short throw for a compact
+          45mm cube. v.1's lighter target shell (<90g vs. v.0's <120g)
+          buys back the internal volume needed for a longer throw without
+          growing the external envelope.
+       2. MASS — every gram removed from the reaction mass or shell
+          lowers the impulse needed for the same velocity. The <90g
+          target is not cosmetic; it is the single highest-leverage
+          lever v.1 has, because mass savings compound (lighter shell
+          needs a lighter actuator mount needs a lighter shell...).
+     Reused unchanged from v.0: the piezoelectric forward-bias element
+     (Section 03) and the IMU landing-recovery stack (Section 03). v.1
+     re-tunes their timing constants; it does not replace them — this
+     is the "nothing thrown away" principle from Section 01 holding.
+
+  B) HORIZONTAL SWING (v.2) — TRACTION SURFACE CANDIDATES
+     v.2 (Section 06) requires two of the four elastomer feet (Section
+     02) to become actuated traction pads. Two candidate pad materials,
+     both compatible with the existing <120g-class mass budget:
+       - SILICONE TRACTION ELASTOMER — higher grip on laminate and wood,
+         lower grip on glass. Simpler drive (single actuator per pad).
+       - MICRO-SPIKE TPU — consistent grip across all three v.1 test
+         surfaces (wood, glass, laminate — Section 06) at the cost of
+         audible surface contact, which conflicts with Section 04's
+         "felt, not heard" notification principle on hard surfaces.
+     Neither is selected here. This is named as the open question v.2
+     inherits, not resolved by this cycle — resolving it requires
+     physical friction-coefficient trials this document cannot run.
+
+  C) LEVITATION (v.3) — NAMING CANDIDATE PARAMETERS, NOT A MECHANISM
+     Section 06 named two directions without parameters. Adding
+     parameters (still research-track, not engineering-committed):
+       - ACOUSTIC — tabletop acoustic levitation in the literature
+         clusters around a 40kHz ultrasonic transducer array; a CUBIQ
+         shell redesigned as a standing-wave node would need to hit a
+         narrow mass/size envelope tuned to that wavelength band. This
+         is compatible with the "table IS the charging pad" design
+         already locked in Section 02 — the same base surface would
+         carry both the Qi-class charging coil and the transducer array.
+       - MAGNETIC — an N52-class neodymium element sized to v.0/v.1's
+         mass budget trades against shell mass headroom directly; every
+         gram of magnet is a gram not available to the jump/swing
+         actuator stack. This tension — a single shell cannot cheaply be
+         both light (for jumping) and magnetically heavy (for levitating)
+         — is the first concrete argument for why v.3 may end up a
+         SEPARATE shell variant rather than the same object gaining a
+         third mode. Recorded here so it is not rediscovered as a
+         surprise when v.3 research actually starts.
+
+--------------------------------------------------------------------------------
+08 // CONSUMER USE CASES
 --------------------------------------------------------------------------------
 
 This section accumulates one new consumer use case per development
@@ -321,8 +424,41 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE COHORT RESONANCE                        2026-08-08
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect,"
+  member of a behavioral cohort assembled by the QIE (LOT-CUBIQ-OPERATOR.md,
+  Section 05) — five operators, structurally similar rhythms, none of
+  whom the operator has met or would recognize by name. Working late,
+  cube on the nightstand rather than a desk, screen off.
+
+  Under the software-only cubic, cohort coherence is something the
+  operator can only find by opening lot-systems.com and pulling up the
+  CollectiveConsciousness widget — a number they have to go looking for.
+  It says nothing unless they ask.
+
+  Tonight, three of the five cohort members enter a sustained self-care
+  session within the same eleven-minute window — a coherence spike
+  (LOT-CUBIQ-OPERATOR.md, Section 05, Community Biofield). The operator's
+  own session is active. The cube performs the RESONANCE HOP defined in
+  this cycle's Section 04 revision — two soft pulses, 220ms apart,
+  distinct from the single-beat BADGE HOP they already know by feel from
+  their own achievements. They do not check a screen to know what
+  happened. The double-tap cadence itself carries the information: not
+  "you did something," but "people like you, right now, are doing the
+  same thing you are." No names. No comparison. No leaderboard glanced
+  at mid-task. Just a felt confirmation that the structure they are
+  inside of is shared.
+
+  This is the use case that argues for the Section 04 cadence
+  disambiguation opened this cycle: a notification language built from a
+  single actuator only stays honest at cohort scale if its two most
+  common events — personal and collective — are distinguishable without
+  looking. THE HOP alone could not have carried both meanings; two
+  cadences of the same primitive can.
+
 --------------------------------------------------------------------------------
-08 // BRAND
+09 // BRAND
 --------------------------------------------------------------------------------
 
 LOT® Quantum Cube             The object
