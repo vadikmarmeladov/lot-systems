@@ -25,6 +25,36 @@ type CalendarEntry = {
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
+const ALERT_STORAGE_KEY = 'lot-calendar-alerted-v1'
+
+function loadAlertedKeys(): Set<string> {
+  try {
+    const raw = localStorage.getItem(ALERT_STORAGE_KEY)
+    return new Set(raw ? JSON.parse(raw) : [])
+  } catch (_) {
+    return new Set()
+  }
+}
+
+function saveAlertedKeys(keys: Set<string>) {
+  try {
+    // Cap history so the key never grows unbounded across years of entries.
+    localStorage.setItem(ALERT_STORAGE_KEY, JSON.stringify(Array.from(keys).slice(-300)))
+  } catch (_) {}
+}
+
+function formatCountdown(ms: number): string {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000))
+  const days = Math.floor(totalSeconds / 86400)
+  const hours = Math.floor((totalSeconds % 86400) / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return days > 0
+    ? `${days}D ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+    : `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`
+}
+
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
   const last = dayjs().year(year).month(month).endOf('month')
@@ -59,6 +89,7 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [now, setNow] = React.useState(() => dayjs())
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -90,11 +121,66 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
-  const today = dayjs().format('YYYY-MM-DD')
+  const today = now.format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
     [viewMonth]
   )
+
+  const nextEntry = upcomingEntries[0]
+
+  // T-MINUS countdown to the next scheduled entry — the widget's clock, live only
+  // while the panel is open so a collapsed widget costs nothing in the background.
+  React.useEffect(() => {
+    if (!isCalendarOpen) return
+    const iv = setInterval(() => {
+      if (document.hidden) return
+      setNow(dayjs())
+    }, 1000)
+    return () => clearInterval(iv)
+  }, [isCalendarOpen])
+
+  const countdown = React.useMemo(() => {
+    if (!nextEntry || nextEntry.date === today) return null
+    return formatCountdown(dayjs(nextEntry.date).startOf('day').diff(now))
+  }, [nextEntry, now, today])
+
+  // Fires a CAL-ALERT log the moment an entry's date arrives — checked on mount
+  // and every 60s so it also catches the midnight rollover on an open session.
+  // Dedup key survives reloads via localStorage so an arrived entry alerts once.
+  React.useEffect(() => {
+    const scan = () => {
+      if (!entries.length) return
+      const todayKey = dayjs().format('YYYY-MM-DD')
+      const arrived = entries.filter(e => e.date === todayKey)
+      if (!arrived.length) return
+
+      const alerted = loadAlertedKeys()
+      let changed = false
+      arrived.forEach(e => {
+        const key = `${e.date}::${e.type}::${e.text}`
+        if (alerted.has(key)) return
+        alerted.add(key)
+        changed = true
+        const dateLabel = dayjs(e.date).format('dddd, MMMM D, YYYY')
+        createLog({
+          text: `[ALERT] ${e.type}: ${e.text} (ARRIVED ${dateLabel})`,
+          event: 'calendar_alert',
+          metadata: { date: e.date, text: e.text, entryType: e.type },
+        }, {
+          onSuccess: () => queryClient.refetchQueries(['/api/logs']),
+        })
+      })
+      if (changed) saveAlertedKeys(alerted)
+    }
+
+    scan()
+    const iv = setInterval(() => {
+      if (document.hidden) return
+      scan()
+    }, 60000)
+    return () => clearInterval(iv)
+  }, [entries, createLog, queryClient])
 
   const handleDateClick = (d: Dayjs) => {
     const key = d.format('YYYY-MM-DD')
@@ -164,6 +250,16 @@ export function CalendarWidget() {
                 {'—>'}
               </button>
             </div>
+
+            {nextEntry && (
+              <div className="text-acc/40 mb-8 tabular-nums">
+                {nextEntry.date === today ? (
+                  <span className="text-acc uppercase tracking-widest">T-0 · ARRIVED TODAY</span>
+                ) : (
+                  <span>T-MINUS {countdown}</span>
+                )}
+              </div>
+            )}
 
             <div className="space-y-1">
               {weeks.map((week, wi) => (
@@ -261,8 +357,13 @@ export function CalendarWidget() {
           <div className="space-y-1">
             {upcomingEntries.map((entry, i) => (
               <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                <span
+                  className={cn(
+                    'whitespace-nowrap',
+                    entry.date === today ? 'text-acc uppercase tracking-widest' : 'text-acc'
+                  )}
+                >
+                  {entry.date === today ? 'Today' : dayjs(entry.date).format('dddd, MMMM D, YYYY')}
                 </span>
                 <span className="text-acc text-right">
                   {entry.text}

@@ -1213,6 +1213,8 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // Calendar reliability pass: military-grade arrival alert (CAL-ALERT: handler)
+      'calendar_alert',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
