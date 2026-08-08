@@ -3629,6 +3629,91 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'convergence_arc_hold') {
+          const consecutiveDays = log.metadata?.consecutiveDays as number | undefined
+          const holdConf = log.metadata?.holdConf as number | undefined
+          const state = log.metadata?.state as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CONVARC:" blockView>
+                <div className="uppercase tracking-widest mb-4">CONVERGENCE ARC HOLD</div>
+                {consecutiveDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONSECUTIVE DAYS</span>
+                    <span className="tabular-nums">{consecutiveDays}</span>
+                  </div>
+                )}
+                {holdConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">HOLD CONF</span>
+                    <span className="tabular-nums">{holdConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">CEILING SUSTAINED · MULTI-DAY BASELINE</div>
+                {state && (
+                  <div className="opacity-30 tabular-nums">STATE: {state}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'heroic_threshold_signal') {
+          const wordCount = log.metadata?.wordCount as number | undefined
+          const peakState = log.metadata?.peakState as string | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="HRTHR:" blockView>
+                <div className="uppercase tracking-widest mb-4">HEROIC THRESHOLD SIGNAL</div>
+                {wordCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WORD COUNT</span>
+                    <span className="tabular-nums">{wordCount}</span>
+                  </div>
+                )}
+                {peakState && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PEAK STATE</span>
+                    <span className="tabular-nums">{peakState}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">NARRATIVE + CONVERGENCE ACTIVE</div>
+                {arc && (
+                  <div className="opacity-30 tabular-nums">ARC: {arc}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'temporal_depth_integration') {
+          const userIndexOverall = log.metadata?.userIndexOverall as number | undefined
+          const depthLevel = log.metadata?.depthLevel as string | undefined
+          const activeConvergencePatterns = log.metadata?.activeConvergencePatterns as string[] | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TMPDEP:" blockView>
+                <div className="uppercase tracking-widest mb-4">TEMPORAL DEPTH INTEGRATION</div>
+                {userIndexOverall !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">USER INDEX</span>
+                    <span className="tabular-nums">{userIndexOverall}/100</span>
+                  </div>
+                )}
+                {activeConvergencePatterns && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONVERGENCE PTN</span>
+                    <span className="tabular-nums">{activeConvergencePatterns.length}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">MULTI-YEAR DEPTH · PEAK COHERENCE LIVE</div>
+                {depthLevel && (
+                  <div className="opacity-30 tabular-nums">DEPTH: {depthLevel}</div>
+                )}
+                {arc && (
+                  <div className="opacity-30 tabular-nums">ARC: {arc}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

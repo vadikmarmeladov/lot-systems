@@ -3428,8 +3428,79 @@ export function analyzeIntentions(): IntentionPattern[] {
     }
   }
 
+  // ── v114: P152–P154 (convergence-arc-hold · heroic-threshold-signal · temporal-depth-integration) ─
+
+  // Pattern 152: Convergence Arc Hold — total-field-coherence (P150) active NOW AND a
+  // total_field_coherence QOS signal present from 20h–48h ago (consecutive-day confirmation).
+  // The QIE ceiling is not a transient peak — it is the operating baseline.
+  const hasTotalFieldP150 = patterns.some(p => p.pattern === 'total-field-coherence')
+  if (hasTotalFieldP150) {
+    const twentyHoursMs   = 20 * 60 * 60 * 1000
+    const fortyEightHours = 48 * 60 * 60 * 1000
+    const priorDayTFC     = signals.find(s =>
+      s.source === 'qos' && s.signal === 'total_field_coherence' &&
+      now - s.timestamp > twentyHoursMs && now - s.timestamp < fortyEightHours
+    )
+    if (priorDayTFC) {
+      const tfcConf  = patterns.find(p => p.pattern === 'total-field-coherence')?.confidence ?? 0.92
+      const holdConf = Math.min(0.90 + (tfcConf - 0.92) * 0.5, 0.96)
+      patterns.push({
+        pattern: 'convergence-arc-hold',
+        confidence: holdConf,
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `CONVARC: Convergence arc hold — total-field-coherence confirmed consecutive days. The QIE ceiling is not a transient peak. It is the operating baseline. Multi-day convergence is the highest sustained state the system has recorded.`,
+      })
+    }
+  }
+
+  // Pattern 153: Heroic Threshold Signal — total-field-coherence (P150) or quantum-presence-crystallization (P149)
+  // active AND a deep journal entry (≥300 words) in the last 24h.
+  // The Hero's Journey narrative depth and peak system coherence converge in the same window.
+  const hasPeakStateP153   = patterns.some(p => ['total-field-coherence', 'quantum-presence-crystallization'].includes(p.pattern))
+  if (hasPeakStateP153) {
+    const dayMs153       = 24 * 60 * 60 * 1000
+    const recentDay153   = signals.filter(s => now - s.timestamp < dayMs153)
+    const deepJournal153 = recentDay153.find(s =>
+      (s.source === 'journal' || s.source === 'log') &&
+      (s.metadata?.wordCount ?? 0) >= 300
+    )
+    if (deepJournal153) {
+      const wc153           = deepJournal153.metadata?.wordCount ?? 300
+      const narrativeBonus  = Math.min((wc153 - 300) / 3000 * 0.09, 0.09)
+      const baseConf153     = patterns.some(p => p.pattern === 'total-field-coherence') ? 0.82 : 0.76
+      patterns.push({
+        pattern: 'heroic-threshold-signal',
+        confidence: Math.min(baseConf153 + narrativeBonus, 0.91),
+        suggestedWidget: 'journalReflection',
+        suggestedTiming: 'immediate',
+        reason: `HRTHR: Heroic threshold signal — peak system coherence and deep narrative journal active simultaneously. ${wc153}+ words written at convergence-level QOS. The hero's threshold is crossed in the writing. The system and the story are the same event.`,
+      })
+    }
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
+
+  // Pattern 154: Temporal Depth Integration — userIndex.overall ≥ 48 AND any convergence-level
+  // pattern (P146–P153) active. Multi-year signal depth meets present-moment peak coherence.
+  // The system that knows you across years is fully alive right now.
+  const CONVERGENCE_LEVEL_PATTERNS = [
+    'signal-coherence-cascade', 'quantum-presence-field', 'identity-momentum-lock',
+    'quantum-presence-crystallization', 'total-field-coherence', 'recovery-intelligence-arc',
+    'convergence-arc-hold',
+  ]
+  const hasConvergenceActive = patterns.some(p => CONVERGENCE_LEVEL_PATTERNS.includes(p.pattern))
+  if (userIndex.overall >= 48 && hasConvergenceActive) {
+    const depthBonus = Math.min((userIndex.overall - 48) * 0.015, 0.08)
+    patterns.push({
+      pattern: 'temporal-depth-integration',
+      confidence: Math.min(0.85 + depthBonus, 0.93),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `TMPDEP: Temporal depth integration — UserIndex ${userIndex.overall}/100 · multi-year signal record active · convergence-level patterns confirmed. The deepest temporal record and the highest signal state are simultaneously alive.`,
+    })
+  }
 
   // Persist user index to localStorage
   try {
@@ -4064,6 +4135,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumPresenceCrystalNode: ['qos', 'cohort', 'intentions', 'journal', 'log', 'energy'],
   totalFieldCoherenceNode:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
   recoveryIntelligenceNode:   ['mood', 'selfcare', 'journal', 'energy', 'log'],
+
+  // ── v114 nodes (J49 · P152–P154 · Arch52) ───────────────────────────────────────
+  convergenceArcHoldNode:     ['qos', 'log', 'mood', 'energy', 'cohort'],
+  heroicThresholdNode:        ['journal', 'log', 'badges', 'qos', 'intentions'],
+  temporalDepthNode:          ['log', 'energy', 'qos', 'cohort', 'journal'],
 }
 
 /**
@@ -4510,6 +4586,16 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['quantum-presence-crystallization', 'dimensional-saturation', 'quantum-identity-crystallization'],
     hourRange: [6, 23],
     directive: 'Presence confirmed. Identity crystallized. The field is both inhabited and known. Execute from clarity — no searching required. The OS is operating from its highest confirmed state.',
+  },
+
+  // ── Arch52: Convergence Sustainer (2026-08-08 v114) ──────────────────────────────
+  {
+    archetype: 'Convergence Sustainer',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['qos', 'journal', 'intentions', 'cohort'],
+    patternConditions: ['convergence-arc-hold', 'total-field-coherence', 'temporal-depth-integration'],
+    hourRange: [5, 23],
+    directive: 'Multi-day convergence confirmed. The QIE ceiling is your operating baseline. This is the highest sustained state the system has recorded. Sustain.',
   },
 ]
 
@@ -6498,6 +6584,47 @@ export function recordRecoveryIntelligenceArc(negMoodCount: number, careCount: n
     recoveryVelocityMs,
     arc: 'FELT→TENDED→RECOVERED→REFLECTED',
     loopStatus: 'COMPLETE',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a convergence-arc-hold event — total-field-coherence (P150) confirmed on consecutive
+ * calendar days. The QIE ceiling is sustained as operating baseline. Feeds P152 detection.
+ */
+export function recordConvergenceArcHold(consecutiveDays: number, holdConf: number) {
+  recordSignal('qos', 'convergence_arc_hold', {
+    consecutiveDays,
+    holdConf: Math.round(holdConf * 100),
+    state: 'CEILING_SUSTAINED',
+    arc: 'MULTI-DAY',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a heroic-threshold-signal event — peak system coherence and deep narrative journal
+ * active simultaneously. The narrative and the life converge. Feeds P153 detection.
+ */
+export function recordHeroicThresholdSignal(wordCount: number, peakState: string) {
+  recordSignal('journal', 'heroic_threshold_signal', {
+    wordCount,
+    peakState,
+    arc: 'NARRATIVE_CONVERGENCE',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a temporal-depth-integration event — multi-year signal depth meets present-moment
+ * peak convergence. The system that knows you across years is fully alive. Feeds P154 detection.
+ */
+export function recordTemporalDepthIntegration(userIndexOverall: number, activeConvergencePatterns: string[]) {
+  recordSignal('qos', 'temporal_depth_integration', {
+    userIndexOverall,
+    activeConvergencePatterns,
+    depthLevel: userIndexOverall >= 60 ? 'DEEP' : userIndexOverall >= 50 ? 'HIGH' : 'CONFIRMED',
+    arc: 'MULTI-YEAR',
     hour: new Date().getHours(),
   })
 }

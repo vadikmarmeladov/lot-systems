@@ -1213,6 +1213,10 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // v114: convergence arc hold · heroic threshold signal · temporal depth integration (P152/P153/P154)
+      'convergence_arc_hold',
+      'heroic_threshold_signal',
+      'temporal_depth_integration',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

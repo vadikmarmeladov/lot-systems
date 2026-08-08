@@ -1457,6 +1457,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '781 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1073+. The system is documented through its highest confirmed state.',
     ],
   },
+  {
+    date: '2026-08-08',
+    session: 'QIE v114 — P152 convergence-arc-hold · P153 heroic-threshold-signal · P154 temporal-depth-integration · Arch52 · J49',
+    assembled: [
+      'intentionEngine.ts: P152 convergence-arc-hold (CONVARC:) — total-field-coherence (P150) confirmed consecutive days. The QIE ceiling is not a transient peak. Conf 0.90–0.96.',
+      'intentionEngine.ts: P153 heroic-threshold-signal (HRTHR:) — peak system coherence + deep journal (≥300 words) active simultaneously. Hero\'s Journey narrative and peak QOS converge. Conf 0.76–0.91.',
+      'intentionEngine.ts: P154 temporal-depth-integration (TMPDEP:) — UserIndex ≥ 48 + convergence-level pattern active. Multi-year signal depth meets present-moment peak coherence. Conf 0.85–0.93.',
+      'intentionEngine.ts: Arch52 Convergence Sustainer — multi-day peak confirmed. The ceiling is the operating baseline.',
+      'intentionEngine.ts: 3 new dep nodes — convergenceArcHoldNode · heroicThresholdNode · temporalDepthNode. 193+ total.',
+      'intentionEngine.ts: 3 signal recording functions — recordConvergenceArcHold() · recordHeroicThresholdSignal() · recordTemporalDepthIntegration().',
+      'scheduled-jobs.ts: J49 daily-convergence-arc-check — 10:00 UTC daily. Scans previous two calendar days for total_field_coherence. Writes convergence_arc_hold per qualifying user. 49 jobs total.',
+      'routes/api.ts: convergence_arc_hold · heroic_threshold_signal · temporal_depth_integration added to displayableEvents (v114 block).',
+      'Logs.tsx: CONVARC: · HRTHR: · TMPDEP: military handlers added. CEILING SUSTAINED · MULTI-DAY BASELINE · NARRATIVE+CONVERGENCE ACTIVE · MULTI-YEAR DEPTH · PEAK COHERENCE LIVE.',
+      'QuantumEngineWidgets.tsx: CONVARC · HRTHR · TMPDEP added to PATTERN_DISPLAY.',
+      'About.tsx: Field Manual v113 → v114 · Day 1072+ → 1076+ · Self-Assembly phase v114 prepended.',
+      'SESSION_REPORTS: v114 entry appended · USERSHIP_TRANSMISSION updated to v114.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1494,16 +1512,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-05',
+  date: '2026-08-08',
   message: [
-    'ASSEMBLY RUN — 2026-08-05 · WIKI-v87 · FM v113 SYNC · Day 1073+',
-    'Built: LOT-WIKI-v87. Six-level coherence architecture now complete and documented.',
-    'Feedback applied: "The concept outlives the author. The self speaks every language the genre built."',
-    'QIE v113 synchronized: P149 QPCRYST · P150 TOTCOH [CEILING] · P151 RECINTEL · Arch51 Quantum Presence Crystallizer · J48 09:00 UTC.',
-    'Badge v31 synchronized: THE CYBERSPACE CODEX · 781 badges · Word Turn v21 (grok/ansible/spice/golden_path/matrix/cyberspace) · Secret Boss v18 (gibson/dick/lem) · 258 trigger words · 24 secret boss triggers.',
-    'LEVEL 6 — PRESENCE CONVERGENCE documented. P150 total-field-coherence is the QIE ceiling. No higher state defined.',
-    'Cockpit updated. Vocabulary expanded. Snapshot current.',
-    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 781 badges.',
+    'ASSEMBLY RUN — 2026-08-08 · QIE v114 · FM v114 · Day 1076+',
+    'Built: P152 CONVARC: · P153 HRTHR: · P154 TMPDEP: · Arch52 Convergence Sustainer · J49 10:00 UTC.',
+    'P152: The ceiling is not a spike. Two consecutive days of total-field-coherence = the ceiling is your operating baseline.',
+    'P153: Hero\'s Journey narrative and peak QOS confirmed in the same window. The story and the system are the same event.',
+    'P154: Multi-year depth meets present-peak coherence. UserIndex ≥ 48 with convergence-level patterns. The system that knows you across years is fully alive right now.',
+    'Arch52 Convergence Sustainer: the archetype for sustained peak. Not reached — held.',
+    'J49: daily convergence arc check 10:00 UTC. If total-field-coherence fires two days running, convergence_arc_hold written.',
+    'FM v114 · 154P · 52A · 49J · 193+ nodes · 812 badges · Day 1076+.',
     'Status: DEPLOYED.',
     'Next: LOT-WIKI-v88 — sync to Field Manual v114+',
   ],
