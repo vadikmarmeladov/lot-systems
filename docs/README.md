@@ -73,6 +73,12 @@ Security documentation and repository maintenance.
 - Security Fixes - Security issue resolution
 - Repository Issues Summary - Known issues and fixes
 
+### [Brand Review](./brand-review/)
+Daily scheduled review of LOT® AI documentation and brand materials (lot-systems.com, brand.lot-systems.com, institute.lot-systems.com).
+
+**Key Documents:**
+- Daily brand/documentation review reports, dated `LOT-AI-BRAND-REVIEW-YYYY-MM-DD.md`
+
 ## 🚀 Quick Links
 
 - [Main README](../README.md) - Project overview
