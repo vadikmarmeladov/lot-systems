@@ -4041,13 +4041,17 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         message: message.trim().slice(0, 2000) // Limit message length
       })
 
-      // Emit SSE event to receiver
+      // Emit SSE event to receiver (and echoed back to the sender's own
+      // connection, since sync broadcasts to all clients) — includes
+      // both names so a single event can render on either side, e.g.
+      // the Sync "Email" feed showing outgoing LOT Emails by recipient.
       sync.emit('direct_message', {
         id: directMessage.id,
         senderId: req.user.id,
         receiverId,
         message: directMessage.message,
         senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        receiverName: `${receiver.firstName} ${receiver.lastName}`.trim(),
         createdAt: directMessage.createdAt
       })
 

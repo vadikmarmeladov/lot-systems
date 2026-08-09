@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useCohorts, useSendDirectMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,9 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const { data: cohortData } = useCohorts()
+  const { mutate: sendLotEmail } = useSendDirectMessage()
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4139,6 +4142,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to [name]  Send a LOT Email to a cohort match — appears in Sync',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4162,6 +4166,38 @@ const NoteEditor = ({
             })
           } catch {
             submitStory({ logText: value })
+          }
+        }
+      } else if (trigger === 'email-mode') {
+        const nameMatch = value.match(/\/email\s+(?:to\s+)?([a-zA-Z][a-zA-Z'-]*)/i)
+        const recipientName = nameMatch?.[1]?.trim()
+        const body = value
+          .replace(/\/email\s+(?:to\s+)?[a-zA-Z][a-zA-Z'-]*/i, '')
+          .replace(/✉️|✉/g, '')
+          .trim()
+
+        if (!recipientName) {
+          setEmailResult('EMAIL FAILED — NO RECIPIENT SPECIFIED. USE /email to [name]')
+        } else if (!body) {
+          setEmailResult(`EMAIL FAILED — ADD A MESSAGE BEFORE /email to ${recipientName.toUpperCase()}`)
+        } else {
+          const match = cohortData?.matches?.find(
+            (m) => m.user.firstName?.toLowerCase() === recipientName.toLowerCase()
+          )
+          if (!match) {
+            setEmailResult(`EMAIL FAILED — NO COHORT MATCH NAMED "${recipientName.toUpperCase()}"`)
+          } else {
+            sendLotEmail(
+              { receiverId: match.user.id, message: body },
+              {
+                onSuccess: () => {
+                  setEmailResult(`TO              ${match.user.firstName.toUpperCase()}\nSTATUS          SENT · VIA LOT COMMUNITY\nROUTED          SYNC`)
+                },
+                onError: () => {
+                  setEmailResult(`EMAIL FAILED — DELIVERY ERROR TO ${match.user.firstName.toUpperCase()}`)
+                },
+              }
+            )
           }
         }
       }
@@ -4384,6 +4420,13 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {emailResult && (
+          <div className="mt-8">
+            <Block label="EMAIL:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
             </Block>
           </div>
         )}

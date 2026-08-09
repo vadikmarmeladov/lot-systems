@@ -12,6 +12,7 @@ import { useQueryClient } from 'react-query'
 import * as stores from '#client/stores'
 import { $featureUnlocks } from '#client/stores/evolution'
 import {
+  Block,
   Button,
   Clock,
   GhostButton,
@@ -33,6 +34,16 @@ import {
   isBlankMessage,
 } from '#shared/constants'
 
+interface LotEmail {
+  id: string
+  senderId: string
+  receiverId: string
+  senderName: string
+  receiverName: string
+  message: string
+  createdAt: string
+}
+
 const CHAT_ALLOWED_TAGS: string[] = [
   UserTag.Admin,
   UserTag.RND,
@@ -52,6 +63,11 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Email — direct messages involving the current user, surfaced live
+  // via the same sync broadcast Direct Messages already use. Session-only
+  // feed (no historical inbox fetch): the simplest thing that shows new
+  // /email log commands landing in Sync as they happen.
+  const [emails, setEmails] = React.useState<LotEmail[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -117,9 +133,21 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeLotEmailListener } = sync.listen(
+      'direct_message',
+      (data: LotEmail) => {
+        if (!me) return
+        if (data.senderId !== me.id && data.receiverId !== me.id) return
+        setEmails((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [data, ...prev]
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeLotEmailListener()
     }
   }, [me?.id])
 
@@ -213,6 +241,31 @@ export const Sync = React.memo(function SyncInner() {
           </div>
         </form>
       </div>
+
+      {emails.length > 0 && (
+        <div className="mb-80">
+          <Block label="Email:" blockView>
+            <div className="space-y-8">
+              {emails.map((x) => {
+                const outgoing = x.senderId === me?.id
+                return (
+                  <div key={x.id} className="flex items-start gap-x-8">
+                    <span className="whitespace-nowrap opacity-40">
+                      {outgoing ? `→ ${x.receiverName}` : `← ${x.senderName}`}
+                    </span>
+                    <div
+                      className="whitespace-breakspaces"
+                      style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+                    >
+                      {x.message}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </Block>
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {
