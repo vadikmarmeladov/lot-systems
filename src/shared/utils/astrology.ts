@@ -162,6 +162,38 @@ export function getMoonPhase(date: Date): { phase: string; illumination: number 
 }
 
 /**
+ * Build a Date whose getHours()/getMonth()/getDate() etc. read as the wall-clock
+ * time in `timeZone`, regardless of the runtime's own local timeZone. Lets the
+ * plain-Date readers above (getHourlyZodiac, getRokuyo, getWesternZodiac,
+ * getMoonPhase's day-boundary math) reflect a user's saved timeZone on the
+ * client, the same way the server already does via dayjs `.tz()` + a wall-clock
+ * round-trip in logs.ts. Uses Intl (built into every runtime, isomorphic,
+ * no tz-database bundle cost) rather than pulling the dayjs timezone plugin
+ * into the client bundle just for this.
+ */
+export function getWallClockDate(date: Date, timeZone: string | null | undefined): Date {
+  if (!timeZone) return date
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    }).formatToParts(date)
+    const get = (type: string) => Number(parts.find(p => p.type === type)?.value)
+    const hour = get('hour') % 24 // midnight renders as "24" in hour12: false
+    return new Date(get('year'), get('month') - 1, get('day'), hour, get('minute'), get('second'))
+  } catch {
+    // Unknown/invalid IANA timeZone string — fall back to the runtime's own local time.
+    return date
+  }
+}
+
+/**
  * Get moon emoji based on phase
  */
 export function getMoonEmoji(phaseName: string): string {
