@@ -906,9 +906,12 @@ export const useStoryGeneration = createMutation<
       dimensions?: Record<string, number>
       trend?: string
     }
+    period?: 'day' | 'week' | 'month' | 'year'
   },
   {
     story: string
     logId: string | null
+    period?: 'day' | 'week' | 'month' | 'year' | null
+    entryCount?: number
   }
 >('post', '/api/story')
