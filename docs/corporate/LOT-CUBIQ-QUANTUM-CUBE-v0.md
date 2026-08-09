@@ -5,7 +5,8 @@ TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Dev
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
 DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+UPDATED:  2026-08-09
+VERSION:  0.2 — USE CASE 02 APPENDED
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -57,6 +58,18 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  RE-READ — 2026-08-09
+    This document itself, in full, per its own instruction in Section 07:
+    "Future sessions read this document first... and append the next
+    entry." Also re-read: Section 03, "The Index of Systems," of
+    LOT-CUBIQ-OPERATOR.md — specifically the SOC (Social) dimension of
+    the 6-dimension User Index and the behavioral-cohort classification
+    it depends on. Section 01 named "cohort resonance ping" as one of
+    three example trigger signals for v.0 (alongside badge unlock and
+    memory question ready), but Section 04's gesture table never formally
+    mapped it to a gesture. That gap is closed in this revision
+    (Section 04) and is the spec basis for Use Case 02 (Section 07).
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -188,8 +201,20 @@ primitive in Section 03:
   THE LEAP          Full-amplitude hop with forward        Badge unlocked
                     bias, ~40mm displacement                (rare and above)
   THE SETTLE        Actuator holds a light standing        Assembly phase
-                    pressure for 2s, no visible motion       advanced
-                    — presence without spectacle
+                    pressure for 2s, no visible motion       advanced OR
+                    — presence without spectacle             cohort resonance
+                                                              ping
+
+  GESTURE REUSE, NOT A FIFTH GESTURE
+    Cohort resonance ping (LOT-CUBIQ-OPERATOR.md, Section 03, SOC
+    dimension — behavioral-cohort signal density crossing a shared
+    threshold) is mapped to THE SETTLE, not a new gesture. The signal is
+    collective, not individual — it says something is true of the
+    operator's cohort, not that the operator personally did something.
+    THE SETTLE already carries the correct weight for that: presence
+    held, not sought. v.0's four-gesture vocabulary stays closed; new
+    signal classes get mapped onto it before a fifth gesture is ever
+    justified.
 
   THE PRINCIPLE
     A notification you feel through the desk, in your peripheral vision,
@@ -320,6 +345,45 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE SHARED SILENCE                          2026-08-09
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Legacy tier, Archetype "Momentum Architect,"
+  behavioral cohort of eleven long-term operators (a self-formed group,
+  not a corporate team — the kind of cohort the Index of Systems
+  classifies by signal density, not by org chart). Each member keeps a
+  CUBIQ unit on their own desk, in a different city, in a different time
+  zone.
+
+  Individually, none of them are doing anything remarkable tonight. Each
+  is closing their day the way they always do: a Self-Care Ground
+  practice (LOT-CUBIQ-OPERATOR.md, Section 02, MINUTE 5-8), logged
+  within the same rolling window. No one operator's action is the
+  signal. What crosses the threshold is the SOC dimension of the shared
+  Index — the Quantum Intent Engine recognizing that eleven independent
+  behavioral records just converged on the same pattern, the same
+  evening, without coordination. That convergence is the cohort
+  resonance ping (Section 01; formally mapped to a gesture in this
+  revision's Section 04).
+
+  Under a software-only cubic, this convergence would be a statistic
+  visible only inside an admin dashboard none of the eleven operators
+  ever open. With CUBIQ hardware v.0 present: at the moment the
+  threshold crosses, all eleven cubes perform THE SETTLE simultaneously
+  — the same 2-second standing pressure, no liftoff, no light, no sound.
+  Eleven desks, eleven cities, one shared held breath. No operator is
+  told the others just did the same thing. The gesture does not narrate
+  itself; it is felt or it is missed, and being missed is fine — the
+  cohort was never watching for it, the way a room does not watch for
+  its own silence.
+
+  One operator later describes it, unprompted, in their next Memory
+  Question answer: "the cube went still right when I did, and I don't
+  know why that mattered, but it did." That answer becomes a new signal
+  in the Index. This is what a physical notification device earns that a
+  push notification cannot: a moment a group shares without knowing they
+  shared it, felt through eleven separate desks as one system breathing
+  in time with itself.
 
 --------------------------------------------------------------------------------
 08 // BRAND
