@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,20 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Forced Register Override
+
+The house register (Arial, rounded corners, opacity-based hierarchy, `acc`/
+`bac` theme tokens) is the default for the app. A tab may deliberately opt
+out of it when the content itself is a distinct issued artifact — a printed
+field manual, a manifest, a ledger — rather than a themed widget. The
+override must be forced at the component root (explicit `bg-white text-black`,
+not theme tokens) so it renders identically regardless of the user's theme
+or mirror-mode state, and must not touch `tailwind.config.js` shared tokens
+unless the override needs a token no existing default provides. Tailwind's
+untouched default `fontFamily.mono` stack already includes Liberation Mono
+— `font-mono` gets the LiberationMono-Bold register without any config
+change or new font asset.
+(SR-20260809-01: BasicsPage.tsx forces white-ground/black-ink + font-mono +
+square corners + 2px rules, independent of theme/isMirrorOn, as the OPEN TAB
+register — distinct from the rest of the app by design, not by omission.)
