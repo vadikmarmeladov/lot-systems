@@ -23,7 +23,46 @@ type CalendarEntry = {
   type: EntryType
 }
 
+type ActiveTimer = {
+  startedAt: number
+  label: string
+}
+
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+const TIMER_STORAGE_KEY = 'lot-calendar-active-timer'
+const STALE_TIMER_MS = 12 * 60 * 60 * 1000 // auto-terminate a session left running this long
+
+function formatDuration(totalSeconds: number): string {
+  const s = Math.max(0, Math.floor(totalSeconds))
+  const hh = Math.floor(s / 3600)
+  const mm = Math.floor((s % 3600) / 60)
+  const ss = s % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${pad(hh)}:${pad(mm)}:${pad(ss)}`
+}
+
+function loadStoredTimer(): ActiveTimer | null {
+  try {
+    const raw = localStorage.getItem(TIMER_STORAGE_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    if (typeof parsed?.startedAt !== 'number' || typeof parsed?.label !== 'string') return null
+    return parsed
+  } catch (_) {
+    return null
+  }
+}
+
+function storeTimer(timer: ActiveTimer | null) {
+  try {
+    if (timer) {
+      localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timer))
+    } else {
+      localStorage.removeItem(TIMER_STORAGE_KEY)
+    }
+  } catch (_) {}
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -59,6 +98,104 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+
+  const [activeTimer, setActiveTimer] = React.useState<ActiveTimer | null>(null)
+  const [isStartingTimer, setIsStartingTimer] = React.useState(false)
+  const [timerLabel, setTimerLabel] = React.useState('')
+  // Ticks once a second while a session runs, purely to force the elapsed-time
+  // readout below to re-render (the value itself is never read).
+  const [, setElapsedTick] = React.useState(0)
+
+  // Restore a session across reloads — a tracked session must survive a
+  // refresh or tab close/reopen to be reliable. A session left running past
+  // STALE_TIMER_MS (crashed tab, closed laptop) is auto-terminated and
+  // logged rather than silently resumed with a runaway duration.
+  React.useEffect(() => {
+    const stored = loadStoredTimer()
+    if (!stored) return
+
+    const elapsedMs = Date.now() - stored.startedAt
+    if (elapsedMs > STALE_TIMER_MS) {
+      const endedAt = Date.now()
+      createLog({
+        text: `[TIME] AUTO-TERMINATED — STALE SESSION · ${stored.label || 'Untitled'} · ${formatDuration(elapsedMs / 1000)}`,
+        event: 'calendar_time_log',
+        metadata: {
+          label: stored.label || 'Untitled',
+          startedAt: new Date(stored.startedAt).toISOString(),
+          endedAt: new Date(endedAt).toISOString(),
+          durationSeconds: Math.round(elapsedMs / 1000),
+          date: dayjs(endedAt).format('YYYY-MM-DD'),
+          autoStopped: true,
+        },
+      }, {
+        onSuccess: () => queryClient.refetchQueries(['/api/logs']),
+      })
+      storeTimer(null)
+      return
+    }
+
+    setActiveTimer(stored)
+  }, [])
+
+  // Tick the elapsed-time readout while a session is running.
+  React.useEffect(() => {
+    if (!activeTimer) return
+    const loop = setInterval(() => setElapsedTick(t => t + 1), 1000)
+    return () => clearInterval(loop)
+  }, [activeTimer])
+
+  const elapsedSeconds = activeTimer
+    ? Math.floor((Date.now() - activeTimer.startedAt) / 1000)
+    : 0
+
+  const handleStartTimer = () => {
+    const label = timerLabel.trim() || 'Untitled'
+    const timer: ActiveTimer = { startedAt: Date.now(), label }
+    storeTimer(timer)
+    setActiveTimer(timer)
+    setIsStartingTimer(false)
+    setTimerLabel('')
+
+    createLog({
+      text: `[TIME] SESSION INITIATED — ${label}`,
+      event: 'calendar_timer_start',
+      metadata: {
+        label,
+        startedAt: new Date(timer.startedAt).toISOString(),
+        date: dayjs(timer.startedAt).format('YYYY-MM-DD'),
+      },
+    }, {
+      onSuccess: () => queryClient.refetchQueries(['/api/logs']),
+    })
+  }
+
+  const handleStopTimer = () => {
+    if (!activeTimer) return
+    const endedAt = Date.now()
+    const durationSeconds = Math.max(1, Math.round((endedAt - activeTimer.startedAt) / 1000))
+    const label = activeTimer.label
+
+    storeTimer(null)
+    setActiveTimer(null)
+
+    createLog({
+      text: `[TIME] SESSION LOGGED — ${label} · ${formatDuration(durationSeconds)}`,
+      event: 'calendar_time_log',
+      metadata: {
+        label,
+        startedAt: new Date(activeTimer.startedAt).toISOString(),
+        endedAt: new Date(endedAt).toISOString(),
+        durationSeconds,
+        date: dayjs(endedAt).format('YYYY-MM-DD'),
+      },
+    }, {
+      onSuccess: () => {
+        queryClient.refetchQueries(['/api/logs'])
+        try { recordCalendarSignal('timer', dayjs(endedAt).format('YYYY-MM-DD')) } catch (_) {}
+      },
+    })
+  }
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -139,10 +276,43 @@ export function CalendarWidget() {
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
-        <div className="mb-16">
+        <div className="mb-16 flex flex-wrap items-center gap-8">
           <Button onClick={handleToggleCalendar}>
             Add date
           </Button>
+
+          {!activeTimer && !isStartingTimer && (
+            <Button onClick={() => setIsStartingTimer(true)}>
+              Track time
+            </Button>
+          )}
+
+          {!activeTimer && isStartingTimer && (
+            <div className="flex gap-8 items-center">
+              <input
+                type="text"
+                value={timerLabel}
+                onChange={e => setTimerLabel(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleStartTimer()
+                  if (e.key === 'Escape') { setIsStartingTimer(false); setTimerLabel('') }
+                }}
+                placeholder="Session label..."
+                className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40"
+                autoFocus
+              />
+              <Button onClick={handleStartTimer}>Start</Button>
+            </div>
+          )}
+
+          {activeTimer && (
+            <div className="flex items-center gap-8">
+              <span className="text-acc/40 uppercase tracking-widest">Tracking</span>
+              <span className="text-acc">{activeTimer.label}</span>
+              <span className="text-acc tabular-nums">{formatDuration(elapsedSeconds)}</span>
+              <Button onClick={handleStopTimer}>Stop</Button>
+            </div>
+          )}
         </div>
 
         {isCalendarOpen && (

@@ -2087,6 +2087,46 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'calendar_timer_start') {
+          const label = log.metadata?.label as string | undefined
+          const date = log.metadata?.date as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TRK-INIT:" blockView>
+                <div className="uppercase tracking-widest">{label || 'SESSION'}</div>
+                {date && <div className="opacity-40 mt-8">{date}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_time_log') {
+          const label = log.metadata?.label as string | undefined
+          const durationSeconds = log.metadata?.durationSeconds as number | undefined
+          const date = log.metadata?.date as string | undefined
+          const autoStopped = log.metadata?.autoStopped as boolean | undefined
+          const durationText = durationSeconds !== undefined
+            ? [
+                Math.floor(durationSeconds / 3600),
+                Math.floor((durationSeconds % 3600) / 60),
+                durationSeconds % 60,
+              ].map(n => String(n).padStart(2, '0')).join(':')
+            : undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TRK:" blockView>
+                <div className="uppercase tracking-widest">{label || 'SESSION'}</div>
+                {durationText && (
+                  <div className="flex justify-between items-baseline mt-8">
+                    <span className="opacity-30">DUR</span>
+                    <span className="tabular-nums">{durationText}</span>
+                  </div>
+                )}
+                {date && <div className="opacity-40 mt-8">{date}</div>}
+                {autoStopped && (
+                  <div className="opacity-40 uppercase tracking-widest mt-8">Auto-terminated</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'qos_coherence') {
           const diversityScore = log.metadata?.diversityScore as number | undefined
           const sourceCount = log.metadata?.sourceCount as number | undefined

@@ -1213,6 +1213,9 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // Calendar time tracking — session start pulse + completed session log
+      'calendar_timer_start',
+      'calendar_time_log',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
