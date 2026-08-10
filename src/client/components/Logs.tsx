@@ -3706,6 +3706,7 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [storyPeriod, setStoryPeriod] = React.useState<'day' | 'week' | 'month' | 'year'>('day')
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -3742,6 +3743,7 @@ const NoteEditor = ({
   const { mutate: submitStory } = useStoryGeneration({
     onSuccess: (data) => {
       setStoryResponse(data.story)
+      setStoryPeriod(data.period || 'day')
       setStoryLoading(false)
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
@@ -4125,7 +4127,7 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story [period]  Compressed story (period: day|week|month|year, default day)',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4151,17 +4153,20 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+          const period = (periodMatch?.[1]?.toLowerCase() as 'day' | 'week' | 'month' | 'year' | undefined) || 'day'
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story(\s+(day|week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }
@@ -4416,7 +4421,7 @@ const NoteEditor = ({
         )}
         {(storyLoading || storyResponse) && (
           <div className="mt-8">
-            <Block label="📖" blockView>
+            <Block label={`📖 [${storyPeriod.toUpperCase()}]`} blockView>
               {storyLoading && !storyResponse && (
                 <div className="opacity-40 tracking-widest">...</div>
               )}
