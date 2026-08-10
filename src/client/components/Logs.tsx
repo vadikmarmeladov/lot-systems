@@ -33,7 +33,8 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendEmailMessage } from '#client/queries'
+import type { AxiosError } from 'axios'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -257,6 +258,18 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COMM:" blockView>
                 ACK{'\n'}{log.metadata.message as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'email_sent') {
+          const recipientName = log.metadata?.recipientName as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                {recipientName && (
+                  <div className="uppercase tracking-widest mb-4">TO: {recipientName}</div>
+                )}
+                {log.metadata.message as string}
               </Block>
             </LogContainer>
           )
@@ -3713,6 +3726,19 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { mutate: sendEmailMessage } = useSendEmailMessage({
+    onSuccess: (data) => {
+      setEmailResult(`SENT → ${(data.recipientName || '').toUpperCase()}\n${data.message}`)
+      setEmailLoading(false)
+    },
+    onError: (err) => {
+      const message = (err as AxiosError<{ error?: string }>).response?.data?.error
+      setEmailResult(message?.toUpperCase() || 'EMAIL FAILED — Could not reach LOT Community member.')
+      setEmailLoading(false)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4124,6 +4150,7 @@ const NoteEditor = ({
         const lines = [
           'AVAILABLE COMMANDS',
           '',
+          '/email to <name>  Send LOT Email to a Community member (appears in Sync)',
           '/prayer       Generate contextual scripture',
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
@@ -4167,6 +4194,39 @@ const NoteEditor = ({
       }
     }
   }, [value])
+
+  // --------------------------------------------------------------------
+  // "/email to <name>" (LOT Email) — evaluated against the DEBOUNCED value
+  // (same 7s pause used for autosave), not the raw keystroke value. Unlike
+  // the argument-less triggers above, this command's argument (the
+  // recipient name, and any body text around it) can appear before or
+  // after the keyword — evaluating on every keystroke would fire the send
+  // the instant "/email" completes, before "to <name>" even exists. Waiting
+  // for the pause guarantees the whole command is present. Dedupes on the
+  // matched command text so it only sends once per distinct command, and
+  // resends if the user edits the recipient name afterward.
+  // --------------------------------------------------------------------
+  // Seeded from the log's already-saved text (same idiom as lastTriggerScanRef
+  // above) so a "/email to <name>" phrase loaded from a prior session — e.g.
+  // after a page reload — reads as already-sent, not as a fresh command.
+  const lastEmailCommandRef = React.useRef<string | null>(
+    (log.text || '').match(/\/email\s+to\s+([A-Za-z][\w'-]{0,40})/i)?.[0] || null
+  )
+  React.useEffect(() => {
+    const match = debouncedValue.match(/\/email\s+to\s+([A-Za-z][\w'-]{0,40})/i)
+    if (!match) {
+      lastEmailCommandRef.current = null
+      return
+    }
+    if (match[0] === lastEmailCommandRef.current) return
+    if (emailLoading) return
+    lastEmailCommandRef.current = match[0]
+    const recipientName = match[1].trim()
+    const body = debouncedValue.replace(match[0], '').trim()
+    setEmailLoading(true)
+    setEmailResult(null)
+    sendEmailMessage({ recipientName, message: body || '· PING ·' })
+  }, [debouncedValue, emailLoading])
 
   const contextText = React.useMemo(() => {
     if (!log?.context) return ''
@@ -4384,6 +4444,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
+              )}
             </Block>
           </div>
         )}

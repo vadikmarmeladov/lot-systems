@@ -69,6 +69,14 @@ const RULES: TriggerRule[] = [
   { trigger: 'how-checkin',    emojis: [],        keywords: ['how'] },
 ]
 
+// NOTE: "/email to <name>" (LOT Email) is intentionally NOT a RULES entry.
+// Every rule here fires the instant its keyword token completes (even with
+// no argument typed yet), which is fine for argument-less triggers but wrong
+// for a command whose argument (the recipient name) is typed *after* the
+// keyword — the fire would race ahead of the name. Logs.tsx evaluates
+// "/email to <name>" directly against the debounced (post-pause) log text
+// instead, so the whole command is present before it resolves and sends.
+
 /**
  * Returns every trigger present in `text`. An empty array means the
  * text is ordinary. Order reflects the order of `RULES`, not the

@@ -251,6 +251,11 @@ export const Sync = React.memo(function SyncInner() {
                   wordBreak: 'break-word',
                 }}
               >
+                {x.kind === 'email' && x.recipientName && (
+                  <span className="text-acc/40 mr-8 whitespace-nowrap">
+                    ✉ TO {x.recipientName.toUpperCase()}:
+                  </span>
+                )}
                 {x.message}
               </div>
 

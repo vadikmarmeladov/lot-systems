@@ -205,6 +205,9 @@ export type ChatMessage = {
   id: string;
   authorUserId: string;
   message: string;
+  // 'chat' = public Lot Chat post; 'email' = LOT Email, addressed via /email to <name>
+  kind: 'chat' | 'email';
+  recipientUserId: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -427,6 +430,7 @@ export type Paginated<T> = {
 export type PublicChatMessage = ChatMessage & {
   author: Pick<User, 'id' | 'firstName' | 'lastName'> | string | null;
   authorUserId?: string;
+  recipientName?: string | null;
   likesCount: number;
   likes?: number;
   isLiked: boolean;

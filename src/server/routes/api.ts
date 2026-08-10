@@ -868,7 +868,11 @@ export default async (fastify: FastifyInstance) => {
 
     if (messages.length === 0) return []
 
-    const userIds = [...new Set(messages.map((m) => m.authorUserId))]
+    const userIds = [
+      ...new Set(
+        messages.flatMap((m) => [m.authorUserId, m.recipientUserId].filter(Boolean) as string[])
+      ),
+    ]
     let users: InstanceType<typeof fastify.models.User>[] = []
     let allLikes: InstanceType<typeof fastify.models.ChatMessageLike>[] = []
     try {
@@ -901,10 +905,14 @@ export default async (fastify: FastifyInstance) => {
     const result: PublicChatMessage[] = filteredMessages.map((x) => {
       const author = userById[x.authorUserId]
       const likes = likesByMessageId[x.id] || []
+      const recipient = x.recipientUserId ? userById[x.recipientUserId] : null
       return {
         id: x.id,
         authorUserId: x.authorUserId,
         message: x.message,
+        kind: x.kind,
+        recipientUserId: x.recipientUserId,
+        recipientName: recipient?.firstName || null,
         author: author?.firstName || null,
         createdAt: x.createdAt,
         updatedAt: x.updatedAt,
@@ -1032,6 +1040,98 @@ export default async (fastify: FastifyInstance) => {
         }
       })
       return reply.ok()
+    }
+  )
+
+  // LOT Email — the simplest email system in LOT style: a chat message
+  // addressed to one LOT Community member (anyone with Lot Chat access),
+  // sent via "/email to <name>" from a Log entry. It rides the exact same
+  // ChatMessage table, 'chat_message' SSE channel, and Sync feed as public
+  // chat — just tagged kind:'email' with a recipientUserId — so it needs no
+  // parallel inbox, delivery queue, or transport of its own.
+  fastify.post(
+    '/email-messages',
+    async (req: FastifyRequest<{ Body: { recipientName: string; message: string } }>, reply) => {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+      if (!canAccessChat(req.user.tags || [])) {
+        return reply.status(403).send({ error: 'LOT Email requires Usership, Onyx, Legacy, R&D, or Admin' })
+      }
+
+      const recipientName = (req.body.recipientName || '').trim()
+      if (!recipientName) {
+        return reply.status(400).send({ error: 'Recipient name is required' })
+      }
+      const message = (req.body.message || '').trim().slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
+      if (isBlankMessage(message)) {
+        return reply.status(400).send({ error: 'Message cannot be empty' })
+      }
+
+      // LOT Community, for addressing purposes, is the set of members who can
+      // already access Lot Chat — no separate directory exists yet, so email
+      // reuses that membership rather than inventing a new one.
+      const candidates = await fastify.models.User.findAll({
+        where: {
+          id: { [Op.ne]: req.user.id },
+          firstName: { [Op.iLike]: recipientName },
+        },
+        attributes: ['id', 'firstName', 'lastName', 'tags'],
+        limit: 5,
+      })
+      const community = candidates.filter((u) => {
+        const tags = u.tags || []
+        const suspended = tags.some((t: string) => t.toLowerCase() === 'suspended')
+        return !suspended && canAccessChat(tags)
+      })
+
+      if (community.length === 0) {
+        return reply.status(404).send({ error: `No LOT Community member named "${recipientName}" found` })
+      }
+      if (community.length > 1) {
+        return reply.status(409).send({ error: `${community.length} LOT Community members named "${recipientName}" — be more specific` })
+      }
+      const recipient = community[0]
+
+      const chatMessage = await fastify.models.ChatMessage.create({
+        authorUserId: req.user.id,
+        recipientUserId: recipient.id,
+        kind: 'email',
+        message,
+      })
+      sync.emit('chat_message', {
+        id: chatMessage.id,
+        message: chatMessage.message,
+        author: req.user.firstName,
+        kind: 'email',
+        recipientUserId: recipient.id,
+        recipientName: recipient.firstName,
+        createdAt: chatMessage.createdAt,
+        likes: 0,
+        isLiked: false,
+      })
+
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'email_sent',
+        text: '',
+        metadata: {
+          chatMessageId: chatMessage.id,
+          recipientUserId: recipient.id,
+          recipientName: recipient.firstName,
+          message: chatMessage.message,
+        },
+        context,
+      })
+
+      return reply.send({
+        id: chatMessage.id,
+        recipientName: recipient.firstName,
+        message: chatMessage.message,
+        createdAt: chatMessage.createdAt,
+      })
     }
   )
 
