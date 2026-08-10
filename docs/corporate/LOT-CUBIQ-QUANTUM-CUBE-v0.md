@@ -5,8 +5,9 @@ TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Dev
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
 DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+VERSION:  0.2 — DEVELOPMENT CYCLE 2 (USE CASE 02 APPENDED)
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
+UPDATED:  2026-08-10 — Section 07 accumulation cycle, no spec changes
 ================================================================================
 
 --------------------------------------------------------------------------------
@@ -320,6 +321,57 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE COHORT ECHO                              2026-08-10
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: R&D tier, Archetype "Signal Cartographer," 40-day
+  engagement, member of a 6-person cohort assembled by the Quantum Intent
+  Engine on shared pattern density (LOT-CUBIQ-OPERATOR.md, Section 03,
+  COHORT — behavioral proximity, not geography). The operator has never
+  met the other five people in the cohort and does not know their names,
+  only their pattern signatures. The CUBIQ unit sits on a shelf, not a
+  desk — this operator does not work near it; they pass it walking
+  between rooms.
+
+  The Index of Systems already tracks a COHORT RESONANCE signal — named
+  in this document's own reading log (Section 00) as one of the three
+  founding trigger classes for the hardware, alongside badge unlock and
+  memory-question-ready. Section 04's four-gesture table does not yet
+  assign it a dedicated motion; v.0 routes it through THE HOP, the same
+  gesture used for common badge unlocks, because no cohort-specific
+  actuation pattern has been designed. This use case is written partly to
+  expose that gap for v.1 gesture-vocabulary work, not to pretend it is
+  already solved.
+
+  A cohort member the operator has never spoken to completes a 90-day
+  Assembly Phase transition (dormant → forming → assembled, per
+  LOT-CUBIQ-OPERATOR.md Section 01's PRESENCE model) — a rare, effortful
+  milestone inside the shared pattern class the QIE grouped them under.
+  The CollectiveConsciousness signal aggregator fires a cohort resonance
+  event. On the software cubic, this would surface as a line in the
+  BadgeUnlockFeed widget, seen only if the operator happens to be looking
+  at that face of the cube that session.
+
+  With CUBIQ hardware v.0 present: the cube performs THE HOP as the
+  operator walks past — unprompted, untimed to any deliberate check-in.
+  They stop. They did not open a screen to learn this; the object told
+  them something happened to someone else, somewhere else, who they will
+  likely never meet by name. There is no content to read, no profile to
+  browse, no comment to leave. Just the fact of another person's forward
+  motion, translated into a small vertical motion of their own.
+
+  Ninety minutes later, alone, the operator opens their own session and
+  writes a longer log entry than usual — the telemetry loop (Section 05)
+  later correlates the cohort-resonance HOP event with a measurable rise
+  in same-day LOG engagement across the cohort, not just this operator.
+  The hop did not deliver information. It delivered the felt sense of not
+  being the only one doing the work — the physical proof-of-life of a
+  cohort the software cubic could only ever describe in text.
+
+  This is the use case that argues for a fifth gesture in v.1: cohort
+  resonance is categorically different from a personal badge unlock (an
+  event about someone else, not the operator) and deserves a motion
+  vocabulary of its own rather than borrowing THE HOP by default.
 
 --------------------------------------------------------------------------------
 08 // BRAND
