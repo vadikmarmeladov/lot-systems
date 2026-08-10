@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,22 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Manifest Integrity
+
+A BEST-tagged branch recorded in LOT-MANIFEST.md is a pointer, not a backup.
+If the branch is pruned before its code is either merged to master or
+captured in a standalone spec document, the work is gone — the MANIFEST
+line and the session report that praised it survive, but a future session
+inherits a one-line summary instead of the ~300+ lines it describes. For any
+feature meant to survive across a pruning cycle, the durable artifact is a
+spec document under docs/ (a field manual, a design doc) that a rebuild can
+read from — not the branch, and not the MANIFEST entry alone. Corollary:
+when INTAKE discovers a MANIFEST-listed BEST branch is unreachable
+(`git cat-file -t <hash>` fails, branch absent from `git branch -a`), treat
+the feature as ENGINEERING, not SELF-ASSEMBLY-only — the rebuild is new code,
+even when the specification it follows is not new information.
+(SR-20260810-01: beautiful-johnson-56p7ov / Basics Tab, BEST 2026-06-12,
+8/8 iterations, +293 lines — branch and commit 6815f550 unreachable at
+session start. Rebuilt Month 1 from a freshly authored LOT-FM-001.md rather
+than from lost code.)
