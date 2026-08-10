@@ -226,3 +226,49 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Ambient Signal Timezone Parity
+
+When a computed value depends on wall-clock date/time fields (getHours(),
+getMonth(), getDate()) and the reading is meant to reflect the operator's
+home context rather than the runtime's own clock, resolve those fields from
+the operator's saved timeZone on both server and client — never leave one
+side timeZone-aware and the other device-local. The mechanism is the same
+on both sides even though the tooling differs: server builds a Date from
+dayjs().tz(timeZone)'s year/month/date/hour/minute/second (toWallClockDate
+in getLogContext); client builds the equivalent Date from
+Intl.DateTimeFormat(..., { timeZone }).formatToParts() (getWallClockDate in
+astrology.ts) since dayjs's timezone plugin isn't loaded client-side. Both
+funnel through the plain Date constructor so every downstream reader
+(getHourlyZodiac, getRokuyo, etc.) works unmodified regardless of which side
+computed the wall-clock instant. Falls back to the runtime's own local time
+when no timeZone is known — never throws, never blocks render.
+(SR-20260727-02: server-side Logs snapshot (getLogContext) made timeZone-
+aware, client dashboard left on device-local time — noted as open in that
+session's Pending Work. SR-20260810-01: client-side astrology reading in
+System.tsx switched to getWallClockDate(profile.timeZone); UserProfile type
+and useProfileView() picked-fields list extended with timeZone so the
+existing /api/me bootstrap fetch carries it — no new network call.)
+
+## Client Type-Check Blind Spot
+
+Neither `client:build` (esbuild, transpile-only — strips types without
+checking them) nor `server:build` (tsc -p tsconfig.server.json, which
+`include`s only src/server and src/shared) type-checks src/client. No npm
+script runs `tsc --noEmit` over the full tree. A hard TypeScript error
+(TS2304 Cannot find name, TS2345 wrong argument type, TS2322 wrong literal)
+inside src/client compiles and ships silently — "GREEN" in every prior
+session report meant "esbuild transpiled it," not "the types check out."
+CHECK A/B for any session touching src/client should include
+`npx tsc --noEmit -p tsconfig.json` and diff the error set against the prior
+session's baseline (currently 103 pre-existing errors, unrelated to any one
+feature, tracked but not fixed wholesale) — a new session's own edits must
+not add to that count, and any error inside code the session is directly
+extending should be fixed on sight regardless of who introduced it.
+(SR-20260810-01: found `dayMs` referenced but never declared in
+analyzeIntentions() at intentionEngine.ts — a real ReferenceError on every
+call, silently shipped since the pattern-147 commit because nothing in the
+build pipeline type-checks client code. Fixed by declaring `dayMs` at first
+use, matching the existing local-const-per-pattern-block convention. Baseline
+recorded as 104 errors pre-fix / 103 post-fix, both counts a project-wide tsc
+run, not a client-only one.)

@@ -72,4 +72,7 @@ COMINTEL:          Community Intelligence Peak — log block label; cohort + jou
 EMBODIED-COGNITION-ARC   QIE P110 — selfcare + journal 150+w + memory capture all in 24h; biological grounding and cognitive expression confirmed simultaneously; body feeding mind  B  20260706
 INTENTION-COMPLETION-LOOP QIE P111 — intention set + planner + goal action all in 24h; direction→structure→outcome arc closed in one day; rare single-day loop  B  20260706
 COMMUNITY-INTELLIGENCE-PEAK  QIE P112 — cohort signal + journal + memory + intentions all in 48h; external social signal anchored internally through writing, capture, and direction-setting  B  20260706
+AUSDAY:            Auspicious Day Alignment — log/pattern block label; Taian rokuyo + goals/intentions signal in 24h; P152 output  B  20260810
+AUSPICIOUS-DAY-ALIGNMENT  QIE P152 — astrology 'ambient_reading' signal carries auspicious=true (Taian) + 1+ direction signal (goals/intentions/current-intention) in 24h; first pattern to consume the Tier-0 astrology signal source registered 2026-07-27  B  20260810
+WALLCLK            Wall-clock-passthrough — build a plain Date from a timeZone-resolved Y/M/D/H/M/S tuple so getHours()/getMonth()/etc. readers reflect the operator's saved timeZone regardless of runtime clock; dayjs().tz() server-side, Intl.DateTimeFormat client-side, same output shape  B  20260810
 ```

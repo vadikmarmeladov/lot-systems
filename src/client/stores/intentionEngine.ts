@@ -3329,6 +3329,7 @@ export function analyzeIntentions(): IntentionPattern[] {
   // active OS dimension contributing signal at the same time. The field is not building — it is saturated.
   const hasPresenceP142 = patterns.some(p => p.pattern === 'adaptive-signal-web')
   const hasPresenceP137 = patterns.some(p => p.pattern === 'quantum-coherence-peak')
+  const dayMs = 24 * 60 * 60 * 1000
   const daySignals147 = signals.filter(s => now - s.timestamp < dayMs)
   const uniqueSources147 = new Set(daySignals147.map(s => s.source)).size
   if (hasPresenceP142 && hasPresenceP137 && uniqueSources147 >= 7) {
@@ -3426,6 +3427,31 @@ export function analyzeIntentions(): IntentionPattern[] {
         reason: `RECINTEL: Recovery intelligence arc — depletion detected · self-care applied · state restored · reflection captured within 6h. The loop is complete: felt → tended → recovered → reflected. The system learns from its own restoration.`,
       })
     }
+  }
+
+  // Pattern 152: Auspicious Day Alignment — today's rokuyo reading is Taian
+  // (auspicious) AND a direction-setting signal (goals action, an intentions
+  // signal, or a currently-set intention) has fired in the same 24h window.
+  // 'astrology' was registered as a Tier 0 QIE signal source and wired into
+  // the WIDGET_DEPENDENCY_MAP on 2026-07-27 but had never been consumed by a
+  // pattern — this is the first. Deliberately gentle: astrology is ambient
+  // decoration, not a determinant, so confidence stays capped well below the
+  // structural patterns above and the reason is framed as an invitation, not
+  // a claim of causation.
+  const auspiciousAstrology152 = recentSignals.find(s => s.source === 'astrology' && s.metadata?.auspicious === true)
+  const goals152 = recentSignals.filter(s => s.source === 'goals')
+  const intentions152 = recentSignals.filter(s => s.source === 'intentions')
+  const hasIntentionSet152 = hasCurrentIntention()
+  const directionSignals152 = goals152.length + intentions152.length + (hasIntentionSet152 ? 1 : 0)
+  if (auspiciousAstrology152 && directionSignals152 >= 1) {
+    const alignBonus = Math.min((directionSignals152 - 1) * 0.04, 0.12)
+    patterns.push({
+      pattern: 'auspicious-day-alignment',
+      confidence: Math.min(0.62 + alignBonus, 0.80),
+      suggestedWidget: 'intentions',
+      suggestedTiming: 'soon',
+      reason: `AUSDAY: Auspicious day alignment — today's rokuyo reads Taian (大安, most auspicious) · ${directionSignals152} direction signal(s) present (goals/intentions) in 24h. Ambient reading and declared direction align. A gentle day to act on intention.`,
+    })
   }
 
   // Compute accumulative user index from all widget signals
