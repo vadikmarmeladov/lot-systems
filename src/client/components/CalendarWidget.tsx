@@ -19,9 +19,12 @@ type EntryType = 'note' | 'task' | 'call'
 
 type CalendarEntry = {
   date: string
+  time?: string
   text: string
   type: EntryType
 }
+
+type EntryStatus = 'EXECUTE' | 'ALERT' | 'STANDBY' | 'ELAPSED'
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 
@@ -48,6 +51,186 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
   return weeks
 }
 
+// Timed entries resolve to their exact moment; untimed entries resolve to end-of-day.
+function getEventDayjs(entry: CalendarEntry): Dayjs {
+  return entry.time
+    ? dayjs(`${entry.date} ${entry.time}`, 'YYYY-MM-DD HH:mm')
+    : dayjs(entry.date).endOf('day')
+}
+
+function getStatus(entry: CalendarEntry, now: Dayjs): EntryStatus | null {
+  if (!entry.time) {
+    const todayStr = now.format('YYYY-MM-DD')
+    if (entry.date < todayStr) return 'ELAPSED'
+    if (entry.date === todayStr) return 'STANDBY'
+    return null
+  }
+  const diffMin = getEventDayjs(entry).diff(now, 'minute')
+  if (diffMin < -120) return null
+  if (diffMin < 0) return 'ELAPSED'
+  if (diffMin <= 15) return 'EXECUTE'
+  if (diffMin <= 60) return 'ALERT'
+  if (diffMin <= 1440) return 'STANDBY'
+  return null
+}
+
+function formatCountdown(entry: CalendarEntry, now: Dayjs): string {
+  const diffSec = getEventDayjs(entry).diff(now, 'second')
+  const sign = diffSec < 0 ? '+' : '-'
+  const abs = Math.abs(diffSec)
+  const h = Math.floor(abs / 3600)
+  const m = Math.floor((abs % 3600) / 60)
+  const s = abs % 60
+  return `T${sign}${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
+function statusClass(status: EntryStatus | null): string {
+  if (status === 'EXECUTE') return 'text-acc'
+  if (status === 'ALERT') return 'text-acc/70'
+  if (status === 'STANDBY') return 'text-acc/50'
+  if (status === 'ELAPSED') return 'text-acc/25'
+  return 'text-acc/40'
+}
+
+type AlertState = {
+  entry: CalendarEntry
+  status: 'EXECUTE' | 'ALERT'
+}
+
+/**
+ * Isolated ticking region — owns the once-a-second clock so the month grid,
+ * add-entry form, and upcoming list above/below it don't re-render every tick.
+ */
+function CalendarLiveStatus({ entries }: { entries: CalendarEntry[] }) {
+  const [now, setNow] = React.useState(() => dayjs())
+  const [activeAlert, setActiveAlert] = React.useState<AlertState | null>(null)
+  const alertedRef = React.useRef<Set<string>>(new Set())
+
+  React.useEffect(() => {
+    const timer = setInterval(() => setNow(dayjs()), 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  React.useEffect(() => {
+    if (!activeAlert) return
+    const timer = setTimeout(() => setActiveAlert(null), 30000)
+    return () => clearTimeout(timer)
+  }, [activeAlert])
+
+  // Fire a military-grade alert once per event, at most every 60s.
+  React.useEffect(() => {
+    const check = () => {
+      const n = dayjs()
+      for (const entry of entries) {
+        if (!entry.time) continue
+        const key = `${entry.date}|${entry.time}|${entry.text}`
+        if (alertedRef.current.has(key)) continue
+        const diffMin = getEventDayjs(entry).diff(n, 'minute')
+        if (diffMin >= 0 && diffMin <= 60) {
+          alertedRef.current.add(key)
+          setActiveAlert({ entry, status: diffMin <= 15 ? 'EXECUTE' : 'ALERT' })
+          break
+        }
+      }
+    }
+    check()
+    const timer = setInterval(check, 60000)
+    return () => clearInterval(timer)
+  }, [entries])
+
+  const todayStr = now.format('YYYY-MM-DD')
+
+  const todayEntries = React.useMemo(
+    () => entries.filter(e => e.date === todayStr),
+    [entries, todayStr]
+  )
+
+  const nextTimedEvent = React.useMemo(
+    () => entries.find(e => e.time && getEventDayjs(e).isAfter(now)) ?? null,
+    [entries, now]
+  )
+
+  return (
+    <>
+      <div className="flex justify-between items-baseline mb-16 font-mono">
+        <span className="text-acc tabular-nums tracking-widest">
+          {now.format('HH:mm:ss')}
+        </span>
+        {nextTimedEvent && (
+          <span className={cn('tabular-nums text-xs', statusClass(getStatus(nextTimedEvent, now)))}>
+            {formatCountdown(nextTimedEvent, now)}
+          </span>
+        )}
+      </div>
+
+      {todayEntries.length > 0 && (
+        <div className="mb-16">
+          <div className="text-acc/25 text-xs uppercase tracking-widest mb-4">Today</div>
+          {todayEntries.map((e, i) => {
+            const status = getStatus(e, now)
+            return (
+              <div key={i} className="flex items-baseline gap-8 mb-1">
+                {e.time
+                  ? <span className="text-acc/40 tabular-nums shrink-0 w-10">{e.time}</span>
+                  : <span className="text-acc/20 text-xs shrink-0 w-10">—</span>
+                }
+                <span className={cn('text-xs uppercase tracking-widest shrink-0', statusClass(status))}>
+                  {e.type[0]}
+                </span>
+                <span className={cn('flex-1', statusClass(status))}>{e.text}</span>
+                {(status === 'EXECUTE' || status === 'ALERT') && (
+                  <span className={cn('text-xs tabular-nums shrink-0', statusClass(status))}>
+                    {formatCountdown(e, now)}
+                  </span>
+                )}
+                {status === 'ELAPSED' && (
+                  <span className="text-acc/20 text-xs shrink-0 uppercase tracking-widest">done</span>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {activeAlert && (
+        <div
+          className="fixed bottom-32 right-16 z-50 px-16 py-8 max-w-64
+                     border border-acc/40 bg-[var(--base-color)] grid-fill-light
+                     transition-opacity duration-300"
+        >
+          <div className="flex justify-between items-baseline mb-8 gap-16">
+            <span className={cn(
+              'text-xs uppercase tracking-widest font-bold',
+              activeAlert.status === 'EXECUTE' ? 'text-acc' : 'text-acc/70'
+            )}>
+              CAL [{activeAlert.status}]
+            </span>
+            <button
+              className="text-acc/30 hover:text-acc/70 text-xs uppercase tracking-widest transition-opacity"
+              onClick={() => setActiveAlert(null)}
+            >
+              ACK
+            </button>
+          </div>
+          <div className="text-acc text-sm uppercase tracking-widest mb-4 leading-tight">
+            {activeAlert.entry.type}: {activeAlert.entry.text}
+          </div>
+          <div className="text-acc/40 text-xs uppercase tracking-widest">
+            {dayjs(activeAlert.entry.date).format('ddd D MMM').toUpperCase()}
+            {activeAlert.entry.time && ` · ${activeAlert.entry.time}`}
+          </div>
+          <div className={cn(
+            'tabular-nums font-mono mt-4 text-sm',
+            activeAlert.status === 'EXECUTE' ? 'text-acc' : 'text-acc/60'
+          )}>
+            {formatCountdown(activeAlert.entry, now)}
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
@@ -58,6 +241,7 @@ export function CalendarWidget() {
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
+  const [entryTime, setEntryTime] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
@@ -65,17 +249,22 @@ export function CalendarWidget() {
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
         date: log.metadata?.date as string,
+        time: log.metadata?.time as string | undefined,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => {
+        const aKey = `${a.date}${a.time ?? '23:59'}`
+        const bKey = `${b.date}${b.time ?? '23:59'}`
+        return aKey.localeCompare(bKey)
+      })
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
     const today = dayjs().format('YYYY-MM-DD')
     return entries
-      .filter(e => e.date >= today)
+      .filter(e => e.date > today)
       .slice(0, 10)
   }, [entries])
 
@@ -103,18 +292,21 @@ export function CalendarWidget() {
     } else {
       setSelectedDate(key)
     }
+    setIsAddingEntry(false)
   }
 
   const handleAddEntry = () => {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeLabel = entryTime ? ` at ${entryTime}` : ''
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel}${timeLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
+        ...(entryTime ? { time: entryTime } : {}),
         text: entryText.trim(),
         entryType,
       },
@@ -126,6 +318,7 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
   }
 
@@ -139,6 +332,8 @@ export function CalendarWidget() {
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
+        <CalendarLiveStatus entries={entries} />
+
         <div className="mb-16">
           <Button onClick={handleToggleCalendar}>
             Add date
@@ -227,6 +422,15 @@ export function CalendarWidget() {
                     </button>
                   ))}
                 </div>
+                <div className="flex gap-8 items-center mb-8">
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    className="bg-transparent border border-acc/20 text-acc/60 px-4 py-1 outline-none focus:border-acc/40 tabular-nums"
+                  />
+                  <span className="text-acc/20 text-xs">time optional</span>
+                </div>
                 <div className="flex gap-8 items-center">
                   <input
                     type="text"
@@ -242,13 +446,14 @@ export function CalendarWidget() {
               </div>
             )}
 
-            {selectedDate && entriesOnDate.length > 0 && (
+            {selectedDate && entriesOnDate.length > 0 && !isAddingEntry && (
               <div className="mt-8">
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
                 {entriesOnDate.map((e, i) => (
                   <div key={i} className="text-acc/80 mb-1">
+                    {e.time && <span className="text-acc/40 tabular-nums mr-8">{e.time}</span>}
                     {e.text}
                   </div>
                 ))}
@@ -263,6 +468,7 @@ export function CalendarWidget() {
               <div key={i} className="flex justify-between gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  {entry.time && ` · ${entry.time}`}
                 </span>
                 <span className="text-acc text-right">
                   {entry.text}

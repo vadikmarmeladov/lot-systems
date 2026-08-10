@@ -2077,13 +2077,26 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             </LogContainer>
           )
         } else if (log.event === 'calendar_entry') {
-          const entryType = log.metadata?.entryType as string | undefined
+          const entryType = (log.metadata?.entryType as string | undefined) || 'note'
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const text = (log.metadata?.text as string | undefined) || log.text || '—'
+          const dateLabel = date ? dayjs(date).format('ddd D MMM YYYY').toUpperCase() : '—'
+          const isElapsed = date
+            ? (time
+              ? dayjs(`${date} ${time}`, 'YYYY-MM-DD HH:mm').isBefore(dayjs())
+              : dayjs(date).endOf('day').isBefore(dayjs()))
+            : false
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+              <Block label={`CAL [${entryType.toUpperCase()}]:`} blockView>
+                <div className="uppercase tracking-widest">{text}</div>
+                <div className="opacity-40 mt-8 tabular-nums">
+                  {dateLabel}{time ? ` · ${time}` : ''}
+                </div>
+                <div className="opacity-30 uppercase tracking-widest mt-4">
+                  {isElapsed ? 'ELAPSED' : 'SCHEDULED'}
+                </div>
               </Block>
             </LogContainer>
           )
