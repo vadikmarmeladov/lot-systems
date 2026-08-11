@@ -47,7 +47,9 @@ postcss.config.*.backup
 *.working-backup
 
 # Compiled output (should not be in repo)
-server/
+# NOTE: dist/ above already covers build output (dist/server/). This
+# unanchored "server/" pattern was matching src/server/ too and silently
+# swallowing new files added under src/server/ — removed 2026-08-11.
 *.js.map
 
 # Archive files

@@ -27,6 +27,7 @@ import {
 } from '#shared/types'
 import dayjs from '#client/utils/dayjs'
 import { DATE_TIME_FORMAT } from '#shared/constants'
+import type { BasicsState, RationItem } from '#shared/constants/basics'
 
 const api = axios.create({
   baseURL: '/',
@@ -75,6 +76,31 @@ export const useUpdateSettings = createMutation<UserSettings, void>(
   'post',
   '/api/settings'
 )
+
+// BASIC ration module (LOT-FM-001)
+export const useBasics = createQuery<{ basics: BasicsState; isUsership: boolean }>(
+  '/api/basics'
+)
+
+export const useEnrollBasics = createMutation<
+  { householdSize: number; country: string; city: string; address: string },
+  { basics: BasicsState }
+>('post', '/api/basics/enroll')
+
+export const useConfirmBasics = createMutation<void, { basics: BasicsState }>(
+  'post',
+  '/api/basics/confirm'
+)
+
+export const useStandDownBasics = createMutation<void, { basics: BasicsState }>(
+  'post',
+  '/api/basics/stand-down'
+)
+
+export const useDispatchBasicsIssue = createMutation<
+  void,
+  { basics: BasicsState; issue: { issueNumber: number; dispatchedAt: string; items: RationItem[] } }
+>('post', '/api/basics/issue/dispatch')
 
 export const useLiveMessage = createQuery<{ message: string }>(
   '/api/live-message'
