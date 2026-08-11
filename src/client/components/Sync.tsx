@@ -33,6 +33,15 @@ import {
   isBlankMessage,
 } from '#shared/constants'
 
+interface LotEmailEvent {
+  id: string
+  message: string
+  createdAt: string
+  senderId: string
+  senderName: string
+  isMine: boolean
+}
+
 const CHAT_ALLOWED_TAGS: string[] = [
   UserTag.Admin,
   UserTag.RND,
@@ -52,6 +61,8 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Email (direct message) events received live this session, via /email in Log
+  const [emailEvents, setEmailEvents] = React.useState<LotEmailEvent[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -117,9 +128,33 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    // LOT Email — direct messages composed via /email in Log land here live,
+    // for either side of the conversation (sent or received).
+    const { dispose: disposeDirectMessageListener } = sync.listen(
+      'direct_message',
+      (data: any) => {
+        if (data.senderId !== me?.id && data.receiverId !== me?.id) return
+        setEmailEvents((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          const isMine = data.senderId === me?.id
+          return [
+            {
+              id: data.id,
+              message: data.message,
+              createdAt: data.createdAt,
+              senderId: data.senderId,
+              senderName: isMine ? (me?.firstName || 'You') : (data.senderName || 'Cohort member'),
+              isMine,
+            },
+            ...prev,
+          ]
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeDirectMessageListener()
     }
   }, [me?.id])
 
@@ -277,6 +312,33 @@ export const Sync = React.memo(function SyncInner() {
           )
         })}
       </div>
+
+      {emailEvents.length > 0 && (
+        <div className="mt-40">
+          <div className="opacity-30 mb-8">✉️ LOT Email</div>
+          {emailEvents.map((x) => (
+            <div key={x.id} className="flex items-start gap-x-8 -mx-4 px-4 py-2">
+              <span className="whitespace-nowrap pr-4 opacity-60">
+                {x.senderName} →
+              </span>
+              <div
+                className="whitespace-breakspaces flex-1"
+                style={{
+                  wordWrap: 'break-word',
+                  wordBreak: 'break-word',
+                }}
+              >
+                {x.message}
+              </div>
+              {!isTouchDevice && (
+                <div className="text-acc/40 select-none pointer-events-none whitespace-nowrap">
+                  <MessageTimeLabel dateString={x.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 })

@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useCohorts, useSendDirectMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,11 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const me = useStore(stores.me)
+  const { data: cohortData } = useCohorts()
+  const { mutate: sendLotEmail } = useSendDirectMessage()
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4139,6 +4144,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Send a LOT Email to cohort member X (delivered via Sync)',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4147,6 +4153,58 @@ const NoteEditor = ({
         setSystemHelp(lines.join('\n'))
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
+      } else if (trigger === 'lot-email') {
+        if (!emailLoading) {
+          const composeMatch = value.match(/\/email\s+to\s+(\S+)[.,!?:]*\s*([\s\S]*)/i)
+          if (!composeMatch) {
+            setEmailResult('USAGE           /email to <Name> <message>')
+          } else {
+            const recipientName = composeMatch[1]
+            const body = composeMatch[2].trim()
+            const cohortMatches = cohortData?.matches || []
+            const recipient = cohortMatches.find(
+              m => m.user.firstName?.toLowerCase() === recipientName.toLowerCase()
+            )
+            if (recipient) {
+              setEmailLoading(true)
+              setEmailResult(null)
+              sendLotEmail(
+                {
+                  receiverId: recipient.user.id,
+                  message: body || `LOT Email from ${me?.firstName || 'a cohort member'}.`,
+                },
+                {
+                  onSuccess: () => {
+                    setEmailLoading(false)
+                    setEmailResult(
+                      [
+                        `TO              ${(recipient.user.firstName || recipientName).toUpperCase()}`,
+                        'STATUS          SENT',
+                        'CHANNEL         SYNC',
+                      ].join('\n')
+                    )
+                  },
+                  onError: () => {
+                    setEmailLoading(false)
+                    setEmailResult('LOT EMAIL FAILED — Unable to send.')
+                  },
+                }
+              )
+            } else {
+              const available = cohortMatches
+                .slice(0, 5)
+                .map(m => m.user.firstName)
+                .filter(Boolean)
+                .join(', ')
+              setEmailResult(
+                [
+                  `RECIPIENT       NOT FOUND: "${recipientName}"`,
+                  available ? `COHORT          ${available}` : 'COHORT          NO MATCHES YET',
+                ].join('\n')
+              )
+            }
+          }
+        }
       } else if (trigger === 'story-mode') {
         if (!storyLoading) {
           setStoryLoading(true)
@@ -4384,6 +4442,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="✉️ EMAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 tracking-widest">SENDING...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
+              )}
             </Block>
           </div>
         )}
