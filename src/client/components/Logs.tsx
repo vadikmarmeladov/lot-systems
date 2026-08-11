@@ -1978,6 +1978,23 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'generated_story') {
+          const story = log.metadata?.story as string | undefined
+          const period = log.metadata?.period as string | undefined
+          const isError = log.metadata?.error as boolean | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label={period ? `STORY [${period.toUpperCase()}]:` : 'STORY:'} blockView>
+                {story && (
+                  <div className={cn('opacity-60', isError && 'opacity-40')}>
+                    {story.split('\n').map((line, idx) => (
+                      <div key={idx}>{line || <br />}</div>
+                    ))}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'assembly_directive') {
           const directive = log.metadata?.directive as string | undefined
           const isError = log.metadata?.error as boolean | undefined
@@ -4125,7 +4142,9 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compress recent entries into a short story',
+          '/story [day|week|month|year]',
+          '              Compress that period into a story',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4152,11 +4171,14 @@ const NoteEditor = ({
           setStoryLoading(true)
           setStoryResponse(null)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+            const period = periodMatch ? (periodMatch[1].toLowerCase() as 'day' | 'week' | 'month' | 'year') : undefined
+            const logText = value.replace(/\/story(\s+(day|week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })

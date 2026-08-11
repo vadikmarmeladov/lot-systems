@@ -55,7 +55,14 @@ deferred to allow immediate visual response.)
 
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
-(SR-20260604-01: calendar_entry saved but never returned.)
+(SR-20260604-01: calendar_entry saved but never returned. SR-20260811-01:
+generated_story — POST /story has written this event type since its
+introduction, never added to the whitelist; also missing from Logs.tsx's
+render dispatcher and formatLog(), so the record existed but was invisible
+to the operator's own history view and to the Memory Engine prompt. All
+three closed in one pass — whitelist, render case, formatLog case — the
+full set this doctrine's own inventory (§ Widget→Memory Compression Loop)
+says a new event type owes the pipeline.)
 
 ## Ship Mode Discipline
 

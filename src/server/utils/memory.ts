@@ -823,6 +823,12 @@ function formatLog(log: Log): string {
       if (state) body = `Biofield check-in: ${state}`
       break
     }
+    case 'generated_story': {
+      const story = (log.metadata as any)?.story
+      const period = (log.metadata as any)?.period
+      if (story) body = period ? `/story ${period}: ${story}` : `/story: ${story}`
+      break
+    }
   }
   body = body.trim()
   if (!body) return ''
