@@ -43,6 +43,27 @@ const WESTERN_ZODIAC = [
 ] as const
 
 /**
+ * Build a plain Date from a moment's local wall-clock fields (year/month/
+ * date/hour/minute/second). Round-trips correctly through the getHours()/
+ * getMonth()/getDate() readers this file's functions use, regardless of the
+ * calling process's own runtime timeZone — so a dayjs moment already
+ * resolved to a specific IANA zone (via `.tz(zone)`) produces an ambient
+ * reading for that zone rather than the process's local time. Duck-typed so
+ * this file stays framework-light (no dayjs import) while working with any
+ * dayjs.Dayjs instance from either the client or server dayjs util.
+ */
+export function toWallClockDate(moment: {
+  year(): number
+  month(): number
+  date(): number
+  hour(): number
+  minute(): number
+  second(): number
+}): Date {
+  return new Date(moment.year(), moment.month(), moment.date(), moment.hour(), moment.minute(), moment.second())
+}
+
+/**
  * Get Japanese zodiac animal for a given year
  */
 export function getJapaneseZodiac(year: number): string {

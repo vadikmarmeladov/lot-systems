@@ -22,7 +22,7 @@ import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
-import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
+import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo, toWallClockDate } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
 import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
@@ -55,7 +55,7 @@ import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, recordAstrologySignal, getCircadianPhase } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, recordAstrologySignal, recordAuspiciousIntentionAlignment, getCircadianPhase } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
@@ -203,9 +203,13 @@ export const System = React.memo(function SystemInner() {
   }, [])
 
   // Astrology calculations — ambient conditions (zodiac hour, moon phase,
-  // rokuyo), not a personal natal chart.
+  // rokuyo), not a personal natal chart. Reads the user's saved timeZone
+  // (profile setting) when available so the reading matches the time the
+  // user actually keeps, not whatever zone the viewing device happens to be
+  // set to; falls back to device-local time for signed-out/unset users —
+  // same fallback the server-side Logs snapshot already uses.
   const astrology = React.useMemo(() => {
-    const now = new Date()
+    const now = me?.timeZone ? toWallClockDate(dayjs().tz(me.timeZone)) : new Date()
     const hourlyZodiac = getHourlyZodiac(now)
     const westernZodiac = getWesternZodiac(now)
     const moonPhase = getMoonPhase(now)
@@ -219,7 +223,7 @@ export const System = React.memo(function SystemInner() {
       rokuyo,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [astrologyTick])
+  }, [astrologyTick, me?.timeZone])
 
   // Synchronize the ambient astrology reading into the QIE signal bus once
   // per calendar day, so other widgets (cosmic, system) can react to it.
@@ -237,6 +241,29 @@ export const System = React.memo(function SystemInner() {
     )
     localStorage.setItem(lastRecordedKey, today)
   }, [astrology.rokuyo, astrology.moonPhase, astrology.moonIllumination, astrology.hourlyZodiac, astrology.westernZodiac])
+
+  // Personalization layer: on an auspicious (Taian) day, check whether the
+  // user has also set a goal or intention in the last 24h — the ambient
+  // reading and the user's own declared direction aligning. Recorded once
+  // per calendar day, separately from the base ambient reading above, so
+  // the 'goals'/'intentions' widgets have a real signal to key off in a
+  // future session (see docs/assembly session report for what is and isn't
+  // wired yet).
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (astrology.rokuyo !== 'Taian') return
+    const today = dayjs().format('YYYY-MM-DD')
+    const lastRecordedKey = 'astrology_alignment_signal_date'
+    if (localStorage.getItem(lastRecordedKey) === today) return
+    const dayAgo = Date.now() - 24 * 60 * 60 * 1000
+    const alignedLogs = logs.filter(log =>
+      (log.event === 'intention' || log.event === 'goal_set' || log.event === 'goal_journey') &&
+      new Date(log.createdAt).getTime() > dayAgo
+    )
+    if (alignedLogs.length === 0) return
+    recordAuspiciousIntentionAlignment(alignedLogs.length, alignedLogs.map(log => log.event))
+    localStorage.setItem(lastRecordedKey, today)
+  }, [astrology.rokuyo, logs])
 
   const answerLogs = React.useMemo(() => {
     return logs.filter(log => log.event === 'answer')

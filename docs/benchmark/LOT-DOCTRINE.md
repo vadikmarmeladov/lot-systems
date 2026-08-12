@@ -226,3 +226,26 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## QIE Pattern Wiring — a helper is not a pattern
+
+A `record*` signal-helper function existing in `intentionEngine.ts` does not
+mean the pattern it names is live. A pattern is only real once something
+calls the helper under a real condition — a widget effect, a background job,
+another signal handler. Two consecutive self-assembly passes (the sessions
+that produced P146/P147/P148 and P149/P150/P151) added six such helpers with
+session-log narration claiming "detection blocks added," but no detection
+block — no call site anywhere in `src/` — actually exists for any of the six.
+They are declared and inert.
+
+Going forward: before crediting a session with a new QIE pattern number,
+confirm the pattern's `record*` function has at least one real call site
+outside its own definition. If a pattern is authored as scaffolding for a
+later pass (helper now, wiring later), say so explicitly in that session's
+report rather than narrating it as complete — the doctrine's own honesty
+clause exists precisely to keep "provisional" and "done" from blurring
+together in the compressed record.
+
+(SR-20260812-01: found P146–P151 orphaned while confirming this session's own
+new astrology signal was genuinely wired before adding it — not fixed this
+session, folded here for the next pass that touches the pattern registry.)

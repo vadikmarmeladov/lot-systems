@@ -4893,6 +4893,23 @@ export function recordAstrologySignal(
 }
 
 /**
+ * Record an auspicious-intention-alignment event — today's rokuyo reads
+ * Taian AND the user has set a goal or intention in the last 24h. The
+ * ambient reading and the user's own declared direction coincide. Called
+ * once per calendar day from the System dashboard, only when both
+ * conditions hold — this is a real signal derived from server-backed log
+ * events (intention/goal_set/goal_journey), not a display-only decoration.
+ */
+export function recordAuspiciousIntentionAlignment(alignedCount: number, alignedEvents: string[]) {
+  recordSignal('astrology', 'auspicious_intention_alignment', {
+    alignedCount,
+    alignedEvents,
+    rokuyo: 'Taian',
+    window: '24h',
+  })
+}
+
+/**
  * Record a journal depth signal when a field entry is saved with word count.
  * Feeds Reflection Layer (journal module) density in self-assembly.
  * Deep entries (>100 words) awaken and advance the Reflection Layer faster.
