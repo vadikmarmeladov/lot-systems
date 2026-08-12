@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,30 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Manifest Drift / Reinvention Loop
+
+A recurring scheduled task can outlive the manifest's accuracy about it. When
+a task is fired repeatedly (daily/every-few-days) and each firing starts a
+fresh session with no memory of prior firings, the ONLY thing that can carry
+continuity forward is a written record the new session actually reads. If
+that record (LOT-MANIFEST.md) is not updated every time a session pushes
+work, later sessions "discover" a BEST/READY candidate that's gone stale,
+or worse, never check it at all and rebuild the same feature from the same
+base commit. Symptom to watch for: several branches with the same codename
+family (same adjective-noun prefix, different suffix) touching the same file,
+each pushed a few days apart, each a similar-sized diff, none SHIPPED.
+PROCEDURE: before starting ANY feature work, (1) read the manifest for an
+existing BEST/READY row on the same feature, (2) if found, `git fetch` that
+exact branch and read its actual diff — do not trust the manifest's SUMMARY
+column alone, it can be stale — (3) build on top of / consolidate the best
+existing work instead of a parallel rewrite, (4) update the manifest row
+(branch, hash, summary) as part of the SAME session that ships, not a
+follow-up. A manifest row that says BEST but points at a branch nobody
+re-checks is worse than no row — it creates false confidence that the
+feature is tracked.
+(SR-20260811-01: Calendar Alerts feature independently rebuilt across at
+least 10 sessions over 2026-06-27 through 2026-08-11 — gifted-lovelace-cZOWR,
+07662a8f/a246de27/50bf6488 [06-27..29], and 5 more on dreamy-babbage-*
+branches [08-01,08-03,08-04,08-08,08-09] — before this session fetched and
+consolidated the surviving branches instead of adding an 11th.)

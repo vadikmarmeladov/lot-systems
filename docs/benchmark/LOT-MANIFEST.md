@@ -26,7 +26,7 @@ FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | F
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
-Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
+Calendar Alerts  | claude/dreamy-babbage-h1jdy6  | 57d928a7 | 10+/10+ | BEST | 2 | +410 | Consolidated: live clock+T-minus+EXECUTE/ALERT/STANDBY/ELAPSED+overlay (ex-gifted-lovelace-cZOWR) + OS Notification API opt-in + Logs.tsx full-text CAL renderer + bg-bac fix (was invalid bg-base, alert box rendered transparent). See §03 dreamy-babbage cluster.
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
@@ -87,7 +87,8 @@ relaxed-hamilton | 8     | eRBVA             | 7     | LOT Mail iterations (SUPE
 determined-turing| 6     | f6bw7r            | 5     | LOT Mail iterations (latest series)
 dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations (SUPERSEDED by brave-lamport)
 brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
-gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
+gifted-lovelace  | 6     | cZOWR (superseded)| 6     | Calendar alert iterations — winning UI folded into dreamy-babbage-h1jdy6 2026-08-11, cZOWR itself now prunable
+dreamy-babbage   | 10+   | h1jdy6            | 9+    | Calendar time-tracking+alerts iterations. CONFIRMED DUPLICATES (never merged, safe to prune once h1jdy6 ships): 0uk7ck(08-01) y6jpxk(08-03) fxoxx7(08-04) uyh576(08-08) 5qzz22(08-09, TRK timer session — distinct feature, see NOTE). Same pattern likely present pre-07-28 under other codenames (07662a8f/a246de27/50bf6488, 2026-06-27/28/29) — codenames not yet traced to branch names.
 nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson)
 beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (latest series)
 gracious-gauss   | 7     | WnL0k             | 6     | QI-46 Engine iterations (SUPERSEDED by cool-tesla)
@@ -191,6 +192,25 @@ NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
 they were incorporated into master in prior sessions. The ship queue will be
 re-populated as new BEST branches are designated from future assembly runs.
 The protocol above applies to all future merges.
+
+CORRECTION (2026-08-11, SR-20260811-01): the note above is WRONG for Calendar
+Alerts specifically. gifted-lovelace-cZOWR was still live on the remote and
+never merged — checked by fetching it directly, not by trusting this note.
+At least 9 more sessions (2026-06-27/28/29, 08-01/03/04/08/09, this one)
+independently re-implemented the same "military-grade calendar alerts" ask
+from a fresh branch each time, because the recurring scheduled task that
+requests this feature does not read this manifest before starting work, and
+this manifest was not kept current against what those sessions actually
+pushed. Net effect: ~10x redundant engineering effort, zero net progress
+toward shipping, across roughly 6 weeks.
+FIX APPLIED: this session (branch claude/dreamy-babbage-h1jdy6) fetched every
+reachable duplicate, diffed them, and consolidated the best pieces (see §01
+Calendar Alerts row, §03 dreamy-babbage cluster) rather than adding an 11th
+parallel implementation.
+STANDING RULE (fold into doctrine): before building ANY feature this manifest
+already lists a BEST/READY candidate for, fetch that candidate's branch and
+read its actual diff first. "Discover, don't assume" (Cardinal Rule 3) means
+checking this file AND the remote, not just this file — this file drifts.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
