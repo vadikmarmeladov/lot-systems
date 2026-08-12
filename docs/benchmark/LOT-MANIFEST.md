@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
+Basics Tab       | beautiful-johnson-sagsrb      | (pending) | 9/9  | BEST   | 12    | +~750  | LOT-FM-001: M1 OPEN TAB live (in-app + public /basics) — 23-item ration ledger, doctrine, fixed non-theme visual spec; M2/M3 scoped in docs/technical/LOT-FM-001-BASIC-RATION.md. Supersedes beautiful-johnson-56p7ov (M1-only, unshipped) and nifty-allen-jWyOe (full-scope, too drifted to cherry-pick).
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
@@ -181,16 +181,20 @@ PROTECTED FILES (always restore from master during any branch merge):
 
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   LOT Mail         | determined-turing-f6bw7r  | +504 lines
-  Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
+  Basics Tab       | beautiful-johnson-sagsrb   | +~750 lines
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
   COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
 
-NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
-they were incorporated into master in prior sessions. The ship queue will be
-re-populated as new BEST branches are designated from future assembly runs.
-The protocol above applies to all future merges.
+NOTE: As of 2026-06-27, the above branches were logged as no longer existing
+on remote (incorporated into master). VERIFIED FALSE for Basics Tab as of
+2026-08-12: neither beautiful-johnson-56p7ov nor nifty-allen-jWyOe was ever
+merged, and no Basics component existed on master. Treat this NOTE as
+unverified for the other rows too — confirm with `git ls-remote` /
+`git log master -- <path>` before assuming a queued feature shipped. The
+ship queue will be re-populated as new BEST branches are designated from
+future assembly runs. The protocol above applies to all future merges.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.

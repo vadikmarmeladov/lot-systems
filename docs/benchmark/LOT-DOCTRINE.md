@@ -226,3 +226,27 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Cross-Session Continuity
+
+Before building a feature from a directive that plausibly recurs (a standing
+scheduled task, a routine self-assembly prompt), search LOT-MANIFEST.md and
+remote branches by feature keyword before writing new code. A prior session
+may have already produced a BEST or READY iteration sitting unshipped on an
+orphaned branch. Read it for content and design; do not cherry-pick blind —
+a branch more than a few weeks old has usually drifted past the point where
+a clean cherry-pick is cheaper than a re-implementation against current
+master. Re-implement against current master, reusing the prior branch's
+design decisions (schema shapes, route contracts, copy, visual choices)
+explicitly, and record the provenance (which branches existed, why they
+were read instead of merged) in the feature's own doc, not just the session
+report — the next session needs that trail without replaying this one's
+branch archaeology.
+(SR-20260812-01: LOT-FM-001 BASIC ration module had two prior unshipped
+attempts — claude/nifty-allen-jWyOe [2026-05-30, full 3-month scope, too
+drifted to cherry-pick] and claude/beautiful-johnson-56p7ov [2026-06-12,
+Month-1-only, closer to master]. Both read, neither merged; Month 1
+re-implemented against current router/Layout/app.tsx against a fixed
+non-theme-reactive visual spec; Month 2/3 schema design preserved in
+docs/technical/LOT-FM-001-BASIC-RATION.md instead of being carried as
+half-built code.)
