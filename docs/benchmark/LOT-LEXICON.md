@@ -73,3 +73,20 @@ EMBODIED-COGNITION-ARC   QIE P110 — selfcare + journal 150+w + memory capture 
 INTENTION-COMPLETION-LOOP QIE P111 — intention set + planner + goal action all in 24h; direction→structure→outcome arc closed in one day; rare single-day loop  B  20260706
 COMMUNITY-INTELLIGENCE-PEAK  QIE P112 — cohort signal + journal + memory + intentions all in 48h; external social signal anchored internally through writing, capture, and direction-setting  B  20260706
 ```
+
+CANDIDATES (first appearance, PROVISIONAL — earn a token line above only on 3+ recurrence):
+- WIDGET-TIER — a widget's signal integration falls into one of 3 tiers: WIRED (writes
+  a whitelisted Log row consumed downstream), QIE-ONLY (recordSignal reaches
+  localStorage + periodic /api/quantum-intent/sync, invisible to GET /api/logs and
+  to Story synthesis), or ORPHANED (no logging path at all). (SR-20260812-01)
+- PORTRAIT-BYPASS — the profile/"Portrait" page renders Memory Story as plain text
+  synthesized server-side directly from Log data; it does not render any
+  *Widget.tsx component. Widget-layer UI and profile-page narrative are two
+  disjoint surfaces today. (SR-20260812-01)
+- CLICK-GUARD — an interactive widget's mutation-triggering handler must check its
+  own "already fired" state (ref or the same state driving the fade-out) before
+  calling the mutation, not rely on the fade animation's duration alone — the
+  control stays clickable throughout the animation. (SR-20260812-01)
+- BOUNDARY-COVERAGE — every widget rendered under a tab root must sit inside a
+  WidgetErrorBoundary, never bare in a layout div; without it a single widget's
+  crash propagates past the tab to the app-wide AppErrorBoundary. (SR-20260812-01)

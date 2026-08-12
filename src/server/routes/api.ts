@@ -3762,7 +3762,9 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
           country: { [Op.not]: null },
           id: { [Op.not]: req.user.id }
         },
-        attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata', 'lastSeenAt']
+        attributes: ['id', 'firstName', 'lastName', 'city', 'country', 'metadata', 'lastSeenAt'],
+        order: [['lastSeenAt', 'DESC']],
+        limit: 200,
       })
 
       const patternCache = new Map<string, PatternInsight[]>()

@@ -16,7 +16,13 @@ removed; per-item subscriptions lifted to parent in Sync; nav buttons
 memoized so only active-state changes trigger re-render. SR-20260719-01:
 System quantumState analyzeIntentions()+recomputeAssembly() moved
 useMemo->useEffect — 10 subscriber re-renders no longer block paint;
-SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+SystemProgressWidget 60s recompute interval gated on !document.hidden.
+SR-20260812-01: Logs.tsx recordBadgeSignal() was firing inside the
+pastLogIds.map() render body on every render of any badge_unlock log —
+same bug class as the System.tsx quantumState case. Moved to a useEffect
+keyed on [pastLogIds, logById], guarded by a Set-of-log-id ref so each
+badge only signals once, matching the once-per-mount ref guard pattern
+already used in ChakraErgonomicsWidget.)
 
 ## Client Cache Freshness
 
@@ -172,7 +178,10 @@ the protection is at the query layer.
 queries replaced with single batched IN query. user-stats 4 sequential queries
 parallelized. chat-messages users+likes parallelized. cohort limited to 200.
 Client: 3 redundant analyzeIntentions() calls removed — already has 5-min
-cooldown at intentionEngine.ts:231.)
+cooldown at intentionEngine.ts:231.
+SR-20260812-01: /api/chat-catalysts User.findAll had no limit/order, unlike
+its near-identical sibling /api/cohorts written 20 lines away with limit 200
++ order by lastSeenAt DESC. Same cap applied for consistency.)
 
 ## Master-Authoritative Files (WIKI-GUARD)
 

@@ -129,6 +129,21 @@ export const Logs: React.FC = React.memo(function LogsInner() {
     return isTimeFormat12h ? 'h:mm:ss A (M/D/YY)' : 'HH:mm:ss[Z] DD/MM/YY'
   }, [isTimeFormat12h])
 
+  // Record badge-unlock signals into QIE once per log id, after paint —
+  // not during the render-phase .map() below (Render Isolation).
+  const recordedBadgeSignalsRef = React.useRef<Set<string>>(new Set())
+  React.useEffect(() => {
+    for (const id of pastLogIds) {
+      if (recordedBadgeSignalsRef.current.has(id)) continue
+      const log = logById[id]
+      if (!log || log.event !== 'badge_unlock') continue
+      const badge = log.metadata?.badge as string | undefined
+      if (!badge) continue
+      recordBadgeSignal(badge, (log.metadata?.category as string | undefined) ?? 'unknown')
+      recordedBadgeSignalsRef.current.add(id)
+    }
+  }, [pastLogIds, logById])
+
   // Memoize onChange for primary log to prevent excessive re-renders
   const onChangePrimaryLog = React.useMemo(
     () => onChangeLog(recentLogId),
@@ -2334,9 +2349,6 @@ export const Logs: React.FC = React.memo(function LogsInner() {
           const badge    = log.metadata?.badge as string | undefined
           const category = log.metadata?.category as string | undefined
           const symbol   = log.metadata?.symbol as string | undefined
-          if (badge) {
-            recordBadgeSignal(badge, category ?? 'unknown')
-          }
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="BADGE:" blockView>

@@ -117,6 +117,9 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
   const onAnswer = React.useCallback(
     (option: string, buttonIndex: number) => (ev: React.MouseEvent) => {
       if (!question || !question.id) return
+      // Guard against double-submit: the answer buttons stay clickable
+      // (opacity-fade only) until the 1.5s dismiss animation completes.
+      if (clickedButtonIndex !== null) return
 
       setClickedButtonIndex(buttonIndex)
 
@@ -155,7 +158,7 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
         }
       }, 0)
     },
-    [question]
+    [question, clickedButtonIndex]
   )
 
   // Check for badge unlocks on mount
