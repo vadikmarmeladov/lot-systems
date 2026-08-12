@@ -27,6 +27,10 @@ export const radioTrackName = atom<string>('')
 
 export const weather = atom<WeatherRecord | null>(null)
 
+// LOT Mail — set by Cohort Connect to seed the primary Log with an
+// "/email to <Name>" draft; the primary NoteEditor consumes and clears it.
+export const pendingLogSeed = atom<string | null>(null)
+
 // connection status
 export const isConnected = atom<boolean>(true)
 export const lastUpdate = atom<Date | null>(null)

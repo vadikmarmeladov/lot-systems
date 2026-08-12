@@ -224,6 +224,13 @@ export const Sync = React.memo(function SyncInner() {
               : 'Unknown'
           const authorId = authorObj?.id || x.authorUserId
 
+          // LOT Mail — /email in Log posts here as an envelope-formatted
+          // message. Split it back out for a distinct "MAIL" presentation
+          // instead of rendering the raw envelope text.
+          const mailMatch = x.message.match(/^✉️ TO: ([^—]+)— ?([\s\S]*)$/)
+          const mailRecipient = mailMatch ? mailMatch[1].trim() : null
+          const mailBody = mailMatch ? mailMatch[2].trim() : null
+
           return (
             <div
               key={x.id}
@@ -251,7 +258,16 @@ export const Sync = React.memo(function SyncInner() {
                   wordBreak: 'break-word',
                 }}
               >
-                {x.message}
+                {mailMatch ? (
+                  <>
+                    <Tag className="mr-8 -mt-[2px]" fill={false}>
+                      ✉️ MAIL → {mailRecipient}
+                    </Tag>
+                    {mailBody}
+                  </>
+                ) : (
+                  x.message
+                )}
               </div>
 
               {!!x.likes && (
