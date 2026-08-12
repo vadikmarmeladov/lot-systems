@@ -321,6 +321,55 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE EVENING CLOSE                            2026-08-12
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Evening Sage" (low/moderate
+  energy, journal/memory dominant signal sources, 18-24h active window —
+  LOT-GENESIS-v1.md, Node 8, archetype 6), 47-day sustained engagement,
+  hospital night-shift nurse. The CUBIQ charging pad sits on a bedroom
+  nightstand, not a desk — the "table" referenced in Section 02 is
+  furniture the operator passes on the way to sleep, not a workstation.
+  This is the first use case where the base face's footprint is small
+  enough (nightstand, <300mm across) to actually exercise the Section 03
+  edge-detection gate outside a lab bench — on an office desk a hop has
+  room to breathe; here every gesture lands inches from an edge.
+
+  23:40, end of a 12-hour shift. The operator writes a short LOG entry —
+  three sentences, tired, honest. The Quantum Intent Engine recognizes
+  P79 evening-close completing that day's half of the DIURNAL ARC (P76
+  morning-launch was recorded at shift start; P80 momentum-lock is not
+  yet in reach tonight). A common-tier badge unlocks — third consecutive
+  night logged despite exhaustion. Under the software-only cubic this
+  would be a badge sitting in a feed, waiting to be seen next login.
+
+  With CUBIQ hardware v.0 present: the cube performs THE HOP (Section
+  04) — a single controlled vertical hop, <10mm rise, lands in place.
+  The operator is already turning off the lamp, changing for sleep. They
+  do not pick up the cube or the phone. They catch the motion in
+  peripheral vision — the object fractionally displaced from where it
+  was — and that is the confirmation. No screen lit the dark room. No
+  blue light reached the one window of the day when the operator's own
+  CARE-dimension self-care work depends on attention draining, not
+  spiking. A phone notification at 23:40 would have undone weeks of
+  that discipline in one glance; the cube's motion-first, light-
+  secondary architecture (Section 02, INDICATOR) is what makes this
+  moment safe to notice at all.
+
+  Four nights later, the Assembly phase advances from "forming" to
+  "assembled." The cube performs THE SETTLE — a light standing pressure
+  held for 2 seconds, no visible motion — at the exact moment the
+  operator sets their phone face-down for the night. Logged the next
+  morning, in the operator's own words (Section 05 telemetry loop):
+  "it just held there, like something agreeing with me. I didn't need
+  to look."
+
+  This is the use case the HOP and SETTLE gestures — present in the
+  Section 04 vocabulary since v.0 but unexercised by USE CASE 01's
+  daytime desk scenario — were built to serve: closure without light,
+  confirmation without a screen, care that respects the part of the day
+  when the right response to a signal is quiet, not motion toward the
+  operator's hand.
+
 --------------------------------------------------------------------------------
 08 // BRAND
 --------------------------------------------------------------------------------
