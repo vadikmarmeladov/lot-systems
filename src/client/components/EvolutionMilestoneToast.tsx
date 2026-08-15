@@ -46,11 +46,6 @@ export function EvolutionMilestoneToast() {
         setCurrentMilestone(latest);
         setShowToast(true);
         setSeenMilestones(prev => new Set(prev).add(milestoneKey));
-
-        // Auto-hide after 6 seconds
-        setTimeout(() => {
-          setShowToast(false);
-        }, 6000);
       }
     };
 
@@ -64,6 +59,13 @@ export function EvolutionMilestoneToast() {
     return () => clearInterval(interval);
   }, [seenMilestones]);
 
+  // Auto-hide after 6 seconds; cleared if component unmounts before timeout fires.
+  React.useEffect(() => {
+    if (!showToast) return;
+    const timer = setTimeout(() => setShowToast(false), 6000);
+    return () => clearTimeout(timer);
+  }, [showToast]);
+
   // Count newly unlocked features
   const unlockedCount = React.useMemo(() => {
     if (!featureUnlocks) return 0;
@@ -74,12 +76,12 @@ export function EvolutionMilestoneToast() {
 
   return (
     <div
-      className="fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50
+      className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50
                  px-16 py-8 border border-[rgb(var(--acc-color-default)/0.2)]
                  bg-[var(--base-color)] grid-fill-light
-                 animate-fade-in-up evolved-text evolved-opacity"
+                 evolved-text evolved-opacity"
       style={{
-        animation: 'fadeInUp 0.5s ease-out, fadeOut 0.5s ease-in 5.5s forwards'
+        animation: 'toast-fade-in-up 0.5s ease-out, toast-fade-out 0.5s ease-in 5.5s forwards'
       }}
     >
       <div className="text-center">
@@ -96,30 +98,3 @@ export function EvolutionMilestoneToast() {
   );
 }
 
-// CSS animations
-const style = document.createElement('style');
-style.textContent = `
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translate(-50%, 10px);
-    }
-    to {
-      opacity: 1;
-      transform: translate(-50%, 0);
-    }
-  }
-
-  @keyframes fadeOut {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
-  }
-`;
-
-if (typeof document !== 'undefined') {
-  document.head.appendChild(style);
-}

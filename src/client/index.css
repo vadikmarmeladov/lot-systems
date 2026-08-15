@@ -286,6 +286,22 @@ td:last-child {
   -webkit-overflow-scrolling: touch;
 }
 
+@keyframes toast-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes toast-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
 .blink {
   animation: 1.6s soft-blink infinite;
 }
