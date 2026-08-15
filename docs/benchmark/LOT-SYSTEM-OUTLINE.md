@@ -106,11 +106,13 @@ SYSTEM TAB (main dashboard):
   SubscribeWidget         Subscription prompt
 
 SYNC TAB:
-  Sync                    Real-time message feed (SSE)
+  Sync                    Real-time message feed (SSE) · Chat | Mail sub-tabs
   DirectMessageThread     Private messaging
+  EmailInbox              LOT Mail inbox (Sync Mail sub-tab), SSE lot_mail event
 
 LOG TAB:
   Logs                    Append-only personal journal + system log
+                          /email (or /mail, ✉️/📧) composes a LOT Mail inline
 
 SETTINGS TAB:
   Settings                Theme, sound, mirror, format preferences
@@ -124,10 +126,7 @@ OTHER:
   About (Field Manual)    Canonical operational reference
 
 PENDING (on feature branches, not yet on master):
-  Mail                    In-app email system (relaxed-hamilton-eRBVA)
   Basics                  Ration subscription tab (nifty-allen-jWyOe)
-  MailWidget              System tab email indicator (relaxed-hamilton-eRBVA)
-  EmailCompose            Email compose overlay (relaxed-hamilton-eRBVA)
 
 ================================================================================
 04 // INTELLIGENCE ENGINE
@@ -177,12 +176,12 @@ ROUTES:
   public-api.ts    Public profiles, status
   auth.ts          Authentication (email code, session)
 
-MODELS (11):
+MODELS (12):
   User, Session, Log, Answer, ChatMessage, ChatMessageLike,
-  DirectMessage, LiveMessage, WeatherResponse, EmailCode
+  DirectMessage, LiveMessage, WeatherResponse, EmailCode, LotMail
 
 SSE EVENTS:
-  users_online, users_total, live_message, chat_message, ping
+  users_online, users_total, live_message, chat_message, ping, lot_mail
 
 AI INFERENCE:
   Claude Sonnet — Memory questions, emotional check-in responses

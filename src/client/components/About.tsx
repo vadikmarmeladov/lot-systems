@@ -3793,7 +3793,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="LOT Mail"
-              value="In-app email system on feature branch relaxed-hamilton-eRBVA. 8 iterations, BEST at eRBVA (12 files, +619 lines). Components: /email log trigger · Sync inbox · reply threading · MailWidget (System tab email indicator) · SSE delivery for real-time arrival. Usership-gated. Status: BEST — ship candidate."
+              value="In-app email system, ported from feature branch determined-turing-f6bw7r (12 files, +554 lines). Components: /email log trigger (also /mail, ✉️/📧) · Sync Mail tab inbox · ChatCatalystWidget cohort ✉ Mail button · SSE lot_mail event for real-time arrival. Gated to the same Usership/Onyx/Legacy/R&D/Admin set as Sync chat. Status: SHIPPED (session branch), pending master merge."
             />
             <Row
               label="Basics Tab"
