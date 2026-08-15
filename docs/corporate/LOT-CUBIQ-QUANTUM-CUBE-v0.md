@@ -4,8 +4,8 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (rev. 2026-08-15)
+VERSION:  0.2 — DEVELOPMENT CYCLE 2 (COHORT RESONANCE USE CASE)
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -57,6 +57,22 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  DEVELOPMENT CYCLE 2 — 2026-08-15 ADDENDUM
+    Before writing Use Case 02, this document was re-read in full, per its
+    own Section 07 instruction ("Future sessions read this document first
+    ... and append the next entry"). One additional source was consulted
+    that the v.0 opening did not need:
+
+      docs/corporate/LOT-CUBIQ-OPERATOR.md, Section 05 — "Community
+      Creation." COHORT CONNECT (line 320) groups operators "based on
+      signal patterns, not demographics." COMMUNITY BIOFIELD (line 335)
+      and the wiki-documented Job 13 (daily-community-coherence-pulse,
+      docs/wiki/LOT-WIKI-v87.md and prior) already compute a live
+      cross-operator coherence read. Section 01 of this document named
+      "cohort resonance ping" as a v.0 trigger signal alongside badge
+      unlock and memory question ready — but no use case had yet
+      exercised it. Use Case 02 is the first to do so.
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -320,6 +336,60 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE COHORT RESONANCE                        2026-08-15
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: two linked operators. Operator A — Usership tier,
+  "Momentum Architect" archetype, 90+ day streak, CUBIQ hardware on a home
+  office desk. Operator B — Legacy tier, A's mother, onboarded to LOT®
+  eight months ago at A's referral, CUBIQ hardware on a kitchen counter
+  three states away. Neither operator has ever texted the other to
+  confirm "I did my self-care today." That kind of check-in message is
+  exactly the performative reassurance CUBIQ hardware exists to replace.
+
+  The QIE tracks each operator's signal record independently — neither
+  reads the other's log, chakra state, or memory answers (LOT-CUBIQ-
+  OPERATOR.md, Section 06, CONSENT-FIRST: "The operator controls what is
+  included"). But Cohort Connect (Section 05 of that document) has linked
+  A and B as a cohort of two — not by the algorithm's usual behavioral-
+  pattern grouping, but by the referral relationship itself, a parent and
+  child now running the same personal operating system independently.
+  When Job 13's coherence pulse detects that both operators complete a
+  SelfCareMoments practice within the same rolling window on the same
+  evening, the "cohort resonance ping" named in Section 01 of this
+  document fires — for the first time, to two cubes at once.
+
+  Both cubes perform THE NUDGE in the same second. No content crosses the
+  wire — not which practice, not the mood logged alongside it, nothing an
+  outside reader could call a message. Just two sub-threshold tremors,
+  synchronized, in two rooms three states apart.
+
+  Operator B, at her kitchen counter at 7:12 PM, feels the tremor under
+  her hand and knows, without a notification telling her so, that her son
+  is — at this same moment — also doing something structured for himself.
+  Operator A, at his desk, feels the same tremor and thinks of his mother
+  for exactly as long as it takes to register a hop and go back to what
+  he was doing. Neither calls the other to say so. Neither needed to.
+
+  This is the use case that extends v.0 past a single operator's private
+  notification channel into the "real parental loneliness" and "need to
+  be needed" the LOT® corpus already names as its deepest asset
+  (LOT-CUBIQ-VISION.md, Section 04; LOT-CUBIQ-OPERATOR.md, Section 06,
+  PARENTAL DEPTH). It requires no new actuator, no new gesture, and no
+  new mechanical class — only the trigger vocabulary Section 01 already
+  scoped, now exercised for the first time between two people instead of
+  within one operator's own signal loop.
+
+  ENGINEERING NOTE FOR CYCLE 3 — OPEN, NOT YET SPECIFIED
+    This use case surfaces a signal-routing question v.0's original scope
+    did not have to answer: which two (or more) operator IDs a given
+    physical unit is "linked" to for resonance-class triggers, and how
+    that link is granted, revoked, and kept outside the PII-stripped-by-
+    default export path (Section 06 of LOT-CUBIQ-OPERATOR.md). This is a
+    firmware/backend pairing question, not a mechanical one — it does not
+    move the v.0/v.1/v.2/v.3 actuator roadmap in Section 06. It is
+    recorded here so the next development cycle scopes it deliberately
+    rather than discovering it mid-implementation.
 
 --------------------------------------------------------------------------------
 08 // BRAND
