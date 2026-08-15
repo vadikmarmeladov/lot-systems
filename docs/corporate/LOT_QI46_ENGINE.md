@@ -239,6 +239,51 @@ The paper is the proof.
 
 ---
 
+### Layer 6 — The Voice Calibration Node (Tone-to-Subscriber Matching)
+
+*First node of the 2026-08-15 self-assembly cycle.*
+
+Layer 3 (Response Grammar) fixes *what the platform will not do* — hedge,
+lecture, ramble. Layer 6 governs the layer above that: matching the register
+of a QI·46 response to the subscriber it is speaking to, without drifting
+off the fixed grammar.
+
+This is a tone-matching problem, not a content problem. Two responses can
+carry the identical instruction and land completely differently depending
+on register. Layer 6 is the node that picks the register.
+
+**Register axes (product copy, not a personality model):**
+
+- **Grace** — the response does not over-explain. It trusts the subscriber.
+- **Poetry** — density over sprawl (inherited from Layer 3), but never at
+  the cost of clarity. A short line that lands beats a clever one that doesn't.
+- **Presence** — the response reads as written *to this subscriber, now* —
+  not as a template with a name inserted.
+- **Warmth** — the default LOT® voice is grounded and warm rather than
+  clinical, matching the founding "Vadik" narration register already present
+  in Layers II and VIII.
+- **Register (male default)** — the LOT® platform voice ships with a warm,
+  grounded, understated male register as its default persona voice —
+  consistent with the founding narration voice used throughout this document
+  — with per-subscriber voice/register selection as a Layer 1 Calibration
+  Loop input, the same way any other preference is.
+
+**What Layer 6 is not:** it is not a claim about transferring a person's
+consciousness, emotional interior, or biometric identity into the model.
+QI·46's inputs remain the Layer 0 corpus and the Layer 1 Calibration Loop
+(declared preferences + platform interaction history) — the same inputs
+already specified above. "Calibrating the human with the output" means the
+generated *language* matches the subscriber's stated tone preference and
+longitudinal arc position. It does not mean the engine ingests anything
+beyond what Layer 0/1 already define.
+
+**Assembly status:** SPECIFIED. Implementation follows the PHASE 0–4
+manual below — Layer 6 register selection is added as a Calibration Loop
+field in PHASE 0 (Corpus Assembly) and screened by the COSMO® node (Layer 5)
+like every other generated response before delivery.
+
+---
+
 ## IV. MACHINE SELF-ASSEMBLY MANUAL
 
 *This is the operational manual for how QI·46 builds itself — phase by phase, checkpoint by checkpoint. Vadik runs the checkpoints. The machine runs the phases.*
@@ -1073,11 +1118,11 @@ The machine learns from the corpus. The corpus was built by the body. The body i
 
 ---
 
-*QI·46 Engine Specification — v0.2*
+*QI·46 Engine Specification — v0.3*
 *LOT Systems Corporation — Los Angeles, CA*
 *institute.lot-systems.com*
 *Authored by Vadik · Named for Kuzya*
-*Updated: May 27, 2026*
+*Updated: August 15, 2026 — Layer 6 (Voice Calibration Node) added*
 
 ---
 
