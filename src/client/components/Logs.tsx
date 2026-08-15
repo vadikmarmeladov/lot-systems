@@ -4125,7 +4125,11 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compressed personal story from recent data',
+          '/story day    Compressed story of today',
+          '/story week   Compressed story of the past week',
+          '/story month  Compressed story of the past month',
+          '/story year   Compressed story of the past year',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4135,6 +4139,7 @@ const NoteEditor = ({
           '/breathe      4-2-6 breathing exercise',
           '/freeze       Pause and reflect protocol',
           '/silent       Signal silence check',
+          '/sil          Signal silence pattern check',
           '/synth        Toggle keyboard sound',
           '/radio        Toggle radio',
           '/night        Dark mode',
@@ -4151,17 +4156,26 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const scopeMatch = value.match(/\/story\s+(day|today|week|month|year)\b/i)
+          const scopeWord = scopeMatch ? scopeMatch[1].toLowerCase() : null
+          const scope: 'day' | 'week' | 'month' | 'year' | undefined =
+            scopeWord === 'today' ? 'day' : (scopeWord as 'day' | 'week' | 'month' | 'year' | null) || undefined
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value
+              .replace(/\/story\s+(day|today|week|month|year)\b/i, '')
+              .replace(/\/story/i, '')
+              .replace(/📖/g, '')
+              .trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              scope,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, scope })
           }
         }
       }

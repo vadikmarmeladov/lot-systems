@@ -1213,6 +1213,8 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // v114: /story on-demand AI story (whitelist fix — was write-only, never read back)
+      'generated_story',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -5490,6 +5492,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          scope?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5510,29 +5513,53 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         return reply.code(403).send({
           story: 'Story generation is available for Usership members.',
           logId: null,
+          scope: null,
         })
       }
 
       const { logText, quantumState, userIndex } = req.body
+      const scope = req.body.scope && ['day', 'week', 'month', 'year'].includes(req.body.scope)
+        ? req.body.scope
+        : null
+
+      // SCOPE window: day=24h, week=7d, month=30d, year=365d. No scope keeps the
+      // legacy "most recent 200 logs, unbounded" behavior for /story with no argument.
+      const scopeDays: Record<'day' | 'week' | 'month' | 'year', number> = {
+        day: 1, week: 7, month: 30, year: 365,
+      }
+      const scopeEntryLimit: Record<'day' | 'week' | 'month' | 'year', number> = {
+        day: 10, week: 20, month: 40, year: 60,
+      }
+      const scopeWordTarget: Record<'day' | 'week' | 'month' | 'year', string> = {
+        day: '80-120 words, a single paragraph',
+        week: '120-180 words, 1-2 paragraphs',
+        month: '150-220 words, 2 paragraphs',
+        year: '200-280 words, 2-3 paragraphs',
+      }
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: {
+          userId: req.user.id,
+          ...(scope ? { createdAt: { [Op.gte]: dayjs().subtract(scopeDays[scope], 'day').toDate() } } : {}),
+        },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: scope ? 1000 : 200,
       })
+
+      const entryLimit = scope ? scopeEntryLimit[scope] : 10
 
       const recentEntries = logs
         .filter(l => l.event === 'log_entry' || l.event === 'journal')
-        .slice(0, 10)
+        .slice(0, entryLimit)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
 
-      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, entryLimit)
       const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
 
       const selfCareLogs = logs.filter(l =>
         l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
-      ).slice(0, 10)
+      ).slice(0, entryLimit)
       const selfCareNotes = selfCareLogs.map(l => {
         const q = (l.metadata?.question as string || '')
         const a = (l.metadata?.option as string || l.metadata?.answer as string || '')
@@ -5547,9 +5574,17 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      const scopeLabel = scope
+        ? { day: "today", week: "this past week", month: "this past month", year: "this past year" }[scope]
+        : 'recent'
+      const wordTarget = scope ? scopeWordTarget[scope] : '100-200 words'
+      const promptItemLimit = scope
+        ? { day: 5, week: 8, month: 12, year: 15 }[scope]
+        : 5
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that compresses the operator's ${scopeLabel} data into a short narrative.
+
+The operator typed a log entry and invoked /story${scope ? ` ${scope}` : ''}. Your task: write a compressed story (${wordTarget}) that reflects their journey, mood trajectory, and self-care patterns over ${scopeLabel}. The story should feel personal, grounded, and real — not generic motivational writing.
 
 RULES:
 - Write in second person ("You...")
@@ -5560,20 +5595,20 @@ RULES:
 - The tone should match their current energy: reflective if low, energized if high
 - End with a single forward-looking sentence — not a pep talk, just a quiet truth
 - Return ONLY the story paragraphs. No title. No commentary. No preamble.
-- Keep it under 200 words.`
+- Stay within the target length: ${wordTarget}.`
 
       const dataBlock = `
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
 
 ${stateBlock ? stateBlock : 'STATE: unknown'}
 
-RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+RECENT MOODS: ${recentMoods.slice(0, promptItemLimit).join(', ') || 'NO DATA'}
 
 RECENT LOG ENTRIES:
-${recentEntries.slice(0, 5).map(e => `- ${e}`).join('\n') || '- (none)'}
+${recentEntries.slice(0, promptItemLimit).map(e => `- ${e}`).join('\n') || '- (none)'}
 
 SELF-CARE DATA:
-${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
+${selfCareNotes.slice(0, promptItemLimit).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
       const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
 
@@ -5596,6 +5631,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           metadata: {
             story: cleaned,
             logText: (logText || '').substring(0, 500),
+            scope: scope || 'recent',
             quantumState: quantumState || null,
             timestamp: new Date().toISOString(),
           },
@@ -5604,12 +5640,14 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         return {
           story: cleaned,
           logId: storyLog.id,
+          scope,
         }
       } catch (error: any) {
         console.error('Story generation failed:', error)
         return {
           story: 'The system holds your data quietly. When the engine returns, your story will be here.',
           logId: null,
+          scope,
         }
       }
     }
