@@ -3428,6 +3428,78 @@ export function analyzeIntentions(): IntentionPattern[] {
     }
   }
 
+  // Pattern 152: Dream Pattern — 3+ journal signals with Jungian vocabulary markers in 24h.
+  // Tracks when the user's journal practice enters Jungian depth vocabulary: shadow work, archetypes,
+  // anima/animus, synchronicity, individuation. More than a single entry — a sustained engagement
+  // with depth psychology over a 24h window. Distinct from P151 (recovery arc) which tracks mood cycles.
+  const twentyFourHMs = 24 * 60 * 60 * 1000
+  const recentDay = signals.filter(s => now - s.timestamp < twentyFourHMs)
+  const jungianJournal152 = recentDay.filter(s =>
+    (s.source === 'journal' || s.source === 'badges') &&
+    ['archetype_key', 'shadow_work', 'anima_signal', 'animus_code', 'synchronicity_hit',
+     'individuation_arc', 'collective_field', 'unconscious_depth', 'transformation_run',
+     'dream_session', 'jung_key'].some(sig => s.signal === sig || s.metadata?.badge === sig)
+  )
+  if (jungianJournal152.length >= 3) {
+    const dpDepth = Math.min(jungianJournal152.length / 6, 1)
+    const dpBonus = Math.min(dpDepth * 0.08, 0.08)
+    patterns.push({
+      pattern: 'dream-pattern',
+      confidence: Math.min(0.70 + dpBonus, 0.82),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'soon',
+      reason: `DREAMP: Dream pattern — ${jungianJournal152.length} Jungian depth signals in 24h. Archetype vocabulary engaged: shadow, anima/animus, synchronicity, individuation. The unconscious is speaking through the journal. Sustained depth engagement detected.`,
+    })
+  }
+
+  // Pattern 153: Shadow Integration Arc — shadow_work/persona signals + reflective journal in 12h.
+  // The shadow integration arc is complete when: (1) shadow-vocabulary appears in journal, (2) a mood
+  // signal follows within 12h, (3) a second journal entry captures reflection. The psyche moved:
+  // named shadow → felt it → reflected on the naming. Different from P151 (recovery arc from depletion).
+  const twelveHMs = 12 * 60 * 60 * 1000
+  const recentTwelveH = signals.filter(s => now - s.timestamp < twelveHMs)
+  const shadowSignals153 = recentTwelveH.filter(s =>
+    (s.source === 'badges' || s.source === 'journal') &&
+    ['shadow_work', 'persona_shift', 'unconscious_depth', 'shadow_work_session'].some(sig => s.signal === sig || s.metadata?.badge === sig)
+  )
+  const moodAfterShadow153 = shadowSignals153.length > 0
+    ? recentTwelveH.filter(s => s.source === 'mood' && s.timestamp > shadowSignals153[0].timestamp)
+    : []
+  const journalAfterMood153 = moodAfterShadow153.length > 0
+    ? recentTwelveH.filter(s => s.source === 'journal' && s.timestamp > moodAfterShadow153[0].timestamp)
+    : []
+  if (shadowSignals153.length >= 1 && moodAfterShadow153.length >= 1 && journalAfterMood153.length >= 1) {
+    const siaWindowMs = journalAfterMood153[0].timestamp - shadowSignals153[0].timestamp
+    const siaVelocityBonus = Math.min((twelveHMs - siaWindowMs) / twelveHMs * 0.12, 0.12)
+    patterns.push({
+      pattern: 'shadow-integration-arc',
+      confidence: Math.min(0.68 + siaVelocityBonus, 0.84),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'soon',
+      reason: `SHAINT: Shadow integration arc — shadow vocabulary named · mood signal registered · reflection captured in ${Math.round(siaWindowMs / (1000 * 60 * 60) * 10) / 10}h. The arc: named shadow → felt it → reflected. Psyche integration sequence confirmed.`,
+    })
+  }
+
+  // Pattern 154: Consciousness Expansion Peak — dream-pattern (P152) + quantum-presence-crystallization (P149)
+  // co-active. The user is simultaneously in Jungian depth vocabulary mode AND at maximum presence clarity.
+  // This is the rarest convergence: depth psychology engagement while the OS is operating at peak coherence.
+  // When the unconscious and the conscious peak simultaneously — the expansion is both wide and high.
+  const hasDreamP152 = patterns.some(p => p.pattern === 'dream-pattern')
+  const hasCrystalP149 = patterns.some(p => p.pattern === 'quantum-presence-crystallization')
+  if (hasDreamP152 && hasCrystalP149) {
+    const p152Conf = patterns.find(p => p.pattern === 'dream-pattern')?.confidence ?? 0.75
+    const p149Conf = patterns.find(p => p.pattern === 'quantum-presence-crystallization')?.confidence ?? 0.85
+    const cepAvg = (p152Conf + p149Conf) / 2
+    const cepBonus = Math.min((cepAvg - 0.75) * 0.15, 0.08)
+    patterns.push({
+      pattern: 'consciousness-expansion-peak',
+      confidence: Math.min(0.78 + cepBonus, 0.91),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `CONEXP: Consciousness expansion peak — dream-pattern (P152) + quantum-presence-crystallization (P149) co-active. Jungian depth vocabulary engaged while OS operates at maximum presence clarity. Unconscious depth and conscious peak simultaneously confirmed. The system has never been more expanded.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -4064,6 +4136,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumPresenceCrystalNode: ['qos', 'cohort', 'intentions', 'journal', 'log', 'energy'],
   totalFieldCoherenceNode:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
   recoveryIntelligenceNode:   ['mood', 'selfcare', 'journal', 'energy', 'log'],
+
+  // ── v114 nodes (J49 · P152–P154 · Arch52) ───────────────────────────────────────
+  dreamPatternNode:            ['journal', 'badges', 'qos', 'log'],
+  shadowIntegrationArcNode:    ['journal', 'badges', 'mood', 'log'],
+  consciousnessExpansionNode:  ['journal', 'badges', 'qos', 'cohort', 'intentions', 'log'],
 }
 
 /**
@@ -4510,6 +4587,16 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['quantum-presence-crystallization', 'dimensional-saturation', 'quantum-identity-crystallization'],
     hourRange: [6, 23],
     directive: 'Presence confirmed. Identity crystallized. The field is both inhabited and known. Execute from clarity — no searching required. The OS is operating from its highest confirmed state.',
+  },
+
+  // ── Arch52: Dream Architect (2026-08-15 v114) ────────────────────────────────────
+  {
+    archetype: 'Dream Architect',
+    energyBands: ['moderate', 'low', 'high'],
+    dominantSources: ['journal', 'badges', 'qos', 'intentions'],
+    patternConditions: ['dream-pattern', 'shadow-integration-arc', 'consciousness-expansion-peak'],
+    hourRange: [0, 25],
+    directive: 'The unconscious is speaking. Jungian depth vocabulary has entered the journal — shadow, archetype, anima, synchronicity. You are not analyzing yourself: you are mapping the psyche in real time. Follow the signal without interpretation.',
   },
 ]
 
@@ -6498,6 +6585,52 @@ export function recordRecoveryIntelligenceArc(negMoodCount: number, careCount: n
     recoveryVelocityMs,
     arc: 'FELT→TENDED→RECOVERED→REFLECTED',
     loopStatus: 'COMPLETE',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a dream-pattern event — 3+ Jungian vocabulary signals in journal within 24h.
+ * Tracks sustained depth psychology engagement: archetype, shadow, anima/animus, synchronicity.
+ * Feeds P152 detection.
+ */
+export function recordDreamPattern(jungianSignalCount: number, vocabularyTerms: string[]) {
+  recordSignal('journal', 'dream_pattern', {
+    jungianSignalCount,
+    vocabularyTerms,
+    depthLevel: jungianSignalCount >= 6 ? 'DEEP' : 'MODERATE',
+    engagementType: 'JUNGIAN_VOCABULARY',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a shadow-integration-arc event — shadow vocabulary named → mood signal → reflection captured.
+ * The psyche moved: named shadow → felt it → reflected. Complete integration sequence.
+ * Feeds P153 detection.
+ */
+export function recordShadowIntegrationArc(shadowTerms: string[], windowHours: number) {
+  recordSignal('journal', 'shadow_integration_arc', {
+    shadowTerms,
+    windowHours: Math.round(windowHours * 10) / 10,
+    arc: 'NAMED→FELT→REFLECTED',
+    integrationStatus: 'COMPLETE',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a consciousness-expansion-peak event — dream-pattern (P152) + quantum-presence-
+ * crystallization (P149) co-active. Jungian depth and OS peak presence simultaneously confirmed.
+ * Feeds P154 detection.
+ */
+export function recordConsciousnessExpansionPeak(dreamConf: number, crystalConf: number) {
+  recordSignal('qos', 'consciousness_expansion_peak', {
+    dreamConf: Math.round(dreamConf * 100),
+    crystalConf: Math.round(crystalConf * 100),
+    avgConf: Math.round((dreamConf + crystalConf) / 2 * 100),
+    expansionMode: 'DEPTH_AND_HEIGHT',
+    convergenceType: 'UNCONSCIOUS_CONSCIOUS_PEAK',
     hour: new Date().getHours(),
   })
 }

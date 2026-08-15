@@ -1747,6 +1747,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyTotalFieldCoherenceCheck()) {
     await executeDailyTotalFieldCoherenceCheck()
   }
+  // Check daily dream state check (10:00 UTC every day) — Job 49
+  if (shouldRunDailyDreamStateCheck()) {
+    await executeDailyDreamStateCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -3522,6 +3526,100 @@ async function executeDailyTotalFieldCoherenceCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily total field coherence check failed:', error.message)
     isDailyTotalFieldCoherenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Dream State Check (Job 49 — 10:00 UTC every day) ─────────────────
+// Scans journal entries from the previous 24h for Jungian vocabulary signals.
+// When 3+ depth-psychology terms are detected across journal entries, writes
+// a dream_pattern event. Feeds P152 (dream-pattern) detection.
+
+let isDailyDreamStateRunning = false
+let lastDailyDreamStateRun: Date | null = null
+
+function shouldRunDailyDreamStateCheck(): boolean {
+  const now = dayjs()
+  if (isDailyDreamStateRunning) return false
+  if (lastDailyDreamStateRun) {
+    const lastRun = dayjs(lastDailyDreamStateRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 10 // 10:00 UTC daily
+}
+
+async function executeDailyDreamStateCheck(): Promise<JobResult> {
+  const jobName = 'daily-dream-state-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyDreamStateRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyDreamStateRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY DREAM STATE CHECK — 10:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const prevDayStart = dayjs().subtract(1, 'day').startOf('day').toDate()
+    const prevDayEnd   = dayjs().subtract(1, 'day').endOf('day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(2, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (48h): ${activeUsers.length}`)
+    let written = 0
+
+    const JUNGIAN_EVENTS = [
+      'archetype_key', 'shadow_work', 'anima_signal', 'animus_code',
+      'synchronicity_hit', 'individuation_arc', 'collective_field',
+      'unconscious_depth', 'transformation_run', 'dream_session', 'jung_key',
+    ]
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        const prevDayLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: prevDayStart, [Op.lte]: prevDayEnd },
+            event: { [Op.in]: JUNGIAN_EVENTS as any[] },
+          },
+          attributes: ['event'],
+        })
+
+        if (prevDayLogs.length < 3) continue
+
+        const presentTerms = [...new Set(prevDayLogs.map((l: any) => l.event))] as string[]
+
+        await (Log as any).create({
+          userId,
+          event: 'dream_pattern',
+          text: `Dream pattern: previous day — ${prevDayLogs.length} Jungian depth signals detected across journal entries. Terms: ${presentTerms.join(', ')}. Sustained depth psychology engagement confirmed. The unconscious is active.`,
+          metadata: {
+            jungianSignalCount: prevDayLogs.length,
+            vocabularyTerms: presentTerms,
+            depthLevel: prevDayLogs.length >= 6 ? 'DEEP' : 'MODERATE',
+            window: '24h-prior-day',
+            hour: 10,
+          },
+        })
+        written++
+      } catch {}
+    }
+
+    console.log(`  Dream pattern events written: ${written}`)
+    lastDailyDreamStateRun = new Date()
+    isDailyDreamStateRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily dream state check failed:', error.message)
+    isDailyDreamStateRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

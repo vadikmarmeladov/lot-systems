@@ -870,6 +870,21 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awardBadge('odyssey_day')
     awarded.push('odyssey_day')
   }
+  // Jung Birthday: July 26 — Carl Jung born 1875
+  if (!hasBadge('jung_birthday') && month === 7 && day === 26) {
+    awardBadge('jung_birthday')
+    awarded.push('jung_birthday')
+  }
+  // Freud Day: May 6 — Sigmund Freud born 1856
+  if (!hasBadge('freud_day') && month === 5 && day === 6) {
+    awardBadge('freud_day')
+    awarded.push('freud_day')
+  }
+  // Nietzsche Day: October 15 — Friedrich Nietzsche born 1844
+  if (!hasBadge('nietzsche_day') && month === 10 && day === 15) {
+    awardBadge('nietzsche_day')
+    awarded.push('nietzsche_day')
+  }
 
   return awarded
 }
@@ -1483,6 +1498,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /one[\s-]?ring[\s-]?(to[\s-]?rule|to[\s-]?find)|my[\s-]?precious|\bring[\s-]?of[\s-]?power/i, badge: 'tolkien_ring' },
   { patterns: /\b(odysseus|ulysses|ithaca|penelope|telemachus|cyclops)\b/i,             badge: 'odysseus_bow' },
   { patterns: /\b(gilgamesh|enkidu|great[\s-]?flood|utnapishtim|cedar[\s-]?forest)\b/i, badge: 'gilgamesh_word' },
+  // ── v23 — THE DREAM ARCHITECT word triggers ──────────────────────────────────
+  { patterns: /\barchetype\b|\bthe[\s-]?archetype\b|\bcore[\s-]?pattern\b/i,            badge: 'archetype_key' },
+  { patterns: /\bshadow[\s-]?work\b|\bshadow[\s-]?self\b|\bfacing[\s-]?the[\s-]?shadow\b/i, badge: 'shadow_work' },
+  { patterns: /\bpersona\b|\bthe[\s-]?mask\b|\bthe[\s-]?role[\s-]?i[\s-]?play\b/i,     badge: 'persona_shift' },
+  { patterns: /\banima\b|\bfeminine[\s-]?soul\b|\binner[\s-]?feminine\b/i,              badge: 'anima_signal' },
+  { patterns: /\banimus\b|\binner[\s-]?masculine\b|\bmasculine[\s-]?force\b/i,          badge: 'animus_code' },
+  { patterns: /\bsynchronicity\b|\bmeaningful[\s-]?coincidence\b|\bno[\s-]?such[\s-]?thing[\s-]?as[\s-]?coincidence\b/i, badge: 'synchronicity_hit' },
+  { patterns: /\bindividuation\b|\bbecoming[\s-]?whole\b|\bintegrated[\s-]?self\b/i,    badge: 'individuation_arc' },
+  { patterns: /\bmandala\b|\bsacred[\s-]?circle\b|\bcenter[\s-]?point\b/i,             badge: 'mandala_point' },
+  { patterns: /\btranscendence\b|\bbeyond[\s-]?the[\s-]?self\b|\bhigher[\s-]?ground\b/i, badge: 'transcendence_gate' },
+  { patterns: /\bcollective[\s-]?unconscious\b|\bshared[\s-]?field\b|\bcollective[\s-]?memory\b/i, badge: 'collective_field' },
+  { patterns: /\bthe[\s-]?unconscious\b|\bthe[\s-]?deep\b|\bbelow[\s-]?awareness\b/i,  badge: 'unconscious_depth' },
+  { patterns: /\btransformation\b|\btransmutation\b|\bbecoming\b/i,                     badge: 'transformation_run' },
+  // ── v20 Secret Boss — THE DEPTH ARCHIVE word triggers ────────────────────────
+  { patterns: /\bcarl[\s-]?jung\b|\bjungian\b|\bjung[\s-]?said\b/i,                     badge: 'jung_key' },
+  { patterns: /\bnietzsche\b|\bwill[\s-]?to[\s-]?power\b|\beternal[\s-]?return\b|\b[üu]bermensch\b/i, badge: 'nietzsche_signal' },
+  { patterns: /\bgurdjieff\b|\bfourth[\s-]?way\b|\bself[\s-]?remembering\b|\benneagram[\s-]?origin\b/i, badge: 'gurdjieff_observer' },
 ]
 
 /**
@@ -2711,6 +2743,66 @@ export function checkThresholdMoment(): BadgeType | null {
   if (hour === 0 && minute <= 30) {
     awardBadge('threshold_moment')
     return 'threshold_moment'
+  }
+  return null
+}
+
+// ── Dream Architect v23 behavioral checks ────────────────────────────────────
+
+const DREAM_WORDS_V23 = [
+  /\barchetype\b|\bthe[\s-]?archetype\b/i,
+  /\bshadow[\s-]?work\b|\bshadow[\s-]?self\b/i,
+  /\bpersona\b|\bthe[\s-]?mask\b/i,
+  /\banima\b|\bfeminine[\s-]?soul\b/i,
+  /\banimus\b|\binner[\s-]?masculine\b/i,
+  /\bsynchronicity\b|\bmeaningful[\s-]?coincidence\b/i,
+  /\bindividuation\b|\bbecoming[\s-]?whole\b/i,
+  /\bmandala\b|\bsacred[\s-]?circle\b/i,
+  /\btranscendence\b|\bbeyond[\s-]?the[\s-]?self\b/i,
+  /\bcollective[\s-]?unconscious\b|\bshared[\s-]?field\b/i,
+  /\bthe[\s-]?unconscious\b|\bbelow[\s-]?awareness\b/i,
+  /\btransmutation\b|\bbecoming\b/i,
+]
+
+/**
+ * Award dream_session badge if 3+ Dream Architect (v23) words appear in one journal entry.
+ */
+export function checkDreamSession(journalText: string): BadgeType | null {
+  if (hasBadge('dream_session')) return null
+  const matchCount = DREAM_WORDS_V23.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('dream_session')
+    return 'dream_session'
+  }
+  return null
+}
+
+/**
+ * Award shadow_work_session badge if journal entry is 400+ words.
+ */
+export function checkShadowWorkSession(journalText: string): BadgeType | null {
+  if (hasBadge('shadow_work_session')) return null
+  const wordCount = journalText.trim().split(/\s+/).filter(w => w.length > 0).length
+  if (wordCount >= 400) {
+    awardBadge('shadow_work_session')
+    return 'shadow_work_session'
+  }
+  return null
+}
+
+/**
+ * Award synchrony_moment badge if user checks in between 04:44 and 04:45 local time.
+ */
+export function checkSynchronyMoment(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('synchrony_moment')) return null
+
+  const now = new Date()
+  const hour = now.getHours()
+  const minute = now.getMinutes()
+  if (hour === 4 && minute === 44) {
+    awardBadge('synchrony_moment')
+    return 'synchrony_moment'
   }
   return null
 }

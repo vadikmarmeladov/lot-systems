@@ -182,6 +182,9 @@ export function PatternRecognitionWidget() {
       'quantum-presence-crystallization': 'Quantum presence crystallization — presence field + identity crystallized co-active, maximum clarity (P149)',
       'total-field-coherence':            'Total field coherence — all three meta-seals open simultaneously, absolute convergence (P150)',
       'recovery-intelligence-arc':        'Recovery intelligence arc — depletion → care → restoration → reflection loop completed within 6h (P151)',
+      'dream-pattern':                    'Dream pattern — 3+ Jungian depth vocabulary signals in journal within 24h (P152)',
+      'shadow-integration-arc':           'Shadow integration arc — shadow vocabulary named → mood felt → reflection captured within 12h (P153)',
+      'consciousness-expansion-peak':     'Consciousness expansion peak — dream-pattern + quantum-presence-crystallization co-active (P154)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

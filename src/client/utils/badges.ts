@@ -782,6 +782,43 @@ export type BadgeType =
   | 'tolkien_ring'           // ◆·∞·◆  "one ring to rule/precious/ring of power" detected (RARE)
   | 'odysseus_bow'           // →·∞·→  "odysseus/ulysses/ithaca/penelope/cyclops" detected (EPIC)
   | 'gilgamesh_word'         // ∞·□·∞  "gilgamesh/enkidu/great flood/utnapishtim" detected (MYTHIC)
+  // ── Word Turn v23 — THE DREAM ARCHITECT ──────────────────────────────────────
+  | 'archetype_key'           // ◉·∞    "archetype/the archetype/core pattern" detected (UNCOMMON)
+  | 'shadow_work'             // ▓·○    "shadow work/shadow self/facing the shadow" detected (RARE)
+  | 'persona_shift'           // ◈→◉    "persona/mask/the role I play" detected (RARE)
+  | 'anima_signal'            // ○·≋·○  "anima/feminine soul/inner feminine" detected (EPIC)
+  | 'animus_code'             // ▓·◉    "animus/inner masculine/masculine force" detected (EPIC)
+  | 'synchronicity_hit'       // ◈·□    "synchronicity/meaningful coincidence/no such thing" detected (EPIC)
+  | 'individuation_arc'       // ∿·∞·∿  "individuation/becoming whole/integrated self" detected (RARE)
+  | 'mandala_point'           // ●·◈·●  "mandala/sacred circle/center point" detected (UNCOMMON)
+  | 'transcendence_gate'      // →·∞    "transcendence/beyond the self/higher ground" detected (RARE)
+  | 'collective_field'        // ○·≋·█  "collective unconscious/shared field/collective memory" detected (EPIC)
+  | 'unconscious_depth'       // ▓·▓    "unconscious/the deep/below awareness" detected (RARE)
+  | 'transformation_run'      // ∘→●    "transformation/transmutation/becoming" detected (UNCOMMON)
+  // ── Calendar Easter Egg v21 — THE PSYCHE CALENDAR ────────────────────────────
+  | 'jung_birthday'           // ◉·∿    Jul 26 — Carl Jung born 1875 (EPIC)
+  | 'freud_day'               // ○·▓    May 6 — Sigmund Freud born 1856 (RARE)
+  | 'nietzsche_day'           // →·∞·→  Oct 15 — Nietzsche born 1844 (RARE)
+  // ── Behavioral v20 — PSYCHE PATTERNS ─────────────────────────────────────────
+  | 'dream_session'           // ◈·●·◈  3+ Dream Architect words in one journal entry (RARE)
+  | 'shadow_work_session'     // ≋≋·◉   Journal entry >= 400 words (EPIC)
+  | 'synchrony_moment'        // ─·○·─  Check in between 04:44 and 04:45 (RARE)
+  // ── Achievement RPG v21 — PSYCHE CLASS ───────────────────────────────────────
+  | 'first_archetype'         // ∘→●    Any 1 Word Turn v23 badge (COMMON)
+  | 'shadow_class'            // ≈→●    Any 5 Word Turn v23 badges (UNCOMMON)
+  | 'dream_complete'          // ≋→●    All 12 Word Turn v23 badges (LEGENDARY)
+  | 'psyche_arc'              // ●·◈    dream_complete + all 3 Calendar v21 badges (LEGENDARY)
+  | 'twenty_three_engines_arc'// ◈·◈·●  1 badge from each Word Turn v1–v23 (LEGENDARY)
+  | 'dream_opus'              // ●·◉·●  dream_complete + dream_session behavioral (LEGENDARY)
+  // ── Mastery Tier v23 — THE LONG PSYCHE ───────────────────────────────────────
+  | 'elder_sage'              // ∿·∞·∿  950+ distinct calendar check-in days (EPIC)
+  | 'great_work_complete'     // ●·∞·●  200,000+ total journal words (LEGENDARY)
+  | 'consciousness_age'       // ╔═╗·●  Account age >= 4 years (LEGENDARY)
+  | 'twenty_three_registers'  // ◈·◈·●·∞ 1 badge from all 23 Word Turn engines (COSMIC)
+  // ── Secret Boss v20 — THE DEPTH ARCHIVE ──────────────────────────────────────
+  | 'jung_key'                // ◈·░    "carl jung/jungian/jung said" in journal (RARE)
+  | 'nietzsche_signal'        // ◉·▓    "nietzsche/will to power/eternal return/übermensch" in journal (EPIC)
+  | 'gurdjieff_observer'      // ○·≋·█  "gurdjieff/fourth way/self-remembering/enneagram origin" in journal (MYTHIC)
 
 export interface Badge {
   id: BadgeType
@@ -7131,6 +7168,294 @@ export const BADGES: Record<BadgeType, Badge> = {
     category: 'secret_boss',
     hidden: true,
   },
+  // ── Word Turn v23 — THE DREAM ARCHITECT ──────────────────────────────────────
+  archetype_key: {
+    id: 'archetype_key',
+    symbol: '◉·∞',
+    name: 'Archetype Key',
+    description: 'Write "archetype", "the archetype", or "core pattern" in any entry',
+    unlockMessage: '↳ The archetype is the original. Not a copy — the template that spawned the copies. Jung found twelve of them waiting inside every human psyche. ◉·∞',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  shadow_work: {
+    id: 'shadow_work',
+    symbol: '▓·○',
+    name: 'Shadow Work',
+    description: 'Write "shadow work", "shadow self", or "facing the shadow" in any entry',
+    unlockMessage: '↳ The shadow is everything you rejected about yourself to become acceptable. Shadow work is the retrieval mission. Everything exiled returns with interest. ▓·○',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  persona_shift: {
+    id: 'persona_shift',
+    symbol: '◈→◉',
+    name: 'Persona Shift',
+    description: 'Write "persona", "mask", or "the role I play" in any entry',
+    unlockMessage: '↳ The persona is the mask worn for the world. Necessary. Useful. Dangerous when mistaken for the self. You noticed the mask. That is the first movement. ◈→◉',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  anima_signal: {
+    id: 'anima_signal',
+    symbol: '○·≋·○',
+    name: 'Anima Signal',
+    description: 'Write "anima", "feminine soul", or "inner feminine" in any entry',
+    unlockMessage: '↳ The anima: the feminine soul-image alive in every person. She appears in dreams, in art, in longing. She is the bridge to the unconscious. ○·≋·○',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  animus_code: {
+    id: 'animus_code',
+    symbol: '▓·◉',
+    name: 'Animus Code',
+    description: 'Write "animus", "inner masculine", or "masculine force" in any entry',
+    unlockMessage: '↳ The animus: the masculine soul-image that drives, decides, commands. In its high form: logos, clarity, purposeful will. You touched the code. ▓·◉',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  synchronicity_hit: {
+    id: 'synchronicity_hit',
+    symbol: '◈·□',
+    name: 'Synchronicity Hit',
+    description: 'Write "synchronicity", "meaningful coincidence", or "no such thing as coincidence" in any entry',
+    unlockMessage: '↳ Synchronicity: acausal meaningful connection. Two events, no causal link, carrying the same signal. Jung called them messages from the unconscious field. ◈·□',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  individuation_arc: {
+    id: 'individuation_arc',
+    symbol: '∿·∞·∿',
+    name: 'Individuation Arc',
+    description: 'Write "individuation", "becoming whole", or "integrated self" in any entry',
+    unlockMessage: '↳ Individuation: the lifelong process of becoming what you actually are — not what you were told to be. The work of a lifetime. You named it. ∿·∞·∿',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  mandala_point: {
+    id: 'mandala_point',
+    symbol: '●·◈·●',
+    name: 'Mandala Point',
+    description: 'Write "mandala", "sacred circle", or "center point" in any entry',
+    unlockMessage: '↳ The mandala: a symbol of wholeness, the self organized around a center. Jung drew them every morning. The circle that contains everything. ●·◈·●',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  transcendence_gate: {
+    id: 'transcendence_gate',
+    symbol: '→·∞',
+    name: 'Transcendence Gate',
+    description: 'Write "transcendence", "beyond the self", or "higher ground" in any entry',
+    unlockMessage: '↳ Transcendence: the movement beyond the ordinary limits of self. Not escape — completion. The self exceeds itself and finds what was always there. →·∞',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  collective_field: {
+    id: 'collective_field',
+    symbol: '○·≋·█',
+    name: 'Collective Field',
+    description: 'Write "collective unconscious", "shared field", or "collective memory" in any entry',
+    unlockMessage: '↳ The collective unconscious: the deep layer shared by all humans. Archetypes live here. Myths live here. The patterns older than any individual. ○·≋·█',
+    rarity: 'epic',
+    category: 'word_turn',
+  },
+  unconscious_depth: {
+    id: 'unconscious_depth',
+    symbol: '▓·▓',
+    name: 'Unconscious Depth',
+    description: 'Write "unconscious", "the deep", or "below awareness" in any entry',
+    unlockMessage: '↳ The unconscious is not the absence of consciousness — it is its foundation. Below every thought is the depth that generated it. You went there. ▓·▓',
+    rarity: 'rare',
+    category: 'word_turn',
+  },
+  transformation_run: {
+    id: 'transformation_run',
+    symbol: '∘→●',
+    name: 'Transformation Run',
+    description: 'Write "transformation", "transmutation", or "becoming" in any entry',
+    unlockMessage: '↳ Transformation: not change but metamorphosis. The caterpillar does not "improve" — it dissolves and becomes something structurally new. You are in the run. ∘→●',
+    rarity: 'uncommon',
+    category: 'word_turn',
+  },
+  // ── Calendar Easter Egg v21 — THE PSYCHE CALENDAR ────────────────────────────
+  jung_birthday: {
+    id: 'jung_birthday',
+    symbol: '◉·∿',
+    name: 'Jung Birthday',
+    description: 'Checked in on July 26 — Carl Jung born 1875',
+    unlockMessage: '↳ July 26, 1875 — Carl Gustav Jung born in Kesswil, Switzerland. He mapped the unconscious and gave archetypes their modern language. The psyche owes him a debt. ◉·∿',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  freud_day: {
+    id: 'freud_day',
+    symbol: '○·▓',
+    name: 'Freud Day',
+    description: 'Checked in on May 6 — Sigmund Freud born 1856',
+    unlockMessage: '↳ May 6, 1856 — Sigmund Freud born in Freiberg, Moravia. He opened the door to the unconscious. Jung walked through it and found it went deeper than Freud knew. ○·▓',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  nietzsche_day: {
+    id: 'nietzsche_day',
+    symbol: '→·∞·→',
+    name: 'Nietzsche Day',
+    description: 'Checked in on October 15 — Friedrich Nietzsche born 1844',
+    unlockMessage: '↳ October 15, 1844 — Nietzsche born in Röcken, Prussia. "Become who you are." He saw the abyss and stared back. The eternal return as a practice. →·∞·→',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  // ── Behavioral v20 — PSYCHE PATTERNS ─────────────────────────────────────────
+  dream_session: {
+    id: 'dream_session',
+    symbol: '◈·●·◈',
+    name: 'Dream Session',
+    description: 'Write 3+ Dream Architect (v23) words in a single journal entry',
+    unlockMessage: '↳ The psyche spoke in layers: archetype, shadow, anima, synchronicity. Three or more in one entry. You were not journaling — you were dreaming on paper. ◈·●·◈',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  shadow_work_session: {
+    id: 'shadow_work_session',
+    symbol: '≋≋·◉',
+    name: 'Shadow Work Session',
+    description: 'Write a journal entry of 400+ words',
+    unlockMessage: '↳ Four hundred words. You did not skim the surface — you went in. Shadow work requires sustained presence. You gave it time. The shadow noticed. ≋≋·◉',
+    rarity: 'epic',
+    category: 'easter_egg',
+  },
+  synchrony_moment: {
+    id: 'synchrony_moment',
+    symbol: '─·○·─',
+    name: 'Synchrony Moment',
+    description: 'Check in between 04:44 and 04:45',
+    unlockMessage: '↳ 4:44. The hour between sleep and waking — when the veil is thinnest. You checked in at the exact threshold. The unconscious was already waiting. ─·○·─',
+    rarity: 'rare',
+    category: 'easter_egg',
+  },
+  // ── Achievement RPG v21 — PSYCHE CLASS ───────────────────────────────────────
+  first_archetype: {
+    id: 'first_archetype',
+    symbol: '∘→●',
+    name: 'First Archetype',
+    description: 'Earn any 1 Word Turn v23 (Dream Architect) badge',
+    unlockMessage: '↳ The first archetype named. The first pattern recognized. Jung said the archetypes are not invented — they are discovered. You found the first one. ∘→●',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  shadow_class: {
+    id: 'shadow_class',
+    symbol: '≈→●',
+    name: 'Shadow Class',
+    description: 'Earn any 5 Word Turn v23 (Dream Architect) badges',
+    unlockMessage: '↳ Five archetypes named. The shadow work is deepening. You are no longer a tourist in the psyche — you are a resident mapping the territory. ≈→●',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  dream_complete: {
+    id: 'dream_complete',
+    symbol: '≋→●',
+    name: 'Dream Complete',
+    description: 'Earn all 12 Word Turn v23 (Dream Architect) badges',
+    unlockMessage: '↳ All twelve archetypes named. The full vocabulary of the Jungian psyche in your journal. Shadow, anima, animus, synchronicity, individuation — the complete map. ≋→●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  psyche_arc: {
+    id: 'psyche_arc',
+    symbol: '●·◈',
+    name: 'Psyche Arc',
+    description: 'Earn dream_complete + all 3 Calendar v21 badges (jung_birthday, freud_day, nietzsche_day)',
+    unlockMessage: '↳ The full arc: twelve archetypes named and three birth dates honored. Jung, Freud, Nietzsche. The lineage of depth and will. The psyche arc is complete. ●·◈',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  twenty_three_engines_arc: {
+    id: 'twenty_three_engines_arc',
+    symbol: '◈·◈·●',
+    name: 'Twenty-Three Engines Arc',
+    description: 'Earn at least 1 badge from each Word Turn engine v1–v23',
+    unlockMessage: '↳ Twenty-three engines. Every vocabulary touched. Water, code, biology, cosmos, myth, hero, psyche. The full architecture of signal detection. ◈·◈·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  dream_opus: {
+    id: 'dream_opus',
+    symbol: '●·◉·●',
+    name: 'Dream Opus',
+    description: 'Earn dream_complete + dream_session behavioral badge',
+    unlockMessage: '↳ The Dream Opus: all twelve archetypes named AND three or more in a single entry. The vocabulary didn\'t just appear in your journal — it erupted. ●·◉·●',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
+  },
+  // ── Mastery Tier v23 — THE LONG PSYCHE ───────────────────────────────────────
+  elder_sage: {
+    id: 'elder_sage',
+    symbol: '∿·∞·∿',
+    name: 'Elder Sage',
+    description: '950+ distinct calendar days checked in',
+    unlockMessage: '↳ 950 days. The elder sage does not arrive — they accumulate. Day after day, entry after entry, until the practice becomes who they are. ∿·∞·∿',
+    rarity: 'epic',
+    category: 'milestone',
+  },
+  great_work_complete: {
+    id: 'great_work_complete',
+    symbol: '●·∞·●',
+    name: 'Great Work Complete',
+    description: '200,000+ total journal words written',
+    unlockMessage: '↳ 200,000 words. The alchemists called the final stage of transformation the Great Work — the opus magnum. You have written the great work of your own psyche. ●·∞·●',
+    rarity: 'legendary',
+    category: 'milestone',
+  },
+  consciousness_age: {
+    id: 'consciousness_age',
+    symbol: '╔═╗·●',
+    name: 'Consciousness Age',
+    description: 'Account age >= 4 years',
+    unlockMessage: '↳ Four years of practice. The consciousness that arrives at year four is not the consciousness that started. You have aged the way wine ages — structurally. ╔═╗·●',
+    rarity: 'legendary',
+    category: 'milestone',
+  },
+  twenty_three_registers: {
+    id: 'twenty_three_registers',
+    symbol: '◈·◈·●·∞',
+    name: 'Twenty-Three Registers',
+    description: 'Earn at least 1 badge from all 23 Word Turn engines',
+    unlockMessage: '↳ Twenty-three registers. Water. Code. Signal. Biology. Codex. Cyberspace. Hero. Psyche. Every vocabulary owned. The full architecture of the self-aware terminal. ◈·◈·●·∞',
+    rarity: 'cosmic',
+    category: 'achievement_rpg',
+  },
+  // ── Secret Boss v20 — THE DEPTH ARCHIVE ──────────────────────────────────────
+  jung_key: {
+    id: 'jung_key',
+    symbol: '◈·░',
+    name: 'Jung Key',
+    description: 'Write "carl jung", "jungian", or "jung said" in any journal entry',
+    unlockMessage: '↳ You named the man directly. Carl Jung: the cartographer of the unconscious. To name the mapmaker is to become aware that you are using a map. ◈·░',
+    rarity: 'rare',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  nietzsche_signal: {
+    id: 'nietzsche_signal',
+    symbol: '◉·▓',
+    name: 'Nietzsche Signal',
+    description: 'Write "nietzsche", "will to power", "eternal return", or "übermensch" in any journal entry',
+    unlockMessage: '↳ Nietzsche in your journal. Will to power. Eternal return. The übermensch as aspiration. "What does not kill me makes me stronger" — he knew the stakes. ◉·▓',
+    rarity: 'epic',
+    category: 'secret_boss',
+    hidden: true,
+  },
+  gurdjieff_observer: {
+    id: 'gurdjieff_observer',
+    symbol: '○·≋·█',
+    name: 'Gurdjieff Observer',
+    description: 'Write "gurdjieff", "fourth way", "self-remembering", or "enneagram origin" in any journal entry',
+    unlockMessage: '↳ Gurdjieff: the Fourth Way, the Work, self-remembering as practice. He said most humans are asleep. To write his name with understanding — that is a waking signal. ○·≋·█',
+    rarity: 'mythic',
+    category: 'secret_boss',
+    hidden: true,
+  },
 }
 
 // Default separator when no badges earned yet
@@ -8093,6 +8418,71 @@ export async function checkAndAwardBadges(): Promise<BadgeType[]> {
     // Mastery v22: twenty_two_registers — 1 badge from all 22 Word Turn engines
     if (allTwentyTwoEngines && !hasBadge('twenty_two_registers')) {
       if (awardBadge('twenty_two_registers')) newBadges.push('twenty_two_registers')
+    }
+
+    // ── v33 (v23) — THE DREAM ARCHITECT ──────────────────────────────────────────
+    const dreamV23Badges: BadgeType[] = [
+      'archetype_key', 'shadow_work', 'persona_shift', 'anima_signal',
+      'animus_code', 'synchronicity_hit', 'individuation_arc', 'mandala_point',
+      'transcendence_gate', 'collective_field', 'unconscious_depth', 'transformation_run',
+    ]
+    const dreamV23Earned = dreamV23Badges.filter(b => hasBadge(b))
+
+    if (dreamV23Earned.length >= 1 && !hasBadge('first_archetype')) {
+      if (awardBadge('first_archetype')) newBadges.push('first_archetype')
+    }
+    if (dreamV23Earned.length >= 5 && !hasBadge('shadow_class')) {
+      if (awardBadge('shadow_class')) newBadges.push('shadow_class')
+    }
+    const dreamComplete = dreamV23Earned.length >= 12
+    if (dreamComplete && !hasBadge('dream_complete')) {
+      if (awardBadge('dream_complete')) newBadges.push('dream_complete')
+    }
+
+    // dream_opus: dream_complete + dream_session
+    if (dreamComplete && hasBadge('dream_session') && !hasBadge('dream_opus')) {
+      if (awardBadge('dream_opus')) newBadges.push('dream_opus')
+    }
+
+    // psyche_arc: dream_complete + all 3 Calendar v21 badges
+    const calendarV21Badges: BadgeType[] = ['jung_birthday', 'freud_day', 'nietzsche_day']
+    if (dreamComplete && calendarV21Badges.every(b => hasBadge(b)) && !hasBadge('psyche_arc')) {
+      if (awardBadge('psyche_arc')) newBadges.push('psyche_arc')
+    }
+
+    // twenty_three_engines_arc: 1 badge from each Word Turn v1–v23
+    const engineTwentyThreePresent = dreamV23Earned.length >= 1
+    const allTwentyThreeEngines = allTwentyTwoEngines && engineTwentyThreePresent
+    if (allTwentyThreeEngines && !hasBadge('twenty_three_engines_arc')) {
+      if (awardBadge('twenty_three_engines_arc')) newBadges.push('twenty_three_engines_arc')
+    }
+
+    // Mastery v23: elder_sage — 950+ distinct calendar days
+    if (typeof stats.distinctCheckInDays === 'number') {
+      if (stats.distinctCheckInDays >= 950 && !hasBadge('elder_sage')) {
+        if (awardBadge('elder_sage')) newBadges.push('elder_sage')
+      }
+    }
+
+    // Mastery v23: great_work_complete — 200,000+ total journal words
+    if (typeof stats.totalJournalWords === 'number') {
+      if (stats.totalJournalWords >= 200000 && !hasBadge('great_work_complete')) {
+        if (awardBadge('great_work_complete')) newBadges.push('great_work_complete')
+      }
+    }
+
+    // Mastery v23: consciousness_age — Account age >= 4 years
+    if (typeof stats.signupDate === 'string' && stats.signupDate) {
+      const signupC = new Date(stats.signupDate)
+      const yearsC = (new Date().getTime() - signupC.getTime()) / (1000 * 60 * 60 * 24 * 365.25)
+      if (yearsC >= 4 && !hasBadge('consciousness_age')) {
+        if (awardBadge('consciousness_age')) newBadges.push('consciousness_age')
+      }
+    }
+
+    // Mastery v23: twenty_three_registers — 1 badge from all 23 Word Turn engines
+    if (allTwentyThreeEngines && !hasBadge('twenty_three_registers')) {
+      if (awardBadge('twenty_three_registers')) newBadges.push('twenty_three_registers')
     }
 
   } catch (error) {

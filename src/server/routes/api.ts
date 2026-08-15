@@ -1213,6 +1213,10 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // v114: dream pattern · shadow integration arc · consciousness expansion peak (P152/P153/P154)
+      'dream_pattern',
+      'shadow_integration_arc',
+      'consciousness_expansion_peak',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

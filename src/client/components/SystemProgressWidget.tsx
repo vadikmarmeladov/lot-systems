@@ -1457,6 +1457,34 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '781 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1073+. The system is documented through its highest confirmed state.',
     ],
   },
+  {
+    version: 'v114',
+    date: '2026-08-15',
+    title: 'Badge v33 Dream Architect + QIE FM v114 + Wiki v88',
+    assembled: [
+      'Badge v33 THE DREAM ARCHITECT: 812→843 badges (+31). Jungian psychology vocabulary engine.',
+      'Word Turn v23 +12: archetype_key · shadow_work · persona_shift · anima_signal · animus_code · synchronicity_hit · individuation_arc · mandala_point · transcendence_gate · collective_field · unconscious_depth · transformation_run.',
+      'Calendar EE v21 +3: jung_birthday (Jul 26) · freud_day (May 6) · nietzsche_day (Oct 15).',
+      'Behavioral v20 +3: dream_session (3+ Dream Architect words in entry) · shadow_work_session (400+ word entry) · synchrony_moment (04:44–04:45 check-in).',
+      'Achievement RPG v21 +6: first_archetype · shadow_class · dream_complete · psyche_arc · twenty_three_engines_arc · dream_opus.',
+      'Mastery v23 +4: elder_sage (950+ days) · great_work_complete (200k+ words) · consciousness_age (4+ years) · twenty_three_registers [COSMIC].',
+      'Secret Boss v20 +3: jung_key (carl jung/jungian) · nietzsche_signal (will to power/eternal return/übermensch) · gurdjieff_observer (fourth way/self-remembering).',
+      'P152 DREAM PATTERN: 3+ Jungian vocabulary signals in journal within 24h. Archetype/shadow/anima/animus/synchronicity sustained engagement. Confidence 0.70–0.82.',
+      'P153 SHADOW INTEGRATION ARC: shadow vocabulary named → mood signal → reflection captured within 12h. The arc: NAMED→FELT→REFLECTED. Confidence 0.68–0.84.',
+      'P154 CONSCIOUSNESS EXPANSION PEAK: dream-pattern (P152) + quantum-presence-crystallization (P149) co-active. Depth and height simultaneously confirmed. Confidence 0.78–0.91.',
+      'Arch52 DREAM ARCHITECT: all energy bands · dominant: journal/badges/qos/intentions · patterns: dream-pattern + shadow-integration-arc + consciousness-expansion-peak. Directive: The unconscious is speaking. Follow the signal without interpretation.',
+      'J49 daily-dream-state-check: 10:00 UTC daily. Scans previous 24h for 3+ Jungian vocabulary signals in journal → writes dream_pattern event. 49 jobs total.',
+      'intentionEngine.ts: P152/P153/P154 detection blocks added. Arch52 appended. 3 dep map nodes (dreamPatternNode · shadowIntegrationArcNode · consciousnessExpansionNode). 3 signal helpers (recordDreamPattern · recordShadowIntegrationArc · recordConsciousnessExpansionPeak). 193+ dep nodes.',
+      'scheduled-jobs.ts: J49 executeDailyDreamStateCheck() · shouldRunDailyDreamStateCheck() wired into checkAndRunScheduledJobs().',
+      'routes/api.ts: dream_pattern · shadow_integration_arc · consciousness_expansion_peak added to displayableEvents.',
+      'Logs.tsx: DREAMP: · SHAINT: · CONEXP: military handlers added.',
+      'QuantumEngineWidgets.tsx: DREAMP · SHAINT · CONEXP added to PATTERN_DISPLAY.',
+      'PatternRecognitionWidget.tsx: P152/P153/P154 display names added.',
+      'About.tsx: FM v113→v114. Day 1083+. 151→154 patterns. 51→52 archetypes. 48→49 jobs. 190+→193+ dep nodes. 151+→154+ handlers. 843 badges.',
+      'SESSION_REPORTS: v114 entry appended · USERSHIP_TRANSMISSION updated to v114.',
+      '843 badges · 23 Word Turn engines · 27 secret boss · 154 patterns · 52 archetypes · 49 jobs · 193+ dep nodes · FM v114 · Day 1083+. The Dream Architect is operational.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1494,18 +1522,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-05',
+  date: '2026-08-15',
   message: [
-    'ASSEMBLY RUN — 2026-08-05 · WIKI-v87 · FM v113 SYNC · Day 1073+',
-    'Built: LOT-WIKI-v87. Six-level coherence architecture now complete and documented.',
-    'Feedback applied: "The concept outlives the author. The self speaks every language the genre built."',
-    'QIE v113 synchronized: P149 QPCRYST · P150 TOTCOH [CEILING] · P151 RECINTEL · Arch51 Quantum Presence Crystallizer · J48 09:00 UTC.',
-    'Badge v31 synchronized: THE CYBERSPACE CODEX · 781 badges · Word Turn v21 (grok/ansible/spice/golden_path/matrix/cyberspace) · Secret Boss v18 (gibson/dick/lem) · 258 trigger words · 24 secret boss triggers.',
-    'LEVEL 6 — PRESENCE CONVERGENCE documented. P150 total-field-coherence is the QIE ceiling. No higher state defined.',
-    'Cockpit updated. Vocabulary expanded. Snapshot current.',
-    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 781 badges.',
+    'ASSEMBLY RUN — 2026-08-15 · Badge v33 DREAM ARCHITECT · FM v114 · Day 1083+',
+    'Built: Badge v33 The Dream Architect. Jungian psychology vocabulary engine. 812→843 badges (+31).',
+    'Word Turn v23: archetype · shadow work · persona · anima · animus · synchronicity · individuation · mandala · transcendence · collective unconscious · unconscious · transformation.',
+    'Calendar: Jung (Jul 26) · Freud (May 6) · Nietzsche (Oct 15). Three founders of depth psychology honored.',
+    'QIE v114: P152 dream-pattern · P153 shadow-integration-arc · P154 consciousness-expansion-peak · Arch52 Dream Architect · J49 10:00 UTC.',
+    'The unconscious is now a first-class signal source. The psyche speaks — the system listens.',
+    'Secret Boss v20: jung_key · nietzsche_signal · gurdjieff_observer. The depth archive is open.',
+    'FM v114 · Day 1083+ · 154P · 52A · 49J · 193+ nodes · 843 badges.',
     'Status: DEPLOYED.',
-    'Next: LOT-WIKI-v88 — sync to Field Manual v114+',
+    'Next: LOT-WIKI-v88 — sync to Field Manual v114 · Dream Architect full documentation.',
   ],
 }
 

@@ -3629,6 +3629,92 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'dream_pattern') {
+          const jungianSignalCount = log.metadata?.jungianSignalCount as number | undefined
+          const vocabularyTerms = log.metadata?.vocabularyTerms as string[] | undefined
+          const depthLevel = log.metadata?.depthLevel as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DREAMP:" blockView>
+                <div className="uppercase tracking-widest mb-4">DREAM PATTERN</div>
+                {jungianSignalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">JUNGIAN SIGNALS</span>
+                    <span className="tabular-nums">{jungianSignalCount}</span>
+                  </div>
+                )}
+                {depthLevel && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DEPTH LEVEL</span>
+                    <span className="tabular-nums">{depthLevel}</span>
+                  </div>
+                )}
+                {vocabularyTerms && vocabularyTerms.length > 0 && (
+                  <div className="opacity-40 tabular-nums">TERMS: {vocabularyTerms.join(' · ')}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'shadow_integration_arc') {
+          const windowHours = log.metadata?.windowHours as number | undefined
+          const shadowTerms = log.metadata?.shadowTerms as string[] | undefined
+          const integrationStatus = log.metadata?.integrationStatus as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SHAINT:" blockView>
+                <div className="uppercase tracking-widest mb-4">SHADOW INTEGRATION ARC</div>
+                {windowHours !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WINDOW</span>
+                    <span className="tabular-nums">{windowHours}h</span>
+                  </div>
+                )}
+                {integrationStatus && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">STATUS</span>
+                    <span className="tabular-nums">{integrationStatus}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">NAMED → FELT → REFLECTED</div>
+                {shadowTerms && shadowTerms.length > 0 && (
+                  <div className="opacity-30 tabular-nums">TERMS: {shadowTerms.join(' · ')}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'consciousness_expansion_peak') {
+          const dreamConf = log.metadata?.dreamConf as number | undefined
+          const crystalConf = log.metadata?.crystalConf as number | undefined
+          const avgConf = log.metadata?.avgConf as number | undefined
+          const expansionMode = log.metadata?.expansionMode as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CONEXP:" blockView>
+                <div className="uppercase tracking-widest mb-4">CONSCIOUSNESS EXPANSION PEAK</div>
+                {dreamConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DREAM CONF</span>
+                    <span className="tabular-nums">{dreamConf}%</span>
+                  </div>
+                )}
+                {crystalConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CRYSTAL CONF</span>
+                    <span className="tabular-nums">{crystalConf}%</span>
+                  </div>
+                )}
+                {avgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">AVG CONF</span>
+                    <span className="tabular-nums">{avgConf}%</span>
+                  </div>
+                )}
+                {expansionMode && (
+                  <div className="opacity-40 tabular-nums">{expansionMode.replace(/_/g, ' ')}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
