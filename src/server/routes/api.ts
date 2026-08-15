@@ -1598,7 +1598,8 @@ export default async (fastify: FastifyInstance) => {
       const text = (req.body.text || '').trim().slice(0, MAX_LOG_TEXT_LENGTH)
       const log = await fastify.models.Log.findByPk(req.params.id)
       if (!log) return reply.throw.notFound()
-      if (log.event !== 'note') return log
+      if (log.userId !== req.user.id) return reply.throw.accessDenied()
+      if (log.event !== 'note' && log.event !== 'calendar_entry') return log
 
       // If user backspaced all content, delete the log instead of saving empty text
       if (!text || text.length === 0) {

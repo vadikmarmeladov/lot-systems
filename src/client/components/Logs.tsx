@@ -2087,6 +2087,40 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'calendar_alert') {
+          const level = log.metadata?.level as string | undefined
+          const entryType = log.metadata?.entryType as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const text = log.metadata?.text as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                <div className="flex items-baseline justify-between mb-4">
+                  <span
+                    className={cn(
+                      'tracking-widest',
+                      level === 'BRAVO' && 'opacity-90',
+                      level === 'ALPHA' && 'opacity-70',
+                      level === 'NOTICE' && 'opacity-50',
+                      level === 'CLEARED' && 'opacity-30 line-through',
+                      !level && 'opacity-50',
+                    )}
+                  >
+                    {level || 'NOTICE'}
+                  </span>
+                  {entryType && (
+                    <span className="opacity-30 uppercase tracking-widest">{entryType}</span>
+                  )}
+                </div>
+                {text && (
+                  <div className={cn('opacity-60', level === 'CLEARED' && 'line-through opacity-30')}>
+                    {text}
+                  </div>
+                )}
+                {date && <div className="opacity-30 tabular-nums mt-4">{date}</div>}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'qos_coherence') {
           const diversityScore = log.metadata?.diversityScore as number | undefined
           const sourceCount = log.metadata?.sourceCount as number | undefined
