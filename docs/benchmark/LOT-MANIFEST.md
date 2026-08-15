@@ -116,7 +116,7 @@ together-ai-update                  | DRAFT      | Critical: mobile boot, auth e
 eager-clarke-wTEM6                  | DRAFT      | Basics Tab alt design (Settings enrollment)
 cool-tesla-f8j0mr                  | BEST       | QI·46 Node 3 engine integration + Soul Upload
 cool-hypatia-aqj7dg                | BEST       | Badge Codex v12 — 156 total badges
-dreamy-babbage-3k2zhm              | READY      | Calendar Widget: alert engine, command board, live clock
+dreamy-babbage-3k2zhm              | INTEGRATED | Calendar Widget: alert engine, command board, live clock — cherry-picked onto claude/dreamy-babbage-4vlp8f @ a9c03017d (SR-20260815-01); not yet merged to master, no PR opened
 upbeat-curie-1s8bgb                | DRAFT      | QIE v54 self-assembly session (docs only)
 
 ================================================================================
