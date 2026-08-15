@@ -3706,6 +3706,7 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [storyPeriod, setStoryPeriod] = React.useState<'day' | 'week' | 'month' | 'year' | null>(null)
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -3742,6 +3743,7 @@ const NoteEditor = ({
   const { mutate: submitStory } = useStoryGeneration({
     onSuccess: (data) => {
       setStoryResponse(data.story)
+      setStoryPeriod(data.period ?? null)
       setStoryLoading(false)
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
@@ -4125,7 +4127,11 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compress your most recent data into a story',
+          '/story day    Compress the last 24 hours',
+          '/story week   Compress the last 7 days',
+          '/story month  Compress the last 30 days',
+          '/story year   Compress the last 12 months',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4152,11 +4158,25 @@ const NoteEditor = ({
           setStoryLoading(true)
           setStoryResponse(null)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            // /story compresses recent data into a narrative. An optional
+            // period word narrows the compression window — "/story week"
+            // pulls the last 7 days instead of the legacy unbounded
+            // "most recent" behavior a bare /story keeps.
+            const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+            const period = periodMatch
+              ? (periodMatch[1].toLowerCase() as 'day' | 'week' | 'month' | 'year')
+              : undefined
+            setStoryPeriod(period ?? null)
+            const logText = value
+              .replace(/\/story\s+(day|week|month|year)\b/i, '')
+              .replace(/\/story/i, '')
+              .replace(/📖/g, '')
+              .trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
@@ -4417,6 +4437,9 @@ const NoteEditor = ({
         {(storyLoading || storyResponse) && (
           <div className="mt-8">
             <Block label="📖" blockView>
+              <div style={{ fontSize: '11px', letterSpacing: '0.08em', opacity: 0.4, marginBottom: '0.5rem' }}>
+                {(storyPeriod ?? 'RECENT').toString().toUpperCase()} COMPRESSION
+              </div>
               {storyLoading && !storyResponse && (
                 <div className="opacity-40 tracking-widest">...</div>
               )}

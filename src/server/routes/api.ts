@@ -1213,6 +1213,10 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // /story writes a generated_story Log on every call but this whitelist
+      // never listed it — the story was saved, then invisible in GET /api/logs
+      // (the operator's own feed) forever after. Write-only bug, fixed here.
+      'generated_story',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -5490,6 +5494,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          period?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5510,29 +5515,54 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         return reply.code(403).send({
           story: 'Story generation is available for Usership members.',
           logId: null,
+          period: null,
         })
       }
 
       const { logText, quantumState, userIndex } = req.body
+      const period: 'day' | 'week' | 'month' | 'year' | null =
+        req.body.period && ['day', 'week', 'month', 'year'].includes(req.body.period)
+          ? req.body.period
+          : null
+
+      // Compression window — how far back the story reaches, and how many
+      // entries/words it is allowed to compress that reach into. Longer
+      // periods get more source material and a larger (but still bounded)
+      // narrative budget so a year doesn't read like a day stretched thin.
+      // No period (bare /story) preserves the original unbounded "most
+      // recent 200 logs" behavior exactly — scoping is opt-in, not a
+      // silent behavior change for existing usage.
+      const PERIOD_CONFIG: Record<'day' | 'week' | 'month' | 'year', { since: () => Date; entryLimit: number; wordRange: string; maxTokens: number; label: string }> = {
+        day: { since: () => dayjs().subtract(1, 'day').toDate(), entryLimit: 5, wordRange: '100-200', maxTokens: 512, label: 'the last 24 hours' },
+        week: { since: () => dayjs().subtract(7, 'day').toDate(), entryLimit: 15, wordRange: '150-250', maxTokens: 640, label: 'the last 7 days' },
+        month: { since: () => dayjs().subtract(30, 'day').toDate(), entryLimit: 30, wordRange: '200-300', maxTokens: 768, label: 'the last 30 days' },
+        year: { since: () => dayjs().subtract(365, 'day').toDate(), entryLimit: 50, wordRange: '250-350', maxTokens: 896, label: 'the last 12 months' },
+      }
+      const cfg = period
+        ? PERIOD_CONFIG[period]
+        : { since: null, entryLimit: 10, wordRange: '100-200', maxTokens: 512, label: 'recent' }
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: {
+          userId: req.user.id,
+          ...(cfg.since ? { createdAt: { [Op.gte]: cfg.since() } } : {}),
+        },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: period ? 500 : 200,
       })
 
       const recentEntries = logs
         .filter(l => l.event === 'log_entry' || l.event === 'journal')
-        .slice(0, 10)
+        .slice(0, cfg.entryLimit)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
 
-      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, cfg.entryLimit)
       const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
 
       const selfCareLogs = logs.filter(l =>
         l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
-      ).slice(0, 10)
+      ).slice(0, cfg.entryLimit)
       const selfCareNotes = selfCareLogs.map(l => {
         const q = (l.metadata?.question as string || '')
         const a = (l.metadata?.option as string || l.metadata?.answer as string || '')
@@ -5547,33 +5577,36 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that compresses the operator's data into a short narrative.
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+The operator typed a log entry and invoked /story for the period covering ${cfg.label}. Your task: write a compressed story (${cfg.wordRange} words) that reflects their journey, mood trajectory, and self-care patterns across THAT ENTIRE PERIOD — not just the newest entry. The story should feel personal, grounded, and real — not generic motivational writing.
 
 RULES:
 - Write in second person ("You...")
-- Draw from their actual log entries, moods, and self-care answers below
+- Draw from their actual log entries, moods, and self-care answers below, spanning the full period
 - Reference specific details from their data — make it feel like THEIR story
 - If they've been consistent with check-ins, acknowledge the discipline
 - If there are gaps or struggle, acknowledge that with compassion
 - The tone should match their current energy: reflective if low, energized if high
+- The longer the period, the more this should read as a compression — a throughline across days, not a list of them
 - End with a single forward-looking sentence — not a pep talk, just a quiet truth
 - Return ONLY the story paragraphs. No title. No commentary. No preamble.
-- Keep it under 200 words.`
+- Keep it within the ${cfg.wordRange} word range.`
 
       const dataBlock = `
+PERIOD: ${(period || 'RECENT').toUpperCase()} (${cfg.label})
+
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
 
 ${stateBlock ? stateBlock : 'STATE: unknown'}
 
-RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+RECENT MOODS: ${recentMoods.join(', ') || 'NO DATA'}
 
-RECENT LOG ENTRIES:
-${recentEntries.slice(0, 5).map(e => `- ${e}`).join('\n') || '- (none)'}
+LOG ENTRIES THIS PERIOD:
+${recentEntries.map(e => `- ${e}`).join('\n') || '- (none)'}
 
-SELF-CARE DATA:
-${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
+SELF-CARE DATA THIS PERIOD:
+${selfCareNotes.map(n => `- ${n}`).join('\n') || '- (none)'}`
 
       const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
 
@@ -5581,9 +5614,9 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         const { aiEngineManager } = await import('#server/utils/ai-engines.js')
         const engine = aiEngineManager.getEngine('together')
 
-        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+        console.log(`📖 Story generation (${period}) for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
 
-        const story = await engine.generateCompletion(fullPrompt, 512)
+        const story = await engine.generateCompletion(fullPrompt, cfg.maxTokens)
 
         const cleaned = story.trim().replace(/^["']|["']$/g, '')
 
@@ -5595,6 +5628,8 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           context,
           metadata: {
             story: cleaned,
+            period,
+            entryCount: recentEntries.length,
             logText: (logText || '').substring(0, 500),
             quantumState: quantumState || null,
             timestamp: new Date().toISOString(),
@@ -5603,12 +5638,14 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
         return {
           story: cleaned,
+          period,
           logId: storyLog.id,
         }
       } catch (error: any) {
         console.error('Story generation failed:', error)
         return {
           story: 'The system holds your data quietly. When the engine returns, your story will be here.',
+          period,
           logId: null,
         }
       }
