@@ -10,7 +10,7 @@ import * as React from 'react'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { Block, Button, ResizibleGhostInput, Unknown } from '#client/components/ui'
-import { useLogs, useUpdateLog } from '#client/queries'
+import { useLogs, useUpdateLog, useCreateChatMessage, useCohorts } from '#client/queries'
 import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
@@ -30,7 +30,7 @@ import {
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { runJournalEasterEggs } from '#client/utils/easter-eggs'
-import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
+import { recordLogSignal, recordJournalSignal, recordBadgeSignal, recordSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
@@ -3713,6 +3713,11 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const { data: cohortData } = useCohorts()
+  const { mutate: sendLotEmail } = useCreateChatMessage({
+    onError: () => setEmailResult('EMAIL FAILED — Sync unavailable.'),
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4139,6 +4144,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to [name]  Compose a LOT Email — appears in Sync',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4163,6 +4169,35 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'email-compose') {
+        const emailMatch = value.match(/\/email\s+to\s+([^\n,.:;!?]+)/i)
+        const recipientName = emailMatch ? emailMatch[1].trim() : ''
+        if (recipientName) {
+          const body = value
+            .replace(/\/email\s+to\s+[^\n,.:;!?]+/i, '')
+            .replace(/[✉️✉]/g, '')
+            .trim()
+          const cohortMatch = cohortData?.matches?.find(
+            (m) => (m.user.firstName || '').toLowerCase() === recipientName.toLowerCase()
+          )
+          setEmailResult(
+            [
+              `TO              ${recipientName.toUpperCase()}`,
+              `ROUTE           SYNC${cohortMatch ? ' · COHORT' : ''}`,
+              'STATUS          SENT',
+            ].join('\n')
+          )
+          sendLotEmail({
+            message: `✉ LOT Email → ${recipientName}${cohortMatch ? ' (Cohort)' : ''}: ${body || '(no message)'}`,
+          })
+          try {
+            recordSignal('mood', 'lot_email_sent', {
+              recipientName,
+              isCohortMatch: !!cohortMatch,
+              hour: new Date().getHours(),
+            })
+          } catch {}
         }
       }
     }
@@ -4384,6 +4419,13 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {emailResult && (
+          <div className="mt-8">
+            <Block label="✉ EMAIL:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
             </Block>
           </div>
         )}
