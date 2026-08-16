@@ -426,6 +426,7 @@ The field entry archive — every typed note, event-driven log, and QIE signal r
 - **Sources:** `log` QIE source (`field_entry` signals from the note editor)
 - **Log Renderings:** BIOFIELD (energy state) / QOS (quantum OS state) / COHORT (physiological archetype update) / ASM (assembly milestone) / QIE (quantum intent pattern) / CARE / PLAN / INTENT / BIO / MEM / CFG / SYS / COMM / LOG
 - **Connection:** The editor detects `/synth` and 🎹 triggers inline; saves on 7s debounce, visibility change, and unmount
+- **Command Surface:** `/system` prints the full slash-command reference inline. `/story [day|week|month|year]` compresses the operator's logged Journal entries, moods, and self-care answers over the chosen window into a 1-2 paragraph narrative via `POST /api/story` (Together AI, Usership-gated); bare `/story` defaults to `day`. Trigger detection lives in `src/client/utils/logTriggers.ts`; command execution is the `if/else if` chain in `src/client/components/Logs.tsx` — there is no central command registry, that switch is the de facto spec for adding new commands. Other live commands: `/scan`, `/qi [query]`, `/assembly`, `/phys`, `/qos`, `/fast`, `/breathe`, `/freeze`, `/silent`, `/radio`, `/night`, `/prayer`, `/how`.
 
 ---
 
