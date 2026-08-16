@@ -43,31 +43,29 @@ export function ToggleSection({
       {/* Header */}
       <button
         onClick={handleToggle}
-        className={cn(
-          'w-full text-left flex items-center gap-8 py-8 transition-opacity hover:opacity-30',
-          indent > 0 && 'pl-' + (indent * 16)
-        )}
+        className="w-full text-left flex items-center gap-8 py-8 transition-opacity hover:opacity-30"
         style={{ paddingLeft: indent > 0 ? `${indent * 16}px` : undefined }}
       >
-        <span className="transition-transform duration-200" style={{
-          transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)',
-          display: 'inline-block',
-          width: '8px'
-        }}>
+        <span
+          className="transition-transform duration-200 inline-block w-8"
+          style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}
+        >
           ›
         </span>
         <span>{label}</span>
       </button>
 
-      {/* Content */}
+      {/* Content — grid-rows trick: animates from 0fr→1fr at content-true height */}
       <div
         className={cn(
-          'overflow-hidden transition-all duration-300',
-          isOpen ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+          'grid transition-all duration-300',
+          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
         )}
       >
-        <div className="py-4">
-          {children}
+        <div className="overflow-hidden">
+          <div className="py-4">
+            {children}
+          </div>
         </div>
       </div>
     </div>

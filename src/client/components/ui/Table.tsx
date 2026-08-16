@@ -74,7 +74,7 @@ export const Th: React.FC<{ children: ReactEl; className?: string }> = (
   props
 ) => {
   return (
-    <th className={cn('border-b border-r border-acc-400/30 p-8', props.className)}>
+    <th className={cn('border-b border-r last:border-r-0 border-acc-400/30 p-8', props.className)}>
       {props.children}
     </th>
   )
@@ -85,7 +85,7 @@ export const Td: React.FC<{ children: ReactEl; className?: string; isSelected?: 
 ) => {
   return (
     <td className={cn(
-      'border-b border-r p-8',
+      'border-b border-r last:border-r-0 p-8',
       props.isSelected ? 'border-acc-400' : 'border-acc-400/30',
       props.className
     )}>
