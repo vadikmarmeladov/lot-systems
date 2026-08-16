@@ -177,3 +177,43 @@ export function getMoonEmoji(phaseName: string): string {
   }
   return emojiMap[phaseName] || '🌑'
 }
+
+/** Minimal shape read from a Log — matches `Log['context']` without importing it. */
+type LogWithAstroContext = {
+  context?: { astroRokuyo?: string | null; [key: string]: any } | null
+}
+
+/**
+ * Personal rokuyo affinity — the six-day rokuyo the user has most often been
+ * active on, computed from their own stored logs. Every log already carries
+ * the ambient astroRokuyo reading at creation time (server/utils/logs.ts), so
+ * this is a real per-user frequency count, not a generated reading. Requires
+ * a minimum sample size so a single day's activity doesn't read as a pattern.
+ */
+export function getAstrologyAffinity(
+  logs: LogWithAstroContext[],
+  minSamples = 5
+): { rokuyo: string; count: number; total: number } | null {
+  const counts = new Map<string, number>()
+  let total = 0
+
+  for (const log of logs) {
+    const rokuyo = log.context?.astroRokuyo
+    if (!rokuyo) continue
+    total++
+    counts.set(rokuyo, (counts.get(rokuyo) || 0) + 1)
+  }
+
+  if (total < minSamples) return null
+
+  let topRokuyo = ''
+  let topCount = 0
+  for (const [rokuyo, count] of counts) {
+    if (count > topCount) {
+      topRokuyo = rokuyo
+      topCount = count
+    }
+  }
+
+  return topRokuyo ? { rokuyo: topRokuyo, count: topCount, total } : null
+}

@@ -4441,6 +4441,7 @@ const LogContainer: React.FC<{
   dateFormat: string
 }> = ({ log, dateFormat, children }) => {
   const contextText = React.useMemo(() => {
+    const parts: string[] = []
     const weatherParts: string[] = []
     if (log.context?.temperature) {
       const celsius = toCelsius(log.context.temperature)
@@ -4449,11 +4450,15 @@ const LogContainer: React.FC<{
     if (log.context?.humidity) {
       weatherParts.push(`${Math.round(log.context.humidity)}%`)
     }
-    const weatherText = weatherParts.join(', ')
-    if (log.context?.city) {
-      return `${weatherText} – ${log.context.city}`
+    if (weatherParts.length) parts.push(weatherParts.join(', '))
+    if (log.context?.city) parts.push(log.context.city)
+    // Ambient astrology reading at log time — already stamped on nearly
+    // every log by server/utils/logs.ts; synchronize it into the shared
+    // hover context instead of only the system_snapshot event body below.
+    if (log.context?.astroRokuyo) {
+      parts.push(`${log.context.astroRokuyo} · ${log.context.astroMoonPhase}`)
     }
-    return weatherText
+    return parts.join(' – ')
   }, [log.context])
 
   return (

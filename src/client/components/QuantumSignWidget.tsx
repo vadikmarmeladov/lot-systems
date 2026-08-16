@@ -11,6 +11,7 @@ import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useLogs } from '#client/queries'
+import { getRokuyo, getMoonPhase } from '#shared/utils/astrology'
 
 /**
  * Quantum Sign Widget — For subscribers whose payment is their last money
@@ -79,12 +80,20 @@ export function QuantumSignWidget() {
       { id: 'growth-edge', name: 'Growth Edge', desc: 'Comfort zone expansion calibration' },
     ]
 
-    // Rotate patches based on day of year
-    const astroIdx = dayOfYear % astrologyPatches.length
+    // Astrology patch is driven by the same real rokuyo cycle the System
+    // dashboard's Astrology block reads (src/shared/utils/astrology.ts) —
+    // was previously an unrelated day-of-year rotation, disagreeing with
+    // the ambient reading shown elsewhere in the app.
+    const rokuyo = getRokuyo(today)
+    const moonPhase = getMoonPhase(today)
+    const astroIdx = ['Sensho', 'Tomobiki', 'Senpu', 'Butsumetsu', 'Taian', 'Shakku'].indexOf(rokuyo) % astrologyPatches.length
     const psychIdx = dayOfYear % psychologyPatches.length
 
     return {
-      astrology: astrologyPatches[astroIdx],
+      astrology: {
+        ...astrologyPatches[astroIdx],
+        desc: `${astrologyPatches[astroIdx].desc} — ${rokuyo}, ${moonPhase.phase} (${moonPhase.illumination}%)`,
+      },
       psychology: psychologyPatches[psychIdx],
     }
   }, [])
