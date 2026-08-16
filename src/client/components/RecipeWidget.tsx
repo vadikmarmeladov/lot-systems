@@ -167,7 +167,6 @@ export const RecipeWidget: React.FC = () => {
     createLog(
       { text: fullText },
       {
-        onSuccess: () => console.log(`Logged recipe: ${recipeKey}`),
         onError: (error) => {
           console.error('Failed to log recipe:', error)
           loggedRecipesRef.current.delete(recipeKey)

@@ -137,6 +137,13 @@ export const System = React.memo(function SystemInner() {
   const [showSharedEmotion, setShowSharedEmotion] = React.useState(false)
   const [selectedQuantumCell, setSelectedQuantumCell] = React.useState(0)
 
+  // Stable per-mount random draws — computing these inline during render (via
+  // Math.random() in a JSX IIFE) reevaluates on every re-render, making
+  // conditional widget visibility flicker any time System.tsx re-renders for
+  // an unrelated reason. Ref anchors the draw to mount, not render.
+  const intentionsCooldownRollRef = React.useRef(Math.random())
+  const subscribeShowRollRef = React.useRef(Math.random())
+
   // Compute whether to show sunset or sunrise based on current time
   // Show sunset during daytime (between sunrise and sunset)
   // Show sunrise during nighttime (before sunrise or after sunset)
@@ -887,8 +894,8 @@ export const System = React.memo(function SystemInner() {
           const twoDaysMs = 2 * 24 * 60 * 60 * 1000
           const threeDaysMs = 3 * 24 * 60 * 60 * 1000
 
-          // Random cooldown between 2-3 days
-          const cooldownPeriod = twoDaysMs + Math.random() * (threeDaysMs - twoDaysMs)
+          // Random cooldown between 2-3 days (stable per mount — see ref above)
+          const cooldownPeriod = twoDaysMs + intentionsCooldownRollRef.current * (threeDaysMs - twoDaysMs)
           const cooldownPassed = !lastShown || (Date.now() - parseInt(lastShown)) >= cooldownPeriod
 
           const intentionSuggestsIntentions = optimalWidget?.widget === 'intentions'
@@ -936,8 +943,8 @@ export const System = React.memo(function SystemInner() {
             return null
           }
 
-          // Random 20% chance to show when all conditions met
-          const shouldShow = Math.random() < 0.2
+          // Random 20% chance to show when all conditions met (stable per mount)
+          const shouldShow = subscribeShowRollRef.current < 0.2
           return shouldShow && <div><SubscribeWidget /></div>
         })()}
       </WidgetErrorBoundary>

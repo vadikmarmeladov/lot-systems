@@ -167,12 +167,11 @@ Surfaces self-care suggestions during key times of day (10 AM–12 PM, 2–5 PM,
 - **Data Source:** Quantum Intention Engine analysis; `localStorage` for cooldown and session tracking
 - **Connection:** Conditionally displayed in System.tsx; gated by both time-of-day and pattern detection logic
 
-### Awareness Dashboard
+### Awareness Dashboard (retired)
 
-A clickable, cycling display of the user's psychological profile. Shows self-awareness percentage, archetype, values, emotional patterns, dominant needs, sentiment breakdown, and introspection depth.
-
-- **Data Source:** `/api/profile` endpoint via the `useProfile` hook
-- **Connection:** Displays profile-derived awareness metrics; integrated into the System.tsx layout
+Superseded by MoodAnalytics + GoalJourneyWidget (SR-20260719-01 decision — skipped
+as a duplicate; the component file was removed on the SR-20260816 widget health
+scan since it carried zero live references anywhere in the client).
 
 ---
 
@@ -237,9 +236,9 @@ Five background jobs feed this widget: Daily OS Vitals Snapshot (02:00 UTC), Dai
 
 ### System Pulse Widget
 
-Real-time system heartbeat metrics with 1-second polling. Displays events per minute, quantum flux, neural activity, and resonance (Hz). Cycles through Metrics, Activity, and User Load views.
+Real-time system heartbeat metrics, polled every 10 seconds (reduced from 1s in SR-20260719-01 to prevent DB overload under traffic; paused when the tab is hidden or another in-app tab is active). Displays events per minute, quantum flux, neural activity, and resonance (Hz). Cycles through Metrics, Activity, and User Load views.
 
-- **Data Source:** `/api/system/pulse` endpoint (polled every second); log context for comparison
+- **Data Source:** `/api/system/pulse` endpoint (polled every 10s, foreground-only); log context for comparison
 - **Connection:** Provides live system telemetry; cross-references with log context for anomaly detection
 
 ---
