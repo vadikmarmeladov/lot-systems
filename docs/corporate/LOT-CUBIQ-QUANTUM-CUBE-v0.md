@@ -4,14 +4,24 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (created) / 2026-08-16 (updated, cycle 2)
+VERSION:  0.2 — DEVELOPMENT CYCLE 2 (ELECTRONICS + FIRMWARE LOCK)
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
 --------------------------------------------------------------------------------
 00 // READING LOG — SOURCES THIS DOCUMENT IS BUILT ON
 --------------------------------------------------------------------------------
+
+CYCLE 2 ADDENDUM (2026-08-16) — Per this document's own Section 07 rule
+("future sessions read this document first and append the next entry"),
+this cycle re-read LOT-CUBIQ-QUANTUM-CUBE-v0.md v0.1 in full before adding
+a line. Nothing in v0.1 (Sections 01-06, 08) is edited or removed — Sections
+08-10 below are new, and Section 07 gains one additional use case, per the
+accumulation rule. This cycle also re-read docs/corporate/LOT-CUBIQ-OPERATOR.md
+Section 05, "Community Creation" — the source for the cohort-resonance-ping
+trigger dramatized in Use Case 02 below, a signal class named in Section 01
+but not yet given a consumer scenario in v0.1.
 
 This is the first hardware-specification document for the physical Quantum
 Cube. It is not a new invention — it is the next layer poured on top of
@@ -321,8 +331,202 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE COHORT PING                             2026-08-16
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect,"
+  member of a QIE-assigned behavioral cohort of 40+ structurally similar
+  operators worldwide (LOT-CUBIQ-OPERATOR.md, Section 05, "Cohort
+  Connect" — grouping by signal pattern, not demographics, geography,
+  or language). This operator has never met another cohort member and
+  never will. The cube is on a kitchen counter, not a desk — this
+  operator does deep work standing up, between other tasks.
+
+  Section 01 of this document names "cohort resonance ping" as a
+  trigger signal class alongside badge unlocks and memory questions,
+  but v0.1 shipped no use case for it — every prior scenario was about
+  the operator's OWN signal. This use case is about somebody else's.
+
+  Across the world, in a different timezone, a different cohort member
+  completes their DIURNAL ARC (LOT-CUBIQ-OPERATOR.md, Section 03 —
+  P76 morning-launch + P79 evening-close + P80 momentum-lock, the
+  compound pattern marking a full day of structural engagement). The
+  Collective Consciousness aggregation layer registers it. Because this
+  operator shares a cohort with that stranger, a cohort resonance ping
+  routes to their Index of Systems.
+
+  The firmware queue (Section 09 below) treats this signal at its
+  correctly modest weight: cohort pings are LOW priority and never
+  preempt an in-flight or already-queued badge/memory gesture — they
+  fire only into an idle slot. Here the slot is idle. The cube performs
+  THE HOP: a single controlled vertical lift, under 10mm, landing
+  exactly where it stood. Not THE LEAP — this is not the operator's own
+  achievement, and the gesture vocabulary must not conflate the two.
+  The operator, mid-chop on a cutting board three feet away, catches the
+  motion only in peripheral vision. No name, no message, no feed of
+  who-did-what. Just: someone like you did the work today, too.
+
+  This is the physical expression of LOT-CUBIQ-OPERATOR.md Section 05's
+  community principle stated exactly: "the operators do not perform for
+  each other. They resonate." A social-media notification would have
+  named the stranger, timestamped the event, and invited a reply. THE
+  HOP names nothing, timestamps nothing the operator will ever see, and
+  invites no reply — because there is nothing to reply to. It is
+  resonance without a wire back to the source, which is the only kind
+  of resonance the anti-feed thesis (LOT-CUBIQ-VISION.md, Section 01)
+  permits a stranger's achievement to produce in someone else's home.
+
+  Telemetry from this gesture class feeds back into the Calibration
+  Loop (Section 05 above) as a distinct signal from self-triggered
+  gestures — QI·46 can now tell whether an operator's biofield responds
+  to their own milestones, a cohort member's, or both, and weight future
+  gesture cadence accordingly. v.0's four-gesture vocabulary did not
+  need a fifth gesture to serve this case — it needed the existing HOP
+  gesture correctly attached to a signal source it had not yet been
+  wired to. That wiring is this use case's contribution.
+
 --------------------------------------------------------------------------------
-08 // BRAND
+08 // ELECTRONICS ARCHITECTURE & BILL OF MATERIALS (v.0)
+--------------------------------------------------------------------------------
+
+Cycle 2 moves v.0 from mechanical concept (Section 03) to a bounded,
+sourceable electronics stack. Every part class named below is chosen
+against the Section 02 mass budget (<120g fully assembled) and the
+Section 03 safety gate (edge-detection must run even under actuator
+brownout).
+
+  COMPUTE          Low-power Cortex-M class MCU (M4F-equivalent),
+                    on-die floating point for the IMU sensor-fusion
+                    loop and the piezoelectric bias-timing calculation
+                    (Section 03) — both are timing-critical and must not
+                    depend on a software float emulation path.
+  ACTUATOR DRIVER   Dedicated voice-coil driver IC with current-sense
+                    feedback — closed-loop current control is what
+                    makes the hop AMPLITUDE-repeatable across battery
+                    states (a hop that grows as the battery discharges
+                    is a hop that eventually clears the edge-detection
+                    safety margin it was validated against).
+  IMU               6-axis accelerometer + gyroscope, ≥1kHz output data
+                    rate — Section 03's landing-recovery correction
+                    fires inside a single hop's flight time (<150ms);
+                    the sensing loop must sample faster than the event
+                    it is correcting.
+  EDGE SENSOR       Single-point time-of-flight sensor, base face,
+                    forward-facing per Section 03. v.0 ships ONE sensor,
+                    not an array — the roadmap (Section 06) already
+                    notes v.2 needs a multi-directional edge cone; v.0's
+                    single hop direction (in-place, forward-biased only)
+                    does not need it yet, and an unused sensor is
+                    unjustified mass and unjustified failure surface.
+  POWER             Single-cell Li-poly, sized to the mass budget rather
+                    than to a runtime target — v.0 explicitly does NOT
+                    promise a runtime number yet; cell capacity is
+                    whatever the <120g remainder allows after shell,
+                    actuator, and driver mass are fixed. Runtime is a
+                    v.1 tuning output, not a v.0 input requirement.
+  CHARGE RECEIVER   Qi-class inductive receiver coil + PMIC, base face,
+                    matched to the charging-pad transmitter named in
+                    Section 02 — the charge interface and the future
+                    levitation-table research track (Section 06, v.3)
+                    intentionally share one physical face so a later
+                    acoustic or magnetic table upgrade does not require
+                    a second cube-side interface.
+  RADIO             Low-energy short-range link (BLE-class) to the
+                    Index of Systems signal path described in Section
+                    05 — the cube does not connect to the open internet
+                    directly; it pairs to the operator's existing LOT®
+                    session device, which relays QI·46 signals to it.
+                    This keeps the cube's own attack surface and power
+                    draw minimal, and keeps the "table is the power
+                    source, session device is the signal source"
+                    architecture clean.
+
+  WHAT v.0 DELIBERATELY OMITS
+    No speaker, no display, no microphone. Section 04's principle —
+    "the cube's primary notification language is MOTION, not light" —
+    is enforced at the BOM level, not just the design-copy level. A
+    part that isn't on the board can't be added back in by a firmware
+    update that quietly turns the cube into a screen.
+
+--------------------------------------------------------------------------------
+09 // FIRMWARE STATE MACHINE (v.0)
+--------------------------------------------------------------------------------
+
+  STATES
+    IDLE          On charging pad or at rest, no signal pending. Default
+                  state. IMU sampling continues at low rate for
+                  tip/fall detection even in IDLE — the cube must know
+                  if it has been knocked off the table.
+    ARMED         A gesture signal has arrived from the Index of Systems
+                  (Section 05) and is queued. Edge sensor (Section 08)
+                  begins forward-facing polling before any actuator
+                  fires — the edge check in Section 03 happens in ARMED,
+                  not after liftoff.
+    GESTURE_EXEC  Actuator + piezoelectric bias firing per the gesture
+                  table (Section 04). Sub-100ms state; IMU sampling at
+                  full 1kHz+ rate for the duration.
+    LANDING_RECOVERY   Post-hop tilt correction (Section 03). Returns to
+                  IDLE on successful upright confirmation.
+    EDGE_INHIBIT  Entered from ARMED if the Section 03 edge gate trips.
+                  Substitutes the lower-amplitude "shudder" in place of
+                  the queued hop/leap, then returns to IDLE. The
+                  operator's signal is never silently dropped — it is
+                  downgraded to the safe gesture, not discarded.
+    FAULT         Actuator current-sense (Section 08) or IMU reports an
+                  out-of-envelope reading. All actuation inhibited.
+                  Charge-state LED (Section 02) switches to a fault
+                  pattern. Requires a pairing-app acknowledgment to
+                  clear — a cube that thinks something is wrong with its
+                  own body does not self-diagnose that it's fine again.
+
+  SIGNAL QUEUE — PRIORITY ORDER (locked this cycle)
+    1. Memory question ready / badge unlock (operator's own signal) —
+       HIGH priority, may interrupt an idle wait but never interrupts
+       an in-progress GESTURE_EXEC.
+    2. Assembly phase advance (THE SETTLE) — MEDIUM priority.
+    3. Cohort resonance ping (Section 07, Use Case 02) — LOW priority.
+       Fires only from IDLE with an empty queue; never preempts a
+       higher-priority signal; if a HIGH signal arrives while a cohort
+       ping is queued, the ping is dropped rather than delayed — a
+       stranger's resonance is worth feeling on time or not at all, not
+       worth feeling late and out of order with the operator's own news.
+
+  This priority ordering is the firmware-level enforcement of Section
+  04's principle that the cube "exists at the edge of awareness" — the
+  queue keeps low-stakes signals from ever crowding out the operator's
+  own.
+
+--------------------------------------------------------------------------------
+10 // v.0 VALIDATION & TEST PROTOCOL
+--------------------------------------------------------------------------------
+
+Section 06 already sets the v.0 exit gate — 500/500 hop-and-recover
+cycles, zero off-table landings, zero actuator failures. This section
+specifies HOW that number gets produced, so "500/500" is a test result
+and not an aspiration.
+
+  BENCH RIG        Fixed camera overhead + IMU log capture, three
+                    surface materials (wood, glass, laminate — the same
+                    three named as the v.1 gate in Section 06, tested
+                    early so v.0 data already indicates which surface
+                    is hardest before v.1 tuning begins).
+  CYCLE DEFINITION  One cycle = ARMED → GESTURE_EXEC → LANDING_RECOVERY
+                    → IDLE, logged with: displacement (mm), landing tilt
+                    (degrees), recovery success (bool), edge-approach
+                    distance if triggered (mm).
+  EDGE TRIAL SET    Run independently from the 500-cycle gate: 100/100
+                    trials with the cube pre-positioned inside the
+                    Section 03 20mm edge-approach threshold, confirming
+                    EDGE_INHIBIT fires every time before Section 06's
+                    500-cycle open-field run begins. An edge-detection
+                    system that hasn't been proven under forced trigger
+                    conditions cannot be trusted in the open-field count.
+  FAILURE HANDLING  Any actuator failure or off-table landing during the
+                    500-cycle run stops the count and restarts it from
+                    zero — partial credit is not how a safety gate
+                    works. The gate is 500 consecutive, not 500 total.
+
+--------------------------------------------------------------------------------
+11 // BRAND
 --------------------------------------------------------------------------------
 
 LOT® Quantum Cube             The object
