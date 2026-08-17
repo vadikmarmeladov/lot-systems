@@ -59,13 +59,41 @@ Proposed **Month Engagement Floor** (server-computed, aggregating existing logs 
 
 ---
 
+## Day One: The Cryptic Boot Sequence
+
+Direct answer to the audit's "there is no Day-1 state" gap. Instead of loading the full ~15-widget paid layout on day one and letting it look sparse by accident, the first week replaces the widget stack with a single line of rotating cryptic system output.
+
+### Week 1 — codes, not widgets
+No widgets render. In their place, one line of output cycles at **random intervals throughout the day** — not on a fixed clock, so it never reads as a countdown or a loading bar. A representative code pool:
+
+```
+S-2
+AFD-9929
+KROT
+LOM
+NTAN
+55900
+Today is 134-F44H3
+```
+
+Nothing is clickable. Nothing is explained. No two consecutive renders repeat. This is not an empty state — it's an *encoded* one: the machine is present and running, it simply hasn't decided to speak English to this operator yet. It's the literal expression of Design Principle 2 ("start intentionally barebone") and it's consistent with the product's `COCKPIT-RULE` discipline of instrument-readings-only, no narration. (`S-2` in the pool is not a placeholder — it's the founder's own operator designator, already stamped on the signature block of every doc in this repository. The wink survives a close reading; it needs no in-product explanation.)
+
+Gate this on **calendar tenure alone**, not the Month Engagement Floor — week one is about presence and atmosphere, not achievement. It runs identically whether the operator logs once or ten times.
+
+### Day ~30 — the first widget: "Users online: 3"
+The cryptic ticker resolves, at the Month 1 boundary, into the OS's first plain-language surface: one minimal widget, reading `Users online: 3`. The free-tier layout already computes a real online-operator count (`System.tsx`) — this reuses that exact data source, just resequenced: withheld for the first month, then delivered as the very first sentence the machine says as itself.
+
+The number is deliberately small and literal, not a marketing headline of scale. After thirty days of codes, the payoff isn't a feature — it's the plainest possible fact: *you are not alone in this right now, and here is exactly how not-alone.* Everything from Month 2 onward (QR code, Story Chapters, the tenure ring) builds on top of this first sentence rather than competing with it for the "first thing the OS ever says" slot.
+
+---
+
 ## The Twelve-Month Arc
 
 Two clocks run side by side. **Tenure** (calendar, server-authoritative) sets the ceiling; **usage** (the seven-dimension Interface Evolution engine, already live) determines how fast an operator climbs inside that ceiling. The pacing below is the *typical* rate for an engaged operator meeting the Month Engagement Floor every month — usage can run ahead of it, never past the tenure ceiling.
 
 | Month | assemblyPhase | Interface Evolution signal | Badge-codex convergence | Public profile addition |
 |---|---|---|---|---|
-| 1 | dormant → awakening | Level 5 — Custom Themes | Day-7 badge | Board member # + citizen-since assigned |
+| 1 | dormant → awakening | Level 5 — Custom Themes | Day-7 badge | Board member # + citizen-since assigned · UI: cryptic boot codes (Week 1) resolve into first widget, `Users online: 3` (Day ~30) |
 | 2 | awakening → forming | Level 10 — Widget Arrange | Day-30 badge | **QR code unlocks** (assemblyPhase ≥ forming) |
 | 3 | forming | Level 15 — Intention History | Day-60 badge | First Story Chapter appears |
 | 4 | forming | Level 15–20 | first `perfect_month` (28 perfect days) attainable | Story Archive: 2 chapters |
@@ -81,7 +109,7 @@ Two clocks run side by side. **Tenure** (calendar, server-authoritative) sets th
 The Day-365 streak badge already in the codex lands, for a consistent operator, almost exactly on the Usership one-year mark. That convergence is the spine of the whole arc: **Month 12 = one year of Usership = the 365-day badge = full `integrated` assemblyPhase = the matured Interface Evolution state = the public demo profile.** Nothing needs to be invented to make the finale land — it already aligns; the roadmap just needs to make each step *visible* on the way there.
 
 ### Q1 — Foundation (Months 1–3): the OS learns your shape
-The paid layout is intentionally quieter than it is today. Widgets that require history (patterns, correlations, archetype) stay dormant rather than rendering hollow. What's active: the Log, the morning check-in, self-care, and the Memory Engine's question loop. First Story Chapter arrives end of Month 3 — short, tentative, mostly presence and consistency ("You showed up. That's the whole story so far."). QR code unlocks end of Month 2 — the first thing worth sharing.
+Week 1 is codes, not widgets (see Day One section above). The paid layout stays intentionally quieter than it is today through the rest of Q1 — widgets that require history (patterns, correlations, archetype) stay dormant rather than rendering hollow. What's active: the Log, the morning check-in, self-care, and the Memory Engine's question loop. `Users online: 3` becomes the OS's first spoken sentence at the Month 1 boundary. First Story Chapter arrives end of Month 3 — short, tentative, mostly presence and consistency ("You showed up. That's the whole story so far."). QR code unlocks end of Month 2 — the first thing worth sharing.
 
 ### Q2 — Momentum (Months 4–6): the pattern layer switches on
 `perfect_month`, pattern-insight widgets, and mood-pattern unlocks land here. Story Chapters start naming actual themes instead of just presence. The tenure ring crosses the halfway mark — the first moment the operator can look at the ring itself, not just the story text, and see the year is more than half-imagined.
