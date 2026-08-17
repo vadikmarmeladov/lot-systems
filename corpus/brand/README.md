@@ -1,0 +1,6 @@
+# corpus/brand
+
+LOT® brand language corpus — Usership model, Terminal Grid copy, subscriber communication.
+
+Per docs/corporate/LOT_QI46_ENGINE.md §IV Step 0.1. Empty as of 2026-08-17 —
+population pending, see corpus/README.md for gate status.

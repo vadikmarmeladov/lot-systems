@@ -1,0 +1,8 @@
+{
+  "$comment": "QI·46 corpus tagging schema — mirrors docs/corporate/LOT_QI46_ENGINE.md §IV Phase 0 Step 0.2. Every document under /corpus must carry these tags before JSONL conversion (Step 0.3). This file defines the schema only; it tags no documents itself.",
+  "source": ["platform", "institute", "brand", "bioelectric", "consumable", "cosmo"],
+  "type": ["instruction", "example", "philosophy", "technical", "voice"],
+  "arc_position": ["0-3mo", "3-6mo", "6-12mo", "12mo+"],
+  "body_state": ["calibration", "pattern", "coherence", "hardware"],
+  "cosmo_cleared": [true, false]
+}
