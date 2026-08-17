@@ -25,7 +25,8 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
+Basics Tab (orig)| beautiful-johnson-56p7ov      | 6815f550 | 8/8   | DEAD   | 5     | +293   | BASICS M1 (never landed — branch gone from remote, code lost; see LOT-SR-20260817-01)
+Basics Tab (M1)  | claude/beautiful-johnson-i3s3ly | (head) | 1/1 | READY  | 4     | +263   | LOT-FM-001 M1 rebuild: OPEN TAB live — 23-item ration ledger, doctrine, USD100/mo rate line, STATUS-LINE (static). See LOT-SR-20260817-01, LOT-FM-001 roadmap below.
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
@@ -195,6 +196,38 @@ The protocol above applies to all future merges.
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
 Ship sequentially across Sundays, not all at once.
+
+================================================================================
+07 // LOT-FM-001 — BASIC (RATION) 90-DAY ROADMAP
+================================================================================
+
+Self-assembly directive for the BASIC civilian ration subscription. Ships in
+three monthly increments on the current ship branch (not a separate feature
+branch per month — same branch, one commit per month unless a green gate
+forces a fix-and-recheck loop).
+
+MONTH 1 — Ledger & Doctrine (read-only)             STATUS: DONE (2026-08-17)
+  OPEN TAB public surface. 23-item ration ledger (nomenclature + cadence,
+  COGS withheld). Doctrine statement. USD 100/mo rate line. STATUS-LINE
+  component (static default — no roster yet). See LOT-SR-20260817-01.
+
+MONTH 2 — Upgrade & Roster (Usership AI -> BASIC)   STATUS: NOT STARTED
+  UPGRADE control + state machine (NOT ON STRENGTH -> PENDING -> ON STRENGTH
+  -> STAND DOWN). Roster intake (sizing, shipping, cadence start). Recurring
+  $100/mo additive billing (real Stripe wiring). STAND DOWN downgrade path.
+  BLOCKED ON: explicit S-2 go-ahead before real billing goes live — this is
+  the first thing in the Basics tab that moves real money.
+
+MONTH 3 — Issue & Fulfillment (the box ships)       STATUS: NOT STARTED
+  Month-by-month load engine per cadence. Supplier quotes confirmed against
+  the <=USD 40 landed / >=60% margin ceiling. Printed manifest card
+  generation. First real issue scheduled and dispatched.
+  BLOCKED ON: real supplier quotes and shipping logistics — cannot be
+  fabricated in an unattended build session; needs S-2 sourcing input.
+
+Do not build Month 2 or Month 3 in an unattended session without S-2
+confirming the billing/fulfillment approach first. Month 1 is deliberately
+the full scope of what a build session can respond for.
 
 ================================================================================
 AUTHORIZED BY: S-2 // VADIK MARMELADOV

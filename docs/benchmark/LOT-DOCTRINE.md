@@ -226,3 +226,27 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Environment Bootstrap (Unattended Sessions)
+
+A fresh container has no node_modules. Two environment facts change how a
+benchmark run must install and check:
+1. `yarn install` fails even after `yarn config set registry` — yarn.lock
+   pins each package's `resolved` URL to registry.yarnpkg.com per-entry,
+   which the outbound proxy does not allowlist (only registry.npmjs.org is).
+   Registry config does not rewrite an existing lockfile's resolved URLs.
+   Use `npm ci --legacy-peer-deps` instead (package-lock.json resolves
+   against registry.npmjs.org, which is allowlisted); the --legacy-peer-deps
+   flag is required because @nanostores/react's declared peer range predates
+   the nanostores version actually pinned in the root manifest.
+2. `npm run build` (client:build + server:build) is the only repo-defined
+   check — client:build is esbuild only (transpile, no type errors surfaced)
+   and server:build's `tsc --project tsconfig.server.json` only covers
+   src/server + src/shared, never src/client. A full `tsc --noEmit --project
+   tsconfig.json` against the whole tree surfaces ~128 pre-existing client
+   errors unrelated to any single session's diff. That full check is useful
+   as a before/after regression count (stash, recheck, compare) but is not
+   itself the green gate — only `npm run build` is.
+(SR-20260817-01: BASIC M1 Basics tab build — bootstrap required npm ci
+--legacy-peer-deps after yarn install failed on proxy-blocked yarnpkg.com;
+128/128 pre-existing tsc --noEmit errors confirmed unchanged before/after.)
