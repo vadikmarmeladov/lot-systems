@@ -28,7 +28,7 @@ LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
-COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
+COSMO Hardware   | brave-lamport-x5lsio         | (head)   | 1/1   | BEST   | 6     | +1082  | COSMO® Terminal — hardware computer design v1.0 [see note below]
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
 Badge RPG        | cool-hypatia-aqj7dg          | (head)   | 3/3   | BEST   | 4     | +1832  | Badge Codex v12 — 156 badges, character classes, codex markdown
 Self-Assembly v45| pensive-rubin-4jhgF           | 95d47fa  | 5/5   | BEST   | 8     | +677   | Patterns 63-66, Archetype 18, QOS Mode, Background Job 9
@@ -184,13 +184,25 @@ CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
   Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
-  COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
 
 NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
 they were incorporated into master in prior sessions. The ship queue will be
 re-populated as new BEST branches are designated from future assembly runs.
 The protocol above applies to all future merges.
+
+CORRECTION — 2026-08-17: The "COSMO Hardware" line item (branch
+brave-lamport-t9z5u8) listed above as incorporated was, on inspection,
+NOT incorporated — that branch does not exist on the remote and no
+corresponding files exist on master. The 2026-06-27 note was wrong for
+this one feature. This session (branch brave-lamport-x5lsio) produced the
+real artifact: a 5-document spec set (plan, BOM, firmware, software,
+operator manual + PDF) for a device renamed COSMO® Terminal (not "COSMO®
+Cube" — that name now correctly belongs to the CUBIQ™ haptic notification
+cube, docs/corporate/LOT-CUBIQ-QUANTUM-CUBE-v0.md, a physically distinct
+object). See docs/corporate/LOT-COSMO-TERMINAL-v1.md for the full spec and
+docs/LOT-SR-20260817-01.md for this session's report. Row 31 above has
+been corrected to reflect this.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
