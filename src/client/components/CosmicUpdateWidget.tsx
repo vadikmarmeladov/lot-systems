@@ -12,6 +12,7 @@ import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useCosmicUpdate } from '#client/queries'
 import { shouldShowRewardWidget } from '#client/stores/rewardWidgets'
+import { intentionEngine } from '#client/stores/intentionEngine'
 
 /**
  * Cosmic Update Widget — Together AI image generation token
@@ -34,8 +35,18 @@ function getMonoColors(canvas: HTMLCanvasElement): MonoColor {
   return { fg, bg }
 }
 
-/** Pick a poetic pixel art prompt — Japanese or ancient car audio style */
-function getPixelPrompt(): string {
+/**
+ * Pick a poetic pixel art prompt — Japanese or ancient car audio style.
+ *
+ * Style pool is biased by the day's ambient astrology reading (the QIE
+ * 'astrology' signal recorded once daily by System.tsx) rather than pure
+ * chance: a waxing-to-full moon (illumination >= 50%) leans toward the
+ * lunar/zen imagery already in the Japanese pool, a waning-to-new moon
+ * leans toward the car-audio pool. This is the 'cosmic' widget's declared
+ * QIE dependency on 'astrology' (see WIDGET_DEPENDENCY_MAP in
+ * intentionEngine.ts) actually being consumed, not just registered.
+ */
+function getPixelPrompt(moonIllumination?: number): string {
   const japanese = [
     '1-bit pixel art portrait, ukiyo-e woodblock style, serene face with closed eyes, flowing hair lines, minimal, 64x64, monochrome, black and white only, no gradients',
     '1-bit pixel art, Japanese ink wash portrait, contemplative figure silhouette, bamboo and moon, zen minimal, 64x64, monochrome, black and white only, no gradients',
@@ -48,8 +59,14 @@ function getPixelPrompt(): string {
     '1-bit pixel art portrait, 1980s boombox LCD screen style, pixelated face with cassette tape hair, antenna crown, 64x64, monochrome, black and white only, no gradients',
     '1-bit pixel art, old car audio system display, figure composed of speaker cones and waveform lines, 64x64, monochrome, black and white only, no gradients',
   ]
-  const all = [...japanese, ...carAudio]
-  return all[Math.floor(Math.random() * all.length)]
+
+  if (moonIllumination == null) {
+    const all = [...japanese, ...carAudio]
+    return all[Math.floor(Math.random() * all.length)]
+  }
+
+  const pool = moonIllumination >= 50 ? japanese : carAudio
+  return pool[Math.floor(Math.random() * pool.length)]
 }
 
 /** Convert an image to monochrome on a 64×64 canvas */
@@ -104,6 +121,16 @@ export function CosmicUpdateWidget() {
     return t === 'usership' || t === 'rnd' || t === 'legacy'
   })
 
+  // Latest ambient astrology reading (recorded once/day by System.tsx),
+  // read directly off the QIE signal bus so this widget doesn't need its
+  // own copy of the astrology math — the same source other 'cosmic'-tier
+  // consumers key off of per WIDGET_DEPENDENCY_MAP.
+  const astrologySignal = React.useMemo(() => {
+    const signals = intentionEngine.get().signals || []
+    const readings = signals.filter(s => s.source === 'astrology')
+    return readings.length ? readings[readings.length - 1] : null
+  }, [])
+
   if (!hasAccess || !visible) return null
 
   const drawImageToCanvas = (imageUrl: string) => {
@@ -154,7 +181,7 @@ export function CosmicUpdateWidget() {
 
     try {
       cosmicUpdate.mutate(
-        { prompt: getPixelPrompt() },
+        { prompt: getPixelPrompt(astrologySignal?.metadata?.moonIllumination) },
         {
           onSuccess: (data: any) => {
             drawImageToCanvas(data.imageUrl)
@@ -202,7 +229,9 @@ export function CosmicUpdateWidget() {
         {!generated && !loading && !error && (
           <div>
             <div className="mb-8 opacity-30">
-              Pixel reflection — a monochrome transmission.
+              {astrologySignal?.metadata?.auspicious
+                ? 'Pixel reflection — auspicious conditions, signal clarity elevated.'
+                : 'Pixel reflection — a monochrome transmission.'}
             </div>
             <div
               className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
