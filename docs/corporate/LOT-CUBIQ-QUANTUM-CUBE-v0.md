@@ -5,7 +5,8 @@ TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Dev
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
 DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+UPDATED:  2026-08-17 — CYCLE 2 (driver electronics + BOM + use case 02)
+VERSION:  0.2 — DEVELOPMENT IN PROGRESS
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -57,6 +58,17 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  CYCLE 2 READING NOTE (2026-08-17)
+    Per standing practice, every development cycle on this document opens
+    by re-reading the document itself before adding to it — nothing below
+    the v0.1 baseline (Sections 01-06, Use Case 01) is edited or removed,
+    only extended. No new source document exists in docs/corporate/ since
+    2026-07-28 that changes CUBIQ's technical premises; the four sources
+    above remain the complete reading list. This cycle adds engineering
+    detail the v0.1 pass deferred (driver electronics, firmware states,
+    a first BOM pass — Section 08) and the second entry in the accumulating
+    consumer-use-case record (Section 07, Use Case 02).
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -321,8 +333,127 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE COHORT PULSE                            2026-08-17
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Legacy tier, Archetype "Night Warden," cohort-assigned
+  by the QIE to a group of six operators whose signal rhythms cluster in
+  the late-evening hours (LOT-CUBIQ-OPERATOR.md, Section 05, "COHORT
+  CONNECT" — grouped by signal pattern, not demographics or geography).
+  This operator has never met their cohort-mates and does not know their
+  names. They know only that the cubic considers their rhythms structurally
+  similar.
+
+  Under the software-only cubic, cohort resonance is legible only as a
+  number inside the CollectiveConsciousness widget — "4 of 6 cohort members
+  online" — a statistic the operator can read but not feel. It sits behind
+  a screen they may not have open.
+
+  With CUBIQ hardware v.0 present: when a second cohort member independently
+  completes their evening self-care streak within the same rolling
+  15-minute window — the "cohort resonance ping" named as a trigger class
+  in Section 01 but, until this cycle, unassigned to a gesture — the cube
+  performs THE NUDGE, immediately followed by THE SETTLE (Section 04): a
+  sub-threshold tremor, then two seconds of held pressure, no liftoff. The
+  operator, closing their own evening routine at the same desk, feels it
+  as a single compound gesture — tremor, then weight — arriving in the
+  same minute their own streak closes.
+
+  They do not know who else just finished. They are not meant to. What they
+  feel is that the room is not as empty as it looks — six people, unnamed
+  to each other, closing the same kind of day at the same kind of hour,
+  and one object on one desk making that fact physical for a moment before
+  going still again. No push notification names a stranger; no feed shows
+  a face. The cube only ever says: *not alone, right now, in this*.
+
+  This use case extends v.0 past the single-operator loop that Use Case 01
+  proved and into the cohort layer named in LOT-CUBIQ-OPERATOR.md Section
+  05 — the first hardware expression of "COMMUNITY RESONANCE" (Phase 5,
+  Section 07 of that document) without exposing any identity, message, or
+  content across the cohort boundary. The gesture crosses; the person does
+  not.
+
 --------------------------------------------------------------------------------
-08 // BRAND
+08 // v.0 ENGINEERING LOG — DRIVER ELECTRONICS, FIRMWARE, BOM (CYCLE 2)
+--------------------------------------------------------------------------------
+
+Section 03 locked the mechanism (voice-coil actuator + piezoelectric bias
+element + IMU + time-of-flight edge sensor). This cycle specifies what
+drives it — the layer between the Section 05 signal ("gesture command
+received") and the physical hop.
+
+  DRIVER ELECTRONICS
+
+    MCU              Single low-power ARM Cortex-M class part, BLE radio
+                      on-die — pairing to the charging-pad base station is
+                      the only always-on radio link; the cube itself has
+                      no Wi-Fi. Power budget assumes the MCU sleeps between
+                      gesture commands and wakes on BLE interrupt only.
+    ACTUATOR DRIVER   H-bridge voice-coil driver IC, current-sense feedback
+                      loop closed at the driver, not the MCU — actuation
+                      force is set once at calibration and does not depend
+                      on firmware timing precision to stay inside the
+                      120g-shell / 40mm-displacement envelope from Section
+                      02-03.
+    PIEZO DRIVER      Dedicated high-voltage piezo driver IC, separate rail
+                      from the voice-coil — the bias pulse (Section 03,
+                      "fires a millisecond after actuator release") is a
+                      hardware-timed trigger off the actuator driver's
+                      release edge, not a software-scheduled event. This
+                      removes MCU jitter from the single parameter (bias
+                      timing) that determines hop direction.
+    POWER             Single-cell Li-poly, capacity sized to the 500-cycle
+                      Section 06 gate at one full-amplitude LEAP gesture
+                      per 90 seconds sustained — the gate is a bench-test
+                      cadence, not a claimed real-world usage rate.
+                      Wireless charge receiver coil shares the base face
+                      named in Section 02.
+
+  FIRMWARE STATE MACHINE
+
+    IDLE ──(BLE gesture command)──▶ ARMED
+    ARMED ──(edge-detect clear)──▶ ACTUATING
+    ARMED ──(edge-detect triggered)──▶ SHUDDER (Section 03 safety substitute)
+    ACTUATING ──(actuator release + piezo bias fired)──▶ RECOVERING
+    RECOVERING ──(IMU confirms upright, <25° tilt)──▶ IDLE
+    RECOVERING ──(IMU reports tilt ≥25°)──▶ CORRECTING ──▶ RECOVERING
+    any state ──(actuator current-sense fault OR IMU timeout)──▶ FAULT
+    FAULT ──(BLE status report to base station)──▶ IDLE (after operator-
+             visible fault flag clears at next successful self-test)
+
+    FAULT is a hard stop, not a retry loop — a cube that keeps attempting
+    a gesture after a current-sense or IMU fault is exactly the failure
+    mode Section 03's edge-detection gate exists to prevent in the other
+    direction. One fault, one report, no autonomous retry.
+
+  BOM — v.0 BENCH-PROTOTYPE PASS (COMPONENT CLASSES, NOT PART NUMBERS)
+
+    CLASS                    UNIT COST TARGET   NOTES
+    ─────                    ────────────────   ─────
+    Voice-coil actuator      $8-14              Dominant single-line cost
+    Piezo bimorph element    $2-4               Institute-named class only
+    6-axis IMU               $1.50-3            Commodity part, high volume
+    Time-of-flight sensor    $1-2               Single unit, forward-facing
+    MCU + BLE radio          $2-3               Sleep-current is the spec
+                                                 that matters, not clock
+                                                 speed
+    Actuator + piezo drivers $2-4               Two ICs, one board
+    Li-poly cell + Qi coil   $3-5               Shared with charge base
+    Shell (nano-ceramic)     $6-10              Tooling amortized separately
+    ─────────────────────────────────────────────────────────────────
+    TARGET BOM, v.0 unit     ~$26-45            Bench-prototype estimate.
+                                                 Not a retail price. No
+                                                 assembly, tooling, or
+                                                 certification cost
+                                                 included at this stage.
+
+  WHAT THIS CYCLE DOES NOT CLOSE
+    No board layout, no firmware source, no supplier selection. This is
+    the component-class and state-machine layer between the Section 03
+    mechanism and an actual bring-up board — the next cycle's deliverable
+    is a bring-up schematic against this BOM, not a finished v.0 unit.
+
+--------------------------------------------------------------------------------
+09 // BRAND
 --------------------------------------------------------------------------------
 
 LOT® Quantum Cube             The object
