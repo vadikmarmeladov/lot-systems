@@ -2691,6 +2691,28 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'generated_story') {
+          const story = log.metadata?.story as string | undefined
+          const storyPeriodTag = log.metadata?.period as string | undefined
+          const sampleCount = log.metadata?.sampleCount as number | undefined
+          if (!story) return null
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="📖 STORY:" blockView>
+                {storyPeriodTag && storyPeriodTag !== 'recent' && (
+                  <div className="opacity-30 uppercase tracking-widest mb-4 text-xs">
+                    {storyPeriodTag === 'day' ? 'TODAY' : storyPeriodTag === 'week' ? 'LAST 7 DAYS' : storyPeriodTag === 'month' ? 'LAST 30 DAYS' : 'LAST YEAR'}
+                    {sampleCount !== undefined && ` · ${sampleCount} ENTRIES`}
+                  </div>
+                )}
+                <div className="opacity-60">
+                  {story.split('\n').map((line, idx) => (
+                    <div key={idx}>{line || <br />}</div>
+                  ))}
+                </div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'quantum_learning_spiral') {
           const memoryCount  = log.metadata?.memoryCount  as number | undefined
           const journalWords = log.metadata?.journalWords as number | undefined
@@ -3706,6 +3728,7 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [storyPeriod, setStoryPeriod] = React.useState<'day' | 'week' | 'month' | 'year' | 'recent'>('recent')
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -3742,6 +3765,7 @@ const NoteEditor = ({
   const { mutate: submitStory } = useStoryGeneration({
     onSuccess: (data) => {
       setStoryResponse(data.story)
+      if (data.period) setStoryPeriod(data.period)
       setStoryLoading(false)
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
@@ -4125,7 +4149,11 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compressed story from recent activity',
+          '/story day    Compress today into one narrative',
+          '/story week   Compress the last 7 days into one narrative',
+          '/story month  Compress the last 30 days into one narrative',
+          '/story year   Compress the last 365 days into one narrative',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4151,17 +4179,21 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+          const period = periodMatch ? (periodMatch[1].toLowerCase() as 'day' | 'week' | 'month' | 'year') : undefined
+          setStoryPeriod(period || 'recent')
+          const logText = value.replace(/\/story(\s+(day|week|month|year))?/i, '').replace(/📖/g, '').trim()
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText, period })
           }
         }
       }
@@ -4417,6 +4449,11 @@ const NoteEditor = ({
         {(storyLoading || storyResponse) && (
           <div className="mt-8">
             <Block label="📖" blockView>
+              {storyPeriod !== 'recent' && (
+                <div className="opacity-30 uppercase tracking-widest mb-4 text-xs">
+                  {storyPeriod === 'day' ? 'TODAY' : storyPeriod === 'week' ? 'LAST 7 DAYS' : storyPeriod === 'month' ? 'LAST 30 DAYS' : 'LAST YEAR'}
+                </div>
+              )}
               {storyLoading && !storyResponse && (
                 <div className="opacity-40 tracking-widest">...</div>
               )}
