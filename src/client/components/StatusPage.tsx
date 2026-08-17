@@ -111,11 +111,11 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
   const getStatusIcon = (checkStatus: 'ok' | 'error' | 'unknown') => {
     switch (checkStatus) {
       case 'ok':
-        return '✓'
+        return <span aria-hidden="true">✓</span>
       case 'error':
-        return '✕'
+        return <span aria-hidden="true">✕</span>
       case 'unknown':
-        return '?'
+        return <span aria-hidden="true">?</span>
     }
   }
 
@@ -144,7 +144,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       </div>
 
       {loading && !status && (
-        <div className="text-acc/40">Loading...</div>
+        <div className="text-acc/40" role="status" aria-live="polite">Loading...</div>
       )}
 
       {error && !status && (
@@ -158,7 +158,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
       {status && (
         <>
-          <div className="mb-16">
+          <div className="mb-16" role="status" aria-live="polite" aria-atomic="false">
             <Block label="Status:" labelClassName="!pl-0">
               {status.overall === 'ok' ? 'All systems operational' :
                status.overall === 'degraded' ? 'Degraded performance' :
