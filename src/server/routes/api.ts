@@ -13,6 +13,7 @@ import {
   ChatMessageLikeEventPayload,
   ChatMessageLikePayload,
   PublicChatMessage,
+  PublicMailMessage,
   UserSettings,
   UserTag,
 } from '#shared/types'
@@ -24,6 +25,7 @@ import {
   DATE_TIME_FORMAT,
   LOG_MESSAGE_STALE_TIME_MINUTES,
   MAX_LOG_TEXT_LENGTH,
+  MAX_MAIL_MESSAGE_LENGTH,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
   SYNC_CHAT_MESSAGES_TO_SHOW,
   USER_SETTING_NAMES,
@@ -378,6 +380,13 @@ export default async (fastify: FastifyInstance) => {
             attributes: ['id'],
           })
           write({ event, data: { ...payload, isLiked: !!myLike } })
+          break
+        }
+        case 'mail_message': {
+          const payload = data as PublicMailMessage
+          if (payload.senderId === req.user.id || payload.recipientId === req.user.id) {
+            write({ event, data: { ...payload, isMine: payload.senderId === req.user.id } })
+          }
           break
         }
         case 'settings_updated': {
@@ -1032,6 +1041,126 @@ export default async (fastify: FastifyInstance) => {
         }
       })
       return reply.ok()
+    }
+  )
+
+  // LOT Mail — /email log trigger, delivered live via Sync. Recipient pool
+  // is the LOT Community: same tag gate as chat, resolved by first/last name.
+  fastify.get('/mail-messages', async (req: FastifyRequest, reply) => {
+    if (!canAccessChat(req.user.tags || [])) {
+      return reply.status(403).send({ error: 'Mail requires Usership, Onyx, Legacy, R&D, or Admin' })
+    }
+    const messages = await fastify.models.MailMessage.findAll({
+      where: {
+        [Op.or]: [{ senderId: req.user.id }, { recipientId: req.user.id }],
+      },
+      order: [['createdAt', 'DESC']],
+      limit: 200,
+    })
+    if (messages.length === 0) return []
+
+    const userIds = [...new Set(messages.flatMap((m) => [m.senderId, m.recipientId]))]
+    const users = await fastify.models.User.findAll({
+      where: { id: userIds },
+      attributes: ['id', 'firstName', 'lastName'],
+    })
+    const nameById = users.reduce((acc: Record<string, string>, u) => {
+      acc[u.id] = `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Unknown'
+      return acc
+    }, {})
+
+    const result: PublicMailMessage[] = messages.map((m) => ({
+      id: m.id,
+      senderId: m.senderId,
+      recipientId: m.recipientId,
+      message: m.message,
+      readAt: m.readAt,
+      createdAt: m.createdAt,
+      updatedAt: m.updatedAt,
+      senderName: nameById[m.senderId] || 'Unknown',
+      recipientName: nameById[m.recipientId] || 'Unknown',
+      isMine: m.senderId === req.user.id,
+    }))
+    return result
+  })
+
+  fastify.post(
+    '/mail-messages',
+    async (req: FastifyRequest<{ Body: { recipientName: string; message: string } }>, reply) => {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+      if (!canAccessChat(req.user.tags || [])) {
+        return reply.status(403).send({ error: 'Mail requires Usership, Onyx, Legacy, R&D, or Admin' })
+      }
+
+      const recipientName = (req.body.recipientName || '').trim()
+      const message = (req.body.message || '').trim().slice(0, MAX_MAIL_MESSAGE_LENGTH)
+      if (!recipientName || isBlankMessage(message)) {
+        return reply.status(400).send({ error: 'Recipient and message are required' })
+      }
+
+      // Recipient pool is the LOT Community (same gate as Sync chat) — a
+      // free-text name search across the whole user base would leak who
+      // exists on the platform, so scope the ILIKE match to community
+      // members only.
+      const candidates = await fastify.models.User.findAll({
+        where: {
+          id: { [Op.ne]: req.user.id },
+          [Op.and]: [
+            Sequelize.where(
+              Sequelize.fn('CONCAT', Sequelize.col('firstName'), ' ', Sequelize.col('lastName')),
+              { [Op.iLike]: `%${recipientName}%` }
+            ),
+          ],
+        },
+        order: [['lastSeenAt', 'DESC']],
+        limit: 20,
+      })
+      const recipient = candidates.find((u) => {
+        const isRecipientSuspended = u.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+        if (isRecipientSuspended) return false
+        return u.isAdmin() || canAccessChat(u.tags || [])
+      })
+      if (!recipient) {
+        return reply.status(404).send({ error: `No LOT Community member named "${recipientName}" found` })
+      }
+
+      const mailMessage = await fastify.models.MailMessage.create({
+        senderId: req.user.id,
+        recipientId: recipient.id,
+        message,
+      })
+      const payload: PublicMailMessage = {
+        id: mailMessage.id,
+        senderId: req.user.id,
+        recipientId: recipient.id,
+        message: mailMessage.message,
+        readAt: null,
+        createdAt: mailMessage.createdAt,
+        updatedAt: mailMessage.updatedAt,
+        senderName: `${req.user.firstName || ''} ${req.user.lastName || ''}`.trim() || 'Unknown',
+        recipientName: `${recipient.firstName || ''} ${recipient.lastName || ''}`.trim() || 'Unknown',
+        isMine: false, // recomputed client-side per viewer
+      }
+      sync.emit('mail_message', payload)
+
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'mail_sent',
+        text: '',
+        metadata: {
+          mailMessageId: mailMessage.id,
+          recipientId: recipient.id,
+          recipientName: payload.recipientName,
+          message: mailMessage.message,
+        },
+        context,
+      })
+
+      return reply.send({ ...payload, isMine: true })
     }
   )
 

@@ -216,6 +216,17 @@ export type ChatMessageLike = {
   createdAt: Date;
 };
 
+// Mail Message Type — LOT Mail (/email log trigger, delivered via Sync)
+export type MailMessage = {
+  id: string;
+  senderId: string;
+  recipientId: string;
+  message: string;
+  readAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 // Live Message Type
 export type LiveMessage = {
   id: string;
@@ -445,9 +456,17 @@ export type ChatMessageLikeEventPayload = {
   isLiked?: boolean;
 };
 
+// Mail Message Extended Type
+export type PublicMailMessage = MailMessage & {
+  senderName: string;
+  recipientName: string;
+  isMine: boolean;
+};
+
 // Sync Events
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
+  mailMessage: PublicMailMessage;
   settings_updated: Record<string, never>;
 };

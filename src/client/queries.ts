@@ -20,6 +20,7 @@ import {
   Log,
   Paginated,
   PublicChatMessage,
+  PublicMailMessage,
   User,
   UserProfile,
   UserSettings,
@@ -119,6 +120,17 @@ export const useSendDirectMessage = createMutation<
   { receiverId: string; message: string },
   void
 >('post', '/api/direct-messages')
+
+// LOT Mail — /email log trigger, delivered live via Sync
+export const useMailMessages = createQuery<PublicMailMessage[]>(
+  '/api/mail-messages',
+  { refetchOnWindowFocus: false }
+)
+
+export const useSendMailMessage = createMutation<
+  { recipientName: string; message: string },
+  PublicMailMessage
+>('post', '/api/mail-messages')
 
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,

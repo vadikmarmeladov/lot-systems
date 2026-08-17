@@ -24,9 +24,10 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useMailMessages,
 } from '#client/queries'
 import { sync } from '../sync'
-import { PublicChatMessage, UserTag } from '#shared/types'
+import { PublicChatMessage, PublicMailMessage, UserTag } from '#shared/types'
 import {
   SYNC_CHAT_MESSAGES_TO_SHOW,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
@@ -52,6 +53,8 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Mail — SSE-received mail not yet reflected in the API response
+  const [sseMail, setSseMail] = React.useState<PublicMailMessage[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -71,6 +74,7 @@ export const Sync = React.memo(function SyncInner() {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: fetchedMail } = useMailMessages()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -83,6 +87,7 @@ export const Sync = React.memo(function SyncInner() {
   // Ensure fresh data on mount (filters suspended users)
   React.useEffect(() => {
     queryClient.invalidateQueries(['/api/chat-messages'])
+    queryClient.invalidateQueries(['/api/mail-messages'])
   }, [])
 
   // Merge: SSE-only messages (not yet in API response) prepended to API list
@@ -93,6 +98,25 @@ export const Sync = React.memo(function SyncInner() {
     const combined = [...fresh, ...fetched].filter((m) => !isBlankMessage(m.message))
     return canAccessUserProfiles ? combined : combined.slice(0, SYNC_CHAT_MESSAGES_TO_SHOW)
   }, [fetchedMessages, sseMessages, canAccessUserProfiles])
+
+  // LOT Mail — merged the same way, kept as a distinct feed of private
+  // sender/recipient pairs (never broadcast to the whole room).
+  const mail = React.useMemo(() => {
+    const fetched = fetchedMail || []
+    const fetchedIds = new Set(fetched.map((m) => m.id))
+    const fresh = sseMail.filter((m) => !fetchedIds.has(m.id))
+    return [...fresh, ...fetched].filter((m) => !isBlankMessage(m.message))
+  }, [fetchedMail, sseMail])
+
+  // Single chronological feed: public Sync chat + this operator's LOT Mail,
+  // newest first — mail renders tagged and addressed, chat renders plain.
+  const feed = React.useMemo(() => {
+    const chatItems = messages.map((x) => ({ kind: 'chat' as const, item: x, createdAt: x.createdAt }))
+    const mailItems = mail.map((x) => ({ kind: 'mail' as const, item: x, createdAt: x.createdAt }))
+    return [...chatItems, ...mailItems].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+  }, [messages, mail])
 
   React.useEffect(() => {
     const { dispose: disposeChatMessageListener } = sync.listen(
@@ -121,6 +145,20 @@ export const Sync = React.memo(function SyncInner() {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
     }
+  }, [me?.id])
+
+  React.useEffect(() => {
+    const { dispose: disposeMailListener } = sync.listen(
+      'mail_message',
+      (data: PublicMailMessage) => {
+        setSseMail((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [data, ...prev]
+        })
+        queryClient.invalidateQueries(['/api/mail-messages'])
+      }
+    )
+    return disposeMailListener
   }, [me?.id])
 
   const onChangeMessage = React.useCallback((value: string) => setMessage(value), [])
@@ -215,7 +253,41 @@ export const Sync = React.memo(function SyncInner() {
       </div>
 
       <div>
-        {messages.map((x, i) => {
+        {feed.map((entry, i) => {
+          if (entry.kind === 'mail') {
+            const x = entry.item
+            const direction = x.senderId === me?.id ? `→ ${x.recipientName}` : `← ${x.senderName}`
+            return (
+              <div
+                key={x.id}
+                className={cn(
+                  'group flex items-start gap-x-8 -mx-4 px-4 py-2 rounded',
+                  i >= SYNC_CHAT_MESSAGES_TO_SHOW && 'text-acc/20'
+                )}
+              >
+                <Tag className="text-acc/40 select-none whitespace-nowrap" fill={false}>
+                  MAIL
+                </Tag>
+                <span className="whitespace-nowrap -ml-4 px-4 pr-8">{direction}</span>
+                <div
+                  className="whitespace-breakspaces"
+                  style={{
+                    wordWrap: 'break-word',
+                    wordBreak: 'break-word',
+                  }}
+                >
+                  {x.message}
+                </div>
+                {!isTouchDevice && (
+                  <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40">
+                    <MessageTimeLabel dateString={x.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                  </div>
+                )}
+              </div>
+            )
+          }
+
+          const x = entry.item
           const authorObj = typeof x.author === 'object' ? x.author : null
           const authorName = typeof x.author === 'string'
             ? x.author

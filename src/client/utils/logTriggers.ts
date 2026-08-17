@@ -41,6 +41,7 @@ export type LogTrigger =
   | 'system-help'       // /system — list all available slash commands
   | 'story-mode'        // /story — generate contextual story from recent data
   | 'how-checkin'       // /how — open LOT AI check-in (navigates to System tab)
+  | 'email-compose'     // /email to <Name> — send this log entry as LOT Mail
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -67,7 +68,27 @@ const RULES: TriggerRule[] = [
   { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'] },
   { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'] },
   { trigger: 'how-checkin',    emojis: [],        keywords: ['how'] },
+  { trigger: 'email-compose',  emojis: [],        keywords: ['email'] },
 ]
+
+/**
+ * Parses "/email to <Name>" out of a log entry. Returns the recipient name
+ * and the entry text with the trigger phrase stripped (the remainder is the
+ * mail body — the whole entry doubles as the message, matching Log's diary
+ * nature: write, then address it). Returns null if the entry has no /email
+ * trigger or no name follows "to".
+ */
+export function parseEmailTrigger(
+  text: string
+): { recipientName: string; body: string } | null {
+  if (!text) return null
+  const match = text.match(/\/email\s+to\s+([A-Za-z][\w'-]*(?:\s+[A-Za-z][\w'-]*)?)\.?/i)
+  if (!match) return null
+  const recipientName = match[1].trim()
+  if (!recipientName) return null
+  const body = (text.slice(0, match.index) + text.slice((match.index || 0) + match[0].length)).trim()
+  return { recipientName, body }
+}
 
 /**
  * Returns every trigger present in `text`. An empty array means the

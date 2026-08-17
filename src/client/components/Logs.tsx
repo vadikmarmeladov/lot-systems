@@ -28,12 +28,12 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, parseEmailTrigger, type LogTrigger } from '#client/utils/logTriggers'
 import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendMailMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,18 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [mailSending, setMailSending] = React.useState(false)
+  const [mailResult, setMailResult] = React.useState<string | null>(null)
+  const { mutate: submitMail } = useSendMailMessage({
+    onSuccess: (data) => {
+      setMailSending(false)
+      setMailResult(`SENT → ${data.recipientName.toUpperCase()}`)
+    },
+    onError: (err: any) => {
+      setMailSending(false)
+      setMailResult(err?.response?.data?.error?.toUpperCase() || 'SEND FAILED — MAIL OFFLINE')
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4128,6 +4140,7 @@ const NoteEditor = ({
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
+          '/email to <Name>   Send this entry as LOT Mail (appears in Sync)',
           '/assembly     Self-assembly module status',
           '/phys         Physiological cohort report',
           '/qos          Quantum OS state analysis',
@@ -4147,6 +4160,13 @@ const NoteEditor = ({
         setSystemHelp(lines.join('\n'))
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
+      } else if (trigger === 'email-compose') {
+        const parsed = parseEmailTrigger(value)
+        if (parsed && parsed.body.length >= 2 && !mailSending) {
+          setMailSending(true)
+          setMailResult(null)
+          submitMail({ recipientName: parsed.recipientName, message: parsed.body })
+        }
       } else if (trigger === 'story-mode') {
         if (!storyLoading) {
           setStoryLoading(true)
@@ -4286,6 +4306,18 @@ const NoteEditor = ({
                     <div key={idx}>{line}</div>
                   ))}
                 </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {(mailSending || mailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              {mailSending && !mailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Sending...</div>
+              )}
+              {mailResult && (
+                <div className="opacity-60 uppercase tracking-widest">{mailResult}</div>
               )}
             </Block>
           </div>

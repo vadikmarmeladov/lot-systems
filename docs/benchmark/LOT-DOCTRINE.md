@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,18 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Gitignore Anchoring
+
+An unanchored .gitignore pattern (a bare directory name with no leading
+slash, e.g. `server/`) matches that directory name at ANY depth, not just
+the repo root. `server/` was written to exclude a legacy root-level compiled
+output folder but also matched every `*/server/` path in the tree, including
+`src/server/` — silently dropping brand-new files under `src/server/models/`
+from `git add -A` with no error, no warning. Already-tracked files were
+unaffected (gitignore only hides untracked paths), which is why the bug went
+unnoticed: it only bites the next new file in that subtree. Anchor any
+.gitignore rule meant for a specific repo-root path with a leading slash
+(`/server/`); a bare name is a wildcard across the whole tree.
+(SR-20260817-01: new mail-message.ts model silently absent from `git status`
+until the rule was anchored.)

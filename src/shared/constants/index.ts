@@ -36,6 +36,9 @@ export const blankStrippedSql = (col: string): string =>
 
 export const MAX_LOG_TEXT_LENGTH = 3000
 
+// LOT Mail — composed from a Log entry via /email, so capped to match.
+export const MAX_MAIL_MESSAGE_LENGTH = MAX_LOG_TEXT_LENGTH
+
 export const USER_TAGS_BY_ID: Record<UserTag, { name: string; color?: Color }> = {
   [UserTag.Admin]: { name: 'Admin' },
   [UserTag.RND]: { name: 'R&D' },

@@ -46,8 +46,11 @@ postcss.config.*.backup
 *.working
 *.working-backup
 
-# Compiled output (should not be in repo)
-server/
+# Compiled output (should not be in repo) — anchored to repo root; the
+# unanchored form previously matched any nested */server/ path, which was
+# silently swallowing new files under src/server/ (e.g. new models never
+# reaching `git add -A`, discovered LOT-SR-20260817-01).
+/server/
 *.js.map
 
 # Archive files
