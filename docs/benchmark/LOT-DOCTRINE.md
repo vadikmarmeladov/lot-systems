@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,33 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Client Build Is Not Type-Checked
+
+`npm run client:build` compiles the client through esbuild
+(scripts/build/client.build.ts), which transpiles TypeScript without
+verifying it. The only real type gate in the repo's build is
+`npm run server:build` (`tsc --project tsconfig.server.json`), which covers
+src/server and src/shared only. A GREEN CHECK A/B on this repo means the
+server type-checks and the client bundles — it does NOT mean the client is
+type-error-free. `npx tsc --noEmit` against the root tsconfig.json is a
+separate, uncovered signal; as of SR-20260817-01 it reports ~90 pre-existing
+errors across client components and stores.
+
+This gap is the mechanism behind a recurring bug class: a client type
+declaration (a query hook's response shape, a shared interface) falls out of
+sync with what the server actually sends or a component actually reads, and
+nothing in the build catches it. If the mismatched field is read, the
+component silently gets `undefined` forever (SR-20260817-01 F1: GET /me
+never sent `joinedAt`; MonthlyPulseWidget's fire condition depended on it
+and was permanently false since the widget shipped in SR-20260707-01). If
+the field exists at runtime but isn't declared, nothing breaks today but the
+type system can't stop a future refactor from deleting it (F3: `insight` on
+useCreateMemory). Widget-wiring audits should diff each query hook's
+declared type against its route handler's actual return shape, not trust a
+green build to mean the contract holds.
+
+(SR-20260817-01: joinedAt wired into useProfileView() + UserProfile;
+useCreateMemory widened to match /api/memory/answer; QIE P147 dayMs
+ReferenceError fixed — unrelated to type drift, a plain undeclared
+identifier that only tsc --noEmit against root tsconfig would have caught.)

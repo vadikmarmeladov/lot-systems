@@ -73,6 +73,7 @@ export type UserProfile = {
   timeChime?: boolean;
   memoryEngine?: 'ai' | 'standard';
   isAdmin?: boolean;
+  joinedAt?: Date | null;
 };
 
 export type User = {
@@ -284,6 +285,8 @@ export type PublicProfile = {
   psychologicalProfile?: {
     hasUsership: boolean;
     message?: string;
+    version?: string; // OS version — months since user joined, zero-padded
+    streak?: number;
     archetype?: string;
     archetypeDescription?: string;
     coreValues?: string[];
@@ -293,6 +296,7 @@ export type PublicProfile = {
     behavioralCohort?: string;
     behavioralTraits?: string[];
     patternStrength?: Array<{ trait: string; count: number }>;
+    patternStrengthIndex?: number;
     answerCount?: number;
     noteCount?: number;
     // Enhanced psychological depth metrics
