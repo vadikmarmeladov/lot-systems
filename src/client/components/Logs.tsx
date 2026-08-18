@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendLotEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,8 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -3762,6 +3764,23 @@ const NoteEditor = ({
       valueRef.current = updated
       onChangeRef.current(updated)
       setIsSaved(true)
+    },
+  })
+  const { mutate: submitLotEmail } = useSendLotEmail({
+    onSuccess: (data, variables) => {
+      setEmailLoading(false)
+      const name = variables.recipientName.toUpperCase()
+      if (!data.recipientResolved) {
+        setEmailResult(`${name} NOT FOUND IN LOT COMMUNITY — POSTED TO SYNC ONLY`)
+      } else {
+        setEmailResult(
+          `EMAIL SENT → ${name}${data.isCohortMatch ? ' ❤️ COHORT MATCH' : ''}${data.delivered ? '' : ' (IN-APP ONLY — NO ADDRESS ON FILE)'}`
+        )
+      }
+    },
+    onError: () => {
+      setEmailLoading(false)
+      setEmailResult('EMAIL FAILED — TRY AGAIN')
     },
   })
   const debounceTime = 7000  // 7s for all logs
@@ -4139,6 +4158,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Send a LOT Email to a Community member — appears in Sync',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4147,6 +4167,18 @@ const NoteEditor = ({
         setSystemHelp(lines.join('\n'))
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
+      } else if (trigger === 'lot-email') {
+        const emailMatch = value.match(/\/email\s+to\s+([a-z][a-z'-]*)\.?/i)
+        if (emailMatch && !emailLoading) {
+          const recipientName = emailMatch[1]
+          const body = value.replace(emailMatch[0], '').replace(/✉️?/g, '').trim()
+          setEmailLoading(true)
+          setEmailResult(null)
+          submitLotEmail({
+            recipientName,
+            message: body || `${recipientName}, you have a new LOT Email.`,
+          })
+        }
       } else if (trigger === 'story-mode') {
         if (!storyLoading) {
           setStoryLoading(true)
@@ -4384,6 +4416,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="✉️" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6' }}>{emailResult}</div>
+              )}
             </Block>
           </div>
         )}

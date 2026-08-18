@@ -200,6 +200,21 @@ export type DirectMessage = {
   updatedAt: Date;
 };
 
+// LOT Email — composed via "/email to <name>" in Log, resolved against the
+// LOT Community directory (registered users), optionally cross-referenced
+// against Cohort Matches (see #server/utils/patterns findCohortMatches).
+export type LotEmail = {
+  id: string;
+  senderId: string;
+  recipientId: string | null;
+  recipientNameRaw: string;
+  message: string;
+  isCohortMatch: boolean;
+  delivered: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 // Chat Message Types
 export type ChatMessage = {
   id: string;

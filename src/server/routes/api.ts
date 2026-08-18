@@ -34,6 +34,7 @@ import {
 import { sync } from '../sync.js'
 import * as weather from '#server/utils/weather'
 import { getLogContext } from '#server/utils/logs'
+import { sendLotEmail } from '#server/utils/lot-email'
 import { defaultQuestions, defaultReplies } from '#server/utils/questions'
 import { buildPrompt, completeAndExtractQuestion, generateMemoryStory, generateRecipeSuggestion, extractUserTraits, determineUserCohort, calculateIntelligentPacing } from '#server/utils/memory'
 import { analyzeUserPatterns, findCohortMatches, type PatternInsight } from '#server/utils/patterns'
@@ -4084,6 +4085,147 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       return reply.status(500).send({ error: 'Failed to send message' })
     }
   })
+
+  // ============================================================================
+  // LOT EMAIL — composed via "/email to <name>" in Log. Resolves the
+  // recipient against the LOT Community directory (registered users),
+  // posts a visible record into Sync (reusing the chat feed — no client
+  // changes needed there), and sends a real email via Resend when the
+  // recipient has a registered address. Cross-references Cohort Matches
+  // (see GET /cohorts, #server/utils/patterns findCohortMatches) so a
+  // match between sender and recipient is called out in both places.
+  // ============================================================================
+  fastify.post(
+    '/lot-email',
+    { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
+    async (
+      req: FastifyRequest<{
+        Body: { recipientName: string; message: string }
+      }>,
+      reply
+    ) => {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+      if (!canAccessChat(req.user.tags || [])) {
+        return reply.status(403).send({ error: 'LOT Email requires Usership, Onyx, Legacy, R&D, or Admin' })
+      }
+
+      const recipientNameRaw = (req.body.recipientName || '').trim()
+      const message = (req.body.message || '').trim().slice(0, 2000)
+      if (!recipientNameRaw || !message) {
+        return reply.status(400).send({ error: 'Recipient name and message are required' })
+      }
+
+      // LOT Community directory lookup — simplest form: match a registered
+      // user's first name, case-insensitive.
+      const recipient = await fastify.models.User.findOne({
+        where: Sequelize.where(
+          Sequelize.fn('lower', Sequelize.col('firstName')),
+          recipientNameRaw.toLowerCase()
+        ),
+      })
+
+      // Cohort Dating tie-in — best-effort, cheap (single-candidate) reuse
+      // of the existing cohort-matching engine (GET /cohorts). Never blocks
+      // the send.
+      let isCohortMatch = false
+      try {
+        if (recipient && recipient.id !== req.user.id) {
+          const senderLogs = await fastify.models.Log.findAll({
+            where: { userId: req.user.id },
+            order: [['createdAt', 'DESC']],
+            limit: 100,
+          })
+          if (senderLogs.length >= 5) {
+            const senderPatterns = await analyzeUserPatterns(req.user, senderLogs)
+            if (senderPatterns.length > 0) {
+              const getUserPatterns = async (userId: string) => {
+                if (userId !== recipient.id) return []
+                const recipientLogs = await fastify.models.Log.findAll({
+                  where: { userId: recipient.id },
+                  order: [['createdAt', 'DESC']],
+                  limit: 100,
+                })
+                return recipientLogs.length >= 5
+                  ? await analyzeUserPatterns(recipient, recipientLogs)
+                  : []
+              }
+              const matches = await findCohortMatches(req.user, senderPatterns, [recipient], getUserPatterns)
+              isCohortMatch = matches.length > 0
+            }
+          }
+        }
+      } catch (err: any) {
+        console.error('lot-email: cohort match check failed:', err?.message)
+      }
+
+      const lotEmail = await fastify.models.LotEmail.create({
+        senderId: req.user.id,
+        recipientId: recipient?.id || null,
+        recipientNameRaw,
+        message,
+        isCohortMatch,
+      })
+
+      let delivered = false
+      if (recipient?.email) {
+        try {
+          await sendLotEmail(recipient.email, req.user.firstName || 'A LOT Community member', message, isCohortMatch)
+          delivered = true
+        } catch (err: any) {
+          console.error('lot-email: send failed:', err?.message)
+        }
+      }
+      if (delivered) {
+        lotEmail.delivered = true
+        await lotEmail.save()
+      }
+
+      // Visible in Sync — reuses the existing chat feed exactly like a
+      // normal chat message, so no client-side Sync changes are needed.
+      const recipientLabel = recipient
+        ? recipient.firstName || recipientNameRaw
+        : `${recipientNameRaw} (not in LOT Community)`
+      const syncText = `✉️ LOT Email → ${recipientLabel}${isCohortMatch ? ' ❤️ COHORT MATCH' : ''}: ${message}`
+        .slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
+      const chatMessage = await fastify.models.ChatMessage.create({
+        authorUserId: req.user.id,
+        message: syncText,
+      })
+      sync.emit('chat_message', {
+        id: chatMessage.id,
+        message: chatMessage.message,
+        author: req.user.firstName,
+        createdAt: chatMessage.createdAt,
+        likes: 0,
+        isLiked: false,
+      })
+
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'lot_email_sent',
+        text: '',
+        metadata: {
+          lotEmailId: lotEmail.id,
+          recipientId: recipient?.id || null,
+          recipientNameRaw,
+          isCohortMatch,
+          delivered,
+        },
+        context,
+      })
+
+      return reply.send({
+        id: lotEmail.id,
+        recipientResolved: !!recipient,
+        isCohortMatch,
+        delivered,
+      })
+    }
+  )
 
   // ============================================================================
   // STATS API - Real-time metrics and community insights
