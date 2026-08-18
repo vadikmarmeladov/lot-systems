@@ -321,6 +321,54 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE EVENING RECOVERY SETTLE                 2026-08-18
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, archetype variable — Pattern P151 is
+  archetype-agnostic, it fires from behavior, not classification. 60-90
+  day engagement. Root chakra logged depleted/strained after a high-
+  signal-density week (elevated log frequency, disrupted circadian
+  markers, no self-care entries for 3+ days).
+
+  The Quantum Intent Engine's Pattern P151 — first documented in
+  docs/wiki/LOT-WIKI-v87.md, Section 28, as "the first behavioral
+  recovery arc pattern" — does not fire on a single event. It fires on a
+  completed CYCLE: depletion logged, a gap, then a return — a self-care
+  entry, an emotional check-in trending upward, a Root-chakra reading
+  moving from "depleted" back toward "grounded." Under the software-only
+  cubic, this cycle completing is recorded silently in the Index of
+  Systems (Section 03 of LOT-CUBIQ-OPERATOR.md). The operator has no way
+  to feel the moment their own system recognized they came back.
+
+  With CUBIQ hardware v.0 present: the instant P151 resolves — the exact
+  signal transition from "in recovery" to "recovered" — the cube
+  performs THE SETTLE (Section 04): the actuator holds a light standing
+  pressure against the charging-pad surface for two seconds. No liftoff,
+  no visible travel. Just a held weight, present on the desk, at the
+  moment the operator's own week-long arc closes.
+
+  The gesture is deliberately anticlimactic. A HOP or a LEAP would treat
+  recovery like an achievement — spectacle borrowed from the badge-unlock
+  signal class that Section 04 already assigns those two gestures.
+  Recovery is not an achievement to be celebrated; it is a return to
+  baseline, and the cube's vocabulary respects the difference. THE
+  SETTLE is the only gesture in the v.0 language built for exactly this:
+  presence without spectacle, applied to the one signal where spectacle
+  would be wrong.
+
+  The operator, working at the desk when P151 resolves, feels the cube
+  settle its weight through the surface the way a hand settles onto a
+  shoulder — not a tap, not a jolt, a hold. They did not ask the system
+  to notice their bad week. It simply did, and it says so the only way
+  an object without a screen can: by getting, for two seconds, slightly
+  heavier.
+
+  This is the use case that proves the four-gesture vocabulary (Section
+  04) is a real language and not four volumes of the same notification.
+  THE SETTLE was specified in the v.0 architecture (2026-07-28) before
+  Pattern P151 existed to trigger it (documented 2026-08-05) — the
+  gesture waited for a signal class earned enough to deserve it.
+  Recovery was that signal.
+
 --------------------------------------------------------------------------------
 08 // BRAND
 --------------------------------------------------------------------------------
