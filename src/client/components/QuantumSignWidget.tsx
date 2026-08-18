@@ -11,6 +11,7 @@ import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useLogs } from '#client/queries'
+import { getMoonPhase, getRokuyo } from '#shared/utils/astrology'
 
 /**
  * Quantum Sign Widget — For subscribers whose payment is their last money
@@ -79,12 +80,27 @@ export function QuantumSignWidget() {
       { id: 'growth-edge', name: 'Growth Edge', desc: 'Comfort zone expansion calibration' },
     ]
 
-    // Rotate patches based on day of year
-    const astroIdx = dayOfYear % astrologyPatches.length
+    // Astrology patch reflects the same ambient reading shown on the System
+    // dashboard's Astrology block (src/client/components/System.tsx) instead
+    // of a bare day-of-year rotation, so the two widgets agree on "why today":
+    // the two lunar landmark phases surface Lunar Reset, an auspicious Taian
+    // rokuyo day surfaces Mercury Direct, everything else falls back to a
+    // stable day-of-year rotation over the remaining patches.
+    const moonPhase = getMoonPhase(today).phase
+    const rokuyo = getRokuyo(today)
+    const remainingPatches = astrologyPatches.filter(p => p.id !== 'lunar-reset' && p.id !== 'mercury-direct')
+    const astrologyPatch =
+      moonPhase === 'New Moon' || moonPhase === 'Full Moon'
+        ? astrologyPatches[0] // lunar-reset
+        : rokuyo === 'Taian'
+        ? astrologyPatches[2] // mercury-direct
+        : remainingPatches[dayOfYear % remainingPatches.length]
+
+    // Rotate psychology patch based on day of year
     const psychIdx = dayOfYear % psychologyPatches.length
 
     return {
-      astrology: astrologyPatches[astroIdx],
+      astrology: astrologyPatch,
       psychology: psychologyPatches[psychIdx],
     }
   }, [])

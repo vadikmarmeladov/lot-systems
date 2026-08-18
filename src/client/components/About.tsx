@@ -3991,6 +3991,23 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             astronomical algorithms, not API calls. Updates daily.
           </P>
 
+          <SubHeading>Synchronization</SubHeading>
+          <P>
+            One ambient reading, reused everywhere it appears — no widget
+            computes its own zodiac hour or moon phase. The Field Log's ASTRO
+            line on system_snapshot entries now shows all four readings
+            (western zodiac, hourly zodiac, rokuyo, moon phase) instead of
+            two. The Biofield table's Ambient row reads the same reading:
+            "Auspicious" on a Taian day, otherwise the moon phase name. The
+            Quantum Sign Widget's Astrology patch (Usership/R&D subscribers)
+            reflects real conditions instead of a bare day-of-year rotation —
+            Lunar Reset on the two lunar landmark phases (new, full), Mercury
+            Direct on a Taian day, a stable day-of-year fallback otherwise.
+            Recorded once per calendar day to the QIE signal bus via
+            recordAstrologySignal so pattern recognition can read it under
+            Tier 0 'astrology'.
+          </P>
+
           {/* ── WEATHER SOUND SYSTEM ────────────────────────────────── */}
           <SectionHeading id="weather-sound">Weather Sound System</SectionHeading>
           <P>

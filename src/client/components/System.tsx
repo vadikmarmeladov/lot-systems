@@ -693,6 +693,7 @@ export const System = React.memo(function SystemInner() {
                 { metric: 'Archetype', value: physiologicalCohort?.archetype ?? '—' },
                 { metric: 'Cohort', value: physiologicalCohort?.dominantModule ?? '—' },
                 { metric: 'Phase', value: getCircadianPhase() },
+                { metric: 'Ambient', value: astrology.rokuyo === 'Taian' ? 'Auspicious' : astrology.moonPhase },
                 { metric: 'Confidence', value: physiologicalCohort ? `${physiologicalCohort.confidence}%` : '—' },
                 { metric: 'ATP', value: quantumState.energy },
                 { metric: 'Clarity', value: quantumState.clarity },
