@@ -3,8 +3,17 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-27 (updated)
+DATE:     2026-06-27 (updated); note appended 2026-08-18 (see LOT-SR-20260818-01)
 ================================================================================
+
+NOTE 2026-08-18 (LOT-SR-20260818-01): this file has not had a full audit
+since 2026-06-27. Remote branch count has grown from 144 to 626 in that
+window; the "beautiful-johnson" cluster (Basics Tab) alone is now 45
+branches, up from 2. The BEST candidate below (56p7ov) is still unshipped —
+its Month-1 scope was reused and re-verified on claude/beautiful-johnson-
+y03g39 this session rather than re-derived, but no branch in this cluster
+has gone through Ship Mode. A full Sunday Self-Assembly audit (§06) across
+all clusters is overdue and out of scope for a single-feature session.
 
 Central catalog of all self-assembly routines across all branches.
 Read this file to know what exists, what's ready, and what to ship.
