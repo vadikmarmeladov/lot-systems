@@ -16,11 +16,39 @@ import type { Dayjs } from '#client/utils/dayjs'
 import { recordCalendarSignal } from '#client/stores/intentionEngine'
 
 type EntryType = 'note' | 'task' | 'call'
+type EntryStatus = 'overdue' | 'now' | 'upcoming' | 'all-day'
+
+const REMINDER_OPTIONS: { minutes: number; label: string }[] = [
+  { minutes: 0, label: 'At time' },
+  { minutes: 5, label: '5 min before' },
+  { minutes: 15, label: '15 min before' },
+  { minutes: 30, label: '30 min before' },
+  { minutes: 60, label: '1 hour before' },
+  { minutes: 1440, label: '1 day before' },
+]
 
 type CalendarEntry = {
   date: string
   text: string
   type: EntryType
+  time?: string
+  reminderMinutes?: number
+}
+
+function getEntryStatus(entry: CalendarEntry, now: Dayjs): EntryStatus {
+  if (!entry.time) return 'all-day'
+  const at = dayjs(`${entry.date}T${entry.time}`)
+  const diffMinutes = at.diff(now, 'minute')
+  if (diffMinutes < 0) return 'overdue'
+  if (diffMinutes <= 5) return 'now'
+  return 'upcoming'
+}
+
+const STATUS_TAG: Record<EntryStatus, string> = {
+  overdue: 'MISSED',
+  now: '● NOW',
+  upcoming: '',
+  'all-day': 'ALL-DAY',
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
@@ -59,6 +87,17 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [entryTime, setEntryTime] = React.useState('')
+  const [entryReminder, setEntryReminder] = React.useState(0)
+  const [now, setNow] = React.useState(() => dayjs())
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      if (document.hidden) return
+      setNow(dayjs())
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -67,9 +106,13 @@ export function CalendarWidget() {
         date: log.metadata?.date as string,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
+        time: log.metadata?.time as string | undefined,
+        reminderMinutes: typeof log.metadata?.reminderMinutes === 'number'
+          ? log.metadata.reminderMinutes
+          : undefined,
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''))
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
@@ -109,14 +152,17 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeLabel = entryTime ? ` @ ${entryTime}` : ''
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel}${timeLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
         text: entryText.trim(),
         entryType,
+        time: entryTime || undefined,
+        reminderMinutes: entryTime ? entryReminder : undefined,
       },
     }, {
       onSuccess: () => {
@@ -126,6 +172,8 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
+    setEntryReminder(0)
     setIsAddingEntry(false)
   }
 
@@ -227,6 +275,25 @@ export function CalendarWidget() {
                     </button>
                   ))}
                 </div>
+                <div className="flex gap-8 items-center mb-8">
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40"
+                  />
+                  {entryTime && (
+                    <select
+                      value={entryReminder}
+                      onChange={e => setEntryReminder(Number(e.target.value))}
+                      className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40"
+                    >
+                      {REMINDER_OPTIONS.map(opt => (
+                        <option key={opt.minutes} value={opt.minutes}>{opt.label}</option>
+                      ))}
+                    </select>
+                  )}
+                </div>
                 <div className="flex gap-8 items-center">
                   <input
                     type="text"
@@ -247,11 +314,22 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
-                  </div>
-                ))}
+                {entriesOnDate.map((e, i) => {
+                  const status = getEntryStatus(e, now)
+                  return (
+                    <div key={i} className="flex gap-8 text-acc/80 mb-1">
+                      <span className="text-acc/40 whitespace-nowrap">
+                        [{e.time || STATUS_TAG['all-day']}]
+                      </span>
+                      <span className={cn(status === 'overdue' && 'text-acc/40 line-through')}>
+                        {e.text}
+                      </span>
+                      {STATUS_TAG[status] && status !== 'all-day' && (
+                        <span className="text-acc/40 whitespace-nowrap">{STATUS_TAG[status]}</span>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -259,16 +337,28 @@ export function CalendarWidget() {
 
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+            {upcomingEntries.map((entry, i) => {
+              const status = getEntryStatus(entry, now)
+              return (
+                <div key={i} className="flex justify-between gap-16">
+                  <span className="text-acc whitespace-nowrap">
+                    {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                    {entry.time && <span className="text-acc/40"> {entry.time}</span>}
+                  </span>
+                  <span
+                    className={cn(
+                      'text-right',
+                      status === 'now' ? 'text-acc' : 'text-acc/80'
+                    )}
+                  >
+                    {STATUS_TAG[status] && status !== 'all-day' && (
+                      <span className="text-acc/40 mr-8">{STATUS_TAG[status]}</span>
+                    )}
+                    {entry.text}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 
