@@ -32,7 +32,9 @@ import publicApiRoutes from './routes/public-api.js'
 const CWD = process.cwd()
 
 const fastify = Fastify({
-  logger: false  // Temporarily disable logging for development
+  logger: config.env === 'development'
+    ? { level: 'info', transport: { target: 'pino-pretty' } }
+    : { level: 'warn' },
 })
 
 const KNOWN_CLIENT_ROUTES = ['/', '/settings', '/api', '/sync', '/log']
