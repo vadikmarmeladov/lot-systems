@@ -782,6 +782,9 @@ export type BadgeType =
   | 'tolkien_ring'           // ◆·∞·◆  "one ring to rule/precious/ring of power" detected (RARE)
   | 'odysseus_bow'           // →·∞·→  "odysseus/ulysses/ithaca/penelope/cyclops" detected (EPIC)
   | 'gilgamesh_word'         // ∞·□·∞  "gilgamesh/enkidu/great flood/utnapishtim" detected (MYTHIC)
+  // ── Log Command Codex v1 — /system and /story discovery ─────────────────────
+  | 'console_operator'       // /≡  Opened the /system command index for the first time (UNCOMMON)
+  | 'story_weaver'           // ▤·∞  Generated a personal story with /story for the first time (RARE)
 
 export interface Badge {
   id: BadgeType
@@ -7130,6 +7133,25 @@ export const BADGES: Record<BadgeType, Badge> = {
     rarity: 'mythic',
     category: 'secret_boss',
     hidden: true,
+  },
+  // ── Log Command Codex v1 ──────────────────────────────────────────────────
+  console_operator: {
+    id: 'console_operator',
+    symbol: '/≡',
+    name: 'Console Operator',
+    description: 'Opened the /system command index in the Log for the first time',
+    unlockMessage: '↳ Command index open. Every protocol visible. You are not guessing anymore. /≡',
+    rarity: 'uncommon',
+    category: 'milestone',
+  },
+  story_weaver: {
+    id: 'story_weaver',
+    symbol: '▤·∞',
+    name: 'Story Weaver',
+    description: 'Generated a personal story with /story for the first time',
+    unlockMessage: '↳ The machine read the days back to you, compressed. Compression is not loss — it is a second sight. ▤·∞',
+    rarity: 'rare',
+    category: 'milestone',
   },
 }
 
