@@ -20,6 +20,8 @@ Core technical documentation about system architecture, engines, and implementat
 - Memory Engine Documentation - Complete Memory Engine system docs
 - Psychological Depth Analysis - User analysis engine documentation
 - Quantum Intent Engine - Intent pattern recognition system
+- Interface Evolution System - Behavioral 7-dimension UI refinement
+- [Usership 12-Month Evolution](./technical/USERSHIP-12-MONTH-EVOLUTION.md) - Tenure-based Day 1 → LOT® AI arc, the Almanac design brief
 
 ### [Deployment Documentation](./deployment/)
 Guides for deploying and managing the application in production.
