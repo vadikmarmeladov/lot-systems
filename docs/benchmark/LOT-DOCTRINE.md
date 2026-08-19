@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -172,7 +172,28 @@ the protection is at the query layer.
 queries replaced with single batched IN query. user-stats 4 sequential queries
 parallelized. chat-messages users+likes parallelized. cohort limited to 200.
 Client: 3 redundant analyzeIntentions() calls removed — already has 5-min
-cooldown at intentionEngine.ts:231.)
+cooldown at intentionEngine.ts:231. SR-20260819-01: memory/answer's
+prevQuestionIds Answer.findAll — id+metadata only, no time window — bounded
+to limit: 200, matching the existing cohort-matching precedent.)
+
+## Stranded Session Branches (BRANCH-STRAND, observation — not yet a directive)
+
+A recurring scheduled routine that cuts a fresh branch from master each run,
+never merges it back, and is re-invoked before the prior run's branch is
+reviewed will accumulate orphan branches whose fixes never compound: each new
+run scans the same unpatched master the previous run already fixed, and
+either re-finds and re-fixes the same defect (wasted work) or — worse — misses
+it entirely because the scan style that day didn't happen to exercise that
+code path (SR-20260819-01: 19 `claude/charming-albattani-*` branches, one per
+day 2026-07-22 to 2026-08-18, zero merged to master; branch ofbejf's 2026-08-
+17 QIE-crash fix was invisible to branch zrr4k3's 2026-08-18 scan of the same
+stale base, which reported "no defects requiring fix"). This is recorded as
+an observation, not a directive: the remedy (a merge/ship step after each
+run, a persistent branch instead of a fresh one, or MANIFEST tracking for
+ship-mode consolidation) is a process decision for S-2, not something a scan
+session should self-authorize.
+(SR-20260819-01: BRANCH-STRAND named; 3 fixes recovered from branch ofbejf
+and re-verified against current master before reapplying.)
 
 ## Master-Authoritative Files (WIKI-GUARD)
 

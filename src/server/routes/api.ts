@@ -2272,6 +2272,7 @@ export default async (fastify: FastifyInstance) => {
               },
               order: [['createdAt', 'DESC']],
               attributes: ['id', 'metadata'],
+              limit: 200,
             }).then((xs) => Array.from(new Set(xs.map((x) => x.metadata?.questionId).filter(Boolean))))
           } catch (queryError: any) {
             console.warn('Previous questions query failed, using all default questions:', queryError.message)

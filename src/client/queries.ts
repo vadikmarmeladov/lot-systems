@@ -133,7 +133,7 @@ export const useVisitorStats = createQuery<{
 
 export const useLogs = createQuery<Log[]>('/api/logs', {
   refetchOnWindowFocus: false, // Prevent refetching on tab switch (was creating duplicate empty logs)
-  staleTime: 5 * 60 * 1000, // Cache for 5 minutes — /api/logs has no LIMIT so keep fetches infrequent
+  staleTime: 5 * 60 * 1000, // Cache for 5 minutes — /api/logs is capped at 500 rows but still keep fetches infrequent
 })
 
 export const useCreateLog = createMutation<{ text: string; event?: string; metadata?: Record<string, any> }, Log>(
@@ -215,7 +215,7 @@ export const useCreateMemory = createMutation<
     question?: string
     options?: string[]
   },
-  { response: string }
+  { response: string; insight?: string | null; answerCount?: number }
 >('post', '/api/memory/answer')
 
 // Admin API

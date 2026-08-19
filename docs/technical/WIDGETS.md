@@ -167,12 +167,12 @@ Surfaces self-care suggestions during key times of day (10 AM–12 PM, 2–5 PM,
 - **Data Source:** Quantum Intention Engine analysis; `localStorage` for cooldown and session tracking
 - **Connection:** Conditionally displayed in System.tsx; gated by both time-of-day and pattern detection logic
 
-### Awareness Dashboard
+### Awareness Dashboard (NOT MOUNTED)
 
 A clickable, cycling display of the user's psychological profile. Shows self-awareness percentage, archetype, values, emotional patterns, dominant needs, sentiment breakdown, and introspection depth.
 
 - **Data Source:** `/api/profile` endpoint via the `useProfile` hook
-- **Connection:** Displays profile-derived awareness metrics; integrated into the System.tsx layout
+- **Status:** Component exists at `AwarenessDashboard.tsx` but is not imported by System.tsx — skipped as a duplicate of live widgets per SR-20260719-01 (R6). Kept for reference; not currently reachable in the dashboard.
 
 ---
 
@@ -367,13 +367,13 @@ An offline mode manifest displayed when the device is offline or in investor mod
 
 ## Quantum Engine Connect Widgets
 
-Toggle-based connection widgets for the LOT ecosystem of smart devices. Each widget records connect/disconnect signals to the Quantum Intention Engine for pattern analysis.
+Toggle-based connection widgets for the LOT ecosystem of smart devices. Each widget records connect/disconnect signals to the Quantum Intention Engine for pattern analysis. As of this audit the mesh spans six nodes — Car, Home, Computer, Phone, Watch, and Robot (`QuantumEngineWidgets.tsx`).
 
 ### Ecosystem Status
 
-Displays when at least one device is connected. Shows connected node count and ecosystem narrative describing the coherence level of the device mesh. When all three devices are connected, records an `ecosystem_full_coherence` composite signal.
+Displays when at least one device is connected. Shows connected node count and ecosystem narrative describing the coherence level of the device mesh. When all connected devices reach full coherence, records an `ecosystem_full_coherence` composite signal.
 
-- **Data Source:** Derived from Car/Home/Computer connection states
+- **Data Source:** Derived from Car/Home/Computer/Phone/Watch/Robot connection states
 - **Connection:** Ecosystem narrative from `narrative.ts`; composite signal to Quantum Intention Engine
 
 ### Car Connect
@@ -396,6 +396,27 @@ Connect your DIY PC to the LOT quantum engine. Toggle on/off to record computer 
 
 - **Data Source:** Local component state persisted via `localStorage`
 - **Connection:** Records `computer_connected` / `computer_disconnected` signals to the Quantum Intention Engine; feeds Ecosystem Bridge assembly module
+
+### Phone Connect
+
+Connect your phone to the LOT quantum engine. Toggle on/off to record phone connection state.
+
+- **Data Source:** Local component state persisted via `localStorage`
+- **Connection:** Records `phone_connected` / `phone_disconnected` signals to the Quantum Intention Engine; feeds Ecosystem Bridge assembly module
+
+### Watch Connect
+
+Connect your watch to the LOT quantum engine. Toggle on/off to record watch connection state.
+
+- **Data Source:** Local component state persisted via `localStorage`
+- **Connection:** Records `watch_connected` / `watch_disconnected` signals to the Quantum Intention Engine; feeds Ecosystem Bridge assembly module
+
+### Robot Connect
+
+Connect your robot to the LOT quantum engine. Toggle on/off to record robot connection state.
+
+- **Data Source:** Local component state persisted via `localStorage`
+- **Connection:** Records `robot_connected` / `robot_disconnected` signals to the Quantum Intention Engine; feeds Ecosystem Bridge assembly module
 
 ---
 
