@@ -14,6 +14,7 @@ import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
 import { recordCalendarSignal } from '#client/stores/intentionEngine'
+import { CalendarEventNotifications, type CalendarNotice } from '#client/components/CalendarEventNotification'
 
 type EntryType = 'note' | 'task' | 'call'
 
@@ -23,7 +24,27 @@ type CalendarEntry = {
   type: EntryType
 }
 
+type ActiveTracking = {
+  date: string
+  text: string
+  entryType: EntryType
+  startedAtIso: string
+}
+
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+const TRACKING_STORAGE_KEY = 'calendar_active_tracking'
+
+function formatDuration(ms: number): string {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000))
+  const hours = `0${Math.floor(totalSeconds / 3600)}`.slice(-2)
+  const minutes = `0${Math.floor((totalSeconds % 3600) / 60)}`.slice(-2)
+  const seconds = `0${totalSeconds % 60}`.slice(-2)
+  return `${hours}:${minutes}:${seconds}`
+}
+
+function dtgNow(): string {
+  return dayjs().utc().format('DDHHmm[Z] MMMYY').toUpperCase()
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -59,6 +80,52 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+
+  const [activeTracking, setActiveTracking] = React.useState<ActiveTracking | null>(null)
+  const [trackedElapsed, setTrackedElapsed] = React.useState(0)
+  const [notices, setNotices] = React.useState<CalendarNotice[]>([])
+  const trackStartRef = React.useRef<number | null>(null)
+  const trackFrameRef = React.useRef<number>()
+
+  const dismissNotice = React.useCallback((id: string) => {
+    setNotices(prev => prev.filter(n => n.id !== id))
+  }, [])
+
+  const pushNotice = React.useCallback((code: string, title: string, detail?: string) => {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const notice: CalendarNotice = { id, code, title, detail, dtg: dtgNow() }
+    setNotices(prev => [...prev.slice(-2), notice])
+    setTimeout(() => dismissNotice(id), 4500)
+  }, [dismissNotice])
+
+  // Restore an in-flight tracking session across reloads (wall-clock delta, not perf.now — that resets on reload)
+  React.useEffect(() => {
+    try {
+      const raw = localStorage.getItem(TRACKING_STORAGE_KEY)
+      if (!raw) return
+      const saved = JSON.parse(raw) as ActiveTracking
+      if (!saved?.startedAtIso || !saved.date || !saved.text) return
+      const elapsedSinceStart = Date.now() - new Date(saved.startedAtIso).getTime()
+      trackStartRef.current = performance.now() - elapsedSinceStart
+      setActiveTracking(saved)
+    } catch (_) { /* corrupt/missing session, ignore */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const tick = React.useCallback((time: number) => {
+    if (trackStartRef.current == null) return
+    setTrackedElapsed(time - trackStartRef.current)
+    trackFrameRef.current = requestAnimationFrame(tick)
+  }, [])
+
+  React.useEffect(() => {
+    if (activeTracking && trackStartRef.current != null) {
+      trackFrameRef.current = requestAnimationFrame(tick)
+    }
+    return () => {
+      if (trackFrameRef.current) cancelAnimationFrame(trackFrameRef.current)
+    }
+  }, [activeTracking, tick])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -122,11 +189,54 @@ export function CalendarWidget() {
       onSuccess: () => {
         queryClient.refetchQueries(['/api/logs'])
         try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        pushNotice('CAL·SCHED', 'ENTRY LOGGED', `${entryType.toUpperCase()} — ${dateLabel.toUpperCase()}`)
       },
     })
 
     setEntryText('')
     setIsAddingEntry(false)
+  }
+
+  const isTrackingEntry = (entry: CalendarEntry) =>
+    !!activeTracking && activeTracking.date === entry.date && activeTracking.text === entry.text
+
+  const handleStopTracking = () => {
+    if (!activeTracking || trackStartRef.current == null) return
+
+    const durationMs = Math.max(0, performance.now() - trackStartRef.current)
+    const durationLabel = formatDuration(durationMs)
+    const endedAtIso = new Date().toISOString()
+    const { date, text, entryType: trackedType, startedAtIso } = activeTracking
+
+    createLog({
+      text: `[TIME LOG] ${trackedType}: ${text} — ${durationLabel}`,
+      event: 'calendar_time_log',
+      metadata: { date, text, entryType: trackedType, durationMs, startedAt: startedAtIso, endedAt: endedAtIso },
+    }, {
+      onSuccess: () => queryClient.refetchQueries(['/api/logs']),
+    })
+
+    localStorage.removeItem(TRACKING_STORAGE_KEY)
+    trackStartRef.current = null
+    setActiveTracking(null)
+    setTrackedElapsed(0)
+    pushNotice('CAL·LOG', 'TIME LOGGED', `${text.toUpperCase()} — ${durationLabel}`)
+  }
+
+  const handleToggleTracking = (entry: CalendarEntry) => {
+    if (isTrackingEntry(entry)) {
+      handleStopTracking()
+      return
+    }
+    if (activeTracking) handleStopTracking()
+
+    const startedAtIso = new Date().toISOString()
+    const next: ActiveTracking = { date: entry.date, text: entry.text, entryType: entry.type, startedAtIso }
+    trackStartRef.current = performance.now()
+    setTrackedElapsed(0)
+    setActiveTracking(next)
+    localStorage.setItem(TRACKING_STORAGE_KEY, JSON.stringify(next))
+    pushNotice('CAL·TRK', 'TIME TRACKING ENGAGED', entry.text.toUpperCase())
   }
 
   const handleToggleCalendar = () => {
@@ -139,10 +249,24 @@ export function CalendarWidget() {
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
-        <div className="mb-16">
+        <div className="mb-16 flex items-center justify-between gap-16">
           <Button onClick={handleToggleCalendar}>
             Add date
           </Button>
+
+          {activeTracking && (
+            <div className="flex items-center gap-8 text-[11px] uppercase tracking-widest">
+              <span className="text-acc/50 whitespace-nowrap">
+                ▶ TRK {activeTracking.text}
+              </span>
+              <button
+                onClick={handleStopTracking}
+                className="text-acc tabular-nums hover:text-acc/70 transition-opacity"
+              >
+                {formatDuration(trackedElapsed)}
+              </button>
+            </div>
+          )}
         </div>
 
         {isCalendarOpen && (
@@ -247,11 +371,23 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
-                  </div>
-                ))}
+                {entriesOnDate.map((e, i) => {
+                  const tracking = isTrackingEntry(e)
+                  return (
+                    <div key={i} className="flex items-center justify-between gap-8 text-acc/80 mb-1">
+                      <span>{e.text}</span>
+                      <button
+                        onClick={() => handleToggleTracking(e)}
+                        className={cn(
+                          'text-[11px] uppercase tracking-widest tabular-nums transition-opacity whitespace-nowrap',
+                          tracking ? 'text-acc' : 'text-acc/30 hover:text-acc/60'
+                        )}
+                      >
+                        {tracking ? formatDuration(trackedElapsed) : 'Track'}
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -276,6 +412,8 @@ export function CalendarWidget() {
           <div className="text-acc/40">No upcoming dates.</div>
         )}
       </div>
+
+      <CalendarEventNotifications notices={notices} onDismiss={dismissNotice} />
     </Block>
   )
 }

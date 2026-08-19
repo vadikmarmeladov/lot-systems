@@ -42,6 +42,14 @@ const localStore = {
   logIds: atom<string[]>([]),
 }
 
+function formatDurationHms(ms: number): string {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000))
+  const hours = `0${Math.floor(totalSeconds / 3600)}`.slice(-2)
+  const minutes = `0${Math.floor((totalSeconds % 3600) / 60)}`.slice(-2)
+  const seconds = `0${totalSeconds % 60}`.slice(-2)
+  return `${hours}:${minutes}:${seconds}`
+}
+
 export const Logs: React.FC = React.memo(function LogsInner() {
   const inputContainerRef = React.useRef<HTMLDivElement>(null)
   const containerRef = React.useRef<HTMLDivElement>(null)
@@ -2084,6 +2092,23 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               <Block label="CAL:" blockView>
                 <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
                 {date && <div className="opacity-40 mt-8">{date}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_time_log') {
+          const trackedText = log.metadata?.text as string | undefined
+          const entryType = log.metadata?.entryType as string | undefined
+          const durationMs = log.metadata?.durationMs as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-TRK:" blockView>
+                {trackedText && <div className="uppercase tracking-widest">{trackedText}</div>}
+                <div className="flex justify-between items-baseline mt-8">
+                  {entryType && <span className="opacity-30">{entryType.toUpperCase()}</span>}
+                  {durationMs !== undefined && (
+                    <span className="opacity-60 tabular-nums">{formatDurationHms(durationMs)}</span>
+                  )}
+                </div>
               </Block>
             </LogContainer>
           )
