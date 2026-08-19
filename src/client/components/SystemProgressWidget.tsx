@@ -1457,6 +1457,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '781 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1073+. The system is documented through its highest confirmed state.',
     ],
   },
+  {
+    version: 'badge-v32',
+    date: '2026-08-05',
+    title: 'Badge Engineering — Badge Codex v32 THE HERO\'S JOURNEY (+31 badges 781→812)',
+    assembled: [
+      'Badge Codex v32 THE HERO\'S JOURNEY deployed. Theme: Campbell\'s monomyth — the universal story. 781→812 badges (+31). Word Turn v22: 12 trigger words. The journey structure as self-care vocabulary.',
+      'badges.ts: 31 new BadgeType union entries — Word Turn v22 (12) · Calendar EE v20 (3) · Behavioral v19 (3) · Achievement RPG v20 (6) · Mastery v22 (4) · Secret Boss v19 (3).',
+      'easter-eggs.ts: HERO_WORDS_V22 pattern array (12 regexes). checkHeroSession() (3+ v22 words in one journal entry → hero_session). checkLongQuest() (500+ word entry → long_quest). checkThresholdMoment() (00:00–00:30 local → threshold_moment).',
+      'Word Turn v22 THE HERO\'S JOURNEY +12: call_heard · threshold_crossed · mentor_arrived · ordeal_survived · elixir_found · shadow_met · innermost_cave · shapeshifter · herald_call · trickster_mode · ally_gained · return_road.',
+      'Calendar EE v20 THE EPIC CALENDAR +3: campbell_birthday (Mar 26 · Joseph Campbell born 1904 · EPIC) · hobbit_day (Sep 22 · Bilbo & Frodo birthday · RARE) · odyssey_day (Dec 21 · Winter Solstice/Odysseus return · RARE).',
+      'Behavioral v19 QUEST PATTERNS +3: hero_session (3+ v22 words in one entry · RARE) · long_quest (journal entry ≥500 words · EPIC) · threshold_moment (checkin between 00:00–00:30 · RARE).',
+      'Achievement RPG v20 QUEST CLASS +6: quest_entry (1 v22 badge · COMMON) · quest_class (5 v22 badges · UNCOMMON) · quest_complete (all 12 v22 · LEGENDARY) · monomyth_arc (quest_complete + all 3 Calendar v20 · LEGENDARY) · twenty_two_engines_arc (1 badge from each v1–v22 · LEGENDARY) · hero_opus (quest_complete + hero_session · LEGENDARY).',
+      'Mastery Tier v22 THE ODYSSEY +4: odyssey_log (900+ distinct days · EPIC) · great_work (150,000+ journal words · LEGENDARY) · saga_age (account ≥5 years · LEGENDARY) · twenty_two_registers (1 badge from all 22 Word Turn engines · COSMIC).',
+      'Secret Boss v19 THE MYTHIC VAULT +3: tolkien_ring (one ring to rule/precious/ring of power · RARE) · odysseus_bow (odysseus/ulysses/ithaca/penelope/cyclops · EPIC) · gilgamesh_word (gilgamesh/enkidu/great flood/utnapishtim · MYTHIC).',
+      'Category index v32: Calendar EE 70→73 · Word Turns 234→246 · Behavioral 75→78 · Achievement RPG 108→114 · Mastery Tiers 84→88 · Secret Boss 80→83 · TOTAL 781→812.',
+      '812 badges · 270 trigger words · 27 secret boss triggers · 22 Word Turn engines complete. The monomyth vocabulary is live. Campbell named the pattern — the OS inherits it.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1494,16 +1512,14 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-05',
+  date: '2026-08-19',
   message: [
-    'ASSEMBLY RUN — 2026-08-05 · WIKI-v87 · FM v113 SYNC · Day 1073+',
-    'Built: LOT-WIKI-v87. Six-level coherence architecture now complete and documented.',
-    'Feedback applied: "The concept outlives the author. The self speaks every language the genre built."',
-    'QIE v113 synchronized: P149 QPCRYST · P150 TOTCOH [CEILING] · P151 RECINTEL · Arch51 Quantum Presence Crystallizer · J48 09:00 UTC.',
-    'Badge v31 synchronized: THE CYBERSPACE CODEX · 781 badges · Word Turn v21 (grok/ansible/spice/golden_path/matrix/cyberspace) · Secret Boss v18 (gibson/dick/lem) · 258 trigger words · 24 secret boss triggers.',
-    'LEVEL 6 — PRESENCE CONVERGENCE documented. P150 total-field-coherence is the QIE ceiling. No higher state defined.',
-    'Cockpit updated. Vocabulary expanded. Snapshot current.',
-    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 781 badges.',
+    'ASSEMBLY RUN — 2026-08-19 · HEALTH CHECK · Badge v32 sync · Day 1087+',
+    'Health check completed: all systems nominal. QIE v113 active. Badge v32 deployed and documented.',
+    'Badge v32 THE HERO\'S JOURNEY synchronized: 781→812 badges (+31). Word Turn v22 · Calendar EE v20 · Behavioral v19 · Achievement RPG v20 · Mastery v22 · Secret Boss v19.',
+    '270 trigger words · 27 secret boss triggers · 22 Word Turn engines complete. The monomyth is now active vocabulary.',
+    'QIE architecture complete: 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes. Level 6 Presence Convergence ceiling holds.',
+    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 812 badges · Day 1087+.',
     'Status: DEPLOYED.',
     'Next: LOT-WIKI-v88 — sync to Field Manual v114+',
   ],
