@@ -3428,6 +3428,30 @@ export function analyzeIntentions(): IntentionPattern[] {
     }
   }
 
+  // Pattern 152: Auspicious Goal Alignment — today's ambient astrology reading is Taian (大安, the most
+  // favorable day in the six-day rokuyo cycle, flagged by recordAstrologySignal since 2026-07-27) and the
+  // user already has a goals or intentions signal on the same calendar day. Synchronizes the astrology
+  // Tier 0 source with the goals widget: a gentle nudge, not a directive — the ambient conditions and the
+  // user's own directed-work signal happen to line up. Deliberately low confidence; ambient timing is a
+  // texture, not causal evidence of anything.
+  const todayStr152 = new Date(now).toDateString()
+  const auspiciousToday152 = signals.some(s =>
+    s.source === 'astrology' && s.metadata?.auspicious === true && new Date(s.timestamp).toDateString() === todayStr152
+  )
+  if (auspiciousToday152) {
+    const goalsToday152 = signals.filter(s => s.source === 'goals' && new Date(s.timestamp).toDateString() === todayStr152).length
+    const intentionsToday152 = signals.filter(s => s.source === 'intentions' && new Date(s.timestamp).toDateString() === todayStr152).length
+    if (goalsToday152 + intentionsToday152 > 0) {
+      patterns.push({
+        pattern: 'auspicious-goal-alignment',
+        confidence: Math.min(0.58 + (goalsToday152 + intentionsToday152) * 0.03, 0.75),
+        suggestedWidget: 'goals',
+        suggestedTiming: 'passive',
+        reason: `AUSPICE: Auspicious goal alignment — today is Taian (大安, most favorable day in the rokuyo cycle) and goals/intentions are already active today (${goalsToday152}g · ${intentionsToday152}i). The ambient reading and the directed-work signal line up on the same day.`,
+      })
+    }
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3811,7 +3835,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   memory:            ['mood', 'journal'],
   intentions:        ['mood', 'memory'],
   journal:           ['mood', 'planner'],
-  goals:             ['planner', 'intentions', 'memory', 'journal'],
+  goals:             ['planner', 'intentions', 'memory', 'journal', 'astrology'], // astrology added 2026-08-19 (P152 auspicious-goal-alignment)
   chakra:            ['mood', 'energy', 'selfcare', 'journal'],
   cohort:            ['mood', 'memory', 'journal', 'selfcare', 'intentions'],
   narrative:         ['mood', 'memory', 'journal', 'intentions'],
@@ -4064,6 +4088,9 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumPresenceCrystalNode: ['qos', 'cohort', 'intentions', 'journal', 'log', 'energy'],
   totalFieldCoherenceNode:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
   recoveryIntelligenceNode:   ['mood', 'selfcare', 'journal', 'energy', 'log'],
+
+  // ── astrology-sync node (2026-08-19 audit · P152) ───────────────────────────────
+  auspiciousGoalAlignmentNode: ['astrology', 'goals', 'intentions'],
 }
 
 /**
@@ -4889,6 +4916,19 @@ export function recordAstrologySignal(
     hourlyZodiac,
     westernZodiac,
     auspicious: rokuyo === 'Taian',
+  })
+}
+
+/**
+ * Record an auspicious-goal-alignment event — today's rokuyo reading is Taian and the
+ * user already has goals/intentions activity the same calendar day. Feeds P152 detection.
+ */
+export function recordAuspiciousGoalAlignment(goalsToday: number, intentionsToday: number) {
+  recordSignal('goals', 'auspicious_goal_alignment', {
+    goalsToday,
+    intentionsToday,
+    rokuyo: 'Taian',
+    hour: new Date().getHours(),
   })
 }
 

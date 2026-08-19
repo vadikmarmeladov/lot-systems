@@ -1213,6 +1213,8 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // 2026-08-19: auspicious goal alignment — astrology widget sync (P152)
+      'auspicious_goal_alignment',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

@@ -3629,6 +3629,33 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'auspicious_goal_alignment') {
+          const goalsToday = log.metadata?.goalsToday as number | undefined
+          const intentionsToday = log.metadata?.intentionsToday as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="AUSPICE:" blockView>
+                <div className="uppercase tracking-widest mb-4">AUSPICIOUS GOAL ALIGNMENT</div>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">ROKUYO</span>
+                  <span className="tabular-nums">TAIAN (大安)</span>
+                </div>
+                {goalsToday !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GOALS TODAY</span>
+                    <span className="tabular-nums">{goalsToday}</span>
+                  </div>
+                )}
+                {intentionsToday !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENTIONS TODAY</span>
+                    <span className="tabular-nums">{intentionsToday}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">AMBIENT READING · DIRECTED WORK — ALIGNED</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -182,6 +182,7 @@ export function PatternRecognitionWidget() {
       'quantum-presence-crystallization': 'Quantum presence crystallization — presence field + identity crystallized co-active, maximum clarity (P149)',
       'total-field-coherence':            'Total field coherence — all three meta-seals open simultaneously, absolute convergence (P150)',
       'recovery-intelligence-arc':        'Recovery intelligence arc — depletion → care → restoration → reflection loop completed within 6h (P151)',
+      'auspicious-goal-alignment':        'Auspicious goal alignment — today is Taian and goals/intentions are already active (P152)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
