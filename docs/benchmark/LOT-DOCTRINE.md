@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,29 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Two Story Mechanisms, Not One
+
+The Log stream is written into by two distinct "story" producers that must
+not be conflated when either is modified:
+
+1. `/story` (operator-invoked, `POST /api/story`) — AI-generated via
+   `aiEngineManager`, rate-limited, Usership-gated, writes `event:
+   'generated_story'`. Accepts an optional `period` arg
+   (day/week/month/year) that clamps the log query window and reshapes the
+   prompt's compression instructions accordingly; with no arg it keeps the
+   original "most recent" behavior for backward compatibility.
+2. Job 24 (automatic, Sunday 18:00 UTC, `executeWeeklyLOTAIStory`) —
+   template-based, no AI call, unconditional for every active user, writes
+   `event: 'lot_ai_story'` + `user.metadata.weeklyStory`.
+
+Both close the same brief ("compress the loop, surface peaks") through
+different trust levels: the template job is deterministic and always
+available; the AI command is richer but vendor-dependent. A future change
+to one must not assume it is the only story writer — `displayableEvents`
+in `routes/api.ts` must whitelist both event names, and any UI that reads
+"the story" must decide which of the two it means.
+
+(SR-20260819-01: /story period arg added — day/week/month/year window
+clamp + compression-scope prompt line; period stored in generated_story
+metadata for future QIE pattern use.)
