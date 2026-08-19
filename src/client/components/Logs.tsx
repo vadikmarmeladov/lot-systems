@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useCreateChatMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,15 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailSending, setEmailSending] = React.useState(false)
+  const { mutate: sendLotEmail } = useCreateChatMessage({
+    onSuccess: () => setEmailSending(false),
+    onError: () => {
+      setEmailSending(false)
+      setEmailResult('EMAIL FAILED — Sync unavailable or Chat access required.')
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4139,12 +4148,27 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to [name] [message]   Send LOT Email — delivered to Sync',
           '/system       This help screen',
           '',
           'SHORTCUTS',
           'Ctrl+Enter    Save log immediately',
         ]
         setSystemHelp(lines.join('\n'))
+      } else if (trigger === 'email-compose') {
+        const emailMatch = value.match(/\/email\s+to\s+(\S+)\s+([\s\S]+)/i)
+        if (emailMatch && emailMatch[2].trim().length >= 1 && !emailSending) {
+          const recipientName = emailMatch[1].trim()
+          const body = emailMatch[2].trim()
+          setEmailSending(true)
+          setEmailResult(`SENDING → ${recipientName}...`)
+          sendLotEmail(
+            { message: body, recipientName },
+            {
+              onSuccess: () => setEmailResult(`SENT → ${recipientName} — delivered to Sync`),
+            }
+          )
+        }
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
       } else if (trigger === 'story-mode') {
@@ -4370,6 +4394,13 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="FREEZE:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{freezeResult}</div>
+            </Block>
+          </div>
+        )}
+        {emailResult && (
+          <div className="mt-8">
+            <Block label="✉ EMAIL:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
             </Block>
           </div>
         )}

@@ -13,7 +13,8 @@ import { ChatMessage as ChatMessageModel } from '#shared/types'
 type ChatMessageCreateFields = Pick<
   ChatMessageModel,
   'authorUserId' | 'message'
->
+> &
+  Partial<Pick<ChatMessageModel, 'recipientName' | 'recipientUserId'>>
 
 export class ChatMessage
   extends Model<ChatMessageModel, ChatMessageCreateFields>
@@ -22,6 +23,8 @@ export class ChatMessage
   declare id: ChatMessageModel['id']
   declare authorUserId: ChatMessageModel['authorUserId']
   declare message: ChatMessageModel['message']
+  declare recipientName: ChatMessageModel['recipientName']
+  declare recipientUserId: ChatMessageModel['recipientUserId']
   declare createdAt: ChatMessageModel['createdAt']
   declare updatedAt: ChatMessageModel['updatedAt']
 }
@@ -46,6 +49,19 @@ ChatMessage.init(
     message: {
       type: DataTypes.TEXT,
       allowNull: false,
+    },
+    recipientName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    recipientUserId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      onDelete: 'SET NULL',
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

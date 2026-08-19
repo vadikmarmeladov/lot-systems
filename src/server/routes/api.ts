@@ -898,13 +898,27 @@ export default async (fastify: FastifyInstance) => {
     const likes = allLikes.filter(l => filteredMessages.some(m => m.id === l.messageId))
     const likesByMessageId = likes.reduce(fp.groupBy('messageId'), {})
 
+    const recipientIds = [...new Set(
+      messages.map((m) => m.recipientUserId).filter((id): id is string => Boolean(id))
+    )]
+    const recipients = recipientIds.length
+      ? await fastify.models.User.findAll({ where: { id: recipientIds } })
+      : []
+    const recipientById = recipients.reduce(fp.by('id'), {})
+
     const result: PublicChatMessage[] = filteredMessages.map((x) => {
       const author = userById[x.authorUserId]
       const likes = likesByMessageId[x.id] || []
+      const recipient = x.recipientUserId ? recipientById[x.recipientUserId] : null
       return {
         id: x.id,
         authorUserId: x.authorUserId,
         message: x.message,
+        recipientName: x.recipientName || null,
+        recipientUserId: x.recipientUserId || null,
+        recipient: recipient
+          ? { id: recipient.id, firstName: recipient.firstName, lastName: recipient.lastName }
+          : null,
         author: author?.firstName || null,
         createdAt: x.createdAt,
         updatedAt: x.updatedAt,
@@ -918,7 +932,7 @@ export default async (fastify: FastifyInstance) => {
 
   fastify.post(
     '/chat-messages',
-    async (req: FastifyRequest<{ Body: { message: string } }>, reply) => {
+    async (req: FastifyRequest<{ Body: { message: string; recipientName?: string } }>, reply) => {
       // Prevent suspended users from posting messages
       const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
       if (isSuspended) {
@@ -933,27 +947,48 @@ export default async (fastify: FastifyInstance) => {
       if (isBlankMessage(message)) {
         return reply.status(400).send({ error: 'Message cannot be empty' })
       }
+
+      // LOT Email: "/email to <name>" in Log arrives here with recipientName
+      // set. Resolve it against known users — the substrate a future Cohort
+      // Dating / LOT Community directory would read the same way.
+      const recipientName = req.body.recipientName?.trim().slice(0, 80) || null
+      let recipient: InstanceType<typeof fastify.models.User> | null = null
+      if (recipientName) {
+        recipient = await fastify.models.User.findOne({
+          where: { firstName: { [Op.iLike]: recipientName } },
+        })
+      }
+
       const chatMessage = await fastify.models.ChatMessage.create({
         authorUserId: req.user.id,
         message,
+        recipientName,
+        recipientUserId: recipient?.id || null,
       })
       sync.emit('chat_message', {
         id: chatMessage.id,
         message: chatMessage.message,
+        recipientName: chatMessage.recipientName,
+        recipientUserId: chatMessage.recipientUserId,
+        recipient: recipient
+          ? { id: recipient.id, firstName: recipient.firstName, lastName: recipient.lastName }
+          : null,
         author: req.user.firstName,
         createdAt: chatMessage.createdAt,
         likes: 0,
         isLiked: false,
       })
-      // Log chat message synchronously with context for pattern analysis
+      // Log the message synchronously with context for pattern analysis.
+      // LOT Email gets its own event name so it reads separately in the ledger.
       const context = await getLogContext(req.user)
       await fastify.models.Log.create({
         userId: req.user.id,
-        event: 'chat_message',
+        event: recipientName ? 'email_message' : 'chat_message',
         text: '',
         metadata: {
           chatMessageId: chatMessage.id,
           message: chatMessage.message,
+          ...(recipientName ? { recipientName, recipientUserId: recipient?.id || null } : {}),
         },
         context,
       })

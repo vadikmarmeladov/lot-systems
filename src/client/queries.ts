@@ -83,10 +83,10 @@ export const useLiveMessage = createQuery<{ message: string }>(
 export const useChatMessages =
   createQuery<PublicChatMessage[]>('/api/chat-messages')
 
-export const useCreateChatMessage = createMutation<{ message: string }, void>(
-  'post',
-  '/api/chat-messages'
-)
+export const useCreateChatMessage = createMutation<
+  { message: string; recipientName?: string },
+  void
+>('post', '/api/chat-messages')
 
 export const useLikeChatMessage = createMutation<ChatMessageLikePayload, void>(
   'post',

@@ -205,6 +205,10 @@ export type ChatMessage = {
   id: string;
   authorUserId: string;
   message: string;
+  // LOT Email: set when the message was composed via "/email to <name>" in
+  // Log. Null for ordinary Sync/Lot Chat messages.
+  recipientName: string | null;
+  recipientUserId: string | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -427,6 +431,9 @@ export type Paginated<T> = {
 export type PublicChatMessage = ChatMessage & {
   author: Pick<User, 'id' | 'firstName' | 'lastName'> | string | null;
   authorUserId?: string;
+  // Resolved recipient, when recipientName matched a known user (LOT
+  // Community substrate — the join point future Cohort Dating UI reads).
+  recipient?: Pick<User, 'id' | 'firstName' | 'lastName'> | null;
   likesCount: number;
   likes?: number;
   isLiked: boolean;

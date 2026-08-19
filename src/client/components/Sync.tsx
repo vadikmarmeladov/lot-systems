@@ -244,6 +244,15 @@ export const Sync = React.memo(function SyncInner() {
               ) : (
                 <span className="whitespace-nowrap -ml-4 px-4 pr-8">{authorName}</span>
               )}
+              {x.recipientName && (
+                <Tag
+                  className="text-acc/40 select-none -mt-[2px] whitespace-nowrap"
+                  title={x.recipient ? 'LOT Email — recipient matched a known user' : 'LOT Email — recipient not yet a known user'}
+                  fill={false}
+                >
+                  ✉ → {x.recipient ? (x.recipient.firstName || x.recipientName) : x.recipientName}
+                </Tag>
+              )}
               <div
                 className="whitespace-breakspaces"
                 style={{
