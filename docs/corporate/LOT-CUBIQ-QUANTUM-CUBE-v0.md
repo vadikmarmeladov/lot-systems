@@ -5,8 +5,13 @@ TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Dev
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
 DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+VERSION:  0.2 — DEVELOPMENT CYCLE 2
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
+REVISIONS:
+  0.1  2026-07-28  Initial v.0 spec — form, actuation, gesture language,
+                    QI·46 signal loop, roadmap, USE CASE 01
+  0.2  2026-08-19  USE CASE 02 appended. No prior section edited or
+                    removed — see Section 07 discipline.
 ================================================================================
 
 --------------------------------------------------------------------------------
@@ -57,6 +62,16 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  CYCLE 2 RE-READ — 2026-08-19
+  Before appending USE CASE 02, this document was re-read in full,
+  along with LOT-CUBIQ-OPERATOR.md Section 05 ("Community Creation") and
+  LOT_QI46_ENGINE.md Layer 0 (line 108-111: "LOT® Institute white
+  papers — CQGS, Quantum Cube, bioelectric philosophy" confirms the
+  Institute is the named source lineage for this hardware, not this
+  document inventing new provenance). No architectural section below
+  (01-06) required a change — v.0's scope, form, actuation, gesture
+  table, signal loop, and roadmap all still hold. Only Section 07 grows.
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -320,6 +335,53 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE RECORDING BOOTH                          2026-08-19
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: R&D tier, Archetype "Momentum Architect," runs a
+  one-person home podcast/voice-work studio — a treated closet with a
+  narrow desk, an XLR mic on a boom arm, and a mixing surface with maybe
+  180mm of clear space on either side of the interface. The CUBIQ
+  charging pad sits at the desk's left edge, just outside the mic's
+  polar pattern.
+
+  Two signal classes from the Index of Systems reach this operator
+  differently than they reached the Desk Migration operator in Use Case
+  01, because the environment itself is different — every sound in this
+  room is a sound that might end up on a recording.
+
+  FIRST SIGNAL — COHORT RESONANCE. Mid-take, another operator in this
+  person's behavioral cohort (LOT-CUBIQ-OPERATOR.md, Section 05,
+  "Cohort Connect") crosses a badge threshold of their own — a shared
+  structural rhythm registering elsewhere in the network. Section 04's
+  gesture table maps no signal to a dedicated "cohort" gesture; per the
+  Section 04 principle that presence should stay at the edge of
+  awareness, this class is routed to the lightest primitive available —
+  THE NUDGE. A sub-threshold tremor passes through the desk, absorbed by
+  the mixing surface's rubber feet, inaudible on the mic 400mm away. The
+  operator's take is unbroken. They learn about the cohort ping later,
+  from the Index, not from the cube interrupting a recording.
+
+  SECOND SIGNAL — BADGE UNLOCKED (common tier), fired when the operator's
+  log streak crosses a threshold recognized mid-session. Per Section 04
+  this maps to THE HOP — a real, visible vertical hop, not sub-threshold.
+  The desk is narrow. The Section 03 edge-detection gate (time-of-flight,
+  base-face, forward-facing — Section 03, "SAFETY — EDGE DETECTION")
+  checks the 20mm clearance rule against the mixing-desk edge before the
+  actuator fires. On this desk, clearance is inside tolerance and the hop
+  proceeds; on a narrower interface it would have silently downgraded to
+  THE SETTLE instead. The operator, between takes, sees the cube hop in
+  their peripheral vision, smiles, keeps recording. No chime was ever a
+  candidate — an audio chime landing on an open mic track is not a
+  notification, it is a defect. Motion is the only channel this operator
+  could have trusted the cube to use.
+
+  This is the use case that argues for Section 04's language choice
+  itself: in a room where every sound is captured and every desk is
+  narrow, a device that speaks by moving — checked against its own
+  edge-detection gate before every gesture — is not a stylistic
+  preference. It is the only notification channel this operator's
+  environment can accept at all.
 
 --------------------------------------------------------------------------------
 08 // BRAND
