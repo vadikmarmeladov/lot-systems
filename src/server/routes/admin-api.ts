@@ -373,6 +373,81 @@ export default async (fastify: FastifyInstance) => {
     }
   )
 
+  // ============================================================================
+  // BASICS RATION MODULE — LOT-FM-001 M2 (ROSTER)
+  // ============================================================================
+  fastify.get('/basics/roster', async (req: FastifyRequest, reply) => {
+    if (!req.user.canEditTags()) {
+      reply.status(403)
+      throw new Error('Access denied: Only the CEO can view the roster')
+    }
+    const users = await fastify.models.User.findAll()
+    const roster = users
+      .filter((u) => u.metadata?.basics)
+      .map((u) => ({
+        id: u.id,
+        firstName: u.firstName,
+        lastName: u.lastName,
+        email: u.email,
+        address: u.address,
+        phone: u.phone,
+        basics: u.metadata.basics,
+      }))
+    return roster
+  })
+
+  fastify.post(
+    '/basics/:userId/advance',
+    async (req: FastifyRequest<{ Params: { userId: string } }>, reply) => {
+      if (!req.user.canEditTags()) {
+        reply.status(403)
+        throw new Error('Access denied: Only the CEO can confirm the roster')
+      }
+      const user = await fastify.models.User.findByPk(req.params.userId)
+      if (!user) return reply.throw.notFound()
+      const basics = user.metadata?.basics
+      if (!basics) return reply.throw.badParams('User has no BASICS record')
+
+      if (basics.status === 'PENDING') {
+        const tags = user.tags.includes('basic')
+          ? user.tags
+          : [...user.tags, 'basic']
+        await user
+          .set({
+            tags,
+            metadata: {
+              ...user.metadata,
+              basics: {
+                ...basics,
+                status: 'ON_STRENGTH',
+                confirmedAt: dayjs().toISOString(),
+              },
+            },
+          })
+          .save()
+      } else if (basics.status === 'ON_STRENGTH') {
+        await user
+          .set({
+            metadata: {
+              ...user.metadata,
+              basics: {
+                ...basics,
+                status: 'STEADY_STATE',
+                steadyStateAt: dayjs().toISOString(),
+              },
+            },
+          })
+          .save()
+      } else {
+        return reply.throw.badParams(
+          `Nothing to advance from ${basics.status}`
+        )
+      }
+      sync.emit('settings_updated', { userId: user.id })
+      return user
+    }
+  )
+
   fastify.get(
     '/users/:userId/memory-prompt',
     async (req: FastifyRequest<{ Params: { userId: string } }>, reply) => {

@@ -17,6 +17,7 @@ export enum UserTag {
   Pro = 'Pro',
   Suspended = 'Suspended',
   Legacy = 'Legacy',
+  Basic = 'Basic',
 }
 
 // User Types
@@ -73,6 +74,7 @@ export type UserProfile = {
   timeChime?: boolean;
   memoryEngine?: 'ai' | 'standard';
   isAdmin?: boolean;
+  metadata?: Record<string, any>;
 };
 
 export type User = {

@@ -76,6 +76,17 @@ export const useUpdateSettings = createMutation<UserSettings, void>(
   '/api/settings'
 )
 
+// Basics ration module (LOT-FM-001 M2)
+export const useEnrollBasics = createMutation<{ sizing: string }, void>(
+  'post',
+  '/api/basics/enroll'
+)
+
+export const useStandDownBasics = createMutation<void, void>(
+  'post',
+  '/api/basics/stand-down'
+)
+
 export const useLiveMessage = createQuery<{ message: string }>(
   '/api/live-message'
 )
