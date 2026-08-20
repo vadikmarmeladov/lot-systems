@@ -3,7 +3,7 @@ LOT SYSTEMS / SELF-ASSEMBLY MANIFEST
 DOCUMENT: LOT-MANIFEST
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-06-27 (updated)
+DATE:     2026-08-20 (updated)
 ================================================================================
 
 Central catalog of all self-assembly routines across all branches.
@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
+Basics Tab       | beautiful-johnson-b981v5      | (pending)| 1/1  | BEST   | 17    | +793   | BASICS M1+M2: /basics finally made genuinely public (standalone entry+route, root-cause fix — see LOT-SR-20260820-01); supersedes k91wjf (34a2bb26), which had M1+M2 but was still auth-gated
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
@@ -89,7 +89,13 @@ dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations
 brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
 gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
 nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson)
-beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (latest series)
+beautiful-johnson| 48    | b981v5            | 47    | Basics Tab iterations — LOT-FM-001 fired repeatedly without ever
+                 |       |                   |       | landing on master (2026-08-19/20 audit: 62 "M1 live" commits across
+                 |       |                   |       | 55 branches — 48 beautiful-johnson + 6 nifty-allen + 1 eager-clarke
+                 |       |                   |       | — since 2026-05-29, none merged). k91wjf (34a2bb26) superseded by
+                 |       |                   |       | b981v5, which adds the missing public-route fix — see LOT-SR-
+                 |       |                   |       | 20260820-01. Remaining ~46 presumed dead starts; S-2 prune or
+                 |       |                   |       | "Ship Basics Tab" to finally land this on master.
 gracious-gauss   | 7     | WnL0k             | 6     | QI-46 Engine iterations (SUPERSEDED by cool-tesla)
 upbeat-faraday   | 2     | xviFF             | 1     | Badge RPG iterations (SUPERSEDED by cool-hypatia)
 inspiring-volta  | 6     | 2hmidy            | 5     | Health check iterations

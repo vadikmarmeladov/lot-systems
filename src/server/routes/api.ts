@@ -627,6 +627,75 @@ export default async (fastify: FastifyInstance) => {
     }
   )
 
+  // ============================================================================
+  // BASICS RATION MODULE — LOT-FM-001 M2 (UPGRADE + ROSTER)
+  // ============================================================================
+  fastify.post(
+    '/basics/enroll',
+    async (req: FastifyRequest<{ Body: { sizing: string } }>, reply) => {
+      const hasUsership = req.user.tags.some(
+        (t) => t.toLowerCase() === 'usership'
+      )
+      if (!hasUsership) {
+        reply.status(403)
+        throw new Error('BASIC requires USERSHIP / AI as base layer')
+      }
+      const sizing = (req.body.sizing || '').toUpperCase()
+      if (!['S', 'M', 'L', 'XL'].includes(sizing)) {
+        return reply.throw.badParams('Invalid sizing')
+      }
+      if (!req.user.address || !req.user.phone) {
+        return reply.throw.badParams(
+          'Shipping address and phone required — complete Settings first'
+        )
+      }
+      const existing = req.user.metadata?.basics
+      if (
+        existing &&
+        ['PENDING', 'ON_STRENGTH', 'STEADY_STATE'].includes(existing.status)
+      ) {
+        return reply.throw.badParams('Already pending or on strength')
+      }
+      const cadenceStart = dayjs()
+        .add(1, 'month')
+        .startOf('month')
+        .format(DATE_FORMAT)
+      const basics = {
+        status: 'PENDING',
+        sizing,
+        enrolledAt: dayjs().toISOString(),
+        cadenceStart,
+        issueLog: existing?.issueLog || [],
+      }
+      await req.user
+        .set({ metadata: { ...req.user.metadata, basics } })
+        .save()
+      sync.emit('settings_updated', { userId: req.user.id })
+      reply.ok()
+    }
+  )
+
+  fastify.post('/basics/stand-down', async (req: FastifyRequest, reply) => {
+    const existing = req.user.metadata?.basics
+    if (
+      !existing ||
+      !['PENDING', 'ON_STRENGTH', 'STEADY_STATE'].includes(existing.status)
+    ) {
+      return reply.throw.badParams('Not on strength')
+    }
+    const basics = {
+      ...existing,
+      status: 'STAND_DOWN',
+      standDownAt: dayjs().toISOString(),
+    }
+    const tags = req.user.tags.filter((t) => t.toLowerCase() !== 'basic')
+    await req.user
+      .set({ metadata: { ...req.user.metadata, basics }, tags })
+      .save()
+    sync.emit('settings_updated', { userId: req.user.id })
+    reply.ok()
+  })
+
   fastify.post<{
     Body: {
       theme: string

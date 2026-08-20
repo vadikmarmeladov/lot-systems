@@ -142,7 +142,14 @@ without S-2 confirmation — they are provenance records. The MANIFEST date fiel
 updates on every audit; feature rows update when a new iteration supersedes.
 (SR-20260605-01: MANIFEST created, 115 branches cataloged, 8 BEST identified.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
-SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
+SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.
+SR-20260819-01/SR-20260820-01: a single scheduled directive (LOT-FM-001)
+fired for 3 months without checking MANIFEST first — 55 branches, 62
+duplicate commits, zero landed on master, because each firing started a
+fresh disposable branch with no memory of the last one. A recurring
+automated trigger must read MANIFEST and `git log --all --grep` for prior
+unmerged work on its own directive before building, every time it fires —
+not only during periodic manual audits.)
 
 ## Signal Momentum Architecture
 
