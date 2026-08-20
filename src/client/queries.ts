@@ -93,6 +93,15 @@ export const useLikeChatMessage = createMutation<ChatMessageLikePayload, void>(
   '/api/chat-messages/like'
 )
 
+// ============================================================================
+// LOT® EMAIL — /email to <name> <message>, composed in Log
+// Posts to Sync as a chat message and delivers real mail via Resend.
+// ============================================================================
+export const useSendLogEmail = createMutation<
+  { toName: string; body: string },
+  { delivered: boolean; toFirstName: string; chatMessageId: string }
+>('post', '/api/log-email')
+
 export interface DirectMessageRecord {
   id: string
   senderId: string

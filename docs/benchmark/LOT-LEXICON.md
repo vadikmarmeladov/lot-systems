@@ -72,4 +72,8 @@ COMINTEL:          Community Intelligence Peak — log block label; cohort + jou
 EMBODIED-COGNITION-ARC   QIE P110 — selfcare + journal 150+w + memory capture all in 24h; biological grounding and cognitive expression confirmed simultaneously; body feeding mind  B  20260706
 INTENTION-COMPLETION-LOOP QIE P111 — intention set + planner + goal action all in 24h; direction→structure→outcome arc closed in one day; rare single-day loop  B  20260706
 COMMUNITY-INTELLIGENCE-PEAK  QIE P112 — cohort signal + journal + memory + intentions all in 48h; external social signal anchored internally through writing, capture, and direction-setting  B  20260706
+LOT MAIL           Operator-to-operator email composed via "/email to <name>" in the Log, delivered A     20260820
+                   into Sync + real mail (Resend). Cited 3+ times (20260605-01/02, 20260606-02,
+                   20260612-06) as an unshipped +504/+619-line ship-queue candidate before this
+                   session shipped a simpler, table-free redesign under the same name.
 ```

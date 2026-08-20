@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendLogEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3764,8 +3764,79 @@ const NoteEditor = ({
       setIsSaved(true)
     },
   })
+  const [emailResult, setEmailResult] = React.useState<{ ok: boolean; text: string } | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { mutate: submitLogEmail } = useSendLogEmail({
+    onSuccess: (data) => {
+      setEmailLoading(false)
+      setEmailResult({
+        ok: data.delivered,
+        text: data.delivered
+          ? `SENT → ${data.toFirstName}. Posted to Sync.`
+          : `POSTED TO SYNC → ${data.toFirstName}. Mail delivery unavailable.`,
+      })
+    },
+    onError: (err: any) => {
+      setEmailLoading(false)
+      const msg = err?.response?.data?.error || 'LOT Email failed — try again.'
+      setEmailResult({ ok: false, text: msg })
+    },
+  })
+
+  // Consume a one-shot Log insert pushed from elsewhere in the app (Cohort
+  // Connect's "Email" action prefills "/email to <FirstName> " here). Only
+  // the primary (current-entry) editor listens — NoteEditor also renders
+  // once per historical note, and those must never react to this mailbox.
+  React.useEffect(() => {
+    if (!primary) return
+    const unbind = stores.pendingLogInsert.listen((text) => {
+      if (!text) return
+      const current = valueRef.current
+      const separator = current.trim() ? '\n\n' : ''
+      const updated = current + separator + text
+      setValue(updated)
+      valueRef.current = updated
+      onChangeRef.current(updated)
+      stores.pendingLogInsert.set(null)
+    })
+    return unbind
+  }, [primary])
+
   const debounceTime = 7000  // 7s for all logs
   const debouncedValue = useDebounce(value, debounceTime)
+
+  // LOT® Email fires off the debounced value (same 7s pause used for
+  // autosave) rather than the instant "fresh trigger" scan above — unlike
+  // a mode toggle, sending mail is not something to fire on every keystroke
+  // that merely contains "/email". Sends once per recipient while the
+  // command stays in the entry — continuing to edit the message afterward
+  // (fixing a typo, adding a line) must never fire a second real email.
+  // Removing "/email to X" and re-adding it (or switching the name) is
+  // what re-arms sending, matching the "fresh trigger" convention every
+  // other Log command already uses.
+  const sentEmailToRef = React.useRef<string | null>(null)
+  React.useEffect(() => {
+    if (!primary) return
+    const emailMatch = debouncedValue.match(/\/email\s+to\s+(\w+)/i)
+    if (!emailMatch) {
+      sentEmailToRef.current = null
+      return
+    }
+    const toName = emailMatch[1].trim()
+    const body = debouncedValue
+      .replace(/\/email\s+to\s+\w+\.?/i, '')
+      .replace(/✉️?/g, '')
+      .trim()
+    if (body.length < 1) {
+      setEmailResult({ ok: false, text: `Write your message, then attach /email to ${toName}.` })
+      return
+    }
+    if (sentEmailToRef.current === toName.toLowerCase() || emailLoading) return
+    sentEmailToRef.current = toName.toLowerCase()
+    setEmailLoading(true)
+    setEmailResult(null)
+    submitLogEmail({ toName, body })
+  }, [debouncedValue, primary])
 
   // Keep refs in sync
   React.useEffect(() => {
@@ -4139,6 +4210,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   LOT® Email — send your note to LOT Community member X',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4285,6 +4357,20 @@ const NoteEditor = ({
                   {qiResponse.split('\n').map((line, idx) => (
                     <div key={idx}>{line}</div>
                   ))}
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="✉ EMAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Sending...</div>
+              )}
+              {emailResult && (
+                <div className={emailResult.ok ? 'opacity-60' : 'opacity-60 text-red-500'}>
+                  {emailResult.text}
                 </div>
               )}
             </Block>

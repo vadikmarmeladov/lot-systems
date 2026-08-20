@@ -34,6 +34,7 @@ import {
 import { sync } from '../sync.js'
 import * as weather from '#server/utils/weather'
 import { getLogContext } from '#server/utils/logs'
+import { sendEmail } from '#server/utils/email'
 import { defaultQuestions, defaultReplies } from '#server/utils/questions'
 import { buildPrompt, completeAndExtractQuestion, generateMemoryStory, generateRecipeSuggestion, extractUserTraits, determineUserCohort, calculateIntelligentPacing } from '#server/utils/memory'
 import { analyzeUserPatterns, findCohortMatches, type PatternInsight } from '#server/utils/patterns'
@@ -1032,6 +1033,93 @@ export default async (fastify: FastifyInstance) => {
         }
       })
       return reply.ok()
+    }
+  )
+
+  // ============================================================================
+  // LOT® EMAIL — /email to <name> <message>, composed in the Log.
+  // Posts to Sync as a chat message (same feed, same live delivery as chat)
+  // and delivers real mail via Resend to the named LOT Community member's
+  // registered address. Simplest possible email system: no new tables, no
+  // inbox — the message record IS the Sync post, mirrored into Log same as
+  // every other Sync post.
+  // ============================================================================
+  fastify.post(
+    '/log-email',
+    { config: { rateLimit: { max: 10, timeWindow: '1 minute' } } },
+    async (req: FastifyRequest<{ Body: { toName: string; body: string } }>, reply) => {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+      if (!canAccessChat(req.user.tags || [])) {
+        return reply.status(403).send({ error: 'LOT Email requires Usership, Onyx, Legacy, R&D, or Admin' })
+      }
+
+      const toName = (req.body.toName || '').trim()
+      const body = (req.body.body || '').trim().slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
+      if (!toName) {
+        return reply.status(400).send({ error: 'Recipient required — /email to <name> <message>' })
+      }
+      if (isBlankMessage(body)) {
+        return reply.status(400).send({ error: 'Message cannot be empty' })
+      }
+
+      const recipient = await fastify.models.User.findOne({
+        where: {
+          firstName: { [Op.iLike]: toName },
+          id: { [Op.not]: req.user.id },
+        },
+      })
+      if (!recipient) {
+        return reply.status(404).send({ error: `No LOT Community member named "${toName}" found` })
+      }
+
+      const displayMessage = `✉ EMAIL → ${recipient.firstName}: ${body}`.slice(0, MAX_SYNC_CHAT_MESSAGE_LENGTH)
+      const chatMessage = await fastify.models.ChatMessage.create({
+        authorUserId: req.user.id,
+        message: displayMessage,
+      })
+      sync.emit('chat_message', {
+        id: chatMessage.id,
+        message: chatMessage.message,
+        author: req.user.firstName,
+        createdAt: chatMessage.createdAt,
+        likes: 0,
+        isLiked: false,
+      })
+
+      let delivered = false
+      let deliveryError: string | null = null
+      if (recipient.email) {
+        const result = await sendEmail({
+          to: recipient.email,
+          subject: `LOT® Email — a message from ${req.user.firstName || 'a LOT operator'}`,
+          text: `${body}\n\n— sent via LOT® Email, from the Log: /email to ${recipient.firstName}`,
+        })
+        delivered = result.success
+        if (!result.success) deliveryError = result.error || 'delivery failed'
+      } else {
+        deliveryError = 'recipient has no registered email'
+      }
+
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'lot_email_sent',
+        text: '',
+        metadata: {
+          chatMessageId: chatMessage.id,
+          toUserId: recipient.id,
+          toFirstName: recipient.firstName,
+          body,
+          delivered,
+          deliveryError,
+        },
+        context,
+      })
+
+      return { delivered, toFirstName: recipient.firstName, chatMessageId: chatMessage.id, error: deliveryError }
     }
   )
 

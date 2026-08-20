@@ -27,6 +27,11 @@ export const radioTrackName = atom<string>('')
 
 export const weather = atom<WeatherRecord | null>(null)
 
+// One-shot text handed from elsewhere in the app (e.g. Cohort Connect "Email"
+// action) into the Log's NoteEditor. The editor appends it and clears this
+// atom on consumption — it is a mailbox, not persistent state.
+export const pendingLogInsert = atom<string | null>(null)
+
 // connection status
 export const isConnected = atom<boolean>(true)
 export const lastUpdate = atom<Date | null>(null)
