@@ -3428,6 +3428,29 @@ export function analyzeIntentions(): IntentionPattern[] {
     }
   }
 
+  // Pattern 152: Auspicious Goal Alignment — today's ambient astrology reading is Taian
+  // (auspicious, per Rokuyo) AND goal activity (set or completed) was logged the same
+  // calendar day. First pattern to actually consume the 'astrology' Tier 0 signal
+  // (registered 2026-07-27, previously present in the dependency graph but read by no
+  // pattern) — the "gentle nudge on auspicious days" deferred from that session.
+  const todayStart152 = new Date(now)
+  todayStart152.setHours(0, 0, 0, 0)
+  const auspicious152 = signals.filter(s =>
+    s.source === 'astrology' && s.metadata?.auspicious === true && s.timestamp >= todayStart152.getTime()
+  )
+  const goalActivity152 = signals.filter(s => s.source === 'goals' && s.timestamp >= todayStart152.getTime())
+  if (auspicious152.length >= 1 && goalActivity152.length >= 1) {
+    const completedToday152 = goalActivity152.filter(s => s.signal === 'goal_complete')
+    const alignmentBonus = Math.min(completedToday152.length * 0.05, 0.15)
+    patterns.push({
+      pattern: 'auspicious-goal-alignment',
+      confidence: Math.min(0.6 + alignmentBonus, 0.82),
+      suggestedWidget: 'cosmic',
+      suggestedTiming: 'soon',
+      reason: `AUSGOAL: Auspicious alignment — today's rokuyo reading is Taian (auspicious) and goal activity was logged the same day${completedToday152.length ? `, including ${completedToday152.length} completion${completedToday152.length > 1 ? 's' : ''}` : ''}. The ambient day and the intentional axis are moving together.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
