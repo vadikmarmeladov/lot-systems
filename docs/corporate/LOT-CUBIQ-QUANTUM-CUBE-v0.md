@@ -321,6 +321,55 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE KITCHEN WATCH                            2026-08-20
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: R&D tier, Archetype "Grounded Witness," 60+ day
+  sustained evening check-in streak, single parent, CUBIQ charging pad
+  positioned on the kitchen counter — the one surface in the home that
+  is shared, lived-in, and, after 8pm, three feet from a sleeping child's
+  room.
+
+  This operator never uses the cube at a desk. Their Index of Systems
+  fires almost entirely between 7 and 9pm — dishes done, kid down, the
+  first quiet minutes of a day that had none. The cube has to work in a
+  space where a phone buzzing on the counter is not ambient, it is
+  jarring. This is the use case v.0's edge-detection and quiet-actuator
+  requirements (Section 03) were written to survive, not just the
+  desk-migration scenario in Use Case 01.
+
+  Mid-afternoon, a common badge unlocks from a logged self-care entry —
+  the cube performs THE HOP where it sits, unattended, on the counter.
+  No one is home to see it land. That is fine. The gesture is not for an
+  audience; the telemetry (IMU + timing, Section 03) still reaches the
+  QI·46 Calibration Loop whether or not a human eye is present. Presence
+  does not require a witness to be true.
+
+  At day 63, the Index of Systems crosses an assembly-phase threshold —
+  six weeks of consistent evening engagement resolved into a phase
+  advance (LOT-CUBIQ-OPERATOR.md, Section 03, "Overall assembly
+  percentage drives feature visibility"). Per LOT-CUBIQ-OPERATOR.md
+  Section 04, "AI-Driven Physical Product Delivery," this is exactly the
+  kind of sustained-pattern signal the AI reads before deciding the
+  operator is ready for the next layer of the cubic. Tonight, though,
+  the signal fires while the child is asleep down the hall. The cube
+  performs THE SETTLE (Section 04) — actuator holds a light standing
+  pressure for two seconds, no visible motion, no sound above the
+  ambient hum of the refrigerator. The operator notices only because
+  they happen to be resting a hand near the base when it happens — a
+  held breath, not a bell.
+
+  This is the case that proves the four-gesture vocabulary (Section 04)
+  was never really about volume-scaled celebration. THE HOP mattered
+  the same whether witnessed or not. THE SETTLE mattered more because it
+  arrived at the one hour of the day loud would have been wrong. A
+  notification system tuned only for the desk, mid-morning, fully
+  attentive operator would have picked a chime for this milestone. v.0's
+  hardware, built around the edge-detection gate and the sub-threshold
+  NUDGE primitive from Use Case 01, already had the vocabulary for quiet
+  correct. The kitchen counter did not require a new gesture — it
+  required the four gestures already specified to hold up under a
+  harder constraint than the desk ever tested them against.
+
 --------------------------------------------------------------------------------
 08 // BRAND
 --------------------------------------------------------------------------------
