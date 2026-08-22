@@ -3629,6 +3629,31 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'hardware_log') {
+          const temperature = log.metadata?.temperature as number | undefined
+          const humidity = log.metadata?.humidity as number | undefined
+          const pressure = log.metadata?.pressure as number | undefined
+          const eventType = log.metadata?.eventType as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COSMO®:" blockView>
+                <div className="uppercase tracking-widest">
+                  {eventType === 'copy_button' ? 'COPY BUTTON PRESSED' : (eventType || 'SENSOR SNAPSHOT')}
+                </div>
+                {(temperature !== undefined || humidity !== undefined || pressure !== undefined) && (
+                  <div className="opacity-60">
+                    {[
+                      temperature !== undefined ? `${temperature}°C` : null,
+                      humidity !== undefined ? `${humidity}% RH` : null,
+                      pressure !== undefined ? `${pressure} hPa` : null,
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

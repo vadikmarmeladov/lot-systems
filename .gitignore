@@ -47,7 +47,10 @@ postcss.config.*.backup
 *.working-backup
 
 # Compiled output (should not be in repo)
-server/
+# Anchored to repo root — unanchored "server/" also matched src/server/,
+# silently hiding every new backend file from `git status` and `git add`
+# unless force-added. dist/ (line 2) already covers dist/server/.
+/server/
 *.js.map
 
 # Archive files

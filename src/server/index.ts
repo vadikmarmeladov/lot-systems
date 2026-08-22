@@ -37,6 +37,7 @@ import authRoutes from './routes/auth.js'
 import apiRoutes from './routes/api.js'
 import adminApiRoutes from './routes/admin-api.js'
 import publicApiRoutes from './routes/public-api.js'
+import hardwareApiRoutes from './routes/hardware-api.js'
 
 const CWD = process.cwd()
 
@@ -310,6 +311,12 @@ fastify.register(async (fastify: FastifyInstance) => {
 
     // Public API
     fastify.register(authRoutes, { prefix: '/auth' })
+
+    // COSMO® Cube hardware connector — device bearer-key auth, not session
+    // cookie auth (a device has no browser). The /pairing-code route inside
+    // checks req.user itself since this context only *optionally* populates
+    // it (see the onRequest hook above), it does not require it.
+    fastify.register(hardwareApiRoutes, { prefix: '/api/hardware' })
 
     // User API
     fastify.register(async (fastify) => {

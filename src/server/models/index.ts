@@ -16,6 +16,9 @@ import { DirectMessage } from './direct-message.js'
 import { WeatherResponse } from './weather-response.js'
 import { Log } from './log.js'
 import { Answer } from './answer.js'
+import { HardwareDevice } from './hardware-device.js'
+import { HardwareLog } from './hardware-log.js'
+import { HardwareNotification } from './hardware-notification.js'
 
 export type UserRecord = User
 
@@ -30,6 +33,9 @@ export const models = {
   WeatherResponse,
   Log,
   Answer,
+  HardwareDevice,
+  HardwareLog,
+  HardwareNotification,
 }
 
 export type Models = {
@@ -43,6 +49,9 @@ export type Models = {
   WeatherResponse: typeof WeatherResponse
   Log: typeof Log
   Answer: typeof Answer
+  HardwareDevice: typeof HardwareDevice
+  HardwareLog: typeof HardwareLog
+  HardwareNotification: typeof HardwareNotification
 }
 
 User.hasMany(Session)
@@ -51,6 +60,15 @@ Session.belongsTo(User, {
   targetKey: 'id',
   foreignKey: 'userId',
 })
+
+User.hasMany(HardwareDevice, { foreignKey: 'userId' })
+HardwareDevice.belongsTo(User, { targetKey: 'id', foreignKey: 'userId' })
+
+HardwareDevice.hasMany(HardwareLog, { foreignKey: 'deviceId' })
+HardwareLog.belongsTo(HardwareDevice, { targetKey: 'id', foreignKey: 'deviceId' })
+
+User.hasMany(HardwareNotification, { foreignKey: 'userId' })
+HardwareNotification.belongsTo(User, { targetKey: 'id', foreignKey: 'userId' })
 
 export interface SessionWithUser extends Session {
   user?: User
