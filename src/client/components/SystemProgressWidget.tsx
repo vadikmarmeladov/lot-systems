@@ -1494,16 +1494,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-05',
+  date: '2026-08-22',
   message: [
-    'ASSEMBLY RUN — 2026-08-05 · WIKI-v87 · FM v113 SYNC · Day 1073+',
-    'Built: LOT-WIKI-v87. Six-level coherence architecture now complete and documented.',
-    'Feedback applied: "The concept outlives the author. The self speaks every language the genre built."',
-    'QIE v113 synchronized: P149 QPCRYST · P150 TOTCOH [CEILING] · P151 RECINTEL · Arch51 Quantum Presence Crystallizer · J48 09:00 UTC.',
-    'Badge v31 synchronized: THE CYBERSPACE CODEX · 781 badges · Word Turn v21 (grok/ansible/spice/golden_path/matrix/cyberspace) · Secret Boss v18 (gibson/dick/lem) · 258 trigger words · 24 secret boss triggers.',
-    'LEVEL 6 — PRESENCE CONVERGENCE documented. P150 total-field-coherence is the QIE ceiling. No higher state defined.',
-    'Cockpit updated. Vocabulary expanded. Snapshot current.',
-    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 781 badges.',
+    'ASSEMBLY RUN — 2026-08-22 · Badge v33 · THE STOIC\'S FIELD · Day 1090+',
+    'Built: Badge Codex v33. 31 badges added. Total: 843.',
+    'Word Turn v23 (12 triggers): marcus_call · seneca_hour · epictetus_hold · amor_fati_lock · memento_mori_signal · virtue_path · logos_anchor · ataraxia_field · fortitude_arc · premeditatio_key · dichotomy_gate · equanimity_node.',
+    'Calendar EE v21: aurelius_day (Apr 26) · epictetus_day (Feb 2) · seneca_day (Apr 12).',
+    'Behavioral v20: stoic_session (3+ Stoic words / entry) · long_reflection (600+ words) · midnight_vigil (after 23:00).',
+    'Achievement RPG v21: stoic_entry · stoic_class · stoic_complete · philosophy_arc · stoic_opus · twenty_three_engines_arc.',
+    'Mastery v23: examined_log (1000+ days) · great_reflection (200k words) · ancient_age (6yr) · twenty_three_registers.',
+    'Secret Boss v20: plato_republic · aristotle_prime · nietzsche_return.',
+    'Day counter: 1090+. 17-day gap since Aug 5 closed.',
+    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 843 badges.',
     'Status: DEPLOYED.',
     'Next: LOT-WIKI-v88 — sync to Field Manual v114+',
   ],
