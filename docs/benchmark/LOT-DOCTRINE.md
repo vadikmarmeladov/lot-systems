@@ -226,3 +226,27 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Story Compression Horizons
+
+An AI-generated compression (currently /story; the pattern applies to any
+future compression route) must let the operator choose the horizon it
+compresses, and the server must change three things together per horizon,
+not just the query window: (1) the createdAt floor on the log query, (2) the
+take-count of entries/moods/notes fed into the prompt, and (3) the target
+word count asked of the model. Changing only the query window while leaving
+the prompt's word-count instruction fixed produces a year that reads exactly
+like a day — same length, same grain, thinner signal per line. The default
+(no horizon specified) must reproduce the exact prior query with no time
+filter, so shipping a new horizon option never changes the already-live
+default path's behavior or token cost.
+
+Gamification context (badge/Arcade progress) folded into a compression
+prompt must be a single instructed clause ("weave in naturally, never a
+scoreboard callout"), not a raw stat dump — the narrative tone is the
+product; the badge count is one data point feeding it, not a second heading.
+
+(SR-20260822-01: /story period argument added — day/week/month/year;
+chrono_scribe badge minted to close the loop between the Log/Story system
+and the existing Arcade/badge evolution layer, which previously reacted only
+to raw journal text, never to AI-feature usage.)
