@@ -28,8 +28,8 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
-import { runJournalEasterEggs } from '#client/utils/easter-eggs'
+import { detectNewTriggers, parseStoryPeriod, type LogTrigger } from '#client/utils/logTriggers'
+import { runJournalEasterEggs, checkChronoScribe } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
@@ -3740,9 +3740,10 @@ const NoteEditor = ({
     },
   })
   const { mutate: submitStory } = useStoryGeneration({
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
       setStoryResponse(data.story)
       setStoryLoading(false)
+      try { checkChronoScribe(variables.period || 'day') } catch {}
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
       const updated = current + separator + '📖 ' + data.story
@@ -4125,7 +4126,7 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story [period]  Compressed story — day (default), week, month, year',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4151,17 +4152,22 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const period = parseStoryPeriod(value)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story(\s+(day|week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
+            const earned = getEarnedBadges()
+            const totalBadges = Object.keys(BADGES).length
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
+              badgeProgress: { earned: earned.length, total: totalBadges },
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }

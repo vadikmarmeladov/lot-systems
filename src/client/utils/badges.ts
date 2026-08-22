@@ -782,6 +782,8 @@ export type BadgeType =
   | 'tolkien_ring'           // ◆·∞·◆  "one ring to rule/precious/ring of power" detected (RARE)
   | 'odysseus_bow'           // →·∞·→  "odysseus/ulysses/ithaca/penelope/cyclops" detected (EPIC)
   | 'gilgamesh_word'         // ∞·□·∞  "gilgamesh/enkidu/great flood/utnapishtim" detected (MYTHIC)
+  // ── Behavioral v23 — CHRONO SCRIBE ────────────────────────────────────────────
+  | 'chrono_scribe'          // ◷·◈    /story compressed at all 4 horizons: day, week, month, year (RARE)
 
 export interface Badge {
   id: BadgeType
@@ -7130,6 +7132,16 @@ export const BADGES: Record<BadgeType, Badge> = {
     rarity: 'mythic',
     category: 'secret_boss',
     hidden: true,
+  },
+  // ── Behavioral v23 — CHRONO SCRIBE ──────────────────────────────────────────
+  chrono_scribe: {
+    id: 'chrono_scribe',
+    symbol: '◷·◈',
+    name: 'Chrono Scribe',
+    description: 'Compress a /story at all four horizons: day, week, month, and year',
+    unlockMessage: '↳ One entry read four ways — a day, a week, a month, a year. The same self, four resolutions. ◷·◈',
+    rarity: 'rare',
+    category: 'achievement_rpg',
   },
 }
 

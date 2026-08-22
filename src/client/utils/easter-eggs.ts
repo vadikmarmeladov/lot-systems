@@ -2319,6 +2319,34 @@ export function checkArcadeRun(journalText: string): BadgeType | null {
   return null
 }
 
+const STORY_PERIODS_KEY = 'story_periods_used'
+
+/**
+ * Award chrono_scribe once /story has been compressed at all four
+ * horizons (day, week, month, year) across any number of sessions.
+ * Call from the /story success handler with the period just used.
+ */
+export function checkChronoScribe(period: 'day' | 'week' | 'month' | 'year'): BadgeType | null {
+  if (hasBadge('chrono_scribe')) return null
+  if (typeof window === 'undefined') return null
+
+  try {
+    const stored = localStorage.getItem(STORY_PERIODS_KEY) || ''
+    const used = new Set(stored ? stored.split(',') : [])
+    used.add(period)
+    localStorage.setItem(STORY_PERIODS_KEY, Array.from(used).join(','))
+
+    const allFour = ['day', 'week', 'month', 'year'].every(p => used.has(p))
+    if (allFour) {
+      awardBadge('chrono_scribe')
+      return 'chrono_scribe'
+    }
+  } catch (e) {
+    console.warn('Failed to track story period for chrono_scribe:', e)
+  }
+  return null
+}
+
 /**
  * Award quarter_drop badge when checking in between midnight and 01:00 local.
  * Call at check-in time.

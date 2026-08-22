@@ -5490,6 +5490,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          period?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5500,6 +5501,10 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
             overall?: number
             dimensions?: Record<string, number>
             trend?: string
+          }
+          badgeProgress?: {
+            earned: number
+            total: number
           }
         }
       }>,
@@ -5513,26 +5518,46 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         })
       }
 
-      const { logText, quantumState, userIndex } = req.body
+      const { logText, quantumState, userIndex, badgeProgress } = req.body
+      const period = (['day', 'week', 'month', 'year'] as const).includes(req.body.period as any)
+        ? (req.body.period as 'day' | 'week' | 'month' | 'year')
+        : 'day'
+
+      // Horizon config: how far back to compress, how many signals of each kind
+      // to surface, and the compression's target length. 'day' keeps the
+      // original "last N recent records" behavior — no time filter — so the
+      // bare /story command is unchanged. Wider horizons add a real createdAt
+      // floor and pull proportionally more signal so the compression scales
+      // with the window instead of just repeating the same last 10 entries.
+      const HORIZON: Record<typeof period, { sinceMs: number | null; take: number; words: string; label: string }> = {
+        day:   { sinceMs: null,                     take: 10, words: '100-200', label: 'today' },
+        week:  { sinceMs: 7 * 24 * 60 * 60 * 1000,   take: 20, words: '150-250', label: 'this week' },
+        month: { sinceMs: 30 * 24 * 60 * 60 * 1000,  take: 40, words: '200-300', label: 'this month' },
+        year:  { sinceMs: 365 * 24 * 60 * 60 * 1000, take: 80, words: '250-350', label: 'this year' },
+      }
+      const horizon = HORIZON[period]
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: {
+          userId: req.user.id,
+          ...(horizon.sinceMs ? { createdAt: { [Op.gte]: new Date(Date.now() - horizon.sinceMs) } } : {}),
+        },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: horizon.sinceMs ? 500 : 200,
       })
 
       const recentEntries = logs
         .filter(l => l.event === 'log_entry' || l.event === 'journal')
-        .slice(0, 10)
+        .slice(0, horizon.take)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
 
-      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, horizon.take)
       const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
 
       const selfCareLogs = logs.filter(l =>
         l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
-      ).slice(0, 10)
+      ).slice(0, horizon.take)
       const selfCareNotes = selfCareLogs.map(l => {
         const q = (l.metadata?.question as string || '')
         const a = (l.metadata?.option as string || l.metadata?.answer as string || '')
@@ -5547,9 +5572,14 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      let progressLine = ''
+      if (badgeProgress && typeof badgeProgress.earned === 'number' && typeof badgeProgress.total === 'number') {
+        progressLine = `\nARCADE PROGRESS: ${badgeProgress.earned}/${badgeProgress.total} badges unlocked`
+      }
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's data into a short narrative, compressed to a ${period} horizon (${horizon.label}).
+
+The operator typed a log entry and invoked /story${period === 'day' ? '' : ' ' + period}. Your task: write 1-2 paragraphs (${horizon.words} words) that compress their journey over ${horizon.label} — mood trajectory and self-care patterns at the grain that horizon deserves (a day reads as a moment; a year reads as an arc). The story should feel personal, grounded, and real — not generic motivational writing.
 
 RULES:
 - Write in second person ("You...")
@@ -5558,22 +5588,23 @@ RULES:
 - If they've been consistent with check-ins, acknowledge the discipline
 - If there are gaps or struggle, acknowledge that with compassion
 - The tone should match their current energy: reflective if low, energized if high
+- If ARCADE PROGRESS is present, weave the badge/level milestone in naturally as one clause — never a scoreboard callout
 - End with a single forward-looking sentence — not a pep talk, just a quiet truth
 - Return ONLY the story paragraphs. No title. No commentary. No preamble.
-- Keep it under 200 words.`
+- Keep it to ${horizon.words} words.`
 
       const dataBlock = `
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
 
-${stateBlock ? stateBlock : 'STATE: unknown'}
+${stateBlock ? stateBlock : 'STATE: unknown'}${progressLine}
 
-RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+RECENT MOODS: ${recentMoods.slice(0, horizon.take).join(', ') || 'NO DATA'}
 
 RECENT LOG ENTRIES:
-${recentEntries.slice(0, 5).map(e => `- ${e}`).join('\n') || '- (none)'}
+${recentEntries.slice(0, horizon.take).map(e => `- ${e}`).join('\n') || '- (none)'}
 
 SELF-CARE DATA:
-${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
+${selfCareNotes.slice(0, horizon.take).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
       const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
 
@@ -5581,7 +5612,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         const { aiEngineManager } = await import('#server/utils/ai-engines.js')
         const engine = aiEngineManager.getEngine('together')
 
-        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+        console.log(`📖 Story generation (${period}) for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
 
         const story = await engine.generateCompletion(fullPrompt, 512)
 
@@ -5595,8 +5626,10 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           context,
           metadata: {
             story: cleaned,
+            period,
             logText: (logText || '').substring(0, 500),
             quantumState: quantumState || null,
+            badgeProgress: badgeProgress || null,
             timestamp: new Date().toISOString(),
           },
         })

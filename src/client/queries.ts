@@ -895,6 +895,7 @@ export const usePrayerScripture = createMutation<
 export const useStoryGeneration = createMutation<
   {
     logText: string
+    period?: 'day' | 'week' | 'month' | 'year'
     quantumState?: {
       energy?: string
       clarity?: string
@@ -905,6 +906,10 @@ export const useStoryGeneration = createMutation<
       overall?: number
       dimensions?: Record<string, number>
       trend?: string
+    }
+    badgeProgress?: {
+      earned: number
+      total: number
     }
   },
   {

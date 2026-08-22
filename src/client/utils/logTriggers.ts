@@ -39,8 +39,10 @@ export type LogTrigger =
   | 'sil-check'         // /sil — check for signal silence pattern
   | 'qi-rfi'            // /qi — Quantum Intelligence RFI (Request for Information)
   | 'system-help'       // /system — list all available slash commands
-  | 'story-mode'        // /story — generate contextual story from recent data
+  | 'story-mode'        // /story [day|week|month|year] — compressed story at the given horizon
   | 'how-checkin'       // /how — open LOT AI check-in (navigates to System tab)
+
+export type StoryPeriod = 'day' | 'week' | 'month' | 'year'
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -114,4 +116,18 @@ export function detectNewTriggers(
   const fresh: LogTrigger[] = []
   current.forEach(t => { if (!prior.has(t)) fresh.push(t) })
   return fresh
+}
+
+/**
+ * Reads the optional compression horizon out of a `/story` invocation —
+ * `/story week`, `/story month`, `/story year`. Bare `/story` (or any
+ * unrecognized token) compresses the operator's day, the same window
+ * the command always used before periods existed. Pure and
+ * case-insensitive; does not mutate or strip the input.
+ */
+export function parseStoryPeriod(text: string): StoryPeriod {
+  if (!text) return 'day'
+  const match = text.match(/\/story\s+(day|week|month|year)\b/i)
+  if (!match) return 'day'
+  return match[1].toLowerCase() as StoryPeriod
 }
