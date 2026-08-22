@@ -32,18 +32,16 @@ export const TimeWidget = () => {
     return `${hours}:${minutes}:${seconds}.${milliseconds}`
   }, [])
 
-  const tick = (time: number) => {
-    if (isRunning) {
-      setTimeElapsed(time - startTimeRef.current)
-      requestRef.current = requestAnimationFrame(tick)
-    }
+  const tickRef = React.useRef<(time: number) => void>()
+  tickRef.current = (time: number) => {
+    setTimeElapsed(time - startTimeRef.current)
+    requestRef.current = requestAnimationFrame(tickRef.current!)
   }
 
   const start = () => {
     if (!isRunning) {
-      setIsRunning(true)
       startTimeRef.current = performance.now() - timeElapsed
-      requestRef.current = requestAnimationFrame(tick)
+      setIsRunning(true)
     }
   }
 
@@ -79,7 +77,7 @@ export const TimeWidget = () => {
 
   React.useEffect(() => {
     if (isRunning) {
-      requestRef.current = requestAnimationFrame(tick)
+      requestRef.current = requestAnimationFrame(tickRef.current!)
     } else {
       cancelAnimationFrame(requestRef.current!)
     }

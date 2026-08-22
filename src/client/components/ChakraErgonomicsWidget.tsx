@@ -58,8 +58,9 @@ export function ChakraErgonomicsWidget() {
     return () => clearInterval(interval)
   }, [])
 
-  // Record signal once per mount
-  if (!hasInitRef.current) {
+  // Record signal once per mount — must be in an effect, not render body
+  React.useEffect(() => {
+    if (hasInitRef.current) return
     const weakest = [...state.chakras].sort((a, b) => a.charge - b.charge)[0]
     if (weakest) {
       recordSignal('selfcare', `chakra_scan_${weakest.id}`, {
@@ -69,7 +70,7 @@ export function ChakraErgonomicsWidget() {
       })
     }
     hasInitRef.current = true
-  }
+  }, [])
 
   const cycleView = () => {
     setView(prev =>
