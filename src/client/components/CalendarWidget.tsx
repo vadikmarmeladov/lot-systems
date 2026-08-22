@@ -8,19 +8,35 @@
 
 import * as React from 'react'
 import { useQueryClient } from 'react-query'
-import { Block, Button } from '#client/components/ui'
+import { Block, Button, Tag } from '#client/components/ui'
 import { useCreateLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
-import { recordCalendarSignal } from '#client/stores/intentionEngine'
+import { recordCalendarSignal, recordCalendarAlertSignal } from '#client/stores/intentionEngine'
 
 type EntryType = 'note' | 'task' | 'call'
 
 type CalendarEntry = {
   date: string
+  time?: string
   text: string
   type: EntryType
+}
+
+// Alert dedupe key — identifies a scheduled entry independent of its Log row id,
+// so a re-check never fires the same entry twice (matched against existing
+// 'calendar_alert' logs, not local state — reliable across reloads/devices).
+function entryKey(entry: Pick<CalendarEntry, 'date' | 'type' | 'text'>): string {
+  return `${entry.date}|${entry.type}|${entry.text}`
+}
+
+type ActiveAlert = {
+  id: string
+  entryType: EntryType
+  text: string
+  date: string
+  time?: string
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
@@ -59,18 +75,39 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [entryTime, setEntryTime] = React.useState('')
+  const [activeAlerts, setActiveAlerts] = React.useState<ActiveAlert[]>([])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
         date: log.metadata?.date as string,
+        time: log.metadata?.time as string | undefined,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''))
   }, [logs])
+
+  // Keys of entries a [ ALERT ] has already fired for — read back from the Log
+  // itself (event: 'calendar_alert'), not local/session state, so the guard
+  // survives reloads and holds across every device the user logs in from.
+  const alertedKeys = React.useMemo(() => {
+    const set = new Set<string>()
+    logs.forEach(log => {
+      if (log.event === 'calendar_alert' && log.metadata?.entryKey) {
+        set.add(log.metadata.entryKey as string)
+      }
+    })
+    return set
+  }, [logs])
+
+  // In-flight guard: prevents a duplicate alert log from being submitted for
+  // the same entry while the createLog round-trip for the first one is still
+  // pending (the 30s check tick can otherwise race ahead of the Log refetch).
+  const firingRef = React.useRef<Set<string>>(new Set())
 
   const upcomingEntries = React.useMemo(() => {
     const today = dayjs().format('YYYY-MM-DD')
@@ -109,12 +146,14 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeLabel = entryTime ? ` at ${entryTime}` : ''
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel}${timeLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
+        time: entryTime || undefined,
         text: entryText.trim(),
         entryType,
       },
@@ -126,7 +165,66 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
+  }
+
+  // Reliable due-check: fires a [ ALERT ] the moment a scheduled entry's clock
+  // time arrives (or immediately, for entries with no time set, once their
+  // date turns to today). Runs on mount and every 30s while this widget is
+  // mounted (the System page). Dedupe is read back from the Log itself
+  // (alertedKeys), so a page reload never re-fires an alert already recorded.
+  React.useEffect(() => {
+    const checkDueEntries = () => {
+      const now = dayjs()
+      const todayKey = now.format('YYYY-MM-DD')
+      const nowClock = now.format('HH:mm')
+
+      entries
+        .filter(e => e.date === todayKey && (!e.time || e.time <= nowClock))
+        .forEach(e => {
+          const key = entryKey(e)
+          if (alertedKeys.has(key) || firingRef.current.has(key)) return
+          firingRef.current.add(key)
+
+          const dateLabel = dayjs(e.date).format('dddd, MMMM D, YYYY')
+          const timeLabel = e.time ? ` ${e.time}` : ''
+
+          createLog({
+            text: `[ALERT] ${e.type.toUpperCase()} DUE: ${e.text} (${dateLabel}${timeLabel})`,
+            event: 'calendar_alert',
+            metadata: {
+              date: e.date,
+              time: e.time,
+              text: e.text,
+              entryType: e.type,
+              entryKey: key,
+              firedAt: new Date().toISOString(),
+            },
+          }, {
+            onSuccess: () => {
+              queryClient.refetchQueries(['/api/logs'])
+              try { recordCalendarAlertSignal(e.type, e.date, e.text) } catch (_) {}
+
+              setActiveAlerts(prev => [...prev, { id: key, entryType: e.type, text: e.text, date: e.date, time: e.time }])
+              setTimeout(() => {
+                setActiveAlerts(prev => prev.filter(a => a.id !== key))
+              }, 12000)
+            },
+            onError: () => {
+              firingRef.current.delete(key)
+            },
+          })
+        })
+    }
+
+    checkDueEntries()
+    const interval = setInterval(checkDueEntries, 30000)
+    return () => clearInterval(interval)
+  }, [entries, alertedKeys, createLog, queryClient])
+
+  const dismissAlert = (id: string) => {
+    setActiveAlerts(prev => prev.filter(a => a.id !== id))
   }
 
   const handleToggleCalendar = () => {
@@ -139,6 +237,29 @@ export function CalendarWidget() {
   return (
     <Block label="Calendar:" blockView onLabelClick={handleToggleCalendar}>
       <div className="w-full">
+        {activeAlerts.length > 0 && (
+          <div className="mb-16 space-y-4">
+            {activeAlerts.map(alert => (
+              <div
+                key={alert.id}
+                className="border border-acc/40 px-8 py-4 flex items-center justify-between gap-16"
+              >
+                <div className="flex items-center gap-8">
+                  <Tag>ALERT</Tag>
+                  <span className="uppercase tracking-widest text-acc">{alert.entryType} due</span>
+                  <span className="text-acc/60">{alert.text}</span>
+                </div>
+                <button
+                  className="text-acc/30 hover:text-acc/60 transition-opacity"
+                  onClick={() => dismissAlert(alert.id)}
+                >
+                  dismiss
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="mb-16">
           <Button onClick={handleToggleCalendar}>
             Add date
@@ -237,6 +358,14 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40"
+                    title="Optional — fires a due alert at this time"
+                  />
                   <Button onClick={handleAddEntry}>Add</Button>
                 </div>
               </div>
@@ -248,8 +377,9 @@ export function CalendarWidget() {
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
                 {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                  <div key={i} className="text-acc/80 mb-1 flex gap-8">
+                    {e.time && <span className="text-acc/40 tabular-nums">{e.time}</span>}
+                    <span>{e.text}</span>
                   </div>
                 ))}
               </div>
@@ -263,6 +393,7 @@ export function CalendarWidget() {
               <div key={i} className="flex justify-between gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  {entry.time && <span className="text-acc/40 tabular-nums"> {entry.time}</span>}
                 </span>
                 <span className="text-acc text-right">
                   {entry.text}

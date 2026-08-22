@@ -4870,6 +4870,15 @@ export function recordCalendarSignal(entryType: string, date: string) {
 }
 
 /**
+ * Record a calendar alert signal when a scheduled entry's due time fires.
+ * Distinct from recordCalendarSignal (entry creation) — this tracks whether
+ * scheduled entries actually get followed through to their due moment.
+ */
+export function recordCalendarAlertSignal(entryType: string, date: string, text: string) {
+  recordSignal('log', 'calendar_alert', { entryType, date, text, hour: new Date().getHours() })
+}
+
+/**
  * Record the day's ambient astrology reading — rokuyo, moon phase, and
  * zodiac hour. Ambient/environmental conditions only, not a personal
  * natal chart. Called once per calendar day from the System dashboard so
