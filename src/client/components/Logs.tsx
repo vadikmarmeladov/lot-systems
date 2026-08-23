@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSearchUsers, useSendDirectMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,26 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  // LOT Mail: /email to <Name> — resolve the name, then let the user
+  // type and send a direct message without leaving the Log editor.
+  const [emailRecipientName, setEmailRecipientName] = React.useState<string | null>(null)
+  const [emailRecipientId, setEmailRecipientId] = React.useState<string | null>(null)
+  const [emailBody, setEmailBody] = React.useState('')
+  const [emailSendResult, setEmailSendResult] = React.useState<'sent' | null>(null)
+  const { mutate: searchEmailRecipient, isLoading: emailSearching } = useSearchUsers({
+    onSuccess: (data) => {
+      setEmailRecipientId(data.users[0]?.id ?? null)
+    },
+    onError: () => {
+      setEmailRecipientId(null)
+    },
+  })
+  const { mutate: sendEmailMessage, isLoading: emailSending } = useSendDirectMessage({
+    onSuccess: () => {
+      setEmailSendResult('sent')
+      setEmailBody('')
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4139,6 +4159,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to <Name>   Compose LOT Mail to another operator',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4163,6 +4184,17 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'compose-email') {
+        const nameMatch = value.match(
+          /\/(?:email|mail)\s+to\s+([A-Za-z][\w'-]*(?:\s+[A-Za-z][\w'-]*)?)/i
+        )
+        const name = nameMatch ? nameMatch[1].trim() : ''
+        if (name) {
+          setEmailRecipientName(name)
+          setEmailRecipientId(null)
+          setEmailSendResult(null)
+          searchEmailRecipient({ query: name })
         }
       }
     }
@@ -4321,6 +4353,62 @@ const NoteEditor = ({
                     }
                     return <div key={idx} style={{ fontSize: '14px', lineHeight: '1.6', opacity: 0.7 }}>{t}</div>
                   })}
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {emailRecipientName && (
+          <div className="mt-8">
+            <Block label="✉️ LOT MAIL:" blockView>
+              {emailSearching && (
+                <div className="opacity-40 uppercase tracking-widest">
+                  Looking up {emailRecipientName}...
+                </div>
+              )}
+              {!emailSearching && !emailRecipientId && (
+                <div className="opacity-60">
+                  No operator found matching &quot;{emailRecipientName}&quot;.
+                </div>
+              )}
+              {!emailSearching && emailRecipientId && emailSendResult !== 'sent' && (
+                <div className="flex items-center gap-x-8">
+                  <span className="mr-8 whitespace-nowrap opacity-60">
+                    To {emailRecipientName}:
+                  </span>
+                  <ResizibleGhostInput
+                    direction="vh"
+                    value={emailBody}
+                    onChange={setEmailBody}
+                    placeholder="Type your message..."
+                    containerClassName="flex-grow leading-normal"
+                    className="leading-normal"
+                  />
+                  <Button
+                    kind="secondary"
+                    size="small"
+                    disabled={!emailBody.trim() || emailSending}
+                    onClick={() => {
+                      if (!emailRecipientId || !emailBody.trim()) return
+                      sendEmailMessage({ receiverId: emailRecipientId, message: emailBody.trim() })
+                    }}
+                  >
+                    Send
+                  </Button>
+                </div>
+              )}
+              {emailSendResult === 'sent' && (
+                <div className="flex items-center gap-x-8 opacity-60">
+                  <span>Sent to {emailRecipientName}.</span>
+                  <Button
+                    kind="secondary"
+                    size="small"
+                    onClick={() => {
+                      if (emailRecipientId) stores.goTo('dm', { userId: emailRecipientId })
+                    }}
+                  >
+                    Open in Sync
+                  </Button>
                 </div>
               )}
             </Block>

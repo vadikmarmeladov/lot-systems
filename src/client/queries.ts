@@ -120,6 +120,32 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+export interface DirectMessageThreadSummary {
+  userId: string
+  firstName: string | null
+  lastName: string | null
+  lastMessage: string
+  lastMessageAt: string
+  isMine: boolean
+}
+
+export const useDirectMessageInbox = createQuery<{
+  threads: DirectMessageThreadSummary[]
+}>('/api/direct-messages', {
+  refetchOnWindowFocus: false,
+})
+
+export interface UserSearchResult {
+  id: string
+  firstName: string | null
+  lastName: string | null
+}
+
+export const useSearchUsers = createMutation<
+  { query: string },
+  { users: UserSearchResult[] }
+>('post', '/api/users/search')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

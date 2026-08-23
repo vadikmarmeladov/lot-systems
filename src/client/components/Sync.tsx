@@ -24,6 +24,7 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useDirectMessageInbox,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -71,6 +72,7 @@ export const Sync = React.memo(function SyncInner() {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: inbox, refetch: refetchInbox } = useDirectMessageInbox()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -117,9 +119,16 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    // LOT Mail: refresh the inbox summary whenever a direct message
+    // involving this operator arrives (relayed server-side to sender/receiver only).
+    const { dispose: disposeDirectMessageListener } = sync.listen(
+      'direct_message',
+      () => refetchInbox()
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeDirectMessageListener()
     }
   }, [me?.id])
 
@@ -170,6 +179,11 @@ export const Sync = React.memo(function SyncInner() {
     formRef.current?.querySelector('textarea')?.focus()
   }, [])
 
+  const onOpenDirectMessage = React.useCallback(
+    (userId: string) => () => stores.goTo('dm', { userId }),
+    []
+  )
+
   if (!canAccessChat) {
     return (
       <div className="max-w-[700px] text-acc/40 py-8">
@@ -180,6 +194,32 @@ export const Sync = React.memo(function SyncInner() {
 
   return (
     <div className="max-w-[700px]">
+      {!!inbox?.threads.length && (
+        <div className="mb-40">
+          <div className="text-acc/40 uppercase tracking-widest mb-8">✉️ LOT Mail</div>
+          {inbox.threads.map((t) => (
+            <div
+              key={t.userId}
+              className="group flex items-start gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
+              onClick={onOpenDirectMessage(t.userId)}
+            >
+              <span className="whitespace-nowrap -ml-4 px-4 pr-8">
+                {`${t.firstName || ''} ${t.lastName || ''}`.trim() || 'Unknown'}
+              </span>
+              <div
+                className="whitespace-breakspaces text-acc/60"
+                style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+              >
+                {t.isMine ? 'You: ' : ''}
+                {t.lastMessage}
+              </div>
+              <div className="text-acc/0 transition-opacity select-none pointer-events-none whitespace-nowrap group-hover:text-acc/40 ml-auto">
+                <MessageTimeLabel dateString={t.lastMessageAt} isTimeFormat12h={isTimeFormat12h} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}

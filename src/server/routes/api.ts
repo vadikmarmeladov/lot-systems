@@ -386,6 +386,13 @@ export default async (fastify: FastifyInstance) => {
           }
           break
         }
+        case 'direct_message': {
+          // LOT Mail: only relay to the two parties in the thread.
+          if (data.senderId === req.user.id || data.receiverId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
       }
     })
 
@@ -4082,6 +4089,94 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // LOT Mail inbox: latest message per conversation partner, newest first.
+  fastify.get('/direct-messages', async (req: FastifyRequest, reply) => {
+    try {
+      const recent = await fastify.models.DirectMessage.findAll({
+        where: {
+          [Op.or]: [
+            { senderId: req.user.id },
+            { receiverId: req.user.id }
+          ]
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 300
+      })
+
+      const threads = new Map<string, typeof recent[number]>()
+      for (const m of recent) {
+        const otherUserId = m.senderId === req.user.id ? m.receiverId : m.senderId
+        if (!threads.has(otherUserId)) {
+          threads.set(otherUserId, m)
+        }
+      }
+
+      const otherUserIds = [...threads.keys()].slice(0, 20)
+      const otherUsers = await fastify.models.User.findAll({
+        where: { id: { [Op.in]: otherUserIds } },
+        attributes: ['id', 'firstName', 'lastName']
+      })
+      const userById = new Map(otherUsers.map(u => [u.id, u]))
+
+      return reply.send({
+        threads: otherUserIds
+          .map(userId => {
+            const last = threads.get(userId)!
+            const user = userById.get(userId)
+            if (!user) return null
+            return {
+              userId,
+              firstName: user.firstName,
+              lastName: user.lastName,
+              lastMessage: last.message,
+              lastMessageAt: last.createdAt,
+              isMine: last.senderId === req.user.id
+            }
+          })
+          .filter(Boolean)
+      })
+    } catch (error) {
+      console.error('Error fetching direct message inbox:', error)
+      return reply.status(500).send({ error: 'Failed to fetch inbox' })
+    }
+  })
+
+  // LOT Mail recipient lookup: resolve a display name (e.g. "Hitomi" from
+  // /email to Hitomi) to a small list of matching users.
+  fastify.post('/users/search', async (req: FastifyRequest<{
+    Body: { query: string }
+  }>, reply) => {
+    try {
+      const query = (req.body?.query || '').trim()
+      if (query.length < 2) {
+        return reply.send({ users: [] })
+      }
+
+      const users = await fastify.models.User.findAll({
+        where: {
+          id: { [Op.ne]: req.user.id },
+          [Op.or]: [
+            { firstName: { [Op.iLike]: `%${query}%` } },
+            { lastName: { [Op.iLike]: `%${query}%` } },
+            Sequelize.where(
+              Sequelize.fn('CONCAT', Sequelize.col('firstName'), ' ', Sequelize.col('lastName')),
+              { [Op.iLike]: `%${query}%` }
+            ),
+          ]
+        },
+        attributes: ['id', 'firstName', 'lastName'],
+        limit: 8
+      })
+
+      return reply.send({
+        users: users.map(u => ({ id: u.id, firstName: u.firstName, lastName: u.lastName }))
+      })
+    } catch (error) {
+      console.error('Error searching users:', error)
+      return reply.status(500).send({ error: 'Failed to search users' })
     }
   })
 
