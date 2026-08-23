@@ -2646,22 +2646,28 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             </LogContainer>
           )
         } else if (log.event === 'lot_ai_story') {
+          const period        = (log.metadata?.period as string | undefined) || 'week'
           const weekNumber    = log.metadata?.weekNumber    as number | undefined
-          const weekTone      = log.metadata?.weekTone      as string | undefined
+          const monthLabel    = log.metadata?.monthLabel    as string | undefined
+          const monthYear     = log.metadata?.monthYear     as number | undefined
+          const yearNumber    = log.metadata?.yearNumber    as number | undefined
+          const tone          = (log.metadata?.weekTone || log.metadata?.monthTone || log.metadata?.yearTone) as string | undefined
           const dominantMood  = log.metadata?.dominantMood  as string | undefined
           const checkinsCount = log.metadata?.checkinsCount as number | undefined
           const selfCareCount = log.metadata?.selfCareCount as number | undefined
           const intentionsCount = log.metadata?.intentionsCount as number | undefined
+          const periodLabel =
+            period === 'year' ? (yearNumber !== undefined ? String(yearNumber) : 'YEAR')
+            : period === 'month' ? `${monthLabel || 'MONTH'} ${monthYear ?? ''}`.trim()
+            : weekNumber !== undefined ? `W${weekNumber}` : 'WEEK'
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="STORY:" blockView>
-                {weekNumber !== undefined && (
-                  <div className="uppercase tracking-widest mb-4">W{weekNumber}</div>
-                )}
-                {weekTone && (
+                <div className="uppercase tracking-widest mb-4">{periodLabel}</div>
+                {tone && (
                   <div className="flex justify-between items-baseline mb-4">
                     <span className="opacity-30">TONE</span>
-                    <span className="uppercase">{weekTone}</span>
+                    <span className="uppercase">{tone}</span>
                   </div>
                 )}
                 {dominantMood && (
@@ -3713,6 +3719,7 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [badgeResult, setBadgeResult] = React.useState<string | null>(null)
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4120,6 +4127,42 @@ const NoteEditor = ({
         } catch {
           setPhysResult('PHYS STATE UNAVAILABLE')
         }
+      } else if (trigger === 'badge-report') {
+        try {
+          const earned = getEarnedBadges()
+          const allIds = Object.keys(BADGES) as (keyof typeof BADGES)[]
+          const total = allIds.length
+          const RARITY_RANK: Record<string, number> = {
+            common: 0, uncommon: 1, rare: 2, epic: 3, legendary: 4, mythic: 5, cosmic: 6,
+          }
+          const rarityCounts: Record<string, { earned: number; total: number }> = {}
+          for (const id of allIds) {
+            const r = BADGES[id].rarity
+            if (!rarityCounts[r]) rarityCounts[r] = { earned: 0, total: 0 }
+            rarityCounts[r].total++
+            if (earned.includes(id as any)) rarityCounts[r].earned++
+          }
+          const rarityLines = Object.keys(RARITY_RANK)
+            .sort((a, b) => RARITY_RANK[a] - RARITY_RANK[b])
+            .filter(r => rarityCounts[r])
+            .map(r => `${r.toUpperCase().padEnd(10)} ${rarityCounts[r].earned}/${rarityCounts[r].total}`)
+          const nextBadge = allIds
+            .filter(id => !BADGES[id].hidden && !earned.includes(id as any))
+            .sort((a, b) => RARITY_RANK[BADGES[a].rarity] - RARITY_RANK[BADGES[b].rarity])[0]
+          const pct = total > 0 ? Math.round((earned.length / total) * 100) : 0
+          const lines = [
+            `ARCADE PROGRESS — ${earned.length}/${total} (${pct}%)`,
+            '',
+            ...rarityLines,
+            '',
+            nextBadge
+              ? `NEXT UNLOCK: ${BADGES[nextBadge].name.toUpperCase()} (${BADGES[nextBadge].rarity.toUpperCase()})`
+              : 'ALL VISIBLE BADGES UNLOCKED',
+          ]
+          setBadgeResult(lines.join('\n'))
+        } catch {
+          setBadgeResult('ARCADE STATE UNAVAILABLE')
+        }
       } else if (trigger === 'system-help') {
         const lines = [
           'AVAILABLE COMMANDS',
@@ -4130,6 +4173,7 @@ const NoteEditor = ({
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
           '/phys         Physiological cohort report',
+          '/badges       Arcade progress — earned badges, next unlock',
           '/qos          Quantum OS state analysis',
           '/fast         Orthodox fasting calendar',
           '/breathe      4-2-6 breathing exercise',
@@ -4384,6 +4428,13 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {badgeResult && (
+          <div className="mt-8">
+            <Block label="ARCADE:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{badgeResult}</div>
             </Block>
           </div>
         )}
