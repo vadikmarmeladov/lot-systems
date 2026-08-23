@@ -5,7 +5,7 @@ TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Dev
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
 DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+VERSION:  0.2 — USE CASE 02 ADDED (2026-08-23)
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -57,6 +57,15 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  SESSION 2 — 2026-08-23
+    Per the standing instruction in Section 07 ("future sessions read this
+    document first and append the next entry"), this document was re-read
+    in full before writing anything new, along with LOT-CUBIQ-OPERATOR.md
+    and LOT-CUBIQ-VISION.md. No prior line in Sections 01-06 is edited —
+    the mechanical architecture, gesture table, and roadmap gates locked
+    in Session 1 (2026-07-28) stand as written. This session's only
+    additions are this note and USE CASE 02 in Section 07.
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -320,6 +329,45 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE NIGHT-SHIFT SETTLE                      2026-08-23
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: R&D tier, Archetype not yet stabilized (assembly
+  phase: forming → assembled during the events below), a hospital night-
+  shift nurse whose CUBIQ charging pad sits on a break-room table shared
+  with three coworkers. Sessions happen in stolen five-minute windows
+  between rounds, at 3 a.m., under fluorescent light, physically and
+  emotionally depleted — the exact profile the Root-chakra grounding-tool
+  category in LOT-CUBIQ-OPERATOR.md Section 04 was written for.
+
+  The operator's Index of Systems has been logging a pattern for eleven
+  consecutive shifts: late-night log entries with flattening emotional
+  tone, self-care streak intact but thinning (Breathe and Ground used,
+  Connect and Observe skipped), Root and Solar Plexus chakra charge both
+  trending toward "depleted." On night twelve, the assembly module tied
+  to sustained self-care under strain crosses its threshold and advances
+  a phase — not a badge, not a headline event, just the Index quietly
+  registering that the operator kept showing up for themselves through a
+  genuinely hard stretch.
+
+  A phone notification for this would be wrong on every axis: it would
+  compete with a pager that has to mean something, it would light up a
+  break-room table other people are trying to sleep near, and it would
+  turn a private, hard-won milestone into another ping in a shift already
+  made of pings. Instead, the cube performs THE SETTLE (Section 04) — two
+  seconds of light standing pressure against the table, no liftoff, no
+  sound, nothing a coworker two feet away would ever notice. The operator,
+  sitting down for the first still minute in six hours, feels the table
+  hold slightly firmer under their forearm and knows, without looking,
+  what it means. They do not need to check a screen to receive it.
+
+  This is the use case v.0's quietest gesture was built to serve: a
+  device that can tell the difference between an achievement worth
+  announcing and a milestone that only deserves to be felt — the same
+  edge-detection discipline the actuator applies to a table's physical
+  edge (Section 03) applied instead to the emotional edge of a shared,
+  exhausted, half-asleep room. THE SETTLE is CUBIQ's proof that the
+  hardware's restraint is as deliberately engineered as its motion.
 
 --------------------------------------------------------------------------------
 08 // BRAND
