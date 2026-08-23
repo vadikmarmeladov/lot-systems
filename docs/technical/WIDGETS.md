@@ -23,6 +23,7 @@
 - [Stats Dashboard Widgets](#stats-dashboard-widgets)
 - [Conditional & Subscriber Widgets](#conditional--subscriber-widgets)
 - [Investor & Demo Widgets](#investor--demo-widgets)
+- [Additional Widgets](#additional-widgets)
 - [Architecture Overview](#architecture-overview)
 
 ---
@@ -171,7 +172,7 @@ Surfaces self-care suggestions during key times of day (10 AM–12 PM, 2–5 PM,
 
 A clickable, cycling display of the user's psychological profile. Shows self-awareness percentage, archetype, values, emotional patterns, dominant needs, sentiment breakdown, and introspection depth.
 
-- **Data Source:** `/api/profile` endpoint via the `useProfile` hook
+- **Data Source:** `/api/user-profile` endpoint via the `useProfile` hook
 - **Connection:** Displays profile-derived awareness metrics; integrated into the System.tsx layout
 
 ---
@@ -196,7 +197,7 @@ Displays behavioral patterns detected by the QIE with confidence levels. Cycles 
 
 Generates contextual feedback grounded in quantum state, OS diagnostics, user profile, and log context. Cycles through Insight, Diagnostics, and Guidance views. Provides state-aware and activity-aware recommendations.
 
-- **Data Source:** `intentionEngine` state; `/api/os-diagnostics`, `/api/profile`, and `/api/logs` endpoints; log context
+- **Data Source:** `intentionEngine` state; `/api/os/diagnostics`, `/api/user-profile`, and `/api/logs` endpoints; log context
 - **Connection:** Cross-references multiple data sources for holistic feedback; raw engine plugin powered by Together.AI
 
 ### Signal Stream Widget
@@ -237,7 +238,7 @@ Five background jobs feed this widget: Daily OS Vitals Snapshot (02:00 UTC), Dai
 
 ### System Pulse Widget
 
-Real-time system heartbeat metrics with 1-second polling. Displays events per minute, quantum flux, neural activity, and resonance (Hz). Cycles through Metrics, Activity, and User Load views.
+Real-time system heartbeat metrics, polling every 10 seconds (reduced from 1s to prevent DB overload under traffic; gated off when the tab is hidden or the System route isn't active). Displays events per minute, quantum flux, neural activity, and resonance (Hz). Cycles through Metrics, Activity, and User Load views.
 
 - **Data Source:** `/api/system/pulse` endpoint (polled every second); log context for comparison
 - **Connection:** Provides live system telemetry; cross-references with log context for anomaly detection
@@ -426,6 +427,85 @@ The field entry archive — every typed note, event-driven log, and QIE signal r
 - **Sources:** `log` QIE source (`field_entry` signals from the note editor)
 - **Log Renderings:** BIOFIELD (energy state) / QOS (quantum OS state) / COHORT (physiological archetype update) / ASM (assembly milestone) / QIE (quantum intent pattern) / CARE / PLAN / INTENT / BIO / MEM / CFG / SYS / COMM / LOG
 - **Connection:** The editor detects `/synth` and 🎹 triggers inline; saves on 7s debounce, visibility change, and unmount
+
+---
+
+## Additional Widgets
+
+> Added 2026-08-23 during a widget health-scan benchmark — these 10 were rendered
+> in `System.tsx` but had no entry in this reference. Closes the doc-drift gap.
+
+### Monthly Pulse Widget
+
+A once-per-month milestone message shown to Usership-tier users, marking how many months they've been with LOT (1–12+, capped at 12 with a generic message beyond). Computed from account join date. Dismissing the message cycles through one of six short acknowledgment phrases before fading out.
+
+- **Data Source:** `me` nanostore for join date and subscription tags
+- **Persistence:** `localStorage` (`lot_pulse_{userId}`) tracks which month has already been dismissed
+- **Connection:** Records a `pulse_dismissed` signal to the Quantum Intention Engine on dismissal
+
+### Mood Analytics
+
+Correlates emotional check-in history against time of day and self-care activity. Cycles through Time (mood most common by morning/afternoon/evening), Self-Care (positivity delta for check-ins within 2 hours of a self-care completion), and Summary (positive/challenging/neutral percentage breakdown). Only renders once 5+ check-ins exist; the self-care and summary views require additional data thresholds.
+
+- **Data Source:** `/api/emotional-checkins` (last 30 days) via `useEmotionalCheckIns`; `/api/logs` via `useLogs` for self-care correlation
+- **Connection:** Reads `$featureUnlocks` from the evolution store to gate the Self-Care view behind the `moodPatterns` unlock
+
+### Chakra Ergonomics Widget
+
+Maps live session activity — interaction density, session duration, mood signals, planning activity, self-care engagement — onto a seven-chakra energy model. Cycles through Status (4 most notable chakras by charge), Session (duration, keystroke proxy, coherence %, mini chakra glyph row), and Recommendations (up to 4 prioritized ergonomic actions). Recomputes every 2 minutes while the System tab is active and visible.
+
+- **Data Source:** `chakraErgonomics` nanostore, derived from Quantum Intention Engine signals via `recomputeChakras()`
+- **Persistence:** Session and chakra state persisted under the `chakra-session` and `chakra-ergonomics-state` `localStorage` keys
+- **Connection:** Records a `chakra_scan_{weakestChakraId}` signal to the Quantum Intention Engine once per mount
+
+### Correlated Indexes Widget
+
+Four-dimensional long-term tracking dashboard showing Self-Awareness, User, Person, and Longevity scores plus a composite index. Cycles through Current (scores with progress bars and trend), Timeline (last 8 weeks of scores in a table), and Correlation (correlation strength percentage and per-index alignment commentary).
+
+- **Data Source:** `/api/os/indexes` via `useOSIndexes`
+- **Connection:** Purely a read/display widget over server-computed index and correlation data; no signals recorded
+
+### Micro Image Widget
+
+A 2×2cm procedurally-generated pixel-art image rendered on a 64×64 canvas grid. The composition (still grid, radial burst, spiral, flow field, sparks, or a heartbeat line) and mark density are chosen from the user's recent log-entry punctuation context — tone (urgent/questioning/reflective/excited/calm/flat/mixed) and intensity. A detected `callForHelp` signal overrides the composition to the heartbeat line. Users can regenerate the image with a new random seed. Gated to appear only as a milestone reward.
+
+- **Data Source:** `usePunctuationContext` hook (derived from `/api/logs` via `useLogs`, aggregated by the `punctuationContext` store); `shouldShowRewardWidget('micro_image')` for milestone-gated visibility
+- **Connection:** Records `microimage_rendered` on first meaningful render and `microimage_regenerated` on manual regeneration, both to the Quantum Intention Engine
+
+### 4D UI Widget
+
+An investor-mode-only concept presentation for a four-dimensional product experience — Write (1D, journal/memory/intentions), Draw (2D, sock embroidery personalization), Compute (3D, LOT figurines as biofield super-computers), and Laugh (4D, comedy-club demo format). Each dimension pairs a phone/PWA widget with a physical counterpart. Cycles between the four dimensions by clicking the label.
+
+- **Data Source:** `localStorage` flag (`lot-investor-mode`)
+- **Connection:** Only visible in investor mode; static informational display, no signals recorded
+
+### Integrity Widget
+
+A contradiction-detection engine that cross-references Quantum Intention Engine signals to surface where declared state diverges from observed behavior. Detects six fracture types: mood-action (positive mood with no follow-through action within 6h), intention-execution (an active intention with no planner/goal activity in 72h), energy-behavior (conflicting mood signals within a tight window), care-claim (positive moods with zero self-care in 5 days), temporal-drift (late-night activity followed by morning "energized" reports), and signal-void (heavy mood logging with multiple core dimensions silent). Produces an overall integrity score (0–100) and label (Coherent/Aligned/Fractured/Contradictory/Deceptive). Cycles through Verdict, Fractures (full detail list), Timeline (7-day mood-vs-action bar chart), and Field (current energy/clarity/alignment state plus active contradiction/coherence patterns).
+
+- **Data Source:** `intentionEngine` store signals (all analysis runs client-side over `IntentionSignal[]`); `/api/logs` via `useLogs` only to trigger re-analysis on change
+- **Connection:** Purely analytical/read-only over existing Quantum Intention Engine signal history; records no new signals itself
+
+### Calendar Widget
+
+A month-grid calendar for scheduling notes, tasks, and calls on specific dates. Displays upcoming entries (next 10) below the grid; clicking a date reveals existing entries and an add-entry form. Supports month navigation.
+
+- **Data Source:** `/api/logs` via `useLogs`, filtered to `calendar_entry` events for existing entries
+- **Connection:** New entries are created via `useCreateLog` (`/api/logs`, event `calendar_entry`) and trigger a `recordCalendarSignal` call, which records a `calendar_entry` signal (source `log`) to the Quantum Intention Engine
+
+### Benchmark Widget
+
+A single-line status indicator showing the user's overall tier — White, Green, Yellow, Purple, or Black — as a colored dot with label. The tier is computed from a weighted score combining journal depth (30%), account tenure (15%), current streak (20%), day-to-day consistency (15%), the Quantum Intention Engine user index (10%), and current energy/clarity state (10%).
+
+- **Data Source:** `/api/logs` via `useLogs` (answer/note entries for depth, tenure, streak, consistency); `getUserState()` and `getUserIndex()` from the `intentionEngine` store
+- **Connection:** Read-only computed display; does not record signals
+
+### Architect Widget
+
+A detailed, expandable self-assembly telemetry panel for paying users (Usership or R&D tags). Shows LOT Self-Assembly™ version, overall assembly percentage, module online count, and 24h/7d signal totals; a phase-distribution breakdown (Integrated/Assembled/Forming/Awakening/Dormant); per-module expandable rows with density, signal count, coherence label, first/last signal age, and phase; a 7-day signal-source breakdown; the current system narrative string; and the Usership transmission message block.
+
+- **Data Source:** `selfAssembly` nanostore for module/assembly state; `intentionEngine` store signals for 24h/7d counts and per-source breakdown; `me` nanostore for subscription tag gating; `USERSHIP_TRANSMISSION` constant from `SystemProgressWidget`
+- **Connection:** Read-only telemetry view over the Self-Assembly Engine and Quantum Intention Engine signal history; records no new signals
 
 ---
 

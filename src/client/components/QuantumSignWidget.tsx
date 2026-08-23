@@ -11,6 +11,7 @@ import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useLogs } from '#client/queries'
+import { recordSignal } from '#client/stores/intentionEngine'
 
 /**
  * Quantum Sign Widget — For subscribers whose payment is their last money
@@ -110,7 +111,10 @@ export function QuantumSignWidget() {
       {view === 'sign' && (
         <div>
           <div className="mb-16">{quantumSign}</div>
-          <div className="opacity-30" onClick={() => setDismissed(true)}>
+          <div className="opacity-30" onClick={() => {
+            recordSignal('quantum_sign', 'sign_acknowledged', {})
+            setDismissed(true)
+          }}>
             I understand. Let me begin.
           </div>
         </div>
@@ -123,19 +127,31 @@ export function QuantumSignWidget() {
           </div>
           <div className="flex flex-col gap-4">
             <div className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
-                 onClick={() => localStorage.setItem('quantum-sign-action', 'journal')}>
+                 onClick={() => {
+                   recordSignal('quantum_sign', 'action_picked', { action: 'journal' })
+                   localStorage.setItem('quantum-sign-action', 'journal')
+                 }}>
               Journal — Write what you feel right now
             </div>
             <div className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
-                 onClick={() => localStorage.setItem('quantum-sign-action', 'create')}>
+                 onClick={() => {
+                   recordSignal('quantum_sign', 'action_picked', { action: 'create' })
+                   localStorage.setItem('quantum-sign-action', 'create')
+                 }}>
               Create — Build something, anything
             </div>
             <div className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
-                 onClick={() => localStorage.setItem('quantum-sign-action', 'connect')}>
+                 onClick={() => {
+                   recordSignal('quantum_sign', 'action_picked', { action: 'connect' })
+                   localStorage.setItem('quantum-sign-action', 'connect')
+                 }}>
               Connect — Talk to another user
             </div>
             <div className="cursor-pointer opacity-60 hover:opacity-100 transition-opacity"
-                 onClick={() => localStorage.setItem('quantum-sign-action', 'rest')}>
+                 onClick={() => {
+                   recordSignal('quantum_sign', 'action_picked', { action: 'rest' })
+                   localStorage.setItem('quantum-sign-action', 'rest')
+                 }}>
               Rest — Self-care and rest, here, now
             </div>
           </div>

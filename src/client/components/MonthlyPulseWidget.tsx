@@ -13,6 +13,7 @@ import { Block } from '#client/components/ui'
 import { cn } from '#client/utils'
 import { UserTag } from '#shared/types'
 import dayjs from '#client/utils/dayjs'
+import { recordSignal } from '#client/stores/intentionEngine'
 
 // One message per milestone month; everything in between gets the generic line.
 const MONTH_MESSAGES: Record<number, string> = {
@@ -95,6 +96,7 @@ export const MonthlyPulseWidget: React.FC = () => {
     if (dismissed || !user?.id) return
     setDismissed(true)
     markDismissed(user.id, monthNumber)
+    recordSignal('monthly_pulse', 'pulse_dismissed', { monthNumber })
     const phrase = DISMISS_PHRASES[Math.floor(Math.random() * DISMISS_PHRASES.length)]
     setDismissPhrase(phrase)
     setTimeout(() => setIsFading(true), 2000)

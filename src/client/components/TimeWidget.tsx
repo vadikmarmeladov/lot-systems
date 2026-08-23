@@ -12,6 +12,7 @@ import * as stores from '#client/stores'
 import { Block, Clock } from '#client/components/ui'
 import { playSovietChime } from '#client/utils/sovietChime'
 import dayjs from '#client/utils/dayjs'
+import { recordSignal } from '#client/stores/intentionEngine'
 
 export const TimeWidget = () => {
   const isTimeFormat12h = useStore(stores.isTimeFormat12h)
@@ -69,11 +70,15 @@ export const TimeWidget = () => {
     if (showStopwatch) {
       if (isRunning) {
         pause()
+        recordSignal('time', 'stopwatch_paused', {})
       } else {
         start()
+        recordSignal('time', 'stopwatch_started', {})
       }
     } else {
-      stores.isTimeFormat12h.set(!isTimeFormat12h)
+      const next = !isTimeFormat12h
+      stores.isTimeFormat12h.set(next)
+      recordSignal('time', 'format_toggled', { format: next ? '12h' : '24h' })
     }
   }, [isRunning, showStopwatch, isTimeFormat12h])
 

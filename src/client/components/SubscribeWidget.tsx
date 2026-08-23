@@ -8,6 +8,7 @@
 
 import React from 'react'
 import { Block, Button } from '#client/components/ui'
+import { recordSignal } from '#client/stores/intentionEngine'
 
 /**
  * Subscribe Widget - Simple prompt to support LOT
@@ -15,7 +16,9 @@ import { Block, Button } from '#client/components/ui'
  * Disappears after click, won't show again for a while
  */
 export function SubscribeWidget() {
-  const handleSubscribe = () => {
+  const handleSubscribe = (tier: 'rnd' | 'usership') => {
+    recordSignal('subscribe', 'subscribe_clicked', { tier })
+
     // Store click timestamp - widget won't show again after this
     localStorage.setItem('subscribe-clicked', Date.now().toString())
 
@@ -28,10 +31,10 @@ export function SubscribeWidget() {
       <div className="w-full">
         <div className="mb-16">Consider subscribing!</div>
         <div className="flex gap-8">
-          <Button onClick={handleSubscribe}>
+          <Button onClick={() => handleSubscribe('rnd')}>
             R&D $15
           </Button>
-          <Button onClick={handleSubscribe}>
+          <Button onClick={() => handleSubscribe('usership')}>
             Usership $99
           </Button>
         </div>
