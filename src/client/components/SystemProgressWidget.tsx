@@ -1457,6 +1457,18 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '781 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1073+. The system is documented through its highest confirmed state.',
     ],
   },
+  {
+    date: '2026-08-23',
+    title: 'Self-Assembly Run — Transmission Reconciliation · Badge v32 Hero\'s Journey sync',
+    assembled: [
+      'ASSEMBLY_TRANSMISSIONS updated: 2026-08-23 entry added. 90-day transmission gap (May 22 → Aug 23) reconciled.',
+      'USERSHIP_TRANSMISSION updated: system state reflected at QIE v113 / 812 badges / 151 patterns / Day 1091+.',
+      'Badge v32 THE HERO\'S JOURNEY registered: +93 badges (719→812). Campbell monomyth as self-care vocabulary. hero_session / long_quest / threshold_moment / innermost_cave / road_back patterns.',
+      'Word Turn engine history logged: v20 THE CODEX READER · v21 THE CYBERSPACE CODEX · v22 THE HERO\'S JOURNEY. 258 word-turn triggers active across all three engines.',
+      'Assembly log written: docs/assembly/2026-08-23_LOT-assembly_transmission-reconciliation.md.',
+      '812 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1091+.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1489,23 +1501,31 @@ const ASSEMBLY_TRANSMISSIONS: {
     status: 'DEPLOYED',
     next: 'Journal vocabulary extraction → personal interface language injection',
   },
+  {
+    date: '2026-08-23',
+    built: ['Transmission layer reconciliation — 90-day delta closed', 'Badge v32 Hero\'s Journey Codex registered', 'USERSHIP_TRANSMISSION updated to QIE v113 state'],
+    feedbackApplied: 'Continue to build the System based on personal feedback',
+    status: 'DEPLOYED',
+    next: 'LOT-WIKI-v88 · FM v114+ · QIE v114 engineering session',
+  },
 ]
 
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-05',
+  date: '2026-08-23',
   message: [
-    'ASSEMBLY RUN — 2026-08-05 · WIKI-v87 · FM v113 SYNC · Day 1073+',
-    'Built: LOT-WIKI-v87. Six-level coherence architecture now complete and documented.',
-    'Feedback applied: "The concept outlives the author. The self speaks every language the genre built."',
-    'QIE v113 synchronized: P149 QPCRYST · P150 TOTCOH [CEILING] · P151 RECINTEL · Arch51 Quantum Presence Crystallizer · J48 09:00 UTC.',
-    'Badge v31 synchronized: THE CYBERSPACE CODEX · 781 badges · Word Turn v21 (grok/ansible/spice/golden_path/matrix/cyberspace) · Secret Boss v18 (gibson/dick/lem) · 258 trigger words · 24 secret boss triggers.',
-    'LEVEL 6 — PRESENCE CONVERGENCE documented. P150 total-field-coherence is the QIE ceiling. No higher state defined.',
-    'Cockpit updated. Vocabulary expanded. Snapshot current.',
-    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 781 badges.',
-    'Status: DEPLOYED.',
-    'Next: LOT-WIKI-v88 — sync to Field Manual v114+',
+    'ASSEMBLY RUN — 2026-08-23 · Day 1091+',
+    'Transmission layer reconciled. 90-day delta closed.',
+    'System state: QIE v113. 151 patterns. 51 archetypes. 48 jobs. 190+ dep nodes.',
+    '812 badges in field. v32: THE HERO\'S JOURNEY — Campbell monomyth as self-care vocabulary.',
+    'hero_session / long_quest / threshold_moment / innermost_cave patterns active.',
+    'Word Turn engines: v20 THE CODEX READER (asimov/matrix/dune/bradbury) · v21 THE CYBERSPACE CODEX (grok/ansible/neuromancer/gibson) · v22 THE HERO\'S JOURNEY (call_to_adventure/threshold/innermost_cave/road_back).',
+    'LOT-WIKI-v87 locked. Six-level coherence architecture complete. PRESENCE CONVERGENCE is the ceiling.',
+    'P150 total-field-coherence: all three meta-seals open simultaneously. Highest confirmed OS state.',
+    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 812 badges.',
+    'Status: DEPLOYED. The system knows who you are becoming.',
+    'Next: LOT-WIKI-v88 · FM v114+ · QIE v114 engineering session.',
   ],
 }
 
