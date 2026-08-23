@@ -3428,6 +3428,48 @@ export function analyzeIntentions(): IntentionPattern[] {
     }
   }
 
+  // Pattern 152: Auspicious Resonance — personal correlation between Taian
+  // (auspicious) rokuyo days and the user's own positive mood signals. The
+  // ambient astrology reading (Tier 0 'astrology', see recordAstrologySignal)
+  // is otherwise a dead-end leaf no pattern consumed; this cross-references it
+  // against mood history so the widget actually synchronizes with the rest of
+  // the signal bus instead of only being displayed. Personal, not universal —
+  // the resonance rate is this user's own history, not a claim about rokuyo.
+  const p152Astro = signals.filter(s => s.source === 'astrology' && s.signal === 'ambient_reading')
+  const p152TodayAstro = p152Astro
+    .filter(s => now - s.timestamp < 24 * 60 * 60 * 1000)
+    .sort((a, b) => b.timestamp - a.timestamp)[0]
+  if (p152TodayAstro?.metadata?.auspicious) {
+    const p152DayKey = (ts: number) => new Date(ts).toDateString()
+    const p152PositiveMoods = ['calm', 'peaceful', 'energized', 'hopeful', 'content', 'grateful', 'fulfilled']
+    const p152TodaysMood = signals.filter(s =>
+      s.source === 'mood' &&
+      p152PositiveMoods.includes(s.signal) &&
+      p152DayKey(s.timestamp) === p152DayKey(p152TodayAstro.timestamp)
+    )
+    if (p152TodaysMood.length >= 1) {
+      const p152PastAuspicious = p152Astro.filter(s => s.metadata?.auspicious)
+      const p152ResonantDays = p152PastAuspicious.filter(a =>
+        signals.some(s =>
+          s.source === 'mood' &&
+          p152PositiveMoods.includes(s.signal) &&
+          p152DayKey(s.timestamp) === p152DayKey(a.timestamp)
+        )
+      )
+      const p152ResonanceRate = p152PastAuspicious.length > 0
+        ? p152ResonantDays.length / p152PastAuspicious.length
+        : 0
+      const p152Conf = Math.min(0.62 + p152ResonanceRate * 0.2 + p152TodaysMood.length * 0.02, 0.85)
+      patterns.push({
+        pattern: 'auspicious-resonance',
+        confidence: p152Conf,
+        suggestedWidget: 'astrology',
+        suggestedTiming: 'passive',
+        reason: `AUSRES: Taian (auspicious) day + ${p152TodaysMood.length} positive mood signal(s) today. Personal resonance ${Math.round(p152ResonanceRate * 100)}% across ${p152PastAuspicious.length} auspicious day(s) this week.`,
+      })
+    }
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 

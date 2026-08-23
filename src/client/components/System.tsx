@@ -217,6 +217,10 @@ export const System = React.memo(function SystemInner() {
       moonPhase: moonPhase.phase,
       moonIllumination: moonPhase.illumination,
       rokuyo,
+      // Taian is the most auspicious day in the rokuyo cycle — surfaced as a
+      // personal marker and fed to QIE as the 'auspicious' flag (see
+      // recordAstrologySignal / Pattern 152 auspicious-resonance).
+      isAuspicious: rokuyo === 'Taian',
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [astrologyTick])
@@ -465,7 +469,7 @@ export const System = React.memo(function SystemInner() {
         <div>
           <Block label="Astrology:">
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase} ({astrology.moonIllumination}%)
+              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo}{astrology.isAuspicious ? ' ✦' : ''} • {astrology.moonPhase} ({astrology.moonIllumination}%)
             </div>
           </Block>
         </div>
@@ -671,7 +675,7 @@ export const System = React.memo(function SystemInner() {
         >
           {astrologyView === 'astrology' ? (
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase} ({astrology.moonIllumination}%)
+              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo}{astrology.isAuspicious ? ' ✦' : ''} • {astrology.moonPhase} ({astrology.moonIllumination}%)
             </div>
           ) : astrologyView === 'psychology' ? (
             <div>
