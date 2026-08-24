@@ -4,8 +4,8 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (rev. 2026-08-24)
+VERSION:  0.2 — DEVELOPMENT CONTINUED
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -57,6 +57,18 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  REV. 2026-08-24 — CONTINUATION PASS
+    Before appending Section 07's next entry, the four source documents
+    above were re-checked against the current repository state
+    (LOT-CUBIQ-VISION.md, LOT-CUBIQ-OPERATOR.md, LOT_QI46_ENGINE.md,
+    CQGS-WHITE-PAPER-SNAPSHOT.md — last touched 2026-06-29, unchanged
+    since v0.1 was authored) and docs/benchmark/LOT-MANIFEST.md was
+    re-scanned for the COSMO® Cube naming boundary (Section 00, still
+    holding — no collision). No source material has moved since v0.1.
+    The architecture in Sections 01-06 and the roadmap gates stand as
+    written. This revision's only substantive addition is Section 07,
+    USE CASE 02.
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -320,6 +332,52 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE SHARED COUNTER                            2026-08-24
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect" (v67,
+  LOT-CUBIQ-OPERATOR.md Section 03), 40+ day self-care streak, evening
+  routine run from a kitchen counter shared with a partner who does not
+  use LOT® — the CUBIQ charging pad sits between a fruit bowl and a
+  stack of mail, in a room where a phone notification would be seen and
+  read by someone other than the operator.
+
+  This is the case v.0's SETTLE and HOP gestures were built to
+  distinguish. Two different signals arrive in the same twenty minutes,
+  and they must not feel the same:
+
+  First, the operator closes out a self-care practice — a stretch, a
+  breathing set — and their Assembly State (LOT-CUBIQ-OPERATOR.md
+  Section 03, "18 self-assembly modules") advances a phase. Under a
+  screen-based system this would be a badge toast competing for
+  attention with whatever else is open. Instead the cube performs THE
+  SETTLE (Section 04) — two seconds of held pressure against the pad,
+  no visible motion. The partner, chopping vegetables an arm's length
+  away, never notices anything happened. The operator, mid-stretch,
+  catches it peripherally: a small object holding still with intent
+  rather than lighting up. No explanation is owed to anyone in the room.
+
+  Minutes later, an uncommon badge unlocks — a streak milestone crossing
+  into the next Archetype trajectory. This is a different order of
+  event, and the cube says so physically: THE HOP (Section 04), a
+  visible vertical bounce in place, no forward displacement, no chime.
+  It is small enough that the partner, glancing over, reads it as "the
+  little black cube did its thing" rather than as a notification aimed
+  at them — CUBIQ's motion vocabulary (Section 04's principle: "the
+  physical expression of the same anti-feed thesis that governs the
+  software cubic") is legible to the operator and inert to everyone
+  else at the counter. The edge-detection gate (Section 03, SAFETY)
+  matters more here than in USE CASE 01's isolated desk: a shared,
+  cluttered surface has more edges, more obstacles, more reasons a
+  naive hop could go wrong, and the cube must get it right without
+  supervision every time.
+
+  Where USE CASE 01 proved presence for one person alone at a desk,
+  USE CASE 02 proves the harder requirement underneath the whole
+  gesture vocabulary: the cube must communicate legibly to its operator
+  while remaining genuinely silent — not just quiet, illegible — to
+  everyone else who shares the room. A notification device that only
+  works in isolation is not yet a consumer product.
 
 --------------------------------------------------------------------------------
 08 // BRAND
