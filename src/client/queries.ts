@@ -15,6 +15,8 @@ import {
 } from 'react-query'
 import {
   AdminUsersSort,
+  BasicsState,
+  BasicsUpgradePayload,
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
@@ -87,6 +89,21 @@ export const useCreateChatMessage = createMutation<{ message: string }, void>(
   'post',
   '/api/chat-messages'
 )
+
+// Basics (LOT-FM-001) API
+export const useBasicsStatus = createQuery<BasicsState & { isUsership: boolean }>(
+  '/api/basics/status'
+)
+
+export const useBasicsUpgrade = createMutation<
+  BasicsUpgradePayload,
+  BasicsState & { isUsership: boolean }
+>('post', '/api/basics/upgrade')
+
+export const useBasicsStandDown = createMutation<
+  void,
+  BasicsState & { isUsership: boolean }
+>('post', '/api/basics/stand-down')
 
 export const useLikeChatMessage = createMutation<ChatMessageLikePayload, void>(
   'post',

@@ -17,6 +17,7 @@ export enum UserTag {
   Pro = 'Pro',
   Suspended = 'Suspended',
   Legacy = 'Legacy',
+  Basic = 'Basic',
 }
 
 // User Types
@@ -94,6 +95,48 @@ export type User = {
   joinedAt: Date | null;
   stripeCustomerId: string | null;
   metadata: Record<string, any>;
+};
+
+// ============================================================================
+// LOT-FM-001 — BASIC RATION MODULE
+// ============================================================================
+
+// USERSHIP/AI -> PENDING -> ON STRENGTH -> STEADY STATE (or STAND DOWN at any
+// point after enrollment). NONE = never enrolled.
+export type BasicsStatus =
+  | 'NONE'
+  | 'PENDING'
+  | 'ON_STRENGTH'
+  | 'STEADY_STATE'
+  | 'STAND_DOWN';
+
+export type BasicsShipping = {
+  address: string;
+  city: string;
+  country: string;
+  phone: string;
+};
+
+export type BasicsIssueLogEntry = {
+  at: string; // ISO timestamp
+  event: string;
+};
+
+export type BasicsState = {
+  status: BasicsStatus;
+  size?: string;
+  shipping?: BasicsShipping;
+  cadenceStart?: string; // ISO date, operator-selected issue-cycle anchor
+  enrolledAt?: string;
+  standDownAt?: string;
+  nextIssueAt?: string;
+  issueLog: BasicsIssueLogEntry[];
+};
+
+export type BasicsUpgradePayload = {
+  size: string;
+  shipping: BasicsShipping;
+  cadenceStart: string;
 };
 
 // Session Type

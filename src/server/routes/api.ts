@@ -10,6 +10,9 @@ import { Op, Sequelize } from 'sequelize'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import seedrandom from 'seedrandom'
 import {
+  BasicsShipping,
+  BasicsState,
+  BasicsUpgradePayload,
   ChatMessageLikeEventPayload,
   ChatMessageLikePayload,
   PublicChatMessage,
@@ -5614,4 +5617,96 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
       }
     }
   )
+
+  // ============================================================================
+  // BASICS — RATION ENROLLMENT (LOT-FM-001 / MONTH 2)
+  // Self-service UPGRADE / STAND DOWN. USERSHIP/AI -> PENDING -> ON STRENGTH.
+  // No external payment capture wired in this environment — the additive
+  // $100/mo billing line is recorded to the roster, not charged.
+  // ============================================================================
+
+  const defaultBasicsState = (): BasicsState => ({ status: 'NONE', issueLog: [] })
+
+  fastify.get('/basics/status', async (req: FastifyRequest, reply) => {
+    const isUsership = req.user.tags.some((t) => t.toLowerCase() === 'usership')
+    const basics: BasicsState = req.user.metadata?.basics || defaultBasicsState()
+    return { ...basics, isUsership }
+  })
+
+  fastify.post(
+    '/basics/upgrade',
+    async (req: FastifyRequest<{ Body: BasicsUpgradePayload }>, reply) => {
+      const isUsership = req.user.tags.some((t) => t.toLowerCase() === 'usership')
+      if (!isUsership) {
+        return reply.throw.badParams('Requires USERSHIP / AI plan as base layer')
+      }
+
+      const { size, shipping, cadenceStart } = req.body || ({} as BasicsUpgradePayload)
+      const requiredShipping: (keyof BasicsShipping)[] = ['address', 'city', 'country', 'phone']
+      const shippingOk = shipping && requiredShipping.every((k) => (shipping[k] || '').trim())
+      if (!(size || '').trim() || !shippingOk || !(cadenceStart || '').trim()) {
+        return reply.throw.badParams('Roster intake incomplete: size, shipping, and cadence start are required')
+      }
+
+      const existing: BasicsState = req.user.metadata?.basics || defaultBasicsState()
+      if (existing.status === 'ON_STRENGTH' || existing.status === 'STEADY_STATE') {
+        return { ...existing, isUsership }
+      }
+
+      const now = new Date()
+      let nextIssue = new Date(cadenceStart)
+      if (isNaN(nextIssue.getTime())) nextIssue = now
+      if (nextIssue.getTime() < now.getTime()) {
+        nextIssue = new Date(nextIssue.setMonth(nextIssue.getMonth() + 1))
+      }
+
+      const basics: BasicsState = {
+        status: 'ON_STRENGTH',
+        size: size.trim(),
+        shipping: {
+          address: shipping.address.trim(),
+          city: shipping.city.trim(),
+          country: shipping.country.trim(),
+          phone: shipping.phone.trim(),
+        },
+        cadenceStart,
+        enrolledAt: now.toISOString(),
+        nextIssueAt: nextIssue.toISOString(),
+        issueLog: [
+          ...(existing.issueLog || []),
+          { at: now.toISOString(), event: 'ROSTER INTAKE RECEIVED — PENDING' },
+          { at: now.toISOString(), event: 'CONFIRMED — ON STRENGTH' },
+        ],
+      }
+
+      const tags = req.user.tags.some((t) => t.toLowerCase() === 'basic')
+        ? req.user.tags
+        : [...req.user.tags, 'basic']
+
+      await req.user.set({ tags, metadata: { ...req.user.metadata, basics } }).save()
+      return { ...basics, isUsership }
+    }
+  )
+
+  fastify.post('/basics/stand-down', async (req: FastifyRequest, reply) => {
+    const existing: BasicsState = req.user.metadata?.basics || defaultBasicsState()
+    if (existing.status !== 'ON_STRENGTH' && existing.status !== 'STEADY_STATE') {
+      return reply.throw.badParams('Not currently ON STRENGTH')
+    }
+
+    const now = new Date()
+    const basics: BasicsState = {
+      ...existing,
+      status: 'STAND_DOWN',
+      standDownAt: now.toISOString(),
+      nextIssueAt: undefined,
+      issueLog: [...(existing.issueLog || []), { at: now.toISOString(), event: 'STAND DOWN — RATION DROPPED, USERSHIP RETAINED' }],
+    }
+
+    const tags = req.user.tags.filter((t) => t.toLowerCase() !== 'basic')
+
+    await req.user.set({ tags, metadata: { ...req.user.metadata, basics } }).save()
+    const isUsership = tags.some((t) => t.toLowerCase() === 'usership')
+    return { ...basics, isUsership }
+  })
 }
