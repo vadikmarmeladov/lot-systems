@@ -24,7 +24,7 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | determined-turing-bto0z9     | (see SR) | 1/1   | READY  | 6     | +275   | Rebuild — f6bw7r pruned/gone. /email Log cmd -> DirectMessage, SSE fix, Sync "LOT MAIL" panel, Cohort Mail hook
+LOT Mail         | determined-turing-bto0z9     | e2f8d75 | 1/1   | READY  | 6     | +275   | Rebuild — f6bw7r pruned/gone. /email Log cmd -> DirectMessage, SSE fix, Sync "LOT MAIL" panel, Cohort Mail hook
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
