@@ -226,3 +226,33 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## The Dark Helper Rule
+
+A signal helper that exists, typechecks, and is named in documentation is not
+a wired signal. The circuit must be closed at BOTH ends or it fails silently —
+no exception, no error, no log line. Two directions of the same defect:
+
+1. NO PRODUCER — the helper is defined and exported but never called.
+   `recordRecipeViewedSignal()` was fully plumbed: `recipe_viewed` sat in the
+   server displayableEvents whitelist and in the analytics jobs, and the
+   function was cited in changelog prose. It had zero call sites. Downstream
+   consumers waited on an event that was never emitted.
+
+2. NO CONSUMER — the event is produced but has no handler at the far end.
+   `plan_set` was passed in the logs array but had no case in formatLog(), so
+   it rendered to empty string, was filtered out, and became invisible to the
+   Memory Engine.
+
+The rule: ship the helper and its call site in the SAME commit, and verify the
+receiving end has a matching case. A grep for the helper name that returns
+only its own definition plus documentation strings is the signature of this
+defect. Prose references are the trap — they make a dark path read as wired.
+
+Corollary for audits: verify signal emission at the CALL SITE, never at the
+helper definition. A widget's documented behavior and its actual behavior
+diverge exactly here, and the divergence is invisible to the build.
+
+(SR-20260630-01: plan_set + emotional_checkin added to formatLog.
+SR-20260824-01: recordRecipeViewedSignal wired into RecipeWidget view path;
+DARK-HELPER minted on this second fold.)

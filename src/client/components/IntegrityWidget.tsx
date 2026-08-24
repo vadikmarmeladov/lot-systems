@@ -8,6 +8,7 @@
 
 import React from 'react'
 import { Block } from '#client/components/ui'
+import { useStore } from '@nanostores/react'
 import { useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import { intentionEngine, type IntentionSignal, analyzeIntentions, getUserState, getUserIndex, hasCurrentIntention } from '#client/stores/intentionEngine'
@@ -224,12 +225,12 @@ function analyzeIntegrity(signals: IntentionSignal[]): IntegrityVerdict {
 
 export function IntegrityWidget() {
   const [view, setView] = React.useState<IntegrityView>('verdict')
+  const engine = useStore(intentionEngine)
   const { data: logs = [] } = useLogs()
 
   const integrity = React.useMemo(() => {
-    const state = intentionEngine.get()
-    return analyzeIntegrity(state.signals)
-  }, [logs])
+    return analyzeIntegrity(engine.signals)
+  }, [engine.signals, logs])
 
   const cycleView = () => {
     setView(prev => {
@@ -341,8 +342,7 @@ export function IntegrityWidget() {
       {view === 'timeline' && (
         <div>
           {(() => {
-            const state = intentionEngine.get()
-            const signals = state.signals
+            const signals = engine.signals
             const now = Date.now()
             const dayMs = 24 * 60 * 60 * 1000
 
@@ -407,10 +407,9 @@ export function IntegrityWidget() {
       {view === 'field' && (
         <div>
           {(() => {
-            const state = intentionEngine.get()
             const userState = getUserState()
             const userIndex = getUserIndex()
-            const patterns = state.recognizedPatterns
+            const patterns = engine.recognizedPatterns
 
             const contradictionPatterns = patterns.filter(p =>
               ['intention-decay', 'ungrounded-activity', 'cleanness-neglect',

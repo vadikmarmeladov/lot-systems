@@ -237,9 +237,9 @@ Five background jobs feed this widget: Daily OS Vitals Snapshot (02:00 UTC), Dai
 
 ### System Pulse Widget
 
-Real-time system heartbeat metrics with 1-second polling. Displays events per minute, quantum flux, neural activity, and resonance (Hz). Cycles through Metrics, Activity, and User Load views.
+Real-time system heartbeat metrics with 10-second polling. Displays events per minute, quantum flux, neural activity, and resonance (Hz). Cycles through Metrics, Activity, and User Load views. Polling pauses while the browser tab is hidden or the user is on another in-app tab.
 
-- **Data Source:** `/api/system/pulse` endpoint (polled every second); log context for comparison
+- **Data Source:** `/api/system/pulse` endpoint (polled every 10 seconds); log context for comparison
 - **Connection:** Provides live system telemetry; cross-references with log context for anomaly detection
 
 ---

@@ -13,7 +13,7 @@ import { Block } from '#client/components/ui'
 import { useCreateLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import * as stores from '#client/stores'
-import { recordSignal } from '#client/stores/intentionEngine'
+import { recordSignal, recordRecipeViewedSignal } from '#client/stores/intentionEngine'
 
 // ─── Farewell data ────────────────────────────────────────────────────────────
 
@@ -154,6 +154,8 @@ export const RecipeWidget: React.FC = () => {
 
     const recipeKey = `${state.mealTime}:${state.recipe}`
     if (loggedRecipesRef.current.has(recipeKey)) return
+
+    recordRecipeViewedSignal(state.mealTime ?? 'unknown', state.recipe)
 
     const mealLabel = getMealLabel()
     const fullText = `${mealLabel} ${state.recipe}`
