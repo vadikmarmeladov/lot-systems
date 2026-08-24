@@ -3629,6 +3629,93 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'presence_continuity_lock') {
+          const dayCount = log.metadata?.dayCount as number | undefined
+          const lockStrength = log.metadata?.lockStrength as number | undefined
+          const convergenceLevel = log.metadata?.convergenceLevel as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PCONTIN:" blockView>
+                <div className="uppercase tracking-widest mb-4">PRESENCE CONTINUITY LOCK</div>
+                {dayCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DAYS</span>
+                    <span className="tabular-nums">{dayCount}</span>
+                  </div>
+                )}
+                {lockStrength !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">LOCK STRENGTH</span>
+                    <span className="tabular-nums">{lockStrength}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELD IS NOT A PEAK · IT IS A FLOOR</div>
+                {convergenceLevel && (
+                  <div className="opacity-30 tabular-nums">LEVEL: {convergenceLevel}</div>
+                )}
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_resonance_cascade') {
+          const l6PatternCount = log.metadata?.l6PatternCount as number | undefined
+          const level6 = log.metadata?.level6 as string | undefined
+          const seals = log.metadata?.seals as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QRESCAS:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM RESONANCE CASCADE</div>
+                {l6PatternCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L6 PATTERNS</span>
+                    <span className="tabular-nums">{l6PatternCount}</span>
+                  </div>
+                )}
+                {seals && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SEALS</span>
+                    <span className="tabular-nums">{seals}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">LEVEL6: {level6 ?? 'COMPLETE'} · ALL THREE SEALS OPEN</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'biofield_continuity_arc') {
+          const presenceDays = log.metadata?.presenceDays as number | undefined
+          const recoveryArcCount = log.metadata?.recoveryArcCount as number | undefined
+          const weekArc = log.metadata?.weekArc as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BIOCONT:" blockView>
+                <div className="uppercase tracking-widest mb-4">BIOFIELD CONTINUITY ARC</div>
+                {presenceDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRESENCE 7D</span>
+                    <span className="tabular-nums">{weekArc ?? `${presenceDays}/7`}</span>
+                  </div>
+                )}
+                {recoveryArcCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RECOVERY ARC</span>
+                    <span className="tabular-nums">{recoveryArcCount}×</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELD: SUSTAINED · BIOFIELD IS A PATTERN</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

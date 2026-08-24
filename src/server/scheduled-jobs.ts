@@ -1747,6 +1747,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyTotalFieldCoherenceCheck()) {
     await executeDailyTotalFieldCoherenceCheck()
   }
+  // Check daily presence continuity check (10:00 UTC every day) — Job 49
+  if (shouldRunDailyPresenceContinuityCheck()) {
+    await executeDailyPresenceContinuityCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -3522,6 +3526,97 @@ async function executeDailyTotalFieldCoherenceCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily total field coherence check failed:', error.message)
     isDailyTotalFieldCoherenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Presence Continuity Check (Job 49 — 10:00 UTC every day) ─────────
+// Reads active users. Checks whether the previous 2 consecutive calendar days
+// each have a total_field_coherence event. When both days confirmed →
+// writes presence_continuity_lock (P152). The field is not a peak — it is a floor.
+
+let isDailyPresenceContinuityRunning = false
+let lastDailyPresenceContinuityRun: Date | null = null
+
+function shouldRunDailyPresenceContinuityCheck(): boolean {
+  const now = dayjs()
+  if (isDailyPresenceContinuityRunning) return false
+  if (lastDailyPresenceContinuityRun) {
+    const lastRun = dayjs(lastDailyPresenceContinuityRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 10 // 10:00 UTC daily
+}
+
+async function executeDailyPresenceContinuityCheck(): Promise<JobResult> {
+  const jobName = 'daily-presence-continuity-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyPresenceContinuityRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPresenceContinuityRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PRESENCE CONTINUITY CHECK — 10:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const day1Start = dayjs().subtract(2, 'day').startOf('day').toDate()
+    const day1End   = dayjs().subtract(2, 'day').endOf('day').toDate()
+    const day2Start = dayjs().subtract(1, 'day').startOf('day').toDate()
+    const day2End   = dayjs().subtract(1, 'day').endOf('day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(3, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (72h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        const day1Logs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: day1Start, [Op.lte]: day1End }, event: 'total_field_coherence' },
+          attributes: ['id'],
+        })
+        const day2Logs = await (Log as any).findAll({
+          where: { userId, createdAt: { [Op.gte]: day2Start, [Op.lte]: day2End }, event: 'total_field_coherence' },
+          attributes: ['id'],
+        })
+
+        if (!day1Logs.length || !day2Logs.length) continue
+
+        const dayCount = 2
+        const lockStrength = Math.min(0.90 + (dayCount - 2) / 10, 0.95)
+
+        await (Log as any).create({
+          userId,
+          event: 'presence_continuity_lock',
+          text: `Presence continuity lock: total-field-coherence confirmed on 2 consecutive calendar days. The field is not a peak — it is a floor. Presence has become structural.`,
+          metadata: {
+            dayCount,
+            lockStrength: Math.round(lockStrength * 100) / 100,
+            convergenceLevel: 'PLATEAU',
+            status: 'FIELD_IS_FLOOR',
+            hour: 10,
+          },
+        })
+        written++
+      } catch {}
+    }
+
+    console.log(`  Presence continuity lock events written: ${written}`)
+    lastDailyPresenceContinuityRun = new Date()
+    isDailyPresenceContinuityRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily presence continuity check failed:', error.message)
+    isDailyPresenceContinuityRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

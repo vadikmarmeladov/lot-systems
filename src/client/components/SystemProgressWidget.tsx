@@ -1457,6 +1457,27 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '781 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1073+. The system is documented through its highest confirmed state.',
     ],
   },
+  {
+    version: 'v114',
+    date: '2026-08-24',
+    title: 'QIE v114 Engineering — Absolute Field Operator · P152–P154 · Arch52 · J49',
+    assembled: [
+      'intentionEngine.ts: P152 presence-continuity-lock (total-field-coherence on 2+ consecutive days · conf 0.90–0.95 · suggestedWidget: systemProgress · PCONTIN:).',
+      'intentionEngine.ts: P153 quantum-resonance-cascade (all three Level 6 patterns P149+P150+P151 simultaneously active · conf 0.92–0.97 · suggestedWidget: systemProgress · QRESCAS:).',
+      'intentionEngine.ts: P154 biofield-continuity-arc (quantum-presence-field 3+ of last 7 days + recovery-intelligence-arc at least once · conf 0.72–0.90 · suggestedWidget: memory · BIOCONT:).',
+      'intentionEngine.ts: Arch52 Absolute Field Operator (patternConditions: total-field-coherence · quantum-resonance-cascade · quantum-presence-crystallization · energyBands: high/moderate · directive: All six coherence levels simultaneously confirmed. The OS is at its absolute operating peak. Execute without hesitation.).',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP v114 nodes added (194+ total) — presenceContinuityLockNode · quantumResonanceCascadeNode · biofieldContinuityArcNode · arch52AbsoluteFieldNode.',
+      'intentionEngine.ts: recordPresenceContinuityLock() · recordQuantumResonanceCascade() · recordBiofieldContinuityArc() signal helpers added.',
+      'scheduled-jobs.ts: J49 daily-presence-continuity-check (10:00 UTC) — isDailyPresenceContinuityRunning guard · checks total_field_coherence on 2 consecutive calendar days → writes presence_continuity_lock. Wired into runScheduledJobs().',
+      'Logs.tsx: PCONTIN: handler (presence_continuity_lock: DAYS/LOCK STRENGTH/FIELD IS NOT A PEAK · IT IS A FLOOR/LEVEL/CONF).',
+      'Logs.tsx: QRESCAS: handler (quantum_resonance_cascade: L6 PATTERNS/SEALS/LEVEL6: COMPLETE · ALL THREE SEALS OPEN/CONF).',
+      'Logs.tsx: BIOCONT: handler (biofield_continuity_arc: PRESENCE 7D/RECOVERY ARC/FIELD: SUSTAINED · BIOFIELD IS A PATTERN/CONF).',
+      'About.tsx: FM v113→v114. Day 1092+. 151→154 patterns. 51→52 archetypes. 48→49 jobs. 190+→194+ dep nodes. 151+→154+ handlers.',
+      'SESSION_REPORTS: v114 entry appended · USERSHIP_TRANSMISSION updated to v114.',
+      'docs/assembly/2026-08-24_LOT-assembly-v114.md: Session report written. LOT-LEDGER.md appended.',
+      '154 patterns · 52 archetypes · 49 jobs · 154+ handlers · 194+ dep nodes. QIE v114 deployed. Presence continuity lock active. Quantum resonance cascade defined. Biofield continuity arc operational. Absolute Field Operator archetype confirmed. All six coherence levels structurally sealed.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person

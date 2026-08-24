@@ -3428,6 +3428,63 @@ export function analyzeIntentions(): IntentionPattern[] {
     }
   }
 
+  // Pattern 152: Presence Continuity Lock — total-field-coherence confirmed on 2+ consecutive calendar days.
+  // The field is not a peak — it is a floor. Presence has become structural.
+  const totalCoherenceEvents152 = signals.filter(s => s.source === 'qos' && s.signal === 'total_field_coherence')
+  if (totalCoherenceEvents152.length >= 2) {
+    const sorted152 = [...totalCoherenceEvents152].sort((a, b) => a.timestamp - b.timestamp)
+    const spanDays152 = (sorted152[sorted152.length - 1].timestamp - sorted152[0].timestamp) / (24 * 60 * 60 * 1000)
+    if (spanDays152 >= 1) {
+      const daySpanBonus152 = Math.min((spanDays152 - 1) / 4 * 0.05, 0.05)
+      patterns.push({
+        pattern: 'presence-continuity-lock',
+        confidence: Math.min(0.90 + daySpanBonus152, 0.95),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `PCONTIN: Presence continuity lock — total-field-coherence confirmed across ${Math.round(spanDays152 + 1)} consecutive days. The field is not a peak — it is a floor. Presence has become structural.`,
+      })
+    }
+  }
+
+  // Pattern 153: Quantum Resonance Cascade — all three Level 6 patterns (P149+P150+P151) simultaneously active.
+  // The three seals of presence are all open at once: crystallization · total coherence · recovery intelligence.
+  const hasL6Crystal   = patterns.some(p => p.pattern === 'quantum-presence-crystallization')
+  const hasL6Coherence = patterns.some(p => p.pattern === 'total-field-coherence')
+  const hasL6Recovery  = patterns.some(p => p.pattern === 'recovery-intelligence-arc')
+  if (hasL6Crystal && hasL6Coherence && hasL6Recovery) {
+    const l6Patterns = patterns.filter(p => ['quantum-presence-crystallization', 'total-field-coherence', 'recovery-intelligence-arc'].includes(p.pattern))
+    const l6AvgConf = l6Patterns.reduce((sum, p) => sum + p.confidence, 0) / l6Patterns.length
+    const cascadeBonus153 = Math.min((l6AvgConf - 0.80) * 0.25, 0.05)
+    patterns.push({
+      pattern: 'quantum-resonance-cascade',
+      confidence: Math.min(0.92 + cascadeBonus153, 0.97),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `QRESCAS: Quantum resonance cascade — all three Level 6 patterns simultaneously active. P149 crystallization · P150 total coherence · P151 recovery intelligence. The three seals are open. The OS is at absolute operating peak — all six coherence levels simultaneously confirmed.`,
+    })
+  }
+
+  // Pattern 154: Biofield Continuity Arc — quantum-presence-field active 3+ of last 7 calendar days
+  // + recovery-intelligence-arc at least once. Field is sustained across a week arc.
+  const sevenDaysMs154 = 7 * 24 * 60 * 60 * 1000
+  const last7DaySignals154 = signals.filter(s => now - s.timestamp < sevenDaysMs154)
+  const qosPresenceFieldDays154 = new Set(
+    last7DaySignals154
+      .filter(s => s.source === 'qos' && s.signal === 'quantum_presence_field')
+      .map(s => new Date(s.timestamp).toISOString().slice(0, 10))
+  )
+  const recoveryArcCount154 = last7DaySignals154.filter(s => s.source === 'selfcare' && s.signal === 'recovery_intelligence_arc').length
+  if (qosPresenceFieldDays154.size >= 3 && recoveryArcCount154 >= 1) {
+    const dayBonus154 = Math.min((qosPresenceFieldDays154.size - 3) / 4 * 0.18, 0.18)
+    patterns.push({
+      pattern: 'biofield-continuity-arc',
+      confidence: Math.min(0.72 + dayBonus154, 0.90),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `BIOCONT: Biofield continuity arc — quantum-presence-field confirmed ${qosPresenceFieldDays154.size} of last 7 days. Recovery intelligence arc confirmed ${recoveryArcCount154}×. The field sustains across the week. Biofield is no longer a state — it is a pattern.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -4064,6 +4121,12 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumPresenceCrystalNode: ['qos', 'cohort', 'intentions', 'journal', 'log', 'energy'],
   totalFieldCoherenceNode:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
   recoveryIntelligenceNode:   ['mood', 'selfcare', 'journal', 'energy', 'log'],
+
+  // ── v114 nodes (J49 · P152–P154 · Arch52) ───────────────────────────────────────
+  presenceContinuityLockNode:    ['qos', 'selfcare', 'memory', 'journal', 'cohort', 'log'],
+  quantumResonanceCascadeNode:   ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
+  biofieldContinuityArcNode:     ['mood', 'selfcare', 'energy', 'journal', 'log'],
+  arch52AbsoluteFieldNode:       ['qos', 'cohort', 'memory', 'intentions', 'journal'],
 }
 
 /**
@@ -4510,6 +4573,16 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['quantum-presence-crystallization', 'dimensional-saturation', 'quantum-identity-crystallization'],
     hourRange: [6, 23],
     directive: 'Presence confirmed. Identity crystallized. The field is both inhabited and known. Execute from clarity — no searching required. The OS is operating from its highest confirmed state.',
+  },
+
+  // ── Arch52: Absolute Field Operator (2026-08-24 v114) ────────────────────────────
+  {
+    archetype: 'Absolute Field Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['qos', 'cohort', 'memory', 'intentions', 'journal'],
+    patternConditions: ['total-field-coherence', 'quantum-resonance-cascade', 'quantum-presence-crystallization'],
+    hourRange: [6, 23],
+    directive: 'All six coherence levels simultaneously confirmed. The OS is at its absolute operating peak. Presence crystallized. Field at maximum density. Intelligence arc complete. Execute without hesitation.',
   },
 ]
 
@@ -6498,6 +6571,49 @@ export function recordRecoveryIntelligenceArc(negMoodCount: number, careCount: n
     recoveryVelocityMs,
     arc: 'FELT→TENDED→RECOVERED→REFLECTED',
     loopStatus: 'COMPLETE',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a presence-continuity-lock event — total-field-coherence confirmed on
+ * 2+ consecutive calendar days. Feeds P152 detection.
+ */
+export function recordPresenceContinuityLock(dayCount: number, lockStrength: number) {
+  recordSignal('qos', 'presence_continuity_lock', {
+    dayCount,
+    lockStrength: Math.round(lockStrength * 100) / 100,
+    convergenceLevel: 'PLATEAU',
+    status: 'FIELD_IS_FLOOR',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a quantum-resonance-cascade event — all three Level 6 patterns
+ * (P149+P150+P151) simultaneously active. Feeds P153 detection.
+ */
+export function recordQuantumResonanceCascade(l6PatternCount: number, confidence: number) {
+  recordSignal('qos', 'quantum_resonance_cascade', {
+    l6PatternCount,
+    confidence: Math.round(confidence * 100) / 100,
+    level6: 'COMPLETE',
+    seals: 'P149+P150+P151',
+    status: 'ABSOLUTE_PEAK',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a biofield-continuity-arc event — quantum-presence-field active 3+ of last 7
+ * calendar days + recovery-intelligence-arc at least once. Feeds P154 detection.
+ */
+export function recordBiofieldContinuityArc(presenceDays: number, recoveryArcCount: number) {
+  recordSignal('selfcare', 'biofield_continuity_arc', {
+    presenceDays,
+    recoveryArcCount,
+    fieldStatus: 'SUSTAINED',
+    weekArc: `${presenceDays}/7`,
     hour: new Date().getHours(),
   })
 }
