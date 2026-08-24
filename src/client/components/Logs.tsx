@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendMail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3702,6 +3702,23 @@ const NoteEditor = ({
       setAsmLoading(false)
     },
   })
+  const [mailResult, setMailResult] = React.useState<string | null>(null)
+  const [mailLoading, setMailLoading] = React.useState(false)
+  const { mutate: sendMail } = useSendMail({
+    onSuccess: (data) => {
+      setMailResult([
+        `TO              ${data.receiverName.toUpperCase()}`,
+        'STATUS          SENT',
+        'ROUTE           SYNC',
+      ].join('\n'))
+      setMailLoading(false)
+    },
+    onError: (err) => {
+      const apiError = (err.response?.data as { error?: string } | undefined)?.error
+      setMailResult((apiError || 'DELIVERY FAILED — recipient not found.').toUpperCase())
+      setMailLoading(false)
+    },
+  })
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
@@ -4051,6 +4068,21 @@ const NoteEditor = ({
             submitQi({ query })
           }
         }
+      } else if (trigger === 'email-compose') {
+        const mailMatch = value.match(/\/(?:email|mail)\s+to\s+([A-Za-z][A-Za-z'-]*)\b\s*([\s\S]*)/i)
+        if (!mailMatch) {
+          setMailResult('USAGE           /email to <name> <message>')
+        } else {
+          const recipientName = mailMatch[1].trim()
+          const body = mailMatch[2].trim()
+          if (!body) {
+            setMailResult(`USAGE           /email to ${recipientName} <message>`)
+          } else if (!mailLoading) {
+            setMailLoading(true)
+            setMailResult(null)
+            sendMail({ to: recipientName, message: body })
+          }
+        }
       } else if (trigger === 'breathe') {
         setBreatheEnabled(prev => !prev)
       } else if (trigger === 'silent-mode') {
@@ -4128,6 +4160,7 @@ const NoteEditor = ({
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
+          '/email to <name> <msg>  Send LOT Mail (appears in Sync)',
           '/assembly     Self-assembly module status',
           '/phys         Physiological cohort report',
           '/qos          Quantum OS state analysis',
@@ -4384,6 +4417,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(mailLoading || mailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL [EMAIL]:" blockView>
+              {mailLoading && !mailResult && (
+                <div className="opacity-30">TRANSMITTING...</div>
+              )}
+              {mailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{mailResult}</div>
+              )}
             </Block>
           </div>
         )}

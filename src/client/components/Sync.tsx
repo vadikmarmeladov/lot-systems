@@ -24,6 +24,8 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useMailInbox,
+  MailInboxItem,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -52,6 +54,8 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Mail — threads seen live via SSE, ahead of the next inbox refetch
+  const [sseMail, setSseMail] = React.useState<MailInboxItem[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -71,6 +75,7 @@ export const Sync = React.memo(function SyncInner() {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: mailData } = useMailInbox()
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -93,6 +98,17 @@ export const Sync = React.memo(function SyncInner() {
     const combined = [...fresh, ...fetched].filter((m) => !isBlankMessage(m.message))
     return canAccessUserProfiles ? combined : combined.slice(0, SYNC_CHAT_MESSAGES_TO_SHOW)
   }, [fetchedMessages, sseMessages, canAccessUserProfiles])
+
+  // Merge: SSE-fresh threads first, one row per correspondent
+  const mailInbox = React.useMemo(() => {
+    const byCorrespondent = new Map<string, MailInboxItem>()
+    for (const item of [...sseMail, ...(mailData?.inbox || [])]) {
+      if (!byCorrespondent.has(item.otherUserId)) byCorrespondent.set(item.otherUserId, item)
+    }
+    return [...byCorrespondent.values()].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    )
+  }, [mailData, sseMail])
 
   React.useEffect(() => {
     const { dispose: disposeChatMessageListener } = sync.listen(
@@ -117,9 +133,30 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeMailListener } = sync.listen(
+      'direct_message',
+      (data: any) => {
+        if (!me || (data.senderId !== me.id && data.receiverId !== me.id)) return
+        const otherUserId = data.senderId === me.id ? data.receiverId : data.senderId
+        setSseMail((prev) => [
+          {
+            otherUserId,
+            otherUserName:
+              data.senderId === me.id
+                ? prev.find((x) => x.otherUserId === otherUserId)?.otherUserName || 'Operator'
+                : data.senderName || 'Operator',
+            message: data.message,
+            isMine: data.senderId === me.id,
+            createdAt: data.createdAt,
+          },
+          ...prev.filter((x) => x.otherUserId !== otherUserId),
+        ])
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeMailListener()
     }
   }, [me?.id])
 
@@ -170,16 +207,45 @@ export const Sync = React.memo(function SyncInner() {
     formRef.current?.querySelector('textarea')?.focus()
   }, [])
 
+  const mailPanel = mailInbox.length > 0 && (
+    <div className="mb-40">
+      <div className="opacity-30 mb-8 uppercase tracking-widest text-xs">LOT Mail</div>
+      <div className="space-y-4">
+        {mailInbox.slice(0, 10).map((thread) => (
+          <div
+            key={thread.otherUserId}
+            className="flex items-start justify-between gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
+            onClick={() => { window.location.href = `/dm/${thread.otherUserId}` }}
+          >
+            <div className="flex-1 min-w-0 flex items-baseline gap-x-8">
+              <span className="whitespace-nowrap">{thread.otherUserName}</span>
+              <span className="opacity-40 truncate">
+                {thread.isMine ? `You: ${thread.message}` : thread.message}
+              </span>
+            </div>
+            <span className="text-acc/40 whitespace-nowrap">
+              <MessageTimeLabel dateString={thread.createdAt} isTimeFormat12h={isTimeFormat12h} />
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+
   if (!canAccessChat) {
     return (
-      <div className="max-w-[700px] text-acc/40 py-8">
-        Sync is available for Usership, Onyx, Legacy, R&D, and Admin members.
+      <div className="max-w-[700px]">
+        {mailPanel}
+        <div className="text-acc/40 py-8">
+          Sync is available for Usership, Onyx, Legacy, R&D, and Admin members.
+        </div>
       </div>
     )
   }
 
   return (
     <div className="max-w-[700px]">
+      {mailPanel}
       <div className="flex items-center mb-80">
         <span className="mr-8 whitespace-nowrap leading-normal">
           {me!.firstName}

@@ -120,6 +120,26 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+// LOT Mail — /email Log command. Rides the DirectMessage model above; the
+// inbox groups threads by correspondent for the Sync "LOT MAIL" panel.
+export interface MailInboxItem {
+  otherUserId: string
+  otherUserName: string
+  message: string
+  isMine: boolean
+  createdAt: string
+}
+
+export const useMailInbox = createQuery<{ inbox: MailInboxItem[] }>(
+  '/api/mail/inbox',
+  { refetchOnWindowFocus: false }
+)
+
+export const useSendMail = createMutation<
+  { to: string; message: string },
+  { id: string; receiverId: string; receiverName: string; message: string; createdAt: string }
+>('post', '/api/mail')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

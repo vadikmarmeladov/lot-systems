@@ -380,6 +380,14 @@ export default async (fastify: FastifyInstance) => {
           write({ event, data: { ...payload, isLiked: !!myLike } })
           break
         }
+        case 'direct_message': {
+          // Private — only forward to the two parties on the thread.
+          const payload = data as { senderId: string; receiverId: string }
+          if (payload.senderId === req.user.id || payload.receiverId === req.user.id) {
+            write({ event, data })
+          }
+          break
+        }
         case 'settings_updated': {
           if (data.userId === req.user.id) {
             write({ event, data: {} })
@@ -4082,6 +4090,131 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // ============================================================================
+  // LOT MAIL — the /email Log command. Resolves a first name to an operator
+  // and sends a direct message. Rides the existing DirectMessage model + the
+  // 'direct_message' sync event above, so mail and DMs share one inbox.
+  // ============================================================================
+
+  // Inbox: latest message per correspondent, for the Sync "LOT MAIL" panel
+  fastify.get('/mail/inbox', async (req, reply) => {
+    try {
+      const rows = await fastify.models.DirectMessage.findAll({
+        where: {
+          [Op.or]: [{ senderId: req.user.id }, { receiverId: req.user.id }],
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 200,
+      })
+
+      const latestByCorrespondent = new Map<string, typeof rows[number]>()
+      for (const row of rows) {
+        const otherUserId = row.senderId === req.user.id ? row.receiverId : row.senderId
+        if (!latestByCorrespondent.has(otherUserId)) {
+          latestByCorrespondent.set(otherUserId, row)
+        }
+      }
+
+      const otherUserIds = [...latestByCorrespondent.keys()]
+      const otherUsers = otherUserIds.length
+        ? await fastify.models.User.findAll({
+            where: { id: otherUserIds },
+            attributes: ['id', 'firstName', 'lastName'],
+          })
+        : []
+      const nameById = new Map(
+        otherUsers.map((u) => [u.id, `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Operator'])
+      )
+
+      const inbox = [...latestByCorrespondent.entries()]
+        .map(([otherUserId, row]) => ({
+          otherUserId,
+          otherUserName: nameById.get(otherUserId) || 'Operator',
+          message: row.message,
+          isMine: row.senderId === req.user.id,
+          createdAt: row.createdAt,
+        }))
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 20)
+
+      return reply.send({ inbox })
+    } catch (error) {
+      console.error('Error fetching mail inbox:', error)
+      return reply.status(500).send({ error: 'Failed to fetch mail inbox' })
+    }
+  })
+
+  // Send: "/email to <name> <message>" — recipient resolved by first name
+  fastify.post('/mail', async (req: FastifyRequest<{
+    Body: { to: string; message: string }
+  }>, reply) => {
+    try {
+      const { to, message } = req.body
+
+      if (!to || !to.trim() || !message || !message.trim()) {
+        return reply.status(400).send({ error: 'Recipient and message are required' })
+      }
+
+      const recipient = await fastify.models.User.findOne({
+        where: {
+          firstName: { [Op.iLike]: to.trim() },
+          id: { [Op.ne]: req.user.id },
+        },
+      })
+      if (!recipient) {
+        return reply.status(404).send({ error: `No operator named "${to.trim()}"` })
+      }
+
+      const directMessage = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: message.trim().slice(0, 2000)
+      })
+
+      const receiverName = `${recipient.firstName || ''} ${recipient.lastName || ''}`.trim()
+
+      sync.emit('direct_message', {
+        id: directMessage.id,
+        senderId: req.user.id,
+        receiverId: recipient.id,
+        message: directMessage.message,
+        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        createdAt: directMessage.createdAt
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'email_sent',
+            text: '',
+            metadata: {
+              directMessageId: directMessage.id,
+              receiverId: recipient.id,
+              receiverName,
+              message: directMessage.message,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging email:', logError)
+        }
+      })
+
+      return reply.send({
+        id: directMessage.id,
+        receiverId: recipient.id,
+        receiverName,
+        message: directMessage.message,
+        createdAt: directMessage.createdAt
+      })
+    } catch (error) {
+      console.error('Error sending mail:', error)
+      return reply.status(500).send({ error: 'Failed to send mail' })
     }
   })
 

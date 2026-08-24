@@ -123,7 +123,10 @@ export const CohortConnectWidget: React.FC = () => {
       connectionReadiness,
       hour: new Date().getHours()
     })
-    stores.goTo('sync')
+    // Cohort matches route straight into LOT Mail's thread view — the
+    // same DirectMessage pipeline the /email Log command writes to, so
+    // the conversation also shows up in the Sync "LOT Mail" panel.
+    window.location.href = `/dm/${userId}`
   }
 
   const handleToggleExpand = (userId: string) => {
@@ -152,7 +155,7 @@ export const CohortConnectWidget: React.FC = () => {
               : null
 
   return (
-    <Block label="Cohort:" blockView>
+    <Block label="LOT Community:" blockView>
       <div>
         {/* Physiological classification */}
         {(physiologicalArchetype || physiologicalCohort) && (
@@ -267,7 +270,7 @@ export const CohortConnectWidget: React.FC = () => {
                           handleSendMessage(match.user.id, match.similarity)
                         }}
                       >
-                        Send message
+                        Mail
                       </Button>
                     </div>
                   </div>
