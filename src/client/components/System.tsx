@@ -51,6 +51,7 @@ import { EvolutionWidget } from './EvolutionWidget'
 import { CohortConnectWidget } from './CohortConnectWidget'
 import { InterfaceEvolutionWidget } from './InterfaceEvolutionWidget'
 import { EvolutionMilestoneToast } from './EvolutionMilestoneToast'
+import { CalendarEventToast } from './CalendarEventToast'
 import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
@@ -387,9 +388,10 @@ export const System = React.memo(function SystemInner() {
       .filter(log => log.event === 'calendar_entry' && log.metadata?.date && (log.metadata.date as string) >= today)
       .map(log => ({
         date: log.metadata!.date as string,
+        time: (log.metadata!.time as string) || undefined,
         text: (log.metadata!.text as string) || log.text || '',
       }))
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')))
     return { next: entries[0] ?? null, count: entries.length }
   }, [logs])
 
@@ -725,6 +727,7 @@ export const System = React.memo(function SystemInner() {
         <div>
           <Block label="Next:">
             {dayjs(upcomingCalendar.next.date).format('ddd, MMMM D')}
+            {upcomingCalendar.next.time && ` · ${upcomingCalendar.next.time}`}
             {' — '}
             {upcomingCalendar.next.text}
             {upcomingCalendar.count > 1 && ` (+${upcomingCalendar.count - 1} more)`}
@@ -769,6 +772,9 @@ export const System = React.memo(function SystemInner() {
 
           {/* Evolution Milestone Toast - Subtle notifications for progression milestones */}
           <EvolutionMilestoneToast />
+
+          {/* Calendar Event Toast - Military-format notification when a tracked task/call comes due */}
+          <CalendarEventToast />
         </div>
       </WidgetErrorBoundary>
 

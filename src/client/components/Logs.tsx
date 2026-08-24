@@ -2079,11 +2079,44 @@ export const Logs: React.FC = React.memo(function LogsInner() {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
                 <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                {date && (
+                  <div className="opacity-40 mt-8 tabular-nums">
+                    {date}{time && ` · ${time}`}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_event_due') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const text = log.metadata?.text as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-DUE:" blockView>
+                <div className="flex justify-between items-baseline mb-8">
+                  <span className="opacity-30">STATUS</span>
+                  <span className="uppercase tracking-widest">DUE</span>
+                </div>
+                {entryType && (
+                  <div className="flex justify-between items-baseline mb-8">
+                    <span className="opacity-30">TYPE</span>
+                    <span className="uppercase">{entryType}</span>
+                  </div>
+                )}
+                {(date || time) && (
+                  <div className="flex justify-between items-baseline">
+                    <span className="opacity-30">ETA</span>
+                    <span className="tabular-nums">{date}{time && ` ${time}`}</span>
+                  </div>
+                )}
+                {text && <div className="mt-8 opacity-60 text-xs leading-relaxed">{text}</div>}
               </Block>
             </LogContainer>
           )

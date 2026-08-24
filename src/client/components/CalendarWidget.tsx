@@ -13,17 +13,58 @@ import { useCreateLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
-import { recordCalendarSignal } from '#client/stores/intentionEngine'
+import { recordCalendarSignal, recordCalendarDueSignal } from '#client/stores/intentionEngine'
 
 type EntryType = 'note' | 'task' | 'call'
 
 type CalendarEntry = {
   date: string
+  time?: string
   text: string
   type: EntryType
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+const TIMED_TYPES: EntryType[] = ['task', 'call']
+const DUE_FIRED_KEY = 'calendar_due_fired_v1'
+const DUE_TOAST_KEY = 'calendar_due_events'
+
+function pad2(n: number): string {
+  return String(Math.abs(n)).padStart(2, '0')
+}
+
+// Military T-minus / T-plus countdown. Returns null outside the 24h operational window.
+function getTimeStatus(date: string, time: string | undefined, now: Dayjs): { label: string; overdue: boolean; due: boolean } | null {
+  if (!time) return null
+  const scheduled = dayjs(`${date}T${time}`)
+  if (!scheduled.isValid()) return null
+  const diffMin = scheduled.diff(now, 'minute')
+
+  if (diffMin <= 0 && diffMin > -60) return { label: 'NOW', overdue: false, due: true }
+  if (diffMin <= -60) {
+    const overdueMin = -diffMin
+    return { label: `T+${pad2(Math.floor(overdueMin / 60))}:${pad2(overdueMin % 60)}`, overdue: true, due: false }
+  }
+  if (diffMin > 0 && diffMin < 24 * 60) {
+    return { label: `T-${pad2(Math.floor(diffMin / 60))}:${pad2(diffMin % 60)}`, overdue: false, due: false }
+  }
+  return null
+}
+
+function readLocalSet(key: string): Set<string> {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw ? new Set(JSON.parse(raw)) : new Set()
+  } catch (_) {
+    return new Set()
+  }
+}
+
+function writeLocalSet(key: string, set: Set<string>) {
+  try {
+    localStorage.setItem(key, JSON.stringify(Array.from(set).slice(-200)))
+  } catch (_) { /* storage unavailable — non-fatal, notification simply won't persist */ }
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -51,33 +92,100 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
-  const { mutate: createLog } = useCreateLog()
+  const { mutate: createLog, isLoading: isSaving } = useCreateLog()
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
+  const [entryTime, setEntryTime] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [saveError, setSaveError] = React.useState(false)
+  const [now, setNow] = React.useState(() => dayjs())
+
+  // Re-derive T-minus/T-plus countdowns and sweep for newly-due events once a minute.
+  React.useEffect(() => {
+    const interval = setInterval(() => setNow(dayjs()), 60 * 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
         date: log.metadata?.date as string,
+        time: (log.metadata?.time as string) || undefined,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')))
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
+    const today = now.format('YYYY-MM-DD')
     return entries
-      .filter(e => e.date >= today)
+      .filter(e => {
+        if (e.date < today) return false
+        if (e.date === today && e.time) {
+          // Drop today's timed entries once >30min past — keeps the list reliable, not stale.
+          const scheduled = dayjs(`${e.date}T${e.time}`)
+          if (scheduled.isBefore(now.subtract(30, 'minute'))) return false
+        }
+        return true
+      })
       .slice(0, 10)
-  }, [entries])
+  }, [entries, now])
+
+  // Reliable time tracking: fire exactly one Log event per task/call once its scheduled
+  // time has passed — checked against the fired-set so it still catches events that came
+  // due while the app was closed, not just the ones caught live in the first hour.
+  React.useEffect(() => {
+    const dueEntries = entries.filter(e => {
+      if (!TIMED_TYPES.includes(e.type) || !e.time) return false
+      return dayjs(`${e.date}T${e.time}`).isBefore(now) || dayjs(`${e.date}T${e.time}`).isSame(now)
+    })
+    if (dueEntries.length === 0) return
+
+    const fired = readLocalSet(DUE_FIRED_KEY)
+    const newlyDue = dueEntries.filter(e => !fired.has(`${e.date}|${e.time}|${e.text}`))
+    if (newlyDue.length === 0) return
+
+    newlyDue.forEach(e => {
+      fired.add(`${e.date}|${e.time}|${e.text}`)
+      createLog({
+        text: `[DUE] ${e.type}: ${e.text} (${e.date} ${e.time})`,
+        event: 'calendar_event_due',
+        metadata: { date: e.date, time: e.time, entryType: e.type, text: e.text },
+      }, {
+        onSuccess: () => queryClient.refetchQueries(['/api/logs']),
+      })
+      try { recordCalendarDueSignal(e.type, e.date, e.time!) } catch (_) {}
+    })
+    writeLocalSet(DUE_FIRED_KEY, fired)
+
+    // Only surface a toast for events that came due within the last hour — a task that went
+    // unfired for days (app was closed) still gets logged reliably above, but silently, in
+    // keeping with "context over notification, no interruption."
+    const freshlyDue = newlyDue.filter(e => getTimeStatus(e.date, e.time, now)?.due)
+    if (freshlyDue.length > 0) {
+      const toastQueue = (() => {
+        try {
+          const raw = localStorage.getItem(DUE_TOAST_KEY)
+          return raw ? JSON.parse(raw) : []
+        } catch (_) { return [] }
+      })()
+      const nextQueue = [
+        ...freshlyDue.map(e => ({
+          message: `[CAL // DUE] ${e.type.toUpperCase()} — ${e.text}`,
+          timestamp: new Date().toISOString(),
+        })),
+        ...toastQueue,
+      ].slice(0, 10)
+      try { localStorage.setItem(DUE_TOAST_KEY, JSON.stringify(nextQueue)) } catch (_) { /* non-fatal */ }
+    }
+  }, [entries, now, createLog, queryClient])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -106,27 +214,34 @@ export function CalendarWidget() {
   }
 
   const handleAddEntry = () => {
-    if (!selectedDate || !entryText.trim()) return
+    if (!selectedDate || !entryText.trim() || isSaving) return
 
+    const trimmedText = entryText.trim()
+    const time = entryTime || undefined
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const whenLabel = time ? `${dateLabel} at ${time}` : dateLabel
+
+    setSaveError(false)
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${trimmedText} (${whenLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
-        text: entryText.trim(),
+        time,
+        text: trimmedText,
         entryType,
       },
     }, {
       onSuccess: () => {
         queryClient.refetchQueries(['/api/logs'])
-        try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        try { recordCalendarSignal(entryType, selectedDate!, time) } catch (_) {}
+        setEntryText('')
+        setEntryTime('')
+        setIsAddingEntry(false)
       },
+      onError: () => setSaveError(true),
     })
-
-    setEntryText('')
-    setIsAddingEntry(false)
   }
 
   const handleToggleCalendar = () => {
@@ -228,6 +343,15 @@ export function CalendarWidget() {
                   ))}
                 </div>
                 <div className="flex gap-8 items-center">
+                  {TIMED_TYPES.includes(entryType) && (
+                    <input
+                      type="time"
+                      value={entryTime}
+                      onChange={e => setEntryTime(e.target.value)}
+                      className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40 tabular-nums"
+                      aria-label="Time"
+                    />
+                  )}
                   <input
                     type="text"
                     value={entryText}
@@ -237,8 +361,13 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
-                  <Button onClick={handleAddEntry}>Add</Button>
+                  <Button onClick={handleAddEntry} disabled={isSaving}>
+                    {isSaving ? 'Saving…' : 'Add'}
+                  </Button>
                 </div>
+                {saveError && (
+                  <div className="text-acc/40 mt-4">Failed to save — try again.</div>
+                )}
               </div>
             )}
 
@@ -247,11 +376,22 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
-                  </div>
-                ))}
+                {entriesOnDate.map((e, i) => {
+                  const status = getTimeStatus(e.date, e.time, now)
+                  return (
+                    <div key={i} className="flex justify-between gap-16 mb-1">
+                      <span className="text-acc/80">
+                        {e.time && <span className="tabular-nums text-acc/40 mr-8">{e.time}</span>}
+                        {e.text}
+                      </span>
+                      {status && (
+                        <span className={cn('tabular-nums whitespace-nowrap', status.overdue ? 'text-acc/60' : 'text-acc/30')}>
+                          {status.label}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -259,16 +399,25 @@ export function CalendarWidget() {
 
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+            {upcomingEntries.map((entry, i) => {
+              const status = getTimeStatus(entry.date, entry.time, now)
+              return (
+                <div key={i} className="flex justify-between gap-16">
+                  <span className="text-acc whitespace-nowrap">
+                    {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                    {entry.time && <span className="text-acc/40"> · {entry.time}</span>}
+                  </span>
+                  <span className="text-acc text-right flex items-center gap-8 justify-end">
+                    {entry.text}
+                    {status && (
+                      <span className={cn('tabular-nums whitespace-nowrap', status.overdue ? 'text-acc/60' : 'text-acc/30')}>
+                        {status.label}
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 
