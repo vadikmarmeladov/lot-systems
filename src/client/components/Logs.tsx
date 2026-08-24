@@ -1967,6 +1967,25 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'generated_story') {
+          const storyPrompt = log.metadata?.logText as string | undefined
+          const story = log.metadata?.story as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="STORY [RFI]:" blockView>
+                {storyPrompt && (
+                  <div className="uppercase tracking-widest mb-8">{storyPrompt}</div>
+                )}
+                {story && (
+                  <div className="opacity-60">
+                    {story.split('\n').map((line, idx) => (
+                      <div key={idx}>{line}</div>
+                    ))}
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event === 'prayer_scripture') {
           const scripture = log.metadata?.scripture as string | undefined
           return (

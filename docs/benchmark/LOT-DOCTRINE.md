@@ -55,7 +55,14 @@ deferred to allow immediate visual response.)
 
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
-(SR-20260604-01: calendar_entry saved but never returned.)
+(SR-20260604-01: calendar_entry saved but never returned. SR-20260824-01:
+generated_story — the /story slash command's Log entry — omitted from the
+whitelist since the route shipped; the POST response rendered once, then
+vanished from the Log timeline on every reload. Same class of bug as
+SR-20260604-01, twenty entries and 84 events later in the same array;
+the class recurs because the array has no compile-time link to the routes
+that create() each event type. A new AI-response event type should ship
+with its whitelist entry and its Logs.tsx render case in the same commit.)
 
 ## Ship Mode Discipline
 

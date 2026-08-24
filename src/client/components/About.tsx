@@ -3850,6 +3850,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="/prayer" value="scripture selection — POST /api/prayer · reads log text + QIE state + weakest dimension · Together AI selects contextual Bible verse (NIV/ESV/NLT) · 10-verse memory to avoid repeats · fallback: Psalm 46:10" />
             <Row label="/freeze" value="halt all widget update cycles" />
             <Row label="/qi" value="operator RFI terminal — POST /api/qi · gathers full signal record · Together AI INTSUM format · response: assessment · data points · one recommendation · tagged qi_rfi in LOG · the operator queries the system" />
+            <Row label="/story" value="on-demand narrative compression — POST /api/story · Usership only · reads last 200 logs (recent entries, moods, self-care answers) · Together AI writes 1-2 paragraph second-person reflection · tagged generated_story in LOG, block STORY [RFI]: · distinct from the automated weekly lot_ai_story (Job 24, Sunday 18:00 UTC)" />
             <Row label="/scan" value="system diagnostic — client-side · reads 18 modules · intentionEngine · badges · connection status · app version · module-by-module breakdown with phase and density %" />
             <Row label="/assembly" value="long-term directive — POST /api/assembly · scans signal gaps · dormant modules · mood trajectory · care ratio · goals · QIE patterns · generates directive with horizon — tagged assembly_directive in LOG" />
             <Row label="/silent" value="suppress all widget surfaces for current session" />
@@ -3858,6 +3859,8 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             <Row label="/qos" value="trigger immediate QIE analysis — fires analyzeIntentions() on demand" />
             <Row label="/phys" value="generate physiological cohort report — surfaces current archetype and readiness state" />
             <Row label="/sil" value="check signal silence — fires P.51 analysis, surfaces SIL log event if silence condition met" />
+            <Row label="/how" value="open LOT AI check-in — navigates to the System tab, client-side only, no log event" />
+            <Row label="/system" value="command reference — client-side · lists every Log Trigger in this table plus save shortcuts, rendered inline in the Log editor" />
             <Row label="! (in text)" value="urgency signal — detected automatically by Punctuation Engine · surfaces CohortConnect on call-for-help threshold breach" />
           </div>
           <P>
