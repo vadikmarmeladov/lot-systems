@@ -74,6 +74,7 @@ export function useLogContext() {
         activeModules: [] as string[],
         dormantModules: [] as string[],
         engagementLevel: 'new' as 'new' | 'exploring' | 'building' | 'integrated' | 'mastered',
+        astroResonance: { available: false as const, auspiciousAvg: null, otherAvg: null, delta: null, auspiciousSamples: 0, otherSamples: 0 },
         getContextualDirective: () => 'Initialize your first CQGS module to begin biofeedback.',
       }
     }
@@ -145,6 +146,38 @@ export function useLogContext() {
     // Mood trend (compare first half vs second half of recent moods)
     const positives = ['energized', 'hopeful', 'calm', 'peaceful', 'grateful', 'content', 'excited']
     const negatives = ['anxious', 'overwhelmed', 'tired', 'exhausted', 'sad', 'lonely', 'restless']
+
+    // Astrology resonance — each Log entry carries the ambient astro reading
+    // (context.astroRokuyo etc.) captured server-side at creation time. This
+    // compares the user's own mood check-ins logged on auspicious (Taian)
+    // days against the rest, from their own history — not a natal chart, not
+    // a generic astrology claim. Requires a minimal sample on both sides
+    // before reporting anything; thin data reports as unavailable rather
+    // than a misleading number.
+    const scoreOf = (mood: string) => (positives.includes(mood) ? 1 : negatives.includes(mood) ? -1 : 0)
+    const astroMoodLogs = logs.filter(
+      l => l.event === 'emotional_checkin' && typeof l.context?.astroRokuyo === 'string'
+    )
+    const auspiciousMoodLogs = astroMoodLogs.filter(l => l.context.astroRokuyo === 'Taian')
+    const otherMoodLogs = astroMoodLogs.filter(l => l.context.astroRokuyo !== 'Taian')
+    const MIN_ASTRO_SAMPLE = 3
+    const astroResonance = (() => {
+      if (auspiciousMoodLogs.length < MIN_ASTRO_SAMPLE || otherMoodLogs.length < MIN_ASTRO_SAMPLE) {
+        return { available: false as const, auspiciousAvg: null, otherAvg: null, delta: null, auspiciousSamples: auspiciousMoodLogs.length, otherSamples: otherMoodLogs.length }
+      }
+      const avg = (list: Log[]) =>
+        list.reduce((sum, l) => sum + scoreOf(((l.metadata as any)?.emotionalState || (l.metadata as any)?.mood || '')), 0) / list.length
+      const auspiciousAvg = avg(auspiciousMoodLogs)
+      const otherAvg = avg(otherMoodLogs)
+      return {
+        available: true as const,
+        auspiciousAvg,
+        otherAvg,
+        delta: auspiciousAvg - otherAvg,
+        auspiciousSamples: auspiciousMoodLogs.length,
+        otherSamples: otherMoodLogs.length,
+      }
+    })()
 
     let moodTrend: 'improving' | 'stable' | 'declining' = 'stable'
     if (recentMoods.length >= 4) {
@@ -354,6 +387,7 @@ export function useLogContext() {
       activeModules,
       dormantModules,
       engagementLevel,
+      astroResonance,
       getContextualDirective,
     }
   }, [logs])

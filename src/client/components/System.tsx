@@ -26,6 +26,7 @@ import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#sha
 import { useBreathe } from '#client/utils/breathe'
 import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
+import { useLogContext } from '#client/hooks/useLogContext'
 import { UserTag } from '#shared/types'
 import { TimeWidget } from './TimeWidget'
 import { QuantumRandomWidget } from './QuantumRandomWidget'
@@ -55,7 +56,7 @@ import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
 import { checkPlannerWidget } from '#client/stores/plannerWidget'
-import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, recordAstrologySignal, getCircadianPhase } from '#client/stores/intentionEngine'
+import { getOptimalWidget, shouldShowWidget, getUserState, getUserIndex, analyzeIntentions, classifyPhysiologicalCohort, intentionEngine, recordAstrologySignal, recordAstrologyResonance, getCircadianPhase } from '#client/stores/intentionEngine'
 import { QuantumStateWidget } from './QuantumStateWidget'
 import { SignalStreamWidget } from './SignalStreamWidget'
 import { PatternRecognitionWidget } from './PatternRecognitionWidget'
@@ -115,6 +116,7 @@ export const System = React.memo(function SystemInner() {
   const { data: profile } = useProfile()
   const { data: logs = [] } = useLogs()
   const { data: communityEmotion } = useCommunityEmotion()
+  const { astroResonance } = useLogContext()
 
 
   const isTempFahrenheit = useStore(stores.isTempFahrenheit)
@@ -237,6 +239,25 @@ export const System = React.memo(function SystemInner() {
     )
     localStorage.setItem(lastRecordedKey, today)
   }, [astrology.rokuyo, astrology.moonPhase, astrology.moonIllumination, astrology.hourlyZodiac, astrology.westernZodiac])
+
+  // Synchronize the astrology block's personalization reading — computed from
+  // the user's OWN Logs entries (see useLogContext.astroResonance) — into the
+  // QIE signal bus once per calendar day, once there is enough data on both
+  // sides to report a real number.
+  React.useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!astroResonance.available) return
+    const today = dayjs().format('YYYY-MM-DD')
+    const lastRecordedKey = 'astrology_resonance_signal_date'
+    if (localStorage.getItem(lastRecordedKey) === today) return
+    recordAstrologyResonance(
+      astroResonance.auspiciousAvg!,
+      astroResonance.otherAvg!,
+      astroResonance.auspiciousSamples,
+      astroResonance.otherSamples
+    )
+    localStorage.setItem(lastRecordedKey, today)
+  }, [astroResonance.available, astroResonance.auspiciousAvg, astroResonance.otherAvg, astroResonance.auspiciousSamples, astroResonance.otherSamples])
 
   const answerLogs = React.useMemo(() => {
     return logs.filter(log => log.event === 'answer')
@@ -671,7 +692,14 @@ export const System = React.memo(function SystemInner() {
         >
           {astrologyView === 'astrology' ? (
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase} ({astrology.moonIllumination}%)
+              <div>
+                {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase} ({astrology.moonIllumination}%)
+              </div>
+              {astroResonance.available && (
+                <div className="opacity-40">
+                  Taian mood {astroResonance.delta! > 0 ? '+' : ''}{astroResonance.delta!.toFixed(1)} vs baseline ({astroResonance.auspiciousSamples + astroResonance.otherSamples} logs)
+                </div>
+              )}
             </div>
           ) : astrologyView === 'psychology' ? (
             <div>

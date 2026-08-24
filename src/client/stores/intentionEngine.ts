@@ -3428,6 +3428,31 @@ export function analyzeIntentions(): IntentionPattern[] {
     }
   }
 
+  // Pattern 152: Astrology Log Resonance — the user's OWN Logs entries (each carrying the ambient
+  // astro reading captured at creation time) show a real, measurable mood difference between
+  // auspicious (Taian) days and the rest of their history, with a minimal sample on both sides.
+  // This is the astrology block's personalization signal: not a natal-chart claim, a correlation
+  // computed from the user's actual logged behavior. Fires only when recordAstrologyResonance has
+  // been called today (System dashboard, once useLogContext has enough data on both sides).
+  const astroResonanceSignal = recentSignals.find(s => s.source === 'astrology' && s.signal === 'personal_resonance')
+  if (astroResonanceSignal) {
+    const { delta, auspiciousSamples, otherSamples } = astroResonanceSignal.metadata as {
+      delta: number
+      auspiciousSamples: number
+      otherSamples: number
+    }
+    if (Math.abs(delta) >= 0.3) {
+      const sampleDepth = Math.min((auspiciousSamples + otherSamples - 6) * 0.015, 0.1)
+      patterns.push({
+        pattern: 'astrology-log-resonance',
+        confidence: Math.min(0.55 + Math.abs(delta) * 0.15 + sampleDepth, 0.82),
+        suggestedWidget: 'system',
+        suggestedTiming: 'passive',
+        reason: `ASTRO-RES: Astrology log resonance — auspicious-day mood avg ${delta > 0 ? 'higher' : 'lower'} than baseline by ${Math.abs(delta).toFixed(2)} across ${auspiciousSamples} Taian-day and ${otherSamples} other-day check-ins. Computed from this user's own Logs history, not a natal chart.`,
+      })
+    }
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -3797,7 +3822,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   log:               [],
   time:              [],
   quantum_random:    [],
-  astrology:         [], // (2026-07-27 audit) ambient rokuyo/moon-phase/zodiac-hour reading, no upstream deps
+  astrology:         ['mood', 'log'], // (2026-08-24 audit) ambient reading is Tier 0, but the personal-resonance layer (P152) correlates against the user's own mood/log history
 
   // ── Tier 1: single-source consumers
   selfcare:          ['mood'],
@@ -4889,6 +4914,32 @@ export function recordAstrologySignal(
     hourlyZodiac,
     westernZodiac,
     auspicious: rokuyo === 'Taian',
+  })
+}
+
+/**
+ * Record a personal astrology resonance reading — computed from the user's
+ * OWN Logs entries (each carries the ambient astro reading captured at
+ * creation time, see getLogContext server-side). Compares mood check-ins
+ * logged on auspicious (Taian) days against the rest of the user's history.
+ * This is per-user, evidence-based, and grounded in the user's actual
+ * behavior — not a natal chart, not a generic astrology claim. Called once
+ * per calendar day from the System dashboard once useLogContext has enough
+ * samples on both sides to report a number. Feeds P152 detection.
+ */
+export function recordAstrologyResonance(
+  auspiciousAvg: number,
+  otherAvg: number,
+  auspiciousSamples: number,
+  otherSamples: number
+) {
+  recordSignal('astrology', 'personal_resonance', {
+    auspiciousAvg: Math.round(auspiciousAvg * 100) / 100,
+    otherAvg: Math.round(otherAvg * 100) / 100,
+    delta: Math.round((auspiciousAvg - otherAvg) * 100) / 100,
+    auspiciousSamples,
+    otherSamples,
+    hour: new Date().getHours(),
   })
 }
 
