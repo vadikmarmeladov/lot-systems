@@ -61,12 +61,13 @@ export class WidgetErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <Block label={`${this.props.name || 'Widget'}:`} blockView>
-          <div className="opacity-30">
+          <div className="opacity-30" role="alert">
             Failed to load.{' '}
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
               className="underline cursor-pointer"
               style={{ background: 'none', border: 'none', color: 'inherit', font: 'inherit', padding: 0 }}
+              aria-label={`Retry loading ${this.props.name || 'widget'}`}
             >
               Retry
             </button>

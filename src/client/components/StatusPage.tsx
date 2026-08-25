@@ -144,7 +144,7 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
       </div>
 
       {loading && !status && (
-        <div className="text-acc/40">Loading...</div>
+        <div className="text-acc/40" aria-live="polite" aria-busy="true">Loading...</div>
       )}
 
       {error && !status && (
@@ -190,9 +190,9 @@ export const StatusPage = ({ noWrapper = false }: StatusPageProps) => {
 
           <div className="mb-16">
             <div className="mb-16">System components:</div>
-            {status.checks.map((check, index) => (
+            {status.checks.map((check) => (
               <Block
-                key={index}
+                key={check.name}
                 label={check.name + ':'}
                 labelClassName="!pl-0"
                 className="mb-8"
