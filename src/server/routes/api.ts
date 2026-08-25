@@ -17,7 +17,7 @@ import {
   UserTag,
 } from '#shared/types'
 import config from '#server/config'
-import { fp } from '#shared/utils'
+import { fp, toCelsius } from '#shared/utils'
 import {
   COUNTRY_BY_ALPHA3,
   DATE_FORMAT,
@@ -5480,9 +5480,17 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
 
   // ============================================================================
   // STORY — Contextual AI Story
-  // Generates a 1-2 paragraph story based on recent logs, self-care events,
-  // and widget data. The story reflects the operator's recent journey.
+  // Compresses a day/week/month/year of logs, self-care events, environment
+  // snapshots (weather/sky/location/astrology) and Arcade badge progress into
+  // a short narrative. The story reflects the operator's chosen window.
   // ============================================================================
+  const STORY_PERIOD_LABELS: Record<string, string> = {
+    day: 'PAST 24 HOURS',
+    week: 'PAST WEEK',
+    month: 'PAST MONTH',
+    year: 'PAST YEAR',
+  }
+
   fastify.post(
     '/story',
     { config: { rateLimit: { max: 5, timeWindow: '1 minute' } } },
@@ -5490,6 +5498,11 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          period?: 'day' | 'week' | 'month' | 'year'
+          arcadeProgress?: {
+            earned?: number
+            total?: number
+          }
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5513,16 +5526,31 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         })
       }
 
-      const { logText, quantumState, userIndex } = req.body
+      const { logText, period, arcadeProgress, quantumState, userIndex } = req.body
+      const periodLabel = period && STORY_PERIOD_LABELS[period] ? STORY_PERIOD_LABELS[period] : 'RECENT JOURNEY'
+
+      // Compression window: no period = legacy "recent" behavior (last 200
+      // logs, unscoped). A period narrows to a real day/week/month/year slice.
+      let since: Date | null = null
+      if (period === 'day') since = dayjs().subtract(1, 'day').toDate()
+      else if (period === 'week') since = dayjs().subtract(7, 'day').toDate()
+      else if (period === 'month') since = dayjs().subtract(1, 'month').toDate()
+      else if (period === 'year') since = dayjs().subtract(1, 'year').toDate()
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: {
+          userId: req.user.id,
+          ...(since ? { createdAt: { [Op.gte]: since } } : {}),
+        },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: since ? 500 : 200,
       })
 
+      // Free-text journal entries are persisted with event 'note' (the
+      // 'log_entry'/'journal' events referenced here previously never exist
+      // on a Log row, so this filter used to return nothing).
       const recentEntries = logs
-        .filter(l => l.event === 'log_entry' || l.event === 'journal')
+        .filter(l => l.event === 'note')
         .slice(0, 10)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
@@ -5539,6 +5567,27 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         return q && a ? `${q}: ${a}` : ''
       }).filter(Boolean)
 
+      // Environment/astrology snapshot — the context every log click already
+      // records (weather, sky, humidity, location, moon phase, zodiac hour).
+      // Use the freshest snapshot on file within the window; fall back to a
+      // live read if the operator has no context-bearing logs yet.
+      const contextLog = logs.find(l => l.context && Object.keys(l.context).length > 0)
+      const envContext = contextLog?.context || (await getLogContext(req.user))
+      const envLines: string[] = []
+      if (envContext.city) {
+        envLines.push(`LOCATION: ${envContext.city}${envContext.country ? ', ' + envContext.country : ''}`)
+      }
+      if (envContext.weatherDescription) {
+        const tempC = typeof envContext.temperature === 'number' ? `${Math.round(toCelsius(envContext.temperature))}°C` : null
+        envLines.push(`SKY: ${envContext.weatherDescription}${tempC ? ` (${tempC})` : ''}${envContext.humidity ? `, humidity ${Math.round(envContext.humidity)}%` : ''}`)
+      }
+      if (envContext.astroMoonPhase) {
+        const illum = typeof envContext.astroMoonIllumination === 'number' ? ` (${Math.round(envContext.astroMoonIllumination * 100)}% illuminated)` : ''
+        envLines.push(`MOON: ${envContext.astroMoonPhase}${illum}`)
+      }
+      if (envContext.astroWesternZodiac) envLines.push(`ZODIAC HOUR: ${envContext.astroWesternZodiac}`)
+      if (envContext.astroRokuyo) envLines.push(`ROKUYO: ${envContext.astroRokuyo}`)
+
       let stateBlock = ''
       if (quantumState && quantumState.energy) {
         stateBlock = `OPERATOR STATE: ${quantumState.energy} energy, ${quantumState.clarity} clarity, ${quantumState.alignment} alignment`
@@ -5546,15 +5595,20 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       if (userIndex && userIndex.overall !== undefined) {
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
+      if (arcadeProgress && typeof arcadeProgress.earned === 'number' && typeof arcadeProgress.total === 'number') {
+        stateBlock += `\nARCADE PROGRESS: ${arcadeProgress.earned}/${arcadeProgress.total} badges unlocked`
+      }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that compresses the operator's ${periodLabel.toLowerCase()} into a short narrative.
 
-The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
+The operator typed a log entry and invoked /story${period ? ` ${period}` : ''}. Your task: write 1-2 paragraphs (100-200 words) that compress their ${periodLabel.toLowerCase()} — mood trajectory, self-care patterns, Arcade progress, and the environment they moved through — into one flowing story. The story should feel personal, grounded, and real — not generic motivational writing.
 
 RULES:
 - Write in second person ("You...")
-- Draw from their actual log entries, moods, and self-care answers below
-- Reference specific details from their data — make it feel like THEIR story
+- Draw from their actual log entries, moods, self-care answers, and environment below
+- Reference specific details from their data — make it feel like THEIR story, not a template
+- Weave in the environment (weather, sky, moon, location) only where it earns its place — a texture, not a weather report
+- If Arcade progress is present, fold it in as a marker of momentum, not a scoreboard callout
 - If they've been consistent with check-ins, acknowledge the discipline
 - If there are gaps or struggle, acknowledge that with compassion
 - The tone should match their current energy: reflective if low, energized if high
@@ -5565,7 +5619,12 @@ RULES:
       const dataBlock = `
 OPERATOR LOG ENTRY: "${logText || '(no text)'}"
 
+COMPRESSION WINDOW: ${periodLabel}
+
 ${stateBlock ? stateBlock : 'STATE: unknown'}
+
+ENVIRONMENT AT TIME OF WRITING:
+${envLines.length > 0 ? envLines.join('\n') : '(no environment data on file)'}
 
 RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
 
@@ -5581,7 +5640,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         const { aiEngineManager } = await import('#server/utils/ai-engines.js')
         const engine = aiEngineManager.getEngine('together')
 
-        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+        console.log(`📖 Story generation (${period || 'recent'}) for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
 
         const story = await engine.generateCompletion(fullPrompt, 512)
 
@@ -5595,8 +5654,10 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           context,
           metadata: {
             story: cleaned,
+            period: period || 'recent',
             logText: (logText || '').substring(0, 500),
             quantumState: quantumState || null,
+            arcadeProgress: arcadeProgress || null,
             timestamp: new Date().toISOString(),
           },
         })

@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,26 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Silent Filter Erasure (generalized)
+
+The "explicit case or invisible" hazard above is not unique to formatLog() —
+it is a general property of any AI-prompt pipeline that filters a `Log[]`
+array by `event` string before formatting. A filter naming an `event` value
+that no writer ever produces does not error: it returns an empty array,
+the prompt block reads "(none)", and the AI answers as if that data source
+is simply quiet. Nothing in the request/response cycle signals the mismatch.
+
+Guard: when adding or auditing an AI-prompt data-assembly block that filters
+`Log[]` by `event`, cross-check every literal against actual `event` values
+written at the `Log.create()` call sites for that feature — not against
+values that "sound right" for the concept. A stale or invented `event`
+literal is a silent, permanent data-starvation bug, not a crash.
+
+(SR-20260630-01: first occurrence — formatLog() missing cases for
+plan_set/emotional_checkin. SR-20260825-01: second occurrence — /api/story's
+recentEntries filter matched `event === 'log_entry' || event === 'journal'`,
+neither of which any writer ever produces; real journal text is always saved
+as `event: 'note'`. The /story feature had been reading zero journal entries
+since it shipped. Two independent occurrences of the same class earns this
+generalized clause.)
