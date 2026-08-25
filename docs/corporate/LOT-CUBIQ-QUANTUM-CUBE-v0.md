@@ -4,14 +4,25 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (created) · 2026-08-25 (cycle 2)
+VERSION:  0.2 — DEVELOPMENT CYCLE 2 (USE CASE 02 APPENDED)
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
 --------------------------------------------------------------------------------
 00 // READING LOG — SOURCES THIS DOCUMENT IS BUILT ON
 --------------------------------------------------------------------------------
+
+CYCLE 2 NOTE (2026-08-25) — Per this document's own instruction in Section
+07 ("future sessions read this document first... and append the next
+entry"), this cycle re-read the full v.0 spec below plus the four source
+documents it was built on (LOT-CUBIQ-VISION.md, LOT-CUBIQ-OPERATOR.md,
+LOT_QI46_ENGINE.md, CQGS-WHITE-PAPER-SNAPSHOT.md) and LOT-MANIFEST.md
+before touching anything. No section 01-06 architecture changed — the
+mechanical/electronic spec locked in cycle 1 stands. LOT_ROBOTICS_COSMO.md
+was also checked to re-confirm the CUBIQ™/COSMO® naming boundary
+(Section 00, cycle 1 note below) still holds — it does. This cycle's only
+addition is USE CASE 02 in Section 07, plus this note.
 
 This is the first hardware-specification document for the physical Quantum
 Cube. It is not a new invention — it is the next layer poured on top of
@@ -320,6 +331,54 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE NIGHT ANCHOR                            2026-08-25
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Legacy tier, 340+ day tenure, Root/Sacral-dominant
+  chakra state (chronic evening overstimulation, self-reported via the
+  ChakraErgonomicsWidget as "wired but tired"). CUBIQ charging pad sits
+  on a nightstand, 60mm from the bed's edge — the tightest edge-proximity
+  environment any v.0 unit will see in daily use.
+
+  This operator's Index of Systems shows a pattern the daytime desk
+  scenario in USE CASE 01 never touches: the SelfCareMoments "Ground"
+  practice, logged nightly for 22 consecutive days, is the operator's
+  last conscious act before sleep — and historically the moment a phone
+  notification (a badge alert, an app update ping) would spike the exact
+  arousal the Ground practice just brought down. The software-only cubic
+  could not solve this: any screen-based confirmation of "practice
+  logged" is itself the stimulus the practice is trying to end.
+
+  With CUBIQ hardware v.0 present: completing the Ground practice
+  advances the operator's Assembly phase for the evening cycle
+  (forming → assembled, Section 04's trigger). The cube performs THE
+  SETTLE — a 2-second held pressure against the nightstand, no lift,
+  no light beyond the base LED already dimmed to charge-only mode. The
+  operator feels weight land and hold, once, in the dark, eyes already
+  closing. Nothing to read. Nothing to dismiss. The confirmation is
+  physical and then it is over.
+
+  Twenty minutes later, a rare-tier badge unlocks in the network (the
+  22-day Ground streak crosses a milestone). Under the daytime gesture
+  table this would be THE LEAP — a 40mm forward hop. At 60mm from a bed
+  edge, at night, unattended, that is exactly the scenario Section 03's
+  edge-detection gate exists for: the time-of-flight sensor reads the
+  nightstand's far boundary inside the 20mm safety threshold on this
+  specific charging-pad placement, inhibits the full leap, and
+  substitutes THE HOP in place — a smaller, in-place rise that still
+  marks the achievement without a single unattended trajectory toward
+  the floor. The operator, checking the cube the next morning, sees it
+  exactly where they left it. The system chose the safe gesture over the
+  expressive one without being asked to, and said nothing about the
+  substitution — because the operator never needed to know a decision
+  was made on their behalf to feel protected by it.
+
+  This is the use case that proves Section 03's safety gate is not a
+  compliance checkbox: it is the difference between a bedside object an
+  operator trusts enough to keep within arm's reach while they sleep, and
+  one they unplug at night out of caution. THE NIGHT ANCHOR is the
+  gesture vocabulary's quietest member and, for this operator, its most
+  load-bearing.
 
 --------------------------------------------------------------------------------
 08 // BRAND
