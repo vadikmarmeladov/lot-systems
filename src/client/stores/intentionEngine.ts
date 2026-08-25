@@ -4870,6 +4870,15 @@ export function recordCalendarSignal(entryType: string, date: string) {
 }
 
 /**
+ * Record a time-tracking signal when a calendar entry carries a logged
+ * duration (task/call). Feeds duration awareness into pattern detection
+ * alongside the plain calendar-gap signal above.
+ */
+export function recordTimeTrackingSignal(entryType: string, durationMinutes: number) {
+  recordSignal('log', 'calendar_time_tracked', { entryType, durationMinutes, hour: new Date().getHours() })
+}
+
+/**
  * Record the day's ambient astrology reading — rokuyo, moon phase, and
  * zodiac hour. Ambient/environmental conditions only, not a personal
  * natal chart. Called once per calendar day from the System dashboard so
