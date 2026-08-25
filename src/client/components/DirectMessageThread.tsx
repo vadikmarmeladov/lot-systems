@@ -84,6 +84,8 @@ export const DirectMessageThread: React.FC<DirectMessageThreadProps> = ({ userId
               senderId: data.senderId,
               receiverId: data.receiverId,
               message: data.message,
+              channel: data.channel || 'chat',
+              subject: data.subject ?? null,
               createdAt: data.createdAt,
               updatedAt: data.createdAt,
               isMine: data.senderId === me?.id,
@@ -179,6 +181,11 @@ export const DirectMessageThread: React.FC<DirectMessageThreadProps> = ({ userId
               <span className="whitespace-nowrap pr-4">
                 {x.isMine ? me!.firstName : otherUserName}
               </span>
+              {x.channel === 'email' && (
+                <span className="whitespace-nowrap pr-4 opacity-40" title={x.subject || 'LOT Email'}>
+                  ✉ email
+                </span>
+              )}
               <div
                 className="whitespace-breakspaces"
                 style={{

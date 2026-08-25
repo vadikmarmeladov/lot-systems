@@ -196,6 +196,8 @@ export type DirectMessage = {
   senderId: string;
   receiverId: string;
   message: string;
+  channel: 'chat' | 'email';
+  subject: string | null;
   createdAt: Date;
   updatedAt: Date;
 };

@@ -4001,6 +4001,8 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
           senderId: m.senderId,
           receiverId: m.receiverId,
           message: m.message,
+          channel: m.channel,
+          subject: m.subject,
           createdAt: m.createdAt,
           updatedAt: m.updatedAt,
           isMine: m.senderId === req.user.id
@@ -4082,6 +4084,89 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // LOT Email — compose from Log via "/email to <Name>". Delivers as a
+  // direct message (channel: 'email') so it surfaces in Sync like any
+  // other Sync conversation. Recipient is resolved by first name against
+  // the LOT Community member directory (the same pool Cohort Connect
+  // draws from), so an email can only reach a real Community member.
+  fastify.post('/log-email', async (req: FastifyRequest<{
+    Body: { to: string; message?: string }
+  }>, reply) => {
+    try {
+      const to = (req.body?.to || '').trim()
+      if (!to) {
+        return reply.status(400).send({ delivered: false, reason: 'missing_recipient' })
+      }
+
+      const message = (req.body?.message || '').trim().slice(0, 2000) ||
+        `${req.user.firstName || 'A LOT member'} reached out via LOT Email.`
+
+      const { User } = await import('#server/models/user')
+      const receiver = await User.findOne({
+        where: {
+          firstName: { [Op.iLike]: to },
+          id: { [Op.not]: req.user.id },
+        },
+        order: [['lastSeenAt', 'DESC']],
+      })
+
+      if (!receiver) {
+        return reply.send({ delivered: false, reason: 'not_found', to })
+      }
+
+      const subject = `Email from ${req.user.firstName || 'LOT'}`.slice(0, 200)
+
+      const directMessage = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        message,
+        channel: 'email',
+        subject,
+      })
+
+      sync.emit('direct_message', {
+        id: directMessage.id,
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        message: directMessage.message,
+        channel: 'email',
+        subject: directMessage.subject,
+        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        createdAt: directMessage.createdAt,
+      })
+
+      // Log the sent email (mirrors direct_message_sent tracking above)
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'lot_email_sent',
+            text: '',
+            metadata: {
+              directMessageId: directMessage.id,
+              receiverId: receiver.id,
+              to,
+              message: directMessage.message,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging LOT Email:', logError)
+        }
+      })
+
+      return reply.send({
+        delivered: true,
+        receiverId: receiver.id,
+        receiverName: `${receiver.firstName || ''} ${receiver.lastName?.charAt(0) || ''}`.trim(),
+      })
+    } catch (error) {
+      console.error('Error sending LOT Email:', error)
+      return reply.status(500).send({ delivered: false, reason: 'error' })
     }
   })
 

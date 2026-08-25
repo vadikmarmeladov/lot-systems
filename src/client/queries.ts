@@ -98,6 +98,8 @@ export interface DirectMessageRecord {
   senderId: string
   receiverId: string
   message: string
+  channel: 'chat' | 'email'
+  subject: string | null
   createdAt: string
   updatedAt: string
   isMine: boolean
@@ -119,6 +121,11 @@ export const useSendDirectMessage = createMutation<
   { receiverId: string; message: string },
   void
 >('post', '/api/direct-messages')
+
+export const useLotEmail = createMutation<
+  { to: string; message?: string },
+  { delivered: boolean; reason?: string; to?: string; receiverId?: string; receiverName?: string }
+>('post', '/api/log-email')
 
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,

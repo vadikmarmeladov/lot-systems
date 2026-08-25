@@ -13,7 +13,8 @@ import { DirectMessage as DirectMessageModel } from '#shared/types'
 type DirectMessageCreateFields = Pick<
   DirectMessageModel,
   'senderId' | 'receiverId' | 'message'
->
+> &
+  Partial<Pick<DirectMessageModel, 'channel' | 'subject'>>
 
 export class DirectMessage
   extends Model<DirectMessageModel, DirectMessageCreateFields>
@@ -23,6 +24,8 @@ export class DirectMessage
   declare senderId: DirectMessageModel['senderId']
   declare receiverId: DirectMessageModel['receiverId']
   declare message: DirectMessageModel['message']
+  declare channel: DirectMessageModel['channel']
+  declare subject: DirectMessageModel['subject']
   declare createdAt: DirectMessageModel['createdAt']
   declare updatedAt: DirectMessageModel['updatedAt']
 }
@@ -56,6 +59,15 @@ DirectMessage.init(
     message: {
       type: DataTypes.TEXT,
       allowNull: false,
+    },
+    channel: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'chat',
+    },
+    subject: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     createdAt: DataTypes.DATE,
     updatedAt: DataTypes.DATE,

@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useLotEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,22 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { mutate: submitLotEmail } = useLotEmail({
+    onSuccess: (data) => {
+      setEmailLoading(false)
+      setEmailResult(
+        data.delivered
+          ? `TO              ${data.receiverName || 'RECIPIENT'}\nSTATUS          DELIVERED\nCHANNEL         LOT EMAIL — SYNC`
+          : `TO              ${data.to || 'UNKNOWN'}\nSTATUS          NOT FOUND\nREASON          NOT A COMMUNITY MEMBER`
+      )
+    },
+    onError: () => {
+      setEmailLoading(false)
+      setEmailResult('STATUS          FAILED\nREASON          LOT EMAIL OFFLINE')
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4139,6 +4155,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Send a LOT Email — delivered in Sync',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4163,6 +4180,15 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'email-compose') {
+        const emailMatch = value.match(/\/email\s+to\s+([A-Za-z][A-Za-z'-]*)\.?\s*([\s\S]*)/i)
+        if (emailMatch && !emailLoading) {
+          const to = emailMatch[1].trim()
+          const body = emailMatch[2].trim()
+          setEmailLoading(true)
+          setEmailResult(null)
+          submitLotEmail({ to, message: body })
         }
       }
     }
@@ -4384,6 +4410,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="✉ EMAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Sending...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
+              )}
             </Block>
           </div>
         )}
