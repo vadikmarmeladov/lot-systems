@@ -3329,6 +3329,7 @@ export function analyzeIntentions(): IntentionPattern[] {
   // active OS dimension contributing signal at the same time. The field is not building — it is saturated.
   const hasPresenceP142 = patterns.some(p => p.pattern === 'adaptive-signal-web')
   const hasPresenceP137 = patterns.some(p => p.pattern === 'quantum-coherence-peak')
+  const dayMs = 24 * 60 * 60 * 1000
   const daySignals147 = signals.filter(s => now - s.timestamp < dayMs)
   const uniqueSources147 = new Set(daySignals147.map(s => s.source)).size
   if (hasPresenceP142 && hasPresenceP137 && uniqueSources147 >= 7) {
@@ -3426,6 +3427,26 @@ export function analyzeIntentions(): IntentionPattern[] {
         reason: `RECINTEL: Recovery intelligence arc — depletion detected · self-care applied · state restored · reflection captured within 6h. The loop is complete: felt → tended → recovered → reflected. The system learns from its own restoration.`,
       })
     }
+  }
+
+  // Pattern 152: Auspicious Day Alignment — today's ambient astrology reading carries the
+  // 'auspicious' flag (Taian rokuyo, recorded once daily by recordAstrologySignal) AND the
+  // user has set an intention or acted on a goal the same day. Ambient calendar conditions
+  // and declared direction landed on the same day — purely a gentle correlation surfaced to
+  // the user, not a directive (the astrology block stays ambient/environmental, never a
+  // personal natal reading). First pattern to read the Tier 0 'astrology' signal source.
+  const daySignals152 = signals.filter(s => now - s.timestamp < dayMs)
+  const auspicious152 = daySignals152.find(s => s.source === 'astrology' && s.metadata?.auspicious === true)
+  const direction152 = daySignals152.filter(s => s.source === 'goals' || s.source === 'intentions')
+  if (auspicious152 && direction152.length >= 1) {
+    const directionBonus = Math.min((direction152.length - 1) * 0.05, 0.15)
+    patterns.push({
+      pattern: 'auspicious-day-alignment',
+      confidence: Math.min(0.6 + directionBonus, 0.75),
+      suggestedWidget: 'cosmic',
+      suggestedTiming: 'passive',
+      reason: `AUSDAY: Auspicious day alignment — Taian rokuyo confirmed today · ${direction152.length} goal/intention signal(s) set in the same window. Ambient calendar and declared direction landed on the same day. A gentle correlation, not a directive.`,
+    })
   }
 
   // Compute accumulative user index from all widget signals

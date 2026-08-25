@@ -68,6 +68,7 @@ export type UserProfile = {
   city: string | null;
   address: string | null;
   phone: string | null;
+  timeZone: string | null;
   tags: string[];
   hideActivityLogs: boolean;
   timeChime?: boolean;
@@ -170,6 +171,7 @@ export type LogContext = {
   astroMoonIllumination?: number | null;
   astroHourlyZodiac?: string | null;
   astroWesternZodiac?: string | null;
+  astroJapaneseZodiac?: string | null;
   [key: string]: any;
 };
 
