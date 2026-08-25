@@ -73,6 +73,17 @@ Security documentation and repository maintenance.
 - Security Fixes - Security issue resolution
 - Repository Issues Summary - Known issues and fixes
 
+### [Hardware — COSMO® TILE (CT-1)](./hardware/)
+Plan, components list, firmware spec, software/API spec, and operator
+manual for LOT's physical notification device.
+
+**Key Documents:**
+- Plan & Roadmap — [`docs/corporate/LOT-COSMO-TILE-v1.md`](./corporate/LOT-COSMO-TILE-v1.md)
+- Components Buying List — [`COSMO-TILE-BOM.md`](./hardware/COSMO-TILE-BOM.md)
+- Firmware Specification — [`COSMO-TILE-FIRMWARE.md`](./hardware/COSMO-TILE-FIRMWARE.md)
+- Software / LOT API Connector — [`COSMO-TILE-SOFTWARE.md`](./hardware/COSMO-TILE-SOFTWARE.md)
+- Operator Manual — [`COSMO-TILE-MANUAL.md`](./hardware/COSMO-TILE-MANUAL.md) · [PDF](./hardware/pdf/COSMO-TILE-MANUAL.pdf)
+
 ## 🚀 Quick Links
 
 - [Main README](../README.md) - Project overview
