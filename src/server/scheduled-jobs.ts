@@ -954,6 +954,7 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
         event: 'lot_ai_story',
         text: storyText,
         metadata: {
+          period: 'week',
           weekNumber,
           weekYear,
           weekTone,
@@ -998,6 +999,340 @@ async function executeWeeklyLOTAIStory(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Weekly LOT® AI story generation failed:', error.message)
     isWeeklyLOTAIStoryRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Monthly LOT® AI Story Generation (Job 49 — 1st of month, 18:00 UTC) ────
+// Compresses each active user's month into a short personal narrative and stores
+// it in user metadata as monthlyStory. Also writes a lot_ai_story log event
+// (period: 'month'). Same template-based compression as the weekly job, wider
+// window, higher signal floor — a month should read as an arc, not a tally.
+
+let isMonthlyLOTAIStoryRunning = false
+let lastMonthlyLOTAIStoryRun: Date | null = null
+
+function shouldRunMonthlyLOTAIStory(): boolean {
+  const now = dayjs()
+  if (isMonthlyLOTAIStoryRunning) return false
+  if (lastMonthlyLOTAIStoryRun) {
+    const lastRun = dayjs(lastMonthlyLOTAIStoryRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.date() === 1 && now.hour() === 18 // 1st of month, 18:00 UTC
+}
+
+async function executeMonthlyLOTAIStory(): Promise<JobResult> {
+  const jobName = 'monthly-lot-ai-story'
+  const executedAt = new Date().toISOString()
+  if (isMonthlyLOTAIStoryRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isMonthlyLOTAIStoryRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('MONTHLY LOT® AI STORY GENERATION — 1st of month, 18:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { User } = await import('#server/models/user.js')
+    const { Op } = await import('sequelize')
+
+    // The month that just closed (this job fires on the 1st, so "last month").
+    const closedMonth = dayjs().subtract(1, 'day')
+    const monthStart = closedMonth.startOf('month').toDate()
+    const monthNumber = closedMonth.month() + 1
+    const monthYear = closedMonth.year()
+    const monthName = closedMonth.format('MMMM')
+
+    const recentLogs = await Log.findAll({
+      where: { createdAt: { [Op.gte]: monthStart } },
+      attributes: ['userId', 'event', 'text', 'metadata', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    })
+
+    const byUser: Record<string, any[]> = {}
+    for (const l of recentLogs) {
+      const uid = String((l as any).userId)
+      if (!byUser[uid]) byUser[uid] = []
+      byUser[uid].push(l)
+    }
+
+    const MOOD_POSITIVE = new Set(['energized', 'calm', 'hopeful', 'grateful', 'fulfilled', 'content', 'peaceful', 'excited', 'grounded', 'focused', 'flowing', 'steady'])
+    const MOOD_HARD = new Set(['tired', 'anxious', 'exhausted', 'overwhelmed', 'restless', 'uncertain', 'drained', 'depleted', 'unsettled', 'heavy'])
+
+    let generated = 0
+
+    for (const [userId, logs] of Object.entries(byUser)) {
+      if (logs.length < 8) continue // A month needs a real signal floor, not a lucky week
+
+      const checkins = logs.filter((l: any) => l.event === 'emotional_checkin')
+      const selfCare  = logs.filter((l: any) => ['self_care_complete', 'self_care_completed'].includes(l.event))
+      const intentions = logs.filter((l: any) => l.event === 'intention')
+      const notes = logs.filter((l: any) => ['note', 'journal'].includes(l.event))
+      const totalLogs = logs.length
+
+      let positiveCount = 0
+      let hardCount = 0
+      let dominantMood: string | null = null
+      const moodCounts: Record<string, number> = {}
+      for (const c of checkins) {
+        const mood = (c.metadata as any)?.emotionalState
+        if (!mood) continue
+        moodCounts[mood] = (moodCounts[mood] || 0) + 1
+        if (MOOD_POSITIVE.has(mood)) positiveCount++
+        if (MOOD_HARD.has(mood)) hardCount++
+      }
+      if (Object.keys(moodCounts).length > 0) {
+        dominantMood = Object.entries(moodCounts).sort(([,a],[,b]) => b - a)[0][0]
+      }
+
+      const monthTone = positiveCount > hardCount ? 'growth'
+        : hardCount > positiveCount ? 'recovery'
+        : 'steady'
+
+      const lines: string[] = []
+      lines.push(`${monthName} ${monthYear}.`)
+
+      if (checkins.length > 0 && dominantMood) {
+        const cap = dominantMood.charAt(0).toUpperCase() + dominantMood.slice(1)
+        lines.push(`${cap} carried the month across ${checkins.length} check-in${checkins.length !== 1 ? 's' : ''}.`)
+      }
+
+      if (selfCare.length > 0) {
+        lines.push(`${selfCare.length} self-care moment${selfCare.length !== 1 ? 's' : ''} completed.`)
+      }
+
+      if (intentions.length > 0) {
+        lines.push(`${intentions.length} intention${intentions.length !== 1 ? 's' : ''} set.`)
+      }
+
+      if (notes.length > 0) {
+        lines.push(`${notes.length} note${notes.length !== 1 ? 's' : ''} logged.`)
+      }
+
+      const closingLines: Record<string, string> = {
+        growth: 'The month built on itself.',
+        recovery: 'The system absorbed the hit and held.',
+        steady: 'A month of consistent ground.',
+      }
+      lines.push(closingLines[monthTone])
+
+      const storyText = lines.join(' ')
+
+      await Log.create({
+        userId: parseInt(userId),
+        event: 'lot_ai_story',
+        text: storyText,
+        metadata: {
+          period: 'month',
+          monthNumber,
+          monthYear,
+          monthTone,
+          dominantMood,
+          checkinsCount: checkins.length,
+          selfCareCount: selfCare.length,
+          intentionsCount: intentions.length,
+          totalLogsCount: totalLogs,
+        },
+      } as any)
+
+      try {
+        const user = await User.findOne({ where: { id: parseInt(userId) } })
+        if (user) {
+          const meta = (user.metadata as any) || {}
+          await user.set({
+            metadata: {
+              ...meta,
+              monthlyStory: {
+                text: storyText,
+                monthNumber,
+                monthYear,
+                monthTone,
+                dominantMood,
+                generatedAt: new Date().toISOString(),
+              },
+            },
+          }).save()
+        }
+      } catch (_) {}
+
+      generated++
+    }
+
+    console.log(`MONTHLY LOT® AI STORY GENERATION COMPLETE — ${generated} stories written`)
+    console.log('─'.repeat(60))
+
+    lastMonthlyLOTAIStoryRun = new Date()
+    isMonthlyLOTAIStoryRunning = false
+    return { jobName, executedAt, success: true, result: { generated } }
+  } catch (error: any) {
+    console.error('Monthly LOT® AI story generation failed:', error.message)
+    isMonthlyLOTAIStoryRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Yearly LOT® AI Story Generation (Job 50 — Jan 1, 18:00 UTC) ────────────
+// Compresses each active user's prior year into a short personal narrative and
+// stores it in user metadata as yearlyStory. Also writes a lot_ai_story log
+// event (period: 'year'). The widest compression window in the story family —
+// a year should read as a single shape, not twelve months stitched together.
+
+let isYearlyLOTAIStoryRunning = false
+let lastYearlyLOTAIStoryRun: Date | null = null
+
+function shouldRunYearlyLOTAIStory(): boolean {
+  const now = dayjs()
+  if (isYearlyLOTAIStoryRunning) return false
+  if (lastYearlyLOTAIStoryRun) {
+    const lastRun = dayjs(lastYearlyLOTAIStoryRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.month() === 0 && now.date() === 1 && now.hour() === 18 // Jan 1, 18:00 UTC
+}
+
+async function executeYearlyLOTAIStory(): Promise<JobResult> {
+  const jobName = 'yearly-lot-ai-story'
+  const executedAt = new Date().toISOString()
+  if (isYearlyLOTAIStoryRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isYearlyLOTAIStoryRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('YEARLY LOT® AI STORY GENERATION — Jan 1, 18:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { Log } = await import('#server/models/log.js')
+    const { User } = await import('#server/models/user.js')
+    const { Op } = await import('sequelize')
+
+    // The year that just closed (this job fires Jan 1, so "last year").
+    const closedYear = dayjs().subtract(1, 'day')
+    const yearStart = closedYear.startOf('year').toDate()
+    const yearNumber = closedYear.year()
+
+    const recentLogs = await Log.findAll({
+      where: { createdAt: { [Op.gte]: yearStart } },
+      attributes: ['userId', 'event', 'text', 'metadata', 'createdAt'],
+      order: [['createdAt', 'ASC']],
+    })
+
+    const byUser: Record<string, any[]> = {}
+    for (const l of recentLogs) {
+      const uid = String((l as any).userId)
+      if (!byUser[uid]) byUser[uid] = []
+      byUser[uid].push(l)
+    }
+
+    const MOOD_POSITIVE = new Set(['energized', 'calm', 'hopeful', 'grateful', 'fulfilled', 'content', 'peaceful', 'excited', 'grounded', 'focused', 'flowing', 'steady'])
+    const MOOD_HARD = new Set(['tired', 'anxious', 'exhausted', 'overwhelmed', 'restless', 'uncertain', 'drained', 'depleted', 'unsettled', 'heavy'])
+
+    let generated = 0
+
+    for (const [userId, logs] of Object.entries(byUser)) {
+      if (logs.length < 20) continue // A year's story needs a real year of signal
+
+      const checkins = logs.filter((l: any) => l.event === 'emotional_checkin')
+      const selfCare  = logs.filter((l: any) => ['self_care_complete', 'self_care_completed'].includes(l.event))
+      const intentions = logs.filter((l: any) => l.event === 'intention')
+      const notes = logs.filter((l: any) => ['note', 'journal'].includes(l.event))
+      const totalLogs = logs.length
+
+      let positiveCount = 0
+      let hardCount = 0
+      let dominantMood: string | null = null
+      const moodCounts: Record<string, number> = {}
+      for (const c of checkins) {
+        const mood = (c.metadata as any)?.emotionalState
+        if (!mood) continue
+        moodCounts[mood] = (moodCounts[mood] || 0) + 1
+        if (MOOD_POSITIVE.has(mood)) positiveCount++
+        if (MOOD_HARD.has(mood)) hardCount++
+      }
+      if (Object.keys(moodCounts).length > 0) {
+        dominantMood = Object.entries(moodCounts).sort(([,a],[,b]) => b - a)[0][0]
+      }
+
+      const yearTone = positiveCount > hardCount ? 'growth'
+        : hardCount > positiveCount ? 'recovery'
+        : 'steady'
+
+      const lines: string[] = []
+      lines.push(`${yearNumber}.`)
+
+      if (checkins.length > 0 && dominantMood) {
+        const cap = dominantMood.charAt(0).toUpperCase() + dominantMood.slice(1)
+        lines.push(`${cap} was the throughline across ${checkins.length} check-in${checkins.length !== 1 ? 's' : ''}.`)
+      }
+
+      if (selfCare.length > 0) {
+        lines.push(`${selfCare.length} self-care moment${selfCare.length !== 1 ? 's' : ''} completed.`)
+      }
+
+      if (intentions.length > 0) {
+        lines.push(`${intentions.length} intention${intentions.length !== 1 ? 's' : ''} set.`)
+      }
+
+      if (notes.length > 0) {
+        lines.push(`${notes.length} note${notes.length !== 1 ? 's' : ''} logged.`)
+      }
+
+      const closingLines: Record<string, string> = {
+        growth: 'The year moved forward.',
+        recovery: 'The year tested the system, and the system held.',
+        steady: 'A year of the same ground, held well.',
+      }
+      lines.push(closingLines[yearTone])
+
+      const storyText = lines.join(' ')
+
+      await Log.create({
+        userId: parseInt(userId),
+        event: 'lot_ai_story',
+        text: storyText,
+        metadata: {
+          period: 'year',
+          yearNumber,
+          yearTone,
+          dominantMood,
+          checkinsCount: checkins.length,
+          selfCareCount: selfCare.length,
+          intentionsCount: intentions.length,
+          totalLogsCount: totalLogs,
+        },
+      } as any)
+
+      try {
+        const user = await User.findOne({ where: { id: parseInt(userId) } })
+        if (user) {
+          const meta = (user.metadata as any) || {}
+          await user.set({
+            metadata: {
+              ...meta,
+              yearlyStory: {
+                text: storyText,
+                yearNumber,
+                yearTone,
+                dominantMood,
+                generatedAt: new Date().toISOString(),
+              },
+            },
+          }).save()
+        }
+      } catch (_) {}
+
+      generated++
+    }
+
+    console.log(`YEARLY LOT® AI STORY GENERATION COMPLETE — ${generated} stories written`)
+    console.log('─'.repeat(60))
+
+    lastYearlyLOTAIStoryRun = new Date()
+    isYearlyLOTAIStoryRunning = false
+    return { jobName, executedAt, success: true, result: { generated } }
+  } catch (error: any) {
+    console.error('Yearly LOT® AI story generation failed:', error.message)
+    isYearlyLOTAIStoryRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
@@ -1746,6 +2081,14 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   // Check daily total field coherence check (09:00 UTC every day) — Job 48
   if (shouldRunDailyTotalFieldCoherenceCheck()) {
     await executeDailyTotalFieldCoherenceCheck()
+  }
+  // Check monthly LOT AI story generation (1st of month, 18:00 UTC) — Job 49
+  if (shouldRunMonthlyLOTAIStory()) {
+    await executeMonthlyLOTAIStory()
+  }
+  // Check yearly LOT AI story generation (Jan 1, 18:00 UTC) — Job 50
+  if (shouldRunYearlyLOTAIStory()) {
+    await executeYearlyLOTAIStory()
   }
 }
 
@@ -5608,6 +5951,10 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily signal matrix check: 9 AM UTC every day (Job 44)')
   console.log('   - Daily physiological presence check: 9 PM UTC every day (Job 45)')
   console.log('   - Daily circadian lock check: 7 AM UTC every day (Job 46)')
+  console.log('   - Daily signal coherence cascade check: 8 AM UTC every day (Job 47)')
+  console.log('   - Daily total field coherence check: 9 AM UTC every day (Job 48)')
+  console.log('   - Monthly LOT® AI story generation: 6 PM UTC on 1st of month (Job 49)')
+  console.log('   - Yearly LOT® AI story generation: 6 PM UTC on Jan 1 (Job 50)')
   console.log('')
 
   // Check every hour for scheduled jobs

@@ -2646,22 +2646,29 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             </LogContainer>
           )
         } else if (log.event === 'lot_ai_story') {
+          const period        = (log.metadata?.period as string | undefined) || 'week'
           const weekNumber    = log.metadata?.weekNumber    as number | undefined
-          const weekTone      = log.metadata?.weekTone      as string | undefined
+          const monthNumber   = log.metadata?.monthNumber   as number | undefined
+          const monthYear     = log.metadata?.monthYear     as number | undefined
+          const yearNumber    = log.metadata?.yearNumber    as number | undefined
+          const tone          = (log.metadata?.weekTone || log.metadata?.monthTone || log.metadata?.yearTone) as string | undefined
           const dominantMood  = log.metadata?.dominantMood  as string | undefined
           const checkinsCount = log.metadata?.checkinsCount as number | undefined
           const selfCareCount = log.metadata?.selfCareCount as number | undefined
           const intentionsCount = log.metadata?.intentionsCount as number | undefined
+          const periodLabel =
+            period === 'month' && monthNumber !== undefined ? `M${String(monthNumber).padStart(2, '0')}${monthYear ? ` ${monthYear}` : ''}`
+            : period === 'year' && yearNumber !== undefined ? `Y${yearNumber}`
+            : weekNumber !== undefined ? `W${weekNumber}`
+            : period.toUpperCase()
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="STORY:" blockView>
-                {weekNumber !== undefined && (
-                  <div className="uppercase tracking-widest mb-4">W{weekNumber}</div>
-                )}
-                {weekTone && (
+                <div className="uppercase tracking-widest mb-4">{periodLabel}</div>
+                {tone && (
                   <div className="flex justify-between items-baseline mb-4">
                     <span className="opacity-30">TONE</span>
-                    <span className="uppercase">{weekTone}</span>
+                    <span className="uppercase">{tone}</span>
                   </div>
                 )}
                 {dominantMood && (
@@ -3706,6 +3713,7 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [storyPeriod, setStoryPeriod] = React.useState<'day' | 'week' | 'month' | 'year'>('day')
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -4125,7 +4133,10 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compress today into a personal story',
+          '/story week   Compress this week into a personal story',
+          '/story month  Compress this month into a personal story',
+          '/story year   Compress this year into a personal story',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4151,17 +4162,21 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+          const period = (periodMatch ? periodMatch[1].toLowerCase() : 'day') as 'day' | 'week' | 'month' | 'year'
+          setStoryPeriod(period)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story(\s+(day|week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }
@@ -4418,14 +4433,17 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="📖" blockView>
               {storyLoading && !storyResponse && (
-                <div className="opacity-40 tracking-widest">...</div>
+                <div className="opacity-40 tracking-widest">COMPRESSING {storyPeriod.toUpperCase()}...</div>
               )}
               {storyResponse && (
-                <div className="opacity-60">
-                  {storyResponse.split('\n').map((line, idx) => (
-                    <div key={idx}>{line || <br />}</div>
-                  ))}
-                </div>
+                <>
+                  <div className="opacity-30 uppercase tracking-widest mb-3">{storyPeriod}</div>
+                  <div className="opacity-60">
+                    {storyResponse.split('\n').map((line, idx) => (
+                      <div key={idx}>{line || <br />}</div>
+                    ))}
+                  </div>
+                </>
               )}
             </Block>
           </div>
