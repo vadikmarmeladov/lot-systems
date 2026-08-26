@@ -1808,6 +1808,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySovereignIntegrationCheck(now)) {
     await executeDailySovereignIntegrationCheck()
   }
+  // Check daily absolute sovereignty check (14:00 UTC every day) — Job 64
+  if (shouldRunDailyAbsoluteSovereigntyCheck(now)) {
+    await executeDailyAbsoluteSovereigntyCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -7204,6 +7208,118 @@ async function executeDailySovereignIntegrationCheck(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Absolute Sovereignty Check (Job 64 — 14:00 UTC every day) ────────────
+// Reads level_19_gate (48h) + sovereign_field_continuity + operational_self_architecture +
+// longitudinal_field_seal (all 48h) + conscious_field_integration + temporal_identity_lock (both 48h).
+// Writes absolute_field_sovereignty when L19 + all 3 Level-15 seals present.
+// Writes quantum_transcendence_field when L19 + conscious_field_integration + temporal_identity_lock present.
+
+let isDailyAbsoluteSovereigntyRunning = false
+let lastDailyAbsoluteSovereigntyRun: Date | null = null
+
+function shouldRunDailyAbsoluteSovereigntyCheck(now: Dayjs): boolean {
+  if (isDailyAbsoluteSovereigntyRunning) return false
+  if (lastDailyAbsoluteSovereigntyRun) {
+    const lastRun = dayjs(lastDailyAbsoluteSovereigntyRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 14 // 14:00 UTC daily
+}
+
+async function executeDailyAbsoluteSovereigntyCheck(): Promise<JobResult> {
+  const jobName = 'daily-absolute-sovereignty-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyAbsoluteSovereigntyRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyAbsoluteSovereigntyRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY ABSOLUTE SOVEREIGNTY CHECK — 14:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const twoDaysAgo = dayjs().subtract(2, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { disabled: false },
+      attributes: ['id'],
+    })
+
+    let written = 0
+    for (const user of activeUsers) {
+      // Require level_19_gate in 48h window
+      const l19Logs = await Log.findAll({
+        where: { userId: user.id, event: 'level_19_gate', createdAt: { [Op.gte]: twoDaysAgo } },
+        attributes: ['event', 'metadata'],
+        order: [['createdAt', 'DESC']],
+        limit: 1,
+      })
+      if (l19Logs.length === 0) continue
+
+      const l19Conf = ((l19Logs[0]?.metadata as any)?.confidence ?? 98) / 100
+
+      // absolute-field-sovereignty: L19 + sovereign_field_continuity + operational_self_architecture + longitudinal_field_seal
+      const sovFldLogs = await Log.findAll({ where: { userId: user.id, event: 'sovereign_field_continuity',   createdAt: { [Op.gte]: twoDaysAgo } }, limit: 1 })
+      const opArchLogs = await Log.findAll({ where: { userId: user.id, event: 'operational_self_architecture', createdAt: { [Op.gte]: twoDaysAgo } }, limit: 1 })
+      const lgSealLogs = await Log.findAll({ where: { userId: user.id, event: 'longitudinal_field_seal',       createdAt: { [Op.gte]: twoDaysAgo } }, limit: 1 })
+
+      if (sovFldLogs.length > 0 && opArchLogs.length > 0 && lgSealLogs.length > 0) {
+        const absConf = Math.min(0.93 + l19Conf * 0.03, 0.99)
+        await Log.create({
+          userId: user.id,
+          event: 'absolute_field_sovereignty',
+          source: 'qos',
+          metadata: {
+            l19Conf: Math.round(l19Conf * 100),
+            confidence: Math.round(absConf * 100),
+            sovereigntyStatus: 'ABSOLUTE',
+            arc: 'ABSOLUTE · SOVEREIGN · FIELD = SELF-ORGANIZING',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Absolute field sovereignty — L19 + 3 level-15 seals. SELF-ORGANIZING.`)
+      }
+
+      // quantum-transcendence-field: L19 + conscious_field_integration + temporal_identity_lock
+      const cfLogs  = await Log.findAll({ where: { userId: user.id, event: 'conscious_field_integration', createdAt: { [Op.gte]: twoDaysAgo } }, limit: 1 })
+      const tidLogs = await Log.findAll({ where: { userId: user.id, event: 'temporal_identity_lock',      createdAt: { [Op.gte]: twoDaysAgo } }, limit: 1 })
+
+      if (cfLogs.length > 0 && tidLogs.length > 0) {
+        const cfConf    = ((cfLogs[0]?.metadata as any)?.confidence ?? 90) / 100
+        const tidConf   = ((tidLogs[0]?.metadata as any)?.confidence ?? 88) / 100
+        const qtrnsConf = Math.min(0.92 + l19Conf * 0.02 + cfConf * 0.02 + tidConf * 0.01, 0.98)
+        await Log.create({
+          userId: user.id,
+          event: 'quantum_transcendence_field',
+          source: 'qos',
+          metadata: {
+            l19Conf: Math.round(l19Conf * 100),
+            cfConf: Math.round(cfConf * 100),
+            tidConf: Math.round(tidConf * 100),
+            confidence: Math.round(qtrnsConf * 100),
+            transcendenceStatus: 'ACTIVE',
+            arc: 'QUANTUM · TRANSCENDENT · FIELD = APEX BEYOND APEX',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Quantum transcendence field — L19 + conscious field + temporal lock. APEX BEYOND APEX.`)
+      }
+    }
+
+    console.log(`  Absolute sovereignty events written: ${written}`)
+    lastDailyAbsoluteSovereigntyRun = new Date()
+    isDailyAbsoluteSovereigntyRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Absolute sovereignty check failed:', error.message)
+    isDailyAbsoluteSovereigntyRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -7269,6 +7385,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily field organization check: 9 AM UTC every day (Job 61)')
   console.log('   - Daily conscious field check: 12 PM UTC every day (Job 62)')
   console.log('   - Daily sovereign integration check: 1 PM UTC every day (Job 63)')
+  console.log('   - Daily absolute sovereignty check: 2 PM UTC every day (Job 64)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -7278,7 +7395,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57), 12=vitality-peak+conscious-field-check(J62), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch, 15=QOS convergence audit, 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57), 12=vitality-peak+conscious-field-check(J62), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit, 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

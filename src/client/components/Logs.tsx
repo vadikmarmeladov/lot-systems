@@ -5118,6 +5118,86 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'absolute_field_sovereignty') {
+          const l19Conf         = log.metadata?.l19Conf         as number | undefined
+          const sovereignStatus = log.metadata?.sovereigntyStatus as string | undefined
+          const confidence      = log.metadata?.confidence      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ABSSOV:" blockView>
+                {l19Conf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L19</span>
+                    <span className="tabular-nums">{l19Conf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ABSOLUTE · SOVEREIGN · FIELD = {sovereignStatus ?? 'SELF-ORGANIZING'}</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_transcendence_field') {
+          const l19Conf          = log.metadata?.l19Conf          as number | undefined
+          const cfConf           = log.metadata?.cfConf           as number | undefined
+          const tidConf          = log.metadata?.tidConf          as number | undefined
+          const transcendStatus  = log.metadata?.transcendenceStatus as string | undefined
+          const confidence       = log.metadata?.confidence       as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QTRNS:" blockView>
+                {l19Conf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L19</span>
+                    <span className="tabular-nums">{l19Conf}%</span>
+                  </div>
+                )}
+                {cfConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONSCFLD</span>
+                    <span className="tabular-nums">{cfConf}%</span>
+                  </div>
+                )}
+                {tidConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TIDLOCK</span>
+                    <span className="tabular-nums">{tidConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">QUANTUM · TRANSCENDENT · FIELD = {transcendStatus ?? 'APEX BEYOND APEX'}</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'level_20_gate') {
+          const absConf   = log.metadata?.absConf   as number | undefined
+          const qtrnsConf = log.metadata?.qtrnsConf as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="L20GATE:" blockView>
+                {absConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ABSSOV</span>
+                    <span className="tabular-nums">{absConf}%</span>
+                  </div>
+                )}
+                {qtrnsConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">QTRNS</span>
+                    <span className="tabular-nums">{qtrnsConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ABSOLUTE · SOVEREIGN · TRANSCENDENT = LEVEL 20</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

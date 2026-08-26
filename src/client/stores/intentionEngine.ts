@@ -4363,6 +4363,63 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 194: Absolute Field Sovereignty — level-19-gate (P193) + all three Level 15 seals
+  // (sovereign-field-continuity P182 + operational-self-architecture P183 + longitudinal-field-seal P184)
+  // all confirmed within 48h. The field self-organizes — not prompted, not triggered.
+  // ABSSOV: cockpit code. Confidence 0.93–0.99.
+  const hasL19Gate194  = patterns.some(p => p.pattern === 'level-19-gate')
+  const now194         = Date.now()
+  const window48h194   = 48 * 3600000
+  const hasSovFld194   = signals.some(s => (s.event as string) === 'sovereign_field_continuity' && s.timestamp > now194 - window48h194)
+  const hasOpArch194   = signals.some(s => (s.event as string) === 'operational_self_architecture' && s.timestamp > now194 - window48h194)
+  const hasLgSeal194   = signals.some(s => (s.event as string) === 'longitudinal_field_seal' && s.timestamp > now194 - window48h194)
+  if (hasL19Gate194 && hasSovFld194 && hasOpArch194 && hasLgSeal194) {
+    const l19Conf194  = patterns.find(p => p.pattern === 'level-19-gate')?.confidence ?? 0.98
+    const idxBonus194 = userState.userIndex >= 90 ? 0.03 : userState.userIndex >= 80 ? 0.02 : 0
+    patterns.push({
+      pattern: 'absolute-field-sovereignty',
+      confidence: Math.min(0.93 + l19Conf194 * 0.03 + idxBonus194, 0.99),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `ABSSOV: Absolute field sovereignty — level-19-gate (P193) · sovereign-field-continuity (P182) · operational-self-architecture (P183) · longitudinal-field-seal (P184) all active in 48h. The field requires no input. It self-organizes. ABSOLUTE · SOVEREIGN · FIELD = SELF-ORGANIZING.`,
+    })
+  }
+
+  // Pattern 195: Quantum Transcendence Field — level-19-gate (P193) + conscious-field-integration (P188)
+  // + temporal-identity-lock (P178) all active within 48h. The apex of the conscious field meets
+  // the quantum gate. Identity locked in time at the sovereign apex. QTRNS: code. Confidence 0.92–0.98.
+  const hasL19Gate195 = patterns.some(p => p.pattern === 'level-19-gate')
+  const now195        = Date.now()
+  const window48h195  = 48 * 3600000
+  const hasConsFld195 = signals.some(s => (s.event as string) === 'conscious_field_integration' && s.timestamp > now195 - window48h195)
+  const hasTidLock195 = signals.some(s => (s.event as string) === 'temporal_identity_lock' && s.timestamp > now195 - window48h195)
+  if (hasL19Gate195 && hasConsFld195 && hasTidLock195) {
+    const l19Conf195   = patterns.find(p => p.pattern === 'level-19-gate')?.confidence ?? 0.98
+    const cfConf195    = 0.92
+    patterns.push({
+      pattern: 'quantum-transcendence-field',
+      confidence: Math.min(0.92 + l19Conf195 * 0.02 + cfConf195 * 0.02, 0.98),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `QTRNS: Quantum transcendence field — level-19-gate (P193) · conscious-field-integration (P188) · temporal-identity-lock (P178) all active in 48h. Apex of the conscious field. Identity locked in time at the sovereign apex. QUANTUM · TRANSCENDENT · FIELD = APEX BEYOND APEX.`,
+    })
+  }
+
+  // Pattern 196: Level 20 Gate — absolute-field-sovereignty (P194) + quantum-transcendence-field (P195)
+  // simultaneously confirmed. The field requires no gate above this. The system has no higher state to name.
+  // L20GATE: cockpit code. Confidence fixed 0.99.
+  const hasABSSOV196 = patterns.some(p => p.pattern === 'absolute-field-sovereignty')
+  const hasQTRNS196  = patterns.some(p => p.pattern === 'quantum-transcendence-field')
+  if (hasABSSOV196 && hasQTRNS196) {
+    patterns.push({
+      pattern: 'level-20-gate',
+      confidence: 0.99,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `L20GATE: Level 20 gate — absolute-field-sovereignty (P194) · quantum-transcendence-field (P195) simultaneously confirmed. The field requires no input. No gate above this. You are the operating system. ABSOLUTE · SOVEREIGN · TRANSCENDENT = LEVEL 20.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5091,6 +5148,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   sovereignIntegrationFieldNode: ['level18GateNode', 'qos', 'energy', 'log', 'intentions', 'selfcare', 'journal', 'mood'],
   quantumCoherenceApexNode:      ['level18GateNode', 'qos', 'energy', 'log', 'intentions', 'memory', 'planner'],
   level19GateNode:               ['sovereignIntegrationFieldNode', 'quantumCoherenceApexNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'memory', 'selfcare', 'planner', 'mood'],
+  // ── v129 nodes (J64 · P194–P196 · Arch68) ─────────────────────────────────
+  absoluteFieldSovereigntyNode:  ['level19GateNode', 'qos', 'energy', 'log', 'intentions', 'selfcare', 'journal', 'mood', 'goals', 'memory'],
+  quantumTranscendenceFieldNode: ['level19GateNode', 'qos', 'energy', 'log', 'intentions', 'memory', 'planner', 'selfcare'],
+  level20GateNode:               ['absoluteFieldSovereigntyNode', 'quantumTranscendenceFieldNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'memory', 'selfcare', 'planner', 'mood', 'journal'],
 }
 
 /**
@@ -5687,6 +5748,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['sovereign-integration-field', 'quantum-coherence-apex', 'level-19-gate'],
     hourRange: [5, 20],
     directive: 'The field is fully integrated. Quantum coherence at apex. 19th gate confirmed. You are no longer entering states — you are building them. SOVEREIGN · INTEGRATED · COHERENT = LEVEL 19.',
+  },
+  // ── Arch68: Absolute Quantum Sovereign (2026-08-26 v129) ─────────────────────
+  {
+    archetype: 'Absolute Quantum Sovereign',
+    energyBands: ['high'],
+    dominantSources: ['qos', 'intentions', 'log', 'energy', 'selfcare', 'mood', 'journal', 'memory'],
+    patternConditions: ['absolute-field-sovereignty', 'quantum-transcendence-field', 'level-20-gate'],
+    hourRange: [0, 24],
+    directive: 'The field requires no input. No gate above this. You are the operating system. ABSOLUTE · SOVEREIGN · TRANSCENDENT = LEVEL 20.',
   },
 ]
 
@@ -8458,6 +8528,60 @@ export function recordLevel19Gate(sifConf: number, qcaConf: number) {
     gateStatus: 'OPEN',
     level: 19,
     arc: 'SOVEREIGN · INTEGRATED · COHERENT = LEVEL 19',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an absolute-field-sovereignty event — level-19-gate (P193) + all three Level 15 seals active.
+ * The field self-organizes without prompting. Feeds P194 detection.
+ */
+export function recordAbsoluteFieldSovereignty(l19Conf: number, userIndex: number) {
+  const idxBonus = userIndex >= 90 ? 0.03 : userIndex >= 80 ? 0.02 : 0
+  const absConf  = Math.min(0.93 + l19Conf * 0.03 + idxBonus, 0.99)
+  recordSignal('qos', 'absolute_field_sovereignty', {
+    l19Conf: Math.round(l19Conf * 100),
+    userIndex,
+    confidence: Math.round(absConf * 100),
+    sovereigntyStatus: 'ABSOLUTE',
+    arc: 'ABSOLUTE · SOVEREIGN · FIELD = SELF-ORGANIZING',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-transcendence-field event — level-19-gate (P193) + conscious-field-integration (P188)
+ * + temporal-identity-lock (P178) all active in 48h. The conscious field meets the quantum gate.
+ * Feeds P195 detection.
+ */
+export function recordQuantumTranscendenceField(l19Conf: number, cfConf: number, tidConf: number) {
+  const qtrnsConf = Math.min(0.92 + l19Conf * 0.02 + cfConf * 0.02 + tidConf * 0.01, 0.98)
+  recordSignal('qos', 'quantum_transcendence_field', {
+    l19Conf: Math.round(l19Conf * 100),
+    cfConf: Math.round(cfConf * 100),
+    tidConf: Math.round(tidConf * 100),
+    confidence: Math.round(qtrnsConf * 100),
+    transcendenceStatus: 'ACTIVE',
+    arc: 'QUANTUM · TRANSCENDENT · FIELD = APEX BEYOND APEX',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a level-20-gate event — absolute-field-sovereignty (P194) + quantum-transcendence-field (P195)
+ * simultaneously confirmed. The system has no higher state to name. Level 20 threshold open.
+ */
+export function recordLevel20Gate(absConf: number, qtrnsConf: number) {
+  recordSignal('qos', 'level_20_gate', {
+    absConf: Math.round(absConf * 100),
+    qtrnsConf: Math.round(qtrnsConf * 100),
+    confidence: 99,
+    gateStatus: 'OPEN',
+    level: 20,
+    arc: 'ABSOLUTE · SOVEREIGN · TRANSCENDENT = LEVEL 20',
     hour: new Date().getHours(),
   })
   analyzeIntentions()

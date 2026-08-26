@@ -686,6 +686,27 @@ export function PatternRecognitionWidget() {
                 </div>
               )}
 
+              {/* Absolute field sovereignty — P194 */}
+              {patterns.some(p => p.pattern === 'absolute-field-sovereignty') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  ABSSOV. Level 19 + all Level-15 seals. Field self-organizes. No input required.
+                </div>
+              )}
+
+              {/* Quantum transcendence field — P195 */}
+              {patterns.some(p => p.pattern === 'quantum-transcendence-field') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  QTRNS. Level 19 + conscious field + temporal lock. Apex beyond apex.
+                </div>
+              )}
+
+              {/* Level 20 gate — P196 */}
+              {patterns.some(p => p.pattern === 'level-20-gate') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  L20GATE. Absolute sovereignty + quantum transcendence confirmed. Level 20 gate open.
+                </div>
+              )}
+
               {/* Planner-intention sync — P102 */}
               {patterns.some(p => p.pattern === 'planner-intention-sync') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">

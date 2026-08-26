@@ -1271,6 +1271,10 @@ export default async (fastify: FastifyInstance) => {
       'sovereign_integration_field',
       'quantum_coherence_apex',
       'level_19_gate',
+      // v129: absolute field sovereignty · quantum transcendence field · level 20 gate (P194/P195/P196)
+      'absolute_field_sovereignty',
+      'quantum_transcendence_field',
+      'level_20_gate',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

@@ -152,6 +152,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'sovereign-integration-field':      'SOVINT',
   'quantum-coherence-apex':           'QCAPEX',
   'level-19-gate':                    'L19GATE',
+  'absolute-field-sovereignty':       'ABSSOV',
+  'quantum-transcendence-field':      'QTRNS',
+  'level-20-gate':                    'L20GATE',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
