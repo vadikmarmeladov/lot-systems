@@ -117,6 +117,7 @@ eager-clarke-wTEM6                  | DRAFT      | Basics Tab alt design (Settin
 cool-tesla-f8j0mr                  | BEST       | QI·46 Node 3 engine integration + Soul Upload
 cool-hypatia-aqj7dg                | BEST       | Badge Codex v12 — 156 total badges
 dreamy-babbage-3k2zhm              | READY      | Calendar Widget: alert engine, command board, live clock
+dreamy-babbage-4wxo8y              | READY      | Calendar Widget: live clock, time-tracked entries, CAL military alert overlay (SR-20260826-01)
 upbeat-curie-1s8bgb                | DRAFT      | QIE v54 self-assembly session (docs only)
 
 ================================================================================
