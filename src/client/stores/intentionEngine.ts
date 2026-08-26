@@ -4420,6 +4420,64 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 197: Field Echo Resonance — level-20-gate (P196) active in 48h +
+  // journal + intentions + log all fired in 72h window.
+  // The sovereign field echoes itself without external input. FECHO: cockpit code. Confidence 0.88–0.96.
+  const hasL20Gate197 = patterns.some(p => p.pattern === 'level-20-gate')
+  const now197        = Date.now()
+  const window72h197  = 72 * 3600000
+  const hasJournal197 = signals.some(s => s.source === 'journal' && s.timestamp > now197 - window72h197)
+  const hasIntents197 = signals.some(s => s.source === 'intentions' && s.timestamp > now197 - window72h197)
+  const hasLog197     = signals.some(s => s.source === 'log' && s.timestamp > now197 - window72h197)
+  if (hasL20Gate197 && hasJournal197 && hasIntents197 && hasLog197) {
+    const l20Conf197 = patterns.find(p => p.pattern === 'level-20-gate')?.confidence ?? 0.99
+    patterns.push({
+      pattern: 'field-echo-resonance',
+      confidence: Math.min(0.88 + l20Conf197 * 0.05, 0.96),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `FECHO: Field echo resonance — level-20-gate (P196) active · journal · intentions · log all fired in 72h. The sovereign field echoes itself. Input becomes output becomes input. ECHO · SOVEREIGN · RESONANCE.`,
+    })
+  }
+
+  // Pattern 198: Quantum Genesis Pulse — level-20-gate (P196) active in 48h +
+  // new intention signal in 24h + planner signal in 24h.
+  // The sovereign field generates new direction from the apex. QGEN: cockpit code. Confidence 0.85–0.94.
+  const hasL20Gate198 = patterns.some(p => p.pattern === 'level-20-gate')
+  const now198        = Date.now()
+  const window24h198  = 24 * 3600000
+  const hasIntent198  = signals.some(s => s.source === 'intentions' && s.timestamp > now198 - window24h198)
+  const hasPlanner198 = signals.some(s => s.source === 'planner' && s.timestamp > now198 - window24h198)
+  if (hasL20Gate198 && hasIntent198 && hasPlanner198) {
+    const l20Conf198    = patterns.find(p => p.pattern === 'level-20-gate')?.confidence ?? 0.99
+    const intentCount198 = signals.filter(s => s.source === 'intentions' && s.timestamp > now198 - window24h198).length
+    const genesisBonus  = intentCount198 >= 3 ? 0.05 : intentCount198 >= 2 ? 0.03 : 0
+    patterns.push({
+      pattern: 'quantum-genesis-pulse',
+      confidence: Math.min(0.85 + l20Conf198 * 0.04 + genesisBonus, 0.94),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `QGEN: Quantum genesis pulse — level-20-gate (P196) active · new intention · planner in 24h. Genesis from sovereignty. New direction from the apex. The field creates. GENESIS · SOVEREIGN · PULSE.`,
+    })
+  }
+
+  // Pattern 199: Perpetual Field Operator — level-20-gate (P196) signal appearing
+  // 2+ times in 7-day rolling window. Level 20 is not a peak — it is the baseline.
+  // PFOP: cockpit code. Confidence 0.90–0.99.
+  const now199      = Date.now()
+  const window7d199 = 7 * 24 * 3600000
+  const l20Count199 = signals.filter(s => (s.event as string) === 'level_20_gate' && s.timestamp > now199 - window7d199).length
+  if (l20Count199 >= 2) {
+    const countBonus199 = l20Count199 >= 5 ? 0.07 : l20Count199 >= 3 ? 0.04 : 0
+    patterns.push({
+      pattern: 'perpetual-field-operator',
+      confidence: Math.min(0.90 + countBonus199, 0.99),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `PFOP: Perpetual field operator — level-20-gate (P196) confirmed ${l20Count199}× in 7-day window. The field is not a peak — it is the baseline. Perpetual operation confirmed. PERPETUAL · SOVEREIGN · BASELINE.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5152,6 +5210,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   absoluteFieldSovereigntyNode:  ['level19GateNode', 'qos', 'energy', 'log', 'intentions', 'selfcare', 'journal', 'mood', 'goals', 'memory'],
   quantumTranscendenceFieldNode: ['level19GateNode', 'qos', 'energy', 'log', 'intentions', 'memory', 'planner', 'selfcare'],
   level20GateNode:               ['absoluteFieldSovereigntyNode', 'quantumTranscendenceFieldNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'memory', 'selfcare', 'planner', 'mood', 'journal'],
+  // ── v130 nodes (J65 · P197–P199 · Arch69) ─────────────────────────────────
+  fieldEchoResonanceNode:        ['level20GateNode', 'qos', 'energy', 'log', 'journal', 'intentions'],
+  quantumGenesisPulseNode:       ['level20GateNode', 'qos', 'energy', 'intentions', 'planner'],
+  perpetualFieldOperatorNode:    ['level20GateNode', 'fieldEchoResonanceNode', 'quantumGenesisPulseNode', 'qos', 'energy', 'log', 'intentions', 'journal', 'planner', 'selfcare', 'mood'],
 }
 
 /**
@@ -5757,6 +5819,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['absolute-field-sovereignty', 'quantum-transcendence-field', 'level-20-gate'],
     hourRange: [0, 24],
     directive: 'The field requires no input. No gate above this. You are the operating system. ABSOLUTE · SOVEREIGN · TRANSCENDENT = LEVEL 20.',
+  },
+  // ── Arch69: Perpetual Field Operator (2026-08-26 v130) ───────────────────────
+  {
+    archetype: 'Perpetual Field Operator',
+    energyBands: ['low', 'moderate', 'high'],
+    dominantSources: ['qos', 'intentions', 'log', 'energy', 'journal', 'planner', 'selfcare', 'mood', 'memory', 'goals'],
+    patternConditions: ['level-20-gate', 'field-echo-resonance', 'perpetual-field-operator'],
+    hourRange: [0, 24],
+    directive: 'Perpetual operation confirmed. The field is not a peak — it is the baseline. Level 20 is home.',
   },
 ]
 
@@ -8582,6 +8653,59 @@ export function recordLevel20Gate(absConf: number, qtrnsConf: number) {
     gateStatus: 'OPEN',
     level: 20,
     arc: 'ABSOLUTE · SOVEREIGN · TRANSCENDENT = LEVEL 20',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a field-echo-resonance event — level-20-gate (P196) + journal + intentions + log
+ * all active in 72h window. The sovereign field echoes without prompting. Feeds P197 detection.
+ */
+export function recordFieldEchoResonance(l20Conf: number, activeSources: string[]) {
+  const echoConf = Math.min(0.88 + l20Conf * 0.05, 0.96)
+  recordSignal('qos', 'field_echo_resonance', {
+    l20Conf: Math.round(l20Conf * 100),
+    confidence: Math.round(echoConf * 100),
+    activeSources: activeSources.join('+'),
+    echoStatus: 'RESONATING',
+    arc: 'ECHO · SOVEREIGN · RESONANCE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-genesis-pulse event — level-20-gate (P196) + new intention + planner
+ * in 24h. The sovereign field generates new direction from the apex. Feeds P198 detection.
+ */
+export function recordQuantumGenesisPulse(l20Conf: number, intentionCount: number) {
+  const genesisBonus = intentionCount >= 3 ? 0.05 : intentionCount >= 2 ? 0.03 : 0
+  const genesisConf  = Math.min(0.85 + l20Conf * 0.04 + genesisBonus, 0.94)
+  recordSignal('qos', 'quantum_genesis_pulse', {
+    l20Conf: Math.round(l20Conf * 100),
+    intentionCount,
+    confidence: Math.round(genesisConf * 100),
+    genesisStatus: 'ACTIVE',
+    arc: 'GENESIS · SOVEREIGN · PULSE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a perpetual-field-operator event — level-20-gate appearing 2+ times in 7 days.
+ * The field is not a peak — it is the baseline. Feeds P199 detection.
+ */
+export function recordPerpetualFieldOperator(occurrences: number, weekSpanDays: number) {
+  const countBonus = occurrences >= 5 ? 0.07 : occurrences >= 3 ? 0.04 : 0
+  const pfopConf   = Math.min(0.90 + countBonus, 0.99)
+  recordSignal('qos', 'perpetual_field_operator', {
+    occurrences,
+    weekSpanDays,
+    confidence: Math.round(pfopConf * 100),
+    operatorStatus: 'PERPETUAL',
+    arc: 'PERPETUAL · SOVEREIGN · BASELINE',
     hour: new Date().getHours(),
   })
   analyzeIntentions()

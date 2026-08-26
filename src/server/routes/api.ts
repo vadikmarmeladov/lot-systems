@@ -1275,6 +1275,10 @@ export default async (fastify: FastifyInstance) => {
       'absolute_field_sovereignty',
       'quantum_transcendence_field',
       'level_20_gate',
+      // v130: field echo resonance · quantum genesis pulse · perpetual field operator (P197/P198/P199)
+      'field_echo_resonance',
+      'quantum_genesis_pulse',
+      'perpetual_field_operator',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

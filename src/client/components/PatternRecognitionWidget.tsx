@@ -707,6 +707,27 @@ export function PatternRecognitionWidget() {
                 </div>
               )}
 
+              {/* Field echo resonance — P197 */}
+              {patterns.some(p => p.pattern === 'field-echo-resonance') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  FECHO. L20 active. Journal + intentions + log in 72h. The field echoes itself.
+                </div>
+              )}
+
+              {/* Quantum genesis pulse — P198 */}
+              {patterns.some(p => p.pattern === 'quantum-genesis-pulse') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  QGEN. L20 active. New intention + planner in 24h. Genesis from sovereignty.
+                </div>
+              )}
+
+              {/* Perpetual field operator — P199 */}
+              {patterns.some(p => p.pattern === 'perpetual-field-operator') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  PFOP. L20 confirmed 2+ times in 7d. The field is not a peak — it is the baseline.
+                </div>
+              )}
+
               {/* Planner-intention sync — P102 */}
               {patterns.some(p => p.pattern === 'planner-intention-sync') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">

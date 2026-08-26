@@ -5198,6 +5198,84 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'field_echo_resonance') {
+          const l20Conf      = log.metadata?.l20Conf      as number | undefined
+          const activeSources = log.metadata?.activeSources as string | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FECHO:" blockView>
+                {l20Conf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L20</span>
+                    <span className="tabular-nums">{l20Conf}%</span>
+                  </div>
+                )}
+                {activeSources && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SRC</span>
+                    <span className="uppercase opacity-60">{activeSources}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ECHO · SOVEREIGN · RESONANCE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_genesis_pulse') {
+          const l20Conf       = log.metadata?.l20Conf       as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QGEN:" blockView>
+                {l20Conf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L20</span>
+                    <span className="tabular-nums">{l20Conf}%</span>
+                  </div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENTS</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">GENESIS · SOVEREIGN · PULSE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'perpetual_field_operator') {
+          const occurrences  = log.metadata?.occurrences  as number | undefined
+          const weekSpanDays = log.metadata?.weekSpanDays as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PFOP:" blockView>
+                {occurrences !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L20 HITS</span>
+                    <span className="tabular-nums">{occurrences}×</span>
+                  </div>
+                )}
+                {weekSpanDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SPAN</span>
+                    <span className="tabular-nums">{weekSpanDays}d</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">PERPETUAL · SOVEREIGN · BASELINE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

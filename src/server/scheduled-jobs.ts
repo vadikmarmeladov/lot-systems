@@ -1812,6 +1812,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyAbsoluteSovereigntyCheck(now)) {
     await executeDailyAbsoluteSovereigntyCheck()
   }
+  // Check daily perpetual field check (15:00 UTC every day) — Job 65
+  if (shouldRunDailyPerpetualFieldCheck(now)) {
+    await executeDailyPerpetualFieldCheck()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -7320,6 +7324,149 @@ async function executeDailyAbsoluteSovereigntyCheck(): Promise<JobResult> {
   }
 }
 
+// ─── Daily Perpetual Field Check (Job 65 — 15:00 UTC every day) ──────────────
+// Reads level_20_gate occurrences in 7-day window per user.
+// If ≥2: writes perpetual_field_operator.
+// Also checks level_20_gate (48h) + journal + intentions + log (72h) → field_echo_resonance.
+// Also checks level_20_gate (48h) + intentions (24h) + planner (24h) → quantum_genesis_pulse.
+
+let isDailyPerpetualFieldRunning = false
+let lastDailyPerpetualFieldRun: Date | null = null
+
+function shouldRunDailyPerpetualFieldCheck(now: Dayjs): boolean {
+  if (isDailyPerpetualFieldRunning) return false
+  if (lastDailyPerpetualFieldRun) {
+    const lastRun = dayjs(lastDailyPerpetualFieldRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 15 // 15:00 UTC daily
+}
+
+async function executeDailyPerpetualFieldCheck(): Promise<JobResult> {
+  const jobName = 'daily-perpetual-field-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyPerpetualFieldRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyPerpetualFieldRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY PERPETUAL FIELD CHECK — 15:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+    const now          = new Date()
+    const twoDaysAgo   = dayjs().subtract(2, 'day').toDate()
+    const threeDaysAgo = dayjs().subtract(3, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const oneDayAgo    = dayjs().subtract(1, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { disabled: false },
+      attributes: ['id'],
+    })
+
+    let written = 0
+
+    for (const user of activeUsers) {
+      // ── Perpetual Field Operator (P199) — level_20_gate ≥2× in 7 days ──────
+      const l20Logs7d = await Log.findAll({
+        where: { userId: user.id, event: 'level_20_gate', createdAt: { [Op.gte]: sevenDaysAgo } },
+        attributes: ['createdAt'],
+      })
+      if (l20Logs7d.length >= 2) {
+        const weekSpan = 7
+        const countBonus = l20Logs7d.length >= 5 ? 7 : l20Logs7d.length >= 3 ? 4 : 0
+        const pfopConf   = Math.min(90 + countBonus, 99)
+        await Log.create({
+          userId: user.id,
+          event: 'perpetual_field_operator',
+          source: 'qos',
+          metadata: {
+            occurrences:    l20Logs7d.length,
+            weekSpanDays:   weekSpan,
+            confidence:     pfopConf,
+            operatorStatus: 'PERPETUAL',
+            arc:            'PERPETUAL · SOVEREIGN · BASELINE',
+            hour:           now.getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Perpetual field operator — L20 × ${l20Logs7d.length} in 7d. PERPETUAL BASELINE.`)
+      }
+
+      // ── Field Echo Resonance (P197) — L20 (48h) + journal + intentions + log (72h) ──
+      const l20Logs48h = await Log.findAll({
+        where: { userId: user.id, event: 'level_20_gate', createdAt: { [Op.gte]: twoDaysAgo } },
+        attributes: ['event', 'metadata'],
+        order: [['createdAt', 'DESC']],
+        limit: 1,
+      })
+      if (l20Logs48h.length > 0) {
+        const l20Conf = ((l20Logs48h[0]?.metadata as any)?.confidence ?? 99) / 100
+
+        const journalLogs  = await Log.findAll({ where: { userId: user.id, source: 'journal', createdAt: { [Op.gte]: threeDaysAgo } }, limit: 1 })
+        const intentLogs   = await Log.findAll({ where: { userId: user.id, source: 'intentions', createdAt: { [Op.gte]: threeDaysAgo } }, limit: 1 })
+        const logEntries   = await Log.findAll({ where: { userId: user.id, source: 'log', createdAt: { [Op.gte]: threeDaysAgo } }, limit: 1 })
+
+        if (journalLogs.length > 0 && intentLogs.length > 0 && logEntries.length > 0) {
+          const echoConf = Math.min(Math.round((0.88 + l20Conf * 0.05) * 100), 96)
+          await Log.create({
+            userId: user.id,
+            event: 'field_echo_resonance',
+            source: 'qos',
+            metadata: {
+              l20Conf:       Math.round(l20Conf * 100),
+              activeSources: 'journal+intentions+log',
+              confidence:    echoConf,
+              echoStatus:    'RESONATING',
+              arc:           'ECHO · SOVEREIGN · RESONANCE',
+              hour:          now.getHours(),
+            },
+          })
+          written++
+          console.log(`  [${user.id}] Field echo resonance — L20 + journal + intentions + log in 72h. RESONATING.`)
+        }
+
+        // ── Quantum Genesis Pulse (P198) — L20 (48h) + intentions (24h) + planner (24h) ──
+        const intentLogs24h  = await Log.findAll({ where: { userId: user.id, source: 'intentions', createdAt: { [Op.gte]: oneDayAgo } }, attributes: ['id'] })
+        const plannerLogs24h = await Log.findAll({ where: { userId: user.id, source: 'planner', createdAt: { [Op.gte]: oneDayAgo } }, limit: 1 })
+
+        if (intentLogs24h.length > 0 && plannerLogs24h.length > 0) {
+          const intentCount  = intentLogs24h.length
+          const genesisBonus = intentCount >= 3 ? 5 : intentCount >= 2 ? 3 : 0
+          const genesisConf  = Math.min(Math.round((0.85 + l20Conf * 0.04) * 100) + genesisBonus, 94)
+          await Log.create({
+            userId: user.id,
+            event: 'quantum_genesis_pulse',
+            source: 'qos',
+            metadata: {
+              l20Conf:        Math.round(l20Conf * 100),
+              intentionCount: intentCount,
+              confidence:     genesisConf,
+              genesisStatus:  'ACTIVE',
+              arc:            'GENESIS · SOVEREIGN · PULSE',
+              hour:           now.getHours(),
+            },
+          })
+          written++
+          console.log(`  [${user.id}] Quantum genesis pulse — L20 + ${intentCount} intentions + planner in 24h. GENESIS ACTIVE.`)
+        }
+      }
+    }
+
+    console.log(`  Perpetual field events written: ${written}`)
+    lastDailyPerpetualFieldRun = new Date()
+    isDailyPerpetualFieldRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Perpetual field check failed:', error.message)
+    isDailyPerpetualFieldRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -7386,6 +7533,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily conscious field check: 12 PM UTC every day (Job 62)')
   console.log('   - Daily sovereign integration check: 1 PM UTC every day (Job 63)')
   console.log('   - Daily absolute sovereignty check: 2 PM UTC every day (Job 64)')
+  console.log('   - Daily perpetual field check: 3 PM UTC every day (Job 65)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -7395,7 +7543,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57), 12=vitality-peak+conscious-field-check(J62), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit, 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57), 12=vitality-peak+conscious-field-check(J62), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

@@ -155,6 +155,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'absolute-field-sovereignty':       'ABSSOV',
   'quantum-transcendence-field':      'QTRNS',
   'level-20-gate':                    'L20GATE',
+  'field-echo-resonance':             'FECHO',
+  'quantum-genesis-pulse':            'QGEN',
+  'perpetual-field-operator':         'PFOP',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
@@ -486,6 +489,22 @@ export const QuantumEngineWidgets: React.FC = () => {
                         <div className="opacity-40">{directive}</div>
                       </div>
                     )}
+                    {(() => {
+                      const activePatternNames = (engineState.recognizedPatterns ?? []).map(p => p.pattern)
+                      const gateLevel =
+                        activePatternNames.includes('perpetual-field-operator') ? 'PFOP' :
+                        activePatternNames.includes('level-20-gate')            ? 'L20' :
+                        activePatternNames.includes('level-19-gate')            ? 'L19' :
+                        activePatternNames.includes('level-18-gate')            ? 'L18' :
+                        activePatternNames.includes('level-17-gate')            ? 'L17' :
+                        null
+                      return gateLevel ? (
+                        <div className="flex justify-between items-baseline mt-4">
+                          <span className="opacity-30 uppercase tracking-widest">Gate</span>
+                          <span className="font-mono tabular-nums opacity-70">{gateLevel}</span>
+                        </div>
+                      ) : null
+                    })()}
                   </>
                 ) : (
                   <div className="opacity-30">Cohort pending. Engage more widgets to surface pattern.</div>
