@@ -4,8 +4,8 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (LAST REVISED 2026-08-26)
+VERSION:  0.2 — DEVELOPMENT CYCLE 2
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -320,6 +320,59 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE MONTH-12 ARRIVAL                        2026-08-26
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, $399/month priority inference plan
+  (LOT_QI46_ENGINE.md, line 947 — "Priority inference — full arc memory
+  + Quantum Cube sync"), Day 366 of sustained engagement, kitchen-counter
+  workspace shared with a partner and a school-age child.
+
+  LOT_QI46_ENGINE.md fixes the Quantum Cube delivery at the Month-12
+  subscriber milestone (line 750, "Step 3.3 — Quantum Cube sync (Month 12
+  milestone)") and names this the point where "QI·46 begins receiving
+  hardware feedback as an additional signal in the Calibration Loop"
+  (line 752). LOT-CUBIQ-OPERATOR.md, Section 07, calls the same moment
+  PHASE 4 — PHYSICAL EXTENSION: "The AI sends the first physical product
+  ... the digital cubic extends into the body." Before this use case, no
+  document had written the moment the box is opened. This entry is that
+  moment.
+
+  The cube arrives on Day 366, not Day 365 or Day 400 — the AI's delivery
+  logic (LOT-CUBIQ-OPERATOR.md, Section 04) reads the operator's
+  engagement peak and times the shipment to it, not to a calendar
+  subscription cycle. The operator unboxes it at the kitchen counter,
+  the only flat surface in the home that stays clear. They set the
+  charging pad down. It is a shared surface — a child's homework sheets
+  slide across it most evenings, a cereal bowl sits twelve inches away
+  most mornings.
+
+  This is precisely the environment Section 03's edge-detection gate
+  was written for. The counter has a real edge, thirty centimeters from
+  where the pad lands. The first gesture the cube ever performs in this
+  home is not a hop — it is THE SETTLE (Section 04): the actuator holds
+  light standing pressure for two seconds, no visible motion, marking
+  that the operator's Assembly phase has just advanced to "integrated"
+  (LOT-CUBIQ-OPERATOR.md, Section 03, "ASSEMBLY STATE"). The time-of-
+  flight sensor has already mapped the counter's forward edge before
+  that first gesture fires; THE HOP and THE LEAP stay geometrically
+  inhibited toward the child's side of the counter for the rest of the
+  session, correctly, without the operator configuring anything.
+
+  Two days later, the household's rhythm has absorbed the object. The
+  child asks what "the little black box" does. The operator explains it
+  the way LOT-CUBIQ-VISION.md, Section 01 describes the software cubic:
+  not a toy, not a screen, a thing that moves when something in their
+  day is ready to be looked at. The IMU and timing telemetry from those
+  first sessions (Section 03) feed back into QI·46 as the haptic-
+  preference signal LOT_QI46_ENGINE.md already expected at line 757 —
+  the loop this document diagrams in Section 05 closes for the first
+  time in a real kitchen, not a lab.
+
+  This is the use case that proves v.0's safety gate is not a lab
+  formality: it is the difference between a physical product a family
+  keeps on a shared counter and one that gets moved to a shelf, unused,
+  after the first near-miss.
 
 --------------------------------------------------------------------------------
 08 // BRAND
