@@ -193,13 +193,13 @@ async function checkSettings(): Promise<SystemCheck> {
     // Check if User model is available (settings are part of User model)
     await models.User.findOne()
 
-    // Check if settings page bundle exists
-    const settingsPagePath = path.join(process.cwd(), 'dist/client/js/app.js')
-    if (!fs.existsSync(settingsPagePath)) {
+    // Check CSS bundle exists (distinct from JS bundle — catches CSS build failures)
+    const cssBundlePath = path.join(process.cwd(), 'dist/client/css/index.css')
+    if (!fs.existsSync(cssBundlePath)) {
       return {
         name: 'Settings',
         status: 'error',
-        message: 'Settings page bundle not found',
+        message: 'CSS bundle not found',
         duration: Date.now() - start,
       }
     }
@@ -355,9 +355,12 @@ async function performHealthChecks(): Promise<{
     checkMemory(),
   ])
 
-  // Determine overall status
-  const hasErrors = checks.some((c) => c.status === 'error')
-  const overall = hasErrors ? 'error' : 'ok'
+  // Determine overall status:
+  // critical checks failing → 'error'; only non-critical failing → 'degraded'
+  const CRITICAL_CHECKS = new Set(['Database stack', 'Authentication engine', 'Memory Engine'])
+  const hasCriticalError = checks.some((c) => c.status === 'error' && CRITICAL_CHECKS.has(c.name))
+  const hasAnyError = checks.some((c) => c.status === 'error')
+  const overall: 'ok' | 'degraded' | 'error' = hasCriticalError ? 'error' : hasAnyError ? 'degraded' : 'ok'
 
   return {
     version: VERSION,
