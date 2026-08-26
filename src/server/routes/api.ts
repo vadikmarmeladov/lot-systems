@@ -1213,6 +1213,64 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // v114: resonant reentry arc · astrology biofield sync · morning clarity peak (P152/P153/P154)
+      'resonant_reentry_arc',
+      'astrology_biofield_sync',
+      'morning_clarity_peak',
+      // v115: daily arc seal · morning momentum arc · quantum week integration (P155/P156/P157)
+      'daily_arc_seal',
+      'morning_momentum_arc',
+      'quantum_week_integration',
+      // v116: evening arc anchor · physiological rhythm lock · quantum presence arc (P158/P159/P160)
+      'evening_arc_anchor',
+      'physiological_rhythm_lock',
+      'quantum_presence_arc',
+      // v117: somatic field integration · recovery cycle lock · quantum embodiment field (P161/P162/P163)
+      'somatic_field_integration',
+      'recovery_cycle_lock',
+      'quantum_embodiment_field',
+      // v118: cognitive body sync · integrated presence peak · somatic memory echo (P164/P165/P166)
+      'cognitive_body_sync',
+      'integrated_presence_peak',
+      'somatic_memory_echo',
+      // v119: somatic integration field · deep embodiment lock · full presence seal (P167/P168/P169)
+      'somatic_integration_field',
+      'deep_embodiment_lock',
+      'full_presence_seal',
+      // v120: cognitive signal density · somatic cognition loop · embodied sovereignty (P170/P171/P172)
+      'cognitive_signal_density',
+      'somatic_cognition_loop',
+      'embodied_sovereignty',
+      // v121: physiological loop complete · quantum apex state · longitudinal identity confirmation (P173/P174/P175)
+      'physiological_loop_complete',
+      'quantum_apex_state',
+      'longitudinal_identity_confirmation',
+      // v122: quantum field propagation · unified field operator · temporal identity lock (P176/P177/P178)
+      'quantum_field_propagation',
+      'unified_field_operator',
+      'temporal_identity_lock',
+      // v123: QIoT™ ecosystem pulse (J58)
+      'qiot_ecosystem_pulse',
+      // v124: circadian sovereignty · apex integration field · longitudinal growth arc (P179/P180/P181)
+      'circadian_sovereignty',
+      'apex_integration_field',
+      'longitudinal_growth_arc',
+      // v125: sovereign field continuity · operational self-architecture · longitudinal field seal (P182/P183/P184)
+      'sovereign_field_continuity',
+      'operational_self_architecture',
+      'longitudinal_field_seal',
+      // v126: field self-organization · quantum identity expression · level 17 gate (P185/P186/P187)
+      'field_self_organization',
+      'quantum_identity_expression',
+      'level_17_gate',
+      // v127: conscious field integration · sovereign apex expression · level 18 gate (P188/P189/P190)
+      'conscious_field_integration',
+      'sovereign_apex_expression',
+      'level_18_gate',
+      // v128: sovereign integration field · quantum coherence apex · level 19 gate (P191/P192/P193)
+      'sovereign_integration_field',
+      'quantum_coherence_apex',
+      'level_19_gate',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

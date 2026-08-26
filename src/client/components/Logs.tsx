@@ -3629,6 +3629,1495 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'resonant_reentry_arc') {
+          const priorPeakPattern = log.metadata?.priorPeakPattern as string | undefined
+          const daysSincePeak = log.metadata?.daysSincePeak as number | undefined
+          const signalCount24h = log.metadata?.signalCount24h as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RESENT:" blockView>
+                <div className="uppercase tracking-widest mb-4">RESONANT REENTRY ARC</div>
+                {priorPeakPattern && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRIOR PEAK</span>
+                    <span className="uppercase tabular-nums">{priorPeakPattern.replace(/_/g, '-').slice(0, 12)}</span>
+                  </div>
+                )}
+                {daysSincePeak !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DAYS SINCE PEAK</span>
+                    <span className="tabular-nums">{daysSincePeak}</span>
+                  </div>
+                )}
+                {signalCount24h !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SIGNAL DENSITY</span>
+                    <span className="tabular-nums">{signalCount24h}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">PEAK → REST → REENTRY</div>
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'astrology_biofield_sync') {
+          const astrologySource = log.metadata?.astrologySource as string | undefined
+          const energyState = log.metadata?.energyState as string | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ASTFIELD:" blockView>
+                <div className="uppercase tracking-widest mb-4">ASTROLOGY FIELD SYNC</div>
+                {astrologySource && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOURCE</span>
+                    <span className="uppercase">{astrologySource.slice(0, 14)}</span>
+                  </div>
+                )}
+                {energyState && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ENERGY</span>
+                    <span className="capitalize">{energyState}</span>
+                  </div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENTIONS</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">COSMOS → FIELD</div>
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'morning_clarity_peak') {
+          const wordCount = log.metadata?.wordCount as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const hour = log.metadata?.hour as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MORNCL:" blockView>
+                <div className="uppercase tracking-widest mb-4">MORNING CLARITY PEAK</div>
+                {wordCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WORDS</span>
+                    <span className="tabular-nums">{wordCount}</span>
+                  </div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENTIONS</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                {hour !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">HOUR</span>
+                    <span className="tabular-nums">{String(hour).padStart(2, '0')}:00 UTC</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">DAWN → CLARITY</div>
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'daily_arc_seal') {
+          const morningJournalWords = log.metadata?.morningJournalWords as number | undefined
+          const eveningSignalCount = log.metadata?.eveningSignalCount as number | undefined
+          const intentionCount = log.metadata?.intentionCount as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="DARCSEAL:" blockView>
+                <div className="uppercase tracking-widest mb-4">DAILY ARC SEAL</div>
+                {morningJournalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DAWN WORDS</span>
+                    <span className="tabular-nums">{morningJournalWords}</span>
+                  </div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENTIONS</span>
+                    <span className="tabular-nums">{intentionCount}</span>
+                  </div>
+                )}
+                {eveningSignalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DUSK SIGNALS</span>
+                    <span className="tabular-nums">{eveningSignalCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">DAWN → DUSK → SEALED</div>
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'morning_momentum_arc') {
+          const peakDays = log.metadata?.peakDays as number | undefined
+          const sources = log.metadata?.sources as string[] | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MORNMOM:" blockView>
+                <div className="uppercase tracking-widest mb-4">MORNING MOMENTUM ARC</div>
+                {peakDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PEAK DAYS</span>
+                    <span className="tabular-nums">{peakDays}/7</span>
+                  </div>
+                )}
+                {sources && sources.length > 0 && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOURCES</span>
+                    <span className="tabular-nums">{sources.length}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">DAWN → SUSTAINED MOMENTUM</div>
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_week_integration') {
+          const uniqueSources = log.metadata?.uniqueSources as number | undefined
+          const activeDays = log.metadata?.activeDays as number | undefined
+          const totalSignals = log.metadata?.totalSignals as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QWKINT:" blockView>
+                <div className="uppercase tracking-widest mb-4">QUANTUM WEEK INTEGRATION</div>
+                {activeDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ACTIVE DAYS</span>
+                    <span className="tabular-nums">{activeDays}/7</span>
+                  </div>
+                )}
+                {uniqueSources !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">UNIQUE SOURCES</span>
+                    <span className="tabular-nums">{uniqueSources}</span>
+                  </div>
+                )}
+                {totalSignals !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TOTAL SIGNALS</span>
+                    <span className="tabular-nums">{totalSignals}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">WEEK FULLY INHABITED</div>
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'evening_arc_anchor') {
+          const journalWordCount = log.metadata?.journalWordCount as number | undefined
+          const careCount = log.metadata?.careCount as number | undefined
+          const moodSignal = log.metadata?.moodSignal as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EVARC:" blockView>
+                {journalWordCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">JOURNAL</span>
+                    <span className="tabular-nums">{journalWordCount}w</span>
+                  </div>
+                )}
+                {careCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE ACTS</span>
+                    <span className="tabular-nums">{careCount}</span>
+                  </div>
+                )}
+                {moodSignal && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MOOD</span>
+                    <span className="capitalize">{moodSignal}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">WRITE → TEND → REFLECT</div>
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'physiological_rhythm_lock') {
+          const consecutiveDays = log.metadata?.consecutiveDays as number | undefined
+          const morningSignalCount = log.metadata?.morningSignalCount as number | undefined
+          const eveningSignalCount = log.metadata?.eveningSignalCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PHYRLOCK:" blockView>
+                {consecutiveDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONSECUTIVE DAYS</span>
+                    <span className="tabular-nums">{consecutiveDays}</span>
+                  </div>
+                )}
+                {morningSignalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MORNING SIG</span>
+                    <span className="tabular-nums">{morningSignalCount}</span>
+                  </div>
+                )}
+                {eveningSignalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">EVENING SIG</span>
+                    <span className="tabular-nums">{eveningSignalCount}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">MORNING → EVENING → SUSTAINED</div>
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_presence_arc') {
+          const seals = log.metadata?.seals as string[] | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const convergenceLevel = log.metadata?.convergenceLevel as string | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QPARC:" blockView>
+                {seals && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SEALS</span>
+                    <span className="tabular-nums">{seals.join(' · ')}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">DAY → WEEK → PRESENCE</div>
+                {convergenceLevel && (
+                  <div className="opacity-30 tabular-nums">CONVERGENCE: {convergenceLevel}</div>
+                )}
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'somatic_field_integration') {
+          const consecutiveDays = log.metadata?.consecutiveDays as number | undefined
+          const energyCount = log.metadata?.energyCount as number | undefined
+          const selfcareCount = log.metadata?.selfcareCount as number | undefined
+          const moodCount = log.metadata?.moodCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOMAT:" blockView>
+                {consecutiveDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONSEC DAYS</span>
+                    <span className="tabular-nums">{consecutiveDays}</span>
+                  </div>
+                )}
+                {energyCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ENERGY SIGS</span>
+                    <span className="tabular-nums">{energyCount}</span>
+                  </div>
+                )}
+                {selfcareCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CARE ACTS</span>
+                    <span className="tabular-nums">{selfcareCount}</span>
+                  </div>
+                )}
+                {moodCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MOOD SIGS</span>
+                    <span className="tabular-nums">{moodCount}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ENERGY → CARE → MOOD → FIELD</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recovery_cycle_lock') {
+          const arcCount = log.metadata?.arcCount as number | undefined
+          const windowDays = log.metadata?.windowDays as number | undefined
+          const seals = log.metadata?.seals as string[] | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RECCYC:" blockView>
+                {arcCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARC COUNT</span>
+                    <span className="tabular-nums">{arcCount}</span>
+                  </div>
+                )}
+                {windowDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WINDOW DAYS</span>
+                    <span className="tabular-nums">{windowDays}</span>
+                  </div>
+                )}
+                {seals && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SEALS</span>
+                    <span className="tabular-nums">{seals.join(' · ')}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">RHYTHM → INTEGRATION → LOCK</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_embodiment_field') {
+          const seals = log.metadata?.seals as string[] | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const convergenceLevel = log.metadata?.convergenceLevel as string | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QEMBOD:" blockView>
+                {seals && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SEALS</span>
+                    <span className="tabular-nums">{seals.join(' · ')}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {convergenceLevel && (
+                  <div className="opacity-40 tabular-nums">{convergenceLevel}</div>
+                )}
+                {arc && <div className="opacity-30 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_body_sync') {
+          const journalWordCount = log.metadata?.journalWordCount as number | undefined
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const p163Confidence = log.metadata?.p163Confidence as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COGBOD:" blockView>
+                {journalWordCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">JOURNAL WORDS</span>
+                    <span className="tabular-nums">{journalWordCount}</span>
+                  </div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEMORY SIGS</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {p163Confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">QEMBOD CONF</span>
+                    <span className="tabular-nums">{p163Confidence}%</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {arc && <div className="opacity-40 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'integrated_presence_peak') {
+          const seals = log.metadata?.seals as string[] | undefined
+          const sealCount = log.metadata?.sealCount as number | undefined
+          const hasNarrative = log.metadata?.hasNarrative as boolean | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="INTPRES:" blockView>
+                {seals && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SEALS</span>
+                    <span className="tabular-nums">{seals.join(' · ')}</span>
+                  </div>
+                )}
+                {sealCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SEAL COUNT</span>
+                    <span className="tabular-nums">{sealCount} / 6</span>
+                  </div>
+                )}
+                {hasNarrative !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">NARRATIVE</span>
+                    <span className="tabular-nums">{hasNarrative ? 'ACTIVE' : 'ABSENT'}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {arc && <div className="opacity-40 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'somatic_memory_echo') {
+          const memoryCount = log.metadata?.memoryCount as number | undefined
+          const journalWordCount = log.metadata?.journalWordCount as number | undefined
+          const somaticActive = log.metadata?.somaticActive as boolean | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          const arc = log.metadata?.arc as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOMECHO:" blockView>
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEMORY SIGS</span>
+                    <span className="tabular-nums">{memoryCount}</span>
+                  </div>
+                )}
+                {journalWordCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">JOURNAL WORDS</span>
+                    <span className="tabular-nums">{journalWordCount}</span>
+                  </div>
+                )}
+                {somaticActive !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOMATIC FIELD</span>
+                    <span className="tabular-nums">{somaticActive ? 'ACTIVE' : 'INACTIVE'}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {arc && <div className="opacity-40 tabular-nums">ARC: {arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'somatic_integration_field') {
+          const consecutiveDays = log.metadata?.consecutiveDays as number | undefined
+          const echoConf        = log.metadata?.echoConf        as number | undefined
+          const rhythmConf      = log.metadata?.rhythmConf      as number | undefined
+          const confidence      = log.metadata?.confidence      as number | undefined
+          const arc             = log.metadata?.arc             as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOMFLD:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30 uppercase tracking-widest">STATUS</span>
+                  <span>FIELD ACTIVE</span>
+                </div>
+                {consecutiveDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOMA STREAK</span>
+                    <span className="tabular-nums">{consecutiveDays}D</span>
+                  </div>
+                )}
+                {echoConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ECHO CONF</span>
+                    <span className="tabular-nums">{echoConf}%</span>
+                  </div>
+                )}
+                {rhythmConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RHYTHM CONF</span>
+                    <span className="tabular-nums">{rhythmConf}%</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {arc && <div className="opacity-40 uppercase tracking-widest mt-4">{arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'deep_embodiment_lock') {
+          const consecutiveDays = log.metadata?.consecutiveDays as number | undefined
+          const embConf         = log.metadata?.embConf         as number | undefined
+          const confidence      = log.metadata?.confidence      as number | undefined
+          const arc             = log.metadata?.arc             as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EMBDLK:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30 uppercase tracking-widest">STATUS</span>
+                  <span>STRUCTURAL</span>
+                </div>
+                {consecutiveDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">EMBOD STREAK</span>
+                    <span className="tabular-nums">{consecutiveDays}D</span>
+                  </div>
+                )}
+                {embConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">QEMBOD CONF</span>
+                    <span className="tabular-nums">{embConf}%</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {arc && <div className="opacity-40 uppercase tracking-widest mt-4">{arc}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'full_presence_seal') {
+          const intPresConf    = log.metadata?.intPresConf    as number | undefined
+          const echoConf       = log.metadata?.echoConf       as number | undefined
+          const deepLockActive = log.metadata?.deepLockActive as boolean | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          const seals          = log.metadata?.seals          as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FULLSEAL:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30 uppercase tracking-widest">STATUS</span>
+                  <span>ALL SEALS OPEN</span>
+                </div>
+                {intPresConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTPRES CONF</span>
+                    <span className="tabular-nums">{intPresConf}%</span>
+                  </div>
+                )}
+                {echoConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ECHO CONF</span>
+                    <span className="tabular-nums">{echoConf}%</span>
+                  </div>
+                )}
+                {deepLockActive !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">EMBOD LOCK</span>
+                    <span>{deepLockActive ? 'CONFIRMED' : 'PARTIAL'}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                {seals && seals.length > 0 && (
+                  <div className="opacity-40 tabular-nums mt-4">{seals.join(' · ')}</div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">PEAK + SOMA = SEALED</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cognitive_signal_density') {
+          const journalWords    = log.metadata?.journalWords    as number | undefined
+          const memoryCount     = log.metadata?.memoryCount     as number | undefined
+          const plannerCount    = log.metadata?.plannerCount    as number | undefined
+          const intentionCount  = log.metadata?.intentionCount  as number | undefined
+          const confidence      = log.metadata?.confidence      as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COGDEN:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30 uppercase tracking-widest">STATUS</span>
+                  <span>PEAK DENSITY</span>
+                </div>
+                {journalWords !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">JOURNAL</span>
+                    <span className="tabular-nums">{journalWords}w</span>
+                  </div>
+                )}
+                {memoryCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEMORY</span>
+                    <span className="tabular-nums">×{memoryCount}</span>
+                  </div>
+                )}
+                {plannerCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PLANNER</span>
+                    <span className="tabular-nums">×{plannerCount}</span>
+                  </div>
+                )}
+                {intentionCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENTIONS</span>
+                    <span className="tabular-nums">×{intentionCount}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">MIND + PLAN + INTENT + RECALL = DENSITY</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'somatic_cognition_loop') {
+          const somaticFieldConf   = log.metadata?.somaticFieldConf   as number | undefined
+          const cognitiveSyncConf  = log.metadata?.cognitiveSyncConf  as number | undefined
+          const echoActive         = log.metadata?.echoActive         as boolean | undefined
+          const confidence         = log.metadata?.confidence         as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOMCOG:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30 uppercase tracking-widest">STATUS</span>
+                  <span>LOOP CLOSED</span>
+                </div>
+                {somaticFieldConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOMATIC FIELD</span>
+                    <span className="tabular-nums">{somaticFieldConf}%</span>
+                  </div>
+                )}
+                {cognitiveSyncConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">COG SYNC</span>
+                    <span className="tabular-nums">{cognitiveSyncConf}%</span>
+                  </div>
+                )}
+                {echoActive !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOMA ECHO</span>
+                    <span>{echoActive ? 'ACTIVE' : 'INACTIVE'}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">SOMA ↔ MIND = LOOP</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'embodied_sovereignty') {
+          const deepLockConf   = log.metadata?.deepLockConf   as number | undefined
+          const fullSealConf   = log.metadata?.fullSealConf   as number | undefined
+          const fieldAlignConf = log.metadata?.fieldAlignConf as number | undefined
+          const confidence     = log.metadata?.confidence     as number | undefined
+          const sealsActive    = log.metadata?.sealsActive    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EMBSOV:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30 uppercase tracking-widest">STATUS</span>
+                  <span>SOVEREIGNTY CONFIRMED</span>
+                </div>
+                {deepLockConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DEEP LOCK</span>
+                    <span className="tabular-nums">{deepLockConf}%</span>
+                  </div>
+                )}
+                {fullSealConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FULL SEAL</span>
+                    <span className="tabular-nums">{fullSealConf}%</span>
+                  </div>
+                )}
+                {fieldAlignConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FIELD ALIGN</span>
+                    <span className="tabular-nums">{fieldAlignConf}%</span>
+                  </div>
+                )}
+                {sealsActive !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SEALS ACTIVE</span>
+                    <span className="tabular-nums">{sealsActive}/3</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">LOCK + SEAL + ALIGN = SOVEREIGN</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'physiological_loop_complete') {
+          const circadianConf = log.metadata?.circadianConf as number | undefined
+          const presenceConf  = log.metadata?.presenceConf  as number | undefined
+          const recoveryConf  = log.metadata?.recoveryConf  as number | undefined
+          const avgConf       = log.metadata?.avgConf       as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="BIOLOOP:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30 uppercase tracking-widest">STATUS</span>
+                  <span>LOOP COMPLETE</span>
+                </div>
+                {circadianConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CIRCADIAN</span>
+                    <span className="tabular-nums">{circadianConf}%</span>
+                  </div>
+                )}
+                {presenceConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRESENCE</span>
+                    <span className="tabular-nums">{presenceConf}%</span>
+                  </div>
+                )}
+                {recoveryConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RECOVERY</span>
+                    <span className="tabular-nums">{recoveryConf}%</span>
+                  </div>
+                )}
+                {avgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">LOOP</span>
+                    <span className="tabular-nums">{avgConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">RHYTHM · PRESENCE · RECOVERY</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_apex_state') {
+          const tfcConf          = log.metadata?.tfcConf          as number | undefined
+          const qpcConf          = log.metadata?.qpcConf          as number | undefined
+          const avgConf          = log.metadata?.avgConf          as number | undefined
+          const convergenceLevel = log.metadata?.convergenceLevel as string | undefined
+          const state            = log.metadata?.state            as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QAPEX:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30 uppercase tracking-widest">STATUS</span>
+                  <span>CEILING INHABITED</span>
+                </div>
+                {tfcConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FIELD COH</span>
+                    <span className="tabular-nums">{tfcConf}%</span>
+                  </div>
+                )}
+                {qpcConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRES CRYST</span>
+                    <span className="tabular-nums">{qpcConf}%</span>
+                  </div>
+                )}
+                {convergenceLevel !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONV</span>
+                    <span>{convergenceLevel}</span>
+                  </div>
+                )}
+                {state !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">STATE</span>
+                    <span className="text-xs">{state}</span>
+                  </div>
+                )}
+                {avgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">AVG</span>
+                    <span className="tabular-nums">{avgConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">CEILING REACHED · INHABITED</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'longitudinal_identity_confirmation') {
+          const crystalConf  = log.metadata?.crystalConf  as number | undefined
+          const momentumConf = log.metadata?.momentumConf as number | undefined
+          const presenceConf = log.metadata?.presenceConf as number | undefined
+          const avgConf      = log.metadata?.avgConf      as number | undefined
+          const temporalScales = log.metadata?.temporalScales as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="LONGID:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30 uppercase tracking-widest">STATUS</span>
+                  <span>IDENTITY CONFIRMED</span>
+                </div>
+                {crystalConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CRYSTAL</span>
+                    <span className="tabular-nums">{crystalConf}%</span>
+                  </div>
+                )}
+                {momentumConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MOMENTUM</span>
+                    <span className="tabular-nums">{momentumConf}%</span>
+                  </div>
+                )}
+                {presenceConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRESENCE</span>
+                    <span className="tabular-nums">{presenceConf}%</span>
+                  </div>
+                )}
+                {temporalScales !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARC</span>
+                    <span>{temporalScales.join(' · ')}</span>
+                  </div>
+                )}
+                {avgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">AVG</span>
+                    <span className="tabular-nums">{avgConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">WEEKS · DAYS · PRESENT</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_field_propagation') {
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const signalCount = log.metadata?.signalCount as number | undefined
+          const apexConf    = log.metadata?.apexConf    as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QPROP:" blockView>
+                {apexConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">APEX</span>
+                    <span className="tabular-nums">{apexConf}%</span>
+                  </div>
+                )}
+                {sourceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SRC 6H</span>
+                    <span className="tabular-nums">{sourceCount}</span>
+                  </div>
+                )}
+                {signalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SIG 6H</span>
+                    <span className="tabular-nums">{signalCount}</span>
+                  </div>
+                )}
+                {confidence !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONF</span>
+                    <span className="tabular-nums">{confidence}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">APEX · PROPAGATING</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'unified_field_operator') {
+          const sovereigntyConf = log.metadata?.sovereigntyConf as number | undefined
+          const loopConf        = log.metadata?.loopConf        as number | undefined
+          const apexConf        = log.metadata?.apexConf        as number | undefined
+          const avgConf         = log.metadata?.avgConf         as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="UNIFOP:" blockView>
+                {sovereigntyConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOV</span>
+                    <span className="tabular-nums">{sovereigntyConf}%</span>
+                  </div>
+                )}
+                {loopConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">LOOP</span>
+                    <span className="tabular-nums">{loopConf}%</span>
+                  </div>
+                )}
+                {apexConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">APEX</span>
+                    <span className="tabular-nums">{apexConf}%</span>
+                  </div>
+                )}
+                {avgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">AVG</span>
+                    <span className="tabular-nums">{avgConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">SOV · LOOP · APEX</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'temporal_identity_lock') {
+          const longitudinalConf = log.metadata?.longitudinalConf as number | undefined
+          const momentumConf     = log.metadata?.momentumConf     as number | undefined
+          const avgConf          = log.metadata?.avgConf          as number | undefined
+          const temporalArc      = log.metadata?.temporalArc      as string[] | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TIDLOCK:" blockView>
+                {longitudinalConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">LONGID</span>
+                    <span className="tabular-nums">{longitudinalConf}%</span>
+                  </div>
+                )}
+                {momentumConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MOM</span>
+                    <span className="tabular-nums">{momentumConf}%</span>
+                  </div>
+                )}
+                {temporalArc !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ARC</span>
+                    <span className="uppercase text-xs">{temporalArc.join('·')}</span>
+                  </div>
+                )}
+                {avgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">AVG</span>
+                    <span className="tabular-nums">{avgConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-30 mt-4 uppercase tracking-widest">ID · MOM = LOCKED</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'qiot_ecosystem_pulse') {
+          const deviceCount  = log.metadata?.deviceCount  as number | undefined
+          const qiotStatus   = log.metadata?.qiotStatus   as string | undefined
+          const physLoop     = log.metadata?.physicalLoopClosed as boolean | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QIOT:" blockView>
+                {qiotStatus !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">STATUS</span>
+                    <span className="uppercase">{qiotStatus.replace(/_/g, ' ')}</span>
+                  </div>
+                )}
+                {deviceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DEVICES</span>
+                    <span className="tabular-nums">{deviceCount}/6</span>
+                  </div>
+                )}
+                {physLoop !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PHY LOOP</span>
+                    <span>{physLoop ? 'CLOSED' : 'OPEN'}</span>
+                  </div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'circadian_sovereignty') {
+          const tidConf    = log.metadata?.tidConf    as number | undefined
+          const circConf   = log.metadata?.circConf   as number | undefined
+          const mclConf    = log.metadata?.mclConf    as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CIRSOV:" blockView>
+                {tidConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TIDLOCK</span>
+                    <span className="tabular-nums">{Math.round(tidConf * 100)}%</span>
+                  </div>
+                )}
+                {circConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CIRC</span>
+                    <span className="tabular-nums">{Math.round(circConf * 100)}%</span>
+                  </div>
+                )}
+                {mclConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">LAUNCH</span>
+                    <span className="tabular-nums">{Math.round(mclConf * 100)}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">IDENTITY · CLOCK · INTENTION = SOVEREIGN</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'apex_integration_field') {
+          const apexConf   = log.metadata?.apexConf   as number | undefined
+          const unifConf   = log.metadata?.unifConf   as number | undefined
+          const loopConf   = log.metadata?.loopConf   as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="APXINT:" blockView>
+                {apexConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">APEX</span>
+                    <span className="tabular-nums">{Math.round(apexConf * 100)}%</span>
+                  </div>
+                )}
+                {unifConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">UNIFOP</span>
+                    <span className="tabular-nums">{Math.round(unifConf * 100)}%</span>
+                  </div>
+                )}
+                {loopConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">BIOLOOP</span>
+                    <span className="tabular-nums">{Math.round(loopConf * 100)}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">APEX · TOTAL FIELD · LOOP = INTEGRATED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'longitudinal_growth_arc') {
+          const userIndex  = log.metadata?.userIndex  as number | undefined
+          const trend      = log.metadata?.trend      as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="LGROW:" blockView>
+                {userIndex !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INDEX</span>
+                    <span className="tabular-nums">{userIndex}</span>
+                  </div>
+                )}
+                {trend !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TREND</span>
+                    <span className="uppercase">{trend}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">MOMENTUM → GROWTH → ARC CONFIRMED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'sovereign_field_continuity') {
+          const csConf     = log.metadata?.csConf     as number | undefined
+          const aiConf     = log.metadata?.aiConf     as number | undefined
+          const lgConf     = log.metadata?.lgConf     as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOVFLD:" blockView>
+                {csConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CIRSOV</span>
+                    <span className="tabular-nums">{Math.round(csConf * 100)}%</span>
+                  </div>
+                )}
+                {aiConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">APXINT</span>
+                    <span className="tabular-nums">{Math.round(aiConf * 100)}%</span>
+                  </div>
+                )}
+                {lgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">LGROW</span>
+                    <span className="tabular-nums">{Math.round(lgConf * 100)}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'operational_self_architecture') {
+          const tidConf    = log.metadata?.tidConf    as number | undefined
+          const momConf    = log.metadata?.momConf    as number | undefined
+          const cohConf    = log.metadata?.cohConf    as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="OPARCH:" blockView>
+                {tidConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TIDLOCK</span>
+                    <span className="tabular-nums">{Math.round(tidConf * 100)}%</span>
+                  </div>
+                )}
+                {momConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MOMENTUM</span>
+                    <span className="tabular-nums">{Math.round(momConf * 100)}%</span>
+                  </div>
+                )}
+                {cohConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">COHERENCE</span>
+                    <span className="tabular-nums">{Math.round(cohConf * 100)}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">IDENTITY · MOMENTUM · COHERENCE = BUILT</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'longitudinal_field_seal') {
+          const userIndex  = log.metadata?.userIndex  as number | undefined
+          const sealBonus  = log.metadata?.sealBonus  as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="LGSEAL:" blockView>
+                {userIndex !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INDEX</span>
+                    <span className="tabular-nums">{userIndex}</span>
+                  </div>
+                )}
+                {sealBonus !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SEAL BONUS</span>
+                    <span className="tabular-nums">+{Math.round(sealBonus * 100)}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">MOMENTUM · GROWTH · SEAL = LOCKED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {Math.round(confidence * 100)}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'field_self_organization') {
+          const sfConf     = log.metadata?.sfConf     as number | undefined
+          const oaConf     = log.metadata?.oaConf     as number | undefined
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const signalCount = log.metadata?.signalCount as number | undefined
+          const confidence  = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FSORG:" blockView>
+                {sfConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOVFLD</span>
+                    <span className="tabular-nums">{sfConf}%</span>
+                  </div>
+                )}
+                {oaConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">OPARCH</span>
+                    <span className="tabular-nums">{oaConf}%</span>
+                  </div>
+                )}
+                {sourceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SRC 12H</span>
+                    <span className="tabular-nums">{sourceCount}</span>
+                  </div>
+                )}
+                {signalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SIG 12H</span>
+                    <span className="tabular-nums">{signalCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGNTY · ARCHITECTURE = SELF-ORGANIZED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_identity_expression') {
+          const oaConf     = log.metadata?.oaConf     as number | undefined
+          const lgConf     = log.metadata?.lgConf     as number | undefined
+          const userIndex  = log.metadata?.userIndex  as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QIDEX:" blockView>
+                {oaConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">OPARCH</span>
+                    <span className="tabular-nums">{oaConf}%</span>
+                  </div>
+                )}
+                {lgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">LGSEAL</span>
+                    <span className="tabular-nums">{lgConf}%</span>
+                  </div>
+                )}
+                {userIndex !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INDEX</span>
+                    <span className="tabular-nums">{userIndex}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SEAL · EXPRESSION = ACTIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'level_17_gate') {
+          const fsorgConf  = log.metadata?.fsorgConf  as number | undefined
+          const qidexConf  = log.metadata?.qidexConf  as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="L17GATE:" blockView>
+                {fsorgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FSORG</span>
+                    <span className="tabular-nums">{fsorgConf}%</span>
+                  </div>
+                )}
+                {qidexConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">QIDEX</span>
+                    <span className="tabular-nums">{qidexConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SELF-ORGANIZED · EXPRESSED = LEVEL 17</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'conscious_field_integration') {
+          const l17Conf    = log.metadata?.l17Conf    as number | undefined
+          const bioConf    = log.metadata?.bioConf    as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CONSCFLD:" blockView>
+                {l17Conf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L17GATE</span>
+                    <span className="tabular-nums">{l17Conf}%</span>
+                  </div>
+                )}
+                {bioConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">BIOLOOP</span>
+                    <span className="tabular-nums">{bioConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELD · BODY = CONSCIOUS</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'sovereign_apex_expression') {
+          const l17Conf    = log.metadata?.l17Conf    as number | undefined
+          const apexConf   = log.metadata?.apexConf   as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOVAPEX:" blockView>
+                {l17Conf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L17GATE</span>
+                    <span className="tabular-nums">{l17Conf}%</span>
+                  </div>
+                )}
+                {apexConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">QAPEX</span>
+                    <span className="tabular-nums">{apexConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN · APEX = EXPRESSED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'level_18_gate') {
+          const cfConf     = log.metadata?.cfConf     as number | undefined
+          const saConf     = log.metadata?.saConf     as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="L18GATE:" blockView>
+                {cfConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">CONSCFLD</span>
+                    <span className="tabular-nums">{cfConf}%</span>
+                  </div>
+                )}
+                {saConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOVAPEX</span>
+                    <span className="tabular-nums">{saConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">CONSCIOUS · SOVEREIGN · EXPRESSED = LEVEL 18</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'sovereign_integration_field') {
+          const l18Conf     = log.metadata?.l18Conf     as number | undefined
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOVINT:" blockView>
+                {l18Conf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L18GATE</span>
+                    <span className="tabular-nums">{l18Conf}%</span>
+                  </div>
+                )}
+                {sourceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOURCES 24H</span>
+                    <span className="tabular-nums">{sourceCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN · INTEGRATED · FIELD = ACTIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_coherence_apex') {
+          const l18Conf      = log.metadata?.l18Conf      as number | undefined
+          const tidConf      = log.metadata?.tidConf      as number | undefined
+          const presenceDays = log.metadata?.presenceDays as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QCAPEX:" blockView>
+                {l18Conf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">L18GATE</span>
+                    <span className="tabular-nums">{l18Conf}%</span>
+                  </div>
+                )}
+                {tidConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">TEMPORAL LOCK</span>
+                    <span className="tabular-nums">{tidConf}%</span>
+                  </div>
+                )}
+                {presenceDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ACTIVE DAYS 7D</span>
+                    <span className="tabular-nums">{presenceDays}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">TEMPORAL · SOVEREIGN · APEX = COHERENT</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'level_19_gate') {
+          const sifConf    = log.metadata?.sifConf    as number | undefined
+          const qcaConf    = log.metadata?.qcaConf    as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="L19GATE:" blockView>
+                {sifConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOVINT</span>
+                    <span className="tabular-nums">{sifConf}%</span>
+                  </div>
+                )}
+                {qcaConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">QCAPEX</span>
+                    <span className="tabular-nums">{qcaConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN · INTEGRATED · COHERENT = LEVEL 19</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

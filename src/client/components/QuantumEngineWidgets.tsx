@@ -110,6 +110,48 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'quantum-presence-crystallization': 'QPCRYST',
   'total-field-coherence':            'TOTCOH',
   'recovery-intelligence-arc':        'RECINTEL',
+  'resonant-reentry-arc':             'RESENT',
+  'astrology-biofield-sync':          'ASTFIELD',
+  'morning-clarity-peak':             'MORNCL',
+  'daily-arc-seal':                   'DARCSEAL',
+  'morning-momentum-arc':             'MORNMOM',
+  'quantum-week-integration':         'QWKINT',
+  'evening-arc-anchor':               'EVARC',
+  'physiological-rhythm-lock':        'PHYRLOCK',
+  'quantum-presence-arc':             'QPARC',
+  'somatic-field-integration':        'SOMAT',
+  'recovery-cycle-lock':              'RECCYC',
+  'quantum-embodiment-field':         'QEMBOD',
+  'cognitive-body-sync':              'COGBOD',
+  'integrated-presence-peak':        'INTPRES',
+  'somatic-memory-echo':              'SOMECHO',
+  'somatic-integration-field':        'SOMFLD',
+  'deep-embodiment-lock':             'EMBDLK',
+  'full-presence-seal':               'FULLSEAL',
+  'cognitive-signal-density':         'COGDEN',
+  'somatic-cognition-loop':           'SOMCOG',
+  'embodied-sovereignty':             'EMBSOV',
+  'physiological-loop-complete':      'BIOLOOP',
+  'quantum-apex-state':               'QAPEX',
+  'longitudinal-identity-confirmation': 'LONGID',
+  'quantum-field-propagation':        'QPROP',
+  'unified-field-operator':           'UNIFOP',
+  'temporal-identity-lock':           'TIDLOCK',
+  'circadian-sovereignty':            'CIRSOV',
+  'apex-integration-field':           'APXINT',
+  'longitudinal-growth-arc':          'LGROW',
+  'sovereign-field-continuity':       'SOVFCONT',
+  'operational-self-architecture':    'OPSARCH',
+  'longitudinal-field-seal':          'LFDSEAL',
+  'field-self-organization':          'FLDORG',
+  'quantum-identity-expression':      'QIDEX',
+  'level-17-gate':                    'L17GATE',
+  'conscious-field-integration':      'CONSCFLD',
+  'sovereign-apex-expression':        'SOVAPEX',
+  'level-18-gate':                    'L18GATE',
+  'sovereign-integration-field':      'SOVINT',
+  'quantum-coherence-apex':           'QCAPEX',
+  'level-19-gate':                    'L19GATE',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
@@ -290,6 +332,12 @@ export const QuantumEngineWidgets: React.FC = () => {
   const qosModeData = React.useMemo(
     () => computeQOSMode(energy, engineState.recognizedPatterns, assemblyState.overallAssembly),
     [energy, engineState.recognizedPatterns, assemblyState.overallAssembly]
+  )
+
+  // Memoize QOS field data — getQuantumOS() is a full cross-section computation
+  const qosFieldData = React.useMemo(
+    () => view === 'qos-field' ? getQuantumOS() : null,
+    [view, engineState.signals.length, engineState.recognizedPatterns.length]
   )
 
   return (
@@ -552,9 +600,9 @@ export const QuantumEngineWidgets: React.FC = () => {
               {engineState.recognizedPatterns.length > 0 && (
                 <div className="border-t border-acc-400/20 pt-8">
                   <div className="opacity-30 uppercase tracking-widest mb-6">Active signals</div>
-                  {engineState.recognizedPatterns.slice(0, 5).map(p => (
+                  {engineState.recognizedPatterns.slice(0, 6).map(p => (
                     <div key={p.pattern} className="flex justify-between mb-2">
-                      <span className={`uppercase ${p.pattern === 'centennial-convergence' ? '' : 'opacity-50'}`}>
+                      <span className={`uppercase ${p.pattern === 'centennial-convergence' || p.pattern === 'quantum-presence-arc' ? '' : 'opacity-50'}`}>
                         {PATTERN_DISPLAY[p.pattern] ?? p.pattern.replace(/-/g, ' ').slice(0, 14).toUpperCase()}
                       </span>
                       <span className="opacity-30 tabular-nums">{Math.round(p.confidence * 100)}%</span>
@@ -565,8 +613,8 @@ export const QuantumEngineWidgets: React.FC = () => {
             </div>
           )}
 
-          {view === 'qos-field' && (() => {
-            const qos = getQuantumOS()
+          {view === 'qos-field' && qosFieldData && (() => {
+            const qos = qosFieldData
             const signalEntries = Object.entries(qos.signalMap).filter(([, count]) => count > 0).sort((a, b) => b[1] - a[1])
             return (
               <div className="flex flex-col gap-y-4 font-mono text-xs">
@@ -600,12 +648,26 @@ export const QuantumEngineWidgets: React.FC = () => {
                 {qos.patterns.length > 0 && (
                   <div className="border-t border-acc-400/20 pt-8 mt-2">
                     <div className="opacity-30 uppercase tracking-widest mb-6">Active Patterns</div>
-                    {qos.patterns.slice(0, 4).map(p => (
+                    {qos.patterns.slice(0, 5).map(p => (
                       <div key={p.id} className="flex justify-between mb-2">
                         <span className="opacity-50 uppercase">{(PATTERN_DISPLAY[p.id] ?? p.id.slice(0, 10).toUpperCase())}</span>
                         <span className="opacity-30 tabular-nums">{p.confidence}%</span>
                       </div>
                     ))}
+                  </div>
+                )}
+                {(cohortData?.archetype || cohortDirective) && (
+                  <div className="border-t border-acc-400/20 pt-8 mt-2">
+                    <div className="opacity-30 uppercase tracking-widest mb-6">Cohort</div>
+                    {cohortData?.archetype && (
+                      <div className="flex justify-between mb-2">
+                        <span className="opacity-50 uppercase">Arch</span>
+                        <span className="text-right max-w-[60%] text-xs">{cohortData.archetype}</span>
+                      </div>
+                    )}
+                    {cohortDirective && (
+                      <div className="opacity-30 pt-4 text-xs">{cohortDirective}</div>
+                    )}
                   </div>
                 )}
               </div>

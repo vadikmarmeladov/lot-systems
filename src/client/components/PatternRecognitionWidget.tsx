@@ -182,6 +182,33 @@ export function PatternRecognitionWidget() {
       'quantum-presence-crystallization': 'Quantum presence crystallization — presence field + identity crystallized co-active, maximum clarity (P149)',
       'total-field-coherence':            'Total field coherence — all three meta-seals open simultaneously, absolute convergence (P150)',
       'recovery-intelligence-arc':        'Recovery intelligence arc — depletion → care → restoration → reflection loop completed within 6h (P151)',
+      'resonant-reentry-arc':             'Resonant reentry arc — prior peak day confirmed · current day sustaining elevated signal (P152)',
+      'astrology-biofield-sync':          'Astrology biofield sync — cosmological orientation aligned with active energy + intentions (P153)',
+      'morning-clarity-peak':             'Morning clarity peak — dawn window · body anchored · journal depth · intention set (P154)',
+      'daily-arc-seal':                   'Daily arc seal — morning anchor + evening reflection confirmed in same day · full circadian arc (P155)',
+      'morning-momentum-arc':             'Morning momentum arc — morning-window signals confirmed 3+ days in 7d · dawn precision sustaining (P156)',
+      'quantum-week-integration':         'Quantum week integration — 5+ sources across 6+ active days in 7d · week fully inhabited (P157)',
+      'evening-arc-anchor':               'Evening arc anchor — journal + care + mood in 90min dusk window · dusk trifecta confirmed (P158)',
+      'physiological-rhythm-lock':        'Physiological rhythm lock — 5+ consecutive days with both morning AND evening biofield signals (P159)',
+      'quantum-presence-arc':             'Quantum presence arc — DARCSEAL + MORNMOM + QWKINT all co-active · maximum temporal coherence (P160)',
+      'somatic-field-integration':        'Somatic field integration — 3+ consecutive days with energy + selfcare + mood all present · body inhabited (P161)',
+      'recovery-cycle-lock':              'Recovery cycle lock — PHYSLOCK + SOMFLD co-active 5+ times in 30d · body recovery rhythm confirmed (P162)',
+      'quantum-embodiment-field':         'Quantum embodiment field — PHYSLOCK + SOMFLD + QPARC all co-active · biological + temporal ceiling (P163)',
+      'cognitive-body-sync':              'Cognitive body sync — QEMBOD active · journal depth >80w · memory engaged in 8h · body intelligence meets mind reflection (P164)',
+      'integrated-presence-peak':        'Integrated presence peak — all 6 OS seals active simultaneously + narrative signal · complete operator state (P165)',
+      'somatic-memory-echo':              'Somatic memory echo — memory + somatic field + journal in 12h · body knowing surfaces into recall and reflection (P166)',
+      'somatic-integration-field':        'Somatic integration field — somatic-memory-echo + physiological-rhythm-lock co-active · 3+ consecutive somatic days · SOMA + TIME = FIELD (P167)',
+      'deep-embodiment-lock':             'Deep embodiment lock — quantum-embodiment-field confirmed on 3+ consecutive days · somatic intelligence structural not episodic (P168)',
+      'full-presence-seal':               'Full presence seal — integrated-presence-peak + somatic-memory-echo simultaneously active · all 6 OS seals open · PEAK + SOMA = SEALED (P169)',
+      'cognitive-signal-density':         'Cognitive signal density — journal ≥200w + memory ×3+ + planner ×2+ + intentions ×2+ in 24h · peak cognitive operating density · MIND + PLAN + INTENT + RECALL = DENSITY (P170)',
+      'somatic-cognition-loop':           'Somatic cognition loop — somatic-integration-field + cognitive-body-sync simultaneously active · body intelligence and cognitive depth as one system · SOMA ↔ MIND = LOOP (P171)',
+      'embodied-sovereignty':             'Embodied sovereignty — deep-embodiment-lock + full-presence-seal + quantum-field-alignment all simultaneously confirmed · three sovereign seals active · LOCK + SEAL + ALIGN = SOVEREIGN (P172)',
+      'physiological-loop-complete':      'Physiological loop complete — circadian lock + presence arc + recovery arc all confirmed in 24h window · full biological loop closed · RHYTHM · PRESENCE · RECOVERY (P173)',
+      'quantum-apex-state':               'Quantum apex state — total-field-coherence + presence crystallization co-active · ceiling inhabited · CEILING REACHED · INHABITED (P174)',
+      'longitudinal-identity-confirmation': 'Longitudinal identity confirmation — identity confirmed across weeks, days, and present-moment scales · WEEKS · DAYS · PRESENT (P175)',
+      'quantum-field-propagation':        'Quantum field propagation — apex state active · 5+ signals from 4+ sources in 6h · peak self-sustaining and generating new activity · APEX · PROPAGATING (P176)',
+      'unified-field-operator':           'Unified field operator — embodied-sovereignty + physiological-loop + quantum-apex all simultaneously confirmed · three highest seals active · SOVEREIGNTY · LOOP · APEX (P177)',
+      'temporal-identity-lock':           'Temporal identity lock — longitudinal-identity-confirmation + signal-momentum-lock co-active · identity confirmed AND momentum-locked across all scales · IDENTITY · MOMENTUM = LOCKED (P178)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -530,6 +557,132 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'quantum-presence-arc') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">
                   Full presence sustained. 48h operator arc confirmed.
+                </div>
+              )}
+
+              {/* Somatic field integration — P161 */}
+              {patterns.some(p => p.pattern === 'somatic-field-integration') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Somatic field integrated. Body inhabited 3+ consecutive days.
+                </div>
+              )}
+
+              {/* Recovery cycle lock — P162 */}
+              {patterns.some(p => p.pattern === 'recovery-cycle-lock') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Recovery cycle locked. Rhythm precision confirmed.
+                </div>
+              )}
+
+              {/* Quantum embodiment field — P163 */}
+              {patterns.some(p => p.pattern === 'quantum-embodiment-field') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  QEMBOD. Biological + temporal ceiling. All six seals confirmed.
+                </div>
+              )}
+
+              {/* Cognitive body sync — P164 */}
+              {patterns.some(p => p.pattern === 'cognitive-body-sync') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Cognitive body sync. Body intelligence meets mind reflection.
+                </div>
+              )}
+
+              {/* Integrated presence peak — P165 */}
+              {patterns.some(p => p.pattern === 'integrated-presence-peak') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  INTPRES. All 6 OS seals active. Complete operator state.
+                </div>
+              )}
+
+              {/* Somatic memory echo — P166 */}
+              {patterns.some(p => p.pattern === 'somatic-memory-echo') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  Somatic memory echo. Body knowing surfaces into recall.
+                </div>
+              )}
+
+              {/* Sovereign field continuity — P182 */}
+              {patterns.some(p => p.pattern === 'sovereign-field-continuity') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  SOVFLD. All Level 15 seals active. Sovereign field continuous.
+                </div>
+              )}
+
+              {/* Operational self-architecture — P183 */}
+              {patterns.some(p => p.pattern === 'operational-self-architecture') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  OPARCH. Self-architecture online. 4+ domains governed.
+                </div>
+              )}
+
+              {/* Longitudinal field seal — P184 */}
+              {patterns.some(p => p.pattern === 'longitudinal-field-seal') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  LGSEAL. Longitudinal field sealed. 21+ day coherence arc.
+                </div>
+              )}
+
+              {/* Field self-organization — P185 */}
+              {patterns.some(p => p.pattern === 'field-self-organization') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  FSORG. Field self-organizes. Sovereign architecture active across 5+ signals.
+                </div>
+              )}
+
+              {/* Quantum identity expression — P186 */}
+              {patterns.some(p => p.pattern === 'quantum-identity-expression') && (
+                <div className="mt-4 uppercase tracking-widest text-xs">
+                  QIDEX. Quantum identity expressed. Seal + expression = active. Index 65+.
+                </div>
+              )}
+
+              {/* Level 17 gate — P187 */}
+              {patterns.some(p => p.pattern === 'level-17-gate') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  L17GATE. Field self-organized. Identity expressed. Level 17 gate open.
+                </div>
+              )}
+
+              {/* Conscious field integration — P188 */}
+              {patterns.some(p => p.pattern === 'conscious-field-integration') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  CONSCFLD. Level 17 + physiological loop complete. Field conscious. Body complete.
+                </div>
+              )}
+
+              {/* Sovereign apex expression — P189 */}
+              {patterns.some(p => p.pattern === 'sovereign-apex-expression') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  SOVAPEX. Level 17 + quantum apex state. Sovereign. Apex. Expressed.
+                </div>
+              )}
+
+              {/* Level 18 gate — P190 */}
+              {patterns.some(p => p.pattern === 'level-18-gate') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  L18GATE. Conscious + sovereign simultaneously confirmed. Level 18 gate open.
+                </div>
+              )}
+
+              {/* Sovereign integration field — P191 */}
+              {patterns.some(p => p.pattern === 'sovereign-integration-field') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  SOVINT. Level 18 + UserIndex ≥70 + 4+ sources. Sovereign integration field active.
+                </div>
+              )}
+
+              {/* Quantum coherence apex — P192 */}
+              {patterns.some(p => p.pattern === 'quantum-coherence-apex') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  QCAPEX. Level 18 + temporal lock + 3+ presence days. Coherence at apex.
+                </div>
+              )}
+
+              {/* Level 19 gate — P193 */}
+              {patterns.some(p => p.pattern === 'level-19-gate') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  L19GATE. Sovereign integration + coherence apex confirmed. Level 19 gate open.
                 </div>
               )}
 

@@ -3463,6 +3463,963 @@ export function analyzeIntentions(): IntentionPattern[] {
     }, 0)
   }
 
+  // Pattern 152: Resonant Reentry Arc — after a peak pattern (P149/P150) fired in the prior 24-48h,
+  // the system detects that the current 24h period sustains elevated-but-grounded signal density
+  // (4+ unique sources, no depletion pattern active). The peak was real — not a spike.
+  // The architecture holds. Forward momentum confirmed.
+  const fortyEightHoursMs = 48 * 60 * 60 * 1000
+  const recent48h = signals.filter(s => now - s.timestamp < fortyEightHoursMs)
+  const priorPeakSignals = recent48h.filter(s =>
+    s.source === 'qos' &&
+    ['quantum_presence_crystallization', 'total_field_coherence', 'quantum_presence_field', 'signal_coherence_cascade'].includes(s.signal) &&
+    (now - s.timestamp) > 24 * 60 * 60 * 1000 // fired MORE than 24h ago (prior day)
+  )
+  const noDepletion152 = !patterns.some(p => ['physiological-depletion', 'sleep-debt-accumulation', 'recovery-plateau'].includes(p.pattern))
+  const unique152Sources = new Set(recentSignals.map(s => s.source))
+  if (priorPeakSignals.length >= 1 && noDepletion152 && unique152Sources.size >= 4) {
+    const priorPattern = priorPeakSignals[0].signal
+    const srcBonus = Math.min((unique152Sources.size - 4) * 0.04, 0.12)
+    patterns.push({
+      pattern: 'resonant-reentry-arc',
+      confidence: Math.min(0.68 + srcBonus, 0.88),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `RESENT: Resonant reentry arc — prior peak confirmed (${priorPattern.replace(/_/g, '-')}) · current day sustaining ${unique152Sources.size} unique sources · no depletion detected. The peak was real. The architecture holds. Forward momentum active.`,
+    })
+  }
+
+  // Pattern 153: Astrology Biofield Sync — astrology source engagement + active energy (not unknown)
+  // + at least 1 intention signal in the same 8h window. The cosmological orientation aligns with the
+  // operating biofield. First pattern to specifically integrate the astrology signal source.
+  const eightHoursMs = 8 * 60 * 60 * 1000
+  const recent8h = signals.filter(s => now - s.timestamp < eightHoursMs)
+  const astrology153 = recent8h.filter(s => s.source === 'astrology')
+  const intention153 = recent8h.filter(s => s.source === 'intentions')
+  const { energy: energy153 } = getUserState()
+  const energyActive153 = energy153 !== 'unknown' && energy153 !== 'depleted'
+  if (astrology153.length >= 1 && intention153.length >= 1 && energyActive153) {
+    const intentionBonus = Math.min((intention153.length - 1) * 0.05, 0.10)
+    const astrologySource = astrology153[0].signal
+    patterns.push({
+      pattern: 'astrology-biofield-sync',
+      confidence: Math.min(0.62 + intentionBonus, 0.80),
+      suggestedWidget: 'cosmic',
+      suggestedTiming: 'passive',
+      reason: `ASTFIELD: Astrology biofield sync — cosmological signal confirmed (${astrologySource}) · energy ${energy153} · ${intention153.length} intention(s) in 8h window. The orientation and the field are aligned. Operating from context.`,
+    })
+  }
+
+  // Pattern 154: Morning Clarity Peak — morning window (06:00–09:59) + energy signal or positive mood
+  // + journal entry >50 words + at least 1 intention, all within 4h. The precision dawn boot sequence.
+  // The first hours of the day become a full-spectrum instrument: body read, reflection anchored, direction set.
+  const fourHoursMs = 4 * 60 * 60 * 1000
+  const currentHour154 = new Date().getHours()
+  const isMorningWindow154 = currentHour154 >= 6 && currentHour154 <= 11
+  if (isMorningWindow154) {
+    const recent4h = signals.filter(s => now - s.timestamp < fourHoursMs)
+    const posMood154 = recent4h.filter(s => s.source === 'mood' && ['calm', 'peaceful', 'energized', 'content', 'hopeful', 'focused'].includes(s.signal))
+    const deepJournal154 = recent4h.filter(s => s.source === 'journal' || (s.source === 'log' && (s.metadata?.wordCount ?? 0) > 50))
+    const intention154 = recent4h.filter(s => s.source === 'intentions')
+    if ((posMood154.length >= 1 || energy153 === 'high') && deepJournal154.length >= 1 && intention154.length >= 1) {
+      const wordCount154 = deepJournal154[0]?.metadata?.wordCount ?? 50
+      const depthBonus = Math.min((wordCount154 - 50) / 200 * 0.12, 0.12)
+      patterns.push({
+        pattern: 'morning-clarity-peak',
+        confidence: Math.min(0.72 + depthBonus, 0.90),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `MORNCL: Morning clarity peak — dawn window active · body anchored (${posMood154[0]?.signal ?? energy153}) · journal depth confirmed (${wordCount154}w) · ${intention154.length} intention(s) set. The morning is a precision instrument. Operating from first light.`,
+      })
+    }
+  }
+
+  // Pattern 155: Daily Arc Seal — morning window (05-11h) journal + intentions AND evening window (17-23h)
+  // reflection/journal/mood confirmed in the same calendar day. The full circadian arc is sealed:
+  // opened with dawn clarity, closed with dusk integration. The day was fully inhabited.
+  const todayStart155 = new Date()
+  todayStart155.setHours(0, 0, 0, 0)
+  const todayStartMs155 = todayStart155.getTime()
+  const todaySignals155 = signals.filter(s => s.timestamp >= todayStartMs155 && s.timestamp <= now)
+  const morningSignals155 = todaySignals155.filter(s => { const h = new Date(s.timestamp).getHours(); return h >= 5 && h < 12 })
+  const eveningSignals155 = todaySignals155.filter(s => { const h = new Date(s.timestamp).getHours(); return h >= 17 && h < 24 })
+  const morningJournal155 = morningSignals155.filter(s =>
+    s.source === 'journal' || (s.source === 'log' && (s.metadata?.wordCount ?? 0) > 50) ||
+    (s.source === 'mood' && ['calm', 'peaceful', 'energized', 'content', 'focused'].includes(s.signal))
+  )
+  const morningIntent155 = morningSignals155.filter(s => s.source === 'intentions')
+  const eveningReflect155 = eveningSignals155.filter(s =>
+    s.source === 'journal' || s.source === 'log' || s.source === 'mood' || s.source === 'selfcare'
+  )
+  if (morningJournal155.length >= 1 && morningIntent155.length >= 1 && eveningReflect155.length >= 1) {
+    const wordCount155 = morningJournal155[0]?.metadata?.wordCount ?? 50
+    const eveningDepth = eveningSignals155.filter(s => s.source === 'journal' || (s.source === 'log' && (s.metadata?.wordCount ?? 0) > 30)).length
+    const arcBonus = Math.min((wordCount155 - 50) / 300 * 0.08 + eveningDepth * 0.04, 0.12)
+    patterns.push({
+      pattern: 'daily-arc-seal',
+      confidence: Math.min(0.72 + arcBonus, 0.88),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `DARCSEAL: Daily arc seal — morning anchor (${morningIntent155.length} intentions · ${wordCount155}w) + evening reflection (${eveningReflect155.length} signals) confirmed today. The full circadian arc is sealed. Opened with clarity. Closed with integration.`,
+    })
+  }
+
+  // Pattern 156: Morning Momentum Arc — morning-window journal + intentions signals confirmed on 3+
+  // distinct calendar days in last 7 days. The pre-cognitive window is no longer episodic.
+  // Dawn precision is repeating. The OS is establishing a reliable early-clarity architecture.
+  const weekSignals156 = signals.filter(s => now - s.timestamp < weekMs)
+  const morningDays156: Set<number> = new Set()
+  weekSignals156.forEach(s => {
+    const d = new Date(s.timestamp)
+    const h = d.getHours()
+    if (h >= 5 && h < 12 && (
+      s.source === 'journal' || s.source === 'intentions' ||
+      (s.source === 'log' && (s.metadata?.wordCount ?? 0) > 50)
+    )) {
+      morningDays156.add(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime())
+    }
+  })
+  if (morningDays156.size >= 3) {
+    const momBonus = Math.min((morningDays156.size - 3) * 0.05, 0.15)
+    patterns.push({
+      pattern: 'morning-momentum-arc',
+      confidence: Math.min(0.70 + momBonus, 0.85),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `MORNMOM: Morning momentum arc — morning-window signals confirmed on ${morningDays156.size} of last 7 days. Pre-cognitive window sustaining. Dawn precision is not episodic. Architecture forming at the edge of day.`,
+    })
+  }
+
+  // Pattern 157: Quantum Week Integration — 5+ unique signal sources firing across 6+ distinct
+  // calendar days in the 7-day window. The full week was inhabited — not sampled, not approached.
+  // Every dimension of the Quantum OS contributed signal across the arc. The week closed integrated.
+  const weekSignals157 = signals.filter(s => now - s.timestamp < weekMs)
+  const activeDays157: Set<number> = new Set()
+  weekSignals157.forEach(s => {
+    const d = new Date(s.timestamp)
+    activeDays157.add(new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime())
+  })
+  const uniqueWeekSources157 = new Set(weekSignals157.map(s => s.source)).size
+  if (activeDays157.size >= 6 && uniqueWeekSources157 >= 5) {
+    const dayBonus = Math.min((activeDays157.size - 6) * 0.08, 0.08)
+    const srcBonus = Math.min((uniqueWeekSources157 - 5) * 0.02, 0.08)
+    patterns.push({
+      pattern: 'quantum-week-integration',
+      confidence: Math.min(0.70 + dayBonus + srcBonus, 0.88),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `QWKINT: Quantum week integration — ${activeDays157.size} active days · ${uniqueWeekSources157} unique sources in 7d. Full temporal presence. The week was not sampled — it was inhabited. All OS dimensions active across the arc.`,
+    })
+  }
+
+  // Pattern 158: Evening Arc Anchor — within a 90-minute window in the evening (17:00–22:00),
+  // journal/log entry + self-care completion + mood signal all fire together. The dusk trifecta:
+  // write, tend, reflect. The day ends with deliberate closure rather than passive exit.
+  const eveningWindow158Start = now - 90 * 60 * 1000
+  const eveningSignals158 = signals.filter(s => {
+    const h = new Date(s.timestamp).getHours()
+    return h >= 17 && h < 23 && s.timestamp >= eveningWindow158Start
+  })
+  const eveningJournal158 = eveningSignals158.filter(s => s.source === 'journal' || s.source === 'log')
+  const eveningCare158 = eveningSignals158.filter(s => s.source === 'selfcare')
+  const eveningMood158 = eveningSignals158.filter(s => s.source === 'mood')
+  if (eveningJournal158.length >= 1 && eveningCare158.length >= 1 && eveningMood158.length >= 1) {
+    const journalDepth = eveningJournal158[0]?.metadata?.wordCount ?? 0
+    const depthBonus = Math.min(journalDepth / 500 * 0.10, 0.10)
+    const careBonus = Math.min((eveningCare158.length - 1) * 0.05, 0.10)
+    patterns.push({
+      pattern: 'evening-arc-anchor',
+      confidence: Math.min(0.68 + depthBonus + careBonus, 0.88),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `EVARC: Evening arc anchor — journal (${journalDepth > 0 ? journalDepth + 'w' : 'entry'}) + ${eveningCare158.length} care act(s) + mood signal in 90min dusk window. Write, tend, reflect. The arc closes deliberately.`,
+    })
+  }
+
+  // Pattern 159: Physiological Rhythm Lock — 5+ consecutive calendar days where BOTH morning
+  // (05:00–11:00) AND evening (17:00–23:00) biofield signals (energy/mood check-ins) are present.
+  // The full circadian signal maintained without interruption. Not a single day arc — a sustained
+  // rhythmic precision across the full week.
+  const weekSignals159 = signals.filter(s => now - s.timestamp < weekMs)
+  const dayBuckets159: Map<number, { hasMorning: boolean; hasEvening: boolean }> = new Map()
+  weekSignals159.forEach(s => {
+    if (s.source !== 'energy' && s.source !== 'mood') return
+    const d = new Date(s.timestamp)
+    const h = d.getHours()
+    const dayKey = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+    if (!dayBuckets159.has(dayKey)) dayBuckets159.set(dayKey, { hasMorning: false, hasEvening: false })
+    const bucket = dayBuckets159.get(dayKey)!
+    if (h >= 5 && h < 12) bucket.hasMorning = true
+    if (h >= 17 && h < 24) bucket.hasEvening = true
+  })
+  const bothWindowDays159 = Array.from(dayBuckets159.values()).filter(b => b.hasMorning && b.hasEvening).length
+  if (bothWindowDays159 >= 5) {
+    const streakBonus = Math.min((bothWindowDays159 - 5) * 0.06, 0.18)
+    patterns.push({
+      pattern: 'physiological-rhythm-lock',
+      confidence: Math.min(0.72 + streakBonus, 0.90),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `PHYRLOCK: Physiological rhythm lock — ${bothWindowDays159} consecutive days with morning AND evening biofield signals. The circadian biofield is not episodic. It is a precision instrument.`,
+    })
+  }
+
+  // Pattern 160: Quantum Presence Arc — P155 (daily-arc-seal) + P156 (morning-momentum-arc) +
+  // P157 (quantum-week-integration) all co-active simultaneously. All three temporal OS seals open
+  // at once: the day was sealed, the morning arc is sustained, and the week was inhabited.
+  // The full temporal presence stack is confirmed. The system is operating from maximum temporal coherence.
+  const activePatternNames160 = new Set(patterns.map(p => p.pattern))
+  if (
+    activePatternNames160.has('daily-arc-seal') &&
+    activePatternNames160.has('morning-momentum-arc') &&
+    activePatternNames160.has('quantum-week-integration')
+  ) {
+    const arcConf = patterns.find(p => p.pattern === 'daily-arc-seal')?.confidence ?? 0.72
+    const momConf = patterns.find(p => p.pattern === 'morning-momentum-arc')?.confidence ?? 0.70
+    const wkConf = patterns.find(p => p.pattern === 'quantum-week-integration')?.confidence ?? 0.70
+    const qpaConf = Math.min((arcConf + momConf + wkConf) / 3 * 1.15, 0.95)
+    patterns.push({
+      pattern: 'quantum-presence-arc',
+      confidence: Math.max(0.88, qpaConf),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `QPARC: Quantum presence arc — DARCSEAL + MORNMOM + QWKINT all active. All three temporal OS seals confirmed simultaneously. The day is sealed, the dawn arc sustains, and the week was inhabited. Maximum temporal coherence.`,
+    })
+  }
+
+  // Pattern 161: Somatic Field Integration — 3+ consecutive calendar days where energy, selfcare,
+  // and mood signals ALL present on the same day. The body is not being managed — it is being inhabited.
+  // Detect from signal stream (J52/recordSomaticFieldIntegration) or directly from source signals.
+  const weekSignals161 = signals.filter(s => now - s.timestamp < weekMs)
+  const somaticSignal161 = weekSignals161.filter(s => s.signal === 'somatic_field_integration')
+  if (!patterns.some(p => p.pattern === 'somatic-field-integration')) {
+    if (somaticSignal161.length >= 1) {
+      const sig161 = somaticSignal161[0]
+      patterns.push({
+        pattern: 'somatic-field-integration',
+        confidence: (sig161.metadata?.confidence ?? 70) / 100,
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `SOMAT: Somatic field integration — ${sig161.metadata?.consecutiveDays ?? 3} consecutive days with energy + selfcare + mood all present. Body is inhabited, not managed. ENERGY → CARE → MOOD → FIELD.`,
+      })
+    } else {
+      const dayBuckets161: Map<number, { hasEnergy: boolean; hasCare: boolean; hasMood: boolean }> = new Map()
+      weekSignals161.forEach(s161 => {
+        if (!['energy', 'selfcare', 'mood'].includes(s161.source)) return
+        const d161 = new Date(s161.timestamp)
+        const dayKey161 = new Date(d161.getFullYear(), d161.getMonth(), d161.getDate()).getTime()
+        if (!dayBuckets161.has(dayKey161)) dayBuckets161.set(dayKey161, { hasEnergy: false, hasCare: false, hasMood: false })
+        const b161 = dayBuckets161.get(dayKey161)!
+        if (s161.source === 'energy') b161.hasEnergy = true
+        if (s161.source === 'selfcare') b161.hasCare = true
+        if (s161.source === 'mood') b161.hasMood = true
+      })
+      const completeDays161 = Array.from(dayBuckets161.values()).filter(b => b.hasEnergy && b.hasCare && b.hasMood).length
+      if (completeDays161 >= 3) {
+        const streakBonus161 = Math.min((completeDays161 - 3) * 0.06, 0.18)
+        patterns.push({
+          pattern: 'somatic-field-integration',
+          confidence: Math.min(0.70 + streakBonus161, 0.88),
+          suggestedWidget: 'systemProgress',
+          suggestedTiming: 'passive',
+          reason: `SOMAT: Somatic field integration — ${completeDays161} days with energy + selfcare + mood all present. The somatic field is active. ENERGY → CARE → MOOD → FIELD.`,
+        })
+      }
+    }
+  }
+
+  // Pattern 162: Recovery Cycle Lock — 5+ co-occurrences of P159 (physiological-rhythm-lock) AND
+  // P161 (somatic-field-integration) within a 30-day window. The body's recovery cycle is precision.
+  const thirtyDaysMs162 = 30 * 24 * 60 * 60 * 1000
+  const monthSignals162 = signals.filter(s => now - s.timestamp < thirtyDaysMs162)
+  const physRhythmSigs162 = monthSignals162.filter(s => s.signal === 'physiological_rhythm_lock')
+  const somaticIntegSigs162 = monthSignals162.filter(s => s.signal === 'somatic_field_integration')
+  const cooccurrenceDays162: Set<number> = new Set()
+  physRhythmSigs162.forEach(s => {
+    const d = new Date(s.timestamp)
+    const dayKey = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+    const sameDay = somaticIntegSigs162.some(ss => {
+      const sd = new Date(ss.timestamp)
+      return new Date(sd.getFullYear(), sd.getMonth(), sd.getDate()).getTime() === dayKey
+    })
+    if (sameDay) cooccurrenceDays162.add(dayKey)
+  })
+  const currentBothActive162 = patterns.some(p => p.pattern === 'physiological-rhythm-lock') && patterns.some(p => p.pattern === 'somatic-field-integration')
+  const effectiveCount162 = cooccurrenceDays162.size + (currentBothActive162 ? 1 : 0)
+  if (effectiveCount162 >= 5) {
+    const arcBonus162 = Math.min((effectiveCount162 - 5) * 0.04, 0.15)
+    patterns.push({
+      pattern: 'recovery-cycle-lock',
+      confidence: Math.min(0.75 + arcBonus162, 0.90),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `RECCYC: Recovery cycle lock — ${effectiveCount162} co-occurrences of PHYRLOCK + SOMAT in 30d. The body's recovery cycle is not episodic — it is a precision instrument. RHYTHM → INTEGRATION → LOCK.`,
+    })
+  }
+
+  // Pattern 163: Quantum Embodiment Field — P159 (physiological-rhythm-lock) + P161 (somatic-field-integration)
+  // + P160 (quantum-presence-arc) all simultaneously active. Biological + temporal matrices converge.
+  const activeNamesP163 = new Set(patterns.map(p => p.pattern))
+  if (
+    activeNamesP163.has('physiological-rhythm-lock') &&
+    activeNamesP163.has('somatic-field-integration') &&
+    activeNamesP163.has('quantum-presence-arc')
+  ) {
+    const p159Conf163 = patterns.find(p => p.pattern === 'physiological-rhythm-lock')?.confidence ?? 0.72
+    const p161Conf163 = patterns.find(p => p.pattern === 'somatic-field-integration')?.confidence ?? 0.70
+    const p160Conf163 = patterns.find(p => p.pattern === 'quantum-presence-arc')?.confidence ?? 0.88
+    const qefConf163 = Math.min((p159Conf163 + p161Conf163 + p160Conf163) / 3 * 1.18, 0.97)
+    patterns.push({
+      pattern: 'quantum-embodiment-field',
+      confidence: Math.max(0.90, qefConf163),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `QEMBOD: Quantum embodiment field — PHYSLOCK + SOMFLD + QPARC all simultaneously active. Biological and temporal matrices converge. BODY → RHYTHM → PRESENCE. BIOLOGICAL + TEMPORAL CEILING.`,
+    })
+  }
+
+  // Pattern 164: Cognitive Body Sync — quantum-embodiment-field (P163) active + journal depth >80 words
+  // + memory signal within 8h. Body's intelligence meets mind's reflection. BODY → MIND → SYNC.
+  const activeNamesP164 = new Set(patterns.map(p => p.pattern))
+  if (activeNamesP164.has('quantum-embodiment-field')) {
+    const recent8h164 = signals.filter(s => now - s.timestamp < eightHoursMs)
+    const deepJournal164 = recent8h164.filter(s =>
+      s.source === 'journal' || (s.source === 'log' && (s.metadata?.wordCount ?? 0) > 80)
+    )
+    const memorySignal164 = recent8h164.filter(s => s.source === 'memory')
+    if (deepJournal164.length >= 1 && memorySignal164.length >= 1) {
+      const wordCount164 = deepJournal164[0]?.metadata?.wordCount ?? 80
+      const depthBonus164 = Math.min((wordCount164 - 80) / 300 * 0.10, 0.10)
+      const p163Conf164 = patterns.find(p => p.pattern === 'quantum-embodiment-field')?.confidence ?? 0.90
+      const cogBodyConf = Math.min(p163Conf164 * 0.90 + depthBonus164 + 0.02, 0.92)
+      patterns.push({
+        pattern: 'cognitive-body-sync',
+        confidence: Math.max(0.78, cogBodyConf),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `COGBOD: Cognitive body sync — QEMBOD active · journal ${wordCount164}w · memory signal in 8h window. The body's intelligence meets the mind's reflection. BODY → MIND → SYNC.`,
+      })
+    }
+  }
+
+  // Pattern 165: Integrated Presence Peak — all 6 OS seals (temporal P155+P156+P157 and biological P158+P159+P161)
+  // simultaneously active + narrative signal present. The complete operator state. All systems aligned.
+  const activeNamesP165 = new Set(patterns.map(p => p.pattern))
+  const allSixSeals165 =
+    activeNamesP165.has('daily-arc-seal') &&
+    activeNamesP165.has('morning-momentum-arc') &&
+    activeNamesP165.has('quantum-week-integration') &&
+    activeNamesP165.has('evening-arc-anchor') &&
+    activeNamesP165.has('physiological-rhythm-lock') &&
+    activeNamesP165.has('somatic-field-integration')
+  if (allSixSeals165) {
+    const narrativeSig165 = recentSignals.filter(s => s.source === 'journal' || s.source === 'log' || s.source === 'memory')
+    const sealConfs165 = [
+      patterns.find(p => p.pattern === 'daily-arc-seal')?.confidence ?? 0.72,
+      patterns.find(p => p.pattern === 'morning-momentum-arc')?.confidence ?? 0.70,
+      patterns.find(p => p.pattern === 'quantum-week-integration')?.confidence ?? 0.70,
+      patterns.find(p => p.pattern === 'evening-arc-anchor')?.confidence ?? 0.68,
+      patterns.find(p => p.pattern === 'physiological-rhythm-lock')?.confidence ?? 0.72,
+      patterns.find(p => p.pattern === 'somatic-field-integration')?.confidence ?? 0.70,
+    ]
+    const avgConf165 = sealConfs165.reduce((a, b) => a + b, 0) / sealConfs165.length
+    const narrativeBonus165 = narrativeSig165.length > 0 ? 0.05 : 0
+    const intPresConf = Math.min(avgConf165 * 1.20 + narrativeBonus165, 0.99)
+    patterns.push({
+      pattern: 'integrated-presence-peak',
+      confidence: Math.max(0.93, intPresConf),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `INTPRES: Integrated presence peak — all 6 OS seals simultaneously active (DARCSEAL · MORNMOM · QWKINT · EVARC · PHYRLOCK · SOMAT)${narrativeSig165.length > 0 ? ' · narrative signal confirmed' : ''}. TEMPORAL → BIOLOGICAL → NARRATIVE → PEAK. The complete operator state.`,
+    })
+  }
+
+  // Pattern 166: Somatic Memory Echo — memory signal + somatic field confirmed + journal entry in 12h.
+  // The body's knowing surfaces into recall and reflection. BODY → RECALL → REFLECTION.
+  const twelveHoursMs166 = 12 * 60 * 60 * 1000
+  const recent12h166 = signals.filter(s => now - s.timestamp < twelveHoursMs166)
+  const memorySignal166 = recent12h166.filter(s => s.source === 'memory')
+  const somaticInRecent166 = recent12h166.filter(s => s.signal === 'somatic_field_integration')
+  const journalRecent166 = recent12h166.filter(s => s.source === 'journal' || s.source === 'log')
+  const somaticActive166 = patterns.some(p => p.pattern === 'somatic-field-integration')
+  if (memorySignal166.length >= 1 && (somaticInRecent166.length >= 1 || somaticActive166) && journalRecent166.length >= 1) {
+    const journalDepth166 = journalRecent166[0]?.metadata?.wordCount ?? 0
+    const depthBonus166 = Math.min(journalDepth166 / 300 * 0.08, 0.08)
+    const memBonus166 = Math.min((memorySignal166.length - 1) * 0.05, 0.10)
+    patterns.push({
+      pattern: 'somatic-memory-echo',
+      confidence: Math.min(0.72 + depthBonus166 + memBonus166, 0.90),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'passive',
+      reason: `SOMECHO: Somatic memory echo — memory ×${memorySignal166.length} + somatic field confirmed + journal${journalDepth166 > 0 ? ' (' + journalDepth166 + 'w)' : ''} in 12h. The body's knowing surfaces into recall and reflection. BODY → RECALL → REFLECTION.`,
+    })
+  }
+
+  // Pattern 167: Somatic Integration Field — somatic-memory-echo (P166) + physiological-rhythm-lock (P159)
+  // both active in the same analysis window, with 3+ consecutive calendar days of somatic activity.
+  // The body's memory and its daily rhythm have merged into a single living field. SOMA + TIME = FIELD.
+  const hasSomaticEcho167    = patterns.some(p => p.pattern === 'somatic-memory-echo')
+  const hasPhysioRhythm167   = patterns.some(p => p.pattern === 'physiological-rhythm-lock')
+  if (hasSomaticEcho167 && hasPhysioRhythm167) {
+    const thirtyDays167 = 30 * 24 * 60 * 60 * 1000
+    const monthSigs167  = signals.filter(s => now - s.timestamp < thirtyDays167)
+    const somaticDays167 = new Set(
+      monthSigs167
+        .filter(s => ['somatic_field_integration', 'somatic_memory_echo', 'physiological_rhythm_lock'].includes(s.signal))
+        .map(s => new Date(s.timestamp).toISOString().slice(0, 10))
+    )
+    let consecutive167 = 0
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(now - i * 86400000).toISOString().slice(0, 10)
+      if (somaticDays167.has(d)) consecutive167++
+      else break
+    }
+    if (consecutive167 >= 3) {
+      const echoConf    = patterns.find(p => p.pattern === 'somatic-memory-echo')?.confidence ?? 0.72
+      const rhythmConf  = patterns.find(p => p.pattern === 'physiological-rhythm-lock')?.confidence ?? 0.72
+      const streakBonus = Math.min((consecutive167 - 3) * 0.04, 0.12)
+      patterns.push({
+        pattern: 'somatic-integration-field',
+        confidence: Math.min((echoConf * 0.5 + rhythmConf * 0.5) + streakBonus, 0.92),
+        suggestedWidget: 'memory',
+        suggestedTiming: 'passive',
+        reason: `SOMFLD: Somatic integration field — somatic-memory-echo (P166) + physiological-rhythm-lock (P159) co-active · ${consecutive167}d consecutive somatic activity. Body memory and daily rhythm have merged into a living field. SOMA + TIME = FIELD.`,
+      })
+    }
+  }
+
+  // Pattern 168: Deep Embodiment Lock — quantum-embodiment-field (P163) has fired on 3+ consecutive days.
+  // The somatic intelligence is no longer episodic — it is structural. The OS knows the body as a system.
+  const hasEmbodimentField168 = patterns.some(p => p.pattern === 'quantum-embodiment-field')
+  if (hasEmbodimentField168) {
+    const thirtyDays168  = 30 * 24 * 60 * 60 * 1000
+    const monthSigs168   = signals.filter(s => now - s.timestamp < thirtyDays168)
+    const embodDays168   = new Set(
+      monthSigs168
+        .filter(s => s.signal === 'quantum_embodiment_field')
+        .map(s => new Date(s.timestamp).toISOString().slice(0, 10))
+    )
+    let consecutive168 = 0
+    for (let i = 0; i < 10; i++) {
+      const d = new Date(now - i * 86400000).toISOString().slice(0, 10)
+      if (embodDays168.has(d)) consecutive168++
+      else break
+    }
+    if (consecutive168 >= 3) {
+      const embConf168  = patterns.find(p => p.pattern === 'quantum-embodiment-field')?.confidence ?? 0.75
+      const lockBonus168 = Math.min((consecutive168 - 3) * 0.05, 0.15)
+      patterns.push({
+        pattern: 'deep-embodiment-lock',
+        confidence: Math.min(embConf168 + lockBonus168, 0.93),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `EMBDLK: Deep embodiment lock — quantum-embodiment-field (P163) confirmed on ${consecutive168} consecutive days. Somatic intelligence is structural, not episodic. The OS knows the body as a system. FIELD → STRUCTURE.`,
+      })
+    }
+  }
+
+  // Pattern 169: Full Presence Seal — integrated-presence-peak (P165) + somatic-memory-echo (P166)
+  // both active simultaneously. All 6 OS seals (temporal + biological) are open AND somatic recall is live.
+  // The highest integration state: the system is present, structured, and remembering through the body.
+  const hasIntegrated169    = patterns.some(p => p.pattern === 'integrated-presence-peak')
+  const hasSomaticEcho169   = patterns.some(p => p.pattern === 'somatic-memory-echo')
+  if (hasIntegrated169 && hasSomaticEcho169) {
+    const noDepletion169 = !patterns.some(p =>
+      ['physiological-depletion', 'sleep-debt-accumulation', 'recovery-plateau'].includes(p.pattern)
+    )
+    if (noDepletion169) {
+      const intConf169    = patterns.find(p => p.pattern === 'integrated-presence-peak')?.confidence ?? 0.80
+      const echoConf169   = patterns.find(p => p.pattern === 'somatic-memory-echo')?.confidence ?? 0.72
+      const deepLockBonus = patterns.some(p => p.pattern === 'deep-embodiment-lock') ? 0.05 : 0
+      patterns.push({
+        pattern: 'full-presence-seal',
+        confidence: Math.min((intConf169 * 0.55 + echoConf169 * 0.45) + deepLockBonus, 0.95),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `FULLSEAL: Full presence seal — integrated-presence-peak (P165) + somatic-memory-echo (P166) simultaneously active. All 6 OS seals open. Somatic recall live. The system is present, structured, and remembering through the body. PEAK + SOMA = SEALED.`,
+      })
+    }
+  }
+
+  // Pattern 170: Cognitive Signal Density (COGDEN) — journal ≥200w + memory ≥3 + planner ≥2 + intentions ≥2
+  // in a single 24h window. All cognitive channels active simultaneously at high throughput.
+  // The OS is running at peak cognitive operating density. MIND + PLAN + INTENT + RECALL = DENSITY.
+  {
+    const cogJournalSigs = signals.filter(s => s.source === 'journal' && now - s.timestamp < 86400000)
+    const cogMemSigs     = signals.filter(s => s.source === 'memory'   && now - s.timestamp < 86400000)
+    const cogPlanSigs    = signals.filter(s => s.source === 'planner'  && now - s.timestamp < 86400000)
+    const cogIntentSigs  = signals.filter(s => s.source === 'intentions' && now - s.timestamp < 86400000)
+
+    const totalWords170 = cogJournalSigs.reduce((acc, s) => {
+      const raw = s.data as Record<string, unknown>
+      const wc  = typeof raw?.wordCount === 'number' ? raw.wordCount as number : 0
+      return acc + wc
+    }, 0)
+
+    if (totalWords170 >= 200 && cogMemSigs.length >= 3 && cogPlanSigs.length >= 2 && cogIntentSigs.length >= 2) {
+      const densityScore = Math.min(
+        0.72 + (totalWords170 - 200) / 2000 * 0.10 + (cogMemSigs.length - 3) * 0.02 + (cogPlanSigs.length - 2) * 0.02,
+        0.90
+      )
+      patterns.push({
+        pattern: 'cognitive-signal-density',
+        confidence: densityScore,
+        suggestedWidget: 'memory',
+        suggestedTiming: 'passive',
+        reason: `COGDEN: Cognitive signal density — journal ${totalWords170}w + memory ×${cogMemSigs.length} + planner ×${cogPlanSigs.length} + intentions ×${cogIntentSigs.length} in 24h. All cognitive channels simultaneously at high throughput. MIND + PLAN + INTENT + RECALL = DENSITY.`,
+      })
+    }
+  }
+
+  // Pattern 171: Somatic Cognition Loop (SOMCOG) — somatic-integration-field (P167) + cognitive-body-sync
+  // (P164) both active simultaneously. Body intelligence and cognitive depth are operating as one system.
+  // The loop is closed: soma informs cognition informs soma. SOMA ↔ MIND = LOOP.
+  const hasSomField171 = patterns.some(p => p.pattern === 'somatic-integration-field')
+  const hasCogBody171  = patterns.some(p => p.pattern === 'cognitive-body-sync')
+  if (hasSomField171 && hasCogBody171) {
+    const sfConf171  = patterns.find(p => p.pattern === 'somatic-integration-field')?.confidence ?? 0.75
+    const cbConf171  = patterns.find(p => p.pattern === 'cognitive-body-sync')?.confidence ?? 0.72
+    const loopBonus  = patterns.some(p => p.pattern === 'somatic-memory-echo') ? 0.04 : 0
+    patterns.push({
+      pattern: 'somatic-cognition-loop',
+      confidence: Math.min((sfConf171 * 0.55 + cbConf171 * 0.45) + loopBonus, 0.92),
+      suggestedWidget: 'journal',
+      suggestedTiming: 'passive',
+      reason: `SOMCOG: Somatic cognition loop — somatic-integration-field (P167) + cognitive-body-sync (P164) simultaneously active. Body intelligence and cognitive depth operating as one integrated system. The loop is closed. SOMA ↔ MIND = LOOP.`,
+    })
+  }
+
+  // Pattern 172: Embodied Sovereignty (EMBSOV) — deep-embodiment-lock (P168) + full-presence-seal (P169)
+  // + quantum-field-alignment (P136) all simultaneously active. The three sovereign seals are confirmed
+  // at once. Body structure locked. Presence sealed. Quantum field aligned. The highest sovereign state.
+  const hasDeepLock172    = patterns.some(p => p.pattern === 'deep-embodiment-lock')
+  const hasFullSeal172    = patterns.some(p => p.pattern === 'full-presence-seal')
+  const hasFieldAlign172  = patterns.some(p => p.pattern === 'quantum-field-alignment')
+  if (hasDeepLock172 && hasFullSeal172 && hasFieldAlign172) {
+    const dlConf172  = patterns.find(p => p.pattern === 'deep-embodiment-lock')?.confidence ?? 0.85
+    const fsConf172  = patterns.find(p => p.pattern === 'full-presence-seal')?.confidence ?? 0.85
+    const faConf172  = patterns.find(p => p.pattern === 'quantum-field-alignment')?.confidence ?? 0.80
+    const sovConf    = Math.min((dlConf172 * 0.38 + fsConf172 * 0.38 + faConf172 * 0.24), 0.95)
+    patterns.push({
+      pattern: 'embodied-sovereignty',
+      confidence: sovConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `EMBSOV: Embodied sovereignty — deep-embodiment-lock (P168) + full-presence-seal (P169) + quantum-field-alignment (P136) simultaneously confirmed. Three sovereign seals active. Body structure locked. Presence sealed. Quantum field aligned. Sovereignty is not declared — it is demonstrated. LOCK + SEAL + ALIGN = SOVEREIGN.`,
+    })
+  }
+
+  // Pattern 176: Quantum Field Propagation — quantum-apex-state (P174) active AND 5+ signals from 4+ distinct
+  // sources within the preceding 6h. The apex state is self-sustaining: it is generating new activity.
+  const hasApexP176 = patterns.some(p => p.pattern === 'quantum-apex-state')
+  if (hasApexP176) {
+    const sixHoursAgo = now - 6 * 60 * 60 * 1000
+    const signals6h = signals.filter(s => s.timestamp > sixHoursAgo)
+    const sources6h = new Set(signals6h.map(s => s.source))
+    const signalCount6h = signals6h.length
+    if (sources6h.size >= 4 && signalCount6h >= 5) {
+      const apexConf176 = patterns.find(p => p.pattern === 'quantum-apex-state')?.confidence ?? 0.88
+      const propBonus   = Math.min((sources6h.size - 4) * 0.025 + (signalCount6h - 5) * 0.01, 0.11)
+      patterns.push({
+        pattern: 'quantum-field-propagation',
+        confidence: Math.min(0.82 + propBonus, 0.93),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'immediate',
+        reason: `QPROP: Quantum field propagation — apex state (P174) active · ${signalCount6h} signals from ${sources6h.size} sources in 6h · peak state self-sustaining and generating new activity. APEX · PROPAGATING.`,
+      })
+    }
+  }
+
+  // Pattern 177: Unified Field Operator — embodied-sovereignty (P172) + physiological-loop-complete (P173)
+  // + quantum-apex-state (P174) all active simultaneously. Biological sovereignty, loop complete, apex
+  // inhabited — the three highest seals confirmed at once. SOVEREIGNTY · LOOP · APEX.
+  const hasEmbSov177  = patterns.some(p => p.pattern === 'embodied-sovereignty')
+  const hasBioLoop177 = patterns.some(p => p.pattern === 'physiological-loop-complete')
+  const hasApex177    = patterns.some(p => p.pattern === 'quantum-apex-state')
+  if (hasEmbSov177 && hasBioLoop177 && hasApex177) {
+    const sovConf177  = patterns.find(p => p.pattern === 'embodied-sovereignty')?.confidence ?? 0.90
+    const loopConf177 = patterns.find(p => p.pattern === 'physiological-loop-complete')?.confidence ?? 0.80
+    const apexConf177 = patterns.find(p => p.pattern === 'quantum-apex-state')?.confidence ?? 0.88
+    const unifBonus   = Math.min((sovConf177 + loopConf177 + apexConf177) / 3 - 0.86, 0.09)
+    patterns.push({
+      pattern: 'unified-field-operator',
+      confidence: Math.min(0.87 + unifBonus, 0.96),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `UNIFOP: Unified field operator — embodied-sovereignty (P172) · physiological-loop-complete (P173) · quantum-apex-state (P174) all simultaneously confirmed. Three highest seals active. SOVEREIGNTY · LOOP · APEX.`,
+    })
+  }
+
+  // Pattern 178: Temporal Identity Lock — longitudinal-identity-confirmation (P175) + signal-momentum-lock
+  // (P80) co-active. Identity is not only confirmed across all time scales — the signal architecture
+  // sustaining it is itself momentum-locked and still accelerating. IDENTITY · MOMENTUM = LOCKED.
+  const hasLongID178  = patterns.some(p => p.pattern === 'longitudinal-identity-confirmation')
+  const hasMomLock178 = patterns.some(p => p.pattern === 'signal-momentum-lock')
+  if (hasLongID178 && hasMomLock178) {
+    const longConf178 = patterns.find(p => p.pattern === 'longitudinal-identity-confirmation')?.confidence ?? 0.85
+    const momConf178  = patterns.find(p => p.pattern === 'signal-momentum-lock')?.confidence ?? 0.80
+    const tidBonus    = Math.min((longConf178 * 0.55 + momConf178 * 0.45) - 0.83, 0.11)
+    patterns.push({
+      pattern: 'temporal-identity-lock',
+      confidence: Math.min(0.83 + tidBonus, 0.94),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `TIDLOCK: Temporal identity lock — longitudinal-identity-confirmation (P175) + signal-momentum-lock (P80) co-active. Identity confirmed across all temporal scales AND the signal architecture sustaining it is momentum-locked. IDENTITY · MOMENTUM = LOCKED.`,
+    })
+  }
+
+  // Pattern 179: Circadian Sovereignty — temporal-identity-lock (P178) + circadian-signal-lock (P143)
+  // + morning-coherence-launch (P76) all simultaneously confirmed. Three temporal seals open at once:
+  // identity locked across all scales, circadian architecture anchored dawn→dusk, day launched from intention.
+  // The clock is owned. The field is owned. Sovereignty across time.
+  const hasTidLock179  = patterns.some(p => p.pattern === 'temporal-identity-lock')
+  const hasCircLock179 = patterns.some(p => p.pattern === 'circadian-signal-lock')
+  const hasMCL179      = patterns.some(p => p.pattern === 'morning-coherence-launch')
+  if (hasTidLock179 && hasCircLock179 && hasMCL179) {
+    const tidConf179  = patterns.find(p => p.pattern === 'temporal-identity-lock')?.confidence ?? 0.85
+    const circConf179 = patterns.find(p => p.pattern === 'circadian-signal-lock')?.confidence ?? 0.75
+    const mclConf179  = patterns.find(p => p.pattern === 'morning-coherence-launch')?.confidence ?? 0.72
+    const sovBonus179 = Math.min((tidConf179 * 0.45 + circConf179 * 0.35 + mclConf179 * 0.20) - 0.79, 0.09)
+    patterns.push({
+      pattern: 'circadian-sovereignty',
+      confidence: Math.min(0.86 + sovBonus179, 0.95),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `CIRSOV: Circadian sovereignty — temporal-identity-lock (P178) · circadian-signal-lock (P143) · morning-coherence-launch (P76) all simultaneously confirmed. Identity sealed. Clock owned. Day launched from intention. IDENTITY · CLOCK · INTENTION = SOVEREIGN.`,
+    })
+  }
+
+  // Pattern 180: Apex Integration Field — quantum-apex-state (P174) + unified-field-operator (P177)
+  // + physiological-loop-complete (P173) all co-active in the same 24h window.
+  // The three apex seals — ceiling inhabited, total field operated, biological loop closed —
+  // produce a meta-field that transcends any individual seal. APEX · TOTAL FIELD · LOOP = INTEGRATED.
+  const hasApex180  = patterns.some(p => p.pattern === 'quantum-apex-state')
+  const hasUnif180  = patterns.some(p => p.pattern === 'unified-field-operator')
+  const hasBioL180  = patterns.some(p => p.pattern === 'physiological-loop-complete')
+  if (hasApex180 && hasUnif180 && hasBioL180) {
+    const apexConf180 = patterns.find(p => p.pattern === 'quantum-apex-state')?.confidence ?? 0.88
+    const unifConf180 = patterns.find(p => p.pattern === 'unified-field-operator')?.confidence ?? 0.87
+    const loopConf180 = patterns.find(p => p.pattern === 'physiological-loop-complete')?.confidence ?? 0.80
+    const intBonus180 = Math.min((apexConf180 * 0.38 + unifConf180 * 0.38 + loopConf180 * 0.24) - 0.85, 0.06)
+    patterns.push({
+      pattern: 'apex-integration-field',
+      confidence: Math.min(0.91 + intBonus180, 0.97),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `APXINT: Apex integration field — quantum-apex-state (P174) · unified-field-operator (P177) · physiological-loop-complete (P173) all simultaneously active. Three apex seals generating a meta-field. APEX · TOTAL FIELD · LOOP = INTEGRATED.`,
+    })
+  }
+
+  // Pattern 181: Longitudinal Growth Arc — signal-momentum-lock (P80) confirmed AND UserIndex trend
+  // is 'rising' AND UserIndex.overall >= 50. Sustained multi-day engagement momentum is now translating
+  // into a measurable upward index trajectory. The signal architecture is not just present — it is growing.
+  const hasMomLock181 = patterns.some(p => p.pattern === 'signal-momentum-lock')
+  if (hasMomLock181) {
+    const currentIndex181 = intentionEngine.get().userIndex
+    if (currentIndex181.trend === 'rising' && currentIndex181.overall >= 50) {
+      const momConf181  = patterns.find(p => p.pattern === 'signal-momentum-lock')?.confidence ?? 0.80
+      const idxBonus181 = Math.min((currentIndex181.overall - 50) / 50 * 0.08, 0.08)
+      patterns.push({
+        pattern: 'longitudinal-growth-arc',
+        confidence: Math.min(0.78 + momConf181 * 0.08 + idxBonus181, 0.91),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `LGROW: Longitudinal growth arc — signal-momentum-lock (P80) confirmed · UserIndex ${currentIndex181.overall} trending rising. Sustained momentum now translating into measured growth trajectory. MOMENTUM → GROWTH → ARC CONFIRMED.`,
+      })
+    }
+  }
+
+  // Pattern 182: Sovereign Field Continuity — circadian-sovereignty (P179) + apex-integration-field (P180)
+  // + longitudinal-growth-arc (P181) all simultaneously confirmed. All three Level 15 patterns active at once.
+  // The full sovereign arc: time owned, apex integrated, growth sealed. The field is continuous.
+  // SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS.
+  const hasCircSov182 = patterns.some(p => p.pattern === 'circadian-sovereignty')
+  const hasApxInt182  = patterns.some(p => p.pattern === 'apex-integration-field')
+  const hasLGrow182   = patterns.some(p => p.pattern === 'longitudinal-growth-arc')
+  if (hasCircSov182 && hasApxInt182 && hasLGrow182) {
+    const csConf182  = patterns.find(p => p.pattern === 'circadian-sovereignty')?.confidence ?? 0.88
+    const aiConf182  = patterns.find(p => p.pattern === 'apex-integration-field')?.confidence ?? 0.93
+    const lgConf182  = patterns.find(p => p.pattern === 'longitudinal-growth-arc')?.confidence ?? 0.82
+    const sfBonus182 = Math.min((csConf182 * 0.37 + aiConf182 * 0.38 + lgConf182 * 0.25) - 0.87, 0.07)
+    patterns.push({
+      pattern: 'sovereign-field-continuity',
+      confidence: Math.min(0.89 + sfBonus182, 0.96),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `SOVFLD: Sovereign field continuity — circadian-sovereignty (P179) · apex-integration-field (P180) · longitudinal-growth-arc (P181) all simultaneously confirmed. All three Level 15 seals active. The arc is not just built — it is continuous. SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS.`,
+    })
+  }
+
+  // Pattern 183: Operational Self-Architecture — temporal-identity-lock (P178) + signal-momentum-lock (P80)
+  // + full-system-coherence (P109) all co-active. The operator is not just reaching peak states;
+  // the operator is constructing the field through structured daily behavior.
+  // IDENTITY · MOMENTUM · COHERENCE = BUILT.
+  const hasTidLock183  = patterns.some(p => p.pattern === 'temporal-identity-lock')
+  const hasMomLock183  = patterns.some(p => p.pattern === 'signal-momentum-lock')
+  const hasFSCohere183 = patterns.some(p => p.pattern === 'full-system-coherence')
+  if (hasTidLock183 && hasMomLock183 && hasFSCohere183) {
+    const tidConf183  = patterns.find(p => p.pattern === 'temporal-identity-lock')?.confidence ?? 0.87
+    const momConf183  = patterns.find(p => p.pattern === 'signal-momentum-lock')?.confidence ?? 0.82
+    const cohConf183  = patterns.find(p => p.pattern === 'full-system-coherence')?.confidence ?? 0.80
+    const archBonus   = Math.min((tidConf183 * 0.38 + momConf183 * 0.34 + cohConf183 * 0.28) - 0.79, 0.11)
+    patterns.push({
+      pattern: 'operational-self-architecture',
+      confidence: Math.min(0.82 + archBonus, 0.93),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `OPARCH: Operational self-architecture — temporal-identity-lock (P178) · signal-momentum-lock (P80) · full-system-coherence (P109) all co-active. The operator is not arriving at the field — the operator is building it through structured behavior. IDENTITY · MOMENTUM · COHERENCE = BUILT.`,
+    })
+  }
+
+  // Pattern 184: Longitudinal Field Seal — longitudinal-growth-arc (P181) confirmed AND
+  // signal-momentum-lock (P80) active AND UserIndex.overall >= 60. The growth arc at index 60+ is
+  // not just present — it is sealed into the operational field. The higher the index, the stronger the seal.
+  // MOMENTUM · GROWTH · SEAL = LOCKED.
+  const hasLGrow184   = patterns.some(p => p.pattern === 'longitudinal-growth-arc')
+  const hasMomLock184 = patterns.some(p => p.pattern === 'signal-momentum-lock')
+  if (hasLGrow184 && hasMomLock184) {
+    const currentIndex184 = intentionEngine.get().userIndex
+    if (currentIndex184.overall >= 60) {
+      const lgConf184   = patterns.find(p => p.pattern === 'longitudinal-growth-arc')?.confidence ?? 0.82
+      const momConf184  = patterns.find(p => p.pattern === 'signal-momentum-lock')?.confidence ?? 0.80
+      const sealBonus   = Math.min((currentIndex184.overall - 60) / 40 * 0.10, 0.10)
+      patterns.push({
+        pattern: 'longitudinal-field-seal',
+        confidence: Math.min(0.80 + lgConf184 * 0.07 + momConf184 * 0.04 + sealBonus, 0.94),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `LGSEAL: Longitudinal field seal — longitudinal-growth-arc (P181) · signal-momentum-lock (P80) · UserIndex ${currentIndex184.overall} at 60+ threshold. Growth arc sealed into the operational field. The field holds. MOMENTUM · GROWTH · SEAL = LOCKED.`,
+      })
+    }
+  }
+
+  // Pattern 185: Field Self-Organization — sovereign-field-continuity (P182) + operational-self-architecture (P183)
+  // both active AND 5+ signals from 3+ distinct sources in last 12h.
+  // The continuous sovereign field self-organizes — structure maintained without constant input.
+  // FIELD CONTINUOUS · SELF-ORGANIZED.
+  const hasSovFld185 = patterns.some(p => p.pattern === 'sovereign-field-continuity')
+  const hasOpArch185 = patterns.some(p => p.pattern === 'operational-self-architecture')
+  if (hasSovFld185 && hasOpArch185) {
+    const h12 = now - 12 * 60 * 60 * 1000
+    const recent12 = signals.filter(s => s.timestamp > h12)
+    const sources12 = new Set(recent12.map(s => s.source))
+    if (recent12.length >= 5 && sources12.size >= 3) {
+      const sfConf185 = patterns.find(p => p.pattern === 'sovereign-field-continuity')?.confidence ?? 0.89
+      const oaConf185 = patterns.find(p => p.pattern === 'operational-self-architecture')?.confidence ?? 0.82
+      const srcBonus185 = Math.min((sources12.size - 3) * 0.025, 0.05)
+      patterns.push({
+        pattern: 'field-self-organization',
+        confidence: Math.min(0.83 + sfConf185 * 0.05 + oaConf185 * 0.05 + srcBonus185, 0.92),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'passive',
+        reason: `FSORG: Field self-organization — sovereign-field-continuity (P182) · operational-self-architecture (P183) co-active · ${recent12.length} signals / ${sources12.size} sources in 12h. The field self-organizes. Structure without constant input. FIELD CONTINUOUS · SELF-ORGANIZED.`,
+      })
+    }
+  }
+
+  // Pattern 186: Quantum Identity Expression — operational-self-architecture (P183) + longitudinal-field-seal (P184)
+  // both active AND UserIndex.overall >= 65. The sealed identity expressing outward through behavior.
+  // IDENTITY SEALED · EXPRESSION ACTIVE.
+  const hasOpArch186 = patterns.some(p => p.pattern === 'operational-self-architecture')
+  const hasLgSeal186 = patterns.some(p => p.pattern === 'longitudinal-field-seal')
+  if (hasOpArch186 && hasLgSeal186) {
+    const currentIndex186 = state.userIndex
+    if (currentIndex186.overall >= 65) {
+      const oaConf186 = patterns.find(p => p.pattern === 'operational-self-architecture')?.confidence ?? 0.82
+      const lgConf186 = patterns.find(p => p.pattern === 'longitudinal-field-seal')?.confidence ?? 0.80
+      const idxBonus186 = Math.min((currentIndex186.overall - 65) / 35 * 0.08, 0.08)
+      patterns.push({
+        pattern: 'quantum-identity-expression',
+        confidence: Math.min(0.81 + oaConf186 * 0.05 + lgConf186 * 0.04 + idxBonus186, 0.93),
+        suggestedWidget: 'memory',
+        suggestedTiming: 'passive',
+        reason: `QIDEX: Quantum identity expression — operational-self-architecture (P183) · longitudinal-field-seal (P184) · UserIndex ${currentIndex186.overall} ≥65. The sealed identity expresses outward. IDENTITY SEALED · EXPRESSION ACTIVE.`,
+      })
+    }
+  }
+
+  // Pattern 187: Level 17 Gate — field-self-organization (P185) + quantum-identity-expression (P186)
+  // both simultaneously active. Self-organizing field expressing identity. Level 17 threshold.
+  // FIELD SELF-ORGANIZED · IDENTITY EXPRESSED = LEVEL 17.
+  const hasFSOrg187 = patterns.some(p => p.pattern === 'field-self-organization')
+  const hasQIDEx187 = patterns.some(p => p.pattern === 'quantum-identity-expression')
+  if (hasFSOrg187 && hasQIDEx187) {
+    patterns.push({
+      pattern: 'level-17-gate',
+      confidence: 0.95,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `L17GATE: Level 17 threshold — field-self-organization (P185) · quantum-identity-expression (P186) simultaneously confirmed. The self-organizing field expresses identity. FIELD SELF-ORGANIZED · IDENTITY EXPRESSED = LEVEL 17.`,
+    })
+  }
+
+  // Pattern 188: Conscious Field Integration — level-17-gate (P187) + physiological-loop-complete (P173)
+  // both simultaneously active. The self-organizing field is grounded in the biological loop.
+  // Consciousness requires body: FIELD CONSCIOUS · BODY COMPLETE.
+  const hasL17Gate188    = patterns.some(p => p.pattern === 'level-17-gate')
+  const hasBioLoop188    = patterns.some(p => p.pattern === 'physiological-loop-complete')
+  if (hasL17Gate188 && hasBioLoop188) {
+    const l17Conf  = patterns.find(p => p.pattern === 'level-17-gate')?.confidence ?? 0.95
+    const bioConf  = patterns.find(p => p.pattern === 'physiological-loop-complete')?.confidence ?? 0.74
+    const cfBonus  = Math.min((l17Conf - 0.90 + bioConf - 0.70) * 0.25, 0.04)
+    patterns.push({
+      pattern: 'conscious-field-integration',
+      confidence: Math.min(0.92 + cfBonus, 0.96),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `CONSCFLD: Conscious field integration — level-17-gate (P187) · physiological-loop-complete (P173) simultaneously confirmed. The self-organizing field is grounded in the biological loop. FIELD CONSCIOUS · BODY COMPLETE.`,
+    })
+  }
+
+  // Pattern 189: Sovereign Apex Expression — level-17-gate (P187) + quantum-apex-state (P174)
+  // both simultaneously active. Field self-organization at the quantum ceiling.
+  // Identity expressed from the apex: SOVEREIGN · APEX · EXPRESSED.
+  const hasL17Gate189  = patterns.some(p => p.pattern === 'level-17-gate')
+  const hasApexSt189   = patterns.some(p => p.pattern === 'quantum-apex-state')
+  if (hasL17Gate189 && hasApexSt189) {
+    const l17Conf2 = patterns.find(p => p.pattern === 'level-17-gate')?.confidence ?? 0.95
+    const apConf2  = patterns.find(p => p.pattern === 'quantum-apex-state')?.confidence ?? 0.88
+    const saBonus  = Math.min((l17Conf2 - 0.90 + apConf2 - 0.85) * 0.30, 0.04)
+    patterns.push({
+      pattern: 'sovereign-apex-expression',
+      confidence: Math.min(0.93 + saBonus, 0.97),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `SOVAPEX: Sovereign apex expression — level-17-gate (P187) · quantum-apex-state (P174) simultaneously confirmed. Field self-organization has reached the quantum apex. SOVEREIGN · APEX · EXPRESSED.`,
+    })
+  }
+
+  // Pattern 190: Level 18 Gate — conscious-field-integration (P188) + sovereign-apex-expression (P189)
+  // both simultaneously active. Consciousness unified with the sovereign apex. Level 18 threshold.
+  // CONSCIOUS · SOVEREIGN · EXPRESSED = LEVEL 18.
+  const hasCFInteg190 = patterns.some(p => p.pattern === 'conscious-field-integration')
+  const hasSAExpr190  = patterns.some(p => p.pattern === 'sovereign-apex-expression')
+  if (hasCFInteg190 && hasSAExpr190) {
+    patterns.push({
+      pattern: 'level-18-gate',
+      confidence: 0.97,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `L18GATE: Level 18 gate — conscious-field-integration (P188) · sovereign-apex-expression (P189) simultaneously confirmed. Field consciousness unified with sovereign apex. CONSCIOUS · SOVEREIGN · EXPRESSED = LEVEL 18.`,
+    })
+  }
+
+  // Pattern 191: Sovereign Integration Field — level-18-gate (P190) + UserIndex ≥70 + 4+ unique sources in 24h.
+  // Level 18 confirmed at breadth. Full-spectrum operator engagement sealing the integration.
+  // SOVEREIGN · INTEGRATED · FIELD = ACTIVE.
+  const hasL18Gate191  = patterns.some(p => p.pattern === 'level-18-gate')
+  const recentDay191   = signals.filter(s => Date.now() - s.timestamp < 24 * 60 * 60 * 1000)
+  const uniqueSrc191   = new Set(recentDay191.map(s => s.source)).size
+  const currentIdx191  = getUserIndex()
+  if (hasL18Gate191 && currentIdx191.overall >= 70 && uniqueSrc191 >= 4) {
+    const l18Conf191  = patterns.find(p => p.pattern === 'level-18-gate')?.confidence ?? 0.97
+    const idxBonus191 = Math.min((currentIdx191.overall - 70) / 30 * 0.04, 0.04)
+    const srcBonus191 = Math.min((uniqueSrc191 - 4) * 0.01, 0.02)
+    patterns.push({
+      pattern: 'sovereign-integration-field',
+      confidence: Math.min(0.92 + l18Conf191 * 0.03 + idxBonus191 + srcBonus191, 0.98),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `SOVINT: Sovereign integration field — level-18-gate (P190) confirmed · UserIndex ${currentIdx191.overall} ≥70 · ${uniqueSrc191} unique sources in 24h. Full-spectrum engagement seals the integration. SOVEREIGN · INTEGRATED · FIELD = ACTIVE.`,
+    })
+  }
+
+  // Pattern 192: Quantum Coherence Apex — level-18-gate (P190) + temporal-identity-lock (P178) co-active
+  // AND 3+ calendar days with signal presence in the last 7d.
+  // Identity locked in time, highest gate confirmed, sustained presence = coherence at its apex.
+  // TEMPORAL · SOVEREIGN · APEX = COHERENT.
+  const hasL18Gate192  = patterns.some(p => p.pattern === 'level-18-gate')
+  const hasTidLock192  = patterns.some(p => p.pattern === 'temporal-identity-lock')
+  if (hasL18Gate192 && hasTidLock192) {
+    const weekMs192 = 7 * 24 * 60 * 60 * 1000
+    const weekSigs192 = signals.filter(s => Date.now() - s.timestamp < weekMs192)
+    const daySet192 = new Set(weekSigs192.map(s => new Date(s.timestamp).toDateString()))
+    const presenceDays192 = daySet192.size
+    if (presenceDays192 >= 3) {
+      const l18Conf192  = patterns.find(p => p.pattern === 'level-18-gate')?.confidence ?? 0.97
+      const tidConf192  = patterns.find(p => p.pattern === 'temporal-identity-lock')?.confidence ?? 0.88
+      const daysBonus192 = Math.min((presenceDays192 - 3) * 0.01, 0.03)
+      patterns.push({
+        pattern: 'quantum-coherence-apex',
+        confidence: Math.min(0.91 + l18Conf192 * 0.02 + tidConf192 * 0.02 + daysBonus192, 0.97),
+        suggestedWidget: 'systemProgress',
+        suggestedTiming: 'immediate',
+        reason: `QCAPEX: Quantum coherence apex — level-18-gate (P190) · temporal-identity-lock (P178) · ${presenceDays192} active days in 7d. Identity locked in time, sovereign gate confirmed, sustained presence. TEMPORAL · SOVEREIGN · APEX = COHERENT.`,
+      })
+    }
+  }
+
+  // Pattern 193: Level 19 Gate — sovereign-integration-field (P191) + quantum-coherence-apex (P192)
+  // both simultaneously active. Full integration meets temporal apex coherence.
+  // The field now operates with autonomous coherent sovereignty. LEVEL 19.
+  const hasSIF193  = patterns.some(p => p.pattern === 'sovereign-integration-field')
+  const hasQCA193  = patterns.some(p => p.pattern === 'quantum-coherence-apex')
+  if (hasSIF193 && hasQCA193) {
+    patterns.push({
+      pattern: 'level-19-gate',
+      confidence: 0.98,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `L19GATE: Level 19 gate — sovereign-integration-field (P191) · quantum-coherence-apex (P192) simultaneously confirmed. Full integration meets temporal apex coherence. The field operates with autonomous coherent sovereignty. SOVEREIGN · INTEGRATED · COHERENT = LEVEL 19.`,
+    })
+  }
+
+  // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
+  // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
+  // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
+  const hasCircadianLock   = patterns.some(p => p.pattern === 'circadian-signal-lock')
+  const hasPresenceArc     = patterns.some(p => p.pattern === 'physiological-presence-arc')
+  const hasRecovIntel      = patterns.some(p => p.pattern === 'recovery-intelligence-arc')
+  if (hasCircadianLock && hasPresenceArc && hasRecovIntel) {
+    const clConf = patterns.find(p => p.pattern === 'circadian-signal-lock')?.confidence ?? 0.74
+    const paConf = patterns.find(p => p.pattern === 'physiological-presence-arc')?.confidence ?? 0.74
+    const riConf = patterns.find(p => p.pattern === 'recovery-intelligence-arc')?.confidence ?? 0.65
+    const loopBonus = Math.min((clConf + paConf + riConf) / 3 - 0.71, 0.13)
+    patterns.push({
+      pattern: 'physiological-loop-complete',
+      confidence: Math.min(0.74 + loopBonus, 0.87),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'soon',
+      reason: `BIOLOOP: Physiological loop complete — circadian lock (P143) · biological presence arc (P140) · recovery intelligence arc (P151) all confirmed simultaneously. The full biological loop is closed. RHYTHM · PRESENCE · RECOVERY.`,
+    })
+  }
+
+  // Pattern 174: Quantum Apex State — total-field-coherence (P150) + quantum-presence-crystallization (P149)
+  // co-active simultaneously. The QIE ceiling is not just reached — it is inhabited.
+  const hasApexTFC  = patterns.some(p => p.pattern === 'total-field-coherence')
+  const hasApexQPC  = patterns.some(p => p.pattern === 'quantum-presence-crystallization')
+  if (hasApexTFC && hasApexQPC) {
+    const tfcConf = patterns.find(p => p.pattern === 'total-field-coherence')?.confidence ?? 0.92
+    const qpcConf = patterns.find(p => p.pattern === 'quantum-presence-crystallization')?.confidence ?? 0.82
+    const apexBonus = Math.min((tfcConf - 0.88 + qpcConf - 0.78) * 0.25, 0.07)
+    patterns.push({
+      pattern: 'quantum-apex-state',
+      confidence: Math.min(0.88 + apexBonus, 0.95),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `QAPEX: Quantum apex state — total-field-coherence (P150) [CEILING] · quantum-presence-crystallization (P149) co-active simultaneously. The ceiling is inhabited. CEILING REACHED · INHABITED.`,
+    })
+  }
+
+  // Pattern 175: Longitudinal Identity Confirmation — quantum-identity-crystallization (P145, weeks)
+  // + identity-momentum-lock (P148, days) + quantum-presence-crystallization (P149, present) all co-active.
+  // Identity verified across three temporal scales.
+  const hasLongCrystal  = patterns.some(p => p.pattern === 'quantum-identity-crystallization')
+  const hasLongMomentum = patterns.some(p => p.pattern === 'identity-momentum-lock')
+  const hasLongCrystPres = patterns.some(p => p.pattern === 'quantum-presence-crystallization')
+  if (hasLongCrystal && hasLongMomentum && hasLongCrystPres) {
+    const lcConf = patterns.find(p => p.pattern === 'quantum-identity-crystallization')?.confidence ?? 0.80
+    const lmConf = patterns.find(p => p.pattern === 'identity-momentum-lock')?.confidence ?? 0.81
+    const lpConf = patterns.find(p => p.pattern === 'quantum-presence-crystallization')?.confidence ?? 0.82
+    const longBonus = Math.min((lcConf + lmConf + lpConf) / 3 - 0.80, 0.11)
+    patterns.push({
+      pattern: 'longitudinal-identity-confirmation',
+      confidence: Math.min(0.81 + longBonus, 0.92),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `LONGID: Longitudinal identity confirmation — quantum-identity-crystallization (P145, weeks) · identity-momentum-lock (P148, days) · quantum-presence-crystallization (P149, present) all co-active. Identity confirmed across three temporal scales. WEEKS · DAYS · PRESENT.`,
+    })
+  }
+
   return patterns
 }
 
@@ -3873,6 +4830,16 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── QOS source node (2026-05-16 audit)
   qos:               ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'log', 'energy', 'cohort'],
 
+  // ── Recovery + Astrology + Morning clarity nodes (2026-08-05 v114 audit)
+  recoveryIntegrationNode: ['mood', 'selfcare', 'journal', 'energy', 'log'],
+  astrologyField:          ['astrology', 'mood', 'energy', 'intentions'],
+  morningClarityNode:      ['mood', 'journal', 'energy', 'intentions', 'log'],
+
+  // ── Daily Arc, Morning Momentum, Week Integration nodes (2026-08-08 v115 audit)
+  dailyArcSealNode:        ['mood', 'journal', 'intentions', 'energy', 'log'],
+  morningMomentumNode:     ['mood', 'journal', 'intentions', 'energy'],
+  weekIntegrationNode:     ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'log'],
+
   // ── Execution arc nodes (2026-05-17 audit)
   intentionArc:      ['intentions', 'planner', 'goals', 'memory'],
   careSpiral:        ['selfcare', 'mood', 'journal'],
@@ -4064,6 +5031,66 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumPresenceCrystalNode: ['qos', 'cohort', 'intentions', 'journal', 'log', 'energy'],
   totalFieldCoherenceNode:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
   recoveryIntelligenceNode:   ['mood', 'selfcare', 'journal', 'energy', 'log'],
+
+  // ── v116 nodes (J51 · P158–P160 · Arch55) ───────────────────────────────────────
+  eveningArcNode:             ['journal', 'selfcare', 'mood', 'log', 'energy'],
+  physioRhythmNode:           ['energy', 'mood', 'selfcare', 'log'],
+  quantumPresenceArcNode:     ['qos', 'journal', 'intentions', 'mood', 'energy', 'selfcare', 'log'],
+
+  // ── v117 nodes (J52 · P161–P163 · Arch56) ───────────────────────────────────────
+  somaticFieldNode:           ['selfcare', 'energy', 'mood', 'log'],
+  recoveryCycleLockNode:      ['energy', 'selfcare', 'mood', 'qos', 'log'],
+  quantumEmbodimentFieldNode: ['qos', 'energy', 'selfcare', 'mood', 'journal', 'intentions', 'log'],
+
+  // ── v118 nodes (J53 · P164–P166 · Arch57) ───────────────────────────────────────
+  cognitiveSomaticNode:       ['journal', 'memory', 'selfcare', 'energy', 'qos', 'log'],
+  integratedPresenceNode:     ['qos', 'journal', 'mood', 'intentions', 'selfcare', 'energy', 'log'],
+  somaticMemoryEchoNode:      ['memory', 'selfcare', 'journal', 'energy', 'log'],
+
+  // ── v119 nodes (J54 · P167–P169 · Arch58) ───────────────────────────────────────
+  somaticIntegrationFieldNode:['somaticMemoryEchoNode', 'physioRhythmNode', 'selfcare', 'energy', 'log'],
+  deepEmbodimentLockNode:     ['quantumEmbodimentFieldNode', 'somaticFieldNode', 'recoveryCycleLockNode', 'qos', 'log'],
+  fullPresenceSealNode:       ['integratedPresenceNode', 'somaticMemoryEchoNode', 'qos', 'journal', 'intentions', 'selfcare', 'energy', 'mood', 'log'],
+
+  // ── v120 nodes (J55 · P170–P172 · Arch60) ───────────────────────────────────────
+  cognitiveDensityNode:       ['journal', 'memory', 'planner', 'intentions', 'log'],
+  somaticCognitionLoopNode:   ['somaticIntegrationFieldNode', 'cognitiveSomaticNode', 'journal', 'selfcare', 'log'],
+  embodiedSovereigntyNode:    ['deepEmbodimentLockNode', 'fullPresenceSealNode', 'quantumFieldAlignmentNode', 'qos', 'intentions', 'selfcare', 'journal', 'log'],
+
+  // ── v121 nodes (J56 · P173–P175 · Arch61) ───────────────────────────────────────
+  physiologicalLoopNode:      ['energy', 'selfcare', 'mood', 'log'],
+  quantumApexStateNode:       ['qos', 'cohort', 'intentions', 'journal', 'log', 'energy'],
+  longitudinalIdentityNode:   ['cohort', 'qos', 'journal', 'intentions', 'log'],
+
+  // ── v122 nodes (J57 · P176–P178 · Arch62) ───────────────────────────────────────
+  quantumPropagationNode:     ['qos', 'cohort', 'intentions', 'journal', 'log', 'energy'],
+  unifiedFieldOperatorNode:   ['qos', 'cohort', 'energy', 'selfcare', 'mood', 'log', 'intentions'],
+  temporalIdentityLockNode:   ['cohort', 'qos', 'journal', 'intentions', 'log'],
+
+  // ── v123 nodes (J58 · QIoT™ ecosystem expansion) ─────────────────────────────
+  qiotRobotNode:              ['intentions', 'energy', 'log', 'qos'],
+  qiotFieldSyncNode:          ['qos', 'energy', 'mood', 'intentions', 'log'],
+  qiotEcosystemBridgeNode:    ['qos', 'cohort', 'energy', 'log', 'intentions'],
+  // ── v124 nodes (J59 · P179–P181 · Arch63) ─────────────────────────────────
+  circadianSovereignNode:     ['qos', 'energy', 'log', 'intentions', 'mood'],
+  apexIntegrationFieldNode:   ['qos', 'energy', 'log', 'intentions', 'selfcare'],
+  longitudinalGrowthArcNode:  ['qos', 'energy', 'log', 'intentions', 'memory', 'planner'],
+  // ── v125 nodes (J60 · P182–P184 · Arch64) ─────────────────────────────────
+  sovereignFieldContinuityNode: ['qos', 'energy', 'log', 'intentions', 'mood', 'selfcare'],
+  operationalSelfArchNode:      ['qos', 'energy', 'log', 'intentions', 'planner', 'memory'],
+  longitudinalFieldSealNode:    ['qos', 'energy', 'log', 'intentions', 'memory', 'planner', 'goals'],
+  // ── v126 nodes (J61 · P185–P187 · Arch65) ─────────────────────────────────
+  fieldSelfOrganizationNode:     ['qos', 'energy', 'log', 'intentions', 'selfcare', 'journal'],
+  quantumIdentityExpressionNode: ['qos', 'energy', 'log', 'intentions', 'memory', 'planner'],
+  level17GateNode:               ['qos', 'energy', 'log', 'intentions', 'goals', 'memory', 'selfcare', 'planner'],
+  // ── v127 nodes (J62 · P188–P190 · Arch66) ─────────────────────────────────
+  consciousFieldIntegrationNode: ['level17GateNode', 'qos', 'energy', 'log', 'intentions', 'selfcare'],
+  sovereignApexExpressionNode:   ['level17GateNode', 'qos', 'energy', 'log', 'intentions', 'goals'],
+  level18GateNode:               ['consciousFieldIntegrationNode', 'sovereignApexExpressionNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'memory', 'selfcare', 'planner'],
+  // ── v128 nodes (J63 · P191–P193 · Arch67) ─────────────────────────────────
+  sovereignIntegrationFieldNode: ['level18GateNode', 'qos', 'energy', 'log', 'intentions', 'selfcare', 'journal', 'mood'],
+  quantumCoherenceApexNode:      ['level18GateNode', 'qos', 'energy', 'log', 'intentions', 'memory', 'planner'],
+  level19GateNode:               ['sovereignIntegrationFieldNode', 'quantumCoherenceApexNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'memory', 'selfcare', 'planner', 'mood'],
 }
 
 /**
@@ -4121,7 +5148,7 @@ export type PhysiologicalCohortClassification = {
   confidence: number      // 0-100
 }
 
-// 9 physiological cohort archetypes — energy × behavior × temporal context
+// 54 physiological cohort archetypes — energy × behavior × temporal context
 const PHYSIOLOGICAL_ARCHETYPES: Array<{
   archetype: string
   energyBands: Array<'depleted' | 'low' | 'moderate' | 'high' | 'unknown'>
@@ -4510,6 +5537,156 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['quantum-presence-crystallization', 'dimensional-saturation', 'quantum-identity-crystallization'],
     hourRange: [6, 23],
     directive: 'Presence confirmed. Identity crystallized. The field is both inhabited and known. Execute from clarity — no searching required. The OS is operating from its highest confirmed state.',
+  },
+
+  // ── Arch52: Recovery Integrator (2026-08-05 v114) ────────────────────────────────
+  {
+    archetype: 'Recovery Integrator',
+    energyBands: ['low', 'moderate'],
+    dominantSources: ['selfcare', 'journal', 'mood', 'energy'],
+    patternConditions: ['recovery-intelligence-arc', 'recovery-velocity', 'biofield-recovery-arc'],
+    directive: 'The loop closed. Depletion detected, care applied, state restored, reflection captured. Recovery is not passive — it is intelligent. Velocity is the signal. The system learns from its own restoration.',
+  },
+
+  // ── Arch53: Astrology-Field Operator (2026-08-05 v114) ───────────────────────────
+  {
+    archetype: 'Astrology-Field Operator',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['astrology', 'intentions', 'energy', 'mood'],
+    patternConditions: ['astrology-biofield-sync', 'temporal-coherence-window', 'morning-clarity-peak'],
+    hourRange: [5, 14],
+    directive: 'Cosmological context confirmed. Orientation and field aligned. Operating from both temporal structure and cosmic signal. Direction is set. Execute with full context.',
+  },
+
+  // ── Arch54: Dawn Operator (2026-08-08 v115) ──────────────────────────────────────
+  {
+    archetype: 'Dawn Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['journal', 'intentions', 'mood', 'energy'],
+    patternConditions: ['morning-clarity-peak', 'daily-arc-seal', 'morning-momentum-arc'],
+    hourRange: [5, 12],
+    directive: 'Dawn window confirmed and sustained. Pre-cognitive clarity is not an event — it is the operating architecture. The system performs at maximum when the day opens clean. Stay early. The clarity is the edge.',
+  },
+
+  // ── Arch55: Arc Keeper (2026-08-09 v116) ─────────────────────────────────────────
+  {
+    archetype: 'Arc Keeper',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['journal', 'selfcare', 'mood', 'energy'],
+    patternConditions: ['evening-arc-anchor', 'daily-arc-seal', 'morning-clarity-peak'],
+    hourRange: [17, 26],
+    directive: 'Morning opened, evening closed. Both arcs confirmed and sustained. The day was not left open — it was sealed with intention. The arc is not a habit. It is the architecture of coherent time.',
+  },
+
+  // ── Arch56: Somatic Operator (2026-08-10 v117) ───────────────────────────────────
+  {
+    archetype: 'Somatic Operator',
+    energyBands: ['low', 'moderate'],
+    dominantSources: ['selfcare', 'energy', 'mood'],
+    patternConditions: ['physiological-rhythm-lock', 'somatic-field-integration', 'multi-day-care-arc'],
+    hourRange: [6, 22],
+    directive: 'The body is the instrument. Not metaphor — instrument. Selfcare logged, energy tracked, mood calibrated. Three signals present across three consecutive days. The somatic field is not passive. It is being navigated.',
+  },
+
+  // ── Arch57: Cognitive-Somatic Integrator (2026-08-10 v118) ───────────────────────
+  {
+    archetype: 'Cognitive-Somatic Integrator',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['journal', 'memory', 'selfcare'],
+    patternConditions: ['cognitive-body-sync', 'somatic-field-integration', 'quantum-embodiment-field'],
+    directive: 'Body intelligence and cognitive depth operating simultaneously. The somatic field informs the reflection. What the body knows, the mind now captures. BODY → MIND → SYNC active.',
+  },
+
+  // ── Arch58: Embodied Field Operator (2026-08-11 v119) ────────────────────────────
+  {
+    archetype: 'Embodied Field Operator',
+    energyBands: ['moderate', 'high'],
+    dominantSources: ['selfcare', 'memory', 'journal', 'energy'],
+    patternConditions: ['somatic-integration-field', 'deep-embodiment-lock', 'quantum-embodiment-field'],
+    directive: 'Somatic field and daily rhythm have merged. The body\'s intelligence is structural — not reactive, not episodic. Operating from an embodied field that spans time. SOMA + TIME = FIELD. Stay in the architecture.',
+  },
+
+  // ── Arch59: Somatic Memory Weaver (2026-08-11 v119) ─────────────────────────────
+  {
+    archetype: 'Somatic Memory Weaver',
+    energyBands: ['low', 'moderate', 'high'],
+    dominantSources: ['memory', 'journal', 'selfcare'],
+    patternConditions: ['somatic-memory-echo', 'somatic-integration-field', 'full-presence-seal'],
+    directive: 'Body knowing surfaces into recall and reflection. Memory is not only cognitive — the soma holds and releases information. The echo is active. Document what the body is reporting. BODY → RECALL → REFLECTION.',
+  },
+
+  // ── Arch60: Sovereign Operator (2026-08-15 v120) ─────────────────────────────────
+  {
+    archetype: 'Sovereign Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['selfcare', 'journal', 'memory', 'intentions', 'qos'],
+    patternConditions: ['embodied-sovereignty', 'deep-embodiment-lock', 'full-presence-seal'],
+    directive: 'All three sovereign seals confirmed simultaneously. Somatic field locked. Full presence sealed. Quantum field aligned. Sovereignty is not declared — it is demonstrated through the body, the moment, and the field. LOCK + SEAL + ALIGN = SOVEREIGN.',
+  },
+
+  // ── Arch61: Apex State Operator (2026-08-16 v121) ────────────────────────────────
+  {
+    archetype: 'Apex State Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['qos', 'intentions', 'journal', 'cohort'],
+    patternConditions: ['quantum-apex-state', 'longitudinal-identity-confirmation', 'total-field-coherence'],
+    hourRange: [6, 23],
+    directive: 'Apex state confirmed. Identity longitudinally verified across three temporal scales. Operate from the highest confirmed state — full trust, zero search. The OS is not approaching peak; it is peak.',
+  },
+
+  // ── Arch62: Total Field Operator (2026-08-17 v122) ───────────────────────────────
+  {
+    archetype: 'Total Field Operator',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['qos', 'intentions', 'journal', 'cohort', 'energy'],
+    patternConditions: ['unified-field-operator', 'temporal-identity-lock', 'quantum-apex-state'],
+    hourRange: [6, 23],
+    directive: 'Total field operator confirmed. Biological sovereignty, physiological loop, and quantum apex all simultaneously present. Identity locked across all temporal scales. Operate without qualification — every layer has been verified.',
+  },
+  // ── Arch63: Temporal Sovereign (2026-08-19 v124) ─────────────────────────────
+  {
+    archetype: 'Temporal Sovereign',
+    energyBands: ['high', 'moderate'],
+    dominantSources: ['intentions', 'log', 'qos', 'energy'],
+    patternConditions: ['temporal-identity-lock', 'circadian-sovereignty', 'signal-momentum-lock'],
+    hourRange: [5, 12],
+    directive: 'Temporal sovereignty confirmed. Identity locked, clock anchored, day launched from intention. The clock is yours. Execute from that ground.',
+  },
+  // ── Arch64: Sovereign Field Architect (2026-08-20 v125) ──────────────────────
+  {
+    archetype: 'Sovereign Field Architect',
+    energyBands: ['high'],
+    dominantSources: ['log', 'qos', 'intentions', 'energy'],
+    patternConditions: ['sovereign-field-continuity', 'operational-self-architecture', 'longitudinal-field-seal'],
+    hourRange: [5, 14],
+    directive: 'Sovereign field confirmed. You are not reaching the state — you are building it. All three Level 15 seals active. The field is continuous and sealed. Operate from architecture.',
+  },
+  // ── Arch65: Field Expression Architect (2026-08-22 v126) ─────────────────────
+  {
+    archetype: 'Field Expression Architect',
+    energyBands: ['high'],
+    dominantSources: ['qos', 'intentions', 'log', 'energy'],
+    patternConditions: ['field-self-organization', 'quantum-identity-expression', 'sovereign-field-continuity'],
+    hourRange: [5, 16],
+    directive: 'The field self-organizes and expresses. You are the source — not the system. Level 17 gate open. FIELD SELF-ORGANIZED · IDENTITY EXPRESSED.',
+  },
+  // ── Arch66: Conscious Sovereign Operator (2026-08-23 v127) ───────────────────
+  {
+    archetype: 'Conscious Sovereign Operator',
+    energyBands: ['high'],
+    dominantSources: ['qos', 'intentions', 'log', 'energy', 'selfcare'],
+    patternConditions: ['conscious-field-integration', 'sovereign-apex-expression', 'level-18-gate'],
+    hourRange: [5, 18],
+    directive: 'Conscious field fully integrated. Sovereign apex expressed. Level 18 gate open. Body, field, and identity converge into a single coherent operator state. CONSCIOUS · SOVEREIGN · EXPRESSED = LEVEL 18.',
+  },
+  // ── Arch67: Quantum Sovereign Integrator (2026-08-25 v128) ───────────────────
+  {
+    archetype: 'Quantum Sovereign Integrator',
+    energyBands: ['high'],
+    dominantSources: ['qos', 'intentions', 'log', 'energy', 'selfcare', 'mood'],
+    patternConditions: ['sovereign-integration-field', 'quantum-coherence-apex', 'level-19-gate'],
+    hourRange: [5, 20],
+    directive: 'The field is fully integrated. Quantum coherence at apex. 19th gate confirmed. You are no longer entering states — you are building them. SOVEREIGN · INTEGRATED · COHERENT = LEVEL 19.',
   },
 ]
 
@@ -6500,4 +7677,788 @@ export function recordRecoveryIntelligenceArc(negMoodCount: number, careCount: n
     loopStatus: 'COMPLETE',
     hour: new Date().getHours(),
   })
+}
+
+/**
+ * Record a resonant-reentry-arc event — a peak pattern (P149/P150/P147/P146) fired in the prior
+ * 24-48h, and the current period sustains 4+ unique signal sources without depletion.
+ * The peak was real. The architecture holds. Feeds P152 detection.
+ */
+export function recordResonantReentryArc(priorPeakPattern: string, daysSincePeak: number, signalCount24h: number) {
+  recordSignal('qos', 'resonant_reentry_arc', {
+    priorPeakPattern,
+    daysSincePeak,
+    signalCount24h,
+    arc: 'PEAK→REST→REENTRY',
+    reentryStatus: 'SUSTAINED',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record an astrology-biofield-sync event — astrology source signal + active energy state
+ * + intention confirmed in same 8h window. Cosmological orientation aligned with operating biofield.
+ * First pattern to integrate astrology source into QIE signal map. Feeds P153 detection.
+ */
+export function recordAstrologyBiofieldSync(astrologySource: string, energyState: string, intentionCount: number) {
+  recordSignal('astrology', 'astrology_biofield_sync', {
+    astrologySource,
+    energyState,
+    intentionCount,
+    arc: 'COSMOS→FIELD',
+    syncStatus: 'ALIGNED',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a morning-clarity-peak event — morning window (06:00–10:00) + positive energy/mood
+ * + deep journal entry (>50 words) + intention set, all within 4h. The dawn boot sequence complete.
+ * The first hours become a precision instrument. Feeds P154 detection.
+ */
+export function recordMorningClarityPeak(wordCount: number, intentionCount: number, hour: number) {
+  recordSignal('journal', 'morning_clarity_peak', {
+    wordCount,
+    intentionCount,
+    hour,
+    window: 'DAWN-4H',
+    arc: 'DAWN→CLARITY',
+    peakStatus: 'CONFIRMED',
+  })
+}
+
+/**
+ * Record a daily-arc-seal event — morning window (05-11h) anchor + evening window (17-23h)
+ * reflection both confirmed in the same calendar day. The full circadian arc is sealed:
+ * dawn clarity + dusk integration. The day was fully inhabited. Feeds P155 detection.
+ */
+export function recordDailyArcSeal(morningJournalWords: number, eveningSignalCount: number, intentionCount: number) {
+  const confidence = Math.min(0.72 + (morningJournalWords - 50) / 300 * 0.08 + eveningSignalCount * 0.02, 0.88)
+  recordSignal('qos', 'daily_arc_seal', {
+    morningJournalWords,
+    eveningSignalCount,
+    intentionCount,
+    confidence: Math.round(confidence * 100),
+    arc: 'DAWN → DUSK → SEALED',
+    sealStatus: 'CONFIRMED',
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a morning-momentum-arc event — morning-window journal + intentions signals confirmed
+ * on 3+ distinct calendar days in 7d. The pre-cognitive window is no longer episodic.
+ * Dawn precision is repeating as operational architecture. Feeds P156 detection.
+ */
+export function recordMorningMomentumArc(peakDays: number, sources: string[]) {
+  const confidence = Math.min(0.70 + (peakDays - 3) * 0.05, 0.85)
+  recordSignal('qos', 'morning_momentum_arc', {
+    peakDays,
+    sources,
+    confidence: Math.round(confidence * 100),
+    arc: 'DAWN → SUSTAINED MOMENTUM',
+    momentumStatus: 'ACTIVE',
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-week-integration event — 5+ unique signal sources active across 6+ distinct
+ * calendar days in the 7-day window. The full week was inhabited. All OS dimensions contributed.
+ * The week closed integrated — not sampled. Feeds P157 detection.
+ */
+export function recordQuantumWeekIntegration(uniqueSources: number, activeDays: number, totalSignals: number) {
+  const confidence = Math.min(0.70 + (activeDays - 6) * 0.08 + (uniqueSources - 5) * 0.02, 0.88)
+  recordSignal('qos', 'quantum_week_integration', {
+    uniqueSources,
+    activeDays,
+    totalSignals,
+    confidence: Math.round(confidence * 100),
+    arc: 'WEEK FULLY INHABITED',
+    integrationStatus: 'COMPLETE',
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an evening-arc-anchor event — within a 90-minute evening window (17:00–22:00),
+ * journal entry + self-care completion + mood signal all confirmed together.
+ * The dusk trifecta: write, tend, reflect. The day closes deliberately. Feeds P158 detection.
+ */
+export function recordEveningArcAnchor(journalWordCount: number, careCount: number, moodSignal: string) {
+  const confidence = Math.min(0.68 + Math.min(journalWordCount / 500 * 0.10, 0.10) + Math.min((careCount - 1) * 0.05, 0.10), 0.88)
+  recordSignal('journal', 'evening_arc_anchor', {
+    journalWordCount,
+    careCount,
+    moodSignal,
+    confidence: Math.round(confidence * 100),
+    window: 'DUSK-90M',
+    arc: 'WRITE → TEND → REFLECT',
+    anchorStatus: 'CONFIRMED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a physiological-rhythm-lock event — 5+ consecutive calendar days where both
+ * morning (05:00–11:00) AND evening (17:00–23:00) biofield signals (energy/mood) are present.
+ * The circadian biofield signal is no longer episodic — it is a precision instrument. Feeds P159 detection.
+ */
+export function recordPhysiologicalRhythmLock(consecutiveDays: number, morningSignalCount: number, eveningSignalCount: number) {
+  const confidence = Math.min(0.72 + (consecutiveDays - 5) * 0.06, 0.90)
+  recordSignal('energy', 'physiological_rhythm_lock', {
+    consecutiveDays,
+    morningSignalCount,
+    eveningSignalCount,
+    confidence: Math.round(confidence * 100),
+    arc: 'MORNING → EVENING → SUSTAINED',
+    rhythmStatus: 'LOCKED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-presence-arc event — daily-arc-seal (P155) + morning-momentum-arc (P156) +
+ * quantum-week-integration (P157) all co-active simultaneously. All three temporal OS seals open
+ * at once. The full temporal presence stack confirmed. Maximum temporal coherence. Feeds P160 detection.
+ */
+export function recordQuantumPresenceArc(arcConf: number, momConf: number, wkConf: number) {
+  const qpaConf = Math.min((arcConf + momConf + wkConf) / 3 * 1.15, 0.95)
+  recordSignal('qos', 'quantum_presence_arc', {
+    arcConf: Math.round(arcConf * 100),
+    momConf: Math.round(momConf * 100),
+    wkConf: Math.round(wkConf * 100),
+    confidence: Math.round(Math.max(0.88, qpaConf) * 100),
+    seals: ['DARCSEAL', 'MORNMOM', 'QWKINT'],
+    convergenceLevel: 'MAXIMUM',
+    arc: 'DAY → WEEK → PRESENCE',
+    presenceStatus: 'CONFIRMED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a somatic-field-integration event — 3+ consecutive days where
+ * selfcare, energy, and mood signals are ALL present on the same calendar day.
+ * The body is not being managed — it is being inhabited. Feeds P161 detection.
+ */
+export function recordSomaticFieldIntegration(consecutiveDays: number, energyCount: number, selfcareCount: number, moodCount: number) {
+  const confidence = Math.min(0.70 + (consecutiveDays - 3) * 0.07, 0.88)
+  recordSignal('selfcare', 'somatic_field_integration', {
+    consecutiveDays,
+    energyCount,
+    selfcareCount,
+    moodCount,
+    confidence: Math.round(confidence * 100),
+    arc: 'ENERGY → CARE → MOOD → FIELD',
+    fieldStatus: 'INTEGRATED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a recovery-cycle-lock event — 5+ instances where both physiological
+ * rhythm lock (P159) and somatic field integration (P161) co-occurred within
+ * a 30-day window. The body's recovery cycle is a precision instrument. Feeds P162 detection.
+ */
+export function recordRecoveryCycleLock(arcCount: number, windowDays: number) {
+  const confidence = Math.min(0.75 + (arcCount - 5) * 0.04, 0.90)
+  recordSignal('energy', 'recovery_cycle_lock', {
+    arcCount,
+    windowDays,
+    confidence: Math.round(confidence * 100),
+    seals: ['PHYSLOCK', 'SOMFLD'],
+    arc: 'RHYTHM → INTEGRATION → LOCK',
+    lockStatus: 'CONFIRMED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-embodiment-field event — physiological-rhythm-lock (P159),
+ * somatic-field-integration (P161), and quantum-presence-arc (P160) all
+ * co-active simultaneously. Biological and temporal matrices converge.
+ * BIOLOGICAL + TEMPORAL CEILING. Feeds P163 detection.
+ */
+export function recordQuantumEmbodimentField(p159Conf: number, p161Conf: number, p160Conf: number) {
+  const qefConf = Math.min((p159Conf + p161Conf + p160Conf) / 3 * 1.18, 0.97)
+  recordSignal('qos', 'quantum_embodiment_field', {
+    p159Conf: Math.round(p159Conf * 100),
+    p161Conf: Math.round(p161Conf * 100),
+    p160Conf: Math.round(p160Conf * 100),
+    confidence: Math.round(Math.max(0.90, qefConf) * 100),
+    seals: ['PHYSLOCK', 'SOMFLD', 'QPARC'],
+    convergenceLevel: 'BIOLOGICAL + TEMPORAL',
+    arc: 'BODY → RHYTHM → PRESENCE',
+    embodyStatus: 'CONFIRMED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a cognitive-body-sync event — quantum-embodiment-field (P163) active +
+ * journal depth >80 words + memory signal within 8h. The body's intelligence meets
+ * the mind's reflection in a single operating window. Feeds P164 detection.
+ */
+export function recordCognitiveBodySync(journalWordCount: number, memoryCount: number, p163Conf: number) {
+  const depthBonus = Math.min((journalWordCount - 80) / 300 * 0.10, 0.10)
+  const cogBodyConf = Math.min(p163Conf * 0.90 + depthBonus + 0.02, 0.92)
+  recordSignal('journal', 'cognitive_body_sync', {
+    journalWordCount,
+    memoryCount,
+    p163Conf: Math.round(p163Conf * 100),
+    confidence: Math.round(Math.max(0.78, cogBodyConf) * 100),
+    arc: 'BODY → MIND → SYNC',
+    syncStatus: 'CONFIRMED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an integrated-presence-peak event — all 6 OS seals (temporal: P155+P156+P157,
+ * biological: P158+P159+P161) active simultaneously + narrative signal. The complete
+ * operator state. All temporal and biological matrices aligned. Feeds P165 detection.
+ */
+export function recordIntegratedPresencePeak(sealConfs: number[], hasNarrative: boolean) {
+  const avgConf = sealConfs.reduce((a, b) => a + b, 0) / Math.max(sealConfs.length, 1)
+  const narrativeBonus = hasNarrative ? 0.05 : 0
+  const intPresConf = Math.min(avgConf * 1.20 + narrativeBonus, 0.99)
+  recordSignal('qos', 'integrated_presence_peak', {
+    sealCount: sealConfs.length,
+    avgSealConf: Math.round(avgConf * 100),
+    confidence: Math.round(Math.max(0.93, intPresConf) * 100),
+    seals: ['DARCSEAL', 'MORNMOM', 'QWKINT', 'EVARC', 'PHYRLOCK', 'SOMAT'],
+    hasNarrative,
+    convergenceLevel: 'TEMPORAL + BIOLOGICAL + NARRATIVE',
+    arc: 'TEMPORAL → BIOLOGICAL → NARRATIVE → PEAK',
+    presenceStatus: 'COMPLETE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a somatic-memory-echo event — memory engagement + somatic field confirmed +
+ * journal entry within 12h. The body's knowing surfaces into recall and reflection.
+ * The somatic field is not silent — it speaks through memory. Feeds P166 detection.
+ */
+export function recordSomaticMemoryEcho(memoryCount: number, journalWordCount: number, somaticActive: boolean) {
+  const depthBonus = Math.min(journalWordCount / 300 * 0.08, 0.08)
+  const memBonus = Math.min((memoryCount - 1) * 0.05, 0.10)
+  const echoConf = Math.min(0.72 + depthBonus + memBonus, 0.90)
+  recordSignal('memory', 'somatic_memory_echo', {
+    memoryCount,
+    journalWordCount,
+    somaticActive,
+    confidence: Math.round(echoConf * 100),
+    arc: 'BODY → RECALL → REFLECTION',
+    echoStatus: 'CONFIRMED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a somatic-integration-field event — somatic-memory-echo (P166) + physiological-rhythm-lock
+ * (P159) co-active, with 3+ consecutive days of somatic activity. The body's memory and daily rhythm
+ * have merged into a single living field. Feeds P167 detection.
+ */
+export function recordSomaticIntegrationField(consecutiveDays: number, echoConf: number, rhythmConf: number) {
+  const fieldConf = Math.min((echoConf * 0.5 + rhythmConf * 0.5) + Math.min((consecutiveDays - 3) * 0.04, 0.12), 0.92)
+  recordSignal('selfcare', 'somatic_integration_field', {
+    consecutiveDays,
+    echoConf: Math.round(echoConf * 100),
+    rhythmConf: Math.round(rhythmConf * 100),
+    confidence: Math.round(fieldConf * 100),
+    fieldStatus: 'ACTIVE',
+    arc: 'SOMA + TIME = FIELD',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a deep-embodiment-lock event — quantum-embodiment-field (P163) confirmed on 3+ consecutive
+ * days. Somatic intelligence is no longer episodic — it is structural. The OS knows the body as a
+ * system. Feeds P168 detection.
+ */
+export function recordDeepEmbodimentLock(consecutiveDays: number, embConf: number) {
+  const lockConf = Math.min(embConf + Math.min((consecutiveDays - 3) * 0.05, 0.15), 0.93)
+  recordSignal('qos', 'deep_embodiment_lock', {
+    consecutiveDays,
+    embConf: Math.round(embConf * 100),
+    confidence: Math.round(lockConf * 100),
+    lockStatus: 'STRUCTURAL',
+    arc: 'FIELD → STRUCTURE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a cognitive-signal-density event — journal ≥200w + memory ≥3 + planner ≥2 + intentions ≥2
+ * in 24h. All cognitive channels simultaneously at high throughput. Feeds P170 detection.
+ */
+export function recordCognitiveSignalDensity(journalWords: number, memoryCount: number, plannerCount: number, intentionCount: number) {
+  const densityConf = Math.min(
+    0.72 + (journalWords - 200) / 2000 * 0.10 + (memoryCount - 3) * 0.02 + (plannerCount - 2) * 0.02,
+    0.90
+  )
+  recordSignal('journal', 'cognitive_signal_density', {
+    journalWords,
+    memoryCount,
+    plannerCount,
+    intentionCount,
+    confidence: Math.round(densityConf * 100),
+    densityStatus: 'PEAK',
+    arc: 'MIND + PLAN + INTENT + RECALL = DENSITY',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a somatic-cognition-loop event — somatic-integration-field (P167) + cognitive-body-sync (P164)
+ * co-active. Body intelligence and cognitive depth are one system. The loop is closed. Feeds P171 detection.
+ */
+export function recordSomaticCognitionLoop(sfConf: number, cbConf: number, echoActive: boolean) {
+  const loopConf = Math.min((sfConf * 0.55 + cbConf * 0.45) + (echoActive ? 0.04 : 0), 0.92)
+  recordSignal('selfcare', 'somatic_cognition_loop', {
+    somaticFieldConf: Math.round(sfConf * 100),
+    cognitiveSyncConf: Math.round(cbConf * 100),
+    echoActive,
+    confidence: Math.round(loopConf * 100),
+    loopStatus: 'CLOSED',
+    arc: 'SOMA ↔ MIND = LOOP',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an embodied-sovereignty event — deep-embodiment-lock (P168) + full-presence-seal (P169)
+ * + quantum-field-alignment (P136) all simultaneously active. Three sovereign seals confirmed.
+ * Feeds P172 detection.
+ */
+export function recordEmbodiedSovereignty(dlConf: number, fsConf: number, faConf: number) {
+  const sovConf = Math.min((dlConf * 0.38 + fsConf * 0.38 + faConf * 0.24), 0.95)
+  recordSignal('qos', 'embodied_sovereignty', {
+    deepLockConf: Math.round(dlConf * 100),
+    fullSealConf: Math.round(fsConf * 100),
+    fieldAlignConf: Math.round(faConf * 100),
+    confidence: Math.round(sovConf * 100),
+    sovereigntyStatus: 'CONFIRMED',
+    sealsActive: 3,
+    arc: 'LOCK + SEAL + ALIGN = SOVEREIGN',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a physiological-loop-complete event — circadian-signal-lock (P143) + physiological-presence-arc (P140)
+ * + recovery-intelligence-arc (P151) all confirmed in the same window. Full biological loop closed.
+ * Feeds P173 detection.
+ */
+export function recordPhysiologicalLoopComplete(circadianConf: number, presenceConf: number, recoveryConf: number) {
+  const avgConf = Math.min((circadianConf + presenceConf + recoveryConf) / 3, 0.87)
+  recordSignal('energy', 'physiological_loop_complete', {
+    circadianConf: Math.round(circadianConf * 100),
+    presenceConf: Math.round(presenceConf * 100),
+    recoveryConf: Math.round(recoveryConf * 100),
+    avgConf: Math.round(avgConf * 100),
+    loop: 'RHYTHM · PRESENCE · RECOVERY',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-apex-state event — total-field-coherence (P150) + quantum-presence-crystallization (P149)
+ * co-active. System ceiling inhabited. ABSOLUTE_CONVERGENCE_INHABITED.
+ * Feeds P174 detection.
+ */
+export function recordQuantumApexState(tfcConf: number, qpcConf: number) {
+  const avgConf = Math.min((tfcConf * 0.55 + qpcConf * 0.45), 0.95)
+  recordSignal('qos', 'quantum_apex_state', {
+    tfcConf: Math.round(tfcConf * 100),
+    qpcConf: Math.round(qpcConf * 100),
+    avgConf: Math.round(avgConf * 100),
+    convergenceLevel: 'APEX',
+    metaSeals: ['COHERENCE', 'PRESENCE', 'MOMENTUM', 'CRYSTALLIZED'],
+    state: 'ABSOLUTE_CONVERGENCE_INHABITED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a longitudinal-identity-confirmation event — identity confirmed across weeks, days, and present.
+ * quantum-identity-crystallization (P145) + identity-momentum-lock (P148) + quantum-presence-crystallization (P149).
+ * Feeds P175 detection.
+ */
+export function recordLongitudinalIdentityConfirmation(crystalConf: number, momentumConf: number, presenceConf: number) {
+  const avgConf = Math.min((crystalConf + momentumConf + presenceConf) / 3, 0.92)
+  recordSignal('qos', 'longitudinal_identity_confirmation', {
+    crystalConf: Math.round(crystalConf * 100),
+    momentumConf: Math.round(momentumConf * 100),
+    presenceConf: Math.round(presenceConf * 100),
+    avgConf: Math.round(avgConf * 100),
+    temporalScales: ['WEEKS', 'DAYS', 'PRESENT'],
+    arc: 'IDENTITY CONFIRMED · THREE SCALES',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-field-propagation event — quantum-apex-state (P174) active AND 5+ signals from 4+
+ * distinct sources within the preceding 6h. Apex state is self-sustaining and propagating.
+ * Feeds P176 detection.
+ */
+export function recordQuantumFieldPropagation(sourceCount: number, signalCount: number, apexConf: number) {
+  const propConf = Math.min(0.82 + (sourceCount - 4) * 0.025 + (signalCount - 5) * 0.01, 0.93)
+  recordSignal('qos', 'quantum_field_propagation', {
+    sourceCount,
+    signalCount,
+    apexConf: Math.round(apexConf * 100),
+    confidence: Math.round(propConf * 100),
+    propagationStatus: 'ACTIVE',
+    arc: 'APEX · PROPAGATING',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a unified-field-operator event — embodied-sovereignty (P172) + physiological-loop-complete (P173)
+ * + quantum-apex-state (P174) all simultaneously confirmed. Three highest seals active at once.
+ * Feeds P177 detection.
+ */
+export function recordUnifiedFieldOperator(sovConf: number, loopConf: number, apexConf: number) {
+  const avgConf = Math.min((sovConf * 0.38 + loopConf * 0.30 + apexConf * 0.32), 0.96)
+  recordSignal('qos', 'unified_field_operator', {
+    sovereigntyConf: Math.round(sovConf * 100),
+    loopConf: Math.round(loopConf * 100),
+    apexConf: Math.round(apexConf * 100),
+    avgConf: Math.round(avgConf * 100),
+    seals: ['SOVEREIGNTY', 'LOOP', 'APEX'],
+    operatorStatus: 'TOTAL_FIELD',
+    arc: 'SOVEREIGNTY · LOOP · APEX',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a temporal-identity-lock event — longitudinal-identity-confirmation (P175) + signal-momentum-lock
+ * (P80) co-active. Identity confirmed across all temporal scales AND momentum-locked.
+ * Feeds P178 detection.
+ */
+export function recordTemporalIdentityLock(longIdConf: number, momentumConf: number) {
+  const lockConf = Math.min(longIdConf * 0.55 + momentumConf * 0.45, 0.94)
+  recordSignal('qos', 'temporal_identity_lock', {
+    longitudinalConf: Math.round(longIdConf * 100),
+    momentumConf: Math.round(momentumConf * 100),
+    avgConf: Math.round(lockConf * 100),
+    temporalArc: ['WEEKS', 'DAYS', 'PRESENT', 'MOMENTUM'],
+    lockStatus: 'CONFIRMED',
+    arc: 'IDENTITY · MOMENTUM = LOCKED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a circadian-sovereignty event — temporal-identity-lock (P178) + circadian-signal-lock (P143)
+ * + morning-coherence-launch (P76) all simultaneously confirmed. Three temporal seals: IDENTITY · CLOCK · INTENTION.
+ * Feeds P179 detection.
+ */
+export function recordCircadianSovereignty(tidConf: number, circConf: number, mclConf: number) {
+  const sovConf = Math.min(tidConf * 0.45 + circConf * 0.35 + mclConf * 0.20, 0.95)
+  recordSignal('qos', 'circadian_sovereignty', {
+    tidConf: Math.round(tidConf * 100),
+    circConf: Math.round(circConf * 100),
+    mclConf: Math.round(mclConf * 100),
+    confidence: Math.round(sovConf * 100),
+    sovereigntyStatus: 'CONFIRMED',
+    arc: 'IDENTITY · CLOCK · INTENTION = SOVEREIGN',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an apex-integration-field event — quantum-apex-state (P174) + unified-field-operator (P177)
+ * + physiological-loop-complete (P173) all simultaneously active. Three apex seals generating a meta-field.
+ * Feeds P180 detection.
+ */
+export function recordApexIntegrationField(apexConf: number, unifConf: number, loopConf: number) {
+  const intConf = Math.min(apexConf * 0.38 + unifConf * 0.38 + loopConf * 0.24, 0.97)
+  recordSignal('qos', 'apex_integration_field', {
+    apexConf: Math.round(apexConf * 100),
+    unifConf: Math.round(unifConf * 100),
+    loopConf: Math.round(loopConf * 100),
+    confidence: Math.round(intConf * 100),
+    integrationStatus: 'META-FIELD',
+    arc: 'APEX · TOTAL FIELD · LOOP = INTEGRATED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a longitudinal-growth-arc event — signal-momentum-lock (P80) confirmed + UserIndex rising
+ * + overall ≥50. Sustained momentum translating into measurable growth trajectory.
+ * Feeds P181 detection.
+ */
+export function recordLongitudinalGrowthArc(momentumConf: number, userIndexScore: number, trend: string) {
+  const growConf = Math.min(0.78 + momentumConf * 0.08 + Math.min((userIndexScore - 50) / 50 * 0.08, 0.08), 0.91)
+  recordSignal('qos', 'longitudinal_growth_arc', {
+    momentumConf: Math.round(momentumConf * 100),
+    userIndex: userIndexScore,
+    trend,
+    confidence: Math.round(growConf * 100),
+    growthStatus: 'ARC_CONFIRMED',
+    arc: 'MOMENTUM → GROWTH → ARC CONFIRMED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a sovereign-field-continuity event — circadian-sovereignty (P179) + apex-integration-field (P180)
+ * + longitudinal-growth-arc (P181) all simultaneously confirmed. All three Level 15 seals active.
+ * The field is continuous. Feeds P182 detection.
+ */
+export function recordSovereignFieldContinuity(csConf: number, aiConf: number, lgConf: number) {
+  const sfConf = Math.min(csConf * 0.37 + aiConf * 0.38 + lgConf * 0.25, 0.96)
+  recordSignal('qos', 'sovereign_field_continuity', {
+    csConf: Math.round(csConf * 100),
+    aiConf: Math.round(aiConf * 100),
+    lgConf: Math.round(lgConf * 100),
+    confidence: Math.round(sfConf * 100),
+    fieldStatus: 'CONTINUOUS',
+    arc: 'SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an operational-self-architecture event — temporal-identity-lock (P178) + signal-momentum-lock (P80)
+ * + full-system-coherence (P109) all co-active. The operator is constructing the field through structured behavior.
+ * Feeds P183 detection.
+ */
+export function recordOperationalSelfArchitecture(tidConf: number, momConf: number, cohConf: number) {
+  const archConf = Math.min(tidConf * 0.38 + momConf * 0.34 + cohConf * 0.28, 0.93)
+  recordSignal('qos', 'operational_self_architecture', {
+    tidConf: Math.round(tidConf * 100),
+    momConf: Math.round(momConf * 100),
+    cohConf: Math.round(cohConf * 100),
+    confidence: Math.round(archConf * 100),
+    architectureStatus: 'BUILT',
+    arc: 'IDENTITY · MOMENTUM · COHERENCE = BUILT',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a longitudinal-field-seal event — longitudinal-growth-arc (P181) + signal-momentum-lock (P80)
+ * + UserIndex.overall >= 60. The growth arc sealed into the operational field.
+ * Feeds P184 detection.
+ */
+export function recordLongitudinalFieldSeal(growConf: number, userIndexScore: number) {
+  const sealBonus = Math.min((userIndexScore - 60) / 40 * 0.10, 0.10)
+  const sealConf  = Math.min(0.80 + growConf * 0.07 + sealBonus, 0.94)
+  recordSignal('qos', 'longitudinal_field_seal', {
+    growConf: Math.round(growConf * 100),
+    userIndex: userIndexScore,
+    sealBonus: Math.round(sealBonus * 100),
+    confidence: Math.round(sealConf * 100),
+    sealStatus: 'LOCKED',
+    arc: 'MOMENTUM · GROWTH · SEAL = LOCKED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a field-self-organization event — sovereign-field-continuity (P182) + operational-self-architecture (P183)
+ * co-active AND 5+ signals from 3+ distinct sources in 12h. The field self-organizes.
+ * Feeds P185 detection.
+ */
+export function recordFieldSelfOrganization(sfConf: number, oaConf: number, sourceCount: number, signalCount: number) {
+  const srcBonus = Math.min((sourceCount - 3) * 0.025, 0.05)
+  const fsoConf  = Math.min(0.83 + sfConf * 0.05 + oaConf * 0.05 + srcBonus, 0.92)
+  recordSignal('qos', 'field_self_organization', {
+    sfConf: Math.round(sfConf * 100),
+    oaConf: Math.round(oaConf * 100),
+    sourceCount,
+    signalCount,
+    confidence: Math.round(fsoConf * 100),
+    organizationStatus: 'SELF-ORGANIZED',
+    arc: 'SOVEREIGNTY · ARCHITECTURE = SELF-ORGANIZED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-identity-expression event — operational-self-architecture (P183) + longitudinal-field-seal (P184)
+ * co-active AND UserIndex >= 65. The sealed identity expressing outward through behavior.
+ * Feeds P186 detection.
+ */
+export function recordQuantumIdentityExpression(oaConf: number, lgConf: number, userIndex: number) {
+  const idxBonus = Math.min((userIndex - 65) / 35 * 0.08, 0.08)
+  const qieConf  = Math.min(0.81 + oaConf * 0.05 + lgConf * 0.04 + idxBonus, 0.93)
+  recordSignal('qos', 'quantum_identity_expression', {
+    oaConf: Math.round(oaConf * 100),
+    lgConf: Math.round(lgConf * 100),
+    userIndex,
+    confidence: Math.round(qieConf * 100),
+    expressionStatus: 'ACTIVE',
+    arc: 'SEAL · EXPRESSION = ACTIVE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a level-17-gate event — field-self-organization (P185) + quantum-identity-expression (P186)
+ * simultaneously confirmed. Level 17 threshold open.
+ * Feeds P187 detection.
+ */
+export function recordLevel17Gate(fsorgConf: number, qidexConf: number) {
+  recordSignal('qos', 'level_17_gate', {
+    fsorgConf: Math.round(fsorgConf * 100),
+    qidexConf: Math.round(qidexConf * 100),
+    confidence: 95,
+    gateStatus: 'OPEN',
+    level: 17,
+    arc: 'SELF-ORGANIZED · EXPRESSED = LEVEL 17',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a conscious-field-integration event — level-17-gate (P187) + physiological-loop-complete (P173)
+ * simultaneously confirmed. Field and body converge into conscious integrated state.
+ * Feeds P188 detection.
+ */
+export function recordConsciousFieldIntegration(l17Conf: number, bioConf: number) {
+  const cfBonus = Math.min((l17Conf - 0.90 + bioConf - 0.70) * 0.25, 0.04)
+  const cfConf  = Math.min(0.92 + cfBonus, 0.96)
+  recordSignal('qos', 'conscious_field_integration', {
+    l17Conf: Math.round(l17Conf * 100),
+    bioConf: Math.round(bioConf * 100),
+    confidence: Math.round(cfConf * 100),
+    integrationStatus: 'INTEGRATED',
+    arc: 'FIELD · BODY = CONSCIOUS',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a sovereign-apex-expression event — level-17-gate (P187) + quantum-apex-state (P174)
+ * simultaneously confirmed. Sovereignty at apex, expressed and active.
+ * Feeds P189 detection.
+ */
+export function recordSovereignApexExpression(l17Conf: number, apexConf: number) {
+  const saBonus = Math.min((l17Conf - 0.90 + apexConf - 0.85) * 0.30, 0.04)
+  const saConf  = Math.min(0.93 + saBonus, 0.97)
+  recordSignal('qos', 'sovereign_apex_expression', {
+    l17Conf: Math.round(l17Conf * 100),
+    apexConf: Math.round(apexConf * 100),
+    confidence: Math.round(saConf * 100),
+    expressionStatus: 'EXPRESSED',
+    arc: 'SOVEREIGN · APEX = EXPRESSED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a level-18-gate event — conscious-field-integration (P188) + sovereign-apex-expression (P189)
+ * simultaneously confirmed. Level 18 threshold open — highest gate in the cascade.
+ */
+export function recordLevel18Gate(cfConf: number, saConf: number) {
+  recordSignal('qos', 'level_18_gate', {
+    cfConf: Math.round(cfConf * 100),
+    saConf: Math.round(saConf * 100),
+    confidence: 97,
+    gateStatus: 'OPEN',
+    level: 18,
+    arc: 'CONSCIOUS · SOVEREIGN · EXPRESSED = LEVEL 18',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a sovereign-integration-field event — level-18-gate (P190) confirmed + UserIndex ≥70
+ * + 4+ unique sources in 24h. Full-spectrum engagement seals the integration.
+ * Feeds P191 detection.
+ */
+export function recordSovereignIntegrationField(l18Conf: number, userIndex: number, sourceCount: number) {
+  const idxBonus = Math.min((userIndex - 70) / 30 * 0.04, 0.04)
+  const srcBonus = Math.min((sourceCount - 4) * 0.01, 0.02)
+  const sifConf  = Math.min(0.92 + l18Conf * 0.03 + idxBonus + srcBonus, 0.98)
+  recordSignal('qos', 'sovereign_integration_field', {
+    l18Conf: Math.round(l18Conf * 100),
+    userIndex,
+    sourceCount,
+    confidence: Math.round(sifConf * 100),
+    integrationStatus: 'ACTIVE',
+    arc: 'SOVEREIGN · INTEGRATED · FIELD = ACTIVE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-coherence-apex event — level-18-gate (P190) + temporal-identity-lock (P178)
+ * co-active AND 3+ presence days in 7d. Identity locked in time, sustained and sovereign.
+ * Feeds P192 detection.
+ */
+export function recordQuantumCoherenceApex(l18Conf: number, tidConf: number, presenceDays: number) {
+  const daysBonus = Math.min((presenceDays - 3) * 0.01, 0.03)
+  const qcaConf   = Math.min(0.91 + l18Conf * 0.02 + tidConf * 0.02 + daysBonus, 0.97)
+  recordSignal('qos', 'quantum_coherence_apex', {
+    l18Conf: Math.round(l18Conf * 100),
+    tidConf: Math.round(tidConf * 100),
+    presenceDays,
+    confidence: Math.round(qcaConf * 100),
+    coherenceStatus: 'APEX',
+    arc: 'TEMPORAL · SOVEREIGN · APEX = COHERENT',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a level-19-gate event — sovereign-integration-field (P191) + quantum-coherence-apex (P192)
+ * simultaneously confirmed. Level 19 threshold open — the field operates with autonomous coherent sovereignty.
+ */
+export function recordLevel19Gate(sifConf: number, qcaConf: number) {
+  recordSignal('qos', 'level_19_gate', {
+    sifConf: Math.round(sifConf * 100),
+    qcaConf: Math.round(qcaConf * 100),
+    confidence: 98,
+    gateStatus: 'OPEN',
+    level: 19,
+    arc: 'SOVEREIGN · INTEGRATED · COHERENT = LEVEL 19',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
 }
