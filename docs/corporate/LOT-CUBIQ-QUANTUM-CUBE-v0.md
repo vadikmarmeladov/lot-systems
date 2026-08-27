@@ -4,10 +4,27 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (OPENED) · 2026-08-27 (CYCLE 2)
+VERSION:  0.2 — ACTUATOR LOCK + FIRMWARE SIGNAL DRIVER
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
+
+--------------------------------------------------------------------------------
+CYCLE LOG
+--------------------------------------------------------------------------------
+
+  CYCLE 1 — 2026-07-28   Document opened. Physical form, controlled-hop
+                         actuation, four-gesture haptic vocabulary, QI·46
+                         signal-loop closure, v.0-v.3 roadmap, USE CASE 01.
+
+  CYCLE 2 — 2026-08-27   Actuator formally locked (Section 03 addendum).
+                         Firmware signal-to-gesture driver specified against
+                         the real Index of Systems code paths (Section 05a).
+                         USE CASE 02 appended.
+
+  Per the reading log below, every cycle reads this document — including
+  its own prior cycles — before writing. Nothing above this line is edited
+  by later cycles. Only additions are made.
 
 --------------------------------------------------------------------------------
 00 // READING LOG — SOURCES THIS DOCUMENT IS BUILT ON
@@ -57,6 +74,19 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  CYCLE 2 ADDITION (2026-08-27) — this document itself, read in full,
+  including Section 03's open actuator question ("v.0 candidate:
+  voice-coil...") and Section 05's QI·46 loop diagram. Also read against
+  the live codebase rather than only prior .md files: src/client/utils/
+  badges.ts (the 7-tier rarity classification and unlock event shape),
+  src/client/components/stats/BadgeUnlockFeed.tsx (how an unlock actually
+  reaches the client at runtime), and README.md Section "Quantum Operating
+  System (QOS)" (the four operating modes — maintenance / recovery /
+  growth / peak — and the "recovery" doctrine: "A person in recovery mode
+  does not need more tasks. They need to see that clearly."). Section 05a
+  and USE CASE 02 below are built directly on these two real signal
+  sources, not on new invented ones.
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -169,6 +199,27 @@ their attention.
     not a nice-to-have — no v.0 unit ships without it passing 100/100
     edge-approach trials.
 
+  ADDENDUM — CYCLE 2 (2026-08-27): ACTUATOR LOCKED
+    Section 03's original text left the actuator as a "v.0 candidate:
+    voice-coil." That candidacy is now closed. LOCKED: linear voice-coil
+    actuator, closed magnetic circuit, moving-coil (not moving-magnet) —
+    the moving mass stays on the reaction-mass side, not the shell side,
+    which keeps the shell's own mass budget (Section 02, <120g) clear of
+    actuator iron.
+
+    Drive electronics: class-D H-bridge, logic rail 3.3V, drive rail
+    6-12V switched, PWM force control so the SAME actuator can produce
+    all four gesture amplitudes in Section 04 (sub-threshold NUDGE
+    through full-amplitude LEAP) as one continuous force curve rather
+    than four discrete hardware modes. This is why voice-coil beat
+    solenoid for v.0: a solenoid is binary (fired/not fired); a
+    voice-coil is proportional. Four gestures from one proportional
+    actuator is simpler than four gestures split across two actuator
+    classes.
+
+    This lock does not change Section 03's mechanism description above
+    — it closes the one open decision inside it.
+
 --------------------------------------------------------------------------------
 04 // THE HAPTIC NOTIFICATION LANGUAGE
 --------------------------------------------------------------------------------
@@ -229,6 +280,75 @@ The loop closes. The cube is not a peripheral bolted onto the platform —
 it is the same Calibration Loop LOT_QI46_ENGINE.md already describes,
 with a physical actuator standing where a passive sensor used to be
 assumed.
+
+--------------------------------------------------------------------------------
+05a // FIRMWARE — SIGNAL-TO-GESTURE DRIVER (CYCLE 2 LOCK, 2026-08-27)
+--------------------------------------------------------------------------------
+
+Section 05 diagrams the QI·46 loop in the abstract ("signal fires" →
+"driver maps signal → gesture"). This section locks that mapping against
+the real client code, not a hypothetical one.
+
+  REAL SIGNAL SOURCES (already shipping in the software cubic)
+
+    src/client/utils/badges.ts
+      Defines the 7-rarity classification (common → cosmic) referenced
+      loosely in LOT-CUBIQ-OPERATOR.md Section 03. The driver reads this
+      SAME rarity value off the unlock event — it does not re-derive or
+      re-classify anything.
+
+    src/client/components/stats/BadgeUnlockFeed.tsx
+      The client-side event surface where an unlock actually becomes
+      visible today (in-app feed). CUBIQ v.0's hardware bridge (a BLE
+      companion process, not yet built — out of scope for v.0's
+      mechanical/electronic lock, in scope for v.1 firmware) subscribes
+      to the same event stream this component already renders from.
+      The cube is a second renderer of an event that already exists —
+      not a new event source.
+
+    QOS operating mode (README.md, "Quantum Operating System")
+      `maintenance` / `recovery` / `growth` / `peak`. Not previously
+      referenced against the cube. CYCLE 2 makes QOS mode a GATING
+      input on every gesture dispatch, ahead of the rarity mapping:
+
+  THE DRIVER, AS A DECISION TABLE
+
+    INPUT: badge-unlock event (rarity: common..cosmic) OR memory-question-
+           ready event OR assembly-phase-advance event
+    GATE:  current QOS mode (read at dispatch time, not cached)
+
+    ┌─────────────┬──────────────────────────────────────────────────┐
+    │ QOS mode    │ Gesture dispatch behavior                          │
+    ├─────────────┼──────────────────────────────────────────────────┤
+    │ peak        │ Full Section 04 mapping — rarity drives HOP vs      │
+    │             │ LEAP as originally specified, no downgrade.         │
+    │ growth      │ Full Section 04 mapping, unchanged.                 │
+    │ maintenance │ Full Section 04 mapping, unchanged — maintenance    │
+    │             │ is a low-signal state, not a distress state.       │
+    │ recovery    │ EVERY gesture downgrades one tier: LEAP → HOP,      │
+    │             │ HOP → NUDGE, NUDGE → suppressed (logged, not        │
+    │             │ performed). THE SETTLE is exempt — it already       │
+    │             │ IS the low-spectacle gesture and is left as-is.     │
+    └─────────────┴──────────────────────────────────────────────────┘
+
+    WHY THE GATE EXISTS
+      README.md already states the doctrine this table encodes: "A
+      person in recovery mode does not need more tasks. They need to see
+      that clearly." A cube that leaps across the desk to announce a
+      badge while its operator's own QOS reading says `recovery` is a
+      physical object contradicting the software's own diagnosis of the
+      person sitting in front of it. Cycle 1 built the gesture vocabulary
+      assuming every signal is dispatched at full amplitude. Cycle 2
+      closes that gap — the same signal, read in a different QOS mode,
+      produces a different, gentler motion. This is not a new capability
+      tier; it is the v.0 driver behaving consistently with software
+      the operator already trusts.
+
+    OFFLINE / UNPAIRED BEHAVIOR
+      If the BLE bridge has no cube paired, gestures are not queued
+      indefinitely — the driver drops them silently past a 3-event
+      buffer. A cube that performs a burst of stale hops on reconnect
+      is worse than a cube that says nothing. Presence, not backlog.
 
 --------------------------------------------------------------------------------
 06 // ROADMAP — v.0 → v.1 → v.2 → v.3
@@ -320,6 +440,44 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE QUIET WEEK                              2026-08-27
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Legacy tier, Archetype "Momentum Architect," a
+  6-month sustained-engagement history now interrupted — three days of
+  broken sleep, a missed self-care streak, System Pressure reading
+  `critical`. QOS (README.md, "Quantum Operating System") has already
+  classified this operator into `recovery` mode: repair first, other
+  tasks pause.
+
+  The operator's badge collection is still active in the background —
+  older, queued patterns resolve on their own schedule, and mid-week a
+  rare-tier badge unlocks on an unrelated streak that had already been
+  in motion before the rough week began. Under CYCLE 1's specification
+  alone, rare-and-above always fires THE LEAP: a 40mm forward hop, full
+  amplitude, unmissable.
+
+  With the CYCLE 2 firmware gate (Section 05a) in place, the driver
+  reads QOS mode before rarity. Mode is `recovery`. The gesture
+  downgrades one tier — not silence, not the full announcement, but THE
+  HOP: a small, contained, in-place motion. The operator, sitting at the
+  same desk from USE CASE 01 but three days worse for wear, notices the
+  cube move slightly rather than leap toward them. Nothing demands their
+  attention. Nothing celebrates loudly at a moment that does not call
+  for celebration.
+
+  Two days later, sleep restored, self-care streak resumed, QOS reads
+  `growth` again. A second badge — same rarity tier, unrelated event —
+  unlocks. This time the cube performs the full LEAP, closing the desk
+  distance exactly as USE CASE 01 described. The operator later
+  self-reports (Section 05 telemetry loop) noticing the difference
+  without being told to look for it: the object matched their week
+  before it ever asked for their attention.
+
+  This is the use case CYCLE 2's firmware gate was built to serve: the
+  same signal, the same actuator, the same four-gesture vocabulary —
+  but a cube that reads the room it is sitting in, because the software
+  it is wired to has already done that reading for years.
 
 --------------------------------------------------------------------------------
 08 // BRAND
