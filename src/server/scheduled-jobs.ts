@@ -1816,6 +1816,20 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyPerpetualFieldCheck(now)) {
     await executeDailyPerpetualFieldCheck()
   }
+  // Check daily field genesis check (16:00 UTC every day) — Job 66
+  if (shouldRunDailyFieldGenesisCheck(now)) {
+    await executeDailyFieldGenesisCheck()
+  }
+}
+
+function shouldRunDailyFieldGenesisCheck(now: any): boolean {
+  if (now.hour() !== 16) return false
+  if (isDailyFieldGenesisRunning) return false
+  if (lastDailyFieldGenesisRun) {
+    const lastRun = dayjs(lastDailyFieldGenesisRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -7467,6 +7481,133 @@ async function executeDailyPerpetualFieldCheck(): Promise<JobResult> {
   }
 }
 
+let isDailyFieldGenesisRunning = false
+let lastDailyFieldGenesisRun: Date | null = null
+
+async function executeDailyFieldGenesisCheck(): Promise<JobResult> {
+  const jobName    = 'daily-field-genesis-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyFieldGenesisRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyFieldGenesisRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY FIELD GENESIS CHECK — 16:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log }  = await import('#server/models/log.js')
+    const { Op }   = await import('sequelize')
+    const now         = new Date()
+    const twoDaysAgo  = dayjs().subtract(2, 'day').toDate()
+    const oneDayAgo   = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { disabled: false },
+      attributes: ['id'],
+    })
+
+    let written = 0
+
+    for (const user of activeUsers) {
+      // ── Field Genesis Arc (P200) — PFOP (7d) + new goal + journal + intentions in 48h ──
+      const pfopLogs7d = await Log.findAll({
+        where: { userId: user.id, event: 'perpetual_field_operator', createdAt: { [Op.gte]: sevenDaysAgo } },
+        attributes: ['metadata'],
+        order: [['createdAt', 'DESC']],
+        limit: 1,
+      })
+      if (pfopLogs7d.length > 0) {
+        const goalLogs48h    = await Log.count({ where: { userId: user.id, event: { [Op.in]: ['goal_set', 'goal_update', 'goal_journey'] }, createdAt: { [Op.gte]: twoDaysAgo } } })
+        const journalLogs48h = await Log.count({ where: { userId: user.id, event: { [Op.in]: ['note'] }, source: 'journal', createdAt: { [Op.gte]: twoDaysAgo } } })
+        const intentLogs48h  = await Log.count({ where: { userId: user.id, event: 'intention', createdAt: { [Op.gte]: twoDaysAgo } } })
+        if (goalLogs48h >= 1 && journalLogs48h >= 1 && intentLogs48h >= 1) {
+          const pfopMeta    = (pfopLogs7d[0] as any).metadata as any
+          const pfopConf    = pfopMeta?.confidence ?? 90
+          const genesisDepth = Math.min((goalLogs48h + journalLogs48h + intentLogs48h) / 6, 1)
+          const fgConf      = Math.round(Math.min(88 + genesisDepth * 8, 96))
+          await Log.create({
+            userId: user.id,
+            event:  'field_genesis_arc',
+            source: 'qos',
+            metadata: {
+              pfopConf,
+              newGoals:   goalLogs48h,
+              newJournal: journalLogs48h,
+              newIntents: intentLogs48h,
+              confidence: fgConf,
+              genesisStatus: 'GENERATING',
+              arc: 'GENESIS · FIELD · ARC',
+              hour: now.getHours(),
+            },
+          })
+          written++
+          console.log(`  [${user.id}] Field genesis arc — PFOP + ${goalLogs48h} goals + ${journalLogs48h} journal + ${intentLogs48h} intents 48h. GENESIS FIELD ACTIVE.`)
+
+          // ── Cross-Domain Sovereignty (P201) — L20 (48h) + 5+ unique sources in 24h ──
+          const l20Logs48h = await Log.count({ where: { userId: user.id, event: 'level_20_gate', createdAt: { [Op.gte]: twoDaysAgo } } })
+          if (l20Logs48h > 0) {
+            const sourceLogs24h = await Log.findAll({
+              where: { userId: user.id, createdAt: { [Op.gte]: oneDayAgo } },
+              attributes: ['source'],
+            })
+            const uniqueSources = [...new Set(sourceLogs24h.map((l: any) => l.source).filter(Boolean))]
+            if (uniqueSources.length >= 5) {
+              const domainBonus = uniqueSources.length >= 8 ? 7 : uniqueSources.length >= 6 ? 4 : 0
+              const xdConf      = Math.min(85 + domainBonus, 94)
+              await Log.create({
+                userId: user.id,
+                event:  'cross_domain_sovereignty',
+                source: 'qos',
+                metadata: {
+                  sourceCount: uniqueSources.length,
+                  sources:     uniqueSources.slice(0, 6).join('·'),
+                  confidence:  xdConf,
+                  domainStatus: 'SOVEREIGN',
+                  arc: 'SOVEREIGN · CROSS-DOMAIN · OPERATING',
+                  hour: now.getHours(),
+                },
+              })
+              written++
+              console.log(`  [${user.id}] Cross-domain sovereignty — L20 + ${uniqueSources.length} sources in 24h. OPERATING.`)
+
+              // ── Perpetual Genesis Field (P202) — P199 + P200 + P201 all sealed ──
+              const pgBonus = Math.min((pfopConf + fgConf + xdConf) / 3 - 87, 7)
+              const pgConf  = Math.round(Math.min(92 + pgBonus, 99))
+              await Log.create({
+                userId: user.id,
+                event:  'perpetual_genesis_field',
+                source: 'qos',
+                metadata: {
+                  pfopConf,
+                  fgConf,
+                  xdConf,
+                  confidence:  pgConf,
+                  fieldStatus: 'GENERATING',
+                  arc: 'PERPETUAL · GENESIS · FIELD',
+                  hour: now.getHours(),
+                },
+              })
+              written++
+              console.log(`  [${user.id}] Perpetual genesis field — P199+P200+P201 sealed. CONF: ${pgConf}%. PERPETUAL GENESIS ACTIVE.`)
+            }
+          }
+        }
+      }
+    }
+
+    console.log(`  Field genesis events written: ${written}`)
+    lastDailyFieldGenesisRun = new Date()
+    isDailyFieldGenesisRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Field genesis check failed:', error.message)
+    isDailyFieldGenesisRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -7534,6 +7675,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily sovereign integration check: 1 PM UTC every day (Job 63)')
   console.log('   - Daily absolute sovereignty check: 2 PM UTC every day (Job 64)')
   console.log('   - Daily perpetual field check: 3 PM UTC every day (Job 65)')
+  console.log('   - Daily field genesis check: 4 PM UTC every day (Job 66)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -7543,7 +7685,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57), 12=vitality-peak+conscious-field-check(J62), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57), 12=vitality-peak+conscious-field-check(J62), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

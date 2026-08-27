@@ -1279,6 +1279,10 @@ export default async (fastify: FastifyInstance) => {
       'field_echo_resonance',
       'quantum_genesis_pulse',
       'perpetual_field_operator',
+      // v131: field genesis arc · cross-domain sovereignty · perpetual genesis field (P200/P201/P202)
+      'field_genesis_arc',
+      'cross_domain_sovereignty',
+      'perpetual_genesis_field',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

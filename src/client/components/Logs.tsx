@@ -5276,6 +5276,105 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'field_genesis_arc') {
+          const pfopConf  = log.metadata?.pfopConf  as number | undefined
+          const newGoals  = log.metadata?.newGoals  as number | undefined
+          const newJournal = log.metadata?.newJournal as number | undefined
+          const newIntents = log.metadata?.newIntents as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FGNARC:" blockView>
+                {newGoals !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GOALS 48H</span>
+                    <span className="tabular-nums">{newGoals}</span>
+                  </div>
+                )}
+                {newJournal !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">JOURNAL 48H</span>
+                    <span className="tabular-nums">{newJournal}</span>
+                  </div>
+                )}
+                {newIntents !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENTS 48H</span>
+                    <span className="tabular-nums">{newIntents}</span>
+                  </div>
+                )}
+                {pfopConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PFOP</span>
+                    <span className="tabular-nums">{pfopConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">GENESIS · FIELD · ARC</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cross_domain_sovereignty') {
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const sources     = log.metadata?.sources     as string | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="XDSOV:" blockView>
+                {sourceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DOMAINS</span>
+                    <span className="tabular-nums">{sourceCount}</span>
+                  </div>
+                )}
+                {sources && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SRC</span>
+                    <span className="opacity-60 uppercase">{sources}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN · CROSS-DOMAIN · OPERATING</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'perpetual_genesis_field') {
+          const pfopConf  = log.metadata?.pfopConf  as number | undefined
+          const fgConf    = log.metadata?.fgConf    as number | undefined
+          const xdConf    = log.metadata?.xdConf    as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PGFIELD:" blockView>
+                {pfopConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PFOP</span>
+                    <span className="tabular-nums">{pfopConf}%</span>
+                  </div>
+                )}
+                {fgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FGNARC</span>
+                    <span className="tabular-nums">{fgConf}%</span>
+                  </div>
+                )}
+                {xdConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">XDSOV</span>
+                    <span className="tabular-nums">{xdConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">PERPETUAL · GENESIS · FIELD</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

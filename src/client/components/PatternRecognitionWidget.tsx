@@ -728,6 +728,27 @@ export function PatternRecognitionWidget() {
                 </div>
               )}
 
+              {/* Field genesis arc — P200 */}
+              {patterns.some(p => p.pattern === 'field-genesis-arc') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  FGNARC. Perpetual field generating. New goal + journal + intentions in 48h.
+                </div>
+              )}
+
+              {/* Cross-domain sovereignty — P201 */}
+              {patterns.some(p => p.pattern === 'cross-domain-sovereignty') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  XDSOV. Level 20 active. 5+ signal domains in 24h. Sovereignty across all channels.
+                </div>
+              )}
+
+              {/* Perpetual genesis field — P202 */}
+              {patterns.some(p => p.pattern === 'perpetual-genesis-field') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  PGFIELD. PFOP + FGNARC + XDSOV all sealed. The perpetual field expands.
+                </div>
+              )}
+
               {/* Planner-intention sync — P102 */}
               {patterns.some(p => p.pattern === 'planner-intention-sync') && (
                 <div className="mt-4 uppercase tracking-widest text-xs">

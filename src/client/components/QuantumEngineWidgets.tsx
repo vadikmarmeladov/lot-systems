@@ -158,6 +158,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'field-echo-resonance':             'FECHO',
   'quantum-genesis-pulse':            'QGEN',
   'perpetual-field-operator':         'PFOP',
+  'field-genesis-arc':                'FGNARC',
+  'cross-domain-sovereignty':         'XDSOV',
+  'perpetual-genesis-field':          'PGFIELD',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

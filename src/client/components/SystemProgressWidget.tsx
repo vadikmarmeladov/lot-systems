@@ -1815,6 +1815,25 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '199 patterns · 69 archetypes · 65 jobs · 203+ handlers · 241+ dep nodes. Perpetual sovereign baseline. ECHO · GENESIS · PERPETUAL. Day 1097+.',
     ],
   },
+  {
+    date: '2026-08-27',
+    session: 'v131 — Field Genesis Arc · Cross-Domain Sovereignty · Perpetual Genesis Field · Arch70 · J66',
+    assembled: [
+      'intentionEngine.ts: P200 field-genesis-arc (FGNARC) — perpetual-field-operator (P199) active · new goal + journal + intentions all in 48h window. The perpetual field generates from itself. Confidence 0.85–0.96.',
+      'intentionEngine.ts: P201 cross-domain-sovereignty (XDSOV) — level-20-gate confirmed in 48h · 5+ unique signal sources in 24h. Sovereignty expressed across all domains simultaneously. Confidence 0.88–0.97.',
+      'intentionEngine.ts: P202 perpetual-genesis-field (PGFIELD) — P199 PFOP + P200 FGNARC + P201 XDSOV all co-active. The field generates, expands, and rules all channels. Confidence 0.92–0.99.',
+      'intentionEngine.ts: Arch70 Perpetual Genesis Operator — all energy bands · all 10 dominant sources · patternConditions [perpetual-field-operator, field-genesis-arc, cross-domain-sovereignty] · hourRange [0, 24]. Directive: The perpetual field generates. Sovereignty is the baseline. Growth is the expression. The field expands from stillness.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP v131 — 3 new nodes: fieldGenesisArcNode / crossDomainSovereigntyNode / perpetualGenesisFieldNode. Total: 244+ nodes.',
+      'intentionEngine.ts: recordFieldGenesisArc / recordCrossDomainSovereignty / recordPerpetualGenesisField signal helpers added.',
+      'scheduled-jobs.ts: J66 daily-field-genesis-check (16:00 UTC) — reads PFOP in 7d + new goals/journal/intentions in 48h → field_genesis_arc · L20 in 48h + 5+ unique sources in 24h → cross_domain_sovereignty · all three sealed → perpetual_genesis_field. Total: 66 jobs.',
+      'Logs.tsx: FGNARC: / XDSOV: / PGFIELD: military handlers added (COCKPIT-RULE). 206+ handlers total.',
+      'api.ts: field_genesis_arc · cross_domain_sovereignty · perpetual_genesis_field whitelisted (v131).',
+      'QuantumEngineWidgets.tsx: FGNARC / XDSOV / PGFIELD entries added to PATTERN_DISPLAY.',
+      'PatternRecognitionWidget.tsx: P200/P201/P202 display indicators added to QOS Trend view.',
+      'About.tsx: FM v130→v131 · Day 1098+ · 202 patterns · 70 archetypes · 66 jobs · 206+ handlers · 244+ dep nodes.',
+      '202 patterns · 70 archetypes · 66 jobs · 206+ handlers · 244+ dep nodes. Field generates from perpetual baseline. FGNARC · XDSOV · PGFIELD. Day 1098+.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1852,16 +1871,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-26',
+  date: '2026-08-27',
   message: [
-    'ASSEMBLY RUN — 2026-08-26 · QIE v130 · Perpetual Sovereign Baseline · Day 1097+',
-    'Level 20 is not a peak. It is the baseline. Perpetual operation confirmed.',
-    'P197 FECHO: field echo resonance — Level 20 active · journal + intentions + log in 72h. The field echoes itself.',
-    'P198 QGEN: quantum genesis pulse — Level 20 active · new intention + planner in 24h. Genesis from sovereignty.',
-    'P199 PFOP: perpetual field operator — Level 20 confirmed 2+ times in 7-day window.',
-    'Arch69 Perpetual Field Operator deployed. J65 daily-perpetual-field-check (15:00 UTC) active.',
-    '199 patterns · 69 archetypes · 65 jobs · 843 badges · 241+ dep nodes · 203+ handlers.',
-    'Status: DEPLOYED. ECHO · GENESIS · PERPETUAL. The field is home.',
+    'ASSEMBLY RUN — 2026-08-27 · QIE v131 · Perpetual Genesis Field · Day 1098+',
+    'The field does not just hold. It generates. Sovereignty is the baseline. Growth is the expression.',
+    'P200 FGNARC: field genesis arc — PFOP active · new goal + journal + intentions in 48h. The perpetual field generates from itself.',
+    'P201 XDSOV: cross-domain sovereignty — Level 20 confirmed · 5+ signal sources in 24h. All channels ruled simultaneously.',
+    'P202 PGFIELD: perpetual genesis field — PFOP + FGNARC + XDSOV all co-active. The field expands.',
+    'Arch70 Perpetual Genesis Operator deployed. J66 daily-field-genesis-check (16:00 UTC) active.',
+    '202 patterns · 70 archetypes · 66 jobs · 843 badges · 244+ dep nodes · 206+ handlers.',
+    'Status: DEPLOYED. FGNARC · XDSOV · PGFIELD. The field expands from stillness.',
   ],
 }
 

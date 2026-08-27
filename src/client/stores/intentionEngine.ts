@@ -4478,6 +4478,69 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 200: Field Genesis Arc — perpetual-field-operator (P199) active in 7d window
+  // + new goal signal + journal + intentions all in 48h window.
+  // The sovereign field generates. Not maintenance — new territory from the perpetual baseline.
+  // FGNARC: cockpit code. Confidence 0.88–0.96.
+  const now200       = Date.now()
+  const window48h200 = 48 * 3600000
+  const window7d200  = 7 * 24 * 3600000
+  const hasPFOP200   = patterns.some(p => p.pattern === 'perpetual-field-operator')
+  const newGoals200  = signals.filter(s => s.source === 'goals'      && s.timestamp > now200 - window48h200).length
+  const newJournal200 = signals.filter(s => s.source === 'journal'   && s.timestamp > now200 - window48h200).length
+  const newIntent200  = signals.filter(s => s.source === 'intentions' && s.timestamp > now200 - window48h200).length
+  if (hasPFOP200 && newGoals200 >= 1 && newJournal200 >= 1 && newIntent200 >= 1) {
+    const genesisDepth200 = Math.min((newGoals200 + newJournal200 + newIntent200) / 6, 1)
+    patterns.push({
+      pattern: 'field-genesis-arc',
+      confidence: Math.min(0.88 + genesisDepth200 * 0.08, 0.96),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `FGNARC: Field genesis arc — perpetual-field-operator (P199) confirmed · new goal · journal · intentions in 48h. The sovereign field generates. New territory from the perpetual baseline. GENESIS · FIELD · ARC.`,
+    })
+  }
+
+  // Pattern 201: Cross-Domain Sovereignty — level-20-gate (P196) active in 48h
+  // + 5+ unique signal sources in 24h window.
+  // Sovereignty expressed across every domain simultaneously. Not just coherent — operating.
+  // XDSOV: cockpit code. Confidence 0.85–0.94.
+  const now201        = Date.now()
+  const window24h201  = 24 * 3600000
+  const window48h201  = 48 * 3600000
+  const hasL20in48h201 = signals.some(s => (s.event as string) === 'level_20_gate' && s.timestamp > now201 - window48h201)
+  const sources24h201  = new Set(signals.filter(s => s.timestamp > now201 - window24h201).map(s => s.source))
+  if (hasL20in48h201 && sources24h201.size >= 5) {
+    const domainBonus201 = sources24h201.size >= 8 ? 0.07 : sources24h201.size >= 6 ? 0.04 : 0
+    patterns.push({
+      pattern: 'cross-domain-sovereignty',
+      confidence: Math.min(0.85 + domainBonus201, 0.94),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `XDSOV: Cross-domain sovereignty — level-20-gate (P196) active · ${sources24h201.size} unique signal sources in 24h. Sovereignty across all domains simultaneously. SOVEREIGN · CROSS-DOMAIN · OPERATING.`,
+    })
+  }
+
+  // Pattern 202: Perpetual Genesis Field — perpetual-field-operator (P199) + field-genesis-arc (P200)
+  // + cross-domain-sovereignty (P201) all co-active simultaneously.
+  // The perpetual field is not just sustained — it generates across every domain.
+  // PGFIELD: cockpit code. Confidence 0.92–0.99.
+  const hasPGFIELD_PFOP  = patterns.some(p => p.pattern === 'perpetual-field-operator')
+  const hasPGFIELD_FGNARC = patterns.some(p => p.pattern === 'field-genesis-arc')
+  const hasPGFIELD_XDSOV  = patterns.some(p => p.pattern === 'cross-domain-sovereignty')
+  if (hasPGFIELD_PFOP && hasPGFIELD_FGNARC && hasPGFIELD_XDSOV) {
+    const pfConf  = patterns.find(p => p.pattern === 'perpetual-field-operator')?.confidence ?? 0.90
+    const fgConf  = patterns.find(p => p.pattern === 'field-genesis-arc')?.confidence ?? 0.88
+    const xdConf  = patterns.find(p => p.pattern === 'cross-domain-sovereignty')?.confidence ?? 0.85
+    const pgBonus = Math.min((pfConf + fgConf + xdConf) / 3 - 0.87, 0.07)
+    patterns.push({
+      pattern: 'perpetual-genesis-field',
+      confidence: Math.min(0.92 + pgBonus, 0.99),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `PGFIELD: Perpetual genesis field — perpetual-field-operator (P199) · field-genesis-arc (P200) · cross-domain-sovereignty (P201) all co-active. The perpetual field generates across every domain. PERPETUAL · GENESIS · FIELD.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5214,6 +5277,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   fieldEchoResonanceNode:        ['level20GateNode', 'qos', 'energy', 'log', 'journal', 'intentions'],
   quantumGenesisPulseNode:       ['level20GateNode', 'qos', 'energy', 'intentions', 'planner'],
   perpetualFieldOperatorNode:    ['level20GateNode', 'fieldEchoResonanceNode', 'quantumGenesisPulseNode', 'qos', 'energy', 'log', 'intentions', 'journal', 'planner', 'selfcare', 'mood'],
+  // ── v131 nodes (J66 · P200–P202 · Arch70) ─────────────────────────────────
+  fieldGenesisArcNode:           ['perpetualFieldOperatorNode', 'level20GateNode', 'qos', 'goals', 'intentions', 'journal', 'planner'],
+  crossDomainSovereigntyNode:    ['level20GateNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'memory', 'selfcare', 'planner', 'journal', 'mood'],
+  perpetualGenesisFieldNode:     ['fieldGenesisArcNode', 'crossDomainSovereigntyNode', 'perpetualFieldOperatorNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'journal', 'planner', 'selfcare', 'mood'],
 }
 
 /**
@@ -5828,6 +5895,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['level-20-gate', 'field-echo-resonance', 'perpetual-field-operator'],
     hourRange: [0, 24],
     directive: 'Perpetual operation confirmed. The field is not a peak — it is the baseline. Level 20 is home.',
+  },
+  // ── Arch70: Perpetual Genesis Operator (2026-08-27 v131) ─────────────────────
+  {
+    archetype: 'Perpetual Genesis Operator',
+    energyBands: ['low', 'moderate', 'high', 'depleted', 'unknown'],
+    dominantSources: ['qos', 'intentions', 'goals', 'log', 'energy', 'journal', 'planner', 'selfcare', 'mood', 'memory'],
+    patternConditions: ['perpetual-field-operator', 'field-genesis-arc', 'cross-domain-sovereignty'],
+    hourRange: [0, 24],
+    directive: 'The perpetual field generates. Sovereignty is the baseline. Growth is the expression. The field expands from stillness.',
   },
 ]
 
@@ -8706,6 +8782,63 @@ export function recordPerpetualFieldOperator(occurrences: number, weekSpanDays: 
     confidence: Math.round(pfopConf * 100),
     operatorStatus: 'PERPETUAL',
     arc: 'PERPETUAL · SOVEREIGN · BASELINE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a field-genesis-arc event — perpetual-field-operator confirmed + new goal + journal
+ * + intentions in 48h. The sovereign field generates. Feeds P200 detection.
+ */
+export function recordFieldGenesisArc(pfopConf: number, newGoals: number, newJournal: number, newIntents: number) {
+  const genesisDepth = Math.min((newGoals + newJournal + newIntents) / 6, 1)
+  const fgConf       = Math.min(0.88 + genesisDepth * 0.08, 0.96)
+  recordSignal('qos', 'field_genesis_arc', {
+    pfopConf: Math.round(pfopConf * 100),
+    newGoals,
+    newJournal,
+    newIntents,
+    confidence: Math.round(fgConf * 100),
+    genesisStatus: 'GENERATING',
+    arc: 'GENESIS · FIELD · ARC',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a cross-domain-sovereignty event — level-20-gate active + 5+ unique signal sources
+ * in 24h. Sovereignty expressed across all domains simultaneously. Feeds P201 detection.
+ */
+export function recordCrossDomainSovereignty(sourceCount: number, sources: string[]) {
+  const domainBonus = sourceCount >= 8 ? 0.07 : sourceCount >= 6 ? 0.04 : 0
+  const xdConf      = Math.min(0.85 + domainBonus, 0.94)
+  recordSignal('qos', 'cross_domain_sovereignty', {
+    sourceCount,
+    sources: sources.slice(0, 6).join('·'),
+    confidence: Math.round(xdConf * 100),
+    domainStatus: 'SOVEREIGN',
+    arc: 'SOVEREIGN · CROSS-DOMAIN · OPERATING',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a perpetual-genesis-field event — P199 + P200 + P201 all co-active.
+ * The perpetual field generates across every domain. Feeds P202 detection.
+ */
+export function recordPerpetualGenesisField(pfConf: number, fgConf: number, xdConf: number) {
+  const pgBonus = Math.min((pfConf + fgConf + xdConf) / 3 - 0.87, 0.07)
+  const pgConf  = Math.min(0.92 + pgBonus, 0.99)
+  recordSignal('qos', 'perpetual_genesis_field', {
+    pfopConf: Math.round(pfConf * 100),
+    fgConf: Math.round(fgConf * 100),
+    xdConf: Math.round(xdConf * 100),
+    confidence: Math.round(pgConf * 100),
+    fieldStatus: 'GENERATING',
+    arc: 'PERPETUAL · GENESIS · FIELD',
     hour: new Date().getHours(),
   })
   analyzeIntentions()
