@@ -16,7 +16,12 @@ removed; per-item subscriptions lifted to parent in Sync; nav buttons
 memoized so only active-state changes trigger re-render. SR-20260719-01:
 System quantumState analyzeIntentions()+recomputeAssembly() moved
 useMemo->useEffect — 10 subscriber re-renders no longer block paint;
-SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+SystemProgressWidget 60s recompute interval gated on !document.hidden.
+SR-20260827-01: full widget audit found 3 intervals that never adopted the
+!document.hidden corollary — QuantumRandomWidget's two 1s ticks (worst case:
+two perpetual per-second setState loops, backgrounded tabs included) plus its
+10s pair-toggle, MicroCalculatorWidget's 10s clock poll, and StatusPage's 2min
+network poll — all gated.)
 
 ## Client Cache Freshness
 

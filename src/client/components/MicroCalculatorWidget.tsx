@@ -46,6 +46,7 @@ export function MicroCalculatorWidget() {
   // Poll for magic time every 10 seconds
   React.useEffect(() => {
     const check = () => {
+      if (document.hidden) return
       const mt = detectMagicTime()
       if (mt && !magicTime) {
         setMagicTime(mt)
