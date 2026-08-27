@@ -4870,6 +4870,17 @@ export function recordCalendarSignal(entryType: string, date: string) {
 }
 
 /**
+ * Record a Calendar notification firing — the scheduled entry crossed
+ * into its T-15/T-0/overdue window and a military-grade alert was
+ * surfaced. Separate signal from calendar_entry (which fires on
+ * creation) so the QIE can distinguish "planned" from "executed on
+ * time" when scoring temporal coherence.
+ */
+export function recordCalendarAlertSignal(entryType: string, windowLabel: string) {
+  recordSignal('log', 'calendar_alert', { entryType, window: windowLabel, hour: new Date().getHours() })
+}
+
+/**
  * Record the day's ambient astrology reading — rokuyo, moon phase, and
  * zodiac hour. Ambient/environmental conditions only, not a personal
  * natal chart. Called once per calendar day from the System dashboard so

@@ -19,6 +19,7 @@ type EntryType = 'note' | 'task' | 'call'
 
 type CalendarEntry = {
   date: string
+  time?: string
   text: string
   type: EntryType
 }
@@ -59,23 +60,29 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [entryTime, setEntryTime] = React.useState('')
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
         date: log.metadata?.date as string,
+        time: log.metadata?.time as string | undefined,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => a.date === b.date
+        ? (a.time || '').localeCompare(b.time || '')
+        : a.date.localeCompare(b.date))
   }, [logs])
 
+  const now = dayjs()
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
+    const today = now.format('YYYY-MM-DD')
+    const nowTime = now.format('HH:mm')
     return entries
-      .filter(e => e.date >= today)
+      .filter(e => e.date > today || (e.date === today && (!e.time || e.time >= nowTime)))
       .slice(0, 10)
   }, [entries])
 
@@ -103,18 +110,24 @@ export function CalendarWidget() {
     } else {
       setSelectedDate(key)
     }
+    // A date switch invalidates any in-progress entry for the previous day
+    setIsAddingEntry(false)
+    setEntryText('')
+    setEntryTime('')
   }
 
   const handleAddEntry = () => {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const timeLabel = entryTime ? ` ${entryTime}` : ''
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel}${timeLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
+        time: entryTime || undefined,
         text: entryText.trim(),
         entryType,
       },
@@ -126,6 +139,7 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
   }
 
@@ -229,6 +243,12 @@ export function CalendarWidget() {
                 </div>
                 <div className="flex gap-8 items-center">
                   <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40 tabular-nums"
+                  />
+                  <input
                     type="text"
                     value={entryText}
                     onChange={e => setEntryText(e.target.value)}
@@ -249,6 +269,7 @@ export function CalendarWidget() {
                 </div>
                 {entriesOnDate.map((e, i) => (
                   <div key={i} className="text-acc/80 mb-1">
+                    {e.time && <span className="text-acc/40 tabular-nums mr-8">{e.time}</span>}
                     {e.text}
                   </div>
                 ))}
@@ -263,6 +284,7 @@ export function CalendarWidget() {
               <div key={i} className="flex justify-between gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  {entry.time && <span className="text-acc/60 tabular-nums"> · {entry.time}</span>}
                 </span>
                 <span className="text-acc text-right">
                   {entry.text}

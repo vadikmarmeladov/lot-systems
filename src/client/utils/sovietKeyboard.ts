@@ -135,3 +135,29 @@ export function playSynthDeactivationChime() {
     osc.stop(start + 0.13)
   })
 }
+
+/**
+ * Two-tone alert ping played when a Calendar entry crosses into its
+ * notification window (T-15, T-0, overdue). Square-wave, sharp attack,
+ * fast decay — reads as a tactical console blip rather than a chime,
+ * matching the widget's "military-grade" event styling.
+ */
+export function playTacticalAlertChime() {
+  const ac = getCtx()
+  if (!ac) return
+  const t = ac.currentTime
+  const notes = [880, 880, 660]
+  notes.forEach((freq, i) => {
+    const osc = ac.createOscillator()
+    const g = ac.createGain()
+    osc.type = 'square'
+    const start = t + i * 0.14
+    osc.frequency.setValueAtTime(freq, start)
+    g.gain.setValueAtTime(0, start)
+    g.gain.linearRampToValueAtTime(vol(0.07), start + 0.005)
+    g.gain.exponentialRampToValueAtTime(0.001, start + 0.09)
+    osc.connect(g).connect(ac.destination)
+    osc.start(start)
+    osc.stop(start + 0.1)
+  })
+}
