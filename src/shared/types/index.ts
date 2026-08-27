@@ -73,6 +73,8 @@ export type UserProfile = {
   timeChime?: boolean;
   memoryEngine?: 'ai' | 'standard';
   isAdmin?: boolean;
+  // Saved IANA timeZone, used to personalize ambient astrology reading (see astrology.ts)
+  timeZone?: string | null;
 };
 
 export type User = {
