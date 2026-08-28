@@ -10,7 +10,7 @@ import { Op } from 'sequelize'
 import dayjs from '#server/utils/dayjs'
 import { LogContext, User } from '#shared/types'
 import { DATE_TIME_FORMAT, WEATHER_STALE_TIME_MINUTES } from '#shared/constants'
-import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
+import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo, getJapaneseZodiac } from '#shared/utils/astrology'
 import { models } from '../models/index.js'
 
 // Building a Date from a moment's local (timeZone-aware) wall-clock fields
@@ -42,6 +42,7 @@ export async function getLogContext(user: User): Promise<LogContext> {
     astroMoonIllumination: moonPhase.illumination,
     astroHourlyZodiac: getHourlyZodiac(localDate),
     astroWesternZodiac: getWesternZodiac(localDate),
+    astroYearZodiac: getJapaneseZodiac(localDate.getFullYear()),
   }
   if (user.country && user.city) {
     const cachedWeather = await models.WeatherResponse.findOne({

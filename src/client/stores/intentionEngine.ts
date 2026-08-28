@@ -3832,7 +3832,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Tier 2+: additional consumer widgets
   patternInsights:   ['mood', 'memory', 'journal', 'energy', 'cohort', 'planner'],
   cosmic:            ['mood', 'energy', 'intentions', 'astrology'],
-  quantumSign:       ['intentions', 'memory'],
+  quantumSign:       ['intentions', 'memory', 'astrology'], // (2026-08-28 audit) astrology patch now reads the real rokuyo/moon-phase reading, not a fabricated rotation
   microGame:         ['calculator', 'time'],
 
   // ── QOS / Ecosystem layer (2026-04-25 audit)
@@ -4880,7 +4880,8 @@ export function recordAstrologySignal(
   moonPhase: string,
   moonIllumination: number,
   hourlyZodiac: string,
-  westernZodiac: string
+  westernZodiac: string,
+  yearZodiac?: string
 ) {
   recordSignal('astrology', 'ambient_reading', {
     rokuyo,
@@ -4888,6 +4889,7 @@ export function recordAstrologySignal(
     moonIllumination,
     hourlyZodiac,
     westernZodiac,
+    yearZodiac,
     auspicious: rokuyo === 'Taian',
   })
 }

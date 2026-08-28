@@ -11,6 +11,18 @@ import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useLogs } from '#client/queries'
+import { getRokuyo, getMoonPhase, getMoonEmoji } from '#shared/utils/astrology'
+
+// Rokuyo (六曜) meanings, matching the calendar math in astrology.ts —
+// same source of truth the System dashboard and Logs journal read from.
+const ROKUYO_MEANING: Record<string, string> = {
+  Taian: 'Auspicious day — favorable for any undertaking',
+  Tomobiki: 'Balanced day — good fortune tends to spread',
+  Sensho: 'Morning favors action, afternoon favors rest',
+  Senpu: 'Afternoon favors action, morning favors rest',
+  Butsumetsu: 'Quiet day — better suited for reflection than launch',
+  Shakku: 'Caution advised — midday (11am–1pm) is the safe window',
+}
 
 /**
  * Quantum Sign Widget — For subscribers whose payment is their last money
@@ -65,12 +77,20 @@ export function QuantumSignWidget() {
     const today = new Date()
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000)
 
-    const astrologyPatches = [
-      { id: 'lunar-reset', name: 'Lunar Reset', desc: 'Moon phase alignment for emotional recalibration' },
-      { id: 'solar-return', name: 'Solar Return', desc: 'Birthday energy cycle — annual self-renewal' },
-      { id: 'mercury-direct', name: 'Mercury Direct', desc: 'Communication clarity restored' },
-      { id: 'venus-transit', name: 'Venus Transit', desc: 'Relationship pattern recognition active' },
-    ]
+    // Astrology patch is derived from the same ambient reading (rokuyo +
+    // moon phase) that drives the System dashboard and Logs journal —
+    // not a separate fabricated rotation. Ambient/environmental only,
+    // never a personal natal chart (no birthday data exists or is used).
+    const rokuyo = getRokuyo(today)
+    const moonPhase = getMoonPhase(today)
+    const astrologyPatch = {
+      id: rokuyo.toLowerCase(),
+      name: rokuyo,
+      desc: ROKUYO_MEANING[rokuyo] ?? 'Ambient reading active',
+      moonEmoji: getMoonEmoji(moonPhase.phase),
+      moonPhase: moonPhase.phase,
+      moonIllumination: moonPhase.illumination,
+    }
 
     const psychologyPatches = [
       { id: 'shadow-work', name: 'Shadow Integration', desc: 'Unconscious pattern surfacing protocol' },
@@ -80,11 +100,10 @@ export function QuantumSignWidget() {
     ]
 
     // Rotate patches based on day of year
-    const astroIdx = dayOfYear % astrologyPatches.length
     const psychIdx = dayOfYear % psychologyPatches.length
 
     return {
-      astrology: astrologyPatches[astroIdx],
+      astrology: astrologyPatch,
       psychology: psychologyPatches[psychIdx],
     }
   }, [])
@@ -149,6 +168,7 @@ export function QuantumSignWidget() {
             <div>
               <div className="mb-2">Astrology: {patches.astrology.name}</div>
               <div className="opacity-30">{patches.astrology.desc}</div>
+              <div className="opacity-30">{patches.astrology.moonEmoji} {patches.astrology.moonPhase} ({patches.astrology.moonIllumination}%)</div>
             </div>
             <div>
               <div className="mb-2">Psychology: {patches.psychology.name}</div>
