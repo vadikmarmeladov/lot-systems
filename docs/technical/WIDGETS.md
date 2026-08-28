@@ -171,7 +171,7 @@ Surfaces self-care suggestions during key times of day (10 AM–12 PM, 2–5 PM,
 
 A clickable, cycling display of the user's psychological profile. Shows self-awareness percentage, archetype, values, emotional patterns, dominant needs, sentiment breakdown, and introspection depth.
 
-- **Data Source:** `/api/profile` endpoint via the `useProfile` hook
+- **Data Source:** `/api/user-profile` endpoint via the `useProfile` hook
 - **Connection:** Displays profile-derived awareness metrics; integrated into the System.tsx layout
 
 ---
@@ -196,7 +196,7 @@ Displays behavioral patterns detected by the QIE with confidence levels. Cycles 
 
 Generates contextual feedback grounded in quantum state, OS diagnostics, user profile, and log context. Cycles through Insight, Diagnostics, and Guidance views. Provides state-aware and activity-aware recommendations.
 
-- **Data Source:** `intentionEngine` state; `/api/os-diagnostics`, `/api/profile`, and `/api/logs` endpoints; log context
+- **Data Source:** `intentionEngine` state; `/api/os/diagnostics`, `/api/user-profile`, and `/api/logs` endpoints; log context
 - **Connection:** Cross-references multiple data sources for holistic feedback; raw engine plugin powered by Together.AI
 
 ### Signal Stream Widget
@@ -221,7 +221,7 @@ Generates random numbers (0–99) at randomized countdown intervals between 1 an
 
 Personal operating system metrics dashboard. Cycles through Status, Performance, and Version views. Status shows health percentage, system state, uptime, streak, and interaction counts. Performance shows consistency and engagement scores. Version shows runtime progression.
 
-- **Data Source:** `/api/os-status`, `/api/os-performance`, and `/api/os-version` endpoints; log context for module coverage analysis
+- **Data Source:** `/api/os/status`, `/api/os/performance`, and `/api/os/version` endpoints; log context for module coverage analysis
 - **Connection:** Cross-references log module usage for comprehensive system diagnostics
 
 ### System Progress Widget
@@ -237,7 +237,7 @@ Five background jobs feed this widget: Daily OS Vitals Snapshot (02:00 UTC), Dai
 
 ### System Pulse Widget
 
-Real-time system heartbeat metrics with 1-second polling. Displays events per minute, quantum flux, neural activity, and resonance (Hz). Cycles through Metrics, Activity, and User Load views.
+Real-time system heartbeat metrics, polled every 10 seconds (reduced from an original 1-second interval to prevent DB overload under traffic; gated on tab visibility and active route). Displays events per minute, quantum flux, neural activity, and resonance (Hz). Cycles through Metrics, Activity, and User Load views.
 
 - **Data Source:** `/api/system/pulse` endpoint (polled every second); log context for comparison
 - **Connection:** Provides live system telemetry; cross-references with log context for anomaly detection
@@ -268,42 +268,42 @@ A 2×2 cm monochromatic pixel game rendered on a 32×32 canvas grid. Three games
 
 Personal and community growth metrics with directional indicators. Personal metrics include journey days, questions answered, insights earned, and badge level. Community metrics include total users, operation days, and collective wisdom. Includes "next directive" guidance.
 
-- **Data Source:** `/api/growth-stats` endpoint; log context for next-action recommendations
+- **Data Source:** `/api/stats/growth` endpoint; log context for next-action recommendations
 - **Connection:** Displays within the Stats stack; enriched by log context analysis
 
 ### Badge Unlock Feed
 
 A live feed of the 5 most recent community badge unlocks. Shows user name, badge earned, and relative time. Includes a counter for total badges unlocked today.
 
-- **Data Source:** `/api/badge-stats` endpoint
+- **Data Source:** `/api/stats/badges` endpoint
 - **Connection:** Community-facing milestone display within the Stats stack
 
 ### Collective Consciousness
 
 Community-wide emotional consciousness aggregation. Displays the collective emotional state derived from participant check-ins and activity patterns.
 
-- **Data Source:** `/api/community-consciousness` endpoint
+- **Data Source:** `/api/stats/collective` endpoint
 - **Connection:** Part of the community stats stack; reflects aggregate emotional data
 
 ### Wellness Pulse
 
 Community health and wellness metrics. Tracks collective wellbeing indicators across the user base.
 
-- **Data Source:** `/api/wellness-pulse` endpoint
+- **Data Source:** `/api/stats/wellness` endpoint
 - **Connection:** Part of the community health metrics stack
 
 ### Memory Engine Stats
 
 Performance statistics for the Memory Engine. Displays question generation rates, response patterns, and engine health metrics.
 
-- **Data Source:** `/api/memory-stats` endpoint
+- **Data Source:** `/api/stats/memory-engine` endpoint
 - **Connection:** Engine-level diagnostics within the Stats stack
 
 ### Intention Patterns
 
 Analytical view of Quantum Intention Engine pattern data. Visualizes discovered patterns, frequency, and confidence trends.
 
-- **Data Source:** `/api/intention-patterns` endpoint
+- **Data Source:** `/api/stats/patterns` endpoint
 - **Connection:** QIE analytics display within the Stats stack
 
 ---
@@ -371,9 +371,9 @@ Toggle-based connection widgets for the LOT ecosystem of smart devices. Each wid
 
 ### Ecosystem Status
 
-Displays when at least one device is connected. Shows connected node count and ecosystem narrative describing the coherence level of the device mesh. When all three devices are connected, records an `ecosystem_full_coherence` composite signal.
+Displays when at least one device is connected. Shows connected node count and ecosystem narrative describing the coherence level of the device mesh. When all six devices are connected, records an `ecosystem_full_coherence` composite signal.
 
-- **Data Source:** Derived from Car/Home/Computer connection states
+- **Data Source:** Derived from Car/Home/Computer/Phone/Watch/Robot connection states
 - **Connection:** Ecosystem narrative from `narrative.ts`; composite signal to Quantum Intention Engine
 
 ### Car Connect
@@ -396,6 +396,13 @@ Connect your DIY PC to the LOT quantum engine. Toggle on/off to record computer 
 
 - **Data Source:** Local component state persisted via `localStorage`
 - **Connection:** Records `computer_connected` / `computer_disconnected` signals to the Quantum Intention Engine; feeds Ecosystem Bridge assembly module
+
+### Phone Connect, Watch Connect, Robot Connect
+
+Three additional ecosystem nodes alongside Car/Home/Computer, each the same toggle pattern. Phone, Watch, and Robot Connect complete the six-node mesh that `ecosystem_full_coherence` requires.
+
+- **Data Source:** Local component state persisted via `localStorage` (`qe-phone-connected`, `qe-watch-connected`, `qe-robot-connected`)
+- **Connection:** Records `phone_connected`/`phone_disconnected`, `watch_connected`/`watch_disconnected`, `robot_connected`/`robot_disconnected` signals to the Quantum Intention Engine; feed Ecosystem Bridge assembly module
 
 ---
 
@@ -459,7 +466,7 @@ All widgets are orchestrated by `System.tsx`, the master dashboard component. Wi
 | **Quantum OS (QOS)** | Versioned user operating system state — aggregates assembly progress, physiological archetype, biofield ATP, and cohort into one coherent snapshot | `qos` QIE signal source; weekly digest job |
 | **Log Context** | Foundation data layer — aggregates all interactions; 14+ event renderers in military format | `/api/logs` |
 | **Evolution System** | Progression tracking across 7 dimensions | `/api/narrative`, nanostores |
-| **Badge System** | Milestone gamification | `/api/badge-stats`, `localStorage` |
+| **Badge System** | Milestone gamification | `/api/stats/badges`, `localStorage` |
 | **Narrative System** | RPG-style story grounded in engagement; includes self-assembly and ecosystem narrative layers | `/api/narrative` |
 | **Profile System** | Psychological profiling; 10 archetypes, behavioral cohort, trait extraction | `/api/user-profile` |
 | **Physiological Cohort System** | Weekly server job classifies users into 10 archetypes + behavioral cohort; persisted to user metadata | Weekly cohort digest (Mon 06:00 UTC); `/api/cohorts` |
