@@ -142,7 +142,17 @@ without S-2 confirmation — they are provenance records. The MANIFEST date fiel
 updates on every audit; feature rows update when a new iteration supersedes.
 (SR-20260605-01: MANIFEST created, 115 branches cataloged, 8 BEST identified.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
-SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
+SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.
+SR-20260828-01: BEST row can outlive its branch's relevance even while the
+branch itself still exists on the remote — "most recent iteration" alone is
+not freshness. LOT Mail sat BEST for ~2.5 months while master's Logs.tsx,
+intentionEngine.ts, and badges.ts were rewritten under it; a cherry-pick
+would have been a 147K-line regression, not a merge. Audit rule: before
+trusting a BEST row, diff the branch against current master — a diffstat
+dominated by master-side deletions (not the branch's own feature) means the
+branch is stale relative to its base, independent of the branch's own commit
+recency. Superseded by a fresh implementation built directly on current
+master rather than resurrected.)
 
 ## Signal Momentum Architecture
 
