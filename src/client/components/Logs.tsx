@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useCohorts, useCreateChatMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,16 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { data: cohortData } = useCohorts()
+  const { mutate: sendEmailMessage } = useCreateChatMessage({
+    onSuccess: () => setEmailLoading(false),
+    onError: () => {
+      setEmailLoading(false)
+      setEmailResult((prev) => (prev ? `${prev}\nSTATUS          DELIVERY FAILED` : 'EMAIL FAILED — Unable to deliver.'))
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4128,6 +4138,7 @@ const NoteEditor = ({
           '/story        Generate a personal story from recent data',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
+          '/email to [Name] [msg]  Send a LOT email — routed via Sync + Cohort',
           '/assembly     Self-assembly module status',
           '/phys         Physiological cohort report',
           '/qos          Quantum OS state analysis',
@@ -4145,6 +4156,27 @@ const NoteEditor = ({
           'Ctrl+Enter    Save log immediately',
         ]
         setSystemHelp(lines.join('\n'))
+      } else if (trigger === 'email-compose') {
+        const emailMatch = value.match(/\/email\s+to\s+(\S+)\s*([\s\S]*)/i)
+        if (emailMatch && !emailLoading) {
+          const recipientName = emailMatch[1].replace(/[.,!?;:]+$/, '')
+          const body = emailMatch[2].trim()
+          setEmailLoading(true)
+          const matched = (cohortData?.matches || []).find(
+            (m) => m.user.firstName?.toLowerCase() === recipientName.toLowerCase()
+          )
+          const composed = [`✉ EMAIL → ${recipientName.toUpperCase()}`, body].filter(Boolean).join('\n')
+          sendEmailMessage({ message: composed })
+          const statusLines = [
+            'EMAIL SENT',
+            `TO              ${recipientName.toUpperCase()}`,
+            matched
+              ? `COHORT          ${Math.round(matched.similarity * 100)}% MATCH — LOT COMMUNITY`
+              : 'COHORT          NOT IN YOUR COHORT — BROADCAST TO SYNC',
+            'ROUTE           SYNC',
+          ]
+          setEmailResult(statusLines.join('\n'))
+        }
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
       } else if (trigger === 'story-mode') {
@@ -4384,6 +4416,18 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="✉ EMAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
+              )}
             </Block>
           </div>
         )}
