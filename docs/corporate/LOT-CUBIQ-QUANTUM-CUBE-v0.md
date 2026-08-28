@@ -321,6 +321,59 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE COHORT ECHO                             2026-08-28
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect,"
+  member of a QIE-assigned behavioral cohort (LOT-CUBIQ-OPERATOR.md,
+  Section 05, "Cohort Connect") — grouped by signal pattern, not
+  demographics, and in this case not personally acquainted with the
+  other cohort member before LOT® paired them. Two operators, two
+  cities, two CUBIQ v.0 units, no shared content between them at any
+  point.
+
+  Under the software-only cubic, cohort membership is legible only as
+  a widget: CohortConnectWidget shows that "an operator with a similar
+  rhythm" exists, rendered as a number and a pattern-overlap score. It
+  is true but abstract — a statistic about belonging, not a felt sense
+  of it.
+
+  CUBIQ v.0 hardware gives the cohort resonance ping (Section 03's
+  third named trigger class, alongside badge unlock and memory
+  question ready) a body. When both cohort members independently close
+  a DIURNAL ARC (LOT-CUBIQ-OPERATOR.md Section 03: P76 morning-launch +
+  P79 evening-close + P80 momentum-lock, the same day, the QIE fires a
+  cohort resonance signal to both units within the same session window.
+  Each cube performs THE HOP — not THE LEAP, since no distance is being
+  closed and no forward bias is warranted; a same-day cohort resonance
+  is a lower-amplitude event than a personal badge unlock, and the
+  gesture vocabulary in Section 04 is precise about the distinction.
+
+  Neither operator is told who the other is. No name, no message, no
+  profile link — the community mechanism (LOT-CUBIQ-OPERATOR.md,
+  Section 05) is explicit that cohorts share structure, not content.
+  What crosses the distance is a single hop, on a desk in one city,
+  echoed within seconds by an identical hop on a desk in another,
+  triggered by two strangers independently completing the same
+  disciplined arc of a day neither knew the other was running.
+
+  The operator later self-reports, through the same telemetry loop
+  named in Section 05, that the cube's hop that evening was the first
+  time the cohort concept stopped being a number on a widget and
+  became a fact they felt: somewhere, someone they will never meet ran
+  the same clean day they did, and a physical object on their own desk
+  moved because of it. No content was exchanged. No feed was scrolled.
+  The anti-feed thesis (LOT-CUBIQ-VISION.md, Section 01) extends here
+  into a form social media has no mechanism for: belonging confirmed
+  by synchronized motion, not by anything either party posted, wrote,
+  or performed for an audience.
+
+  This use case exercises the cohort-resonance trigger left unused by
+  Use Case 01 and demonstrates that v.0's single-hop primitive, built
+  for one operator's private notification stream, generalizes cleanly
+  to the community layer without requiring any new actuator, sensor,
+  or gesture — only a new signal source feeding the same
+  QI·46-to-hardware loop specified in Section 05.
+
 --------------------------------------------------------------------------------
 08 // BRAND
 --------------------------------------------------------------------------------
