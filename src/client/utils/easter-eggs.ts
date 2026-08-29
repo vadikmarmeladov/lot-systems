@@ -2361,6 +2361,37 @@ export function checkThreeLivesLeft(): BadgeType | null {
   return null
 }
 
+// ── Achievement RPG v18 — Time Capsule Archive ────────────────────────────────
+
+const CAPSULE_BADGE_BY_PERIOD: Record<'day' | 'week' | 'month' | 'year', BadgeType> = {
+  day: 'day_capsule',
+  week: 'week_capsule',
+  month: 'month_capsule',
+  year: 'year_capsule',
+}
+
+/**
+ * Award the capsule badge for the /story period just generated, and the
+ * full_spectrum_story capstone once all four periods have been earned.
+ * Call after a successful /story response, passing the period used.
+ */
+export function checkTimeCapsule(period: 'day' | 'week' | 'month' | 'year'): BadgeType[] {
+  const awarded: BadgeType[] = []
+  const badgeId = CAPSULE_BADGE_BY_PERIOD[period]
+  if (!badgeId) return awarded
+
+  if (!hasBadge(badgeId)) {
+    if (awardBadge(badgeId)) awarded.push(badgeId)
+  }
+
+  const allCapsules = Object.values(CAPSULE_BADGE_BY_PERIOD)
+  if (allCapsules.every(hasBadge) && !hasBadge('full_spectrum_story')) {
+    if (awardBadge('full_spectrum_story')) awarded.push('full_spectrum_story')
+  }
+
+  return awarded
+}
+
 // ── Behavioral Easter Egg v15 — Broadcast Patterns ───────────────────────────
 
 const RADIO_WORDS_V18 = [

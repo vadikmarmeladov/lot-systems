@@ -29,11 +29,11 @@ import {
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
-import { runJournalEasterEggs } from '#client/utils/easter-eggs'
+import { runJournalEasterEggs, checkTimeCapsule } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, type StoryPeriod } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3750,6 +3750,7 @@ const NoteEditor = ({
       valueRef.current = updated
       onChangeRef.current(updated)
       setIsSaved(true)
+      if (data.period) checkTimeCapsule(data.period)
     },
     onError: () => {
       const fallback = 'The system holds your data quietly. When the engine returns, your story will be here.'
@@ -4125,7 +4126,10 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compress today into a personal story',
+          '/story week   Compress the last 7 days',
+          '/story month  Compress the last 30 days',
+          '/story year   Compress the last 365 days',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4151,17 +4155,23 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+          const period = (periodMatch?.[1]?.toLowerCase() as StoryPeriod | undefined) || 'day'
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value
+              .replace(/\/story(\s+(day|week|month|year))?/i, '')
+              .replace(/📖/g, '')
+              .trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }

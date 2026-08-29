@@ -782,6 +782,12 @@ export type BadgeType =
   | 'tolkien_ring'           // ◆·∞·◆  "one ring to rule/precious/ring of power" detected (RARE)
   | 'odysseus_bow'           // →·∞·→  "odysseus/ulysses/ithaca/penelope/cyclops" detected (EPIC)
   | 'gilgamesh_word'         // ∞·□·∞  "gilgamesh/enkidu/great flood/utnapishtim" detected (MYTHIC)
+  // ── Achievement RPG v18 — TIME CAPSULE ARCHIVE ────────────────────────────────
+  | 'day_capsule'            // ○·▤    Run /story day — compress a day (COMMON)
+  | 'week_capsule'           // ◔·▤    Run /story week — compress 7 days (UNCOMMON)
+  | 'month_capsule'          // ◑·▤    Run /story month — compress 30 days (RARE)
+  | 'year_capsule'           // ●·▤    Run /story year — compress 365 days (EPIC)
+  | 'full_spectrum_story'    // ◈·▤·∞  Earn day/week/month/year capsule badges (LEGENDARY)
 
 export interface Badge {
   id: BadgeType
@@ -7130,6 +7136,52 @@ export const BADGES: Record<BadgeType, Badge> = {
     rarity: 'mythic',
     category: 'secret_boss',
     hidden: true,
+  },
+  // ── Achievement RPG v18 — TIME CAPSULE ARCHIVE ────────────────────────────────
+  day_capsule: {
+    id: 'day_capsule',
+    symbol: '○·▤',
+    name: 'Day Capsule',
+    description: 'Run /story day — compress today into a story',
+    unlockMessage: '↳ One day, sealed. The close-up moment, kept. ○·▤',
+    rarity: 'common',
+    category: 'achievement_rpg',
+  },
+  week_capsule: {
+    id: 'week_capsule',
+    symbol: '◔·▤',
+    name: 'Week Capsule',
+    description: 'Run /story week — compress the last 7 days into a story',
+    unlockMessage: '↳ Seven days, woven into one arc. The week remembers itself. ◔·▤',
+    rarity: 'uncommon',
+    category: 'achievement_rpg',
+  },
+  month_capsule: {
+    id: 'month_capsule',
+    symbol: '◑·▤',
+    name: 'Month Capsule',
+    description: 'Run /story month — compress the last 30 days into a story',
+    unlockMessage: '↳ Thirty days, condensed to a single reflection. The pattern shows itself. ◑·▤',
+    rarity: 'rare',
+    category: 'achievement_rpg',
+  },
+  year_capsule: {
+    id: 'year_capsule',
+    symbol: '●·▤',
+    name: 'Year Capsule',
+    description: 'Run /story year — compress the last 365 days into a story',
+    unlockMessage: '↳ A year, held in a paragraph. The wide arc, at last visible. ●·▤',
+    rarity: 'epic',
+    category: 'achievement_rpg',
+  },
+  full_spectrum_story: {
+    id: 'full_spectrum_story',
+    symbol: '◈·▤·∞',
+    name: 'Full Spectrum Story',
+    description: 'Earn the Day, Week, Month, and Year Capsule badges',
+    unlockMessage: '↳ Every altitude, compressed. Day, week, month, year — the whole spectrum of your own story, told back to you. ◈·▤·∞',
+    rarity: 'legendary',
+    category: 'achievement_rpg',
   },
 }
 
