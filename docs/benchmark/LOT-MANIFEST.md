@@ -26,7 +26,7 @@ FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | F
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
-Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
+Calendar Alerts  | dreamy-babbage-3grsuu        | (session)| 61/61 | STAGED | 2     | +~150  | Time-tracked entries, EXECUTE/ALERT/ELAPSED status, alert overlay, OS notify, calendar_alert Log events. Consolidates gifted-lovelace-cZOWR + dreamy-babbage-h1jdy6(c682aede) + dreamy-babbage-ugtork onto current master tip. BUILD UNVERIFIED this session (see 07 below) — S-2 must green-gate + approve master merge.
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0
 Health/Security  | inspiring-volta-2hmidy        | e5a2d668 | 41/41 | BEST   | 2     | +2     | Monitoring exports fixed, component quality, health report
@@ -87,7 +87,8 @@ relaxed-hamilton | 8     | eRBVA             | 7     | LOT Mail iterations (SUPE
 determined-turing| 6     | f6bw7r            | 5     | LOT Mail iterations (latest series)
 dazzling-shannon | 9     | ykKT5             | 8     | COSMO hardware iterations (SUPERSEDED by brave-lamport)
 brave-lamport    | 5     | t9z5u8            | 4     | COSMO hardware iterations (latest series)
-gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations
+gifted-lovelace  | 6     | cZOWR             | 5     | Calendar alert iterations (SUPERSEDED, see dreamy-babbage below)
+dreamy-babbage   | 61    | 3grsuu            | 60    | Calendar widget "time tracking + military-grade notifications"
 nifty-allen      | 6     | jWyOe             | 5     | Basics Tab iterations (SUPERSEDED by beautiful-johnson)
 beautiful-johnson| 2     | 56p7ov            | 1     | Basics Tab iterations (latest series)
 gracious-gauss   | 7     | WnL0k             | 6     | QI-46 Engine iterations (SUPERSEDED by cool-tesla)
@@ -96,6 +97,28 @@ inspiring-volta  | 6     | 2hmidy            | 5     | Health check iterations
 exciting-ritchie | 6     | 7dsvkw            | 5     | Mixed: viewport isolation + benchmarks
 ──────────────────────────────────────────────────────────────────────
 TOTAL PRUNABLE:  | 103   |                   | 90    |
+
+REINVENTION-LOOP FINDING (dreamy-babbage, logged 2026-08-29 on 3grsuu):
+A scheduled task ("continue Calendar widget: time tracking + military-grade
+Log notifications") has fired roughly every 1-3 days since 2026-05-27 —
+61 sessions total across dreamy-babbage-* (55) and gifted-lovelace-* (6).
+Every firing starts a fresh branch off current master with no memory of
+prior sessions and rebuilds the same feature from scratch. NONE of the 61
+ever merged to master — master's CalendarWidget.tsx carried zero time-
+tracking or alert code until this session. 2026-08-12 (h1jdy6, commit
+c682aede) already discovered this exact loop and consolidated the best
+prior iteration (gifted-lovelace-cZOWR) — but 20+ more duplicate branches
+were built anyway after that, because the discovery lived only in one
+session's commit message, not in a place a future isolated session would
+read before starting work. ROOT CAUSE: no cross-session memory; the
+scheduled prompt carries no pointer to prior art. This session (3grsuu)
+consolidates again (see Calendar Alerts row above) and writes the finding
+here, in the manifest every session is told to read at 00/PREFLIGHT — the
+one place with a chance of being seen before the 62nd rebuild. FIX IS
+PROCEDURAL, NOT CODE: either stop re-firing this scheduled task once
+Calendar Alerts ships to master, or have the task prompt say "read
+LOT-MANIFEST.md Calendar Alerts row first." Until one of those happens,
+expect further duplicate branches from this same schedule.
 
 ================================================================================
 04 // STANDALONE BRANCHES
@@ -116,7 +139,7 @@ together-ai-update                  | DRAFT      | Critical: mobile boot, auth e
 eager-clarke-wTEM6                  | DRAFT      | Basics Tab alt design (Settings enrollment)
 cool-tesla-f8j0mr                  | BEST       | QI·46 Node 3 engine integration + Soul Upload
 cool-hypatia-aqj7dg                | BEST       | Badge Codex v12 — 156 total badges
-dreamy-babbage-3k2zhm              | READY      | Calendar Widget: alert engine, command board, live clock
+dreamy-babbage-3k2zhm              | SUPERSEDED | Calendar Widget prototype — folded into Calendar Alerts (see 01, 03)
 upbeat-curie-1s8bgb                | DRAFT      | QIE v54 self-assembly session (docs only)
 
 ================================================================================
@@ -182,15 +205,18 @@ PROTECTED FILES (always restore from master during any branch merge):
 CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
   LOT Mail         | determined-turing-f6bw7r  | +504 lines
   Basics Tab       | beautiful-johnson-56p7ov   | +293 lines
-  Calendar Alerts  | gifted-lovelace-cZOWR      | +359 lines
+  Calendar Alerts  | dreamy-babbage-3grsuu      | +~150 lines (STAGED, unverified build — see 01, 03)
   QI-46 Engine     | cool-tesla-f8j0mr          | +2050 lines
   COSMO Hardware   | brave-lamport-t9z5u8        | +2610 lines
   Badge RPG        | cool-hypatia-aqj7dg         | +1832 lines
 
-NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
-they were incorporated into master in prior sessions. The ship queue will be
-re-populated as new BEST branches are designated from future assembly runs.
-The protocol above applies to all future merges.
+NOTE: As of 2026-06-27, most of the above branches no longer existed on the
+remote — incorporated into master in prior sessions. CORRECTION (2026-08-29,
+3grsuu): this was verified FALSE for Calendar Alerts specifically — the
+gifted-lovelace-cZOWR branch (and 60 later duplicates of it) still existed
+on the remote and none had ever reached master; see the reinvention-loop
+finding under 03 above. Do not trust this note's "no longer exists" claim
+for any row without re-fetching the branch directly first.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
