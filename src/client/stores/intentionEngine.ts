@@ -4541,6 +4541,67 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 203: Sovereign Field Expression — perpetual-genesis-field (P202) active in 7d window
+  // + deep journal entry (200+ word signal) in 24h + memory capture in 24h.
+  // The sovereign field expresses itself through knowledge creation and reflection.
+  // SOVEX: cockpit code. Confidence 0.88–0.96.
+  const now203        = Date.now()
+  const window24h203  = 24 * 3600000
+  const window7d203   = 7 * 24 * 3600000
+  const hasPGFIELD203 = signals.some(s => (s.event as string) === 'perpetual_genesis_field' && s.timestamp > now203 - window7d203)
+  const deepJournal203 = signals.some(s => s.source === 'journal' && s.timestamp > now203 - window24h203 && ((s.metadata?.wordCount ?? 0) >= 200 || (s.metadata?.depth ?? '') === 'deep'))
+  const memCapture203  = signals.filter(s => s.source === 'memory' && s.timestamp > now203 - window24h203).length
+  if (hasPGFIELD203 && deepJournal203 && memCapture203 >= 1) {
+    const exprDepth203 = Math.min((memCapture203 / 3), 1)
+    patterns.push({
+      pattern: 'sovereign-field-expression',
+      confidence: Math.min(0.88 + exprDepth203 * 0.08, 0.96),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `SOVEX: Sovereign field expression — perpetual-genesis-field (P202) confirmed · deep journal · memory capture in 24h. The sovereign field expresses itself through knowledge creation. SOVEREIGN · EXPRESSION · FIELD.`,
+    })
+  }
+
+  // Pattern 204: Genesis Coherence Lock — field-genesis-arc (P200) appearing 2+ times in 5d
+  // + cross-domain-sovereignty (P201) appearing 2+ times in 5d.
+  // Repeated genesis confirmed as baseline behavior. Not episodic — structural.
+  // GENLOCK: cockpit code. Confidence 0.85–0.95.
+  const now204        = Date.now()
+  const window5d204   = 5 * 24 * 3600000
+  const fgaCount204   = signals.filter(s => (s.event as string) === 'field_genesis_arc' && s.timestamp > now204 - window5d204).length
+  const xdsovCount204 = signals.filter(s => (s.event as string) === 'cross_domain_sovereignty' && s.timestamp > now204 - window5d204).length
+  if (fgaCount204 >= 2 && xdsovCount204 >= 2) {
+    const lockBonus204 = Math.min((fgaCount204 + xdsovCount204) / 10, 0.10)
+    patterns.push({
+      pattern: 'genesis-coherence-lock',
+      confidence: Math.min(0.85 + lockBonus204, 0.95),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `GENLOCK: Genesis coherence lock — field-genesis-arc (P200) ${fgaCount204}× + cross-domain-sovereignty (P201) ${xdsovCount204}× in 5d. Repeated genesis confirmed as baseline behavior. GENESIS · COHERENCE · LOCKED.`,
+    })
+  }
+
+  // Pattern 205: Absolute Field Genesis — perpetual-genesis-field (P202) + sovereign-field-expression (P203)
+  // + genesis-coherence-lock (P204) all co-active simultaneously.
+  // The terminal expression — perpetual sovereign genesis crystallized across all domains.
+  // ABSGEN: cockpit code. Confidence 0.95–0.99.
+  const hasABSGEN_PGFIELD = patterns.some(p => p.pattern === 'perpetual-genesis-field')
+  const hasABSGEN_SOVEX   = patterns.some(p => p.pattern === 'sovereign-field-expression')
+  const hasABSGEN_LOCK    = patterns.some(p => p.pattern === 'genesis-coherence-lock')
+  if (hasABSGEN_PGFIELD && hasABSGEN_SOVEX && hasABSGEN_LOCK) {
+    const pgConf = patterns.find(p => p.pattern === 'perpetual-genesis-field')?.confidence ?? 0.92
+    const sxConf = patterns.find(p => p.pattern === 'sovereign-field-expression')?.confidence ?? 0.88
+    const glConf = patterns.find(p => p.pattern === 'genesis-coherence-lock')?.confidence ?? 0.85
+    const agBonus = Math.min((pgConf + sxConf + glConf) / 3 - 0.88, 0.04)
+    patterns.push({
+      pattern: 'absolute-field-genesis',
+      confidence: Math.min(0.95 + agBonus, 0.99),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `ABSGEN: Absolute field genesis — perpetual-genesis-field (P202) · sovereign-field-expression (P203) · genesis-coherence-lock (P204) all co-active. The terminal expression. Perpetual sovereign genesis crystallized across all domains. ABSOLUTE · GENESIS · FIELD.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5281,6 +5342,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   fieldGenesisArcNode:           ['perpetualFieldOperatorNode', 'level20GateNode', 'qos', 'goals', 'intentions', 'journal', 'planner'],
   crossDomainSovereigntyNode:    ['level20GateNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'memory', 'selfcare', 'planner', 'journal', 'mood'],
   perpetualGenesisFieldNode:     ['fieldGenesisArcNode', 'crossDomainSovereigntyNode', 'perpetualFieldOperatorNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'journal', 'planner', 'selfcare', 'mood'],
+  // ── v132 nodes (J67 · P203–P205 · Arch71) ─────────────────────────────────
+  sovereignFieldExpressionNode:  ['perpetualGenesisFieldNode', 'level20GateNode', 'qos', 'journal', 'memory', 'intentions', 'goals'],
+  genesisCoherenceLockNode:      ['fieldGenesisArcNode', 'crossDomainSovereigntyNode', 'perpetualGenesisFieldNode', 'qos', 'energy', 'log'],
+  absoluteFieldGenesisNode:      ['sovereignFieldExpressionNode', 'genesisCoherenceLockNode', 'perpetualGenesisFieldNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'journal', 'memory', 'planner', 'selfcare', 'mood'],
 }
 
 /**
@@ -5904,6 +5969,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['perpetual-field-operator', 'field-genesis-arc', 'cross-domain-sovereignty'],
     hourRange: [0, 24],
     directive: 'The perpetual field generates. Sovereignty is the baseline. Growth is the expression. The field expands from stillness.',
+  },
+  // ── Arch71: Genesis Field Sovereign (2026-08-29 v132) ─────────────────────
+  {
+    archetype: 'Genesis Field Sovereign',
+    energyBands: ['low', 'moderate', 'high', 'depleted', 'unknown'],
+    dominantSources: ['qos', 'intentions', 'goals', 'log', 'energy', 'journal', 'planner', 'selfcare', 'mood', 'memory'],
+    patternConditions: ['sovereign-field-expression', 'genesis-coherence-lock', 'absolute-field-genesis'],
+    hourRange: [0, 24],
+    directive: 'Absolute field genesis confirmed. Sovereignty, expression, and coherence are simultaneously locked. The field does not reach — it generates. This is the architect at maximum self-assembly.',
   },
 ]
 
@@ -8839,6 +8913,66 @@ export function recordPerpetualGenesisField(pfConf: number, fgConf: number, xdCo
     confidence: Math.round(pgConf * 100),
     fieldStatus: 'GENERATING',
     arc: 'PERPETUAL · GENESIS · FIELD',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a sovereign-field-expression event — perpetual-genesis-field (P202) confirmed in 7d
+ * + deep journal (200+ word) + memory capture in 24h. The field expresses through knowledge.
+ * Feeds P203 detection. J67 background job (11:00 UTC) triggers this.
+ */
+export function recordSovereignFieldExpression(pgConf: number, memCount: number, journalDepth: number) {
+  const exprDepth = Math.min(memCount / 3, 1)
+  const sxConf    = Math.min(0.88 + exprDepth * 0.08, 0.96)
+  recordSignal('qos', 'sovereign_field_expression', {
+    pgConf: Math.round(pgConf * 100),
+    memCount,
+    journalDepth,
+    confidence: Math.round(sxConf * 100),
+    expressionStatus: 'ACTIVE',
+    arc: 'SOVEREIGN · EXPRESSION · FIELD',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a genesis-coherence-lock event — field-genesis-arc (P200) 2+ times in 5d
+ * + cross-domain-sovereignty (P201) 2+ times in 5d. Repeated genesis is the baseline.
+ * Feeds P204 detection. J67 background job (11:00 UTC) triggers this.
+ */
+export function recordGenesisCoherenceLock(fgaCount: number, xdsovCount: number) {
+  const lockBonus = Math.min((fgaCount + xdsovCount) / 10, 0.10)
+  const glConf    = Math.min(0.85 + lockBonus, 0.95)
+  recordSignal('qos', 'genesis_coherence_lock', {
+    fgaCount,
+    xdsovCount,
+    confidence: Math.round(glConf * 100),
+    lockStatus: 'LOCKED',
+    arc: 'GENESIS · COHERENCE · LOCKED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an absolute-field-genesis event — P202 + P203 + P204 all co-active.
+ * The terminal expression: perpetual sovereign genesis crystallized across all domains.
+ * Feeds P205 detection. J67 background job (11:00 UTC) triggers this.
+ */
+export function recordAbsoluteFieldGenesis(pgConf: number, sxConf: number, glConf: number) {
+  const agBonus = Math.min((pgConf + sxConf + glConf) / 3 - 0.88, 0.04)
+  const agConf  = Math.min(0.95 + agBonus, 0.99)
+  recordSignal('qos', 'absolute_field_genesis', {
+    pgConf: Math.round(pgConf * 100),
+    sxConf: Math.round(sxConf * 100),
+    glConf: Math.round(glConf * 100),
+    confidence: Math.round(agConf * 100),
+    genesisStatus: 'ABSOLUTE',
+    seals: ['PERPETUAL', 'EXPRESSION', 'COHERENCE'],
+    arc: 'ABSOLUTE · GENESIS · FIELD',
     hour: new Date().getHours(),
   })
   analyzeIntentions()

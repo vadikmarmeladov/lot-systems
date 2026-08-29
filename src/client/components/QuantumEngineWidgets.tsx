@@ -161,6 +161,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'field-genesis-arc':                'FGNARC',
   'cross-domain-sovereignty':         'XDSOV',
   'perpetual-genesis-field':          'PGFIELD',
+  'sovereign-field-expression':       'SOVEX',
+  'genesis-coherence-lock':           'GENLOCK',
+  'absolute-field-genesis':           'ABSGEN',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

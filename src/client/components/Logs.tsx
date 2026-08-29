@@ -5375,6 +5375,84 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'sovereign_field_expression') {
+          const pgConf    = log.metadata?.pgConf    as number | undefined
+          const memCount  = log.metadata?.memCount  as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SOVEX:" blockView>
+                {pgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PGFIELD</span>
+                    <span className="tabular-nums">{pgConf}%</span>
+                  </div>
+                )}
+                {memCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEM 24H</span>
+                    <span className="tabular-nums">{memCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN · EXPRESSION · FIELD</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'genesis_coherence_lock') {
+          const fgaCount   = log.metadata?.fgaCount   as number | undefined
+          const xdsovCount = log.metadata?.xdsovCount as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GENLOCK:" blockView>
+                {fgaCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FGNARC 5D</span>
+                    <span className="tabular-nums">{fgaCount}×</span>
+                  </div>
+                )}
+                {xdsovCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">XDSOV 5D</span>
+                    <span className="tabular-nums">{xdsovCount}×</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">GENESIS · COHERENCE · LOCKED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'absolute_field_genesis') {
+          const sxConf    = log.metadata?.sxConf    as number | undefined
+          const glConf    = log.metadata?.glConf    as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ABSGEN:" blockView>
+                {sxConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOVEX</span>
+                    <span className="tabular-nums">{sxConf}%</span>
+                  </div>
+                )}
+                {glConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GENLOCK</span>
+                    <span className="tabular-nums">{glConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ABSOLUTE · GENESIS · FIELD</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

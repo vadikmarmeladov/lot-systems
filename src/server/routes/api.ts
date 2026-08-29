@@ -1283,6 +1283,9 @@ export default async (fastify: FastifyInstance) => {
       'field_genesis_arc',
       'cross_domain_sovereignty',
       'perpetual_genesis_field',
+      'sovereign_field_expression',
+      'genesis_coherence_lock',
+      'absolute_field_genesis',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

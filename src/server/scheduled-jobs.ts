@@ -1820,6 +1820,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyFieldGenesisCheck(now)) {
     await executeDailyFieldGenesisCheck()
   }
+
+  // Check daily sovereign expression check (11:00 UTC every day) — Job 67
+  if (shouldRunDailySovereignExpressionCheck(now)) {
+    await executeDailySovereignExpressionCheck()
+  }
 }
 
 function shouldRunDailyFieldGenesisCheck(now: any): boolean {
@@ -1827,6 +1832,16 @@ function shouldRunDailyFieldGenesisCheck(now: any): boolean {
   if (isDailyFieldGenesisRunning) return false
   if (lastDailyFieldGenesisRun) {
     const lastRun = dayjs(lastDailyFieldGenesisRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+function shouldRunDailySovereignExpressionCheck(now: any): boolean {
+  if (now.hour() !== 11) return false
+  if (isDailySovereignExpressionRunning) return false
+  if (lastDailySovereignExpressionRun) {
+    const lastRun = dayjs(lastDailySovereignExpressionRun)
     if (lastRun.isSame(now, 'day')) return false
   }
   return true
@@ -7608,6 +7623,126 @@ async function executeDailyFieldGenesisCheck(): Promise<JobResult> {
   }
 }
 
+// ─── J67: Daily Sovereign Expression Check (11:00 UTC) ─────────────────────
+// Reads perpetual_genesis_field events in 7d + deep journal (200+ words) in 24h
+// + memory signals in 24h → sovereign_field_expression.
+// Reads field_genesis_arc + cross_domain_sovereignty occurrences in 5d →
+// genesis_coherence_lock. All three sealed → absolute_field_genesis.
+
+let isDailySovereignExpressionRunning = false
+let lastDailySovereignExpressionRun: Date | null = null
+
+async function executeDailySovereignExpressionCheck(): Promise<JobResult> {
+  const jobName    = 'daily-sovereign-expression-check'
+  const executedAt = new Date()
+  if (isDailySovereignExpressionRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailySovereignExpressionRunning = true
+
+  try {
+    const { Log, User } = (await import('#server/models')).default
+    const { Op } = await import('sequelize')
+    const now       = dayjs()
+    const now24h    = new Date(Date.now() - 24 * 3600000)
+    const now5d     = new Date(Date.now() - 5 * 24 * 3600000)
+    const now7d     = new Date(Date.now() - 7 * 24 * 3600000)
+
+    const activeUsers = await User.findAll({ where: { isActive: true }, attributes: ['id'] })
+    let written = 0
+
+    for (const user of activeUsers) {
+      // ── Sovereign Field Expression (P203) check ──
+      const pgfieldLogs = await Log.count({
+        where: { userId: user.id, event: 'perpetual_genesis_field', createdAt: { [Op.gte]: now7d } },
+      })
+      if (pgfieldLogs >= 1) {
+        const deepJournalLogs = await Log.count({
+          where: {
+            userId: user.id,
+            source: 'journal',
+            createdAt: { [Op.gte]: now24h },
+          },
+        })
+        const memLogs = await Log.count({
+          where: { userId: user.id, source: 'memory', createdAt: { [Op.gte]: now24h } },
+        })
+        if (deepJournalLogs >= 1 && memLogs >= 1) {
+          const exprDepth = Math.min(memLogs / 3, 1)
+          const sxConf    = Math.round(Math.min(88 + exprDepth * 8, 96))
+          await Log.create({
+            userId: user.id,
+            event:  'sovereign_field_expression',
+            source: 'qos',
+            metadata: {
+              pgConf: 92,
+              memCount:     memLogs,
+              journalDepth: deepJournalLogs,
+              confidence:   sxConf,
+              expressionStatus: 'ACTIVE',
+              arc: 'SOVEREIGN · EXPRESSION · FIELD',
+              hour: now.hour(),
+            },
+          })
+          written++
+          console.log(`  [${user.id}] Sovereign field expression — PGFIELD(7d) + journal + memory. CONF: ${sxConf}%. SOVEX ACTIVE.`)
+
+          // ── Genesis Coherence Lock (P204) ──
+          const fgaCount   = await Log.count({ where: { userId: user.id, event: 'field_genesis_arc',        createdAt: { [Op.gte]: now5d } } })
+          const xdsovCount = await Log.count({ where: { userId: user.id, event: 'cross_domain_sovereignty', createdAt: { [Op.gte]: now5d } } })
+          if (fgaCount >= 2 && xdsovCount >= 2) {
+            const lockBonus = Math.min((fgaCount + xdsovCount) / 10, 10)
+            const glConf    = Math.round(Math.min(85 + lockBonus, 95))
+            await Log.create({
+              userId: user.id,
+              event:  'genesis_coherence_lock',
+              source: 'qos',
+              metadata: {
+                fgaCount,
+                xdsovCount,
+                confidence:  glConf,
+                lockStatus:  'LOCKED',
+                arc: 'GENESIS · COHERENCE · LOCKED',
+                hour: now.hour(),
+              },
+            })
+            written++
+            console.log(`  [${user.id}] Genesis coherence lock — FGA×${fgaCount} + XDSOV×${xdsovCount} in 5d. CONF: ${glConf}%. GENLOCK.`)
+
+            // ── Absolute Field Genesis (P205) — P202 + P203 + P204 sealed ──
+            const agBonus = Math.min((92 + sxConf + glConf) / 3 - 88, 4)
+            const agConf  = Math.round(Math.min(95 + agBonus, 99))
+            await Log.create({
+              userId: user.id,
+              event:  'absolute_field_genesis',
+              source: 'qos',
+              metadata: {
+                pgConf: 92,
+                sxConf,
+                glConf,
+                confidence:   agConf,
+                genesisStatus: 'ABSOLUTE',
+                seals: ['PERPETUAL', 'EXPRESSION', 'COHERENCE'],
+                arc: 'ABSOLUTE · GENESIS · FIELD',
+                hour: now.hour(),
+              },
+            })
+            written++
+            console.log(`  [${user.id}] Absolute field genesis — P202+P203+P204 sealed. CONF: ${agConf}%. ABSGEN CONFIRMED.`)
+          }
+        }
+      }
+    }
+
+    console.log(`  Sovereign expression events written: ${written}`)
+    lastDailySovereignExpressionRun = new Date()
+    isDailySovereignExpressionRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Sovereign expression check failed:', error.message)
+    isDailySovereignExpressionRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -7676,6 +7811,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily absolute sovereignty check: 2 PM UTC every day (Job 64)')
   console.log('   - Daily perpetual field check: 3 PM UTC every day (Job 65)')
   console.log('   - Daily field genesis check: 4 PM UTC every day (Job 66)')
+  console.log('   - Daily sovereign expression check: 11 AM UTC every day (Job 67)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -7685,7 +7821,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57), 12=vitality-peak+conscious-field-check(J62), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

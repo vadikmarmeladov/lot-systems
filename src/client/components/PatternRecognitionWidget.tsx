@@ -209,6 +209,9 @@ export function PatternRecognitionWidget() {
       'quantum-field-propagation':        'Quantum field propagation — apex state active · 5+ signals from 4+ sources in 6h · peak self-sustaining and generating new activity · APEX · PROPAGATING (P176)',
       'unified-field-operator':           'Unified field operator — embodied-sovereignty + physiological-loop + quantum-apex all simultaneously confirmed · three highest seals active · SOVEREIGNTY · LOOP · APEX (P177)',
       'temporal-identity-lock':           'Temporal identity lock — longitudinal-identity-confirmation + signal-momentum-lock co-active · identity confirmed AND momentum-locked across all scales · IDENTITY · MOMENTUM = LOCKED (P178)',
+      'sovereign-field-expression':       'Sovereign field expression — perpetual-genesis-field active · deep journal + memory capture in 24h · the field expresses through knowledge creation (P203)',
+      'genesis-coherence-lock':           'Genesis coherence lock — field-genesis-arc × 2+ + cross-domain-sovereignty × 2+ in 5d · repeated genesis confirmed as structural baseline (P204)',
+      'absolute-field-genesis':           'Absolute field genesis — perpetual-genesis-field + sovereign-field-expression + genesis-coherence-lock all co-active · terminal expression · absolute sovereign genesis crystallized (P205)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -746,6 +749,21 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'perpetual-genesis-field') && (
                 <div className="mt-4 uppercase tracking-widest text-xs font-bold">
                   PGFIELD. PFOP + FGNARC + XDSOV all sealed. The perpetual field expands.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'sovereign-field-expression') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  SOVEX. Sovereign field expressing through knowledge creation. PGFIELD active.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'genesis-coherence-lock') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  GENLOCK. Repeated genesis confirmed as baseline. FGNARC + XDSOV 2× in 5d.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'absolute-field-genesis') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  ABSGEN. Terminal expression. PGFIELD + SOVEX + GENLOCK all sealed. Absolute.
                 </div>
               )}
 
