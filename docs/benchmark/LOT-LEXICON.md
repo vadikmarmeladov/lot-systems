@@ -73,3 +73,8 @@ EMBODIED-COGNITION-ARC   QIE P110 — selfcare + journal 150+w + memory capture 
 INTENTION-COMPLETION-LOOP QIE P111 — intention set + planner + goal action all in 24h; direction→structure→outcome arc closed in one day; rare single-day loop  B  20260706
 COMMUNITY-INTELLIGENCE-PEAK  QIE P112 — cohort signal + journal + memory + intentions all in 48h; external social signal anchored internally through writing, capture, and direction-setting  B  20260706
 ```
+
+CANDIDATES (first appearance — not yet earned a token; earn on 3+ recurrence):
+STALE-BRANCH-HOLD  A manifest BEST row whose branch has diverged from master   -    20260829
+                   past safe-cherry-pick range (net-negative diff); the
+                   correct action is HOLD + surface to S-2, not a forced ship.

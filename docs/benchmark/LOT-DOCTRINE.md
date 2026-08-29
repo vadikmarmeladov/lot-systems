@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,20 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Stale-Branch Ship Gate
+
+LOT-MANIFEST.md's "BEST" designation is only trustworthy at the moment it was
+written. A branch marked BEST does not re-verify itself as master moves on.
+Before any cherry-pick or ship of a manifest-BEST branch, diff it against
+current master (`git diff --stat master <branch>`), not just against its own
+fork point. A branch can carry a small, real, wanted feature diff and still
+be unsafe to ship whole, if enough independent work has landed on master
+since the branch was cut — the merge would delete that work as a side effect
+of bringing the old branch's stale tree back. When the diff shows large
+net-negative lines against current master (old branch deleting since-added
+files it simply predates), that is not the small feature diff the manifest
+promised — HOLD and surface to S-2 rather than cherry-pick or merge.
+
+(SR-20260829-01: QI·46 Node 3, manifest-BEST since 2026-06-11, found at
+~147K-line net divergence from current master — HOLD, not shipped.)
