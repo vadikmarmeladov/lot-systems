@@ -13,7 +13,8 @@ import { useCreateLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
-import { recordCalendarSignal } from '#client/stores/intentionEngine'
+import { recordCalendarSignal, recordCalendarTimerSignal } from '#client/stores/intentionEngine'
+import { pushCalendarAlert } from '#client/stores/calendarAlerts'
 
 type EntryType = 'note' | 'task' | 'call'
 
@@ -23,7 +24,36 @@ type CalendarEntry = {
   type: EntryType
 }
 
+type ActiveTimer = {
+  date: string
+  text: string
+  type: EntryType
+  startedAt: number
+}
+
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+function entryKey(date: string, text: string): string {
+  return `${date}::${text}`
+}
+
+function formatElapsed(ms: number): string {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000))
+  const h = Math.floor(totalSeconds / 3600)
+  const m = Math.floor((totalSeconds % 3600) / 60)
+  const s = totalSeconds % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`
+}
+
+function formatTrackedTotal(ms: number): string {
+  const totalMinutes = Math.round(ms / 60000)
+  if (totalMinutes < 1) return '<1m'
+  if (totalMinutes < 60) return `${totalMinutes}m`
+  const h = Math.floor(totalMinutes / 60)
+  const m = totalMinutes % 60
+  return m > 0 ? `${h}h ${m}m` : `${h}h`
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -51,7 +81,8 @@ function getMonthWeeks(year: number, month: number): Dayjs[][] {
 export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
-  const { mutate: createLog } = useCreateLog()
+  const { mutate: createLog, isLoading: isSavingEntry } = useCreateLog()
+  const { mutate: createTimeLog } = useCreateLog()
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
@@ -59,6 +90,9 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [addError, setAddError] = React.useState<string | null>(null)
+  const [activeTimer, setActiveTimer] = React.useState<ActiveTimer | null>(null)
+  const [, setTimerTick] = React.useState(0)
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -90,6 +124,28 @@ export function CalendarWidget() {
     return set
   }, [entries])
 
+  const trackedMsByEntry = React.useMemo(() => {
+    const map = new Map<string, number>()
+    logs
+      .filter(log => log.event === 'calendar_time_logged' && log.metadata)
+      .forEach(log => {
+        const date = log.metadata?.date as string
+        const text = log.metadata?.text as string
+        const durationMs = Number(log.metadata?.durationMs) || 0
+        if (!date || !text || durationMs <= 0) return
+        const key = entryKey(date, text)
+        map.set(key, (map.get(key) || 0) + durationMs)
+      })
+    return map
+  }, [logs])
+
+  // Live tick while a timer runs, so elapsed time stays current without polling logs.
+  React.useEffect(() => {
+    if (!activeTimer) return
+    const interval = setInterval(() => setTimerTick(t => t + 1), 1000)
+    return () => clearInterval(interval)
+  }, [activeTimer])
+
   const today = dayjs().format('YYYY-MM-DD')
   const weeks = React.useMemo(
     () => getMonthWeeks(viewMonth.year(), viewMonth.month()),
@@ -108,25 +164,27 @@ export function CalendarWidget() {
   const handleAddEntry = () => {
     if (!selectedDate || !entryText.trim()) return
 
-    const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const date = selectedDate
+    const text = entryText.trim()
+    const dateLabel = dayjs(date).format('dddd, MMMM D, YYYY')
+
+    setAddError(null)
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${text} (${dateLabel})`,
       event: 'calendar_entry',
-      metadata: {
-        date: selectedDate,
-        text: entryText.trim(),
-        entryType,
-      },
+      metadata: { date, text, entryType },
     }, {
       onSuccess: () => {
         queryClient.refetchQueries(['/api/logs'])
-        try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        try { recordCalendarSignal(entryType, date) } catch (_) {}
+        setEntryText('')
+        setIsAddingEntry(false)
+      },
+      onError: () => {
+        setAddError('Failed to save — try again.')
       },
     })
-
-    setEntryText('')
-    setIsAddingEntry(false)
   }
 
   const handleToggleCalendar = () => {
@@ -134,6 +192,37 @@ export function CalendarWidget() {
       setViewMonth(dayjs())
     }
     setIsCalendarOpen(!isCalendarOpen)
+  }
+
+  const startTimer = (entry: CalendarEntry) => {
+    if (activeTimer) return
+    setActiveTimer({ date: entry.date, text: entry.text, type: entry.type, startedAt: Date.now() })
+  }
+
+  const stopTimer = () => {
+    if (!activeTimer) return
+    const durationMs = Date.now() - activeTimer.startedAt
+    const { date, text, type } = activeTimer
+    setActiveTimer(null)
+
+    if (durationMs < 1000) return // discard accidental taps
+
+    createTimeLog({
+      text: `[TIME] ${type}: ${formatElapsed(durationMs)} — ${text}`,
+      event: 'calendar_time_logged',
+      metadata: { date, text, entryType: type, durationMs },
+    }, {
+      onSuccess: () => {
+        queryClient.refetchQueries(['/api/logs'])
+        try { recordCalendarTimerSignal(type, date, durationMs) } catch (_) {}
+        pushCalendarAlert({
+          kind: 'logged',
+          label: 'CAL [TIME]:',
+          title: `${formatElapsed(durationMs)} LOGGED`,
+          detail: text,
+        })
+      },
+    })
   }
 
   return (
@@ -237,8 +326,13 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
-                  <Button onClick={handleAddEntry}>Add</Button>
+                  <Button onClick={handleAddEntry} disabled={isSavingEntry}>
+                    {isSavingEntry ? 'Adding…' : 'Add'}
+                  </Button>
                 </div>
+                {addError && (
+                  <div className="text-red mt-4">{addError}</div>
+                )}
               </div>
             )}
 
@@ -247,11 +341,48 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
-                  </div>
-                ))}
+                {entriesOnDate.map((e, i) => {
+                  const key = entryKey(e.date, e.text)
+                  const isTracking = activeTimer && entryKey(activeTimer.date, activeTimer.text) === key
+                  const trackedMs = trackedMsByEntry.get(key) || 0
+
+                  return (
+                    <div key={i} className="flex justify-between items-baseline gap-8 mb-4">
+                      <span className="text-acc/80">{e.text}</span>
+                      <span className="flex items-center gap-8 whitespace-nowrap">
+                        {isTracking ? (
+                          <>
+                            <span className="text-acc tabular-nums">
+                              {formatElapsed(Date.now() - activeTimer!.startedAt)}
+                            </span>
+                            <button
+                              className="text-acc/40 hover:text-acc transition-opacity uppercase tracking-widest"
+                              onClick={stopTimer}
+                            >
+                              Stop
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            {trackedMs > 0 && (
+                              <span className="text-acc/30 tabular-nums">
+                                {formatTrackedTotal(trackedMs)}
+                              </span>
+                            )}
+                            {!activeTimer && (
+                              <button
+                                className="text-acc/30 hover:text-acc/60 transition-opacity uppercase tracking-widest"
+                                onClick={() => startTimer(e)}
+                              >
+                                Track
+                              </button>
+                            )}
+                          </>
+                        )}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>

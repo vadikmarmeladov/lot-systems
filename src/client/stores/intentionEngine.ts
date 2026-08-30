@@ -4870,6 +4870,16 @@ export function recordCalendarSignal(entryType: string, date: string) {
 }
 
 /**
+ * Record a calendar time-tracking signal when a Track session on an entry
+ * is stopped and logged. Sibling of recordCalendarSignal — same 'log'
+ * source and Temporal Planner wiring, distinct signal name so QIE can
+ * tell scheduling from time-on-task.
+ */
+export function recordCalendarTimerSignal(entryType: string, date: string, durationMs: number) {
+  recordSignal('log', 'calendar_time_logged', { entryType, date, durationMs, hour: new Date().getHours() })
+}
+
+/**
  * Record the day's ambient astrology reading — rokuyo, moon phase, and
  * zodiac hour. Ambient/environmental conditions only, not a personal
  * natal chart. Called once per calendar day from the System dashboard so
