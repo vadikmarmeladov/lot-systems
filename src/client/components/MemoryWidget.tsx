@@ -36,6 +36,15 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
   // Session-local ref to prevent re-showing the same question during this mount
   const shownQuestionId = React.useRef<string | null>(null)
 
+  // Collect all pending timer IDs so we can cancel them on unmount
+  const pendingTimers = React.useRef<ReturnType<typeof setTimeout>[]>([])
+  React.useEffect(() => () => { pendingTimers.current.forEach(clearTimeout) }, [])
+  const trackTimeout = React.useCallback((fn: () => void, ms: number) => {
+    const id = setTimeout(fn, ms)
+    pendingTimers.current.push(id)
+    return id
+  }, [])
+
   // Track answered questions in sessionStorage to survive remounts
   const isQuestionAnswered = React.useCallback((questionId: string): boolean => {
     try {
@@ -71,7 +80,7 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
       const date = btoa(dayjs().format('YYYY-MM-DD'))
 
       setIsQuestionShown(false)
-      setTimeout(() => {
+      trackTimeout(() => {
         setQuestion(null)
 
         const stoicReflection = getStoicReflection({
@@ -86,11 +95,11 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
         fullResponse += `\n\n${stoicReflection}`
 
         setResponse(fullResponse)
-        setTimeout(() => {
+        trackTimeout(() => {
           setIsResponseShown(true)
-          setTimeout(() => {
+          trackTimeout(() => {
             setIsShown(false)
-            setTimeout(() => {
+            trackTimeout(() => {
               setIsDisplayed(false)
               setIsResponseShown(false)
               setResponse(null)
@@ -135,7 +144,7 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
       }
 
       // Deferred: record signal after React commits the visual update
-      setTimeout(() => {
+      trackTimeout(() => {
         try {
           const lowerQ = (question.question || '').toLowerCase()
           const isMedical = ['blood type', 'allergy', 'allergies', 'medication', 'chronic', 'vision', 'dental', 'vaccination', 'heart rate', 'skin type', 'recurring pain', 'hearing', 'drug allergy', 'checkup', 'dominant hand', 'appetite', 'digestion', 'food sensitivity', 'eating habits'].some(kw => lowerQ.includes(kw))
@@ -204,18 +213,18 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
 
     if (badgeUnlock) {
       // Show badge unlock, then show question after it dismisses
-      setTimeout(() => {
+      trackTimeout(() => {
         setIsDisplayed(true)
-        setTimeout(() => {
+        trackTimeout(() => {
           const badgeDisplay = `${badgeUnlock.symbol} → ${badgeUnlock.name}\n\n${badgeUnlock.unlockMessage.replace('[badge]', badgeUnlock.symbol)}`
           setResponse(badgeDisplay)
           setIsShown(true)
           setIsResponseShown(true)
           // After badge dismisses, show the question
-          setTimeout(() => {
+          trackTimeout(() => {
             setIsResponseShown(false)
             setResponse(null)
-            setTimeout(() => {
+            trackTimeout(() => {
               setQuestion(loadedQuestion)
               setClickedButtonIndex(null)
               setIsQuestionShown(true)
@@ -227,9 +236,9 @@ export const MemoryWidget = React.memo(function MemoryWidget() {
     }
 
     // Show question directly
-    setTimeout(() => {
+    trackTimeout(() => {
       setIsDisplayed(true)
-      setTimeout(() => {
+      trackTimeout(() => {
         setQuestion(loadedQuestion)
         setClickedButtonIndex(null)
         setIsShown(true)
