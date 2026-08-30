@@ -32,6 +32,15 @@
 
 The name `QI·46` inherits the LOT _I naming grammar (`BI`, `KI`, `QI`) — where the suffix marks the intelligence layer. `QI` carries two simultaneous readings: *Quantum Intelligence* and the ancient bioelectric life-force concept it shares a name with. `46` anchors the engine to its founding training epoch — the year the self-assembly begins.
 
+**Naming review — 2026-08-30 (Vadik & Kuzya):** Five candidates were weighed —
+`LOT·SC·46`, `BIONODE-46`, `SELFWARE·46`, `CARE·OS·46`, `QI·46`. `QI·46` is
+confirmed as the standing designation: it is the only candidate that slots
+into the existing LOT `_I` grammar (`BI`, `KI`, `QI`) alongside prior work,
+reads simultaneously as *Quantum Intelligence* and the bioelectric life-force
+sense, and is already load-bearing across this specification, the assembly
+doctrine, and the codebase (`lot-qi-46-v{version}`, `/qi46/infer`). No rename.
+`SELFWARE` remains the codename (Designation I, above).
+
 ---
 
 ## II. THESIS — THE POETIC COGS
