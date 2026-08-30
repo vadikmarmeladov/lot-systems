@@ -226,3 +226,19 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+Rule 1's failure class (an AI prompt built by filtering Log.findAll() results
+against hand-typed event-name strings, where a wrong or stale name silently
+zeroes the section instead of erroring) recurred on 2026-08-30 in POST
+/story: the query filtered for 'log_entry'/'journal'/'memory_answer'/
+'self_care_checkin'/'energy_checkin' — none of which exist in the ~60
+event names Log rows are actually written with (journal notes are 'note',
+Memory answers are 'answer', self-care is 'self_care'). Every /story call
+had been compressing zero real entries. Two occurrences of the same class
+in two unrelated endpoints — one more and EVENT-FILTER-DRIFT is minted as a
+token with a standing rule: any `.event === '...'` filter against Log rows
+must be checked against the grepped literal list of event names actually
+written under src/server/, not typed from memory.
+
+(SR-20260830-01: POST /story event filters corrected; day/week/month/year
+period window added; lot_ai_story weekly compression folded in as context.)

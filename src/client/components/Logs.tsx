@@ -3706,6 +3706,7 @@ const NoteEditor = ({
   const [prayerLoading, setPrayerLoading] = React.useState(false)
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
+  const [storyPeriod, setStoryPeriod] = React.useState<'day' | 'week' | 'month' | 'year'>('day')
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
@@ -3742,10 +3743,11 @@ const NoteEditor = ({
   const { mutate: submitStory } = useStoryGeneration({
     onSuccess: (data) => {
       setStoryResponse(data.story)
+      setStoryPeriod(data.period || 'day')
       setStoryLoading(false)
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
-      const updated = current + separator + '📖 ' + data.story
+      const updated = current + separator + `📖 [${(data.period || 'day').toUpperCase()}] ` + data.story
       setValue(updated)
       valueRef.current = updated
       onChangeRef.current(updated)
@@ -4125,7 +4127,7 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story [when]   Compressed story — day (default) / week / month / year',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4152,16 +4154,26 @@ const NoteEditor = ({
           setStoryLoading(true)
           setStoryResponse(null)
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            // /story defaults to "day"; /story week|month|year widen the
+            // compression window (see the STORY endpoint in api.ts).
+            const periodMatch = value.match(/\/story\s+(day|today|week|month|year)\b/i)
+            const period: 'day' | 'week' | 'month' | 'year' = periodMatch
+              ? (periodMatch[1].toLowerCase() === 'today' ? 'day' : (periodMatch[1].toLowerCase() as 'week' | 'month' | 'year'))
+              : 'day'
+            const stripPattern = periodMatch
+              ? new RegExp(`\\/story\\s+${periodMatch[1]}`, 'i')
+              : /\/story/i
+            const logText = value.replace(stripPattern, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period: 'day' })
           }
         }
       }
@@ -4416,7 +4428,7 @@ const NoteEditor = ({
         )}
         {(storyLoading || storyResponse) && (
           <div className="mt-8">
-            <Block label="📖" blockView>
+            <Block label={`📖 [${storyPeriod.toUpperCase()}]`} blockView>
               {storyLoading && !storyResponse && (
                 <div className="opacity-40 tracking-widest">...</div>
               )}
