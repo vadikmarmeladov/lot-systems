@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useCohorts, useCreateChatMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,9 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const { data: cohortData } = useCohorts()
+  const { mutate: sendLotEmail } = useCreateChatMessage()
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4130,6 +4133,7 @@ const NoteEditor = ({
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
           '/phys         Physiological cohort report',
+          '/email to X   Send a LOT Email to X — delivered via Sync',
           '/qos          Quantum OS state analysis',
           '/fast         Orthodox fasting calendar',
           '/breathe      4-2-6 breathing exercise',
@@ -4163,6 +4167,28 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'lot-email') {
+        const emailMatch = value.match(/\/email\s+to\s+([a-z][a-z'-]*)[.,!?]*\s*([\s\S]*)/i)
+        if (emailMatch) {
+          const nameRaw = emailMatch[1]
+          const body = emailMatch[2].trim()
+          const recipient = cohortData?.matches?.find(
+            (m) => m.user.firstName?.toLowerCase() === nameRaw.toLowerCase()
+          )
+          const toLabel = recipient
+            ? `${recipient.user.firstName} ${recipient.user.lastName ? recipient.user.lastName.charAt(0) + '.' : ''}`.trim()
+            : nameRaw
+          const envelope = [
+            `✉ TO: ${toLabel.toUpperCase()}`,
+            body || '(no message)',
+          ].join('\n')
+          sendLotEmail({ message: envelope })
+          setEmailResult(
+            recipient
+              ? `SENT — ${toLabel} · cohort match ${Math.round(recipient.similarity * 100)}% · delivered via Sync`
+              : `SENT — ${toLabel} · not yet a cohort match · delivered via Sync`
+          )
         }
       }
     }
@@ -4411,6 +4437,13 @@ const NoteEditor = ({
                   )
                 })}
               </div>
+            </Block>
+          </div>
+        )}
+        {emailResult && (
+          <div className="mt-8">
+            <Block label="✉ EMAIL:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{emailResult}</div>
             </Block>
           </div>
         )}
