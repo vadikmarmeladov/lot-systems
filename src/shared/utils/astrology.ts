@@ -177,3 +177,27 @@ export function getMoonEmoji(phaseName: string): string {
   }
   return emojiMap[phaseName] || '🌑'
 }
+
+// Minimal shape both the client and server dayjs re-exports satisfy —
+// avoids importing either instance's config into this isomorphic module.
+type WallClockMoment = {
+  year(): number
+  month(): number
+  date(): number
+  hour(): number
+  minute(): number
+  second(): number
+}
+
+/**
+ * Build a plain Date from a moment's local (timeZone-aware) wall-clock
+ * fields. Round-trips correctly through the getHours()/getMonth()/getDate()
+ * readers the functions above use, regardless of the process/device's own
+ * runtime timeZone — so a reading built from `dayjs().tz(user.timeZone)`
+ * reflects the user's saved timeZone rather than server- or device-local
+ * time. Shared by the server (Logs snapshot) and client (dashboard block)
+ * so both derive an ambient reading the same way.
+ */
+export function toWallClockDate(moment: WallClockMoment): Date {
+  return new Date(moment.year(), moment.month(), moment.date(), moment.hour(), moment.minute(), moment.second())
+}
