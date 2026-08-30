@@ -212,6 +212,9 @@ export function PatternRecognitionWidget() {
       'sovereign-field-expression':       'Sovereign field expression — perpetual-genesis-field active · deep journal + memory capture in 24h · the field expresses through knowledge creation (P203)',
       'genesis-coherence-lock':           'Genesis coherence lock — field-genesis-arc × 2+ + cross-domain-sovereignty × 2+ in 5d · repeated genesis confirmed as structural baseline (P204)',
       'absolute-field-genesis':           'Absolute field genesis — perpetual-genesis-field + sovereign-field-expression + genesis-coherence-lock all co-active · terminal expression · absolute sovereign genesis crystallized (P205)',
+      'field-witness':                    'Field witness — absolute-field-genesis in 7d · deep journal + memory capture in 24h · the genesis is self-aware · the field witnesses its own generation (P206)',
+      'recursive-genesis':                'Recursive genesis — absolute-field-genesis detected 2+ times in 7d · genesis is self-referential · the field generates from its own prior outputs (P207)',
+      'field-anchor-complete':            'Field anchor complete — all 7 primary sources (mood/journal/selfcare/planner/memory/intentions/energy) active in 24h · the full foundation is present (P208)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -764,6 +767,21 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'absolute-field-genesis') && (
                 <div className="mt-4 uppercase tracking-widest text-xs font-bold">
                   ABSGEN. Terminal expression. PGFIELD + SOVEX + GENLOCK all sealed. Absolute.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'field-witness') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  FWITN. Field witnesses itself. ABSGEN in 7d. Deep journal. Memory captured.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'recursive-genesis') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  RGEN. Genesis is recursive. ABSGEN 2× in 7d. Field generates from its own outputs.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'field-anchor-complete') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  FANCH. All 7 sources present in 24h. Foundation complete. Full anchor confirmed.
                 </div>
               )}
 

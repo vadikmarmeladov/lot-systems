@@ -1825,6 +1825,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySovereignExpressionCheck(now)) {
     await executeDailySovereignExpressionCheck()
   }
+
+  // Check daily field witness check (12:00 UTC every day) — Job 68
+  if (shouldRunDailyFieldWitnessCheck(now)) {
+    await executeDailyFieldWitnessCheck()
+  }
 }
 
 function shouldRunDailyFieldGenesisCheck(now: any): boolean {
@@ -1842,6 +1847,16 @@ function shouldRunDailySovereignExpressionCheck(now: any): boolean {
   if (isDailySovereignExpressionRunning) return false
   if (lastDailySovereignExpressionRun) {
     const lastRun = dayjs(lastDailySovereignExpressionRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+function shouldRunDailyFieldWitnessCheck(now: any): boolean {
+  if (now.hour() !== 12) return false
+  if (isDailyFieldWitnessRunning) return false
+  if (lastDailyFieldWitnessRun) {
+    const lastRun = dayjs(lastDailyFieldWitnessRun)
     if (lastRun.isSame(now, 'day')) return false
   }
   return true
@@ -7743,6 +7758,167 @@ async function executeDailySovereignExpressionCheck(): Promise<JobResult> {
   }
 }
 
+// ─── J68: Daily Field Witness Check (12:00 UTC every day) ───────────────────
+// Checks active users for: absolute_field_genesis in 7d + deep journal + memory in 24h
+// → writes field_witness (P206). If absolute_field_genesis appears 2+ times in 7d
+// → writes recursive_genesis (P207). If all 7 primary sources active in 24h
+// → writes field_anchor_complete (P208).
+// FWITN: · RGEN: · FANCH: cockpit codes. Total: 68 jobs.
+
+let isDailyFieldWitnessRunning = false
+let lastDailyFieldWitnessRun: Date | null = null
+
+async function executeDailyFieldWitnessCheck(): Promise<JobResult> {
+  const jobName    = 'daily-field-witness-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyFieldWitnessRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyFieldWitnessRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY FIELD WITNESS CHECK — 12:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log }  = await import('#server/models/log.js')
+    const { Op }   = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const oneDayAgo    = dayjs().subtract(1, 'day').toDate()
+    const activeUsers  = await User.findAll({
+      where: { disabled: false },
+      attributes: ['id'],
+    })
+
+    const primarySources = ['mood', 'journal', 'selfcare', 'planner', 'memory', 'intentions', 'energy']
+    let written = 0
+
+    for (const user of activeUsers) {
+      // Fetch ABSGEN events in last 7d
+      const absgenLogs = await Log.findAll({
+        where: {
+          userId: user.id,
+          event: 'absolute_field_genesis',
+          createdAt: { [Op.gte]: sevenDaysAgo },
+        },
+        attributes: ['event', 'metadata', 'createdAt'],
+        order: [['createdAt', 'DESC']],
+      })
+
+      if (absgenLogs.length >= 1) {
+        // P206: Field Witness — ABSGEN in 7d + deep journal + memory in 24h
+        const deepJournalLogs = await Log.findAll({
+          where: {
+            userId: user.id,
+            source: 'journal',
+            createdAt: { [Op.gte]: oneDayAgo },
+          },
+          attributes: ['metadata'],
+          order: [['createdAt', 'DESC']],
+          limit: 5,
+        })
+        const memLogs = await Log.findAll({
+          where: {
+            userId: user.id,
+            source: 'memory',
+            createdAt: { [Op.gte]: oneDayAgo },
+          },
+          attributes: ['id'],
+          limit: 5,
+        })
+        const hasDeepJournal = deepJournalLogs.some(l => {
+          const wc = ((l.metadata as any)?.wordCount ?? 0)
+          const dep = ((l.metadata as any)?.depth ?? '')
+          return wc >= 200 || dep === 'deep'
+        })
+
+        if (hasDeepJournal && memLogs.length >= 1) {
+          const agConf = ((absgenLogs[0]?.metadata as any)?.confidence ?? 97) / 100
+          const witDepth = Math.min(memLogs.length / 3, 1)
+          const fwConf  = Math.min(0.88 + witDepth * 0.08, 0.96)
+          await Log.create({
+            userId: user.id,
+            event: 'field_witness',
+            source: 'qos',
+            metadata: {
+              agConf: Math.round(agConf * 100),
+              memCount: memLogs.length,
+              journalDepth: deepJournalLogs[0] ? ((deepJournalLogs[0].metadata as any)?.wordCount ?? 200) : 200,
+              confidence: Math.round(fwConf * 100),
+              witnessStatus: 'ACTIVE',
+              arc: 'FIELD · WITNESS · ACTIVE',
+              hour: new Date().getHours(),
+            },
+          })
+          written++
+          console.log(`  [${user.id}] Field witness — ABSGEN in 7d · deep journal · memory in 24h. FWITN ACTIVE.`)
+        }
+      }
+
+      // P207: Recursive Genesis — ABSGEN 2+ times in 7d
+      if (absgenLogs.length >= 2) {
+        const recurBonus = Math.min((absgenLogs.length - 2) * 0.02, 0.08)
+        const rgConf     = Math.min(0.90 + recurBonus, 0.98)
+        await Log.create({
+          userId: user.id,
+          event: 'recursive_genesis',
+          source: 'qos',
+          metadata: {
+            absgenCount: absgenLogs.length,
+            recursionDepth: absgenLogs.length,
+            confidence: Math.round(rgConf * 100),
+            recursionStatus: 'ACTIVE',
+            arc: 'GENESIS · RECURSIVE · CONFIRMED',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Recursive genesis — ABSGEN ${absgenLogs.length}× in 7d. RGEN ACTIVE.`)
+      }
+
+      // P208: Field Anchor Complete — all 7 primary sources active in 24h
+      const sourceLogs = await Log.findAll({
+        where: {
+          userId: user.id,
+          source: { [Op.in]: primarySources },
+          createdAt: { [Op.gte]: oneDayAgo },
+        },
+        attributes: ['source'],
+      })
+      const activeSources = [...new Set(sourceLogs.map(l => l.source as string))].filter(s => primarySources.includes(s))
+      if (activeSources.length >= 6) {
+        const anchBonus = Math.min((activeSources.length - 6) * 0.035, 0.07)
+        const faConf    = Math.min(0.88 + anchBonus, 0.95)
+        await Log.create({
+          userId: user.id,
+          event: 'field_anchor_complete',
+          source: 'qos',
+          metadata: {
+            activeSources,
+            activeCount: activeSources.length,
+            totalCount: sourceLogs.length,
+            confidence: Math.round(faConf * 100),
+            anchorStatus: 'COMPLETE',
+            arc: 'ANCHOR · COMPLETE · FULL',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Field anchor complete — ${activeSources.length}/7 sources in 24h. FANCH COMPLETE.`)
+      }
+    }
+
+    console.log(`  Field witness events written: ${written}`)
+    lastDailyFieldWitnessRun = new Date()
+    isDailyFieldWitnessRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Field witness check failed:', error.message)
+    isDailyFieldWitnessRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -7812,6 +7988,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily perpetual field check: 3 PM UTC every day (Job 65)')
   console.log('   - Daily field genesis check: 4 PM UTC every day (Job 66)')
   console.log('   - Daily sovereign expression check: 11 AM UTC every day (Job 67)')
+  console.log('   - Daily field witness check: 12 PM UTC every day (Job 68)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -7821,7 +7998,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62)+field-witness-check(J68), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

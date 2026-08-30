@@ -5453,6 +5453,88 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'field_witness') {
+          const agConf      = log.metadata?.agConf      as number | undefined
+          const memCount    = log.metadata?.memCount    as number | undefined
+          const journalDep  = log.metadata?.journalDepth as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FWITN:" blockView>
+                {agConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ABSGEN</span>
+                    <span className="tabular-nums">{agConf}%</span>
+                  </div>
+                )}
+                {memCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">MEM 24H</span>
+                    <span className="tabular-nums">{memCount}</span>
+                  </div>
+                )}
+                {journalDep !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">JOURNAL</span>
+                    <span className="tabular-nums">{journalDep}w</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELD · WITNESS · ACTIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'recursive_genesis') {
+          const absgenCount  = log.metadata?.absgenCount  as number | undefined
+          const recurDepth   = log.metadata?.recursionDepth as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RGEN:" blockView>
+                {absgenCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ABSGEN 7D</span>
+                    <span className="tabular-nums">{absgenCount}×</span>
+                  </div>
+                )}
+                {recurDepth !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RECURSION</span>
+                    <span className="tabular-nums">{recurDepth}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">GENESIS · RECURSIVE · CONFIRMED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'field_anchor_complete') {
+          const activeCount  = log.metadata?.activeCount  as number | undefined
+          const sources      = log.metadata?.activeSources as string[] | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FANCH:" blockView>
+                <div className="flex justify-between items-baseline mb-4">
+                  <span className="opacity-30">SOURCES</span>
+                  <span className="tabular-nums">{activeCount ?? '?'}/7</span>
+                </div>
+                {sources && sources.length > 0 && (
+                  <div className="opacity-40 mb-4 uppercase tracking-wide text-xs">
+                    {sources.join(' · ')}
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ANCHOR · COMPLETE · FULL</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

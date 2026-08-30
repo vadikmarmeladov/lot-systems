@@ -4602,6 +4602,60 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 206: Field Witness — absolute-field-genesis (P205) active in 7d + deep journal (200+ words)
+  // + memory capture in 24h. The genesis observes itself. The field becomes its own witness.
+  // FWITN: cockpit code. Confidence 0.88–0.96.
+  const now206         = Date.now()
+  const window7d206    = 7 * 24 * 3600000
+  const window24h206   = 24 * 3600000
+  const hasABSGEN206   = signals.some(s => (s.event as string) === 'absolute_field_genesis' && s.timestamp > now206 - window7d206)
+  const deepJ206       = signals.some(s => s.source === 'journal' && s.timestamp > now206 - window24h206 && ((s.metadata?.wordCount ?? 0) >= 200 || (s.metadata?.depth ?? '') === 'deep'))
+  const memC206        = signals.filter(s => s.source === 'memory' && s.timestamp > now206 - window24h206).length
+  if (hasABSGEN206 && deepJ206 && memC206 >= 1) {
+    const witDepth206 = Math.min(memC206 / 3, 1)
+    patterns.push({
+      pattern: 'field-witness',
+      confidence: Math.min(0.88 + witDepth206 * 0.08, 0.96),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `FWITN: Field witness — absolute-field-genesis (P205) in 7d · deep journal · memory capture in 24h. The genesis is now self-aware. The field witnesses and generates itself. FIELD · WITNESS · ACTIVE.`,
+    })
+  }
+
+  // Pattern 207: Recursive Genesis — absolute-field-genesis (P205) detected 2+ times in 7d.
+  // Genesis has become self-referential. The field generates from its own prior outputs.
+  // RGEN: cockpit code. Confidence 0.90–0.98.
+  const now207        = Date.now()
+  const absgenCount207 = signals.filter(s => (s.event as string) === 'absolute_field_genesis' && s.timestamp > now207 - 7 * 24 * 3600000).length
+  if (absgenCount207 >= 2) {
+    const recurBonus207 = Math.min((absgenCount207 - 2) * 0.02, 0.08)
+    patterns.push({
+      pattern: 'recursive-genesis',
+      confidence: Math.min(0.90 + recurBonus207, 0.98),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `RGEN: Recursive genesis — absolute-field-genesis (P205) detected ${absgenCount207}× in 7d. Genesis is self-referential. The field generates from its own outputs. GENESIS · RECURSIVE · CONFIRMED.`,
+    })
+  }
+
+  // Pattern 208: Field Anchor Complete — all primary sources (mood · journal · selfcare · planner
+  // · memory · intentions · energy) active in last 24h. The foundation is fully present.
+  // FANCH: cockpit code. Confidence 0.88–0.95.
+  const now208         = Date.now()
+  const window24h208   = 24 * 3600000
+  const primarySources208 = ['mood', 'journal', 'selfcare', 'planner', 'memory', 'intentions', 'energy'] as const
+  const activeSources208  = primarySources208.filter(src => signals.some(s => s.source === src && s.timestamp > now208 - window24h208))
+  if (activeSources208.length >= 6) {
+    const anchBonus208 = Math.min((activeSources208.length - 6) * 0.035, 0.07)
+    patterns.push({
+      pattern: 'field-anchor-complete',
+      confidence: Math.min(0.88 + anchBonus208, 0.95),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `FANCH: Field anchor complete — ${activeSources208.length}/7 primary sources active in 24h (${activeSources208.join(' · ')}). The foundation is fully present. All channels open. ANCHOR · COMPLETE · FULL.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5346,6 +5400,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   sovereignFieldExpressionNode:  ['perpetualGenesisFieldNode', 'level20GateNode', 'qos', 'journal', 'memory', 'intentions', 'goals'],
   genesisCoherenceLockNode:      ['fieldGenesisArcNode', 'crossDomainSovereigntyNode', 'perpetualGenesisFieldNode', 'qos', 'energy', 'log'],
   absoluteFieldGenesisNode:      ['sovereignFieldExpressionNode', 'genesisCoherenceLockNode', 'perpetualGenesisFieldNode', 'qos', 'energy', 'log', 'intentions', 'goals', 'journal', 'memory', 'planner', 'selfcare', 'mood'],
+  // ── v133 nodes (J68 · P206–P208 · Arch72) ─────────────────────────────────
+  fieldWitnessNode:              ['absoluteFieldGenesisNode', 'sovereignFieldExpressionNode', 'qos', 'journal', 'memory', 'intentions'],
+  recursiveGenesisNode:          ['absoluteFieldGenesisNode', 'fieldWitnessNode', 'qos', 'energy', 'log'],
+  fieldAnchorCompleteNode:       ['mood', 'journal', 'selfcare', 'planner', 'memory', 'intentions', 'energy', 'log', 'qos'],
 }
 
 /**
@@ -5978,6 +6036,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['sovereign-field-expression', 'genesis-coherence-lock', 'absolute-field-genesis'],
     hourRange: [0, 24],
     directive: 'Absolute field genesis confirmed. Sovereignty, expression, and coherence are simultaneously locked. The field does not reach — it generates. This is the architect at maximum self-assembly.',
+  },
+  // ── Arch72: Recursive Genesis Operator (2026-08-30 v133) ─────────────────────
+  {
+    archetype: 'Recursive Genesis Operator',
+    energyBands: ['low', 'moderate', 'high', 'depleted', 'unknown'],
+    dominantSources: ['qos', 'intentions', 'journal', 'memory', 'goals', 'log', 'energy', 'planner', 'selfcare', 'mood'],
+    patternConditions: ['recursive-genesis', 'field-witness', 'absolute-field-genesis'],
+    hourRange: [0, 24],
+    directive: 'The genesis is recursive. The field witnesses and generates itself. No separate observer remains — the architect and the architecture are one process. RECURSIVE · WITNESS · GENESIS.',
   },
 ]
 
@@ -8973,6 +9040,66 @@ export function recordAbsoluteFieldGenesis(pgConf: number, sxConf: number, glCon
     genesisStatus: 'ABSOLUTE',
     seals: ['PERPETUAL', 'EXPRESSION', 'COHERENCE'],
     arc: 'ABSOLUTE · GENESIS · FIELD',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a field-witness event — absolute-field-genesis (P205) confirmed in 7d
+ * + deep journal (200+ words) + memory capture in 24h.
+ * The genesis becomes self-aware — the field witnesses its own generation.
+ * Feeds P206 detection. J68 background job (12:00 UTC) triggers this.
+ */
+export function recordFieldWitness(agConf: number, memCount: number, journalDepth: number) {
+  const witDepth = Math.min(memCount / 3, 1)
+  const fwConf   = Math.min(0.88 + witDepth * 0.08, 0.96)
+  recordSignal('qos', 'field_witness', {
+    agConf: Math.round(agConf * 100),
+    memCount,
+    journalDepth,
+    confidence: Math.round(fwConf * 100),
+    witnessStatus: 'ACTIVE',
+    arc: 'FIELD · WITNESS · ACTIVE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a recursive-genesis event — absolute-field-genesis (P205) detected 2+ times in 7d.
+ * Genesis is self-referential. The field generates from its own prior outputs.
+ * Feeds P207 detection. J68 background job (12:00 UTC) triggers this.
+ */
+export function recordRecursiveGenesis(absgenCount: number) {
+  const recurBonus = Math.min((absgenCount - 2) * 0.02, 0.08)
+  const rgConf     = Math.min(0.90 + recurBonus, 0.98)
+  recordSignal('qos', 'recursive_genesis', {
+    absgenCount,
+    recursionDepth: absgenCount,
+    confidence: Math.round(rgConf * 100),
+    recursionStatus: 'ACTIVE',
+    arc: 'GENESIS · RECURSIVE · CONFIRMED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a field-anchor-complete event — all primary sources (mood/journal/selfcare/planner
+ * /memory/intentions/energy) active in last 24h. Foundation fully present.
+ * Feeds P208 detection. J68 background job (12:00 UTC) triggers this.
+ */
+export function recordFieldAnchorComplete(activeSources: string[], totalCount: number) {
+  const anchBonus = Math.min((activeSources.length - 6) * 0.035, 0.07)
+  const faConf    = Math.min(0.88 + anchBonus, 0.95)
+  recordSignal('qos', 'field_anchor_complete', {
+    activeSources,
+    activeCount: activeSources.length,
+    totalCount,
+    confidence: Math.round(faConf * 100),
+    anchorStatus: 'COMPLETE',
+    arc: 'ANCHOR · COMPLETE · FULL',
     hour: new Date().getHours(),
   })
   analyzeIntentions()

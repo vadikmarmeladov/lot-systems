@@ -164,6 +164,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'sovereign-field-expression':       'SOVEX',
   'genesis-coherence-lock':           'GENLOCK',
   'absolute-field-genesis':           'ABSGEN',
+  'field-witness':                    'FWITN',
+  'recursive-genesis':                'RGEN',
+  'field-anchor-complete':            'FANCH',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'
