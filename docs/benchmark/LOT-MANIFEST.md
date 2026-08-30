@@ -25,7 +25,7 @@ STATUS KEY:
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
 LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
-Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
+Basics Tab       | beautiful-johnson-yvoyz5      | 388ebb85 | -     | READY  | 4     | +199   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line. VERIFIED 20260830: 55 beautiful-johnson-* branches exist on remote (not the 2 this row previously implied), all independently reimplementing this same Month-1 scope, ZERO PRs ever opened, NONE merged to master. This row now points at the branch reconciled in SR-20260830-01 (cherry-picked cleanest prior attempt, re-green-gated) — pending S-2 decision to open a PR. Do not spawn another branch for this feature; see LOT-DOCTRINE Prior-Art Check.
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
 COSMO Hardware   | brave-lamport-t9z5u8         | c7d353ef | 14/14 | BEST   | 7     | +2610  | COSMO® Cube — complete hardware computer design v1.0

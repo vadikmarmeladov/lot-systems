@@ -1,4 +1,25 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
+
+## Prior-Art Check (recurring-schedule directives)
+
+Before implementing a directive that a recurring schedule has fired before,
+search the FULL repo history — `git log --all --grep=<feature> -i`, remote
+branches, and open PRs — for prior attempts at the same scope. A session
+scoped to its own throwaway branch has no memory of, and no automatic
+reconciliation against, dozens of earlier sessions given the identical
+prompt. Absent this check, each run independently reimplements the same
+small feature on a new orphan branch forever, never merging, never learning
+that the work already exists. When prior art is found: reconcile (cherry-pick
+or port the best existing implementation) rather than author a competing copy
+— competing copies compound the reconciliation debt instead of paying it down.
+Merging to a shared branch (master) or opening a PR is still a S-2 decision on
+an unattended run — this doctrine governs what code gets written, not who
+authorizes it landing.
+(SR-20260827-01: 282a31dc first surfaced 52 unreconciled `beautiful-johnson-*`
+Basics-tab branches, zero PRs, nothing shipped — declined to add a 53rd.
+SR-20260830-01: 8+ more attempts landed after that audit anyway before this
+report; reconciled by cherry-picking the cleanest prior attempt (190fd323)
+onto a green-gated, pushed, PR-ready branch instead of writing a 62nd copy.)
 
 ## Render Isolation
 
