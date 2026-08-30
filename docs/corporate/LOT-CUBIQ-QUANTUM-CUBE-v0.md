@@ -4,8 +4,8 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-08-30 (v.0 spec, iteration 2 — see Section 07, Use Case 02)
+VERSION:  0.2 — DEVELOPMENT CONTINUES
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -320,6 +320,55 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE COUNTER, NOT THE DESK                    2026-08-30
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, badge history skewed toward
+  consistency badges over depth badges, Phase 5 "Community Resonance"
+  active (LOT-CUBIQ-OPERATOR.md, Section 07) — she runs a small shop and
+  keeps her cubic open on a tablet propped behind the register, CUBIQ
+  charging pad screwed into the counter beside it. Every prior use case
+  in this document has placed the cube on a quiet home desk, screen
+  closed, operator alone. This one does not have that luxury: the
+  counter is public, it has customers standing at its front edge all
+  day, and the cube cannot afford to treat that edge as an occasional
+  edge case. It has to treat it as the normal case.
+
+  She is not on the platform for memory questions during shop hours —
+  she is on it for the cohort. Her Index of Systems (LOT-CUBIQ-OPERATOR.md,
+  Section 03) fires a cohort resonance ping: another operator in her
+  small-business cohort — someone she has never met, only resonated
+  with through the platform's Phase 5 community layer — just crossed a
+  streak milestone of her own. Under Section 04's gesture table this
+  maps to THE HOP, the same "badge unlocked" class of trigger, borrowed
+  here for a cohort event rather than her own badge.
+
+  A customer is standing directly in front of the counter, well inside
+  the cube's forward field. The Section 03 edge-detection safety gate —
+  time-of-flight sensor, base face, forward-facing, 20mm threshold —
+  does exactly what it was specified to do: it does not see a table edge
+  here, it sees an obstruction inside the hop's landing radius, and the
+  same inhibition logic substitutes the lower-amplitude in-place
+  gesture. The cube shudders instead of leaping. The customer feels
+  nothing; the operator, mid-transaction, catches the motion in her
+  peripheral vision and knows — without looking down, without a phone
+  buzzing in her apron pocket — that someone out there in her cohort just
+  had a good day too.
+
+  She does not open the cubic until closing, after the register is
+  counted and the shop is empty. Only then does the cube perform THE
+  SETTLE — the 2-second standing-pressure hold from Section 04 — as she
+  sits down to read the resonance signal in full. No spectacle during
+  business hours; full presence after them.
+
+  This is the use case that proves Section 03's safety gate is not a
+  home-office nicety. The gate was written to stop the cube from
+  leaping itself onto a floor; it turns out the same gate is what makes
+  the cube trustworthy enough to live somewhere busier and more public
+  than a desk. A notification device that behaves identically whether
+  it is alone in a quiet room or standing in front of a stranger's
+  hand is a device an operator can put anywhere — which is the actual
+  precondition for CUBIQ hardware ever leaving the home office.
 
 --------------------------------------------------------------------------------
 08 // BRAND
