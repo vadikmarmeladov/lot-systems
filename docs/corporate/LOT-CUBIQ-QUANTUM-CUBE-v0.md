@@ -321,6 +321,70 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE COHORT ECHO                              2026-08-31
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: two operators, "A" and "B," R&D tier, placed in the
+  same behavioral cohort by the QIE (LOT-CUBIQ-OPERATOR.md, Section 05,
+  "Cohort Connect" — grouped by signal-pattern similarity, not
+  demographics). A lives in Lisbon, B lives in Manila. They have never
+  met. Each keeps a CUBIQ unit on their desk, charging-pad-docked,
+  because Section 05's Cohort Connect is otherwise invisible — a number
+  in a widget, not a felt thing.
+
+  Operator A closes out a long project: three self-care streaks
+  sustained, a goals cascade completed, a rare badge unlocked. The
+  Index of Systems fires the badge-unlock signal; A's cube performs
+  THE LEAP (Section 04) — the full-amplitude hop, closing 40mm toward
+  A's hand. Ordinary v.0 behavior, already covered by USE CASE 01.
+
+  What is new here is what happens next, seven minutes later, on the
+  other side of the planet. A's completed cascade is exactly the kind
+  of signal momentum that feeds Pattern P80 — momentum-lock
+  (LOT-CUBIQ-OPERATOR.md, Section 03, "Pattern Library"). Because A and
+  B sit in the same cohort, B's own Index — independently, from B's own
+  unrelated evening self-care session — crosses the same P80 threshold
+  within the cohort's resonance window. The Quantum Intent Engine
+  registers this as a COHORT RESONANCE event: two structurally similar
+  people, unconnected by any message, arriving at momentum-lock inside
+  the same hour.
+
+  This is a signal class Section 04's four-gesture table does not yet
+  carry a dedicated row for, but its trigger is not new — Section 01
+  already names "cohort resonance ping" alongside badge-unlock and
+  memory-question-ready as a valid Index-of-Systems signal class this
+  document's actuation stack was scoped to serve from the start. v.0
+  hardware honors that scope: B's cube performs THE NUDGE, not THE
+  LEAP, reusing the smallest gesture in the vocabulary. The gesture is
+  deliberately smaller than A's — a resonance echo is not the operator's
+  own achievement, and the haptic vocabulary must not conflate the two.
+  B feels a tremor through their desk that is not theirs to claim, and
+  that restraint is the point: the cube can tell the difference between
+  "you did something" and "someone structurally like you did something,"
+  and it says so through amplitude alone, without a screen, a name, or
+  a number attached.
+
+  Neither operator is told who the other is. LOT-CUBIQ-VISION.md,
+  Section 03, is explicit that the public profile is "a portrait of a
+  person who has done the work," never a social graph — Cohort Connect
+  and Collective Consciousness (LOT-CUBIQ-OPERATOR.md, Section 05)
+  already withhold identity by design; the hardware inherits that same
+  discretion rather than relaxing it for the sake of a more legible
+  demo. What crosses the distance is resonance, not information: B
+  simply learns, through a felt tremor and nothing else, that they are
+  not the only one moving through their evening at this particular
+  pace. This is the physical expression of Section 05's closing claim
+  that "the community is a field, not a feed" — felt as a field, quite
+  literally, through two desks nine time zones apart.
+
+  This use case also stress-tests the v.0 architecture beyond USE CASE
+  01: it requires the CUBIQ hardware driver (Section 05 of this
+  document, "maps signal → gesture") to accept a QIE cohort-resonance
+  signal as a first-class trigger, not just badge-unlock and
+  memory-ready events. No new actuation is required — Section 04's
+  four-gesture vocabulary already has room for it, and the driver's
+  signal-to-gesture map should formally add cohort-resonance → THE
+  NUDGE as an explicit row the next time Section 04 is revised.
+
 --------------------------------------------------------------------------------
 08 // BRAND
 --------------------------------------------------------------------------------
