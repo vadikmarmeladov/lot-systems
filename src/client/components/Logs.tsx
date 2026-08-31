@@ -5535,6 +5535,91 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'sovereign_field_loop') {
+          const rgConf     = log.metadata?.rgConf     as number | undefined
+          const faConf     = log.metadata?.faConf     as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SFLOOP:" blockView>
+                {rgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RGEN CONF</span>
+                    <span className="tabular-nums">{rgConf}%</span>
+                  </div>
+                )}
+                {faConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FANCH CONF</span>
+                    <span className="tabular-nums">{faConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN · LOOP · ACTIVE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'genesis_cascade') {
+          const fwConf     = log.metadata?.fwConf     as number | undefined
+          const rgConf     = log.metadata?.rgConf     as number | undefined
+          const faConf     = log.metadata?.faConf     as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GCASC:" blockView>
+                {fwConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FWITN CONF</span>
+                    <span className="tabular-nums">{fwConf}%</span>
+                  </div>
+                )}
+                {rgConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RGEN CONF</span>
+                    <span className="tabular-nums">{rgConf}%</span>
+                  </div>
+                )}
+                {faConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FANCH CONF</span>
+                    <span className="tabular-nums">{faConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">GENESIS · CASCADE · CONFIRMED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'quantum_self_seal') {
+          const slConf     = log.metadata?.slConf     as number | undefined
+          const gcConf     = log.metadata?.gcConf     as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="QSEAL:" blockView>
+                {slConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SFLOOP CONF</span>
+                    <span className="tabular-nums">{slConf}%</span>
+                  </div>
+                )}
+                {gcConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GCASC CONF</span>
+                    <span className="tabular-nums">{gcConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">QUANTUM · SELF · SEALED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

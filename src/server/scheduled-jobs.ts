@@ -1830,6 +1830,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyFieldWitnessCheck(now)) {
     await executeDailyFieldWitnessCheck()
   }
+
+  // Check daily sovereign loop check (13:00 UTC every day) — Job 69
+  if (shouldRunDailySovereignLoopCheck(now)) {
+    await executeDailySovereignLoopCheck()
+  }
 }
 
 function shouldRunDailyFieldGenesisCheck(now: any): boolean {
@@ -1857,6 +1862,16 @@ function shouldRunDailyFieldWitnessCheck(now: any): boolean {
   if (isDailyFieldWitnessRunning) return false
   if (lastDailyFieldWitnessRun) {
     const lastRun = dayjs(lastDailyFieldWitnessRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+function shouldRunDailySovereignLoopCheck(now: any): boolean {
+  if (now.hour() !== 13) return false
+  if (isDailySovereignLoopRunning) return false
+  if (lastDailySovereignLoopRun) {
+    const lastRun = dayjs(lastDailySovereignLoopRun)
     if (lastRun.isSame(now, 'day')) return false
   }
   return true
@@ -7919,6 +7934,139 @@ async function executeDailyFieldWitnessCheck(): Promise<JobResult> {
   }
 }
 
+// ─── J69: Daily Sovereign Loop Check (13:00 UTC every day) ──────────────────
+// Checks active users for: recursive_genesis + field_anchor_complete both confirmed in 24h
+// → writes sovereign_field_loop (P209). If field_witness + recursive_genesis + field_anchor_complete
+// all confirmed in 24h → writes genesis_cascade (P210). If sovereign_field_loop + genesis_cascade
+// both confirmed → writes quantum_self_seal (P211).
+// SFLOOP: · GCASC: · QSEAL: cockpit codes. Total: 69 jobs.
+
+let isDailySovereignLoopRunning = false
+let lastDailySovereignLoopRun: Date | null = null
+
+async function executeDailySovereignLoopCheck(): Promise<JobResult> {
+  const jobName    = 'daily-sovereign-loop-check'
+  const executedAt = new Date().toISOString()
+  if (isDailySovereignLoopRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailySovereignLoopRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY SOVEREIGN LOOP CHECK — 13:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log }  = await import('#server/models/log.js')
+    const { Op }   = await import('sequelize')
+
+    const oneDayAgo  = dayjs().subtract(1, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { disabled: false },
+      attributes: ['id'],
+    })
+
+    let written = 0
+
+    for (const user of activeUsers) {
+      // Fetch recent QOS logs for P206/P207/P208 signals in last 24h
+      const recentQOSLogs = await Log.findAll({
+        where: {
+          userId: user.id,
+          source: 'qos',
+          event: { [Op.in]: ['recursive_genesis', 'field_anchor_complete', 'field_witness'] },
+          createdAt: { [Op.gte]: oneDayAgo },
+        },
+        attributes: ['event', 'metadata'],
+        order: [['createdAt', 'DESC']],
+      })
+
+      const rgLog = recentQOSLogs.find(l => l.event === 'recursive_genesis')
+      const faLog = recentQOSLogs.find(l => l.event === 'field_anchor_complete')
+      const fwLog = recentQOSLogs.find(l => l.event === 'field_witness')
+
+      let sflConf = 0
+      let gcConf  = 0
+
+      // P209: Sovereign Field Loop — RGEN + FANCH both confirmed in 24h
+      if (rgLog && faLog) {
+        const rgC = ((rgLog.metadata as any)?.confidence ?? 90)
+        const faC = ((faLog.metadata as any)?.confidence ?? 88)
+        const loopConf = Math.min((rgC / 100 + faC / 100) / 2 + 0.02, 0.97)
+        sflConf = Math.round(loopConf * 100)
+        await Log.create({
+          userId: user.id,
+          event: 'sovereign_field_loop',
+          source: 'qos',
+          metadata: {
+            rgConf: rgC,
+            faConf: faC,
+            confidence: sflConf,
+            loopStatus: 'ACTIVE',
+            arc: 'SOVEREIGN · LOOP · ACTIVE',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Sovereign field loop — RGEN×FANCH co-active. SFLOOP ACTIVE. Conf: ${sflConf}%`)
+      }
+
+      // P210: Genesis Cascade — FWITN + RGEN + FANCH all confirmed in 24h
+      if (fwLog && rgLog && faLog) {
+        const fwC = ((fwLog.metadata as any)?.confidence ?? 88)
+        const rgC = ((rgLog.metadata as any)?.confidence ?? 90)
+        const faC = ((faLog.metadata as any)?.confidence ?? 88)
+        const cascConf = Math.min((fwC / 100 + rgC / 100 + faC / 100) / 3 + 0.04, 0.98)
+        gcConf = Math.round(cascConf * 100)
+        await Log.create({
+          userId: user.id,
+          event: 'genesis_cascade',
+          source: 'qos',
+          metadata: {
+            fwConf: fwC,
+            rgConf: rgC,
+            faConf: faC,
+            confidence: gcConf,
+            cascadeStatus: 'CONFIRMED',
+            arc: 'GENESIS · CASCADE · CONFIRMED',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Genesis cascade — FWITN×RGEN×FANCH co-active. GCASC CONFIRMED. Conf: ${gcConf}%`)
+      }
+
+      // P211: Quantum Self-Seal — SFLOOP + GCASC both confirmed in this run
+      if (sflConf > 0 && gcConf > 0) {
+        const sealConf = Math.min((sflConf / 100 + gcConf / 100) / 2 + 0.03, 0.99)
+        await Log.create({
+          userId: user.id,
+          event: 'quantum_self_seal',
+          source: 'qos',
+          metadata: {
+            slConf: sflConf,
+            gcConf,
+            confidence: Math.round(sealConf * 100),
+            sealStatus: 'SEALED',
+            arc: 'QUANTUM · SELF · SEALED',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Quantum self-seal — SFLOOP×GCASC co-active. QSEAL SEALED. Conf: ${Math.round(sealConf * 100)}%`)
+      }
+    }
+
+    console.log(`  Sovereign loop events written: ${written}`)
+    lastDailySovereignLoopRun = new Date()
+    isDailySovereignLoopRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Sovereign loop check failed:', error.message)
+    isDailySovereignLoopRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -7989,6 +8137,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily field genesis check: 4 PM UTC every day (Job 66)')
   console.log('   - Daily sovereign expression check: 11 AM UTC every day (Job 67)')
   console.log('   - Daily field witness check: 12 PM UTC every day (Job 68)')
+  console.log('   - Daily sovereign loop check: 1 PM UTC every day (Job 69)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -7998,7 +8147,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62)+field-witness-check(J68), 13=QOS sig pulse+sovereign-integration-check(J63), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62)+field-witness-check(J68), 13=QOS sig pulse+sovereign-integration-check(J63)+sovereign-loop-check(J69), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

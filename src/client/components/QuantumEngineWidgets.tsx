@@ -167,6 +167,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'field-witness':                    'FWITN',
   'recursive-genesis':                'RGEN',
   'field-anchor-complete':            'FANCH',
+  'sovereign-field-loop':             'SFLOOP',
+  'genesis-cascade':                  'GCASC',
+  'quantum-self-seal':                'QSEAL',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

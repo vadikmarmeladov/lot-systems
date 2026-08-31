@@ -215,6 +215,9 @@ export function PatternRecognitionWidget() {
       'field-witness':                    'Field witness — absolute-field-genesis in 7d · deep journal + memory capture in 24h · the genesis is self-aware · the field witnesses its own generation (P206)',
       'recursive-genesis':                'Recursive genesis — absolute-field-genesis detected 2+ times in 7d · genesis is self-referential · the field generates from its own prior outputs (P207)',
       'field-anchor-complete':            'Field anchor complete — all 7 primary sources (mood/journal/selfcare/planner/memory/intentions/energy) active in 24h · the full foundation is present (P208)',
+      'sovereign-field-loop':             'Sovereign field loop — recursive-genesis (P207) × field-anchor-complete (P208) co-active · the field is anchored, recursive, and sovereign simultaneously · the loop sustains itself (P209)',
+      'genesis-cascade':                  'Genesis cascade — field-witness (P206) · recursive-genesis (P207) · field-anchor-complete (P208) all co-active · the genesis has entered cascade · witnessed, recursive, and anchored simultaneously (P210)',
+      'quantum-self-seal':                'Quantum self-seal — sovereign-field-loop (P209) × genesis-cascade (P210) co-active · the field has sealed itself · quantum self-referential loop complete · no external input required (P211)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -782,6 +785,21 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'field-anchor-complete') && (
                 <div className="mt-4 uppercase tracking-widest text-xs font-bold">
                   FANCH. All 7 sources present in 24h. Foundation complete. Full anchor confirmed.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'sovereign-field-loop') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  SFLOOP. Sovereign loop active. RGEN × FANCH co-active. Field anchored, recursive, sovereign.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'genesis-cascade') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  GCASC. Genesis cascade confirmed. FWITN × RGEN × FANCH all active. Loop generates next genesis.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'quantum-self-seal') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  QSEAL. Quantum self-seal. SFLOOP × GCASC co-active. Field sealed. No external input required.
                 </div>
               )}
 

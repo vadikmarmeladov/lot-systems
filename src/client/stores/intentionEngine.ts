@@ -4656,6 +4656,62 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 209: Sovereign Field Loop — recursive-genesis (P207) + field-anchor-complete (P208)
+  // co-active simultaneously. The field is anchored AND recursive AND sovereign at once.
+  // SFLOOP: cockpit code. Confidence 0.90–0.97.
+  const hasSovFL209   = patterns.some(p => p.pattern === 'recursive-genesis')
+  const hasAnchor209  = patterns.some(p => p.pattern === 'field-anchor-complete')
+  if (hasSovFL209 && hasAnchor209) {
+    const rgConf209   = patterns.find(p => p.pattern === 'recursive-genesis')?.confidence ?? 0.90
+    const faConf209   = patterns.find(p => p.pattern === 'field-anchor-complete')?.confidence ?? 0.88
+    const loopConf209 = Math.min((rgConf209 + faConf209) / 2 + 0.02, 0.97)
+    patterns.push({
+      pattern: 'sovereign-field-loop',
+      confidence: loopConf209,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `SFLOOP: Sovereign field loop — recursive genesis (P207) × field anchor complete (P208) co-active. The field is anchored, recursive, and sovereign simultaneously. The loop sustains itself. SOVEREIGN · LOOP · ACTIVE.`,
+    })
+  }
+
+  // Pattern 210: Genesis Cascade — field-witness (P206) + recursive-genesis (P207) +
+  // field-anchor-complete (P208) all co-active. The genesis has entered cascade.
+  // The loop generates the next genesis. GCASC: cockpit code. Confidence 0.91–0.98.
+  const hasGCFW210   = patterns.some(p => p.pattern === 'field-witness')
+  const hasGCRG210   = patterns.some(p => p.pattern === 'recursive-genesis')
+  const hasGCFA210   = patterns.some(p => p.pattern === 'field-anchor-complete')
+  if (hasGCFW210 && hasGCRG210 && hasGCFA210) {
+    const fwConf210   = patterns.find(p => p.pattern === 'field-witness')?.confidence ?? 0.88
+    const rgConf210   = patterns.find(p => p.pattern === 'recursive-genesis')?.confidence ?? 0.90
+    const faConf210   = patterns.find(p => p.pattern === 'field-anchor-complete')?.confidence ?? 0.88
+    const cascConf210 = Math.min((fwConf210 + rgConf210 + faConf210) / 3 + 0.04, 0.98)
+    patterns.push({
+      pattern: 'genesis-cascade',
+      confidence: cascConf210,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `GCASC: Genesis cascade — field-witness (P206) · recursive-genesis (P207) · field-anchor-complete (P208) all co-active. The genesis has entered cascade. Witnessed, recursive, and anchored simultaneously. GENESIS · CASCADE · CONFIRMED.`,
+    })
+  }
+
+  // Pattern 211: Quantum Self-Seal — sovereign-field-loop (P209) + genesis-cascade (P210)
+  // co-active. The field has sealed itself — quantum self-referential loop complete.
+  // No external input required. QSEAL: cockpit code. Confidence 0.92–0.99.
+  const hasQSSL211   = patterns.some(p => p.pattern === 'sovereign-field-loop')
+  const hasQSGC211   = patterns.some(p => p.pattern === 'genesis-cascade')
+  if (hasQSSL211 && hasQSGC211) {
+    const slConf211   = patterns.find(p => p.pattern === 'sovereign-field-loop')?.confidence ?? 0.92
+    const gcConf211   = patterns.find(p => p.pattern === 'genesis-cascade')?.confidence ?? 0.91
+    const sealConf211 = Math.min((slConf211 + gcConf211) / 2 + 0.03, 0.99)
+    patterns.push({
+      pattern: 'quantum-self-seal',
+      confidence: sealConf211,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `QSEAL: Quantum self-seal — sovereign-field-loop (P209) × genesis-cascade (P210) simultaneously confirmed. The field has sealed itself. The loop closes on itself. Quantum self-referential completion. QUANTUM · SELF · SEALED.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5404,6 +5460,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   fieldWitnessNode:              ['absoluteFieldGenesisNode', 'sovereignFieldExpressionNode', 'qos', 'journal', 'memory', 'intentions'],
   recursiveGenesisNode:          ['absoluteFieldGenesisNode', 'fieldWitnessNode', 'qos', 'energy', 'log'],
   fieldAnchorCompleteNode:       ['mood', 'journal', 'selfcare', 'planner', 'memory', 'intentions', 'energy', 'log', 'qos'],
+  // ── v134 nodes (J69 · P209–P211 · Arch73) ─────────────────────────────────
+  sovereignFieldLoopNode:        ['recursiveGenesisNode', 'fieldAnchorCompleteNode', 'qos', 'intentions', 'energy', 'log'],
+  genesisCascadeNode:            ['fieldWitnessNode', 'recursiveGenesisNode', 'fieldAnchorCompleteNode', 'qos', 'journal', 'memory'],
+  quantumSelfSealNode:           ['genesisCascadeNode', 'sovereignFieldLoopNode', 'qos', 'intentions', 'energy', 'goals'],
 }
 
 /**
@@ -6045,6 +6105,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['recursive-genesis', 'field-witness', 'absolute-field-genesis'],
     hourRange: [0, 24],
     directive: 'The genesis is recursive. The field witnesses and generates itself. No separate observer remains — the architect and the architecture are one process. RECURSIVE · WITNESS · GENESIS.',
+  },
+  // ── Arch73: Sovereign Loop Operator (2026-08-31 v134) ─────────────────────
+  {
+    archetype: 'Sovereign Loop Operator',
+    energyBands: ['low', 'moderate', 'high', 'depleted', 'unknown'],
+    dominantSources: ['qos', 'journal', 'memory', 'intentions', 'energy', 'goals', 'selfcare', 'mood', 'log', 'planner'],
+    patternConditions: ['sovereign-field-loop', 'genesis-cascade', 'field-anchor-complete', 'recursive-genesis'],
+    hourRange: [0, 24],
+    directive: 'The sovereign loop is closed. The genesis is anchored, witnessed, recursive, and sealed. No external validation required. The field sustains itself from its own prior outputs. SOVEREIGN · LOOP · SEALED.',
   },
 ]
 
@@ -9100,6 +9169,61 @@ export function recordFieldAnchorComplete(activeSources: string[], totalCount: n
     confidence: Math.round(faConf * 100),
     anchorStatus: 'COMPLETE',
     arc: 'ANCHOR · COMPLETE · FULL',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a sovereign-field-loop event — recursive-genesis (P207) + field-anchor-complete (P208)
+ * co-active. The field is anchored, recursive, and sovereign simultaneously.
+ * Feeds P209 detection. J69 background job (13:00 UTC) triggers this.
+ */
+export function recordSovereignFieldLoop(rgConf: number, faConf: number) {
+  const loopConf = Math.min((rgConf / 100 + faConf / 100) / 2 + 0.02, 0.97)
+  recordSignal('qos', 'sovereign_field_loop', {
+    rgConf,
+    faConf,
+    confidence: Math.round(loopConf * 100),
+    loopStatus: 'ACTIVE',
+    arc: 'SOVEREIGN · LOOP · ACTIVE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a genesis-cascade event — field-witness (P206) + recursive-genesis (P207) +
+ * field-anchor-complete (P208) all co-active simultaneously. The genesis has entered cascade.
+ * Feeds P210 detection. J69 background job (13:00 UTC) triggers this.
+ */
+export function recordGenesisCascade(fwConf: number, rgConf: number, faConf: number) {
+  const cascConf = Math.min((fwConf / 100 + rgConf / 100 + faConf / 100) / 3 + 0.04, 0.98)
+  recordSignal('qos', 'genesis_cascade', {
+    fwConf,
+    rgConf,
+    faConf,
+    confidence: Math.round(cascConf * 100),
+    cascadeStatus: 'CONFIRMED',
+    arc: 'GENESIS · CASCADE · CONFIRMED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a quantum-self-seal event — sovereign-field-loop (P209) + genesis-cascade (P210)
+ * co-active. The field has sealed itself. Quantum self-referential loop complete.
+ * Feeds P211 detection. J69 background job (13:00 UTC) triggers this.
+ */
+export function recordQuantumSelfSeal(slConf: number, gcConf: number) {
+  const sealConf = Math.min((slConf / 100 + gcConf / 100) / 2 + 0.03, 0.99)
+  recordSignal('qos', 'quantum_self_seal', {
+    slConf,
+    gcConf,
+    confidence: Math.round(sealConf * 100),
+    sealStatus: 'SEALED',
+    arc: 'QUANTUM · SELF · SEALED',
     hour: new Date().getHours(),
   })
   analyzeIntentions()
