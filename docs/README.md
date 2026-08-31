@@ -73,6 +73,16 @@ Security documentation and repository maintenance.
 - Security Fixes - Security issue resolution
 - Repository Issues Summary - Known issues and fixes
 
+### COSMO® Cube — Hardware Computer (v1.0, pre-hardware)
+Plan, BOM, and roadmap for the physical LOT Computer device.
+
+**Key Documents:**
+- [Hardware Spec](./corporate/LOT-COMPUTER-HARDWARE-SPEC-v1.md) - Mechanical, electrical, manufacturing, roadmap
+- [Bill of Materials](./corporate/LOT-COMPUTER-BOM-v1.md) - Components, suppliers, 100-unit costing
+- [Firmware Manual](./technical/LOT-COMPUTER-FIRMWARE-MANUAL-v1.md) - On-device firmware
+- [Software Manual](./technical/LOT-COMPUTER-SOFTWARE-MANUAL-v1.md) - LOT API connector, off-device
+- [User Manual](./corporate/LOT-COMPUTER-USER-MANUAL-v1.md) - End-user guide ([PDF](./corporate/pdf/LOT-COMPUTER-USER-MANUAL-v1.pdf))
+
 ## 🚀 Quick Links
 
 - [Main README](../README.md) - Project overview
