@@ -3832,7 +3832,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Tier 2+: additional consumer widgets
   patternInsights:   ['mood', 'memory', 'journal', 'energy', 'cohort', 'planner'],
   cosmic:            ['mood', 'energy', 'intentions', 'astrology'],
-  quantumSign:       ['intentions', 'memory'],
+  quantumSign:       ['intentions', 'memory', 'astrology'], // (2026-08-31 audit) 'Lunar Reset' patch now reads the real moon-phase reading
   microGame:         ['calculator', 'time'],
 
   // ── QOS / Ecosystem layer (2026-04-25 audit)

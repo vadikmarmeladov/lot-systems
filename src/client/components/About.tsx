@@ -3987,8 +3987,20 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
 
           <SubHeading>Moon Phase</SubHeading>
           <P>
-            Current lunar phase with illumination percentage. Computed from
-            astronomical algorithms, not API calls. Updates daily.
+            Current lunar phase with illumination percentage, shown with a
+            phase emoji. Computed from astronomical algorithms, not API
+            calls. Recomputes every 15 minutes while the tab is visible, so a
+            reading never goes stale across an hour or midnight boundary.
+          </P>
+          <P>
+            A ✦ marks a Taian (most fortunate) rokuyo day. The reading feeds
+            the Quantum Intention Engine as a Tier 0 signal source — consumed
+            by the System and Cosmic widgets, and by the Quantum Sign
+            widget{'’'}s "Lunar Reset" patch, which now only appears when the
+            moon is genuinely at New or Full Moon rather than on a rotation.
+            Every new journal log also snapshots the ambient reading at
+            creation time, timeZone-aware, visible in the log{'’'}s system
+            block.
           </P>
 
           {/* ── WEATHER SOUND SYSTEM ────────────────────────────────── */}

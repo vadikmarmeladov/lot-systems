@@ -11,6 +11,7 @@ import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useLogs } from '#client/queries'
+import { getMoonPhase } from '#shared/utils/astrology'
 
 /**
  * Quantum Sign Widget — For subscribers whose payment is their last money
@@ -83,8 +84,17 @@ export function QuantumSignWidget() {
     const astroIdx = dayOfYear % astrologyPatches.length
     const psychIdx = dayOfYear % psychologyPatches.length
 
+    // Synchronize with the real ambient astrology reading (same source as
+    // the dashboard's Astrology block): when the moon is actually at a
+    // New or Full Moon, "Lunar Reset" is real, not a rotation coincidence.
+    const moon = getMoonPhase(today)
+    const atLunarThreshold = moon.phase === 'New Moon' || moon.phase === 'Full Moon'
+    const astrologyPatch = atLunarThreshold
+      ? { ...astrologyPatches[0], desc: `${moon.phase} (${moon.illumination}% illuminated) — emotional recalibration window is open now` }
+      : astrologyPatches[astroIdx]
+
     return {
-      astrology: astrologyPatches[astroIdx],
+      astrology: astrologyPatch,
       psychology: psychologyPatches[psychIdx],
     }
   }, [])
