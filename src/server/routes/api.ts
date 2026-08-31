@@ -1598,7 +1598,14 @@ export default async (fastify: FastifyInstance) => {
       const text = (req.body.text || '').trim().slice(0, MAX_LOG_TEXT_LENGTH)
       const log = await fastify.models.Log.findByPk(req.params.id)
       if (!log) return reply.throw.notFound()
-      if (log.event !== 'note') return log
+      if (log.userId !== req.user.id) return reply.throw.notFound()
+
+      // 'note' logs are fully editable inline. 'calendar_entry' logs are
+      // removable (empty text = delete, mirroring the note-backspace flow
+      // below) but not editable — their display text is derived from
+      // structured metadata, so a partial text edit here would desync it.
+      const deletable = log.event === 'note' || log.event === 'calendar_entry'
+      if (!deletable) return log
 
       // If user backspaced all content, delete the log instead of saving empty text
       if (!text || text.length === 0) {
@@ -1606,6 +1613,8 @@ export default async (fastify: FastifyInstance) => {
         console.log(`🗑️  Deleted empty log ${log.id} for user ${req.user.id}`)
         return { id: log.id, deleted: true }
       }
+
+      if (log.event !== 'note') return log
 
       await log.set({ text }).save()
       process.nextTick(async () => {

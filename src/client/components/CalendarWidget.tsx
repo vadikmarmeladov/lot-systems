@@ -8,8 +8,8 @@
 
 import * as React from 'react'
 import { useQueryClient } from 'react-query'
-import { Block, Button } from '#client/components/ui'
-import { useCreateLog, useLogs } from '#client/queries'
+import { Block, Button, GhostButton } from '#client/components/ui'
+import { useCreateLog, useLogs, useUpdateLog } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
@@ -18,9 +18,36 @@ import { recordCalendarSignal } from '#client/stores/intentionEngine'
 type EntryType = 'note' | 'task' | 'call'
 
 type CalendarEntry = {
+  id: string
   date: string
+  time?: string
   text: string
   type: EntryType
+}
+
+// How long after an entry's scheduled time it still counts as "due" and can
+// trigger the EVT alert — a tab left in the background for a few minutes
+// shouldn't miss the notification entirely.
+const DUE_WINDOW_MINUTES = 15
+const ACK_STORAGE_KEY = 'lot_calendar_acked_events'
+
+function readAckedIds(): Set<string> {
+  try {
+    const raw = localStorage.getItem(ACK_STORAGE_KEY)
+    return new Set(raw ? (JSON.parse(raw) as string[]) : [])
+  } catch (_) {
+    return new Set()
+  }
+}
+
+function writeAckedIds(ids: Set<string>) {
+  try {
+    // Cap stored history — only the most recent acks matter for dedup.
+    localStorage.setItem(ACK_STORAGE_KEY, JSON.stringify(Array.from(ids).slice(-200)))
+  } catch (_) {
+    // localStorage unavailable (private mode / quota) — alert simply
+    // won't dedup across reloads, non-fatal.
+  }
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
@@ -52,24 +79,31 @@ export function CalendarWidget() {
   const queryClient = useQueryClient()
   const { data: logs = [] } = useLogs()
   const { mutate: createLog } = useCreateLog()
+  const { mutate: updateLog } = useUpdateLog({
+    onSuccess: () => queryClient.refetchQueries(['/api/logs']),
+  })
 
   const [isCalendarOpen, setIsCalendarOpen] = React.useState(false)
   const [viewMonth, setViewMonth] = React.useState(() => dayjs())
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
+  const [entryTime, setEntryTime] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [dueAlert, setDueAlert] = React.useState<CalendarEntry | null>(null)
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
       .filter(log => log.event === 'calendar_entry' && log.metadata)
       .map(log => ({
+        id: log.id,
         date: log.metadata?.date as string,
+        time: (log.metadata?.time as string) || undefined,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => a.date.localeCompare(b.date) || (a.time || '99:99').localeCompare(b.time || '99:99'))
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
@@ -109,24 +143,32 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const time = entryTime || undefined
+    const timeLabel = time ? ` — ${time}` : ''
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()}${timeLabel} (${dateLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
         text: entryText.trim(),
         entryType,
+        time,
       },
     }, {
       onSuccess: () => {
         queryClient.refetchQueries(['/api/logs'])
-        try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        try { recordCalendarSignal(entryType, selectedDate!, time) } catch (_) {}
       },
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
+  }
+
+  const handleRemoveEntry = (id: string) => {
+    updateLog({ id, text: '' })
   }
 
   const handleToggleCalendar = () => {
@@ -134,6 +176,39 @@ export function CalendarWidget() {
       setViewMonth(dayjs())
     }
     setIsCalendarOpen(!isCalendarOpen)
+  }
+
+  // EVT alert — military-grade due notification. Fires once a timed entry's
+  // scheduled moment arrives, stays up until acknowledged or the due window
+  // (DUE_WINDOW_MINUTES) closes. Gated on tab visibility so hidden tabs don't
+  // burn cycles; checked on mount and every 20s thereafter.
+  React.useEffect(() => {
+    const checkDue = () => {
+      const acked = readAckedIds()
+      const now = dayjs()
+      const due = entries.find(e => {
+        if (!e.time || acked.has(e.id)) return false
+        const at = dayjs(`${e.date}T${e.time}`)
+        const diffMin = now.diff(at, 'minute')
+        return diffMin >= 0 && diffMin <= DUE_WINDOW_MINUTES
+      })
+      setDueAlert(due || null)
+    }
+
+    checkDue()
+    const interval = setInterval(() => {
+      if (document.hidden) return
+      checkDue()
+    }, 20000)
+    return () => clearInterval(interval)
+  }, [entries])
+
+  const handleAckDueAlert = () => {
+    if (!dueAlert) return
+    const acked = readAckedIds()
+    acked.add(dueAlert.id)
+    writeAckedIds(acked)
+    setDueAlert(null)
   }
 
   return (
@@ -237,6 +312,14 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
+                    aria-label="Entry time (optional)"
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40"
+                  />
                   <Button onClick={handleAddEntry}>Add</Button>
                 </div>
               </div>
@@ -247,9 +330,19 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                {entriesOnDate.map(e => (
+                  <div key={e.id} className="group flex justify-between items-baseline gap-8 mb-1">
+                    <span className="text-acc/80">
+                      {e.time && <span className="text-acc/40 tabular-nums mr-4">{e.time}</span>}
+                      {e.text}
+                    </span>
+                    <button
+                      className="text-acc/0 group-hover:text-acc/50 transition-opacity whitespace-nowrap"
+                      onClick={() => handleRemoveEntry(e.id)}
+                      aria-label={`Remove ${e.text}`}
+                    >
+                      remove
+                    </button>
                   </div>
                 ))}
               </div>
@@ -259,13 +352,21 @@ export function CalendarWidget() {
 
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
+            {upcomingEntries.map(entry => (
+              <div key={entry.id} className="group flex justify-between gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  {entry.time && <span className="text-acc/40 tabular-nums"> · {entry.time}</span>}
                 </span>
-                <span className="text-acc text-right">
+                <span className="text-acc text-right flex items-baseline gap-8 justify-end">
                   {entry.text}
+                  <button
+                    className="text-acc/0 group-hover:text-acc/50 transition-opacity whitespace-nowrap"
+                    onClick={() => handleRemoveEntry(entry.id)}
+                    aria-label={`Remove ${entry.text}`}
+                  >
+                    remove
+                  </button>
                 </span>
               </div>
             ))}
@@ -276,6 +377,37 @@ export function CalendarWidget() {
           <div className="text-acc/40">No upcoming dates.</div>
         )}
       </div>
+
+      {dueAlert && (
+        <div
+          className="fixed bottom-16 left-1/2 transform -translate-x-1/2 z-50
+                     px-16 py-8 border border-acc/20 bg-[var(--base-color)] grid-fill-light"
+          style={{ animation: 'calEvtIn 0.4s ease-out' }}
+        >
+          <div className="flex items-center gap-16">
+            <div>
+              <div className="text-acc/30 tracking-widest uppercase text-xs">EVT [DUE]:</div>
+              <div className="text-acc uppercase tracking-widest">
+                {dueAlert.type} · {dueAlert.time}
+              </div>
+              <div className="text-acc/60 mt-4">{dueAlert.text}</div>
+            </div>
+            <GhostButton onClick={handleAckDueAlert}>ACK</GhostButton>
+          </div>
+        </div>
+      )}
     </Block>
   )
+}
+
+if (typeof document !== 'undefined' && !document.getElementById('lot-calendar-evt-keyframes')) {
+  const style = document.createElement('style')
+  style.id = 'lot-calendar-evt-keyframes'
+  style.textContent = `
+    @keyframes calEvtIn {
+      from { opacity: 0; transform: translate(-50%, 10px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+  `
+  document.head.appendChild(style)
 }
