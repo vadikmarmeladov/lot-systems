@@ -581,8 +581,9 @@ NODE-0 Self-Hosted Server           RTX 5090, Threadripper 7960X, ZFS, local AI 
                                     inference, append-only ledger, kill switch.
                                     Entry ~$5,600.
 
-LOT Mail                            Email system with /email trigger. Feature           IN-DEV
-                                    branch (8 iterations).
+LOT Mail                            Email system with /email trigger. Green-gated        IN-DEV
+                                    on session branch (12 iterations); master merge
+                                    pending.
 
 Basics Tab                          Physical supply subscription layer                 IN-DEV
                                     (LOT-FM-001).
