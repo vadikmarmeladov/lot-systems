@@ -4125,7 +4125,10 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compressed story from recent signal (24h)',
+          '/story week   Compressed story — past 7 days',
+          '/story month  Compressed story — past 30 days',
+          '/story year   Compressed story — past 365 days',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4151,17 +4154,23 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          // /story defaults to a recent-signal snapshot ("day"); an optional
+          // week|month|year argument widens the compression window so the
+          // machine can fold a longer stretch of lived time into one story.
+          const periodMatch = value.match(/\/story\s+(week|month|year)\b/i)
+          const period = (periodMatch?.[1]?.toLowerCase() as 'week' | 'month' | 'year' | undefined) || 'day'
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value.replace(/\/story(\s+(week|month|year))?/i, '').replace(/📖/g, '').trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }
