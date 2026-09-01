@@ -871,6 +871,23 @@ export function checkCalendarEasterEggs(): BadgeType[] {
     awarded.push('odyssey_day')
   }
 
+  // ── Calendar Easter Egg v21 — THE DUNGEON CALENDAR ───────────────────────────
+  // Gygax Day: July 27 — Gary Gygax born 1938 (D&D co-creator)
+  if (!hasBadge('gygax_day') && month === 7 && day === 27) {
+    awardBadge('gygax_day')
+    awarded.push('gygax_day')
+  }
+  // D&D Day: January 26 — Original Dungeons & Dragons published 1974
+  if (!hasBadge('dnd_day') && month === 1 && day === 26) {
+    awardBadge('dnd_day')
+    awarded.push('dnd_day')
+  }
+  // Arneson Day: October 1 — Dave Arneson born 1947 (D&D co-creator)
+  if (!hasBadge('arneson_day') && month === 10 && day === 1) {
+    awardBadge('arneson_day')
+    awarded.push('arneson_day')
+  }
+
   return awarded
 }
 
@@ -1483,6 +1500,23 @@ const WORD_TURNS: Array<{ patterns: RegExp; badge: BadgeType }> = [
   { patterns: /one[\s-]?ring[\s-]?(to[\s-]?rule|to[\s-]?find)|my[\s-]?precious|\bring[\s-]?of[\s-]?power/i, badge: 'tolkien_ring' },
   { patterns: /\b(odysseus|ulysses|ithaca|penelope|telemachus|cyclops)\b/i,             badge: 'odysseus_bow' },
   { patterns: /\b(gilgamesh|enkidu|great[\s-]?flood|utnapishtim|cedar[\s-]?forest)\b/i, badge: 'gilgamesh_word' },
+  // ── v23 — THE GAME MASTER ─────────────────────────────────────────────────────
+  { patterns: /\b(dungeon[\s-]?master|game[\s-]?master)\b|\b(DM|GM)\b(?=[\s,.]|$)/,    badge: 'dungeon_master' },
+  { patterns: /\bsaving[\s-]?throw\b|\bsave[\s-]?vs\b|\broll[\s-]?to[\s-]?save\b|\bmake[\s-]?the[\s-]?save\b/i, badge: 'saving_throw' },
+  { patterns: /\bcritical[\s-]?hit\b|\bnat[\s-]?20\b|\bnatural[\s-]?twenty\b|\bcrit\b(?=[\s,!]|$)|\bnaturally[\s-]?twenty\b/i, badge: 'critical_hit' },
+  { patterns: /\binitiative\b|\broll[\s-]?for[\s-]?initiative\b|\bgoing[\s-]?first\b|\bwho[\s-]?goes[\s-]?first\b/i, badge: 'initiative_rolled' },
+  { patterns: /\bspell[\s-]?slot\b|\bcantrip\b|\bconcentration[\s-]?spell\b|\bupcast\b/i, badge: 'spell_slot' },
+  { patterns: /\bwisdom[\s-]?check\b|\bperception[\s-]?check\b|\binsight[\s-]?check\b/i, badge: 'wisdom_check' },
+  { patterns: /\bhit[\s-]?points\b|\bmax[\s-]?hp\b|\bfull[\s-]?health\b|\bhealth[\s-]?points\b|\bHP[\s-]?restored\b/i, badge: 'hit_points' },
+  { patterns: /\blong[\s-]?rest\b|\bshort[\s-]?rest\b|\brest[\s-]?restored\b|\btake[\s-]?a[\s-]?rest\b/i, badge: 'rest_restored' },
+  { patterns: /\bcampaign\b|\badventure[\s-]?log\b|\bquest[\s-]?log\b|\bsession[\s-]?notes\b/i, badge: 'campaign_log' },
+  { patterns: /\bexperience[\s-]?points\b|\bXP[\s-]?gained\b|\blevel[\s-]?up\b|\bgained[\s-]?XP\b/i, badge: 'experience_gained' },
+  { patterns: /\bdragon\b|\bwyrm\b|\bancient[\s-]?dragon\b|\bdragonslayer\b/i,          badge: 'dragon_slayer' },
+  { patterns: /\bread[\s-]?the[\s-]?room\b|\bwhat'?s[\s-]?their[\s-]?motive\b|\broll[\s-]?insight\b/i, badge: 'roll_insight' },
+  // ── v20 Secret Boss — THE DUNGEON BOSS VAULT word triggers ───────────────────
+  { patterns: /\bdungeon[\s-]?master'?s[\s-]?guide\b|\bDMG\b|\bplayer'?s[\s-]?handbook\b|\bPHB\b/,       badge: 'dmg_key' },
+  { patterns: /\brolled[\s-]?a[\s-]?20\b|\bnat[\s-]?20\b|\brolled[\s-]?twenty\b|\bnatural[\s-]?twenty\b/i, badge: 'critical_legend' },
+  { patterns: /\bbeholder\b|\bmind[\s-]?flayer\b|\btarrasque\b|\billithid\b|\baboleth\b|\belder[\s-]?evil\b/i, badge: 'beholder_eye' },
 ]
 
 /**
@@ -2711,6 +2745,65 @@ export function checkThresholdMoment(): BadgeType | null {
   if (hour === 0 && minute <= 30) {
     awardBadge('threshold_moment')
     return 'threshold_moment'
+  }
+  return null
+}
+
+// ── Game Master v23 behavioral checks ────────────────────────────────────────
+
+const GM_WORDS_V23 = [
+  /\b(dungeon[\s-]?master|game[\s-]?master)\b|\b(DM|GM)\b(?=[\s,.]|$)/,
+  /\bsaving[\s-]?throw\b|\bsave[\s-]?vs\b|\broll[\s-]?to[\s-]?save\b/i,
+  /\bcritical[\s-]?hit\b|\bnat[\s-]?20\b|\bnatural[\s-]?twenty\b|\bcrit\b(?=[\s,!]|$)/i,
+  /\binitiative\b|\broll[\s-]?for[\s-]?initiative\b/i,
+  /\bspell[\s-]?slot\b|\bcantrip\b|\bconcentration[\s-]?spell\b/i,
+  /\bwisdom[\s-]?check\b|\bperception[\s-]?check\b|\binsight[\s-]?check\b/i,
+  /\bhit[\s-]?points\b|\bmax[\s-]?hp\b|\bhealth[\s-]?points\b/i,
+  /\blong[\s-]?rest\b|\bshort[\s-]?rest\b|\brest[\s-]?restored\b/i,
+  /\bcampaign\b|\badventure[\s-]?log\b|\bquest[\s-]?log\b/i,
+  /\bexperience[\s-]?points\b|\bXP[\s-]?gained\b|\blevel[\s-]?up\b/i,
+  /\bdragon\b|\bwyrm\b|\bdragonslayer\b/i,
+  /\bread[\s-]?the[\s-]?room\b|\broll[\s-]?insight\b/i,
+]
+
+/**
+ * Award gm_session badge if 3+ Game Master (v23) words appear in one journal entry.
+ */
+export function checkGmSession(journalText: string): BadgeType | null {
+  if (hasBadge('gm_session')) return null
+  const matchCount = GM_WORDS_V23.filter(r => r.test(journalText)).length
+  if (matchCount >= 3) {
+    awardBadge('gm_session')
+    return 'gm_session'
+  }
+  return null
+}
+
+/**
+ * Award epic_campaign badge if journal entry is 600+ words.
+ */
+export function checkEpicCampaign(journalText: string): BadgeType | null {
+  if (hasBadge('epic_campaign')) return null
+  const wordCount = journalText.trim().split(/\s+/).filter(w => w.length > 0).length
+  if (wordCount >= 600) {
+    awardBadge('epic_campaign')
+    return 'epic_campaign'
+  }
+  return null
+}
+
+/**
+ * Award tavern_hour badge if user checks in between 17:00–19:00 local time.
+ */
+export function checkTavernHour(): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('tavern_hour')) return null
+
+  const now = new Date()
+  const hour = now.getHours()
+  if (hour >= 17 && hour < 19) {
+    awardBadge('tavern_hour')
+    return 'tavern_hour'
   }
   return null
 }
