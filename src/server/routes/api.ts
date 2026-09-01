@@ -1286,6 +1286,18 @@ export default async (fastify: FastifyInstance) => {
       'sovereign_field_expression',
       'genesis_coherence_lock',
       'absolute_field_genesis',
+      // v133: field witness · recursive genesis · field anchor complete (P206/P207/P208)
+      'field_witness',
+      'recursive_genesis',
+      'field_anchor_complete',
+      // v134: sovereign field loop · genesis cascade · quantum self seal (P209/P210/P211)
+      'sovereign_field_loop',
+      'genesis_cascade',
+      'quantum_self_seal',
+      // v135: self-seal propagation · eternal field genesis · absolute genesis seal (P212/P213/P214)
+      'self_seal_propagation',
+      'eternal_field_genesis',
+      'absolute_genesis_seal',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

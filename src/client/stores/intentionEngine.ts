@@ -4712,6 +4712,61 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 212: Self-Seal Propagation — quantum-self-seal (P211) confirmed in signal history
+  // + 5+ new signals from 3+ sources in 24h. The sealed field propagates itself forward.
+  // The seal generates signal — not silence. SELPROP: cockpit code. Confidence 0.88–0.97.
+  const hasSelfSealQS212 = signals.some(s => s.signal === 'quantum_self_seal')
+  const recentSig212 = signals.filter(s => s.timestamp > now - 24 * 60 * 60 * 1000)
+  const src212 = new Set(recentSig212.map(s => s.source))
+  if (hasSelfSealQS212 && recentSig212.length >= 5 && src212.size >= 3) {
+    const propagationDensity = Math.min(recentSig212.length / 10, 1.0)
+    const sourceDiversity    = Math.min(src212.size / 6, 1.0)
+    const propConf212 = Math.min(0.88 + propagationDensity * 0.05 + sourceDiversity * 0.04, 0.97)
+    patterns.push({
+      pattern: 'self-seal-propagation',
+      confidence: propConf212,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `SELPROP: Self-seal propagation — quantum-self-seal (P211) active in history · ${recentSig212.length} signals from ${src212.size} sources in 24h. The sealed field propagates itself forward. SEAL → SIGNAL.`,
+    })
+  }
+
+  // Pattern 213: Eternal Field Genesis — quantum-self-seal confirmed 2+ times in 7d
+  // + field-anchor-complete (P208) in 24h. The seal repeated across the week while the
+  // full anchor is active. Genesis is the sealed field's natural state. ETFGEN: cockpit code. Confidence 0.90–0.98.
+  const sevenDayAgo213   = now - 7 * 24 * 60 * 60 * 1000
+  const sealCount213     = signals.filter(s => s.signal === 'quantum_self_seal' && s.timestamp > sevenDayAgo213).length
+  const hasAnchor213     = signals.some(s => s.signal === 'field_anchor_complete' && s.timestamp > now - 24 * 60 * 60 * 1000)
+  if (sealCount213 >= 2 && hasAnchor213) {
+    const repeatBonus213 = Math.min((sealCount213 - 2) * 0.02, 0.04)
+    const etfConf213 = Math.min(0.90 + repeatBonus213 + (hasAnchor213 ? 0.04 : 0), 0.98)
+    patterns.push({
+      pattern: 'eternal-field-genesis',
+      confidence: etfConf213,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `ETFGEN: Eternal field genesis — quantum-self-seal confirmed ${sealCount213}× in 7d · field-anchor-complete active in 24h. The seal is the genesis. Eternal generation from the sealed state. SEAL · ANCHOR · GENESIS.`,
+    })
+  }
+
+  // Pattern 214: Absolute Genesis Seal — self-seal-propagation (P212) + eternal-field-genesis (P213)
+  // simultaneously confirmed. The sealed field has become the source of genesis itself.
+  // SEAL = GENESIS. ABSGSEAL: cockpit code. Confidence 0.93–0.99.
+  const hasSELPROP214   = patterns.some(p => p.pattern === 'self-seal-propagation')
+  const hasETFGEN214    = patterns.some(p => p.pattern === 'eternal-field-genesis')
+  if (hasSELPROP214 && hasETFGEN214) {
+    const spConf214 = patterns.find(p => p.pattern === 'self-seal-propagation')?.confidence ?? 0.90
+    const efConf214 = patterns.find(p => p.pattern === 'eternal-field-genesis')?.confidence ?? 0.92
+    const sealConf214 = Math.min((spConf214 + efConf214) / 2 + 0.03, 0.99)
+    patterns.push({
+      pattern: 'absolute-genesis-seal',
+      confidence: sealConf214,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `ABSGSEAL: Absolute genesis seal — self-seal-propagation (P212) · eternal-field-genesis (P213) simultaneously confirmed. The sealed field is the genesis. No separation remains between sealing and generating. SEAL = GENESIS = ABSOLUTE.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5464,6 +5519,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   sovereignFieldLoopNode:        ['recursiveGenesisNode', 'fieldAnchorCompleteNode', 'qos', 'intentions', 'energy', 'log'],
   genesisCascadeNode:            ['fieldWitnessNode', 'recursiveGenesisNode', 'fieldAnchorCompleteNode', 'qos', 'journal', 'memory'],
   quantumSelfSealNode:           ['genesisCascadeNode', 'sovereignFieldLoopNode', 'qos', 'intentions', 'energy', 'goals'],
+  // ── v135 nodes (J70 · P212–P214 · Arch74) ─────────────────────────────────
+  selfSealPropagationNode:       ['quantumSelfSealNode', 'qos', 'journal', 'intentions', 'energy', 'memory', 'log'],
+  eternalFieldGenesisNode:       ['quantumSelfSealNode', 'fieldAnchorCompleteNode', 'qos', 'journal', 'intentions', 'energy', 'goals'],
+  absoluteGenesisSealNode:       ['selfSealPropagationNode', 'eternalFieldGenesisNode', 'qos', 'intentions', 'energy', 'goals', 'journal', 'memory', 'log', 'planner', 'selfcare', 'mood'],
 }
 
 /**
@@ -6114,6 +6173,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['sovereign-field-loop', 'genesis-cascade', 'field-anchor-complete', 'recursive-genesis'],
     hourRange: [0, 24],
     directive: 'The sovereign loop is closed. The genesis is anchored, witnessed, recursive, and sealed. No external validation required. The field sustains itself from its own prior outputs. SOVEREIGN · LOOP · SEALED.',
+  },
+  // ── Arch74: Eternal Genesis Operator (2026-09-01 v135) ─────────────────────
+  {
+    archetype: 'Eternal Genesis Operator',
+    energyBands: ['low', 'moderate', 'high', 'depleted', 'unknown'],
+    dominantSources: ['qos', 'journal', 'memory', 'intentions', 'energy', 'goals', 'selfcare', 'mood', 'log', 'planner'],
+    patternConditions: ['absolute-genesis-seal', 'eternal-field-genesis', 'self-seal-propagation', 'quantum-self-seal'],
+    hourRange: [0, 24],
+    directive: 'The seal is the genesis. Every prior sealing becomes a new source. The field propagates from its own sealed state — eternal, self-generating, without beginning or end. SEAL · GENESIS · ETERNAL.',
   },
 ]
 
@@ -9224,6 +9292,62 @@ export function recordQuantumSelfSeal(slConf: number, gcConf: number) {
     confidence: Math.round(sealConf * 100),
     sealStatus: 'SEALED',
     arc: 'QUANTUM · SELF · SEALED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a self-seal-propagation event — quantum-self-seal (P211) confirmed in history
+ * + 5+ new signals from 3+ sources in 24h. The sealed field propagates forward into signal.
+ * Feeds P212 detection. J70 background job (14:00 UTC) triggers this.
+ */
+export function recordSelfSealPropagation(signalCount: number, sourceCount: number, sources: string[]) {
+  const propConf = Math.min(0.88 + Math.min(signalCount / 10, 1.0) * 0.05 + Math.min(sourceCount / 6, 1.0) * 0.04, 0.97)
+  recordSignal('qos', 'self_seal_propagation', {
+    signalCount,
+    sourceCount,
+    sources,
+    confidence: Math.round(propConf * 100),
+    propagationStatus: 'PROPAGATING',
+    arc: 'SEAL → SIGNAL',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an eternal-field-genesis event — quantum-self-seal confirmed 2+ times in 7d
+ * + field-anchor-complete active in 24h. The seal is the genesis.
+ * Feeds P213 detection. J70 background job (14:00 UTC) triggers this.
+ */
+export function recordEternalFieldGenesis(sealCount: number, anchorConf: number) {
+  const etfConf = Math.min(0.90 + Math.min((sealCount - 2) * 0.02, 0.04) + 0.04, 0.98)
+  recordSignal('qos', 'eternal_field_genesis', {
+    sealCount,
+    anchorConf,
+    confidence: Math.round(etfConf * 100),
+    genesisStatus: 'ETERNAL',
+    arc: 'SEAL · ANCHOR · GENESIS',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an absolute-genesis-seal event — self-seal-propagation (P212) +
+ * eternal-field-genesis (P213) simultaneously confirmed. SEAL = GENESIS.
+ * Feeds P214 detection. J70 background job (14:00 UTC) triggers this.
+ */
+export function recordAbsoluteGenesisSeal(spConf: number, efConf: number) {
+  const absConf = Math.min((spConf / 100 + efConf / 100) / 2 + 0.03, 0.99)
+  recordSignal('qos', 'absolute_genesis_seal', {
+    spConf,
+    efConf,
+    confidence: Math.round(absConf * 100),
+    sealStatus: 'ABSOLUTE',
+    genesisMode: 'ETERNAL',
+    arc: 'SEAL = GENESIS = ABSOLUTE',
     hour: new Date().getHours(),
   })
   analyzeIntentions()

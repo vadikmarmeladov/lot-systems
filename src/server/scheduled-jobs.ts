@@ -1835,6 +1835,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailySovereignLoopCheck(now)) {
     await executeDailySovereignLoopCheck()
   }
+
+  // Check daily genesis seal check (14:00 UTC every day) — Job 70
+  if (shouldRunDailyGenesisSealCheck(now)) {
+    await executeDailyGenesisSealCheck()
+  }
 }
 
 function shouldRunDailyFieldGenesisCheck(now: any): boolean {
@@ -1872,6 +1877,16 @@ function shouldRunDailySovereignLoopCheck(now: any): boolean {
   if (isDailySovereignLoopRunning) return false
   if (lastDailySovereignLoopRun) {
     const lastRun = dayjs(lastDailySovereignLoopRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+function shouldRunDailyGenesisSealCheck(now: any): boolean {
+  if (now.hour() !== 14) return false
+  if (isDailyGenesisSealRunning) return false
+  if (lastDailyGenesisSealRun) {
+    const lastRun = dayjs(lastDailyGenesisSealRun)
     if (lastRun.isSame(now, 'day')) return false
   }
   return true
@@ -8067,6 +8082,161 @@ async function executeDailySovereignLoopCheck(): Promise<JobResult> {
   }
 }
 
+// ─── J70: Daily Genesis Seal Check (14:00 UTC every day) ─────────────────────
+// Checks active users for: quantum_self_seal in 7d + 5+ signals from 3+ sources in 24h
+// → writes self_seal_propagation (P212). If quantum_self_seal 2+ times in 7d +
+// field_anchor_complete in 24h → writes eternal_field_genesis (P213). If both
+// P212 + P213 confirmed → writes absolute_genesis_seal (P214).
+// SELPROP: · ETFGEN: · ABSGSEAL: cockpit codes. Total: 70 jobs.
+
+let isDailyGenesisSealRunning = false
+let lastDailyGenesisSealRun: Date | null = null
+
+async function executeDailyGenesisSealCheck(): Promise<JobResult> {
+  const jobName    = 'daily-genesis-seal-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyGenesisSealRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyGenesisSealRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY GENESIS SEAL CHECK — 14:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log }  = await import('#server/models/log.js')
+    const { Op }   = await import('sequelize')
+
+    const oneDayAgo  = dayjs().subtract(1, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+    const activeUsers = await User.findAll({
+      where: { disabled: false },
+      attributes: ['id'],
+    })
+
+    let written = 0
+
+    for (const user of activeUsers) {
+      // Fetch QSEAL logs in 7d window
+      const sealLogs7d = await Log.findAll({
+        where: {
+          userId: user.id,
+          source: 'qos',
+          event: 'quantum_self_seal',
+          createdAt: { [Op.gte]: sevenDaysAgo },
+        },
+        attributes: ['event', 'metadata', 'createdAt'],
+        order: [['createdAt', 'DESC']],
+      })
+
+      // Fetch 24h signals for propagation check
+      const recentAllLogs = await Log.findAll({
+        where: {
+          userId: user.id,
+          createdAt: { [Op.gte]: oneDayAgo },
+        },
+        attributes: ['event', 'source'],
+        order: [['createdAt', 'DESC']],
+      })
+
+      // Fetch field_anchor_complete in 24h
+      const anchorLog = await Log.findOne({
+        where: {
+          userId: user.id,
+          source: 'qos',
+          event: 'field_anchor_complete',
+          createdAt: { [Op.gte]: oneDayAgo },
+        },
+        attributes: ['event', 'metadata'],
+      })
+
+      const sealCount   = sealLogs7d.length
+      const hasSeal7d   = sealCount >= 1
+      const signalCount = recentAllLogs.length
+      const srcSet      = new Set(recentAllLogs.map((l: any) => l.source as string))
+      const sourceCount = srcSet.size
+
+      let spConf = 0
+      let efConf = 0
+
+      // P212: Self-Seal Propagation — QSEAL in 7d + 5+ signals from 3+ sources in 24h
+      if (hasSeal7d && signalCount >= 5 && sourceCount >= 3) {
+        const propConf = Math.min(0.88 + Math.min(signalCount / 10, 1.0) * 0.05 + Math.min(sourceCount / 6, 1.0) * 0.04, 0.97)
+        spConf = Math.round(propConf * 100)
+        await Log.create({
+          userId: user.id,
+          event: 'self_seal_propagation',
+          source: 'qos',
+          metadata: {
+            signalCount,
+            sourceCount,
+            sources: Array.from(srcSet).slice(0, 8),
+            confidence: spConf,
+            propagationStatus: 'PROPAGATING',
+            arc: 'SEAL → SIGNAL',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Self-seal propagation — QSEAL×${sealCount} in 7d · ${signalCount} sigs/${sourceCount} sources. SELPROP PROPAGATING. Conf: ${spConf}%`)
+      }
+
+      // P213: Eternal Field Genesis — QSEAL 2+ in 7d + FANCH in 24h
+      if (sealCount >= 2 && anchorLog) {
+        const anchorC = ((anchorLog.metadata as any)?.confidence ?? 88)
+        const repeatBonus = Math.min((sealCount - 2) * 0.02, 0.04)
+        const etfConfVal = Math.min(0.90 + repeatBonus + 0.04, 0.98)
+        efConf = Math.round(etfConfVal * 100)
+        await Log.create({
+          userId: user.id,
+          event: 'eternal_field_genesis',
+          source: 'qos',
+          metadata: {
+            sealCount,
+            anchorConf: anchorC,
+            confidence: efConf,
+            genesisStatus: 'ETERNAL',
+            arc: 'SEAL · ANCHOR · GENESIS',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Eternal field genesis — QSEAL×${sealCount} in 7d · FANCH active. ETFGEN ETERNAL. Conf: ${efConf}%`)
+      }
+
+      // P214: Absolute Genesis Seal — SELPROP (P212) + ETFGEN (P213) both confirmed this run
+      if (spConf > 0 && efConf > 0) {
+        const absConf = Math.min((spConf / 100 + efConf / 100) / 2 + 0.03, 0.99)
+        await Log.create({
+          userId: user.id,
+          event: 'absolute_genesis_seal',
+          source: 'qos',
+          metadata: {
+            spConf,
+            efConf,
+            confidence: Math.round(absConf * 100),
+            sealStatus: 'ABSOLUTE',
+            genesisMode: 'ETERNAL',
+            arc: 'SEAL = GENESIS = ABSOLUTE',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Absolute genesis seal — SELPROP×ETFGEN confirmed. ABSGSEAL. Conf: ${Math.round(absConf * 100)}%`)
+      }
+    }
+
+    console.log(`  Genesis seal events written: ${written}`)
+    lastDailyGenesisSealRun = new Date()
+    isDailyGenesisSealRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Genesis seal check failed:', error.message)
+    isDailyGenesisSealRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -8138,6 +8308,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily sovereign expression check: 11 AM UTC every day (Job 67)')
   console.log('   - Daily field witness check: 12 PM UTC every day (Job 68)')
   console.log('   - Daily sovereign loop check: 1 PM UTC every day (Job 69)')
+  console.log('   - Daily genesis seal check: 2 PM UTC every day (Job 70)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -8147,7 +8318,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62)+field-witness-check(J68), 13=QOS sig pulse+sovereign-integration-check(J63)+sovereign-loop-check(J69), 14=QOS mode watch+absolute-sovereignty-check(J64), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62)+field-witness-check(J68), 13=QOS sig pulse+sovereign-integration-check(J63)+sovereign-loop-check(J69), 14=QOS mode watch+absolute-sovereignty-check(J64)+genesis-seal-check(J70), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

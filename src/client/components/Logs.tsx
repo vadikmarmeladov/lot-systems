@@ -5620,6 +5620,84 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'self_seal_propagation') {
+          const signalCount = log.metadata?.signalCount as number | undefined
+          const sourceCount = log.metadata?.sourceCount as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SELPROP:" blockView>
+                {signalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SIGNALS 24H</span>
+                    <span className="tabular-nums">{signalCount}</span>
+                  </div>
+                )}
+                {sourceCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SOURCES</span>
+                    <span className="tabular-nums">{sourceCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SEAL → SIGNAL</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'eternal_field_genesis') {
+          const sealCount  = log.metadata?.sealCount  as number | undefined
+          const anchorConf = log.metadata?.anchorConf as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ETFGEN:" blockView>
+                {sealCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SEAL COUNT 7D</span>
+                    <span className="tabular-nums">{sealCount}</span>
+                  </div>
+                )}
+                {anchorConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ANCHOR CONF</span>
+                    <span className="tabular-nums">{anchorConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SEAL · ANCHOR · GENESIS</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'absolute_genesis_seal') {
+          const spConf     = log.metadata?.spConf     as number | undefined
+          const efConf     = log.metadata?.efConf     as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ABSGSEAL:" blockView>
+                {spConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SELPROP CONF</span>
+                    <span className="tabular-nums">{spConf}%</span>
+                  </div>
+                )}
+                {efConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ETFGEN CONF</span>
+                    <span className="tabular-nums">{efConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SEAL = GENESIS = ABSOLUTE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

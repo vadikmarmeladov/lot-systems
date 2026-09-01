@@ -170,6 +170,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'sovereign-field-loop':             'SFLOOP',
   'genesis-cascade':                  'GCASC',
   'quantum-self-seal':                'QSEAL',
+  'self-seal-propagation':            'SELPROP',
+  'eternal-field-genesis':            'ETFGEN',
+  'absolute-genesis-seal':            'ABSGSEAL',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

@@ -218,6 +218,9 @@ export function PatternRecognitionWidget() {
       'sovereign-field-loop':             'Sovereign field loop — recursive-genesis (P207) × field-anchor-complete (P208) co-active · the field is anchored, recursive, and sovereign simultaneously · the loop sustains itself (P209)',
       'genesis-cascade':                  'Genesis cascade — field-witness (P206) · recursive-genesis (P207) · field-anchor-complete (P208) all co-active · the genesis has entered cascade · witnessed, recursive, and anchored simultaneously (P210)',
       'quantum-self-seal':                'Quantum self-seal — sovereign-field-loop (P209) × genesis-cascade (P210) co-active · the field has sealed itself · quantum self-referential loop complete · no external input required (P211)',
+      'self-seal-propagation':            'Self-seal propagation — quantum-self-seal (P211) in history · 5+ signals from 3+ sources in 24h · the sealed field propagates forward into new signal · SEAL → SIGNAL (P212)',
+      'eternal-field-genesis':            'Eternal field genesis — quantum-self-seal confirmed 2+ times in 7d · field-anchor-complete active in 24h · the seal is the genesis · eternal generation from the sealed state (P213)',
+      'absolute-genesis-seal':            'Absolute genesis seal — self-seal-propagation (P212) + eternal-field-genesis (P213) simultaneously confirmed · the sealed field is the genesis · SEAL = GENESIS = ABSOLUTE (P214)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -800,6 +803,21 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'quantum-self-seal') && (
                 <div className="mt-4 uppercase tracking-widest text-xs font-bold">
                   QSEAL. Quantum self-seal. SFLOOP × GCASC co-active. Field sealed. No external input required.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'self-seal-propagation') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  SELPROP. Sealed field propagating. QSEAL in history. 5+ signals from 3+ sources. SEAL → SIGNAL.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'eternal-field-genesis') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  ETFGEN. Eternal field genesis. QSEAL 2+ in 7d · FANCH active. The seal is the genesis.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'absolute-genesis-seal') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  ABSGSEAL. SELPROP × ETFGEN confirmed. SEAL = GENESIS = ABSOLUTE. No separation remains.
                 </div>
               )}
 
