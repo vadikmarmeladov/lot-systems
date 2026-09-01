@@ -177,3 +177,71 @@ export function getMoonEmoji(phaseName: string): string {
   }
   return emojiMap[phaseName] || '🌑'
 }
+
+// Mood states counted toward the affinity read — matches shared EmotionalState,
+// excluding 'uncertain' which carries no directional signal
+const POSITIVE_STATES = new Set([
+  'energized', 'calm', 'hopeful', 'fulfilled', 'grateful', 'content', 'peaceful', 'excited',
+])
+const NEGATIVE_STATES = new Set([
+  'tired', 'anxious', 'exhausted', 'restless', 'overwhelmed',
+])
+
+// Below these sample sizes a positive-rate is noise, not a reading —
+// stay silent rather than report a fabricated-precision statistic
+const MIN_TOTAL_SAMPLES = 6
+const MIN_ROKUYO_SAMPLES = 3
+
+export type AstrologyAffinity = {
+  rokuyo: string
+  sampleSize: number
+  positiveRate: number
+}
+
+type AffinityLog = {
+  event: string
+  context?: Record<string, any> | null
+  metadata?: Record<string, any> | null
+}
+
+/**
+ * Personalize the ambient rokuyo reading against the user's own logged
+ * history: emotional_checkin entries already carry the day's astroRokuyo in
+ * their context (see server/utils/logs.ts getLogContext), so this reads back
+ * how the user's own mood has trended on each rokuyo — no external data, no
+ * natal chart, just the user's own Logs entries reflected back to them.
+ * Returns null until currentRokuyo has enough same-rokuyo samples to be
+ * more than noise.
+ */
+export function computeAstrologyAffinity(
+  logs: AffinityLog[],
+  currentRokuyo: string
+): AstrologyAffinity | null {
+  const byRokuyo = new Map<string, { positive: number; total: number }>()
+
+  for (const log of logs) {
+    if (log.event !== 'emotional_checkin') continue
+    const rokuyo = log.context?.astroRokuyo
+    const state = log.metadata?.emotionalState
+    if (!rokuyo || !state) continue
+    if (!POSITIVE_STATES.has(state) && !NEGATIVE_STATES.has(state)) continue
+
+    const bucket = byRokuyo.get(rokuyo) ?? { positive: 0, total: 0 }
+    bucket.total++
+    if (POSITIVE_STATES.has(state)) bucket.positive++
+    byRokuyo.set(rokuyo, bucket)
+  }
+
+  let totalSamples = 0
+  byRokuyo.forEach(b => { totalSamples += b.total })
+  if (totalSamples < MIN_TOTAL_SAMPLES) return null
+
+  const todayBucket = byRokuyo.get(currentRokuyo)
+  if (!todayBucket || todayBucket.total < MIN_ROKUYO_SAMPLES) return null
+
+  return {
+    rokuyo: currentRokuyo,
+    sampleSize: todayBucket.total,
+    positiveRate: Math.round((todayBucket.positive / todayBucket.total) * 100),
+  }
+}

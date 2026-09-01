@@ -4874,13 +4874,19 @@ export function recordCalendarSignal(entryType: string, date: string) {
  * zodiac hour. Ambient/environmental conditions only, not a personal
  * natal chart. Called once per calendar day from the System dashboard so
  * other widgets (cosmic, system) can synchronize against Tier 0 'astrology'.
+ *
+ * `affinity`, when present, is the user's own personalized read of today's
+ * rokuyo (computeAstrologyAffinity in shared/utils/astrology.ts) — derived
+ * from their own logged emotional_checkin history, sample-gated so it's
+ * only ever carried once there's enough data to mean something.
  */
 export function recordAstrologySignal(
   rokuyo: string,
   moonPhase: string,
   moonIllumination: number,
   hourlyZodiac: string,
-  westernZodiac: string
+  westernZodiac: string,
+  affinity?: { sampleSize: number; positiveRate: number } | null
 ) {
   recordSignal('astrology', 'ambient_reading', {
     rokuyo,
@@ -4889,6 +4895,7 @@ export function recordAstrologySignal(
     hourlyZodiac,
     westernZodiac,
     auspicious: rokuyo === 'Taian',
+    ...(affinity ? { affinitySampleSize: affinity.sampleSize, affinityPositiveRate: affinity.positiveRate } : {}),
   })
 }
 
