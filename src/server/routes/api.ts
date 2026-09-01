@@ -10,6 +10,10 @@ import { Op, Sequelize } from 'sequelize'
 import { FastifyInstance, FastifyRequest } from 'fastify'
 import seedrandom from 'seedrandom'
 import {
+  BasicsEnrollPayload,
+  BasicsIssueLogEntry,
+  BasicsMeta,
+  BasicsShipping,
   ChatMessageLikeEventPayload,
   ChatMessageLikePayload,
   PublicChatMessage,
@@ -719,6 +723,99 @@ export default async (fastify: FastifyInstance) => {
       }
 
       return { earnedBadges: merged, badgeTheme: theme }
+    }
+  )
+
+  // ============================================================================
+  // BASICS — LOT-FM-001 ration module (Month 2: enrollment + stand-down)
+  // Entitlement (the Basic tag) is granted only by S-2 via the admin panel,
+  // after billing is confirmed externally — mirrors how Usership is granted.
+  // These endpoints only ever collect roster intake (PENDING) or self-remove
+  // the tag (STAND DOWN). Neither can self-grant paid access.
+  // ============================================================================
+  const BASICS_FIELD_MAX = 200
+  const BASICS_SIZES = ['S', 'M', 'L', 'XL']
+
+  const cleanBasicsField = (v: unknown) =>
+    typeof v === 'string' ? v.trim().slice(0, BASICS_FIELD_MAX) : ''
+
+  fastify.post<{ Body: BasicsEnrollPayload }>(
+    '/basics/enroll',
+    async (req: FastifyRequest<{ Body: BasicsEnrollPayload }>, reply) => {
+      if (!req.user.tags.includes(UserTag.Usership)) {
+        return reply.throw.badParams('USERSHIP / AI required as base layer')
+      }
+      if (req.user.tags.includes(UserTag.Basic)) {
+        return (req.user.metadata as any)?.basics || null
+      }
+
+      const size = req.body.size
+      if (!BASICS_SIZES.includes(size)) {
+        return reply.throw.badParams('Invalid size')
+      }
+      const shippingIn = req.body.shipping || ({} as BasicsShipping)
+      const shipping: BasicsShipping = {
+        name: cleanBasicsField(shippingIn.name),
+        address1: cleanBasicsField(shippingIn.address1),
+        address2: cleanBasicsField(shippingIn.address2),
+        city: cleanBasicsField(shippingIn.city),
+        region: cleanBasicsField(shippingIn.region),
+        postalCode: cleanBasicsField(shippingIn.postalCode),
+        country: cleanBasicsField(shippingIn.country),
+      }
+      const required: (keyof BasicsShipping)[] = ['name', 'address1', 'city', 'region', 'postalCode', 'country']
+      if (required.some((k) => !shipping[k])) {
+        return reply.throw.badParams('Shipping address incomplete')
+      }
+
+      const now = new Date()
+      const cadenceStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1))
+
+      const currentMetadata = req.user.metadata || {}
+      const prevLog: BasicsIssueLogEntry[] = (currentMetadata as any).basics?.issueLog || []
+      const basics: BasicsMeta = {
+        status: 'PENDING',
+        size,
+        shipping,
+        enrolledAt: now.toISOString(),
+        cadenceStart: cadenceStart.toISOString(),
+        issueLog: [...prevLog, { ts: now.toISOString(), event: 'ENROLLMENT_SUBMITTED' }],
+      }
+      const updatedMetadata = { ...currentMetadata, basics }
+      await req.user.set({ metadata: updatedMetadata }).save()
+      sync.emit('settings_updated', { userId: req.user.id })
+
+      return basics
+    }
+  )
+
+  fastify.post(
+    '/basics/stand-down',
+    async (req: FastifyRequest, reply) => {
+      const currentMetadata = req.user.metadata || {}
+      const existing: BasicsMeta | undefined = (currentMetadata as any).basics
+      const isOnStrength = req.user.tags.includes(UserTag.Basic)
+      if (!isOnStrength && existing?.status !== 'PENDING') {
+        return reply.throw.badParams('Not enrolled in BASIC')
+      }
+
+      const now = new Date()
+      const basics: BasicsMeta = {
+        ...(existing as BasicsMeta),
+        status: 'NONE',
+        cadenceStart: null,
+        issueLog: [...(existing?.issueLog || []), { ts: now.toISOString(), event: 'STAND_DOWN' }],
+      }
+      const updatedMetadata = { ...currentMetadata, basics }
+      await req.user.set({ metadata: updatedMetadata }).save()
+
+      if (isOnStrength) {
+        const remainingTags = req.user.tags.filter((t) => t !== UserTag.Basic)
+        await req.user.set({ tags: remainingTags }).save()
+      }
+      sync.emit('settings_updated', { userId: req.user.id })
+
+      return basics
     }
   )
 

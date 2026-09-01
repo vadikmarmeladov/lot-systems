@@ -15,6 +15,8 @@ import {
 } from 'react-query'
 import {
   AdminUsersSort,
+  BasicsEnrollPayload,
+  BasicsMeta,
   ChatMessageLikePayload,
   DefaultQuestion,
   Log,
@@ -552,6 +554,20 @@ export const useCommunityEmotion = () =>
     refetchOnWindowFocus: false,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes (more volatile than other data)
   })()
+
+// ============================================================================
+// BASICS QUERIES — LOT-FM-001 ration module
+// ============================================================================
+
+export const useEnrollBasics = createMutation<BasicsEnrollPayload, BasicsMeta>(
+  'post',
+  '/api/basics/enroll'
+)
+
+export const useStandDownBasics = createMutation<void, BasicsMeta>(
+  'post',
+  '/api/basics/stand-down'
+)
 
 // ============================================================================
 // EMOTIONAL CHECK-IN QUERIES

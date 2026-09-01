@@ -17,7 +17,43 @@ export enum UserTag {
   Pro = 'Pro',
   Suspended = 'Suspended',
   Legacy = 'Legacy',
+  Basic = 'Basic',
 }
+
+// LOT-FM-001 — BASIC ration module (Basics tab, Month 2)
+export type BasicsStatus = 'NONE' | 'PENDING'
+
+export type BasicsShipping = {
+  name: string;
+  address1: string;
+  address2?: string;
+  city: string;
+  region: string;
+  postalCode: string;
+  country: string;
+};
+
+export type BasicsSize = 'S' | 'M' | 'L' | 'XL';
+
+export type BasicsIssueLogEntry = {
+  ts: string;
+  event: 'ENROLLMENT_SUBMITTED' | 'STAND_DOWN';
+  note?: string;
+};
+
+export type BasicsMeta = {
+  status: BasicsStatus;
+  size: BasicsSize;
+  shipping: BasicsShipping;
+  enrolledAt: string;
+  cadenceStart: string | null;
+  issueLog: BasicsIssueLogEntry[];
+};
+
+export type BasicsEnrollPayload = {
+  size: BasicsSize;
+  shipping: BasicsShipping;
+};
 
 // User Types
 export type UserSettings = {
