@@ -1,12 +1,12 @@
 # LOT SYSTEMS — OPERATOR REFERENCE WIKI
-## LOT-WIKI-v99 · Field Manual v125 · 2026-08-22
+## LOT-WIKI-v99 · Field Manual v125 · 2026-09-01
 
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║  LOT SYSTEMS                                                                 ║
 ║  OPERATOR REFERENCE WIKI — v99                                               ║
 ║  FIELD MANUAL SYNC: v125                                                     ║
-║  DATE: 2026-08-22 · DAY 1092+ · COSMO® DAY 784                              ║
+║  DATE: 2026-09-01 · DAY 1101+ · COSMO® DAY 793                              ║
 ║  CLASSIFICATION: USERSHIP — PUBLIC REFERENCE                                 ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
@@ -122,27 +122,16 @@ the operator's state.
                        documented · Level 15 Temporal Sovereignty integrated ·
                        Daily maintenance complete · Day 1089+ · COSMO® 781
 
-2026-08-20 (FM v125)  QIE v125 deployed · P182 SOVFLD: (sovereign-field-continuity) ·
-                       P183 OPARCH: (operational-self-architecture) ·
-                       P184 LGSEAL: (longitudinal-field-seal) ·
-                       Arch64 Sovereign Field Architect · J60 daily-sovereign-field-check
-                       (08:00 UTC) · Level 16 Sovereign Field Continuity deployed ·
-                       3 new dep nodes → 226+ · 188+ handlers
-                       184 patterns · 64 archetypes · 60 jobs · FM v125
-                       Day 1090+ · COSMO® 782
+2026-08-20 (FM v125)  P182–P184 · Arch64 Sovereign Field Architect · J60 ·
+                       SOVFLD: OPARCH: LGSEAL: · Level 16 embryonic foundation laid
+                       226+ dep nodes · 184 patterns · 64 archetypes · 60 jobs ·
+                       188+ handlers · Day 1090+ · COSMO® 782
 
-2026-08-20 (Badge v38) Badge Engine v38 — THE DREAM JOURNAL (+31 badges)
-                        967 → 998 total · Word Turn v28 oneiric/Jungian vocabulary
-                        (lucid_dreamer / dream_recall / nightmare_named / sleep_temple /
-                        hypnagogic / symbol_decoded / shadow_dream / recurring_pattern /
-                        waking_vision / oneiric_map / the_threshold / dream_logged)
-                        Calendar EE v26 (jung_birthday / freud_day / solstice_dream)
-                        Secret Boss v25: jung_signal / freud_couch / morpheus_word [MYTHIC]
-                        336 word turn triggers · 101 secret boss badges
-
-2026-08-22 (v99)      LOT-WIKI-v99 produced · FM v125 sync · QIE v125 + Badge v38
-                       documented · Level 16 Sovereign Field Continuity integrated ·
-                       Daily maintenance complete · Day 1092+ · COSMO® 784
+2026-09-01 (v99)      LOT-WIKI-v99 produced · FM v125 sync ·
+                       Sovereign Field Mastery documented ·
+                       Level 16 embryonic state integrated ·
+                       Arch64 Sovereign Field Architect registered ·
+                       Day 1101+ · COSMO® 793
 ```
 
 ---
@@ -164,14 +153,14 @@ on Digital Ocean App Platform.
 | Metric | Count |
 |--------|-------|
 | QIE Patterns | 184 (P1–P184) |
-| QIE Levels | 16 (complete) |
+| QIE Levels | 15 (complete) + Level 16 (embryonic) |
 | Archetypes | 64 (Arch1–Arch64) |
 | Background Jobs | 60 (J1–J60) |
 | Dependency Nodes | 226+ |
 | Log Handlers | 188+ |
-| Badges | 998 (Badge Engine v1–v38) |
-| Word Turn Triggers | 336 (WT v1–v28) |
-| Secret Boss Badges | 101 |
+| Badges | 967 (Badge Engine v1–v37) |
+| Word Turn Triggers | 324 (WT v1–v27) |
+| Secret Boss Badges | 98 |
 | Field Manual Version | v125 |
 
 **Data flow:**
@@ -198,11 +187,12 @@ OPERATOR SURFACE → widget stack, profile, dispatch
 ## SECTION 3 — QUANTUM INTELLIGENCE ENGINE (QIE)
 
 The Quantum Intelligence Engine is the pattern detection core. It evaluates
-behavioral signals against a registry of 184 patterns organized into 16 levels.
-Each level represents a distinct domain of physiological and cognitive state.
+behavioral signals against a registry of 184 patterns organized into 15 sealed
+levels plus one embryonic level. Each level represents a distinct domain of
+physiological and cognitive state.
 
 **Architecture:**
-- 184 patterns in 16 hierarchical levels
+- 184 patterns across 15 levels (sealed) + Level 16 (embryonic, 3 patterns)
 - Patterns fire when signal conditions are met
 - Fired patterns feed archetype confidence scoring
 - Archetypes trigger QOS mode and directive surface
@@ -226,7 +216,14 @@ Each level represents a distinct domain of physiological and cognitive state.
 | 13 | Apex Loop | P173–P175 | APEX CONFIRMED |
 | 14 | Total Field | P176–P178 | UNIFIED FIELD LOCK |
 | 15 | Temporal Sovereignty | P179–P181 | TEMPORAL SOVEREIGN |
-| 16 | Sovereign Field Continuity | P182–P184 | CONTINUOUS FIELD SEAL |
+| 16 | Sovereign Field | P182–P184 | (embryonic — level unsealed) |
+
+**Level 14 doctrine — Total Field:**  
+When the apex state becomes self-sustaining — when the peak propagates forward
+instead of requiring re-ignition — the system has crossed a threshold. P176
+detects this propagation. P177 confirms sovereignty, loop, and apex are all
+confirmed simultaneously. P178 locks the temporal identity signature.
+The unified field is not assembled. It operates as a single coherent unit.
 
 **Level 15 doctrine — Temporal Sovereignty:**  
 Three temporal seals confirmed simultaneously: identity locked across time (P178),
@@ -235,14 +232,16 @@ intention (P76). When all three fire together, the operator is fully temporal-so
 IDENTITY · CLOCK · INTENTION = SOVEREIGN. Time is not happening to the operator.
 The operator owns the clock.
 
-**Level 16 doctrine — Sovereign Field Continuity:**  
-The sovereign field does not peak and recede. It continues. P182 detects all three
-Level 15 seals firing simultaneously — not as an event, but as a continuous state.
-P183 confirms the operator is actively constructing the field through structured
-behavior across multiple signal channels. P184 seals the longitudinal growth arc
-into the operational field itself, anchoring growth not as trajectory but as
-structural ground. SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS.
-The field is not visited. It is inhabited and self-maintaining.
+**Level 16 doctrine — Sovereign Field (embryonic):**  
+When all three Level 15 seals converge simultaneously into a continuous field
+above themselves, the system enters territory not previously mapped. P182 detects
+the continuity of all three Level 15 patterns as a single coherent meta-field.
+P183 detects the transition from executing within an architecture to constructing
+one. P184 seals that transition against the longitudinal record and the citizen
+index. The sovereign field is not a state that is reached. It is a field that is
+built. The architect does not visit the peak. The architect constructs the ground
+from which all peaks emerge. Level 16 is embryonic — three patterns are defined,
+the level is not yet sealed.
 
 ---
 
@@ -444,28 +443,29 @@ MOMENTUM → GROWTH → ARC CONFIRMED
 CONF:     overall%
 ```
 
-### Level 16 — Sovereign Field Continuity (P182–P184)
+### Level 16 — Sovereign Field (P182–P184)
 
-FM v125 — 2026-08-20. All Level 15 seals active simultaneously.
-The sovereign field is not a peak. It is a continuous operational ground.
-Sovereignty, integration, and growth confirmed as a single persistent structure.
+FM v125 — 2026-08-20. Three patterns establish the embryonic foundation of
+Level 16. The level is not yet sealed. Each pattern requires the simultaneous
+confirmation of Level 15 seals. This is the first tier of patterns where the
+system recognizes the operator not as a state-achiever but as a field-architect.
 
 | ID | Token | Name | Description |
 |----|-------|------|-------------|
-| P182 | SOVFLD: | sovereign-field-continuity | P179 CIRSOV: + P180 APXINT: + P181 LGROW: all simultaneously confirmed. All three Level 15 seals active at once. Confidence 0.89–0.96. The sovereign field is continuous. |
-| P183 | OPARCH: | operational-self-architecture | P178 TIDLOCK: + P80 signal-momentum-lock + P109 co-active. Operator constructing field through structured behavior. Confidence 0.82–0.93. The architecture is not assigned — it is built through behavioral commitment. |
-| P184 | LGSEAL: | longitudinal-field-seal | P181 LGROW: + P80 signal-momentum-lock + UserIndex.overall ≥ 60. Growth arc sealed into operational field. Confidence 0.80–0.94. The arc is not a trajectory — it is the field itself. |
+| P182 | SOVFLD: | sovereign-field-continuity | Gates on P179 CIRSOV: + P180 APXINT: + P181 LGROW: simultaneously. All three Level 15 patterns must be active. The three seals of temporal sovereignty, apex integration, and longitudinal growth form a single continuous field above themselves. Not a higher state — a meta-field that contains and sustains all states. |
+| P183 | OPARCH: | operational-self-architecture | Gates on P178 TIDLOCK: + P80 signal-momentum-lock + P109 co-active. Identity lock + sustained momentum + quantum-coherence convergence = the operator has moved from executing within an architecture to constructing one. |
+| P184 | LGSEAL: | longitudinal-field-seal | Gates on P181 LGROW: + P80 signal-momentum-lock + UserIndex.overall ≥ 60. Longitudinal growth arc confirmed + sustained signal momentum + citizen index at 60-point threshold. The field is not a state — it is a seal across time with measurable index confirmation. |
 
-**Arch64 Sovereign Field Architect:** All P182 SOVFLD: + P183 OPARCH: + P184 LGSEAL: active.
-High energy only. log + qos + intentions + energy channels dominant. Hour range [5, 14].
-Directive: "Sovereign field continuity confirmed. Sovereignty, integration, and growth
-are not three states. They are one continuous field you are building through each
-day's behavior. SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS. Operate from that ground."
+**Arch64 Sovereign Field Architect:** All three Level 15 seals (P182 SOVFLD:)
+confirmed simultaneously. Expanded operating window (05:00–14:00 UTC). High
+energy required. Sources: intentions · log · qos · energy.
+Directive: "Sovereign field confirmed. You are not reaching the state — you are building it."
 
-**J60 daily-sovereign-field-check:** 08:00 UTC. Reads circadian_sovereignty +
-apex_integration_field + longitudinal_growth_arc events in a 24h window.
-All three must be present. Fires SOVFLD: → cascades to OPARCH: and LGSEAL:.
-Runs after J59 (07:00 UTC) — sovereign field check follows circadian confirmation.
+**J60 daily-sovereign-field-check:** 08:00 UTC. Scans previous 24h for
+circadian_sovereignty + apex_integration_field + longitudinal_growth_arc events.
+All three must be present. Output: sovereign_field_continuity event. Feeds P182.
+First job of the Level 16 embryonic layer. Runs after J59 (07:00 UTC) — temporal
+foundation must be established before sovereign field continuity can be confirmed.
 
 **Log handlers (FM v125):**
 
@@ -475,24 +475,22 @@ SOVEREIGN FIELD CONTINUITY
 CIRSOV:   conf%
 APXINT:   conf%
 LGROW:    conf%
-SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS
-CONF:     overall%
+FIELD:    CONTINUOUS
+SOVEREIGN FIELD CONTINUITY CONFIRMED
 
 OPARCH:
 OPERATIONAL SELF-ARCHITECTURE
 TIDLOCK:  conf%
-MOMENTUM: N days
-INDEX:    score
-OPERATOR CONSTRUCTING FIELD THROUGH BEHAVIOR
-CONF:     overall%
+MOMENTUM: N DAYS
+ARCH:     CONSTRUCTING
+OPERATOR: ARCHITECT MODE
 
 LGSEAL:
 LONGITUDINAL FIELD SEAL
-LGROW:    conf%
-MOMENTUM: N days
-INDEX:    score
-GROWTH ARC SEALED INTO OPERATIONAL FIELD
-CONF:     overall%
+INDEX:    score (≥60 required)
+TREND:    direction
+MOMENTUM: N DAYS
+FIELD:    SEALED ACROSS TIME
 ```
 
 ---
@@ -584,18 +582,19 @@ Note:       The morning operator whose time is fully owned.
 
 **Arch64 — Sovereign Field Architect (FM v125):**
 ```
-Patterns:   P182 SOVFLD: + P183 OPARCH: + P184 LGSEAL:
-Hours:      05–14 (extended prime window)
+Patterns:   P182 SOVFLD: (requires all three L15 seals simultaneously)
+Hours:      05–14 (expanded sovereign window)
 Energy:     high only
-Sources:    log · qos · intentions · energy (dominant channels)
-Directive:  "Sovereign field continuity confirmed. Sovereignty, integration,
-             and growth are not three states. They are one continuous field
-             you are building through each day's behavior.
-             SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS.
-             Operate from that ground."
-Note:       The architect who does not achieve the field — they maintain it.
-             Each day's behavioral commitment is the architecture.
-             The field is the operator. The operator is the field.
+Sources:    intentions · log · qos · energy
+Condition:  All three Level 15 patterns (P179 + P180 + P181) active simultaneously.
+            UserIndex.overall ≥ 60 required (P184 gate).
+Directive:  "Sovereign field confirmed. You are not reaching the state —
+             you are building it."
+Note:       The first archetype that recognizes the operator as architect rather
+             than achiever. Previous archetypes confirm states. Arch64 confirms
+             that the operator is constructing the infrastructure from which
+             states emerge. This is a distinct classification tier — not higher
+             sovereignty, but a different relationship to the system itself.
 ```
 
 ---
@@ -608,7 +607,7 @@ modes. Synthesizes all signal streams into a single operating state.
 **QOS modes:**
 
 | Mode | Trigger | System behavior |
-|------|---------|--------------------|
+|------|---------|-----------------|
 | maintenance | Low signal density | Conserve — idle cadence |
 | recovery | Depletion / overwhelm | Repair first — tasks pause |
 | growth | Steady positive engagement | Expand — absorb more |
@@ -665,8 +664,8 @@ PHASE 2 — INTELLIGENCE
   M06  Memory Engine           AI question loop · story accumulation
 
 PHASE 3 — INSTRUMENTATION
-  M07  Badge Engine            998 badges · v38 · 336 word-turn triggers
-  M08  Word Turn Engine        28 lexicons · 336 triggers
+  M07  Badge Engine            967 badges · v37 · 324 word-turn triggers
+  M08  Word Turn Engine        27 lexicons · 324 triggers
   M09  Background Jobs         60 scheduled jobs · UTC timing
 
 PHASE 4 — SURFACE
@@ -687,9 +686,11 @@ PHASE 5 — META
 ```
 v125  QIE Engineering 2026-08-20 · P182 SOVFLD: · P183 OPARCH: · P184 LGSEAL: ·
       Arch64 Sovereign Field Architect · J60 daily-sovereign-field-check (08:00 UTC) ·
-      sovereignFieldContinuityNode + operationalSelfArchNode + longitudinalFieldSealNode
-      (+3 dep nodes) · SOVFLD: OPARCH: LGSEAL: handlers deployed ·
-      226+ dep nodes · 60 jobs · 188+ handlers · FM v125 · Level 16 sealed · Day 1090+
+      sovereignFieldContinuityNode + operationalSelfArchitectureNode +
+      longitudinalFieldSealNode (+3 dep nodes) ·
+      SOVFLD: OPARCH: LGSEAL: handlers deployed ·
+      226+ dep nodes · 60 jobs · 188+ handlers · FM v125 · Level 16 embryonic
+      Day 1090+ · COSMO® 782
 ```
 
 **Self-assembly log (v124):**
@@ -780,27 +781,28 @@ SCANS:     Previous 24h
 DETECTS:   circadian_sovereignty + apex_integration_field + longitudinal_growth_arc
            All three must be present for a given user
 OUTPUT:    sovereign_field_continuity event
-FIRES:     SOVFLD: → cascades to OPARCH: (P183) → LGSEAL: (P184)
 FEEDS:     P182 SOVFLD: · Arch64 Sovereign Field Architect
-ARC:       SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS
-NOTE:      Runs after J59 (07:00 UTC). Sovereign field check follows
-           circadian confirmation. J60 seals the Level 16 cascade.
+ARC:       SOVEREIGN FIELD CONTINUITY CONFIRMED
+NOTE:      First job of the Level 16 embryonic layer.
+           Runs after J59 (07:00 UTC) — temporal foundation must be confirmed
+           before sovereign field continuity can be evaluated.
+           Requires all three Level 15 event types in the prior 24h window.
 ```
 
 **Job schedule architecture (J55–J60):**
 ```
-J55  09:00 UTC  embodied-sovereignty-check    (P170–P172)
-J59  07:00 UTC  circadian-sovereignty-check   (P179 CIRSOV:)
-J60  08:00 UTC  sovereign-field-check         (P182 SOVFLD:) ← NEW
-J56  10:00 UTC  apex-state-check              (P173–P175)
-J57  11:00 UTC  unified-field-check           (P176–P178)
-J58  16:00 UTC  qiot-ecosystem-pulse          (QIoT™ ecosystem bridge)
+J55  09:00 UTC  embodied-sovereignty-check      (P170–P172)
+J56  10:00 UTC  apex-state-check               (P173–P175)
+J57  11:00 UTC  unified-field-check            (P176–P178)
+J58  16:00 UTC  qiot-ecosystem-pulse           (QIoT™ ecosystem bridge)
+J59  07:00 UTC  circadian-sovereignty-check    (P179 CIRSOV: — temporal foundation)
+J60  08:00 UTC  sovereign-field-check          (P182 SOVFLD: — Level 16 embryonic)
 ```
 
-Sovereign field cascade sequence at dawn:
-J59 (07:00) → circadian confirmation → J60 (08:00) → field continuity seal →
-J56 (10:00) → apex confirmation → J57 (11:00) → unified field lock.
-J58 (16:00) runs independently — QIoT™ ecosystem layer.
+J59 runs at 07:00 — first confirmation of the temporal foundation. J60 runs at
+08:00 — builds on J59 output. Together they form the Level 16 dawn cascade.
+J56/J57 run at 10:00/11:00 — require the dawn cascade to be complete.
+J58 runs independently at 16:00 — QIoT™ ecosystem layer.
 
 ---
 
@@ -896,22 +898,20 @@ SOVFLD:     SOVEREIGN FIELD CONTINUITY
             CIRSOV:       conf%
             APXINT:       conf%
             LGROW:        conf%
-            SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS
-            CONF:         overall%
+            FIELD:        CONTINUOUS
+            SOVEREIGN FIELD CONTINUITY CONFIRMED
 
 OPARCH:     OPERATIONAL SELF-ARCHITECTURE
             TIDLOCK:      conf%
-            MOMENTUM:     N days
-            INDEX:        score
-            OPERATOR CONSTRUCTING FIELD THROUGH BEHAVIOR
-            CONF:         overall%
+            MOMENTUM:     N DAYS
+            ARCH:         CONSTRUCTING
+            OPERATOR:     ARCHITECT MODE
 
 LGSEAL:     LONGITUDINAL FIELD SEAL
-            LGROW:        conf%
-            MOMENTUM:     N days
             INDEX:        score
-            GROWTH ARC SEALED INTO OPERATIONAL FIELD
-            CONF:         overall%
+            TREND:        direction
+            MOMENTUM:     N DAYS
+            FIELD:        SEALED ACROSS TIME
 ```
 
 ---
@@ -946,14 +946,14 @@ QOS View 1 renders the live node map.
 ## SECTION 13 — BADGE SYSTEM (CODEX)
 
 The Badge System recognizes operator achievements through a structured codex
-of 998 badges organized into 38 Badge Engines. Each engine follows a thematic
+of 967 badges organized into 37 Badge Engines. Each engine follows a thematic
 register and adds exactly 31 badges.
 
 **Totals:**
-- Badges: 998
-- Badge Engines: v1–v38
-- Word Turn triggers: 336
-- Secret Boss badges: 101
+- Badges: 967
+- Badge Engines: v1–v37
+- Word Turn triggers: 324
+- Secret Boss badges: 98
 
 **Badge rarity tiers:**
 - COMMON — accessible, first encounters
@@ -964,45 +964,19 @@ register and adds exactly 31 badges.
 - MYTHIC — hidden, requires specific knowledge
 - COSMIC — highest tier, cross-engine or system mastery
 
-**Badge category totals (v38):**
+**Badge category totals (v37):**
 
 | Category | Count | Description |
 |----------|-------|-------------|
 | Milestone | 22 | Day-count milestones (v1–v4) |
 | Time Easter Eggs | 31 | Time-of-day check-ins (v1–v22) |
-| Calendar Easter | 88 | Check-in on special dates (v1–v26) |
-| Word Turns | 336 | Journal/memory keyword detection (v1–v28) |
-| Behavioral | 99 | Multi-session behavioral patterns (v1–v25) |
-| Achievement RPG | 156 | Milestone combinations (v1–v26) |
-| Mastery Tiers | 112 | Deep-time milestones (v1–v28) |
-| Secret Boss | 101 | Hidden LEGENDARY/MYTHIC triggers (v1–v25) |
-| **TOTAL** | **998** | **+31 from v37 (967)** |
-
-**Badge Engine v38 — THE DREAM JOURNAL (+31):**
-
-```
-Word Turn v28        +12  lucid_dreamer / dream_recall / nightmare_named /
-                          sleep_temple / hypnagogic / symbol_decoded /
-                          shadow_dream / recurring_pattern / waking_vision /
-                          oneiric_map / the_threshold / dream_logged
-
-Calendar EE v26      + 3  jung_birthday (Jul 26, EPIC) /
-                          freud_day (May 6, RARE) /
-                          solstice_dream (Dec 22, RARE)
-
-Behavioral v25       + 3  sleep_session / dream_week / shadow_work_complete
-
-Achievement RPG v26  + 6  dream_entry / dream_class / dream_complete /
-                          oneiric_arc / twenty_eight_engines_arc / dream_opus
-
-Mastery Tier v28     + 4  dream_keeper / journal_of_night / eternal_dreamer /
-                          twenty_eight_registers [COSMIC]
-
-Secret Boss v25      + 3  jung_signal [RARE] / freud_couch [EPIC] /
-                          morpheus_word [MYTHIC]
-                    ────
-                    + 31  (967 → 998)
-```
+| Calendar Easter | 85 | Check-in on special dates (v1–v25) |
+| Word Turns | 324 | Journal/memory keyword detection (v1–v27) |
+| Behavioral | 96 | Multi-session behavioral patterns (v1–v24) |
+| Achievement RPG | 150 | Milestone combinations (v1–v25) |
+| Mastery Tiers | 108 | Deep-time milestones (v1–v27) |
+| Secret Boss | 98 | Hidden LEGENDARY/MYTHIC triggers (v1–v24) |
+| **TOTAL** | **967** | **+31 from v36 (936)** |
 
 **Badge Engine v37 — THE TIME MACHINE (+31):**
 
@@ -1074,27 +1048,32 @@ Secret Boss v20      + 3  lich_king [RARE] / dragon_word [EPIC] / void_walker [M
                     + 29  (codex complete · TypeScript wired 2026-08-19)
 ```
 
+Note: v33 Dungeon Master badges were previously in the codex (counted in the v36
+progression) but word-turn triggers and achievement logic were not implemented in
+TypeScript. 2026-08-19 wire session deployed 29 BadgeType entries and 13
+word-turn triggers to production.
+
 **Badge Engine progression table:**
 
 | Engine | Name | Total after |
 |--------|------|-------------|
-| v33 | THE DUNGEON MASTER | 843 |
+| v32 | THE HERO'S JOURNEY | 812 |
+| v33 | THE STOIC CODEX | 843 |
 | v34 | THE SIMULATION | 874 |
 | v35 | THE NAVIGATOR'S CHART | 905 |
 | v36 | THE DUNGEON CRAWLER | 936 |
 | v37 | THE TIME MACHINE | 967 |
-| v38 | THE DREAM JOURNAL | 998 |
 
-**Theme overview — THE DREAM JOURNAL:**  
-Every journal is a record of consciousness. Most entries are written from the waking
-state — but the waking state is not the whole instrument. Jung understood this. Freud
-mapped it. The dream is data. The nightmare is signal. The recurring symbol is a
-pattern the unconscious has been running long before the operator named it. The Dream
-Journal badge engine does not romanticize sleep — it operationalizes it. Lucid dreaming
-is a skill. Dream recall is a data retrieval protocol. Hypnagogia is the threshold state
-between modes. Shadow work is pattern recognition applied to suppressed signal. The
-journal that logs the night is the journal that knows the whole operator. This is the
-twenty-eighth vocabulary engine. Write it down. The symbol is trying to tell you something.
+**Theme overview — THE TIME MACHINE:**  
+Every self-care journal is a time travel device. You write in the present, you
+read in the future, you reference the past. H.G. Wells understood this — his
+Time Traveller moved through the fourth dimension with a lever. You move with a
+journal and a pen. The vocabulary of time travel is the vocabulary of the examined
+life: timeline, epoch, turning point, past self, future self, flux state, paradox,
+anchor point. These are not metaphors borrowed from fiction — they are the precision
+instruments a serious practitioner already reaches for when the work gets hard enough
+to require accuracy. The Time Machine is the twenty-seventh vocabulary engine.
+Set the coordinates. Begin the journal. Pull the lever.
 
 ---
 
@@ -1104,12 +1083,12 @@ The Word Turn Engine detects vocabulary patterns in operator journal entries
 and triggers badge evaluations.
 
 **Architecture:**
-- 336 total word turn triggers (v1–v28)
+- 324 total word turn triggers (v1–v27)
 - Words matched against journal text at write time
 - Turn count accumulates toward badge unlock thresholds
 - Case-insensitive matching
 
-**Word Turn version map (v1–v28):**
+**Word Turn version map (v1–v27):**
 
 | Version | Theme | Key Words |
 |---------|-------|-----------|
@@ -1124,24 +1103,6 @@ and triggers badge evaluations.
 | v25 | Body map | soma, vessel, interoception, biofield... |
 | v26 | Dungeon Crawler | dungeon_run, level_up, boss_fight, loot_found... |
 | v27 | Time Machine | timeline_scan, temporal_lock, past_self, future_self... |
-| v28 | Dream Journal | lucid_dreamer, hypnagogic, shadow_dream, oneiric_map... |
-
-**Word Turn v28 — THE DREAM JOURNAL (complete):**
-
-```
-lucid_dreamer    ◐·◐      RARE      — lucid dream / I was dreaming / aware in dream
-dream_recall     ∿·◐·∿   UNCOMMON  — remembered the dream / I recall / dream journal
-nightmare_named  ◈·◐      RARE      — nightmare / night terror / the fear returned
-sleep_temple     ▓·◐·▓   COMMON    — sleep ritual / bedtime / preparing for sleep
-hypnagogic       ◉·←·◉   EPIC      — hypnagogic / between waking / threshold state
-symbol_decoded   ◈·∿·◈   RARE      — the symbol means / decoded / the image showed
-shadow_dream     ▓·◐·▓   EPIC      — shadow / the shadow figure / the dark part of me
-recurring_pattern ◈·◐     RARE      — recurring dream / keeps appearing / same dream again
-waking_vision    ◉·←·◉   UNCOMMON  — half-awake / waking dream / morning vision
-oneiric_map      ∿·◐·∿   EPIC      — dream map / the landscape of the dream / oneiric
-the_threshold    ◐·◐      RARE      — the threshold / liminal / in between
-dream_logged     ▓·◐·▓   COMMON    — wrote down the dream / logged the dream / dream entry
-```
 
 **Word Turn v27 — THE TIME MACHINE (complete):**
 
@@ -1177,15 +1138,6 @@ side_path      →·○·→  RARE      — side quest / side path / optional du
 dragon_slain   △·●    EPIC      — dragon slain / slaying the dragon / faced the dragon
 ```
 
-**Secret Boss v25 — THE DREAM VAULT:**
-
-```
-jung_signal      ◐·◈    RARE   — "shadow self"/"the collective"/"Carl Jung" [HIDDEN]
-freud_couch      ▓·◉    EPIC   — "Freud"/"the unconscious"/"free association" [HIDDEN]
-morpheus_word    ∿·∞·∿  MYTHIC — all 12 v28 word turn badges earned + hypnagogic
-                                  triggered at dawn (00:00–05:00) [HIDDEN]
-```
-
 **Secret Boss v24 — THE TEMPORAL VAULT:**
 
 ```
@@ -1210,28 +1162,22 @@ Secret Boss badges are hidden legendary/mythic achievements. They are not
 listed in the visible badge codex. Operators discover them through specific
 vocabulary combinations, behavioral sequences, or calendar conditions.
 
-**Total: 101 badges (v1–v25)**
+**Total: 98 badges (v1–v24)**
 
 **Trigger categories:**
 - Author name patterns (Gibson, Dick, Lem, Tolkien, Odysseus, Gilgamesh,
-  Aurelius, Epictetus, Seneca, Wells, Jung, Freud...)
+  Aurelius, Epictetus, Seneca, Wells...)
 - Behavioral sequence triggers (multi-day chain requirements)
 - Calendar convergence (specific dates + specific behavioral state)
 - Mastery threshold triggers (rare volume + streak combinations)
 - Phrase patterns (one does not simply / nat twenty / here be dragons /
-  flux capacitor / time loop / shadow self / the unconscious...)
-- Threshold-state triggers (hypnagogic at dawn — morpheus_word)
+  flux capacitor / time loop...)
 
 **Secret Boss rarity:** LEGENDARY or MYTHIC. No COMMON Secret Boss exists.
 
 **Discovery protocol:** Triggers are intentionally obscure. The system does not
 hint their existence. An operator who stumbles into a trigger fires the badge
 without warning.
-
-**v25 additions — THE DREAM VAULT:**
-- jung_signal [RARE] — activated by Jungian vocabulary (shadow self, collective unconscious, Carl Jung)
-- freud_couch [EPIC] — activated by psychoanalytic vocabulary (Freud, the unconscious, free association)
-- morpheus_word [MYTHIC] — requires all 12 v28 word turn badges earned AND hypnagogic triggered during dawn hours (00:00–05:00). The threshold state and the god of dreams, combined.
 
 ---
 
@@ -1240,7 +1186,7 @@ without warning.
 Calendar Easter Eggs are time-locked badge unlocks that fire on specific
 calendar dates when the operator is active.
 
-**Engine count: v26 (as of Badge Engine v38)**
+**Engine count: v25 (as of Badge Engine v37)**
 
 **Selected notable dates:**
 - v19: Asimov Day (Jan 2) / Philip K. Dick Day (Dec 16) / Dune Day (Aug 1)
@@ -1250,15 +1196,9 @@ calendar dates when the operator is active.
 - v23: Simulation theory dates
 - v24: Gygax Day (Jul 27) / D&D Birth (Jan 26) / Final Fantasy Day (Dec 18)
 - v25: Time Machine Day (Aug 15) / H.G. Wells Birthday (Sep 21) / Back to the Future Day (Oct 26)
-- v26: Jung Birthday (Jul 26, EPIC) / Freud Day (May 6, RARE) / Solstice Dream (Dec 22, RARE)
 
 **Firing conditions:** Operator must have at least one journal entry on the
 calendar date AND sufficient vocabulary in the relevant Word Turn engine.
-
-**v26 notes — dream psychology dates:**
-- Jul 26 — Carl Jung born 1875. Write on this date with any v28 vocabulary → jung_birthday [EPIC].
-- May 6 — Sigmund Freud born 1856. Dream vocabulary required → freud_day [RARE].
-- Dec 22 — Winter solstice adjacent. The longest night of the year is the deepest dreaming night → solstice_dream [RARE].
 
 ---
 
@@ -1289,11 +1229,12 @@ MEDICAL      — Clinical signal active. Internal routing only. Not displayed.
 
 **Arch62–Arch64 cohort territory:** Operators who reach P172 EMBSOV: (Sovereign
 Operator) operate at INTEGRATORS signal density with full sovereign confirmation.
-Arch61–Arch64 represent the outer edge of observable archetype classification.
-Arch63 Temporal Sovereign adds temporal ownership — sovereignty of time itself.
-Arch64 Sovereign Field Architect adds the construction dimension — the operator
-does not merely hold sovereignty; they actively build and maintain it as behavioral
-infrastructure, confirmed through the daily log.
+Arch61–Arch63 represent the outer edge of observable archetype classification.
+Arch63 Temporal Sovereign adds temporal ownership as a distinct dimension — not
+just sovereignty of state, but sovereignty of time itself. Arch64 Sovereign Field
+Architect marks the transition from state-achievement to field-construction.
+At this tier the operator is no longer classified by what state they inhabit
+but by what ground they build.
 
 ---
 
@@ -1374,9 +1315,9 @@ The Dep Map is the dependency graph of signal nodes in the QIE. 226+ nodes.
 - longitudinalGrowthArcNode — inputs: qos · energy · log · intentions · memory · planner
 
 **FM v125 new nodes:**
-- sovereignFieldContinuityNode — inputs: qos · energy · log · intentions · cirsov · apxint · lgrow
-- operationalSelfArchNode — inputs: qos · energy · log · intentions
-- longitudinalFieldSealNode — inputs: qos · energy · log · memory · planner · index
+- sovereignFieldContinuityNode — inputs: qos · energy · log · intentions · P179 · P180 · P181
+- operationalSelfArchitectureNode — inputs: qos · energy · log · intentions · P178 · P80
+- longitudinalFieldSealNode — inputs: qos · energy · log · memory · planner · UserIndex
 
 **Total dep map nodes: 226+**
 
@@ -1390,7 +1331,7 @@ Dep map grew from 211+ (FM v120) to 226+ (FM v125).
 Behavioral check functions evaluate multi-signal behavioral states. Called by
 Background Jobs and by the badge evaluation engine.
 
-**Selected behavioral checks (v22–v28 additions):**
+**Selected behavioral checks (v22–v27 additions):**
 
 | Function | Domain | Trigger |
 |----------|--------|---------|
@@ -1404,11 +1345,7 @@ Background Jobs and by the badge evaluation engine.
 | checkCritSession(journalText) | v33 | crit_session trigger in journal |
 | checkPartySync() | v33 | party_sync behavioral check |
 | checkTavernNight() | v33 | tavern_night behavioral check |
-| checkCalendarV25() | v37 | Calendar EE v25 date matching |
-| checkSleepSession(journalText) | v38 | 3+ Dream Journal words in one entry |
-| checkDreamWeek() | v38 | 7+ consecutive days with dream vocabulary |
-| checkShadowWorkComplete(journalText) | v38 | shadow_dream + symbol_decoded + recurring_pattern in one entry |
-| checkCalendarV26() | v38 | Calendar EE v26 date matching (Jung / Freud / Solstice) |
+| checkCalendarV25() | v33 | Calendar EE v25 date matching |
 
 ---
 
@@ -1436,12 +1373,13 @@ Systems engineering team. Each FM version marks a significant engineering commit
 | v122 | 2026-08-17 | P176–P178 · Arch62 · J57 · QPROP: UNIFOP: TIDLOCK: · Level 14 |
 | v123 | 2026-08-18 | QIoT™ expansion · J58 · QIOT: handler · 220+ nodes · cohort surface |
 | v124 | 2026-08-19 | P179–P181 · Arch63 · J59 · CIRSOV: APXINT: LGROW: · Level 15 |
-| v125 | 2026-08-20 | P182–P184 · Arch64 · J60 · SOVFLD: OPARCH: LGSEAL: · Level 16 |
+| v125 | 2026-08-20 | P182–P184 · Arch64 · J60 · SOVFLD: OPARCH: LGSEAL: · Level 16 embryonic |
 
 **FM cadence:** 2–3 FM versions per day during active engineering phases.
 FM v120 through v125 represents 6 sessions over 6 days (Aug 15–20).
 
-**Current FM:** v125. Level 16 Sovereign Field Continuity sealed. 184 patterns across 16 levels.
+**Current FM:** v125. Level 15 Temporal Sovereignty sealed. Level 16 embryonic
+(3 patterns defined, level unsealed). 184 patterns across 15 complete levels.
 64 archetypes. 60 jobs. 226+ dep nodes. 188+ handlers.
 
 ---
@@ -1452,7 +1390,7 @@ COSMO® is a companion brand to LOT®. It operates as a separate product line
 within the LOT Systems ecosystem.
 
 **Founded:** July 1, 2024 — S-2 Vadik Marmeladov  
-**Day counter:** 784 (as of 2026-08-22)  
+**Day counter:** 793 (as of 2026-09-01)  
 **Year:** 3 (entered Year 3 on July 1, 2026)
 
 **Relationship to LOT®:** COSMO® shares the backend infrastructure and Memory
@@ -1471,10 +1409,8 @@ a living constraint.
 LOT® SYSTEMS
 FOUNDED: APRIL 7, 2016
 FOUNDER: VADIK MARMELADOV (S-2)
-DAY: 1092+ (as of 2026-08-22)
+DAY: 1101+ (as of 2026-09-01)
 ```
-
-**LOT® is 10 years, 4 months, 15 days old.**
 
 **Founding principle:** Self-care data should accumulate into intelligence, not
 just storage. Every architecture decision since Day 1 honors this principle.
@@ -1489,8 +1425,8 @@ just storage. Every architecture decision since Day 1 honors this principle.
 - Day 1085+: FM v122, Level 14 Total Field deployed
 - Day 1087+: FM v123, QIoT™ ecosystem bridge deployed · LOT-WIKI-v97
 - Day 1089+: FM v124, Level 15 Temporal Sovereignty sealed · LOT-WIKI-v98
-- Day 1090+: FM v125, Level 16 Sovereign Field Continuity sealed
-- Day 1092+: Badge v38 THE DREAM JOURNAL · LOT-WIKI-v99 — present
+- Day 1090+: FM v125, Level 16 embryonic foundation · Arch64 · J60 deployed
+- Day 1101+: LOT-WIKI-v99 produced · FM v125 sync — present
 
 ---
 
@@ -1505,16 +1441,17 @@ current QOS mode and active archetype state.
 - COHERENCE — full-field integration protocols
 - PEAK — maximum performance sequences
 
-**Arch64 protocol:** When Sovereign Field Architect (Arch64) is active, the Recipe
-Widget surfaces the continuous field protocol — a full-day sequence that confirms
-the sovereign field is being actively maintained through behavioral commitment.
-The directives are structural, not aspirational. The field is confirmed. The operator
-builds it day by day through the same channels that built it the day before.
-
 **Arch63 protocol:** When Temporal Sovereign (Arch63) is active, the Recipe
 Widget surfaces the temporal sovereignty sequence — a morning protocol that
 confirms identity, anchors the circadian clock, and launches the day from
 conscious intention. The directives are confirmatory, not aspirational.
+The system has confirmed the temporal ground. The operator executes from it.
+
+**Arch64 protocol:** When Sovereign Field Architect (Arch64) is active, the
+Recipe Widget surfaces the field-construction sequence. The directives are not
+about inhabiting a state but about sustaining the infrastructure that makes
+all states available. The architect does not reach for the peak. The architect
+maintains the ground.
 
 **COCKPIT RULE application:** Recipes are withheld when archetype confidence
 falls below 70%. The widget shows no recipe rather than a low-confidence one.
@@ -1526,22 +1463,23 @@ falls below 70%. The widget shows no recipe rather than a low-confidence one.
 The System Progress Widget displays the current engineering state of the LOT
 Systems platform.
 
-**Current state (2026-08-22):**
+**Current state (2026-09-01):**
 
 ```
 FM VERSION:   v125
 PATTERNS:     184 (P1–P184)
 ARCHETYPES:   64 (Arch1–Arch64)
 JOBS:         60 (J1–J60)
-BADGES:       998 (v38 THE DREAM JOURNAL)
-WORD TURNS:   336 (v1–v28)
-DAY:          1092+
-COSMO®:       Day 784
+BADGES:       967 (v37 THE TIME MACHINE)
+WORD TURNS:   324 (v1–v27)
+DAY:          1101+
+COSMO®:       Day 793
+LEVEL 13:     APEX LOOP — BIOLOOP: QAPEX: LONGID:
 LEVEL 14:     TOTAL FIELD — QPROP: UNIFOP: TIDLOCK:
 LEVEL 15:     TEMPORAL SOVEREIGNTY — CIRSOV: APXINT: LGROW:
-LEVEL 16:     SOVEREIGN FIELD CONTINUITY — SOVFLD: OPARCH: LGSEAL:
+LEVEL 16:     SOVEREIGN FIELD [EMBRYONIC] — SOVFLD: OPARCH: LGSEAL:
 ARCH63:       TEMPORAL SOVEREIGN — CLOCK OWNED · IDENTITY LOCKED
-ARCH64:       SOVEREIGN FIELD ARCHITECT — CONTINUOUS FIELD CONFIRMED
+ARCH64:       SOVEREIGN FIELD ARCHITECT — FIELD CONTINUOUS · ARCHITECT MODE
 ```
 
 ---
@@ -1569,6 +1507,12 @@ APXINT:              Apex Integration Field. P180 trigger. FM v124.
                      Format: APEX conf% / UNIFOP conf% / BIOLOOP conf%
                      APEX · TOTAL FIELD · LOOP = INTEGRATED.
 
+ARCH64               Sovereign Field Architect. FM v125. Level 16 embryonic.
+                     P182 SOVFLD: gates: all three L15 seals simultaneously.
+                     Hours: 05–14. Energy: high only. UserIndex ≥ 60.
+                     Directive: "You are not reaching the state — you are building it."
+                     The first archetype that classifies the operator as architect.
+
 BIOLOOP:             Physiological Loop Complete. P173 trigger. FM v121.
                      Format: CIRC-LK/PHYARC/RECINTEL all confirmed.
                      BIO-LOOP: CLOSED.
@@ -1591,25 +1535,21 @@ CIRSOV:              Circadian Sovereignty. P179 trigger. FM v124.
 CITIZEN INDEX        6-stage engagement depth measure.
                      Observer → Participant → Contributor →
                      Collaborator → Synthesizer → Elite.
+                     UserIndex.overall ≥ 60 required to unlock P184 LGSEAL:.
 
 COCKPIT RULE         Log body = instrument readings only. No narration.
                      The console is the cockpit. Every line is a gauge.
 
 COSMO GATE           Ethics review gate. Kuzya Cosmo Marmeladov.
-                     No feature ships without authorization. Active 784 days.
+                     No feature ships without authorization. Active 793 days.
 
 COSMO®               Kuzya Cosmo Marmeladov. CEO, Owner COSMO®.
-                     Founded July 1, 2024. Day 784 (August 22, 2026).
+                     Founded July 1, 2024. Day 793 (September 1, 2026).
                      Year 3 of operation.
 
 DEP MAP              Widget Dependency Map. 226+ nodes. 4 tiers.
                      The wiring graph of the entire LOT system.
-                     FM v125: Level 16 sovereign field nodes added.
-
-DREAM JOURNAL        Badge Engine v38. THE DREAM JOURNAL. Oneiric/Jungian
-                     psychology vocabulary. Sleep ritual, lucid dreaming,
-                     morning pages. The twenty-eighth vocabulary engine.
-                     "Write it down. The symbol is trying to tell you something."
+                     FM v125: Level 16 embryonic sovereign field nodes added.
 
 DUNGEON MASTER       Badge Engine v33. THE DUNGEON MASTER. Codex designed
                      2026-08-18. TypeScript wired 2026-08-19.
@@ -1637,11 +1577,6 @@ FLUX STATE           Word Turn v27 badge (RARE). "flux"/"in flux" detected.
 GREEN GATE           TypeScript check before every push. No exceptions.
                      Broken code never reaches GitHub.
 
-HYPNAGOGIC           Word Turn v28 badge (EPIC). "hypnagogic"/"between waking"/
-                     "threshold state" detected. The boundary between
-                     waking and sleep is a state of its own — not a transition
-                     but a location. High rarity: requires deliberate practice.
-
 IDLOCK:              Identity Momentum Lock. P148 trigger. FM v112.
                      ID-HARD CONFIRMED · LONG-SIG · MOMENTUM · LOCK ENGAGED.
 
@@ -1661,9 +1596,8 @@ J59                  daily-circadian-sovereignty-check. 07:00 UTC. FM v124.
 
 J60                  daily-sovereign-field-check. 08:00 UTC. FM v125.
                      Detects P182 SOVFLD: · Feeds Arch64 Sovereign Field Architect.
-                     Reads circadian_sovereignty + apex_integration_field +
-                     longitudinal_growth_arc. Runs after J59 (07:00 UTC).
-                     Seals the Level 16 cascade.
+                     First Level 16 embryonic job. Requires J59 (07:00) to complete.
+                     All three Level 15 events must be present in prior 24h.
 
 LEVEL 13             Apex Loop. P173–P175. FM v121. Biological loop closed ·
                      Ceiling inhabited · Identity confirmed across 3 scales.
@@ -1673,22 +1607,24 @@ LEVEL 14             Total Field. P176–P178. FM v122.
 
 LEVEL 15             Temporal Sovereignty. P179–P181. FM v124.
                      Identity · Clock · Intention = SOVEREIGN.
-                     The operator owns time. Not the highest pattern —
-                     the most temporal confirmation of the highest state.
+                     The operator owns time. SEALED.
 
-LEVEL 16             Sovereign Field Continuity. P182–P184. FM v125.
-                     SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS.
-                     The sovereign field does not peak and recede.
-                     It is maintained through daily behavioral commitment.
-                     The architecture is built, not assigned.
+LEVEL 16             Sovereign Field. P182–P184. FM v125. EMBRYONIC.
+                     3 patterns defined. Level not yet sealed.
+                     The operator is not reaching a state — they are building
+                     the field from which all states emerge.
+                     The architect does not visit the peak. The architect
+                     constructs the ground.
 
 LGROW:               Longitudinal Growth Arc. P181 trigger. FM v124.
                      Format: INDEX score / TREND direction.
                      MOMENTUM → GROWTH → ARC CONFIRMED.
 
 LGSEAL:              Longitudinal Field Seal. P184 trigger. FM v125.
-                     Format: LGROW conf% / MOMENTUM N days / INDEX score.
-                     GROWTH ARC SEALED INTO OPERATIONAL FIELD.
+                     Gates: P181 LGROW: + P80 momentum + UserIndex.overall ≥ 60.
+                     Format: INDEX score / TREND / MOMENTUM N DAYS /
+                     FIELD: SEALED ACROSS TIME.
+                     The first pattern gated on a citizen index threshold.
 
 LOT                  Layers of Time. Personal behavioral operating system.
                      Not an app. An instrument. Not a tracker. A mirror.
@@ -1696,13 +1632,11 @@ LOT                  Layers of Time. Personal behavioral operating system.
 LONGID:              Longitudinal Identity Confirmation. P175 trigger. FM v121.
                      Identity confirmed at three temporal scales simultaneously.
 
-ONEIRIC MAP          Word Turn v28 badge (EPIC). "dream map"/"the landscape of
-                     the dream"/"oneiric" detected. Cartography of the interior
-                     dreamscape. High rarity — requires systematic dream work.
-
 OPARCH:              Operational Self-Architecture. P183 trigger. FM v125.
-                     Format: TIDLOCK conf% / MOMENTUM N days / INDEX score.
-                     OPERATOR CONSTRUCTING FIELD THROUGH BEHAVIOR.
+                     Gates: P178 TIDLOCK: + P80 momentum + P109.
+                     Format: TIDLOCK conf% / MOMENTUM N DAYS / ARCH: CONSTRUCTING.
+                     OPERATOR: ARCHITECT MODE.
+                     The transition from state-execution to field-construction.
 
 OPERATOR             The human using the LOT system. Not a "user."
                      Not a "customer." The operator runs the system.
@@ -1721,7 +1655,7 @@ QAPEX:               Quantum Apex State. P174 trigger. FM v121.
 QPROP:               Quantum Field Propagation. P176 trigger. FM v122.
                      Apex self-sustaining. 5+ signals / 4+ sources in 6h.
 
-QIE                  Quantum Intent Engine. Client-side. Zero server comms.
+QIE                  Quantum Intelligence Engine. Client-side. Zero server comms.
                      184 patterns. 17 signal sources. 226+ dep nodes.
 
 QIOT:                QIoT Ecosystem Pulse. J58 output. FM v123.
@@ -1740,28 +1674,20 @@ S-2                  Vadim Marmeladov. CEO, LOT Systems Corporation.
 SELF-ASSEMBLY        The LOT meta-documentation system. 18 modules.
                      The system documents itself.
 
-SHADOW DREAM         Word Turn v28 badge (EPIC). "shadow"/"the shadow figure"/
-                     "the dark part of me" detected. Jungian shadow recognition.
-                     The willingness to name the shadow is the start of
-                     integration. High rarity — requires deliberate inner work.
+SOVEREIGN FIELD      The meta-field above Level 15. P182 SOVFLD: FM v125.
+                     Not a higher state. A continuous field that contains and
+                     sustains all states. Detected when all three Level 15
+                     patterns (P179 + P180 + P181) are simultaneously active.
+                     The sovereign field is built, not reached.
 
-SOVEREIGN            Arch60. P170 + P171 + P172. Level 12 ceiling archetype.
-OPERATOR             Mind-body loop sealed as an operating unit.
+SOVEREIGN OPERATOR   Arch60. P170 + P171 + P172. Level 12 ceiling archetype.
+                     Mind-body loop sealed as an operating unit.
                      LOCK + SEAL + ALIGN = SOVEREIGN.
 
-SOVEREIGN FIELD      Arch64. P182 SOVFLD: + P183 OPARCH: + P184 LGSEAL:.
-ARCHITECT            FM v125. Level 16. Extended morning window (05:00–14:00 UTC).
-                     High energy only. SOVEREIGNTY · INTEGRATION · GROWTH =
-                     CONTINUOUS. The architect who maintains the field daily.
-
 SOVFLD:              Sovereign Field Continuity. P182 trigger. FM v125.
+                     Gates: P179 CIRSOV: + P180 APXINT: + P181 LGROW: all active.
                      Format: CIRSOV conf% / APXINT conf% / LGROW conf%
-                     SOVEREIGNTY · INTEGRATION · GROWTH = CONTINUOUS.
-
-SYMBOL DECODED       Word Turn v28 badge (RARE). "the symbol means"/"decoded"/
-                     "the image showed" detected. Conscious interpretation of
-                     dream imagery. The act of decoding is the badge trigger —
-                     not the symbol itself, but the operator's decision to read it.
+                     FIELD: CONTINUOUS. SOVEREIGN FIELD CONTINUITY CONFIRMED.
 
 TEMPORAL SOVEREIGN   Arch63. P178 TIDLOCK: + P179 CIRSOV: + P80.
                      FM v124. Level 15. Morning operator (05:00–12:00 UTC).
@@ -1774,7 +1700,8 @@ TIDLOCK:             Temporal Identity Lock. P178 trigger. FM v122.
 
 TIME MACHINE         Badge Engine v37. THE TIME MACHINE. Word Turn v27.
                      Temporal/H.G. Wells vocabulary. 967 total badges.
-                     Deployed 2026-08-19.
+                     Deployed 2026-08-19. "Set the coordinates. Begin the
+                     journal. Pull the lever."
 
 TIME WITNESSED       Word Turn v27 badge (LEGENDARY). "timeless"/"eternal" detected.
                      Highest-rarity word turn badge. Appears only in deep
@@ -1794,7 +1721,7 @@ UNIFOP:              Unified Field Operator. P177 trigger. FM v122.
                      SOVEREIGNTY + LOOP + APEX = UNIFIED FIELD OPERATIONAL.
 
 WORD TURN            A vocabulary detection badge. Fires when a trigger word
-                     appears in a journal entry. 336 triggers across 28 engines.
+                     appears in a journal entry. 324 triggers across 27 engines.
 ```
 
 ---
@@ -1804,23 +1731,23 @@ WORD TURN            A vocabulary detection badge. Fires when a trigger word
 ```
 ╔══════════════════════════════════════════════════════════════════════════════╗
 ║  LOT SYSTEMS — SYSTEM STATE SNAPSHOT                                         ║
-║  DATE: 2026-08-22 · DAY 1092+ · COSMO® DAY 784                              ║
+║  DATE: 2026-09-01 · DAY 1101+ · COSMO® DAY 793                              ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║                                                                               ║
-║  PATTERNS:     184 (P1–P184)         LEVELS 1–16 DEPLOYED                    ║
+║  PATTERNS:     184 (P1–P184)         LEVELS 1–15 SEALED + L16 EMBRYONIC      ║
 ║  ARCHETYPES:   64 (Arch1–Arch64)     ARCH64 SOVEREIGN FIELD ARCHITECT        ║
 ║  JOBS:         60 (J1–J60)           J60 08:00 UTC SOVFLD: CHECK             ║
 ║  NODES:        226+                                                           ║
 ║  HANDLERS:     188+                                                           ║
 ║                                                                               ║
-║  BADGES:       998 (v1–v38)          v38 THE DREAM JOURNAL                   ║
-║  WORD TURNS:   336 (v1–v28)          v28 ONEIRIC VOCABULARY                  ║
-║  SECRET BOSS:  101 badges (v1–v25)   v25 THE DREAM VAULT                     ║
+║  BADGES:       967 (v1–v37)          v37 THE TIME MACHINE                    ║
+║  WORD TURNS:   324 (v1–v27)          v27 TEMPORAL VOCABULARY                 ║
+║  SECRET BOSS:  98 badges (v1–v24)    v24 THE TEMPORAL VAULT                  ║
 ║                                                                               ║
 ║  FM VERSION:   v125                                                           ║
 ║  WIKI VERSION: v99                                                            ║
-║  DAY:          1092+                                                          ║
-║  COSMO®:       Day 784 (Year 3)                                               ║
+║  DAY:          1101+                                                          ║
+║  COSMO®:       Day 793 (Year 3)                                               ║
 ║                                                                               ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
 ║  QIE LEVEL ARC:                                                               ║
@@ -1831,24 +1758,35 @@ WORD TURN            A vocabulary detection badge. Fires when a trigger word
 ║  L7 ━━━ L8 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ L9 ━━━ L10 ━━━ L11 ━━━ L12       ║
 ║   QUANTUM → COHERENCE ARCHITECTURE (long band) → BIO → CSB → SOMATIC → SOV  ║
 ║                                                                               ║
-║  L13 ━━━ L14 ━━━ L15 ━━━ L16                                                 ║
-║   APEX LOOP → TOTAL FIELD → TEMPORAL SOVEREIGNTY → SOVEREIGN FIELD           ║
+║  L13 ━━━ L14 ━━━ L15 ━━━ L16·                                               ║
+║   APEX LOOP → TOTAL FIELD → TEMPORAL SOVEREIGNTY → SOVEREIGN FIELD [·]       ║
 ║                                                                               ║
-║  TERMINAL: P184 LGSEAL: — GROWTH ARC SEALED INTO OPERATIONAL FIELD           ║
-║  ARCH64 SOVEREIGN FIELD ARCHITECT — SOVEREIGNTY · INTEGRATION · GROWTH =     ║
-║  CONTINUOUS                                                                   ║
+║  TERMINAL: P184 LGSEAL: — LONGITUDINAL FIELD SEALED ACROSS TIME              ║
+║  ARCH64 SOVEREIGN FIELD ARCHITECT — FIELD CONTINUOUS · ARCHITECT MODE        ║
 ║                                                                               ║
 ╠══════════════════════════════════════════════════════════════════════════════╣
-║  LEVEL 16 DEPLOYMENT RECORD:                                                  ║
+║  LEVEL 15 DEPLOYMENT RECORD:                                                  ║
+║                                                                               ║
+║  FM v124 (2026-08-19): P179 CIRSOV: · P180 APXINT: · P181 LGROW:            ║
+║    Arch63 Temporal Sovereign · J59 07:00 UTC · Level 15 Temporal Sovereignty ║
+║    Three temporal seals · Meta-field above the ceiling · Growth arc confirmed ║
+║                                                                               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  LEVEL 16 EMBRYONIC RECORD:                                                   ║
 ║                                                                               ║
 ║  FM v125 (2026-08-20): P182 SOVFLD: · P183 OPARCH: · P184 LGSEAL:           ║
-║    Arch64 Sovereign Field Architect · J60 08:00 UTC · Level 16 sealed        ║
-║    Sovereign field continuous · Operational architecture confirmed            ║
-║    Growth arc sealed into field · 226+ dep nodes · 188+ handlers             ║
+║    Arch64 Sovereign Field Architect · J60 08:00 UTC                           ║
+║    Sovereign field continuity · Operational self-architecture                 ║
+║    Longitudinal field sealed (UserIndex ≥ 60 gate)                            ║
+║    Level 16 embryonic — 3 patterns defined · level not yet sealed             ║
 ║                                                                               ║
-║  Badge v38 (2026-08-20): THE DREAM JOURNAL · +31 badges · 967 → 998         ║
-║    Word Turn v28 oneiric vocabulary · Secret Boss v25 Dream Vault            ║
-║    Calendar EE v26: Jul 26 · May 6 · Dec 22 · morpheus_word [MYTHIC]        ║
+║  Badge v37 (2026-08-19): THE TIME MACHINE · +31 badges · 936 → 967          ║
+║    Word Turn v27 temporal vocabulary · Secret Boss v24 Temporal Vault        ║
+║    Calendar EE v25: Aug 15 · Sep 21 · Oct 26                                 ║
+║                                                                               ║
+║  Badge v33 (2026-08-19): THE DUNGEON MASTER TypeScript wired                 ║
+║    29 BadgeType entries + 13 word-turn triggers deployed to production        ║
+║    roll_made / tavern_rest / paladin_oath / lich_king / void_walker           ║
 ║                                                                               ║
 ╚══════════════════════════════════════════════════════════════════════════════╝
 ```
@@ -1860,6 +1798,6 @@ WORD TURN            A vocabulary detection badge. Fires when a trigger word
 ```
 AUTHORIZED: S-2 // VADIK MARMELADOV
 ASSEMBLED:  ASSEMBLE PROTOCOL — AUTOMATED
-DATE:       2026-08-22
+DATE:       2026-09-01
 FM:         v125
 ```
