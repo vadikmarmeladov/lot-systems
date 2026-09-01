@@ -58,16 +58,15 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
             'flex items-start w-full',
             !!props.onClick && 'group cursor-pointer'
           )}
+          role={props.onClick ? 'button' : undefined}
+          tabIndex={props.onClick ? 0 : undefined}
           onClick={(e) => {
             if (!props.onClick) return
 
-            // Don't trigger parent onClick if click came from an interactive element
-            // (buttons, links, or elements with their own onClick handlers)
             let target = e.target as HTMLElement
             const currentEl = e.currentTarget as HTMLElement
 
             while (target && target !== currentEl) {
-              // Check if this element is interactive
               if (
                 target.tagName === 'BUTTON' ||
                 target.tagName === 'A' ||
@@ -75,13 +74,19 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
                 target.onclick !== null ||
                 target.getAttribute('role') === 'button'
               ) {
-                return // Don't trigger parent onClick
+                return
               }
               target = target.parentElement as HTMLElement
             }
 
-            // Safe to trigger parent onClick
             props.onClick()
+          }}
+          onKeyDown={(e) => {
+            if (!props.onClick) return
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault()
+              props.onClick()
+            }
           }}
         >
           <div
@@ -101,12 +106,21 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
                   ),
                 props.labelClassName
               )}
+              role={props.onLabelClick ? 'button' : undefined}
+              tabIndex={props.onLabelClick ? 0 : undefined}
               onClick={(e) => {
                 if (props.onLabelClick) {
-                  // Prevent parent onClick from firing if both handlers exist
                   if (props.onClick) {
                     e.stopPropagation()
                   }
+                  props.onLabelClick()
+                }
+              }}
+              onKeyDown={(e) => {
+                if (!props.onLabelClick) return
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  if (props.onClick) e.stopPropagation()
                   props.onLabelClick()
                 }
               }}
@@ -131,15 +145,26 @@ export const Block: React.FC<Props> = ({ blockView = false, ...props }) => {
                     : '',
                   props.labelClassName
                 )}
+                role={props.onChildrenClick ? 'button' : undefined}
+                tabIndex={props.onChildrenClick ? 0 : undefined}
                 onClick={(e) => {
                   if (props.onChildrenClick) {
-                    // Prevent parent onClick from firing if both handlers exist
                     if (props.onClick) {
                       e.stopPropagation()
                     }
                     props.onChildrenClick()
                   } else if (props.onClick) {
-                    // Stop propagation to prevent parent div from also calling onClick
+                    e.stopPropagation()
+                    props.onClick()
+                  }
+                }}
+                onKeyDown={(e) => {
+                  if (e.key !== 'Enter' && e.key !== ' ') return
+                  e.preventDefault()
+                  if (props.onChildrenClick) {
+                    if (props.onClick) e.stopPropagation()
+                    props.onChildrenClick()
+                  } else if (props.onClick) {
                     e.stopPropagation()
                     props.onClick()
                   }
