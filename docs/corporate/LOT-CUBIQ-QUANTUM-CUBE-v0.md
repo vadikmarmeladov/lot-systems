@@ -321,6 +321,58 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE COHORT ECHO                              2026-09-01
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect,"
+  shared living space (partner present most evenings), CUBIQ charging
+  pad on a small side table between a reading chair and a shared sofa —
+  not a private desk, a room two people occupy at once.
+
+  This use case exists because Use Case 01 assumed a solitary desk. Most
+  operators do not have one. The cube has to behave correctly when a
+  second person is in the room and was never asked to consent to
+  anything.
+
+  EVENING, ~21:40. The operator's cohort — the QIE-assigned group of
+  operators sharing their behavioral rhythm (LOT-CUBIQ-OPERATOR.md,
+  Section 05, COHORT CONNECT) — crosses a resonance threshold: three
+  cohort members complete a self-care streak milestone within the same
+  quarter-hour window. The Index of Systems fires a cohort resonance
+  ping. Under the four-gesture vocabulary (Section 04) this is not a
+  badge-unlock event and not a memory question — it is routed to THE HOP:
+  a single controlled vertical hop, <10mm rise, lands in place.
+
+  The partner is on the sofa, three feet away, reading. THE HOP is sized
+  deliberately for this: <10mm rise is visible only to someone already
+  looking at the cube, and inaudible over normal room noise (this is why
+  v.0 Section 03 specifies a voice-coil actuator over a solenoid — quiet
+  operation was chosen for exactly this shared-room case, not just for
+  desk comfort). No chime, no vibration through furniture reaching the
+  sofa. The partner does not look up. The operator, mid-page, catches
+  the small motion in peripheral vision and knows without translation
+  what it means — their cohort moved together tonight.
+
+  Twenty minutes later the operator's own assembly phase advances
+  (forming → assembled, per LOT-CUBIQ-OPERATOR.md Section 03, ASSEMBLY
+  STATE). This is a heavier signal than a cohort ping, and the vocabulary
+  routes it to THE SETTLE: 2 seconds of standing pressure, no visible
+  motion. In a shared room, this is the correct choice for a second
+  reason beyond Section 04's "presence without spectacle" principle —
+  a phase-advance is personal progress, not a shared event, and THE
+  SETTLE is the one gesture in the v.0 vocabulary that communicates
+  entirely through touch, never through motion a third party could
+  observe and ask about. The operator's own hand, resting near the cube,
+  feels the two-second press. The partner reading three feet away has no
+  idea anything happened. Nothing about the operator's Index of Systems
+  was disclosed to a person who did not opt into it.
+
+  This is the case v.0's amplitude tiering (sub-threshold NUDGE, <10mm
+  HOP, ~40mm LEAP, motionless SETTLE — Section 04) was built to serve:
+  four gestures are not four volumes of the same alert, they are four
+  different privacy postures, chosen by the signal class itself, so the
+  operator never has to manually silence the cube before someone else
+  enters the room.
+
 --------------------------------------------------------------------------------
 08 // BRAND
 --------------------------------------------------------------------------------
