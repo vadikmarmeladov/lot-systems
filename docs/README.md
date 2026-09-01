@@ -73,6 +73,18 @@ Security documentation and repository maintenance.
 - Security Fixes - Security issue resolution
 - Repository Issues Summary - Known issues and fixes
 
+### [Hardware](./hardware/)
+LOT® Computer — physical notification & capture device. Plan, BOM,
+roadmap, firmware, and software-bridge specs, plus a printed manual.
+
+**Key Documents:**
+- [LOT-COMPUTER-PLAN-v1](../docs/corporate/LOT-COMPUTER-PLAN-v1.md) - Master plan (form, function, manufacturing)
+- [LOT-COMPUTER-BOM](./hardware/LOT-COMPUTER-BOM.md) - Components list with vendor links, 100-unit pilot
+- [LOT-COMPUTER-ROADMAP](./hardware/LOT-COMPUTER-ROADMAP.md) - v0.1 bench prototype → v1.0 pilot production
+- [LOT-COMPUTER-FIRMWARE](./hardware/LOT-COMPUTER-FIRMWARE.md) - On-device firmware spec
+- [LOT-COMPUTER-SOFTWARE-BRIDGE](./hardware/LOT-COMPUTER-SOFTWARE-BRIDGE.md) - Server-side API + Log tab integration
+- [LOT-COMPUTER-MANUAL](./hardware/LOT-COMPUTER-MANUAL.md) ([PDF](./hardware/LOT-COMPUTER-MANUAL.pdf)) - Printed quick-start manual
+
 ## 🚀 Quick Links
 
 - [Main README](../README.md) - Project overview
