@@ -226,3 +226,29 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## New Communication Surfaces Ride Existing Pipes First
+
+Before adding a table, a route, or an SSE event for a new message-shaped
+feature, check whether an existing pipe already does the persist +
+broadcast + log-record job. LOT Chat (ChatMessage + POST /api/chat-messages
++ sync.emit('chat_message') + auto Log write) already is: persisted,
+gated, real-time, and journaled. A new surface can ride it by tagging the
+message text with a distinguishing header (the same idiom Calendar uses
+for [SCHEDULE]) and teaching the two render sites — the feed and the Log
+tab's replay of that event — to recognize the tag. This ships a real,
+working feature with zero migration risk and zero new attack surface,
+and it composes: a later session can still give the tag its own table,
+route, and resolution logic without touching the compose-side trigger
+code, because the parse/tag boundary was already drawn.
+
+Corollary: when the "correct" version of a feature requires infrastructure
+that does not exist yet (here: a user directory / cohort-match resolver
+for "LOT Mail" recipients), do not stub or fake that infrastructure. Ship
+the honest simplest form — cohort-broadcast addressing inside the shared
+gated channel — and record in the report exactly what a next iteration
+would need to add real 1:1 resolution (DirectMessage already has the
+send/thread pipeline in src/server/routes/api.ts).
+(SR-20260901-01: LOT Mail — /email Log trigger dispatched through
+useCreateChatMessage; MAIL_HEADER_PREFIX tag recognized in Sync.tsx and
+Logs.tsx's chat_message case; no new table/route/SSE event.)

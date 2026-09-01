@@ -32,6 +32,18 @@ import {
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
   isBlankMessage,
 } from '#shared/constants'
+import { MAIL_HEADER_PREFIX } from '#client/utils/logTriggers'
+
+// "✉ MAIL → Hitomi: body text" -> { recipient: 'Hitomi', body: 'body text' }
+// LOT Mail rides the Sync/LOT Chat feed itself — this just recognizes the
+// tag on render so cohort mail reads distinctly from ordinary chat.
+function parseMailMessage(message: string): { recipient: string; body: string } | null {
+  if (!message.startsWith(MAIL_HEADER_PREFIX)) return null
+  const rest = message.slice(MAIL_HEADER_PREFIX.length)
+  const sepIdx = rest.indexOf(': ')
+  if (sepIdx === -1) return { recipient: rest, body: '' }
+  return { recipient: rest.slice(0, sepIdx), body: rest.slice(sepIdx + 2) }
+}
 
 const CHAT_ALLOWED_TAGS: string[] = [
   UserTag.Admin,
@@ -223,6 +235,7 @@ export const Sync = React.memo(function SyncInner() {
               ? `${authorObj.firstName || ''} ${authorObj.lastName || ''}`.trim() || 'Unknown'
               : 'Unknown'
           const authorId = authorObj?.id || x.authorUserId
+          const mail = parseMailMessage(x.message)
 
           return (
             <div
@@ -251,7 +264,16 @@ export const Sync = React.memo(function SyncInner() {
                   wordBreak: 'break-word',
                 }}
               >
-                {x.message}
+                {mail ? (
+                  <>
+                    <Tag className="text-acc/60 border-acc/40 mr-8 select-none" fill={false} title="LOT Mail — cohort message">
+                      ✉ MAIL → {mail.recipient.toUpperCase()}
+                    </Tag>
+                    {mail.body}
+                  </>
+                ) : (
+                  x.message
+                )}
               </div>
 
               {!!x.likes && (

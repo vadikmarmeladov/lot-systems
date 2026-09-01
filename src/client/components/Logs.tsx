@@ -28,12 +28,12 @@ import {
   playSynthActivationChime,
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
-import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
+import { detectNewTriggers, parseMailCommand, MAIL_HEADER_PREFIX, type LogTrigger } from '#client/utils/logTriggers'
 import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useCreateChatMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -245,10 +245,12 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             </LogContainer>
           )
         } else if (log.event === 'chat_message') {
+          const chatText = log.metadata.message as string
+          const isMail = chatText?.startsWith(MAIL_HEADER_PREFIX)
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label="COMM:" blockView>
-                {log.metadata.message as string}
+              <Block label={isMail ? 'MAIL:' : 'COMM:'} blockView>
+                {chatText}
               </Block>
             </LogContainer>
           )
@@ -3713,6 +3715,24 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [mailResult, setMailResult] = React.useState<string | null>(null)
+  const [mailLoading, setMailLoading] = React.useState(false)
+  const lastMailRecipientRef = React.useRef<string | null>(null)
+  const { mutate: submitMail } = useCreateChatMessage({
+    onSuccess: () => {
+      setMailLoading(false)
+      setMailResult(lastMailRecipientRef.current
+        ? `DISPATCHED TO       ${lastMailRecipientRef.current.toUpperCase()}\nCHANNEL             LOT COMMUNITY · SYNC\nSTATUS              LIVE`
+        : 'DISPATCHED\nSTATUS              LIVE')
+    },
+    onError: (error) => {
+      setMailLoading(false)
+      const gated = error?.response?.status === 403
+      setMailResult(gated
+        ? 'DISPATCH FAILED\nREASON              SYNC REQUIRES USERSHIP, ONYX, LEGACY, R&D, OR ADMIN'
+        : 'DISPATCH FAILED\nREASON              COHORT CHANNEL UNREACHABLE')
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4139,6 +4159,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Dispatch LOT Mail to a cohort member — appears in Sync',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4147,6 +4168,16 @@ const NoteEditor = ({
         setSystemHelp(lines.join('\n'))
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
+      } else if (trigger === 'email-compose') {
+        const parsed = parseMailCommand(value)
+        if (parsed && !mailLoading) {
+          setMailLoading(true)
+          setMailResult(null)
+          lastMailRecipientRef.current = parsed.recipient
+          const header = `${MAIL_HEADER_PREFIX}${parsed.recipient}`
+          const message = parsed.body ? `${header}: ${parsed.body}` : header
+          submitMail({ message })
+        }
       } else if (trigger === 'story-mode') {
         if (!storyLoading) {
           setStoryLoading(true)
@@ -4384,6 +4415,20 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {(mailLoading || mailResult) && (
+          <div className="mt-8">
+            <Block label="MAIL:" blockView>
+              {mailLoading && !mailResult && (
+                <div className="opacity-40 tracking-widest">...</div>
+              )}
+              {mailResult && (
+                <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
+                  {mailResult}
+                </div>
+              )}
             </Block>
           </div>
         )}

@@ -41,6 +41,7 @@ export type LogTrigger =
   | 'system-help'       // /system — list all available slash commands
   | 'story-mode'        // /story — generate contextual story from recent data
   | 'how-checkin'       // /how — open LOT AI check-in (navigates to System tab)
+  | 'email-compose'     // /email or /mail — compose LOT Mail to a cohort member, dispatched via Sync
 
 interface TriggerRule {
   trigger: LogTrigger
@@ -67,6 +68,7 @@ const RULES: TriggerRule[] = [
   { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'] },
   { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'] },
   { trigger: 'how-checkin',    emojis: [],        keywords: ['how'] },
+  { trigger: 'email-compose',  emojis: ['✉️', '✉'], keywords: ['email', 'mail'] },
 ]
 
 /**
@@ -114,4 +116,32 @@ export function detectNewTriggers(
   const fresh: LogTrigger[] = []
   current.forEach(t => { if (!prior.has(t)) fresh.push(t) })
   return fresh
+}
+
+export interface ParsedMail {
+  recipient: string
+  body: string
+}
+
+// LOT Mail rides the LOT Chat (Sync) pipeline — no new table, no new SSE
+// event. Messages are tagged with this header so Sync and the Log tab can
+// style them distinctly from ordinary chat, the same bracket-tag idiom the
+// Calendar widget already uses for [SCHEDULE] entries.
+export const MAIL_HEADER_PREFIX = '✉ MAIL → '
+
+/**
+ * Parses "/email to <Name>[.,:!] <body>" (or /mail, or the ✉️ emoji
+ * followed by "to <Name>") out of a log entry. The recipient is the
+ * single word right after "to"; everything else in the log — before
+ * and after the command — becomes the mail body. Returns null when no
+ * recipient can be found, e.g. a bare "/email" with nothing addressed.
+ */
+export function parseMailCommand(text: string): ParsedMail | null {
+  const match = text.match(/(?:\/(?:email|mail)|✉️?)\s+to\s+([A-Za-z][A-Za-z'-]*)[.,:!]?/i)
+  if (!match) return null
+  const recipient = match[1]
+  const body = (text.slice(0, match.index) + text.slice((match.index ?? 0) + match[0].length))
+    .replace(/[✉️]/g, '')
+    .trim()
+  return { recipient, body }
 }
