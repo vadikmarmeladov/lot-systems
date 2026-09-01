@@ -172,6 +172,8 @@ const SIGNAL_MAP: Record<string, ModuleId> = {
   'cognitive-load-release': 'selfcare',
   'cognitive_load_release': 'selfcare',
   'calendar_entry':            'calendar',
+  'calendar_entry_status':     'calendar',
+  'calendar_event_fired':      'calendar',
   'calendar_update':           'calendar',
   'temporal-coherence-window': 'calendar',
   'temporal_coherence_window': 'calendar',

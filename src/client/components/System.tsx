@@ -51,6 +51,7 @@ import { EvolutionWidget } from './EvolutionWidget'
 import { CohortConnectWidget } from './CohortConnectWidget'
 import { InterfaceEvolutionWidget } from './InterfaceEvolutionWidget'
 import { EvolutionMilestoneToast } from './EvolutionMilestoneToast'
+import { CalendarEventNotification } from './CalendarEventNotification'
 import { MicroCalculatorWidget } from './MicroCalculatorWidget'
 import { MicroImageWidget } from './MicroImageWidget'
 import { checkRecipeWidget } from '#client/stores/recipeWidget'
@@ -383,13 +384,27 @@ export const System = React.memo(function SystemInner() {
   // Temporal Planner — next scheduled calendar entry, from QIE signal pipeline
   const upcomingCalendar = React.useMemo(() => {
     const today = dayjs().format('YYYY-MM-DD')
+    // Entries marked done/cancelled via a calendar_entry_status log are resolved
+    // and shouldn't keep surfacing here as "next up".
+    const resolvedIds = new Set<string>()
+    logs.forEach(log => {
+      if (log.event === 'calendar_entry_status' && log.metadata?.entryId) {
+        resolvedIds.add(log.metadata.entryId as string)
+      }
+    })
     const entries = logs
-      .filter(log => log.event === 'calendar_entry' && log.metadata?.date && (log.metadata.date as string) >= today)
+      .filter(log =>
+        log.event === 'calendar_entry' &&
+        log.metadata?.date &&
+        (log.metadata.date as string) >= today &&
+        !(log.metadata?.id && resolvedIds.has(log.metadata.id as string))
+      )
       .map(log => ({
         date: log.metadata!.date as string,
+        time: (log.metadata!.time as string) || null,
         text: (log.metadata!.text as string) || log.text || '',
       }))
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => `${a.date} ${a.time || '00:00'}`.localeCompare(`${b.date} ${b.time || '00:00'}`))
     return { next: entries[0] ?? null, count: entries.length }
   }, [logs])
 
@@ -725,6 +740,7 @@ export const System = React.memo(function SystemInner() {
         <div>
           <Block label="Next:">
             {dayjs(upcomingCalendar.next.date).format('ddd, MMMM D')}
+            {upcomingCalendar.next.time && ` ${upcomingCalendar.next.time}`}
             {' — '}
             {upcomingCalendar.next.text}
             {upcomingCalendar.count > 1 && ` (+${upcomingCalendar.count - 1} more)`}
@@ -1055,6 +1071,7 @@ export const System = React.memo(function SystemInner() {
       {/* Calendar — Personal date planner */}
       <WidgetErrorBoundary name="Calendar">
         <CalendarWidget />
+        <CalendarEventNotification />
       </WidgetErrorBoundary>
 
       <WidgetErrorBoundary name="Benchmark">
