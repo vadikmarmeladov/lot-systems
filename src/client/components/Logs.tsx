@@ -29,7 +29,7 @@ import {
   playSynthDeactivationChime,
 } from '#client/utils/sovietKeyboard'
 import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
-import { runJournalEasterEggs } from '#client/utils/easter-eggs'
+import { runJournalEasterEggs, checkChronicleKeeper } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
@@ -3745,11 +3745,15 @@ const NoteEditor = ({
       setStoryLoading(false)
       const current = valueRef.current
       const separator = current.trim() ? '\n\n' : ''
-      const updated = current + separator + '📖 ' + data.story
+      const label = data.period ? `📖 [${data.period.toUpperCase()}] ` : '📖 '
+      const updated = current + separator + label + data.story
       setValue(updated)
       valueRef.current = updated
       onChangeRef.current(updated)
       setIsSaved(true)
+      if (data.period) {
+        try { checkChronicleKeeper(data.period) } catch {}
+      }
     },
     onError: () => {
       const fallback = 'The system holds your data quietly. When the engine returns, your story will be here.'
@@ -4125,7 +4129,11 @@ const NoteEditor = ({
           'AVAILABLE COMMANDS',
           '',
           '/prayer       Generate contextual scripture',
-          '/story        Generate a personal story from recent data',
+          '/story        Compress recent data into a personal story',
+          '/story day    Compress the last day into a story',
+          '/story week   Compress the last week into a story',
+          '/story month  Compress the last month into a story',
+          '/story year   Compress the last year into a story',
           '/scan         System status overview',
           '/qi [query]   Ask the Quantum Intelligence engine',
           '/assembly     Self-assembly module status',
@@ -4151,17 +4159,28 @@ const NoteEditor = ({
         if (!storyLoading) {
           setStoryLoading(true)
           setStoryResponse(null)
+          // /story day|week|month|year compresses that window; bare /story
+          // keeps the original flat "recent journey" behavior.
+          const periodMatch = value.match(/\/story\s+(day|week|month|year)\b/i)
+          const period = periodMatch
+            ? (periodMatch[1].toLowerCase() as 'day' | 'week' | 'month' | 'year')
+            : undefined
           try {
-            const logText = value.replace(/\/story/i, '').replace(/📖/g, '').trim()
+            const logText = value
+              .replace(/\/story\s+(day|week|month|year)\b/i, '')
+              .replace(/\/story\b/i, '')
+              .replace(/📖/g, '')
+              .trim()
             const state = getUserState()
             const index = getUserIndex()
             submitStory({
               logText,
+              period,
               quantumState: state,
               userIndex: index,
             })
           } catch {
-            submitStory({ logText: value })
+            submitStory({ logText: value, period })
           }
         }
       }

@@ -2715,3 +2715,33 @@ export function checkThresholdMoment(): BadgeType | null {
   return null
 }
 
+// ── Behavioral — LOG COMPRESSION (Story Periods) ─────────────────────────────
+
+/**
+ * Award chronicle_keeper badge once /story has been invoked with all four
+ * period windows — day, week, month, year — at least once each. Call after
+ * a successful period-scoped /story generation, passing the period used.
+ */
+export function checkChronicleKeeper(
+  period: 'day' | 'week' | 'month' | 'year'
+): BadgeType | null {
+  if (typeof window === 'undefined') return null
+  if (hasBadge('chronicle_keeper')) return null
+
+  try {
+    const key = 'story_periods_used'
+    const stored = localStorage.getItem(key)
+    const used = new Set<string>(stored ? JSON.parse(stored) : [])
+    used.add(period)
+    localStorage.setItem(key, JSON.stringify([...used]))
+
+    const ALL_PERIODS = ['day', 'week', 'month', 'year']
+    if (ALL_PERIODS.every(p => used.has(p))) {
+      awardBadge('chronicle_keeper')
+      return 'chronicle_keeper'
+    }
+  } catch { /* non-critical */ }
+
+  return null
+}
+

@@ -782,6 +782,8 @@ export type BadgeType =
   | 'tolkien_ring'           // ◆·∞·◆  "one ring to rule/precious/ring of power" detected (RARE)
   | 'odysseus_bow'           // →·∞·→  "odysseus/ulysses/ithaca/penelope/cyclops" detected (EPIC)
   | 'gilgamesh_word'         // ∞·□·∞  "gilgamesh/enkidu/great flood/utnapishtim" detected (MYTHIC)
+  // ── Behavioral — LOG COMPRESSION (Story Periods) ─────────────────────────────
+  | 'chronicle_keeper'       // ◇·≋·◇  /story compressed across all 4 periods — day, week, month, year (EPIC)
 
 export interface Badge {
   id: BadgeType
@@ -7129,6 +7131,17 @@ export const BADGES: Record<BadgeType, Badge> = {
     unlockMessage: '↳ Gilgamesh: the oldest hero\'s journey. 4,000 years old. The story of a king who sought immortality and found self-knowledge instead. ∞·□·∞',
     rarity: 'mythic',
     category: 'secret_boss',
+    hidden: true,
+  },
+  // ── Behavioral — LOG COMPRESSION (Story Periods) ───────────────────────────
+  chronicle_keeper: {
+    id: 'chronicle_keeper',
+    symbol: '◇·≋·◇',
+    name: 'Chronicle Keeper',
+    description: 'Compress /story across all four windows — day, week, month, and year',
+    unlockMessage: '↳ Day, week, month, year — every scale of the loop, compressed and returned to you. The chronicle is complete. ◇·≋·◇',
+    rarity: 'epic',
+    category: 'easter_egg',
     hidden: true,
   },
 }
