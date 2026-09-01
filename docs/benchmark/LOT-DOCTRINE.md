@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -17,6 +17,21 @@ memoized so only active-state changes trigger re-render. SR-20260719-01:
 System quantumState analyzeIntentions()+recomputeAssembly() moved
 useMemo->useEffect — 10 subscriber re-renders no longer block paint;
 SystemProgressWidget 60s recompute interval gated on !document.hidden.)
+
+Corollary — Child Memoization: the blast radius includes prop-stable
+children too, unless the child itself is wrapped in React.memo. React does
+not skip a function component's re-render just because its props are
+unchanged; only React.memo (or a key change) makes it bail out. A child
+with zero store subscriptions and zero props (e.g. a clock or a random-
+value widget) still re-renders on every parent re-render if unmemoized.
+Narrowing subscriptions (the base clause) stops re-renders CAUSED by the
+child; React.memo stops re-renders INHERITED from the parent — both are
+required for a leaf component to be render-isolated.
+(SR-20260901-01: widget health scan found 1/39 dashboard widgets React.memo
+wrapped; System.tsx re-renders on every useLogs() refetch and interval
+tick, cascading to zero-prop siblings like TimeWidget and
+QuantumRandomWidget. Not fixed this session — recommended as next
+session's first target, highest re-render cost widgets first.)
 
 ## Client Cache Freshness
 
