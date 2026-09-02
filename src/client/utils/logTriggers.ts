@@ -46,28 +46,60 @@ interface TriggerRule {
   trigger: LogTrigger
   emojis: string[]
   keywords: string[] // lower-case slash commands (without leading slash)
+  // Single source of truth for /system output — the command signature
+  // (as typed) and a one-line description. A rule with no `command` is
+  // invisible to the operator (e.g. the ❗ cohort-support signal) and is
+  // omitted from the help screen on purpose.
+  command?: string
+  describe?: string
 }
 
 const RULES: TriggerRule[] = [
-  { trigger: 'toggle-synth',   emojis: ['🎹'],    keywords: ['synth', 'keyboard'] },
-  { trigger: 'ai-scan',        emojis: [],       keywords: ['scan', 'ai'] },
-  { trigger: 'silent-mode',    emojis: [],       keywords: ['silent', 'quiet'] },
-  { trigger: 'breathe',        emojis: [],       keywords: ['breathe', 'breath'] },
-  { trigger: 'force-fast',     emojis: [],       keywords: ['fast'] },
-  { trigger: 'radio-toggle',   emojis: ['🎧'],    keywords: ['radio'] },
-  { trigger: 'night-mode',     emojis: ['🌙'],    keywords: ['night'] },
-  { trigger: 'prayer-mode',    emojis: ['🕯️', '🕯'], keywords: ['prayer', 'candle'] },
-  { trigger: 'freeze-widgets', emojis: ['🧊'],    keywords: ['freeze', 'pause'] },
+  { trigger: 'toggle-synth',   emojis: ['🎹'],    keywords: ['synth', 'keyboard'], command: '/synth', describe: 'Toggle keyboard sound' },
+  { trigger: 'ai-scan',        emojis: [],       keywords: ['scan', 'ai'], command: '/scan', describe: 'System status overview' },
+  { trigger: 'silent-mode',    emojis: [],       keywords: ['silent', 'quiet'], command: '/silent', describe: 'Signal silence check' },
+  { trigger: 'breathe',        emojis: [],       keywords: ['breathe', 'breath'], command: '/breathe', describe: '4-2-6 breathing exercise' },
+  { trigger: 'force-fast',     emojis: [],       keywords: ['fast'], command: '/fast', describe: 'Orthodox fasting calendar' },
+  { trigger: 'radio-toggle',   emojis: ['🎧'],    keywords: ['radio'], command: '/radio', describe: 'Toggle radio' },
+  { trigger: 'night-mode',     emojis: ['🌙'],    keywords: ['night'], command: '/night', describe: 'Dark mode' },
+  { trigger: 'prayer-mode',    emojis: ['🕯️', '🕯'], keywords: ['prayer', 'candle'], command: '/prayer', describe: 'Generate contextual scripture' },
+  { trigger: 'freeze-widgets', emojis: ['🧊'],    keywords: ['freeze', 'pause'], command: '/freeze', describe: 'Pause and reflect protocol' },
   { trigger: 'cohort-support', emojis: ['❗', '‼️', '‼'], keywords: [] },
-  { trigger: 'qos-report',     emojis: [],        keywords: ['qos', 'os-report'] },
-  { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'] },
-  { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'] },
+  { trigger: 'qos-report',     emojis: [],        keywords: ['qos', 'os-report'], command: '/qos', describe: 'Quantum OS state analysis' },
+  { trigger: 'assembly-check', emojis: [],        keywords: ['assembly', 'assemble'], command: '/assembly', describe: 'Self-assembly module status' },
+  { trigger: 'phys-report',    emojis: [],        keywords: ['phys', 'cohort-report'], command: '/phys', describe: 'Physiological cohort report' },
   { trigger: 'sil-check',      emojis: [],        keywords: ['sil', 'silence-check'] },
-  { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'] },
-  { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'] },
-  { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'] },
-  { trigger: 'how-checkin',    emojis: [],        keywords: ['how'] },
+  { trigger: 'qi-rfi',         emojis: [],        keywords: ['qi'], command: '/qi [query]', describe: 'Ask the Quantum Intelligence engine' },
+  { trigger: 'system-help',    emojis: [],        keywords: ['system', 'commands'], command: '/system', describe: 'This help screen' },
+  { trigger: 'story-mode',     emojis: ['📖'],    keywords: ['story'], command: '/story [day|week|month|year]', describe: 'Compress recent data into a personal story' },
+  { trigger: 'how-checkin',    emojis: [],        keywords: ['how'], command: '/how', describe: 'Open LOT AI check-in (System tab)' },
 ]
+
+/**
+ * The compression window a /story invocation asks for. Bare `/story`
+ * (or the 📖 emoji alone) defaults to 'day' — the finest grain the
+ * Log already narrates. Longer windows ask the server to compress a
+ * wider slice of the same signal stream into one story.
+ */
+export type StoryPeriod = 'day' | 'week' | 'month' | 'year'
+
+const STORY_PERIOD_RE = /\/story\s+(day|week|month|year)\b/i
+
+export function parseStoryPeriod(text: string): StoryPeriod {
+  const match = text.match(STORY_PERIOD_RE)
+  return (match ? match[1].toLowerCase() : 'day') as StoryPeriod
+}
+
+/**
+ * Renders the operator-facing command list from `RULES` so /system can
+ * never drift from what detectTriggers() actually recognizes — a rule
+ * added here without a `describe` stays a hidden/easter-egg trigger.
+ */
+export function getSystemHelpLines(): string[] {
+  return RULES.filter(r => r.command && r.describe).map(
+    r => `${r.command!.padEnd(13)} ${r.describe}`
+  )
+}
 
 /**
  * Returns every trigger present in `text`. An empty array means the
