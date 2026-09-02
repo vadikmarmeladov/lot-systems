@@ -120,6 +120,23 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+// LOT Email — composed in the Log via `/email to <Name>`. Server resolves
+// the name (works for any user, cohort matches included) and delivers it
+// as a DirectMessage(channel: 'email'), so it lands in the same /dm thread
+// as ordinary Sync chat.
+export interface SendEmailResponse {
+  id: string
+  receiverId: string
+  receiverName: string
+  message: string
+  createdAt: string
+}
+
+export const useSendEmail = createMutation<
+  { toName: string; message: string },
+  SendEmailResponse
+>('post', '/api/email')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

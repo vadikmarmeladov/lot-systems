@@ -126,6 +126,19 @@ export const CohortConnectWidget: React.FC = () => {
     stores.goTo('sync')
   }
 
+  // Cohort Dating -> LOT Email: opens the same /dm/:userId thread that a
+  // `/email to <Name>` Log command delivers into, so a cohort match found
+  // through LOT Community is one click from a LOT Email conversation.
+  const handleEmail = (userId: string, similarity: number) => {
+    recordSignal('mood', 'cohort_email_initiated', {
+      userId,
+      similarity,
+      connectionReadiness,
+      hour: new Date().getHours()
+    })
+    stores.goTo('dm', { userId })
+  }
+
   const handleToggleExpand = (userId: string) => {
     const willExpand = expandedMemberId !== userId
     if (willExpand) {
@@ -268,6 +281,15 @@ export const CohortConnectWidget: React.FC = () => {
                         }}
                       >
                         Send message
+                      </Button>
+                      <Button
+                        size="small"
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation()
+                          handleEmail(match.user.id, match.similarity)
+                        }}
+                      >
+                        ✉️ Email
                       </Button>
                     </div>
                   </div>

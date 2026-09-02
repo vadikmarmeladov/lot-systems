@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -3713,6 +3713,25 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const { mutate: submitEmail } = useSendEmail({
+    onSuccess: (data) => {
+      setEmailResult(`EMAIL SENT\nTO: ${data.receiverName.toUpperCase()}\nVIA: SYNC`)
+      setEmailLoading(false)
+    },
+    onError: (err) => {
+      const status = (err as any)?.response?.status
+      const serverMsg = (err as any)?.response?.data?.error
+      setEmailResult(
+        status === 404 ? `EMAIL FAILED — no user matching that name`
+        : status === 409 ? `EMAIL FAILED — name matches more than one person`
+        : serverMsg ? `EMAIL FAILED — ${String(serverMsg).toUpperCase()}`
+        : 'EMAIL FAILED — LOT Email offline.'
+      )
+      setEmailLoading(false)
+    },
+  })
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -4139,6 +4158,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Send this log as a LOT Email to X (via Sync)',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4147,6 +4167,20 @@ const NoteEditor = ({
         setSystemHelp(lines.join('\n'))
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
+      } else if (trigger === 'email-compose') {
+        const nameMatch = value.match(/[✉️✉]|\/email\s+to\s+([a-zA-Z][a-zA-Z'-]*)/i)
+        const toName = nameMatch?.[1]?.trim()
+        const body = value
+          .replace(/\/email\s+to\s+[a-zA-Z][a-zA-Z'-]*\.?/i, '')
+          .replace(/✉️?/g, '')
+          .trim()
+        if (toName && toName.length >= 2 && body.length > 0 && !emailLoading) {
+          setEmailLoading(true)
+          setEmailResult(null)
+          submitEmail({ toName, message: body })
+        } else if (!toName || toName.length < 2) {
+          setEmailResult('EMAIL — usage: /email to <Name> <message>')
+        }
       } else if (trigger === 'story-mode') {
         if (!storyLoading) {
           setStoryLoading(true)
@@ -4332,6 +4366,18 @@ const NoteEditor = ({
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>
                 {scanResult}
               </div>
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="✉️ EMAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Sending...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60" style={{ whiteSpace: 'pre-wrap' }}>{emailResult}</div>
+              )}
             </Block>
           </div>
         )}

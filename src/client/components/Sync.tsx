@@ -33,6 +33,15 @@ import {
   isBlankMessage,
 } from '#shared/constants'
 
+interface EmailNotice {
+  id: string
+  otherUserId: string
+  otherUserName: string | null
+  isMine: boolean
+  message: string
+  createdAt: string
+}
+
 const CHAT_ALLOWED_TAGS: string[] = [
   UserTag.Admin,
   UserTag.RND,
@@ -52,6 +61,10 @@ export const Sync = React.memo(function SyncInner() {
   const [message, setMessage] = React.useState('')
   // SSE-received messages not yet reflected in the API response
   const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // LOT Email notifications (direct_message SSE events with channel: 'email')
+  // involving the current user. Session-only — Sync is a live feed, not a
+  // mailbox; the full thread lives at /dm/:userId.
+  const [emailNotices, setEmailNotices] = React.useState<EmailNotice[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -117,9 +130,32 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeEmailListener } = sync.listen(
+      'direct_message',
+      (data: any) => {
+        if (data.channel !== 'email' || !me?.id) return
+        const isMine = data.senderId === me.id
+        if (!isMine && data.receiverId !== me.id) return
+        setEmailNotices((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [
+            {
+              id: data.id,
+              otherUserId: isMine ? data.receiverId : data.senderId,
+              otherUserName: isMine ? null : (data.senderName || 'Someone'),
+              isMine,
+              message: data.message,
+              createdAt: data.createdAt,
+            },
+            ...prev,
+          ].slice(0, 20)
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeEmailListener()
     }
   }, [me?.id])
 
@@ -151,6 +187,11 @@ export const Sync = React.memo(function SyncInner() {
       window.location.href = canAccessUserProfiles ? `/us/u/${userId}` : `/u/${userId}`
     },
     [canAccessUserProfiles]
+  )
+
+  const onOpenEmailThread = React.useCallback(
+    (userId: string) => () => stores.goTo('dm', { userId }),
+    []
   )
 
   const onKeyDown = React.useCallback(
@@ -213,6 +254,27 @@ export const Sync = React.memo(function SyncInner() {
           </div>
         </form>
       </div>
+
+      {emailNotices.length > 0 && (
+        <div className="mb-40">
+          <div className="opacity-30 mb-8">LOT Email</div>
+          <div className="space-y-2">
+            {emailNotices.map((n) => (
+              <div
+                key={n.id}
+                className="flex items-start gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded"
+                onClick={onOpenEmailThread(n.otherUserId)}
+              >
+                <span className="whitespace-nowrap">✉️</span>
+                <div className="whitespace-breakspaces" style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}>
+                  {n.isMine ? 'You sent: ' : `${n.otherUserName} → You: `}
+                  {n.message}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div>
         {messages.map((x, i) => {

@@ -191,11 +191,14 @@ export type Answer = {
 };
 
 // Direct Message Type
+// `channel` distinguishes an ordinary 1:1 chat message from a LOT Email
+// (composed via the `/email to <Name>` Log command) sharing the same thread.
 export type DirectMessage = {
   id: string;
   senderId: string;
   receiverId: string;
   message: string;
+  channel: 'chat' | 'email';
   createdAt: Date;
   updatedAt: Date;
 };

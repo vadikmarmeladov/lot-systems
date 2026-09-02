@@ -4001,6 +4001,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
           senderId: m.senderId,
           receiverId: m.receiverId,
           message: m.message,
+          channel: m.channel,
           createdAt: m.createdAt,
           updatedAt: m.updatedAt,
           isMine: m.senderId === req.user.id
@@ -4047,6 +4048,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         senderId: req.user.id,
         receiverId,
         message: directMessage.message,
+        channel: directMessage.channel,
         senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
         createdAt: directMessage.createdAt
       })
@@ -4076,12 +4078,102 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         senderId: directMessage.senderId,
         receiverId: directMessage.receiverId,
         message: directMessage.message,
+        channel: directMessage.channel,
         createdAt: directMessage.createdAt,
         updatedAt: directMessage.updatedAt
       })
     } catch (error) {
       console.error('Error sending direct message:', error)
       return reply.status(500).send({ error: 'Failed to send message' })
+    }
+  })
+
+  // ----------------------------------------------------------------------
+  // LOT Email — composed in the Log via `/email to <Name>`. The simplest
+  // possible email system: it IS a DirectMessage (channel: 'email') so it
+  // lands in the same /dm/:userId thread as ordinary Sync chat, and the
+  // 'direct_message' SSE event it emits is what lets Sync surface it live.
+  // Recipient is resolved by first name (case-insensitive) rather than by
+  // userId, since the Log command only carries a name — the same resolution
+  // works for a Cohort Dating match found through LOT Community, since a
+  // cohort match is just another User.
+  // ----------------------------------------------------------------------
+  fastify.post('/email', async (req: FastifyRequest<{
+    Body: { toName: string; message: string }
+  }>, reply) => {
+    try {
+      const toName = (req.body.toName || '').trim()
+      const message = (req.body.message || '').trim()
+
+      if (!toName || !message) {
+        return reply.status(400).send({ error: 'Recipient name and message are required' })
+      }
+
+      const candidates = await fastify.models.User.findAll({
+        where: {
+          id: { [Op.ne]: req.user.id },
+          firstName: { [Op.iLike]: toName },
+        },
+        limit: 5,
+      })
+
+      if (candidates.length === 0) {
+        return reply.status(404).send({ error: `No user named "${toName}" found` })
+      }
+      if (candidates.length > 1) {
+        return reply.status(409).send({
+          error: `More than one "${toName}" found — be more specific`,
+          candidates: candidates.map(u => ({ id: u.id, firstName: u.firstName, lastName: u.lastName })),
+        })
+      }
+
+      const receiver = candidates[0]
+      const directMessage = await fastify.models.DirectMessage.create({
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        message: message.slice(0, 2000),
+        channel: 'email',
+      })
+
+      sync.emit('direct_message', {
+        id: directMessage.id,
+        senderId: req.user.id,
+        receiverId: receiver.id,
+        message: directMessage.message,
+        channel: directMessage.channel,
+        senderName: `${req.user.firstName} ${req.user.lastName}`.trim(),
+        createdAt: directMessage.createdAt
+      })
+
+      process.nextTick(async () => {
+        try {
+          const context = await getLogContext(req.user)
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'email_sent',
+            text: '',
+            metadata: {
+              directMessageId: directMessage.id,
+              receiverId: receiver.id,
+              message: directMessage.message,
+            },
+            context,
+          })
+        } catch (logError) {
+          console.error('Error logging LOT Email:', logError)
+        }
+      })
+
+      return reply.send({
+        id: directMessage.id,
+        receiverId: receiver.id,
+        receiverName: `${receiver.firstName || ''} ${receiver.lastName || ''}`.trim() || toName,
+        message: directMessage.message,
+        createdAt: directMessage.createdAt,
+      })
+    } catch (error) {
+      console.error('Error sending LOT Email:', error)
+      return reply.status(500).send({ error: 'Failed to send email' })
     }
   })
 
@@ -5181,7 +5273,7 @@ OPERATOR RFI: ${query.trim()}`
       const moduleMap: Record<string, string> = {
         'answer': 'memory', 'emotional_checkin': 'biofield', 'plan_set': 'planner',
         'self_care_complete': 'selfcare', 'self_care_completed': 'selfcare',
-        'intention': 'intentions', 'note': 'journal', 'chat_message': 'community',
+        'intention': 'intentions', 'note': 'journal', 'chat_message': 'community', 'email_sent': 'community',
         'goal_set': 'goals', 'goal_journey': 'goals', 'goal_complete': 'goals',
         'recipe_viewed': 'recipe', 'calendar_entry': 'calendar',
       }
