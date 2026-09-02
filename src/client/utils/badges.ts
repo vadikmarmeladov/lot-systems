@@ -69,6 +69,23 @@ export type WordTurnBadgeType =
   | 'word_love'            // love / heart
   | 'word_silence'         // silence / quiet
   | 'word_horizon'         // future / tomorrow
+  // v30 — Quantum Arcade
+  | 'word_insert_coin'     // insert coin / one more try / another round
+  | 'word_level_up'        // leveled up / next level / unlocked
+  | 'word_save_point'      // save point / checkpoint / saved progress
+  | 'word_respawn'         // respawn / start over / back from the dead
+  | 'word_boss_fight'      // boss / final challenge / hardest part
+  | 'word_side_quest'      // side quest / tangent / detour / rabbit hole
+  | 'word_inventory'       // inventory / resources / taking stock
+  | 'word_health_bar'      // health / energy / running low / depleted
+  | 'word_xp_gained'       // experience / learned / XP / growth point
+  | 'word_load_game'       // loaded / remember when / go back / flashback
+  | 'word_new_game_plus'   // new game / fresh start / beginning again
+  | 'word_game_over'       // game over / failed / the run is done
+  // v30 — Secret Boss: Cheat Code Vault
+  | 'secret_konami_signal' // ↑↑↓↓←→←→ / konami code (MYTHIC)
+  | 'secret_iddqd_mode'    // IDDQD / IDKFA / god mode (EPIC)
+  | 'secret_all_your_base' // all your base / zero wing (RARE)
 
 export type BadgeType =
   | MilestoneBadgeType
@@ -521,12 +538,219 @@ export const WORD_TURN_BADGES: Record<WordTurnBadgeType, Badge> = {
   },
 }
 
+// ─── WORD TURN BADGES v30 — QUANTUM ARCADE ───────────────────────
+export const WORD_TURN_BADGES_V30: Record<
+  'word_insert_coin' | 'word_level_up' | 'word_save_point' | 'word_respawn' |
+  'word_boss_fight' | 'word_side_quest' | 'word_inventory' | 'word_health_bar' |
+  'word_xp_gained' | 'word_load_game' | 'word_new_game_plus' | 'word_game_over' |
+  'secret_konami_signal' | 'secret_iddqd_mode' | 'secret_all_your_base',
+  Badge
+> = {
+  word_insert_coin: {
+    id: 'word_insert_coin',
+    waterSymbol: '¢·○·¢',
+    architectureSymbol: '¢·○·¢',
+    waterName: 'Insert Coin',
+    architectureName: 'Insert Coin',
+    description: '"One more try" — the terminal never judges the number of coins',
+    waterUnlockMessage: '↳ Insert Coin activated ¢·○·¢',
+    architectureUnlockMessage: '↳ Insert Coin activated ¢·○·¢',
+    rarity: 'common',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_level_up: {
+    id: 'word_level_up',
+    waterSymbol: '▲·◈·▲',
+    architectureSymbol: '▲·◈·▲',
+    waterName: 'Level Up',
+    architectureName: 'Level Up',
+    description: 'You named what you earned — the level up no algorithm can take',
+    waterUnlockMessage: '↳ Level Up activated ▲·◈·▲',
+    architectureUnlockMessage: '↳ Level Up activated ▲·◈·▲',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_save_point: {
+    id: 'word_save_point',
+    waterSymbol: '■·○·■',
+    architectureSymbol: '■·○·■',
+    waterName: 'Save Point',
+    architectureName: 'Save Point',
+    description: 'What has been built is worth preserving — checkpoint reached',
+    waterUnlockMessage: '↳ Save Point activated ■·○·■',
+    architectureUnlockMessage: '↳ Save Point activated ■·○·■',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_respawn: {
+    id: 'word_respawn',
+    waterSymbol: '↺·○',
+    architectureSymbol: '↺·○',
+    waterName: 'Respawn',
+    architectureName: 'Respawn',
+    description: 'The player brings all prior knowledge to the respawn point',
+    waterUnlockMessage: '↳ Respawn activated ↺·○',
+    architectureUnlockMessage: '↳ Respawn activated ↺·○',
+    rarity: 'rare',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_boss_fight: {
+    id: 'word_boss_fight',
+    waterSymbol: '◉·!·◉',
+    architectureSymbol: '◉·!·◉',
+    waterName: 'Boss Fight',
+    architectureName: 'Boss Fight',
+    description: 'You named the encounter the dungeon was preparing you for',
+    waterUnlockMessage: '↳ Boss Fight activated ◉·!·◉',
+    architectureUnlockMessage: '↳ Boss Fight activated ◉·!·◉',
+    rarity: 'rare',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_side_quest: {
+    id: 'word_side_quest',
+    waterSymbol: '→·?·→',
+    architectureSymbol: '→·?·→',
+    waterName: 'Side Quest',
+    architectureName: 'Side Quest',
+    description: 'The side quest is where character development actually happens',
+    waterUnlockMessage: '↳ Side Quest activated →·?·→',
+    architectureUnlockMessage: '↳ Side Quest activated →·?·→',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_inventory: {
+    id: 'word_inventory',
+    waterSymbol: '□·▪·□',
+    architectureSymbol: '□·▪·□',
+    waterName: 'Inventory Check',
+    architectureName: 'Inventory Check',
+    description: 'You opened the inventory screen — what are you carrying?',
+    waterUnlockMessage: '↳ Inventory Check activated □·▪·□',
+    architectureUnlockMessage: '↳ Inventory Check activated □·▪·□',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_health_bar: {
+    id: 'word_health_bar',
+    waterSymbol: '▓▓▓·',
+    architectureSymbol: '▓▓▓·',
+    waterName: 'Health Bar',
+    architectureName: 'Health Bar',
+    description: 'The bar is visible now — you named the energy level',
+    waterUnlockMessage: '↳ Health Bar activated ▓▓▓·',
+    architectureUnlockMessage: '↳ Health Bar activated ▓▓▓·',
+    rarity: 'rare',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_xp_gained: {
+    id: 'word_xp_gained',
+    waterSymbol: '+·◈·+',
+    architectureSymbol: '+·◈·+',
+    waterName: 'XP Gained',
+    architectureName: 'XP Gained',
+    description: 'Experience points do not lie — the failed run still awards XP',
+    waterUnlockMessage: '↳ XP Gained activated +·◈·+',
+    architectureUnlockMessage: '↳ XP Gained activated +·◈·+',
+    rarity: 'uncommon',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_load_game: {
+    id: 'word_load_game',
+    waterSymbol: '←·○·←',
+    architectureSymbol: '←·○·←',
+    waterName: 'Load Game',
+    architectureName: 'Load Game',
+    description: 'The journal is the save file — you retrieved a preserved moment',
+    waterUnlockMessage: '↳ Load Game activated ←·○·←',
+    architectureUnlockMessage: '↳ Load Game activated ←·○·←',
+    rarity: 'rare',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_new_game_plus: {
+    id: 'word_new_game_plus',
+    waterSymbol: '∞·○·∞',
+    architectureSymbol: '∞·○·∞',
+    waterName: 'New Game+',
+    architectureName: 'New Game+',
+    description: 'The story restarts — you are not the player you were at the beginning',
+    waterUnlockMessage: '↳ New Game+ activated ∞·○·∞',
+    architectureUnlockMessage: '↳ New Game+ activated ∞·○·∞',
+    rarity: 'epic',
+    category: 'word_turn',
+    secret: true,
+  },
+  word_game_over: {
+    id: 'word_game_over',
+    waterSymbol: '○·∅·○',
+    architectureSymbol: '○·∅·○',
+    waterName: 'Game Over',
+    architectureName: 'Game Over',
+    description: 'The run ended — the player continues. The terminal keeps the record.',
+    waterUnlockMessage: '↳ Game Over activated ○·∅·○',
+    architectureUnlockMessage: '↳ Game Over activated ○·∅·○',
+    rarity: 'epic',
+    category: 'word_turn',
+    secret: true,
+  },
+  // v30 Secret Boss: Cheat Code Vault
+  secret_konami_signal: {
+    id: 'secret_konami_signal',
+    waterSymbol: '↑↑↓↓·◉',
+    architectureSymbol: '↑↑↓↓·◉',
+    waterName: 'Konami Signal',
+    architectureName: 'Konami Signal',
+    description: 'You typed the code. Extra lives granted. The acknowledgment that sometimes you need more than the standard allotment.',
+    waterUnlockMessage: '↳ Konami Signal activated ↑↑↓↓·◉',
+    architectureUnlockMessage: '↳ Konami Signal activated ↑↑↓↓·◉',
+    rarity: 'mythic',
+    category: 'word_turn',
+    secret: true,
+  },
+  secret_iddqd_mode: {
+    id: 'secret_iddqd_mode',
+    waterSymbol: '⚡·■·⚡',
+    architectureSymbol: '⚡·■·⚡',
+    waterName: 'IDDQD Mode',
+    architectureName: 'IDDQD Mode',
+    description: 'There is no god mode for real life — the journal is the anti-IDDQD',
+    waterUnlockMessage: '↳ IDDQD Mode activated ⚡·■·⚡',
+    architectureUnlockMessage: '↳ IDDQD Mode activated ⚡·■·⚡',
+    rarity: 'epic',
+    category: 'word_turn',
+    secret: true,
+  },
+  secret_all_your_base: {
+    id: 'secret_all_your_base',
+    waterSymbol: '·○·∅',
+    architectureSymbol: '·○·∅',
+    waterName: 'All Your Base',
+    architectureName: 'All Your Base',
+    description: 'You named who set you up — the bomb is defused when it is named',
+    waterUnlockMessage: '↳ All Your Base activated ·○·∅',
+    architectureUnlockMessage: '↳ All Your Base activated ·○·∅',
+    rarity: 'rare',
+    category: 'word_turn',
+    secret: true,
+  },
+}
+
 // ─── UNIFIED BADGES MAP ──────────────────────────────────────────
 export const BADGES: Record<BadgeType, Badge> = {
   ...MILESTONE_BADGES,
   ...PATTERN_BADGES,
   ...EASTER_EGG_BADGES,
   ...WORD_TURN_BADGES,
+  ...WORD_TURN_BADGES_V30,
 }
 
 // Default separator when no badges earned yet
@@ -552,6 +776,19 @@ export const WORD_TURN_TRIGGERS: Array<{ keywords: string[]; badgeId: WordTurnBa
   { keywords: ['love', 'heart', 'loved'], badgeId: 'word_love' },
   { keywords: ['silence', 'quiet', 'stillness'], badgeId: 'word_silence' },
   { keywords: ['future', 'tomorrow', 'horizon', 'ahead'], badgeId: 'word_horizon' },
+  // v30 — Quantum Arcade
+  { keywords: ['insert coin', 'one more try', 'one more time', 'another round'], badgeId: 'word_insert_coin' },
+  { keywords: ['leveled up', 'level up', 'next level', 'unlocked', 'new level'], badgeId: 'word_level_up' },
+  { keywords: ['save point', 'checkpoint', 'saved my progress', 'marked it'], badgeId: 'word_save_point' },
+  { keywords: ['respawn', 'start over', 'back from the dead'], badgeId: 'word_respawn' },
+  { keywords: ['boss fight', 'final challenge', 'biggest obstacle', 'hardest part'], badgeId: 'word_boss_fight' },
+  { keywords: ['side quest', 'rabbit hole', 'detour', 'tangent'], badgeId: 'word_side_quest' },
+  { keywords: ['inventory', 'taking stock', 'resources'], badgeId: 'word_inventory' },
+  { keywords: ['health bar', 'running low', 'depleted', 'recharging'], badgeId: 'word_health_bar' },
+  { keywords: ['xp gained', 'experience points', 'growth point', 'leveled'], badgeId: 'word_xp_gained' },
+  { keywords: ['load game', 'remember when', 'flashback', 'recall'], badgeId: 'word_load_game' },
+  { keywords: ['new game plus', 'new game+', 'fresh start', 'beginning again', 'starting over'], badgeId: 'word_new_game_plus' },
+  { keywords: ['game over', 'the run is done', 'this chapter ends', 'failed'], badgeId: 'word_game_over' },
 ]
 
 /**
@@ -573,6 +810,17 @@ export function detectWordTurns(text: string): WordTurnBadgeType[] {
   // Special: Meta-Signal — user writes "LOT" (uppercase) in their text
   if (/\bLOT\b/.test(text)) {
     triggered.push('egg_meta_signal')
+  }
+
+  // v30 Secret Boss: Cheat Code Vault
+  if (/konami code|↑↑↓↓|up up down down left right/i.test(lower)) {
+    triggered.push('secret_konami_signal')
+  }
+  if (/\biddqd\b|\bidkfa\b|god mode|cheat code/i.test(lower)) {
+    triggered.push('secret_iddqd_mode')
+  }
+  if (/all your base|zero wing|somebody set us up/i.test(lower)) {
+    triggered.push('secret_all_your_base')
   }
 
   return triggered
