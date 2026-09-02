@@ -22,7 +22,7 @@ import { cn, formatNumberWithCommas } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import { getUserTagByIdCaseInsensitive } from '#shared/constants'
 import { toCelsius, toFahrenheit } from '#shared/utils'
-import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo } from '#shared/utils/astrology'
+import { getHourlyZodiac, getWesternZodiac, getMoonPhase, getRokuyo, getMoonEmoji } from '#shared/utils/astrology'
 import { useBreathe } from '#client/utils/breathe'
 import { useProfile, useLogs, useCommunityEmotion } from '#client/queries'
 import { useEvolutionSync } from '#client/hooks/useEvolutionSync'
@@ -203,9 +203,25 @@ export const System = React.memo(function SystemInner() {
   }, [])
 
   // Astrology calculations — ambient conditions (zodiac hour, moon phase,
-  // rokuyo), not a personal natal chart.
+  // rokuyo), not a personal natal chart. Reads the user's saved profile
+  // timeZone when available (same wall-clock-passthrough trick already used
+  // server-side in getLogContext), so the dashboard reading matches the
+  // Logs entries for the same moment rather than drifting to whatever
+  // timeZone the viewing device happens to be set to. Falls back to
+  // device-local time when no profile timeZone is set (logged-out / not yet
+  // configured).
   const astrology = React.useMemo(() => {
-    const now = new Date()
+    // dayjs().tz(x).toDate() would collapse back to an absolute instant,
+    // and Date#getHours()/getMonth()/getDate() (what astrology.ts reads)
+    // always read through the browser's own local timeZone regardless of
+    // what tz a dayjs moment was built with — so build a Date from the
+    // moment's tz-shifted wall-clock fields directly, same trick as the
+    // server's getLogContext.
+    const localMoment = me?.timeZone ? dayjs().tz(me.timeZone) : dayjs()
+    const now = new Date(
+      localMoment.year(), localMoment.month(), localMoment.date(),
+      localMoment.hour(), localMoment.minute(), localMoment.second()
+    )
     const hourlyZodiac = getHourlyZodiac(now)
     const westernZodiac = getWesternZodiac(now)
     const moonPhase = getMoonPhase(now)
@@ -215,11 +231,12 @@ export const System = React.memo(function SystemInner() {
       hourlyZodiac,
       westernZodiac,
       moonPhase: moonPhase.phase,
+      moonEmoji: getMoonEmoji(moonPhase.phase),
       moonIllumination: moonPhase.illumination,
       rokuyo,
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [astrologyTick])
+  }, [astrologyTick, me?.timeZone])
 
   // Synchronize the ambient astrology reading into the QIE signal bus once
   // per calendar day, so other widgets (cosmic, system) can react to it.
@@ -465,7 +482,7 @@ export const System = React.memo(function SystemInner() {
         <div>
           <Block label="Astrology:">
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase} ({astrology.moonIllumination}%)
+              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonEmoji} {astrology.moonPhase} ({astrology.moonIllumination}%)
             </div>
           </Block>
         </div>
@@ -671,7 +688,7 @@ export const System = React.memo(function SystemInner() {
         >
           {astrologyView === 'astrology' ? (
             <div>
-              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonPhase} ({astrology.moonIllumination}%)
+              {astrology.westernZodiac} • {astrology.hourlyZodiac} • {astrology.rokuyo} • {astrology.moonEmoji} {astrology.moonPhase} ({astrology.moonIllumination}%)
             </div>
           ) : astrologyView === 'psychology' ? (
             <div>

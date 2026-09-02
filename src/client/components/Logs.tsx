@@ -15,6 +15,7 @@ import { useDebounce, useMouseInactivity } from '#client/utils/hooks'
 import dayjs from '#client/utils/dayjs'
 import * as fp from '#shared/utils/fp'
 import { Log, LogSettingsChangeMetadata } from '#shared/types'
+import { getMoonEmoji } from '#shared/utils/astrology'
 import { cn } from '#client/utils'
 import { atom, map } from 'nanostores'
 import {
@@ -363,7 +364,7 @@ export const Logs: React.FC = React.memo(function LogsInner() {
                   <div>HUM: {log.context.humidity}%</div>
                 )}
                 {log.context?.astroRokuyo && (
-                  <div>ASTRO: {log.context.astroRokuyo} · {log.context.astroMoonPhase}</div>
+                  <div>ASTRO: {log.context.astroRokuyo} · {log.context.astroMoonPhase ? `${getMoonEmoji(log.context.astroMoonPhase)} ` : ''}{log.context.astroMoonPhase}</div>
                 )}
                 {log.metadata?.sound && (
                   <div>SND: {log.metadata.sound}</div>
