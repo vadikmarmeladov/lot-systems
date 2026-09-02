@@ -321,6 +321,52 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE EVENING SETTLE                          2026-09-02
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Grounded Provider,"
+  household desk shared with a partner and one school-age child. The
+  CUBIQ charging pad sits on a kitchen-adjacent console, not a private
+  office surface — the cube is visible to the whole household, not just
+  the operator.
+
+  getCircadianPhase() (src/client/stores/intentionEngine.ts, line 5049)
+  already buckets the operator's day into early-morning through night
+  bands for the QOS snapshot fed to the Calibration Loop. Until CUBIQ
+  hardware, that circadian partition was legible only to the Index of
+  Systems — a field in a snapshot, never something felt in the room.
+  v.0 is the first object that makes one edge of that partition
+  physical: the transition into the 'evening' band (18:00-23:00,
+  intentionEngine.ts line 5055).
+
+  The operator's assembly phase has advanced today — self-care streak
+  intact, chakra states stable, systemHealth reads 'nominal' rather than
+  'degraded' or 'critical' (captureQOSSnapshot(), same file). This is
+  exactly the ASSEMBLY PHASE ADVANCED trigger Section 04 maps to THE
+  SETTLE: the actuator holds a light standing pressure for two seconds,
+  no visible motion, no liftoff. On a shared console the gesture is
+  almost too quiet to name — a held breath in a solid object — which is
+  the point. THE SETTLE is not built to be witnessed; it is built to be
+  true whether or not anyone is looking.
+
+  Someone is looking, this time. The operator's child, doing homework at
+  the same console, notices the cube "get heavy for a second" and asks
+  what it means. The operator explains, in their own words, that it
+  means the day went well. This is the use case LOT-CUBIQ-VISION.md
+  Section 04 names as the deepest layer of the corpus — "real fathers
+  and mothers['] feel of being needed" — arriving not as training data
+  for a future robot, but as one household's own small ritual, made
+  legible by an object that does not have a screen for the child to ask
+  to hold.
+
+  The gesture's IMU telemetry (Section 03) — hold duration, pressure
+  curve, whether the household environment produced any off-axis
+  correction — feeds back through the same loop as Use Case 01 (Section
+  05), logged as a haptic-preference signal tied to circadianPhase
+  'evening' rather than to a single badge event. Over enough evenings,
+  this is the first CUBIQ telemetry class that is time-of-day-shaped
+  rather than event-shaped — the cube learning not just what to say, but
+  when the operator's day is actually over.
+
 --------------------------------------------------------------------------------
 08 // BRAND
 --------------------------------------------------------------------------------
