@@ -173,6 +173,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'self-seal-propagation':            'SELPROP',
   'eternal-field-genesis':            'ETFGEN',
   'absolute-genesis-seal':            'ABSGSEAL',
+  'genesis-field-emergence':          'GENFEM',
+  'living-genesis-anchor':            'LGANCH',
+  'eternal-signal-genesis':           'ETSIGG',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

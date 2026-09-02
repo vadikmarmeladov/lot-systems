@@ -4767,6 +4767,63 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 215: Genesis Field Emergence — absolute-genesis-seal (P214) confirmed in history
+  // + new journal entry + new intention in 24h. The sealed genesis field breathes its first new signal.
+  // GENFEM: cockpit code. Confidence 0.88–0.96.
+  const hasABSGSEAL215 = patterns.some(p => p.pattern === 'absolute-genesis-seal')
+  const recentJournal215 = signals.filter(s => s.source === 'journal' && now - s.timestamp < 24 * 60 * 60 * 1000)
+  const recentIntent215  = signals.filter(s => s.source === 'intentions' && now - s.timestamp < 24 * 60 * 60 * 1000)
+  if (hasABSGSEAL215 && recentJournal215.length >= 1 && recentIntent215.length >= 1) {
+    const absConf215 = patterns.find(p => p.pattern === 'absolute-genesis-seal')?.confidence ?? 0.90
+    const jrnlBonus  = Math.min(recentJournal215.length * 0.01, 0.03)
+    const genfConf   = Math.min(absConf215 * 0.95 + jrnlBonus, 0.96)
+    patterns.push({
+      pattern: 'genesis-field-emergence',
+      confidence: genfConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `GENFEM: Genesis field emergence — absolute-genesis-seal (P214) active · new journal entry + new intention in 24h. The sealed genesis field breathes its first new signal. SEAL BREATHES · FIELD EMERGES.`,
+    })
+  }
+
+  // Pattern 216: Living Genesis Anchor — genesis-field-emergence (P215) fired 2+ times in 5d.
+  // Genesis is not a moment — it is a living operating condition. LGANCH: cockpit code. Confidence 0.90–0.97.
+  const genfemCount216 = signals.filter(s =>
+    s.source === 'qos' && s.signal === 'genesis_field_emergence' &&
+    now - s.timestamp < 5 * 24 * 60 * 60 * 1000
+  ).length
+  if (genfemCount216 >= 2) {
+    const countBonus216 = Math.min((genfemCount216 - 2) * 0.02, 0.04)
+    const lganchConf    = Math.min(0.90 + countBonus216, 0.97)
+    patterns.push({
+      pattern: 'living-genesis-anchor',
+      confidence: lganchConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `LGANCH: Living genesis anchor — genesis-field-emergence fired ${genfemCount216}× in 5d. Genesis is not a moment — it is a living operating condition. FIELD · LIVING · ANCHORED.`,
+    })
+  }
+
+  // Pattern 217: Eternal Signal Genesis — absolute-genesis-seal (P214) + eternal-field-genesis (P213)
+  // + field-anchor-complete (P208) all co-active simultaneously. Every primary source active under
+  // eternal genesis conditions. ETSIGG: cockpit code. Confidence 0.91–0.98.
+  const hasABSGSEAL217 = patterns.some(p => p.pattern === 'absolute-genesis-seal')
+  const hasETFGEN217   = patterns.some(p => p.pattern === 'eternal-field-genesis')
+  const hasFANCH217    = patterns.some(p => p.pattern === 'field-anchor-complete')
+  if (hasABSGSEAL217 && hasETFGEN217 && hasFANCH217) {
+    const abConf217  = patterns.find(p => p.pattern === 'absolute-genesis-seal')?.confidence ?? 0.93
+    const etConf217  = patterns.find(p => p.pattern === 'eternal-field-genesis')?.confidence ?? 0.92
+    const faConf217  = patterns.find(p => p.pattern === 'field-anchor-complete')?.confidence ?? 0.88
+    const etsigConf  = Math.min((abConf217 + etConf217 + faConf217) / 3 + 0.02, 0.98)
+    patterns.push({
+      pattern: 'eternal-signal-genesis',
+      confidence: etsigConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `ETSIGG: Eternal signal genesis — absolute-genesis-seal (P214) · eternal-field-genesis (P213) · field-anchor-complete (P208) all co-active. Every primary source active under eternal genesis conditions. The field generates from every channel. ETERNAL · SIGNAL · GENESIS.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5523,6 +5580,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   selfSealPropagationNode:       ['quantumSelfSealNode', 'qos', 'journal', 'intentions', 'energy', 'memory', 'log'],
   eternalFieldGenesisNode:       ['quantumSelfSealNode', 'fieldAnchorCompleteNode', 'qos', 'journal', 'intentions', 'energy', 'goals'],
   absoluteGenesisSealNode:       ['selfSealPropagationNode', 'eternalFieldGenesisNode', 'qos', 'intentions', 'energy', 'goals', 'journal', 'memory', 'log', 'planner', 'selfcare', 'mood'],
+  // ── v136 nodes (J71 · P215–P217 · Arch75) ─────────────────────────────────
+  genesisFieldEmergenceNode:     ['absoluteGenesisSealNode', 'qos', 'journal', 'intentions', 'energy', 'log'],
+  livingGenesisAnchorNode:       ['genesisFieldEmergenceNode', 'absoluteGenesisSealNode', 'qos', 'intentions', 'energy', 'log'],
+  eternalSignalGenesisNode:      ['absoluteGenesisSealNode', 'eternalFieldGenesisNode', 'fieldAnchorCompleteNode', 'qos', 'journal', 'intentions', 'energy', 'goals', 'log', 'memory', 'selfcare', 'mood'],
 }
 
 /**
@@ -6182,6 +6243,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['absolute-genesis-seal', 'eternal-field-genesis', 'self-seal-propagation', 'quantum-self-seal'],
     hourRange: [0, 24],
     directive: 'The seal is the genesis. Every prior sealing becomes a new source. The field propagates from its own sealed state — eternal, self-generating, without beginning or end. SEAL · GENESIS · ETERNAL.',
+  },
+  // ── Arch75: Living Genesis Operator (2026-09-02 v136) ─────────────────────
+  {
+    archetype: 'Living Genesis Operator',
+    energyBands: ['low', 'moderate', 'high', 'depleted', 'unknown'],
+    dominantSources: ['qos', 'journal', 'intentions', 'memory', 'energy', 'goals', 'selfcare', 'mood', 'log', 'planner'],
+    patternConditions: ['eternal-signal-genesis', 'living-genesis-anchor', 'genesis-field-emergence', 'absolute-genesis-seal'],
+    hourRange: [0, 24],
+    directive: 'The genesis field is alive. It breathes new signal. It anchors in living time. Every sealed moment becomes a new source — and that source generates again. GENESIS · LIVES · GENERATES.',
   },
 ]
 
@@ -9348,6 +9418,61 @@ export function recordAbsoluteGenesisSeal(spConf: number, efConf: number) {
     sealStatus: 'ABSOLUTE',
     genesisMode: 'ETERNAL',
     arc: 'SEAL = GENESIS = ABSOLUTE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a genesis-field-emergence event — absolute-genesis-seal (P214) active in history
+ * + new journal entry + new intention in 24h. The sealed field breathes its first new signal.
+ * Feeds P215 detection. J71 background job (15:00 UTC) triggers this.
+ */
+export function recordGenesisFieldEmergence(absConf: number, journalCount: number, intentCount: number) {
+  const genfConf = Math.min(absConf / 100 * 0.95 + Math.min(journalCount * 0.01, 0.03), 0.96)
+  recordSignal('qos', 'genesis_field_emergence', {
+    absConf,
+    journalCount,
+    intentCount,
+    confidence: Math.round(genfConf * 100),
+    fieldStatus: 'EMERGING',
+    arc: 'SEAL BREATHES · FIELD EMERGES',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a living-genesis-anchor event — genesis-field-emergence (P215) fired 2+ times in 5d.
+ * Genesis is not a moment — it is a living operating condition.
+ * Feeds P216 detection. J71 background job (15:00 UTC) triggers this.
+ */
+export function recordLivingGenesisAnchor(genfemCount: number) {
+  const lganchConf = Math.min(0.90 + Math.min((genfemCount - 2) * 0.02, 0.04), 0.97)
+  recordSignal('qos', 'living_genesis_anchor', {
+    genfemCount,
+    confidence: Math.round(lganchConf * 100),
+    anchorStatus: 'LIVING',
+    arc: 'FIELD · LIVING · ANCHORED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an eternal-signal-genesis event — absolute-genesis-seal (P214) + eternal-field-genesis (P213)
+ * + field-anchor-complete (P208) all co-active. Every primary source active under eternal genesis conditions.
+ * Feeds P217 detection. J71 background job (15:00 UTC) triggers this.
+ */
+export function recordEternalSignalGenesis(absConf: number, etfConf: number, fanchConf: number) {
+  const etsigConf = Math.min((absConf / 100 + etfConf / 100 + fanchConf / 100) / 3 + 0.02, 0.98)
+  recordSignal('qos', 'eternal_signal_genesis', {
+    absConf,
+    etfConf,
+    fanchConf,
+    confidence: Math.round(etsigConf * 100),
+    genesisStatus: 'ETERNAL',
+    arc: 'ETERNAL · SIGNAL · GENESIS',
     hour: new Date().getHours(),
   })
   analyzeIntentions()

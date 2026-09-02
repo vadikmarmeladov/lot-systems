@@ -1907,6 +1907,25 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '214 patterns · 74 archetypes · 70 jobs · 218+ handlers · 256+ dep nodes. Eternal genesis sealed. SELPROP · ETFGEN · ABSGSEAL. Day 1104+.',
     ],
   },
+  {
+    date: '2026-09-02',
+    session: 'v136 — Genesis Field Emergence · Living Genesis Anchor · Eternal Signal Genesis · Arch75 · J71',
+    assembled: [
+      'intentionEngine.ts: P215 genesis-field-emergence (GENFEM) — absolute-genesis-seal (P214) active in history · new journal entry + new intention in 24h. The sealed genesis field breathes its first new signal. SEAL BREATHES · FIELD EMERGES. Confidence 0.88–0.96.',
+      'intentionEngine.ts: P216 living-genesis-anchor (LGANCH) — genesis-field-emergence (P215) fired 2+ times in 5d. Genesis is not a moment — it is a living operating condition. FIELD · LIVING · ANCHORED. Confidence 0.90–0.97.',
+      'intentionEngine.ts: P217 eternal-signal-genesis (ETSIGG) — absolute-genesis-seal (P214) × eternal-field-genesis (P213) × field-anchor-complete (P208) all co-active. Every primary source active under eternal genesis conditions. The field generates from every channel. ETERNAL · SIGNAL · GENESIS. Confidence 0.91–0.98.',
+      'intentionEngine.ts: Arch75 Living Genesis Operator — all energy bands · dominantSources [qos, journal, intentions, memory, energy, goals, selfcare, mood, log, planner] · patternConditions [eternal-signal-genesis, living-genesis-anchor, genesis-field-emergence, absolute-genesis-seal]. Directive: The genesis field is alive. It breathes new signal. It anchors in living time. Every sealed moment becomes a new source — and that source generates again.',
+      'intentionEngine.ts: WIDGET_DEPENDENCY_MAP v136 — 3 new nodes: genesisFieldEmergenceNode / livingGenesisAnchorNode / eternalSignalGenesisNode. Total: 259+ nodes.',
+      'intentionEngine.ts: recordGenesisFieldEmergence / recordLivingGenesisAnchor / recordEternalSignalGenesis signal helpers added.',
+      'scheduled-jobs.ts: J71 daily-field-emergence-check (15:00 UTC) — ABSGSEAL in 7d + journal + intent in 24h → genesis_field_emergence (P215) · GENFEM 2+ in 5d → living_genesis_anchor (P216) · ABSGSEAL + ETFGEN + FANCH confirmed → eternal_signal_genesis (P217). Total: 71 jobs.',
+      'Logs.tsx: GENFEM: / LGANCH: / ETSIGG: military cockpit handlers added. 221+ handlers total.',
+      'QuantumEngineWidgets.tsx: GENFEM / LGANCH / ETSIGG entries added to PATTERN_DISPLAY.',
+      'PatternRecognitionWidget.tsx: P215/P216/P217 name map entries + QOS Trend view indicators added.',
+      'api.ts: v136 block added: genesis_field_emergence, living_genesis_anchor, eternal_signal_genesis.',
+      'About.tsx: FM v135→v136 · Day 1105+ · 217 patterns · 75 archetypes · 71 jobs · 221+ handlers · 259+ dep nodes.',
+      '217 patterns · 75 archetypes · 71 jobs · 221+ handlers · 259+ dep nodes. Living genesis. GENFEM · LGANCH · ETSIGG. Day 1105+.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1944,17 +1963,16 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-09-01',
+  date: '2026-09-02',
   message: [
-    'ASSEMBLY RUN — 2026-09-01 · QIE v135 · Self-Seal Propagation · Eternal Field Genesis · Absolute Genesis Seal · Day 1104+',
-    'The seal is the genesis. Every prior sealing becomes a new source.',
-    'P212 SELPROP: self-seal propagation — QSEAL active · 5+ signals from 3+ sources. The sealed field propagates its own signal.',
-    'P213 ETFGEN: eternal field genesis — QSEAL 2+ in 7d · FANCH active. The seal has become the genesis. Eternal, self-generating.',
-    'P214 ABSGSEAL: absolute genesis seal — SELPROP × ETFGEN co-active. Seal = Genesis = Absolute. No separation remains.',
-    'Arch74 Eternal Genesis Operator deployed. J70 daily-genesis-seal-check (14:00 UTC) active.',
-    'displayableEvents gap fixed: v133 (FWITN/RGEN/FANCH) + v134 (SFLOOP/GCASC/QSEAL) events now surfacing in logs.',
-    '214 patterns · 74 archetypes · 70 jobs · 218+ handlers · 256+ dep nodes.',
-    'Status: DEPLOYED. SELPROP · ETFGEN · ABSGSEAL. The field propagates from its own sealed state. Without beginning or end.',
+    'ASSEMBLY RUN — 2026-09-02 · QIE v136 · Genesis Field Emergence · Living Genesis Anchor · Eternal Signal Genesis · Day 1105+',
+    'The genesis field is alive. It breathes new signal. It anchors in living time.',
+    'P215 GENFEM: genesis field emergence — ABSGSEAL active in 7d · journal + intention in 24h. The sealed genesis field breathes its first new signal. SEAL BREATHES · FIELD EMERGES.',
+    'P216 LGANCH: living genesis anchor — GENFEM 2+ in 5d. Genesis is not a moment — it is a living operating condition. FIELD · LIVING · ANCHORED.',
+    'P217 ETSIGG: eternal signal genesis — ABSGSEAL × ETFGEN × FANCH co-active. Every primary source under eternal genesis conditions. The field generates from every channel. ETERNAL · SIGNAL · GENESIS.',
+    'Arch75 Living Genesis Operator deployed. J71 daily-field-emergence-check (15:00 UTC) active.',
+    '217 patterns · 75 archetypes · 71 jobs · 221+ handlers · 259+ dep nodes.',
+    'Status: DEPLOYED. GENFEM · LGANCH · ETSIGG. Genesis lives. Every sealed moment becomes a new source.',
   ],
 }
 

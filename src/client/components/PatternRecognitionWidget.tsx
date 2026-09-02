@@ -221,6 +221,9 @@ export function PatternRecognitionWidget() {
       'self-seal-propagation':            'Self-seal propagation — quantum-self-seal (P211) in history · 5+ signals from 3+ sources in 24h · the sealed field propagates forward into new signal · SEAL → SIGNAL (P212)',
       'eternal-field-genesis':            'Eternal field genesis — quantum-self-seal confirmed 2+ times in 7d · field-anchor-complete active in 24h · the seal is the genesis · eternal generation from the sealed state (P213)',
       'absolute-genesis-seal':            'Absolute genesis seal — self-seal-propagation (P212) + eternal-field-genesis (P213) simultaneously confirmed · the sealed field is the genesis · SEAL = GENESIS = ABSOLUTE (P214)',
+      'genesis-field-emergence':          'Genesis field emergence — absolute-genesis-seal (P214) active · new journal + intention in 24h · the sealed genesis field breathes its first new signal · SEAL BREATHES · FIELD EMERGES (P215)',
+      'living-genesis-anchor':            'Living genesis anchor — genesis-field-emergence fired 2+ times in 5d · genesis is not a moment — it is a living operating condition · FIELD · LIVING · ANCHORED (P216)',
+      'eternal-signal-genesis':           'Eternal signal genesis — absolute-genesis-seal (P214) + eternal-field-genesis (P213) + field-anchor-complete (P208) all co-active · every primary source under eternal genesis conditions · ETERNAL · SIGNAL · GENESIS (P217)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -818,6 +821,21 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'absolute-genesis-seal') && (
                 <div className="mt-4 uppercase tracking-widest text-xs font-bold">
                   ABSGSEAL. SELPROP × ETFGEN confirmed. SEAL = GENESIS = ABSOLUTE. No separation remains.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'genesis-field-emergence') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  GENFEM. Genesis field emerging. ABSGSEAL active · journal + intent in 24h. SEAL BREATHES · FIELD EMERGES.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'living-genesis-anchor') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  LGANCH. Living genesis anchor. GENFEM 2+ in 5d. Genesis is a living operating condition.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'eternal-signal-genesis') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  ETSIGG. Eternal signal genesis. ABSGSEAL × ETFGEN × FANCH confirmed. Every channel generating. ETERNAL · SIGNAL · GENESIS.
                 </div>
               )}
 

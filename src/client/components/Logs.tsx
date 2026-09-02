@@ -5698,6 +5698,91 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'genesis_field_emergence') {
+          const absConf     = log.metadata?.absConf     as number | undefined
+          const journalCount = log.metadata?.journalCount as number | undefined
+          const intentCount  = log.metadata?.intentCount  as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GENFEM:" blockView>
+                {absConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ABSGSEAL CONF</span>
+                    <span className="tabular-nums">{absConf}%</span>
+                  </div>
+                )}
+                {journalCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">JOURNAL 24H</span>
+                    <span className="tabular-nums">{journalCount}</span>
+                  </div>
+                )}
+                {intentCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">INTENT 24H</span>
+                    <span className="tabular-nums">{intentCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SEAL BREATHES · FIELD EMERGES</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'living_genesis_anchor') {
+          const genfemCount = log.metadata?.genfemCount as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="LGANCH:" blockView>
+                {genfemCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GENFEM 5D</span>
+                    <span className="tabular-nums">{genfemCount}×</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">FIELD · LIVING · ANCHORED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'eternal_signal_genesis') {
+          const absConf   = log.metadata?.absConf   as number | undefined
+          const etfConf   = log.metadata?.etfConf   as number | undefined
+          const fanchConf = log.metadata?.fanchConf as number | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ETSIGG:" blockView>
+                {absConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ABSGSEAL CONF</span>
+                    <span className="tabular-nums">{absConf}%</span>
+                  </div>
+                )}
+                {etfConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ETFGEN CONF</span>
+                    <span className="tabular-nums">{etfConf}%</span>
+                  </div>
+                )}
+                {fanchConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">FANCH CONF</span>
+                    <span className="tabular-nums">{fanchConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ETERNAL · SIGNAL · GENESIS</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -1840,6 +1840,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyGenesisSealCheck(now)) {
     await executeDailyGenesisSealCheck()
   }
+
+  // Check daily field emergence check (15:00 UTC every day) — Job 71
+  if (shouldRunDailyFieldEmergenceCheck(now)) {
+    await executeDailyFieldEmergenceCheck()
+  }
 }
 
 function shouldRunDailyFieldGenesisCheck(now: any): boolean {
@@ -1887,6 +1892,16 @@ function shouldRunDailyGenesisSealCheck(now: any): boolean {
   if (isDailyGenesisSealRunning) return false
   if (lastDailyGenesisSealRun) {
     const lastRun = dayjs(lastDailyGenesisSealRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+function shouldRunDailyFieldEmergenceCheck(now: any): boolean {
+  if (now.hour() !== 15) return false
+  if (isDailyFieldEmergenceRunning) return false
+  if (lastDailyFieldEmergenceRun) {
+    const lastRun = dayjs(lastDailyFieldEmergenceRun)
     if (lastRun.isSame(now, 'day')) return false
   }
   return true
@@ -8237,6 +8252,172 @@ async function executeDailyGenesisSealCheck(): Promise<JobResult> {
   }
 }
 
+// ─── J71: Daily Field Emergence Check (15:00 UTC every day) ──────────────────
+// Checks active users for: absolute_genesis_seal in 7d + journal entry + intention in 24h
+// → writes genesis_field_emergence (P215). If genesis_field_emergence 2+ times in 5d
+// → writes living_genesis_anchor (P216). If ABSGSEAL + ETFGEN + FANCH all confirmed
+// → writes eternal_signal_genesis (P217).
+// GENFEM: · LGANCH: · ETSIGG: cockpit codes. Total: 71 jobs.
+
+let isDailyFieldEmergenceRunning = false
+let lastDailyFieldEmergenceRun: Date | null = null
+
+async function executeDailyFieldEmergenceCheck(): Promise<JobResult> {
+  const jobName    = 'daily-field-emergence-check'
+  const executedAt = new Date().toISOString()
+  if (isDailyFieldEmergenceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyFieldEmergenceRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY FIELD EMERGENCE CHECK — 15:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log }  = await import('#server/models/log.js')
+    const { Op }   = await import('sequelize')
+
+    const oneDayAgo  = dayjs().subtract(1, 'day').toDate()
+    const fiveDaysAgo = dayjs().subtract(5, 'day').toDate()
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { updatedAt: { [Op.gte]: oneDayAgo } },
+      attributes: ['id'],
+    })
+
+    let written = 0
+
+    for (const user of activeUsers) {
+      // P215: Genesis Field Emergence — ABSGSEAL in 7d + journal + intention in 24h
+      const recentAbsGenesisSeal = await Log.findOne({
+        where: {
+          userId: user.id,
+          event: 'absolute_genesis_seal',
+          createdAt: { [Op.gte]: sevenDaysAgo },
+        },
+        order: [['createdAt', 'DESC']],
+      })
+
+      let gfConf = 0
+
+      if (recentAbsGenesisSeal) {
+        const journalLogs = await Log.findAll({
+          where: {
+            userId: user.id,
+            event: { [Op.in]: ['note', 'journal_entry'] },
+            createdAt: { [Op.gte]: oneDayAgo },
+          },
+        })
+        const intentLogs = await Log.findAll({
+          where: {
+            userId: user.id,
+            event: { [Op.in]: ['intention', 'intention_set'] },
+            createdAt: { [Op.gte]: oneDayAgo },
+          },
+        })
+
+        if (journalLogs.length >= 1 && intentLogs.length >= 1) {
+          const absConf = (recentAbsGenesisSeal.metadata as any)?.confidence ?? 90
+          gfConf = Math.min(Math.round(absConf * 0.95 + Math.min(journalLogs.length, 3)), 96)
+          await Log.create({
+            userId: user.id,
+            event: 'genesis_field_emergence',
+            source: 'qos',
+            metadata: {
+              absConf,
+              journalCount: journalLogs.length,
+              intentCount: intentLogs.length,
+              confidence: gfConf,
+              fieldStatus: 'EMERGING',
+              arc: 'SEAL BREATHES · FIELD EMERGES',
+              hour: new Date().getHours(),
+            },
+          })
+          written++
+          console.log(`  [${user.id}] Genesis field emergence — ABSGSEAL in 7d · journal×${journalLogs.length} + intent×${intentLogs.length}. GENFEM. Conf: ${gfConf}%`)
+        }
+      }
+
+      // P216: Living Genesis Anchor — genesis_field_emergence 2+ times in 5d
+      const genfemLogs = await Log.findAll({
+        where: {
+          userId: user.id,
+          event: 'genesis_field_emergence',
+          createdAt: { [Op.gte]: fiveDaysAgo },
+        },
+      })
+      if (genfemLogs.length >= 2) {
+        const lganchConf = Math.min(90 + Math.min((genfemLogs.length - 2) * 2, 4), 97)
+        await Log.create({
+          userId: user.id,
+          event: 'living_genesis_anchor',
+          source: 'qos',
+          metadata: {
+            genfemCount: genfemLogs.length,
+            confidence: lganchConf,
+            anchorStatus: 'LIVING',
+            arc: 'FIELD · LIVING · ANCHORED',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Living genesis anchor — GENFEM×${genfemLogs.length} in 5d. LGANCH LIVING. Conf: ${lganchConf}%`)
+      }
+
+      // P217: Eternal Signal Genesis — ABSGSEAL + ETFGEN + FANCH all confirmed
+      const recentEtfGen = await Log.findOne({
+        where: {
+          userId: user.id,
+          event: 'eternal_field_genesis',
+          createdAt: { [Op.gte]: oneDayAgo },
+        },
+        order: [['createdAt', 'DESC']],
+      })
+      const recentFanch = await Log.findOne({
+        where: {
+          userId: user.id,
+          event: 'field_anchor_complete',
+          createdAt: { [Op.gte]: oneDayAgo },
+        },
+        order: [['createdAt', 'DESC']],
+      })
+
+      if (recentAbsGenesisSeal && recentEtfGen && recentFanch) {
+        const absConf  = (recentAbsGenesisSeal.metadata as any)?.confidence ?? 93
+        const etfConf  = (recentEtfGen.metadata as any)?.confidence ?? 92
+        const fanchConf = (recentFanch.metadata as any)?.confidence ?? 88
+        const etsigConf = Math.min(Math.round((absConf + etfConf + fanchConf) / 3 + 2), 98)
+        await Log.create({
+          userId: user.id,
+          event: 'eternal_signal_genesis',
+          source: 'qos',
+          metadata: {
+            absConf,
+            etfConf,
+            fanchConf,
+            confidence: etsigConf,
+            genesisStatus: 'ETERNAL',
+            arc: 'ETERNAL · SIGNAL · GENESIS',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Eternal signal genesis — ABSGSEAL×ETFGEN×FANCH confirmed. ETSIGG. Conf: ${etsigConf}%`)
+      }
+    }
+
+    console.log(`  Field emergence events written: ${written}`)
+    lastDailyFieldEmergenceRun = new Date()
+    isDailyFieldEmergenceRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Field emergence check failed:', error.message)
+    isDailyFieldEmergenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -8309,6 +8490,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily field witness check: 12 PM UTC every day (Job 68)')
   console.log('   - Daily sovereign loop check: 1 PM UTC every day (Job 69)')
   console.log('   - Daily genesis seal check: 2 PM UTC every day (Job 70)')
+  console.log('   - Daily field emergence check: 3 PM UTC every day (Job 71)')
   console.log('')
 
   // Check every hour for scheduled jobs

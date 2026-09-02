@@ -1298,6 +1298,10 @@ export default async (fastify: FastifyInstance) => {
       'self_seal_propagation',
       'eternal_field_genesis',
       'absolute_genesis_seal',
+      // v136: genesis field emergence · living genesis anchor · eternal signal genesis (P215/P216/P217)
+      'genesis_field_emergence',
+      'living_genesis_anchor',
+      'eternal_signal_genesis',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
