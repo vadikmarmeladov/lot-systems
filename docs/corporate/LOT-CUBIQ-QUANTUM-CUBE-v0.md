@@ -4,8 +4,8 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (opened) — 2026-09-03 (use case 02 appended)
+VERSION:  0.2 — DEVELOPMENT CYCLE 2 (SECTION 07 APPEND, NO SPEC CHANGE)
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -57,6 +57,18 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  CYCLE 2 READING LOG (2026-09-03)
+
+  Before appending Use Case 02 (Section 07), this cycle re-read this
+  document in full, plus docs/corporate/LOT-CUBIQ-VISION.md and
+  docs/corporate/LOT-CUBIQ-OPERATOR.md, per this section's own standing
+  instruction to future sessions. No spec section (01-06, 08) changed.
+  v.0 remains locked to the single-hop primitive and the four-gesture
+  vocabulary defined in Section 04; nothing in Use Case 02 required or
+  implied new hardware capability — only better judgment about when an
+  already-defined gesture should fire, which lives in the driver
+  (Section 05), not the actuator.
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -320,6 +332,61 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE NIGHT SHIFT RETURN                       2026-09-03
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect,"
+  ER nurse on a rotating night-shift schedule, CUBIQ charging pad on a
+  bedside table in a bedroom shared with a partner who keeps
+  conventional daytime hours.
+
+  This operator's Index of Systems runs on an inverted clock. Most of
+  the LOT® platform's timing assumptions — morning launch, evening
+  close, the DIURNAL ARC named in LOT-CUBIQ-OPERATOR.md Section 03 —
+  are built around daylight rhythms. A phone notification system has
+  no way to know that for this operator, 7:00 AM is bedtime, not
+  wake-up, and that anything audible or lit at that hour is not a
+  convenience — it is a hazard to a sleeping partner and to the
+  operator's own rest window, which is already the scarcest resource
+  in a rotating-shift life.
+
+  CUBIQ hardware v.0 does not need to know the operator's shift
+  schedule to get this right. It only needs to be quiet by
+  construction. The operator finishes a night shift, comes home at
+  dawn, and sets the cube on the bedside table to charge. A self-care
+  streak badge (common tier — seven consecutive shifts logged with a
+  post-shift emotional check-in) unlocks while the operator is already
+  half-asleep. The cube performs THE HOP (Section 04) — <10mm rise,
+  lands in place. The voice-coil actuator (Section 03) is inaudible
+  over a box fan; the single low-power LED ring (Section 02) does not
+  fire, because CUBIQ's notification language is motion, not light.
+  The partner, three feet away, sleeps through it. The operator,
+  half-conscious, feels the small settle of the nightstand and knows,
+  without opening an eye, that the week held. They do not reach for a
+  phone. There is nothing lit up to reach for.
+
+  Eleven days later the Assembly phase advances — the DIURNAL ARC
+  pattern (P76+P79+P80, LOT-CUBIQ-OPERATOR.md Section 03) fires for
+  the first time on an inverted schedule, because the Quantum Intent
+  Engine tracks the operator's own rhythm, not the clock's. THE SETTLE
+  (Section 04) holds a light standing pressure for two seconds that
+  evening as the operator dresses for their shift — presence without
+  spectacle, a physical acknowledgment timed to a threshold the
+  operator did not know the system was tracking. A rare badge unlock
+  later that month, which would trigger THE LEAP's full-amplitude
+  forward hop, is deliberately withheld by the driver until the IMU
+  (Section 03) reports the room has been in motion for at least ninety
+  seconds — a proxy for "someone here is already awake" — rather than
+  firing the moment the signal condition is met. The gesture vocabulary
+  is fixed in v.0; the judgment about when a fixed gesture is safe to
+  perform is not, and does not need new hardware to improve.
+
+  This is the use case that proves Section 04's principle scales past
+  the single well-lit home office of Use Case 01: a notification body
+  that respects a body sleeping next to it is not a special mode built
+  for shift workers — it is the same anti-feed thesis (LOT-CUBIQ-VISION.md
+  Section 01) applied to the one household variable a phone screen can
+  never account for — who else is in the room.
 
 --------------------------------------------------------------------------------
 08 // BRAND
