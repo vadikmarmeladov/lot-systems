@@ -162,6 +162,41 @@ export function getMoonPhase(date: Date): { phase: string; illumination: number 
 }
 
 /**
+ * Personal zodiac-hour resonance — the user's own most active hourly-zodiac
+ * bucket, derived from their historical Log entry timestamps (not a natal
+ * chart; this is behavioral, not astrological, personalization layered on
+ * top of the ambient reading). Requires a minimum sample before surfacing
+ * so new accounts don't get a noisy single-entry "peak hour".
+ */
+export function getPersonalZodiacResonance(
+  now: Date,
+  entryTimestamps: number[],
+  minSample = 5
+): { peakHour: string | null; isPeakHour: boolean; sampleSize: number } {
+  const sampleSize = entryTimestamps.length
+  if (sampleSize < minSample) {
+    return { peakHour: null, isPeakHour: false, sampleSize }
+  }
+
+  const counts: Record<string, number> = {}
+  for (const ts of entryTimestamps) {
+    const zodiac = getHourlyZodiac(new Date(ts))
+    counts[zodiac] = (counts[zodiac] || 0) + 1
+  }
+
+  let peakHour: string | null = null
+  let peakCount = 0
+  for (const [zodiac, count] of Object.entries(counts)) {
+    if (count > peakCount) {
+      peakCount = count
+      peakHour = zodiac
+    }
+  }
+
+  return { peakHour, isPeakHour: peakHour === getHourlyZodiac(now), sampleSize }
+}
+
+/**
  * Get moon emoji based on phase
  */
 export function getMoonEmoji(phaseName: string): string {

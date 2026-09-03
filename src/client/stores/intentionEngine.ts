@@ -3797,7 +3797,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   log:               [],
   time:              [],
   quantum_random:    [],
-  astrology:         [], // (2026-07-27 audit) ambient rokuyo/moon-phase/zodiac-hour reading, no upstream deps
+  astrology:         ['log'], // (2026-09-03 audit) ambient rokuyo/moon-phase/zodiac-hour reading + personal peak-hour resonance derived from Log entry timestamps
 
   // ── Tier 1: single-source consumers
   selfcare:          ['mood'],
@@ -4880,7 +4880,9 @@ export function recordAstrologySignal(
   moonPhase: string,
   moonIllumination: number,
   hourlyZodiac: string,
-  westernZodiac: string
+  westernZodiac: string,
+  personalPeakHour?: string | null,
+  isPersonalPeakHour?: boolean
 ) {
   recordSignal('astrology', 'ambient_reading', {
     rokuyo,
@@ -4889,6 +4891,8 @@ export function recordAstrologySignal(
     hourlyZodiac,
     westernZodiac,
     auspicious: rokuyo === 'Taian',
+    personalPeakHour: personalPeakHour ?? null,
+    isPersonalPeakHour: !!isPersonalPeakHour,
   })
 }
 

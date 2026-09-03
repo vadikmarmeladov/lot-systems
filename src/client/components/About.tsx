@@ -3991,6 +3991,19 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             astronomical algorithms, not API calls. Updates daily.
           </P>
 
+          <SubHeading>Personal Peak Hour</SubHeading>
+          <P>
+            Behavioral, not astrological: the widget cross-references the
+            Japanese hourly zodiac against your own Log entry timestamps to
+            find the 2-hour window you've historically been most active in.
+            When the live clock enters that window, the widget marks it —
+            &quot;⟡ Your peak hour&quot;. Requires 5+ logged entries before it
+            surfaces, so new accounts see the ambient reading only. Recorded
+            into the QIE signal bus daily (astrology → log dependency in
+            WIDGET_DEPENDENCY_MAP) so other widgets can read alignment
+            between ambient time and personal rhythm.
+          </P>
+
           {/* ── WEATHER SOUND SYSTEM ────────────────────────────────── */}
           <SectionHeading id="weather-sound">Weather Sound System</SectionHeading>
           <P>

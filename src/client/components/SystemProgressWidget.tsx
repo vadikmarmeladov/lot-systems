@@ -1457,6 +1457,19 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '781 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1073+. The system is documented through its highest confirmed state.',
     ],
   },
+  {
+    date: '2026-09-03',
+    session: 'Astrology Widget — Personal Peak Hour / Log Synchronization',
+    assembled: [
+      'astrology.ts: getPersonalZodiacResonance() added. Pure function — cross-references getHourlyZodiac() against the caller\'s own Log entry timestamps to find their most-active 2-hour zodiac window, and whether the live hour matches it. Returns null peakHour under a 5-entry minimum sample to avoid noise on new accounts.',
+      'System.tsx: personalZodiac computed from answerLogs (real Log timestamps, not a signal-bus proxy). "Astrology:" block (both condensed and pro layouts) now renders "⟡ Your peak hour — most active here across N entries" when the live hourly zodiac matches the user\'s historical peak.',
+      'intentionEngine.ts: recordAstrologySignal() extended with personalPeakHour / isPersonalPeakHour metadata — the daily QIE sync now carries the personalization alongside the ambient reading. WIDGET_DEPENDENCY_MAP.astrology: [] → [\'log\'] — the widget is no longer a pure Tier 0 leaf; it reads the log pipeline for its personalization layer, same convention as recipe/planner.',
+      'About.tsx: Astrology Widget section — Personal Peak Hour subsection added, documenting the behavioral (not natal) nature of the feature.',
+      'Scope: this is one honest increment, not a new pattern/archetype/job — no P-number, no archetype, no scheduled job was added this session. Verified zero new tsc errors against the pre-existing baseline (128 lines, unchanged) and a green client+server build.',
+      'BUILD: GREEN. Deployed to claude/practical-curie-tqtgfn.',
+      'The widget now knows when you\'re in your own hour, not just the sky\'s.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
