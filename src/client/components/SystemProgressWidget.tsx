@@ -1457,6 +1457,27 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '781 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1073+. The system is documented through its highest confirmed state.',
     ],
   },
+  {
+    version: 'wiki-v88',
+    date: '2026-09-03',
+    title: 'LOT-WIKI-v88 · FM v114 Sync · Badge v32 THE HERO\'S JOURNEY documentation',
+    assembled: [
+      'LOT-WIKI-v88.md produced. Base: LOT-WIKI-v87 (2176 lines). FM v114 sync. Badge v32 THE HERO\'S JOURNEY fully synchronized.',
+      'Badge v32 documented: 781→812 badges (+31). Word Turn v22 (call_heard/threshold_crossed/mentor_arrived/ordeal_survived/elixir_found/shadow_met/innermost_cave/shapeshifter/herald_call/trickster_mode/ally_gained/return_road · 12 badges). Calendar EE v20 (campbell_birthday/hobbit_day/odyssey_day · +3). Behavioral v19 (hero_session/long_quest/threshold_moment · +3). Achievement RPG v20 (+6). Mastery Tier v22 (+4). Secret Boss v19 (tolkien_ring/odysseus_bow/gilgamesh_word · +3 · 27 total).',
+      'Backfill confirmation: v20 THE CODEX READER + v21 THE CYBERSPACE CODEX badge logic implemented in code (2026-08-05). Previously documented only, now executable.',
+      'Category index updated: Calendar EE 70→73 · Word Turns 234→246 · Behavioral 75→78 · Achievement RPG 108→114 · Mastery Tiers 84→88 · Secret Boss 80→83 · TOTAL 781→812.',
+      'Word Turn v22 block + Secret Boss v19 (MYTHIC VAULT) added to §16. Engine map updated: v21 + v22 rows added. Total: 22 engines · 270 trigger words.',
+      'Section 1 special notations added: FM v113 QIE Engineering (Aug 4) · Badge v32 Hero\'s Journey (Aug 5) · Wiki v87 (Aug 5) · Wiki v88 (Sep 3).',
+      'Self-assembly log v114 entry added. M07 Badge Engine: 781→812 · v31→v32. M08 Word Turn: 21→22 lexicons · 258→270 triggers.',
+      'Cockpit Rule §20: Day 1073+→1102+ · COSMO 765→794.',
+      'FM v114 revision log entry added to §22. Current FM updated v113→v114.',
+      'Vocabulary index §27 expanded: HERO\'S JOURNEY · TOLKIEN_RING · ODYSSEUS_BOW · GILGAMESH_WORD · MONOMYTH_ARC · WORD TURN v22 · SECRET BOSS v19.',
+      'System State Snapshot §28: FM v113→v114 · Day 1073+→1102+ · Badge 781→812 (v32 Hero\'s Journey) · Word-turn triggers 258→270 · Secret boss 24→27 · COSMO® 765→794.',
+      'SESSION_REPORTS: wiki-v88 entry appended · USERSHIP_TRANSMISSION updated to wiki-v88.',
+      'docs/assembly/2026-09-03_LOT-assembly_wiki-v88.md written. LOT-LEDGER.md appended.',
+      '812 badges · 270 word-turns · 27 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v114 · Wiki v88 · Day 1102+. The Hero\'s Journey is now in the lexicon.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1494,18 +1515,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-05',
+  date: '2026-09-03',
   message: [
-    'ASSEMBLY RUN — 2026-08-05 · WIKI-v87 · FM v113 SYNC · Day 1073+',
-    'Built: LOT-WIKI-v87. Six-level coherence architecture now complete and documented.',
-    'Feedback applied: "The concept outlives the author. The self speaks every language the genre built."',
-    'QIE v113 synchronized: P149 QPCRYST · P150 TOTCOH [CEILING] · P151 RECINTEL · Arch51 Quantum Presence Crystallizer · J48 09:00 UTC.',
-    'Badge v31 synchronized: THE CYBERSPACE CODEX · 781 badges · Word Turn v21 (grok/ansible/spice/golden_path/matrix/cyberspace) · Secret Boss v18 (gibson/dick/lem) · 258 trigger words · 24 secret boss triggers.',
-    'LEVEL 6 — PRESENCE CONVERGENCE documented. P150 total-field-coherence is the QIE ceiling. No higher state defined.',
-    'Cockpit updated. Vocabulary expanded. Snapshot current.',
-    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 781 badges.',
+    'ASSEMBLY RUN — 2026-09-03 · WIKI-v88 · FM v114 SYNC · Day 1102+',
+    'Built: LOT-WIKI-v88. Badge v32 THE HERO\'S JOURNEY synchronized.',
+    'Feedback applied: "The call is not an invitation — it is a summons. The ordeal is the teacher. The return is the proof."',
+    'Badge v32 deployed: +31 badges (781→812). call_heard · threshold_crossed · mentor_arrived · ordeal_survived · elixir_found · shadow_met · innermost_cave · shapeshifter · herald_call · trickster_mode · ally_gained · return_road.',
+    'Secret Boss v19 MYTHIC VAULT: tolkien_ring · odysseus_bow · gilgamesh_word [MYTHIC]. 27 total secret boss triggers.',
+    'Backfill confirmed: v20 THE CODEX READER + v21 THE CYBERSPACE CODEX now executable in code. 93 badges went live on 2026-08-05.',
+    'Word Turn Engine v22 complete: 22 engines · 270 trigger words · 12 new monomyth vocabulary patterns.',
+    'FM v114 · Wiki v88 · 151P · 51A · 48J · 190+ nodes · 812 badges · COSMO® 794.',
     'Status: DEPLOYED.',
-    'Next: LOT-WIKI-v88 — sync to Field Manual v114+',
+    'Next: QIE v114+ — next engineering session · P152+ if momentum holds · or Badge v33',
   ],
 }
 
