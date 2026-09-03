@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,19 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Preflight Tag Fetch
+
+`git tag --list 'benchmark-*'` only sees tags the local checkout already
+has. A fresh clone or worktree can have full branch history but no tags
+fetched, in which case the command silently returns empty — indistinguishable
+from "no tags exist yet" without checking the remote. Step 00 must run
+`git fetch origin --tags` (or equivalent) before reading LAST_GREEN, every
+run, not just the first one in a fresh environment. An empty LAST_GREEN that
+is actually a fetch gap, not a rollback lattice's real beginning, produces
+two wrong outcomes: a false "first tag" narrative in the report, and — more
+seriously — a false PLAN-B ABORT (no rollback target) when a real target
+exists on the remote and just wasn't fetched.
+(SR-20260903-01: discovered post-push — 106 prior benchmark-* tags existed
+on origin, unseen locally at preflight time. Corrected in-report per Cardinal
+Rule 2, not by rewriting the false lines.)
