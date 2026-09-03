@@ -23,6 +23,8 @@ import {
   DATE_FORMAT,
   DATE_TIME_FORMAT,
   LOG_MESSAGE_STALE_TIME_MINUTES,
+  MAX_EMAIL_MESSAGE_LENGTH,
+  MAX_EMAIL_RECIPIENT_NAME_LENGTH,
   MAX_LOG_TEXT_LENGTH,
   MAX_SYNC_CHAT_MESSAGE_LENGTH,
   SYNC_CHAT_MESSAGES_TO_SHOW,
@@ -30,6 +32,7 @@ import {
   WEATHER_STALE_TIME_MINUTES,
   isBlankMessage,
   blankStrippedSql,
+  resolveCommunityPersona,
 } from '#shared/constants'
 import { sync } from '../sync.js'
 import * as weather from '#server/utils/weather'
@@ -365,6 +368,10 @@ export default async (fastify: FastifyInstance) => {
         }
         case 'chat_message': {
           // TODO: check if user is allowed to use chat
+          write({ event, data })
+          break
+        }
+        case 'email_sent': {
           write({ event, data })
           break
         }
@@ -958,6 +965,72 @@ export default async (fastify: FastifyInstance) => {
         context,
       })
       return reply.ok()
+    }
+  )
+
+  // LOT Email — composed via "/email to <name>" in Log, broadcast into
+  // Sync (same live-feed mechanism as chat), and dual-written to Log for
+  // the permanent record. "channel" is the minimal LOT Community / Cohort
+  // Dating touchpoint: a recipientName matching a known community persona
+  // (see LOT_COMMUNITY_PERSONAS) is tagged 'community', anything else is a
+  // plain 'direct' send. No user-resolution — the recipient may not be a
+  // registered member yet, which is the point of an address-by-name email.
+  fastify.post(
+    '/emails',
+    async (req: FastifyRequest<{ Body: { recipientName: string; message: string } }>, reply) => {
+      const isSuspended = req.user.tags?.some((tag: string) => tag.toLowerCase() === 'suspended')
+      if (isSuspended) {
+        return reply.status(403).send({ error: 'Account suspended' })
+      }
+      if (!canAccessChat(req.user.tags || [])) {
+        return reply.status(403).send({ error: 'Email requires Usership, Onyx, Legacy, R&D, or Admin' })
+      }
+
+      const recipientName = (req.body.recipientName || '').trim().slice(0, MAX_EMAIL_RECIPIENT_NAME_LENGTH)
+      const message = (req.body.message || '').trim().slice(0, MAX_EMAIL_MESSAGE_LENGTH)
+      if (!recipientName) {
+        return reply.status(400).send({ error: 'Recipient is required' })
+      }
+      if (isBlankMessage(message)) {
+        return reply.status(400).send({ error: 'Message cannot be empty' })
+      }
+
+      const persona = resolveCommunityPersona(recipientName)
+      const channel = persona ? 'community' : 'direct'
+
+      const email = await fastify.models.Email.create({
+        senderUserId: req.user.id,
+        recipientName,
+        channel,
+        message,
+      })
+
+      sync.emit('email_sent', {
+        id: email.id,
+        senderUserId: req.user.id,
+        senderName: req.user.firstName,
+        recipientName,
+        channel,
+        message: email.message,
+        createdAt: email.createdAt,
+      })
+
+      // Log the sent email synchronously with context, mirroring chat_message
+      const context = await getLogContext(req.user)
+      await fastify.models.Log.create({
+        userId: req.user.id,
+        event: 'email',
+        text: '',
+        metadata: {
+          emailId: email.id,
+          recipientName,
+          channel,
+          message: email.message,
+        },
+        context,
+      })
+
+      return reply.send({ id: email.id, channel })
     }
   )
 

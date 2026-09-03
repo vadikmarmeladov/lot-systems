@@ -93,6 +93,13 @@ export const useLikeChatMessage = createMutation<ChatMessageLikePayload, void>(
   '/api/chat-messages/like'
 )
 
+// LOT Email — composed in Log via "/email to <name>"; see Sync.tsx for how
+// the email_sent Sync event renders it inline in the chat feed.
+export const useCreateEmail = createMutation<
+  { recipientName: string; message: string },
+  { id: string; channel: 'direct' | 'community' }
+>('post', '/api/emails')
+
 export interface DirectMessageRecord {
   id: string
   senderId: string

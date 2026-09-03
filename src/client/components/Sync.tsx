@@ -33,6 +33,12 @@ import {
   isBlankMessage,
 } from '#shared/constants'
 
+// A live feed item merges real chat messages with synthetic LOT Email
+// entries (from the email_sent Sync event) — isEmail marks the latter so
+// the like-to-react handler can skip them (an Email has no ChatMessage
+// row to like).
+type SyncFeedItem = PublicChatMessage & { isEmail?: boolean }
+
 const CHAT_ALLOWED_TAGS: string[] = [
   UserTag.Admin,
   UserTag.RND,
@@ -50,8 +56,10 @@ export const Sync = React.memo(function SyncInner() {
   const queryClient = useQueryClient()
 
   const [message, setMessage] = React.useState('')
-  // SSE-received messages not yet reflected in the API response
-  const [sseMessages, setSseMessages] = React.useState<PublicChatMessage[]>([])
+  // SSE-received messages not yet reflected in the API response, plus
+  // synthetic LOT Email entries (Email has no persisted feed of its own —
+  // it lives in the Sync stream and the Log record).
+  const [sseMessages, setSseMessages] = React.useState<SyncFeedItem[]>([])
 
   // Check if current user can access /us section (admin-level access)
   const canAccessUserProfiles = React.useMemo(() => {
@@ -104,6 +112,28 @@ export const Sync = React.memo(function SyncInner() {
         })
       }
     )
+    const { dispose: disposeEmailSentListener } = sync.listen(
+      'email_sent',
+      (data) => {
+        setSseMessages((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          const communityTag = data.channel === 'community' ? ' · LOT Community' : ''
+          const emailItem: SyncFeedItem = {
+            id: data.id,
+            authorUserId: data.senderUserId,
+            author: data.senderName,
+            message: `✉️ to ${data.recipientName}${communityTag} — ${data.message}`,
+            likes: 0,
+            likesCount: 0,
+            isLiked: false,
+            createdAt: data.createdAt,
+            updatedAt: data.createdAt,
+            isEmail: true,
+          }
+          return [emailItem, ...prev]
+        })
+      }
+    )
     const { dispose: disposeChatMessageLikeListener } = sync.listen(
       'chat_message_like',
       (data) => {
@@ -119,6 +149,7 @@ export const Sync = React.memo(function SyncInner() {
     )
     return () => {
       disposeChatMessageListener()
+      disposeEmailSentListener()
       disposeChatMessageLikeListener()
     }
   }, [me?.id])
@@ -134,9 +165,11 @@ export const Sync = React.memo(function SyncInner() {
   )
 
   const onToggleLike = React.useCallback(
-    (messageId: string) => (ev: React.MouseEvent) => {
+    (messageId: string, isEmail?: boolean) => (ev: React.MouseEvent) => {
       ev?.preventDefault()
       ev?.stopPropagation()
+      // LOT Email entries aren't ChatMessage rows — nothing to like.
+      if (isEmail) return
       likeChatMessage({ messageId })
     },
     [likeChatMessage]
@@ -228,10 +261,11 @@ export const Sync = React.memo(function SyncInner() {
             <div
               key={x.id}
               className={cn(
-                'group flex items-start gap-x-8 cursor-pointer grid-fill-hover -mx-4 px-4 py-2 rounded',
+                'group flex items-start gap-x-8 grid-fill-hover -mx-4 px-4 py-2 rounded',
+                (x as SyncFeedItem).isEmail ? 'cursor-default' : 'cursor-pointer',
                 i >= SYNC_CHAT_MESSAGES_TO_SHOW && 'text-acc/20'
               )}
-              onClick={onToggleLike(x.id)}
+              onClick={onToggleLike(x.id, (x as SyncFeedItem).isEmail)}
             >
               {authorId && (featureUnlocks?.socialMentions || canAccessUserProfiles) ? (
                 <GhostButton

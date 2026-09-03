@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useCreateEmail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -249,6 +249,15 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COMM:" blockView>
                 {log.metadata.message as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'email') {
+          const channel = log.metadata?.channel as string
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="MAIL:" blockView>
+                {`to ${log.metadata.recipientName as string}${channel === 'community' ? ' · LOT Community' : ''}\n${log.metadata.message as string}`}
               </Block>
             </LogContainer>
           )
@@ -3704,6 +3713,15 @@ const NoteEditor = ({
   })
   const [prayerResponse, setPrayerResponse] = React.useState<string | null>(null)
   const [prayerLoading, setPrayerLoading] = React.useState(false)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  const [emailSentTo, setEmailSentTo] = React.useState<string | null>(null)
+  const { mutate: submitEmail } = useCreateEmail({
+    onSuccess: (_data, variables) => {
+      setEmailSentTo(variables.recipientName)
+      setEmailLoading(false)
+    },
+    onError: () => setEmailLoading(false),
+  })
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
@@ -4051,6 +4069,23 @@ const NoteEditor = ({
             submitQi({ query })
           }
         }
+      } else if (trigger === 'email-send') {
+        // "/email to <name>" — name runs up to the next line break or
+        // sentence punctuation; whatever's left of the log is the body.
+        const emailMatch = value.match(/\/email\s+to\s+([^\n,.;]{1,80})/i)
+        const recipientName = emailMatch?.[1]?.trim()
+        if (recipientName && !emailLoading) {
+          setEmailLoading(true)
+          setEmailSentTo(null)
+          const body = value
+            .replace(/\/email\s+to\s+[^\n,.;]{1,80}/i, '')
+            .replace(/✉️?/g, '')
+            .trim()
+          submitEmail({
+            recipientName,
+            message: body || `Sent from LOT Log — ${dayjs().format('MMM D, h:mm A')}`,
+          })
+        }
       } else if (trigger === 'breathe') {
         setBreatheEnabled(prev => !prev)
       } else if (trigger === 'silent-mode') {
@@ -4139,6 +4174,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to X   Send a LOT Email — appears live in Sync',
           '/system       This help screen',
           '',
           'SHORTCUTS',

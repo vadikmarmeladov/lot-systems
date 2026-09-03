@@ -192,6 +192,17 @@ they were incorporated into master in prior sessions. The ship queue will be
 re-populated as new BEST branches are designated from future assembly runs.
 The protocol above applies to all future merges.
 
+CAUTION (2026-09-03, SR-20260903-01): "LOT Mail" row above (BEST,
+determined-turing-f6bw7r) diffs +5515/-147670 across 321 files against
+current origin/master — not a small email feature's diff anymore; the
+branch has drifted and deletes large unrelated portions of the codebase
+(most of scheduled-jobs.ts included). Re-diff against master and re-verify
+before this branch is ever cherry-picked via Ship Mode. Not re-shipped or
+altered this session — see LOT-DOCTRINE "Manifest BEST Is Not Ship-Safe By
+Itself". This session built an independent LOT Email implementation on
+claude/determined-turing-ozw1jr instead (see LOT-SR-20260903-01) rather
+than trust or extend the drifted branch.
+
 RULE: One feature per Sunday merge pass. If multiple features are queued,
 start with the smallest diff — lower blast radius, cleaner green gate.
 Ship sequentially across Sundays, not all at once.

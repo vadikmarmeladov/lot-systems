@@ -117,6 +117,7 @@ export type LogEvent =
   | 'note'
   | 'emotional_checkin'
   | 'system_feedback'
+  | 'email'
   | 'other';
 
 // Emotional Check-in Types
@@ -198,6 +199,27 @@ export type DirectMessage = {
   message: string;
   createdAt: Date;
   updatedAt: Date;
+};
+
+// Email Types — a Log-composed message ("/email to <name>") addressed by
+// free-text name rather than a resolved user id (the recipient may not be
+// a LOT Systems member yet). "community" channel is the minimal Cohort
+// Dating / LOT Community touchpoint: the name matched a known community
+// persona registry (see LOT_COMMUNITY_PERSONAS); "direct" otherwise.
+export type EmailChannel = 'direct' | 'community';
+
+export type Email = {
+  id: string;
+  senderUserId: string;
+  recipientName: string;
+  channel: EmailChannel;
+  message: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type PublicEmail = Email & {
+  senderName: string | null;
 };
 
 // Chat Message Types
@@ -449,5 +471,6 @@ export type ChatMessageLikeEventPayload = {
 export type SyncEvents = {
   chatMessage: PublicChatMessage;
   chatMessageLike: ChatMessageLikeEventPayload;
+  email_sent: PublicEmail;
   settings_updated: Record<string, never>;
 };

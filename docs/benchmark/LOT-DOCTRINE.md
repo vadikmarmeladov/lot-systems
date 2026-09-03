@@ -226,3 +226,22 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+## Manifest BEST Is Not Ship-Safe By Itself
+
+LOT-MANIFEST.md's STATUS: BEST records which branch won a past comparison —
+it does not attest that the branch still applies cleanly to current master.
+Branches accumulate drift every day master moves without them. Before Ship
+Mode's S1 fetch, diff the candidate branch against current origin/master
+(not its own history) and sanity-check the shape of the diff against the
+feature's own size: a "simplest X" feature whose diff touches hundreds of
+unrelated files or deletes tens of thousands of lines is not that feature's
+diff anymore, whatever the manifest says — treat it as ABORT-and-report,
+not as a fetch-and-cherry-pick target. A manifest row is a pointer, not a
+guarantee; the guarantee only comes from re-checking S5's green gate on
+the actual diff about to merge.
+
+(SR-20260903-01: found while building LOT Email — LOT-MANIFEST's own
+"LOT Mail" BEST row, branch claude/determined-turing-f6bw7r, diffs
++5515/-147670 across 321 files against origin/master. Not shipped; flagged
+for S-2 re-verification instead.)

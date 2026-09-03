@@ -36,6 +36,26 @@ export const blankStrippedSql = (col: string): string =>
 
 export const MAX_LOG_TEXT_LENGTH = 3000
 
+export const MAX_EMAIL_MESSAGE_LENGTH = 2000
+
+export const MAX_EMAIL_RECIPIENT_NAME_LENGTH = 80
+
+// LOT Community persona registry — the minimal, honest seed of Cohort
+// Dating discovery inside LOT Email. A recipient name that matches an
+// entry here is tagged channel: 'community' (shown distinctly in Sync);
+// any other name sends as a plain 'direct' LOT Email. This is NOT a
+// dating/matching engine — it is the smallest real touchpoint that lets
+// /email address a known community persona by name. Full Cohort Dating
+// (profiles, matching, mutual opt-in) is out of scope for this build.
+export const LOT_COMMUNITY_PERSONAS: Record<string, { cohort: string }> = {
+  hitomi: { cohort: 'Cohort Dating' },
+}
+
+export const resolveCommunityPersona = (
+  recipientName: string
+): { cohort: string } | null =>
+  LOT_COMMUNITY_PERSONAS[recipientName.trim().toLowerCase()] || null
+
 export const USER_TAGS_BY_ID: Record<UserTag, { name: string; color?: Color }> = {
   [UserTag.Admin]: { name: 'Admin' },
   [UserTag.RND]: { name: 'R&D' },
