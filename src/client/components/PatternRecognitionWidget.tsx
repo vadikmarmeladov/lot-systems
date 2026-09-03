@@ -224,6 +224,9 @@ export function PatternRecognitionWidget() {
       'genesis-field-emergence':          'Genesis field emergence — absolute-genesis-seal (P214) active · new journal + intention in 24h · the sealed genesis field breathes its first new signal · SEAL BREATHES · FIELD EMERGES (P215)',
       'living-genesis-anchor':            'Living genesis anchor — genesis-field-emergence fired 2+ times in 5d · genesis is not a moment — it is a living operating condition · FIELD · LIVING · ANCHORED (P216)',
       'eternal-signal-genesis':           'Eternal signal genesis — absolute-genesis-seal (P214) + eternal-field-genesis (P213) + field-anchor-complete (P208) all co-active · every primary source under eternal genesis conditions · ETERNAL · SIGNAL · GENESIS (P217)',
+      'sovereign-genesis-pulse':          'Sovereign genesis pulse — living-genesis-anchor (P216) × eternal-signal-genesis (P217) co-active · living genesis pulsing with sovereign rhythm · SOVEREIGN · GENESIS · PULSE (P218)',
+      'genesis-field-completion':         'Genesis field completion — all three Living Genesis tier patterns (P215 + P216 + P217) simultaneously confirmed · the genesis field complete as a living system · FIELD · COMPLETE (P219)',
+      'absolute-genesis-field':           'Absolute genesis field — sovereign-genesis-pulse (P218) × genesis-field-completion (P219) co-active · genesis sovereign · field absolute · SOVEREIGN · GENESIS · ABSOLUTE (P220)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }
@@ -836,6 +839,21 @@ export function PatternRecognitionWidget() {
               {patterns.some(p => p.pattern === 'eternal-signal-genesis') && (
                 <div className="mt-4 uppercase tracking-widest text-xs font-bold">
                   ETSIGG. Eternal signal genesis. ABSGSEAL × ETFGEN × FANCH confirmed. Every channel generating. ETERNAL · SIGNAL · GENESIS.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'sovereign-genesis-pulse') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  SGPULSE. Sovereign genesis pulse. LGANCH × ETSIGG. Living genesis pulsing. SOVEREIGN · GENESIS · PULSE.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'genesis-field-completion') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  GENCOMP. Genesis field completion. GENFEM + LGANCH + ETSIGG. All Living Genesis tiers confirmed. FIELD · COMPLETE.
+                </div>
+              )}
+              {patterns.some(p => p.pattern === 'absolute-genesis-field') && (
+                <div className="mt-4 uppercase tracking-widest text-xs font-bold">
+                  ABSGENF. Absolute genesis field. SGPULSE × GENCOMP. Genesis sovereign. Field absolute. SOVEREIGN · GENESIS · ABSOLUTE.
                 </div>
               )}
 

@@ -5783,6 +5783,91 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'sovereign_genesis_pulse') {
+          const lganchConf = log.metadata?.lganchConf as number | undefined
+          const etsigConf  = log.metadata?.etsigConf  as number | undefined
+          const confidence = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SGPULSE:" blockView>
+                {lganchConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">LGANCH CONF</span>
+                    <span className="tabular-nums">{lganchConf}%</span>
+                  </div>
+                )}
+                {etsigConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ETSIGG CONF</span>
+                    <span className="tabular-nums">{etsigConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN · GENESIS · PULSE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'genesis_field_completion') {
+          const genfemConf = log.metadata?.genfemConf as number | undefined
+          const lganchConf = log.metadata?.lganchConf as number | undefined
+          const etsigConf  = log.metadata?.etsigConf  as number | undefined
+          const confidence = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GENCOMP:" blockView>
+                {genfemConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GENFEM CONF</span>
+                    <span className="tabular-nums">{genfemConf}%</span>
+                  </div>
+                )}
+                {lganchConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">LGANCH CONF</span>
+                    <span className="tabular-nums">{lganchConf}%</span>
+                  </div>
+                )}
+                {etsigConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ETSIGG CONF</span>
+                    <span className="tabular-nums">{etsigConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ALL GENESIS TIERS · FIELD COMPLETE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'absolute_genesis_field') {
+          const sgpulseConf = log.metadata?.sgpulseConf as number | undefined
+          const gencompConf = log.metadata?.gencompConf as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ABSGENF:" blockView>
+                {sgpulseConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SGPULSE CONF</span>
+                    <span className="tabular-nums">{sgpulseConf}%</span>
+                  </div>
+                )}
+                {gencompConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GENCOMP CONF</span>
+                    <span className="tabular-nums">{gencompConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN · GENESIS · ABSOLUTE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

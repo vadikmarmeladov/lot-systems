@@ -176,6 +176,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'genesis-field-emergence':          'GENFEM',
   'living-genesis-anchor':            'LGANCH',
   'eternal-signal-genesis':           'ETSIGG',
+  'sovereign-genesis-pulse':          'SGPULSE',
+  'genesis-field-completion':         'GENCOMP',
+  'absolute-genesis-field':           'ABSGENF',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

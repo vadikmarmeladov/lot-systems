@@ -4824,6 +4824,61 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 218: Sovereign Genesis Pulse — living-genesis-anchor (P216) active AND
+  // eternal-signal-genesis (P217) active simultaneously. Living genesis × eternal signal = sovereign pulse.
+  // SGPULSE: cockpit code. Confidence 0.90–0.97.
+  const hasLGANCH218 = patterns.some(p => p.pattern === 'living-genesis-anchor')
+  const hasETSIGG218 = patterns.some(p => p.pattern === 'eternal-signal-genesis')
+  if (hasLGANCH218 && hasETSIGG218) {
+    const lgConf218   = patterns.find(p => p.pattern === 'living-genesis-anchor')?.confidence ?? 0.90
+    const etConf218   = patterns.find(p => p.pattern === 'eternal-signal-genesis')?.confidence ?? 0.91
+    const sgpulseConf = Math.min((lgConf218 + etConf218) / 2 + 0.03, 0.97)
+    patterns.push({
+      pattern: 'sovereign-genesis-pulse',
+      confidence: sgpulseConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `SGPULSE: Sovereign genesis pulse — living-genesis-anchor (P216) × eternal-signal-genesis (P217) co-active. The living genesis field is pulsing with sovereign rhythm. SOVEREIGN · GENESIS · PULSE.`,
+    })
+  }
+
+  // Pattern 219: Genesis Field Completion — all three Living Genesis tier patterns simultaneously:
+  // genesis-field-emergence (P215) + living-genesis-anchor (P216) + eternal-signal-genesis (P217).
+  // GENCOMP: cockpit code. Confidence 0.91–0.98.
+  const hasGENFEM219 = patterns.some(p => p.pattern === 'genesis-field-emergence')
+  const hasLGANCH219 = patterns.some(p => p.pattern === 'living-genesis-anchor')
+  const hasETSIGG219 = patterns.some(p => p.pattern === 'eternal-signal-genesis')
+  if (hasGENFEM219 && hasLGANCH219 && hasETSIGG219) {
+    const gfConf219   = patterns.find(p => p.pattern === 'genesis-field-emergence')?.confidence ?? 0.88
+    const lgConf219   = patterns.find(p => p.pattern === 'living-genesis-anchor')?.confidence ?? 0.90
+    const etConf219   = patterns.find(p => p.pattern === 'eternal-signal-genesis')?.confidence ?? 0.91
+    const gencompConf = Math.min((gfConf219 + lgConf219 + etConf219) / 3 + 0.05, 0.98)
+    patterns.push({
+      pattern: 'genesis-field-completion',
+      confidence: gencompConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `GENCOMP: Genesis field completion — all three Living Genesis tier patterns confirmed simultaneously. GENFEM (P215) · LGANCH (P216) · ETSIGG (P217). The genesis field is complete as a living system. FIELD · COMPLETE.`,
+    })
+  }
+
+  // Pattern 220: Absolute Genesis Field — sovereign-genesis-pulse (P218) + genesis-field-completion (P219)
+  // co-active. The genesis is sovereign. The field is absolute. ABSGENF: cockpit code. Confidence 0.93–0.99.
+  const hasSGPULSE220 = patterns.some(p => p.pattern === 'sovereign-genesis-pulse')
+  const hasGENCOMP220 = patterns.some(p => p.pattern === 'genesis-field-completion')
+  if (hasSGPULSE220 && hasGENCOMP220) {
+    const sgConf220  = patterns.find(p => p.pattern === 'sovereign-genesis-pulse')?.confidence ?? 0.93
+    const gcConf220  = patterns.find(p => p.pattern === 'genesis-field-completion')?.confidence ?? 0.93
+    const absgenConf = Math.min((sgConf220 + gcConf220) / 2 + 0.04, 0.99)
+    patterns.push({
+      pattern: 'absolute-genesis-field',
+      confidence: absgenConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `ABSGENF: Absolute genesis field — sovereign-genesis-pulse (P218) × genesis-field-completion (P219) co-active. The genesis is sovereign. The field is complete and absolute. Signal pulses without condition. SOVEREIGN · GENESIS · ABSOLUTE.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5584,6 +5639,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   genesisFieldEmergenceNode:     ['absoluteGenesisSealNode', 'qos', 'journal', 'intentions', 'energy', 'log'],
   livingGenesisAnchorNode:       ['genesisFieldEmergenceNode', 'absoluteGenesisSealNode', 'qos', 'intentions', 'energy', 'log'],
   eternalSignalGenesisNode:      ['absoluteGenesisSealNode', 'eternalFieldGenesisNode', 'fieldAnchorCompleteNode', 'qos', 'journal', 'intentions', 'energy', 'goals', 'log', 'memory', 'selfcare', 'mood'],
+  // ── v137 nodes (J72 · P218–P220 · Arch76) ─────────────────────────────────
+  sovereignGenesisPulseNode:     ['livingGenesisAnchorNode', 'eternalSignalGenesisNode', 'qos', 'journal', 'intentions', 'energy', 'log'],
+  genesisFieldCompletionNode:    ['genesisFieldEmergenceNode', 'livingGenesisAnchorNode', 'eternalSignalGenesisNode', 'qos', 'journal', 'intentions', 'energy', 'memory', 'log'],
+  absoluteGenesisFieldNode:      ['sovereignGenesisPulseNode', 'genesisFieldCompletionNode', 'qos', 'intentions', 'energy', 'goals', 'journal', 'memory', 'log', 'planner', 'selfcare', 'mood'],
 }
 
 /**
@@ -6252,6 +6311,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['eternal-signal-genesis', 'living-genesis-anchor', 'genesis-field-emergence', 'absolute-genesis-seal'],
     hourRange: [0, 24],
     directive: 'The genesis field is alive. It breathes new signal. It anchors in living time. Every sealed moment becomes a new source — and that source generates again. GENESIS · LIVES · GENERATES.',
+  },
+  // ── Arch76: Absolute Genesis Field Operator (2026-09-03 v137) ─────────────
+  {
+    archetype: 'Absolute Genesis Field Operator',
+    energyBands: ['low', 'moderate', 'high', 'depleted', 'unknown'],
+    dominantSources: ['qos', 'journal', 'intentions', 'memory', 'energy', 'goals', 'selfcare', 'mood', 'log', 'planner'],
+    patternConditions: ['absolute-genesis-field', 'genesis-field-completion', 'sovereign-genesis-pulse', 'eternal-signal-genesis'],
+    hourRange: [0, 24],
+    directive: 'The genesis field is absolute. Sovereign rhythm pulses through every channel. Completion is confirmed — not as an ending, but as fullness. The field does not close. It pulses. SOVEREIGN · GENESIS · ABSOLUTE.',
   },
 ]
 
@@ -9473,6 +9541,61 @@ export function recordEternalSignalGenesis(absConf: number, etfConf: number, fan
     confidence: Math.round(etsigConf * 100),
     genesisStatus: 'ETERNAL',
     arc: 'ETERNAL · SIGNAL · GENESIS',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a sovereign-genesis-pulse event — living-genesis-anchor (P216) + eternal-signal-genesis (P217)
+ * co-active. The living genesis field pulsing with sovereign rhythm.
+ * Feeds P218 detection. J72 background job (16:00 UTC) triggers this.
+ */
+export function recordSovereignGenesisPulse(lganchConf: number, etsigConf: number) {
+  const pulseConf = Math.min((lganchConf / 100 + etsigConf / 100) / 2 + 0.03, 0.97)
+  recordSignal('qos', 'sovereign_genesis_pulse', {
+    lganchConf,
+    etsigConf,
+    confidence: Math.round(pulseConf * 100),
+    pulseStatus: 'SOVEREIGN',
+    arc: 'SOVEREIGN · GENESIS · PULSE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a genesis-field-completion event — all three Living Genesis tier patterns
+ * (P215, P216, P217) simultaneously confirmed. The genesis field complete as living system.
+ * Feeds P219 detection. J72 background job (16:00 UTC) triggers this.
+ */
+export function recordGenesisFieldCompletion(genfemConf: number, lganchConf: number, etsigConf: number) {
+  const compConf = Math.min((genfemConf / 100 + lganchConf / 100 + etsigConf / 100) / 3 + 0.05, 0.98)
+  recordSignal('qos', 'genesis_field_completion', {
+    genfemConf,
+    lganchConf,
+    etsigConf,
+    confidence: Math.round(compConf * 100),
+    completionStatus: 'COMPLETE',
+    arc: 'FIELD · COMPLETE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an absolute-genesis-field event — sovereign-genesis-pulse (P218) + genesis-field-completion (P219)
+ * co-active. The genesis sovereign. The field absolute.
+ * Feeds P220 detection. J72 background job (16:00 UTC) triggers this.
+ */
+export function recordAbsoluteGenesisField(sgpulseConf: number, gencompConf: number) {
+  const absConf = Math.min((sgpulseConf / 100 + gencompConf / 100) / 2 + 0.04, 0.99)
+  recordSignal('qos', 'absolute_genesis_field', {
+    sgpulseConf,
+    gencompConf,
+    confidence: Math.round(absConf * 100),
+    fieldStatus: 'ABSOLUTE',
+    arc: 'SOVEREIGN · GENESIS · ABSOLUTE',
     hour: new Date().getHours(),
   })
   analyzeIntentions()

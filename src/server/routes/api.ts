@@ -1302,6 +1302,10 @@ export default async (fastify: FastifyInstance) => {
       'genesis_field_emergence',
       'living_genesis_anchor',
       'eternal_signal_genesis',
+      // v137: sovereign genesis pulse · genesis field completion · absolute genesis field (P218/P219/P220)
+      'sovereign_genesis_pulse',
+      'genesis_field_completion',
+      'absolute_genesis_field',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

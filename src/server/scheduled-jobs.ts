@@ -1845,6 +1845,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyFieldEmergenceCheck(now)) {
     await executeDailyFieldEmergenceCheck()
   }
+
+  // Check daily genesis pulse check (16:00 UTC every day) — Job 72
+  if (shouldRunDailyGenesisPulseCheck(now)) {
+    await executeDailyGenesisPulseCheck()
+  }
 }
 
 function shouldRunDailyFieldGenesisCheck(now: any): boolean {
@@ -1902,6 +1907,16 @@ function shouldRunDailyFieldEmergenceCheck(now: any): boolean {
   if (isDailyFieldEmergenceRunning) return false
   if (lastDailyFieldEmergenceRun) {
     const lastRun = dayjs(lastDailyFieldEmergenceRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+function shouldRunDailyGenesisPulseCheck(now: any): boolean {
+  if (now.hour() !== 16) return false
+  if (isDailyGenesisPulseRunning) return false
+  if (lastDailyGenesisPulseRun) {
+    const lastRun = dayjs(lastDailyGenesisPulseRun)
     if (lastRun.isSame(now, 'day')) return false
   }
   return true
@@ -8414,6 +8429,123 @@ async function executeDailyFieldEmergenceCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Field emergence check failed:', error.message)
     isDailyFieldEmergenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── J72: Daily Genesis Pulse Check (16:00 UTC every day) ──────────────────
+// Checks: LGANCH in 24h + ETSIGG in 24h → sovereign_genesis_pulse (P218).
+// Checks: GENFEM + LGANCH + ETSIGG all in 24h → genesis_field_completion (P219).
+// Checks: SGPULSE + GENCOMP confirmed in run → absolute_genesis_field (P220).
+// SGPULSE: · GENCOMP: · ABSGENF: cockpit codes. Total: 72 jobs.
+let isDailyGenesisPulseRunning = false
+let lastDailyGenesisPulseRun: Date | null = null
+
+async function executeDailyGenesisPulseCheck(): Promise<JobResult> {
+  const jobName    = 'daily-genesis-pulse-check'
+  const executedAt = new Date()
+  if (isDailyGenesisPulseRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyGenesisPulseRunning = true
+  let written = 0
+
+  try {
+    const users = await User.findAll({ where: { isActive: true } })
+    const oneDayAgo  = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+    for (const user of users) {
+      // Fetch relevant recent events
+      const [recentLganch, recentEtsigg, recentGenfem] = await Promise.all([
+        Log.findOne({
+          where: { userId: user.id, event: 'living_genesis_anchor', createdAt: { [Op.gte]: oneDayAgo } },
+          order: [['createdAt', 'DESC']],
+        }),
+        Log.findOne({
+          where: { userId: user.id, event: 'eternal_signal_genesis', createdAt: { [Op.gte]: oneDayAgo } },
+          order: [['createdAt', 'DESC']],
+        }),
+        Log.findOne({
+          where: { userId: user.id, event: 'genesis_field_emergence', createdAt: { [Op.gte]: oneDayAgo } },
+          order: [['createdAt', 'DESC']],
+        }),
+      ])
+
+      let sgpulseConf: number | null = null
+      let gencompConf: number | null = null
+
+      // P218: Sovereign Genesis Pulse — LGANCH + ETSIGG in 24h
+      if (recentLganch && recentEtsigg) {
+        const lgConf = (recentLganch.metadata as any)?.confidence ?? 90
+        const etConf = (recentEtsigg.metadata as any)?.confidence ?? 91
+        sgpulseConf  = Math.min(Math.round((lgConf + etConf) / 2 + 3), 97)
+        await Log.create({
+          userId: user.id,
+          event:  'sovereign_genesis_pulse',
+          source: 'qos',
+          metadata: {
+            lganchConf: lgConf,
+            etsigConf:  etConf,
+            confidence: sgpulseConf,
+            pulseStatus: 'SOVEREIGN',
+            arc: 'SOVEREIGN · GENESIS · PULSE',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Sovereign genesis pulse — LGANCH×ETSIGG confirmed. SGPULSE. Conf: ${sgpulseConf}%`)
+      }
+
+      // P219: Genesis Field Completion — GENFEM + LGANCH + ETSIGG in 24h
+      if (recentGenfem && recentLganch && recentEtsigg) {
+        const gfConf = (recentGenfem.metadata as any)?.confidence ?? 88
+        const lgConf = (recentLganch.metadata as any)?.confidence ?? 90
+        const etConf = (recentEtsigg.metadata as any)?.confidence ?? 91
+        gencompConf  = Math.min(Math.round((gfConf + lgConf + etConf) / 3 + 5), 98)
+        await Log.create({
+          userId: user.id,
+          event:  'genesis_field_completion',
+          source: 'qos',
+          metadata: {
+            genfemConf: gfConf,
+            lganchConf: lgConf,
+            etsigConf:  etConf,
+            confidence: gencompConf,
+            completionStatus: 'COMPLETE',
+            arc: 'FIELD · COMPLETE',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Genesis field completion — GENFEM+LGANCH+ETSIGG confirmed. GENCOMP. Conf: ${gencompConf}%`)
+      }
+
+      // P220: Absolute Genesis Field — SGPULSE + GENCOMP both confirmed this run
+      if (sgpulseConf !== null && gencompConf !== null) {
+        const absConf = Math.min(Math.round((sgpulseConf + gencompConf) / 2 + 4), 99)
+        await Log.create({
+          userId: user.id,
+          event:  'absolute_genesis_field',
+          source: 'qos',
+          metadata: {
+            sgpulseConf,
+            gencompConf,
+            confidence: absConf,
+            fieldStatus: 'ABSOLUTE',
+            arc: 'SOVEREIGN · GENESIS · ABSOLUTE',
+            hour: new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Absolute genesis field — SGPULSE×GENCOMP confirmed. ABSGENF. Conf: ${absConf}%`)
+      }
+    }
+
+    console.log(`  Genesis pulse events written: ${written}`)
+    lastDailyGenesisPulseRun = new Date()
+    isDailyGenesisPulseRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Genesis pulse check failed:', error.message)
+    isDailyGenesisPulseRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }
