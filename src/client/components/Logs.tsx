@@ -2079,11 +2079,21 @@ export const Logs: React.FC = React.memo(function LogsInner() {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const target = date ? dayjs(`${date} ${time || '00:00'}`, 'YYYY-MM-DD HH:mm') : null
+          const status = target?.isValid()
+            ? (target.isAfter(dayjs()) ? 'SCHEDULED' : 'ELAPSED')
+            : undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
-                <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
-                {date && <div className="opacity-40 mt-8">{date}</div>}
+                <div className="uppercase tracking-widest mb-4">{entryType || 'ENTRY'}</div>
+                {date && (
+                  <div className="opacity-60 tabular-nums">
+                    {date}{time && ` @ ${time}`}
+                  </div>
+                )}
+                {status && <div className="opacity-30 uppercase tracking-widest mt-4">{status}</div>}
               </Block>
             </LogContainer>
           )

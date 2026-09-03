@@ -21,9 +21,20 @@ type CalendarEntry = {
   date: string
   text: string
   type: EntryType
+  time?: string
 }
 
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+
+function formatCountdown(ms: number): string {
+  const totalMinutes = Math.max(0, Math.round(ms / 60000))
+  const days = Math.floor(totalMinutes / 1440)
+  const hours = Math.floor((totalMinutes % 1440) / 60)
+  const minutes = totalMinutes % 60
+  if (days > 0) return `T-MINUS ${days}D ${hours}H`
+  if (hours > 0) return `T-MINUS ${hours}H ${minutes}M`
+  return `T-MINUS ${minutes}M`
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -59,6 +70,8 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+  const [entryTime, setEntryTime] = React.useState('')
+  const [now, setNow] = React.useState(() => dayjs())
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -67,9 +80,10 @@ export function CalendarWidget() {
         date: log.metadata?.date as string,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
+        time: log.metadata?.time as string | undefined,
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')))
   }, [logs])
 
   const upcomingEntries = React.useMemo(() => {
@@ -78,6 +92,22 @@ export function CalendarWidget() {
       .filter(e => e.date >= today)
       .slice(0, 10)
   }, [entries])
+
+  // Nearest scheduled (timed) entry still ahead of now — powers the T-MINUS readout.
+  const nextTimedEntry = React.useMemo(() => {
+    return upcomingEntries.find(e => {
+      if (!e.time) return false
+      const target = dayjs(`${e.date} ${e.time}`, 'YYYY-MM-DD HH:mm')
+      return target.isValid() && target.isAfter(now)
+    }) || null
+  }, [upcomingEntries, now])
+
+  // Tick once a minute — only while there's a timed entry ahead worth counting down.
+  React.useEffect(() => {
+    if (!nextTimedEntry) return
+    const interval = setInterval(() => setNow(dayjs()), 60000)
+    return () => clearInterval(interval)
+  }, [!!nextTimedEntry])
 
   const entriesOnDate = React.useMemo(() => {
     if (!selectedDate) return []
@@ -109,23 +139,27 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const time = entryTime.trim() || undefined
+    const timeLabel = time ? ` @ ${time}` : ''
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel}${timeLabel})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
         text: entryText.trim(),
         entryType,
+        time,
       },
     }, {
       onSuccess: () => {
         queryClient.refetchQueries(['/api/logs'])
-        try { recordCalendarSignal(entryType, selectedDate!) } catch (_) {}
+        try { recordCalendarSignal(entryType, selectedDate!, time) } catch (_) {}
       },
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
   }
 
@@ -237,6 +271,13 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40 tabular-nums"
+                  />
                   <Button onClick={handleAddEntry}>Add</Button>
                 </div>
               </div>
@@ -248,11 +289,20 @@ export function CalendarWidget() {
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
                 {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                  <div key={i} className="text-acc/80 mb-1 flex gap-8">
+                    {e.time && <span className="text-acc/50 tabular-nums">{e.time}</span>}
+                    <span>{e.text}</span>
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        )}
+
+        {nextTimedEntry && (
+          <div className="text-acc/50 mb-8 tabular-nums uppercase tracking-widest">
+            NEXT: {nextTimedEntry.time} · {formatCountdown(
+              dayjs(`${nextTimedEntry.date} ${nextTimedEntry.time}`, 'YYYY-MM-DD HH:mm').diff(now)
             )}
           </div>
         )}
@@ -263,6 +313,7 @@ export function CalendarWidget() {
               <div key={i} className="flex justify-between gap-16">
                 <span className="text-acc whitespace-nowrap">
                   {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                  {entry.time && <span className="text-acc/60 ml-8 tabular-nums">{entry.time}</span>}
                 </span>
                 <span className="text-acc text-right">
                   {entry.text}
