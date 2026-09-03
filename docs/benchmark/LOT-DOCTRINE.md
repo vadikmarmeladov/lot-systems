@@ -142,7 +142,13 @@ without S-2 confirmation — they are provenance records. The MANIFEST date fiel
 updates on every audit; feature rows update when a new iteration supersedes.
 (SR-20260605-01: MANIFEST created, 115 branches cataloged, 8 BEST identified.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
-SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
+SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.
+SR-20260903-01: criterion (2) confirmed the hard way — Basics Tab's BEST row
+pointed at a branch ~150K lines behind master; its build also turned out to
+be login-gated only, never actually public, a doctrine violation invisible
+from the MANIFEST row alone. Rule: before reusing or cherry-picking a BEST
+branch, diff it against current master and read the actual commit, not just
+the MANIFEST summary line.)
 
 ## Signal Momentum Architecture
 
