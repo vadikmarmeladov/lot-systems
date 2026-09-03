@@ -782,6 +782,10 @@ export type BadgeType =
   | 'tolkien_ring'           // ◆·∞·◆  "one ring to rule/precious/ring of power" detected (RARE)
   | 'odysseus_bow'           // →·∞·→  "odysseus/ulysses/ithaca/penelope/cyclops" detected (EPIC)
   | 'gilgamesh_word'         // ∞·□·∞  "gilgamesh/enkidu/great flood/utnapishtim" detected (MYTHIC)
+  // ── Terminal Operator v1 — LOG slash-command badges ──────────────────────────
+  | 'terminal_initiate'      // ›_›    First slash-command executed in the Log terminal (COMMON)
+  | 'qi_analyst'             // ◈?◈    Queried the Quantum Intelligence engine via /qi (UNCOMMON)
+  | 'story_weaver'           // ≡◆≡    Generated a compressed story via /story (UNCOMMON)
 
 export interface Badge {
   id: BadgeType
@@ -7129,6 +7133,37 @@ export const BADGES: Record<BadgeType, Badge> = {
     unlockMessage: '↳ Gilgamesh: the oldest hero\'s journey. 4,000 years old. The story of a king who sought immortality and found self-knowledge instead. ∞·□·∞',
     rarity: 'mythic',
     category: 'secret_boss',
+    hidden: true,
+  },
+  // ── Terminal Operator v1 — LOG slash-command badges ──────────────────────────
+  terminal_initiate: {
+    id: 'terminal_initiate',
+    symbol: '›_›',
+    name: 'Terminal Initiate',
+    description: 'First slash-command executed in the Log terminal',
+    unlockMessage: '↳ Command received. The terminal is listening. ›_›',
+    rarity: 'common',
+    category: 'pattern',
+    hidden: true,
+  },
+  qi_analyst: {
+    id: 'qi_analyst',
+    symbol: '◈?◈',
+    name: 'QI Analyst',
+    description: 'Queried the Quantum Intelligence engine via /qi',
+    unlockMessage: '↳ Request for Information filed. The engine reads your own record back to you. ◈?◈',
+    rarity: 'uncommon',
+    category: 'pattern',
+    hidden: true,
+  },
+  story_weaver: {
+    id: 'story_weaver',
+    symbol: '≡◆≡',
+    name: 'Story Weaver',
+    description: 'Generated a compressed story via /story',
+    unlockMessage: '↳ Your data, compressed into a narrative. The story was always there. ≡◆≡',
+    rarity: 'uncommon',
+    category: 'pattern',
     hidden: true,
   },
 }

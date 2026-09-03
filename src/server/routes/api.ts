@@ -681,7 +681,7 @@ export default async (fastify: FastifyInstance) => {
     }>, reply) => {
       const { earnedBadges, badgeTheme, newBadges } = req.body
 
-      const validBadges = ['milestone_7', 'milestone_30', 'milestone_100']
+      const validBadges = ['milestone_7', 'milestone_30', 'milestone_100', 'terminal_initiate', 'qi_analyst', 'story_weaver']
       const validThemes = ['water', 'architecture']
 
       const filtered = (earnedBadges || []).filter(b => validBadges.includes(b))
@@ -5522,7 +5522,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       })
 
       const recentEntries = logs
-        .filter(l => l.event === 'log_entry' || l.event === 'journal')
+        .filter(l => l.event === 'note' && (l.text || '').trim().length > 0)
         .slice(0, 10)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
@@ -5531,7 +5531,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
 
       const selfCareLogs = logs.filter(l =>
-        l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
+        l.event === 'answer' || l.event === 'self_care_complete' || l.event === 'self_care_completed'
       ).slice(0, 10)
       const selfCareNotes = selfCareLogs.map(l => {
         const q = (l.metadata?.question as string || '')

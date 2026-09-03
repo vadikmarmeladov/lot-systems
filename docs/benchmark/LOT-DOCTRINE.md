@@ -55,7 +55,20 @@ deferred to allow immediate visual response.)
 
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
-(SR-20260604-01: calendar_entry saved but never returned.)
+The same failure shape also strikes in the other direction: a route that
+FILTERS Log rows by event-type string literal against a name that was never
+actually written (a typo, a renamed event, a copy-pasted assumption) reads
+back nothing, with no error — the feature "works" but its data source is
+silently empty. Any code that filters Log.event must be checked against the
+real values actually written elsewhere in the codebase (note, answer,
+emotional_checkin, self_care_complete/self_care_completed, plan_set,
+intention_set, ...), not assumed from the feature's own name.
+(SR-20260604-01: calendar_entry saved but never returned. SR-20260903-01:
+POST /story filtered on event === 'log_entry' || 'journal' — names never
+written anywhere; real journal entries are event: 'note'. Self-care filter
+had the same bug: 'memory_answer'/'self_care_checkin'/'energy_checkin'
+instead of 'answer'/'self_care_complete'/'self_care_completed'. Every
+/story generation since the route shipped ran on mood data alone.)
 
 ## Ship Mode Discipline
 

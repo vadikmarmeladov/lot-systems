@@ -32,7 +32,7 @@ import { detectNewTriggers, type LogTrigger } from '#client/utils/logTriggers'
 import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
-import { getEarnedBadges, BADGES } from '#client/utils/badges'
+import { getEarnedBadges, BADGES, awardBadge } from '#client/utils/badges'
 import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
@@ -3713,6 +3713,8 @@ const NoteEditor = ({
   const [freezeResult, setFreezeResult] = React.useState<string | null>(null)
   const [fastResult, setFastResult] = React.useState<string | null>(null)
   const [physResult, setPhysResult] = React.useState<string | null>(null)
+  const [silCheckResult, setSilCheckResult] = React.useState<string | null>(null)
+  const [supportResult, setSupportResult] = React.useState<string | null>(null)
   const { mutate: submitPrayer } = usePrayerScripture({
     onSuccess: (data) => {
       setPrayerResponse(data.scripture)
@@ -3938,6 +3940,8 @@ const NoteEditor = ({
     if (fresh.length === 0) return
 
     for (const trigger of fresh as LogTrigger[]) {
+      try { awardBadge('terminal_initiate') } catch {}
+
       if (trigger === 'toggle-synth') {
         const next = !stores.isKeyboardSoundOn.get()
         stores.isKeyboardSoundOn.set(next)
@@ -4050,6 +4054,7 @@ const NoteEditor = ({
           } catch {
             submitQi({ query })
           }
+          try { awardBadge('qi_analyst') } catch {}
         }
       } else if (trigger === 'breathe') {
         setBreatheEnabled(prev => !prev)
@@ -4070,6 +4075,45 @@ const NoteEditor = ({
           setSilentResult(lines.join('\n'))
         } catch {
           setSilentResult('SIGNAL STREAM QUIET\nRESPONSE        STANDBY')
+        }
+      } else if (trigger === 'sil-check') {
+        try {
+          const eng = intentionEngine.get()
+          const patterns = (eng as any).recognizedPatterns || []
+          const silence = patterns.find((p: any) => p.pattern === 'signal-silence')
+          const lines = silence
+            ? [
+                'PATTERN         SIGNAL-SILENCE',
+                `CONFIDENCE      ${Math.round(silence.confidence * 100)}%`,
+                `TIMING          ${String(silence.suggestedTiming).toUpperCase()}`,
+                String(silence.reason).toUpperCase(),
+              ]
+            : [
+                'PATTERN         SIGNAL-SILENCE',
+                'STATUS          NOT DETECTED',
+                'STREAM          NOMINAL',
+              ]
+          setSilCheckResult(lines.join('\n'))
+        } catch {
+          setSilCheckResult('SIL CHECK UNAVAILABLE')
+        }
+      } else if (trigger === 'cohort-support') {
+        try {
+          const state = getUserState()
+          const level = String((state as any).needsSupport || 'none').toUpperCase()
+          const response =
+            level === 'CRITICAL' ? 'GROUND — SELF-CARE NOW' :
+            level === 'MODERATE' ? 'PACE DOWN — CHECK IN' :
+            level === 'LOW' ? 'NOTED — STAY AWARE' :
+            'STANDBY'
+          const lines = [
+            'SUPPORT LEVEL   ' + level,
+            'RESPONSE        ' + response,
+            'PROTOCOL        SUPPORT SIGNAL ACKNOWLEDGED',
+          ]
+          setSupportResult(lines.join('\n'))
+        } catch {
+          setSupportResult('SUPPORT LEVEL   UNKNOWN\nRESPONSE        STANDBY')
         }
       } else if (trigger === 'freeze-widgets') {
         const now = new Date()
@@ -4135,11 +4179,13 @@ const NoteEditor = ({
           '/breathe      4-2-6 breathing exercise',
           '/freeze       Pause and reflect protocol',
           '/silent       Signal silence check',
+          '/sil          Signal-silence pattern (QIE P51)',
+          '❗             Support-level check',
           '/synth        Toggle keyboard sound',
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
-          '/system       This help screen',
+          '/system       This help screen (alias: /help)',
           '',
           'SHORTCUTS',
           'Ctrl+Enter    Save log immediately',
@@ -4163,6 +4209,7 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+          try { awardBadge('story_weaver') } catch {}
         }
       }
     }
@@ -4384,6 +4431,20 @@ const NoteEditor = ({
           <div className="mt-8">
             <Block label="PHYS:" blockView>
               <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{physResult}</div>
+            </Block>
+          </div>
+        )}
+        {silCheckResult && (
+          <div className="mt-8">
+            <Block label="SIL-CHECK:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{silCheckResult}</div>
+            </Block>
+          </div>
+        )}
+        {supportResult && (
+          <div className="mt-8">
+            <Block label="SUPPORT:" blockView>
+              <div className="opacity-60" style={{ fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '14px', lineHeight: '1.6', whiteSpace: 'pre-wrap' }}>{supportResult}</div>
             </Block>
           </div>
         )}
