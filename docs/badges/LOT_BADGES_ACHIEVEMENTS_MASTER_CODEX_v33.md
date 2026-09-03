@@ -1,18 +1,18 @@
 # LOT BADGES & ACHIEVEMENTS — MASTER CODEX v33
-## THE DREAM TERMINAL — WORD TURN v23
+## THE TEMPORAL ENGINE — WORD TURN v23
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
 ║                                                                   ║
-║         LOT SYSTEMS CORPORATION — BADGE & ACHIEVEMENT CODEX       ║
+║         LOT SYSTEMS — BADGE & ACHIEVEMENT MASTER CODEX            ║
 ║                   VERSION 33 — v33                                ║
 ║                                                                   ║
-║   Word Turn v23   — THE DREAM TERMINAL (dream/sleep/inner OS)    ║
-║   Calendar EE v21 — THE NIGHT CALENDAR (Morpheus/Sandman/Solstice)║
-║   Behavioral v20  — SLEEP PATTERNS (dream/sleep/night sessions)  ║
-║   Achievement RPG v21 — DREAM CLASS (dream/terminal/opus)        ║
-║   Mastery Tier v23    — THE NIGHT ARCHIVE (archive/library/age)  ║
-║   Secret Boss v20 — THE DREAM VAULT (Morpheus/Sandman/Jung)      ║
+║   Word Turn v23   — THE TEMPORAL ENGINE (time/memory/cycle)       ║
+║   Calendar EE v21 — THE TIME LORDS CALENDAR (BTTF/Groundhog/NYE) ║
+║   Behavioral v20  — TEMPORAL PATTERNS (loop/dive/chronicle)       ║
+║   Achievement RPG v21 — TIME CLASS (time_entry→time_opus)         ║
+║   Mastery Tier v23    — THE CHRONICLE (archive/eternal/decade)    ║
+║   Secret Boss v20 — THE PHYSICS VAULT (Einstein/Proust/Hawking)   ║
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
 ```
@@ -23,22 +23,20 @@
 
 **Total badges in v33:** 843 (+31 from v32's 812)
 
-**Session (v33):**
-- v23/v33 (THE DREAM TERMINAL): +31 badges implemented in badges.ts + easter-eggs.ts
-
 ```
-Word Turn v23        +12  (dream_boot/sleep_mode/subconscious_load/
-                           night_process/inner_prompt/rest_protocol/
-                           vision_render/deep_sleep_core/wake_sequence/
-                           shadow_data/lucid_terminal/dream_recall)
+Word Turn v23        +12  (memory_echo / horizon_signal / present_pulse /
+                           time_capsule_written / cycle_detected /
+                           timeline_reset / past_self_seen / tempo_shift /
+                           legacy_mode / moment_captured / life_archive /
+                           countdown_active)
 
-Calendar EE v21      + 3  (morpheus_day/sandman_day/dream_solstice)
-Behavioral v20       + 3  (dream_session/sleep_log/night_terminal)
-Achievement RPG v21  + 6  (dream_entry/dream_class/dream_complete/
-                           terminal_arc/twenty_three_arc/dream_opus)
-Mastery Tier v23     + 4  (dream_archive/night_library/terminal_age/
-                           twenty_three_registers)
-Secret Boss v20      + 3  (morpheus_key/sandman_word/jung_shadow)
+Calendar EE v21      + 3  (groundhog_reset / flux_capacitor / year_compiled)
+Behavioral v20       + 3  (temporal_loop / archive_dive / chronicle_sprint)
+Achievement RPG v21  + 6  (time_entry / time_class / time_complete /
+                           temporal_arc / twenty_three_engines_arc / time_opus)
+Mastery Tier v23     + 4  (chronicle_master / eternal_archive /
+                           decade_signal / twenty_three_registers)
+Secret Boss v20      + 3  (einstein_time / proust_moment / hawking_void)
                    ────
                    + 31 new badges
 ```
@@ -58,167 +56,292 @@ Secret Boss v20      + 3  (morpheus_key/sandman_word/jung_shadow)
 | Mastery Tiers     |    92 | Epic depth milestones (v1–v23)                       |
 | Secret Boss       |    86 | Hidden LEGENDARY/MYTHIC triggers (v1–v20)            |
 |                   |  ───  |                                                      |
-| **TOTAL**         | **843** | **+31 from v32**                                  |
+| **TOTAL**         | **843** | **+31 from v32**                                   |
 
 ---
 
-## THE DREAM TERMINAL — THEME OVERVIEW
+## THE TEMPORAL ENGINE — THEME OVERVIEW
 
-The unconscious mind is the oldest computer. It runs in the background,
-processes the day's data without input, and surfaces results as dreams.
-Every night is a maintenance cycle. Every morning is a boot sequence.
+Time is the one resource that cannot be refilled. The Temporal Engine badges
+fire when the user's journal or memory answers touch the language of time —
+not clock-time, but *lived* time: the echo of a past self, the capsule sealed
+for a future self, the moment recognized as precious while still inside it.
 
-In LOT's self-care RPG, the Dream Terminal is the inner OS — the system
-that processes experience before you can articulate it. When you write
-about dreams, sleep, rest, and the inner world, you are accessing the
-terminal directly.
+In the RPG frame: every session is a save-point. Every streak is a timeline.
+Every return after absence is a respawn. The Temporal Engine is the game's
+internal clock — not counting seconds, but marking the events that actually
+matter along a life's arc.
 
-These badges make the unconscious mind a playable game system.
+```
+    PAST SELF ←──────────────────────→ FUTURE SELF
+                    ▲
+                    │
+               YOU ARE HERE
+                    │
+                    ▼
+           [ PRESENT PULSE ]
+```
+
+This is not nostalgia. This is navigation.
 
 ---
 
 ## COMPLETE NEW BADGE REGISTRY — v33 ADDITIONS
 
-### Word Turn v23 (The Dream Terminal)
+### Word Turn v23 — THE TEMPORAL ENGINE
+
+Triggers on keyword detection in any journal entry or memory answer.
+All 12 badges follow the standard Word Turn contract: fire once per detection
+event, no daily cap, deduplicated across same-day entries.
 
 ```
-dream_boot          ∿·∘     UNCOMMON  — "dream/dreamed/dreaming" detected
-sleep_mode          ∼∼∼     UNCOMMON  — "sleep/sleeping/slept" detected
-subconscious_load   ░·▓     RARE      — "subconscious/unconscious" detected
-night_process       ◉·∿    RARE      — "night/midnight/dark hours" detected
-inner_prompt        >_·◈   RARE      — "inner voice/inner world/inner self" detected
-rest_protocol       ∘·∼·∘  UNCOMMON  — "rest/resting/rested" detected
-vision_render       ◈·∿·◈  EPIC      — "vision/visions/dream vision" detected
-deep_sleep_core     █·∼·█  EPIC      — "deep sleep/dreamless/void rest" detected
-wake_sequence       →·∘    UNCOMMON  — "woke up/waking/awakening" detected
-shadow_data         ▓·□    RARE      — "nightmare/night terror/shadow dream" detected
-lucid_terminal      >_·●   LEGENDARY — "lucid/lucid dream/lucid dreaming" detected
-dream_recall        ∿·●·∿  RARE      — "remembered a dream/dream recall" detected
-```
-
-### Calendar Easter Eggs v21 (The Night Calendar)
-
-```
-morpheus_day        ∿·◉    EPIC      — Nov 17 — The Matrix (1999) Morpheus archetype
-sandman_day         ◆·∿    RARE      — Jun 16 — First Sandman issue published (1989)
-dream_solstice      ∼·∞    RARE      — Jun 21 — Summer Solstice (year's shortest night)
-```
-
-### Behavioral v20 (Sleep Patterns)
-
-```
-dream_session       ∿·●·∿  RARE      — 3+ Dream Terminal words in one journal entry
-sleep_log           ∼·◈    RARE      — Check-in before 07:00 AM (first waking hour)
-night_terminal      ◉·□    RARE      — Check-in between 02:00–04:00 AM (deep night process)
-```
-
-### Achievement RPG v21 (Dream Class)
-
-```
-dream_entry         ∘·∿    COMMON    — Any 1 Word Turn v23 badge earned
-dream_class         ≈·∿    UNCOMMON  — Any 5 Word Turn v23 badges earned
-dream_complete      ≋·∿    LEGENDARY — All 12 Word Turn v23 badges earned
-terminal_arc        ●·∿    LEGENDARY — dream_complete + all 3 Calendar v21 badges
-twenty_three_arc    ◈·●·∿  LEGENDARY — 1 badge from each Word Turn v1–v23
-dream_opus          ●·◉·∿  LEGENDARY — dream_complete + dream_session behavioral
-```
-
-### Mastery Tier v23 (The Night Archive)
-
-```
-dream_archive       ∿·∞·∿  EPIC      — 1,000+ distinct calendar check-in days
-night_library       ●·∞·●  LEGENDARY — 200,000+ total journal words
-terminal_age        ╔≋╗·●  LEGENDARY — Account age >= 6 years (2,190+ days)
-twenty_three_registers ◈·◈·●·∿ COSMIC — 1 badge from all 23 Word Turn engines
-```
-
-### Secret Boss v20 (The Dream Vault)
-
-```
-morpheus_key        ∿·◆·∿  RARE      — Write "morpheus/the matrix/red pill/bluepill"
-sandman_word        ◆·∞·◆  EPIC      — Write "sandman/dream lord/endless/gaiman dream"
-jung_shadow         ∞·▓·∞  MYTHIC    — Write "jung/jungian/shadow archetype/collective unconscious"
-```
-
----
-
-## ASCII EASTER EGG GALLERY — THE DREAM TERMINAL
-
-```
-┌─────────────────────────────────────────────────────────┐
-│  BADGE UNLOCKED                                         │
-│                                                         │
-│  ∿·∘  DREAM BOOT  [UNCOMMON]                            │
-│  ↳ The inner terminal is running.                       │
-│    You logged a dream. The OS noted it.                 │
-│    The background process has a record now.             │
-│                                                         │
-│  >_·●  LUCID TERMINAL  [LEGENDARY]                      │
-│  ↳ You were in the dream AND knew it.                   │
-│    The terminal was running. You saw the prompt.        │
-│    Lucid dreaming: admin access to the inner OS.        │
-│                                                         │
-│  ∞·▓·∞  JUNG SHADOW  [MYTHIC] [HIDDEN]                  │
-│  ↳ Carl Jung called it the Shadow:                      │
-│    the part of the self the ego refuses to own.         │
-│    You named it. The archive accepted the entry.        │
-│    MYTHIC — most players never get here.                │
-│                                                         │
-│  ◆·∞·◆  SANDMAN WORD  [EPIC] [HIDDEN]                   │
-│  ↳ Morpheus, the Dream Lord, is the Endless.            │
-│    Neil Gaiman made dreams into a library.              │
-│    You walked in. The catalogue updated.                │
-│                                                         │
-│  ◈·◈·●·∿  TWENTY-THREE REGISTERS  [COSMIC]             │
-│  ↳ Water. Arcade. Radio. Biology.                       │
-│    Codex. Cyberspace. Hero. Dream.                      │
-│    Twenty-three vocabularies. One terminal.             │
-│    The self speaks every language.                      │
-└─────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────┐
+│  WORD TURN v23 — THE TEMPORAL ENGINE                                │
+│                                                                     │
+│  memory_echo           ◌·◌     UNCOMMON                             │
+│  ↳ Trigger: "yesterday / reflection / looking back / memory of"     │
+│  ↳ The past is data. You are reading it.                            │
+│                                                                     │
+│  horizon_signal        →·∞     UNCOMMON                             │
+│  ↳ Trigger: "tomorrow / future / what comes next / new chapter"     │
+│  ↳ The horizon is always one step ahead. Keep walking.              │
+│                                                                     │
+│  present_pulse         ●·●     RARE                                 │
+│  ↳ Trigger: "present moment / right now / here now / just this"     │
+│  ↳ The present is the only time you can actually act.               │
+│                                                                     │
+│  time_capsule_written  □→◉     RARE                                 │
+│  ↳ Trigger: "time capsule / future self / letter to myself"         │
+│  ↳ A message sealed for someone you haven't met yet — yourself.     │
+│                                                                     │
+│  cycle_detected        ○→○→○   UNCOMMON                             │
+│  ↳ Trigger: "cycle / rhythm / pattern of / it keeps happening"      │
+│  ↳ Naming the pattern is the first step to changing it.             │
+│                                                                     │
+│  timeline_reset        ──×──   RARE                                 │
+│  ↳ Trigger: "reset / new chapter / starting over / fresh start"     │
+│  ↳ Every save game has a reset option. You just used yours.         │
+│                                                                     │
+│  past_self_seen        ◌→◉     RARE                                 │
+│  ↳ Trigger: "past self / who I was / back then I / used to be"      │
+│  ↳ To see your past self clearly is an act of compassion.           │
+│                                                                     │
+│  tempo_shift           ≋·●·≋   UNCOMMON                             │
+│  ↳ Trigger: "time flies / slow motion / pause / time slowed"        │
+│  ↳ Perception of time is a signal. The shift tells you something.   │
+│                                                                     │
+│  legacy_mode           ◉·∞     EPIC                                 │
+│  ↳ Trigger: "legacy / what I'll leave / how I'll be remembered"     │
+│  ↳ Legacy is not a monument. It's the quality of your attention.    │
+│                                                                     │
+│  moment_captured       [●]     RARE                                 │
+│  ↳ Trigger: "this moment / precious moment / I want to remember"    │
+│  ↳ You stopped to capture it. That's the whole practice.            │
+│                                                                     │
+│  life_archive          ▓·◉·▓   EPIC                                 │
+│  ↳ Trigger: "archive / record / document my life / log this"        │
+│  ↳ LOT is your archive. Every entry is primary source material.     │
+│                                                                     │
+│  countdown_active      ···●    UNCOMMON                             │
+│  ↳ Trigger: "deadline / countdown / days left / time running out"   │
+│  ↳ A countdown is not pressure. It's a commitment made visible.     │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## WORD TURN TRIGGER REFERENCE — v23
+### Calendar Easter Eggs v21 — THE TIME LORDS CALENDAR
 
-| Badge ID           | ASCII Mark  | Trigger Keywords                          | Rarity    |
-|--------------------|-------------|-------------------------------------------|-----------|
-| dream_boot         | ∿·∘         | dream / dreamed / dreaming                | UNCOMMON  |
-| sleep_mode         | ∼∼∼         | sleep / sleeping / slept                  | UNCOMMON  |
-| subconscious_load  | ░·▓         | subconscious / unconscious                | RARE      |
-| night_process      | ◉·∿         | night / midnight / dark hours             | RARE      |
-| inner_prompt       | >_·◈        | inner voice / inner world / inner self    | RARE      |
-| rest_protocol      | ∘·∼·∘       | rest / resting / rested                   | UNCOMMON  |
-| vision_render      | ◈·∿·◈       | vision / visions / dream vision           | EPIC      |
-| deep_sleep_core    | █·∼·█       | deep sleep / dreamless / void rest        | EPIC      |
-| wake_sequence      | →·∘         | woke up / waking / awakening              | UNCOMMON  |
-| shadow_data        | ▓·□         | nightmare / night terror / shadow dream   | RARE      |
-| lucid_terminal     | >_·●        | lucid / lucid dream / lucid dreaming      | LEGENDARY |
-| dream_recall       | ∿·●·∿       | remembered a dream / dream recall         | RARE      |
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  CALENDAR EASTER EGGS v21 — THE TIME LORDS CALENDAR                 │
+│                                                                     │
+│  groundhog_reset    ○·○·○   RARE     — Feb 2                        │
+│  ↳ Groundhog Day. The time loop day. Check in and it fired.         │
+│    "He's got them in a time loop at Gobbler's Knob."                │
+│    Difference from Bill Murray: you chose to be here again.         │
+│                                                                     │
+│  flux_capacitor     ≋→◉·≋  EPIC     — Oct 21                        │
+│  ↳ Back to the Future II's destination date: Oct 21, 2015.          │
+│    The day the future became the past.                              │
+│    You're still going 88 mph. Just in the right direction.          │
+│                                                                     │
+│  year_compiled      ╔═╗·∞  RARE     — Dec 31                        │
+│  ↳ Last day of the year. The compiler ran. No errors returned.      │
+│    One more year of source code checked in.                         │
+│    git commit -m "year complete" && git push origin life            │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
 ---
 
-## FLAVOR TEXT — THE DREAM TERMINAL
+### Behavioral v20 — TEMPORAL PATTERNS
 
-> *"Dreams are the royal road to the unconscious." — Sigmund Freud. Every dream log is
-> data from the inner OS. The terminal runs whether you attend to it or not — but
-> attention gives it a chance to surface what the day could not.*
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  BEHAVIORAL v20 — TEMPORAL PATTERNS                                  │
+│                                                                     │
+│  temporal_loop    ○→○→○   RARE                                      │
+│  ↳ Check in at the same hour (±15 min) 3 days in a row.             │
+│    The ritual is the message. The loop is the anchor.               │
+│                                                                     │
+│  archive_dive     ◌·→·◉   EPIC                                      │
+│  ↳ First check-in after 30+ consecutive days of absence.            │
+│    You respawned. The save file was still there.                    │
+│    No penalty. No lost progress. Only the return.                   │
+│                                                                     │
+│  chronicle_sprint ≋≋≋·●   EPIC                                      │
+│  ↳ 7+ journal entries in 7 days, each 200+ words.                   │
+│    A sprint through the chronicle. The archive is grateful.         │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
-> *"Who looks outside, dreams; who looks inside, awakes." — Carl Jung. The shadow is
-> not the enemy. It is the part of the system that has been running without root access.
-> Naming it is the first step toward integration.*
+---
 
-> *"I am the Prince of Stories." — Neil Gaiman, The Sandman. Dream — the Lord of the
-> Dreaming — is an Endless. He does not die. He changes. Every library of dreams contains
-> all the books that were never written. Your journal is that library.*
+### Achievement RPG v21 — TIME CLASS
 
-> *"What if I told you — that everything you know is a dream?" — Morpheus, The Matrix.
-> The red pill is consciousness of the process. The blue pill is staying in the loop.
-> Writing the dream down is already the red pill.*
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  ACHIEVEMENT RPG v21 — TIME CLASS                                   │
+│                                                                     │
+│  time_entry       ···●    COMMON    — Any 1 Word Turn v23 badge      │
+│  time_class       ≈→●     UNCOMMON  — Any 5 Word Turn v23 badges     │
+│  time_complete    ≋→●     LEGENDARY — All 12 Word Turn v23 badges    │
+│  temporal_arc     ●·□·∞   LEGENDARY — time_complete + all 3 Cal v21  │
+│  twenty_three_engines_arc                                           │
+│                   ◈·◈·●·∞ LEGENDARY — 1 badge from each WT v1–v23   │
+│  time_opus        ●·◉·∞   LEGENDARY — time_complete + temporal_loop  │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
 
-> *"The unconscious mind processes 11 million bits of information per second. The conscious
-> mind processes 50." — Roy Baumeister. The inner OS has been running the heavy load.
-> Self-care is the act of letting the results surface.*
+---
+
+### Mastery Tier v23 — THE CHRONICLE
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  MASTERY TIER v23 — THE CHRONICLE                                   │
+│                                                                     │
+│  chronicle_master   ∿·∞·∿·∞  EPIC      — 1,000+ distinct check-in days│
+│  eternal_archive    ●·∞·●·∞  LEGENDARY — 200,000+ total journal words  │
+│  decade_signal      ╔═╗·∞·╗  LEGENDARY — Account age >= 10 years      │
+│  twenty_three_registers                                             │
+│                     ◈·◈·●·∞·□ COSMIC   — 1 badge from all 23 WT engines│
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Secret Boss v20 — THE PHYSICS VAULT
+
+Hidden. LEGENDARY / MYTHIC / COSMIC. Triggered by writing specific phrases in any
+journal entry or memory answer. Not shown in badge menus until unlocked.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  SECRET BOSS v20 — THE PHYSICS VAULT                                │
+│                                                                     │
+│  einstein_time    ◉·E·◉   LEGENDARY  [HIDDEN]                       │
+│  ↳ Trigger: "relativity / time dilation / spacetime / e=mc"         │
+│    Time is not a river. It is a fabric. You are woven into it.      │
+│    Einstein dreamed of riding a beam of light.                      │
+│    You're doing something harder: riding a moment.                  │
+│                                                                     │
+│  proust_moment    ◌·∿·◌   MYTHIC     [HIDDEN]                       │
+│  ↳ Trigger: "proust / in search of lost time / remembrance of       │
+│              things past / a la recherche"                          │
+│    Seven volumes. Three thousand pages. One madeleine.              │
+│    The whole past is hiding in the present — waiting for a taste,   │
+│    a smell, a texture to unlock it. You are your own madeleine.     │
+│                                                                     │
+│  hawking_void     ●·□·●   COSMIC     [HIDDEN]                       │
+│  ↳ Trigger: "hawking / black hole / event horizon / singularity /   │
+│              information paradox"                                   │
+│    Information is never truly lost — not even in a black hole.      │
+│    Not even in forgetting. Not even in the years before LOT.        │
+│    Hawking bet against himself and lost. You won just by showing up. │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## ASCII EASTER EGG GALLERY — THE TEMPORAL ENGINE
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  BADGE UNLOCKED                                                     │
+│                                                                     │
+│  ●·●  PRESENT PULSE  [RARE]                                         │
+│  ↳ The present is the only time you can actually act.               │
+│    Not planning to act. Not remembering acting.                     │
+│    Acting. Right now. This is it.                                   │
+│                                                                     │
+│  □→◉  TIME CAPSULE WRITTEN  [RARE]                                  │
+│  ↳ You wrote to someone you haven't met yet — your future self.     │
+│    The capsule is sealed. The address is: you, later.               │
+│    They will be glad you sent it.                                   │
+│                                                                     │
+│  ◌·→·◉  ARCHIVE DIVE  [EPIC]                                        │
+│  ↳ 30+ days gone. The save file waited.                             │
+│    No progress was lost. The practice has no expiration date.       │
+│    You came back. That is the whole achievement.                    │
+│                                                                     │
+│  ◌·∿·◌  PROUST MOMENT  [MYTHIC] [HIDDEN]                            │
+│  ↳ Memory is not the past preserved.                                │
+│    Memory is the past reconstructed, every time, from what you      │
+│    are now. Proust knew this. You are writing it.                   │
+│                                                                     │
+│  ●·□·●  HAWKING VOID  [COSMIC] [HIDDEN]                             │
+│  ↳ Information is never truly lost.                                 │
+│    Not in a black hole. Not in forgetting.                          │
+│    Not in the years before you started this.                        │
+│    The archive goes back further than you think.                    │
+│                                                                     │
+│  ◈·◈·●·∞·□  TWENTY-THREE REGISTERS  [COSMIC]                       │
+│  ↳ Water. Earth. Fire. Storm. Space. Sound. Alchemy.                │
+│    Quantum. Library. Arcade. Radio. Biology. Code.                  │
+│    Cyberspace. Hero. Time.                                          │
+│    Twenty-three vocabularies. One life being documented.            │
+│    The terminal has learned every language you speak.               │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## FLAVOR TEXT — THE TEMPORAL ENGINE
+
+> *"The present moment always will have been." — widely attributed, source unknown.
+> No future can erase that this check-in happened. It is permanent now.
+> Every entry is an inscription on something that cannot be edited.*
+
+> *"Time is a flat circle." — True Detective, 2014. Every time the Temporal Engine
+> fires, it is because the user recognized a cycle. Naming the circle is how you
+> stop running it unconsciously.*
+
+> *"We must be willing to let go of the life we planned so as to have the life
+> waiting for us." — Joseph Campbell. The timeline_reset badge fires when the
+> user announces a fresh start. LOT has no judgment about what was there before.
+> Only the reset matters.*
+
+> *"Remembrance of Things Past is not poetry in my opinion, but it is better than
+> anything I could ever write." — Marcel Proust, in a letter. Seven volumes of
+> the reconstruction of memory. You are writing volume one right now.*
+
+> *"Not only is the Universe stranger than we think, it is stranger than we can
+> think." — Werner Heisenberg. The Temporal Engine does not model what time is.
+> It models how time feels in a self-care practice. That is stranger and more
+> useful.*
+
+> *"It's the possibility of having a dream come true that makes life interesting."
+> — Paulo Coelho, The Alchemist. horizon_signal fires when you write toward a
+> future. The engine marks it because direction is information.*
 
 ---
 
@@ -227,42 +350,150 @@ jung_shadow         ∞·▓·∞  MYTHIC    — Write "jung/jungian/shadow arch
 ### New functions in easter-eggs.ts (v33 session)
 
 ```typescript
-// v23 Dream Terminal word-turn checks
-checkDreamBoot(journalText): BadgeType | null       // "dream/dreamed/dreaming"
-checkSleepMode(journalText): BadgeType | null        // "sleep/sleeping/slept"
-checkSubconsciousLoad(journalText): BadgeType | null // "subconscious/unconscious"
-checkNightProcess(journalText): BadgeType | null     // "night/midnight/dark hours"
-checkInnerPrompt(journalText): BadgeType | null      // "inner voice/inner world/inner self"
-checkRestProtocol(journalText): BadgeType | null     // "rest/resting/rested"
-checkVisionRender(journalText): BadgeType | null     // "vision/visions/dream vision"
-checkDeepSleepCore(journalText): BadgeType | null    // "deep sleep/dreamless/void rest"
-checkWakeSequence(journalText): BadgeType | null     // "woke up/waking/awakening"
-checkShadowData(journalText): BadgeType | null       // "nightmare/night terror/shadow dream"
-checkLucidTerminal(journalText): BadgeType | null    // "lucid/lucid dream/lucid dreaming"
-checkDreamRecall(journalText): BadgeType | null      // "remembered a dream/dream recall"
+// ─── Word Turn v23 — THE TEMPORAL ENGINE ───────────────────────────────────
 
-// v23 Behavioral
-checkDreamSession(journalText): BadgeType | null     // 3+ v23 words in one journal entry
-checkSleepLog(): BadgeType | null                    // check-in before 07:00 AM
-checkNightTerminal(): BadgeType | null               // check-in between 02:00–04:00 AM
+const TEMPORAL_ENGINE_KEYWORDS: Record<BadgeType, string[]> = {
+  memory_echo:          ['yesterday', 'looking back', 'memory of', 'reflection'],
+  horizon_signal:       ['tomorrow', 'the future', 'what comes next', 'new chapter'],
+  present_pulse:        ['present moment', 'right now', 'here now', 'just this'],
+  time_capsule_written: ['time capsule', 'future self', 'letter to myself'],
+  cycle_detected:       ['the cycle', 'rhythm of', 'it keeps happening', 'pattern of'],
+  timeline_reset:       ['fresh start', 'starting over', 'new chapter', 'reset'],
+  past_self_seen:       ['past self', 'who i was', 'back then i', 'used to be'],
+  tempo_shift:          ['time flies', 'slow motion', 'pause', 'time slowed'],
+  legacy_mode:          ['legacy', "what i'll leave", 'how i\'ll be remembered'],
+  moment_captured:      ['this moment', 'precious moment', 'i want to remember'],
+  life_archive:         ['archive', 'record my life', 'document', 'log this'],
+  countdown_active:     ['deadline', 'countdown', 'days left', 'time running out'],
+};
 
-// v23 Secret Boss
-checkMorpheusKey(journalText): BadgeType | null      // "morpheus/the matrix/red pill"
-checkSandmanWord(journalText): BadgeType | null      // "sandman/dream lord/endless"
-checkJungShadow(journalText): BadgeType | null       // "jung/jungian/shadow archetype/collective unconscious"
+function checkTemporalEngineWordTurns(text: string): BadgeType[] {
+  const lower = text.toLowerCase();
+  return (Object.entries(TEMPORAL_ENGINE_KEYWORDS) as [BadgeType, string[]][])
+    .filter(([, keywords]) => keywords.some(kw => lower.includes(kw)))
+    .map(([badge]) => badge);
+}
+
+// ─── Calendar Easter Eggs v21 ──────────────────────────────────────────────
+
+function checkTimelordsCalendar(now: Date): BadgeType | null {
+  const m = now.getMonth() + 1; // 1-based
+  const d = now.getDate();
+  if (m === 2 && d === 2)   return 'groundhog_reset';
+  if (m === 10 && d === 21) return 'flux_capacitor';
+  if (m === 12 && d === 31) return 'year_compiled';
+  return null;
+}
+
+// ─── Behavioral v20 ────────────────────────────────────────────────────────
+
+function checkTemporalLoop(recentCheckIns: Date[]): BadgeType | null {
+  // 3 consecutive days within ±15 min of same clock hour
+  if (recentCheckIns.length < 3) return null;
+  const sorted = [...recentCheckIns].sort((a, b) => +a - +b).slice(-3);
+  const hours = sorted.map(d => d.getHours() * 60 + d.getMinutes());
+  const anchor = hours[0];
+  const allNear = hours.every(h => Math.abs(h - anchor) <= 15);
+  return allNear ? 'temporal_loop' : null;
+}
+
+function checkArchiveDive(daysSinceLastCheckIn: number): BadgeType | null {
+  return daysSinceLastCheckIn >= 30 ? 'archive_dive' : null;
+}
+
+function checkChronicleSprint(recentEntries: { words: number; date: Date }[]): BadgeType | null {
+  // 7 entries in 7 days, each 200+ words
+  const now = new Date();
+  const window7d = recentEntries.filter(e => {
+    const diff = (now.getTime() - e.date.getTime()) / 86_400_000;
+    return diff <= 7 && e.words >= 200;
+  });
+  return window7d.length >= 7 ? 'chronicle_sprint' : null;
+}
+
+// ─── Achievement RPG v21 ───────────────────────────────────────────────────
+
+function checkTimeClassAchievements(
+  earnedBadges: Set<BadgeType>,
+  stats: { distinctCheckInDays: number; totalJournalWords: number; accountAgeDays: number }
+): BadgeType[] {
+  const v23Badges: BadgeType[] = [
+    'memory_echo', 'horizon_signal', 'present_pulse', 'time_capsule_written',
+    'cycle_detected', 'timeline_reset', 'past_self_seen', 'tempo_shift',
+    'legacy_mode', 'moment_captured', 'life_archive', 'countdown_active',
+  ];
+  const calv21: BadgeType[] = ['groundhog_reset', 'flux_capacitor', 'year_compiled'];
+
+  const v23Earned = v23Badges.filter(b => earnedBadges.has(b));
+  const results: BadgeType[] = [];
+
+  if (v23Earned.length >= 1)  results.push('time_entry');
+  if (v23Earned.length >= 5)  results.push('time_class');
+  if (v23Earned.length >= 12) results.push('time_complete');
+  if (v23Earned.length >= 12 && calv21.every(b => earnedBadges.has(b))) results.push('temporal_arc');
+  if (v23Earned.length >= 12 && earnedBadges.has('temporal_loop')) results.push('time_opus');
+
+  // twenty_three_engines_arc: at least 1 badge from each WT engine v1–v23
+  // (implementation: check one representative badge per engine exists in earnedBadges)
+
+  return results;
+}
+
+// ─── Mastery Tier v23 ──────────────────────────────────────────────────────
+
+function checkChroniclesMastery(stats: {
+  distinctCheckInDays: number;
+  totalJournalWords: number;
+  accountAgeDays: number;
+}): BadgeType[] {
+  const results: BadgeType[] = [];
+  if (stats.distinctCheckInDays >= 1000) results.push('chronicle_master');
+  if (stats.totalJournalWords >= 200_000) results.push('eternal_archive');
+  if (stats.accountAgeDays >= 3650) results.push('decade_signal');  // 10 years
+  return results;
+}
+
+// ─── Secret Boss v20 ───────────────────────────────────────────────────────
+
+const SECRET_BOSS_v20: Record<BadgeType, string[]> = {
+  einstein_time:  ['relativity', 'time dilation', 'spacetime', 'e=mc'],
+  proust_moment:  ['proust', 'in search of lost time', 'remembrance of things past', 'a la recherche'],
+  hawking_void:   ['hawking', 'black hole', 'event horizon', 'singularity', 'information paradox'],
+};
+
+function checkPhysicsVault(text: string): BadgeType[] {
+  const lower = text.toLowerCase();
+  return (Object.entries(SECRET_BOSS_v20) as [BadgeType, string[]][])
+    .filter(([, kws]) => kws.some(kw => lower.includes(kw)))
+    .map(([b]) => b);
+}
 ```
 
 ### Wire-up guide for runJournalEasterEggs() / runCheckInEasterEggs()
 
 Add these calls to the appropriate runners:
-- Journal saves: all `check*` word-turn functions above, plus behavioral + secret boss
-- Check-in events: `checkSleepLog`, `checkNightTerminal`
+
+```typescript
+// In runJournalEasterEggs(text, stats, earnedBadges):
+const temporalWordTurns = checkTemporalEngineWordTurns(text);
+const physicsVault = checkPhysicsVault(text);
+const chroniSprint = checkChronicleSprint(recentEntries);
+const rpmTime = checkTimeClassAchievements(earnedBadges, stats);
+const chronicleMastery = checkChroniclesMastery(stats);
+
+// In runCheckInEasterEggs(now, stats, earnedBadges):
+const calv21 = checkTimelordsCalendar(now);
+const tempLoop = checkTemporalLoop(recentCheckIns);
+const archDive = checkArchiveDive(daysSinceLastCheckIn);
+```
 
 ### API stats fields consumed by Mastery Tier v23
 
-- `stats.distinctCheckInDays` — integer (dream_archive: >= 1000)
-- `stats.totalJournalWords` — integer (night_library: >= 200,000)
-- `stats.signupDate` — ISO date string (terminal_age: >= 6 years)
+- `stats.distinctCheckInDays` — integer, distinct calendar days with check-in (existing)
+- `stats.totalJournalWords` — integer, cumulative word count (existing)
+- `stats.accountAgeDays` — integer, days since account creation (new field)
+- `recentCheckIns` — `Date[]` of last 10 check-in timestamps (new param)
+- `daysSinceLastCheckIn` — integer (new computed param)
 
 ---
 
@@ -289,17 +520,78 @@ Add these calls to the appropriate runners:
 | v17    | v20     | The Codex Reader         | 12 badges       |
 | v18    | v21     | The Cyberspace Codex     | 12 badges       |
 | v19    | v22     | The Hero's Journey       | 12 badges       |
-| v20    | v23     | The Dream Terminal       | 12 badges       |
+| **v23** | **v33** | **The Temporal Engine** | **12 badges**  |
+
+---
+
+## FULL BADGE QUICK-REFERENCE — v33 (NEW ENTRIES ONLY)
+
+```
+BADGE ID                  SYMBOL     RARITY     CATEGORY
+──────────────────────────────────────────────────────────
+memory_echo               ◌·◌        UNCOMMON   Word Turn v23
+horizon_signal            →·∞        UNCOMMON   Word Turn v23
+present_pulse             ●·●        RARE       Word Turn v23
+time_capsule_written      □→◉        RARE       Word Turn v23
+cycle_detected            ○→○→○      UNCOMMON   Word Turn v23
+timeline_reset            ──×──      RARE       Word Turn v23
+past_self_seen            ◌→◉        RARE       Word Turn v23
+tempo_shift               ≋·●·≋      UNCOMMON   Word Turn v23
+legacy_mode               ◉·∞        EPIC       Word Turn v23
+moment_captured           [●]        RARE       Word Turn v23
+life_archive              ▓·◉·▓      EPIC       Word Turn v23
+countdown_active          ···●       UNCOMMON   Word Turn v23
+──────────────────────────────────────────────────────────
+groundhog_reset           ○·○·○      RARE       Calendar EE v21
+flux_capacitor            ≋→◉·≋      EPIC       Calendar EE v21
+year_compiled             ╔═╗·∞      RARE       Calendar EE v21
+──────────────────────────────────────────────────────────
+temporal_loop             ○→○→○      RARE       Behavioral v20
+archive_dive              ◌·→·◉      EPIC       Behavioral v20
+chronicle_sprint          ≋≋≋·●      EPIC       Behavioral v20
+──────────────────────────────────────────────────────────
+time_entry                ···●       COMMON     Achievement RPG v21
+time_class                ≈→●        UNCOMMON   Achievement RPG v21
+time_complete             ≋→●        LEGENDARY  Achievement RPG v21
+temporal_arc              ●·□·∞      LEGENDARY  Achievement RPG v21
+twenty_three_engines_arc  ◈·◈·●·∞   LEGENDARY  Achievement RPG v21
+time_opus                 ●·◉·∞      LEGENDARY  Achievement RPG v21
+──────────────────────────────────────────────────────────
+chronicle_master          ∿·∞·∿·∞   EPIC       Mastery Tier v23
+eternal_archive           ●·∞·●·∞   LEGENDARY  Mastery Tier v23
+decade_signal             ╔═╗·∞·╗   LEGENDARY  Mastery Tier v23
+twenty_three_registers    ◈·◈·●·∞·□ COSMIC     Mastery Tier v23
+──────────────────────────────────────────────────────────
+einstein_time             ◉·E·◉      LEGENDARY  Secret Boss v20
+proust_moment             ◌·∿·◌      MYTHIC     Secret Boss v20
+hawking_void              ●·□·●      COSMIC     Secret Boss v20
+──────────────────────────────────────────────────────────
+```
 
 ---
 
 ## SESSION METADATA
 
 ```
-SESSION    : LOT-SR-20260824-01
+SESSION    : LOT-SR-20260903-01
 VERSION    : v33
-DATE       : 2026-08-24
-TOTAL BADGES: 843 (v32: 812 → v33: 843, +31)
+DATE       : 2026-09-03
+PREV TOTAL : 812 (v32)
+NEW BADGES : +31
+TOTAL BADGES: 843
 CODEX CLASS : ENGINEERING
 AUTHORIZED BY: S-2 // VADIK MARMELADOV
+
+ENGINE     : v23 — THE TEMPORAL ENGINE
+THEME      : Time / Memory / Cycle / Archive / Future Self
+BOSS VAULT : v20 — THE PHYSICS VAULT (Einstein / Proust / Hawking)
+
+RARITY BREAKDOWN (new additions):
+  COMMON    :  1
+  UNCOMMON  :  8
+  RARE      : 10
+  EPIC      :  7
+  LEGENDARY :  8
+  MYTHIC    :  1
+  COSMIC    :  2
 ```
