@@ -1,4 +1,4 @@
-# LOT-DOCTRINE  rev N
+# LOT-DOCTRINE  rev O
 
 ## Render Isolation
 
@@ -226,3 +226,22 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+(SR-20260903-01: confirmed rule 1 with a live instance — weekly_summary_response
+was written by api.ts /answer but had no formatLog() case; the /story endpoint's
+selfCareLogs filter separately matched a Log.event value ('memory_answer') that
+no writer ever produces. Same failure mode, two call sites: a reader's field or
+event name silently drifts from what the writer actually emits, and nothing
+errors — the data just never surfaces. Both fixed to match real writer output.)
+
+## Interval Visibility Gate
+
+Any client-side `setInterval` driving a widget must check `document.hidden`
+(or an equivalent route-active flag) at the top of its tick, even when the
+work is local-state-only. A background tab still executes JS timers; an
+ungated interval burns CPU/battery and produces state churn (and, where the
+tick calls a signal recorder, event-log noise) for a view nobody is looking
+at. Established across SystemProgressWidget, ChakraErgonomicsWidget,
+ContextualPromptsWidget, and SystemPulseWidget (SR-20260719-01 R2);
+QuantumRandomWidget's two ticks (1s number countdown, 10s pair toggle) were
+the one remaining gap in the widget set and were gated to match
+(SR-20260903-01).

@@ -842,7 +842,8 @@ function formatLog(log: Log): string {
   let body = ''
   switch (log.event) {
     case 'answer':
-    case 'medical_record': {
+    case 'medical_record':
+    case 'weekly_summary_response': {
       body = [
         `Q: "${log.metadata.question}"`,
         `O: ${((log.metadata.options || []) as string[])

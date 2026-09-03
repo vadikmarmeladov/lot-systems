@@ -1892,14 +1892,15 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             </LogContainer>
           )
         } else if (log.event === 'weekly_summary_response') {
-          const weekNumber = log.metadata?.weekNumber as number | undefined
-          const response = log.metadata?.response as string | undefined
+          const question = log.metadata?.question as string | undefined
+          const answer = log.metadata?.answer as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
-              <Block label={`MEM [W${weekNumber ?? '—'}]:`} blockView>
-                {response && (
-                  <div className="opacity-60">{response}</div>
-                )}
+              <Block label="MEM [WEEKLY]:" blockView>
+                {question}
+              </Block>
+              <Block label="OUT:" blockView>
+                {answer}
               </Block>
             </LogContainer>
           )
