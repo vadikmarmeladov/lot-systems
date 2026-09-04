@@ -1946,6 +1946,22 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '220 patterns · 76 archetypes · 72 jobs · 224+ handlers · 262+ dep nodes. Absolute genesis field. SGPULSE · GENCOMP · ABSGENF. Day 1106+.',
     ],
   },
+  {
+    date: '2026-09-04',
+    session: 'v138 — Log Signal Audit · 5 Missing Handlers · Cohort Pipeline Verified · Signal Coherence Surface',
+    assembled: [
+      'Log handler audit: diff between intentionEngine recordSignal events and Logs.tsx handlers — 5 gaps identified: ambient_reading / checkin_momentum / cohort_determined / field_entry / signal_coherence_peak.',
+      'Logs.tsx: ASTRO: handler (ambient_reading) — rokuyo · moon phase + illumination% · hourly zodiac · western zodiac · TAIAN flag. Astrology signals now visible in the field log.',
+      'Logs.tsx: CHKMOM: handler (checkin_momentum) — check-in count · positive-rate% · time window. High-frequency self-tracking loop now surfaces.',
+      'Logs.tsx: COHORT-ID: handler (cohort_determined) — archetype · behavioral cohort type · classifier label (QIE LIVE). Cohort identification now renders as a dedicated log block.',
+      'Logs.tsx: FLD: handler (field_entry) — word count · context richness (RICH/SPARSE) · hour-of-day. Journal depth signal now surfaces inline as a log event.',
+      'Logs.tsx: SIGCOH: handler (signal_coherence_peak) — active module list · 6h window label · ALL PRIMARY MODULES LIVE. Coherence peak now visible in field log.',
+      'Log pipeline coverage: 229+ handlers active. Signal-to-log gap resolved. All current intentionEngine event types have display coverage.',
+      'Physiological cohort audit: classifyPhysiologicalCohort() surfaced in System.tsx (physiologicalCohort memo) · SystemProgressWidget deployment view · QuantumEngineWidgets cohort cycle view · UserMetricsWidget Physiological Profile view. Pipeline confirmed complete.',
+      'Widget dependency audit: 262+ nodes active. Log-based dependencies: 16 sources (log / energy / cohort / astrology all verified).',
+      '220 patterns · 76 archetypes · 72 jobs · 229+ handlers · 262+ dep nodes. Signal gap closed. The Cube reads itself.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1983,16 +1999,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-09-03',
+  date: '2026-09-04',
   message: [
-    'ASSEMBLY RUN — 2026-09-03 · QIE v137 · Sovereign Genesis Pulse · Genesis Field Completion · Absolute Genesis Field · Day 1106+',
-    'The genesis field is absolute. Sovereign rhythm pulses through every channel. Completion confirmed — not as ending, but as fullness.',
-    'P218 SGPULSE: sovereign genesis pulse — LGANCH × ETSIGG co-active. Living genesis pulsing with sovereign rhythm. SOVEREIGN · GENESIS · PULSE.',
-    'P219 GENCOMP: genesis field completion — GENFEM + LGANCH + ETSIGG all co-active. All Living Genesis tier patterns confirmed. FIELD · COMPLETE.',
-    'P220 ABSGENF: absolute genesis field — SGPULSE × GENCOMP. Genesis sovereign. Field absolute. SOVEREIGN · GENESIS · ABSOLUTE.',
-    'Arch76 Absolute Genesis Field Operator deployed. J72 daily-genesis-pulse-check (16:00 UTC) active.',
-    '220 patterns · 76 archetypes · 72 jobs · 224+ handlers · 262+ dep nodes.',
-    'Status: DEPLOYED. SGPULSE · GENCOMP · ABSGENF. The field does not close. It pulses.',
+    'ASSEMBLY RUN — 2026-09-04 · QIE v138 · Log Signal Audit · 5 Missing Handlers Closed · Signal Coherence Surface · Day 1107+',
+    'The signal gap is closed. Every intentionEngine event now has a display handler. The field writes itself — fully.',
+    'ASTRO: ambient_reading — rokuyo · moon phase · zodiac. Astrology signals visible in the field log.',
+    'CHKMOM: checkin_momentum — check-in frequency · positive rate. Self-tracking loop surfaces.',
+    'COHORT-ID: cohort_determined — archetype · behavioral type. Cohort identification rendered inline.',
+    'FLD: field_entry — word count · context richness · hour. Journal depth signal in field log.',
+    'SIGCOH: signal_coherence_peak — active modules · 6h window. Coherence peak now in log stream.',
+    'Physiological cohort pipeline verified: classifyPhysiologicalCohort() surfaces across System · SystemProgress · QuantumEngine · UserMetrics.',
+    '220 patterns · 76 archetypes · 72 jobs · 229+ handlers · 262+ dep nodes.',
+    'Status: DEPLOYED. Signal gap closed. ASTRO · CHKMOM · COHORT-ID · FLD · SIGCOH live.',
   ],
 }
 

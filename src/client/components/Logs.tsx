@@ -5868,6 +5868,107 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'ambient_reading') {
+          const rokuyo          = log.metadata?.rokuyo          as string | undefined
+          const moonPhase       = log.metadata?.moonPhase       as string | undefined
+          const moonIllumination = log.metadata?.moonIllumination as number | undefined
+          const hourlyZodiac    = log.metadata?.hourlyZodiac    as string | undefined
+          const westernZodiac   = log.metadata?.westernZodiac   as string | undefined
+          const auspicious      = log.metadata?.auspicious      as boolean | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ASTRO:" blockView>
+                {rokuyo && (
+                  <div className={`uppercase tracking-widest mb-4${auspicious ? '' : ' opacity-80'}`}>
+                    {rokuyo}{auspicious ? ' · TAIAN' : ''}
+                  </div>
+                )}
+                {moonPhase && (
+                  <div className="opacity-60">
+                    MOON: {moonPhase.toUpperCase()}{moonIllumination !== undefined ? ` ${moonIllumination}%` : ''}
+                  </div>
+                )}
+                {hourlyZodiac && (
+                  <div className="opacity-40">ZOD-H: {hourlyZodiac.toUpperCase()}</div>
+                )}
+                {westernZodiac && (
+                  <div className="opacity-40">ZOD-W: {westernZodiac.toUpperCase()}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'checkin_momentum') {
+          const checkinCount = log.metadata?.checkinCount as number | undefined
+          const positiveRate = log.metadata?.positiveRate as number | undefined
+          const window_      = log.metadata?.window       as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CHKMOM:" blockView>
+                <div className="uppercase tracking-widest mb-4">CHECK-IN MOMENTUM</div>
+                {checkinCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">CHECK-INS: {checkinCount}</div>
+                )}
+                {positiveRate !== undefined && (
+                  <div className="opacity-60 tabular-nums">POS-RATE: {positiveRate}%</div>
+                )}
+                {window_ && (
+                  <div className="opacity-40">WIN: {window_.toUpperCase()}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'cohort_determined') {
+          const archetype       = log.metadata?.archetype       as string | undefined
+          const behavioralCohort = log.metadata?.behavioralCohort as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="COHORT-ID:" blockView>
+                {archetype && (
+                  <div className="uppercase tracking-widest mb-4">{archetype}</div>
+                )}
+                {behavioralCohort && (
+                  <div className="opacity-60">TYPE: {behavioralCohort.toUpperCase()}</div>
+                )}
+                <div className="opacity-30 mt-4">CLASSIFIER: QIE LIVE</div>
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'field_entry') {
+          const wordCount  = log.metadata?.wordCount  as number | undefined
+          const hasContext = log.metadata?.hasContext as boolean | undefined
+          const hour       = log.metadata?.hour       as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FLD:" blockView>
+                {wordCount !== undefined && (
+                  <div className="opacity-60 tabular-nums">WORDS: {wordCount}</div>
+                )}
+                {hasContext !== undefined && (
+                  <div className="opacity-40">CTX: {hasContext ? 'RICH' : 'SPARSE'}</div>
+                )}
+                {hour !== undefined && (
+                  <div className="opacity-30 tabular-nums">HR: {String(hour).padStart(2, '0')}:00</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'signal_coherence_peak') {
+          const modules     = log.metadata?.modules     as string[] | undefined
+          const windowHours = log.metadata?.windowHours as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SIGCOH:" blockView>
+                <div className="uppercase tracking-widest mb-4">SIGNAL COHERENCE PEAK</div>
+                {modules && modules.length > 0 && (
+                  <div className="opacity-60 uppercase text-xs">{modules.join(' · ')}</div>
+                )}
+                {windowHours !== undefined && (
+                  <div className="opacity-40 tabular-nums">WIN: {windowHours}H</div>
+                )}
+                <div className="opacity-30">ALL PRIMARY MODULES LIVE</div>
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
