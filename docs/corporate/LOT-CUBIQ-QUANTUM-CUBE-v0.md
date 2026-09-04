@@ -4,8 +4,8 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (opened) · last revised 2026-09-04 (Cycle 2)
+VERSION:  0.2 — USE CASE 02 + DEVELOPMENT LOG (see Section 09)
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -321,8 +321,74 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE OPEN OFFICE                             2026-09-04
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: R&D tier, Archetype "Momentum Architect," Assembly
+  phase "forming," works from a shared desk in an open-plan office. The
+  CUBIQ charging pad sits at the corner of the desk, in view of two
+  colleagues who do not use LOT®. USE CASE 01 proved the cube in
+  solitude. This entry proves it in company — the harder case, and the
+  one that decides whether CUBIQ can ever leave the home desk.
+
+  Two signals arrive within the same hour, both named in Section 01's
+  trigger list: a cohort resonance ping (a member of the operator's
+  behavioral cohort, on the far side of the network, just closed a
+  self-care streak the QIE recognizes as structurally similar to the
+  operator's own) and, forty minutes later, the operator's Assembly
+  phase advancing from "awakening" to "forming" (LOT-CUBIQ-OPERATOR.md,
+  Section 01 — "Assembly phase: dormant → awakening → forming →
+  assembled → integrated").
+
+  Neither signal is urgent. Neither is private information a colleague
+  glancing at the desk should be able to read. So neither gets THE HOP
+  or THE LEAP — both are legible motion, a small object visibly
+  displacing itself, exactly the kind of thing that draws a "what is
+  that?" from the next desk over. The driver (Section 05) maps both
+  signals to THE SETTLE: the actuator holds a light standing pressure
+  for two seconds, no visible motion, felt only by a hand resting near
+  the cube or through the shared desk surface itself. To a colleague six
+  feet away, the cube did nothing. To the operator, two quiet
+  confirmations landed exactly when they were true.
+
+  At 17:40, session over, colleagues already gone for the day, a rare-
+  tier badge unlocks — the first entry to arrive all day that is
+  actually worth seeing move. Alone now, the driver permits THE LEAP.
+  The cube closes its 40mm and sits at the edge of the keyboard,
+  waiting for tomorrow.
+
+  THE PRINCIPLE THIS ADDS
+    v.0's four-gesture vocabulary (Section 04) is not just a range of
+    intensities — it is a discretion system. THE SETTLE exists so CUBIQ
+    can be present at a desk it does not own alone. A notification
+    architecture that only works in private is not yet an anti-feed
+    architecture for the operator's whole day — it is a home-office
+    toy. THE OPEN OFFICE is the use case that keeps Section 04 honest:
+    every gesture must justify being seen, not just being felt.
+
 --------------------------------------------------------------------------------
-08 // BRAND
+09 // DEVELOPMENT LOG — CYCLE-DATED, APPEND-ONLY
+--------------------------------------------------------------------------------
+
+Cycle 1 — 2026-07-28. Document opened. v.0 architecture locked (Sections
+01-06). USE CASE 01 recorded.
+
+Cycle 2 — 2026-09-04. Full re-read of LOT-CUBIQ-VISION.md,
+LOT-CUBIQ-OPERATOR.md, LOT_QI46_ENGINE.md (Layer 0 corpus + Step 3.3
+Quantum Cube sync), CQGS-WHITE-PAPER-SNAPSHOT.md, and this document,
+per the Section 00 reading-log protocol — confirming no new Institute
+source has superseded the v.0 architecture since Cycle 1. Nothing in
+Sections 01-06 required revision; the controlled-hop primitive and the
+four-gesture vocabulary held. USE CASE 02 recorded (above), extending
+the notification language from a solitary home-desk scenario to a
+shared-desk, socially-observed one, and naming THE SETTLE gesture's
+role as a discretion mechanism rather than only a low-intensity one.
+v.0's build gate (500/500 hop-and-recover cycles, Section 06) remains
+open — this cycle is a specification and use-case cycle, not a
+hardware bring-up cycle; no claim is made here about physical trials
+having occurred.
+
+--------------------------------------------------------------------------------
+10 // BRAND
 --------------------------------------------------------------------------------
 
 LOT® Quantum Cube             The object
