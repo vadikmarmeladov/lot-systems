@@ -18,7 +18,9 @@ import { recordCalendarSignal } from '#client/stores/intentionEngine'
 type EntryType = 'note' | 'task' | 'call'
 
 type CalendarEntry = {
+  id: string
   date: string
+  time?: string
   text: string
   type: EntryType
 }
@@ -58,24 +60,43 @@ export function CalendarWidget() {
   const [selectedDate, setSelectedDate] = React.useState<string | null>(null)
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
+  const [entryTime, setEntryTime] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+
+  const removedIds = React.useMemo(() => {
+    const set = new Set<string>()
+    logs
+      .filter(log => log.event === 'calendar_entry_removed' && log.metadata?.removedLogId)
+      .forEach(log => set.add(log.metadata!.removedLogId as string))
+    return set
+  }, [logs])
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
-      .filter(log => log.event === 'calendar_entry' && log.metadata)
+      .filter(log => log.event === 'calendar_entry' && log.metadata && !removedIds.has(log.id))
       .map(log => ({
+        id: log.id,
         date: log.metadata?.date as string,
+        time: log.metadata?.time as string | undefined,
         text: log.metadata?.text as string || log.text || '',
         type: (log.metadata?.entryType as EntryType) || 'note',
       }))
       .filter(e => e.date && e.text)
-      .sort((a, b) => a.date.localeCompare(b.date))
-  }, [logs])
+      .sort((a, b) => a.date.localeCompare(b.date) || (a.time || '').localeCompare(b.time || ''))
+  }, [logs, removedIds])
+
+  // Re-render every 60s so "in Xh Ym" countdowns stay accurate without a manual refresh
+  const [, forceTick] = React.useState(0)
+  React.useEffect(() => {
+    const interval = setInterval(() => forceTick(t => t + 1), 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   const upcomingEntries = React.useMemo(() => {
-    const today = dayjs().format('YYYY-MM-DD')
+    const now = dayjs()
+    const today = now.format('YYYY-MM-DD')
     return entries
-      .filter(e => e.date >= today)
+      .filter(e => e.date > today || (e.date === today && (!e.time || dayjs(`${e.date} ${e.time}`).isAfter(now.subtract(1, 'hour')))))
       .slice(0, 10)
   }, [entries])
 
@@ -109,12 +130,14 @@ export function CalendarWidget() {
     if (!selectedDate || !entryText.trim()) return
 
     const dateLabel = dayjs(selectedDate).format('dddd, MMMM D, YYYY')
+    const time = entryTime.trim() || undefined
 
     createLog({
-      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel})`,
+      text: `[SCHEDULE] ${entryType}: ${entryText.trim()} (${dateLabel}${time ? ` ${time}` : ''})`,
       event: 'calendar_entry',
       metadata: {
         date: selectedDate,
+        time,
         text: entryText.trim(),
         entryType,
       },
@@ -126,7 +149,30 @@ export function CalendarWidget() {
     })
 
     setEntryText('')
+    setEntryTime('')
     setIsAddingEntry(false)
+  }
+
+  const handleRemoveEntry = (entry: CalendarEntry) => {
+    createLog({
+      text: `[SCHEDULE] cancelled: ${entry.text}`,
+      event: 'calendar_entry_removed',
+      metadata: {
+        removedLogId: entry.id,
+        date: entry.date,
+      },
+    }, {
+      onSuccess: () => {
+        queryClient.refetchQueries(['/api/logs'])
+      },
+    })
+  }
+
+  const formatCountdown = (entry: CalendarEntry): string | null => {
+    if (!entry.time) return null
+    const target = dayjs(`${entry.date} ${entry.time}`)
+    if (!target.isValid()) return null
+    return target.isBefore(dayjs()) ? 'overdue' : target.fromNow()
   }
 
   const handleToggleCalendar = () => {
@@ -237,6 +283,13 @@ export function CalendarWidget() {
                     className="bg-transparent border border-acc/20 text-acc px-4 py-2 flex-1 outline-none focus:border-acc/40"
                     autoFocus
                   />
+                  <input
+                    type="time"
+                    value={entryTime}
+                    onChange={e => setEntryTime(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') handleAddEntry() }}
+                    className="bg-transparent border border-acc/20 text-acc px-4 py-2 outline-none focus:border-acc/40"
+                  />
                   <Button onClick={handleAddEntry}>Add</Button>
                 </div>
               </div>
@@ -247,9 +300,18 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
+                {entriesOnDate.map(e => (
+                  <div key={e.id} className="flex justify-between items-baseline gap-8 mb-1">
+                    <span className="text-acc/80">
+                      {e.time && <span className="text-acc/40 mr-4 tabular-nums">{e.time}</span>}
+                      {e.text}
+                    </span>
+                    <button
+                      className="text-acc/20 hover:text-acc/60 transition-opacity shrink-0"
+                      onClick={() => handleRemoveEntry(e)}
+                    >
+                      ×
+                    </button>
                   </div>
                 ))}
               </div>
@@ -259,16 +321,25 @@ export function CalendarWidget() {
 
         {upcomingEntries.length > 0 && (
           <div className="space-y-1">
-            {upcomingEntries.map((entry, i) => (
-              <div key={i} className="flex justify-between gap-16">
-                <span className="text-acc whitespace-nowrap">
-                  {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
-                </span>
-                <span className="text-acc text-right">
-                  {entry.text}
-                </span>
-              </div>
-            ))}
+            {upcomingEntries.map(entry => {
+              const countdown = formatCountdown(entry)
+              return (
+                <div key={entry.id} className="flex justify-between items-baseline gap-16">
+                  <span className="text-acc whitespace-nowrap">
+                    {dayjs(entry.date).format('dddd, MMMM D, YYYY')}
+                    {entry.time && <span className="text-acc/60 ml-4 tabular-nums">{entry.time}</span>}
+                  </span>
+                  <span className="text-acc text-right flex items-baseline gap-8">
+                    {entry.text}
+                    {countdown && (
+                      <span className={cn('whitespace-nowrap', countdown === 'overdue' ? 'text-acc/80' : 'text-acc/40')}>
+                        ({countdown})
+                      </span>
+                    )}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         )}
 

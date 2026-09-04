@@ -2079,10 +2079,35 @@ export const Logs: React.FC = React.memo(function LogsInner() {
         } else if (log.event === 'calendar_entry') {
           const entryType = log.metadata?.entryType as string | undefined
           const date = log.metadata?.date as string | undefined
+          const time = log.metadata?.time as string | undefined
           return (
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="CAL:" blockView>
                 <div className="uppercase tracking-widest">{entryType || 'ENTRY'}</div>
+                {date && <div className="opacity-40 mt-8">{date}{time ? ` ${time}` : ''}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_entry_removed') {
+          const date = log.metadata?.date as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-CANCEL:" blockView>
+                <div className="opacity-40 uppercase tracking-widest">CANCELLED</div>
+                {date && <div className="opacity-40 mt-8">{date}</div>}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'calendar_alert') {
+          const entryType = log.metadata?.entryType as string | undefined
+          const time = log.metadata?.time as string | undefined
+          const date = log.metadata?.date as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="CAL-ALERT:" blockView>
+                <div className="uppercase tracking-widest">
+                  {entryType || 'EVENT'}{time ? ` @ ${time}` : ''}
+                </div>
                 {date && <div className="opacity-40 mt-8">{date}</div>}
               </Block>
             </LogContainer>
