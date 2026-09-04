@@ -3428,6 +3428,27 @@ export function analyzeIntentions(): IntentionPattern[] {
     }
   }
 
+  // Pattern 152: Auspicious Alignment — ambient Taian-day astrology reading (rokuyo's most
+  // auspicious day, per src/shared/utils/astrology.ts) recorded today, plus at least one
+  // declared-direction signal (intentions or goals) the same calendar day. This is the first
+  // pattern to read the 'astrology' Tier 0 source (wired 2026-07-27) as an input rather than
+  // just a dependency-graph node — ambient environmental conditions intersecting with personal
+  // direction. Confidence stays capped low: this is a gentle observation, never a directive,
+  // and the astrology block remains ambient-only by design (no natal-chart data exists).
+  const p152DayStart = new Date(now); p152DayStart.setHours(0, 0, 0, 0)
+  const p152Astrology  = signals.filter(s => s.source === 'astrology' && s.timestamp >= p152DayStart.getTime() && s.metadata?.auspicious === true)
+  const p152Direction  = signals.filter(s => (s.source === 'intentions' || s.source === 'goals') && s.timestamp >= p152DayStart.getTime())
+  if (p152Astrology.length >= 1 && p152Direction.length >= 1) {
+    const p152Conf = Math.min(0.58 + p152Direction.length * 0.05, 0.75)
+    patterns.push({
+      pattern: 'auspicious-alignment',
+      confidence: p152Conf,
+      suggestedWidget: 'cosmic',
+      suggestedTiming: 'passive',
+      reason: `AUSPALIGN: Taian (auspicious) day confirmed + ${p152Direction.length} intention/goal signal(s) set today. Ambient conditions and declared direction aligned — a gentle observation, not a directive.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
