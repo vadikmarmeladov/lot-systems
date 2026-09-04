@@ -47,13 +47,13 @@ async function checkDatabase(): Promise<SystemCheck> {
   try {
     await sequelize.authenticate()
     return {
-      name: 'Database stack',
+      name: 'Database stack check',
       status: 'ok',
       duration: Date.now() - start,
     }
   } catch (error: any) {
     return {
-      name: 'Database stack',
+      name: 'Database stack check',
       status: 'error',
       message: error?.message || 'Database connection failed',
       duration: Date.now() - start,
@@ -68,7 +68,7 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     const data = await weather.getWeather(40.7128, -74.0060)
     if (!data) {
       return {
-        name: 'Engine stack',
+        name: 'Engine stack check',
         status: 'error',
         message: 'Weather API returned no data',
         duration: Date.now() - start,
@@ -79,7 +79,7 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     const reactBundlePath = path.join(process.cwd(), 'dist/client/js/app.js')
     if (!fs.existsSync(reactBundlePath)) {
       return {
-        name: 'Engine stack',
+        name: 'Engine stack check',
         status: 'error',
         message: 'React bundle not found',
         duration: Date.now() - start,
@@ -91,7 +91,7 @@ async function checkWeatherAPI(): Promise<SystemCheck> {
     const majorVersion = parseInt(nodeVersion.slice(1).split('.')[0])
     if (majorVersion < 18) {
       return {
-        name: 'Engine stack',
+        name: 'Engine stack check',
         status: 'error',
         message: `Node.js version ${nodeVersion} is too old (requires 18+)`,
         duration: Date.now() - start,
@@ -248,17 +248,6 @@ async function checkMemory(): Promise<SystemCheck> {
     // Check if Log model is available (logging system)
     await models.Log.findOne()
 
-    // Check if Anthropic API key is configured for Claude-powered Memory
-    const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY || !!config.anthropic?.apiKey
-    if (!hasAnthropicKey) {
-      return {
-        name: 'Memory Engine',
-        status: 'error',
-        message: 'Claude API key not configured',
-        duration: Date.now() - start,
-      }
-    }
-
     return {
       name: 'Memory Engine',
       status: 'ok',
@@ -274,6 +263,34 @@ async function checkMemory(): Promise<SystemCheck> {
   }
 }
 
+async function checkStoryAI(): Promise<SystemCheck> {
+  const start = Date.now()
+  try {
+    const hasAnthropicKey = !!process.env.ANTHROPIC_API_KEY || !!config.anthropic?.apiKey
+    if (!hasAnthropicKey) {
+      return {
+        name: 'Story AI',
+        status: 'error',
+        message: 'Claude API key (ANTHROPIC_API_KEY) not configured',
+        duration: Date.now() - start,
+      }
+    }
+
+    return {
+      name: 'Story AI',
+      status: 'ok',
+      duration: Date.now() - start,
+    }
+  } catch (error: any) {
+    return {
+      name: 'Story AI',
+      status: 'error',
+      message: error?.message || 'Story AI check failed',
+      duration: Date.now() - start,
+    }
+  }
+}
+
 async function checkSystems(): Promise<SystemCheck> {
   const start = Date.now()
   try {
@@ -281,7 +298,7 @@ async function checkSystems(): Promise<SystemCheck> {
     const hasConfig = !!config.appName && !!config.appHost
     if (!hasConfig) {
       return {
-        name: 'Systems',
+        name: 'Systems check',
         status: 'error',
         message: 'Configuration not loaded',
         duration: Date.now() - start,
@@ -292,7 +309,7 @@ async function checkSystems(): Promise<SystemCheck> {
     const nodeModulesPath = path.join(process.cwd(), 'node_modules')
     if (!fs.existsSync(nodeModulesPath)) {
       return {
-        name: 'Systems',
+        name: 'Systems check',
         status: 'error',
         message: 'Dependencies not installed',
         duration: Date.now() - start,
@@ -303,7 +320,7 @@ async function checkSystems(): Promise<SystemCheck> {
     const packageJsonPath = path.join(process.cwd(), 'package.json')
     if (!fs.existsSync(packageJsonPath)) {
       return {
-        name: 'Systems',
+        name: 'Systems check',
         status: 'error',
         message: 'package.json not found',
         duration: Date.now() - start,
@@ -314,7 +331,7 @@ async function checkSystems(): Promise<SystemCheck> {
     const serverBuildPath = path.join(process.cwd(), 'dist/server/server/index.js')
     if (!fs.existsSync(serverBuildPath)) {
       return {
-        name: 'Systems',
+        name: 'Systems check',
         status: 'error',
         message: 'Server build not found',
         duration: Date.now() - start,
@@ -352,6 +369,7 @@ async function performHealthChecks(): Promise<{
     checkSystems(),
     checkWeatherAPI(),
     checkDatabase(),
+    checkStoryAI(),
     checkMemory(),
   ])
 
@@ -703,7 +721,7 @@ export default async (fastify: FastifyInstance) => {
 
       // Make a minimal API call to test the key
       const message = await client.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 10,
         messages: [
           {

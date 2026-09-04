@@ -26,15 +26,15 @@ The status page monitors 9 critical components:
 
 | Component | What It Checks |
 |-----------|---------------|
-| ✅ **Authentication engine** | Session model availability |
-| ✅ **Sync** | CategoryEntry model availability |
-| ✅ **Settings** | UserSettings model availability |
-| ✅ **Admin** | User model availability |
-| ✅ **Systems check** | Configuration validation |
-| ✅ **Engine stack check** | Weather API functionality |
-| ✅ **Database stack check** | Database connectivity |
-| ✅ **Story AI stack check** | OpenAI API and UserMemory |
-| ✅ **Memory Engine check** | Memory model availability |
+| ✅ **Authentication engine** | Session model, Resend API key, manifest file |
+| ✅ **Sync** | LiveMessage model availability |
+| ✅ **Settings** | User model + app bundle exists |
+| ✅ **Admin** | User model + /us page bundle |
+| ✅ **Systems check** | Config, dependencies, TS build output |
+| ✅ **Engine stack check** | Weather API, React bundle, Node.js version |
+| ✅ **Database stack check** | PostgreSQL connectivity |
+| ✅ **Story AI** | Claude API key (ANTHROPIC_API_KEY) configured |
+| ✅ **Memory Engine** | Answer model + Log model availability |
 
 ### Display Information
 
@@ -200,7 +200,7 @@ Alert on: overall != "ok"
 | Error | Cause | Solution |
 |-------|-------|----------|
 | Database stack check failed | DB connection issue | Check DATABASE_URL |
-| Story AI stack check failed | Missing API key | Set OPENAI_API_KEY |
+| Story AI stack check failed | Missing API key | Set ANTHROPIC_API_KEY |
 | Engine stack check failed | Weather API issue | Check weather service |
 
 ## 💡 Benefits
