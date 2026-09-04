@@ -1213,6 +1213,13 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // Log/Journal spike follow-up loop: qie_pattern_detected (curated QIE:
+      // pattern rows — a fresh, distinct event so raw per-click quantum_intent_signal
+      // telemetry stays off the feed; only genuine pattern detections surface)
+      // + pattern_followup (AI-composed follow-up question, Together AI, on the
+      // single strongest fresh pattern per sync)
+      'qie_pattern_detected',
+      'pattern_followup',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -3685,6 +3692,46 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         context: logCtx,
       }))
 
+      // --- Spike / pattern-change follow-up ---------------------------------
+      // Data flow: LOT User data (signals) -> QIE (recognizedPatterns, computed
+      // client-side by analyzeIntentions) -> AI vendor processor (Together AI)
+      // -> LOT personalized data stored (pattern_followup Log).
+      //
+      // A pattern crossing FOLLOWUP_CONFIDENCE for the first time (or again
+      // after RESURFACE_COOLDOWN_MS) becomes a quantum_intent_signal row per
+      // pattern (lights up the existing QIE: render block in Logs.tsx, which
+      // already reads metadata.pattern/confidence/reason but previously never
+      // received them), plus — for the single strongest fresh pattern — an
+      // AI-composed follow-up question persisted as its own log the operator
+      // encounters passively in their feed. No push, no modal: the machine
+      // asks by leaving the question in the Log, same as /story and /qi.
+      const FOLLOWUP_CONFIDENCE = 0.75
+      const RESURFACE_COOLDOWN_MS = 24 * 60 * 60 * 1000
+      const currentMetadata = (req.user.metadata as any) || {}
+      const surfaced: Record<string, string> = { ...(currentMetadata.quantumIntentSurfacedPatterns || {}) }
+
+      const freshPatterns = (recognizedPatterns || []).filter((p) => {
+        if (!p || !p.pattern || typeof p.confidence !== 'number' || p.confidence < FOLLOWUP_CONFIDENCE) return false
+        const last = surfaced[p.pattern]
+        return !last || (Date.now() - new Date(last).getTime()) > RESURFACE_COOLDOWN_MS
+      })
+
+      for (const p of freshPatterns) {
+        rows.push({
+          userId: req.user.id,
+          event: 'qie_pattern_detected',
+          text: p.pattern,
+          metadata: {
+            source: 'qie',
+            pattern: p.pattern,
+            confidence: p.confidence,
+            reason: p.reason,
+          },
+          context: logCtx,
+        } as any)
+        surfaced[p.pattern] = new Date().toISOString()
+      }
+
       let savedCount = 0
       try {
         const created = await fastify.models.Log.bulkCreate(rows, { validate: false })
@@ -3693,15 +3740,53 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         console.error('Failed to bulk-save signals:', bulkError.message)
       }
 
+      // Strongest fresh pattern gets an AI-composed follow-up question.
+      let followUp: { pattern: string; text: string } | null = null
+      if (freshPatterns.length > 0) {
+        const top = [...freshPatterns].sort((a, b) => b.confidence - a.confidence)[0]
+        try {
+          const { aiEngineManager } = await import('#server/utils/ai-engines.js')
+          const engine = aiEngineManager.getEngine('together')
+          const prompt = `You are the Quantum Intent Engine of LOT Systems, a self-care operating system. It just detected this behavioral pattern in the operator's own data:
+
+PATTERN: ${top.pattern.replace(/-/g, ' ').toUpperCase()}
+SIGNAL: ${top.reason}
+
+Write ONE short follow-up question (under 25 words) to ask the operator, grounded in this specific signal — not generic. Second person. No greeting, no explanation, no quotes. Return ONLY the question.`
+          const raw = await engine.generateCompletion(prompt, 80)
+          followUp = { pattern: top.pattern, text: raw.trim().replace(/^["']|["']$/g, '') }
+        } catch (aiError: any) {
+          console.error('Pattern follow-up AI composition failed, falling back to raw signal reason:', aiError.message)
+          followUp = { pattern: top.pattern, text: top.reason }
+        }
+
+        try {
+          await fastify.models.Log.create({
+            userId: req.user.id,
+            event: 'pattern_followup',
+            text: followUp.text,
+            context: logCtx,
+            metadata: {
+              pattern: top.pattern,
+              confidence: top.confidence,
+              reason: top.reason,
+              suggestedWidget: top.suggestedWidget,
+            },
+          } as any)
+        } catch (followUpError: any) {
+          console.error('Failed to persist pattern follow-up log:', followUpError.message)
+        }
+      }
+
       // Save aggregated state to user metadata
       if (userState || recognizedPatterns) {
         try {
-          const currentMetadata = req.user.metadata as any || {}
           await req.user.set({
             metadata: {
               ...currentMetadata,
               quantumIntentState: userState,
               quantumIntentPatterns: recognizedPatterns,
+              quantumIntentSurfacedPatterns: surfaced,
               quantumIntentLastSync: new Date().toISOString(),
               quantumIntentSignalCount: (currentMetadata.quantumIntentSignalCount || 0) + signals.length,
             }
@@ -3716,6 +3801,8 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
         success: true,
         savedSignals: savedCount,
         totalSignals: signals.length,
+        newPatternsSurfaced: freshPatterns.length,
+        followUp,
         timestamp: new Date().toISOString()
       }
     } catch (error: any) {
@@ -4964,7 +5051,7 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       const careLogs = logs.filter(l => l.event === 'self_care_complete' || l.event === 'self_care_completed').slice(0, 10)
       const goalLogs = logs.filter(l => l.event === 'goal_set' || l.event === 'goal_journey' || l.event === 'goal_complete').slice(0, 5)
       const calendarLogs = logs.filter(l => l.event === 'calendar_entry').slice(0, 10)
-      const qieLogs = logs.filter(l => l.event === 'quantum_intent_signal' || l.event === 'pattern_detected').slice(0, 10)
+      const qieLogs = logs.filter(l => l.event === 'quantum_intent_signal' || l.event === 'pattern_detected' || l.event === 'qie_pattern_detected').slice(0, 10)
 
       // Build mood timeline
       const moodTimeline = moodLogs.map(l => {
@@ -5174,7 +5261,7 @@ OPERATOR RFI: ${query.trim()}`
       const careSkipLogs = logs.filter(l => l.event === 'self_care_skip').slice(0, 10)
       const goalLogs = logs.filter(l => l.event === 'goal_set' || l.event === 'goal_journey' || l.event === 'goal_complete').slice(0, 10)
       const journalLogs = logs.filter(l => l.event === 'note' && l.text && l.text.length > 20).slice(0, 5)
-      const qieLogs = logs.filter(l => l.event === 'quantum_intent_signal' || l.event === 'pattern_detected').slice(0, 10)
+      const qieLogs = logs.filter(l => l.event === 'quantum_intent_signal' || l.event === 'pattern_detected' || l.event === 'qie_pattern_detected').slice(0, 10)
       const energyLogs = logs.filter(l => l.event === 'energy_state' || l.event === 'energy_check').slice(0, 5)
 
       // Compute signal gaps

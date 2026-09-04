@@ -56,6 +56,14 @@ deferred to allow immediate visual response.)
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
 (SR-20260604-01: calendar_entry saved but never returned.)
+(SR-20260904-01: quantum_intent_signal rows had been written by
+/quantum-intent/sync since the sync route's introduction but never
+whitelisted — the QIE: render block in Logs.tsx read metadata.pattern/
+confidence/reason correctly but received zero matching rows, silently,
+for the entire time the route existed. Third confirmed instance of this
+exact defect class. Fix introduced a distinct qie_pattern_detected event
+for curated pattern rows rather than whitelisting raw quantum_intent_signal
+directly — see Signal-vs-Pattern Event Separation below.)
 
 ## Ship Mode Discipline
 
@@ -198,6 +206,25 @@ creates a new numbered file; old files are never modified. No restore needed.
 
 The rule: wiki archives are additive and safe. About.tsx is master-authoritative.
 (Manifest §06 Sunday Protocol: WIKI-GUARD added 2026-06-27.)
+
+## Signal-vs-Pattern Event Separation
+
+A high-frequency raw telemetry stream (one row per user click/interaction)
+and a low-frequency curated detection (a named pattern crossing a confidence
+threshold) must never share one Log `event` value if either is ever added to
+the displayableEvents whitelist. Whitelisting the shared event surfaces every
+raw row too — flooding the operator's own journal feed with per-click noise
+that was never meant to be user-visible. Give the curated subset its own
+event name before whitelisting, even when it is derived from the same
+underlying store (QIE `recognizedPatterns` vs. raw `signals`). The dormant
+render block existing already is not itself proof the intended fix is
+"add this event to the whitelist" — check what else shares that event value
+first.
+(SR-20260904-01: quantum_intent_signal covers both raw per-signal telemetry
+and, potentially, pattern rows. Pattern rows given a new event —
+qie_pattern_detected — and only that whitelisted; raw quantum_intent_signal
+left off the whitelist, unchanged from its prior — accidental but load-bearing
+— invisibility.)
 
 ## Widget→Memory Compression Loop (PLANNER-CONTEXT)
 

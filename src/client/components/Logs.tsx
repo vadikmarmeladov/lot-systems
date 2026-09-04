@@ -374,7 +374,7 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
-        } else if (log.event === 'quantum_intent_signal') {
+        } else if (log.event === 'qie_pattern_detected') {
           const pattern = log.metadata?.pattern as string | undefined
           const source = log.metadata?.source as string | undefined
           const confidence = log.metadata?.confidence as number | undefined
@@ -397,6 +397,22 @@ export const Logs: React.FC = React.memo(function LogsInner() {
                 {reason && (
                   <div className="opacity-30 mt-4">{reason}</div>
                 )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'pattern_followup') {
+          const pattern = log.metadata?.pattern as string | undefined
+          const confidence = log.metadata?.confidence as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="FUP:" blockView>
+                {pattern && (
+                  <div className="opacity-40 mb-4">
+                    RE: {pattern.replace(/-/g, ' ').toUpperCase()}
+                    {confidence !== undefined && ` · ${Math.round(confidence * 100)}%`}
+                  </div>
+                )}
+                <div>{log.text || '—'}</div>
               </Block>
             </LogContainer>
           )
