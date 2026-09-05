@@ -238,9 +238,19 @@ export const System = React.memo(function SystemInner() {
 
   // Synchronize the ambient astrology reading into the QIE signal bus once
   // per calendar day, so other widgets (cosmic, system) can react to it.
+  // Calendar day is resolved in the user's saved profile timeZone (same as
+  // the astrology reading itself above), not device-local time, so the
+  // once-per-day dedupe boundary matches the reading it's guarding.
   React.useEffect(() => {
     if (typeof window === 'undefined') return
-    const today = dayjs().format('YYYY-MM-DD')
+    let today = dayjs().format('YYYY-MM-DD')
+    if (me?.timeZone) {
+      try {
+        today = dayjs().tz(me.timeZone).format('YYYY-MM-DD')
+      } catch {
+        // Unrecognized IANA timeZone string — fall back to device-local date above.
+      }
+    }
     const lastRecordedKey = 'astrology_signal_date'
     if (localStorage.getItem(lastRecordedKey) === today) return
     recordAstrologySignal(
@@ -251,7 +261,7 @@ export const System = React.memo(function SystemInner() {
       astrology.westernZodiac
     )
     localStorage.setItem(lastRecordedKey, today)
-  }, [astrology.rokuyo, astrology.moonPhase, astrology.moonIllumination, astrology.hourlyZodiac, astrology.westernZodiac])
+  }, [astrology.rokuyo, astrology.moonPhase, astrology.moonIllumination, astrology.hourlyZodiac, astrology.westernZodiac, me?.timeZone])
 
   const answerLogs = React.useMemo(() => {
     return logs.filter(log => log.event === 'answer')
