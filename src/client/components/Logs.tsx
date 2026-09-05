@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useSendLotMail } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -257,6 +257,19 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COMM:" blockView>
                 ACK{'\n'}{log.metadata.message as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'lot_mail_sent') {
+          const toName = log.metadata?.toName as string | undefined
+          const mailBody = log.metadata?.body as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="✉ MAIL:" blockView>
+                <div className="opacity-40 mb-4 uppercase tracking-widest text-xs">
+                  To: {toName || 'Unknown'}
+                </div>
+                {mailBody}
               </Block>
             </LogContainer>
           )
@@ -3764,6 +3777,21 @@ const NoteEditor = ({
       setIsSaved(true)
     },
   })
+
+  const [emailCompose, setEmailCompose] = React.useState<{ toName: string; body: string } | null>(null)
+  const [emailStatus, setEmailStatus] = React.useState<string | null>(null)
+  const { mutate: sendMail, isLoading: mailSending } = useSendLotMail({
+    onSuccess: (data) => {
+      const name = data.toUser.firstName || data.toUser.lastName || 'recipient'
+      setEmailStatus(`✉ Sent to ${name}.`)
+      setEmailCompose(null)
+    },
+    onError: (err: any) => {
+      const hint = err?.response?.data?.hint || err?.response?.data?.error || 'Send failed.'
+      setEmailStatus(hint)
+    },
+  })
+
   const debounceTime = 7000  // 7s for all logs
   const debouncedValue = useDebounce(value, debounceTime)
 
@@ -4139,6 +4167,7 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to <name> [msg]  Compose a LOT Mail message',
           '/system       This help screen',
           '',
           'SHORTCUTS',
@@ -4163,6 +4192,14 @@ const NoteEditor = ({
           } catch {
             submitStory({ logText: value })
           }
+        }
+      } else if (trigger === 'email-compose') {
+        const emailMatch = value.match(/\/(?:email|mail)\s+to\s+(\S+(?:\s+\S+)?)\s*([\s\S]*)/i)
+        if (emailMatch) {
+          const toName = emailMatch[1].trim()
+          const body = emailMatch[2]?.trim() || ''
+          setEmailStatus(null)
+          setEmailCompose({ toName, body })
         }
       }
     }
@@ -4426,6 +4463,47 @@ const NoteEditor = ({
                     <div key={idx}>{line || <br />}</div>
                   ))}
                 </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {(emailCompose || emailStatus) && (
+          <div className="mt-8">
+            <Block label="✉ MAIL:" blockView>
+              {emailCompose && (
+                <div>
+                  <div className="opacity-40 mb-4 uppercase tracking-widest text-xs">
+                    To: {emailCompose.toName}
+                  </div>
+                  <ResizibleGhostInput
+                    direction="v"
+                    value={emailCompose.body}
+                    onChange={(v) => setEmailCompose((prev) => prev ? { ...prev, body: v } : null)}
+                    placeholder="Write your message..."
+                    rows={3}
+                    className="opacity-60"
+                  />
+                  <div className="flex items-center gap-x-8 mt-8">
+                    <Button
+                      kind="secondary"
+                      size="small"
+                      disabled={mailSending || !emailCompose.body.trim()}
+                      onClick={() => sendMail({ toName: emailCompose.toName, body: emailCompose.body })}
+                    >
+                      {mailSending ? 'Sending...' : 'Send'}
+                    </Button>
+                    <Button
+                      kind="secondary"
+                      size="small"
+                      onClick={() => { setEmailCompose(null); setEmailStatus(null) }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+              {emailStatus && !emailCompose && (
+                <div className="opacity-60">{emailStatus}</div>
               )}
             </Block>
           </div>

@@ -144,6 +144,17 @@ updates on every audit; feature rows update when a new iteration supersedes.
 SR-20260606-02: Week 23 ship report referenced MANIFEST for feature count.
 SR-20260612-06: MANIFEST v2 — 144 branches, 5 BEST superseded, 90 prunable.)
 
+A "no longer exist on the remote — incorporated into master" note is a claim,
+not a fact — verify it before treating a feature as done. `git ls-remote` /
+`git branch -r` can show a listed branch is still there, and a targeted grep
+of master for the feature's signature symbols (a component name, a route
+path, a DB table) can show its code never landed. Trust the working tree and
+the remote over a stale manifest annotation.
+(SR-20260905-01: 2026-06-27 note claimed LOT Mail was incorporated into
+master; determined-turing-f6bw7r was still on the remote and none of its
+code — /email trigger, lot_mails table, EmailInbox — was in master. Verified
+by branch listing + grep before cherry-picking.)
+
 ## Signal Momentum Architecture
 
 The DIURNAL ARC (P76→P79→P80) is the complete named engagement loop in the QIE.
