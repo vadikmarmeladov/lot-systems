@@ -1213,6 +1213,8 @@ export default async (fastify: FastifyInstance) => {
       'quantum_presence_crystallization',
       'total_field_coherence',
       'recovery_intelligence_arc',
+      // v114: calendar time tracking — logged duration on a scheduled entry
+      'calendar_time_tracked',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {
@@ -5183,7 +5185,7 @@ OPERATOR RFI: ${query.trim()}`
         'self_care_complete': 'selfcare', 'self_care_completed': 'selfcare',
         'intention': 'intentions', 'note': 'journal', 'chat_message': 'community',
         'goal_set': 'goals', 'goal_journey': 'goals', 'goal_complete': 'goals',
-        'recipe_viewed': 'recipe', 'calendar_entry': 'calendar',
+        'recipe_viewed': 'recipe', 'calendar_entry': 'calendar', 'calendar_time_tracked': 'calendar',
       }
       const lastSignalByModule: Record<string, Date> = {}
       for (const log of logs) {

@@ -13,7 +13,8 @@ import { useCreateLog, useLogs } from '#client/queries'
 import { cn } from '#client/utils'
 import dayjs from '#client/utils/dayjs'
 import type { Dayjs } from '#client/utils/dayjs'
-import { recordCalendarSignal } from '#client/stores/intentionEngine'
+import { recordCalendarSignal, recordCalendarTimeSignal } from '#client/stores/intentionEngine'
+import { pushCalendarNotification } from '#client/stores/calendarNotifications'
 
 type EntryType = 'note' | 'task' | 'call'
 
@@ -23,7 +24,32 @@ type CalendarEntry = {
   type: EntryType
 }
 
+type ActiveTimer = {
+  date: string
+  text: string
+  entryType: EntryType
+  startedAt: number
+}
+
 const DAY_LETTERS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+const ACTIVE_TIMER_KEY = 'lot_calendar_active_timer'
+
+function loadActiveTimer(): ActiveTimer | null {
+  try {
+    const raw = localStorage.getItem(ACTIVE_TIMER_KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch (_) {
+    return null
+  }
+}
+
+function formatDuration(totalSeconds: number): string {
+  const pad = (n: number) => `${n}`.padStart(2, '0')
+  const h = Math.floor(totalSeconds / 3600)
+  const m = Math.floor((totalSeconds % 3600) / 60)
+  const s = totalSeconds % 60
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`
+}
 
 function getMonthWeeks(year: number, month: number): Dayjs[][] {
   const first = dayjs().year(year).month(month).startOf('month')
@@ -59,6 +85,59 @@ export function CalendarWidget() {
   const [isAddingEntry, setIsAddingEntry] = React.useState(false)
   const [entryText, setEntryText] = React.useState('')
   const [entryType, setEntryType] = React.useState<EntryType>('note')
+
+  const [activeTimer, setActiveTimer] = React.useState<ActiveTimer | null>(() => loadActiveTimer())
+  const [elapsedSeconds, setElapsedSeconds] = React.useState(0)
+
+  // Timestamp-based tick — immune to setInterval drift and survives a page reload
+  // via ACTIVE_TIMER_KEY, since elapsed time is always recomputed from startedAt.
+  React.useEffect(() => {
+    if (!activeTimer) return
+    const tick = () => setElapsedSeconds(Math.floor((Date.now() - activeTimer.startedAt) / 1000))
+    tick()
+    const interval = setInterval(tick, 1000)
+    return () => clearInterval(interval)
+  }, [activeTimer])
+
+  const startTimer = (entry: CalendarEntry) => {
+    const timer: ActiveTimer = { date: entry.date, text: entry.text, entryType: entry.type, startedAt: Date.now() }
+    setActiveTimer(timer)
+    try { localStorage.setItem(ACTIVE_TIMER_KEY, JSON.stringify(timer)) } catch (_) {}
+  }
+
+  const stopTimer = () => {
+    if (!activeTimer) return
+    const durationSeconds = Math.max(1, Math.floor((Date.now() - activeTimer.startedAt) / 1000))
+    const durationLabel = formatDuration(durationSeconds)
+    const dateLabel = dayjs(activeTimer.date).format('dddd, MMMM D, YYYY')
+
+    createLog({
+      text: `[TIME] ${activeTimer.entryType}: ${activeTimer.text} — ${durationLabel} (${dateLabel})`,
+      event: 'calendar_time_tracked',
+      metadata: {
+        date: activeTimer.date,
+        text: activeTimer.text,
+        entryType: activeTimer.entryType,
+        durationSeconds,
+      },
+    }, {
+      onSuccess: () => {
+        queryClient.refetchQueries(['/api/logs'])
+        try { recordCalendarTimeSignal(activeTimer.date, durationSeconds) } catch (_) {}
+        try {
+          pushCalendarNotification({
+            code: 'TIME-LOG',
+            title: activeTimer.entryType.toUpperCase(),
+            lines: [activeTimer.text, `LOGGED ${durationLabel}`],
+          })
+        } catch (_) {}
+      },
+    })
+
+    setActiveTimer(null)
+    setElapsedSeconds(0)
+    try { localStorage.removeItem(ACTIVE_TIMER_KEY) } catch (_) {}
+  }
 
   const entries = React.useMemo<CalendarEntry[]>(() => {
     return logs
@@ -144,6 +223,22 @@ export function CalendarWidget() {
             Add date
           </Button>
         </div>
+
+        {activeTimer && (
+          <div className="mb-16 flex items-center gap-8">
+            <span className="text-acc animate-pulse">●</span>
+            <span className="text-acc uppercase tracking-widest tabular-nums">
+              REC {formatDuration(elapsedSeconds)}
+            </span>
+            <span className="text-acc/40 truncate">{activeTimer.text}</span>
+            <button
+              className="text-acc/40 hover:text-acc transition-opacity ml-auto whitespace-nowrap"
+              onClick={stopTimer}
+            >
+              Stop
+            </button>
+          </div>
+        )}
 
         {isCalendarOpen && (
           <div className="mb-16">
@@ -247,11 +342,31 @@ export function CalendarWidget() {
                 <div className="text-acc/40 mb-4">
                   {dayjs(selectedDate).format('dddd, MMMM D')}
                 </div>
-                {entriesOnDate.map((e, i) => (
-                  <div key={i} className="text-acc/80 mb-1">
-                    {e.text}
-                  </div>
-                ))}
+                {entriesOnDate.map((e, i) => {
+                  const isTracking = !!activeTimer
+                    && activeTimer.date === e.date
+                    && activeTimer.text === e.text
+                    && activeTimer.entryType === e.type
+                  // Only one timer at a time — another entry's Track control is disabled
+                  // while a timer is running, so a stray click can't silently overwrite it.
+                  const isBlocked = !!activeTimer && !isTracking
+
+                  return (
+                    <div key={i} className="flex items-center justify-between gap-8 mb-1">
+                      <span className="text-acc/80 truncate">{e.text}</span>
+                      <button
+                        disabled={isBlocked}
+                        className={cn(
+                          'whitespace-nowrap transition-opacity tabular-nums',
+                          isTracking ? 'text-acc' : 'text-acc/30 hover:text-acc/60 disabled:hover:text-acc/30'
+                        )}
+                        onClick={() => (isTracking ? stopTimer() : startTimer(e))}
+                      >
+                        {isTracking ? `● ${formatDuration(elapsedSeconds)}` : 'Track'}
+                      </button>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>

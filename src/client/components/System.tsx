@@ -76,6 +76,7 @@ import { CosmicUpdateWidget } from './CosmicUpdateWidget'
 import { QuantumEngineWidgets } from './QuantumEngineWidgets'
 import { ChakraErgonomicsWidget } from './ChakraErgonomicsWidget'
 import { CalendarWidget } from './CalendarWidget'
+import { CalendarEventToast } from './CalendarEventToast'
 import { BenchmarkWidget } from './BenchmarkWidget'
 import { ArchitectWidget } from './ArchitectWidget'
 import { IntegrityWidget } from './IntegrityWidget'
@@ -1052,10 +1053,11 @@ export const System = React.memo(function SystemInner() {
         </div>
       </WidgetErrorBoundary>
 
-      {/* Calendar — Personal date planner */}
+      {/* Calendar — Personal date planner + time tracking */}
       <WidgetErrorBoundary name="Calendar">
         <CalendarWidget />
       </WidgetErrorBoundary>
+      <CalendarEventToast />
 
       <WidgetErrorBoundary name="Benchmark">
         <BenchmarkWidget />
