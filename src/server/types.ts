@@ -6,7 +6,7 @@
  * Made in the USA | brand.lot-systems.com
  */
 
-import { Sequelize } from 'sequelize/types'
+import { Sequelize } from 'sequelize'
 import { Models, UserRecord } from './models/index.js'
 
 declare module 'fastify' {
