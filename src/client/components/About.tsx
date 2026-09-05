@@ -3793,7 +3793,7 @@ Ecosystem Synchrony signal: ecosystem_full_sync (all 5 nodes)`}</CodeBlock>
             />
             <Row
               label="LOT Mail"
-              value="In-app email system on feature branch relaxed-hamilton-eRBVA. 8 iterations, BEST at eRBVA (12 files, +619 lines). Components: /email log trigger · Sync inbox · reply threading · MailWidget (System tab email indicator) · SSE delivery for real-time arrival. Usership-gated. Status: BEST — ship candidate."
+              value="In-app email system. Cherry-picked from feature branch determined-turing-f6bw7r (BEST, 11/11 iterations) onto claude/determined-turing-ab29i4 and green-gated; awaiting merge to master. Components: /email or /mail log trigger (compose panel written back into the Log) · Sync Mail tab inbox with unread badge · lot_mails table (fromUserId/toUserId/subject/body/read) · SSE lot_mail event routed only to the intended recipient · ChatCatalystWidget Mail button pre-fills the Log compose command for a cohort match — the Cohort→Community→Mail path. Recipient resolved by name match in LOT Community; sent mail also traces into the sender's own Log (lot_mail_sent). Not yet built: reply threading, a dedicated MailWidget indicator outside Sync. Status: BEST — ship candidate, pending master merge. Doctrine: SR-20260905-01."
             />
             <Row
               label="Basics Tab"

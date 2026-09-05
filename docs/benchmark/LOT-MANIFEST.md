@@ -24,7 +24,7 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | determined-turing-f6bw7r     | fa622a25 | 11/11 | BEST   | 11    | +504   | In-app email: /email trigger, Sync inbox, Cohort integration, yarn.lock
+LOT Mail         | claude/determined-turing-ab29i4 | tag:benchmark-20260905-01 | 11/11 | BEST | 17 | +790 | Cherry-picked from determined-turing-f6bw7r, conflicts resolved, green-gated. /email trigger, Sync Mail tab, Cohort integration, lot_mail_sent Log trace. Awaiting master merge — session cannot push to master.
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration
@@ -190,6 +190,16 @@ CURRENT SHIP QUEUE (BEST, awaiting Sunday merge):
 NOTE: As of 2026-06-27, the above branches no longer exist on the remote —
 they were incorporated into master in prior sessions. The ship queue will be
 re-populated as new BEST branches are designated from future assembly runs.
+
+CORRECTION (2026-09-05, SR-20260905-01): the 2026-06-27 note above was wrong
+for LOT Mail specifically — determined-turing-f6bw7r was still on the remote
+and its code was never in master (no /email trigger, no lot_mails table, no
+EmailInbox existed in the tree). Cherry-picked this session onto
+claude/determined-turing-ab29i4, conflicts resolved (Logs.tsx, Sync.tsx,
+logTriggers.ts — all additive, no logic dropped), green-gated. Landed on the
+session's assigned branch rather than master because this session is
+restricted to pushing only that branch — merge to master is a follow-up
+action for S-2 or an authorized session.
 The protocol above applies to all future merges.
 
 RULE: One feature per Sunday merge pass. If multiple features are queued,
