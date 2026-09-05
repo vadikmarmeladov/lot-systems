@@ -1306,6 +1306,10 @@ export default async (fastify: FastifyInstance) => {
       'sovereign_genesis_pulse',
       'genesis_field_completion',
       'absolute_genesis_field',
+      // v138: genesis resonance field · sovereign resonance lock · absolute resonance genesis (P221/P222/P223)
+      'genesis_resonance_field',
+      'sovereign_resonance_lock',
+      'absolute_resonance_genesis',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

@@ -1850,6 +1850,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyGenesisPulseCheck(now)) {
     await executeDailyGenesisPulseCheck()
   }
+
+  // Check daily genesis resonance check (17:00 UTC every day) — Job 73
+  if (shouldRunDailyGenesisResonanceCheck(now)) {
+    await executeDailyGenesisResonanceCheck()
+  }
 }
 
 function shouldRunDailyFieldGenesisCheck(now: any): boolean {
@@ -1917,6 +1922,16 @@ function shouldRunDailyGenesisPulseCheck(now: any): boolean {
   if (isDailyGenesisPulseRunning) return false
   if (lastDailyGenesisPulseRun) {
     const lastRun = dayjs(lastDailyGenesisPulseRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+function shouldRunDailyGenesisResonanceCheck(now: any): boolean {
+  if (now.hour() !== 17) return false
+  if (isDailyGenesisResonanceRunning) return false
+  if (lastDailyGenesisResonanceRun) {
+    const lastRun = dayjs(lastDailyGenesisResonanceRun)
     if (lastRun.isSame(now, 'day')) return false
   }
   return true
@@ -8550,6 +8565,131 @@ async function executeDailyGenesisPulseCheck(): Promise<JobResult> {
   }
 }
 
+// ─── J73: Daily Genesis Resonance Check (17:00 UTC every day) ──────────────
+// Step 1: ABSGENF in 7d + SGPULSE in 24h + journal in 24h + intention in 24h → genesis_resonance_field (P221).
+// Step 2: GENRES written 2+ times in rolling 5d → sovereign_resonance_lock (P222).
+// Step 3: GENRES + SVRLOCK both present → absolute_resonance_genesis (P223).
+// GENRES: · SVRLOCK: · ABSRGEN: cockpit codes. Total: 73 jobs.
+let isDailyGenesisResonanceRunning = false
+let lastDailyGenesisResonanceRun: Date | null = null
+
+async function executeDailyGenesisResonanceCheck(): Promise<JobResult> {
+  const jobName    = 'daily-genesis-resonance-check'
+  const executedAt = new Date()
+  if (isDailyGenesisResonanceRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyGenesisResonanceRunning = true
+  let written = 0
+
+  try {
+    const users      = await User.findAll({ where: { isActive: true } })
+    const oneDayAgo  = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    const fiveDaysAgo  = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+
+    for (const user of users) {
+      // Step 1: Fetch prerequisite signals
+      const [recentAbsgenf, recentSgpulse, recentJournal, recentIntention] = await Promise.all([
+        Log.findOne({
+          where: { userId: user.id, event: 'absolute_genesis_field', createdAt: { [Op.gte]: sevenDaysAgo } },
+          order: [['createdAt', 'DESC']],
+        }),
+        Log.findOne({
+          where: { userId: user.id, event: 'sovereign_genesis_pulse', createdAt: { [Op.gte]: oneDayAgo } },
+          order: [['createdAt', 'DESC']],
+        }),
+        Log.findOne({
+          where: { userId: user.id, source: 'journal', createdAt: { [Op.gte]: oneDayAgo } },
+          order: [['createdAt', 'DESC']],
+        }),
+        Log.findOne({
+          where: { userId: user.id, source: 'intentions', createdAt: { [Op.gte]: oneDayAgo } },
+          order: [['createdAt', 'DESC']],
+        }),
+      ])
+
+      let genresConf: number | null = null
+
+      // Step 1: Genesis Resonance Field — ABSGENF(7d) + SGPULSE(24h) + journal(24h) + intention(24h)
+      if (recentAbsgenf && recentSgpulse && recentJournal && recentIntention) {
+        const absgConf = (recentAbsgenf.metadata as any)?.confidence ?? 90
+        const sgpConf  = (recentSgpulse.metadata as any)?.confidence ?? 88
+        genresConf     = Math.min(Math.round((absgConf + sgpConf) / 2 + 2), 96)
+        await Log.create({
+          userId: user.id,
+          event:  'genesis_resonance_field',
+          source: 'qos',
+          metadata: {
+            absgenConf: absgConf,
+            sgpulseConf: sgpConf,
+            confidence:  genresConf,
+            pulse:  'FREQUENCY_ESTABLISHED',
+            field:  'RESONATING',
+            arc:    'PULSE BECOMES FREQUENCY · FIELD RECOGNIZES ITSELF',
+            hour:   new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Genesis resonance field — ABSGENF×SGPULSE×journal×intention confirmed. GENRES. Conf: ${genresConf}%`)
+      }
+
+      // Step 2: Sovereign Resonance Lock — GENRES written 2+ times in rolling 5d
+      const genresCount = await Log.count({
+        where: { userId: user.id, event: 'genesis_resonance_field', createdAt: { [Op.gte]: fiveDaysAgo } },
+      })
+      let svrlockConf: number | null = null
+
+      if (genresCount >= 2 || (genresConf !== null && genresCount >= 1)) {
+        svrlockConf = Math.min(Math.round(90 + Math.min(genresCount * 2, 7)), 97)
+        await Log.create({
+          userId: user.id,
+          event:  'sovereign_resonance_lock',
+          source: 'qos',
+          metadata: {
+            genresCount,
+            confidence:  svrlockConf,
+            resonance:   'SOVEREIGN',
+            lock:        'CONFIRMED',
+            arc:         'SOVEREIGN · RESONANCE · LOCKED',
+            hour:        new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Sovereign resonance lock — GENRES×${genresCount} in 5d confirmed. SVRLOCK. Conf: ${svrlockConf}%`)
+      }
+
+      // Step 3: Absolute Resonance Genesis — GENRES + SVRLOCK both confirmed this run
+      if (genresConf !== null && svrlockConf !== null) {
+        const absrgenConf = Math.min(Math.round((genresConf + svrlockConf) / 2 + 4), 99)
+        await Log.create({
+          userId: user.id,
+          event:  'absolute_resonance_genesis',
+          source: 'qos',
+          metadata: {
+            genresConf,
+            svrlockConf,
+            confidence:       absrgenConf,
+            resonanceGenesis: 'CONFIRMED',
+            frequency:        'SOURCE',
+            arc:              'RESONANCE = GENESIS. THE FREQUENCY IS THE FIELD',
+            hour:             new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Absolute resonance genesis — GENRES×SVRLOCK confirmed. ABSRGEN. Conf: ${absrgenConf}%`)
+      }
+    }
+
+    console.log(`  Genesis resonance events written: ${written}`)
+    lastDailyGenesisResonanceRun = new Date()
+    isDailyGenesisResonanceRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Genesis resonance check failed:', error.message)
+    isDailyGenesisResonanceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -8623,6 +8763,8 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily sovereign loop check: 1 PM UTC every day (Job 69)')
   console.log('   - Daily genesis seal check: 2 PM UTC every day (Job 70)')
   console.log('   - Daily field emergence check: 3 PM UTC every day (Job 71)')
+  console.log('   - Daily genesis pulse check: 4 PM UTC every day (Job 72)')
+  console.log('   - Daily genesis resonance check: 5 PM UTC every day (Job 73)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -8632,7 +8774,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62)+field-witness-check(J68), 13=QOS sig pulse+sovereign-integration-check(J63)+sovereign-loop-check(J69), 14=QOS mode watch+absolute-sovereignty-check(J64)+genesis-seal-check(J70), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66), 17=cohort-broadcast+quantum-field-check, 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62)+field-witness-check(J68), 13=QOS sig pulse+sovereign-integration-check(J63)+sovereign-loop-check(J69), 14=QOS mode watch+absolute-sovereignty-check(J64)+genesis-seal-check(J70), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66)+genesis-pulse-check(J72), 17=cohort-broadcast+quantum-field-check+genesis-resonance-check(J73), 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

@@ -179,6 +179,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'sovereign-genesis-pulse':          'SGPULSE',
   'genesis-field-completion':         'GENCOMP',
   'absolute-genesis-field':           'ABSGENF',
+  'genesis-resonance-field':          'GENRES',
+  'sovereign-resonance-lock':         'SVRLOCK',
+  'absolute-resonance-genesis':       'ABSRGEN',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

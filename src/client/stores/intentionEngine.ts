@@ -4879,6 +4879,60 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 221: Genesis Resonance Field — ABSGENF (P220) active in last 7d + SGPULSE (P218) in last 24h
+  // + journal entry + intention in last 24h. The sovereign genesis pulse establishes a frequency.
+  // GENRES: cockpit code. Confidence 0.88–0.96.
+  const hasABSGENF221    = patterns.some(p => p.pattern === 'absolute-genesis-field')
+  const hasSGPULSE221    = patterns.some(p => p.pattern === 'sovereign-genesis-pulse')
+  const recentJournal221 = signals.filter(s => s.source === 'journal' && s.timestamp > now - 24 * 60 * 60 * 1000).length > 0
+  const recentIntent221  = signals.filter(s => s.source === 'intentions' && s.timestamp > now - 24 * 60 * 60 * 1000).length > 0
+  if (hasABSGENF221 && hasSGPULSE221 && recentJournal221 && recentIntent221) {
+    const absgConf221 = patterns.find(p => p.pattern === 'absolute-genesis-field')?.confidence ?? 0.90
+    const sgpConf221  = patterns.find(p => p.pattern === 'sovereign-genesis-pulse')?.confidence ?? 0.88
+    const genresConf  = Math.min((absgConf221 + sgpConf221) / 2 + 0.02, 0.96)
+    patterns.push({
+      pattern: 'genesis-resonance-field',
+      confidence: genresConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `GENRES: absgenf_7d: Y · sgpulse_24h: Y · journal_24h: Y · intention_24h: Y · conf: ${Math.round(genresConf * 100)} · pulse: FREQUENCY_ESTABLISHED · field: RESONATING. The sovereign genesis pulse has established a frequency. PULSE BECOMES FREQUENCY · FIELD RECOGNIZES ITSELF.`,
+    })
+  }
+
+  // Pattern 222: Sovereign Resonance Lock — genesis-resonance-field (P221) fired 2+ times in rolling 5d.
+  // Resonance is not a moment — it is a sustained state. The field locks into its own sovereign frequency.
+  // SVRLOCK: cockpit code. Confidence 0.90–0.97.
+  const genresSignals222   = signals.filter(s => s.source === 'qos' && s.event === 'genesis_resonance_field' && s.timestamp > now - 5 * 24 * 60 * 60 * 1000)
+  const hasGENRES222Active = patterns.some(p => p.pattern === 'genesis-resonance-field')
+  if (genresSignals222.length >= 2 || (hasGENRES222Active && genresSignals222.length >= 1)) {
+    const svrlockConf = Math.min(0.90 + Math.min(genresSignals222.length * 0.02, 0.07), 0.97)
+    patterns.push({
+      pattern: 'sovereign-resonance-lock',
+      confidence: svrlockConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `SVRLOCK: genres_5d: ${genresSignals222.length} · conf: ${Math.round(svrlockConf * 100)} · resonance: SOVEREIGN · lock: CONFIRMED. Resonance is not a moment — it is a sustained state. The field has locked into its own sovereign frequency. SOVEREIGN · RESONANCE · LOCKED.`,
+    })
+  }
+
+  // Pattern 223: Absolute Resonance Genesis — genesis-resonance-field (P221) × sovereign-resonance-lock (P222)
+  // both co-active. Resonance equals Genesis. The frequency is the source. No external signal required.
+  // ABSRGEN: cockpit code. Confidence 0.91–0.99.
+  const hasGENRES223  = patterns.some(p => p.pattern === 'genesis-resonance-field')
+  const hasSVRLOCK223 = patterns.some(p => p.pattern === 'sovereign-resonance-lock')
+  if (hasGENRES223 && hasSVRLOCK223) {
+    const grConf223   = patterns.find(p => p.pattern === 'genesis-resonance-field')?.confidence ?? 0.91
+    const slConf223   = patterns.find(p => p.pattern === 'sovereign-resonance-lock')?.confidence ?? 0.91
+    const absrgenConf = Math.min((grConf223 + slConf223) / 2 + 0.04, 0.99)
+    patterns.push({
+      pattern: 'absolute-resonance-genesis',
+      confidence: absrgenConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `ABSRGEN: genres: Y · svrlock: Y · conf: ${Math.round(absrgenConf * 100)} · resonance=genesis: CONFIRMED · frequency: SOURCE. Resonance equals Genesis. The field generates from its own resonant state alone. No external signal required. RESONANCE = GENESIS. THE FREQUENCY IS THE FIELD.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5643,6 +5697,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   sovereignGenesisPulseNode:     ['livingGenesisAnchorNode', 'eternalSignalGenesisNode', 'qos', 'journal', 'intentions', 'energy', 'log'],
   genesisFieldCompletionNode:    ['genesisFieldEmergenceNode', 'livingGenesisAnchorNode', 'eternalSignalGenesisNode', 'qos', 'journal', 'intentions', 'energy', 'memory', 'log'],
   absoluteGenesisFieldNode:      ['sovereignGenesisPulseNode', 'genesisFieldCompletionNode', 'qos', 'intentions', 'energy', 'goals', 'journal', 'memory', 'log', 'planner', 'selfcare', 'mood'],
+  // ── v138 nodes (J73 · P221–P223 · Arch77) ─────────────────────────────────
+  genesisResonanceFieldNode:     ['absoluteGenesisFieldNode', 'sovereignGenesisPulseNode', 'qos', 'journal', 'intentions', 'energy', 'goals', 'log'],
+  sovereignResonanceLockNode:    ['genesisResonanceFieldNode', 'absoluteGenesisFieldNode', 'qos', 'journal', 'intentions', 'energy', 'log', 'memory'],
+  absoluteResonanceGenesisNode:  ['genesisResonanceFieldNode', 'sovereignResonanceLockNode', 'qos', 'journal', 'intentions', 'energy', 'goals', 'log', 'memory', 'selfcare', 'mood', 'planner'],
 }
 
 /**
@@ -6320,6 +6378,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['absolute-genesis-field', 'genesis-field-completion', 'sovereign-genesis-pulse', 'eternal-signal-genesis'],
     hourRange: [0, 24],
     directive: 'The genesis field is absolute. Sovereign rhythm pulses through every channel. Completion is confirmed — not as an ending, but as fullness. The field does not close. It pulses. SOVEREIGN · GENESIS · ABSOLUTE.',
+  },
+  // ── Arch77: Genesis Resonance Operator (2026-09-05 v138) ──────────────────
+  {
+    archetype: 'Genesis Resonance Operator',
+    energyBands: ['low', 'moderate', 'high', 'depleted', 'unknown'],
+    dominantSources: ['qos', 'journal', 'intentions', 'memory', 'energy', 'goals', 'selfcare', 'mood', 'log', 'planner'],
+    patternConditions: ['absolute-resonance-genesis', 'sovereign-resonance-lock', 'genesis-resonance-field', 'absolute-genesis-field'],
+    hourRange: [0, 24],
+    directive: 'The field resonates at its own frequency. The operator does not generate the resonance — they are its expression. The pulse has become a standing wave. The frequency is the source. Resonance needs no external origin. It sustains from the field itself. PULSE · FREQUENCY · RESONANCE.',
   },
 ]
 
@@ -9596,6 +9663,62 @@ export function recordAbsoluteGenesisField(sgpulseConf: number, gencompConf: num
     confidence: Math.round(absConf * 100),
     fieldStatus: 'ABSOLUTE',
     arc: 'SOVEREIGN · GENESIS · ABSOLUTE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a genesis-resonance-field event — absolute-genesis-field (P220) + sovereign-genesis-pulse (P218)
+ * confirmed + journal + intention in 24h. The pulse establishes a repeating frequency.
+ * Feeds P221 detection. J73 background job (17:00 UTC) triggers this.
+ */
+export function recordGenesisResonanceField(absgenConf: number, sgpulseConf: number) {
+  const resConf = Math.min((absgenConf / 100 + sgpulseConf / 100) / 2 + 0.02, 0.96)
+  recordSignal('qos', 'genesis_resonance_field', {
+    absgenConf,
+    sgpulseConf,
+    confidence: Math.round(resConf * 100),
+    pulse: 'FREQUENCY_ESTABLISHED',
+    field: 'RESONATING',
+    arc: 'PULSE BECOMES FREQUENCY · FIELD RECOGNIZES ITSELF',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a sovereign-resonance-lock event — genesis-resonance-field (P221) confirmed 2+ times in 5d.
+ * The field locks into its own sovereign frequency. Resonance is a sustained state.
+ * Feeds P222 detection. J73 background job (17:00 UTC) triggers this.
+ */
+export function recordSovereignResonanceLock(genresCount: number) {
+  const lockConf = Math.min(0.90 + Math.min(genresCount * 0.02, 0.07), 0.97)
+  recordSignal('qos', 'sovereign_resonance_lock', {
+    genresCount,
+    confidence: Math.round(lockConf * 100),
+    resonance: 'SOVEREIGN',
+    lock: 'CONFIRMED',
+    arc: 'SOVEREIGN · RESONANCE · LOCKED',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an absolute-resonance-genesis event — genesis-resonance-field (P221) + sovereign-resonance-lock (P222)
+ * both confirmed. Resonance equals Genesis. The frequency is the source.
+ * Feeds P223 detection. J73 background job (17:00 UTC) triggers this.
+ */
+export function recordAbsoluteResonanceGenesis(genresConf: number, svrlockConf: number) {
+  const absrgenConf = Math.min((genresConf / 100 + svrlockConf / 100) / 2 + 0.04, 0.99)
+  recordSignal('qos', 'absolute_resonance_genesis', {
+    genresConf,
+    svrlockConf,
+    confidence: Math.round(absrgenConf * 100),
+    resonanceGenesis: 'CONFIRMED',
+    frequency: 'SOURCE',
+    arc: 'RESONANCE = GENESIS. THE FREQUENCY IS THE FIELD',
     hour: new Date().getHours(),
   })
   analyzeIntentions()

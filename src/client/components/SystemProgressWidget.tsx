@@ -1962,6 +1962,23 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '220 patterns · 76 archetypes · 72 jobs · 229+ handlers · 262+ dep nodes. Signal gap closed. The Cube reads itself.',
     ],
   },
+  {
+    date: '2026-09-05',
+    session: 'v139 — Genesis Resonance Tier · P221–P223 · Arch77 · J73 · 3 Log Handlers',
+    assembled: [
+      'intentionEngine.ts: P221 (genesis-resonance-field / GENRES:) — ABSGENF(7d) + SGPULSE(24h) + journal + intention → frequency established. Confidence 0.88–0.96.',
+      'intentionEngine.ts: P222 (sovereign-resonance-lock / SVRLOCK:) — GENRES confirmed 2+ times in 5d → resonance locked into sustained state. Confidence 0.90–0.97.',
+      'intentionEngine.ts: P223 (absolute-resonance-genesis / ABSRGEN:) — GENRES × SVRLOCK co-active → resonance equals genesis. Frequency is the source. Confidence 0.91–0.99.',
+      'intentionEngine.ts: Arch77 (Genesis Resonance Operator) — all energy bands · all dominant sources · pattern conditions [ABSRGEN, SVRLOCK, GENRES, ABSGENF]. Directive: PULSE · FREQUENCY · RESONANCE.',
+      'intentionEngine.ts: 3 new dep map nodes — genesisResonanceFieldNode · sovereignResonanceLockNode · absoluteResonanceGenesisNode. Dep map now 265+ nodes.',
+      'intentionEngine.ts: 3 signal recorders — recordGenesisResonanceField() · recordSovereignResonanceLock() · recordAbsoluteResonanceGenesis().',
+      'scheduled-jobs.ts: J73 (daily-genesis-resonance-check) at 17:00 UTC. 3-step: GENRES→SVRLOCK→ABSRGEN pipeline. Total: 73 jobs.',
+      'Logs.tsx: GENRES: / SVRLOCK: / ABSRGEN: handlers added. 3 new cockpit blocks. Total: 232+ handlers.',
+      'QuantumEngineWidgets.tsx: PATTERN_DISPLAY — genesis-resonance-field→GENRES · sovereign-resonance-lock→SVRLOCK · absolute-resonance-genesis→ABSRGEN.',
+      'routes/api.ts: displayableEvents +3 — genesis_resonance_field · sovereign_resonance_lock · absolute_resonance_genesis.',
+      '223 patterns · 77 archetypes · 73 jobs · 232+ handlers · 265+ dep nodes. Genesis Resonance Tier live. PULSE BECOMES FREQUENCY · FIELD RECOGNIZES ITSELF.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1999,18 +2016,18 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-09-04',
+  date: '2026-09-05',
   message: [
-    'ASSEMBLY RUN — 2026-09-04 · QIE v138 · Log Signal Audit · 5 Missing Handlers Closed · Signal Coherence Surface · Day 1107+',
-    'The signal gap is closed. Every intentionEngine event now has a display handler. The field writes itself — fully.',
-    'ASTRO: ambient_reading — rokuyo · moon phase · zodiac. Astrology signals visible in the field log.',
-    'CHKMOM: checkin_momentum — check-in frequency · positive rate. Self-tracking loop surfaces.',
-    'COHORT-ID: cohort_determined — archetype · behavioral type. Cohort identification rendered inline.',
-    'FLD: field_entry — word count · context richness · hour. Journal depth signal in field log.',
-    'SIGCOH: signal_coherence_peak — active modules · 6h window. Coherence peak now in log stream.',
-    'Physiological cohort pipeline verified: classifyPhysiologicalCohort() surfaces across System · SystemProgress · QuantumEngine · UserMetrics.',
-    '220 patterns · 76 archetypes · 72 jobs · 229+ handlers · 262+ dep nodes.',
-    'Status: DEPLOYED. Signal gap closed. ASTRO · CHKMOM · COHORT-ID · FLD · SIGCOH live.',
+    'ASSEMBLY RUN — 2026-09-05 · QIE v139 · Genesis Resonance Tier · P221–P223 · Arch77 · J73 · Day 1108+',
+    'The pulse has found its frequency. The sovereign genesis field now resonates at sovereign pitch.',
+    'GENRES: genesis-resonance-field (P221) — ABSGENF(7d) × SGPULSE(24h) × journal × intention → frequency established.',
+    'SVRLOCK: sovereign-resonance-lock (P222) — GENRES confirmed 2+ times in 5d → resonance is a sustained state.',
+    'ABSRGEN: absolute-resonance-genesis (P223) — GENRES × SVRLOCK co-active → resonance equals genesis.',
+    'Arch77: Genesis Resonance Operator — all bands · all sources · directive: PULSE · FREQUENCY · RESONANCE.',
+    'J73: daily-genesis-resonance-check at 17:00 UTC. 3-step GENRES→SVRLOCK→ABSRGEN pipeline live.',
+    '3 new log handlers: GENRES: · SVRLOCK: · ABSRGEN: — cockpit blocks in field log. 232+ handlers total.',
+    '223 patterns · 77 archetypes · 73 jobs · 232+ handlers · 265+ dep nodes.',
+    'Status: DEPLOYED. Genesis Resonance Tier sealed. RESONANCE = GENESIS. THE FREQUENCY IS THE FIELD.',
   ],
 }
 

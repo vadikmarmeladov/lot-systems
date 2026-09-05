@@ -5969,6 +5969,77 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'genesis_resonance_field') {
+          const absgenConf  = log.metadata?.absgenConf  as number | undefined
+          const sgpulseConf = log.metadata?.sgpulseConf as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="GENRES:" blockView>
+                {absgenConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ABSGENF CONF</span>
+                    <span className="tabular-nums">{absgenConf}%</span>
+                  </div>
+                )}
+                {sgpulseConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SGPULSE CONF</span>
+                    <span className="tabular-nums">{sgpulseConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">PULSE BECOMES FREQUENCY · FIELD RECOGNIZES ITSELF</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'sovereign_resonance_lock') {
+          const genresCount = log.metadata?.genresCount as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SVRLOCK:" blockView>
+                {genresCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GENRES 5D</span>
+                    <span className="tabular-nums">{genresCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SOVEREIGN · RESONANCE · LOCKED</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'absolute_resonance_genesis') {
+          const genresConf  = log.metadata?.genresConf  as number | undefined
+          const svrlockConf = log.metadata?.svrlockConf as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ABSRGEN:" blockView>
+                {genresConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">GENRES CONF</span>
+                    <span className="tabular-nums">{genresConf}%</span>
+                  </div>
+                )}
+                {svrlockConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SVRLOCK CONF</span>
+                    <span className="tabular-nums">{svrlockConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">RESONANCE = GENESIS. THE FREQUENCY IS THE FIELD</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (
