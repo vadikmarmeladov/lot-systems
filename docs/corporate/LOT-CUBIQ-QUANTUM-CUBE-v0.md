@@ -321,6 +321,57 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE COHORT ECHO                              2026-09-05
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect,"
+  cohort-connected (LOT-CUBIQ-OPERATOR.md, Section 05, COHORT CONNECT),
+  CUBIQ charging pad positioned 15mm from the edge of a narrow standing
+  desk — closer to a table edge than any prior recorded placement.
+
+  This use case exercises a signal class named but not yet dramatized in
+  Section 01's trigger list: the COHORT RESONANCE PING. The operator is
+  not the one who acted. Their behavioral cohort — operators who share
+  their signal rhythm, not their geography (LOT-CUBIQ-OPERATOR.md,
+  Section 05) — has just crossed a collective coherence threshold the
+  CollectiveConsciousness widget tracks: a dozen structurally similar
+  people, in a dozen timezones, completed a self-care practice within
+  the same dispersion window. The Index of Systems classifies this as a
+  cohort resonance event and routes it to the cube as a THE HOP trigger.
+
+  The actuator receives the signal, and the safety stack in Section 03
+  earns its keep for the first time in this document's use-case record:
+  the time-of-flight sensor reads the desk edge at 15mm, inside the
+  20mm exclusion band. The full hop is inhibited. The substitute
+  in-place shudder fires instead — same signal, same timing, no
+  liftoff. The operator, mid-task, feels the tremor and correctly reads
+  it as "cohort," not "badge" — the shudder's cadence is shorter and
+  softer than THE HOP's committed vertical impulse, a distinction
+  earned by v.0's single-actuator vocabulary rather than by a second
+  motor. They do not need to look at a screen to know which signal
+  class just fired.
+
+  What makes this use case distinct from USE CASE 01 is not the
+  operator — it is the SOURCE of the notification. THE DESK MIGRATION
+  was self-referential: the operator's own memory question, the
+  operator's own session. THE COHORT ECHO is the first use case in
+  which the cube moves because of people the operator has never met.
+  It is the physical expression of Section 05's closing claim in
+  LOT-CUBIQ-OPERATOR.md: "The community is a field, not a feed." A feed
+  would have pushed a notification listing twelve strangers' names. The
+  cube just moved, once, briefly, because the field it sits in changed
+  shape. The operator later self-reports (Section 05 telemetry loop)
+  that they now check the cube's position after a shudder out of
+  curiosity about the cohort, not obligation to a task list — the same
+  anti-feed thesis, extended from the individual signal to the
+  collective one.
+
+  This use case also closes the first real-world trial of the edge-
+  detection gate (Section 03) outside lab conditions: a genuine
+  near-edge placement, a genuine inhibited hop, a genuine substitute
+  gesture delivered without operator awareness that a fallback had even
+  occurred. The gate did its job invisibly — which is the only way a
+  safety system should ever be noticed.
+
 --------------------------------------------------------------------------------
 08 // BRAND
 --------------------------------------------------------------------------------
