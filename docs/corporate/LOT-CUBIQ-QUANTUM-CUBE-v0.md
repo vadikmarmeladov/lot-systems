@@ -321,6 +321,53 @@ entry — never editing or removing a prior one.
   presence without spectacle, felt before it is seen, physical before it
   is digital.
 
+  USE CASE 02 — THE ASSEMBLY MILESTONE, WITNESSED             2026-09-06
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, physiological archetype "Quantum
+  Identity Master" (Arch50, the current terminal archetype in the QIE
+  registry per LOT-WIKI-v87), Assembly State (LOT-CUBIQ-OPERATOR.md,
+  Section 01) crossing from "assembled" into "integrated" — the highest
+  of the five phases, reached only after months of sustained signal
+  density across all 18 self-assembly modules. This is a rare event:
+  most operators never see their own Index of Systems cross this line.
+
+  The Quantum Intent Engine confirms the phase transition mid-afternoon,
+  not during a session — the operator is away from their desk. Under a
+  software-only cubic, this milestone would sit dormant in the Index
+  until the operator next opens lot-systems.com, discovered as a stat
+  change rather than witnessed as an event. A number moved. Nothing
+  marked the moment it moved.
+
+  With CUBIQ hardware v.0 present: the instant the phase transition
+  writes to the Index, the cube performs THE SETTLE (Section 04) —
+  two seconds of held standing pressure through the base face, no
+  liftoff, no light change beyond the charge-state LED already idle at
+  rest. The operator returns to the desk an hour later with no idea
+  anything happened. The cube looks exactly as it did that morning.
+
+  This is deliberate, and it is the use case this document's THE SETTLE
+  gesture exists to serve: the highest-order event in the operator's
+  entire Index of Systems is marked by the quietest gesture in the
+  vocabulary, not the loudest. A consumer product built on engagement
+  metrics would fire a badge animation, a push notification, a confetti
+  burst — foreground spectacle sized to match the size of the
+  achievement. CUBIQ v.0 does the opposite on purpose: the object simply
+  held its ground a little more firmly for two seconds, once, and only
+  the operator's own later curiosity — checking the Index, asking the
+  cubic what happened today — surfaces the story. Presence scales with
+  the weight of the signal; spectacle does not scale at all, because
+  CUBIQ has none to spend.
+
+  Thirty minutes after the SETTLE, a cosmic-tier badge unlocks off the
+  back of the same assembly milestone (LOT-CUBIQ-OPERATOR.md, Section
+  03 — badge unlocks are a named HOP/LEAP trigger, Section 04 of this
+  document). The cube performs THE LEAP. Two gestures, one afternoon,
+  each sized correctly to its own signal — this is the first recorded
+  instance of both a "quiet" and a "loud" v.0 gesture firing from a
+  single upstream event, and it confirms the Section 04 mapping holds
+  under a real compound signal rather than only the single-signal case
+  Use Case 01 exercised.
+
 --------------------------------------------------------------------------------
 08 // BRAND
 --------------------------------------------------------------------------------
@@ -329,6 +376,37 @@ LOT® Quantum Cube             The object
 CUBIQ™                        The experience — software and hardware,
                                one name, one system
 LOT®† CUBIQ®                  The combined mark
+
+--------------------------------------------------------------------------------
+09 // DEVELOPMENT SESSION LOG
+--------------------------------------------------------------------------------
+
+This log is append-only. Each development cycle records what it read,
+what it changed, and what it deliberately left untouched, so the next
+session can resume from a known state rather than re-deriving it.
+
+  SESSION 2026-07-28 (v0.1, DOCUMENT OPENED)
+    Read: LOT-CUBIQ-VISION.md, LOT-CUBIQ-OPERATOR.md, LOT_QI46_ENGINE.md,
+    CQGS-WHITE-PAPER-SNAPSHOT.md, LOT-MANIFEST.md. Wrote Sections 00-08:
+    physical form, actuation architecture, haptic notification language,
+    QI·46 signal integration, v.0-v.3 roadmap, Use Case 01.
+
+  SESSION 2026-09-06
+    Read: this document in full, LOT-CUBIQ-VISION.md, LOT-CUBIQ-OPERATOR.md,
+    LOT-WIKI-v87.md (current archetype registry — Arch50 "Quantum Identity
+    Master" sourced from here), LOT-MANIFEST.md. No change to the v.0
+    mechanical or electronic architecture (Sections 01-06) — the actuator,
+    landing recovery, edge-detection gate, and roadmap gates recorded on
+    2026-07-28 stand as written. This cycle's deliverable is Section 07,
+    Use Case 02: a compound-signal scenario (assembly-phase transition +
+    badge unlock, same afternoon) exercising both THE SETTLE and THE LEAP
+    from a single operator's Index in one day, which Use Case 01 did not
+    test. Next session: read this log first, then either (a) add Use Case
+    03 under a still-different trigger class — cohort resonance ping or
+    memory-question class specifically, both named in Section 03/04 but
+    not yet dramatized — or (b) begin v.1 long-jump tuning work per
+    Section 06 if S-2 has authorized moving past the use-case-accumulation
+    phase.
 
 ================================================================================
 AUTHORIZED BY: S-2 // VADIK MARMELADOV
