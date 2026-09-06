@@ -12,6 +12,7 @@ import { Block, Button } from '#client/components/ui'
 import { recordSignal } from '#client/stores/intentionEngine'
 import { useLogContext } from '#client/hooks/useLogContext'
 import { $featureUnlocks } from '#client/stores/evolution'
+import { useCreateLog } from '#client/queries'
 
 type IntentionView = 'set' | 'current' | 'reflection' | 'alignment'
 
@@ -32,6 +33,7 @@ export function IntentionsWidget() {
   const [isSettingIntention, setIsSettingIntention] = React.useState(false)
   const [inputValue, setInputValue] = React.useState('')
   const logCtx = useLogContext()
+  const { mutate: createLog } = useCreateLog()
   const featureUnlocks = useStore($featureUnlocks)
   const hasIntentionHistory = featureUnlocks?.intentionHistory ?? false
 
@@ -83,6 +85,13 @@ export function IntentionsWidget() {
     recordSignal('intentions', 'intention_set', {
       focus: newIntention.focus,
       monthYear: newIntention.monthYear
+    })
+
+    // Persist to the Signal Archive — read by stats/patterns, admin diagnostics,
+    // weekly intent-to-action-gap detection, and useLogContext's module coverage
+    createLog({
+      text: newIntention.focus,
+      event: 'intention'
     })
 
     localStorage.setItem('current-intention', JSON.stringify(newIntention))

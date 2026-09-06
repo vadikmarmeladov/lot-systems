@@ -818,6 +818,10 @@ function formatLog(log: Log): string {
       body = log.text || ''
       break
     }
+    case 'intention': {
+      body = log.text || ''
+      break
+    }
     case 'emotional_checkin': {
       const state = (log.metadata as any)?.emotionalState
       if (state) body = `Biofield check-in: ${state}`
