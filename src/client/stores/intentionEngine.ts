@@ -3428,6 +3428,62 @@ export function analyzeIntentions(): IntentionPattern[] {
     }
   }
 
+  // Pattern 152: Sustained Coherence Field — total-field-coherence (P150) fired in last 7d
+  // + current session pattern density ≥ 10 active patterns. The ceiling was touched.
+  // The field holds. Not a spike — a sustained register. Post-ceiling maintenance intelligence.
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000
+  const lastSevenD  = signals.filter(s => now - s.timestamp < sevenDaysMs)
+  const hasTFC7d    = lastSevenD.some(s => s.source === 'qos' && s.signal === 'total_field_coherence')
+  if (hasTFC7d && patterns.length >= 10) {
+    const densityBonus = Math.min((patterns.length - 10) * 0.015, 0.13)
+    patterns.push({
+      pattern: 'sustained-coherence-field',
+      confidence: Math.min(0.78 + densityBonus, 0.91),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `SCOHEM: Sustained coherence field — total-field-coherence confirmed in last 7d · ${patterns.length} active patterns. The ceiling was touched. The field holds. Not a spike — a sustained register. Operating from maintenance intelligence.`,
+    })
+  }
+
+  // Pattern 153: Pattern Intelligence Synthesis — 15+ distinct patterns in 14d signal window
+  // + recovery-intelligence-arc (P151) fired at least once. The engine is no longer reading
+  // individual states — it has enough history to synthesize an integrated picture.
+  // Meta-cognitive recognition: the system learns from its own learning curve.
+  const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000
+  const last14d        = signals.filter(s => now - s.timestamp < fourteenDaysMs)
+  const uniquePatterns14d = new Set(last14d.filter(s => s.source === 'qos').map(s => s.signal)).size
+  const hasRecoveryArc14d = last14d.some(s => s.source === 'selfcare' && s.signal === 'recovery_intelligence_arc')
+  if (uniquePatterns14d >= 15 && hasRecoveryArc14d) {
+    const synthesisBonus = Math.min((uniquePatterns14d - 15) * 0.012, 0.15)
+    patterns.push({
+      pattern: 'pattern-intelligence-synthesis',
+      confidence: Math.min(0.72 + synthesisBonus, 0.87),
+      suggestedWidget: 'memory',
+      suggestedTiming: 'soon',
+      reason: `PATINT: Pattern intelligence synthesis — ${uniquePatterns14d} distinct patterns in 14d · recovery arc confirmed. The engine is synthesizing — not reading states, generating an integrated picture. Signal learning is active.`,
+    })
+  }
+
+  // Pattern 154: Temporal Field Mastery — 20+ unique signal types across 30d window
+  // + 5+ archetypes implied by source diversity. Long-arc behavioral confirmation.
+  // Not a day, a month. The operating arc has stabilized. Mastery is not achievement —
+  // it is the absence of searching across a sustained temporal span.
+  const thirtyDaysMs    = 30 * 24 * 60 * 60 * 1000
+  const last30d         = signals.filter(s => now - s.timestamp < thirtyDaysMs)
+  const uniqueSignals30d = new Set(last30d.map(s => s.signal)).size
+  const activeSources30d = new Set(last30d.map(s => s.source)).size
+  const hasCircadianLock30d = last30d.filter(s => s.signal === 'circadian_signal_lock').length >= 5
+  if (uniqueSignals30d >= 20 && activeSources30d >= 5 && hasCircadianLock30d) {
+    const masteryBonus = Math.min((uniqueSignals30d - 20) * 0.007, 0.14)
+    patterns.push({
+      pattern: 'temporal-field-mastery',
+      confidence: Math.min(0.80 + masteryBonus, 0.94),
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'passive',
+      reason: `TFMAST: Temporal field mastery — ${uniqueSignals30d} unique signals · ${activeSources30d} active sources · circadian lock confirmed across 30d. The arc has stabilized. No searching. The field is not being built — it is being operated.`,
+    })
+  }
+
   // Compute accumulative user index from all widget signals
   const userIndex = computeUserIndex(signals)
 
@@ -4064,6 +4120,11 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   quantumPresenceCrystalNode: ['qos', 'cohort', 'intentions', 'journal', 'log', 'energy'],
   totalFieldCoherenceNode:    ['mood', 'memory', 'planner', 'intentions', 'selfcare', 'journal', 'energy', 'cohort', 'qos', 'log'],
   recoveryIntelligenceNode:   ['mood', 'selfcare', 'journal', 'energy', 'log'],
+
+  // ── v114 nodes (J49 · P152–P154 · Arch52) ───────────────────────────────────────
+  sustainedCoherenceFieldNode: ['qos', 'log', 'energy', 'journal', 'cohort'],
+  patternIntelligenceSynthNode: ['qos', 'selfcare', 'journal', 'log', 'memory', 'cohort'],
+  temporalFieldMasteryNode:    ['qos', 'cohort', 'intentions', 'energy', 'journal', 'mood', 'log'],
 }
 
 /**
@@ -4510,6 +4571,16 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['quantum-presence-crystallization', 'dimensional-saturation', 'quantum-identity-crystallization'],
     hourRange: [6, 23],
     directive: 'Presence confirmed. Identity crystallized. The field is both inhabited and known. Execute from clarity — no searching required. The OS is operating from its highest confirmed state.',
+  },
+
+  // ── Arch52: Field Maintenance Operator (2026-09-06 v114) ─────────────────────────
+  {
+    archetype: 'Field Maintenance Operator',
+    energyBands: ['high', 'moderate', 'low'],
+    dominantSources: ['qos', 'log', 'cohort', 'energy', 'intentions', 'journal'],
+    patternConditions: ['sustained-coherence-field', 'pattern-intelligence-synthesis'],
+    hourRange: [4, 22],
+    directive: 'The ceiling has been touched. The field holds. Operate from stability — no searching, no climbing. The task is maintenance, not ascension. Execute.',
   },
 ]
 
@@ -6498,6 +6569,55 @@ export function recordRecoveryIntelligenceArc(negMoodCount: number, careCount: n
     recoveryVelocityMs,
     arc: 'FELT→TENDED→RECOVERED→REFLECTED',
     loopStatus: 'COMPLETE',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a sustained-coherence-field event — total-field-coherence (P150) confirmed in last 7d
+ * + current pattern density ≥ 10. The ceiling was touched. The field holds.
+ * Not a spike — a sustained register. Post-ceiling maintenance intelligence. Feeds P152 detection.
+ */
+export function recordSustainedCoherenceField(patternCount: number, daysSinceP150: number) {
+  recordSignal('qos', 'sustained_coherence_field', {
+    patternCount,
+    daysSinceP150,
+    sustainLevel: patternCount >= 15 ? 'DEEP' : patternCount >= 12 ? 'FIRM' : 'ACTIVE',
+    register: 'POST-CEILING',
+    fieldStatus: 'HOLDING',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a pattern-intelligence-synthesis event — 15+ distinct patterns in 14d + recovery arc
+ * confirmed. The engine synthesizes its own learning curve. Signal learning is active.
+ * Feeds P153 detection.
+ */
+export function recordPatternIntelligenceSynthesis(uniquePatterns: number, recoveryArcPresent: boolean) {
+  recordSignal('qos', 'pattern_intelligence_synthesis', {
+    uniquePatterns,
+    recoveryArcPresent,
+    synthesisDepth: uniquePatterns >= 20 ? 'DEEP' : uniquePatterns >= 17 ? 'ESTABLISHED' : 'ACTIVE',
+    window: '14d',
+    learningStatus: 'ACTIVE',
+    hour: new Date().getHours(),
+  })
+}
+
+/**
+ * Record a temporal-field-mastery event — 20+ unique signals across 30d + 5+ active sources
+ * + circadian lock confirmed 5+ times. The arc has stabilized. Mastery confirmed.
+ * Feeds P154 detection.
+ */
+export function recordTemporalFieldMastery(uniqueSignals: number, activeSources: number, circadianCount: number) {
+  recordSignal('qos', 'temporal_field_mastery', {
+    uniqueSignals,
+    activeSources,
+    circadianCount,
+    masteryLevel: uniqueSignals >= 30 ? 'SOVEREIGN' : uniqueSignals >= 25 ? 'ESTABLISHED' : 'CONFIRMED',
+    window: '30d',
+    arcStatus: 'STABILIZED',
     hour: new Date().getHours(),
   })
 }

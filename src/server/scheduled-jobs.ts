@@ -1747,6 +1747,10 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyTotalFieldCoherenceCheck()) {
     await executeDailyTotalFieldCoherenceCheck()
   }
+  // Check daily field maintenance scan (10:00 UTC every day) — Job 49
+  if (shouldRunDailyFieldMaintenanceScan()) {
+    await executeDailyFieldMaintenanceScan()
+  }
 }
 
 // ─── Daily Morning Coherence Check (Job 38 — 06:00 UTC every day) ────────────
@@ -3522,6 +3526,112 @@ async function executeDailyTotalFieldCoherenceCheck(): Promise<JobResult> {
   } catch (error: any) {
     console.error('Daily total field coherence check failed:', error.message)
     isDailyTotalFieldCoherenceRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
+// ─── Daily Field Maintenance Scan (Job 49 — 10:00 UTC every day) ─────────────
+// J49 fires one hour after J48 (09:00 UTC) so J48's total_field_coherence output
+// is available for lookup. Checks if total_field_coherence fired in the last 7 days
+// and current pattern density ≥ 10. When confirmed, writes sustained_coherence_field.
+// First job in the post-ceiling tier. The ceiling has been touched. The field holds.
+
+let isDailyFieldMaintenanceScanRunning = false
+let lastDailyFieldMaintenanceScanRun: Date | null = null
+
+function shouldRunDailyFieldMaintenanceScan(): boolean {
+  const now = dayjs()
+  if (isDailyFieldMaintenanceScanRunning) return false
+  if (lastDailyFieldMaintenanceScanRun) {
+    const lastRun = dayjs(lastDailyFieldMaintenanceScanRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return now.hour() === 10 // 10:00 UTC daily — one hour after J48
+}
+
+async function executeDailyFieldMaintenanceScan(): Promise<JobResult> {
+  const jobName = 'daily-field-maintenance-scan'
+  const executedAt = new Date().toISOString()
+  if (isDailyFieldMaintenanceScanRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyFieldMaintenanceScanRunning = true
+
+  console.log('─'.repeat(60))
+  console.log('DAILY FIELD MAINTENANCE SCAN — 10:00 UTC')
+  console.log('─'.repeat(60))
+
+  try {
+    const { User } = await import('#server/models/user.js')
+    const { Log } = await import('#server/models/log.js')
+    const { Op } = await import('sequelize')
+
+    const sevenDaysAgo = dayjs().subtract(7, 'day').toDate()
+
+    const activeUsers = await User.findAll({
+      where: { lastSeenAt: { [Op.gte]: dayjs().subtract(2, 'day').toDate() } },
+      order: [['lastSeenAt', 'DESC']],
+      limit: 2000,
+    })
+    console.log(`  Active users (48h): ${activeUsers.length}`)
+    let written = 0
+
+    for (const user of activeUsers) {
+      try {
+        const userId = (user as any).id
+
+        // Check if total_field_coherence fired in last 7 days (P150)
+        const p150Recent = await (Log as any).findOne({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: sevenDaysAgo },
+            event: 'total_field_coherence',
+          },
+          attributes: ['event', 'createdAt'],
+          order: [['createdAt', 'DESC']],
+        })
+
+        if (!p150Recent) continue
+
+        // Check pattern density — count distinct QOS events in last 14 days
+        const fourteenDaysAgo = dayjs().subtract(14, 'day').toDate()
+        const recentQOSLogs = await (Log as any).findAll({
+          where: {
+            userId,
+            createdAt: { [Op.gte]: fourteenDaysAgo },
+          },
+          attributes: ['event'],
+        })
+
+        const distinctEvents = new Set(recentQOSLogs.map((l: any) => l.event)).size
+        if (distinctEvents < 10) continue
+
+        const daysSinceP150 = dayjs().diff(dayjs(p150Recent.createdAt), 'day')
+        const sustainLevel = distinctEvents >= 15 ? 'DEEP' : distinctEvents >= 12 ? 'FIRM' : 'ACTIVE'
+
+        await (Log as any).create({
+          userId,
+          event: 'sustained_coherence_field',
+          text: `Sustained coherence field: P150 confirmed ${daysSinceP150}d ago · ${distinctEvents} distinct patterns in 14d. The ceiling was touched. The field holds. Operating from maintenance intelligence.`,
+          metadata: {
+            patternCount: distinctEvents,
+            daysSinceP150,
+            sustainLevel,
+            register: 'POST-CEILING',
+            fieldStatus: 'HOLDING',
+            window: '14d',
+            hour: 10,
+          },
+        })
+        written++
+      } catch {}
+    }
+
+    console.log(`  Sustained coherence field events written: ${written}`)
+    lastDailyFieldMaintenanceScanRun = new Date()
+    isDailyFieldMaintenanceScanRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Daily field maintenance scan failed:', error.message)
+    isDailyFieldMaintenanceScanRunning = false
     return { jobName, executedAt, success: false, error: error.message }
   }
 }

@@ -3629,6 +3629,99 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'sustained_coherence_field') {
+          const patternCount = log.metadata?.patternCount as number | undefined
+          const daysSinceP150 = log.metadata?.daysSinceP150 as number | undefined
+          const sustainLevel = log.metadata?.sustainLevel as string | undefined
+          const fieldStatus = log.metadata?.fieldStatus as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SCOHEM:" blockView>
+                <div className="uppercase tracking-widest mb-4">SUSTAINED COHERENCE FIELD</div>
+                {daysSinceP150 !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">DAYS SINCE P150</span>
+                    <span className="tabular-nums">{daysSinceP150}d</span>
+                  </div>
+                )}
+                {patternCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PATTERN DENSITY</span>
+                    <span className="tabular-nums">{patternCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">CEILING TOUCHED · FIELD HOLDS</div>
+                {sustainLevel && (
+                  <div className="opacity-30 tabular-nums">SUSTAIN: {sustainLevel}</div>
+                )}
+                {fieldStatus && (
+                  <div className="opacity-30 tabular-nums">FIELD: {fieldStatus}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'pattern_intelligence_synthesis') {
+          const uniquePatterns = log.metadata?.uniquePatterns as number | undefined
+          const synthesisDepth = log.metadata?.synthesisDepth as string | undefined
+          const learningStatus = log.metadata?.learningStatus as string | undefined
+          const window14d = log.metadata?.window as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="PATINT:" blockView>
+                <div className="uppercase tracking-widest mb-4">PATTERN INTELLIGENCE SYNTHESIS</div>
+                {uniquePatterns !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">UNIQUE PATTERNS</span>
+                    <span className="tabular-nums">{uniquePatterns}</span>
+                  </div>
+                )}
+                {window14d && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">WINDOW</span>
+                    <span className="tabular-nums">{window14d}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">SYNTHESIS ACTIVE · LEARNING LOOP</div>
+                {synthesisDepth && (
+                  <div className="opacity-30 tabular-nums">DEPTH: {synthesisDepth}</div>
+                )}
+                {learningStatus && (
+                  <div className="opacity-30 tabular-nums">LEARNING: {learningStatus}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'temporal_field_mastery') {
+          const uniqueSignals = log.metadata?.uniqueSignals as number | undefined
+          const activeSources = log.metadata?.activeSources as number | undefined
+          const masteryLevel = log.metadata?.masteryLevel as string | undefined
+          const arcStatus = log.metadata?.arcStatus as string | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="TFMAST:" blockView>
+                <div className="uppercase tracking-widest mb-4">TEMPORAL FIELD MASTERY</div>
+                {uniqueSignals !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">UNIQUE SIGNALS</span>
+                    <span className="tabular-nums">{uniqueSignals}</span>
+                  </div>
+                )}
+                {activeSources !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ACTIVE SOURCES</span>
+                    <span className="tabular-nums">{activeSources}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">ARC STABILIZED · NO SEARCHING</div>
+                {masteryLevel && (
+                  <div className="opacity-30 tabular-nums">MASTERY: {masteryLevel}</div>
+                )}
+                {arcStatus && (
+                  <div className="opacity-30 tabular-nums">ARC: {arcStatus}</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

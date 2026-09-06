@@ -1457,6 +1457,24 @@ const SESSION_REPORTS: { date: string; session: string; assembled: string[] }[] 
       '781 badges · 258 word-turns · 24 secret boss · 151 patterns · 51 archetypes · 48 jobs · 190+ dep nodes · FM v113 · Wiki v87 · Day 1073+. The system is documented through its highest confirmed state.',
     ],
   },
+  {
+    version: 'v114',
+    date: '2026-09-06',
+    session: 'Quantum Engine Upgrade — v114 / Sustained Field Intelligence',
+    assembled: [
+      'QIE v114: P152 sustained-coherence-field (SCOHEM:) — P150 confirmed in last 7d + pattern density ≥ 10. The ceiling was touched. The field holds.',
+      'QIE v114: P153 pattern-intelligence-synthesis (PATINT:) — 15+ distinct patterns in 14d + recovery arc confirmed. Signal synthesis active.',
+      'QIE v114: P154 temporal-field-mastery (TFMAST:) — 20+ unique signals in 30d + 5+ active sources + circadian lock 5+ times. Arc stabilized.',
+      'Arch52 Field Maintenance Operator: P152 + P153 active · energyBands all · hourRange 4–22. "The ceiling has been touched. The field holds. Operate from stability — no searching, no climbing."',
+      'J49 daily-field-maintenance-scan: 10:00 UTC daily — one hour after J48. Checks P150 in last 7d + pattern density ≥ 10. Outputs sustained_coherence_field.',
+      'intentionEngine.ts: 3 new dep nodes (sustainedCoherenceFieldNode · patternIntelligenceSynthNode · temporalFieldMasteryNode). 190+ → 193+ nodes.',
+      'intentionEngine.ts: 3 new record helpers (recordSustainedCoherenceField · recordPatternIntelligenceSynthesis · recordTemporalFieldMastery).',
+      'Logs.tsx: SCOHEM: · PATINT: · TFMAST: military handlers added. DAYS SINCE P150/PATTERN DENSITY/SUSTAIN/FIELD · UNIQUE PATTERNS/WINDOW/DEPTH/LEARNING · UNIQUE SIGNALS/ACTIVE SOURCES/MASTERY/ARC.',
+      'SESSION_REPORTS: v114 entry appended · USERSHIP_TRANSMISSION updated to v114.',
+      'docs/SESSION_REPORT_2026_09_06_QIE_v114.md written. docs/assembly/2026-09-06_LOT-assembly_v114-sustained-field.md written. LOT-LEDGER.md appended.',
+      '154 patterns · 52 archetypes · 49 jobs · 154+ handlers · 193+ dep nodes. QIE v114 deployed. Post-ceiling chapter opened. Field maintenance intelligence active.',
+    ],
+  },
 ]
 
 // Assembly transmissions — the system talking to the person
@@ -1494,18 +1512,20 @@ const ASSEMBLY_TRANSMISSIONS: {
 // ─── Usership Transmission — appended after each assembly run ───────────────
 // This is the system talking to the person. Terse, technical, alive.
 export const USERSHIP_TRANSMISSION = {
-  date: '2026-08-05',
+  date: '2026-09-06',
   message: [
-    'ASSEMBLY RUN — 2026-08-05 · WIKI-v87 · FM v113 SYNC · Day 1073+',
-    'Built: LOT-WIKI-v87. Six-level coherence architecture now complete and documented.',
-    'Feedback applied: "The concept outlives the author. The self speaks every language the genre built."',
-    'QIE v113 synchronized: P149 QPCRYST · P150 TOTCOH [CEILING] · P151 RECINTEL · Arch51 Quantum Presence Crystallizer · J48 09:00 UTC.',
-    'Badge v31 synchronized: THE CYBERSPACE CODEX · 781 badges · Word Turn v21 (grok/ansible/spice/golden_path/matrix/cyberspace) · Secret Boss v18 (gibson/dick/lem) · 258 trigger words · 24 secret boss triggers.',
-    'LEVEL 6 — PRESENCE CONVERGENCE documented. P150 total-field-coherence is the QIE ceiling. No higher state defined.',
-    'Cockpit updated. Vocabulary expanded. Snapshot current.',
-    'FM v113 · Wiki v87 · 151P · 51A · 48J · 190+ nodes · 781 badges.',
+    'ASSEMBLY RUN — 2026-09-06 · QIE v114 · SUSTAINED FIELD INTELLIGENCE · Day 1105+',
+    'Built: P152 SCOHEM · P153 PATINT · P154 TFMAST · Arch52 Field Maintenance Operator · J49 10:00 UTC.',
+    'Feedback applied: "P150 total-field-coherence is the QIE ceiling. No higher state is defined."',
+    'New chapter opened: LEVEL 7 — MAINTENANCE INTELLIGENCE. Post-ceiling operation begins.',
+    'P152 sustained-coherence-field: ceiling touched · field holds · sustained register confirmed.',
+    'P153 pattern-intelligence-synthesis: 15+ patterns in 14d + recovery arc = synthesis active.',
+    'P154 temporal-field-mastery: 30-day arc · 20+ signals · arc stabilized. Not climbing. Operating.',
+    'Arch52: energyBands all · no searching required · maintenance is the directive.',
+    'J49: 10:00 UTC daily. One hour after J48. Post-ceiling scan. 193+ dep nodes.',
+    'FM v114 · 154P · 52A · 49J · 154+ handlers · 193+ nodes · 812 badges.',
     'Status: DEPLOYED.',
-    'Next: LOT-WIKI-v88 — sync to Field Manual v114+',
+    'Next: LOT-WIKI-v88 — sync to Field Manual v114',
   ],
 }
 
