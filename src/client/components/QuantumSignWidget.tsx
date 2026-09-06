@@ -11,6 +11,7 @@ import { Block } from '#client/components/ui'
 import { useStore } from '@nanostores/react'
 import * as stores from '#client/stores'
 import { useLogs } from '#client/queries'
+import { getMoonPhase, getRokuyo, getAstrologyPatch } from '#shared/utils/astrology'
 
 /**
  * Quantum Sign Widget — For subscribers whose payment is their last money
@@ -60,17 +61,13 @@ export function QuantumSignWidget() {
     return signs[seed % signs.length]
   }, [])
 
-  // Astrology & Psychology patches
+  // Astrology & Psychology patches. Astrology is derived from the same
+  // real moon-phase/rokuyo reading as the System dashboard's Astrology
+  // block (src/shared/utils/astrology.ts) instead of a fixed day-of-year
+  // lookup disconnected from it — one ambient truth, two widgets.
   const patches = React.useMemo(() => {
     const today = new Date()
     const dayOfYear = Math.floor((today.getTime() - new Date(today.getFullYear(), 0, 0).getTime()) / 86400000)
-
-    const astrologyPatches = [
-      { id: 'lunar-reset', name: 'Lunar Reset', desc: 'Moon phase alignment for emotional recalibration' },
-      { id: 'solar-return', name: 'Solar Return', desc: 'Birthday energy cycle — annual self-renewal' },
-      { id: 'mercury-direct', name: 'Mercury Direct', desc: 'Communication clarity restored' },
-      { id: 'venus-transit', name: 'Venus Transit', desc: 'Relationship pattern recognition active' },
-    ]
 
     const psychologyPatches = [
       { id: 'shadow-work', name: 'Shadow Integration', desc: 'Unconscious pattern surfacing protocol' },
@@ -79,12 +76,14 @@ export function QuantumSignWidget() {
       { id: 'growth-edge', name: 'Growth Edge', desc: 'Comfort zone expansion calibration' },
     ]
 
-    // Rotate patches based on day of year
-    const astroIdx = dayOfYear % astrologyPatches.length
+    // Rotate psychology patch based on day of year; astrology patch tracks
+    // the actual moon phase + rokuyo rather than rotating independently.
     const psychIdx = dayOfYear % psychologyPatches.length
+    const moonPhase = getMoonPhase(today)
+    const rokuyo = getRokuyo(today)
 
     return {
-      astrology: astrologyPatches[astroIdx],
+      astrology: getAstrologyPatch(moonPhase.phase, rokuyo),
       psychology: psychologyPatches[psychIdx],
     }
   }, [])

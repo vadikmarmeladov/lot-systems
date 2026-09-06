@@ -3832,7 +3832,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   // ── Tier 2+: additional consumer widgets
   patternInsights:   ['mood', 'memory', 'journal', 'energy', 'cohort', 'planner'],
   cosmic:            ['mood', 'energy', 'intentions', 'astrology'],
-  quantumSign:       ['intentions', 'memory'],
+  quantumSign:       ['intentions', 'memory', 'astrology'], // (2026-09-06 audit) patches.astrology now derives from real moon-phase/rokuyo, not a fixed day-of-year lookup
   microGame:         ['calculator', 'time'],
 
   // ── QOS / Ecosystem layer (2026-04-25 audit)

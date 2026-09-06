@@ -177,3 +177,57 @@ export function getMoonEmoji(phaseName: string): string {
   }
   return emojiMap[phaseName] || '🌑'
 }
+
+export interface AstrologyPatch {
+  id: string
+  name: string
+  desc: string
+}
+
+// One patch per real moon phase (not a fixed day-of-year rotation) — keyed
+// on the same phase names getMoonPhase() returns, so any widget deriving a
+// "patch"/theme from astrology reads the same ambient reading as the main
+// dashboard block instead of fabricating its own.
+const MOON_PHASE_PATCHES: Record<string, AstrologyPatch> = {
+  'New Moon': { id: 'new-moon-reset', name: 'New Moon Reset', desc: 'A blank lunar page — set intention, begin again' },
+  'Waxing Crescent': { id: 'waxing-momentum', name: 'Waxing Momentum', desc: 'The light is building — early motion compounds' },
+  'First Quarter': { id: 'first-quarter-push', name: 'First Quarter Push', desc: 'Decision point — friction here is normal, push through' },
+  'Waxing Gibbous': { id: 'waxing-refine', name: 'Waxing Refine', desc: 'Almost full — refine before the peak' },
+  'Full Moon': { id: 'full-moon-peak', name: 'Full Moon Peak', desc: 'Maximum illumination — clarity and release both available' },
+  'Waning Gibbous': { id: 'waning-gratitude', name: 'Waning Gratitude', desc: 'Light receding — harvest what the cycle produced' },
+  'Last Quarter': { id: 'last-quarter-release', name: 'Last Quarter Release', desc: 'Half-light, half-shadow — let go of what did not work' },
+  'Waning Crescent': { id: 'waning-rest', name: 'Waning Rest', desc: 'The dark is near — rest before the next cycle begins' },
+}
+
+/**
+ * Derive an "astrology patch" (name + description) from the real moon phase
+ * and rokuyo for a given moment, so every widget that wants to display an
+ * astrology-flavored patch reads the same ambient truth as the dashboard
+ * Astrology block instead of maintaining its own disconnected data.
+ */
+export function getAstrologyPatch(moonPhase: string, rokuyo: string): AstrologyPatch {
+  const base = MOON_PHASE_PATCHES[moonPhase] ?? MOON_PHASE_PATCHES['New Moon']
+  if (rokuyo === 'Taian') {
+    return { ...base, desc: `${base.desc} — today is Taian, the most auspicious day of the six-day cycle` }
+  }
+  return base
+}
+
+/**
+ * Build a Date from a moment's local (timeZone-aware) wall-clock fields via
+ * the plain Date constructor. This round-trips correctly through the
+ * getHours()/getMonth()/getDate() readers the functions above use,
+ * regardless of the runtime's own timeZone — so a reading reflects the
+ * moment's timeZone (e.g. a user's saved profile timeZone) rather than
+ * wherever the process/device happens to be running.
+ */
+export function wallClockDateFromMoment(moment: {
+  year(): number
+  month(): number
+  date(): number
+  hour(): number
+  minute(): number
+  second(): number
+}): Date {
+  return new Date(moment.year(), moment.month(), moment.date(), moment.hour(), moment.minute(), moment.second())
+}
