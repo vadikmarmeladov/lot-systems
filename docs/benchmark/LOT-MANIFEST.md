@@ -24,7 +24,7 @@ STATUS KEY:
 
 FEATURE          | BEST BRANCH                   | HASH     | ITER  | STATUS | FILES | LINES  | SUMMARY
 ──────────────     ─────────────────────────────   ────────   ─────   ──────   ─────   ──────   ──────────────────────
-LOT Mail         | claude/determined-turing-ab29i4 | tag:benchmark-20260905-01 | 11/11 | BEST | 17 | +790 | Cherry-picked from determined-turing-f6bw7r, conflicts resolved, green-gated. /email trigger, Sync Mail tab, Cohort integration, lot_mail_sent Log trace. Awaiting master merge — session cannot push to master.
+LOT Mail         | claude/determined-turing-ab29i4 | tag:benchmark-20260905-01 | 11/11 | BEST | 17 | +790 | Cherry-picked from determined-turing-f6bw7r, conflicts resolved, green-gated. /email trigger, Sync Mail tab, Cohort integration, lot_mail_sent Log trace. Also landed 2026-09-06 on claude/determined-turing-vew0yl (clean cherry-pick of ffa0b562, same master base, zero conflicts, gate reverified GREEN). Awaiting master merge — no session this run had master push permission.
 Basics Tab       | beautiful-johnson-56p7ov      | 6815f550 | 8/8   | BEST   | 5     | +293   | BASICS M1: OPEN TAB live — 23-item ration ledger, doctrine, status line
 Calendar Alerts  | gifted-lovelace-cZOWR         | 978cf52  | 6/6   | BEST   | 3     | +359   | Live clock, T-minus countdown, military alert overlay, today panel
 QI-46 Engine     | cool-tesla-f8j0mr            | 36ef4dde | 8/8   | BEST   | 8     | +2050  | QI·46 Node 3 engine integration + Soul Upload + Being Calibration

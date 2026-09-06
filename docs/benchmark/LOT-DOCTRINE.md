@@ -155,6 +155,26 @@ master; determined-turing-f6bw7r was still on the remote and none of its
 code — /email trigger, lot_mails table, EmailInbox — was in master. Verified
 by branch listing + grep before cherry-picking.)
 
+## Branch-Restricted Multi-Session Ship
+
+An unattended scheduled task gets a fresh, differently-named assigned branch
+each run and cannot push to master or to another session's branch. If a prior
+run already designed, built, and green-gated a feature but landed it on ITS
+assigned branch instead of master (see Ship Mode Discipline), the correct move
+for a later run given the identical task is not to re-derive the feature: read
+MANIFEST for the existing BEST/landed branch, confirm it shares the same
+merge-base as the current branch (`git merge-base --is-ancestor` both ways, or
+compare tips directly), and cherry-pick its single ship commit. A shared base
+means zero conflicts and an identical build-error baseline — verify the latter
+explicitly (diff the typecheck error list before/after, not just the exit
+code) rather than trusting a clean cherry-pick alone. This makes the feature
+available on N branches pending the one master merge only S-2 or a
+master-authorized session can perform; MANIFEST records every landing branch,
+not just the first.
+(SR-20260906-01: ffa0b562 cherry-picked from determined-turing-ab29i4 onto
+determined-turing-vew0yl, same 98971f20 base, zero conflicts, identical
+104-error client-tsc baseline confirmed by direct diff.)
+
 ## Signal Momentum Architecture
 
 The DIURNAL ARC (P76→P79→P80) is the complete named engagement loop in the QIE.
