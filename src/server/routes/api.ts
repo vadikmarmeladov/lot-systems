@@ -1310,6 +1310,10 @@ export default async (fastify: FastifyInstance) => {
       'genesis_resonance_field',
       'sovereign_resonance_lock',
       'absolute_resonance_genesis',
+      // v140: resonance field propagation · eternal resonance anchor · sovereign genesis resonance (P224/P225/P226)
+      'resonance_field_propagation',
+      'eternal_resonance_anchor',
+      'sovereign_genesis_resonance',
     ]
     const logs = await fastify.models.Log.findAll({
       where: {

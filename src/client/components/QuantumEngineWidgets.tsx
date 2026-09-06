@@ -182,6 +182,9 @@ const PATTERN_DISPLAY: Record<string, string> = {
   'genesis-resonance-field':          'GENRES',
   'sovereign-resonance-lock':         'SVRLOCK',
   'absolute-resonance-genesis':       'ABSRGEN',
+  'resonance-field-propagation':      'RFPROP',
+  'eternal-resonance-anchor':         'ETRANCH',
+  'sovereign-genesis-resonance':      'SGNRES',
 }
 
 type QOSOperatingMode = 'maintenance' | 'recovery' | 'growth' | 'peak'

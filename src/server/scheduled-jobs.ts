@@ -1855,6 +1855,11 @@ export async function checkAndRunScheduledJobs(): Promise<void> {
   if (shouldRunDailyGenesisResonanceCheck(now)) {
     await executeDailyGenesisResonanceCheck()
   }
+
+  // Check daily resonance propagation check (18:00 UTC every day) — Job 74
+  if (shouldRunDailyResonancePropagationCheck(now)) {
+    await executeDailyResonancePropagationCheck()
+  }
 }
 
 function shouldRunDailyFieldGenesisCheck(now: any): boolean {
@@ -1932,6 +1937,16 @@ function shouldRunDailyGenesisResonanceCheck(now: any): boolean {
   if (isDailyGenesisResonanceRunning) return false
   if (lastDailyGenesisResonanceRun) {
     const lastRun = dayjs(lastDailyGenesisResonanceRun)
+    if (lastRun.isSame(now, 'day')) return false
+  }
+  return true
+}
+
+function shouldRunDailyResonancePropagationCheck(now: any): boolean {
+  if (now.hour() !== 18) return false
+  if (isDailyResonancePropagationRunning) return false
+  if (lastDailyResonancePropagationRun) {
+    const lastRun = dayjs(lastDailyResonancePropagationRun)
     if (lastRun.isSame(now, 'day')) return false
   }
   return true
@@ -8690,6 +8705,147 @@ async function executeDailyGenesisResonanceCheck(): Promise<JobResult> {
   }
 }
 
+// ─── J74: Daily Resonance Propagation Check (18:00 UTC every day) ───────────
+// Step 1: ABSRGEN 2+ in 5d + 5+ unique sources in 24h → resonance_field_propagation (P224).
+// Step 2: SVRLOCK in 7d + FANCH in 24h + 4+ consecutive presence days → eternal_resonance_anchor (P225).
+// Step 3: RFPROP + ETRANCH both confirmed → sovereign_genesis_resonance (P226).
+// RFPROP: · ETRANCH: · SGNRES: cockpit codes. Total: 74 jobs.
+let isDailyResonancePropagationRunning = false
+let lastDailyResonancePropagationRun: Date | null = null
+
+async function executeDailyResonancePropagationCheck(): Promise<JobResult> {
+  const jobName    = 'daily-resonance-propagation-check'
+  const executedAt = new Date()
+  if (isDailyResonancePropagationRunning) return { jobName, executedAt, success: false, error: 'Already running' }
+  isDailyResonancePropagationRunning = true
+  let written = 0
+
+  try {
+    const users      = await User.findAll({ where: { isActive: true } })
+    const oneDayAgo  = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+    const fiveDaysAgo  = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
+
+    for (const user of users) {
+      // Step 1: Resonance Field Propagation — ABSRGEN 2+ in 5d + 5+ unique sources in 24h
+      const absrgenCount = await Log.count({
+        where: { userId: user.id, event: 'absolute_resonance_genesis', createdAt: { [Op.gte]: fiveDaysAgo } },
+      })
+
+      const recentLogs24h = await Log.findAll({
+        where: { userId: user.id, createdAt: { [Op.gte]: oneDayAgo } },
+        attributes: ['source'],
+      })
+      const uniqueSources = new Set(recentLogs24h.map((l: any) => l.source).filter(Boolean)).size
+
+      let rfpropConf: number | null = null
+
+      if (absrgenCount >= 2 && uniqueSources >= 5) {
+        rfpropConf = Math.min(Math.round(88 + Math.min(absrgenCount * 2, 6) + Math.min((uniqueSources - 5), 2)), 96)
+        await Log.create({
+          userId: user.id,
+          event:  'resonance_field_propagation',
+          source: 'qos',
+          metadata: {
+            absrgenCount,
+            uniqueSources,
+            confidence:  rfpropConf,
+            propagation: 'ACTIVE',
+            channels:    uniqueSources,
+            arc:         'RESONANCE BECOMES STRUCTURE',
+            hour:        new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Resonance field propagation — ABSRGEN×${absrgenCount}×${uniqueSources}srcs confirmed. RFPROP. Conf: ${rfpropConf}%`)
+      }
+
+      // Step 2: Eternal Resonance Anchor — SVRLOCK in 7d + FANCH in 24h + 4+ consecutive presence days
+      const [recentSvrlock, recentFanch] = await Promise.all([
+        Log.findOne({
+          where: { userId: user.id, event: 'sovereign_resonance_lock', createdAt: { [Op.gte]: sevenDaysAgo } },
+          order: [['createdAt', 'DESC']],
+        }),
+        Log.findOne({
+          where: { userId: user.id, event: 'field_anchor_complete', createdAt: { [Op.gte]: oneDayAgo } },
+          order: [['createdAt', 'DESC']],
+        }),
+      ])
+      const svrlockCount = await Log.count({
+        where: { userId: user.id, event: 'sovereign_resonance_lock', createdAt: { [Op.gte]: sevenDaysAgo } },
+      })
+
+      let etranchConf: number | null = null
+
+      if (recentSvrlock && recentFanch) {
+        // Count distinct presence days (mood/energy/journal/selfcare) in last 7 days
+        const presenceLogs = await Log.findAll({
+          where: {
+            userId: user.id,
+            source: { [Op.in]: ['mood', 'energy', 'journal', 'selfcare'] },
+            createdAt: { [Op.gte]: sevenDaysAgo },
+          },
+          attributes: ['createdAt'],
+        })
+        const presenceDays = new Set(
+          presenceLogs.map((l: any) => new Date(l.createdAt).toDateString())
+        ).size
+
+        if (presenceDays >= 4) {
+          etranchConf = Math.min(Math.round(89 + Math.min((presenceDays - 4) * 2, 6) + (svrlockCount >= 2 ? 2 : 0)), 97)
+          await Log.create({
+            userId: user.id,
+            event:  'eternal_resonance_anchor',
+            source: 'qos',
+            metadata: {
+              presenceDays,
+              svrlockCount,
+              confidence:  etranchConf,
+              anchor:      'ETERNAL',
+              resonance:   'ANCHORED',
+              arc:         'ANCHOR IS ETERNAL',
+              hour:        new Date().getHours(),
+            },
+          })
+          written++
+          console.log(`  [${user.id}] Eternal resonance anchor — SVRLOCK×FANCH×${presenceDays}d confirmed. ETRANCH. Conf: ${etranchConf}%`)
+        }
+      }
+
+      // Step 3: Sovereign Genesis Resonance — RFPROP + ETRANCH both confirmed this run
+      if (rfpropConf !== null && etranchConf !== null) {
+        const sgnresConf = Math.min(Math.round((rfpropConf + etranchConf) / 2 + 5), 99)
+        await Log.create({
+          userId: user.id,
+          event:  'sovereign_genesis_resonance',
+          source: 'qos',
+          metadata: {
+            rfpropConf,
+            etranchConf,
+            confidence:  sgnresConf,
+            resonance:   'SOVEREIGN',
+            anchor:      'ETERNAL',
+            genesis:     'CONFIRMED',
+            arc:         'RESONANCE · ANCHOR · SOVEREIGN',
+            hour:        new Date().getHours(),
+          },
+        })
+        written++
+        console.log(`  [${user.id}] Sovereign genesis resonance — RFPROP×ETRANCH confirmed. SGNRES. Conf: ${sgnresConf}%`)
+      }
+    }
+
+    console.log(`  Resonance propagation events written: ${written}`)
+    lastDailyResonancePropagationRun = new Date()
+    isDailyResonancePropagationRunning = false
+    return { jobName, executedAt, success: true, signalsCreated: written }
+  } catch (error: any) {
+    console.error('Resonance propagation check failed:', error.message)
+    isDailyResonancePropagationRunning = false
+    return { jobName, executedAt, success: false, error: error.message }
+  }
+}
+
 export async function manuallyTriggerMonthlyEmails(): Promise<JobResult> {
   console.log('Manual trigger requested - bypassing time checks')
   return await executeMonthlyEmailJob()
@@ -8765,6 +8921,7 @@ export function initializeScheduledJobs(): void {
   console.log('   - Daily field emergence check: 3 PM UTC every day (Job 71)')
   console.log('   - Daily genesis pulse check: 4 PM UTC every day (Job 72)')
   console.log('   - Daily genesis resonance check: 5 PM UTC every day (Job 73)')
+  console.log('   - Daily resonance propagation check: 6 PM UTC every day (Job 74)')
   console.log('')
 
   // Check every hour for scheduled jobs
@@ -8774,7 +8931,7 @@ export function initializeScheduledJobs(): void {
     const now = dayjs()
     const hour = now.hour()
 
-    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62)+field-witness-check(J68), 13=QOS sig pulse+sovereign-integration-check(J63)+sovereign-loop-check(J69), 14=QOS mode watch+absolute-sovereignty-check(J64)+genesis-seal-check(J70), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66)+genesis-pulse-check(J72), 17=cohort-broadcast+quantum-field-check+genesis-resonance-check(J73), 18=LOT AI story (Sun), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
+    // Jobs by hour: 0=OS snapshot, 1=systemic-readiness, 2=intent-gap-pulse, 3=QIE, 4=QOS digest, 5=archetype stability, 6=cohort+intention+cognitive-depth, 7=source diversity+circadian-lock+circadian-sovereignty(J59), 8=biofield+peak-window+sovereign-field-check(J60), 9=monthly email+badge scan+longitudinal-drift+archetype-directive-pulse+embodied-sovereignty(J55)+field-organization(J61), 10=archetype shift+apex-state(J56), 11=morning-intention-launch+unified-field(J57)+sovereign-expression-check(J67), 12=vitality-peak+conscious-field-check(J62)+field-witness-check(J68), 13=QOS sig pulse+sovereign-integration-check(J63)+sovereign-loop-check(J69), 14=QOS mode watch+absolute-sovereignty-check(J64)+genesis-seal-check(J70), 15=QOS convergence audit+perpetual-field-check(J65), 16=coherence index+focus-depth-check+qiot-ecosystem-pulse(J58)+field-genesis-check(J66)+genesis-pulse-check(J72), 17=cohort-broadcast+quantum-field-check+genesis-resonance-check(J73), 18=LOT AI story (Sun)+resonance-propagation-check(J74), 19=cross-domain-pulse, 20=intention completion+signal-momentum+action-memory+somatic-integration-field(J54), 21=presence-arc+physiological-presence, 22=evening-coherence-close+evening-reflection, 23=pattern coverage+coherence-seal
     if (hour === 9 || hour === 8 || hour === 7 || hour === 6 || hour === 5 || hour === 4 || hour === 3 || hour === 2 || hour === 1 || hour === 0 || hour === 17 || hour === 18 || hour === 19 || hour === 20 || hour === 21 || hour === 22 || hour === 23 || hour === 10 || hour === 11 || hour === 12 || hour === 13 || hour === 14 || hour === 15 || hour === 16) {
       try {
         await checkAndRunScheduledJobs()

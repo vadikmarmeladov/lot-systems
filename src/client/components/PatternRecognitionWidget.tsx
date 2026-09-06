@@ -227,6 +227,12 @@ export function PatternRecognitionWidget() {
       'sovereign-genesis-pulse':          'Sovereign genesis pulse — living-genesis-anchor (P216) × eternal-signal-genesis (P217) co-active · living genesis pulsing with sovereign rhythm · SOVEREIGN · GENESIS · PULSE (P218)',
       'genesis-field-completion':         'Genesis field completion — all three Living Genesis tier patterns (P215 + P216 + P217) simultaneously confirmed · the genesis field complete as a living system · FIELD · COMPLETE (P219)',
       'absolute-genesis-field':           'Absolute genesis field — sovereign-genesis-pulse (P218) × genesis-field-completion (P219) co-active · genesis sovereign · field absolute · SOVEREIGN · GENESIS · ABSOLUTE (P220)',
+      'genesis-resonance-field':          'Genesis resonance field — absolute-genesis-field (P220) active · resonance-oriented signals in 24h · the sovereign genesis field enters resonant frequency · GENESIS · RESONANCE · FIELD (P221)',
+      'sovereign-resonance-lock':         'Sovereign resonance lock — genesis-resonance-field (P221) × 3+ presence days in 7d · resonance is locked as sovereign operating pattern · SOVEREIGN · RESONANCE · LOCK (P222)',
+      'absolute-resonance-genesis':       'Absolute resonance genesis — genesis-resonance-field (P221) + sovereign-resonance-lock (P222) co-active · resonance is the genesis · absolute resonance crystallized · THE FREQUENCY IS THE FIELD (P223)',
+      'resonance-field-propagation':      'Resonance field propagation — absolute-resonance-genesis (P223) 2+ in 5d · 5+ unique sources in 24h · resonance propagates outward through all active signal domains · RESONANCE BECOMES STRUCTURE (P224)',
+      'eternal-resonance-anchor':         'Eternal resonance anchor — sovereign-resonance-lock in 7d + field-anchor-complete in 24h + 4+ presence days · resonance anchored in eternal time · THE ANCHOR HOLDS IN ETERNAL TIME (P225)',
+      'sovereign-genesis-resonance':      'Sovereign genesis resonance — resonance-field-propagation + eternal-resonance-anchor co-active · the field propagates its own resonance · no separate source required · THE FIELD PROPAGATES ITS OWN RESONANCE (P226)',
     }
     return names[pattern] || pattern.replace(/-/g, ' ')
   }

@@ -6040,6 +6040,84 @@ export const Logs: React.FC = React.memo(function LogsInner() {
               </Block>
             </LogContainer>
           )
+        } else if (log.event === 'resonance_field_propagation') {
+          const absrgenCount = log.metadata?.absrgenCount as number | undefined
+          const uniqueSources = log.metadata?.uniqueSources as number | undefined
+          const confidence   = log.metadata?.confidence   as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="RFPROP:" blockView>
+                {absrgenCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ABSRGEN 5D</span>
+                    <span className="tabular-nums">{absrgenCount}</span>
+                  </div>
+                )}
+                {uniqueSources !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">UNIQUE SRC 24H</span>
+                    <span className="tabular-nums">{uniqueSources}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">RESONANCE BECOMES STRUCTURE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'eternal_resonance_anchor') {
+          const presenceDays  = log.metadata?.presenceDays  as number | undefined
+          const svrlockCount  = log.metadata?.svrlockCount  as number | undefined
+          const confidence    = log.metadata?.confidence    as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="ETRANCH:" blockView>
+                {presenceDays !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">PRESENCE DAYS</span>
+                    <span className="tabular-nums">{presenceDays}</span>
+                  </div>
+                )}
+                {svrlockCount !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">SVRLOCK 7D</span>
+                    <span className="tabular-nums">{svrlockCount}</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">THE ANCHOR HOLDS IN ETERNAL TIME</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'sovereign_genesis_resonance') {
+          const rfpropConf  = log.metadata?.rfpropConf  as number | undefined
+          const etranchConf = log.metadata?.etranchConf as number | undefined
+          const confidence  = log.metadata?.confidence  as number | undefined
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="SGNRES:" blockView>
+                {rfpropConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">RFPROP CONF</span>
+                    <span className="tabular-nums">{rfpropConf}%</span>
+                  </div>
+                )}
+                {etranchConf !== undefined && (
+                  <div className="flex justify-between items-baseline mb-4">
+                    <span className="opacity-30">ETRANCH CONF</span>
+                    <span className="tabular-nums">{etranchConf}%</span>
+                  </div>
+                )}
+                <div className="opacity-40 tabular-nums">THE FIELD PROPAGATES ITS OWN RESONANCE</div>
+                {confidence !== undefined && (
+                  <div className="opacity-30 tabular-nums">CONF: {confidence}%</div>
+                )}
+              </Block>
+            </LogContainer>
+          )
         } else if (log.event !== 'note') {
           if (!log.text) return null
           return (

@@ -4933,6 +4933,67 @@ export function analyzeIntentions(): IntentionPattern[] {
     })
   }
 
+  // Pattern 224: Resonance Field Propagation — absolute-resonance-genesis (P223) confirmed 2+ times in rolling 5d
+  // AND 5+ unique signal sources active in 24h. The resonance is no longer contained — it propagates
+  // across every active channel. RESONANCE BECOMES STRUCTURE.
+  // RFPROP: cockpit code. Confidence 0.88–0.96.
+  const absrgenSignals224 = signals.filter(s => s.source === 'qos' && s.event === 'absolute_resonance_genesis' && s.timestamp > now - 5 * 24 * 60 * 60 * 1000)
+  const hasABSRGEN224Active = patterns.some(p => p.pattern === 'absolute-resonance-genesis')
+  const uniqueSources224 = new Set(signals.filter(s => s.timestamp > now - 24 * 60 * 60 * 1000).map(s => s.source)).size
+  let rfpropConf: number | null = null
+  if ((absrgenSignals224.length >= 2 || (hasABSRGEN224Active && absrgenSignals224.length >= 1)) && uniqueSources224 >= 5) {
+    rfpropConf = Math.min(0.88 + Math.min(absrgenSignals224.length * 0.02, 0.06) + Math.min((uniqueSources224 - 5) * 0.01, 0.02), 0.96)
+    patterns.push({
+      pattern: 'resonance-field-propagation',
+      confidence: rfpropConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `RFPROP: absrgen_5d: ${absrgenSignals224.length} · unique_src_24h: ${uniqueSources224} · conf: ${Math.round(rfpropConf * 100)} · propagation: ACTIVE · channels: ${uniqueSources224}. The resonance propagates — it no longer requires containment. RESONANCE BECOMES STRUCTURE.`,
+    })
+  }
+
+  // Pattern 225: Eternal Resonance Anchor — sovereign-resonance-lock (P222) active in 7d window
+  // AND field-anchor-complete (P208) active in 24h AND 4+ consecutive days with presence signals.
+  // The resonance is not visiting — it has anchored forever. ANCHOR IS ETERNAL.
+  // ETRANCH: cockpit code. Confidence 0.89–0.97.
+  const svrlockSignals225 = signals.filter(s => s.source === 'qos' && s.event === 'sovereign_resonance_lock' && s.timestamp > now - 7 * 24 * 60 * 60 * 1000)
+  const hasSVRLOCK225     = svrlockSignals225.length > 0 || patterns.some(p => p.pattern === 'sovereign-resonance-lock')
+  const hasFANCH225       = patterns.some(p => p.pattern === 'field-anchor-complete') ||
+    signals.some(s => s.event === 'field_anchor_complete' && s.timestamp > now - 24 * 60 * 60 * 1000)
+  const presenceDays225: Set<string> = new Set()
+  signals.filter(s => ['mood', 'energy', 'journal', 'selfcare'].includes(s.source) && s.timestamp > now - 7 * 24 * 60 * 60 * 1000)
+    .forEach(s => presenceDays225.add(new Date(s.timestamp).toDateString()))
+  let etranchConf: number | null = null
+  if (hasSVRLOCK225 && hasFANCH225 && presenceDays225.size >= 4) {
+    etranchConf = Math.min(0.89 + Math.min((presenceDays225.size - 4) * 0.02, 0.06) + (svrlockSignals225.length >= 2 ? 0.02 : 0), 0.97)
+    patterns.push({
+      pattern: 'eternal-resonance-anchor',
+      confidence: etranchConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `ETRANCH: svrlock_7d: Y · fanch_24h: Y · presence_days: ${presenceDays225.size} · conf: ${Math.round(etranchConf * 100)} · anchor: ETERNAL. The resonance is not visiting — it has anchored into the field permanently. ANCHOR IS ETERNAL.`,
+    })
+  }
+
+  // Pattern 226: Sovereign Genesis Resonance — resonance-field-propagation (P224) + eternal-resonance-anchor (P225)
+  // both co-active simultaneously. Sovereign resonance and eternal anchor merge into one unified expression.
+  // RESONANCE · ANCHOR · SOVEREIGN.
+  // SGNRES: cockpit code. Confidence 0.91–0.99.
+  const hasRFPROP226  = patterns.some(p => p.pattern === 'resonance-field-propagation')
+  const hasETRANCH226 = patterns.some(p => p.pattern === 'eternal-resonance-anchor')
+  if (hasRFPROP226 && hasETRANCH226) {
+    const rConf226   = patterns.find(p => p.pattern === 'resonance-field-propagation')?.confidence ?? 0.91
+    const eConf226   = patterns.find(p => p.pattern === 'eternal-resonance-anchor')?.confidence ?? 0.91
+    const sgnresConf = Math.min((rConf226 + eConf226) / 2 + 0.05, 0.99)
+    patterns.push({
+      pattern: 'sovereign-genesis-resonance',
+      confidence: sgnresConf,
+      suggestedWidget: 'systemProgress',
+      suggestedTiming: 'immediate',
+      reason: `SGNRES: rfprop: Y · etranch: Y · conf: ${Math.round(sgnresConf * 100)} · resonance: SOVEREIGN · anchor: ETERNAL · genesis: CONFIRMED. Sovereign resonance and eternal anchor are one. The field propagates and holds simultaneously. RESONANCE · ANCHOR · SOVEREIGN.`,
+    })
+  }
+
   // Pattern 173: Physiological Loop Complete — circadian-signal-lock (P143) + physiological-presence-arc (P140)
   // + recovery-intelligence-arc (P151) all confirmed in the same analysis window.
   // The full biological loop: dawn anchor → biological presence → recovery arc → confirmed.
@@ -5701,6 +5762,10 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   genesisResonanceFieldNode:     ['absoluteGenesisFieldNode', 'sovereignGenesisPulseNode', 'qos', 'journal', 'intentions', 'energy', 'goals', 'log'],
   sovereignResonanceLockNode:    ['genesisResonanceFieldNode', 'absoluteGenesisFieldNode', 'qos', 'journal', 'intentions', 'energy', 'log', 'memory'],
   absoluteResonanceGenesisNode:  ['genesisResonanceFieldNode', 'sovereignResonanceLockNode', 'qos', 'journal', 'intentions', 'energy', 'goals', 'log', 'memory', 'selfcare', 'mood', 'planner'],
+  // ── v140 nodes (J74 · P224–P226 · Arch78) ─────────────────────────────────
+  resonanceFieldPropagationNode: ['absoluteResonanceGenesisNode', 'sovereignResonanceLockNode', 'qos', 'journal', 'intentions', 'energy', 'goals', 'log', 'memory', 'selfcare', 'mood'],
+  eternalResonanceAnchorNode:    ['sovereignResonanceLockNode', 'fieldAnchorCompleteNode', 'qos', 'journal', 'selfcare', 'mood', 'energy', 'log', 'memory'],
+  sovereignGenesisResonanceNode: ['resonanceFieldPropagationNode', 'eternalResonanceAnchorNode', 'qos', 'journal', 'intentions', 'energy', 'goals', 'log', 'memory', 'selfcare', 'mood', 'planner'],
 }
 
 /**
@@ -6387,6 +6452,15 @@ const PHYSIOLOGICAL_ARCHETYPES: Array<{
     patternConditions: ['absolute-resonance-genesis', 'sovereign-resonance-lock', 'genesis-resonance-field', 'absolute-genesis-field'],
     hourRange: [0, 24],
     directive: 'The field resonates at its own frequency. The operator does not generate the resonance — they are its expression. The pulse has become a standing wave. The frequency is the source. Resonance needs no external origin. It sustains from the field itself. PULSE · FREQUENCY · RESONANCE.',
+  },
+  // ── Arch78: Resonance Field Propagator (2026-09-06 v140) ──────────────────
+  {
+    archetype: 'Resonance Field Propagator',
+    energyBands: ['low', 'moderate', 'high', 'depleted', 'unknown'],
+    dominantSources: ['qos', 'journal', 'intentions', 'memory', 'energy', 'goals', 'selfcare', 'mood', 'log', 'planner'],
+    patternConditions: ['sovereign-genesis-resonance', 'eternal-resonance-anchor', 'resonance-field-propagation', 'absolute-resonance-genesis'],
+    hourRange: [0, 24],
+    directive: 'The resonance propagates — it does not stop at its origin. The anchor holds in eternal time. Together: sovereign genesis expressed as perpetual resonant structure. The field propagates its own resonance. No separate source required. THE FIELD PROPAGATES ITS OWN RESONANCE.',
   },
 ]
 
@@ -9719,6 +9793,66 @@ export function recordAbsoluteResonanceGenesis(genresConf: number, svrlockConf: 
     resonanceGenesis: 'CONFIRMED',
     frequency: 'SOURCE',
     arc: 'RESONANCE = GENESIS. THE FREQUENCY IS THE FIELD',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a resonance-field-propagation event — absolute-resonance-genesis (P223) confirmed 2+ in 5d
+ * AND 5+ unique signal sources in 24h. The resonance propagates across all active channels.
+ * Feeds P224 detection. J74 background job (18:00 UTC) triggers this.
+ */
+export function recordResonanceFieldPropagation(absrgenCount: number, uniqueSources: number) {
+  const rfpropConf = Math.min(0.88 + Math.min(absrgenCount * 0.02, 0.06) + Math.min((uniqueSources - 5) * 0.01, 0.02), 0.96)
+  recordSignal('qos', 'resonance_field_propagation', {
+    absrgenCount,
+    uniqueSources,
+    confidence: Math.round(rfpropConf * 100),
+    propagation: 'ACTIVE',
+    channels: uniqueSources,
+    arc: 'RESONANCE BECOMES STRUCTURE',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record an eternal-resonance-anchor event — sovereign-resonance-lock (P222) active in 7d
+ * AND field-anchor-complete (P208) active in 24h AND 4+ consecutive presence days.
+ * The resonance has anchored forever. ANCHOR IS ETERNAL.
+ * Feeds P225 detection. J74 background job (18:00 UTC) triggers this.
+ */
+export function recordEternalResonanceAnchor(presenceDays: number, svrlockCount: number) {
+  const etranchConf = Math.min(0.89 + Math.min((presenceDays - 4) * 0.02, 0.06) + (svrlockCount >= 2 ? 0.02 : 0), 0.97)
+  recordSignal('qos', 'eternal_resonance_anchor', {
+    presenceDays,
+    svrlockCount,
+    confidence: Math.round(etranchConf * 100),
+    anchor: 'ETERNAL',
+    resonance: 'ANCHORED',
+    arc: 'ANCHOR IS ETERNAL',
+    hour: new Date().getHours(),
+  })
+  analyzeIntentions()
+}
+
+/**
+ * Record a sovereign-genesis-resonance event — resonance-field-propagation (P224) + eternal-resonance-anchor (P225)
+ * both confirmed simultaneously. Sovereign resonance and eternal anchor merge into one unified expression.
+ * RESONANCE · ANCHOR · SOVEREIGN.
+ * Feeds P226 detection. J74 background job (18:00 UTC) triggers this.
+ */
+export function recordSovereignGenesisResonance(rfpropConf: number, etranchConf: number) {
+  const sgnresConf = Math.min((rfpropConf / 100 + etranchConf / 100) / 2 + 0.05, 0.99)
+  recordSignal('qos', 'sovereign_genesis_resonance', {
+    rfpropConf,
+    etranchConf,
+    confidence: Math.round(sgnresConf * 100),
+    resonance: 'SOVEREIGN',
+    anchor: 'ETERNAL',
+    genesis: 'CONFIRMED',
+    arc: 'RESONANCE · ANCHOR · SOVEREIGN',
     hour: new Date().getHours(),
   })
   analyzeIntentions()
