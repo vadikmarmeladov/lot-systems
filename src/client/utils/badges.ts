@@ -782,6 +782,8 @@ export type BadgeType =
   | 'tolkien_ring'           // ◆·∞·◆  "one ring to rule/precious/ring of power" detected (RARE)
   | 'odysseus_bow'           // →·∞·→  "odysseus/ulysses/ithaca/penelope/cyclops" detected (EPIC)
   | 'gilgamesh_word'         // ∞·□·∞  "gilgamesh/enkidu/great flood/utnapishtim" detected (MYTHIC)
+  // ── Behavioral v33 — THE CHRONICLER (period-compressed /story) ────────────────
+  | 'chronicler_session'     // ◷·◈    /story day|week|month|year invoked (RARE)
 
 export interface Badge {
   id: BadgeType
@@ -7129,6 +7131,16 @@ export const BADGES: Record<BadgeType, Badge> = {
     unlockMessage: '↳ Gilgamesh: the oldest hero\'s journey. 4,000 years old. The story of a king who sought immortality and found self-knowledge instead. ∞·□·∞',
     rarity: 'mythic',
     category: 'secret_boss',
+    hidden: true,
+  },
+  chronicler_session: {
+    id: 'chronicler_session',
+    symbol: '◷·◈',
+    name: 'Chronicler Session',
+    description: 'Invoke /story with a day, week, month, or year compression window',
+    unlockMessage: '↳ Not a recap — a compression. The Chronicler finds the throughline across the window and archives it in one pass. ◷·◈',
+    rarity: 'rare',
+    category: 'easter_egg',
     hidden: true,
   },
 }

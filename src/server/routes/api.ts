@@ -5490,6 +5490,7 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       req: FastifyRequest<{
         Body: {
           logText: string
+          period?: 'day' | 'week' | 'month' | 'year'
           quantumState?: {
             energy?: string
             clarity?: string
@@ -5514,25 +5515,43 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
       }
 
       const { logText, quantumState, userIndex } = req.body
+      const period = (['day', 'week', 'month', 'year'] as const).includes(req.body.period as any)
+        ? req.body.period
+        : null
+
+      // PERIOD_WINDOWS — the compression window for /story day|week|month|year.
+      // Rolling windows (not calendar-aligned) so "week" always means the
+      // trailing 7 days regardless of when the operator asks.
+      const PERIOD_WINDOWS: Record<'day' | 'week' | 'month' | 'year', { amount: number; unit: 'day' | 'month' | 'year'; sampleCap: number; limit: number }> = {
+        day:   { amount: 1,  unit: 'day',   sampleCap: 8,  limit: 200 },
+        week:  { amount: 7,  unit: 'day',   sampleCap: 14, limit: 400 },
+        month: { amount: 1,  unit: 'month', sampleCap: 24, limit: 800 },
+        year:  { amount: 1,  unit: 'year',  sampleCap: 40, limit: 1500 },
+      }
+      const window = period ? PERIOD_WINDOWS[period] : null
+      const since = window ? dayjs().subtract(window.amount, window.unit).toDate() : null
+      const sampleCap = window ? window.sampleCap : 10
 
       const logs = await fastify.models.Log.findAll({
-        where: { userId: req.user.id },
+        where: since
+          ? { userId: req.user.id, createdAt: { [Op.gte]: since } }
+          : { userId: req.user.id },
         order: [['createdAt', 'DESC']],
-        limit: 200,
+        limit: window ? window.limit : 200,
       })
 
       const recentEntries = logs
         .filter(l => l.event === 'log_entry' || l.event === 'journal')
-        .slice(0, 10)
+        .slice(0, sampleCap)
         .map(l => (l.text || '').substring(0, 200))
         .filter(Boolean)
 
-      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, 10)
+      const moodLogs = logs.filter(l => l.event === 'emotional_checkin').slice(0, sampleCap)
       const recentMoods = moodLogs.map(l => (l.metadata?.emotionalState as string || '').toUpperCase()).filter(Boolean)
 
       const selfCareLogs = logs.filter(l =>
         l.event === 'memory_answer' || l.event === 'self_care_checkin' || l.event === 'energy_checkin'
-      ).slice(0, 10)
+      ).slice(0, sampleCap)
       const selfCareNotes = selfCareLogs.map(l => {
         const q = (l.metadata?.question as string || '')
         const a = (l.metadata?.option as string || l.metadata?.answer as string || '')
@@ -5547,7 +5566,32 @@ ${recentPrayers.length > 0 ? `RECENT SCRIPTURES (DO NOT REPEAT):\n${recentPrayer
         stateBlock += `\nUSER INDEX: ${userIndex.overall}/100 (trend: ${userIndex.trend || '—'})`
       }
 
-      const systemPrompt = `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
+      // PERIOD_PROMPT_META — compression framing + word/token budget per window.
+      // Longer windows get more room to compress a wider signal history without
+      // the output ballooning 1:1 with the data (that's the "compression" part).
+      const PERIOD_PROMPT_META: Record<'day' | 'week' | 'month' | 'year', { label: string; words: string; tokens: number }> = {
+        day:   { label: 'the last 24 hours', words: '80-140 words',   tokens: 384 },
+        week:  { label: 'the past week',     words: '150-220 words',  tokens: 512 },
+        month: { label: 'the past month',    words: '200-280 words',  tokens: 640 },
+        year:  { label: 'the past year',     words: '260-340 words',  tokens: 768 },
+      }
+      const promptMeta = period ? PERIOD_PROMPT_META[period] : null
+
+      const systemPrompt = promptMeta
+        ? `You are the Story module of LOT Systems — a personal operating system that compresses the operator's own signal history into a short narrative.
+
+The operator invoked /story ${period}. Your task: compress ${promptMeta.label} of their log entries, moods, and self-care answers into ${promptMeta.words}. This is a COMPRESSION, not a recap — find the throughline, the highs and lows, the pattern shift (or lack of one), not a chronological list of events.
+
+RULES:
+- Write in second person ("You...")
+- Draw from their actual log entries, moods, and self-care answers below — do not invent events
+- Name the arc across the period: what moved, what held steady, where the peak and the low point were
+- If there are data gaps, acknowledge them plainly rather than papering over them
+- The tone should match their dominant energy across the period: reflective if low, energized if high
+- End with a single forward-looking sentence — not a pep talk, just a quiet truth
+- Return ONLY the story paragraphs. No title. No commentary. No preamble.
+- Keep it within ${promptMeta.words}.`
+        : `You are the Story module of LOT Systems — a personal operating system that weaves the operator's recent data into a short narrative.
 
 The operator typed a log entry and invoked /story. Your task: write 1-2 paragraphs (100-200 words) that reflect their recent journey, mood trajectory, and self-care patterns. The story should feel personal, grounded, and real — not generic motivational writing.
 
@@ -5567,13 +5611,13 @@ OPERATOR LOG ENTRY: "${logText || '(no text)'}"
 
 ${stateBlock ? stateBlock : 'STATE: unknown'}
 
-RECENT MOODS: ${recentMoods.slice(0, 5).join(', ') || 'NO DATA'}
+RECENT MOODS: ${recentMoods.slice(0, sampleCap).join(', ') || 'NO DATA'}
 
 RECENT LOG ENTRIES:
-${recentEntries.slice(0, 5).map(e => `- ${e}`).join('\n') || '- (none)'}
+${recentEntries.slice(0, sampleCap).map(e => `- ${e}`).join('\n') || '- (none)'}
 
 SELF-CARE DATA:
-${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
+${selfCareNotes.slice(0, sampleCap).map(n => `- ${n}`).join('\n') || '- (none)'}`
 
       const fullPrompt = `${systemPrompt}\n\n${dataBlock}`
 
@@ -5581,9 +5625,9 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         const { aiEngineManager } = await import('#server/utils/ai-engines.js')
         const engine = aiEngineManager.getEngine('together')
 
-        console.log(`📖 Story generation for ${req.user.email}: "${(logText || '').substring(0, 80)}"`)
+        console.log(`📖 Story generation for ${req.user.email}${period ? ` [${period}]` : ''}: "${(logText || '').substring(0, 80)}"`)
 
-        const story = await engine.generateCompletion(fullPrompt, 512)
+        const story = await engine.generateCompletion(fullPrompt, promptMeta ? promptMeta.tokens : 512)
 
         const cleaned = story.trim().replace(/^["']|["']$/g, '')
 
@@ -5596,6 +5640,8 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
           metadata: {
             story: cleaned,
             logText: (logText || '').substring(0, 500),
+            period: period || null,
+            sourceLogCount: logs.length,
             quantumState: quantumState || null,
             timestamp: new Date().toISOString(),
           },
@@ -5604,6 +5650,7 @@ ${selfCareNotes.slice(0, 5).map(n => `- ${n}`).join('\n') || '- (none)'}`
         return {
           story: cleaned,
           logId: storyLog.id,
+          period: period || null,
         }
       } catch (error: any) {
         console.error('Story generation failed:', error)

@@ -1955,6 +1955,10 @@ export function runJournalEasterEggs(journalText: string): BadgeType[] {
   const bodySignal = checkBodySignal(journalText)
   if (bodySignal) awarded.push(bodySignal)
 
+  // Behavioral v33: chronicler session (/story day|week|month|year invoked)
+  const chroniclerSession = checkChroniclerSession(journalText)
+  if (chroniclerSession) awarded.push(chroniclerSession)
+
   // Word turns from journal text
   const wordTurns = detectWordTurns(journalText)
   awarded.push(...wordTurns)
@@ -2711,6 +2715,20 @@ export function checkThresholdMoment(): BadgeType | null {
   if (hour === 0 && minute <= 30) {
     awardBadge('threshold_moment')
     return 'threshold_moment'
+  }
+  return null
+}
+
+/**
+ * Award chronicler_session badge on first use of /story with an explicit
+ * compression window (day, week, month, or year). Detected directly on the
+ * log text since the period argument is typed inline: "/story week".
+ */
+export function checkChroniclerSession(journalText: string): BadgeType | null {
+  if (hasBadge('chronicler_session')) return null
+  if (/\/story\s+(day|week|month|year)\b/i.test(journalText)) {
+    awardBadge('chronicler_session')
+    return 'chronicler_session'
   }
   return null
 }
