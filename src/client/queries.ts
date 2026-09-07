@@ -120,6 +120,26 @@ export const useSendDirectMessage = createMutation<
   void
 >('post', '/api/direct-messages')
 
+export interface EmailMessageRecord {
+  id: string
+  senderId: string
+  receiverId: string
+  message: string
+  createdAt: string
+  senderName: string
+  isMine: boolean
+}
+
+export const useEmailInbox = createQuery<EmailMessageRecord[]>(
+  '/api/email-messages',
+  { refetchOnWindowFocus: false }
+)
+
+export const useSendEmailMessage = createMutation<
+  { toUserId: string; message: string },
+  { id: string; toName: string; message: string; createdAt: string }
+>('post', '/api/email-messages')
+
 export const useWeather = createQuery<WeatherRecord | null>('/api/weather', {
   refetchOnWindowFocus: false,
 })

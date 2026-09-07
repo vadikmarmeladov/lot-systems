@@ -55,7 +55,14 @@ deferred to allow immediate visual response.)
 
 User-facing event types created via POST must appear in the GET
 displayableEvents whitelist or the write→read loop is silently broken.
-(SR-20260604-01: calendar_entry saved but never returned.)
+(SR-20260604-01: calendar_entry saved but never returned. SR-20260907-01:
+applied proactively — email_message added to the whitelist in the same
+commit that starts creating it, rather than discovered as a gap afterward.
+Also confirmed a live counter-example still in the codebase: direct_message
+_sent has been created by POST /direct-messages since that route shipped
+and has never been in the whitelist — its own Log entries are silently
+dropped today. Left unfixed as out of scope for this session; noted here so
+it isn't mistaken for new.)
 
 ## Ship Mode Discipline
 

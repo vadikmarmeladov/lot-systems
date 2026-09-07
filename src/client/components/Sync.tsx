@@ -24,6 +24,8 @@ import {
   useCreateChatMessage,
   useChatMessages,
   useLikeChatMessage,
+  useEmailInbox,
+  EmailMessageRecord,
 } from '#client/queries'
 import { sync } from '../sync'
 import { PublicChatMessage, UserTag } from '#shared/types'
@@ -71,6 +73,9 @@ export const Sync = React.memo(function SyncInner() {
   }, [me])
 
   const { data: fetchedMessages } = useChatMessages()
+  const { data: fetchedEmails } = useEmailInbox()
+  // SSE-received LOT Email not yet reflected in the API response
+  const [sseEmails, setSseEmails] = React.useState<EmailMessageRecord[]>([])
   const { mutate: createChatMessage } = useCreateChatMessage({
     onSuccess: () => setMessage(''),
   })
@@ -93,6 +98,16 @@ export const Sync = React.memo(function SyncInner() {
     const combined = [...fresh, ...fetched].filter((m) => !isBlankMessage(m.message))
     return canAccessUserProfiles ? combined : combined.slice(0, SYNC_CHAT_MESSAGES_TO_SHOW)
   }, [fetchedMessages, sseMessages, canAccessUserProfiles])
+
+  // Merge: SSE-only LOT Email (not yet in API response) prepended to API list.
+  // The 'email_message' SSE event is a single global broadcast (same stream
+  // as chat_message) — filter to messages addressed to or sent by me here.
+  const emails = React.useMemo(() => {
+    const fetched = fetchedEmails || []
+    const fetchedIds = new Set(fetched.map((m) => m.id))
+    const fresh = sseEmails.filter((m) => !fetchedIds.has(m.id))
+    return [...fresh, ...fetched]
+  }, [fetchedEmails, sseEmails])
 
   React.useEffect(() => {
     const { dispose: disposeChatMessageListener } = sync.listen(
@@ -117,9 +132,21 @@ export const Sync = React.memo(function SyncInner() {
         queryClient.invalidateQueries(['/api/chat-messages'])
       }
     )
+    const { dispose: disposeEmailMessageListener } = sync.listen(
+      'email_message',
+      (data) => {
+        if (!me) return
+        if (data.receiverId !== me.id && data.senderId !== me.id) return
+        setSseEmails((prev) => {
+          if (prev.some((x) => x.id === data.id)) return prev
+          return [{ ...data, isMine: data.senderId === me.id }, ...prev]
+        })
+      }
+    )
     return () => {
       disposeChatMessageListener()
       disposeChatMessageLikeListener()
+      disposeEmailMessageListener()
     }
   }, [me?.id])
 
@@ -277,6 +304,34 @@ export const Sync = React.memo(function SyncInner() {
           )
         })}
       </div>
+
+      {emails.length > 0 && (
+        <div className="mt-32 pt-32 border-t border-acc/10">
+          <div className="opacity-30 mb-16 uppercase tracking-widest text-xs">
+            Email — /email to &lt;name&gt; in Log
+          </div>
+          <div className="space-y-8">
+            {emails.map((x) => (
+              <div key={x.id} className="flex items-start gap-x-8">
+                <span className="whitespace-nowrap opacity-60">
+                  {x.isMine ? 'You' : x.senderName}
+                </span>
+                <div
+                  className="whitespace-breakspaces"
+                  style={{ wordWrap: 'break-word', wordBreak: 'break-word' }}
+                >
+                  {x.message}
+                </div>
+                {!isTouchDevice && (
+                  <div className="text-acc/40 whitespace-nowrap ml-auto">
+                    <MessageTimeLabel dateString={x.createdAt} isTimeFormat12h={isTimeFormat12h} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 })

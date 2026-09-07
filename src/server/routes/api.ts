@@ -1082,7 +1082,7 @@ export default async (fastify: FastifyInstance) => {
   fastify.get('/logs', async (req: FastifyRequest, reply) => {
     // Only return user-facing log events (exclude raw QIE signal events)
     const displayableEvents = [
-      'note', 'answer', 'chat_message', 'chat_message_like',
+      'note', 'answer', 'chat_message', 'chat_message_like', 'email_message',
       'emotional_checkin', 'settings_change', 'system_snapshot',
       'weekly_summary_response', 'calendar_entry', 'qi_rfi',
       'assembly_directive', 'prayer_scripture',
@@ -4084,6 +4084,134 @@ Create a short, vivid description (1-2 sentences) for a ${elementType} that woul
       return reply.status(500).send({ error: 'Failed to send message' })
     }
   })
+
+  // ============================================================================
+  // LOT EMAIL — /email trigger in Log (logTriggers.ts) delivers into the
+  // recipient's Sync inbox. Recipients are restricted to the sender's current
+  // Cohort matches (GET /cohorts) — the client resolves "to <name>" against
+  // that list, so LOT Email is reachable only through LOT Community.
+  // Reuses the direct_messages table: an email IS a direct message, tagged
+  // by its own Log event ('email_message') so it renders distinctly and is
+  // reachable via the /email compose path.
+  // ============================================================================
+
+  // Merged inbox + sent, most recent first
+  fastify.get('/email-messages', async (req: FastifyRequest, reply) => {
+    if (!canAccessChat(req.user.tags || [])) {
+      return reply.status(403).send({ error: 'LOT Email requires Usership, Onyx, Legacy, R&D, or Admin' })
+    }
+    try {
+      const messages = await fastify.models.DirectMessage.findAll({
+        where: {
+          [Op.or]: [
+            { senderId: req.user.id },
+            { receiverId: req.user.id },
+          ],
+        },
+        order: [['createdAt', 'DESC']],
+        limit: 50,
+      })
+      if (messages.length === 0) return []
+
+      const userIds = [...new Set(messages.flatMap((m) => [m.senderId, m.receiverId]))]
+      const users = await fastify.models.User.findAll({ where: { id: userIds } })
+      const userById = users.reduce(fp.by('id'), {})
+
+      return messages.map((m) => {
+        const isMine = m.senderId === req.user.id
+        const other = userById[isMine ? m.receiverId : m.senderId]
+        const otherName = other
+          ? `${other.firstName || ''} ${other.lastName || ''}`.trim()
+          : ''
+        return {
+          id: m.id,
+          senderId: m.senderId,
+          receiverId: m.receiverId,
+          message: m.message,
+          createdAt: m.createdAt,
+          senderName: isMine
+            ? `${req.user.firstName} ${req.user.lastName}`.trim()
+            : otherName || 'Unknown',
+          isMine,
+        }
+      })
+    } catch (error) {
+      console.error('Error fetching email messages:', error)
+      return reply.status(500).send({ error: 'Failed to fetch email messages' })
+    }
+  })
+
+  // Send a LOT Email — composed via "/email to <name> <message>" in Log
+  fastify.post(
+    '/email-messages',
+    async (req: FastifyRequest<{ Body: { toUserId: string; message: string } }>, reply) => {
+      if (!canAccessChat(req.user.tags || [])) {
+        return reply.status(403).send({ error: 'LOT Email requires Usership, Onyx, Legacy, R&D, or Admin' })
+      }
+      try {
+        const { toUserId, message } = req.body
+
+        if (!toUserId || !message || !message.trim()) {
+          return reply.status(400).send({ error: 'Recipient and message are required' })
+        }
+        if (toUserId === req.user.id) {
+          return reply.status(400).send({ error: 'Cannot email yourself' })
+        }
+
+        const receiver = await fastify.models.User.findByPk(toUserId)
+        if (!receiver) {
+          return reply.status(404).send({ error: 'Recipient not found' })
+        }
+
+        const trimmed = message.trim().slice(0, 2000)
+        const emailMessage = await fastify.models.DirectMessage.create({
+          senderId: req.user.id,
+          receiverId: toUserId,
+          message: trimmed,
+        })
+
+        const toName = `${receiver.firstName} ${receiver.lastName}`.trim()
+        const senderName = `${req.user.firstName} ${req.user.lastName}`.trim()
+
+        // Emit to Sync — the recipient's client filters on receiverId
+        // (same single global SSE stream every Sync/Chat event uses).
+        sync.emit('email_message', {
+          id: emailMessage.id,
+          senderId: req.user.id,
+          receiverId: toUserId,
+          message: trimmed,
+          senderName,
+          createdAt: emailMessage.createdAt,
+        })
+
+        // Log the compose action in the sender's own Log — /email is
+        // composed in Log, so sending is itself a Log entry.
+        const context = await getLogContext(req.user)
+        await fastify.models.Log.create({
+          userId: req.user.id,
+          event: 'email_message',
+          text: '',
+          metadata: {
+            emailMessageId: emailMessage.id,
+            toUserId,
+            toName,
+            message: trimmed,
+          },
+          context,
+        })
+
+        return reply.send({
+          id: emailMessage.id,
+          toName,
+          message: trimmed,
+          createdAt: emailMessage.createdAt,
+        })
+      } catch (error) {
+        console.error('Error sending email message:', error)
+        return reply.status(500).send({ error: 'Failed to send email' })
+      }
+    }
+  )
 
   // ============================================================================
   // STATS API - Real-time metrics and community insights

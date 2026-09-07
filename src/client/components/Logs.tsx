@@ -33,7 +33,7 @@ import { runJournalEasterEggs } from '#client/utils/easter-eggs'
 import { recordLogSignal, recordJournalSignal, recordBadgeSignal, analyzeIntentions, getUserState, getUserIndex, intentionEngine } from '#client/stores/intentionEngine'
 import { getAssemblyState } from '#client/stores/selfAssembly'
 import { getEarnedBadges, BADGES } from '#client/utils/badges'
-import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration } from '#client/queries'
+import { useQiQuery, useAssemblyDirective, usePrayerScripture, useStoryGeneration, useCohorts, useSendEmailMessage } from '#client/queries'
 import { useBreathe } from '#client/utils/breathe'
 import { getFastingState } from '#client/utils/fasting'
 
@@ -249,6 +249,14 @@ export const Logs: React.FC = React.memo(function LogsInner() {
             <LogContainer key={id} log={log} dateFormat={dateFormat}>
               <Block label="COMM:" blockView>
                 {log.metadata.message as string}
+              </Block>
+            </LogContainer>
+          )
+        } else if (log.event === 'email_message') {
+          return (
+            <LogContainer key={id} log={log} dateFormat={dateFormat}>
+              <Block label="EMAIL:" blockView>
+                {`TO ${log.metadata.toName as string}\n${log.metadata.message as string}`}
               </Block>
             </LogContainer>
           )
@@ -3707,6 +3715,21 @@ const NoteEditor = ({
   const [storyResponse, setStoryResponse] = React.useState<string | null>(null)
   const [storyLoading, setStoryLoading] = React.useState(false)
   const [systemHelp, setSystemHelp] = React.useState<string | null>(null)
+  const [emailResult, setEmailResult] = React.useState<string | null>(null)
+  const [emailLoading, setEmailLoading] = React.useState(false)
+  // /email resolves "to <name>" against the operator's current Cohort
+  // matches — LOT Email is reachable only through LOT Community.
+  const { data: cohortData } = useCohorts()
+  const { mutate: submitEmail } = useSendEmailMessage({
+    onSuccess: (data) => {
+      setEmailResult(`SENT           TO ${data.toName.toUpperCase()}\nCHARS          ${data.message.length}`)
+      setEmailLoading(false)
+    },
+    onError: () => {
+      setEmailResult('EMAIL FAILED — Unable to deliver.')
+      setEmailLoading(false)
+    },
+  })
   const [breatheEnabled, setBreatheEnabled] = React.useState(false)
   const breatheState = useBreathe(breatheEnabled)
   const [silentResult, setSilentResult] = React.useState<string | null>(null)
@@ -4139,12 +4162,34 @@ const NoteEditor = ({
           '/radio        Toggle radio',
           '/night        Dark mode',
           '/how          Open LOT AI check-in (System tab)',
+          '/email to <name> <msg>  Send LOT Email to a Cohort match',
           '/system       This help screen',
           '',
           'SHORTCUTS',
           'Ctrl+Enter    Save log immediately',
         ]
         setSystemHelp(lines.join('\n'))
+      } else if (trigger === 'email-send') {
+        const emailMatch = value.match(/\/email\s+to\s+(\S+)\s*([\s\S]*)/i)
+        const toNameRaw = emailMatch?.[1] || ''
+        const body = emailMatch?.[2]?.trim() || ''
+        const matches = cohortData?.matches || []
+        const target = matches.find(
+          (m) => m.user.firstName?.toLowerCase() === toNameRaw.toLowerCase()
+        ) || matches.find(
+          (m) => m.user.firstName?.toLowerCase().startsWith(toNameRaw.toLowerCase())
+        )
+        if (!toNameRaw) {
+          setEmailResult('EMAIL — usage: /email to <name> <message>')
+        } else if (!target) {
+          setEmailResult(`NO COHORT MATCH — "${toNameRaw}" not found. /email reaches Cohort matches only.`)
+        } else if (!body) {
+          setEmailResult(`EMAIL — message body required after "to ${toNameRaw}".`)
+        } else if (!emailLoading) {
+          setEmailLoading(true)
+          setEmailResult(null)
+          submitEmail({ toUserId: target.user.id, message: body })
+        }
       } else if (trigger === 'how-checkin') {
         stores.goTo('system')
       } else if (trigger === 'story-mode') {
@@ -4283,6 +4328,22 @@ const NoteEditor = ({
               {qiResponse && (
                 <div className="opacity-60">
                   {qiResponse.split('\n').map((line, idx) => (
+                    <div key={idx}>{line}</div>
+                  ))}
+                </div>
+              )}
+            </Block>
+          </div>
+        )}
+        {(emailLoading || emailResult) && (
+          <div className="mt-8">
+            <Block label="EMAIL:" blockView>
+              {emailLoading && !emailResult && (
+                <div className="opacity-40 uppercase tracking-widest">Sending...</div>
+              )}
+              {emailResult && (
+                <div className="opacity-60">
+                  {emailResult.split('\n').map((line, idx) => (
                     <div key={idx}>{line}</div>
                   ))}
                 </div>
