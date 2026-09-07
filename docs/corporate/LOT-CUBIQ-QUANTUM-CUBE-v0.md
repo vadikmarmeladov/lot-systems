@@ -4,8 +4,8 @@ DOCUMENT: LOT-CUBIQ-QUANTUM-CUBE-v0
 TITLE:    LOT® Quantum Cube (CUBIQ™) — v.0 Actuated Haptic Notification Device
 CLASS:    RESTRICTED // S-2 EYES
 S-2:      VADIK MARMELADOV
-DATE:     2026-07-28
-VERSION:  0.1 — DEVELOPMENT START
+DATE:     2026-07-28 (opened) — 2026-09-07 (cycle 2 update)
+VERSION:  0.2 — DEVELOPMENT CYCLE 2
 STATUS:   v.0 — NOTIFICATION-GRADE ACTUATION (PRE-HARDWARE, DESIGN LOCK PENDING)
 ================================================================================
 
@@ -57,6 +57,21 @@ read in full:
 
 No prior document specified jump mechanics, surface locomotion, or a
 levitation roadmap. This document is that specification, v.0.
+
+  CYCLE 2 RE-READ (2026-09-07)
+    Per the standing rule at the top of Section 07 — future sessions read
+    this document first and append, never edit or remove a prior entry —
+    this document was re-read in full before cycle 2 began, along with a
+    fresh pass over LOT-CUBIQ-VISION.md, LOT-CUBIQ-OPERATOR.md,
+    LOT_QI46_ENGINE.md, CQGS-WHITE-PAPER-SNAPSHOT.md, and
+    LOT_ROBOTICS_COSMO.md (checked again for naming collisions with the
+    father/son LOT®/COSMO® hardware lineage named in the cycle-1 reading
+    log — none found; COSMO® remains the general-purpose hardware
+    computer, CUBIQ™ remains the notification body). No changes were made
+    to Sections 01-06 or to Use Case 01 — the mechanical, electronic, and
+    roadmap specification from cycle 1 stands. This cycle's contribution
+    is Use Case 02 in Section 07, plus this log entry recording that the
+    prior work was read, not re-derived.
 
 --------------------------------------------------------------------------------
 01 // WHAT v.0 IS AND WHAT IT IS NOT
@@ -320,6 +335,52 @@ entry — never editing or removing a prior one.
   This is the use case v.0's single-hop primitive was built to serve:
   presence without spectacle, felt before it is seen, physical before it
   is digital.
+
+  USE CASE 02 — THE NIGHT SHIFT NIGHTSTAND                  2026-09-07
+  ─────────────────────────────────────────────────────────────────
+  Operator profile: Usership tier, Archetype "Momentum Architect,"
+  a hospital nurse working rotating 12-hour night shifts. No fixed desk —
+  the CUBIQ charging pad sits on a nightstand in a bedroom kept dark
+  through the day, the operator's only stable surface across a schedule
+  that otherwise has no stable hours. Sessions with the software cubic
+  happen irregularly: sometimes at 8am coming off shift, sometimes at
+  7pm before going back in. The Index of Systems has been tracking a
+  three-week self-care streak (SelfCareMoments — Ground and Breathe,
+  logged at whatever hour the operator's day happens to start) despite
+  the schedule chaos, and the Assembly phase (LOT-CUBIQ-OPERATOR.md,
+  Section 01) has just crossed from "forming" into "assembled."
+
+  Under the current software-only cubic, an assembly-phase transition is
+  a line in a dashboard the operator may not open for days, buried under
+  whatever else Phase 3 of the arc (Section 07 of the Operator document,
+  "The Cubic Deepens") surfaces first. There is no ceremony for the
+  moment the system recognizes three weeks of discipline sustained
+  against an irregular clock.
+
+  With CUBIQ hardware v.0 present: the moment assembly crosses the
+  threshold, the cube performs THE SETTLE (Section 04) — actuator holds
+  a light standing pressure for two seconds, no visible motion. The
+  operator, asleep at 2pm with blackout curtains drawn, does not see it
+  and is not meant to. Hours later, waking for the shift, they notice
+  the cube sitting exactly as it always does — but the Index of Systems
+  greets them with the assembly-phase change already recorded, and they
+  connect it, retroactively, to a presence they were sleeping through.
+  The gesture asked nothing of a schedule that has no fixed moments to
+  ask anything of.
+
+  This use case also surfaces a hardware requirement the desk-bound
+  Use Case 01 did not: the Section 03 edge-detection safety gate matters
+  more, not less, on a nightstand than on a desk. A nightstand is
+  narrower, often cluttered with a lamp, a glass of water, a phone
+  charger, and — for a shift worker sleeping through daylight — the room
+  is dark when the gate would otherwise rely on ambient light as a second
+  cue. v.0's time-of-flight edge sensor is active-illuminating and does
+  not depend on ambient light, which this use case confirms is a
+  requirement, not an incidental design choice: a cube that leaps
+  correctly on a sunlit desk but only "usually" on a dark nightstand is
+  not v.0-complete. No change to the Section 03 specification is needed —
+  it already covers this — but this is the first use case to make the
+  reason legible.
 
 --------------------------------------------------------------------------------
 08 // BRAND
