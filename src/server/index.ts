@@ -361,6 +361,18 @@ fastify.register(async (fastify: FastifyInstance) => {
           })
         })
       })
+
+      // BASIC RATION — OPEN TAB (LOT-FM-001). Logged-in members get the
+      // app shell (Basics tab, in-app nav, refresh-safe); logged-out
+      // visitors get the standalone public ledger. No login wall on the
+      // manifest itself — this is a public surface, not a gated route.
+      fastify.get('/basics', async function (req, reply) {
+        return reply.view('generic-spa', {
+          scriptName: req.user ? 'app' : 'basics',
+          scriptNonce: reply.cspNonce.script,
+          styleNonce: reply.cspNonce.style,
+        })
+      })
     })
 
     // Admin app (accessible by Usership members only)
