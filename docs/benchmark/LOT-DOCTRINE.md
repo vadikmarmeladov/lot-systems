@@ -226,3 +226,16 @@ automatically. No code change needed to switch keys.
 
 (SR-20260630-01: plannerContext minted; plan_set + emotional_checkin added
 to formatLog(); Together AI restored as primary.)
+
+(SR-20260907-01: reconfirmed live in production. The formatLog() actually
+reached at runtime — src/server/utils/memory.ts, via the `#server/utils/*`
+subpath import api.ts/admin-api.ts use — still handles only 6 event types.
+Confirmed silently dropped from the AI's raw-log narrative: every
+quantum_intent_signal [the ~100 QIE signal names, all bulk-inserted under
+this one event string by /api/quantum-intent/sync], calendar_entry, and
+self_care_complete/self_care_skip. A more complete formatLog() exists in
+src/server/utils/memory/question-generator.ts [handles quantum_intent_signal
+via its default branch] but nothing imports that module — dead code. Fix is
+to port that handling into the live memory.ts formatLog(); deferred to its
+own green-gated session as a real behavioral change to AI question
+generation.)

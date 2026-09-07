@@ -103,10 +103,9 @@ export const MonthlyPulseWidget: React.FC = () => {
 
   if (!visible) return null
 
-  const message = MONTH_MESSAGES[Math.min(monthNumber, 12)] ??
+  const message = MONTH_MESSAGES[monthNumber] ??
     `Month ${monthNumber}. The journey continues.`
-  const capped = Math.min(monthNumber, 12)
-  const label = `Month ${capped}:`
+  const label = `Month ${monthNumber}:`
 
   return (
     <div
@@ -131,7 +130,7 @@ export const MonthlyPulseWidget: React.FC = () => {
             >
               <div>{message}</div>
               <div className="opacity-30 mt-4 text-sm">
-                {capped} / 12 months
+                {monthNumber <= 12 ? `${monthNumber} / 12 months` : `${monthNumber} months`}
               </div>
             </div>
           )}
