@@ -3803,7 +3803,7 @@ export const WIDGET_DEPENDENCY_MAP: Record<string, string[]> = {
   selfcare:          ['mood'],
   emotional_checkin: ['mood'],
   recipe:            ['mood', 'energy', 'time'],
-  planner:           ['mood', 'intentions'],
+  planner:           ['mood', 'intentions', 'astrology'], // (2026-09-07 audit) auspicious-day (Taian) awareness for future planning nudges
   energy:            ['mood', 'selfcare', 'journal'],
   badges:            ['memory', 'intentions', 'selfcare', 'journal', 'planner', 'mood'],
 
